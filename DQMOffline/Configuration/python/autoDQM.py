@@ -10,7 +10,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                         'PostDQMOffline',
                         '@dcs+@DQMMessageLoggerClient+@strip+@pixel+@tracking+@L1TMon+@beam+@fed+@tau+dqmFastTimerServiceClient'],
 
-            'commonSiStripZeroBias': ['@dcs+@DQMMessageLogger+@strip+@pixel+@tracking+@L1TMon+@hlt+@beam+@castor+@physics',
+            'commonSiStripZeroBias': ['@dcs+@DQMMessageLogger+@stripZeroBias+@pixel+@tracking+@L1TMon+@hlt+@beam+@castor+@physics',
                                       'PostDQMOffline',
                                       '@dcs+@DQMMessageLogger+@stripZeroBias+@pixel+@tracking+@L1TMon+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
@@ -44,7 +44,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 
 	    'pixel': ['DQMOfflineTrackerPixel',
 		      'PostDQMOffline',
-                      'DQMHarvestTrackerPixel'],
+                      'DQMHarvestTrackerPixel+DQMCertTrackerStrip'],
 
 	    'castor': ['DQMOfflineCASTOR',
 		       'PostDQMOffline',
