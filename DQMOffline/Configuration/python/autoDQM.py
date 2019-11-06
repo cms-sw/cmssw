@@ -40,11 +40,11 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 
 	    'stripZeroBias': ['DQMOfflineTrackerStripMinBias',
 			      'PostDQMOffline',
-                              'DQMHarvestTrackerStrip'],
+                              'DQMHarvestTrackerStrip+DQMCertTrackerStrip'],
 
 	    'pixel': ['DQMOfflineTrackerPixel',
 		      'PostDQMOffline',
-                      'DQMHarvestTrackerPixel+DQMCertTrackerStrip'],
+                      'DQMHarvestTrackerPixel+DQMCertTrackerPixel'],
 
 	    'castor': ['DQMOfflineCASTOR',
 		       'PostDQMOffline',
