@@ -64,17 +64,21 @@ public:
   DQMEDHarvester(edm::ParameterSet const &iConfig) {
     usesResource("DQMStore");
     dqmstore_ = edm::Service<DQMStore>().operator->();
+
+    auto inputgeneration = iConfig.getUntrackedParameter<std::string>("inputGeneration", "DQMGenerationReco");
+    auto outputgeneration = iConfig.getUntrackedParameter<std::string>("outputGeneration", "DQMGenerationHarvesting");
+
     // TODO: Run/Lumi suffix should not be needed, complain to CMSSW core in case.
-    lumiToken_ = produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationHarvestingLumi");
-    runToken_ = produces<DQMToken, edm::Transition::EndRun>("DQMGenerationHarvestingRun");
+    lumiToken_ = produces<DQMToken, edm::Transition::EndLuminosityBlock>(outputgeneration + "Lumi");
+    runToken_ = produces<DQMToken, edm::Transition::EndRun>(outputgeneration + "Run");
 
     // Use explicitly specified inputs, but if there are none...
     auto inputtags =
         iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("inputMEs", std::vector<edm::InputTag>());
     if (inputtags.empty()) {
       // ... use all RECO MEs.
-      inputtags.push_back(edm::InputTag("", "DQMGenerationRecoRun"));
-      inputtags.push_back(edm::InputTag("", "DQMGenerationRecoLumi"));
+      inputtags.push_back(edm::InputTag("", inputgeneration + "Run"));
+      inputtags.push_back(edm::InputTag("", inputgeneration + "Lumi"));
     }
     runmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InRun);
     lumimegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InLumi);
