@@ -1858,9 +1858,10 @@ static long load_dddefinition(Detector& det, xml_h element) {
       // Resolve referenced materials (if any)
 
       while (!context.unresolvedMaterials.empty()) {
-        for (auto& it : context.unresolvedMaterials) {
-          auto const& name = it.first;
+        for (auto it = context.unresolvedMaterials.begin(); it != context.unresolvedMaterials.end();) {
+          auto const& name = it->first;
           std::vector<bool> valid;
+
           printout(context.debug_materials ? ALWAYS : DEBUG,
                    "DD4CMS",
                    "+++ [%06ld] ----------  %s",
@@ -1868,7 +1869,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
                    name.c_str());
 
           auto mat = ns.material(name);
-          for (auto& mit : it.second) {
+          for (auto& mit : it->second) {
             printout(context.debug_materials ? ALWAYS : DEBUG,
                      "DD4CMS",
                      "+++           component  %-48s Fraction: %.6f",
@@ -1883,8 +1884,10 @@ static long load_dddefinition(Detector& det, xml_h element) {
             }
           }
           // All components are resolved
-          if (valid.size() == it.second.size())
-            context.unresolvedMaterials.erase(name);
+          if (valid.size() == it->second.size())
+            it = context.unresolvedMaterials.erase(it);
+          else
+            ++it;
         }
         // Do it again if there are unresolved
         // materials left after this pass
@@ -1934,21 +1937,23 @@ static long load_dddefinition(Detector& det, xml_h element) {
       // component shapes
 
       while (!context.unresolvedShapes.empty()) {
-        for (auto& it : context.unresolvedShapes) {
-          auto const& name = it.first;
-          auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName; }, it.second);
-          auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName; }, it.second);
+        for (auto it = context.unresolvedShapes.begin(); it != context.unresolvedShapes.end();) {
+          auto const& name = it->first;
+          auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName; }, it->second);
+          auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName; }, it->second);
 
           auto const& ait = context.shapes.find(aname);
           if (ait->second.isValid()) {
             auto const& bit = context.shapes.find(bname);
             if (bit->second.isValid()) {
               dd4hep::Solid shape = std::visit(
-                  [&ait, &bit](auto&& arg) -> dd4hep::Solid { return arg.make(ait->second, bit->second); }, it.second);
+                  [&ait, &bit](auto&& arg) -> dd4hep::Solid { return arg.make(ait->second, bit->second); }, it->second);
               context.shapes[name] = shape;
-              context.unresolvedShapes.erase(name);
-            }
-          }
+              it = context.unresolvedShapes.erase(it);
+            } else
+              ++it;
+          } else
+            ++it;
         }
       }
     }
