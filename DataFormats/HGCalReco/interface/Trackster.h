@@ -7,6 +7,7 @@
 #include <array>
 #include <vector>
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 // A Trackster is a Direct Acyclic Graph created when
 // pattern recognition algorithms connect hits or
@@ -43,6 +44,13 @@ namespace ticl {
 
     // regressed energy
     float regressed_energy;
+
+    // PCA Variables
+    typedef math::XYZVector Vector;
+    std::array<float, 3> barycenter;
+    std::array<float, 3> eigenvalues;
+    std::array<Vector, 3> eigenvectors;
+    std::array<float, 3> sigmas;
 
     // types considered by the particle identification
     enum class ParticleType {
