@@ -76,8 +76,7 @@ private:
      @short wrapper to reset words at a given position
   */
   void setWord(uint16_t word, HGCSampleMasks mask, HGCSampleShifts shift) {
-
-    // mask (not strictly needed) and shift
+    // mask and shift bits
     const uint32_t masked_word = (word & mask) << shift;
 
     //clear to 0  bits which will be set by word
