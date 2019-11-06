@@ -1,3 +1,3 @@
-from FWCore.ParameterSet.Config import EDProducer
+from FWCore.ParameterSet.Config import EDAnalyzer
 def DQMQualityTester(*args, **kwargs):
-  return EDProducer("QualityTester", *args, **kwargs)
+  return EDAnalyzer("QualityTester", *args, **kwargs)
