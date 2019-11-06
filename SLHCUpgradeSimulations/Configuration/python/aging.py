@@ -69,7 +69,6 @@ def realisticHGCalStartup(process):
     process = HGCal_setRealisticStartupNoise(process)
     return process
 
-
 # needs lumi to set proper ZS thresholds (tbd)
 def ageSiPM(process,turnon,lumi):
     process.es_hardcode.hbUpgrade.doRadiationDamage = turnon
