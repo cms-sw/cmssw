@@ -145,6 +145,7 @@ def _appendME0PseudoStubs(obj):
         'keep *_simMuonME0PseudoReDigisCoarse__*',
         'keep *_me0RecHitsCoarse__*',
         'keep *_me0TriggerPseudoDigis__*',
+        'keep *_me0TriggerConvertedPseudoDigis__*',
         ]
     obj.outputCommands += l1ME0PseudoStubs
 
