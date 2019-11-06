@@ -76,7 +76,7 @@ private:
   std::unique_ptr<QCriterion> makeQCriterion(boost::property_tree::ptree const& config);
 };
 
-QualityTester::QualityTester(const edm::ParameterSet& ps) {
+QualityTester::QualityTester(const edm::ParameterSet& ps) : DQMEDHarvester(ps) {
   prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);
   getQualityTestsFromFile = ps.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
   Label = ps.getUntrackedParameter<std::string>("label", "");
