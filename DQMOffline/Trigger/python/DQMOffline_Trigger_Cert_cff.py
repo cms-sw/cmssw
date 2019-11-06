@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-#  This is  where we want to inovke both HLT and L1T  certificaion
+#  This is  where we want to invoke both HLT and L1T certificaion
 #
 ###################################################################
-
-
 
 # L1T - todo
 #from DQMOffline.Trigger.DQMOffline_L1T_Cert_cff import *
@@ -16,5 +14,3 @@ from DQMOffline.Trigger.DQMOffline_HLT_Cert_cff import *
 #-- it relies on bits set in the other sequences
 
 dqmOfflineTriggerCert = cms.Sequence(dqmOfflineHLTCert)
-
-
