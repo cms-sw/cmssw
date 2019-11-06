@@ -9,11 +9,9 @@ trackingMaterialAnalyser = cms.EDAnalyzer("TrackingMaterialAnalyser",
     SaveDetailedPlots       = cms.bool(False),
     SaveParameters          = cms.bool(True),
     SaveXML                 = cms.bool(True),
-    isHGCal                 = cms.bool(True),
-    isHFNose                = cms.bool(False),
+    isHGCal                 = cms.bool(False),
+    isHFNose                = cms.bool(True),
     Groups = cms.vstring(
-        "HGCalEESensitive",
-        "HGCalHESiliconSensitive",
-        "HGCalHEScintillatorSensitive"
+        "HGCalHFNoseSensitive"
     )
 )
