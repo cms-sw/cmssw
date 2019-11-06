@@ -6,6 +6,7 @@
 //Module includes
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/PayloadProxy.h"
+#include "CondCore/CondDB/interface/Types.h"
 //Entity class
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 //CORAL includes
@@ -80,11 +81,24 @@ void testCreateCoralSession(cond::persistency::ConnectionPool& connPool,
 void testCreateSession(cond::persistency::ConnectionPool& connPool,
                        std::string const& connectionString,
                        bool const writeCapable) {
+  cond::Iov_t iov;
   cond::persistency::Session session = connPool.createSession(connectionString, writeCapable);
-  cond::persistency::PayloadProxy<RunInfo> pp;
-  pp.setUp(session);
-  pp.loadTag("RunInfo_v1_mc");
-  pp.setIntervalFor(1, true);
+  auto requests = std::make_shared<std::vector<cond::Iov_t>>();
+  cond::persistency::PayloadProxy<RunInfo> pp(&iov, &session, &requests);
+
+  session.transaction().start(true);
+  cond::persistency::IOVProxy iovProxy = session.readIov("RunInfo_v1_mc");
+  session.transaction().commit();
+
+  session.transaction().start(true);
+  auto it = iovProxy.find(1);
+  if (it != iovProxy.end()) {
+    iov = *it;
+  }
+  session.transaction().commit();
+
+  pp.initializeForNewIOV();
+  pp.make();
   std::cout << "run number: " << pp().m_run << std::endl;
 }
 

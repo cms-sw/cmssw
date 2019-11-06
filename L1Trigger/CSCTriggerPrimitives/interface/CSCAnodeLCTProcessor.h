@@ -36,6 +36,8 @@
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigi.h"
+#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 
 #include <vector>
@@ -75,6 +77,9 @@ public:
   /** Returns vector of all found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs() const;
 
+  /** read out pre-ALCTs */
+  std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
+
   /** Return best/second best ALCTs */
   CSCALCTDigi getBestALCT(int bx) const;
   CSCALCTDigi getSecondALCT(int bx) const;
@@ -104,6 +109,8 @@ protected:
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
   std::vector<CSCALCTDigi> lct_list;
+
+  std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;

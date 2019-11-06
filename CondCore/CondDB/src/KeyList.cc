@@ -11,6 +11,8 @@ namespace cond {
       m_objects.clear();
     }
 
+    void KeyList::init(KeyList const& originalKeyList) { init(originalKeyList.m_proxy); }
+
     void KeyList::load(const std::vector<unsigned long long>& keys) {
       std::shared_ptr<SessionImpl> simpl = m_proxy.session();
       if (!simpl.get())
