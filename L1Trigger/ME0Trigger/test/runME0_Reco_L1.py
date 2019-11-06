@@ -1,7 +1,7 @@
 # Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# using:
+# Revision: 1.19
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v
 # with command line options: step2 --conditions auto:phase2_realistic -s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2 --datatier GEN-SIM-DIGI-RAW -n 10 --geometry Extended2023D22 --era Phase2 --eventcontent FEVTDEBUGHLT --filein file:step1.root --fileout file:step2.root
 import FWCore.ParameterSet.Config as cms
 
@@ -24,7 +24,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.me0RecoSequence = cms.Sequence(
-   process.me0RecHits * process.me0Segments 
+   process.me0RecHits * process.me0Segments
 )
 
 
@@ -37,22 +37,22 @@ process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
     fileNames = cms.untracked.vstring('file:step2.root'),
     inputCommands = cms.untracked.vstring(
-        'keep *', 
-        'drop *_genParticles_*_*', 
-        'drop *_genParticlesForJets_*_*', 
-        'drop *_kt4GenJets_*_*', 
-        'drop *_kt6GenJets_*_*', 
-        'drop *_iterativeCone5GenJets_*_*', 
-        'drop *_ak4GenJets_*_*', 
-        'drop *_ak7GenJets_*_*', 
-        'drop *_ak8GenJets_*_*', 
-        'drop *_ak4GenJetsNoNu_*_*', 
-        'drop *_ak8GenJetsNoNu_*_*', 
-        'drop *_genCandidatesForMET_*_*', 
-        'drop *_genParticlesForMETAllVisible_*_*', 
-        'drop *_genMetCalo_*_*', 
-        'drop *_genMetCaloAndNonPrompt_*_*', 
-        'drop *_genMetTrue_*_*', 
+        'keep *',
+        'drop *_genParticles_*_*',
+        'drop *_genParticlesForJets_*_*',
+        'drop *_kt4GenJets_*_*',
+        'drop *_kt6GenJets_*_*',
+        'drop *_iterativeCone5GenJets_*_*',
+        'drop *_ak4GenJets_*_*',
+        'drop *_ak7GenJets_*_*',
+        'drop *_ak8GenJets_*_*',
+        'drop *_ak4GenJetsNoNu_*_*',
+        'drop *_ak8GenJetsNoNu_*_*',
+        'drop *_genCandidatesForMET_*_*',
+        'drop *_genParticlesForMETAllVisible_*_*',
+        'drop *_genMetCalo_*_*',
+        'drop *_genMetCaloAndNonPrompt_*_*',
+        'drop *_genMetTrue_*_*',
         'drop *_genMetIC5GenJs_*_*'
     ),
     secondaryFileNames = cms.untracked.vstring()
@@ -88,15 +88,15 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 
-process.load('L1Trigger/ME0Trigger/me0TriggerPseudoDigis_cfi')
-process.me0TriggerPseudoDigis.info = 3
-process.me0TriggerPseudoDigis.ME0SegmentProducer = cms.InputTag("me0Segments")
+process.load('L1Trigger.ME0Trigger.me0TriggerConvertedPseudoDigis_cfi')
+process.me0TriggerConvertedPseudoDigis.info = 3
+process.me0TriggerConvertedPseudoDigis.ME0SegmentProducer = cms.InputTag("me0Segments")
 
 
 # Path and EndPath definitions
 #process.ME0_step = cms.Path(process.me0RecoSequence_all)
 process.ME0Reco_step = cms.Path(process.me0RecoSequence)
-process.ME0L1_step = cms.Path(process.me0TriggerPseudoDigis)
+process.ME0L1_step = cms.Path(process.me0TriggerConvertedPseudoDigis)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
@@ -109,7 +109,7 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-#from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
+#from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
 #process = customizeHLTforMC(process)

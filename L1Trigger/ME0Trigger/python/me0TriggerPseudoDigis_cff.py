@@ -8,6 +8,7 @@ import FWCore.ParameterSet.Config as cms
 from SimMuon.GEMDigitizer.muonME0PseudoReDigis_cfi import *
 from RecoLocalMuon.GEMRecHit.me0RecHits_cfi import *
 from RecoLocalMuon.GEMSegment.me0Segments_cfi import *
+from L1Trigger.ME0Trigger.me0TriggerConvertedPseudoDigis_cfi import *
 
 simMuonME0PseudoReDigisCoarse = simMuonME0PseudoReDigis.clone(
     usePads = cms.bool(True)
@@ -30,5 +31,9 @@ me0TriggerPseudoDigis.algo_psets[1].algo_pset.maxPhiSeeds = cms.double(maxPhi)
 me0TriggerPseudoDigiTask = cms.Task(
     simMuonME0PseudoReDigisCoarse,
     me0RecHitsCoarse,
-    me0TriggerPseudoDigis
+    me0TriggerPseudoDigis,
+    ## need to run the standard ME0 RECO sequence for converted triggers
+    me0RecHits,
+    me0Segments,
+    me0TriggerConvertedPseudoDigis
 )
