@@ -41,7 +41,8 @@ public:
                              DQMStore::IGetter& igetter,
                              const edm::LuminosityBlock& lumiSeg,
                              const edm::EventSetup& c) override;
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+  void dqmEndRun(DQMStore::IBooker&, DQMStore::IGetter&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override{};
 
   enum class EfficType { none = 0, efficiency, fakerate, simpleratio };
 
@@ -566,20 +567,21 @@ void DQMGenericClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   }
 }
 
-void DQMGenericClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-  // Update 2014-04-02
-  // Migrated back to the endJob. the DQMFileSaver logic has
-  // to be reviewed to guarantee that the endJob is properly
-  // considered. The splitting per run is done centrally when
-  // running the harvesting in production
-
-  // Update 2009-09-23
-  // Migrated all code from endJob to this function
-  // endJob is not necessarily called in the proper sequence
-  // and does not necessarily book histograms produced in
-  // that step.
-  // It more robust to do the histogram manipulation in
-  // this endRun function
+void DQMGenericClient::dqmEndRun(DQMStore::IBooker& ibooker,
+                                 DQMStore::IGetter& igetter,
+                                 edm::Run const&,
+                                 edm::EventSetup const&) {
+  // Create new MEs in endRun, even though we are requested to do it in endJob.
+  // This gives the QTests a chance to run, before summaries are created in
+  // endJob. The negative side effect is that we cannot run the GenericClient
+  // for plots produced in Harvesting, but that seems rather rare.
+  //
+  // It is important that this is still save in the presence of multiple runs,
+  // first because in multi-run harvesting, we accumulate statistics over all
+  // runs and have full statistics at the endRun of the last run, and second,
+  // because we set the efficiencyFlag so any further aggregation should produce
+  // correct results. Also, all operations should be idempotent; running them
+  // more than once does no harm.
 
   // needed to access the DQMStore::save method
   theDQM = nullptr;
