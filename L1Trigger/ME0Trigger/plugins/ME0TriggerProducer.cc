@@ -8,10 +8,8 @@
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 ME0TriggerProducer::ME0TriggerProducer(const edm::ParameterSet& conf) {
-  me0PadDigiClusters_ = conf.getParameter<edm::InputTag>("ME0PadDigiClusterProducer");
-  me0_pad_cluster_token_ = consumes<ME0PadDigiClusterCollection>(me0PadDigiClusters_);
+  me0PadDigis_ = conf.getParameter<edm::InputTag>("ME0PadDigis");
   me0_pad_token_ = consumes<ME0PadDigiCollection>(me0PadDigis_);
-  useClusters_ = conf.getParameter<bool>("useClusters");
   config_ = conf;
 
   // register what this produces
@@ -24,10 +22,6 @@ void ME0TriggerProducer::produce(edm::StreamID, edm::Event& ev, const edm::Event
   edm::ESHandle<ME0Geometry> h_me0;
   setup.get<MuonGeometryRecord>().get(h_me0);
 
-  edm::Handle<ME0PadDigiClusterCollection> me0PadDigiClusters;
-  ev.getByToken(me0_pad_cluster_token_, me0PadDigiClusters);
-  const ME0PadDigiClusterCollection* me0PadClusters = me0PadDigiClusters.product();
-
   edm::Handle<ME0PadDigiCollection> me0PadDigis;
   ev.getByToken(me0_pad_token_, me0PadDigis);
   const ME0PadDigiCollection* me0Pads = me0PadDigis.product();
@@ -39,12 +33,7 @@ void ME0TriggerProducer::produce(edm::StreamID, edm::Event& ev, const edm::Event
   trigBuilder->setME0Geometry(&*h_me0);
 
   // Fill output collections if valid input collection is available.
-  if (me0PadDigiClusters.isValid()) {
-    if (useClusters_)
-      trigBuilder->build<ME0PadDigiClusterCollection>(me0PadClusters, *oc_trig);
-    else
-      trigBuilder->build<ME0PadDigiCollection>(me0Pads, *oc_trig);
-  }
+  trigBuilder->build<ME0PadDigiCollection>(me0Pads, *oc_trig);
 
   // Put collections in event.
   ev.put(std::move(oc_trig));

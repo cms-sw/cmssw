@@ -53,6 +53,12 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
   for (auto corr : rcorr) {
     rcorr_.push_back(1.0 / corr);
   }
+  const auto& rcorrnose = ps.getParameter<std::vector<double> >("thicknessNoseCorrection");
+  rcorrNose_.clear();
+  rcorrNose_.push_back(1.f);
+  for (auto corr : rcorrnose) {
+    rcorrNose_.push_back(1.0 / corr);
+  }
 
   hgcEE_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCEE_noise_fC").getParameter<std::vector<double> >("values");
   hgcEE_cce_ = ps.getParameter<edm::ParameterSet>("HGCEE_cce").getParameter<std::vector<double> >("values");
@@ -135,6 +141,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
           thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
           break;
         case HcalEndcap:
+          [[fallthrough]];
         case HGCHEB:
           idtype = hgcbh;
           break;
@@ -166,7 +173,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
     case hgchfnose:
       rechitMaker_->setADCToGeVConstant(float(hgchfnoseUncalib2GeV_));
       cce_correction = hgcHFNose_cce_[thickness - 1];
-      sigmaNoiseGeV = 1e-3 * weightsNose_[layer] * rcorr_[thickness] * hgcHFNose_noise_fC_[thickness - 1] /
+      sigmaNoiseGeV = 1e-3 * weightsNose_[layer] * rcorrNose_[thickness] * hgcHFNose_noise_fC_[thickness - 1] /
                       hgcHFNose_fCPerMIP_[thickness - 1];
       break;
     default:
@@ -176,7 +183,12 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   // make the rechit and put in the output collection
 
   HGCRecHit myrechit(rechitMaker_->makeRecHit(uncalibRH, 0));
-  const double new_E = myrechit.energy() * (thickness == -1 ? 1.0 : rcorr_[thickness]) / cce_correction;
+  double new_E = myrechit.energy();
+  if (detid.det() == DetId::Forward && detid.subdetId() == ForwardSubdetector::HFNose) {
+    new_E *= (thickness == -1 ? 1.0 : rcorrNose_[thickness]) / cce_correction;
+  } else {
+    new_E *= (thickness == -1 ? 1.0 : rcorr_[thickness]) / cce_correction;
+  }
 
   myrechit.setEnergy(new_E);
   myrechit.setSignalOverSigmaNoise(new_E / sigmaNoiseGeV);
