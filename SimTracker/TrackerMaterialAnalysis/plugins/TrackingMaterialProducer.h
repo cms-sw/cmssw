@@ -64,6 +64,11 @@ private:
   TFile* output_file_;
   TProfile* radLen_vs_eta_;
   bool isHGCal;
+  bool isHFNose;
+  static constexpr float innerHGCalEta = 2.4;
+  static constexpr float outerHGCalEta = 2.0;
+  static constexpr float innerHFnoseEta = 4.;
+  static constexpr float outerHFnoseEta = 3.3;
   std::ofstream outVolumeZpositionTxt;
 };
 
