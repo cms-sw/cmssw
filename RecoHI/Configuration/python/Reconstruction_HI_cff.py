@@ -57,7 +57,7 @@ globalRecoPbPbTask = cms.Task(hiTracking_wSplittingTask
                               , hiParticleFlowLocalRecoTask
                               , hiEcalClustersTask
                               , hiRecoJetsTask
-                              , muonreco_plus_isolation_PbPbTask #muonRecoPbPb
+                              , muonRecoPbPbTask
                               , hiElectronTask 
                               , hiEgammaTask
                               , hiParticleFlowRecoTask
@@ -84,7 +84,7 @@ globalRecoPbPb_wConformalPixelTask = cms.Task(hiTracking_wConformalPixelTask
                                               , hiParticleFlowLocalRecoTask
                                               , hiEcalClustersTask
                                               , hiRecoJetsTask
-                                              , muonreco_plus_isolation_PbPbTask #muonRecoPbPb
+                                              , muonRecoPbPbTask
                                               , hiElectronTask
                                               , hiEgammaTask
                                               , hiParticleFlowRecoTask

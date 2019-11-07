@@ -14,10 +14,10 @@ hiSignalGlobalPrimTracks = hiGlobalPrimTracks.clone()
 hiSignalSelectedTracks = hiSelectedTracks.clone()
 hiSelectedTracks.src = cms.InputTag("hiSignalGlobalPrimTracks")
 heavyIonTrackingTask = cms.Task(hiPixelVerticesTask
-                                , hiPrimSeedsTask
-                                , hiPrimTrackCandidates
-                                , hiSignalGlobalPrimTracks
-                                , hiSelectedTracks
+                                ,hiPrimSeedsTask
+                                ,hiPrimTrackCandidates
+                                ,hiSignalGlobalPrimTracks
+                                ,hiSelectedTracks
                                 )
 heavyIonTracking = cms.Sequence(heavyIonTrackingTask)
 
@@ -26,10 +26,10 @@ hiSignalCorrectedIslandBarrelSuperClusters = correctedIslandBarrelSuperClusters.
 hiSignalCorrectedIslandEndcapSuperClusters = correctedIslandEndcapSuperClusters.clone()
 
 islandClusteringTask = cms.Task(islandBasicClusters
-                                        ,islandSuperClusters
-                                        ,hiSignalCorrectedIslandBarrelSuperClusters
-                                        ,hiSignalCorrectedIslandEndcapSuperClusters
-                                        )
+                                ,islandSuperClusters
+                                ,hiSignalCorrectedIslandBarrelSuperClusters
+                                ,hiSignalCorrectedIslandEndcapSuperClusters
+                                )
 islandClusteringSequence = cms.Sequence(islandClusteringTask)
 
 #Jets
