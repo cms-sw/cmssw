@@ -11,7 +11,7 @@
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
 class PileupJetIDVarProducer : public edm::global::EDProducer<> {
-  
+
 public:
   explicit PileupJetIDVarProducer(const edm::ParameterSet& iConfig)
       : srcJet_(consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("srcJet"))),
@@ -26,12 +26,10 @@ public:
     produces<edm::ValueMap<float>>("frac04");
     produces<edm::ValueMap<float>>("ptD");
     produces<edm::ValueMap<float>>("beta");
-    produces<edm::ValueMap<float>>("betaStar");
     produces<edm::ValueMap<float>>("pull");
     produces<edm::ValueMap<float>>("jetR");
     produces<edm::ValueMap<float>>("jetRchg");
     produces<edm::ValueMap<int>>("nCharged");
-    produces<edm::ValueMap<int>>("nNeutral");
   }
   ~PileupJetIDVarProducer() override{};
 
@@ -66,12 +64,10 @@ void PileupJetIDVarProducer::produce(edm::StreamID streamID, edm::Event& iEvent,
   std::vector<float>  frac04(nJet,-1);
   std::vector<float>  ptD(nJet,-1);
   std::vector<float>  beta(nJet,-1);
-  std::vector<float>  betaStar(nJet,-1);
   std::vector<float>  pull(nJet,-1);
   std::vector<float>  jetR(nJet,-1);
   std::vector<float>  jetRchg(nJet,-1);
   std::vector<int> nCharged(nJet,-1);
-  std::vector<int> nNeutral(nJet,-1);
 
   for (unsigned int ij = 0; ij < nJet; ij++) {
     auto jet = srcJet->ptrAt(ij);
@@ -87,12 +83,10 @@ void PileupJetIDVarProducer::produce(edm::StreamID streamID, edm::Event& iEvent,
     frac04[ij]     = (*srcPileupJetId)[jetRef].frac04();
     ptD[ij]        = (*srcPileupJetId)[jetRef].ptD();
     beta[ij]       = (*srcPileupJetId)[jetRef].beta();
-    betaStar[ij]   = (*srcPileupJetId)[jetRef].betaStar();
     pull[ij]       = (*srcPileupJetId)[jetRef].pull();
     jetR[ij]       = (*srcPileupJetId)[jetRef].jetR();
     jetRchg[ij]    = (*srcPileupJetId)[jetRef].jetRchg();
     nCharged[ij]   = (*srcPileupJetId)[jetRef].nCharged();
-    nNeutral[ij]   = jet->neutralMultiplicity();
   }
 
   std::unique_ptr<edm::ValueMap<float>> dR2MeanV(new edm::ValueMap<float>());
@@ -149,12 +143,6 @@ void PileupJetIDVarProducer::produce(edm::StreamID streamID, edm::Event& iEvent,
   filler_beta.fill();
   iEvent.put(std::move(betaV), "beta");
 
-  std::unique_ptr<edm::ValueMap<float>> betaStarV(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler filler_betaStar(*betaStarV);
-  filler_betaStar.insert(srcJet, betaStar.begin(), betaStar.end());
-  filler_betaStar.fill();
-  iEvent.put(std::move(betaStarV), "betaStar");
-
   std::unique_ptr<edm::ValueMap<float>> pullV(new edm::ValueMap<float>());
   edm::ValueMap<float>::Filler filler_pull(*pullV);
   filler_pull.insert(srcJet, pull.begin(), pull.end());
@@ -179,11 +167,6 @@ void PileupJetIDVarProducer::produce(edm::StreamID streamID, edm::Event& iEvent,
   filler_nCharged.fill();
   iEvent.put(std::move(nChargedV), "nCharged");
 
-  std::unique_ptr<edm::ValueMap<int>> nNeutralV(new edm::ValueMap<int>());
-  edm::ValueMap<int>::Filler filler_nNeutral(*nNeutralV);
-  filler_nNeutral.insert(srcJet, nNeutral.begin(), nNeutral.end());
-  filler_nNeutral.fill();
-  iEvent.put(std::move(nNeutralV), "nNeutral");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
