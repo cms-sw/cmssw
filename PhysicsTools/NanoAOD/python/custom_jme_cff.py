@@ -335,6 +335,68 @@ class TableRecoJetAdder(object):
         modifier.toReplaceWith(currentTasks, altTasks)
     self.main.extend(currentTasks)
 
+def AddPileUpJetIDVars(proc):
+
+  print("custom_jme_cff::AddPileUpJetIDVars: Recalculate pile-up jet ID variables and save them")
+
+  #
+  # Recalculate PUJet ID variables
+  #
+  from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdCalculator
+  proc.pileupJetIdCalculatorAK4PFCHS = pileupJetIdCalculator.clone(
+    jets = "updatedJets",
+    vertexes  = "offlineSlimmedPrimaryVertices",
+    inputIsCorrected = True,
+    applyJec  = False 
+  )
+  proc.jetSequence.insert(proc.jetSequence.index(proc.updatedJets)+1, proc.pileupJetIdCalculatorAK4PFCHS)
+
+  #
+  # Get the variables
+  #
+  proc.puJetVarAK4PFCHS = cms.EDProducer("PileupJetIDVarProducer",
+    srcJet = cms.InputTag("updatedJets"),    
+    srcPileupJetId = cms.InputTag("pileupJetIdCalculatorAK4PFCHS")
+  )
+  proc.jetSequence.insert(proc.jetSequence.index(proc.jercVars)+1, proc.puJetVarAK4PFCHS)
+
+  #
+  # Save variables as userFloats and userInts in each jet
+  # 
+  proc.updatedJetsWithUserData.userFloats.dR2Mean  = cms.InputTag("puJetVarAK4PFCHS:dR2Mean")
+  proc.updatedJetsWithUserData.userFloats.majW     = cms.InputTag("puJetVarAK4PFCHS:majW")
+  proc.updatedJetsWithUserData.userFloats.minW     = cms.InputTag("puJetVarAK4PFCHS:minW")
+  proc.updatedJetsWithUserData.userFloats.frac01   = cms.InputTag("puJetVarAK4PFCHS:frac01")
+  proc.updatedJetsWithUserData.userFloats.frac02   = cms.InputTag("puJetVarAK4PFCHS:frac02")
+  proc.updatedJetsWithUserData.userFloats.frac03   = cms.InputTag("puJetVarAK4PFCHS:frac03")
+  proc.updatedJetsWithUserData.userFloats.frac04   = cms.InputTag("puJetVarAK4PFCHS:frac04")
+  proc.updatedJetsWithUserData.userFloats.ptD      = cms.InputTag("puJetVarAK4PFCHS:ptD")
+  proc.updatedJetsWithUserData.userFloats.beta     = cms.InputTag("puJetVarAK4PFCHS:beta")
+  proc.updatedJetsWithUserData.userFloats.betaStar = cms.InputTag("puJetVarAK4PFCHS:betaStar")
+  proc.updatedJetsWithUserData.userFloats.pull     = cms.InputTag("puJetVarAK4PFCHS:pull")
+  proc.updatedJetsWithUserData.userFloats.jetR     = cms.InputTag("puJetVarAK4PFCHS:jetR")
+  proc.updatedJetsWithUserData.userFloats.jetRchg  = cms.InputTag("puJetVarAK4PFCHS:jetRchg")
+  proc.updatedJetsWithUserData.userInts.nCharged   = cms.InputTag("puJetVarAK4PFCHS:nCharged")
+  proc.updatedJetsWithUserData.userInts.nNeutral   = cms.InputTag("puJetVarAK4PFCHS:nNeutral")
+
+  #
+  # Specfiy variables in the jetTable to save in NanoAOD
+  #
+  proc.jetTable.variables.dR2Mean  = Var("userFloat('dR2Mean')", float, doc="pT^2-weighted average square distance of jet constituents from the jet axis", precision= 6)  
+  proc.jetTable.variables.majW     = Var("userFloat('majW')",    float, doc="major axis of jet ellipsoid in eta-phi plane", precision= 6)  
+  proc.jetTable.variables.minW     = Var("userFloat('minW')",    float, doc="minor axis of jet ellipsoid in eta-phi plane", precision= 6)  
+  proc.jetTable.variables.frac01   = Var("userFloat('frac01')",  float, doc="frac of constituents' pT contained within dR<0.1", precision= 6)  
+  proc.jetTable.variables.frac02   = Var("userFloat('frac02')",  float, doc="frac of constituents' pT contained within 0.1<dR<0.2", precision= 6) 
+  proc.jetTable.variables.frac03   = Var("userFloat('frac03')",  float, doc="frac of constituents' pT contained within 0.2<dR<0.3", precision= 6) 
+  proc.jetTable.variables.frac04   = Var("userFloat('frac04')",  float, doc="frac of constituents' pT contained within 0.3<dR<0.4", precision= 6) 
+  proc.jetTable.variables.ptD      = Var("userFloat('ptD')",     float, doc="pT-weighted average pT of constituents", precision= 6) 
+  proc.jetTable.variables.beta     = Var("userFloat('beta')",    float, doc="frac of jet tracks associated to PV", precision= 6) 
+  proc.jetTable.variables.betaStar = Var("userFloat('betaStar')",float, doc="test3", precision= 6) 
+  proc.jetTable.variables.pull     = Var("userFloat('pull')",    float, doc="magnitude of pull vector", precision= 6) 
+  proc.jetTable.variables.jetR     = Var("userFloat('jetR')",    float, doc="fraction of jet pT carried by the leading constituent", precision= 6) 
+  proc.jetTable.variables.jetRchg  = Var("userFloat('jetRchg')", float, doc="fraction of jet pT carried by the leading charged constituent", precision= 6) 
+  proc.jetTable.variables.nCharged = Var("userInt('nCharged')",  float, doc="number of charged constituents", precision= 6) 
+  proc.jetTable.variables.nNeutral = Var("userInt('nNeutral')",  float, doc="number of neutral constituents", precision= 6) 
 
 def PrepJMECustomNanoAOD(process):
   #
@@ -389,6 +451,10 @@ def PrepJMECustomNanoAOD(process):
   process.genJetFlavourTable.cut    = "" # 10 -> 8
   process.genJetAK8Table.cut        = "" # 100 -> 80
   process.genJetAK8FlavourTable.cut = "" # 100 -> 80
+  #
+  # Add variables for pileup jet ID studies.
+  #
+  AddPileUpJetIDVars(process)
 
   ######################################################################################################################
 
