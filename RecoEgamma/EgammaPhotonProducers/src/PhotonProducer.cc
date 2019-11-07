@@ -29,8 +29,6 @@
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
