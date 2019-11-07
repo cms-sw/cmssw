@@ -185,18 +185,21 @@ namespace edm {
         ~LuminosityBlockSummaryCacheHolder() noexcept(false){};
 
       private:
+        void preallocLumisSummary(unsigned int iNLumis) final { caches_.reset(new std::shared_ptr<C>[iNLumis]); }
+
         friend class EndLuminosityBlockSummaryProducer<T, C>;
 
         void doBeginLuminosityBlockSummary_(edm::LuminosityBlock const& lb, EventSetup const& c) final {
-          cache_ = globalBeginLuminosityBlockSummary(lb, c);
+          caches_[lb.index()] = globalBeginLuminosityBlockSummary(lb, c);
         }
 
         void doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lb, EventSetup const& c) final {
           std::lock_guard<std::mutex> guard(mutex_);
-          streamEndLuminosityBlockSummary(id, lb, c, cache_.get());
+          streamEndLuminosityBlockSummary(id, lb, c, caches_[lb.index()].get());
         }
         void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c) final {
-          globalEndLuminosityBlockSummary(lb, c, cache_.get());
+          globalEndLuminosityBlockSummary(lb, c, caches_[lb.index()].get());
+          maybeClearCache(lb);
         }
 
         virtual std::shared_ptr<C> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
@@ -208,8 +211,10 @@ namespace edm {
 
         virtual void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
 
+        virtual void maybeClearCache(LuminosityBlock const& lb) { caches_[lb.index()].reset(); }
+
         //When threaded we will have a container for N items where N is # of simultaneous Lumis
-        std::shared_ptr<C> cache_;
+        std::unique_ptr<std::shared_ptr<C>[]> caches_;
         std::mutex mutex_;
       };
 
@@ -294,10 +299,14 @@ namespace edm {
 
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final {
-          globalEndLuminosityBlockProduce(lb, c, LuminosityBlockSummaryCacheHolder<T, S>::cache_.get());
+          globalEndLuminosityBlockProduce(lb, c, LuminosityBlockSummaryCacheHolder<T, S>::caches_[lb.index()].get());
+          LuminosityBlockSummaryCacheHolder<T, S>::caches_[lb.index()].reset();
         }
 
         virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, S const*) const = 0;
+
+        // Do nothing because the cache is cleared in doEndLuminosityBlockProduce_
+        void maybeClearCache(LuminosityBlock const&) final {}
       };
 
       template <typename T>
