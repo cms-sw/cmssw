@@ -26,12 +26,18 @@ public:
 
   const std::vector<uint16_t>& pads() const { return v_; }
   int bx() const { return bx_; }
+  int getTheta() const {return theta_;}
+  int getPhi() const {return phi_;}
 
+  void setTheta(uint16_t th);
+  void setPhi(uint16_t phi);
   void print() const;
 
 private:
   std::vector<uint16_t> v_;
   int32_t bx_;
+  uint16_t theta_;
+  uint16_t phi_;
 };
 
 std::ostream& operator<<(std::ostream& o, const GEMPadDigiCluster& digi);

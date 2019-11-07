@@ -25,6 +25,16 @@ bool GEMPadDigiCluster::operator<(const GEMPadDigiCluster& digi) const {
 
 bool GEMPadDigiCluster::isValid() const { return !v_.empty() and bx_ != -99; }
 
+void GEMPadDigiCluster::setTheta(uint16_t th)
+{
+  theta_ = th;
+}
+
+void GEMPadDigiCluster::setPhi(uint16_t phi)
+{
+  phi_ = phi;
+}
+
 std::ostream& operator<<(std::ostream& o, const GEMPadDigiCluster& digi) {
   o << " bx: " << digi.bx() << " pads: ";
   for (auto p : digi.pads())
