@@ -7,16 +7,19 @@ from RecoHGCal.TICL.HADStep_cff import *
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.ticlCandidateFromTrackstersProducer_cfi import ticlCandidateFromTrackstersProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer
+from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer
 
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 ticlPFTask = cms.Task(ticlCandidateFromTrackstersProducer, pfTICLProducer)
+ticlTracksterMergeTask = cms.Task(trackstersMergeProducer)
 
 iterTICLTask = cms.Task(ticlLayerTileTask
     ,MIPStepTask
     ,EMStepTask
     ,TrkStepTask
     ,HADStepTask
+    ,ticlTracksterMergeTask
     ,ticlPFTask
     )
 

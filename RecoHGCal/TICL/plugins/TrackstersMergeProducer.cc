@@ -12,6 +12,7 @@
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
 using namespace ticl;
 
@@ -28,12 +29,14 @@ private:
   const edm::EDGetTokenT<std::vector<Trackster>> trackstersem_token_;
   const edm::EDGetTokenT<std::vector<Trackster>> tracksterstrk_token_;
   const edm::EDGetTokenT<std::vector<Trackster>> trackstershad_token_;
+  const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seedingTrk_token_;
 };
 
 TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps) :
   trackstersem_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstersem"))),
   tracksterstrk_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("tracksterstrk"))),
-  trackstershad_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstershad"))) {
+  trackstershad_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstershad"))),
+  seedingTrk_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seedingTrk"))) {
   produces<std::vector<Trackster>>();
 }
 
@@ -69,10 +72,47 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &) 
   evt.getByToken(trackstershad_token_, trackstershad_h);
   const auto &trackstersHAD = *trackstershad_h;
 
+  edm::Handle<std::vector<TICLSeedingRegion>> seedingTrk_h;
+  evt.getByToken(seedingTrk_token_, seedingTrk_h);
+  const auto & seedingTrk = * seedingTrk_h;
+
   int tracksterIteration = 0;
   fillTile(tracksterTile, trackstersEM, tracksterIteration++);
   fillTile(tracksterTile, trackstersTRK, tracksterIteration++);
   fillTile(tracksterTile, trackstersHAD, tracksterIteration++);
+
+  auto seedId = 0;
+  for (auto const & s : seedingTrk) {
+    tracksterTile.fill(tracksterIteration, s.origin.eta(), s.origin.phi(), seedId++);
+  }
+
+  for (auto const & t : trackstersTRK) {
+    int bin = tracksterTile[3].globalBin(t.barycenter.eta(), t.barycenter.phi());
+      std::cout << "TrackstersMergeProducer Tracking obj: " << t.barycenter
+        << " regressed energy: " << t.regressed_energy
+        << " raw_energy: " << t.raw_energy
+        << std::endl;
+    auto const & seeds = tracksterTile[3][bin];
+    auto const & ems = tracksterTile[0][bin];
+    for (auto const & s : seeds) {
+      auto const & seed = seedingTrk[s];
+      std::cout << " linked to seed obj: " << seed.origin
+        << ", " << seed.directionAtOrigin.mag()
+        << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(seed.directionAtOrigin.unit()))
+        << std::endl;
+    }
+    for (auto const & e : ems) {
+      auto const & em = trackstersEM[e];
+      std::cout << " linked to em obj: " << em.barycenter
+        << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]))
+        << " regressed energy: " << em.regressed_energy
+        << " raw_energy: " << em.raw_energy
+        << " cumulative: " << (t.raw_energy+em.raw_energy)
+        << std::endl;
+    }
+  }
+
+
   evt.put(std::move(result));
 }
 
@@ -81,7 +121,8 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<edm::InputTag>("trackstersem", edm::InputTag("trackstersEM"));
   desc.add<edm::InputTag>("tracksterstrk", edm::InputTag("trackstersTrk"));
   desc.add<edm::InputTag>("trackstershad", edm::InputTag("trackstersHAD"));
-  descriptions.add("TrackstersMergeProducer", desc);
+  desc.add<edm::InputTag>("seedingTrk", edm::InputTag("ticlSeedingTrk"));
+  descriptions.add("trackstersMergeProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
