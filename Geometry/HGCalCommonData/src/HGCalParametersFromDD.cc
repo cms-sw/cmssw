@@ -225,12 +225,12 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 }
 
 bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
-				  HGCalParameters& php,
-				  const std::string& name,
-				  const std::string& namew,
-				  const std::string& namec,
-				  const std::string& namet,
-				  const std::string& name2) {
+                                  HGCalParameters& php,
+                                  const std::string& name,
+                                  const std::string& namew,
+                                  const std::string& namec,
+                                  const std::string& namet,
+                                  const std::string& name2) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD (DD4Hep)::build called with "
                                 << "names " << name << ":" << namew << ":" << namec << ":" << namet;
@@ -267,7 +267,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       mode = getGeometryWaferMode(sv2);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "WaferMode " << mode << ":" << HGCalGeometryMode::Polyhedra << ":"
-				    << HGCalGeometryMode::ExtrudedPolygon;
+                                    << HGCalGeometryMode::ExtrudedPolygon;
 #endif
       php.minTileSize_ = 0;
     }
@@ -308,14 +308,14 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "WaferMode " << mode << ":" << HGCalGeometryMode::Polyhedra << ":"
-				    << HGCalGeometryMode::ExtrudedPolygon << " # of cells|size for fine/coarse "
-				    << php.nCellsFine_ << ":" << php.cellSize_[0] << ":" << php.nCellsCoarse_ << ":"
-				    << php.cellSize_[1] << " wafer Params " << php.waferSize_ << ":" << php.waferR_
-				    << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":" << php.mouseBite_
-				    << ":" << php.waferR_;
+                                    << HGCalGeometryMode::ExtrudedPolygon << " # of cells|size for fine/coarse "
+                                    << php.nCellsFine_ << ":" << php.cellSize_[0] << ":" << php.nCellsCoarse_ << ":"
+                                    << php.cellSize_[1] << " wafer Params " << php.waferSize_ << ":" << php.waferR_
+                                    << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":" << php.mouseBite_
+                                    << ":" << php.waferR_;
 #endif
       for (int k = 0; k < 2; ++k)
-	getCellPosition(php, k);
+        getCellPosition(php, k);
     }
     if (php.mode_ == HGCalGeometryMode::Hexagon) {
       // Load the SpecPars
@@ -379,7 +379,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " first layers "
                                     << php.firstLayer_ << ":" << php.firstMixedLayer_ << " Det Type "
                                     << php.detectorType_ << "  thickenss " << php.waferThick_ << " min tile size "
-				    << php.minTileSize_;
+                                    << php.minTileSize_;
 #endif
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, vmap, php, name);
@@ -391,7 +391,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       edm::LogError("HGCalGeom") << "Unknown Geometry type " << php.mode_ << " for HGCal " << name << ":" << namew
                                  << ":" << namec;
       throw cms::Exception("DDException")
-	<< "Unknown Geometry type " << php.mode_ << " for HGCal " << name << ":" << namew << ":" << namec;
+          << "Unknown Geometry type " << php.mode_ << " for HGCal " << name << ":" << namew << ":" << namec;
     }
   } else {
     edm::LogError("HGCalGeom") << " Attribute " << attribute << ":" << name << " not found but needed.";
