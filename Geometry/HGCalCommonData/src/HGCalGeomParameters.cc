@@ -257,30 +257,29 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     }
   }
 
-  loadGeometryHexagon(layers, trforms, trformUse, copies, copiesInLayers, wafer2copy, wafers, wafertype, cellsf, cellsc, php);
+  loadGeometryHexagon(
+      layers, trforms, trformUse, copies, copiesInLayers, wafer2copy, wafers, wafertype, cellsf, cellsc, php);
 }
 
 void HGCalGeomParameters::loadGeometryHexagon(const cms::DDFilteredView& fv,
-					      HGCalParameters& php,
-					      const std::string& sdTag1,
-					      const cms::DDCompactView* cpv,
-					      const std::string& sdTag2,
-					      const std::string& sdTag3,
-					      HGCalGeometryMode::WaferMode mode) {
-}
+                                              HGCalParameters& php,
+                                              const std::string& sdTag1,
+                                              const cms::DDCompactView* cpv,
+                                              const std::string& sdTag2,
+                                              const std::string& sdTag3,
+                                              HGCalGeometryMode::WaferMode mode) {}
 
 void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParameters::layerParameters>& layers,
-					      std::vector<HGCalParameters::hgtrform>& trforms,
-					      std::vector<bool>& trformUse,
-					      const std::unordered_map<int32_t, int32_t>& copies,
-					      const HGCalParameters::layer_map& copiesInLayers,
-					      const std::vector<int32_t>& wafer2copy,
-					      const std::vector<HGCalGeomParameters::cellParameters>& wafers,
-					      const std::map<int, int>& wafertype,
-					      const std::map<int, HGCalGeomParameters::cellParameters>& cellsf, 
-					      const std::map<int, HGCalGeomParameters::cellParameters>& cellsc,
-					      HGCalParameters& php) {
-
+                                              std::vector<HGCalParameters::hgtrform>& trforms,
+                                              std::vector<bool>& trformUse,
+                                              const std::unordered_map<int32_t, int32_t>& copies,
+                                              const HGCalParameters::layer_map& copiesInLayers,
+                                              const std::vector<int32_t>& wafer2copy,
+                                              const std::vector<HGCalGeomParameters::cellParameters>& wafers,
+                                              const std::map<int, int>& wafertype,
+                                              const std::map<int, HGCalGeomParameters::cellParameters>& cellsf,
+                                              const std::map<int, HGCalGeomParameters::cellParameters>& cellsc,
+                                              HGCalParameters& php) {
   if (((cellsf.size() + cellsc.size()) == 0) || (wafers.empty()) || (layers.empty())) {
     edm::LogError("HGCalGeom") << "HGCalGeomParameters : number of cells " << cellsf.size() << ":" << cellsc.size()
                                << " wafers " << wafers.size() << " layers " << layers.size() << " illegal";
@@ -464,9 +463,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
 #endif
 }
 
-void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, 
-					       HGCalParameters& php, 
-					       int firstLayer) {
+void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalParameters& php, int firstLayer) {
   DDFilteredView fv = _fv;
   bool dodet(true);
   std::map<int, HGCalGeomParameters::layerParameters> layers;
@@ -520,15 +517,12 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv,
   loadGeometryHexagon8(layers, trforms, firstLayer, php);
 }
 
-void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDFilteredView& _fv, 
-					       HGCalParameters& php, 
-					       int firstLayer) {
-}
+void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDFilteredView& _fv, HGCalParameters& php, int firstLayer) {}
 
 void HGCalGeomParameters::loadGeometryHexagon8(const std::map<int, HGCalGeomParameters::layerParameters>& layers,
-					       std::map<std::pair<int, int>, HGCalParameters::hgtrform>& trforms,
-					       const int& firstLayer,
-					       HGCalParameters& php) {
+                                               std::map<std::pair<int, int>, HGCalParameters::hgtrform>& trforms,
+                                               const int& firstLayer,
+                                               HGCalParameters& php) {
   double rmin(0), rmax(0);
   for (unsigned int i = 0; i < layers.size(); ++i) {
     for (auto& layer : layers) {
@@ -651,8 +645,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
 
   // Cell size
   php.cellSize_ = fv.get<std::vector<double> >(sdTag3.c_str(), "CellSize");
-  std::for_each(php.cellSize_.begin(), php.cellSize_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4HepToG4; });
-
+  std::for_each(
+      php.cellSize_.begin(), php.cellSize_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4HepToG4; });
 
   loadSpecParsHexagon(php);
 }
@@ -719,19 +713,21 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
 }
 
 void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
- 					       const cms::DDVectorsMap& vmap,
-					       HGCalParameters& php,
-					       const std::string& sdTag1) {
+                                               const cms::DDVectorsMap& vmap,
+                                               HGCalParameters& php,
+                                               const std::string& sdTag1) {
   php.cellThickness_ = fv.get<std::vector<double> >(sdTag1.c_str(), "CellThickness");
   std::for_each(
       php.cellThickness_.begin(), php.cellThickness_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
 
   php.radius100to200_ = fv.get<std::vector<double> >(sdTag1.c_str(), "Radius100to200");
   php.radius200to300_ = fv.get<std::vector<double> >(sdTag1.c_str(), "Radius200to300");
-  std::for_each(
-      php.radius100to200_.begin(), php.radius100to200_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4HepToG4; });
-  std::for_each(
-      php.radius200to300_.begin(), php.radius200to300_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4HepToG4; });
+  std::for_each(php.radius100to200_.begin(), php.radius100to200_.end(), [](double& n) {
+    n *= HGCalParameters::k_ScaleFromDD4HepToG4;
+  });
+  std::for_each(php.radius200to300_.begin(), php.radius200to300_.end(), [](double& n) {
+    n *= HGCalParameters::k_ScaleFromDD4HepToG4;
+  });
 
   const auto& dummy = fv.get<std::vector<double> >(sdTag1.c_str(), "RadiusCuts");
   php.choiceType_ = static_cast<int>(dummy[0]);
@@ -741,15 +737,19 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
 
   php.slopeMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeBottom");
   php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontBottom");
-  std::for_each(php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  std::for_each(
+      php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
   php.rMinFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMinFront");
-  std::for_each(php.rMinFront_.begin(), php.rMinFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  std::for_each(
+      php.rMinFront_.begin(), php.rMinFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
 
   php.slopeTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeTop");
   php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontTop");
-  std::for_each(php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  std::for_each(
+      php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
   php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMaxFront");
-  std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  std::for_each(
+      php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
 
   const auto& dummy2 = fv.get<std::vector<double> >(sdTag1.c_str(), "LayerOffset");
   php.layerOffset_ = dummy2[0];
@@ -757,13 +757,13 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
   for (auto const& it : vmap) {
     if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "RadiusMixBoundary")) {
       for (const auto& i : it.second)
-	php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+        php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
     } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "zRanges")) {
       for (const auto& i : it.second)
-	php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+        php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
     } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "LayerCenter")) {
       for (const auto& i : it.second)
-	php.layerCenter_.emplace_back(std::round(i));
+        php.layerCenter_.emplace_back(std::round(i));
     }
   }
 
@@ -771,7 +771,6 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
 }
 
 void HGCalGeomParameters::loadSpecParsHexagon8(const HGCalParameters& php) {
-
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: cell Thickness " << php.cellThickness_[0] << ":"
                                 << php.cellThickness_[1] << ":" << php.cellThickness_[2];
@@ -853,19 +852,19 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
 }
 
 void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
-						const cms::DDVectorsMap& vmap,
-						HGCalParameters& php,
-						const std::string& sdTag1) {
+                                                const cms::DDVectorsMap& vmap,
+                                                HGCalParameters& php,
+                                                const std::string& sdTag1) {
   for (auto const& it : vmap) {
     if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "RadiusMixBoundary")) {
       for (const auto& i : it.second)
-	php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+        php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
     } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "zRanges")) {
       for (const auto& i : it.second)
-	php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+        php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
     } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "LayerCenter")) {
       for (const auto& i : it.second)
-	php.layerCenter_.emplace_back(std::round(i));
+        php.layerCenter_.emplace_back(std::round(i));
     }
   }
 
@@ -881,15 +880,19 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
 
   php.slopeMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeBottom");
   php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontBottom");
-  std::for_each(php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  std::for_each(
+      php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
   php.rMinFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMinFront");
-  std::for_each(php.rMinFront_.begin(), php.rMinFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  std::for_each(
+      php.rMinFront_.begin(), php.rMinFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
 
   php.slopeTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeTop");
   php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontTop");
-  std::for_each(php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  std::for_each(
+      php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
   php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMaxFront");
-  std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  std::for_each(
+      php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
 
   const auto& dummy2 = fv.get<std::vector<double> >(sdTag1.c_str(), "LayerOffset");
   php.layerOffset_ = dummy2[0];
@@ -934,8 +937,7 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const HGCalParameters& php) {
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << php.layerCenter_[k];
 
   for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Shift " << php.xLayerHex_[k] << ":"
-                                  << php.yLayerHex_[k];
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Shift " << php.xLayerHex_[k] << ":" << php.yLayerHex_[k];
 #endif
 }
 
@@ -1193,8 +1195,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
   }
 }
 
-void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv, 
-					      HGCalParameters& php) {
+void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv, HGCalParameters& php) {
   // Special parameters for cell parameters
   std::string attribute = "OnlyForHGCalNumbering";
   DDSpecificsHasNamedValueFilter filter1{attribute};
@@ -1213,10 +1214,10 @@ void HGCalGeomParameters::loadCellParsHexagon(const cms::DDVectorsMap& vmap, HGC
   for (auto const& it : vmap) {
     if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "waferFine")) {
       for (const auto& i : it.second)
-	php.cellFine_.emplace_back(std::round(i));
+        php.cellFine_.emplace_back(std::round(i));
     } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "waferCoarse")) {
       for (const auto& i : it.second)
-	php.cellCoarse_.emplace_back(std::round(i));
+        php.cellCoarse_.emplace_back(std::round(i));
     }
   }
 

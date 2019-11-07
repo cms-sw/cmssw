@@ -65,16 +65,16 @@ HGCalParametersESModule::ReturnType HGCalParametersESModule::produce(const Ideal
   HGCalParametersFromDD builder;
   if (fromDD4Hep_) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule::Try to access cms::DDCompactView";
+    edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule::Try to access cms::DDCompactView";
 #endif
-     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
-     builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_, name2_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_, name2_);
   } else {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule::Try to access DDCompactView";
+    edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule::Try to access DDCompactView";
 #endif
-     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
-     builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_);
+    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
+    builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_);
   }
   return ptp;
 }
