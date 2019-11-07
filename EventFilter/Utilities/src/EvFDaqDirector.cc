@@ -43,7 +43,7 @@ namespace evf {
         run_(pset.getUntrackedParameter<unsigned int>("runNumber")),
         useFileBroker_(pset.getUntrackedParameter<bool>("useFileBroker")),
         fileBrokerHostFromCfg_(pset.getUntrackedParameter<bool>("fileBrokerHostFromCfg", true)),
-        fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost")),
+        fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost","InValid")),
         fileBrokerPort_(pset.getUntrackedParameter<std::string>("fileBrokerPort", "8080")),
         fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", true)),
         fileBrokerUseLocalLock_(pset.getUntrackedParameter<bool>("fileBrokerUseLocalLock", true)),
@@ -114,9 +114,9 @@ namespace evf {
         }
         if (fileBrokerHost_.empty())
           throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
-      } else if (fileBrokerHost_.empty())
+      } else if (fileBrokerHost_.empty() || fileBrokerHost_ == "InValid")
         throw cms::Exception("EvFDaqDirector")
-            << "fileBrokerHostFromCfg must be set to true if no fileBrokerHost is given";
+            << "fileBrokerHostFromCfg must be set to true if fileBrokerHost parameter is not valid or empty";
 
       resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
       query_ = std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);
@@ -329,7 +329,7 @@ namespace evf {
         ->setComment("Use BU file service to grab input data instead of NFS file locking");
     desc.addUntracked<bool>("fileBrokerHostFromCfg", true)
         ->setComment("Allow service to discover BU address from hltd configuration");
-    desc.addUntracked<std::string>("fileBrokerHost")->setComment("BU file service host.");
+    desc.addUntracked<std::string>("fileBrokerHost","InValid")->setComment("BU file service host.");
     desc.addUntracked<std::string>("fileBrokerPort", "8080")->setComment("BU file service port");
     desc.addUntracked<bool>("fileBrokerKeepAlive", true)
         ->setComment("Use keep alive to avoid using large number of sockets");
