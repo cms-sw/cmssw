@@ -372,12 +372,10 @@ def AddPileUpJetIDVars(proc):
   proc.updatedJetsWithUserData.userFloats.frac04   = cms.InputTag("puJetVarAK4PFCHS:frac04")
   proc.updatedJetsWithUserData.userFloats.ptD      = cms.InputTag("puJetVarAK4PFCHS:ptD")
   proc.updatedJetsWithUserData.userFloats.beta     = cms.InputTag("puJetVarAK4PFCHS:beta")
-  proc.updatedJetsWithUserData.userFloats.betaStar = cms.InputTag("puJetVarAK4PFCHS:betaStar")
   proc.updatedJetsWithUserData.userFloats.pull     = cms.InputTag("puJetVarAK4PFCHS:pull")
   proc.updatedJetsWithUserData.userFloats.jetR     = cms.InputTag("puJetVarAK4PFCHS:jetR")
   proc.updatedJetsWithUserData.userFloats.jetRchg  = cms.InputTag("puJetVarAK4PFCHS:jetRchg")
   proc.updatedJetsWithUserData.userInts.nCharged   = cms.InputTag("puJetVarAK4PFCHS:nCharged")
-  proc.updatedJetsWithUserData.userInts.nNeutral   = cms.InputTag("puJetVarAK4PFCHS:nNeutral")
 
   #
   # Specfiy variables in the jetTable to save in NanoAOD
@@ -390,13 +388,11 @@ def AddPileUpJetIDVars(proc):
   proc.jetTable.variables.frac03   = Var("userFloat('frac03')",  float, doc="frac of constituents' pT contained within 0.2<dR<0.3", precision= 6) 
   proc.jetTable.variables.frac04   = Var("userFloat('frac04')",  float, doc="frac of constituents' pT contained within 0.3<dR<0.4", precision= 6) 
   proc.jetTable.variables.ptD      = Var("userFloat('ptD')",     float, doc="pT-weighted average pT of constituents", precision= 6) 
-  proc.jetTable.variables.beta     = Var("userFloat('beta')",    float, doc="frac of jet tracks associated to PV", precision= 6) 
-  proc.jetTable.variables.betaStar = Var("userFloat('betaStar')",float, doc="test3", precision= 6) 
+  proc.jetTable.variables.beta     = Var("userFloat('beta')",    float, doc="fraction of pT of charged constituents associated to PV", precision= 6) 
   proc.jetTable.variables.pull     = Var("userFloat('pull')",    float, doc="magnitude of pull vector", precision= 6) 
   proc.jetTable.variables.jetR     = Var("userFloat('jetR')",    float, doc="fraction of jet pT carried by the leading constituent", precision= 6) 
   proc.jetTable.variables.jetRchg  = Var("userFloat('jetRchg')", float, doc="fraction of jet pT carried by the leading charged constituent", precision= 6) 
   proc.jetTable.variables.nCharged = Var("userInt('nCharged')",  float, doc="number of charged constituents", precision= 6) 
-  proc.jetTable.variables.nNeutral = Var("userInt('nNeutral')",  float, doc="number of neutral constituents", precision= 6) 
 
 def PrepJMECustomNanoAOD(process):
   #
