@@ -68,8 +68,11 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet)
 
   // explicit dependency to make sure the QTest reults needed here are present
   // already in endRun.
-  consumes<DQMToken, edm::InRun>(edm::InputTag("siStripQTester"));
-  consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripQTester"));
+  // TODO: this should only read the one Token needed, not all. Otherwise we'd
+  // get a cyclic dependency if this module produces DQMTokens itself. This
+  // would happen e.g. if this was a DQMEDHarvester, as it should be.
+  consumesMany<DQMToken, edm::InRun>();
+  consumesMany<DQMToken, edm::InLumi>();
   usesResource("DQMStore");
 }
 
