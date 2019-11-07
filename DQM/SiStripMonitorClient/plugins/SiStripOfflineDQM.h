@@ -23,7 +23,7 @@
 #include <string>
 
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -40,7 +40,8 @@
 
 class SiStripDetCabling;
 
-class SiStripOfflineDQM : public edm::EDAnalyzer {
+class SiStripOfflineDQM
+    : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks, edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -50,6 +51,7 @@ public:
 private:
   void beginJob() override;
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override{};
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
