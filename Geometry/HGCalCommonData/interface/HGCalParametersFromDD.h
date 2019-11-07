@@ -4,8 +4,9 @@
 #include <string>
 #include <vector>
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
-class DDCompactView;
 class HGCalParameters;
 
 class HGCalParametersFromDD {
@@ -15,6 +16,13 @@ public:
 
   bool build(const DDCompactView*,
              HGCalParameters&,
+             const std::string&,
+             const std::string&,
+             const std::string&,
+             const std::string&);
+  bool build(const cms::DDCompactView*,
+             HGCalParameters&,
+             const std::string&,
              const std::string&,
              const std::string&,
              const std::string&,

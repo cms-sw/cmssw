@@ -20,7 +20,7 @@
 </ConstantsSection>
 
 <SpecParSection label="hgcalCons.xml" eval="true">
-  <SpecPar name="HGCalEE">
+  <SpecPar name="HGCalEESensitive">
     <PartSelector path="//HGCalEESensitive.*"/>    
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8" eval="false"/>
@@ -66,7 +66,7 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
   </SpecPar>
-  <SpecPar name="HGCalHEsil">
+  <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8" eval="false"/>
@@ -112,7 +112,7 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
   </SpecPar>
-  <SpecPar name="HGCalHEsci">
+  <SpecPar name="HGCalHEScintillaorSensitive">
     <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
     <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Trapezoid" eval="false"/>
@@ -150,7 +150,7 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
   </SpecPar>
-  <SpecPar name="HGCalWafer">
+  <SpecPar name="HGCal">
     <PartSelector path="//HGCalEECell.*"/>
     <PartSelector path="//HGCalHECell.*"/>
     <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
