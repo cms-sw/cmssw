@@ -27,7 +27,7 @@ process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDNumbering",
                                  outFileName = cms.untracked.string('BTL'),
                                  numNodesToDump = cms.untracked.uint32(0),
                                  ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
-                                 theLayout = cms.untracked.uint32(1)
+                                 theLayout = cms.untracked.uint32(4)
                                 ) 
 
 # process.testETL = cms.EDAnalyzer("TestMTDNumbering",

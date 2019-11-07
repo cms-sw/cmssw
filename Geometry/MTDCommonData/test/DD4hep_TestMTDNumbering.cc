@@ -74,7 +74,7 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
   edm::ESTransientHandle<DDCompactView> pDD;
   iSetup.get<IdealGeometryRecord>().get(tag_, pDD);
 
-  if (ddTopNodeName_ != "btl:BarrelTimingLayer" && ddTopNodeName_ != "etl:EndcapTimingLayer") {
+  if (ddTopNodeName_ != "BarrelTimingLayer" && ddTopNodeName_ != "EndcapTimingLayer") {
     edm::LogWarning("DD4hep_TestMTDNumbering") << ddTopNodeName_ << "Not valid top MTD volume";
     return;
   }
@@ -104,8 +104,15 @@ void DD4hep_TestMTDNumbering::checkMTD(const DDCompactView& cpv, std::string fna
 
   bool write = false;
   bool isBarrel = true;
+  unsigned int level(0);
+  size_t maxLevel = 50;
+  std::vector<std::string> theLevels(maxLevel,"");
 
   do {
+
+    unsigned int clevel = fv.navPos().size();
+    unsigned int ccopy = (clevel > 1 ? fv.copyNum() : 0);
+    theLevels[clevel-1] = fv.name()+"["+ccopy+"]/";
 
     if (fv.name() == "BarrelTimingLayer") {
       isBarrel = true;
@@ -118,14 +125,17 @@ void DD4hep_TestMTDNumbering::checkMTD(const DDCompactView& cpv, std::string fna
       edm::LogInfo("DD4hep_TestMTDNumbering") << "isBarrel = " << isBarrel;
 #endif
     }
-    if ( fv.name() == ddtop_ ) { write = true; }
+    if ( level > 0 && fv.navPos().size() <= level ) { break; }
+    if ( fv.name() == ddtop_ ) { write = true; level = fv.navPos().size(); }
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
-    std::cout << fv.name() << " " << fv.navPos().size() << std::endl;
     if (write) {
-      dump << " - " << fv.name() << " " << fv.navPos().size();
-      dump << "\n";
+      std::string thePath;
+      for ( size_t st = 0; st < clevel; st++ ) {
+        thePath += theLevels[st];
+      }
+      dump << " - " << thePath << "\n";
 
 //       bool isSens = false;
 
@@ -174,7 +184,7 @@ void DD4hep_TestMTDNumbering::checkMTD(const DDCompactView& cpv, std::string fna
 //           ETLDetId theId(etlNS_.getUnitID(thisN_));
 //           dump << theId;
 //         }
-      dump << "\n";
+//      dump << "\n";
 //       }
     }
 //     ++id;
