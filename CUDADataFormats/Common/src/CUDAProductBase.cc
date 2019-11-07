@@ -7,7 +7,7 @@ bool CUDAProductBase::isAvailable() const {
   if (not event_) {
     return true;
   }
-  return cudautils::eventIsOccurred(event_->id());
+  return cudautils::eventIsOccurred(event_.get());
 }
 
 CUDAProductBase::~CUDAProductBase() {
@@ -18,6 +18,10 @@ CUDAProductBase::~CUDAProductBase() {
   if (event_) {
     // TODO: a callback notifying a WaitingTaskHolder (or similar)
     // would avoid blocking the CPU, but would also require more work.
-    event_->synchronize();
+    //
+    // Intentionally not checking the return value to avoid throwing
+    // exceptions. If this call would fail, we should get failures
+    // elsewhere as well.
+    cudaEventSynchronize(event_.get());
   }
 }

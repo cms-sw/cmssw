@@ -95,7 +95,7 @@ namespace {
     std::vector<UniquePtr<char[]> > buffers;
     buffers.reserve(bufferSizes.size());
     for (auto size : bufferSizes) {
-      buffers.push_back(allocate(size, streamPtr->id()));
+      buffers.push_back(allocate(size, streamPtr.get()));
     }
   }
 

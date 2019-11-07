@@ -46,7 +46,7 @@ public:
         // Someone else is filling
 
         // Check first if the recorded event has occurred
-        if (cudautils::eventIsOccurred(data.m_event->id())) {
+        if (cudautils::eventIsOccurred(data.m_event.get())) {
           // It was, so data is accessible from all CUDA streams on
           // the device. Set the 'filled' for all subsequent calls and
           // return the value
@@ -58,7 +58,7 @@ public:
           // wait on the CUDA stream and return the value. Subsequent
           // work queued on the stream will wait for the event to
           // occur (i.e. transfer to finish).
-          auto ret = cudaStreamWaitEvent(cudaStream, data.m_event->id(), 0);
+          auto ret = cudaStreamWaitEvent(cudaStream, data.m_event.get(), 0);
           cuda::throw_if_error(ret, "Failed to make a stream to wait for an event");
         }
         // else: filling is still going on. But for the same CUDA
@@ -85,10 +85,9 @@ public:
 private:
   struct Item {
     mutable std::mutex m_mutex;
-    CMS_THREAD_GUARD(m_mutex) mutable std::shared_ptr<cuda::event_t> m_event;
-    CMS_THREAD_GUARD(m_mutex)
-    mutable cudaStream_t m_fillingStream =
-        nullptr;  // non-null if some thread is already filling (cudaStream_t is just a pointer)
+    CMS_THREAD_GUARD(m_mutex) mutable cudautils::SharedEventPtr m_event;
+    // non-null if some thread is already filling (cudaStream_t is just a pointer)
+    CMS_THREAD_GUARD(m_mutex) mutable cudaStream_t m_fillingStream = nullptr;
     mutable std::atomic<bool> m_filled = false;  // easy check if data has been filled already or not
     CMS_THREAD_GUARD(m_mutex) mutable T m_data;
   };

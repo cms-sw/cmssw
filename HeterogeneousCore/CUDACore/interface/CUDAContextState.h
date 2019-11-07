@@ -1,7 +1,7 @@
 #ifndef HeterogeneousCore_CUDACore_CUDAContextState_h
 #define HeterogeneousCore_CUDACore_CUDAContextState_h
 
-#include <cuda/api_wrappers.h>
+#include "HeterogeneousCore/CUDAUtilities/interface/SharedStreamPtr.h"
 
 #include <memory>
 
@@ -25,7 +25,7 @@ private:
   friend class CUDAScopedContextProduce;
   friend class CUDAScopedContextTask;
 
-  void set(int device, std::shared_ptr<cuda::stream_t<>> stream) {
+  void set(int device, cudautils::SharedStreamPtr stream) {
     throwIfStream();
     device_ = device;
     stream_ = std::move(stream);
@@ -33,20 +33,24 @@ private:
 
   int device() const { return device_; }
 
-  std::shared_ptr<cuda::stream_t<>>& streamPtr() {
+  const cudautils::SharedStreamPtr& streamPtr() const {
     throwIfNoStream();
     return stream_;
   }
 
-  const std::shared_ptr<cuda::stream_t<>>& streamPtr() const {
+  cudautils::SharedStreamPtr releaseStreamPtr() {
     throwIfNoStream();
-    return stream_;
+    // This function needs to effectively reset stream_ (i.e. stream_
+    // must be empty after this function). This behavior ensures that
+    // the SharedStreamPtr is not hold for inadvertedly long (i.e. to
+    // the next event), and is checked at run time.
+    return std::move(stream_);
   }
 
   void throwIfStream() const;
   void throwIfNoStream() const;
 
-  std::shared_ptr<cuda::stream_t<>> stream_;
+  cudautils::SharedStreamPtr stream_;
   int device_;
 };
 

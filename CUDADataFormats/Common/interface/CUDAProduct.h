@@ -3,8 +3,6 @@
 
 #include <memory>
 
-#include <cuda/api_wrappers.h>
-
 #include "CUDADataFormats/Common/interface/CUDAProductBase.h"
 
 namespace edm {
@@ -44,11 +42,11 @@ private:
   friend class CUDAScopedContextProduce;
   friend class edm::Wrapper<CUDAProduct<T>>;
 
-  explicit CUDAProduct(int device, std::shared_ptr<cuda::stream_t<>> stream, T data)
+  explicit CUDAProduct(int device, cudautils::SharedStreamPtr stream, T data)
       : CUDAProductBase(device, std::move(stream)), data_(std::move(data)) {}
 
   template <typename... Args>
-  explicit CUDAProduct(int device, std::shared_ptr<cuda::stream_t<>> stream, Args&&... args)
+  explicit CUDAProduct(int device, cudautils::SharedStreamPtr stream, Args&&... args)
       : CUDAProductBase(device, std::move(stream)), data_(std::forward<Args>(args)...) {}
 
   T data_;  //!

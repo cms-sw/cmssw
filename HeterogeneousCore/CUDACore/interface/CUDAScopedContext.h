@@ -8,6 +8,8 @@
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAContextState.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/SharedStreamPtr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/SharedEventPtr.h"
 
 #include <cuda/api_wrappers.h>
 
@@ -27,22 +29,20 @@ namespace impl {
     // mutable access is needed even if the CUDAScopedContext itself
     // would be const. Therefore it is ok to return a non-const
     // pointer from a const method here.
-    cudaStream_t stream() const { return stream_->id(); }
-    const std::shared_ptr<cuda::stream_t<>>& streamPtr() const { return stream_; }
+    cudaStream_t stream() const { return stream_.get(); }
+    const cudautils::SharedStreamPtr& streamPtr() const { return stream_; }
 
   protected:
     explicit CUDAScopedContextBase(edm::StreamID streamID);
 
     explicit CUDAScopedContextBase(const CUDAProductBase& data);
 
-    explicit CUDAScopedContextBase(int device, std::shared_ptr<cuda::stream_t<>> stream);
-
-    std::shared_ptr<cuda::stream_t<>>& streamPtr() { return stream_; }
+    explicit CUDAScopedContextBase(int device, cudautils::SharedStreamPtr stream);
 
   private:
     int currentDevice_;
     cuda::device::current::scoped_override_t<> setDeviceForThisScope_;
-    std::shared_ptr<cuda::stream_t<>> stream_;
+    cudautils::SharedStreamPtr stream_;
   };
 
   class CUDAScopedContextGetterBase : public CUDAScopedContextBase {
@@ -148,8 +148,8 @@ public:
   explicit CUDAScopedContextProduce(const CUDAProductBase& data) : CUDAScopedContextGetterBase(data) {}
 
   /// Constructor to re-use the CUDA stream of acquire() (ExternalWork module)
-  explicit CUDAScopedContextProduce(CUDAContextState& token)
-      : CUDAScopedContextGetterBase(token.device(), std::move(token.streamPtr())) {}
+  explicit CUDAScopedContextProduce(CUDAContextState& state)
+      : CUDAScopedContextGetterBase(state.device(), state.releaseStreamPtr()) {}
 
   ~CUDAScopedContextProduce();
 
@@ -178,14 +178,12 @@ private:
   friend class cudatest::TestCUDAScopedContext;
 
   // This construcor is only meant for testing
-  explicit CUDAScopedContextProduce(int device,
-                                    std::unique_ptr<cuda::stream_t<>> stream,
-                                    std::unique_ptr<cuda::event_t> event)
+  explicit CUDAScopedContextProduce(int device, cudautils::SharedStreamPtr stream, cudautils::SharedEventPtr event)
       : CUDAScopedContextGetterBase(device, std::move(stream)), event_{std::move(event)} {}
 
   void createEventIfStreamBusy();
 
-  std::shared_ptr<cuda::event_t> event_;
+  cudautils::SharedEventPtr event_;
 };
 
 /**

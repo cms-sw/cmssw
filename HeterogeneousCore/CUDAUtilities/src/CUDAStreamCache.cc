@@ -1,15 +1,28 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/ScopedSetDevice.h"
+
+#include <cuda/api_wrappers.h>
 
 namespace cudautils {
+  void CUDAStreamCache::Deleter::operator()(cudaStream_t stream) const {
+    if (device_ != -1) {
+      ScopedSetDevice deviceGuard{device_};
+      cudaCheck(cudaStreamDestroy(stream));
+    }
+  }
+
   // CUDAStreamCache should be constructed by the first call to
   // getCUDAStreamCache() only if we have CUDA devices present
   CUDAStreamCache::CUDAStreamCache() : cache_(cuda::device::count()) {}
 
-  std::shared_ptr<cuda::stream_t<>> CUDAStreamCache::getCUDAStream() {
-    return cache_[cuda::device::current::get().id()].makeOrGet([]() {
-      auto current_device = cuda::device::current::get();
-      return std::make_unique<cuda::stream_t<>>(
-          current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream));
+  SharedStreamPtr CUDAStreamCache::getCUDAStream() {
+    const auto dev = cudautils::currentDevice();
+    return cache_[dev].makeOrGet([dev]() {
+      cudaStream_t stream;
+      cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamDefault));
+      return std::unique_ptr<BareStream, Deleter>(stream, Deleter{dev});
     });
   }
 

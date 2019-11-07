@@ -52,7 +52,7 @@ namespace impl {
     }
   }
 
-  CUDAScopedContextBase::CUDAScopedContextBase(int device, std::shared_ptr<cuda::stream_t<>> stream)
+  CUDAScopedContextBase::CUDAScopedContextBase(int device, cudautils::SharedStreamPtr stream)
       : currentDevice_(device), setDeviceForThisScope_(device), stream_(std::move(stream)) {}
 
   ////////////////////
@@ -106,7 +106,7 @@ void CUDAScopedContextAcquire::throwNoState() {
 
 CUDAScopedContextProduce::~CUDAScopedContextProduce() {
   if (event_) {
-    event_->record(stream());
+    cudaCheck(cudaEventRecord(event_.get(), stream()));
   }
 }
 
