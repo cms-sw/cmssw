@@ -15,7 +15,6 @@
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 #include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
