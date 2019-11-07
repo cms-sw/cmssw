@@ -170,7 +170,8 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                       'PostDQMOffline',
                       'DQMHarvestPF'],
 
-            'standardDQM': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@hlt+@btag+@beam+@physics+@HLTMon',
+#            'standardDQM': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@hlt+@btag+@beam+@physics+@HLTMon',
+             'standardDQM': ['DQMOffline',
                             'PostDQMOffline',
                             'dqmHarvesting'],
 
@@ -182,7 +183,8 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                          'PostDQMOffline',
                          'dqmHarvestingExtraHLT'],
 
-            'standardDQMFakeHLT': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@btag+@beam+@physics',
+#            'standardDQMFakeHLT': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@btag+@beam+@physics',
+             'standardDQMFakeHLT': ['DQMOfflineFakeHLT',
                                    'PostDQMOffline',
                                    'dqmHarvestingFakeHLT'],
 
