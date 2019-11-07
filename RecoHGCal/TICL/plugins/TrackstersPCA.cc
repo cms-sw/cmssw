@@ -10,6 +10,8 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
   for (auto &trackster : tracksters) {
     pca.Clear();
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
+      auto fraction = 1.f / trackster.vertex_multiplicity[i];
+      trackster.raw_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
       double point[3] = {
         layerClusters[trackster.vertices[i]].x(),
         layerClusters[trackster.vertices[i]].y(),
