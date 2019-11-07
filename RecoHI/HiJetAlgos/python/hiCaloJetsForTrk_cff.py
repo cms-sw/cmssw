@@ -19,4 +19,3 @@ akPu4CaloJetsSelected = cms.EDFilter( "LargestEtCaloJetSelector",
 )
 
 hiCaloJetsForTrkTask = cms.Task(hiCaloTowerForTrk,akPu4CaloJetsForTrk,akPu4CaloJetsCorrected,akPu4CaloJetsSelected)
-hiCaloJetsForTrk = cms.Sequence(hiCaloJetsForTrkTask)

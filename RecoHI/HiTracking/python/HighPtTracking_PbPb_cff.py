@@ -32,4 +32,3 @@ hiBasicTrackingTask = cms.Task(hiPixelVerticesTask
                                 , hiGlobalPrimTracks
                                 , hiTracksWithQualityTask
                                 )
-hiBasicTracking = cms.Sequence(hiBasicTrackingTask)

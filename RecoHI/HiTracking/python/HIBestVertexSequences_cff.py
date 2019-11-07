@@ -16,7 +16,6 @@ hiSelectedPixelVertex = cms.EDProducer("HIBestVertexProducer",
 
 # best vertex sequence
 bestHiVertexTask = cms.Task( hiBestAdaptiveVertex , hiSelectedPixelVertex ) # vertexing run BEFORE tracking
-bestHiVertex = cms.Sequence( bestHiVertexTask ) # vertexing run BEFORE tracking
 
 from RecoHI.HiTracking.HIPixelAdaptiveVertex_cfi import *
 hiOfflinePrimaryVertices=hiPixelAdaptiveVertex.clone( # vertexing run AFTER tracking
@@ -50,4 +49,3 @@ hiSelectedVertex = hiSelectedPixelVertex.clone(
     finalAdaptiveVertexCollection = cms.InputTag("hiBestOfflinePrimaryVertex")
 )
 bestFinalHiVertexTask = cms.Task(hiOfflinePrimaryVertices , hiBestOfflinePrimaryVertex , hiSelectedVertex )
-bestFinalHiVertex = cms.Sequence(bestFinalHiVertexTask) # vertexing run AFTER tracking

@@ -46,8 +46,8 @@ pfTrackElec.applyGsfTrackCleaning = cms.bool(True)
 pfTrackElec.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
 
 hiElectronTask = cms.Task(electronGsfTrackingHiTask ,   
-                                  pfTrack ,
-                                  pfTrackElec ,
-                                  gsfEcalDrivenElectronTask 
-                                  )
+                          pfTrack ,
+                          pfTrackElec ,
+                          gsfEcalDrivenElectronTask 
+                          )
 hiElectronSequence = cms.Sequence(hiElectronTask)

@@ -173,13 +173,10 @@ hiRegitMuonSeededStepCoreTask = cms.Task(
       hiRegitMuonSeededSeedsInOut , hiRegitMuonSeededTrackCandidatesInOut , hiRegitMuonSeededTracksInOut ,
       hiRegitMuonSeededSeedsOutIn , hiRegitMuonSeededTrackCandidatesOutIn , hiRegitMuonSeededTracksOutIn 
       )
-hiRegitMuonSeededStepCore = cms.Sequence(hiRegitMuonSeededStepCoreTask)
 hiRegitMuonSeededStepExtraTask = cms.Task(
       hiRegitMuonSeededTracksInOutSelector ,
       hiRegitMuonSeededTracksOutInSelector
       )
-hiRegitMuonSeededStepExtra = cms.Sequence(hiRegitMuonSeededStepExtraTask)
-
 hiRegitMuonSeededStepTask = cms.Task(
       hiEarlyGeneralTracks ,
       hiEarlyMuons ,

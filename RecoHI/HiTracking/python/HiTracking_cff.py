@@ -31,7 +31,6 @@ hiTracking_noRegitMuTask = cms.Task(
     ,hiLowPtTripletStepTask
     ,hiPixelPairStepTask
     )
-hiTracking_noRegitMu = cms.Sequence(hiTracking_noRegitMuTask)
 
 hiTracking_noRegitMu_wSplittingTask = cms.Task(
     hiInitialJetCoreClusterSplittingTask
@@ -40,7 +39,6 @@ hiTracking_noRegitMu_wSplittingTask = cms.Task(
     ,hiLowPtTripletStepTask
     ,hiPixelPairStepTask
     )
-hiTracking_noRegitMu_wSplitting = cms.Sequence(hiTracking_noRegitMu_wSplittingTask)
 
 hiTracking_noRegitMu_wSplitting_Phase1Task = cms.Task(
     hiInitialJetCoreClusterSplittingTask
@@ -55,7 +53,6 @@ hiTracking_noRegitMu_wSplitting_Phase1Task = cms.Task(
     ,hiPixelLessStepTask    # large impact parameter tracks
     ,hiTobTecStepTask       # large impact parameter tracks
     )
-hiTracking_noRegitMu_wSplitting_Phase1 = cms.Sequence(hiTracking_noRegitMu_wSplitting_Phase1Task)
 
 hiTrackingTask = cms.Task(
     hiTracking_noRegitMuTask

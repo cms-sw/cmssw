@@ -30,8 +30,5 @@ from RecoEcal.EgammaClusterProducers.islandBasicClusters_cfi import *
 
 islandBasicClustersGED = islandBasicClusters.clone()
 photonIsolationHITask = cms.Task(islandBasicClusters , photonIsolationHIProducerpp)
-photonIsolationHISequence = cms.Sequence(photonIsolationHITask)
 photonIsolationHITaskGED = cms.Task(islandBasicClustersGED , photonIsolationHIProducerppGED)
-photonIsolationHISequenceGED = cms.Sequence(photonIsolationHITaskGED)
 photonIsolationHITaskIsland = cms.Task(islandBasicClusters , photonIsolationHIProducerppIsland)
-photonIsolationHISequenceIsland = cms.Sequence(photonIsolationHITaskIsland)

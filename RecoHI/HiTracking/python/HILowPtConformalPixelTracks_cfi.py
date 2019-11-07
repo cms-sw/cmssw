@@ -132,7 +132,6 @@ hiConformalPixelTracksTask = cms.Task(
     hiConformalPixelFilter ,
     hiConformalPixelTracks
 )
-hiConformalPixelTracksSequence = cms.Sequence(hiConformalPixelTracksTask)
 
 hiConformalPixelTracksTaskPhase1 = cms.Task(
     hiConformalPixelTracksPhase1TrackingRegions ,

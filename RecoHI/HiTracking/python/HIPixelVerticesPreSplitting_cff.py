@@ -39,7 +39,6 @@ hiSelectedVertexPreSplitting = hiSelectedPixelVertex.clone(
   medianVertexCollection = cms.InputTag("hiPixelMedianVertexPreSplitting")
 )
 bestHiVertexPreSplittingTask = cms.Task( hiBestAdaptiveVertexPreSplitting , hiSelectedVertexPreSplitting )
-bestHiVertexPreSplitting = cms.Sequence(bestHiVertexPreSplittingTask)
 
 PixelLayerTripletsPreSplitting = PixelLayerTriplets.clone()
 PixelLayerTripletsPreSplitting.FPix.HitProducer = 'siPixelRecHitsPreSplitting'
