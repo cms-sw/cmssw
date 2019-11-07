@@ -47,7 +47,7 @@ namespace ticl {
 
     // PCA Variables
     typedef math::XYZVector Vector;
-    std::array<float, 3> barycenter;
+    Vector barycenter;
     std::array<float, 3> eigenvalues;
     std::array<Vector, 3> eigenvectors;
     std::array<float, 3> sigmas;
