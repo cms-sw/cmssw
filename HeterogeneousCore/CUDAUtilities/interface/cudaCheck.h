@@ -4,6 +4,7 @@
 // C++ standard headers
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 // CUDA headers
 #include <cuda.h>
@@ -18,8 +19,7 @@ namespace {
     out << file << ", line " << line << ":\n";
     out << "cudaCheck(" << cmd << ");\n";
     out << error << ": " << message << "\n";
-    std::cerr << out.str() << std::flush;
-    abort();
+    throw std::runtime_error(out.str());
   }
 
 }  // namespace
