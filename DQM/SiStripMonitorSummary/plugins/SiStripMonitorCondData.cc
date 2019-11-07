@@ -21,7 +21,7 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DQM/SiStripMonitorSummary/interface/SiStripMonitorCondData.h"
+#include "SiStripMonitorCondData.h"
 
 #include "DQM/SiStripMonitorSummary/interface/SiStripApvGainsDQM.h"
 #include "DQM/SiStripMonitorSummary/interface/SiStripBackPlaneCorrectionDQM.h"
