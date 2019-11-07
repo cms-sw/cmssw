@@ -1,0 +1,32 @@
+<library name="GeneratorInterfaceGenFiltersPlugins" file="*.cc">
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="GeneratorInterface/Pythia6Interface"/>
+<use   name="GeneratorInterface/Core"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="MagneticField/Records"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/TrajectoryParametrization"/>
+<use   name="TrackingTools/Records"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="CommonTools/BaseParticlePropagator"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/Math"/>
+<use   name="fastjet"/>
+<use   name="boost"/>
+<use   name="heppdt"/>
+<use   name="clhep"/>
+<use   name="rootcore"/>
+<use   name="pythia8"/>
+<flags   EDM_PLUGIN="1"/>
+</library>
