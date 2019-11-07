@@ -42,7 +42,7 @@ namespace evf {
         bu_base_dir_(pset.getUntrackedParameter<std::string>("buBaseDir")),
         run_(pset.getUntrackedParameter<unsigned int>("runNumber")),
         useFileBroker_(pset.getUntrackedParameter<bool>("useFileBroker")),
-        fileBrokerHostFromCfg_(pset.getUntrackedParameter<bool>("fileBrokerHostFromCfg",true)),
+        fileBrokerHostFromCfg_(pset.getUntrackedParameter<bool>("fileBrokerHostFromCfg", true)),
         fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost")),
         fileBrokerPort_(pset.getUntrackedParameter<std::string>("fileBrokerPort", "8080")),
         fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", true)),
@@ -106,21 +106,20 @@ namespace evf {
     if (useFileBroker_) {
       if (fileBrokerHostFromCfg_) {
         //find BU data address from hltd configuration
-        fileBrokerHost_=std::string();
+        fileBrokerHost_ = std::string();
         struct stat buf;
         if (stat("/etc/appliance/bus.config", &buf) == 0) {
           std::ifstream busconfig("/etc/appliance/bus.config", std::ifstream::in);
           std::getline(busconfig, fileBrokerHost_);
         }
         if (fileBrokerHost_.empty())
-            throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
-      }
-      else if (fileBrokerHost_.empty())
-        throw cms::Exception("EvFDaqDirector") << "fileBrokerHostFromCfg must be set to true if no fileBrokerHost is given";
+          throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
+      } else if (fileBrokerHost_.empty())
+        throw cms::Exception("EvFDaqDirector")
+            << "fileBrokerHostFromCfg must be set to true if no fileBrokerHost is given";
 
       resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
-      query_ =
-          std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);
+      query_ = std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);
       endpoint_iterator_ = std::make_unique<boost::asio::ip::tcp::resolver::iterator>(resolver_->resolve(*query_));
       socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
     }
@@ -328,7 +327,7 @@ namespace evf {
     desc.addUntracked<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
     desc.addUntracked<bool>("useFileBroker", false)
         ->setComment("Use BU file service to grab input data instead of NFS file locking");
-    desc.addUntracked<bool>("fileBrokerHostFromCfg",true)
+    desc.addUntracked<bool>("fileBrokerHostFromCfg", true)
         ->setComment("Allow service to discover BU address from hltd configuration");
     desc.addUntracked<std::string>("fileBrokerHost")->setComment("BU file service host.");
     desc.addUntracked<std::string>("fileBrokerPort", "8080")->setComment("BU file service port");
@@ -344,9 +343,8 @@ namespace evf {
         ->setComment("Require complete transferSystem PSet in the process configuration");
     desc.addUntracked<std::string>("selectedTransferMode", "")
         ->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
-    desc.addUntracked<bool>("directorIsBU",false)->setComment("BU director mode used for testing");
-    desc.addUntracked<std::string>("hltSourceDirectory", "")
-        ->setComment("BU director mode source directory");
+    desc.addUntracked<bool>("directorIsBU", false)->setComment("BU director mode used for testing");
+    desc.addUntracked<std::string>("hltSourceDirectory", "")->setComment("BU director mode source directory");
     desc.addUntracked<std::string>("mergingPset", "")
         ->setComment("Name of merging PSet to look for merging type definitions for streams");
     descriptions.add("EvFDaqDirector", desc);
