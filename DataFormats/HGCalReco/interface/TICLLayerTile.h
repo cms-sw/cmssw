@@ -61,4 +61,18 @@ private:
   ticl::Tiles tiles_;
 };
 
+class TICLTracksterTiles {
+public:
+  // This class represents a collection of Tiles, one for each layer in
+  // HGCAL. The layer numbering should account for both sides of HGCAL and is
+  // not handled internally. It is the user's responsibility to properly
+  // number the layers and consistently access them here.
+  const TICLLayerTile& operator[](int iteration) const { return tiles_[iteration]; }
+  void fill(int iteration, double eta, double phi, unsigned int tracksterId) {
+    tiles_[iteration].fill(eta, phi, tracksterId);
+  }
+
+private:
+  ticl::TracksterTiles tiles_;
+};
 #endif
