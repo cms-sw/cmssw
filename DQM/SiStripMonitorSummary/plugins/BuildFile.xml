@@ -13,6 +13,7 @@
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="CommonTools/TrackerMap"/>
 <use   name="DQM/SiStripCommon"/>
+<use   name="DQM/SiStripMonitorSummary"/>
 <use   name="DQMServices/Core"/>
 <library   file="*.cc" name="DQMSiStripMonitorSummaryplugins">
   <flags   EDM_PLUGIN="1"/>
