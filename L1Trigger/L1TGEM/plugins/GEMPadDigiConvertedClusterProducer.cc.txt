@@ -1,0 +1,179 @@
+#ifndef L1Trigger_L1TGEM_GEMPadDigiClusterProducer_h
+#define L1Trigger_L1TGEM_GEMPadDigiConvClusterProducer_h
+
+/**
+ *  \class GEMPadDigiConvClusterProducer
+ *
+ *  Convert the pad and roll number into a phi and theta
+ *
+ *  \author Sven Dildick (Rice)
+ */
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
+
+#include <string>
+#include <map>
+#include <vector>
+
+class GEMPadDigiConvClusterProducer : public edm::stream::EDProducer<> {
+public:
+  // all clusters per eta partition
+  typedef std::vector<GEMPadDigiCluster> GEMPadDigiClusters;
+  typedef std::map<GEMDetId, GEMPadDigiClusters> GEMPadDigiClusterContainer;
+
+  explicit GEMPadDigiConvClusterProducer(const edm::ParameterSet& ps);
+
+  ~GEMPadDigiConvClusterProducer() override;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+
+  void convertClusters(const GEMPadDigiClusterCollection& in_clusters, GEMPadDigiClusterContainer& out_clusters) const;
+
+  /// Name of input digi Collection
+  edm::EDGetTokenT<GEMPadDigiClusterCollection> cluster_token_;
+  edm::InputTag clusters_;
+
+  const GEMGeometry* geometry_;
+};
+
+GEMPadDigiConvClusterProducer::GEMPadDigiConvClusterProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
+  clusters_ = ps.getParameter<edm::InputTag>("InputCollection");
+  cluster_token_ = consumes<GEMPadDigiCollection>(pads_);
+
+  consumes<GEMPadDigiClusterCollection>(clusters_);
+  produces<GEMPadDigiConvClusterCollection>("CTP7");
+}
+
+GEMPadDigiConvClusterProducer::~GEMPadDigiConvClusterProducer() {}
+
+void GEMPadDigiConvClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("InputCollection", edm::InputTag("simMuonGEMPadDigiCusters"));
+
+  descriptions.add("simMuonGEMPadDigiConvClustersDef", desc);
+}
+
+void GEMPadDigiConvClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
+  edm::ESHandle<GEMGeometry> hGeom;
+  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  geometry_ = &*hGeom;
+}
+
+void GEMPadDigiConvClusterProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+  edm::Handle<GEMPadDigiCollection> hclusters;
+  e.getByToken(cluster_token_, hclusters);
+
+  // Create empty output
+  std::unique_ptr<GEMPadDigiClusterCollection> pConvClusters(new GEMPadDigiClusterCollection());
+
+  // convert eta-phi coordinates
+  // Future work: allow for GEM-EMTF alignment corrections!
+  // Future work: replace geometry functions with a LUT
+  convertClusters(*(hpads.product()), *pConvClusters);
+
+  // store them in the event
+  e.put(std::move(pConvClusters));
+}
+
+void GEMPadDigiConvClusterProducer::convertClusters(const GEMPadDigiClusterCollection& in_clusters,
+                                                    GEMPadDigiClusterContainer& out_clusters) const {
+  // clear the container
+  GEMPadDigiClusters cluster_container;
+  cluster_container.clear();
+
+  // loop on partitions
+  for (const auto& part : geometry_->etaPartitions()) {
+
+    auto clusters = in_clusters.get(part->id());
+
+    // get the partition
+    geometry_
+
+    // loop on clusters
+    for (auto cl = clusters.first; cl < clusters.second; cl++){
+
+      // do the conversion of roll and central pad number into theta and phi
+
+      const GlobalPoint& gp = tp_geom_->getGlobalPoint(muon_primitive);
+      double glob_phi = emtf::rad_to_deg(gp.phi().value());
+      double glob_theta = emtf::rad_to_deg(gp.theta());
+      double glob_eta = gp.eta();
+      double glob_rho = gp.perp();
+      double glob_z = gp.z();
+
+      // Use the CSC precision (unconfirmed!)
+      int fph = emtf::calc_phi_loc_int(glob_phi, conv_hit.PC_sector());
+      int th = emtf::calc_theta_int(glob_theta, conv_hit.Endcap());
+
+      if (not(0 <= fph && fph < 5000)) {
+        edm::LogError("L1T") << "fph = " << fph;
+        return;
+      }
+      if (not(0 <= th && th < 128)) {
+        edm::LogError("L1T") << "th = " << th;
+        return;
+      }
+      th = (th == 0) ? 1 : th;  // protect against invalid value
+
+      // ___________________________________________________________________________
+      // Zone codes and other segment IDs
+
+      //int zone_hit     = ((fph + (1<<4)) >> 5);
+      int zone_code = get_zone_code(conv_hit, th);
+      int phzvl = get_phzvl(conv_hit, zone_code);
+
+      int fs_zone_code = get_fs_zone_code(conv_hit);
+      int fs_segment = get_fs_segment(conv_hit, fw_station, fw_cscid, pc_segment);
+
+      int bt_station = get_bt_station(conv_hit, fw_station, fw_cscid, pc_segment);
+      int bt_segment = get_bt_segment(conv_hit, fw_station, fw_cscid, pc_segment);
+
+      // ___________________________________________________________________________
+      // Output
+
+      conv_hit.set_phi_fp(fph);           // Full-precision integer phi
+      conv_hit.set_theta_fp(th);          // Full-precision integer theta
+      conv_hit.set_phzvl(phzvl);          // Local zone word: (1*low) + (2*mid) + (4*low) - used in FW debugging
+      conv_hit.set_ph_hit(ph_hit);        // Intermediate quantity in phi calculation - used in FW debugging
+      conv_hit.set_zone_hit(zone_hit);    // Phi value for building patterns (0.53333 deg precision)
+      conv_hit.set_zone_code(zone_code);  // Full zone word: 1*(zone 0) + 2*(zone 1) + 4*(zone 2) + 8*(zone 3)
+
+      conv_hit.set_fs_segment(fs_segment);      // Segment number used in primitive matching
+      conv_hit.set_fs_zone_code(fs_zone_code);  // Zone word used in primitive matching
+
+      conv_hit.set_bt_station(bt_station);
+      conv_hit.set_bt_segment(bt_segment);
+
+      conv_hit.set_phi_loc(emtf::calc_phi_loc_deg(fph));
+      conv_hit.set_phi_glob(emtf::calc_phi_glob_deg(conv_hit.Phi_loc(), conv_hit.PC_sector()));
+      conv_hit.set_theta(emtf::calc_theta_deg_from_int(th));
+      conv_hit.set_eta(emtf::calc_eta_from_theta_deg(conv_hit.Theta(), conv_hit.Endcap()));
+    }
+  }  // end of partition loop
+}
+
+DEFINE_FWK_MODULE(GEMPadDigiConvClusterProducer);
+
+#endif
