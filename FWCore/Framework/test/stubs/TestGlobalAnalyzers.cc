@@ -36,8 +36,9 @@ namespace edmtest {
       };
 
       struct UnsafeCache {
-        UnsafeCache() : value(0) {}
+        UnsafeCache() : value(0), lumi(0) {}
         unsigned int value;
+        unsigned int lumi;
       };
 
     }  //end anonymous namespace
@@ -252,10 +253,12 @@ namespace edmtest {
         return std::make_unique<UnsafeCache>();
       }
 
-      std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
+      std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const& iLB,
                                                                      edm::EventSetup const&) const override {
         ++m_count;
-        return std::make_shared<UnsafeCache>();
+        auto gCache = std::make_shared<UnsafeCache>();
+        gCache->lumi = iLB.luminosityBlockAuxiliary().luminosityBlock();
+        return gCache;
       }
 
       void analyze(edm::StreamID iID, const edm::Event& iEvent, const edm::EventSetup&) const override {
@@ -264,18 +267,25 @@ namespace edmtest {
       }
 
       void streamEndLuminosityBlockSummary(edm::StreamID iID,
-                                           edm::LuminosityBlock const& iLumiBlock,
+                                           edm::LuminosityBlock const& iLB,
                                            edm::EventSetup const&,
                                            UnsafeCache* gCache) const override {
         ++m_count;
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+          throw cms::Exception("UnexpectedValue")
+              << "streamEndLuminosityBlockSummary unexpected lumi number in Stream " << iID.value();
+        }
         gCache->value += (streamCache(iID))->value;
         (streamCache(iID))->value = 0;
       }
 
-      void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
+      void globalEndLuminosityBlockSummary(edm::LuminosityBlock const& iLB,
                                            edm::EventSetup const&,
                                            UnsafeCache* gCache) const override {
         ++m_count;
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+          throw cms::Exception("UnexpectedValue") << "globalEndLuminosityBlockSummary unexpected lumi number";
+        }
         if (gCache->value != cvalue_) {
           throw cms::Exception("cache value")
               << "LumiSummaryIntAnalyzer cache value " << gCache->value << " but it was supposed to be " << cvalue_;

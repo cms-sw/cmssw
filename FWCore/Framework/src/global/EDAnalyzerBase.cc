@@ -61,6 +61,7 @@ namespace edm {
     void EDAnalyzerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       preallocStreams(iPrealloc.numberOfStreams());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
+      preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());
       preallocate(iPrealloc);
     }
 
@@ -168,6 +169,7 @@ namespace edm {
 
     void EDAnalyzerBase::preallocStreams(unsigned int) {}
     void EDAnalyzerBase::preallocLumis(unsigned int) {}
+    void EDAnalyzerBase::preallocLumisSummary(unsigned int) {}
     void EDAnalyzerBase::preallocate(PreallocationConfiguration const&) {}
     void EDAnalyzerBase::doBeginStream_(StreamID id) {}
     void EDAnalyzerBase::doEndStream_(StreamID id) {}
