@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
  <ConstantsSection  label="trackerParameters.xml" eval="true">
+   <Vector name="RadiusMixBoundary" type="numeric" nEntries="16">
+     [hgcal:radMixL0], [hgcal:radMixL1], [hgcal:radMixL2], [hgcal:radMixL3],
+     [hgcal:radMixL4], [hgcal:radMixL5], [hgcal:radMixL6], [hgcal:radMixL7],
+     [hgcal:radMixL8], [hgcal:radMixL9], [hgcal:radMixL10],[hgcal:radMixL11],
+     [hgcal:radMixL12],[hgcal:radMixL13],[hgcal:radMixL14],[hgcal:radMixL15]
+   </Vector>
    <Vector name="vPars" type="numeric" nEntries="6">
      80, 52, 1, 2, 0, 0
    </Vector>
