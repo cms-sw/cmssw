@@ -18,9 +18,9 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
       pca.AddRow(&point[0]);
     }
     pca.MakePrincipals();
-    trackster.barycenter[0] = (float)(*(pca.GetMeanValues()))[0];
-    trackster.barycenter[1] = (float)(*(pca.GetMeanValues()))[1];
-    trackster.barycenter[2] = (float)(*(pca.GetMeanValues()))[2];
+    trackster.barycenter = ticl::Trackster::Vector((*(pca.GetMeanValues()))[0],
+        (*(pca.GetMeanValues()))[1],
+        (*(pca.GetMeanValues()))[2]);
     trackster.eigenvalues[0] = (float)(*(pca.GetEigenValues()))[0];
     trackster.eigenvalues[1] = (float)(*(pca.GetEigenValues()))[1];
     trackster.eigenvalues[2] = (float)(*(pca.GetEigenValues()))[2];
