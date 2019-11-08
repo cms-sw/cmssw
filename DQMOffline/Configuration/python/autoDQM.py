@@ -10,13 +10,13 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                         'PostDQMOffline',
                         '@dcs+@DQMMessageLoggerClient+@strip+@pixel+@tracking+@L1TMon+@beam+@fed+@tau+dqmFastTimerServiceClient'],
 
-            'commonSiStripZeroBias': ['@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@tracking+@L1TMon+@hlt+@beam+@castor+@physics',
+            'commonSiStripZeroBias': ['@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@trackingiZeroBias+@L1TMon+@hlt+@beam+@castor+@physics',
                                       'PostDQMOffline',
-                                      '@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@tracking+@L1TMon+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+                                      '@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@trackingZeroBias+@L1TMon+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
-            'commonSiStripZeroBiasFakeHLT': ['@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@tracking+@L1TMon+@beam+@castor+@physics',
+            'commonSiStripZeroBiasFakeHLT': ['@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@trackingZeroBias+@L1TMon+@beam+@castor+@physics',
                                       'PostDQMOffline',
-                                      '@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@tracking+@L1TMon+@beam+@fed+dqmFastTimerServiceClient'],
+                                      '@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@trackingZeroBias+@L1TMon+@beam+@fed+dqmFastTimerServiceClient'],
 
             'trackingOnlyDQM': ['DQMOfflineTracking',
                                 'PostDQMOffline',
@@ -57,6 +57,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 	    'tracking': ['DQMOfflineTracking',
 			 'PostDQMOffline',
                          'DQMHarvestTracking+DQMCertTracking'],
+
+            'trackingZeroBias': ['DQMOfflineTrackingMinBias',
+                       'PostDQMOffline',
+                       'DQMHarvestTrack','DQMCertTracking'],
 
 	    'hlt': ['DQMOfflineTrigger',
 		    'PostDQMOffline',
