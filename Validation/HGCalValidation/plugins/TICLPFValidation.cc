@@ -18,13 +18,13 @@
 //
 
 struct Histogram_TICLPFValidation {
-  ConcurrentMonitorElement type_;
-  ConcurrentMonitorElement energy_;
-  ConcurrentMonitorElement pt_;
-  ConcurrentMonitorElement eta_;
-  ConcurrentMonitorElement phi_;
-  ConcurrentMonitorElement charge_;
-  ConcurrentMonitorElement vect_sum_pt_;  // cumulative histogram
+  dqm::reco::MonitorElement* type_;
+  dqm::reco::MonitorElement* energy_;
+  dqm::reco::MonitorElement* pt_;
+  dqm::reco::MonitorElement* eta_;
+  dqm::reco::MonitorElement* phi_;
+  dqm::reco::MonitorElement* charge_;
+  dqm::reco::MonitorElement* vect_sum_pt_;  // cumulative histogram
 };
 
 using Histograms_TICLPFValidation = std::unordered_map<int, Histogram_TICLPFValidation>;
@@ -37,7 +37,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void bookHistograms(DQMStore::ConcurrentBooker&,
+  void bookHistograms(DQMStore::IBooker&,
                       edm::Run const&,
                       edm::EventSetup const&,
                       Histograms_TICLPFValidation&) const override;
@@ -93,19 +93,19 @@ void TICLPFValidation::dqmAnalyze(edm::Event const& iEvent,
     size_t type = pfc.particleId();
     ptx_tot += pfc.px();
     pty_tot += pfc.py();
-    histos.at(0).type_.fill(type);
+    histos.at(0).type_->Fill(type);
     auto& histo = histos.at(type);
-    histo.energy_.fill(pfc.energy());
-    histo.pt_.fill(pfc.pt());
-    histo.eta_.fill(pfc.eta());
-    histo.phi_.fill(pfc.phi());
-    histo.charge_.fill(pfc.charge());
+    histo.energy_->Fill(pfc.energy());
+    histo.pt_->Fill(pfc.pt());
+    histo.eta_->Fill(pfc.eta());
+    histo.phi_->Fill(pfc.phi());
+    histo.charge_->Fill(pfc.charge());
   }
   auto& histo = histos.at(0);
-  histo.vect_sum_pt_.fill(std::sqrt(ptx_tot * ptx_tot + pty_tot * pty_tot));
+  histo.vect_sum_pt_->Fill(std::sqrt(ptx_tot * ptx_tot + pty_tot * pty_tot));
 }
 
-void TICLPFValidation::bookHistograms(DQMStore::ConcurrentBooker& ibook,
+void TICLPFValidation::bookHistograms(DQMStore::IBooker& ibook,
                                       edm::Run const& run,
                                       edm::EventSetup const& iSetup,
                                       Histograms_TICLPFValidation& histos) const {
