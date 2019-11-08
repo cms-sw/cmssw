@@ -117,21 +117,21 @@ hiMixedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.tra
     makeReKeyedSeeds = cms.untracked.bool(False),
     )
 
-hiMixedTripletStep = cms.Sequence(
-                                hiMixedTripletStepClusters*
-                                mixedTripletStepSeedLayersA*
-                                hiMixedTripletStepTrackingRegionsA*
-                                mixedTripletStepHitDoubletsA*
-                                mixedTripletStepHitTripletsA*
-                                mixedTripletStepSeedsA*
-                                mixedTripletStepSeedLayersB*
-                                hiMixedTripletStepTrackingRegionsB*
-                                mixedTripletStepHitDoubletsB*
-                                mixedTripletStepHitTripletsB*
-                                mixedTripletStepSeedsB*
-                                mixedTripletStepSeeds*
-                                mixedTripletStepTrackCandidates*
-                                hiMixedTripletStepTracks*
-                                hiMixedTripletStepSelector*
+hiMixedTripletStepTask = cms.Task(
+                                hiMixedTripletStepClusters,
+                                mixedTripletStepSeedLayersA,
+                                hiMixedTripletStepTrackingRegionsA,
+                                mixedTripletStepHitDoubletsA,
+                                mixedTripletStepHitTripletsA,
+                                mixedTripletStepSeedsA,
+                                mixedTripletStepSeedLayersB,
+                                hiMixedTripletStepTrackingRegionsB,
+                                mixedTripletStepHitDoubletsB,
+                                mixedTripletStepHitTripletsB,
+                                mixedTripletStepSeedsB,
+                                mixedTripletStepSeeds,
+                                mixedTripletStepTrackCandidates,
+                                hiMixedTripletStepTracks,
+                                hiMixedTripletStepSelector,
                                 hiMixedTripletStepQual)
-
+hiMixedTripletStep = cms.Sequence(hiMixedTripletStepTask)

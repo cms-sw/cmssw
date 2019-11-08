@@ -228,18 +228,18 @@ hiLowPtQuadStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackL
     )
 
 
-hiLowPtQuadStep = cms.Sequence(hiLowPtQuadStepClusters*
-                                     hiLowPtQuadStepSeedLayers*
-                                     hiLowPtQuadStepTrackingRegions*
-                                     hiLowPtQuadStepTracksHitDoubletsCA* 
-                                     hiLowPtQuadStepTracksHitQuadrupletsCA* 
-				     pixelFitterByHelixProjections*
-                                     hiLowPtQuadStepPixelTracksFilter*
-                                     hiLowPtQuadStepPixelTracks*
-                                     hiLowPtQuadStepSeeds*
-                                     hiLowPtQuadStepTrackCandidates*
-                                     hiLowPtQuadStepTracks*
-                                     hiLowPtQuadStepSelector*
+hiLowPtQuadStepTask = cms.Task(hiLowPtQuadStepClusters,
+                                     hiLowPtQuadStepSeedLayers,
+                                     hiLowPtQuadStepTrackingRegions,
+                                     hiLowPtQuadStepTracksHitDoubletsCA, 
+                                     hiLowPtQuadStepTracksHitQuadrupletsCA, 
+				     pixelFitterByHelixProjections,
+                                     hiLowPtQuadStepPixelTracksFilter,
+                                     hiLowPtQuadStepPixelTracks,
+                                     hiLowPtQuadStepSeeds,
+                                     hiLowPtQuadStepTrackCandidates,
+                                     hiLowPtQuadStepTracks,
+                                     hiLowPtQuadStepSelector,
                                      hiLowPtQuadStepQual)
-
+hiLowPtQuadStep = cms.Sequence(hiLowPtQuadStepTask)
 

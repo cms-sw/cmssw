@@ -97,20 +97,20 @@ hiTobTecStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackList
     )
 
 
-hiTobTecStep = cms.Sequence(hiTobTecStepClusters*
-                          tobTecStepSeedLayersTripl*
-                          hiTobTecStepTrackingRegionsTripl*
-                          tobTecStepHitDoubletsTripl*
-                          tobTecStepHitTripletsTripl*
-                          tobTecStepSeedsTripl*
-                          tobTecStepSeedLayersPair*
-                          hiTobTecStepTrackingRegionsPair*
-                          tobTecStepHitDoubletsPair*
-                          tobTecStepSeedsPair*
-                          tobTecStepSeeds*
-                          tobTecStepTrackCandidates*
-                          hiTobTecStepTracks*
-                          hiTobTecStepSelector*
+hiTobTecStepTask = cms.Task(hiTobTecStepClusters,
+                          tobTecStepSeedLayersTripl,
+                          hiTobTecStepTrackingRegionsTripl,
+                          tobTecStepHitDoubletsTripl,
+                          tobTecStepHitTripletsTripl,
+                          tobTecStepSeedsTripl,
+                          tobTecStepSeedLayersPair,
+                          hiTobTecStepTrackingRegionsPair,
+                          tobTecStepHitDoubletsPair,
+                          tobTecStepSeedsPair,
+                          tobTecStepSeeds,
+                          tobTecStepTrackCandidates,
+                          hiTobTecStepTracks,
+                          hiTobTecStepSelector,
                           hiTobTecStepQual
                           )
-
+hiTobTecStep = cms.Sequence(hiTobTecStepTask)

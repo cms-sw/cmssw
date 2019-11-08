@@ -36,8 +36,10 @@ hiPhotonTask = cms.Task(photonTask,photonIsolationHIProducer)
 hiPhotonSequence = cms.Sequence(hiPhotonTask)
 
 # HI Ecal reconstruction
-hiEcalClusters = cms.Sequence(hiEcalClusteringSequence)
-hiEgammaSequence = cms.Sequence(hiPhotonSequence)
+hiEcalClustersTask = cms.Task(hiEcalClusteringTask)
+hiEcalClusters = cms.Sequence(hiEcalClustersTask)
+hiEgammaTask = cms.Task(hiPhotonTask)
+hiEgammaSequence = cms.Sequence(hiEgammaTask)
 
 # HI Spike Clean Sequence
 import RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi

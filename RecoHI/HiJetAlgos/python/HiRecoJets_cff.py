@@ -103,18 +103,18 @@ ak7CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.7))
 
 
 ## Default Sequence
-hiRecoJets = cms.Sequence(
-    caloTowersRec*caloTowers*
-    iterativeConePu5CaloJets*
-    akPu3CaloJets*akPu4CaloJets*akPu5CaloJets
+hiRecoJetsTask = cms.Task(
+    caloTowersRecTask,caloTowers,
+    iterativeConePu5CaloJets,
+    akPu3CaloJets,akPu4CaloJets,akPu5CaloJets
     )
+hiRecoJets = cms.Sequence(hiRecoJetsTask)
 
 ## Extended Sequence
-hiRecoAllJets = cms.Sequence(
-    caloTowersRec*caloTowers*iterativeConePu5CaloJets
-    *ak1CaloJets*ak2CaloJets*ak3CaloJets*ak4CaloJets*ak5CaloJets*ak6CaloJets*ak7CaloJets
-    *akPu1CaloJets*akPu2CaloJets*akPu3CaloJets*akPu4CaloJets*akPu5CaloJets*akPu6CaloJets*akPu7CaloJets*
-    ktPu4CaloJets*ktPu6CaloJets
+hiRecoAllJetsTask = cms.Task(
+    caloTowersRecTask,caloTowers,iterativeConePu5CaloJets
+    ,ak1CaloJets,ak2CaloJets,ak3CaloJets,ak4CaloJets,ak5CaloJets,ak6CaloJets,ak7CaloJets
+    ,akPu1CaloJets,akPu2CaloJets,akPu3CaloJets,akPu4CaloJets,akPu5CaloJets,akPu6CaloJets,akPu7CaloJets,
+    ktPu4CaloJets,ktPu6CaloJets
     )
-
-
+hiRecoAllJets = cms.Sequence(hiRecoAllJetsTask)

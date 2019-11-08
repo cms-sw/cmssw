@@ -21,9 +21,5 @@ heavyIonCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
                                         createNewCollection = cms.untracked.bool(True),
                                         fillDummyEntries = cms.untracked.bool(True)
                                         )
-
-heavyIonCleaned = cms.Sequence(genPartons*hiPartons+heavyIonCleanedGenJets)
-
-
-
-
+heavyIonCleanedTask = cms.Task(genPartons,hiPartons,heavyIonCleanedGenJets)
+heavyIonCleaned = cms.Sequence(heavyIonCleanedTask)

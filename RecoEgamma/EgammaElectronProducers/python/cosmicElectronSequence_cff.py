@@ -24,4 +24,5 @@ gsfElectrons.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEnd
 gsfElectrons.barrelClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
 gsfElectrons.endcapClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
 
-cosmicElectronSequence = cms.Sequence(gsfElectronSequence)
+cosmicElectronTask = cms.Task(gsfElectronTask)
+cosmicElectronSequence = cms.Sequence(cosmicElectronTask)
