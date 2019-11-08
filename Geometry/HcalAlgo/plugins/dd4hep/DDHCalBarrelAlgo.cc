@@ -400,7 +400,7 @@ struct HcalBarrelAlgo {
       genlogic.placeVolume(genlogich, 2, rot);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << genlogich.name() << " number 2 positioned in "
-		<< genlogic.name() << " at (0, 0, 0) with " << rot;
+                                   << genlogic.name() << " at (0, 0, 0) with " << rot;
 #endif
     }  //end if (getNhalf...
 
