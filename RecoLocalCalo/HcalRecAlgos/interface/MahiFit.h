@@ -129,7 +129,7 @@ public:
 private:
   const float minimize() const;
   void onePulseMinimize() const;
-  void updateCov(const SampleMatrix & invCovMat) const;
+  void updateCov(const SampleMatrix& invCovMat) const;
   void updatePulseShape(const float itQ,
                         FullSampleVector& pulseShape,
                         FullSampleVector& pulseDeriv,

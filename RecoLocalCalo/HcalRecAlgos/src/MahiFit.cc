@@ -157,7 +157,8 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
       nnlsWork_.pulseDerivMat.col(iBX) = SampleVector::Zero(nnlsWork_.tsSize);
     } else {
       pulseShapeArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
-      if (calculateArrivalTime_) pulseDerivArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+      if (calculateArrivalTime_)
+        pulseDerivArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
       pulseCov.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset,
                        nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
       nnlsWork_.pulseCovArray[iBX].setZero(nnlsWork_.tsSize, nnlsWork_.tsSize);
@@ -166,7 +167,8 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
           nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset), pulseShapeArray, pulseDerivArray, pulseCov);
 
       nnlsWork_.pulseMat.col(iBX) = pulseShapeArray.segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
-      if (calculateArrivalTime_) nnlsWork_.pulseDerivMat.col(iBX) = pulseDerivArray.segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
+      if (calculateArrivalTime_)
+        nnlsWork_.pulseDerivMat.col(iBX) = pulseDerivArray.segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
       nnlsWork_.pulseCovArray[iBX] = pulseCov.block(
           nnlsWork_.maxoffset - offset, nnlsWork_.maxoffset - offset, nnlsWork_.tsSize, nnlsWork_.tsSize);
     }
@@ -274,7 +276,8 @@ void MahiFit::updatePulseShape(const float itQ,
 
   for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
     pulseShape(iTS + nnlsWork_.maxoffset) = pulseN[iTS + delta];
-    if(calculateArrivalTime_) pulseDeriv(iTS + nnlsWork_.maxoffset) = (pulseM[iTS + delta] - pulseP[iTS + delta]) * invDt;
+    if (calculateArrivalTime_)
+      pulseDeriv(iTS + nnlsWork_.maxoffset) = (pulseM[iTS + delta] - pulseP[iTS + delta]) * invDt;
 
     pulseM[iTS + delta] -= pulseN[iTS + delta];
     pulseP[iTS + delta] -= pulseN[iTS + delta];
@@ -291,8 +294,7 @@ void MahiFit::updatePulseShape(const float itQ,
   }
 }
 
-void MahiFit::updateCov(const SampleMatrix & samplecov) const {
-
+void MahiFit::updateCov(const SampleMatrix& samplecov) const {
   SampleMatrix invCovMat = samplecov;
 
   for (unsigned int iBX = 0; iBX < nnlsWork_.nPulseTot; ++iBX) {
@@ -341,8 +343,7 @@ void MahiFit::nnls() const {
 
   nnlsWork_.invcovp = nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.pulseMat);
   nnlsWork_.aTaMat = nnlsWork_.invcovp.transpose() * nnlsWork_.invcovp;
-  nnlsWork_.aTbVec =
-    nnlsWork_.invcovp.transpose() * (nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes));
+  nnlsWork_.aTbVec = nnlsWork_.invcovp.transpose() * (nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes));
 
   int iter = 0;
   Index idxwmax = 0;
@@ -356,7 +357,8 @@ void MahiFit::nnls() const {
 
       const unsigned int nActive = npulse - nnlsWork_.nP;
       // exit if there are no more pulses to constrain
-      if (nActive == 0) break;
+      if (nActive == 0)
+        break;
 
       updateWork = nnlsWork_.aTbVec - nnlsWork_.aTaMat * nnlsWork_.ampVec;
 
@@ -387,8 +389,8 @@ void MahiFit::nnls() const {
 
       //check solution
       if (ampvecpermtest.head(nnlsWork_.nP).minCoeff() > 0.f) {
-	nnlsWork_.ampVec.head(nnlsWork_.nP) = ampvecpermtest.head(nnlsWork_.nP);
-	break;
+        nnlsWork_.ampVec.head(nnlsWork_.nP) = ampvecpermtest.head(nnlsWork_.nP);
+        break;
       }
 
       //update parameter vector
@@ -426,11 +428,11 @@ void MahiFit::nnls() const {
 }
 
 void MahiFit::onePulseMinimize() const {
-
   nnlsWork_.invcovp = nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.pulseMat);
 
   float aTaCoeff = (nnlsWork_.invcovp.transpose() * nnlsWork_.invcovp).coeff(0);
-  float aTbCoeff = (nnlsWork_.invcovp.transpose() * (nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes))).coeff(0);
+  float aTbCoeff =
+      (nnlsWork_.invcovp.transpose() * (nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes))).coeff(0);
 
   nnlsWork_.ampVec.coeffRef(0) = std::max(0.f, aTbCoeff / aTaCoeff);
 }
