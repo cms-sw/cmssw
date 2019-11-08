@@ -52,7 +52,7 @@ namespace heterogeneous {
     // Create the CUDA stream for this module-edm::Stream pair
     auto current_device = cuda::device::current::get();
     cudaStream_ = std::make_unique<cuda::stream_t<>>(
-        current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream));
+        current_device.create_stream(cuda::stream::no_implicit_synchronization_with_default_stream));
 
     beginStreamGPUCuda(id, *cudaStream_);
   }

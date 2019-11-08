@@ -10,7 +10,7 @@ TEST_CASE("copyAsync", "[cudaMemTools]") {
   exitSansCUDADevices();
 
   cudaStream_t stream;
-  cudaCheck(cudaStreamCreate(&stream));
+  cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   SECTION("Host to device") {
     SECTION("Single element") {

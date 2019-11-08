@@ -64,7 +64,7 @@ int TestAcceleratorServiceProducerGPUHelpers_simple_kernel(int input) {
   constexpr int NUM_VALUES = 10000;
 
   auto current_device = cuda::device::current::get();
-  auto stream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
+  auto stream = current_device.create_stream(cuda::stream::no_implicit_synchronization_with_default_stream);
 
   auto h_a = cudautils::make_host_unique<int[]>(NUM_VALUES, nullptr);
   auto h_b = cudautils::make_host_unique<int[]>(NUM_VALUES, nullptr);

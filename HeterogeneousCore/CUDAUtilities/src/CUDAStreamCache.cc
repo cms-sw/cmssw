@@ -21,7 +21,7 @@ namespace cudautils {
     const auto dev = cudautils::currentDevice();
     return cache_[dev].makeOrGet([dev]() {
       cudaStream_t stream;
-      cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamDefault));
+      cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
       return std::unique_ptr<BareStream, Deleter>(stream, Deleter{dev});
     });
   }

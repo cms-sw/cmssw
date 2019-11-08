@@ -11,7 +11,7 @@ TEST_CASE("memsetAsync", "[cudaMemTools]") {
   exitSansCUDADevices();
 
   cudaStream_t stream;
-  cudaCheck(cudaStreamCreate(&stream));
+  cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   SECTION("Single element") {
     auto host_orig = cudautils::make_host_unique<int>(stream);

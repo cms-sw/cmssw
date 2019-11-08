@@ -8,7 +8,7 @@ TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
   exitSansCUDADevices();
 
   cudaStream_t stream;
-  cudaCheck(cudaStreamCreate(&stream));
+  cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   SECTION("Single element") {
     auto ptr = cudautils::make_device_unique<int>(stream);
