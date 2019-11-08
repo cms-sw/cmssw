@@ -85,6 +85,7 @@ namespace edm {
       previousParentageIds_.reset(new ParentageID[nStreams]);
       preallocStreams(nStreams);
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
+      preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());
       preallocate(iPrealloc);
     }
 
@@ -212,6 +213,7 @@ namespace edm {
 
     void EDFilterBase::preallocStreams(unsigned int) {}
     void EDFilterBase::preallocLumis(unsigned int) {}
+    void EDFilterBase::preallocLumisSummary(unsigned int) {}
     void EDFilterBase::preallocate(PreallocationConfiguration const&) {}
     void EDFilterBase::doBeginStream_(StreamID id) {}
     void EDFilterBase::doEndStream_(StreamID id) {}

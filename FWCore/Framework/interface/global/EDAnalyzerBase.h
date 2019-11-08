@@ -118,6 +118,7 @@ namespace edm {
 
       virtual void preallocStreams(unsigned int);
       virtual void preallocLumis(unsigned int);
+      virtual void preallocLumisSummary(unsigned int);
       virtual void preallocate(PreallocationConfiguration const&);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);
