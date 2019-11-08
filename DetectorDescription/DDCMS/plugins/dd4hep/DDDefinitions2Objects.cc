@@ -1674,6 +1674,10 @@ namespace {
 
     for_each_token(cbegin(str), cend(str), cbegin(delims), cend(delims), [&output](auto first, auto second) {
       if (first != second) {
+        if (string(first, second).front() == '[' && string(first, second).back() == ']') {
+          first++;
+          second--;
+        }
         output.emplace_back(dd4hep::_toDouble(string(first, second)));
       }
     });
