@@ -11,7 +11,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HGCalParametersESModule : public edm::ESProducer {
 public:
