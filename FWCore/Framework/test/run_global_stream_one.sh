@@ -29,4 +29,7 @@ touch empty_file
 
 (cmsRun ${LOCAL_TEST_DIR}/test_limited_concurrent_module_cfg.py 2>&1) | tail -n 3 | grep -v ' 0 ' | grep -v 'e-' | diff - empty_file || die "Failure using test_limited_concurrent_module_cfg.py" $?
 
+echo cmsRun modules_2_concurrent_lumis_cfg.py
+cmsRun ${LOCAL_TEST_DIR}/modules_2_concurrent_lumis_cfg.py || die "cmsRun modules_2_concurrent_lumis_cfg.py" $?
+
 popd
