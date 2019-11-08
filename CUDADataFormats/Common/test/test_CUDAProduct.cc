@@ -33,6 +33,7 @@ TEST_CASE("Use of CUDAProduct template", "[CUDACore]") {
   exitSansCUDADevices();
 
   constexpr int defaultDevice = 0;
+  cudaCheck(cudaSetDevice(defaultDevice));
   {
     auto ctx = cudatest::TestCUDAScopedContext::make(defaultDevice, true);
     std::unique_ptr<CUDAProduct<int>> dataPtr = ctx.wrap(10);
@@ -59,9 +60,7 @@ TEST_CASE("Use of CUDAProduct template", "[CUDACore]") {
     }
   }
 
-  // Destroy and clean up all resources so that the next test can
-  // assume to start from a clean state.
   cudaCheck(cudaSetDevice(defaultDevice));
   cudaCheck(cudaDeviceSynchronize());
-  cudaDeviceReset();
+  // Note: CUDA resources are cleaned up by the destructors of the global cache objects
 }
