@@ -86,15 +86,15 @@ hiPixelLessStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackL
     makeReKeyedSeeds = cms.untracked.bool(False),
     )
 
-hiPixelLessStep = cms.Sequence(hiPixelLessStepClusters*
-                             pixelLessStepSeedLayers*
-                             hiPixelLessStepTrackingRegions*
-                             pixelLessStepHitDoublets*
-                             pixelLessStepHitTriplets*
-                             pixelLessStepSeeds*
-                             pixelLessStepTrackCandidates*
-                             hiPixelLessStepTracks*
-                             hiPixelLessStepSelector*
+hiPixelLessStepTask = cms.Task(hiPixelLessStepClusters,
+                             pixelLessStepSeedLayers,
+                             hiPixelLessStepTrackingRegions,
+                             pixelLessStepHitDoublets,
+                             pixelLessStepHitTriplets,
+                             pixelLessStepSeeds,
+                             pixelLessStepTrackCandidates,
+                             hiPixelLessStepTracks,
+                             hiPixelLessStepSelector,
                              hiPixelLessStepQual
                              )
-
+hiPixelLessStep = cms.Sequence(hiPixelLessStepTask)

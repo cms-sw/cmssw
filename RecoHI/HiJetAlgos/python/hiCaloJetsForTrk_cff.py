@@ -18,4 +18,4 @@ akPu4CaloJetsSelected = cms.EDFilter( "LargestEtCaloJetSelector",
     maxNumber = cms.uint32( 4 )
 )
 
-hiCaloJetsForTrk = cms.Sequence(hiCaloTowerForTrk*akPu4CaloJetsForTrk*akPu4CaloJetsCorrected*akPu4CaloJetsSelected)
+hiCaloJetsForTrkTask = cms.Task(hiCaloTowerForTrk,akPu4CaloJetsForTrk,akPu4CaloJetsCorrected,akPu4CaloJetsSelected)
