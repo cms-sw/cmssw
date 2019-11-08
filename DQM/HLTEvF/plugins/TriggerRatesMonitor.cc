@@ -33,7 +33,6 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
@@ -59,28 +58,28 @@ namespace {
 
     // per-path HLT plots
     struct HLTRatesPlots {
-      ConcurrentMonitorElement pass_l1_seed;
-      ConcurrentMonitorElement pass_prescale;
-      ConcurrentMonitorElement accept;
-      ConcurrentMonitorElement reject;
-      ConcurrentMonitorElement error;
+      dqm::reco::MonitorElement *pass_l1_seed;
+      dqm::reco::MonitorElement *pass_prescale;
+      dqm::reco::MonitorElement *accept;
+      dqm::reco::MonitorElement *reject;
+      dqm::reco::MonitorElement *error;
     };
 
     // overall event count and event types
-    ConcurrentMonitorElement events_processed;
-    std::vector<ConcurrentMonitorElement> tcds_counts;
+    dqm::reco::MonitorElement *events_processed;
+    std::vector<dqm::reco::MonitorElement *> tcds_counts;
 
     // L1T triggers
-    std::vector<ConcurrentMonitorElement> l1t_counts;
+    std::vector<dqm::reco::MonitorElement *> l1t_counts;
 
     // HLT triggers
     std::vector<std::vector<HLTRatesPlots>> hlt_by_dataset_counts;
 
     // datasets
-    std::vector<ConcurrentMonitorElement> dataset_counts;
+    std::vector<dqm::reco::MonitorElement *> dataset_counts;
 
     // streams
-    std::vector<ConcurrentMonitorElement> stream_counts;
+    std::vector<dqm::reco::MonitorElement *> stream_counts;
 
     RunBasedHistograms()
         :  // L1T and HLT configuration
@@ -111,7 +110,7 @@ public:
 
 private:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &, RunBasedHistograms &) const override;
-  void bookHistograms(DQMStore::ConcurrentBooker &,
+  void bookHistograms(DQMStore::IBooker &,
                       edm::Run const &,
                       edm::EventSetup const &,
                       RunBasedHistograms &) const override;
@@ -167,7 +166,6 @@ TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const &config)
 void TriggerRatesMonitor::dqmBeginRun(edm::Run const &run,
                                       edm::EventSetup const &setup,
                                       RunBasedHistograms &histograms) const {
-  histograms.events_processed.reset();
   histograms.tcds_counts.clear();
   histograms.tcds_counts.resize(sizeof(s_tcds_trigger_types) / sizeof(const char *));
 
@@ -221,7 +219,7 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const &run,
   }
 }
 
-void TriggerRatesMonitor::bookHistograms(DQMStore::ConcurrentBooker &booker,
+void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker &booker,
                                          edm::Run const &run,
                                          edm::EventSetup const &setup,
                                          RunBasedHistograms &histograms) const {
@@ -329,9 +327,9 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
   unsigned int lumisection = event.luminosityBlock();
 
   // monitor the overall event count and event types rates
-  histograms.events_processed.fill(lumisection);
+  histograms.events_processed->Fill(lumisection);
   if (histograms.tcds_counts[event.experimentType()])
-    histograms.tcds_counts[event.experimentType()].fill(lumisection);
+    histograms.tcds_counts[event.experimentType()]->Fill(lumisection);
 
   // monitor the L1 triggers rates
   auto const &bxvector = edm::get(event, m_l1t_results);
@@ -340,7 +338,7 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
     for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
       if (results.getAlgoDecisionFinal(i))
         if (histograms.l1t_counts[i])
-          histograms.l1t_counts[i].fill(lumisection);
+          histograms.l1t_counts[i]->Fill(lumisection);
   }
 
   // monitor the HLT triggers and datsets rates
@@ -355,7 +353,7 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
     for (unsigned int d = 0; d < histograms.datasets.size(); ++d) {
       for (unsigned int i : histograms.datasets[d])
         if (hltResults.at(i).accept()) {
-          histograms.dataset_counts[d].fill(lumisection);
+          histograms.dataset_counts[d]->Fill(lumisection);
           // ensure each dataset is incremented only once per event
           break;
         }
@@ -364,22 +362,22 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
         edm::HLTPathStatus const &path = hltResults.at(index);
 
         if (path.index() > histograms.hltIndices[index].index_l1_seed)
-          histograms.hlt_by_dataset_counts[d][i].pass_l1_seed.fill(lumisection);
+          histograms.hlt_by_dataset_counts[d][i].pass_l1_seed->Fill(lumisection);
         if (path.index() > histograms.hltIndices[index].index_prescale)
-          histograms.hlt_by_dataset_counts[d][i].pass_prescale.fill(lumisection);
+          histograms.hlt_by_dataset_counts[d][i].pass_prescale->Fill(lumisection);
         if (path.accept())
-          histograms.hlt_by_dataset_counts[d][i].accept.fill(lumisection);
+          histograms.hlt_by_dataset_counts[d][i].accept->Fill(lumisection);
         else if (path.error())
-          histograms.hlt_by_dataset_counts[d][i].error.fill(lumisection);
+          histograms.hlt_by_dataset_counts[d][i].error->Fill(lumisection);
         else
-          histograms.hlt_by_dataset_counts[d][i].reject.fill(lumisection);
+          histograms.hlt_by_dataset_counts[d][i].reject->Fill(lumisection);
       }
     }
 
     for (unsigned int i = 0; i < histograms.streams.size(); ++i)
       for (unsigned int j : histograms.streams[i])
         if (hltResults.at(j).accept()) {
-          histograms.stream_counts[i].fill(lumisection);
+          histograms.stream_counts[i]->Fill(lumisection);
           // ensure each stream is incremented only once per event
           break;
         }

@@ -26,7 +26,6 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -54,15 +53,15 @@ namespace {
     HLTConfigProvider hltConfig;
 
     // L1T and HLT results
-    ConcurrentMonitorElement tcds_bx_all;
-    ConcurrentMonitorElement l1t_bx_all;
-    ConcurrentMonitorElement hlt_bx_all;
-    std::vector<ConcurrentMonitorElement> tcds_bx;
-    std::vector<ConcurrentMonitorElement> l1t_bx;
-    std::vector<ConcurrentMonitorElement> hlt_bx;
-    std::vector<ConcurrentMonitorElement> tcds_bx_2d;
-    std::vector<ConcurrentMonitorElement> l1t_bx_2d;
-    std::vector<ConcurrentMonitorElement> hlt_bx_2d;
+    dqm::reco::MonitorElement* tcds_bx_all;
+    dqm::reco::MonitorElement* l1t_bx_all;
+    dqm::reco::MonitorElement* hlt_bx_all;
+    std::vector<dqm::reco::MonitorElement*> tcds_bx;
+    std::vector<dqm::reco::MonitorElement*> l1t_bx;
+    std::vector<dqm::reco::MonitorElement*> hlt_bx;
+    std::vector<dqm::reco::MonitorElement*> tcds_bx_2d;
+    std::vector<dqm::reco::MonitorElement*> l1t_bx_2d;
+    std::vector<dqm::reco::MonitorElement*> hlt_bx_2d;
   };
 
 }  // namespace
@@ -76,10 +75,7 @@ public:
 
 private:
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&, RunBasedHistograms&) const override;
-  void bookHistograms(DQMStore::ConcurrentBooker&,
-                      edm::Run const&,
-                      edm::EventSetup const&,
-                      RunBasedHistograms&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, RunBasedHistograms&) const override;
   void dqmAnalyze(edm::Event const&, edm::EventSetup const&, RunBasedHistograms const&) const override;
 
   // number of bunch crossings
@@ -181,7 +177,7 @@ void TriggerBxMonitor::dqmBeginRun(edm::Run const& run,
   }
 }
 
-void TriggerBxMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
+void TriggerBxMonitor::bookHistograms(DQMStore::IBooker& booker,
                                       edm::Run const& run,
                                       edm::EventSetup const& setup,
                                       RunBasedHistograms& histograms) const {
@@ -213,7 +209,7 @@ void TriggerBxMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
           histograms.tcds_bx_2d.at(i) = booker.book2D(
               name_ls, name_ls, s_bx_range + 1, -0.5, s_bx_range + 0.5, m_ls_range, 0.5, m_ls_range + 0.5);
         }
-        histograms.tcds_bx_all.setBinLabel(i + 1, s_tcds_trigger_types[i], 2);  // Y axis
+        histograms.tcds_bx_all->setBinLabel(i + 1, s_tcds_trigger_types[i], 2);  // Y axis
       }
     }
   }
@@ -245,7 +241,7 @@ void TriggerBxMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
         histograms.l1t_bx_2d.at(bit) =
             booker.book2D(name_ls, name_ls, s_bx_range + 1, -0.5, s_bx_range + 0.5, m_ls_range, 0.5, m_ls_range + 0.5);
       }
-      histograms.l1t_bx_all.setBinLabel(bit + 1, keyval.first, 2);  // Y axis
+      histograms.l1t_bx_all->setBinLabel(bit + 1, keyval.first, 2);  // Y axis
     }
   }
 
@@ -274,7 +270,7 @@ void TriggerBxMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
         histograms.hlt_bx_2d[i] =
             booker.book2D(name_ls, name_ls, s_bx_range + 1, -0.5, s_bx_range + 0.5, m_ls_range, 0.5, m_ls_range + 0.5);
       }
-      histograms.hlt_bx_all.setBinLabel(i + 1, name, 2);  // Y axis
+      histograms.hlt_bx_all->setBinLabel(i + 1, name, 2);  // Y axis
     }
   }
 }
@@ -291,11 +287,11 @@ void TriggerBxMonitor::dqmAnalyze(edm::Event const& event,
     unsigned int type = event.experimentType();
     if (type < size) {
       if (m_make_1d_plots and histograms.tcds_bx.at(type))
-        histograms.tcds_bx[type].fill(bx);
+        histograms.tcds_bx[type]->Fill(bx);
       if (m_make_2d_plots and histograms.tcds_bx_2d.at(type))
-        histograms.tcds_bx_2d[type].fill(bx, ls);
+        histograms.tcds_bx_2d[type]->Fill(bx, ls);
     }
-    histograms.tcds_bx_all.fill(bx, type);
+    histograms.tcds_bx_all->Fill(bx, type);
   }
 
   // monitor the bx distribution for the L1 triggers
@@ -306,10 +302,10 @@ void TriggerBxMonitor::dqmAnalyze(edm::Event const& event,
       for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
         if (results.getAlgoDecisionFinal(i)) {
           if (m_make_1d_plots and histograms.l1t_bx.at(i))
-            histograms.l1t_bx[i].fill(bx);
+            histograms.l1t_bx[i]->Fill(bx);
           if (m_make_2d_plots and histograms.l1t_bx_2d.at(i))
-            histograms.l1t_bx_2d[i].fill(bx, ls);
-          histograms.l1t_bx_all.fill(bx, i);
+            histograms.l1t_bx_2d[i]->Fill(bx, ls);
+          histograms.l1t_bx_all->Fill(bx, i);
         }
     }
   }
@@ -320,10 +316,10 @@ void TriggerBxMonitor::dqmAnalyze(edm::Event const& event,
     for (unsigned int i = 0; i < hltResults.size(); ++i) {
       if (hltResults.at(i).accept()) {
         if (m_make_1d_plots and histograms.hlt_bx.at(i))
-          histograms.hlt_bx[i].fill(bx);
+          histograms.hlt_bx[i]->Fill(bx);
         if (m_make_2d_plots and histograms.hlt_bx_2d.at(i))
-          histograms.hlt_bx_2d[i].fill(bx, ls);
-        histograms.hlt_bx_all.fill(bx, i);
+          histograms.hlt_bx_2d[i]->Fill(bx, ls);
+        histograms.hlt_bx_all->Fill(bx, i);
       }
     }
   }

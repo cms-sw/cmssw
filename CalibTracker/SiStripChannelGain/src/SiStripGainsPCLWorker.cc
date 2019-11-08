@@ -341,7 +341,7 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
       continue;
 
     // real histogram for calibration
-    histograms.Charge_Vs_Index[elepos].fill(APV->Index, ClusterChargeOverPath);
+    histograms.Charge_Vs_Index[elepos]->Fill(APV->Index, ClusterChargeOverPath);
     LogDebug("SiStripGainsPCLWorker") << " for mode " << m_calibrationMode << "\n"
                                       << " i " << i << " useCalibration " << useCalibration << " FirstSetOfConstants "
                                       << FirstSetOfConstants << " APV->PreviousGain " << APV->PreviousGain
@@ -378,42 +378,42 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
     auto indices = APVGain::FetchIndices(theTopologyMap, (*rawid)[i], topo);
 
     for (auto m : indices)
-      histograms.Charge_1[elepos][m].fill(((double)mCharge1) / (*path)[i]);
+      histograms.Charge_1[elepos][m]->Fill(((double)mCharge1) / (*path)[i]);
     for (auto m : indices)
-      histograms.Charge_2[elepos][m].fill(((double)mCharge2) / (*path)[i]);
+      histograms.Charge_2[elepos][m]->Fill(((double)mCharge2) / (*path)[i]);
     for (auto m : indices)
-      histograms.Charge_3[elepos][m].fill(((double)mCharge3) / (*path)[i]);
+      histograms.Charge_3[elepos][m]->Fill(((double)mCharge3) / (*path)[i]);
     for (auto m : indices)
-      histograms.Charge_4[elepos][m].fill(((double)mCharge4) / (*path)[i]);
+      histograms.Charge_4[elepos][m]->Fill(((double)mCharge4) / (*path)[i]);
 
     if (APV->SubDet == StripSubdetector::TIB) {
-      histograms.Charge_Vs_PathlengthTIB[elepos].fill((*path)[i], Charge);  // TIB
+      histograms.Charge_Vs_PathlengthTIB[elepos]->Fill((*path)[i], Charge);  // TIB
 
     } else if (APV->SubDet == StripSubdetector::TOB) {
-      histograms.Charge_Vs_PathlengthTOB[elepos].fill((*path)[i], Charge);  // TOB
+      histograms.Charge_Vs_PathlengthTOB[elepos]->Fill((*path)[i], Charge);  // TOB
 
     } else if (APV->SubDet == StripSubdetector::TID) {
       if (APV->Eta < 0) {
-        histograms.Charge_Vs_PathlengthTIDM[elepos].fill((*path)[i], Charge);
+        histograms.Charge_Vs_PathlengthTIDM[elepos]->Fill((*path)[i], Charge);
       }  // TID minus
       else if (APV->Eta > 0) {
-        histograms.Charge_Vs_PathlengthTIDP[elepos].fill((*path)[i], Charge);
+        histograms.Charge_Vs_PathlengthTIDP[elepos]->Fill((*path)[i], Charge);
       }  // TID plus
 
     } else if (APV->SubDet == StripSubdetector::TEC) {
       if (APV->Eta < 0) {
         if (APV->Thickness < 0.04) {
-          histograms.Charge_Vs_PathlengthTECM1[elepos].fill((*path)[i], Charge);
+          histograms.Charge_Vs_PathlengthTECM1[elepos]->Fill((*path)[i], Charge);
         }  // TEC minus, type 1
         else if (APV->Thickness > 0.04) {
-          histograms.Charge_Vs_PathlengthTECM2[elepos].fill((*path)[i], Charge);
+          histograms.Charge_Vs_PathlengthTECM2[elepos]->Fill((*path)[i], Charge);
         }  // TEC minus, type 2
       } else if (APV->Eta > 0) {
         if (APV->Thickness < 0.04) {
-          histograms.Charge_Vs_PathlengthTECP1[elepos].fill((*path)[i], Charge);
+          histograms.Charge_Vs_PathlengthTECP1[elepos]->Fill((*path)[i], Charge);
         }  // TEC plus, type 1
         else if (APV->Thickness > 0.04) {
-          histograms.Charge_Vs_PathlengthTECP2[elepos].fill((*path)[i], Charge);
+          histograms.Charge_Vs_PathlengthTECP2[elepos]->Fill((*path)[i], Charge);
         }  // TEC plus, type 2
       }
     }
@@ -548,7 +548,7 @@ void SiStripGainsPCLWorker::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 //********************************************************************************//
-void SiStripGainsPCLWorker::bookHistograms(DQMStore::ConcurrentBooker& ibooker,
+void SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& run,
                                            edm::EventSetup const& setup,
                                            APVGain::APVGainHistograms& histograms) const {
