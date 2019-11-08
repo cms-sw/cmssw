@@ -96,11 +96,8 @@ public:
     iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
     edm::ParameterSetDescription descNestedNoiseMIP;
     descNestedNoiseMIP.add<bool>("scaleByDose", false);
-    iDesc.add<edm::ParameterSetDescription>("scaleByDose", descNestedNoiseMIP);
     descNestedNoiseMIP.add<unsigned int>("scaleByDoseAlgo", 0);
-    iDesc.add<edm::ParameterSetDescription>("scaleByDoseAlgo", descNestedNoiseMIP);
     descNestedNoiseMIP.add<std::string>("doseMap", "");
-    iDesc.add<edm::ParameterSetDescription>("doseMap", descNestedNoiseMIP);
     descNestedNoiseMIP.add<double>("noise_MIP", 1. / 100.);
     iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
     iDesc.add<bool>("use2x2", true);  // use 2x2 or 3x3 scenario for scint density calculation
