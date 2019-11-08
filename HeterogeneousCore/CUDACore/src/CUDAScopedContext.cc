@@ -39,12 +39,14 @@ namespace {
 
 namespace impl {
   CUDAScopedContextBase::CUDAScopedContextBase(edm::StreamID streamID)
-      : currentDevice_(cudacore::chooseCUDADevice(streamID)), setDeviceForThisScope_(currentDevice_) {
+      : currentDevice_(cudacore::chooseCUDADevice(streamID)) {
+    cudaCheck(cudaSetDevice(currentDevice_));
     stream_ = cudautils::getCUDAStreamCache().getCUDAStream();
   }
 
   CUDAScopedContextBase::CUDAScopedContextBase(const CUDAProductBase& data)
-      : currentDevice_(data.device()), setDeviceForThisScope_(currentDevice_) {
+      : currentDevice_(data.device()) {
+    cudaCheck(cudaSetDevice(currentDevice_));
     if (data.mayReuseStream()) {
       stream_ = data.streamPtr();
     } else {
@@ -53,7 +55,9 @@ namespace impl {
   }
 
   CUDAScopedContextBase::CUDAScopedContextBase(int device, cudautils::SharedStreamPtr stream)
-      : currentDevice_(device), setDeviceForThisScope_(device), stream_(std::move(stream)) {}
+      : currentDevice_(device), stream_(std::move(stream)) {
+    cudaCheck(cudaSetDevice(currentDevice_));
+  }
 
   ////////////////////
 

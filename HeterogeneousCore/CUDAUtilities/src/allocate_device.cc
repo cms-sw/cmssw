@@ -1,5 +1,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/allocate_device.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/ScopedSetDevice.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
 #include "getCachingDeviceAllocator.h"
@@ -23,7 +24,7 @@ namespace cudautils {
       }
       cuda::throw_if_error(cudautils::allocator::getCachingDeviceAllocator().DeviceAllocate(dev, &ptr, nbytes, stream));
     } else {
-      cuda::device::current::scoped_override_t<> setDeviceForThisScope(dev);
+      ScopedSetDevice setDeviceForThisScope(dev);
       cuda::throw_if_error(cudaMalloc(&ptr, nbytes));
     }
     return ptr;
@@ -33,7 +34,7 @@ namespace cudautils {
     if constexpr (cudautils::allocator::useCaching) {
       cuda::throw_if_error(cudautils::allocator::getCachingDeviceAllocator().DeviceFree(device, ptr));
     } else {
-      cuda::device::current::scoped_override_t<> setDeviceForThisScope(device);
+      ScopedSetDevice setDeviceForThisScope(device);
       cuda::throw_if_error(cudaFree(ptr));
     }
   }
