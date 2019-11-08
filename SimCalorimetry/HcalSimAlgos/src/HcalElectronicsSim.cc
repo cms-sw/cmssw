@@ -145,7 +145,7 @@ void HcalElectronicsSim::analogToDigital(
   analogToDigitalImpl(engine, lf, result, preMixFactor, preMixBits);
   if (!PreMixDigis) {
     const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(lf.id()));
-    if (pars.threshold_currentTDC() > 0) {
+    if (pars.threshold_currentTDC() > 0.) {
       HcalTDC theTDC((pars.threshold_currentTDC()));
       theTDC.timing(lf, result);
     }
