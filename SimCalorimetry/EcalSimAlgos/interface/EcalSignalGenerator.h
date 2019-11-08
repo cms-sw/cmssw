@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
@@ -99,15 +101,9 @@ public:
       eventSetup->get<EcalLaserDbRecord>().get(laser);
 
       //
-      // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
-      //        check with generation experts
+      const edm::TimeValue_t eventTimeValue = theEvent->getRun().runAuxiliary().beginTime().value(); 
       //
-      const edm::TimeValue_t eventTimeValue = theEvent->run();
-      //---- NB: this is a trick. Since the time dependent MC
-      //         will be based on "run" (and lumisection)
-      //         to identify the IOV.
-      //         The "time" defined here as "run"
-      //         will have to match in the generation of the tag
+      //         The "time" will have to match in the generation of the tag
       //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
       //
       m_iTime = eventTimeValue;
@@ -169,17 +165,10 @@ public:
       eventSetup->get<EcalLaserDbRecord>().get(laser);
       edm::TimeValue_t eventTimeValue = 0;
       if (theEventPrincipal) {
-        //       eventTimeValue = theEventPrincipal->time().value();
         //
-        // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
-        //        check with generation experts
+        eventTimeValue = theEventPrincipal->runPrincipal().beginTime().value();
         //
-        eventTimeValue = theEventPrincipal->run();
-        //---- NB: this is a trick. Since the time dependent MC
-        //         will be based on "run" (and lumisection)
-        //         to identify the IOV.
-        //         The "time" defined here as "run"
-        //         will have to match in the generation of the tag
+        //         The "time" will have to match in the generation of the tag
         //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
         //
       } else {
