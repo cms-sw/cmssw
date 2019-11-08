@@ -131,12 +131,12 @@ trackingPhase1.toModify(hiRegitMuInitialStepSelector, trackSelectors= cms.VPSet(
         )
 )
 
-hiRegitMuonInitialStep = cms.Sequence(hiRegitMuInitialStepSeedLayers*
-                                      hiRegitMuInitialStepTrackingRegions*
-                                      hiRegitMuInitialStepHitDoublets*
-                                      hiRegitMuInitialStepHitTriplets*
-                                      hiRegitMuInitialStepSeeds*
-                                      hiRegitMuInitialStepTrackCandidates*
-                                      hiRegitMuInitialStepTracks*
+hiRegitMuonInitialStepTask = cms.Task(hiRegitMuInitialStepSeedLayers,
+                                      hiRegitMuInitialStepTrackingRegions,
+                                      hiRegitMuInitialStepHitDoublets,
+                                      hiRegitMuInitialStepHitTriplets,
+                                      hiRegitMuInitialStepSeeds,
+                                      hiRegitMuInitialStepTrackCandidates,
+                                      hiRegitMuInitialStepTracks,
                                       hiRegitMuInitialStepSelector)
-
+hiRegitMuonInitialStep = cms.Sequence(hiRegitMuonInitialStepTask)

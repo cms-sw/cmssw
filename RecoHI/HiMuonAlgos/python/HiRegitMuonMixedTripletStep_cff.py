@@ -173,18 +173,19 @@ trackingPhase1.toModify(hiRegitMuMixedTripletStepSelector, trackSelectors= cms.V
         ) #end of vpset
 )
 
-hiRegitMuonMixedTripletStep = cms.Sequence(hiRegitMuMixedTripletStepClusters*
-                                         hiRegitMuMixedTripletStepSeedLayersA*
-                                         hiRegitMuMixedTripletStepTrackingRegionsA*
-                                         hiRegitMuMixedTripletStepHitDoubletsA*
-                                         hiRegitMuMixedTripletStepHitTripletsA*
-                                         hiRegitMuMixedTripletStepSeedsA*
-                                         hiRegitMuMixedTripletStepSeedLayersB*
-                                         hiRegitMuMixedTripletStepTrackingRegionsB*
-                                         hiRegitMuMixedTripletStepHitDoubletsB*
-                                         hiRegitMuMixedTripletStepHitTripletsB*
-                                         hiRegitMuMixedTripletStepSeedsB*
-                                         hiRegitMuMixedTripletStepSeeds*
-                                         hiRegitMuMixedTripletStepTrackCandidates*
-                                         hiRegitMuMixedTripletStepTracks*
+hiRegitMuonMixedTripletStepTask = cms.Task(hiRegitMuMixedTripletStepClusters,
+                                         hiRegitMuMixedTripletStepSeedLayersA,
+                                         hiRegitMuMixedTripletStepTrackingRegionsA,
+                                         hiRegitMuMixedTripletStepHitDoubletsA,
+                                         hiRegitMuMixedTripletStepHitTripletsA,
+                                         hiRegitMuMixedTripletStepSeedsA,
+                                         hiRegitMuMixedTripletStepSeedLayersB,
+                                         hiRegitMuMixedTripletStepTrackingRegionsB,
+                                         hiRegitMuMixedTripletStepHitDoubletsB,
+                                         hiRegitMuMixedTripletStepHitTripletsB,
+                                         hiRegitMuMixedTripletStepSeedsB,
+                                         hiRegitMuMixedTripletStepSeeds,
+                                         hiRegitMuMixedTripletStepTrackCandidates,
+                                         hiRegitMuMixedTripletStepTracks,
                                          hiRegitMuMixedTripletStepSelector)
+hiRegitMuonMixedTripletStep = cms.Sequence(hiRegitMuonMixedTripletStepTask)

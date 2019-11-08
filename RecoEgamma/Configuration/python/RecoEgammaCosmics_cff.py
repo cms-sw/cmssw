@@ -6,7 +6,11 @@ from RecoEgamma.EgammaPhotonProducers.cosmicConversionSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.cosmicConversionTrackSequence_cff import *
 from RecoEgamma.PhotonIdentification.photonId_cff import *
 
-egammarecoGlobal_cosmics = cms.Sequence(cosmicConversionTrackSequence)
-egammarecoCosmics_woConvPhotons = cms.Sequence(cosmicElectronSequence*cosmicPhotonSequence)
-egammarecoCosmics = cms.Sequence(cosmicElectronSequence*cosmicConversionSequence*cosmicPhotonSequence*photonIDSequence)
-egammarecoCosmics_woElectrons = cms.Sequence(cosmicConversionSequence*cosmicPhotonSequence*photonIDSequence)
+egammarecoGlobal_cosmicsTask = cms.Task(cosmicConversionTrackTask)
+egammarecoGlobal_cosmics = cms.Sequence(egammarecoGlobal_cosmicsTask)
+egammarecoCosmics_woConvPhotonsTask = cms.Task(cosmicElectronTask,cosmicPhotonTask)
+egammarecoCosmics_woConvPhotons = cms.Sequence(egammarecoCosmics_woConvPhotonsTask)
+egammarecoCosmicsTask = cms.Task(cosmicElectronTask,cosmicConversionTask,cosmicPhotonTask,photonIDTask)
+egammarecoCosmics = cms.Sequence(egammarecoCosmicsTask)
+egammarecoCosmics_woElectronsTask = cms.Task(cosmicConversionTask,cosmicPhotonTask,photonIDTask)
+egammarecoCosmics_woElectrons = cms.Sequence(egammarecoCosmics_woElectronsTask)

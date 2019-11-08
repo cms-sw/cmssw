@@ -42,11 +42,12 @@ hiPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
     Cleaner = cms.string("pixelTrackCleanerBySharedHits")
 )
 
-hiPixel3ProtoTracksSequence = cms.Sequence(
-    hiTrackingRegionFromClusterVtx +
-    hiPixel3ProtoTracksHitDoublets +
-    hiPixel3ProtoTracksHitTriplets +
-    pixelFitterByHelixProjections +
-    hiProtoTrackFilter +
+hiPixel3ProtoTracksTask = cms.Task(
+    hiTrackingRegionFromClusterVtx ,
+    hiPixel3ProtoTracksHitDoublets ,
+    hiPixel3ProtoTracksHitTriplets ,
+    pixelFitterByHelixProjections ,
+    hiProtoTrackFilter ,
     hiPixel3ProtoTracks
 )
+hiPixel3ProtoTracksSequence = cms.Sequence(hiPixel3ProtoTracksTask)

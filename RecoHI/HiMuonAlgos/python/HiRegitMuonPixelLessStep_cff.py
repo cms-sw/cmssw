@@ -141,15 +141,14 @@ trackingPhase1.toModify(hiRegitMuPixelLessStepSelector, trackSelectors= cms.VPSe
         ) #end of vpset
 )
 
-hiRegitMuonPixelLessStep = cms.Sequence(hiRegitMuPixelLessStepClusters*
-                                        hiRegitMuPixelLessStepSeedLayers*
-                                        hiRegitMuPixelLessStepTrackingRegions*
-                                        hiRegitMuPixelLessStepHitDoublets*
-                                        hiRegitMuPixelLessStepHitTriplets*
-                                        hiRegitMuPixelLessStepSeeds*
-                                        hiRegitMuPixelLessStepTrackCandidates*
-                                        hiRegitMuPixelLessStepTracks*
+hiRegitMuonPixelLessStepTask = cms.Task(hiRegitMuPixelLessStepClusters,
+                                        hiRegitMuPixelLessStepSeedLayers,
+                                        hiRegitMuPixelLessStepTrackingRegions,
+                                        hiRegitMuPixelLessStepHitDoublets,
+                                        hiRegitMuPixelLessStepHitTriplets,
+                                        hiRegitMuPixelLessStepSeeds,
+                                        hiRegitMuPixelLessStepTrackCandidates,
+                                        hiRegitMuPixelLessStepTracks,
                                         hiRegitMuPixelLessStepSelector)
-
-
+hiRegitMuonPixelLessStep = cms.Sequence(hiRegitMuonPixelLessStepTask)
 

@@ -74,17 +74,17 @@ trackingPhase1.toModify(hiPixel3PrimTracks,
     SeedingHitSets = cms.InputTag("hiPixel3PrimTracksHitQuadrupletsCA"),
 )
 
-hiPixel3PrimTracksSequence = cms.Sequence(
-    hiTrackingRegionWithVertex +
-    hiPixel3PrimTracksHitDoublets +
-    hiPixel3PrimTracksHitTriplets +
-    pixelFitterByHelixProjections +
-    hiFilter +
+hiPixel3PrimTracksTask = cms.Task(
+    hiTrackingRegionWithVertex ,
+    hiPixel3PrimTracksHitDoublets ,
+    hiPixel3PrimTracksHitTriplets ,
+    pixelFitterByHelixProjections ,
+    hiFilter ,
     hiPixel3PrimTracks
 )
-
+hiPixel3PrimTracksSequence = cms.Sequence(hiPixel3PrimTracksTask)
 #phase 1 changes
-hiPixel3PrimTracksSequence_Phase1 = hiPixel3PrimTracksSequence.copy()
-hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitDoublets,hiPixelLayerQuadruplets+hiPixel3PrimTracksHitDoubletsCA)
-hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitQuadrupletsCA)
-trackingPhase1.toReplaceWith(hiPixel3PrimTracksSequence,hiPixel3PrimTracksSequence_Phase1)
+hiPixel3PrimTracksTask_Phase1 = hiPixel3PrimTracksTask.copy()
+hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitDoublets, cms.Task(hiPixelLayerQuadruplets,hiPixel3PrimTracksHitDoubletsCA) )
+hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitQuadrupletsCA)
+trackingPhase1.toReplaceWith(hiPixel3PrimTracksTask,hiPixel3PrimTracksTask_Phase1)
