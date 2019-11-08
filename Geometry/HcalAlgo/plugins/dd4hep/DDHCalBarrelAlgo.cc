@@ -344,10 +344,8 @@ struct HcalBarrelAlgo {
 
     std::string name("Null");
     dd4hep::Solid solid;
-    dd4hep::Position r0(0, 0, 0);
     if (nf == 0) {
-      solid = dd4hep::Polyhedra(nsectortot, -alpha, dphi, pgonZ, pgonRmin, pgonRmax);
-      ns.addSolidNS(ns.prepend(idName), solid);
+      solid = dd4hep::Polyhedra(ns.prepend(idName), nsectortot, -alpha, dphi, pgonZ, pgonRmin, pgonRmax);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << genMaterial
                                    << " with " << nsectortot << " sectors from " << convertRadToDeg(-alpha) << " to "
@@ -358,8 +356,7 @@ struct HcalBarrelAlgo {
                                      << "\tRmax = " << pgonRmax[i];
 #endif
     } else {
-      solid = dd4hep::Polyhedra(nsectortot, -alpha, dphi, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
-      ns.addSolidNS(ns.prepend(idName), solid);
+      solid = dd4hep::Polyhedra(ns.prepend(idName), nsectortot, -alpha, dphi, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << genMaterial
                                    << " with " << nsectortot << " sectors from " << convertRadToDeg(-alpha) << " to "
@@ -373,7 +370,6 @@ struct HcalBarrelAlgo {
 
     dd4hep::Material matter = ns.material(genMaterial);
     dd4hep::Volume genlogic(solid.name(), solid, matter);
-    ns.addVolumeNS(genlogic);
     dd4hep::Volume parentName = ns.volume(args.parentName());
     parentName.placeVolume(genlogic, 1);
 #ifdef EDM_ML_DEBUG
@@ -383,8 +379,7 @@ struct HcalBarrelAlgo {
     //Forward and backwards halfs
     name = idName + "Half";
     nf = (ntot + 1) / 2;
-    solid = dd4hep::Polyhedra(nsectortot, -alpha, dphi, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
-    ns.addSolidNS(ns.prepend(name), solid);
+    solid = dd4hep::Polyhedra(ns.prepend(name), nsectortot, -alpha, dphi, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << genMaterial
                                  << " with " << nsectortot << " sectors from " << convertRadToDeg(-alpha) << " to "
@@ -395,7 +390,6 @@ struct HcalBarrelAlgo {
                                    << "\tRmax = " << pgonRmaxHalf[i];
 #endif
     dd4hep::Volume genlogich(solid.name(), solid, matter);
-    ns.addVolumeNS(genlogich);
     genlogic.placeVolume(genlogich, 1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << genlogich.name() << " number 1 positioned in "
@@ -403,19 +397,17 @@ struct HcalBarrelAlgo {
 #endif
     if (nhalf != 1) {
       dd4hep::Rotation3D rot = getRotation(rotHalf, rotns, ns);
-      genlogic.placeVolume(genlogich, 2, dd4hep::Transform3D(rot, r0));
+      genlogic.placeVolume(genlogich, 2, rot);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << genlogich.name() << " number 2 positioned in "
-                                   << genlogic.name() << " at " << r0 << " with " << rot;
+		<< genlogic.name() << " at (0, 0, 0) with " << rot;
 #endif
     }  //end if (getNhalf...
 
     //Construct sector (from -alpha to +alpha)
     name = idName + "Module";
-    solid = dd4hep::Polyhedra(1, -alpha, 2 * alpha, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
-    ns.addSolidNS(ns.prepend(name), solid);
+    solid = dd4hep::Polyhedra(ns.prepend(name), 1, -alpha, 2 * alpha, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
     dd4hep::Volume seclogic(solid.name(), solid, matter);
-    ns.addVolumeNS(seclogic);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << matter.name()
                                  << " with 1 sector from " << convertRadToDeg(-alpha) << " to "
@@ -425,23 +417,20 @@ struct HcalBarrelAlgo {
                                    << "\tRmax = " << pgonRmaxHalf[i];
 #endif
 
-    double theta = 90._deg;
     for (int ii = 0; ii < nsectortot; ii++) {
       double phi = ii * 2 * alpha;
-      double phiy = phi + 90._deg;
       dd4hep::Rotation3D rotation;
       if (phi != 0) {
-        rotation = cms::makeRotation3D(theta, phi, theta, phiy, 0., 0.);
+        rotation = dd4hep::RotationZ(phi);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Creating a new "
-                                     << "rotation \t 90," << convertRadToDeg(phi) << ",90," << convertRadToDeg(phiy)
-                                     << ", 0, 0";
+                                     << "rotation around Z " << convertRadToDeg(phi);
 #endif
       }  //if phideg!=0
-      genlogich.placeVolume(seclogic, ii + 1, dd4hep::Transform3D(rotation, r0));
+      genlogich.placeVolume(seclogic, ii + 1, rotation);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << seclogic.name() << " number " << ii + 1
-                                   << " positioned in " << genlogich.name() << " at " << r0 << " with " << rotation;
+                                   << " positioned in " << genlogich.name() << " at (0, 0, 0) with " << rotation;
 #endif
     }
 
@@ -467,7 +456,6 @@ struct HcalBarrelAlgo {
 
       //!!!!!!!!!!!!!!!!!Should be zero. And removed as soon as
       //vertical walls are allowed in SolidPolyhedra
-      double deltaz = 0;
       int nsec = 2;
       std::vector<double> pgonZ, pgonRmin, pgonRmax;
       // index 0
@@ -490,7 +478,7 @@ struct HcalBarrelAlgo {
         if (in == 3) {
           //redo index 1, add index 2
           pgonZ[1] = (zoff[out] + rmax[out] * ttheta[out]);
-          pgonZ.emplace_back(pgonZ[1] + deltaz);
+          pgonZ.emplace_back(pgonZ[1]);
           pgonRmin.emplace_back(pgonRmin[1]);
           pgonRmax.emplace_back(rmax[in]);
           //index 3
@@ -530,10 +518,8 @@ struct HcalBarrelAlgo {
                                      << convertRadToDeg(alpha1) << " Rmid " << rmid << " Reduced width " << width;
 #endif
       }
-      solid = dd4hep::Polyhedra(1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
-      ns.addSolidNS(ns.prepend(name), solid);
+      solid = dd4hep::Polyhedra(ns.prepend(name), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
       dd4hep::Volume glog(solid.name(), solid, matter);
-      ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " (Layer " << i << ") Polyhedra made of "
                                    << matter.name() << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
@@ -607,14 +593,12 @@ struct HcalBarrelAlgo {
       dd4hep::Position r11(x, y, dz);
       dd4hep::Position r12(x, -y, dz);
 
-      solid = dd4hep::Box(dx, dy, dz);
-      ns.addSolidNS(ns.prepend(name + "1"), solid);
+      solid = dd4hep::Box(ns.prepend(name + "1"), dx, dy, dz);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << matter.name()
                                    << " of dimensions " << dx << ", " << dy << ", " << dz;
 #endif
       glog = dd4hep::Volume(solid.name(), solid, matter);
-      ns.addVolumeNS(glog);
 
       if (nAbs != 0) {
         mother = constructSideLayer(laylog, name, nAbs, rin, alpha1, ns);
@@ -647,14 +631,12 @@ struct HcalBarrelAlgo {
     dd4hep::Position r21(x, dy, dz);
     dd4hep::Position r22(x, -dy, dz);
 
-    solid = dd4hep::Box(dx, dy, dz);
-    ns.addSolidNS(ns.prepend(name + "2"), solid);
+    solid = dd4hep::Box(ns.prepend(name + "2"), dx, dy, dz);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << matter.name()
                                  << " of dimensions " << dx << ", " << dy << ", " << dz;
 #endif
     glog = dd4hep::Volume(solid.name(), solid, matter);
-    ns.addVolumeNS(glog);
 
     if (nAbs < 0) {
       mother = constructMidLayer(laylog, name, rin, alpha1, ns);
@@ -697,11 +679,9 @@ struct HcalBarrelAlgo {
     pgonZ.emplace_back(zoff[in] + pgonRmax[0] * ttheta[in]);
     pgonRmin.emplace_back(pgonRmax[1]);
     pgonRmax.emplace_back(pgonRmax[1]);
-    dd4hep::Solid solid = dd4hep::Polyhedra(1, -alpha, 2 * alpha, pgonZ, pgonRmin, pgonRmax);
-    ns.addSolidNS(ns.prepend(namek), solid);
+    dd4hep::Solid solid = dd4hep::Polyhedra(ns.prepend(namek), 1, -alpha, 2 * alpha, pgonZ, pgonRmin, pgonRmax);
     dd4hep::Material matter = ns.material(sideMat[k]);
     dd4hep::Volume glog(solid.name(), solid, matter);
-    ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << sideMat[k]
                                  << " with 1 sector from " << convertRadToDeg(-alpha) << " to "
@@ -723,11 +703,9 @@ struct HcalBarrelAlgo {
         double alpha1 = atan(sideAbsW[i] / rmid);
         if (alpha1 > 0) {
           std::string name = namek + sideAbsName[i];
-          solid = dd4hep::Polyhedra(1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
-          ns.addSolidNS(ns.prepend(name), solid);
+          solid = dd4hep::Polyhedra(ns.prepend(name), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
           dd4hep::Material matter = ns.material(sideAbsMat[i]);
           dd4hep::Volume log(solid.name(), solid, matter);
-          ns.addVolumeNS(log);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << sideAbsMat[i]
                                        << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
@@ -750,7 +728,7 @@ struct HcalBarrelAlgo {
   }
 
   dd4hep::Volume constructMidLayer(
-      dd4hep::Volume& laylog, const std::string& nm, double rin, double alpha, cms::DDNamespace& ns) {
+      dd4hep::Volume laylog, const std::string& nm, double rin, double alpha, cms::DDNamespace& ns) {
     dd4hep::Solid solid;
     dd4hep::Volume log, glog;
     std::string name = nm + "Mid";
@@ -775,11 +753,9 @@ struct HcalBarrelAlgo {
       pgonZ.emplace_back(zoff[in] + pgonRmax[0] * ttheta[in]);
       pgonRmin.emplace_back(pgonRmax[1]);
       pgonRmax.emplace_back(pgonRmax[1]);
-      solid = dd4hep::Polyhedra(1, -alpha, 2 * alpha, pgonZ, pgonRmin, pgonRmax);
-      ns.addSolidNS(ns.prepend(namek), solid);
+      solid = dd4hep::Polyhedra(ns.prepend(namek), 1, -alpha, 2 * alpha, pgonZ, pgonRmin, pgonRmax);
       dd4hep::Material matter = ns.material(absorbMat[k]);
       log = dd4hep::Volume(solid.name(), solid, matter);
-      ns.addVolumeNS(log);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << matter.name()
                                    << " with 1 sector from " << convertRadToDeg(-alpha) << " to "
@@ -801,11 +777,9 @@ struct HcalBarrelAlgo {
         for (int i = 0; i < 1; i++) {
           double alpha1 = atan(midW[i] / rmin);
           std::string namek = name + midName[i];
-          solid = dd4hep::Polyhedra(1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
-          ns.addSolidNS(ns.prepend(namek), solid);
+          solid = dd4hep::Polyhedra(ns.prepend(namek), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
           dd4hep::Material matter1 = ns.material(midMat[i]);
           log = dd4hep::Volume(solid.name(), solid, matter1);
-          ns.addVolumeNS(log);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of "
                                        << matter1.name() << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
@@ -834,11 +808,9 @@ struct HcalBarrelAlgo {
         pgonRmax[2] = rmax;
         pgonZ[2] = zoff[in] + rmax * ttheta[in];
         double alpha1 = atan(middleW / rmin);
-        solid = dd4hep::Polyhedra(1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
-        ns.addSolidNS(ns.prepend(name), solid);
+        solid = dd4hep::Polyhedra(ns.prepend(name), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
         dd4hep::Material matter1 = ns.material(middleMat);
         glog = dd4hep::Volume(solid.name(), solid, matter1);
-        ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << matter1.name()
                                      << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
@@ -866,11 +838,9 @@ struct HcalBarrelAlgo {
           pgonRmax[2] = rmid;
           pgonZ[2] = zoff[in] + rmid * ttheta[in];
           alpha1 = atan(midW[i] / rmin);
-          solid = dd4hep::Polyhedra(1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
-          ns.addSolidNS(ns.prepend(namek), solid);
+          solid = dd4hep::Polyhedra(ns.prepend(namek), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
           dd4hep::Material matter2 = ns.material(midMat[i]);
           log = dd4hep::Volume(solid.name(), solid, matter2);
-          ns.addVolumeNS(log);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of "
                                        << matter2.name() << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
@@ -929,10 +899,8 @@ struct HcalBarrelAlgo {
       shiftX = detdP2[id];
     }
 
-    solid = dd4hep::Box(dx1, wid, dz);
-    ns.addSolidNS(ns.prepend(plname + "1"), solid);
+    solid = dd4hep::Box(ns.prepend(plname + "1"), dx1, wid, dz);
     glog = dd4hep::Volume(solid.name(), solid, plmatter);
-    ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << plmatter.name()
                                  << " of dimensions " << dx1 << ", " << wid << ", " << dz;
@@ -944,10 +912,8 @@ struct HcalBarrelAlgo {
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << detector.name()
                                  << " at (" << x << "," << y << ",0) with no rotation";
 #endif
-    solid = dd4hep::Box(0.5 * detTsc[id], wid, dz);
-    ns.addSolidNS(ns.prepend(scname), solid);
+    solid = dd4hep::Box(ns.prepend(scname), 0.5 * detTsc[id], wid, dz);
     glog = dd4hep::Volume(solid.name(), solid, scmatter);
-    ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << scmatter.name()
                                  << " of dimensions " << 0.5 * detTsc[id] << ", " << wid << ", " << dz;
@@ -960,10 +926,8 @@ struct HcalBarrelAlgo {
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << copyNo << " positioned in "
                                  << detector.name() << " at (" << x << "," << y << ",0) with no rotation";
 #endif
-    solid = dd4hep::Box(dx2, wid, dz);
-    ns.addSolidNS(ns.prepend(plname + "2"), solid);
+    solid = dd4hep::Box(ns.prepend(plname + "2"), dx2, wid, dz);
     glog = dd4hep::Volume(solid.name(), solid, plmatter);
-    ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << plmatter.name()
                                  << " of dimensions " << dx2 << ", " << wid << ", " << dz;
