@@ -37,10 +37,8 @@ fastSim.toReplaceWith(egammarecoTask, egammarecoTask.copyAndExclude([conversionT
 fastSim.toReplaceWith(egammaHighLevelRecoPrePFTask,egammaHighLevelRecoPrePFTask.copyAndExclude([uncleanedOnlyElectronTask,conversionTask]))
 
 #egammaHighLevelRecoPostPFTask = cms.Task(gsfElectronMergingTask,interestingEgammaIsoDetIdsTask,photonIDTask,eIdTask,hfEMClusteringTask)
-#egammaHighLevelRecoPostPF = cms.Sequence(egammaHighLevelRecoPostPFTask)
 #adding new gedGsfElectronTask and gedPhotonTask :
 #egammaHighLevelRecoPostPFTask = cms.Task(gsfElectronMergingTask,gedGsfElectronTask,interestingEgammaIsoDetIdsTask,gedPhotonTask,photonIDTask,eIdTask,hfEMClusteringTask)
-#egammaHighLevelRecoPostPF = cms.Sequence(egammaHighLevelRecoPostPFTask)
 egammaHighLevelRecoPostPFTask = cms.Task(interestingEgammaIsoDetIdsTask,egmIsolationTask,photonIDTask,photonIDTaskGED,eIdTask,hfEMClusteringTask)
 egammaHighLevelRecoPostPF = cms.Sequence(egammaHighLevelRecoPostPFTask)
 
