@@ -39,7 +39,7 @@ edm::ParameterSetDescription TrigObjTnPHistColl::makePSetDescription() {
   return desc;
 }
 
-void TrigObjTnPHistColl::bookHists(DQMStore::ConcurrentBooker& iBooker) {
+void TrigObjTnPHistColl::bookHists(DQMStore::IBooker& iBooker) {
   iBooker.setCurrentFolder(folderName_);
   for (auto& probe : probeHists_) {
     probe.bookHists(collName_, iBooker, histDefs_);
@@ -299,9 +299,9 @@ edm::ParameterSetDescription TrigObjTnPHistColl::HistFiller::makePSetDescription
 
 void TrigObjTnPHistColl::HistFiller::operator()(const trigger::TriggerObject& probe,
                                                 float mass,
-                                                const ConcurrentMonitorElement& hist) const {
+                                                dqm::reco::MonitorElement* hist) const {
   if (localCuts_(probe))
-    hist.fill(var_(probe), mass);
+    hist->Fill(var_(probe), mass);
 }
 
 TrigObjTnPHistColl::HistDefs::HistDefs(const edm::ParameterSet& config)
@@ -322,9 +322,11 @@ edm::ParameterSetDescription TrigObjTnPHistColl::HistDefs::makePSetDescription()
   return desc;
 }
 
-std::vector<std::pair<TrigObjTnPHistColl::HistFiller, ConcurrentMonitorElement>> TrigObjTnPHistColl::HistDefs::bookHists(
-    DQMStore::ConcurrentBooker& iBooker, const std::string& name, const std::string& title) const {
-  std::vector<std::pair<HistFiller, ConcurrentMonitorElement>> hists;
+std::vector<std::pair<TrigObjTnPHistColl::HistFiller, dqm::reco::MonitorElement*>>
+TrigObjTnPHistColl::HistDefs::bookHists(DQMStore::IBooker& iBooker,
+                                        const std::string& name,
+                                        const std::string& title) const {
+  std::vector<std::pair<HistFiller, dqm::reco::MonitorElement*>> hists;
   for (const auto& data : histData_) {
     hists.push_back({data.filler(), data.book(iBooker, name, title, massBins_)});
   }
@@ -346,10 +348,10 @@ edm::ParameterSetDescription TrigObjTnPHistColl::HistDefs::Data::makePSetDescrip
   return desc;
 }
 
-ConcurrentMonitorElement TrigObjTnPHistColl::HistDefs::Data::book(DQMStore::ConcurrentBooker& iBooker,
-                                                                  const std::string& name,
-                                                                  const std::string& title,
-                                                                  const std::vector<float>& massBins) const {
+dqm::reco::MonitorElement* TrigObjTnPHistColl::HistDefs::Data::book(DQMStore::IBooker& iBooker,
+                                                                    const std::string& name,
+                                                                    const std::string& title,
+                                                                    const std::vector<float>& massBins) const {
   return iBooker.book2D((name + nameSuffex_).c_str(),
                         (title + titleSuffex_).c_str(),
                         bins_.size() - 1,
@@ -358,7 +360,7 @@ ConcurrentMonitorElement TrigObjTnPHistColl::HistDefs::Data::book(DQMStore::Conc
                         massBins.data());
 }
 
-void TrigObjTnPHistColl::HistColl::bookHists(DQMStore::ConcurrentBooker& iBooker,
+void TrigObjTnPHistColl::HistColl::bookHists(DQMStore::IBooker& iBooker,
                                              const std::string& name,
                                              const std::string& title,
                                              const HistDefs& histDefs) {
@@ -372,7 +374,7 @@ void TrigObjTnPHistColl::HistColl::fill(const trigger::TriggerObject& probe, flo
 }
 
 void TrigObjTnPHistColl::ProbeData::bookHists(const std::string& tagName,
-                                              DQMStore::ConcurrentBooker& iBooker,
+                                              DQMStore::IBooker& iBooker,
                                               const HistDefs& histDefs) {
   hists_.bookHists(iBooker, tagName + "_" + probeFilter_, tagName + "_" + probeFilter_, histDefs);
 }

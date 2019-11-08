@@ -55,14 +55,14 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
     double range = bins * m_time_resolution;
 
     // define a callback that can book the histograms
-    auto bookTransactionCallback = [&, this](DQMStore::ConcurrentBooker& booker) {
+    auto bookTransactionCallback = [&, this](DQMStore::IBooker& booker) {
       booker.setCurrentFolder(m_dqm_path);
       m_sourced_events = booker.book1D("throughput_sourced", "Throughput (sourced events)", bins, 0., range);
-      m_sourced_events.setXTitle("time [s]");
-      m_sourced_events.setYTitle(y_axis_title.c_str());
+      m_sourced_events->setXTitle("time [s]");
+      m_sourced_events->setYTitle(y_axis_title);
       m_retired_events = booker.book1D("throughput_retired", "Throughput (retired events)", bins, 0., range);
-      m_retired_events.setXTitle("time [s]");
-      m_retired_events.setYTitle(y_axis_title.c_str());
+      m_retired_events->setXTitle("time [s]");
+      m_retired_events->setYTitle(y_axis_title);
     };
 
     // book MonitorElement's for this run
@@ -75,12 +75,12 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
 
 void ThroughputService::preSourceEvent(edm::StreamID sid) {
   auto timestamp = std::chrono::steady_clock::now();
-  m_sourced_events.fill(std::chrono::duration_cast<std::chrono::duration<double>>(timestamp - m_startup).count());
+  m_sourced_events->Fill(std::chrono::duration_cast<std::chrono::duration<double>>(timestamp - m_startup).count());
 }
 
 void ThroughputService::postEvent(edm::StreamContext const& sc) {
   auto timestamp = std::chrono::steady_clock::now();
-  m_retired_events.fill(std::chrono::duration_cast<std::chrono::duration<double>>(timestamp - m_startup).count());
+  m_retired_events->Fill(std::chrono::duration_cast<std::chrono::duration<double>>(timestamp - m_startup).count());
 }
 
 // declare ThroughputService as a framework Service
