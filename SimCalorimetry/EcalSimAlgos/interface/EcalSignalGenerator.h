@@ -101,7 +101,7 @@ public:
       eventSetup->get<EcalLaserDbRecord>().get(laser);
 
       //
-      const edm::TimeValue_t eventTimeValue = theEvent->getRun().runAuxiliary().beginTime().value(); 
+      const edm::TimeValue_t eventTimeValue = theEvent->getRun().runAuxiliary().beginTime().value();
       //
       //         The "time" will have to match in the generation of the tag
       //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
