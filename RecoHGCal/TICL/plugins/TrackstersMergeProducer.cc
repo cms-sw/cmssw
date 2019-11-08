@@ -13,17 +13,25 @@
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoHGCal/TICL/plugins/GlobalCache.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 #include "TrackstersPCA.h"
 
 using namespace ticl;
 
-class TrackstersMergeProducer : public edm::stream::EDProducer<> {
+class TrackstersMergeProducer : public edm::stream::EDProducer<edm::GlobalCache<TrackstersCache>> {
 public:
-  explicit TrackstersMergeProducer(const edm::ParameterSet &ps);
+  explicit TrackstersMergeProducer(const edm::ParameterSet &ps, const CacheBase* cache);
   ~TrackstersMergeProducer() override{};
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
+
+  // static methods for handling the global cache
+  static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(TrackstersCache*);
 
 private:
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, int);
@@ -33,16 +41,42 @@ private:
   const edm::EDGetTokenT<std::vector<Trackster>> trackstershad_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seedingTrk_token_;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  const std::string eidInputName_;
+  const std::string eidOutputNameEnergy_;
+  const std::string eidOutputNameId_;
+  const float eidMinClusterEnergy_;
+  const int eidNLayers_;
+  const int eidNClusters_;
+
+  tensorflow::Session* eidSession_;
+  hgcal::RecHitTools rhtools_;
+
+  static const int eidNFeatures_ = 3;
 };
 
-TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps) :
+TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, const CacheBase *cache) :
   trackstersem_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstersem"))),
   tracksterstrk_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("tracksterstrk"))),
   trackstershad_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstershad"))),
   seedingTrk_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seedingTrk"))),
-    clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))) {
-  produces<std::vector<Trackster>>();
-}
+  clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
+  eidInputName_(ps.getParameter<std::string>("eid_input_name")),
+  eidOutputNameEnergy_(ps.getParameter<std::string>("eid_output_name_energy")),
+  eidOutputNameId_(ps.getParameter<std::string>("eid_output_name_id")),
+  eidMinClusterEnergy_(ps.getParameter<double>("eid_min_cluster_energy")),
+  eidNLayers_(ps.getParameter<int>("eid_n_layers")),
+  eidNClusters_(ps.getParameter<int>("eid_n_clusters")),
+  eidSession_(nullptr) {
+    // mount the tensorflow graph onto the session when set
+    const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
+    if (trackstersCache == nullptr || trackstersCache->eidGraphDef == nullptr) {
+      throw cms::Exception("MissingGraphDef")
+        << "TrackstersMergeProducer received an empty graph definition from the global cache";
+    }
+    eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
+
+    produces<std::vector<Trackster>>();
+  }
 
 void TrackstersMergeProducer::fillTile(TICLTracksterTiles & tracksterTile,
     const std::vector<Trackster> & tracksters,
@@ -59,7 +93,8 @@ void TrackstersMergeProducer::fillTile(TICLTracksterTiles & tracksterTile,
   }
 }
 
-void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &) {
+void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
+  rhtools_.getEventSetup(es);
   auto result = std::make_unique<std::vector<Trackster>>();
 
   TICLTracksterTiles tracksterTile;
@@ -175,10 +210,170 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &) 
   }
 
   assignPCAtoTracksters(*result, layerClusters);
+  energyRegressionAndID(layerClusters, *result);
 
   evt.put(std::move(result));
 }
 
+void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+    std::vector<Trackster> &tracksters) {
+  // Energy regression and particle identification strategy:
+  //
+  // 1. Set default values for regressed energy and particle id for each trackster.
+  // 2. Store indices of tracksters whose total sum of cluster energies is above the
+  //    eidMinClusterEnergy_ (GeV) treshold. Inference is not applied for soft tracksters.
+  // 3. When no trackster passes the selection, return.
+  // 4. Create input and output tensors. The batch dimension is determined by the number of
+  //    selected tracksters.
+  // 5. Fill input tensors with layer cluster features. Per layer, clusters are ordered descending
+  //    by energy. Given that tensor data is contiguous in memory, we can use pointer arithmetic to
+  //    fill values, even with batching.
+  // 6. Zero-fill features for empty clusters in each layer.
+  // 7. Batched inference.
+  // 8. Assign the regressed energy and id probabilities to each trackster.
+  //
+  // Indices used throughout this method:
+  // i -> batch element / trackster
+  // j -> layer
+  // k -> cluster
+  // l -> feature
+
+  // set default values per trackster, determine if the cluster energy threshold is passed,
+  // and store indices of hard tracksters
+  std::vector<int> tracksterIndices;
+  for (int i = 0; i < (int)tracksters.size(); i++) {
+    // set default values (1)
+    tracksters[i].regressed_energy = 0.;
+    for (float &p : tracksters[i].id_probabilities) {
+      p = 0.;
+    }
+
+    // calculate the cluster energy sum (2)
+    // note: after the loop, sumClusterEnergy might be just above the threshold which is enough to
+    // decide whether to run inference for the trackster or not
+    float sumClusterEnergy = 0.;
+    for (const unsigned int &vertex : tracksters[i].vertices) {
+      sumClusterEnergy += (float)layerClusters[vertex].energy();
+      // there might be many clusters, so try to stop early
+      if (sumClusterEnergy >= eidMinClusterEnergy_) {
+        tracksterIndices.push_back(i);
+        break;
+      }
+    }
+  }
+
+  // do nothing when no trackster passes the selection (3)
+  int batchSize = (int)tracksterIndices.size();
+  if (batchSize == 0) {
+    return;
+  }
+
+  // create input and output tensors (4)
+  tensorflow::TensorShape shape({batchSize, eidNLayers_, eidNClusters_, eidNFeatures_});
+  tensorflow::Tensor input(tensorflow::DT_FLOAT, shape);
+  tensorflow::NamedTensorList inputList = {{eidInputName_, input}};
+
+  std::vector<tensorflow::Tensor> outputs;
+  std::vector<std::string> outputNames;
+  if (!eidOutputNameEnergy_.empty()) {
+    outputNames.push_back(eidOutputNameEnergy_);
+  }
+  if (!eidOutputNameId_.empty()) {
+    outputNames.push_back(eidOutputNameId_);
+  }
+
+  // fill input tensor (5)
+  for (int i = 0; i < batchSize; i++) {
+    const Trackster &trackster = tracksters[tracksterIndices[i]];
+
+    // per layer, we only consider the first eidNClusters_ clusters in terms of energy, so in order
+    // to avoid creating large / nested structures to do the sorting for an unknown number of total
+    // clusters, create a sorted list of layer cluster indices to keep track of the filled clusters
+    std::vector<int> clusterIndices(trackster.vertices.size());
+    for (int k = 0; k < (int)trackster.vertices.size(); k++) {
+      clusterIndices[k] = k;
+    }
+    sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](const int &a, const int &b) {
+      return layerClusters[trackster.vertices[a]].energy() > layerClusters[trackster.vertices[b]].energy();
+    });
+
+    // keep track of the number of seen clusters per layer
+    std::vector<int> seenClusters(eidNLayers_);
+
+    // loop through clusters by descending energy
+    for (const int &k : clusterIndices) {
+      // get features per layer and cluster and store the values directly in the input tensor
+      const reco::CaloCluster &cluster = layerClusters[trackster.vertices[k]];
+      int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
+      if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
+        // get the pointer to the first feature value for the current batch, layer and cluster
+        float *features = &input.tensor<float, 4>()(i, j, seenClusters[j], 0);
+
+        // fill features
+        *(features++) = float(std::abs(cluster.eta()));
+        *(features++) = float(cluster.phi());
+        *features = float(cluster.energy());
+
+        // increment seen clusters
+        seenClusters[j]++;
+      }
+    }
+
+    // zero-fill features of empty clusters in each layer (6)
+    for (int j = 0; j < eidNLayers_; j++) {
+      for (int k = seenClusters[j]; k < eidNClusters_; k++) {
+        float *features = &input.tensor<float, 4>()(i, j, k, 0);
+        for (int l = 0; l < eidNFeatures_; l++) {
+          *(features++) = 0.f;
+        }
+      }
+    }
+  }
+
+  // run the inference (7)
+  tensorflow::run(eidSession_, inputList, outputNames, &outputs);
+
+  // store regressed energy per trackster (8)
+  if (!eidOutputNameEnergy_.empty()) {
+    // get the pointer to the energy tensor, dimension is batch x 1
+    float *energy = outputs[0].flat<float>().data();
+
+    for (const int &i : tracksterIndices) {
+      tracksters[i].regressed_energy = *(energy++);
+    }
+  }
+
+  // store id probabilities per trackster (8)
+  if (!eidOutputNameId_.empty()) {
+    // get the pointer to the id probability tensor, dimension is batch x id_probabilities.size()
+    int probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
+    float *probs = outputs[probsIdx].flat<float>().data();
+
+    for (const int &i : tracksterIndices) {
+      for (float &p : tracksters[i].id_probabilities) {
+        p = *(probs++);
+      }
+    }
+  }
+}
+
+std::unique_ptr<TrackstersCache> TrackstersMergeProducer::initializeGlobalCache(const edm::ParameterSet& params) {
+  // this method is supposed to create, initialize and return a TrackstersCache instance
+  std::unique_ptr<TrackstersCache> cache = std::make_unique<TrackstersCache>(params);
+
+  // load the graph def and save it
+  std::string graphPath = params.getParameter<std::string>("eid_graph_path");
+  if (!graphPath.empty()) {
+    graphPath = edm::FileInPath(graphPath).fullPath();
+    cache->eidGraphDef = tensorflow::loadGraphDef(graphPath);
+  }
+
+  return cache;
+}
+void TrackstersMergeProducer::globalEndJob(TrackstersCache* cache) {
+  delete cache->eidGraphDef;
+  cache->eidGraphDef = nullptr;
+}
 void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("trackstersem", edm::InputTag("trackstersEM"));
@@ -186,6 +381,13 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<edm::InputTag>("trackstershad", edm::InputTag("trackstersHAD"));
   desc.add<edm::InputTag>("seedingTrk", edm::InputTag("ticlSeedingTrk"));
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
+  desc.add<std::string>("eid_input_name", "input");
+  desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
+  desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
+  desc.add<double>("eid_min_cluster_energy", 1.);
+  desc.add<int>("eid_n_layers", 50);
+  desc.add<int>("eid_n_clusters", 10);
   descriptions.add("trackstersMergeProducer", desc);
 }
 
