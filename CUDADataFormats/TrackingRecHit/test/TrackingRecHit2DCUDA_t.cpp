@@ -13,7 +13,7 @@ int main() {
   exitSansCUDADevices();
 
   cudaStream_t stream;
-  cudaCheck(cudaStreamCreate(&stream));
+  cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   // inner scope to deallocate memory before destroying the stream
   {
