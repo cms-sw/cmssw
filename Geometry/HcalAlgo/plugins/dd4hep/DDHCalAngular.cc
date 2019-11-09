@@ -1,10 +1,10 @@
-#include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DD4hep/DetFactoryHelper.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -32,11 +32,10 @@ static long algorithm(dd4hep::Detector& /* description */,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"
                                << " n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
-                               << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(dphi) << " Shift " << shiftX
-                               << ":" << shiftY << "\n Parent " << mother.name() << "\tChild " << child.name()
+                               << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(dphi) << " Shift " << convertCmToMm(shiftX)
+                               << ":" << convertCmToMm(shiftY) << "\n Parent " << mother.name() << "\tChild " << child.name()
                                << " NameSpace " << ns.name();
 #endif
-  double theta = 90._deg;
   int copy = startCopyNo;
   double phix = startAngle;
   for (int ii = 0; ii < n; ++ii) {
@@ -44,14 +43,13 @@ static long algorithm(dd4hep::Detector& /* description */,
       phix -= 2._pi;
     else if (phix < 0)
       phix += 2._pi;
-    double phiy = phix + 90._deg;
     dd4hep::Rotation3D rotation;
     if (std::abs(phix) >= 0.1_deg) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalAngular::Creating a rotation:"
-                                   << "\t90., " << phix << ", 90.," << phiy << ", 0, 0";
+                                   << "\t90., " << convertRadToDeg(phix) << ", 90.," << (90.0 + convertRadToDeg(phix)) << ", 0, 0";
 #endif
-      rotation = cms::makeRotation3D(theta, phix, theta, phiy, 0., 0.);
+      rotation = dd4hep::RotationZ(phix);
     }
 
     double xpos = shiftX * cos(phix) - shiftY * sin(phix);
@@ -60,7 +58,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     mother.placeVolume(child, copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalAngular:: " << child.name() << " number " << copy << " positioned in "
-                                 << mother.name() << " at " << tran << " with " << rotation;
+                                 << mother.name() << " at (" << convertCmToMm(xpos) << ", " << convertCmToMm(ypos) << ", "
+				 << convertCmToMm(zoffset) << ") with rotation matrix: " << rotation;
 #endif
     copy += incrCopyNo;
     phix += dphi;
