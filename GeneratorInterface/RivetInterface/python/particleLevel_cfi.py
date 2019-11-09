@@ -21,4 +21,9 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     fatJetConeSize = cms.double(0.8),
     fatJetMinPt    = cms.double(200.),
     fatJetMaxEta   = cms.double(2.4),
+
+    phoIsoConeSize = cms.double(0.4),
+    phoMaxRelIso = cms.double(0.5),
+    phoMinPt = cms.double(10),
+    phoMaxEta = cms.double(2.5),
 )
