@@ -45,7 +45,7 @@ namespace metsig {
                                      JME::JetResolution& resPhiObj,
                                      JME::JetResolutionScaleFactor& resSFObj,
                                      bool isRealData,
-                                     double &sumPt);
+                                     double& sumPt);
 
     static double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met);
 
