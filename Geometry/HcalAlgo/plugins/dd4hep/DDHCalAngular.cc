@@ -32,9 +32,9 @@ static long algorithm(dd4hep::Detector& /* description */,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"
                                << " n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
-                               << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(dphi) << " Shift " << convertCmToMm(shiftX)
-                               << ":" << convertCmToMm(shiftY) << "\n Parent " << mother.name() << "\tChild " << child.name()
-                               << " NameSpace " << ns.name();
+                               << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(dphi) << " Shift "
+                               << convertCmToMm(shiftX) << ":" << convertCmToMm(shiftY) << "\n Parent " << mother.name()
+                               << "\tChild " << child.name() << " NameSpace " << ns.name();
 #endif
   int copy = startCopyNo;
   double phix = startAngle;
@@ -47,7 +47,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     if (std::abs(phix) >= 0.1_deg) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalAngular::Creating a rotation:"
-                                   << "\t90., " << convertRadToDeg(phix) << ", 90.," << (90.0 + convertRadToDeg(phix)) << ", 0, 0";
+                                   << "\t90., " << convertRadToDeg(phix) << ", 90.," << (90.0 + convertRadToDeg(phix))
+                                   << ", 0, 0";
 #endif
       rotation = dd4hep::RotationZ(phix);
     }
@@ -58,8 +59,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     mother.placeVolume(child, copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalAngular:: " << child.name() << " number " << copy << " positioned in "
-                                 << mother.name() << " at (" << convertCmToMm(xpos) << ", " << convertCmToMm(ypos) << ", "
-				 << convertCmToMm(zoffset) << ") with rotation matrix: " << rotation;
+                                 << mother.name() << " at (" << convertCmToMm(xpos) << ", " << convertCmToMm(ypos)
+                                 << ", " << convertCmToMm(zoffset) << ") with rotation matrix: " << rotation;
 #endif
     copy += incrCopyNo;
     phix += dphi;
