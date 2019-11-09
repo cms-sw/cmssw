@@ -160,7 +160,6 @@ void PATMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 const reco::METCovMatrix PATMETProducer::getMETCovMatrix(const edm::Event& event,
                                                          const edm::EventSetup& iSetup,
                                                          double& sumPt) const {
-  //const reco::METCovMatrix PATMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& iSetup) const {
   std::vector<edm::Handle<reco::CandidateView> > leptons;
   for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
        srcLeptons_i != lepTokens_.end();
