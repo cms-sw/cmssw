@@ -1,37 +1,73 @@
-#include "RecoEcal/EgammaCoreTools/plugins/EcalBasicClusterLocalContCorrection.h"
-#include "TVector2.h"
-#include "TMath.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+/** \class EcalBasicClusterLocalContCorrection
+  *  Function to correct em object energy for energy not contained in a 5x5 crystal area in the calorimeter
+  *
+  *  $Id: EcalBasicClusterLocalContCorrection.h
+  *  $Date:
+  *  $Revision:
+  *  \author Federico Ferri, CEA Saclay, November 2008
+  */
+
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-
-//////From DummyHepMCAnalyzer.cc:
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include <iostream>
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "TVector2.h"
+
+class EcalBasicClusterLocalContCorrection : public EcalClusterFunctionBaseClass {
+public:
+  EcalBasicClusterLocalContCorrection(const edm::ParameterSet &){};
+
+  // get/set explicit methods for parameters
+  const EcalClusterLocalContCorrParameters *getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
+
+  // compute the correction
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override;
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+
+private:
+  int getEcalModule(DetId id) const;
+
+  edm::ESHandle<EcalClusterLocalContCorrParameters> esParams_;
+  const EcalClusterLocalContCorrParameters *params_;
+  const edm::EventSetup *es_;  //needed to access the ECAL geometry
+};
+
+void EcalBasicClusterLocalContCorrection::init(const edm::EventSetup &es) {
+  es.get<EcalClusterLocalContCorrParametersRcd>().get(esParams_);
+  params_ = esParams_.product();
+  es_ = &es;  //needed to access the ECAL geometry
+}
+
+void EcalBasicClusterLocalContCorrection::checkInit() const {
+  if (!params_) {
+    // non-initialized function parameters: throw exception
+    throw cms::Exception("EcalBasicClusterLocalContCorrection::checkInit()")
+        << "Trying to access an uninitialized crack correction function.\n"
+           "Please call `init( edm::EventSetup &)' before any use of the function.\n";
+  }
+}
+
 using namespace std;
 using namespace edm;
 
-float EcalBasicClusterLocalContCorrection::getValue(const reco::SuperCluster& superCluster, const int mode) const {
+float EcalBasicClusterLocalContCorrection::getValue(const reco::SuperCluster &superCluster, const int mode) const {
   //checkInit();
   return 1;
 }
 
-float EcalBasicClusterLocalContCorrection::getValue(const reco::BasicCluster& basicCluster,
-                                                    const EcalRecHitCollection& recHit) const {
+float EcalBasicClusterLocalContCorrection::getValue(const reco::BasicCluster &basicCluster,
+                                                    const EcalRecHitCollection &recHit) const {
   checkInit();
 
   // number of parameters needed by this parametrization
@@ -45,10 +81,10 @@ float EcalBasicClusterLocalContCorrection::getValue(const reco::BasicCluster& ba
   //--------------if barrel calculate local position wrt xtal center -------------------
   edm::ESHandle<CaloGeometry> caloGeometry;
   es_->get<CaloGeometryRecord>().get(caloGeometry);
-  const CaloSubdetectorGeometry* geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
+  const CaloSubdetectorGeometry *geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
 
-  const math::XYZPoint& position_ = basicCluster.position();
-  double Theta = -position_.theta() + 0.5 * TMath::Pi();
+  const math::XYZPoint &position_ = basicCluster.position();
+  double Theta = -position_.theta() + 0.5 * M_PI;
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());
 
@@ -72,12 +108,12 @@ float EcalBasicClusterLocalContCorrection::getValue(const reco::BasicCluster& ba
     GlobalPoint center_pos = cell->getPosition(depth);
     double EtaCentr = center_pos.eta();
     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
-    if (TMath::Abs(EtaCentr - Eta) < detamin) {
-      detamin = TMath::Abs(EtaCentr - Eta);
+    if (std::abs(EtaCentr - Eta) < detamin) {
+      detamin = std::abs(EtaCentr - Eta);
       ietaclosest = crystal.ieta();
     }
-    if (TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr - Phi)) < dphimin) {
-      dphimin = TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr - Phi));
+    if (std::abs(TVector2::Phi_mpi_pi(PhiCentr - Phi)) < dphimin) {
+      dphimin = std::abs(TVector2::Phi_mpi_pi(PhiCentr - Phi));
       iphiclosest = crystal.iphi();
     }
   }
@@ -90,7 +126,7 @@ float EcalBasicClusterLocalContCorrection::getValue(const reco::BasicCluster& ba
 
   //PHI
   double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
-  double PhiWidth = (TMath::Pi() / 180.);
+  double PhiWidth = (M_PI / 180.);
   double PhiCry = (TVector2::Phi_mpi_pi(Phi - PhiCentr)) / PhiWidth;
   if (PhiCry > 0.5)
     PhiCry = 0.5;
@@ -101,8 +137,8 @@ float EcalBasicClusterLocalContCorrection::getValue(const reco::BasicCluster& ba
     PhiCry *= -1.;
 
   //ETA
-  double ThetaCentr = -center_pos.theta() + 0.5 * TMath::Pi();
-  double ThetaWidth = (TMath::Pi() / 180.) * TMath::Cos(ThetaCentr);
+  double ThetaCentr = -center_pos.theta() + 0.5 * M_PI;
+  double ThetaWidth = (M_PI / 180.) * std::cos(ThetaCentr);
   double EtaCry = (Theta - ThetaCentr) / ThetaWidth;
   if (EtaCry > 0.5)
     EtaCry = 0.5;
@@ -149,7 +185,7 @@ float EcalBasicClusterLocalContCorrection::getValue(const reco::BasicCluster& ba
   fphicor = pp[0] + pp[1] * localPhi + pp[2] * localPhi * localPhi;
 
   //if the seed crystal is neighbourgh of a supermodule border, don't apply the phi dependent  containment corrections, but use the larger crack corrections instead.
-  int iphimod20 = TMath::Abs(iphiclosest % 20);
+  int iphimod20 = std::abs(iphiclosest % 20);
   if (iphimod20 <= 1)
     fphicor = 1.;
 

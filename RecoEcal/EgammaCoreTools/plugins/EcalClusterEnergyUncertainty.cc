@@ -1,6 +1,55 @@
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyUncertainty.h"
+/** \class EcalClusterEnergyUncertainty
+  *  Function that provides uncertainty on supercluster energy measurement
+  *  Available numbers: total effective uncertainty (in GeV)
+  *                     assymetric uncertainties (positive and negative)
+  *
+  *  $Id: EcalClusterEnergyUncertainty.h
+  *  $Date:
+  *  $Revision:
+  *  \author Yurii Maravin, KSU, March 2009
+  */
 
-float EcalClusterEnergyUncertainty::getValue(const reco::SuperCluster& superCluster, const int mode) const {
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+
+class EcalClusterEnergyUncertainty : public EcalClusterFunctionBaseClass {
+public:
+  EcalClusterEnergyUncertainty(const edm::ParameterSet &){};
+
+  // get/set explicit methods for parameters
+  const EcalClusterEnergyUncertaintyParameters *getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
+
+  // compute the correction
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 0.; };
+
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+
+private:
+  edm::ESHandle<EcalClusterEnergyUncertaintyParameters> esParams_;
+  const EcalClusterEnergyUncertaintyParameters *params_;
+};
+
+void EcalClusterEnergyUncertainty::init(const edm::EventSetup &es) {
+  es.get<EcalClusterEnergyUncertaintyParametersRcd>().get(esParams_);
+  params_ = esParams_.product();
+}
+
+void EcalClusterEnergyUncertainty::checkInit() const {
+  if (!params_) {
+    // non-initialized function parameters: throw exception
+    throw cms::Exception("EcalClusterEnergyUncertainty::checkInit()")
+        << "Trying to access an uninitialized crack correction function.\n"
+           "Please call `init( edm::EventSetup &)' before any use of the function.\n";
+  }
+}
+
+float EcalClusterEnergyUncertainty::getValue(const reco::SuperCluster &superCluster, const int mode) const {
   checkInit();
   // mode  = -1 returns negative energy uncertainty
   //       = +1 returns positive energy uncertainty
