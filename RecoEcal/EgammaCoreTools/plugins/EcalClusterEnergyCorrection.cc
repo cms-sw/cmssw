@@ -1,4 +1,42 @@
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyCorrection.h"
+/** \class EcalClusterEnergyCorrection
+  *  Function that provides supercluster energy correction due to Bremsstrahlung loss
+  *
+  *  $Id: EcalClusterEnergyCorrection.h
+  *  $Date:
+  *  $Revision:
+  *  \author Yurii Maravin, KSU, March 2009
+  */
+
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+
+class EcalClusterEnergyCorrection : public EcalClusterFunctionBaseClass {
+public:
+  EcalClusterEnergyCorrection(const edm::ParameterSet &){};
+
+  // get/set explicit methods for parameters
+  const EcalClusterEnergyCorrectionParameters *getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
+
+  // compute the correction
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 0.; };
+
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+
+private:
+  float fEta(float e, float eta, int algorithm) const;
+  float fBrem(float e, float eta, int algorithm) const;
+  float fEtEta(float et, float eta, int algorithm) const;
+
+  edm::ESHandle<EcalClusterEnergyCorrectionParameters> esParams_;
+  const EcalClusterEnergyCorrectionParameters *params_;
+};
 
 // Shower leakage corrections developed by Jungzhie et al. using TB data
 // Developed for EB only!
@@ -134,7 +172,7 @@ float EcalClusterEnergyCorrection::fEtEta(float et, float eta, int algorithm) co
   return et / fCorr;
 }
 
-float EcalClusterEnergyCorrection::getValue(const reco::SuperCluster& superCluster, const int mode) const {
+float EcalClusterEnergyCorrection::getValue(const reco::SuperCluster &superCluster, const int mode) const {
   // mode flags:
   // hybrid modes: 1 - return f(eta) correction in GeV
   //               2 - return f(eta) + f(brem) correction
@@ -199,6 +237,20 @@ float EcalClusterEnergyCorrection::getValue(const reco::SuperCluster& superClust
   } else {
     // perform no correction
     return 0;
+  }
+}
+
+void EcalClusterEnergyCorrection::init(const edm::EventSetup &es) {
+  es.get<EcalClusterEnergyCorrectionParametersRcd>().get(esParams_);
+  params_ = esParams_.product();
+}
+
+void EcalClusterEnergyCorrection::checkInit() const {
+  if (!params_) {
+    // non-initialized function parameters: throw exception
+    throw cms::Exception("EcalClusterEnergyCorrection::checkInit()")
+        << "Trying to access an uninitialized crack correction function.\n"
+           "Please call `init( edm::EventSetup &)' before any use of the function.\n";
   }
 }
 

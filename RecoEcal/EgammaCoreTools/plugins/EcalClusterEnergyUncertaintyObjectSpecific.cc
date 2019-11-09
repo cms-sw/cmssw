@@ -1,7 +1,34 @@
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyUncertaintyObjectSpecific.h"
-#include "TMath.h"
+/** \class EcalClusterEnergyUncertainty
+  *  Function that provides uncertainty on supercluster energy measurement
+  *  Available numbers: total effective uncertainty (in GeV)
+  *                     assymetric uncertainties (positive and negative)
+  *
+  *  $Id: EcalClusterEnergyUncertainty.h
+  *  $Date:
+  *  $Revision:
+  *  \author Nicolas Chanon, December 2011
+  */
 
-float EcalClusterEnergyUncertaintyObjectSpecific::getValue(const reco::SuperCluster& superCluster,
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class EcalClusterEnergyUncertaintyObjectSpecific : public EcalClusterFunctionBaseClass {
+public:
+  EcalClusterEnergyUncertaintyObjectSpecific(const edm::ParameterSet &){};
+
+  // check initialization
+  void checkInit() const {}
+
+  // compute the correction
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 0.; };
+
+  // set parameters
+  void init(const edm::EventSetup &es) override {}
+};
+
+float EcalClusterEnergyUncertaintyObjectSpecific::getValue(const reco::SuperCluster &superCluster,
                                                            const int mode) const {
   checkInit();
 
