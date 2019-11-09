@@ -30,8 +30,9 @@ static long algorithm(dd4hep::Detector& /* description */,
     ++k;
   }
   edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: Number along X/Y " << numberX << "/" << numberY
-                               << "\tDelta along X/Y " << convertCmToMm(deltaX) << "/" << convertCmToMm(deltaY) << "\tCentre (" << convertCmToMm(centre[0]) << ", "
-                               << convertCmToMm(centre[1]) << "," << convertCmToMm(centre[2]);
+                               << "\tDelta along X/Y " << convertCmToMm(deltaX) << "/" << convertCmToMm(deltaY)
+                               << "\tCentre (" << convertCmToMm(centre[0]) << ", " << convertCmToMm(centre[1]) << ","
+                               << convertCmToMm(centre[2]);
 #endif
   double xoff = centre[0] - (numberX - 1) * 0.5 * deltaX;
   double yoff = centre[1] - (numberY - 1) * 0.5 * deltaY;
@@ -46,7 +47,9 @@ static long algorithm(dd4hep::Detector& /* description */,
         parent.placeVolume(ns.volume(child), copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: " << child << " number " << copy << " positioned in "
-                                     << parent.name() << " at (" << convertCmToMm(xoff + i * deltaX) << ", " << convertCmToMm(yoff + j * deltaY) << ", " << convertCmToMm(centre[2]) << ") with no rotation";
+                                     << parent.name() << " at (" << convertCmToMm(xoff + i * deltaX) << ", "
+                                     << convertCmToMm(yoff + j * deltaY) << ", " << convertCmToMm(centre[2])
+                                     << ") with no rotation";
 #endif
       } else {
         edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: no child placed for [" << copy << "]";
