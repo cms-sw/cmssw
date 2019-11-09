@@ -72,7 +72,9 @@ namespace pat {
     std::string jetResPhiType_;
     std::string jetSFType_;
 
-    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event, const edm::EventSetup& iSetup, double &sumPt) const;
+    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event,
+                                             const edm::EventSetup& iSetup,
+                                             double& sumPt) const;
   };
 
 }  // namespace pat
