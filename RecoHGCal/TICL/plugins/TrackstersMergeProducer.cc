@@ -144,7 +144,6 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
         << " regressed energy: " << t.regressed_energy
         << " raw_energy: " << t.raw_energy
         << std::endl;
-    auto const & seeds = tracksterTile[3][bin];
     auto const & ems = tracksterTile[0][bin];
     auto const & original_seed = seedingTrk[t.seedIndex];
     std::cout << "Original seed: " << original_seed.origin
@@ -175,6 +174,16 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             << " (trk+em)/seed: " << (t.raw_energy+em.raw_energy)/original_seed.directionAtOrigin.mag()
             << std::endl;
           result->push_back(combined);
+        } else {
+          std::cout << " Missed link to em obj: " << em.barycenter
+            << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]))
+            << std::endl
+            << " regressed energy: " << em.regressed_energy
+            << " raw_energy: " << em.raw_energy
+            << " cumulative: " << (t.raw_energy+em.raw_energy)
+            << " (trk+em)/seed: " << (t.raw_energy+em.raw_energy)/original_seed.directionAtOrigin.mag()
+            << std::endl;
+
         }
         tracksterEM_idx++;
       }
@@ -183,6 +192,49 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       usedTrackstersTRK[tracksterTRK_idx] = 1;
     }
     tracksterTRK_idx++;
+  }
+
+  auto tracksterHAD_idx = 0;
+  for (auto const & t : trackstersHAD) {
+    int bin = tracksterTile[2].globalBin(t.barycenter.eta(), t.barycenter.phi());
+      std::cout << "TrackstersMergeProducer HAD obj: " << t.barycenter
+        << " regressed energy: " << t.regressed_energy
+        << " raw_energy: " << t.raw_energy
+        << std::endl;
+    auto const & ems = tracksterTile[0][bin];
+      std::cout << "Trying to associate closeby em energy" << std::endl;
+      auto tracksterEM_idx = 0;
+      for (auto const & e : ems) {
+        auto const & em = trackstersEM[e];
+        auto cos_angle = std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]));
+        if (cos_angle > 0.9945) {
+          usedTrackstersHAD[tracksterHAD_idx] = 1;
+          usedTrackstersEM[tracksterEM_idx] = 1;
+          auto combined = t;
+          std::copy(std::begin(em.vertices), std::end(em.vertices),
+              std::back_inserter(combined.vertices));
+          std::copy(std::begin(em.vertex_multiplicity), std::end(em.vertex_multiplicity),
+              std::back_inserter(combined.vertex_multiplicity));
+          std::cout << " linked to em obj: " << em.barycenter
+            << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]))
+            << std::endl
+            << " regressed energy: " << em.regressed_energy
+            << " raw_energy: " << em.raw_energy
+            << " cumulative: " << (t.raw_energy+em.raw_energy)
+            << std::endl;
+          result->push_back(combined);
+        } else {
+          std::cout << " Missed link to em obj: " << em.barycenter
+            << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]))
+            << std::endl
+            << " regressed energy: " << em.regressed_energy
+            << " raw_energy: " << em.raw_energy
+            << " cumulative: " << (t.raw_energy+em.raw_energy)
+            << std::endl;
+        }
+        tracksterEM_idx++;
+      }
+    tracksterHAD_idx++;
   }
 
   tracksterTRK_idx = 0;
@@ -201,7 +253,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     tracksterEM_idx++;
   }
 
-  auto tracksterHAD_idx = 0;
+  tracksterHAD_idx = 0;
   for (auto const & t : trackstersHAD) {
     if (! usedTrackstersHAD[tracksterHAD_idx]) {
       result->push_back(t);

@@ -25,10 +25,11 @@ trackstersHAD = _trackstersProducer.clone(
     # For the moment we mask everything w/o requirements since we are last
 #    filter_on_categories = [5], # filter neutral hadrons
 #    pid_threshold = 0.7,
-    missing_layers = 2,
-    min_clusters_per_ntuplet = 10,
+    missing_layers = 1,
+    min_clusters_per_ntuplet = 12,
     min_cos_theta = 0.866,    # ~30 degrees
-    min_cos_pointing = 0.866, # ~30 degrees
+    min_cos_pointing = 0.819, # ~35 degrees
+    max_delta_time = -1
     )
 
 # MULTICLUSTERS
