@@ -146,7 +146,7 @@ MicroEventContentMC.outputCommands += [
 
 from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
 strips_vfp30_2016.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + [
-    'keep *_*_SimulatedAPVDynamicGain_*'
+    'keep *_mix_SimulatedAPVDynamicGain_*'
 ])
 
 MiniAODOverrideBranchesSplitLevel = cms.untracked.VPSet( [
