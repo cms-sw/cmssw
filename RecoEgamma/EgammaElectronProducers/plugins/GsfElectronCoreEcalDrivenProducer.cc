@@ -5,11 +5,9 @@
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 
 class GsfElectronCoreEcalDrivenProducer : public edm::global::EDProducer<> {
@@ -29,6 +27,7 @@ private:
   const edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksToken_;
   const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksToken_;
   const edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
+  const edm::EDPutTokenT<reco::GsfElectronCoreCollection> putToken_;
 };
 using namespace reco;
 
@@ -43,66 +42,52 @@ void GsfElectronCoreEcalDrivenProducer::fillDescriptions(edm::ConfigurationDescr
 
 GsfElectronCoreEcalDrivenProducer::GsfElectronCoreEcalDrivenProducer(const edm::ParameterSet& config)
     : useGsfPfRecTracks_(config.getParameter<bool>("useGsfPfRecTracks")),
-      gsfPfRecTracksToken_(
-          mayConsume<reco::GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks"))),
+      gsfPfRecTracksToken_(mayConsume<GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks"))),
       gsfTracksToken_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
-      ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))) {
-  produces<reco::GsfElectronCoreCollection>();
-}
+      ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))),
+      putToken_(produces<reco::GsfElectronCoreCollection>()) {}
 
 void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   auto gsfTracksHandle = event.getHandle(gsfTracksToken_);
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 
   // output
-  auto electrons = std::make_unique<GsfElectronCoreCollection>();
+  reco::GsfElectronCoreCollection electrons;
 
   // loop on ecal driven tracks
   if (useGsfPfRecTracks_) {
-    auto const& gsfPfRecTrackCollection = event.get(gsfPfRecTracksToken_);
-    GsfPFRecTrackCollection::const_iterator gsfPfRecTrack;
-    for (gsfPfRecTrack = gsfPfRecTrackCollection.begin(); gsfPfRecTrack != gsfPfRecTrackCollection.end();
-         ++gsfPfRecTrack) {
-      const GsfTrackRef gsfTrackRef = gsfPfRecTrack->gsfTrackRef();
-      produceEcalDrivenCore(gsfTrackRef, electrons.get(), ctfTracksHandle);
+    for (auto const& gsfPfRecTrack : event.get(gsfPfRecTracksToken_)) {
+      produceEcalDrivenCore(gsfPfRecTrack.gsfTrackRef(), &electrons, ctfTracksHandle);
     }
   } else {
-    const GsfTrackCollection* gsfTrackCollection = gsfTracksHandle.product();
-    for (unsigned int i = 0; i < gsfTrackCollection->size(); ++i) {
-      const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksHandle, i);
-      produceEcalDrivenCore(gsfTrackRef, electrons.get(), ctfTracksHandle);
+    for (unsigned int i = 0; i < gsfTracksHandle->size(); ++i) {
+      produceEcalDrivenCore(edm::Ref<GsfTrackCollection>(gsfTracksHandle, i), &electrons, ctfTracksHandle);
     }
   }
 
-  event.put(std::move(electrons));
+  event.emplace(putToken_, electrons);
 }
 
 void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore(
     const GsfTrackRef& gsfTrackRef,
     GsfElectronCoreCollection* electrons,
-    edm::Handle<reco::TrackCollection> const& ctfTracksHandle) const {
-  GsfElectronCore* eleCore = new GsfElectronCore(gsfTrackRef);
+    edm::Handle<TrackCollection> const& ctfTracksHandle) const {
+  auto eleCore = std::make_unique<GsfElectronCore>(gsfTrackRef);
 
   if (!eleCore->ecalDrivenSeed()) {
-    delete eleCore;
     return;
   }
 
   auto ctfpair = egamma::getClosestCtfToGsf(eleCore->gsfTrack(), ctfTracksHandle);
   eleCore->setCtfTrack(ctfpair.first, ctfpair.second);
 
-  edm::RefToBase<TrajectorySeed> seed = gsfTrackRef->extra()->seedRef();
-  ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>();
-  edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster();
-  SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>();
+  auto scRef = gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>()->caloCluster().castTo<SuperClusterRef>();
   if (!scRef.isNull()) {
     eleCore->setSuperCluster(scRef);
     electrons->push_back(*eleCore);
   } else {
     edm::LogWarning("GsfElectronCoreEcalDrivenProducer") << "Seed CaloCluster is not a SuperCluster, unexpected...";
   }
-
-  delete eleCore;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

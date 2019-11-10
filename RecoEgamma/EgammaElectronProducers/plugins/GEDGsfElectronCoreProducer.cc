@@ -2,10 +2,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -25,39 +21,36 @@ private:
                            reco::GsfElectronCoreCollection *electrons,
                            edm::Handle<reco::TrackCollection> const &ctfTracksHandle) const;
 
-  const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksToken_;
   const edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
   const edm::EDGetTokenT<reco::PFCandidateCollection> gedEMUnbiasedToken_;
+  const edm::EDPutTokenT<reco::GsfElectronCoreCollection> putToken_;
 };
 
 using namespace reco;
 
 void GEDGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("gsfTracks", {"electronGsfTracks"});
   desc.add<edm::InputTag>("ctfTracks", {"generalTracks"});
   desc.add<edm::InputTag>("GEDEMUnbiased", {"particleFlowEGamma"});
   descriptions.add("gedGsfElectronCores", desc);
 }
 
 GEDGsfElectronCoreProducer::GEDGsfElectronCoreProducer(const edm::ParameterSet &config)
-    : gsfTracksToken_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
-      ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))),
-      gedEMUnbiasedToken_(consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("GEDEMUnbiased"))) {
-  produces<reco::GsfElectronCoreCollection>();
-}
+    : ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))),
+      gedEMUnbiasedToken_(consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("GEDEMUnbiased"))),
+      putToken_(produces<reco::GsfElectronCoreCollection>()) {}
 
 void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &event, const edm::EventSetup &setup) const {
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 
   // output
-  auto electrons = std::make_unique<GsfElectronCoreCollection>();
+  reco::GsfElectronCoreCollection electrons;
 
   for (auto const &pfCand : event.get(gedEMUnbiasedToken_)) {
-    produceElectronCore(pfCand, electrons.get(), ctfTracksHandle);
+    produceElectronCore(pfCand, &electrons, ctfTracksHandle);
   }
 
-  event.put(std::move(electrons));
+  event.emplace(putToken_, electrons);
 }
 
 void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pfCandidate,
