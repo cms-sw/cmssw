@@ -39,7 +39,7 @@ namespace Rivet {
     double _jetConeSize, _jetMinPt, _jetMaxEta;
     double _fatJetConeSize, _fatJetMinPt, _fatJetMaxEta;
 
-    double _phoMinPt, _phoMaxEta ,_phoIsoConeSize, _phoMaxRelIso;
+    double _phoMinPt, _phoMaxEta, _phoIsoConeSize, _phoMaxRelIso;
 
     Particles _leptons, _photons, _neutrinos;
     Jets _jets, _fatjets;
@@ -67,10 +67,10 @@ namespace Rivet {
           _fatJetMinPt(pset.getParameter<double>("fatJetMinPt")),
           _fatJetMaxEta(pset.getParameter<double>("fatJetMaxEta")),
 
-          _phoMinPt  (pset.getParameter<double>("phoMinPt")),
-          _phoMaxEta  (pset.getParameter<double>("phoMaxEta")),
-          _phoIsoConeSize  (pset.getParameter<double>("phoIsoConeSize")),
-          _phoMaxRelIso (pset.getParameter<double>("phoMaxRelIso")) {}
+          _phoMinPt(pset.getParameter<double>("phoMinPt")),
+          _phoMaxEta(pset.getParameter<double>("phoMaxEta")),
+          _phoIsoConeSize(pset.getParameter<double>("phoIsoConeSize")),
+          _phoMaxRelIso(pset.getParameter<double>("phoMaxRelIso")) {}
 
     // Initialize Rivet projections
     void init() override {
@@ -167,34 +167,31 @@ namespace Rivet {
       }
 
       // Photons
-      Particles fsparticles = apply<FinalState>(event,"FS").particles();
+      Particles fsparticles = apply<FinalState>(event, "FS").particles();
 
-      for ( auto & photon : apply<FinalState>(event, "Photons").particlesByPt() ) {
-          
-          if (photon.pt() < _phoMinPt)
-              continue;
-          
-          if (abs(photon.eta()) > _phoMaxEta)
-              continue;
-          
-          double photonptsum = 0;
-          
-          for (auto &fsparticle : fsparticles) {
-              
-              if (deltaR(fsparticle, photon) == 0) 
-                  continue;
-              
-              if (deltaR(fsparticle, photon) > _phoIsoConeSize) 
-                  continue;
-              
-              photonptsum += fsparticle.pt();
-          }
+      for (auto& photon : apply<FinalState>(event, "Photons").particlesByPt()) {
+        if (photon.pt() < _phoMinPt)
+          continue;
 
-          if (photonptsum/photon.pt() > _phoMaxRelIso)
-              continue;
-          
-          _photons.push_back(photon);
-          
+        if (abs(photon.eta()) > _phoMaxEta)
+          continue;
+
+        double photonptsum = 0;
+
+        for (auto& fsparticle : fsparticles) {
+          if (deltaR(fsparticle, photon) == 0)
+            continue;
+
+          if (deltaR(fsparticle, photon) > _phoIsoConeSize)
+            continue;
+
+          photonptsum += fsparticle.pt();
+        }
+
+        if (photonptsum / photon.pt() > _phoMaxRelIso)
+          continue;
+
+        _photons.push_back(photon);
       }
 
       _jets = apply<FastJets>(event, "Jets").jetsByPt(jet_cut);
