@@ -155,7 +155,7 @@ edm::ParameterSetDescription fillDescriptionForParseHBHEPhase1Algo() {
   desc.add<double>("tdcTimeShift", 0.0);
   desc.add<bool>("correctForPhaseContainment", true);
   desc.add<bool>("applyLegacyHBMCorrection", true);
-  desc.add<bool>("calculateArrivalTime", true);
+  desc.add<bool>("calculateArrivalTime", false);
 
   return desc;
 }
