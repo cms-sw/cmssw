@@ -1,56 +1,68 @@
-
-#include "GEDGsfElectronCoreProducer.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 
-#include <map>
+class GEDGsfElectronCoreProducer : public edm::global::EDProducer<> {
+public:
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
+
+  explicit GEDGsfElectronCoreProducer(const edm::ParameterSet &conf);
+  void produce(edm::StreamID iStream, edm::Event &, const edm::EventSetup &) const override;
+
+private:
+  void produceElectronCore(const reco::PFCandidate &pfCandidate,
+                           reco::GsfElectronCoreCollection *electrons,
+                           edm::Handle<reco::TrackCollection> const &ctfTracksHandle) const;
+
+  const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> gedEMUnbiasedToken_;
+};
 
 using namespace reco;
 
 void GEDGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  GsfElectronCoreBaseProducer::fillDescription(desc);
-  desc.add<edm::InputTag>("GEDEMUnbiased", edm::InputTag("particleFlowEGamma"));
+  desc.add<edm::InputTag>("gsfTracks", {"electronGsfTracks"});
+  desc.add<edm::InputTag>("ctfTracks", {"generalTracks"});
+  desc.add<edm::InputTag>("GEDEMUnbiased", {"particleFlowEGamma"});
   descriptions.add("gedGsfElectronCores", desc);
 }
 
 GEDGsfElectronCoreProducer::GEDGsfElectronCoreProducer(const edm::ParameterSet &config)
-    : GsfElectronCoreBaseProducer(config) {
-  gedEMUnbiasedTag_ = consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("GEDEMUnbiased"));
+    : gsfTracksToken_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
+      ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))),
+      gedEMUnbiasedToken_(consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("GEDEMUnbiased"))) {
+  produces<reco::GsfElectronCoreCollection>();
 }
 
-void GEDGsfElectronCoreProducer::produce(edm::Event &event, const edm::EventSetup &setup) {
-  // base input
-  GsfElectronCoreBaseProducer::initEvent(event, setup);
-
-  edm::Handle<reco::PFCandidateCollection> gedEMUnbiasedH_;
-  event.getByToken(gedEMUnbiasedTag_, gedEMUnbiasedH_);
+void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &event, const edm::EventSetup &setup) const {
+  auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 
   // output
   auto electrons = std::make_unique<GsfElectronCoreCollection>();
 
-  const PFCandidateCollection *pfCandidateCollection = gedEMUnbiasedH_.product();
-  for (unsigned int i = 0; i < pfCandidateCollection->size(); ++i)
-    produceElectronCore((*pfCandidateCollection)[i], electrons.get());
+  for (auto const &pfCand : event.get(gedEMUnbiasedToken_)) {
+    produceElectronCore(pfCand, electrons.get(), ctfTracksHandle);
+  }
 
   event.put(std::move(electrons));
 }
 
 void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pfCandidate,
-                                                     reco::GsfElectronCoreCollection *electrons) {
+                                                     reco::GsfElectronCoreCollection *electrons,
+                                                     edm::Handle<reco::TrackCollection> const &ctfTracksHandle) const {
   const GsfTrackRef gsfTrackRef = pfCandidate.gsfTrackRef();
   if (gsfTrackRef.isNull())
     return;
@@ -61,7 +73,8 @@ void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pf
 
   GsfElectronCore *eleCore = new GsfElectronCore(gsfTrackRef);
 
-  GsfElectronCoreBaseProducer::fillElectronCore(eleCore);
+  auto ctfpair = egamma::getClosestCtfToGsf(eleCore->gsfTrack(), ctfTracksHandle);
+  eleCore->setCtfTrack(ctfpair.first, ctfpair.second);
 
   SuperClusterRef scRef = extraRef->superClusterRef();
   SuperClusterRef scBoxRef = extraRef->superClusterPFECALRef();
@@ -85,3 +98,6 @@ void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pf
 
   delete eleCore;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GEDGsfElectronCoreProducer);
