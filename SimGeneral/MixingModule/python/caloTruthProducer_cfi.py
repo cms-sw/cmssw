@@ -43,7 +43,7 @@ phase2_hgcalV9.toModify(
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify(
     caloParticles,
-    simHitCollections = dict(hgc = {2 : cms.InputTag('g4SimHits','HFNoseHits')} ),
+    simHitCollections = dict(hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')])
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
