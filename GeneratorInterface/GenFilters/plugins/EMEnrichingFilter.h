@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "GeneratorInterface/GenFilters/interface/EMEnrichingFilterAlgo.h"
+#include "GeneratorInterface/GenFilters/plugins/EMEnrichingFilterAlgo.h"
 
 class EMEnrichingFilter : public edm::EDFilter {
 public:

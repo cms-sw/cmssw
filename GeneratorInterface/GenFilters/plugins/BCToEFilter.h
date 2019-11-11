@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "GeneratorInterface/GenFilters/interface/BCToEFilterAlgo.h"
+#include "GeneratorInterface/GenFilters/plugins/BCToEFilterAlgo.h"
 
 class BCToEFilter : public edm::EDFilter {
 public:

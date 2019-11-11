@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "GeneratorInterface/GenFilters/interface/HeavyQuarkFromMPIFilterAlgo.h"
+#include "GeneratorInterface/GenFilters/plugins/HeavyQuarkFromMPIFilterAlgo.h"
 
 class HeavyQuarkFromMPIFilter : public edm::EDFilter {
 public:
