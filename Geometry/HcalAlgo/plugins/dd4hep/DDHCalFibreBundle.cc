@@ -31,8 +31,9 @@ static long algorithm(dd4hep::Detector& /* description */,
                                << " mother " << deltaZ << " along Z, " << convertRadToDeg(deltaPhi)
                                << " along phi and with " << rStart.size() << " different bundle types";
   for (unsigned int i = 0; i < areaSection.size(); ++i)
-    edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Child[" << i << "] Area " << convertCm2ToMm2(areaSection[i]) << " R at Start "
-                                 << convertCmToMm(rStart[i]) << " R at End " << convertCmToMm(rEnd[i]);
+    edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Child[" << i << "] Area " << convertCm2ToMm2(areaSection[i])
+                                 << " R at Start " << convertCmToMm(rStart[i]) << " R at End "
+                                 << convertCmToMm(rEnd[i]);
   edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: NameSpace " << ns.name() << " Tilt Angle "
                                << convertRadToDeg(tilt) << " Bundle type at different positions";
   for (unsigned int i = 0; i < bundle.size(); ++i) {
@@ -67,7 +68,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     double dEnd = areaSection[i] / (2 * dPhi * r0);
     std::string name = childPrefix + std::to_string(i);
     dd4hep::Solid solid = dd4hep::ConeSegment(
-					      name, 0.5 * deltaZ, rStart[i] - dStart, rStart[i] + dStart, r0 - dEnd, r0 + dEnd, -0.5 * dPhi, 0.5 * dPhi);
+        name, 0.5 * deltaZ, rStart[i] - dStart, rStart[i] + dStart, r0 - dEnd, r0 + dEnd, -0.5 * dPhi, 0.5 * dPhi);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Creating a new solid " << name << " a cons with dZ " << deltaZ
                                  << " rStart " << rStart[i] - dStart << ":" << rStart[i] + dStart << " rEnd "

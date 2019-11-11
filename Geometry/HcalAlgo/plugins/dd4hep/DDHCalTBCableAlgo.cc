@@ -57,9 +57,12 @@ static long algorithm(dd4hep::Detector& /* description */,
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: General material " << genMat << "\tSectors " << nsectors << ", "
                                << nsectortot << "\tHalves " << nhalf << "\tRin " << convertCmToMm(rin);
   for (unsigned int i = 0; i < theta.size(); i++)
-    edm::LogVerbatim("HCalGeom") << "\t" << i << " Theta " << convertRadToDeg(theta[i]) << " rmax " << convertCmToMm(rmax[i]) << " zoff " << convertCmToMm(zoff[i]);
-  edm::LogVerbatim("HCalGeom") << "\tCable mockup made of " << absMat << "\tThick " << convertCmToMm(thick) << "\tLength and width "
-                               << convertCmToMm(length1) << ", " << convertCmToMm(width1) << " and " << convertCmToMm(length2) << ", " << convertCmToMm(width2) << " Gap " << convertCmToMm(gap2);
+    edm::LogVerbatim("HCalGeom") << "\t" << i << " Theta " << convertRadToDeg(theta[i]) << " rmax "
+                                 << convertCmToMm(rmax[i]) << " zoff " << convertCmToMm(zoff[i]);
+  edm::LogVerbatim("HCalGeom") << "\tCable mockup made of " << absMat << "\tThick " << convertCmToMm(thick)
+                               << "\tLength and width " << convertCmToMm(length1) << ", " << convertCmToMm(width1)
+                               << " and " << convertCmToMm(length2) << ", " << convertCmToMm(width2) << " Gap "
+                               << convertCmToMm(gap2);
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Parent " << args.parentName() << " idName " << idName
                                << " NameSpace " << idNameSpace << " for solids";
 #endif
@@ -84,7 +87,8 @@ static long algorithm(dd4hep::Detector& /* description */,
                                << nsectortot << " sectors from " << convertRadToDeg(-alpha) << " to "
                                << convertRadToDeg(-alpha + dphi) << " and with " << pgonZ.size() << " sections";
   for (unsigned int i = 0; i < pgonZ.size(); i++)
-    edm::LogVerbatim("HCalGeom") << "\t\tZ = " << convertCmToMm(pgonZ[i]) << "\tRmin = " << convertCmToMm(pgonRmin[i]) << "\tRmax = " << convertCmToMm(pgonRmax[i]);
+    edm::LogVerbatim("HCalGeom") << "\t\tZ = " << convertCmToMm(pgonZ[i]) << "\tRmin = " << convertCmToMm(pgonRmin[i])
+                                 << "\tRmax = " << convertCmToMm(pgonRmax[i]);
 #endif
 
   dd4hep::Volume parent = ns.volume(args.parentName());
@@ -112,7 +116,8 @@ static long algorithm(dd4hep::Detector& /* description */,
                                << " with 1 sector from " << convertRadToDeg(-alpha) << " to " << convertRadToDeg(alpha)
                                << " and with " << pgonZ.size() << " sections";
   for (unsigned int i = 0; i < pgonZ.size(); i++)
-    edm::LogVerbatim("HCalGeom") << "\t\tZ = " << convertCmToMm(pgonZ[i]) << "\tRmin = " << convertCmToMm(pgonRmin[i]) << "\tRmax = " << convertCmToMm(pgonRmax[i]);
+    edm::LogVerbatim("HCalGeom") << "\t\tZ = " << convertCmToMm(pgonZ[i]) << "\tRmin = " << convertCmToMm(pgonRmin[i])
+                                 << "\tRmax = " << convertCmToMm(pgonRmax[i]);
 #endif
 
   for (int ii = 0; ii < nsectortot; ++ii) {
@@ -145,8 +150,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume glog(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() << " Trap made of " << genMat
-                               << " of dimensions " << convertCmToMm(dz) << ", 0, 0, " << convertCmToMm(dy) << ", " << convertCmToMm(dx1) << ", " << convertCmToMm(dx1) << ", 0, "
-                               << convertCmToMm(dy) << ", " << convertCmToMm(dx2) << ", " << convertCmToMm(dx2) << ", 0";
+                               << " of dimensions " << convertCmToMm(dz) << ", 0, 0, " << convertCmToMm(dy) << ", "
+                               << convertCmToMm(dx1) << ", " << convertCmToMm(dx1) << ", 0, " << convertCmToMm(dy)
+                               << ", " << convertCmToMm(dx2) << ", " << convertCmToMm(dx2) << ", 0";
 #endif
 
   rot = cms::makeRotation3D(90._deg, 270._deg, (180._deg - theta[2]), 0, (90._deg - theta[2]), 0);
@@ -159,7 +165,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   seclogic.placeVolume(glog, 1, dd4hep::Transform3D(rot, r1));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << glog.name() << " number 1 positioned in " << seclogic.name()
-                               << " at (" << convertCmToMm(0.5 * (rinl + routl)) << ", 0, " << convertCmToMm(0.5 * (pgonZ[1] + pgonZ[2])) << " with rotation: " << rot;
+                               << " at (" << convertCmToMm(0.5 * (rinl + routl)) << ", 0, "
+                               << convertCmToMm(0.5 * (pgonZ[1] + pgonZ[2])) << " with rotation: " << rot;
 #endif
   //Now the cable of type 1
   name = idName + "Cable1";
@@ -170,7 +177,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume cablog1(solid.name(), solid, absmatter);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() << " Box made of " << absMat << " of dimension "
-							   << convertCmToMm(0.5 * width1) << ", " << convertCmToMm(0.5 * thick) << ", " << convertCmToMm(0.5 * length1);
+                               << convertCmToMm(0.5 * width1) << ", " << convertCmToMm(0.5 * thick) << ", "
+                               << convertCmToMm(0.5 * length1);
 #endif
 
   dd4hep::Rotation3D rot2 = cms::makeRotation3D((90._deg + phi), 0.0, 90._deg, 90._deg, phi, 0.0);
@@ -182,7 +190,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   glog.placeVolume(cablog1, 1, dd4hep::Transform3D(rot2, r2));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << cablog1.name() << " number 1 positioned in " << glog.name()
-							   << " at (" << convertCmToMm(xmid - 0.5 * width1 * cos(phi)) << ", 0, 0) with rotation: " << rot2;
+                               << " at (" << convertCmToMm(xmid - 0.5 * width1 * cos(phi))
+                               << ", 0, 0) with rotation: " << rot2;
 #endif
   dd4hep::Rotation3D rot3 = cms::makeRotation3D((90._deg - phi), 0, 90._deg, 90._deg, -phi, 0);
 #ifdef EDM_ML_DEBUG
@@ -193,7 +202,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   glog.placeVolume(cablog1, 2, dd4hep::Transform3D(rot3, r3));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << cablog1.name() << " number 2 positioned in " << glog.name()
-							   << " at (" << convertCmToMm(xmid - 0.5 * width1 * cos(phi)) << ", 0, 0) with rotation: " << rot3;
+                               << " at (" << convertCmToMm(xmid - 0.5 * width1 * cos(phi))
+                               << ", 0, 0) with rotation: " << rot3;
 #endif
   //Now the cable of type 2
   name = idName + "Cable2";
@@ -201,18 +211,19 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume cablog2(solid.name(), solid, absmatter);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() << " Box made of " << absMat << " of dimension "
-							   << convertCmToMm(0.5 * width2) << ", " << convertCmToMm(0.5 * thick) << ", " << convertCmToMm(0.5 * length2);
+                               << convertCmToMm(0.5 * width2) << ", " << convertCmToMm(0.5 * thick) << ", "
+                               << convertCmToMm(0.5 * length2);
 #endif
 
   glog.placeVolume(cablog2, 1, dd4hep::Position(0.5 * (width2 + gap2), 0, 0));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << cablog2.name() << " number 1 positioned in " << glog.name()
-							   << " at (" << convertCmToMm(0.5 * (width2 + gap2)) << ", 0, 0) with no rotation";
+                               << " at (" << convertCmToMm(0.5 * (width2 + gap2)) << ", 0, 0) with no rotation";
 #endif
   glog.placeVolume(cablog2, 2, dd4hep::Position(-0.5 * (width2 + gap2), 0, 0));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << cablog2.name() << " number 2 positioned in " << glog.name()
-							   << " at " << convertCmToMm(-0.5 * (width2 + gap2)) << ", 0, 0) with no rotation";
+                               << " at " << convertCmToMm(-0.5 * (width2 + gap2)) << ", 0, 0) with no rotation";
 
   edm::LogVerbatim("HCalGeom") << "<<== End of DDHCalTBCableAlgo construction";
 #endif
