@@ -26,7 +26,17 @@
 #include <TFormula.h>
 #endif
 
-enum class Variation { NOMINAL = 0, DOWN = 1, UP = 2 };
+enum class Variation { NOMINAL = 0, DOWN = 1, UP = 2,
+                       DOWN2 = 3, UP2 = 4,
+                       DOWN3 = 5, UP3 = 6,
+                       DOWN4 = 7, UP4 = 8,
+                       DOWN5 = 9, UP5 = 10,
+                       DOWN6 = 11, UP6 = 12,
+                       DOWN7 = 13, UP7 = 14,
+                       DOWN8 = 15, UP8 = 16,
+                       DOWN9 = 17, UP9 = 18,
+                       DOWN10 = 19, UP10 = 20
+                     };
 
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper) {
