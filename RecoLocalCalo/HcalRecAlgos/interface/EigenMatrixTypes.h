@@ -3,7 +3,7 @@
 
 #include <Eigen/Dense>
 
-constexpr int MaxSVSize = 8;
+constexpr int MaxSVSize = 10;
 constexpr int MaxFSVSize = 15;
 constexpr int MaxPVSize = 8;
 
