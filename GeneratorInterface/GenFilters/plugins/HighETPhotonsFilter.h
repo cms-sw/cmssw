@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "GeneratorInterface/GenFilters/interface/HighETPhotonsFilterAlgo.h"
+#include "GeneratorInterface/GenFilters/plugins/HighETPhotonsFilterAlgo.h"
 
 class HighETPhotonsFilter : public edm::EDFilter {
 public:
