@@ -15,7 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/SiStripMonitorSummary/interface/SiStripClassToMonitorCondData.h"
-#include "DQM/SiStripMonitorSummary/interface/SiStripMonitorCondDataOnDemandExample.h"
+#include "SiStripMonitorCondDataOnDemandExample.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
