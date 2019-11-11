@@ -245,7 +245,7 @@ hiLowPtTripletStepTask = cms.Task(hiLowPtTripletStepClusters,
                                         hiLowPtTripletStepQual
                                         )
 hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepTask)
-hiLowPtTripletStep_Phase1 = hiLowPtTripletStep.copy()
-hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitDoublets, hiLowPtTripletStepTracksHitDoubletsCA)
-hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitTriplets, hiLowPtTripletStepTracksHitTripletsCA)
-trackingPhase1.toReplaceWith(hiLowPtTripletStep, hiLowPtTripletStep_Phase1)
+hiLowPtTripletStepTask_Phase1 = hiLowPtTripletStepTask.copy()
+hiLowPtTripletStepTask_Phase1.replace(hiLowPtTripletStepTracksHitDoublets, hiLowPtTripletStepTracksHitDoubletsCA)
+hiLowPtTripletStepTask_Phase1.replace(hiLowPtTripletStepTracksHitTriplets, hiLowPtTripletStepTracksHitTripletsCA)
+trackingPhase1.toReplaceWith(hiLowPtTripletStepTask, hiLowPtTripletStepTask_Phase1)
