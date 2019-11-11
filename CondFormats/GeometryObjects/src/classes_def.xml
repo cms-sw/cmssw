@@ -192,5 +192,20 @@
    <field name="fCaloNames_"            mapping="blob"/>
    <field name="fLevels_"               mapping="blob"/>
  </class>
+ <class name="EcalSimulationParameters" class_version="0"> 
+   <field name="nxtalEta_"              mapping="blob"/>
+   <field name="nxtalPhi_"              mapping="blob"/>
+   <field name="phiBaskets_"            mapping="blob"/>
+   <field name="etaBaskets_"            mapping="blob"/>
+   <field name="ncrys_"                 mapping="blob"/>
+   <field name="nmods_"                 mapping="blob"/>
+   <field name="useWeight_"             mapping="blob"/>
+   <field name="depth1Name_"            mapping="blob"/>
+   <field name="depth2Name_"            mapping="blob"/>
+   <field name="lvNames_"               mapping="blob"/>
+   <field name="matNames_"              mapping="blob"/>
+   <field name="dzs_"                   mapping="blob"/>
+ </class>
 
 </lcgdict> 
+
