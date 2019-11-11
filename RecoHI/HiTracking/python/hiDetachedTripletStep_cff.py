@@ -255,8 +255,8 @@ hiDetachedTripletStepTask = cms.Task(hiDetachedTripletStepClusters,
                                      hiDetachedTripletStepSelector,
                                      hiDetachedTripletStepQual)
 hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepTask)
-hiDetachedTripletStep_Phase1 = hiDetachedTripletStep.copy()
-hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitDoublets, hiDetachedTripletStepTracksHitDoubletsCA)
-hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitTriplets, hiDetachedTripletStepTracksHitTripletsCA)
-trackingPhase1.toReplaceWith(hiDetachedTripletStep, hiDetachedTripletStep_Phase1)
+hiDetachedTripletStepTask_Phase1 = hiDetachedTripletStepTask.copy()
+hiDetachedTripletStepTask_Phase1.replace(hiDetachedTripletStepTracksHitDoublets, hiDetachedTripletStepTracksHitDoubletsCA)
+hiDetachedTripletStepTask_Phase1.replace(hiDetachedTripletStepTracksHitTriplets, hiDetachedTripletStepTracksHitTripletsCA)
+trackingPhase1.toReplaceWith(hiDetachedTripletStepTask, hiDetachedTripletStepTask_Phase1)
 
