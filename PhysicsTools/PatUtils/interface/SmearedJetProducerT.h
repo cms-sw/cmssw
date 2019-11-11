@@ -131,19 +131,16 @@ public:
       m_nomVar = 1;
       if (variation == 0)
         m_systematic_variation = Variation::NOMINAL;
-      else if (variation == 1)
-        m_systematic_variation = Variation::UP;
-      else if (variation == -1)
-        m_systematic_variation = Variation::DOWN;
       else if (variation == 101) {
         m_systematic_variation = Variation::NOMINAL;
         m_nomVar = 1;
       } else if (variation == -101) {
         m_systematic_variation = Variation::NOMINAL;
         m_nomVar = -1;
-      } else
-        throw edm::Exception(edm::errors::ConfigFileReadError,
-                             "Invalid value for 'variation' parameter. Only -1, 0, 1 or 101, -101 are supported.");
+      } else if (variation < 0)
+        m_systematic_variation = Variation(-variation*2-1); // Variation::DOWN*
+      else if (variation > 0)
+        m_systematic_variation = Variation(variation*2); // Variation::UP*
     }
 
     produces<JetCollection>();

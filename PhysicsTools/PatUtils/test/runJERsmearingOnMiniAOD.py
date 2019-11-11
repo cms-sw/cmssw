@@ -108,12 +108,15 @@ process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
 #
 #process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
 
+# example for smearing the jet resolution
 process.slimmedJetsSmeared = cms.EDProducer('SmearedPATJetProducer',
        src = cms.InputTag('slimmedJets'),
        enabled = cms.bool(True),
        rho = cms.InputTag("fixedGridRhoFastjetAll"),
        algo = cms.string('AK4PFchs'),
        algopt = cms.string('AK4PFchs_pt'),
+       #resolutionFile = cms.FileInPath('Autumn18_V7_MC_PtResolution_AK4PFchs.txt'),
+       #scaleFactorFile = cms.FileInPath('combined_SFs_uncertSources.txt'),
 
        genJets = cms.InputTag('slimmedGenJets'),
        dRMax = cms.double(0.2),
@@ -122,11 +125,27 @@ process.slimmedJetsSmeared = cms.EDProducer('SmearedPATJetProducer',
        debug = cms.untracked.bool(False),
    # Systematic variation
    # 0: Nominal
-   # -1: -1 sigma (down variation)
-   # 1: +1 sigma (up variation)
+   # -1: -1 sigma total (down variation)
+   # 1: +1 sigma total (up variation)
+   # -2: -2 sigma stat-only (down variation)
+   # 2: +2 sigma stat-only (up variation)
+   # -3, 3, -4, 4,... systematic variations down and up
    variation = cms.int32(0),  # If not specified, default to 0
        )
-
 process.p=cms.Path(process.slimmedJetsSmeared)
+
+# example for computing total uncertainties on jet resolution
+process.slimmedJetsSmearedDown=process.slimmedJetsSmeared.clone(variation=cms.int32(-1))
+process.p+=process.slimmedJetsSmearedDown
+process.slimmedJetsSmearedUp=process.slimmedJetsSmeared.clone(variation=cms.int32(1))
+process.p+=process.slimmedJetsSmearedUp
+
+# example for cumputing statistical and systematic uncertainties on jet resolution separately
+#for i in range(2,7):
+#  setattr(process,"slimmedJetsSmearedDown"+str(i),process.slimmedJetsSmeared.clone(variation=cms.int32(-i)))
+#  process.p+=getattr(process,"slimmedJetsSmearedDown"+str(i))
+#for i in range(2,7):
+#  setattr(process,"slimmedJetsSmearedUp"+str(i),process.slimmedJetsSmeared.clone(variation=cms.int32(i)))
+#  process.p+=getattr(process,"slimmedJetsSmearedUp"+str(i))
 
 process.schedule=cms.Schedule(process.p,process.MINIAODSIMoutput_step)
