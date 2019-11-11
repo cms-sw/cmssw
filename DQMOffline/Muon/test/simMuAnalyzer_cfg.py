@@ -43,7 +43,6 @@ process.qTester1 = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests1.xml')
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 process.qTester2 = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests2.xml')

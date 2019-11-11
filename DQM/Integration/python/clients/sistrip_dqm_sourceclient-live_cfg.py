@@ -139,7 +139,6 @@ process.stripQTester = DQMQualityTester(
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 process.trackingQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(3),
