@@ -96,7 +96,6 @@ ADCQTester = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 ADCQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_adc_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -106,7 +105,6 @@ ADCQTester_offline = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 NumClustersQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -116,7 +114,6 @@ NumClustersQTester = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 NumClustersQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -126,7 +123,6 @@ NumClustersQTester_offline = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 NumDigisQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -136,7 +132,6 @@ NumDigisQTester = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 NumDigisQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -146,7 +141,6 @@ NumDigisQTester_offline = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 NumDigisQTester_cosmics = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -156,7 +150,6 @@ NumDigisQTester_cosmics = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 SizeQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -166,7 +159,6 @@ SizeQTester = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 SizeQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -176,7 +168,6 @@ SizeQTester_offline = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 SizeQTester_cosmics = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -186,7 +177,6 @@ SizeQTester_cosmics = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 ChargeQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -196,7 +186,6 @@ ChargeQTester = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 ChargeQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -206,7 +195,6 @@ ChargeQTester_offline = DQMQualityTester(
     reportThreshold = cms.untracked.string("more")
 )
 
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 ChargeQTester_cosmics = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),

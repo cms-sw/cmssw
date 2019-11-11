@@ -11,7 +11,6 @@ qTesterJet = DQMQualityTester(
  )
 
 ################# Quality Tests for MET #########################
-from DQMServices.Core.DQMQualityTester import DQMQualityTester
 qTesterMET = DQMQualityTester(
      qtList = cms.untracked.FileInPath('DQMOffline/JetMET/test/METQualityTests.xml'),
      prescaleFactor = cms.untracked.int32(1),
