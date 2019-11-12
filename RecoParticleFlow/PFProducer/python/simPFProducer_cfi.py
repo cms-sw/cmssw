@@ -25,9 +25,8 @@ phase2_timing.toModify(
     gsfTrackTimeErrorMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModelResolution"),
 )
 
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(
     simPFProducer,
     trackTimeValueMap = cms.InputTag("tofPID:t0"),
     trackTimeErrorMap = cms.InputTag("tofPID:sigmat0"),
