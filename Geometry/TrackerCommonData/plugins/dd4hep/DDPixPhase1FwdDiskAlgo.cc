@@ -35,7 +35,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume mother = ns.volume(args.parentName());
   dd4hep::PlacedVolume pv;
 
-  startCopyNo = args.find("startCopyNo") ? args.value<int>("StartCopyNo") : 0;
+  startCopyNo = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 0;
   nBlades = args.value<int>("NumberOfBlades");
   bladeAngle = args.value<double>("BladeAngle");
   bladeTilt = -1. * args.value<double>("BladeTilt");
