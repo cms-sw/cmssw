@@ -14,9 +14,6 @@
     <debug_visattr/-->
   </debug>
 
-  <!--DisabledAlgo  name="track:DDCutTubsFromPoints"/>
-  <DisabledAlgo  name="track:DDTOBRadCableAlgo"/-->
-  
   <open_geometry/>
   <close_geometry/>
 
