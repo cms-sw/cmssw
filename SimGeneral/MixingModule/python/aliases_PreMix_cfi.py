@@ -50,7 +50,7 @@ genPUProtons = cms.EDAlias(
 )
 
 simAPVsaturation = cms.EDAlias(
-    mixData = cms.VPSet(
+    mix = cms.VPSet(
         cms.PSet(type = cms.string('bool'))
     )
 )
