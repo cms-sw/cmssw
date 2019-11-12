@@ -123,7 +123,7 @@ SiStripSimBlock = cms.PSet(
     apv_rate                   = cms.double( 66.2 ),
     apv_mVPerQ                 = cms.double( 5.5 ),
     apvfCPerElectron           = cms.double( 1.602e-4 ),
-    fracOfEventsToSimAPV       = cms.double( 1.0 ), # fraction of events to simulate APV saturation
+    fracOfEventsToSimAPV       = cms.double( 0.0 ), # fraction of events to simulate APV saturation
 )
 
 # activate APV simulation for 2016 Strip detector (UL 2016)
@@ -137,9 +137,10 @@ strips_vfp30_2016.toModify(SiStripSimBlock,
                            # cf Prompt-Reco DQM: https://tinyurl.com/y2gybwx7
                            # pre-VFP  runs: 273150-278800 lumi: 19480.4566773 /pb
                            # post-VFP runs: 278801-284044 lumi: 16755.0362868 /pb
+                           # ~53.8% of luminosity is affected by APV saturation
                            #################################################
 
-                           fracOfEventsToSimAPV = 0.5376   # ~53.8% of luminosity is affected by APV saturation
+                           fracOfEventsToSimAPV = 1.0 
                            )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
