@@ -59,6 +59,8 @@
     <Include ref='Geometry/MTDCommonData/data/btl/v1/btlStructureTopology.xml'/>
     <Include ref='Geometry/MTDCommonData/data/etl/v3/etl.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdParameters/v1/mtdParameters.xml'/>
+    <Include ref='Geometry/MTDSimData/data/v1/mtdsens.xml'/>
+    <Include ref='Geometry/MTDSimData/data/v1/mtdProdCuts.xml'/>
   </IncludeSection>
   
   <!-- <PosPartSection label=""> -->

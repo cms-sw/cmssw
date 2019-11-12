@@ -14,9 +14,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
@@ -39,11 +41,6 @@ public:
   void endJob() override {}
 
   // void theBaseNumber(const DDGeoHistory& gh);
-
-  void checkMTD(const DDCompactView& cpv,
-                std::string fname = "GeoHistory",
-                int nVols = 0,
-                std::string ddtop_ = "mtd:BarrelTimingLayer");
 
 private:
   const edm::ESInputTag tag_;
@@ -71,8 +68,11 @@ DD4hep_TestMTDNumbering::~DD4hep_TestMTDNumbering() {}
 
 void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  edm::ESTransientHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDDetector> pDD;
   iSetup.get<IdealGeometryRecord>().get(tag_, pDD);
+
+  edm::ESTransientHandle<DDSpecParRegistry> pSP;
+  iSetup.get<DDSpecParRegistryRcd>().get(tag_, pSP);
 
   if (ddTopNodeName_ != "BarrelTimingLayer" && ddTopNodeName_ != "EndcapTimingLayer") {
     edm::LogWarning("DD4hep_TestMTDNumbering") << ddTopNodeName_ << "Not valid top MTD volume";
@@ -89,16 +89,61 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
     edm::LogWarning("DD4hep_TestMTDNumbering") << "NO label found pDD.description() returned false.";
   }
 
-  checkMTD(*pDD, fname_, nNodes_, ddTopNodeName_);
-}
+  if (!pSP.isValid()) {
+    edm::LogError("DD4hep_TestMTDNumbering") << "ESTransientHandle<DDSpecParRegistry> pSP is not valid!";
+    return;
+  }
 
-void DD4hep_TestMTDNumbering::checkMTD(const DDCompactView& cpv, std::string fname, int nVols, std::string ddtop_) {
-  fname = "dump" + fname;
-
-  DDFilteredView fv(cpv);
+  const std::string fname = "dump" + fname_;
+  
+  DDFilteredView fv(pDD.product(),pDD.product()->description()->worldVolume());
   fv.next(0);
   edm::LogInfo("DD4hep_TestMTDNumbering") << fv.name();
 
+  DDSpecParRefs specs;
+  std::string attribute("SensitiveDetector");
+  std::string name("MtdSensitiveDetector");
+  pSP.product()->filter(specs, attribute, name);
+
+  edm::LogVerbatim("Geometry").log([&pSP](auto& log) {
+      log << "DD SpecPar PSP size: " << pSP->specpars.size();
+      for (const auto& i : pSP->specpars) {
+        log << " " << i.first << " => ";
+        for (const auto& k : i.second.paths)
+          log << k << ", ";
+        for (const auto& l : i.second.spars) {
+          log << l.first << " => ";
+          for (const auto& il : l.second) {
+            log << il << ", ";
+          }
+        }
+        for (const auto& m : i.second.numpars) {
+          log << m.first << " => ";
+          for (const auto& im : m.second) {
+            log << im << ", ";
+          }
+        }
+        log << '\n';
+      }
+    });
+
+  edm::LogVerbatim("Geometry").log([&specs](auto& log) {
+      log << "Filtered DD SpecPar Registry size: " << specs.size() << "\n";
+      for (const auto& t : specs) {
+        log << "\nRegExps { ";
+        for (const auto& ki : t->paths)
+          log << ki << " ";
+        log << "};\n ";
+        for (const auto& kl : t->spars) {
+          log << kl.first << " = ";
+          for (const auto& kil : kl.second) {
+            log << kil << " ";
+          }
+          log << "\n ";
+        }
+      }
+    });
+  
   std::ofstream dump(fname.c_str());
   bool notReachedDepth(true);
 
@@ -126,7 +171,7 @@ void DD4hep_TestMTDNumbering::checkMTD(const DDCompactView& cpv, std::string fna
 #endif
     }
     if ( level > 0 && fv.navPos().size() <= level ) { break; }
-    if ( fv.name() == ddtop_ ) { write = true; level = fv.navPos().size(); }
+    if ( fv.name() == ddTopNodeName_ ) { write = true; level = fv.navPos().size(); }
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
@@ -137,7 +182,7 @@ void DD4hep_TestMTDNumbering::checkMTD(const DDCompactView& cpv, std::string fna
       }
       dump << " - " << thePath << "\n";
 
-//       bool isSens = false;
+      //      bool isSens = false;
 
 //       if (fv.geoHistory()[num - 1].logicalPart().specifics().size() > 0) {
 //         for (auto elem : *(fv.geoHistory()[num - 1].logicalPart().specifics()[0])) {

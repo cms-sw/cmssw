@@ -16,9 +16,9 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      appendToDataLabel = cms.string('MTD')
 )
 
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                 appendToDataLabel = cms.string('MTD')
-)
+#process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+#                                                 appendToDataLabel = cms.string('MTD')
+#)
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
