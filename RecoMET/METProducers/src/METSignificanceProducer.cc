@@ -79,9 +79,9 @@ namespace cms {
     //
     // compute the significance
     //
-    double sumPt = 0;
+    double sumPtUnclustered = 0;
     const reco::METCovMatrix cov = metSigAlgo_->getCovariance(
-        *jets, leptons, pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPt);
+        *jets, leptons, pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered);
     double sig = metSigAlgo_->getSignificance(cov, met);
 
     auto significance = std::make_unique<double>();
