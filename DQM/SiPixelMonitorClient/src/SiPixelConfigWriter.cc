@@ -14,7 +14,10 @@ SiPixelConfigWriter::~SiPixelConfigWriter() {}
 //
 // -- Initialize XML
 //
-bool SiPixelConfigWriter::init() { return true; }
+bool SiPixelConfigWriter::init() {
+  assert(!"No longer implemented.");
+  return true;
+}
 //
 // -- Add an Element
 //

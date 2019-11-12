@@ -1,6 +1,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <cassert>
 
 using namespace std;
 
@@ -18,5 +19,6 @@ SiPixelLayoutParser::SiPixelLayoutParser() {
 //
 bool SiPixelLayoutParser::getAllLayouts(map<string, vector<string>> &layouts) {
   // TODO: implement parser based on property_tree.
+  assert(!"No longer implemented.");
   return false;
 }

@@ -1,6 +1,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <cassert>
 
 //
 // -- Constructor
@@ -10,7 +11,8 @@ SiStripLayoutParser::SiStripLayoutParser() {
                                       << "\n";
 }
 void SiStripLayoutParser::getDocument(std::string filepath) {
-  // TODO: add new parser.
+  // TODO: add new parser based on boost::property_tree.
+  assert(!"No longer implemented.");
 }
 //
 // -- Get list of Layouts for ME groups
