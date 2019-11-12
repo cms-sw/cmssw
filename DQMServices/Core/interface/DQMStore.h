@@ -276,35 +276,9 @@ namespace dqm::dqmstoreimpl {
       }
     }
 
-    // Similar function used to book "global" histograms via the
-    // dqm::reco::MonitorElement* interface.
-    template <typename iFunc>
-    void bookConcurrentTransaction(iFunc f, uint32_t run) {
-      std::lock_guard<std::mutex> guard(book_mutex_);
-      /* Set the run_ member only if enableMultiThread is enabled */
-      if (enableMultiThread_) {
-        run_ = run;
-        moduleId_ = 0;
-        canSaveByLumi_ = false;
-      }
-      IBooker booker(this);
-      f(booker);
-
-      /* Reset the run_ member only if enableMultiThread is enabled */
-      if (enableMultiThread_) {
-        run_ = 0;
-        moduleId_ = 0;
-        canSaveByLumi_ = false;
-      }
-    }
-
-    // Signature needed in the harvesting where the booking is done in
-    // the endJob. No handles to the run there. Two arguments ensure the
-    // capability of booking and getting. The method relies on the
-    // initialization of run, stream and module ID to 0. The mutex is
-    // not needed.
     template <typename iFunc>
     void meBookerGetter(iFunc f) {
+      std::lock_guard<std::mutex> guard(book_mutex_);
       IBooker booker{this};
       IGetter getter{this};
       f(booker, getter);
