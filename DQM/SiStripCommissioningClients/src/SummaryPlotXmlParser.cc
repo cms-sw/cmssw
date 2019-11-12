@@ -2,6 +2,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <stdexcept>
+#include <cassert>
 
 using namespace sistrip;
 
@@ -27,6 +28,7 @@ std::vector<SummaryPlot> SummaryPlotXmlParser::summaryPlots(const sistrip::RunTy
 void SummaryPlotXmlParser::parseXML(const std::string& f) {
   plots_.clear();
   // TODO: implement parser based on property tree.
+  assert(!"No longer implemented.");
 }
 
 // -----------------------------------------------------------------------------

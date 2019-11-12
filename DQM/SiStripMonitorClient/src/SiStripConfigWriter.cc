@@ -14,7 +14,10 @@ SiStripConfigWriter::~SiStripConfigWriter() {}
 //
 // -- Initialize XML
 //
-bool SiStripConfigWriter::init(std::string main) { return true; }
+bool SiStripConfigWriter::init(std::string main) {
+  assert(!"No longer implemented.");
+  return true;
+}
 //
 // -- Add an Element to the top node
 //
