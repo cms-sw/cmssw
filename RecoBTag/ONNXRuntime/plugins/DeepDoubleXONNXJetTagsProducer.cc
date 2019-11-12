@@ -17,12 +17,12 @@
 
 #include <algorithm>
 
-using namespace Ort;
+using namespace cms::Ort;
 
-class DeepDoubleXJetTagsONNXProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class DeepDoubleXONNXJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
 public:
-  explicit DeepDoubleXJetTagsONNXProducer(const edm::ParameterSet&, const ONNXRuntime*);
-  ~DeepDoubleXJetTagsONNXProducer() override;
+  explicit DeepDoubleXONNXJetTagsProducer(const edm::ParameterSet&, const ONNXRuntime*);
+  ~DeepDoubleXONNXJetTagsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -54,10 +54,10 @@ private:
   FloatArrays data_;
 };
 
-const std::vector<unsigned> DeepDoubleXJetTagsONNXProducer::input_sizes_{
+const std::vector<unsigned> DeepDoubleXONNXJetTagsProducer::input_sizes_{
     n_features_global_, n_cpf_* n_features_cpf_, n_sv_* n_features_sv_};
 
-DeepDoubleXJetTagsONNXProducer::DeepDoubleXJetTagsONNXProducer(const edm::ParameterSet& iConfig,
+DeepDoubleXONNXJetTagsProducer::DeepDoubleXONNXJetTagsProducer(const edm::ParameterSet& iConfig,
                                                                const ONNXRuntime* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
@@ -71,9 +71,9 @@ DeepDoubleXJetTagsONNXProducer::DeepDoubleXJetTagsONNXProducer(const edm::Parame
   assert(input_names_.size() == input_sizes_.size());
 }
 
-DeepDoubleXJetTagsONNXProducer::~DeepDoubleXJetTagsONNXProducer() {}
+DeepDoubleXONNXJetTagsProducer::~DeepDoubleXONNXJetTagsProducer() {}
 
-void DeepDoubleXJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DeepDoubleXONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfDeepDoubleBvLJetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
@@ -105,13 +105,13 @@ void DeepDoubleXJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescript
   descriptions.add("pfDeepDoubleCvBJetTags", descCvB);
 }
 
-std::unique_ptr<ONNXRuntime> DeepDoubleXJetTagsONNXProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+std::unique_ptr<ONNXRuntime> DeepDoubleXONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
 }
 
-void DeepDoubleXJetTagsONNXProducer::globalEndJob(const ONNXRuntime* cache) {}
+void DeepDoubleXONNXJetTagsProducer::globalEndJob(const ONNXRuntime* cache) {}
 
-void DeepDoubleXJetTagsONNXProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void DeepDoubleXONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
@@ -177,7 +177,7 @@ void DeepDoubleXJetTagsONNXProducer::produce(edm::Event& iEvent, const edm::Even
   }
 }
 
-void DeepDoubleXJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::DeepDoubleXTagInfo& taginfo) {
+void DeepDoubleXONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::DeepDoubleXTagInfo& taginfo) {
   const auto& features = taginfo.features();
   float* ptr = nullptr;
   const float* start = nullptr;
@@ -251,4 +251,4 @@ void DeepDoubleXJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::Dee
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DeepDoubleXJetTagsONNXProducer);
+DEFINE_FWK_MODULE(DeepDoubleXONNXJetTagsProducer);

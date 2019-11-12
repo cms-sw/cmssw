@@ -6,7 +6,7 @@
 #include <chrono>
 #include <iostream>
 
-using namespace Ort;
+using namespace cms::Ort;
 
 class testONNXRuntime : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testONNXRuntime);

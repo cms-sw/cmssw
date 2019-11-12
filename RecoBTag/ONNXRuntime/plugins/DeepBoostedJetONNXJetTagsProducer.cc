@@ -20,7 +20,7 @@
 #include <algorithm>
 #include <numeric>
 
-using namespace Ort;
+using namespace cms::Ort;
 
 // struct to hold preprocessing parameters
 struct PreprocessParams {
@@ -45,10 +45,10 @@ struct PreprocessParams {
   }
 };
 
-class DeepBoostedJetTagsONNXProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class DeepBoostedJetONNXJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
 public:
-  explicit DeepBoostedJetTagsONNXProducer(const edm::ParameterSet &, const ONNXRuntime *);
-  ~DeepBoostedJetTagsONNXProducer() override;
+  explicit DeepBoostedJetONNXJetTagsProducer(const edm::ParameterSet &, const ONNXRuntime *);
+  ~DeepBoostedJetONNXJetTagsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
@@ -81,8 +81,8 @@ private:
   bool debug_ = false;
 };
 
-DeepBoostedJetTagsONNXProducer::DeepBoostedJetTagsONNXProducer(const edm::ParameterSet &iConfig,
-                                                               const ONNXRuntime *cache)
+DeepBoostedJetONNXJetTagsProducer::DeepBoostedJetONNXJetTagsProducer(const edm::ParameterSet &iConfig,
+                                                                     const ONNXRuntime *cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       debug_(iConfig.getUntrackedParameter<bool>("debugMode", false)) {
@@ -129,9 +129,9 @@ DeepBoostedJetTagsONNXProducer::DeepBoostedJetTagsONNXProducer(const edm::Parame
   }
 }
 
-DeepBoostedJetTagsONNXProducer::~DeepBoostedJetTagsONNXProducer() {}
+DeepBoostedJetONNXJetTagsProducer::~DeepBoostedJetONNXJetTagsProducer() {}
 
-void DeepBoostedJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void DeepBoostedJetONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // pfDeepBoostedJetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepBoostedJetTagInfos"));
@@ -165,13 +165,13 @@ void DeepBoostedJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescript
   descriptions.add("pfDeepBoostedJetTags", desc);
 }
 
-std::unique_ptr<ONNXRuntime> DeepBoostedJetTagsONNXProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
+std::unique_ptr<ONNXRuntime> DeepBoostedJetONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
   return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
 }
 
-void DeepBoostedJetTagsONNXProducer::globalEndJob(const ONNXRuntime *cache) {}
+void DeepBoostedJetONNXJetTagsProducer::globalEndJob(const ONNXRuntime *cache) {}
 
-void DeepBoostedJetTagsONNXProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void DeepBoostedJetONNXJetTagsProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
@@ -226,13 +226,13 @@ void DeepBoostedJetTagsONNXProducer::produce(edm::Event &iEvent, const edm::Even
   }
 }
 
-std::vector<float> DeepBoostedJetTagsONNXProducer::center_norm_pad(const std::vector<float> &input,
-                                                                   float center,
-                                                                   float norm_factor,
-                                                                   unsigned target_length,
-                                                                   float pad_value,
-                                                                   float min,
-                                                                   float max) {
+std::vector<float> DeepBoostedJetONNXJetTagsProducer::center_norm_pad(const std::vector<float> &input,
+                                                                      float center,
+                                                                      float norm_factor,
+                                                                      unsigned target_length,
+                                                                      float pad_value,
+                                                                      float min,
+                                                                      float max) {
   // do variable shifting/scaling/padding/clipping in one go
 
   assert(min <= pad_value && pad_value <= max);
@@ -244,7 +244,7 @@ std::vector<float> DeepBoostedJetTagsONNXProducer::center_norm_pad(const std::ve
   return out;
 }
 
-void DeepBoostedJetTagsONNXProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
+void DeepBoostedJetONNXJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
   for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
     const auto &group_name = input_names_[igroup];
     auto &group_values = data_[igroup];
@@ -274,4 +274,4 @@ void DeepBoostedJetTagsONNXProducer::make_inputs(const reco::DeepBoostedJetTagIn
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DeepBoostedJetTagsONNXProducer);
+DEFINE_FWK_MODULE(DeepBoostedJetONNXJetTagsProducer);
