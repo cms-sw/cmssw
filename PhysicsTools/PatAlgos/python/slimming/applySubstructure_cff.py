@@ -162,7 +162,7 @@ def applySubstructure( process, postfix="" ) :
     # add PUPPI Njetiness    
     addToProcessAndTask('NjettinessAK8Puppi'+postfix, Njettiness.clone(), process, task)
     getattr(process,"NjettinessAK8Puppi"+postfix).src = cms.InputTag("ak8PFJetsPuppi"+postfix)
-    getattr(process,"NjettinessAK8Puppi").cone = cms.double(0.8)
+    getattr(process,"NjettinessAK8Puppi"+postfix).cone = cms.double(0.8)
     getattr(process,"patJetsAK8Puppi").userData.userFloats.src += ['NjettinessAK8Puppi'+postfix+':tau1','NjettinessAK8Puppi'+postfix+':tau2','NjettinessAK8Puppi'+postfix+':tau3','NjettinessAK8Puppi'+postfix+':tau4']
 
     
