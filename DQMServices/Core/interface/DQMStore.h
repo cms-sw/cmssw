@@ -71,29 +71,6 @@ namespace dqm::dqmstoreimpl {
   // change the ME subtype here
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  /** Implements RegEx patterns which occur often in a high-performant
-    mattern. For all other expressions, the full RegEx engine is used.
-    Note: this class can only be used for lat::Regexp::Wildcard-like
-    patterns.  */
-  class fastmatch {
-    enum MatchingHeuristicEnum { UseFull, OneStarStart, OneStarEnd, TwoStar };
-
-  public:
-    fastmatch(std::string fastString);
-
-    bool match(std::string const& s) const;
-
-  private:
-    // checks if two strings are equal, starting at the back of the strings
-    bool compare_strings_reverse(std::string const& pattern, std::string const& input) const;
-    // checks if two strings are equal, starting at the front of the strings
-    bool compare_strings(std::string const& pattern, std::string const& input) const;
-
-    std::unique_ptr<lat::Regexp> regexp_{nullptr};
-    std::string fastString_;
-    MatchingHeuristicEnum matching_;
-  };
-
   class DQMStore {
   public:
     // legacy exposes the biggest API and implicitly converts to reco and
