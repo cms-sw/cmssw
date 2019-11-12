@@ -5,6 +5,7 @@ from RecoBTag.FeatureTools.pfNegativeDeepFlavourTagInfos_cfi import pfNegativeDe
 from RecoBTag.FeatureTools.pfDeepDoubleXTagInfos_cfi import pfDeepDoubleXTagInfos
 
 from RecoBTag.ONNXRuntime.pfDeepFlavourJetTags_cfi import pfDeepFlavourJetTags
+from RecoBTag.TensorFlow.pfDeepVertexJetTags_cfi import pfDeepVertexJetTags
 from RecoBTag.ONNXRuntime.pfNegativeDeepFlavourJetTags_cfi import pfNegativeDeepFlavourJetTags
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation

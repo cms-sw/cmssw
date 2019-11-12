@@ -15,12 +15,12 @@
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
-using namespace Ort;
+using namespace cms::Ort;
 
-class DeepJetTagsONNXProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class DeepFlavourONNXJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
 public:
-  explicit DeepJetTagsONNXProducer(const edm::ParameterSet&, const ONNXRuntime*);
-  ~DeepJetTagsONNXProducer() override;
+  explicit DeepFlavourONNXJetTagsProducer(const edm::ParameterSet&, const ONNXRuntime*);
+  ~DeepFlavourONNXJetTagsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -55,10 +55,11 @@ private:
   FloatArrays data_;
 };
 
-const std::vector<unsigned> DeepJetTagsONNXProducer::input_sizes_{
+const std::vector<unsigned> DeepFlavourONNXJetTagsProducer::input_sizes_{
     n_features_global_, n_cpf_* n_features_cpf_, n_npf_* n_features_npf_, n_sv_* n_features_sv_, n_features_jetpt_};
 
-DeepJetTagsONNXProducer::DeepJetTagsONNXProducer(const edm::ParameterSet& iConfig, const ONNXRuntime* cache)
+DeepFlavourONNXJetTagsProducer::DeepFlavourONNXJetTagsProducer(const edm::ParameterSet& iConfig,
+                                                               const ONNXRuntime* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
@@ -71,9 +72,9 @@ DeepJetTagsONNXProducer::DeepJetTagsONNXProducer(const edm::ParameterSet& iConfi
   assert(input_names_.size() == input_sizes_.size());
 }
 
-DeepJetTagsONNXProducer::~DeepJetTagsONNXProducer() {}
+DeepFlavourONNXJetTagsProducer::~DeepFlavourONNXJetTagsProducer() {}
 
-void DeepJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DeepFlavourONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfDeepFlavourJetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepFlavourTagInfos"));
@@ -87,13 +88,13 @@ void DeepJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
 
-std::unique_ptr<ONNXRuntime> DeepJetTagsONNXProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+std::unique_ptr<ONNXRuntime> DeepFlavourONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
 }
 
-void DeepJetTagsONNXProducer::globalEndJob(const ONNXRuntime* cache) {}
+void DeepFlavourONNXJetTagsProducer::globalEndJob(const ONNXRuntime* cache) {}
 
-void DeepJetTagsONNXProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
@@ -144,7 +145,7 @@ void DeepJetTagsONNXProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   }
 }
 
-void DeepJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo& taginfo) {
+void DeepFlavourONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo& taginfo) {
   const auto& features = taginfo.features();
   float* ptr = nullptr;
   const float* start = nullptr;
@@ -246,4 +247,4 @@ void DeepJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::DeepFlavou
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DeepJetTagsONNXProducer);
+DEFINE_FWK_MODULE(DeepFlavourONNXJetTagsProducer);
