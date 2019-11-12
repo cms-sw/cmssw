@@ -134,7 +134,7 @@ Take note that the CMSSW python configuration for running the RECO sequence is d
 # For example (default for 2018):
 #CONDITIONS=auto:phase1_2017_realistic ERA=Run2_2017 # for 2017 scenarios
 CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 # for 2018 scenarios
-#CONDITIONS=auto:phase2_realistic ERA=Phase2C8_timing_layer_bar # for phase2 
+#CONDITIONS=auto:phase2_realistic ERA=Phase2C8 # for phase2 
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2 TMPDIR=tmp
 
