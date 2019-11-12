@@ -495,7 +495,6 @@ namespace dqm::legacy {
     virtual TProfile2D *getTProfile2D() const {
       return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTProfile2D();
     };
-    void runQTests();
   };
 }  // namespace dqm::legacy
 namespace dqm::harvesting {

@@ -1198,34 +1198,3 @@ namespace dqm::impl {
   }
 
 }  // namespace dqm::impl
-
-namespace dqm::legacy {
-  /// run all quality tests
-  void MonitorElement::runQTests() {
-    assert(qreports_.size() == data_.qreports.size());
-
-    // Rerun quality tests where the ME or the quality algorithm was modified.
-    bool dirty = wasUpdated();
-    for (size_t i = 0, e = data_.qreports.size(); i < e; ++i) {
-      DQMNet::QValue &qv = data_.qreports[i];
-      QReport &qr = qreports_[i];
-      QCriterion *qc = qr.qcriterion_;
-      qr.qvalue_ = &qv;
-
-      // if (qc && (dirty || qc->wasModified()))  // removed for new QTest (abm-090503)
-      if (qc && dirty) {
-        assert(qc->getName() == qv.qtname);
-        std::string oldMessage = qv.message;
-        int oldStatus = qv.code;
-
-        qc->runTest(this, qr, qv);
-
-        if (oldStatus != qv.code || oldMessage != qv.message)
-          update();
-      }
-    }
-
-    // Update QReport statistics.
-    updateQReportStats();
-  }
-}  // namespace dqm::legacy
