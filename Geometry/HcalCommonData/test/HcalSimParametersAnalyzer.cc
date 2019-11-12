@@ -21,7 +21,6 @@ HcalSimParametersAnalyzer::HcalSimParametersAnalyzer(const edm::ParameterSet&) {
 }
 
 void HcalSimParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-
   const auto& parS = iSetup.getData(simparToken_);
   const HcalSimulationParameters* parsim = &parS;
   if (parsim != nullptr) {

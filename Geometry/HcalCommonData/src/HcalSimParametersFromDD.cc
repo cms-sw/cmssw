@@ -102,7 +102,7 @@ bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimulationPara
 bool HcalSimParametersFromDD::build(const cms::DDCompactView* cpv, HcalSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom")
-    << "Inside HcalSimParametersFromDD::build(const cms::DDCompactView*, HcalSimulationParameters&)";
+      << "Inside HcalSimParametersFromDD::build(const cms::DDCompactView*, HcalSimulationParameters&)";
 #endif
 
   // Parameters for the fibers
@@ -185,15 +185,16 @@ bool HcalSimParametersFromDD::buildParameters(const HcalSimulationParameters& ph
 
   std::stringstream ss2;
   for (unsigned int it = 0; it < php.attenuationLength_.size(); it++) {
-    if (it / 10 * 10 == it) 
+    if (it / 10 * 10 == it)
       ss2 << "\n";
     ss2 << "  " << convertMmToCm(php.attenuationLength_[it]);
   }
-  edm::LogVerbatim("HCalGeom") << "AttenuationLength: " << php.attenuationLength_.size() << " attL(1/cm): " << ss2.str();
+  edm::LogVerbatim("HCalGeom") << "AttenuationLength: " << php.attenuationLength_.size()
+                               << " attL(1/cm): " << ss2.str();
 
   std::stringstream ss3;
   for (unsigned int it = 0; it < php.lambdaLimits_.size(); it++) {
-    if (it / 10 * 10 == it) 
+    if (it / 10 * 10 == it)
       ss3 << "\n";
     ss3 << "  " << php.lambdaLimits_[it];
   }
@@ -202,15 +203,15 @@ bool HcalSimParametersFromDD::buildParameters(const HcalSimulationParameters& ph
   std::stringstream ss4;
   for (unsigned int it = 0; it < php.longFiberLength_.size(); it++) {
     if (it / 10 * 10 == it)
-        ss4 << "\n";
+      ss4 << "\n";
     ss4 << "  " << convertMmToCm(php.longFiberLength_[it]);
   }
   edm::LogVerbatim("HCalGeom") << php.longFiberLength_.size() << " Long Fibre Length(cm):" << ss4.str();
 
   std::stringstream ss5;
   for (unsigned int it = 0; it < php.shortFiberLength_.size(); it++) {
-    if (it / 10 * 10 == it) 
-        ss5 << "\n";
+    if (it / 10 * 10 == it)
+      ss5 << "\n";
     ss5 << "  " << convertMmToCm(php.shortFiberLength_[it]);
   }
   edm::LogVerbatim("HCalGeom") << php.shortFiberLength_.size() << " Short Fibre Length(cm):" << ss5.str();
@@ -218,8 +219,8 @@ bool HcalSimParametersFromDD::buildParameters(const HcalSimulationParameters& ph
   edm::LogVerbatim("HCalGeom") << "HcalSimParameters: gets the Index matches for " << php.pmtRight_.size() << " PMTs";
   for (unsigned int ii = 0; ii < php.pmtRight_.size(); ii++)
     edm::LogVerbatim("HCalGeom") << "rIndexR[" << ii << "] = " << php.pmtRight_[ii] << " fibreR[" << ii
-				 << "] = " << php.pmtFiberRight_[ii] << " rIndexL[" << ii
-				 << "] = " << php.pmtLeft_[ii] << " fibreL[" << ii << "] = " << php.pmtFiberLeft_[ii];
+                                 << "] = " << php.pmtFiberRight_[ii] << " rIndexL[" << ii << "] = " << php.pmtLeft_[ii]
+                                 << " fibreL[" << ii << "] = " << php.pmtFiberLeft_[ii];
 
   edm::LogVerbatim("HCalGeom") << "HcalSimParameters: " << php.hfFibreNames_.size() << " names of HFFibre";
   for (unsigned int k = 0; k < php.hfFibreNames_.size(); ++k)
