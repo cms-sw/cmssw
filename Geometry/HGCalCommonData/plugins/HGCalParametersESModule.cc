@@ -31,11 +31,11 @@ private:
 };
 
 HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
-  name_ = iC.getUntrackedParameter<std::string>("name");
-  name2_ = iC.getUntrackedParameter<std::string>("name2");
-  namew_ = iC.getUntrackedParameter<std::string>("nameW");
-  namec_ = iC.getUntrackedParameter<std::string>("nameC");
-  namet_ = iC.getUntrackedParameter<std::string>("nameT");
+  name_ = iC.getParameter<std::string>("name");
+  name2_ = iC.getParameter<std::string>("name2");
+  namew_ = iC.getParameter<std::string>("nameW");
+  namec_ = iC.getParameter<std::string>("nameC");
+  namet_ = iC.getParameter<std::string>("nameT");
   fromDD4Hep_ = iC.getParameter<bool>("fromDD4Hep");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":" << namec_ << ":"
@@ -48,11 +48,11 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
 
 void HGCalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("name", "HGCalEESensitive");
-  desc.addUntracked<std::string>("name2", "HGCalEE");
-  desc.addUntracked<std::string>("nameW", "HGCalEEWafer");
-  desc.addUntracked<std::string>("nameC", "HGCalEECell");
-  desc.addUntracked<std::string>("nameT", "HGCal");
+  desc.add<std::string>("name", "HGCalEESensitive");
+  desc.add<std::string>("name2", "HGCalEE");
+  desc.add<std::string>("nameW", "HGCalEEWafer");
+  desc.add<std::string>("nameC", "HGCalEECell");
+  desc.add<std::string>("nameT", "HGCal");
   desc.add<bool>("fromDD4Hep", false);
   descriptions.add("hgcalEEParametersInitialize", desc);
 }

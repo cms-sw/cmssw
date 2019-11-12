@@ -588,9 +588,9 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
                                               const std::string& sdTag2) {
   DDsvalues_type sv(fv.mergedSpecifics());
   php.boundR_ = getDDDArray("RadiusBound", sv, 4);
-  std::for_each(php.boundR_.begin(), php.boundR_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.boundR_, HGCalParameters::k_ScaleFromDDD);
   php.rLimit_ = getDDDArray("RadiusLimits", sv, 2);
-  std::for_each(php.rLimit_.begin(), php.rLimit_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.rLimit_, HGCalParameters::k_ScaleFromDDD);
   php.levelT_ = dbl_to_int(getDDDArray("LevelTop", sv, 0));
 
   // Grouping of layers
@@ -628,9 +628,9 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
                                               const std::string& sdTag3,
                                               const std::string& sdTag4) {
   php.boundR_ = fv.get<std::vector<double> >(sdTag4.c_str(), "RadiusBound");
-  std::for_each(php.boundR_.begin(), php.boundR_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.boundR_, HGCalParameters::k_ScaleFromDD4Hep);
   php.rLimit_ = fv.get<std::vector<double> >(sdTag4.c_str(), "RadiusLimits");
-  std::for_each(php.rLimit_.begin(), php.rLimit_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.rLimit_, HGCalParameters::k_ScaleFromDD4Hep);
   php.levelT_ = dbl_to_int(fv.get<std::vector<double> >(sdTag4.c_str(), "LevelTop"));
 
   // Grouping of layers
@@ -645,8 +645,7 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
 
   // Cell size
   php.cellSize_ = fv.get<std::vector<double> >(sdTag3.c_str(), "CellSize");
-  std::for_each(
-      php.cellSize_.begin(), php.cellSize_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4HepToG4; });
+  rescale(php.cellSize_, HGCalParameters::k_ScaleFromDD4HepToG4);
 
   loadSpecParsHexagon(php);
 }
@@ -673,8 +672,7 @@ void HGCalGeomParameters::loadSpecParsHexagon(const HGCalParameters& php) {
 void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalParameters& php) {
   DDsvalues_type sv(fv.mergedSpecifics());
   php.cellThickness_ = getDDDArray("CellThickness", sv, 3);
-  std::for_each(
-      php.cellThickness_.begin(), php.cellThickness_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDDD);
 
   php.radius100to200_ = getDDDArray("Radius100to200", sv, 5);
   php.radius200to300_ = getDDDArray("Radius200to300", sv, 5);
@@ -686,24 +684,22 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   php.zMinForRad_ = HGCalParameters::k_ScaleFromDDD * dummy[3];
 
   php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
-  std::for_each(php.radiusMixBoundary_.begin(), php.radiusMixBoundary_.end(), [](double& n) {
-    n *= HGCalParameters::k_ScaleFromDDD;
-  });
+  rescale(php.radiusMixBoundary_, HGCalParameters::k_ScaleFromDDD);
 
   php.slopeMin_ = getDDDArray("SlopeBottom", sv, 0);
   php.zFrontMin_ = getDDDArray("ZFrontBottom", sv, 0);
-  std::for_each(php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDDD);
   php.rMinFront_ = getDDDArray("RMinFront", sv, 0);
-  std::for_each(php.rMinFront_.begin(), php.rMinFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDDD);
 
   php.slopeTop_ = getDDDArray("SlopeTop", sv, 0);
   php.zFrontTop_ = getDDDArray("ZFrontTop", sv, 0);
-  std::for_each(php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDDD);
   php.rMaxFront_ = getDDDArray("RMaxFront", sv, 0);
-  std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDDD);
 
   php.zRanges_ = DDVectorGetter::get("ZRanges");
-  std::for_each(php.zRanges_.begin(), php.zRanges_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.zRanges_, HGCalParameters::k_ScaleFromDDD);
 
   const auto& dummy2 = getDDDArray("LayerOffset", sv, 1);
   php.layerOffset_ = dummy2[0];
@@ -717,17 +713,12 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
                                                HGCalParameters& php,
                                                const std::string& sdTag1) {
   php.cellThickness_ = fv.get<std::vector<double> >(sdTag1.c_str(), "CellThickness");
-  std::for_each(
-      php.cellThickness_.begin(), php.cellThickness_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDD4Hep);
 
   php.radius100to200_ = fv.get<std::vector<double> >(sdTag1.c_str(), "Radius100to200");
   php.radius200to300_ = fv.get<std::vector<double> >(sdTag1.c_str(), "Radius200to300");
-  std::for_each(php.radius100to200_.begin(), php.radius100to200_.end(), [](double& n) {
-    n *= HGCalParameters::k_ScaleFromDD4HepToG4;
-  });
-  std::for_each(php.radius200to300_.begin(), php.radius200to300_.end(), [](double& n) {
-    n *= HGCalParameters::k_ScaleFromDD4HepToG4;
-  });
+  rescale(php.radius100to200_, HGCalParameters::k_ScaleFromDD4HepToG4);
+  rescale(php.radius200to300_, HGCalParameters::k_ScaleFromDD4HepToG4);
 
   const auto& dummy = fv.get<std::vector<double> >(sdTag1.c_str(), "RadiusCuts");
   php.choiceType_ = static_cast<int>(dummy[0]);
@@ -737,19 +728,15 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
 
   php.slopeMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeBottom");
   php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontBottom");
-  std::for_each(
-      php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDD4Hep);
   php.rMinFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMinFront");
-  std::for_each(
-      php.rMinFront_.begin(), php.rMinFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDD4Hep);
 
   php.slopeTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeTop");
   php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontTop");
-  std::for_each(
-      php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDD4Hep);
   php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMaxFront");
-  std::for_each(
-      php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDD4Hep);
 
   const auto& dummy2 = fv.get<std::vector<double> >(sdTag1.c_str(), "LayerOffset");
   php.layerOffset_ = dummy2[0];
@@ -807,15 +794,12 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const HGCalParameters& php) {
 void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalParameters& php) {
   DDsvalues_type sv(fv.mergedSpecifics());
   php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
-  std::for_each(php.radiusMixBoundary_.begin(), php.radiusMixBoundary_.end(), [](double& n) {
-    n *= HGCalParameters::k_ScaleFromDDD;
-  });
+  rescale(php.radiusMixBoundary_, HGCalParameters::k_ScaleFromDDD);
 
   php.nPhiBinBH_ = dbl_to_int(getDDDArray("NPhiBinBH", sv, 0));
   php.layerFrontBH_ = dbl_to_int(getDDDArray("LayerFrontBH", sv, 0));
   php.rMinLayerBH_ = getDDDArray("RMinLayerBH", sv, 0);
-  std::for_each(
-      php.rMinLayerBH_.begin(), php.rMinLayerBH_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDDD);
   php.nCellsFine_ = php.nPhiBinBH_[0];
   php.nCellsCoarse_ = php.nPhiBinBH_[1];
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
@@ -823,18 +807,18 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
 
   php.slopeMin_ = getDDDArray("SlopeBottom", sv, 0);
   php.zFrontMin_ = getDDDArray("ZFrontBottom", sv, 0);
-  std::for_each(php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDDD);
   php.rMinFront_ = getDDDArray("RMinFront", sv, 0);
-  std::for_each(php.rMinFront_.begin(), php.rMinFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDDD);
 
   php.slopeTop_ = getDDDArray("SlopeTop", sv, 0);
   php.zFrontTop_ = getDDDArray("ZFrontTop", sv, 0);
-  std::for_each(php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDDD);
   php.rMaxFront_ = getDDDArray("RMaxFront", sv, 0);
-  std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDDD);
 
   php.zRanges_ = DDVectorGetter::get("ZRanges");
-  std::for_each(php.zRanges_.begin(), php.zRanges_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDDD; });
+  rescale(php.zRanges_, HGCalParameters::k_ScaleFromDDD);
 
   // Offsets
   const auto& dummy2 = getDDDArray("LayerOffset", sv, 1);
@@ -871,8 +855,7 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   php.nPhiBinBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1.c_str(), "NPhiBinBH"));
   php.layerFrontBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1.c_str(), "LayerFrontBH"));
   php.rMinLayerBH_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMinLayerBH");
-  std::for_each(
-      php.rMinLayerBH_.begin(), php.rMinLayerBH_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDD4Hep);
   php.nCellsFine_ = php.nPhiBinBH_[0];
   php.nCellsCoarse_ = php.nPhiBinBH_[1];
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
@@ -880,19 +863,15 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
 
   php.slopeMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeBottom");
   php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontBottom");
-  std::for_each(
-      php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDD4Hep);
   php.rMinFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMinFront");
-  std::for_each(
-      php.rMinFront_.begin(), php.rMinFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDD4Hep);
 
   php.slopeTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeTop");
   php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontTop");
-  std::for_each(
-      php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDD4Hep);
   php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMaxFront");
-  std::for_each(
-      php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double& n) { n *= HGCalParameters::k_ScaleFromDD4Hep; });
+  rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDD4Hep);
 
   const auto& dummy2 = fv.get<std::vector<double> >(sdTag1.c_str(), "LayerOffset");
   php.layerOffset_ = dummy2[0];
@@ -1410,4 +1389,8 @@ std::pair<double, double> HGCalGeomParameters::cellPosition(
       dy = 0;
   }
   return std::make_pair(dx, dy);
+}
+
+void HGCalGeomParameters::rescale(std::vector<double>& v, const double s) {
+  std::for_each(v.begin(), v.end(), [s](double& n) { n *= s; });
 }
