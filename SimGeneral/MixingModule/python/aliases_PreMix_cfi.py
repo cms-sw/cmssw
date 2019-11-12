@@ -49,6 +49,12 @@ genPUProtons = cms.EDAlias(
     )
 )
 
+simAPVsaturation = cms.EDAlias(
+    mixData = cms.VPSet(
+        cms.PSet(type = cms.string('bool'))
+    )
+)
+
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(simCastorDigis, mix = None)
 
