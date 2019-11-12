@@ -883,7 +883,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
     },
     "I7" : {
         1 : [
@@ -911,7 +911,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
     },
     "I9" : {
         1 : [
@@ -939,7 +939,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
     },
     "I10" : {
         1 : [
@@ -967,7 +967,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
     },
 }
 
