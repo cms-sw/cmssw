@@ -205,6 +205,16 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
             )
         ),
+        GenIsolatedPhoton = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 10, -0.5, 9.5, 'Isolated photons from Rivet-based ParticleLevelProducer'),
+                Plot1D('eta', 'eta', 20, -7, 7, 'eta'),
+                NoPlot('mass'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
+            )
+        ),
         GenJet = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
