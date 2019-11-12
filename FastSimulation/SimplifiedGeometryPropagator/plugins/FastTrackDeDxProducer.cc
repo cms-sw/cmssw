@@ -122,8 +122,8 @@ void FastTrackDeDxProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
   desc.add<bool>("UsePixel",false); 
   desc.add<bool>("UseStrip",true); 
-  desc.add<double>("MeVperADCPixel",3.61e-06*265);
-  desc.add<double>("MeVperADCStrip",3.61e-06);
+  desc.add<double>("MeVperADCStrip",3.61e-06*265);
+  desc.add<double>("MeVperADCPixel",3.61e-06);
   desc.add<bool>("ShapeTest",true);      
   desc.add<bool>("UseCalibration",false);  
   desc.add<string>("calibrationPath", "");
