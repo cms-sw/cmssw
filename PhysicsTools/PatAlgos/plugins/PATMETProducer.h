@@ -74,7 +74,7 @@ namespace pat {
 
     const reco::METCovMatrix getMETCovMatrix(const edm::Event& event,
                                              const edm::EventSetup& iSetup,
-                                             double& sumPt) const;
+                                             double& sumPtUnclustered) const;
   };
 
 }  // namespace pat
