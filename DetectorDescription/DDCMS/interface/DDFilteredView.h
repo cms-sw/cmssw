@@ -147,11 +147,11 @@ namespace cms {
 
     //! extract attribute value
     template <typename T>
-    T get(const char*) const;
+    T get(const std::string&) const;
 
     //! extract attribute value in SpecPar
     template <typename T>
-    T get(const char*, const char*) const;
+    T get(const std::string&, const std::string&) const;
 
     std::string_view getString(const std::string&) const;
 
