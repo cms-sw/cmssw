@@ -34,16 +34,11 @@ uint32_t HGCalConcentratorSuperTriggerCellImpl::getCompressedSTCEnergy(const Sup
 }
 
 void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
-    std::unordered_map<unsigned, SuperTriggerCell>& STCs, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput) {
+    std::unordered_map<unsigned, SuperTriggerCell>& STCs, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput) const {
   for (auto& s : STCs) {
-    int thickness = 0;
     std::vector<uint32_t> output_ids = superTCmapping_.getConstituentTriggerCells(s.second.getSTCId());
 
-    if (triggerTools_.isSilicon(output_ids.at(0))) {
-      thickness = triggerTools_.thicknessIndex(output_ids.at(0), true);
-    } else if (triggerTools_.isScintillator(output_ids.at(0))) {
-      thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-    }
+    int thickness = (!output_ids.empty() ? triggerTools_.thicknessIndex(output_ids.at(0), true) : 0);
 
     for (const auto& id : output_ids) {
       if (fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_ &&
@@ -100,12 +95,7 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
   //Compress and recalibrate STC energy
   uint32_t compressed_value = getCompressedSTCEnergy(stc);
 
-  int thickness = 0;
-  if (triggerTools_.isSilicon(c.detId())) {
-    thickness = triggerTools_.thicknessIndex(c.detId(), true);
-  } else if (triggerTools_.isScintillator(c.detId())) {
-    thickness = 3;
-  }
+  int thickness = triggerTools_.thicknessIndex(c.detId(), true);
 
   GlobalPoint point;
   if ((fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) || coarsenTriggerCells_) {

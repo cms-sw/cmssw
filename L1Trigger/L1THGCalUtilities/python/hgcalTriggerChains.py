@@ -142,10 +142,10 @@ class HGCalTriggerChains:
         ntuple_sequence = cms.Sequence(tmpseq)
         for vfe,truth_prod,backend1,backend2,selector,ntuple in self.truth_chain:
             truth_prod_name = '{0}{1}'.format(vfe, truth_prod)
-            backend1_name = '{0}{1}{2}'.format(vfe, truth_prod, backend1)
-            backend2_name = '{0}{1}{2}{3}'.format(vfe, truth_prod, backend1, backend2)
-            selector_name = '{0}{1}{2}{3}{4}'.format(vfe, truth_prod, backend1, backend2, selector)
-            ntuple_name = '{0}{1}{2}{3}{4}{5}'.format(vfe, truth_prod, backend1, backend2, selector, ntuple)
+            backend1_name = truth_prod_name + '{0}'.format(backend1)
+            backend2_name = backend1_name + '{0}'.format(backend2)
+            selector_name = backend2_name + '{0}'.format(selector)
+            ntuple_name = selector_name + '{0}'.format(ntuple)
             if selector=='':
                 if backend2=='':
                     if backend1=='':

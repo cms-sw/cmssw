@@ -59,9 +59,9 @@ private:
 
   class Navigator {
   public:
-    enum AxisType { Bounded, Circular };
+    enum class AxisType { Bounded, Circular };
 
-    Navigator() : axis_types_({{Bounded, Bounded}}), bins_({{0, 0}}), home_({{0, 0}}) {}
+    Navigator() : axis_types_({{AxisType::Bounded, AxisType::Bounded}}), bins_({{0, 0}}), home_({{0, 0}}) {}
 
     Navigator(int bins1, AxisType type_axis1, int bins2, AxisType type_axis2)
         : axis_types_({{type_axis1, type_axis2}}), bins_({{bins1, bins2}}), home_({{0, 0}}) {}
@@ -81,12 +81,12 @@ private:
       int shifted = std::get<N>(home_);
       int max = std::get<N>(bins_);
       switch (std::get<N>(axis_types_)) {
-        case Bounded:
+        case AxisType::Bounded:
           shifted += shift;
           if (shifted < 0 || shifted >= max)
             shifted = -1;
           break;
-        case Circular:
+        case AxisType::Circular:
           shifted += shift;
           while (shifted < 0)
             shifted += max;

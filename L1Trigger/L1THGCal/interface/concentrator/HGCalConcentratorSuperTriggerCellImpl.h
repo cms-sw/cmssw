@@ -94,7 +94,7 @@ private:
     int size() const { return tc_pts_.size(); }
   };
   void createAllTriggerCells(std::unordered_map<unsigned, SuperTriggerCell>& STCs,
-                             std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput);
+                             std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput) const;
   void assignSuperTriggerCellEnergyAndPosition(l1t::HGCalTriggerCell& c, const SuperTriggerCell& stc) const;
   float getTriggerCellOneBitFraction(float tcPt, float sumPt) const;
   uint32_t getCompressedSTCEnergy(const SuperTriggerCell& stc) const;

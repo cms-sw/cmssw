@@ -36,12 +36,7 @@ void HGCalConcentratorCoarsenerImpl::coarsen(const std::vector<l1t::HGCalTrigger
 
   // first pass, fill the coarse trigger cell information
   for (const l1t::HGCalTriggerCell& tc : trigCellVecInput) {
-    int thickness = 0;
-    if (triggerTools_.isSilicon(tc.detId())) {
-      thickness = triggerTools_.thicknessIndex(tc.detId(), true);
-    } else if (triggerTools_.isScintillator(tc.detId())) {
-      thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-    }
+    int thickness = triggerTools_.thicknessIndex(tc.detId(), true);
 
     if (fixedDataSizePerHGCROC_ && thickness == kHighDensityThickness_) {
       trigCellVecOutput.push_back(tc);

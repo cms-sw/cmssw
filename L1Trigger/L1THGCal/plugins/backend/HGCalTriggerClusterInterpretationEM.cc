@@ -29,10 +29,11 @@ void HGCalTriggerClusterInterpretationEM::initialize(const edm::ParameterSet& co
   scale_corrections_coeff_ = conf.getParameter<std::vector<double>>("scale_correction_coeff");
   dr_bylayer_ = conf.getParameter<std::vector<double>>("dr_bylayer");
 
-  if (scale_corrections_coeff_.size() != 2) {
+  const unsigned corrections_size = 2;
+  if (scale_corrections_coeff_.size() != corrections_size) {
     throw cms::Exception("HGCTriggerParameterError")
         << "HGCalTriggerClusterInterpretationEM::scale_correction_coeff parameter has size: "
-        << scale_corrections_coeff_.size() << " while expected is 2";
+        << scale_corrections_coeff_.size() << " while expected is " << corrections_size;
   }
   if (layer_containment_corrs_.size() != dr_bylayer_.size()) {
     throw cms::Exception("HGCTriggerParameterError")
@@ -59,7 +60,7 @@ void HGCalTriggerClusterInterpretationEM::interpret(l1t::HGCalMulticlusterBxColl
         }
       }
     }
-    energy += scale_corrections_coeff_.at(1) * fabs(cluster3d.eta()) + scale_corrections_coeff_.at(0);
+    energy += scale_corrections_coeff_.at(1) * std::abs(cluster3d.eta()) + scale_corrections_coeff_.at(0);
     cluster3d.saveEnergyInterpretation(l1t::HGCalMulticluster::EnergyInterpretation::EM, max(energy, 0.));
   }
 }

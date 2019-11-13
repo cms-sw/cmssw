@@ -58,13 +58,8 @@ uint32_t HGCalCoarseTriggerCellMapping::getRepresentativeDetId(uint32_t tcid) co
 }
 
 uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) const {
-  int thickness = 0;
   unsigned int layer = triggerTools_.layerWithOffset(detid);
-  if (triggerTools_.isSilicon(detid)) {
-    thickness = triggerTools_.thicknessIndex(detid, true);
-  } else if (triggerTools_.isScintillator(detid)) {
-    thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-  }
+  int thickness = triggerTools_.thicknessIndex(detid, true);
 
   int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
 
@@ -125,13 +120,8 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) c
 }
 
 std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(uint32_t ctcId) const {
-  int thickness = 0;
+  int thickness = triggerTools_.thicknessIndex(ctcId, true);
   unsigned int layer = triggerTools_.layerWithOffset(ctcId);
-  if (triggerTools_.isSilicon(ctcId)) {
-    thickness = triggerTools_.thicknessIndex(ctcId, true);
-  } else if (triggerTools_.isScintillator(ctcId)) {
-    thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-  }
   int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
 
   std::vector<uint32_t> output_ids;
@@ -159,10 +149,11 @@ std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(
           continue;
 
         HGCScintillatorDetId prime = (ctcId | i);
-        int radiusphi = ((prime.iradiusAbs() + 1) << HGCScintillatorDetId::kHGCalRadiusOffset) | (prime.iphi() + 1);
+        unsigned outid = (ctcId & kHGCalScinCellMaskInv_) |
+                         (((prime.iradiusAbs() + 1) << HGCScintillatorDetId::kHGCalRadiusOffset) | (prime.iphi() + 1));
 
-        if (triggerTools_.getTriggerGeometry()->validTriggerCell((ctcId & kHGCalScinCellMaskInv_) | radiusphi)) {
-          output_ids.emplace_back((ctcId & kHGCalScinCellMaskInv_) | radiusphi);
+        if (triggerTools_.getTriggerGeometry()->validTriggerCell(outid)) {
+          output_ids.emplace_back(outid);
         }
       }
 

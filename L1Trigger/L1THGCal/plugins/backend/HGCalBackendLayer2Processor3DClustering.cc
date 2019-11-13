@@ -30,7 +30,7 @@ public:
       throw cms::Exception("HGCTriggerParameterError") << "Unknown Multiclustering type '" << typeMulticluster << "'";
     }
 
-    for (auto interpretationPset : conf.getParameter<std::vector<edm::ParameterSet>>("energy_interpretations")) {
+    for (const auto& interpretationPset : conf.getParameter<std::vector<edm::ParameterSet>>("energy_interpretations")) {
       std::unique_ptr<HGCalTriggerClusterInterpreterBase> interpreter{
           HGCalTriggerClusterInterpreterFactory::get()->create(interpretationPset.getParameter<std::string>("type"))};
       interpreter->initialize(interpretationPset);
