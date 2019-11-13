@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import *
 
-eleIsoFromDeposits = cms.Sequence( 
-    eleIsoFromDepsTk * 
-    eleIsoFromDepsEcalFromHitsByCrystal * 
-    eleIsoFromDepsHcalFromTowers *
-    eleIsoFromDepsHcalDepth1FromTowers *
+eleIsoFromDepositsTask = cms.Task( 
+    eleIsoFromDepsTk , 
+    eleIsoFromDepsEcalFromHitsByCrystal , 
+    eleIsoFromDepsHcalFromTowers ,
+    eleIsoFromDepsHcalDepth1FromTowers ,
     eleIsoFromDepsHcalDepth2FromTowers
 )
-
+eleIsoFromDeposits = cms.Task(eleIsoFromDepositsTask)

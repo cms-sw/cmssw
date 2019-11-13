@@ -6,11 +6,11 @@ from RecoEgamma.EgammaIsolationAlgos.gamIsoDepositTk_cff import *
 from RecoEgamma.EgammaIsolationAlgos.gamIsoDepositEcalFromHits_cff import *
 from RecoEgamma.EgammaIsolationAlgos.gamIsoDepositHcalFromTowers_cff import *
 
-gamIsoDeposits = cms.Sequence(
-    gamIsoDepositTk + 
-    gamIsoDepositEcalFromHits + 
-    gamIsoDepositHcalFromTowers +
-    gamIsoDepositHcalDepth1FromTowers +
+gamIsoDepositsTask = cms.Task(
+    gamIsoDepositTk , 
+    gamIsoDepositEcalFromHits , 
+    gamIsoDepositHcalFromTowers ,
+    gamIsoDepositHcalDepth1FromTowers ,
     gamIsoDepositHcalDepth2FromTowers
 )
-
+gamIsoDeposits = cms.Sequence(gamIsoDepositsTask)
