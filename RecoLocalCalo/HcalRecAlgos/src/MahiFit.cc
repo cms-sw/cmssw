@@ -330,8 +330,7 @@ float MahiFit::calculateArrivalTime(unsigned int itIndex) const {
 
   SampleVector residuals = nnlsWork_.pulseMat * nnlsWork_.ampVec - nnlsWork_.amplitudes;
   PulseVector solution = nnlsWork_.pulseDerivMat.colPivHouseholderQr().solve(residuals);
-  float t = solution.coeff(itIndex);
-  t = (t > timeLimit_) ? timeLimit_ : ((t < -timeLimit_) ? -timeLimit_ : t);
+  float t = std::clamp(solution.coeff(itIndex), -timeLimit_, timeLimit_);
 
   return t;
 }
@@ -450,7 +449,6 @@ void MahiFit::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps,
   if (!(&ps == currentPulseShape_)) {
     hcalTimeSlewDelay_ = hcalTimeSlewDelay;
     tsDelay1GeV_ = hcalTimeSlewDelay->delay(1.0, slewFlavor_);
-    norm_ = (1. / std::sqrt(12));
 
     resetPulseShapeTemplate(ps, hasTimeInfo, nSamples);
     currentPulseShape_ = &ps;
@@ -513,7 +511,7 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi
     double charge = channelData.tsRawCharge(iTS);
     double ped = channelData.tsPedestal(iTS);
 
-    mdi.inNoiseADC[iTS] = (1. / sqrt(12)) * channelData.tsDFcPerADC(iTS);
+    mdi.inNoiseADC[iTS] = norm_ * channelData.tsDFcPerADC(iTS);
 
     if ((charge - ped) > channelData.tsPedestalWidth(iTS)) {
       mdi.inNoisePhoto[iTS] = sqrt((charge - ped) * channelData.fcByPE());
