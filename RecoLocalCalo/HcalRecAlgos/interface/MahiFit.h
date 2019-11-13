@@ -152,7 +152,7 @@ private:
 
   // used to restrict returned time value to a 25 ns window centered
   // on the nominal arrival time
-  static constexpr float timeLimit_ = 12.5;
+  static constexpr float timeLimit_ = 12.5f;
 
   // Python-configurables
   bool dynamicPed_;
