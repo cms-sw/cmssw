@@ -15,6 +15,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
+#include "DataFormats/Histograms/interface/DQMToken.h"
+
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
@@ -27,7 +29,10 @@
 #include <sstream>
 #include <cmath>
 
-SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&) {}
+SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&) {
+  consumes<DQMToken, edm::InRun>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserRun"));
+  consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserLumi"));
+}
 
 void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripCertificationInfo") << "SiStripCertificationInfo:: Begining of Run";
