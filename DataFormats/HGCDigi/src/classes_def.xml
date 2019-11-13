@@ -1,7 +1,6 @@
 <lcgdict>
-   <class name="HGCSample" ClassVersion="11">
-    <version ClassVersion="11" checksum="2120380856"/>
-    <version ClassVersion="10" checksum="3298262857"/>
+   <class name="HGCSample" ClassVersion="10">
+    <version ClassVersion="10" checksum="2120380856"/>
    </class>
 
    <class name="std::vector<HGCSample>"/>
