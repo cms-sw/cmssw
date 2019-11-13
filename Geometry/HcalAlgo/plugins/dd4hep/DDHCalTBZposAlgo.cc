@@ -1,10 +1,10 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -28,10 +28,11 @@ static long algorithm(dd4hep::Detector& /* description */,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parameters for position"
                                << "ing--"
-                               << " Eta " << eta << "\tTheta " << convertRadToDeg(theta) << "\tShifts " << shiftX
-                               << ", " << shiftY << " along x, y "
-                               << "axes; \tZoffest " << zoffset << "\tRadial Distance " << dist << "\tTilt angle "
-                               << convertRadToDeg(tilt) << "\tcopyNumber " << copyNumber;
+                               << " Eta " << eta << "\tTheta " << convertRadToDeg(theta) << "\tShifts "
+                               << convertCmToMm(shiftX) << ", " << convertCmToMm(shiftY) << " along x, y "
+                               << "axes; \tZoffest " << convertCmToMm(zoffset) << "\tRadial Distance "
+                               << convertCmToMm(dist) << "\tTilt angle " << convertRadToDeg(tilt) << "\tcopyNumber "
+                               << copyNumber;
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parent " << args.parentName() << "\tChild " << childName
                                << " NameSpace " << idNameSpace;
 #endif
@@ -51,12 +52,13 @@ static long algorithm(dd4hep::Detector& /* description */,
     edm::LogVerbatim("HCalGeom") << "DDHCalZposAlgo: Creating a rotation \t90, " << convertRadToDeg(tilt) << ",90,"
                                  << (90 + convertRadToDeg(tilt)) << ", 0, 0";
 #endif
-    rot = cms::makeRotation3D(90._deg, tilt, 90._deg, (90._deg + tilt), 0.0, 0.0);
+    rot = dd4hep::RotationZ(tilt);
   }
   mother.placeVolume(child, copyNumber, dd4hep::Transform3D(rot, tran));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: " << child.name() << " number " << copyNumber << " positioned in "
-                               << mother.name() << " at " << tran << " with " << rot;
+                               << mother.name() << " at (" << convertCmToMm(x) << ", " << convertCmToMm(y) << ", "
+                               << convertCmToMm(z) << ") with " << rot;
 #endif
 
   return 1;
