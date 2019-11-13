@@ -625,7 +625,7 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook,
   histograms.h_denom_caloparticle_phi.push_back( 
       ibook.book1D("Denom_CaloParticle_Phi", "Denom CaloParticle Phi per Multi Cluster", nintPhi_, minPhi_, maxPhi_) );
 
-  std::unordered_map<int, ConcurrentMonitorElement> clusternum_in_multicluster_perlayer;
+  std::unordered_map<int, dqm::reco::MonitorElement*> clusternum_in_multicluster_perlayer;
   clusternum_in_multicluster_perlayer.clear();
 
   for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
