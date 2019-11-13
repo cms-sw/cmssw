@@ -444,14 +444,13 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     const HcalCoderDb coder(*channelCoder, *shape);
 
     const bool saveEffectivePeds = channelInfo->hasEffectivePedestals();
+    const HcalSiPMParameter& siPMParameter(*cond.getHcalSiPMParameter(cell));
+    const double fcByPE = siPMParameter.getFCByPE();
     double darkCurrent = 0.;
-    double fcByPE = 0.;
     double lambda = 0.;
     if (!saveEffectivePeds || saveInfos_) {
       // needed for the dark current in the M2 in alternative of the effectivePed
-      const HcalSiPMParameter& siPMParameter(*cond.getHcalSiPMParameter(cell));
       darkCurrent = siPMParameter.getDarkCurrent();
-      fcByPE = siPMParameter.getFCByPE();
       lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(siPMParameter.getType());
     }
 
