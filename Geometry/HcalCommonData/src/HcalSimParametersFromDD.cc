@@ -145,23 +145,16 @@ bool HcalSimParametersFromDD::build(const cms::DDCompactView* cpv, HcalSimulatio
   par2.filter(ref2, "OnlyForHcalSimNumbering", "HCAL");
   fv2.mergedSpecifics(ref2);
 
-  bool dodet = fv2.firstChild();
-  while (dodet) {
-    std::string name = static_cast<std::string>(fv2.name());
-    if (!isItHF(name, php)) {
-      bool notIn = true;
-      std::string matName = DDSplit(static_cast<std::string>(fv2.materialName())).first;
-      for (unsigned int i = 0; i < php.hcalMaterialNames_.size(); ++i) {
-        if (!strcmp(php.hcalMaterialNames_[i].c_str(), matName.c_str())) {
-          notIn = false;
-          break;
-        }
-      }
-      if (notIn)
-        php.hcalMaterialNames_.push_back(matName);
+  while (fv2.firstChild()) {
+    const std::string name{fv2.name().data(), fv2.name().size()};
+    const std::string matName{cms::dd::noNamespace(fv2.materialName()).data(),
+                              cms::dd::noNamespace(fv2.materialName()).size()};
+    if (!isItHF(name, php) &&
+        std::find(std::begin(php.hcalMaterialNames_), std::end(php.hcalMaterialNames_), matName) ==
+            std::end(php.hcalMaterialNames_)) {
+      php.hcalMaterialNames_.emplace_back(matName);
     }
-    dodet = fv2.sibling();
-  }
+  };
   return buildParameters(php);
 }
 
@@ -287,21 +280,18 @@ void HcalSimParametersFromDD::fillPMTs(const std::vector<double>& neta, bool lOr
 }
 
 bool HcalSimParametersFromDD::isItHF(const std::string& name, const HcalSimulationParameters& php) {
-  for (auto nam : php.hfNames_)
-    if (name == nam)
-      return true;
-  for (auto nam : php.hfFibreNames_)
-    if (name == nam)
-      return true;
-  for (auto nam : php.hfPMTNames_)
-    if (name == nam)
-      return true;
-  for (auto nam : php.hfFibreStraightNames_)
-    if (name == nam)
-      return true;
-  for (auto nam : php.hfFibreConicalNames_)
-    if (name == nam)
-      return true;
+  if (std::find(std::begin(php.hfNames_), std::end(php.hfNames_), name) != std::end(php.hfNames_))
+    return true;
+  if (std::find(std::begin(php.hfFibreNames_), std::end(php.hfFibreNames_), name) != std::end(php.hfFibreNames_))
+    return true;
+  if (std::find(std::begin(php.hfPMTNames_), std::end(php.hfPMTNames_), name) != std::end(php.hfPMTNames_))
+    return true;
+  if (std::find(std::begin(php.hfFibreStraightNames_), std::end(php.hfFibreStraightNames_), name) !=
+      std::end(php.hfFibreStraightNames_))
+    return true;
+  if (std::find(std::begin(php.hfFibreConicalNames_), std::end(php.hfFibreConicalNames_), name) !=
+      std::end(php.hfFibreConicalNames_))
+    return true;
 
   return false;
 }
@@ -328,19 +318,9 @@ std::vector<std::string> HcalSimParametersFromDD::getNames(DDFilteredView& fv) {
 
 std::vector<std::string> HcalSimParametersFromDD::getNames(cms::DDFilteredView& fv) {
   std::vector<std::string> tmp;
-  bool dodet = fv.firstChild();
-  while (dodet) {
-    bool ok = true;
-    std::string name = static_cast<std::string>(fv.name());
-    for (unsigned int i = 0; i < tmp.size(); ++i) {
-      if (!strcmp(tmp[i].c_str(), name.c_str())) {
-        ok = false;
-        break;
-      }
-    }
-    if (ok)
-      tmp.push_back(name);
-    dodet = fv.sibling();
+  while (fv.firstChild()) {
+    if (std::find(std::begin(tmp), std::end(tmp), fv.name()) == std::end(tmp))
+      tmp.emplace_back(fv.name());
   }
   return tmp;
 }
