@@ -7,14 +7,14 @@ using namespace std;
 using namespace cms;
 using namespace edm;
 
-string_view DDSpecPar::strValue(const char* key) const {
+string_view DDSpecPar::strValue(const string& key) const {
   auto const& item = spars.find(key);
   if (item == end(spars))
     return string();
   return *begin(item->second);
 }
 
-bool DDSpecPar::hasValue(const char* key) const {
+bool DDSpecPar::hasValue(const string& key) const {
   if (numpars.find(key) != end(numpars))
     return true;
   else
@@ -22,7 +22,7 @@ bool DDSpecPar::hasValue(const char* key) const {
 }
 
 template <>
-std::vector<double> DDSpecPar::value<std::vector<double>>(const char* key) const {
+std::vector<double> DDSpecPar::value<std::vector<double>>(const string& key) const {
   std::vector<double> result;
 
   auto const& nitem = numpars.find(key);
@@ -41,7 +41,7 @@ std::vector<double> DDSpecPar::value<std::vector<double>>(const char* key) const
 }
 
 template <>
-std::vector<std::string> DDSpecPar::value<std::vector<std::string>>(const char* key) const {
+std::vector<std::string> DDSpecPar::value<std::vector<std::string>>(const string& key) const {
   std::vector<std::string> result;
 
   auto const& nitem = numpars.find(key);
@@ -61,7 +61,7 @@ std::vector<std::string> DDSpecPar::value<std::vector<std::string>>(const char* 
   return result;
 }
 
-double DDSpecPar::dblValue(const char* key) const {
+double DDSpecPar::dblValue(const string& key) const {
   auto const& item = numpars.find(key);
   if (item == end(numpars))
     return 0;
