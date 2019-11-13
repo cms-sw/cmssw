@@ -21,13 +21,14 @@ static long algorithm(dd4hep::Detector& /* description */,
   double dist = (distance + distanceZ / sin(theta));             //Overall distance
   int copyNumber = args.value<int>("Number");                    //Copy Number
   std::string childName = args.value<std::string>("ChildName");  //Children name
-  double dz = args.value<double>("Dz");  //Half length along z of the volume to be placed
+  double dz = args.value<double>("Dz");                          //Half length along z of the volume to be placed
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: Parameters for position"
                                << "ing--"
                                << " Eta " << eta << "\tPhi " << convertRadToDeg(phi) << "\tTheta "
-                               << convertRadToDeg(theta) << "\tDistance " << convertCmToMm(distance) << "/" << convertCmToMm(distanceZ) << "/" << convertCmToMm(dist)
-                               << "\tDz " << convertCmToMm(dz) << "\tcopyNumber " << copyNumber;
+                               << convertRadToDeg(theta) << "\tDistance " << convertCmToMm(distance) << "/"
+                               << convertCmToMm(distanceZ) << "/" << convertCmToMm(dist) << "\tDz " << convertCmToMm(dz)
+                               << "\tcopyNumber " << copyNumber;
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo:Parent " << args.parentName() << "\tChild " << childName
                                << " NameSpace " << ns.name();
 #endif
@@ -66,15 +67,17 @@ static long algorithm(dd4hep::Detector& /* description */,
   parent.placeVolume(child, copyNumber, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: " << child.name() << " number " << copyNumber
-                               << " positioned in " << parent.name() << " at (" << convertCmToMm(xpos) << ", " << convertCmToMm(ypos) << ", " << convertCmToMm(zpos) << ") with rotation: " << rotation;
+                               << " positioned in " << parent.name() << " at (" << convertCmToMm(xpos) << ", "
+                               << convertCmToMm(ypos) << ", " << convertCmToMm(zpos) << ") with rotation: " << rotation;
 #endif
   xpos = (dist - dz) * sin(theta) * cos(phi);
   ypos = (dist - dz) * sin(theta) * sin(phi);
   zpos = (dist - dz) * cos(theta);
 
   edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo: Suggested Beam position "
-                           << "(" << convertCmToMm(xpos) << ", " << convertCmToMm(ypos) << ", " << convertCmToMm(zpos) << ") and (dist, eta, phi) = (" << convertCmToMm(dist - dz)
-                           << ", " << eta << ", " << phi << ")";
+                           << "(" << convertCmToMm(xpos) << ", " << convertCmToMm(ypos) << ", " << convertCmToMm(zpos)
+                           << ") and (dist, eta, phi) = (" << convertCmToMm(dist - dz) << ", " << eta << ", " << phi
+                           << ")";
 
   return 1;
 }
