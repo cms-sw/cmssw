@@ -41,9 +41,6 @@ namespace dqm::dqmstoreimpl {
   class DQMStore;
 }
 
-// tag for a special constructor, see below
-struct MonitorElementNoCloneTag {};
-
 namespace dqm::impl {
 
   using dqmmutex = tbb::spin_mutex;
@@ -162,18 +159,11 @@ namespace dqm::impl {
     TH1 *refvalue_;                  //< Soft reference if any.
     std::vector<QReport> qreports_;  //< QReports associated to this object.
 
-    MonitorElement *initialise(Kind kind);
-    MonitorElement *initialise(Kind kind, TH1 *rootobj);
-    MonitorElement *initialise(Kind kind, const std::string &value);
     void globalize() { data_.moduleId = 0; }
     void setLumi(uint32_t ls) { data_.lumi = ls; }
 
   public:
-    MonitorElement();
-    MonitorElement(const std::string *path, const std::string &name);
-    MonitorElement(const std::string *path, const std::string &name, uint32_t run, uint32_t moduleId);
-    MonitorElement(const MonitorElement &, MonitorElementNoCloneTag);
-    MonitorElement(const MonitorElement &);
+    MonitorElement(MonitorElementData* data, bool is_owned, bool is_readonly) {};
     MonitorElement &operator=(const MonitorElement &) = delete;
     MonitorElement &operator=(MonitorElement &&) = delete;
     virtual ~MonitorElement();
