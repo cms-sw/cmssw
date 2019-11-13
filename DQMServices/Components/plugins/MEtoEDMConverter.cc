@@ -85,7 +85,7 @@ MEtoEDMConverter::~MEtoEDMConverter() = default;
 void MEtoEDMConverter::beginJob() {
   // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
   DQMStore* dbe = edm::Service<DQMStore>().operator->();
-  enableMultiThread_ = dbe->enableMultiThread_;
+  enableMultiThread_ = false;//dbe->enableMultiThread_;
 }
 
 void MEtoEDMConverter::endJob() {}
