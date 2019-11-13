@@ -90,7 +90,7 @@ HGCalTriggerGeometryV9Imp2::HGCalTriggerGeometryV9Imp2(const edm::ParameterSet& 
       hSc_links_per_module_(conf.getParameter<unsigned>("ScintillatorLinksPerModule")),
       l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping")),
       l1tLinksMapping_(conf.getParameter<edm::FileInPath>("L1TLinksMapping")) {
-  unsigned ntc_per_wafer = 48;
+  const unsigned ntc_per_wafer = 48;
   hSc_wafers_per_module_ = std::round(hSc_module_size_ * hSc_module_size_ / float(ntc_per_wafer));
   if (ntc_per_wafer * hSc_wafers_per_module_ < hSc_module_size_ * hSc_module_size_) {
     hSc_wafers_per_module_++;

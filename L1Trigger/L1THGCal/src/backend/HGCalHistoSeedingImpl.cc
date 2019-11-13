@@ -524,10 +524,10 @@ void HGCalHistoSeedingImpl::findHistoSeeds(const std::vector<edm::Ptr<l1t::HGCal
     Histogram smoothPhiHistoCluster = fillSmoothPhiHistoClusters(histoCluster, binsSumsHisto_);
 
     /* smoothen along the r/z direction */
-    smoothHistoCluster = std::move(fillSmoothRPhiHistoClusters(smoothPhiHistoCluster));
+    smoothHistoCluster = fillSmoothRPhiHistoClusters(smoothPhiHistoCluster);
   } else if (seedingSpace_ == XY) {
-    smoothHistoCluster = std::move(fillSmoothHistoClusters(histoCluster, smoothing_ecal_, Bin::Content::Ecal));
-    smoothHistoCluster = std::move(fillSmoothHistoClusters(smoothHistoCluster, smoothing_hcal_, Bin::Content::Hcal));
+    smoothHistoCluster = fillSmoothHistoClusters(histoCluster, smoothing_ecal_, Bin::Content::Ecal);
+    smoothHistoCluster = fillSmoothHistoClusters(smoothHistoCluster, smoothing_hcal_, Bin::Content::Hcal);
     // Update sum with smoothen ECAL + HCAL
     for (int z_side : {-1, 1}) {
       for (unsigned x1 = 0; x1 < nBins1_; x1++) {

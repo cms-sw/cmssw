@@ -421,7 +421,7 @@ float HGCalShowerShape::meanZ(const l1t::HGCalMulticluster& c3d) const {
     for (const auto& id_tc : triggerCells) {
       if (!pass(*id_tc.second, c3d))
         continue;
-      tc_energy_z.emplace_back(std::make_pair(id_tc.second->energy(), id_tc.second->position().z()));
+      tc_energy_z.emplace_back(id_tc.second->energy(), id_tc.second->position().z());
     }
   }
 
