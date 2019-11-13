@@ -11,10 +11,7 @@ from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol0
 ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronBaseProducer",
 
     # input collections
-    previousGsfElectronsTag = cms.InputTag(""),
-    pflowGsfElectronsTag = cms.InputTag(""),
     gsfElectronCoresTag = cms.InputTag("ecalDrivenGsfElectronCores"),
-    pfMvaTag = cms.InputTag(""),
 
     gedElectronMode = cms.bool(False),
 
@@ -22,7 +19,6 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronBaseProducer",
     applyPreselection = cms.bool(False),
     ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(True),
     ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(True),
-    applyAmbResolution = cms.bool(False),
     useEcalRegression = cms.bool(False),
     useCombinationRegression = cms.bool(False),
 
@@ -51,11 +47,6 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronBaseProducer",
     trkIsol04Cfg = trkIsol04CfgV1,
     trkIsolHEEP03Cfg = trkIsol03CfgV2,
     trkIsolHEEP04Cfg = trkIsol04CfgV2,
-
-    # Iso values
-    useIsolationValues = cms.bool(False),
-
-    SoftElecMVAFilesString = cms.vstring("RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_9Dec2013.weights.xml"),
 )
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
