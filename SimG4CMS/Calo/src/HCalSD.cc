@@ -189,10 +189,10 @@ HCalSD::HCalSD(const std::string& name,
       G4String namv = static_cast<G4String>(hfNames[i]);
       lv = nullptr;
       for (auto lvol : *lvs) {
-	if (lvol->GetName() == namv) {
-	  lv = lvol;
-	  break;
-	}
+        if (lvol->GetName() == namv) {
+          lv = lvol;
+          break;
+        }
       }
       hfLV.push_back(lv);
       hfLevels.push_back(temp[i]);
