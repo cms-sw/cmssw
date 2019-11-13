@@ -78,65 +78,9 @@ void DQMService::flushStandalone() {
     // Lock the network layer so we can modify the data.
     net_->lock();
     bool updated = false;
+    
+    // TODO: re-implement sending MEs.
 
-    // Find updated contents and update the network cache.
-    DQMStore::MEMap::iterator i, e;
-    net_->reserveLocalSpace(store_->data_.size());
-    for (i = store_->data_.begin(), e = store_->data_.end(); i != e; ++i) {
-      const MonitorElement &me = *i;
-      fullpath.clear();
-      fullpath += *me.data_.dirname;
-      if (!me.data_.dirname->empty())
-        fullpath += '/';
-      fullpath += me.data_.objname;
-
-      if (filter_ && filter_->search(fullpath) < 0)
-        continue;
-
-      seen.insert(fullpath);
-      if (!me.wasUpdated())
-        continue;
-
-      o.lastreq = 0;
-      o.hash = DQMNet::dqmhash(fullpath.c_str(), fullpath.size());
-      o.flags = me.data_.flags;
-      o.tag = me.data_.tag;
-      o.version = version;
-      o.dirname = me.data_.dirname;
-      o.objname = me.data_.objname;
-      assert(o.rawdata.empty());
-      assert(o.scalar.empty());
-      assert(o.qdata.empty());
-
-      // Pack object and reference, scalar and quality data.
-      switch (me.kind()) {
-        case MonitorElement::Kind::INT:
-        case MonitorElement::Kind::REAL:
-        case MonitorElement::Kind::STRING:
-          me.packScalarData(o.scalar, "");
-          break;
-
-        default: {
-          TBufferFile buffer(TBufferFile::kWrite);
-          buffer.WriteObject(me.getRootObject());
-          if (me.reference_)
-            buffer.WriteObject(me.reference_);
-          else
-            buffer.WriteObjectAny(nullptr, nullptr);
-          o.rawdata.resize(buffer.Length());
-          memcpy(&o.rawdata[0], buffer.Buffer(), buffer.Length());
-          DQMNet::packQualityData(o.qdata, me.data_.qreports);
-          break;
-        }
-      }
-
-      // Update.
-      net_->updateLocalObject(o);
-      DQMNet::DataBlob().swap(o.rawdata);
-      std::string().swap(o.scalar);
-      std::string().swap(o.qdata);
-      updated = true;
-    }
 
     // Find removed contents and clear the network cache.
     if (net_->removeLocalExcept(seen))
@@ -150,7 +94,6 @@ void DQMService::flushStandalone() {
       net_->sendLocalChanges();
   }
 
-  store_->reset();
   lastFlush_ = lat::Time::current().ns() * 1e-9;
 }
 void DQMService::flush(edm::StreamContext const &sc) {

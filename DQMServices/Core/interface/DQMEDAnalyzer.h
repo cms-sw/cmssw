@@ -10,8 +10,7 @@
 #include "DataFormats/Histograms/interface/DQMToken.h"
 
 /**
- * The standard DQM module base. For now, this is the same as DQMOneLumiEDAnalyzer,
- * but they can (and will) diverge in the future.
+ * The standard DQM module base.
  */
 class DQMEDAnalyzer : public edm::one::EDProducer<edm::EndRunProducer,
                                                   edm::one::WatchRuns,
@@ -48,7 +47,7 @@ public:
   void accumulate(edm::Event const& event, edm::EventSetup const& setup) final { analyze(event, setup); }
 
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) final {
-    edm::Service<DQMStore>()->cloneLumiHistograms(lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
+    edm::Service<DQMStore>()->leaveLumi(lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
     lumi.emplace(lumiToken_);
   }
 
@@ -57,7 +56,7 @@ public:
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final{};
 
   void endRunProduce(edm::Run& run, edm::EventSetup const& setup) final {
-    edm::Service<DQMStore>()->cloneRunHistograms(run.run(), this->moduleDescription().id());
+    edm::Service<DQMStore>()->leaveLumi(run.run(), 0, this->moduleDescription().id());
     run.emplace<DQMToken>(runToken_);
   }
 
