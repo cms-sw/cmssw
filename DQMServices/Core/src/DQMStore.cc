@@ -429,7 +429,7 @@ namespace dqm {
     }
 
     template <class ME>
-    DQMStore<ME>::DQMStore() : IGetter<ME, DQMStore<ME>>(this), IBooker<ME, DQMStore<ME>>(this) {}
+    DQMStore<ME>::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&) : IGetter<ME, DQMStore<ME>>(this), IBooker<ME, DQMStore<ME>>(this) {}
     template <class ME>
     DQMStore<ME>::~DQMStore() {}
 
