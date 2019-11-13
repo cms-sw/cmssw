@@ -40,7 +40,7 @@ public:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
-  // void theBaseNumber(const DDGeoHistory& gh);
+  void theBaseNumber(const std::vector<std::pair<std::string_view,unsigned int>>& gh);
 
 private:
   const edm::ESInputTag tag_;
@@ -105,28 +105,6 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
   std::string name("MtdSensitiveDetector");
   pSP.product()->filter(specs, attribute, name);
 
-  edm::LogVerbatim("Geometry").log([&pSP](auto& log) {
-      log << "DD SpecPar PSP size: " << pSP->specpars.size();
-      for (const auto& i : pSP->specpars) {
-        log << " " << i.first << " => ";
-        for (const auto& k : i.second.paths)
-          log << k << ", ";
-        for (const auto& l : i.second.spars) {
-          log << l.first << " => ";
-          for (const auto& il : l.second) {
-            log << il << ", ";
-          }
-        }
-        for (const auto& m : i.second.numpars) {
-          log << m.first << " => ";
-          for (const auto& im : m.second) {
-            log << im << ", ";
-          }
-        }
-        log << '\n';
-      }
-    });
-
   edm::LogVerbatim("Geometry").log([&specs](auto& log) {
       log << "Filtered DD SpecPar Registry size: " << specs.size() << "\n";
       for (const auto& t : specs) {
@@ -150,14 +128,14 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
   bool write = false;
   bool isBarrel = true;
   unsigned int level(0);
-  size_t maxLevel = 50;
-  std::vector<std::string> theLevels(maxLevel,"");
+  std::vector<std::pair<std::string_view,unsigned int>> geoHistory;
 
   do {
 
     unsigned int clevel = fv.navPos().size();
     unsigned int ccopy = (clevel > 1 ? fv.copyNum() : 0);
-    theLevels[clevel-1] = fv.name()+"["+ccopy+"]/";
+    geoHistory.resize(clevel);
+    geoHistory[clevel-1] = std::pair<std::string_view,unsigned int>(fv.name(),ccopy);
 
     if (fv.name() == "BarrelTimingLayer") {
       isBarrel = true;
@@ -178,80 +156,77 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
     if (write) {
       std::string thePath;
       for ( size_t st = 0; st < clevel; st++ ) {
-        thePath += theLevels[st];
+        thePath += geoHistory[st].first + "["+geoHistory[st].second+"]/";
       }
       dump << " - " << thePath << "\n";
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DD4hep_TestMTDNumbering") << thePath;
+#endif
 
-      //      bool isSens = false;
+      bool isSens = false;
 
-//       if (fv.geoHistory()[num - 1].logicalPart().specifics().size() > 0) {
-//         for (auto elem : *(fv.geoHistory()[num - 1].logicalPart().specifics()[0])) {
-//           if (elem.second.name() == "SensitiveDetector") {
-//             isSens = true;
-//             break;
-//           }
-//         }
-//       }
+      for (auto const &t : specs) {
+        for (auto const &it : t->paths) {
+          if ( dd::compareEqual(fv.name(),dd::realTopName(it)) ) { isSens = true; break; } 
+        }
+      }
 
-//       // Check of numbering scheme for sensitive detectors
+      // Check of numbering scheme for sensitive detectors
 
-//       if (isSens) {
-//         theBaseNumber(fv.geoHistory());
+      if (isSens) {
+        theBaseNumber(geoHistory);
 
-//         if (isBarrel) {
-//           BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
-//           BTLDetId theId(btlNS_.getUnitID(thisN_));
-//           int hIndex = theId.hashedIndex(lay);
-//           BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
-//           dump << theId;
-//           dump << "\n layout type = " << static_cast<int>(lay);
-//           dump << "\n ieta        = " << theId.ieta(lay);
-//           dump << "\n iphi        = " << theId.iphi(lay);
-//           dump << "\n hashedIndex = " << theId.hashedIndex(lay);
-//           dump << "\n BTLDetId hI = " << theNewId;
-//           if (theId.mtdSide() != theNewId.mtdSide()) {
-//             dump << "\n DIFFERENCE IN SIDE";
-//           }
-//           if (theId.mtdRR() != theNewId.mtdRR()) {
-//             dump << "\n DIFFERENCE IN ROD";
-//           }
-//           if (theId.module() != theNewId.module()) {
-//             dump << "\n DIFFERENCE IN MODULE";
-//           }
-//           if (theId.modType() != theNewId.modType()) {
-//             dump << "\n DIFFERENCE IN MODTYPE";
-//           }
-//           if (theId.crystal() != theNewId.crystal()) {
-//             dump << "\n DIFFERENCE IN CRYSTAL";
-//           }
-//           dump << "\n";
-//         } else {
-//           ETLDetId theId(etlNS_.getUnitID(thisN_));
-//           dump << theId;
-//         }
-//      dump << "\n";
-//       }
+        if (isBarrel) {
+          BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
+          BTLDetId theId(btlNS_.getUnitID(thisN_));
+          int hIndex = theId.hashedIndex(lay);
+          BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
+          dump << theId;
+          dump << "\n layout type = " << static_cast<int>(lay);
+          dump << "\n ieta        = " << theId.ieta(lay);
+          dump << "\n iphi        = " << theId.iphi(lay);
+          dump << "\n hashedIndex = " << theId.hashedIndex(lay);
+          dump << "\n BTLDetId hI = " << theNewId;
+          if (theId.mtdSide() != theNewId.mtdSide()) {
+            dump << "\n DIFFERENCE IN SIDE";
+          }
+          if (theId.mtdRR() != theNewId.mtdRR()) {
+            dump << "\n DIFFERENCE IN ROD";
+          }
+          if (theId.module() != theNewId.module()) {
+            dump << "\n DIFFERENCE IN MODULE";
+          }
+          if (theId.modType() != theNewId.modType()) {
+            dump << "\n DIFFERENCE IN MODTYPE";
+          }
+          if (theId.crystal() != theNewId.crystal()) {
+            dump << "\n DIFFERENCE IN CRYSTAL";
+          }
+          dump << "\n";
+        } else {
+          ETLDetId theId(etlNS_.getUnitID(thisN_));
+          dump << theId;
+        }
+        dump << "\n";
+      }
     }
-//     ++id;
-//     if (nVols != 0 && id > nVols)
-//       notReachedDepth = false;
   } while (fv.next(0) && notReachedDepth);
-   dump << std::flush;
-   dump.close();
+  dump << std::flush;
+  dump.close();
 }
 
-// void DD4hep_TestMTDNumbering::theBaseNumber(const DDGeoHistory& gh) {
-//   thisN_.reset();
-//   thisN_.setSize(gh.size());
+void DD4hep_TestMTDNumbering::theBaseNumber(const std::vector<std::pair<std::string_view,unsigned int>>& gh) {
+  thisN_.reset();
+  thisN_.setSize(gh.size());
 
-//   for (uint i = gh.size(); i-- > 0;) {
-//     std::string name(gh[i].logicalPart().name().name());
-//     int copyN(gh[i].copyno());
-//     thisN_.addLevel(name, copyN);
-// #ifdef EDM_ML_DEBUG
-//     edm::LogInfo("DD4hep_TestMTDNumbering") << name << " " << copyN;
-// #endif
-//   }
-// }
+  for (uint i = gh.size(); i-- > 0;) {
+    std::string name(gh[i].first);
+    int copyN(gh[i].second);
+    thisN_.addLevel(name, copyN);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("DD4hep_TestMTDNumbering") << name << " " << copyN;
+#endif
+  }
+}
 
 DEFINE_FWK_MODULE(DD4hep_TestMTDNumbering);
