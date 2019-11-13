@@ -36,6 +36,19 @@ public:
   HGCSample(uint32_t value) : value_(value) {}
   HGCSample(const HGCSample& o) : value_(o.value_) {}
 
+
+  /**
+     @short Data Model Evolution
+  */
+static  uint32_t newForm(uint32_t value, bool toaFired) { 
+    // here write the logic to combine value&toaFired 
+    // from persisted objects of in V9 (or earlier) format
+    // to produce a value_ compatible w/ the V10 format
+    // i.e.
+    // 1) shift the adc 12 bits by 1 bit
+    // 2) insert the toaFired into _value
+    return 100;
+  }
   /**
      @short setters
   */
