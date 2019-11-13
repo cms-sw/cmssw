@@ -24,9 +24,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   std::string idName = args.value<std::string>("ChildName");                        //Children name
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo::Parameters for positioning:"
-                               << " Axis " << iaxis << "\tRadius " << convertCmToMm(radius) << "\tOffset " << offset << "\tDx " << convertCmToMm(dx)
-                               << "\tDz " << convertCmToMm(dz) << "\tAngWidth " << convertRadToDeg(angwidth) << "\tNumbers "
-                               << names.size();
+                               << " Axis " << iaxis << "\tRadius " << convertCmToMm(radius) << "\tOffset " << offset
+                               << "\tDx " << convertCmToMm(dx) << "\tDz " << convertCmToMm(dz) << "\tAngWidth "
+                               << convertRadToDeg(angwidth) << "\tNumbers " << names.size();
   for (unsigned int i = 0; i < names.size(); i++)
     edm::LogVerbatim("HCalGeom") << "\tnames[" << i << "] = " << names[i];
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: Parent " << args.parentName() << "\tChild " << idName
