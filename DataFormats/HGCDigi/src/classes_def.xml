@@ -1,5 +1,9 @@
 <lcgdict>
-   <class name="HGCSample"/>
+   <class name="HGCSample" ClassVersion="3">
+    <version ClassVersion="3" checksum="3298262857"/>
+     <version ClassVersion="2" checksum="0"/>
+   </class>
+
    <class name="std::vector<HGCSample>"/>
 
    <!-- Not specific -->
