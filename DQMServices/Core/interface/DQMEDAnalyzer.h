@@ -40,6 +40,7 @@ public:
         run.run(),
         this->moduleDescription().id(),
         this->getCanSaveByLumi());
+    edm::Service<DQMStore>()->enterLumi(run.run(), 0, this->moduleDescription().id());
   }
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {}

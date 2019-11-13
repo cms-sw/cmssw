@@ -2,6 +2,9 @@
 #define DQMServices_Core_DQMStore_h
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 // TODO: Remove at some point:
 #define TRACE(msg) \
@@ -372,7 +375,7 @@ namespace dqm {
       enum SaveReferenceTag { SaveWithoutReference, SaveWithReference, SaveWithReferenceForQTest };
       enum OpenRunDirs { KeepRunDirs, StripRunDirs };
 
-      DQMStore();
+      DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&);
       ~DQMStore();
 
       // ------------------------------------------------------------------------
@@ -470,6 +473,7 @@ namespace dqm {
     public:
       typedef dqm::legacy::IBooker IBooker;
       typedef dqm::legacy::IGetter IGetter;
+      using  dqm::implementation::DQMStore<dqm::legacy::MonitorElement>::DQMStore;
     };
   }  // namespace legacy
   namespace reco {
