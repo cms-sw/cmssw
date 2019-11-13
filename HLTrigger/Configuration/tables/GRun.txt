@@ -723,6 +723,9 @@ HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	
 HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*		#	CMSHLT-2032
 HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-2032
 HLT_IsoMu27_LooseChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v*			#	CMSHLT-2032
+
+HLT_L1SingleMuCosmics_v*							#	CMSHLT-2097
+
 ## EndPath ##
 
 PhysicsEndOfFillOutput
