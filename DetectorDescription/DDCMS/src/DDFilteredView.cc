@@ -304,7 +304,7 @@ LegacySolidShape DDFilteredView::legacyShape(const cms::DDSolidShape shape) cons
 }
 
 template <>
-std::string_view DDFilteredView::get<string_view>(const char* key) const {
+std::string_view DDFilteredView::get<string_view>(const string& key) const {
   std::string_view result;
   DDSpecParRefs refs;
   registry_->filter(refs, key);
@@ -333,7 +333,7 @@ std::string_view DDFilteredView::get<string_view>(const char* key) const {
 }
 
 template <>
-double DDFilteredView::get<double>(const char* key) const {
+double DDFilteredView::get<double>(const string& key) const {
   double result(0.0);
   std::string_view tmpStrV = get<std::string_view>(key);
   if (!tmpStrV.empty())
@@ -342,7 +342,7 @@ double DDFilteredView::get<double>(const char* key) const {
 }
 
 template <>
-std::vector<double> DDFilteredView::get<std::vector<double>>(const char* name, const char* key) const {
+std::vector<double> DDFilteredView::get<std::vector<double>>(const string& name, const string& key) const {
   if (registry_->hasSpecPar(name))
     return registry_->specPar(name)->value<std::vector<double>>(key);
   else
@@ -350,7 +350,7 @@ std::vector<double> DDFilteredView::get<std::vector<double>>(const char* name, c
 }
 
 template <>
-std::vector<std::string> DDFilteredView::get<std::vector<std::string>>(const char* name, const char* key) const {
+std::vector<std::string> DDFilteredView::get<std::vector<std::string>>(const string& name, const string& key) const {
   if (registry_->hasSpecPar(name))
     return registry_->specPar(name)->value<std::vector<std::string>>(key);
   else
@@ -360,7 +360,7 @@ std::vector<std::string> DDFilteredView::get<std::vector<std::string>>(const cha
 std::string_view DDFilteredView::getString(const std::string& key) const {
   assert(currentFilter_);
   assert(currentFilter_->spec);
-  return currentFilter_->spec->strValue(key.c_str());
+  return currentFilter_->spec->strValue(key);
 }
 
 DDFilteredView::nav_type DDFilteredView::navPos() const {
