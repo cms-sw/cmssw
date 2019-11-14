@@ -40,14 +40,33 @@ public:
   /**
      @short Data Model Evolution
   */
-static  uint32_t newForm(uint32_t value, bool toaFired) { 
-    // here write the logic to combine value&toaFired 
-    // from persisted objects of in V9 (or earlier) format
-    // to produce a value_ compatible w/ the V10 format
-    // i.e.
-    // 1) shift the adc 12 bits by 1 bit
-    // 2) insert the toaFired into _value
-    return 100;
+static uint32_t convertToNewFormat(uint32_t valueOldForm, bool toaFiredOldForm) { 
+  // combine value&toaFired from the dataformat V9-or-earlier
+  // from persisted objects
+  // to produce a value_ compatible w/ the V10 format
+  // i.e.
+  // 1) shift the toa 12 bits by 1 bit
+  // 2) insert the toaFired into _value
+  // nothing can be done for the gain bits: info about gain was not preswent in V9-or-earlier and will be left to 0 in V10
+  uint32_t valueNewForm(valueOldForm);
+  std::cout << "\n\n function valueNewForm - valueOldForm: " << valueOldForm << " toaFiredOldForm: " << toaFiredOldForm << " valueNewForm: " << valueNewForm << std::endl;
+
+  std::cout << "valueOldForm: " << valueOldForm << std::endl;
+  std::cout << "toaFiredOldForm: " << toaFiredOldForm << std::endl;
+  std::cout << "valueNewForm: " << valueNewForm << std::endl;
+  // set to 0 the 17 bits bits between 13 and 29 (both included)
+  valueNewForm &= ~(0x3FFFF << kToAShift);
+  std::cout << "\nvalueNewForm (after 0-ing): " << valueNewForm << std::endl;
+  // copy toa to start from bit 13
+  std::cout << "\t extracting ToA " << ((valueOldForm >> 13) & kToAMask) << std::endl;
+  valueNewForm |= ((valueOldForm >> 13) & kToAMask) << kToAShift;
+  std::cout << "after setting ToA valueNewForm: " << valueNewForm << std::endl;
+  // set 1 bit toaFiredOldForm in position 29
+  std::cout << "\t toaFiredOldForm is  " << toaFiredOldForm << std::endl;
+  valueNewForm |= (toaFiredOldForm & kToAValidMask ) << kToAValidShift;
+  std::cout << "after setting toaFired valueNewForm: " << valueNewForm << std::endl;
+
+  return valueNewForm;
   }
   /**
      @short setters
