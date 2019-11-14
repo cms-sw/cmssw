@@ -3,7 +3,7 @@
     <version ClassVersion="10" checksum="2120380856"/>
     <ioread sourceClass = "HGCSample" version="[-9]" targetClass="HGCSample" source="uint32_t value_; bool toaFired_;" target="value_">
       <![CDATA[
-	       HGCSample tmp(HGCSample::newForm(onfile.value_, onfile.toaFired_));
+	       HGCSample tmp(HGCSample::convertToNewFormat(onfile.value_, onfile.toaFired_));
 	       *newObj=tmp;
       ]]>
     </ioread>
