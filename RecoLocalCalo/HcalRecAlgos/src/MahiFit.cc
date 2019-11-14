@@ -309,7 +309,7 @@ void MahiFit::updateCov(const SampleMatrix& samplecov) const {
       continue;
     else {
       auto const ampsq = amp * amp;
-      invCovMat += ampsq * nnlsWork_.pulseCovArray.at(offset + nnlsWork_.bxOffset);
+      invCovMat += ampsq * nnlsWork_.pulseCovArray[offset + nnlsWork_.bxOffset];
     }
   }
 
@@ -328,6 +328,7 @@ float MahiFit::calculateArrivalTime(unsigned int itIndex) const {
     nnlsWork_.pulseDerivMat.col(iBX) *= nnlsWork_.ampVec.coeff(iBX);
   }
 
+  //FIXME: avoid solve full equation for one element
   SampleVector residuals = nnlsWork_.pulseMat * nnlsWork_.ampVec - nnlsWork_.amplitudes;
   PulseVector solution = nnlsWork_.pulseDerivMat.colPivHouseholderQr().solve(residuals);
   float t = std::clamp((float)solution.coeff(itIndex), -timeLimit_, timeLimit_);
@@ -471,22 +472,26 @@ void MahiFit::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool has
 }
 
 void MahiFit::nnlsUnconstrainParameter(Index idxp) const {
-  nnlsWork_.aTaMat.col(nnlsWork_.nP).swap(nnlsWork_.aTaMat.col(idxp));
-  nnlsWork_.aTaMat.row(nnlsWork_.nP).swap(nnlsWork_.aTaMat.row(idxp));
-  nnlsWork_.pulseMat.col(nnlsWork_.nP).swap(nnlsWork_.pulseMat.col(idxp));
-  Eigen::numext::swap(nnlsWork_.aTbVec.coeffRef(nnlsWork_.nP), nnlsWork_.aTbVec.coeffRef(idxp));
-  Eigen::numext::swap(nnlsWork_.ampVec.coeffRef(nnlsWork_.nP), nnlsWork_.ampVec.coeffRef(idxp));
-  Eigen::numext::swap(nnlsWork_.bxs.coeffRef(nnlsWork_.nP), nnlsWork_.bxs.coeffRef(idxp));
+  if (idxp != nnlsWork_.nP) {
+    nnlsWork_.aTaMat.col(nnlsWork_.nP).swap(nnlsWork_.aTaMat.col(idxp));
+    nnlsWork_.aTaMat.row(nnlsWork_.nP).swap(nnlsWork_.aTaMat.row(idxp));
+    nnlsWork_.pulseMat.col(nnlsWork_.nP).swap(nnlsWork_.pulseMat.col(idxp));
+    Eigen::numext::swap(nnlsWork_.aTbVec.coeffRef(nnlsWork_.nP), nnlsWork_.aTbVec.coeffRef(idxp));
+    Eigen::numext::swap(nnlsWork_.ampVec.coeffRef(nnlsWork_.nP), nnlsWork_.ampVec.coeffRef(idxp));
+    Eigen::numext::swap(nnlsWork_.bxs.coeffRef(nnlsWork_.nP), nnlsWork_.bxs.coeffRef(idxp));
+  }
   ++nnlsWork_.nP;
 }
 
 void MahiFit::nnlsConstrainParameter(Index minratioidx) const {
-  nnlsWork_.aTaMat.col(nnlsWork_.nP - 1).swap(nnlsWork_.aTaMat.col(minratioidx));
-  nnlsWork_.aTaMat.row(nnlsWork_.nP - 1).swap(nnlsWork_.aTaMat.row(minratioidx));
-  nnlsWork_.pulseMat.col(nnlsWork_.nP - 1).swap(nnlsWork_.pulseMat.col(minratioidx));
-  Eigen::numext::swap(nnlsWork_.aTbVec.coeffRef(nnlsWork_.nP - 1), nnlsWork_.aTbVec.coeffRef(minratioidx));
-  Eigen::numext::swap(nnlsWork_.ampVec.coeffRef(nnlsWork_.nP - 1), nnlsWork_.ampVec.coeffRef(minratioidx));
-  Eigen::numext::swap(nnlsWork_.bxs.coeffRef(nnlsWork_.nP - 1), nnlsWork_.bxs.coeffRef(minratioidx));
+  if (minratioidx != (nnlsWork_.nP - 1)) {
+    nnlsWork_.aTaMat.col(nnlsWork_.nP - 1).swap(nnlsWork_.aTaMat.col(minratioidx));
+    nnlsWork_.aTaMat.row(nnlsWork_.nP - 1).swap(nnlsWork_.aTaMat.row(minratioidx));
+    nnlsWork_.pulseMat.col(nnlsWork_.nP - 1).swap(nnlsWork_.pulseMat.col(minratioidx));
+    Eigen::numext::swap(nnlsWork_.aTbVec.coeffRef(nnlsWork_.nP - 1), nnlsWork_.aTbVec.coeffRef(minratioidx));
+    Eigen::numext::swap(nnlsWork_.ampVec.coeffRef(nnlsWork_.nP - 1), nnlsWork_.ampVec.coeffRef(minratioidx));
+    Eigen::numext::swap(nnlsWork_.bxs.coeffRef(nnlsWork_.nP - 1), nnlsWork_.bxs.coeffRef(minratioidx));
+  }
   --nnlsWork_.nP;
 }
 
