@@ -36,38 +36,6 @@ public:
   HGCSample(uint32_t value) : value_(value) {}
   HGCSample(const HGCSample& o) : value_(o.value_) {}
 
-
-  /**
-     @short Data Model Evolution
-  */
-static uint32_t convertToNewFormat(uint32_t valueOldForm, bool toaFiredOldForm) { 
-  // combine value&toaFired from the dataformat V9-or-earlier
-  // from persisted objects
-  // to produce a value_ compatible w/ the V10 format
-  // i.e.
-  // 1) shift the toa 12 bits by 1 bit
-  // 2) insert the toaFired into _value
-  // nothing can be done for the gain bits: info about gain was not preswent in V9-or-earlier and will be left to 0 in V10
-  uint32_t valueNewForm(valueOldForm);
-  std::cout << "\n\n function valueNewForm - valueOldForm: " << valueOldForm << " toaFiredOldForm: " << toaFiredOldForm << " valueNewForm: " << valueNewForm << std::endl;
-
-  std::cout << "valueOldForm: " << valueOldForm << std::endl;
-  std::cout << "toaFiredOldForm: " << toaFiredOldForm << std::endl;
-  std::cout << "valueNewForm: " << valueNewForm << std::endl;
-  // set to 0 the 17 bits bits between 13 and 29 (both included)
-  valueNewForm &= ~(0x3FFFF << kToAShift);
-  std::cout << "\nvalueNewForm (after 0-ing): " << valueNewForm << std::endl;
-  // copy toa to start from bit 13
-  std::cout << "\t extracting ToA " << ((valueOldForm >> 13) & kToAMask) << std::endl;
-  valueNewForm |= ((valueOldForm >> 13) & kToAMask) << kToAShift;
-  std::cout << "after setting ToA valueNewForm: " << valueNewForm << std::endl;
-  // set 1 bit toaFiredOldForm in position 29
-  std::cout << "\t toaFiredOldForm is  " << toaFiredOldForm << std::endl;
-  valueNewForm |= (toaFiredOldForm & kToAValidMask ) << kToAValidShift;
-  std::cout << "after setting toaFired valueNewForm: " << valueNewForm << std::endl;
-
-  return valueNewForm;
-  }
   /**
      @short setters
   */
@@ -103,6 +71,35 @@ static uint32_t convertToNewFormat(uint32_t valueOldForm, bool toaFiredOldForm) 
   bool getToAValid() const { return getWord(kToAValidMask, kToAValidShift); }
   uint32_t operator()() { return value_; }
 
+
+  /**
+     @short Data Model Evolution
+  */
+  static uint32_t convertToNewFormat(uint32_t valueOldForm, bool toaFiredOldForm) {
+    // combine value&toaFired from the dataformat V9-or-earlier
+    // from persisted objects
+    // to produce a value_ compatible w/ the V10 format
+    // i.e.
+    // 1) shift the 10 toa bits by 1 bit
+    // 2) insert the toaFired into _value
+    // NOTE: nothing can be done for the gain bits:
+    //       info about gain was not preswent in V9-or-earlier, and will be left to 0 in V10
+
+    // V9 Format: tm--------tttttttttt-dddddddddddd
+    uint32_t valueNewForm(valueOldForm);
+
+    // set to 0 the 17 bits bits (between 13 and 29 - both included)
+    valueNewForm &= ~(0x3FFFF << kToAShift);
+
+    // copy toa to start from bit 13
+    valueNewForm |= ((valueOldForm >> 13) & kToAMask) << kToAShift;
+
+    // set 1 bit toaFiredOldForm in position 30
+    valueNewForm |= (toaFiredOldForm & kToAValidMask) << kToAValidShift;
+
+    return valueNewForm;
+  }
+
 private:
   /**
      @short wrapper to reset words at a given position
@@ -121,6 +118,7 @@ private:
   uint32_t getWord(HGCSampleMasks mask, HGCSampleShifts shift) const { return ((value_ >> shift) & mask); }
 
   // a 32-bit word
+  // V10 Format: tmt---ggggttttttttttdddddddddddd
   uint32_t value_;
 };
 
