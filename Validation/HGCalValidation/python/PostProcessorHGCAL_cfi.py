@@ -27,7 +27,7 @@ eff_multiclusters.extend(["effic_phi 'MultiCluster Efficiency vs #phi' Num_CaloP
 eff_multiclusters.extend(["duplicate_eta 'MultiCluster Duplicate(Split) Rate vs #eta ' NumDup_MultiCluster_Eta Denom_MultiCluster_Eta"])
 eff_multiclusters.extend(["duplicate_phi 'MultiCluster Duplicate(Split) Rate vs #phi ' NumDup_MultiCluster_Phi Denom_MultiCluster_Phi"])
 eff_multiclusters.extend(["fake_eta 'MultiCluster Fake Rate vs #eta' Num_MultiCluster_Eta Denom_MultiCluster_Eta fake"])
-eff_multiclusters.extend(["fake_phi 'MultiCluster Fake Rate vs #phi  Num_MultiCluster_Phi Denom_MultiCluster_Phi fake"])
+eff_multiclusters.extend(["fake_phi 'MultiCluster Fake Rate vs #phi'  Num_MultiCluster_Phi Denom_MultiCluster_Phi fake"])
 eff_multiclusters.extend(["merge_eta 'MultiCluster Merge Rate vs #eta' NumMerge_MultiCluster_Eta Denom_MultiCluster_Eta"])
 eff_multiclusters.extend(["merge_phi 'MultiCluster Merge Rate vs #phi' NumMerge_MultiCluster_Phi Denom_MultiCluster_Phi"])
 
