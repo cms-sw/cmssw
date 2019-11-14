@@ -194,8 +194,8 @@ HCalSD::HCalSD(const std::string& name,
           break;
         }
       }
-      hfLV.push_back(lv);
-      hfLevels.push_back(temp[i]);
+      hfLV.emplace_back(lv);
+      hfLevels.emplace_back(temp[i]);
 #ifdef EDM_ML_DEBUG
       ss0 << "\n        HF[" << i << "] = " << namv << " LV " << lv << " at level " << temp[i];
 #endif
@@ -225,7 +225,7 @@ HCalSD::HCalSD(const std::string& name,
         break;
       }
     }
-    materials.push_back(mat);
+    materials.emplace_back(mat);
   }
 #ifdef EDM_ML_DEBUG
   std::stringstream ss1;
@@ -337,7 +337,7 @@ void HCalSD::fillLogVolumeVector(const std::string& value,
         break;
       }
     }
-    lvvec.push_back(lv);
+    lvvec.emplace_back(lv);
     if (i / 10 * 10 == i) {
       ss3 << "\n";
     }
