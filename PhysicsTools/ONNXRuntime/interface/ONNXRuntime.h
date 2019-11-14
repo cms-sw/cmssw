@@ -22,12 +22,11 @@ namespace cms {
 
   namespace Ort {
 
-    using namespace ::Ort;
     typedef std::vector<std::vector<float>> FloatArrays;
 
     class ONNXRuntime {
     public:
-      ONNXRuntime(const std::string& model_path, const SessionOptions* session_options = nullptr);
+      ONNXRuntime(const std::string& model_path, const ::Ort::SessionOptions* session_options = nullptr);
       ONNXRuntime(const ONNXRuntime&) = delete;
       ONNXRuntime& operator=(const ONNXRuntime&) = delete;
       ~ONNXRuntime();
@@ -52,8 +51,8 @@ namespace cms {
       const std::vector<int64_t>& getOutputShape(const std::string& output_name) const;
 
     private:
-      static Env& getEnv();
-      std::unique_ptr<Session> session_;
+      static const ::Ort::Env env_;
+      std::unique_ptr<::Ort::Session> session_;
 
       std::vector<std::string> input_node_strings_;
       std::vector<const char*> input_node_names_;
