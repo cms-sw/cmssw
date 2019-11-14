@@ -543,28 +543,9 @@ void DQMRootSource::readRun_(edm::RunPrincipal& rpCache) {
   assert(runID == runLumiRange.m_run);
 
   m_shouldReadMEs = (m_filterOnRun == 0 || (m_filterOnRun != 0 && m_filterOnRun == runID));
-  //   std::cout <<"readRun_"<<std::endl;
-  //   std::cout <<"m_shouldReadMEs " << m_shouldReadMEs <<std::endl;
-
-  /** If the collate option is not set for the DQMStore, we should
-      indeed be sure to reset all histograms after a run transition,
-      but we should definitely avoid doing it using a local, private
-      copy of the actual content of the DQMStore.
-      Clients are completely free to delete/add
-      MonitorElements from the DQMStore and the local copy stored in
-      the std::set will never notice it until it will try to reset a
-      deleted object.  That's why the resetting directly queries the
-      DQMStore for its current content.  */
-
-  //NOTE: need to reset all run elements at this point
   if (m_lastSeenRun != runID || m_lastSeenReducedPHID != m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex)) {
     if (m_shouldReadMEs) {
-      edm::Service<DQMStore> store;
-      std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
-      for (auto const& ME : allMEs) {
-        if (!(*store).isCollate())
-          ME->Reset();
-      }
+      // TODO: Worry about resetting depending on Collate option here.
     }
     m_lastSeenReducedPHID = m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex);
     m_lastSeenRun = runID;

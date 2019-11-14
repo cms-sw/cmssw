@@ -221,7 +221,6 @@ private:
   ULong64_t m_firstIndex;
   ULong64_t m_lastIndex;
   unsigned int m_filterOnRun;
-  bool m_enableMultiThread;
 
   std::string m_fullNameBuffer;
   std::string* m_fullNameBufferPtr;
@@ -284,7 +283,6 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
       m_treeHelpers(kNIndicies, std::shared_ptr<TreeHelperBase>()),
       m_presentHistoryIndex(0),
       m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
-      m_enableMultiThread(false),
       m_fullNameBufferPtr(&m_fullNameBuffer),
       m_indicesTree(nullptr) {}
 
@@ -294,9 +292,6 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
 // }
 
 void DQMRootOutputModule::beginJob() {
-  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
-  edm::Service<DQMStore> dstore;
-  m_enableMultiThread = dstore->enableMultiThread_;
 }
 
 DQMRootOutputModule::~DQMRootOutputModule() {}
@@ -389,7 +384,7 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
   if (!shouldWrite)
     return;
   std::vector<MonitorElement*> items(
-      dstore->getAllContents("", m_enableMultiThread ? m_run : 0, m_enableMultiThread ? m_lumi : 0));
+      dstore->getAllContents("", m_run, m_lumi));
   for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
     if ((*it)->getLumiFlag()) {
       std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
@@ -446,7 +441,7 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun) {
   if (!shouldWrite)
     return;
 
-  std::vector<MonitorElement*> items(dstore->getAllContents("", m_enableMultiThread ? m_run : 0));
+  std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, 0));
   for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
     if (not(*it)->getLumiFlag()) {
       std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
