@@ -12,7 +12,7 @@ from RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi import *
 # local track fitting
 from RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi import *
 
-totemRPLocalReconstruction = cms.Task(
+totemRPLocalReconstructionTask = cms.Task(
     totemRPClusterProducer ,
     totemRPRecHitProducer ,
     totemRPUVPatternFinder ,
