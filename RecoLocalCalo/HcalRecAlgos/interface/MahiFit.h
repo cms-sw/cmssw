@@ -162,7 +162,7 @@ private:
   bool applyTimeSlew_;
   HcalTimeSlew::BiasSetting slewFlavor_;
   float tsDelay1GeV_ = 0.f;
-  float norm_ = (1. / std::sqrt(12));
+  float norm_ = (1.f / std::sqrt(12));
 
   bool calculateArrivalTime_;
   float meanTime_;
