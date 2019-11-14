@@ -86,8 +86,6 @@ void DQMFileSaverBase::globalEndLuminosityBlock(const edm::LuminosityBlock &iLS,
 
   this->saveLumi(fp);
 
-  edm::Service<DQMStore> store;
-  store->deleteUnusedLumiHistograms(store->mtEnabled() ? irun : 0, ilumi);
 }
 
 void DQMFileSaverBase::globalEndRun(const edm::Run &iRun, const edm::EventSetup &) const {
