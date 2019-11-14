@@ -25,18 +25,15 @@ process.myprint = cms.OutputModule("AsciiOutputModule")
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDNumbering",
                                  DDDetector = cms.ESInputTag('','MTD'), 
                                  outFileName = cms.untracked.string('BTL'),
-                                 numNodesToDump = cms.untracked.uint32(0),
                                  ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
                                  theLayout = cms.untracked.uint32(4)
                                 ) 
 
-# process.testETL = cms.EDAnalyzer("TestMTDNumbering",
-#                                label = cms.untracked.string(''),
-#                                isMagField = cms.untracked.bool(False),
-#                                outFileName = cms.untracked.string('ETL'),
-#                                numNodesToDump = cms.untracked.uint32(0),
-#                                ddTopNodeName = cms.untracked.string('etl:EndcapTimingLayer')
-#                                )
+process.testETL = cms.EDAnalyzer("DD4hep_TestMTDNumbering",
+                                 DDDetector = cms.ESInputTag('','MTD'), 
+                                 outFileName = cms.untracked.string('ETL'),
+                                 ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
+                               )
 
 
 # process.testBTLpos = cms.EDAnalyzer("TestMTDPosition",
@@ -68,6 +65,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.Timing = cms.Service("Timing")
 
 #process.p1 = cms.Path(process.testBTL+process.testETL+process.testBTLpos+process.testETLpos)
-process.p1 = cms.Path(process.testBTL)
+process.p1 = cms.Path(process.testBTL+process.testETL)
 
 process.e1 = cms.EndPath(process.myprint)
