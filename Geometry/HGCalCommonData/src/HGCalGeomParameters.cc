@@ -627,24 +627,24 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
                                               const std::string& sdTag2,
                                               const std::string& sdTag3,
                                               const std::string& sdTag4) {
-  php.boundR_ = fv.get<std::vector<double> >(sdTag4.c_str(), "RadiusBound");
+  php.boundR_ = fv.get<std::vector<double> >(sdTag4, "RadiusBound");
   rescale(php.boundR_, HGCalParameters::k_ScaleFromDD4Hep);
-  php.rLimit_ = fv.get<std::vector<double> >(sdTag4.c_str(), "RadiusLimits");
+  php.rLimit_ = fv.get<std::vector<double> >(sdTag4, "RadiusLimits");
   rescale(php.rLimit_, HGCalParameters::k_ScaleFromDD4Hep);
-  php.levelT_ = dbl_to_int(fv.get<std::vector<double> >(sdTag4.c_str(), "LevelTop"));
+  php.levelT_ = dbl_to_int(fv.get<std::vector<double> >(sdTag4, "LevelTop"));
 
   // Grouping of layers
-  php.layerGroup_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1.c_str(), "GroupingZFine"));
-  php.layerGroupM_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1.c_str(), "GroupingZMid"));
-  php.layerGroupO_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1.c_str(), "GroupingZOut"));
-  php.slopeMin_ = fv.get<std::vector<double> >(sdTag4.c_str(), "Slope");
+  php.layerGroup_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "GroupingZFine"));
+  php.layerGroupM_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "GroupingZMid"));
+  php.layerGroupO_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "GroupingZOut"));
+  php.slopeMin_ = fv.get<std::vector<double> >(sdTag4, "Slope");
 
   // Wafer size
-  const auto& dummy = fv.get<std::vector<double> >(sdTag2.c_str(), "WaferSize");
+  const auto& dummy = fv.get<std::vector<double> >(sdTag2, "WaferSize");
   waferSize_ = dummy[0] * HGCalParameters::k_ScaleFromDD4HepToG4;
 
   // Cell size
-  php.cellSize_ = fv.get<std::vector<double> >(sdTag3.c_str(), "CellSize");
+  php.cellSize_ = fv.get<std::vector<double> >(sdTag3, "CellSize");
   rescale(php.cellSize_, HGCalParameters::k_ScaleFromDD4HepToG4);
 
   loadSpecParsHexagon(php);
@@ -712,33 +712,33 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
                                                const cms::DDVectorsMap& vmap,
                                                HGCalParameters& php,
                                                const std::string& sdTag1) {
-  php.cellThickness_ = fv.get<std::vector<double> >(sdTag1.c_str(), "CellThickness");
+  php.cellThickness_ = fv.get<std::vector<double> >(sdTag1, "CellThickness");
   rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDD4Hep);
 
-  php.radius100to200_ = fv.get<std::vector<double> >(sdTag1.c_str(), "Radius100to200");
-  php.radius200to300_ = fv.get<std::vector<double> >(sdTag1.c_str(), "Radius200to300");
+  php.radius100to200_ = fv.get<std::vector<double> >(sdTag1, "Radius100to200");
+  php.radius200to300_ = fv.get<std::vector<double> >(sdTag1, "Radius200to300");
   rescale(php.radius100to200_, HGCalParameters::k_ScaleFromDD4HepToG4);
   rescale(php.radius200to300_, HGCalParameters::k_ScaleFromDD4HepToG4);
 
-  const auto& dummy = fv.get<std::vector<double> >(sdTag1.c_str(), "RadiusCuts");
+  const auto& dummy = fv.get<std::vector<double> >(sdTag1, "RadiusCuts");
   php.choiceType_ = static_cast<int>(dummy[0]);
   php.nCornerCut_ = static_cast<int>(dummy[1]);
   php.fracAreaMin_ = HGCalParameters::k_ScaleFromDD4HepToG4 * dummy[2];
   php.zMinForRad_ = HGCalParameters::k_ScaleFromDD4Hep * dummy[3];
 
-  php.slopeMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeBottom");
-  php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontBottom");
+  php.slopeMin_ = fv.get<std::vector<double> >(sdTag1, "SlopeBottom");
+  php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1, "ZFrontBottom");
   rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDD4Hep);
-  php.rMinFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMinFront");
+  php.rMinFront_ = fv.get<std::vector<double> >(sdTag1, "RMinFront");
   rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDD4Hep);
 
-  php.slopeTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeTop");
-  php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontTop");
+  php.slopeTop_ = fv.get<std::vector<double> >(sdTag1, "SlopeTop");
+  php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1, "ZFrontTop");
   rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDD4Hep);
-  php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMaxFront");
+  php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1, "RMaxFront");
   rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDD4Hep);
 
-  const auto& dummy2 = fv.get<std::vector<double> >(sdTag1.c_str(), "LayerOffset");
+  const auto& dummy2 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
   php.layerOffset_ = dummy2[0];
 
   for (auto const& it : vmap) {
@@ -852,28 +852,28 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
     }
   }
 
-  php.nPhiBinBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1.c_str(), "NPhiBinBH"));
-  php.layerFrontBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1.c_str(), "LayerFrontBH"));
-  php.rMinLayerBH_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMinLayerBH");
+  php.nPhiBinBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "NPhiBinBH"));
+  php.layerFrontBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "LayerFrontBH"));
+  php.rMinLayerBH_ = fv.get<std::vector<double> >(sdTag1, "RMinLayerBH");
   rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDD4Hep);
   php.nCellsFine_ = php.nPhiBinBH_[0];
   php.nCellsCoarse_ = php.nPhiBinBH_[1];
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsCoarse_);
 
-  php.slopeMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeBottom");
-  php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontBottom");
+  php.slopeMin_ = fv.get<std::vector<double> >(sdTag1, "SlopeBottom");
+  php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1, "ZFrontBottom");
   rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDD4Hep);
-  php.rMinFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMinFront");
+  php.rMinFront_ = fv.get<std::vector<double> >(sdTag1, "RMinFront");
   rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDD4Hep);
 
-  php.slopeTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "SlopeTop");
-  php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1.c_str(), "ZFrontTop");
+  php.slopeTop_ = fv.get<std::vector<double> >(sdTag1, "SlopeTop");
+  php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1, "ZFrontTop");
   rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDD4Hep);
-  php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1.c_str(), "RMaxFront");
+  php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1, "RMaxFront");
   rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDD4Hep);
 
-  const auto& dummy2 = fv.get<std::vector<double> >(sdTag1.c_str(), "LayerOffset");
+  const auto& dummy2 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
   php.layerOffset_ = dummy2[0];
 
   php.xLayerHex_.clear();
