@@ -46,7 +46,6 @@ public:
 private:
   const edm::ESInputTag tag_;
   std::string fname_;
-  int nNodes_;
   std::string ddTopNodeName_;
   uint32_t theLayout_;
 
@@ -58,7 +57,6 @@ private:
 DD4hep_TestMTDNumbering::DD4hep_TestMTDNumbering(const edm::ParameterSet& iConfig)
   : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
     fname_(iConfig.getUntrackedParameter<std::string>("outFileName", "GeoHistory")),
-    nNodes_(iConfig.getUntrackedParameter<uint32_t>("numNodesToDump", 0)),
     ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "btl:BarrelTimingLayer")),
     theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
     thisN_(),
@@ -102,8 +100,16 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
   edm::LogInfo("DD4hep_TestMTDNumbering") << fv.name();
 
   DDSpecParRefs specs;
-  std::string attribute("SensitiveDetector");
-  std::string name("MtdSensitiveDetector");
+  std::string attribute("ReadOutName"),name;
+  if ( ddTopNodeName_ == "BarrelTimingLayer" ) {
+    name = "FastTimerHitsBarrel";
+  } else if ( ddTopNodeName_ == "EndcapTimingLayer" ) {
+    name = "FastTimerHitsEndcap";
+  }
+  if ( name.empty() ) { 
+    edm::LogError("DD4hep_TestMTDNumbering") << "No sensitive detector provided, abort";
+    return;
+  }
   pSP.product()->filter(specs, attribute, name);
 
   edm::LogVerbatim("Geometry").log([&specs](auto& log) {
@@ -161,7 +167,7 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
         }
       });
 #endif
-    if ( level > 0 && fv.navPos().size() <= level ) { break; }
+    if ( level > 0 && fv.navPos().size() < level ) { level = 0; write = false; }
     if ( fv.name() == ddTopNodeName_ ) { write = true; level = fv.navPos().size(); }
 
     // Actions for MTD volumes: searchg for sensitive detectors
