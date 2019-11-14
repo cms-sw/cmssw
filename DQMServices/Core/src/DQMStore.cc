@@ -2014,7 +2014,11 @@ namespace dqm::dqmstoreimpl {
             return false;
           }
 
-          me->addQReport(qv);
+          QReport* qr_ref;
+          DQMNet::QValue* qv_ref;
+          me->getQReport(true, qv.qtname, qr_ref, qv_ref);
+          *qv_ref = qv;
+          me->update();
         }
       } else {
         std::cout << "*** DQMStore: WARNING: cannot extract object '" << obj->GetName() << "' of type '"

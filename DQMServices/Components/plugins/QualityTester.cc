@@ -161,6 +161,8 @@ void QualityTester::performTests(DQMStore::IGetter& igetter) {
       assert(qr);
       assert(qv);
       qtest->runTest(me, *qr, *qv);
+      // this propagates the result into the DQMNet object flags
+      me->updateQReportStats();
     }
   }
 

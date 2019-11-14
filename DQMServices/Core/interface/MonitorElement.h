@@ -317,6 +317,8 @@ namespace dqm::impl {
     std::vector<QReport *> getQReports() const;
     /// access QReport, potentially adding it.
     void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
+    /// propagate QReport status bits after change
+    void updateQReportStats();
 
     /// get warnings from last set of quality tests
     std::vector<QReport *> getQWarnings() const;
@@ -427,10 +429,6 @@ namespace dqm::impl {
     void addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2);
     void copyFunctions(TH1 *from, TH1 *to);
     void copyFrom(TH1 *from);
-
-    // --- Operations on MEs that are normally reset at end of monitoring cycle ---
-    void addQReport(const DQMNet::QValue &desc);
-    void updateQReportStats();
 
   public:
     const uint32_t run() const { return data_.run; }

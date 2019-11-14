@@ -1103,15 +1103,6 @@ namespace dqm::impl {
     qv = &data_.qreports[pos];
   }
 
-  /// Add quality report, from DQMStore.
-  void MonitorElement::addQReport(const DQMNet::QValue &desc) {
-    QReport *qr;
-    DQMNet::QValue *qv;
-    getQReport(true, desc.qtname, qr, qv);
-    *qv = desc;
-    update();
-  }
-
   /// Refresh QReport stats, usually after MEs were read in from a file.
   void MonitorElement::updateQReportStats() {
     data_.flags &= ~DQMNet::DQM_PROP_REPORT_ALARM;
