@@ -3,7 +3,7 @@ process = cms.Process("HcalParametersTest")
 
 process.load('Geometry.HcalCommonData.testPhase2GeometryFineXML_cfi')
 process.load('Geometry.HcalCommonData.hcalParameters_cfi')
-process.load('Geometry.HcalCommonData.hcalSimulationParameters_cfi')
+process.load('Geometry.HcalCommonData.hcalSimulationParameters_cff')
 process.load('Geometry.HcalCommonData.caloSimulationParameters_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('HCalGeom')
 
-process.hpa = cms.EDAnalyzer("CaloSimParametersAnalyzer")
+process.hpa = cms.EDAnalyzer("HcalSimParametersAnalyzer")
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
