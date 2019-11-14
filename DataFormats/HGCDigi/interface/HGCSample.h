@@ -71,7 +71,6 @@ public:
   bool getToAValid() const { return getWord(kToAValidMask, kToAValidShift); }
   uint32_t operator()() { return value_; }
 
-
   /**
      @short Data Model Evolution
   */
