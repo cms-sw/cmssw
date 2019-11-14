@@ -5,6 +5,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 
 process = cms.Process("TEST")
+process.DQMStore = cms.Service("DQMStore")
 process.MessageLogger = cms.Service("MessageLogger")
 
 process.options = cms.untracked.PSet()

@@ -23,7 +23,7 @@ void DemoRunHarvester::beginRun(const edm::Run& run, const edm::EventSetup& iSet
 
 void DemoRunHarvester::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& ig) {
   ig.setCurrentFolder(target_);
-  MonitorElement* me = ig.get(ig.pwd() + "EXAMPLE");
+  MonitorElement* me = ig.get(target_ + "/EXAMPLE");
   me->getTH1()->Fill(3);
 
   ib.setCurrentFolder(target_ + "_runsummary");
