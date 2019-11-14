@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -27,7 +28,7 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 using namespace cms;
 
@@ -123,7 +124,6 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
     });
   
   std::ofstream dump(fname.c_str());
-  bool notReachedDepth(true);
 
   bool write = false;
   bool isBarrel = true;
@@ -139,29 +139,35 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
 
     if (fv.name() == "BarrelTimingLayer") {
       isBarrel = true;
-#ifdef EDM_ML_DEBUG
       edm::LogInfo("DD4hep_TestMTDNumbering") << "isBarrel = " << isBarrel;
-#endif
     } else if (fv.name() == "EndcapTimingLayer") {
       isBarrel = false;
-#ifdef EDM_ML_DEBUG
       edm::LogInfo("DD4hep_TestMTDNumbering") << "isBarrel = " << isBarrel;
-#endif
     }
+   
+    auto print_path = [&](std::vector<std::pair<std::string_view,unsigned int>>& theHistory) {
+      dump << " - ";
+      for ( const auto& t : theHistory ) {
+        dump << t.first + "["+t.second+"]/";
+      }
+      dump << "\n";
+    };
+ 
+#ifdef EDM_ML_DEBUG
+    edm::LogInfo("DD4hep_TestMTDNumbering") << level << " " << clevel << " " << fv.name() << " " << ccopy;
+    edm::LogVerbatim("DD4hep_TestMTDNumbering").log([&geoHistory](auto& log) {
+        for ( const auto& t : geoHistory ) {
+          log << t.first + "["+t.second+"]/";
+        }
+      });
+#endif
     if ( level > 0 && fv.navPos().size() <= level ) { break; }
     if ( fv.name() == ddTopNodeName_ ) { write = true; level = fv.navPos().size(); }
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
     if (write) {
-      std::string thePath;
-      for ( size_t st = 0; st < clevel; st++ ) {
-        thePath += geoHistory[st].first + "["+geoHistory[st].second+"]/";
-      }
-      dump << " - " << thePath << "\n";
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("DD4hep_TestMTDNumbering") << thePath;
-#endif
+      print_path(geoHistory);
 
       bool isSens = false;
 
@@ -175,7 +181,7 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
 
       if (isSens) {
         theBaseNumber(geoHistory);
-
+               
         if (isBarrel) {
           BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
           BTLDetId theId(btlNS_.getUnitID(thisN_));
@@ -210,7 +216,7 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
         dump << "\n";
       }
     }
-  } while (fv.next(0) && notReachedDepth);
+  } while (fv.next(0));
   dump << std::flush;
   dump.close();
 }
@@ -219,9 +225,9 @@ void DD4hep_TestMTDNumbering::theBaseNumber(const std::vector<std::pair<std::str
   thisN_.reset();
   thisN_.setSize(gh.size());
 
-  for (uint i = gh.size(); i-- > 0;) {
-    std::string name(gh[i].first);
-    int copyN(gh[i].second);
+  for ( auto t = gh.rbegin() ; t != gh.rend(); ++t ){
+    std::string name; name.assign(t->first);
+    int copyN(t->second);
     thisN_.addLevel(name, copyN);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DD4hep_TestMTDNumbering") << name << " " << copyN;
