@@ -84,6 +84,8 @@ public:
     // 2) insert the toaFired into _value
     // NOTE: nothing can be done for the gain bits:
     //       info about gain was not preswent in V9-or-earlier, and will be left to 0 in V10
+    // root doc: https://root.cern.ch/root/html/io/DataModelEvolution.html
+    // see PR 28349 for more info
 
     // V9 Format: tm--------tttttttttt-dddddddddddd
     uint32_t valueNewForm(valueOldForm);
