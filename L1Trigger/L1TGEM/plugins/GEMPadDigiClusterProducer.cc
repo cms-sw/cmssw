@@ -195,7 +195,12 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
 
   // construct clusters
   for (const auto& part : geometry_->etaPartitions()) {
+
     GEMPadDigiClusters all_pad_clusters;
+
+    // only consider partitions in GE1/1 and GE2/1 (not ME0)
+    const int station = part->id().station();
+    if (!(station == 1 or station == 2)) continue;
 
     auto pads = det_pads.get(part->id());
     std::vector<uint16_t> cl;

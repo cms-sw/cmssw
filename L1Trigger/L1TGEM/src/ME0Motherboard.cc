@@ -21,12 +21,6 @@ void ME0Motherboard::clear() {
   }
 }
 
-void ME0Motherboard::run(const ME0PadDigiClusterCollection* me0Clusters) {
-  std::unique_ptr<ME0PadDigiCollection> me0Pads(new ME0PadDigiCollection());
-  declusterize(me0Clusters, *me0Pads);
-  run(me0Pads.get());
-}
-
 void ME0Motherboard::run(const ME0PadDigiCollection*) { clear(); }
 
 // Returns vector of read-out correlated Triggers, if any.  Starts with
@@ -66,16 +60,4 @@ bool ME0Motherboard::sortByME0Dphi(const ME0TriggerDigi& trig1, const ME0Trigger
   // That function will derive the bending angle from the pattern.
   // The ME0TriggerDigi pattterns are at this point not defined yet.
   return true;
-}
-
-void ME0Motherboard::declusterize(const ME0PadDigiClusterCollection* in_clusters, ME0PadDigiCollection& out_pads) {
-  for (auto detUnitIt = in_clusters->begin(); detUnitIt != in_clusters->end(); ++detUnitIt) {
-    const ME0DetId& id = (*detUnitIt).first;
-    const auto& range = (*detUnitIt).second;
-    for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
-      for (const auto& p : digiIt->pads()) {
-        out_pads.insertDigi(id, ME0PadDigi(p, digiIt->bx()));
-      }
-    }
-  }
 }

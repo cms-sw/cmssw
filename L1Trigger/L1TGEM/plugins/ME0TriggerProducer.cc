@@ -1,6 +1,6 @@
 /** \class ME0TriggerProducer
  *
- * Takes ME0 pad clusters as input
+ * Takes ME0 pads as input
  * Produces ME0 trigger objects
  *
  * \author Sven Dildick (TAMU).
@@ -36,7 +36,6 @@ private:
   edm::InputTag me0PadDigis_;
   edm::EDGetTokenT<ME0PadDigiCollection> me0_pad_token_;
   edm::ParameterSet config_;
-  bool useClusters_;
 };
 
 ME0TriggerProducer::ME0TriggerProducer(const edm::ParameterSet& conf) {
@@ -65,7 +64,7 @@ void ME0TriggerProducer::produce(edm::StreamID, edm::Event& ev, const edm::Event
   trigBuilder->setME0Geometry(&*h_me0);
 
   // Fill output collections if valid input collection is available.
-  trigBuilder->build<ME0PadDigiCollection>(me0Pads, *oc_trig);
+  trigBuilder->build(me0Pads, *oc_trig);
 
   // Put collections in event.
   ev.put(std::move(oc_trig));
