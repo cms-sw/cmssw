@@ -1,6 +1,3 @@
-#ifndef L1Trigger_L1TGEM_ME0PadDigiProducer_h
-#define L1Trigger_L1TGEM_ME0PadDigiProducer_h
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -95,5 +92,3 @@ void ME0PadDigiProducer::buildPads(const ME0DigiCollection& det_digis, ME0PadDig
 }
 
 DEFINE_FWK_MODULE(ME0PadDigiProducer);
-
-#endif

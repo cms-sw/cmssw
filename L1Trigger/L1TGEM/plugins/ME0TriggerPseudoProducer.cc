@@ -1,6 +1,3 @@
-#ifndef L1Trigger_L1TGEM_ME0TriggerPseudoProducer_h
-#define L1Trigger_L1TGEM_ME0TriggerPseudoProducer_h
-
 /** \class ME0TriggerPseudoProducer
  *
  * Takes offline ME0 segment as input
@@ -32,7 +29,6 @@ public:
   explicit ME0TriggerPseudoProducer(const edm::ParameterSet&);
   ~ME0TriggerPseudoProducer() override;
 
-  //virtual void beginRun(const edm::EventSetup& setup);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
@@ -74,5 +70,3 @@ void ME0TriggerPseudoProducer::produce(edm::StreamID, edm::Event& ev, const edm:
   // Put collections in event.
   ev.put(std::move(oc_trig));
 }
-
-#endif

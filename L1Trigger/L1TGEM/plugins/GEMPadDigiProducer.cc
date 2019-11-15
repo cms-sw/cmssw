@@ -1,6 +1,3 @@
-#ifndef L1Trigger_L1TGEM_GEMPadDigiProducer_h
-#define L1Trigger_L1TGEM_GEMPadDigiProducer_h
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -97,9 +94,6 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
       proto_pads.emplace(pad_num, d->bx());
     }
 
-    // in the future, do some dead-time handling
-    // emulateDeadTime(proto_pads)
-
     // fill the output collections
     for (const auto& d : proto_pads) {
       GEMPadDigi pad_digi(d.first, d.second);
@@ -109,5 +103,3 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 }
 
 DEFINE_FWK_MODULE(GEMPadDigiProducer);
-
-#endif

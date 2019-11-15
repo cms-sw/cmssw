@@ -1,6 +1,3 @@
-#ifndef L1Trigger_L1TGEM_ME0TriggerProducer_h
-#define L1Trigger_L1TGEM_ME0TriggerProducer_h
-
 /** \class ME0TriggerProducer
  *
  * Takes ME0 pad clusters as input
@@ -33,7 +30,6 @@ public:
   explicit ME0TriggerProducer(const edm::ParameterSet&);
   ~ME0TriggerProducer() override;
 
-  //virtual void beginRun(const edm::EventSetup& setup);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
@@ -76,5 +72,3 @@ void ME0TriggerProducer::produce(edm::StreamID, edm::Event& ev, const edm::Event
 }
 
 DEFINE_FWK_MODULE(ME0TriggerProducer);
-
-#endif

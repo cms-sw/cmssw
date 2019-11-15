@@ -1,6 +1,3 @@
-#ifndef L1Trigger_L1TGEM_GEMPadDigiClusterProducer_h
-#define L1Trigger_L1TGEM_GEMPadDigiClusterProducer_h
-
 /**
  *  \class GEMPadDigiClusterProducer
  *
@@ -356,5 +353,3 @@ void GEMPadDigiClusterProducer::convertClusters(const GEMPadDigiClusterCollectio
 }
 
 DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
-
-#endif
