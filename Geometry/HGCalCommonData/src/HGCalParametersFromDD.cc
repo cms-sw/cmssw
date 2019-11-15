@@ -260,7 +260,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
-    HGCalGeomParameters* geom = new HGCalGeomParameters();
+    std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       tempS = fv.get<std::vector<std::string> >(name, "WaferMode");
       std::string sv2 = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Polyhedra";
