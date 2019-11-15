@@ -1,11 +1,10 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
-
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -25,9 +24,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   std::string idName = args.value<std::string>("ChildName");                        //Children name
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo::Parameters for positioning:"
-                               << " Axis " << iaxis << "\tRadius " << radius << "\tOffset " << offset << "\tDx " << dx
-                               << "\tDz " << dz << "\tAngWidth " << convertRadToDeg(angwidth) << "\tNumbers "
-                               << names.size();
+                               << " Axis " << iaxis << "\tRadius " << convertCmToMm(radius) << "\tOffset " << offset
+                               << "\tDx " << convertCmToMm(dx) << "\tDz " << convertCmToMm(dz) << "\tAngWidth "
+                               << convertRadToDeg(angwidth) << "\tNumbers " << names.size();
   for (unsigned int i = 0; i < names.size(); i++)
     edm::LogVerbatim("HCalGeom") << "\tnames[" << i << "] = " << names[i];
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: Parent " << args.parentName() << "\tChild " << idName
