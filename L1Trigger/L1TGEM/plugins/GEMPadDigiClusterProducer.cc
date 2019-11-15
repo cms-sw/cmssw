@@ -2,7 +2,7 @@
 #define L1Trigger_L1TGEM_GEMPadDigiClusterProducer_h
 
 /**
- *  \class ME0PadDigiClusterProducer
+ *  \class GEMPadDigiClusterProducer
  *
  *  Produces GEM pad clusters from at most 8 adjacent GEM pads.
  *  Clusters are used downstream in the CSC local trigger to build
@@ -31,6 +31,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 
 #include <string>
 #include <map>
@@ -99,6 +101,8 @@ private:
   void sortClusters(const GEMPadDigiClusterContainer& in_clusters,
                     GEMPadDigiClusterSortedContainer& out_clusters) const;
   void selectClusters(const GEMPadDigiClusterSortedContainer& in, GEMPadDigiClusterCollection& out) const;
+  void convertClusters(const GEMPadDigiClusterCollection& in_clusters,
+                       GEMPadDigiClusterCollection& out_clusters) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
@@ -123,8 +127,9 @@ GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps
 
   pad_token_ = consumes<GEMPadDigiCollection>(pads_);
 
-  produces<GEMPadDigiClusterCollection>();
   consumes<GEMPadDigiCollection>(pads_);
+  produces<GEMPadDigiClusterCollection>();
+  produces<GEMPadDigiClusterCollection>("Converted");
 }
 
 GEMPadDigiClusterProducer::~GEMPadDigiClusterProducer() {}
@@ -151,6 +156,8 @@ void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
   edm::Handle<GEMPadDigiCollection> hpads;
   e.getByToken(pad_token_, hpads);
 
+  /// step 1: create clusters
+
   // Create empty output
   std::unique_ptr<GEMPadDigiClusterCollection> pClusters(new GEMPadDigiClusterCollection());
 
@@ -167,6 +174,20 @@ void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
 
   // store them in the event
   e.put(std::move(pClusters));
+
+  /// step 2: convert clusters to emulate the behavior
+  /// of the CTP7/ATCA processor
+  /// previously this step was done in the EMTF
+
+  // Create empty output
+  std::unique_ptr<GEMPadDigiClusterCollection> pConvClusters(new GEMPadDigiClusterCollection());
+
+  // Future work: allow for GEM-EMTF alignment corrections!
+  // Future work: replace geometry functions with a LUT
+  convertClusters(*pClusters, *pConvClusters);
+
+  // store them in the event
+  e.put(std::move(pConvClusters));
 }
 
 void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pads,
@@ -278,6 +299,58 @@ void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterSortedCont
       }    // end of eta partition loop
     }      // end of OH loop
   }        // end of chamber loop
+}
+
+void GEMPadDigiClusterProducer::convertClusters(const GEMPadDigiClusterCollection& in_clusters,
+                                                GEMPadDigiClusterCollection& out_clusters) const {
+
+  // loop on partitions
+  for (const auto& part : geometry_->etaPartitions()) {
+
+    auto detid = part->id();
+    auto clusters = in_clusters.get(detid);
+
+    // get the partition
+    auto partition = geometry_->etaPartition(part->id());
+
+    // loop on clusters
+    for (auto cl = clusters.first; cl < clusters.second; cl++) {
+
+      // new converted cluster
+      GEMPadDigiCluster converted(*cl);
+
+      // calculate the center of the cluster
+      int nPads = (*cl).pads().size();
+      float centerOfPad(nPads%2==0 ? (*cl).pads().at(nPads/2-1) : (*cl).pads().at((nPads-1)/2));
+      int triggerSector(CSCTriggerNumbering::triggerSectorFromLabels(detid.station(), 1, detid.chamber()));
+
+      // do the conversion of roll and central pad number into theta and phi
+      const LocalPoint& lp = partition->centreOfPad(centerOfPad);
+      const GlobalPoint& gp = partition->toGlobal(lp);
+
+      double glob_phi = emtf::rad_to_deg(gp.phi().value());
+      double glob_theta = emtf::rad_to_deg(gp.theta());
+
+      // Use the CSC precision
+      int fph = emtf::calc_phi_loc_int(glob_phi, triggerSector);
+      int th = emtf::calc_theta_int(glob_theta, detid.region());
+
+      if (not(0 <= fph && fph < 5000)) {
+        edm::LogError("GEMPadDigiClusterProducer") << "fph = " << fph;
+        return;
+      }
+      if (not(0 <= th && th < 128)) {
+        edm::LogError("GEMPadDigiClusterProducer") << "th = " << th;
+        return;
+      }
+      th = (th == 0) ? 1 : th;  // protect against invalid value
+
+      // Output
+      converted.setTheta(th);
+      converted.setPhi(fph);
+      out_clusters.insertDigi(part->id(), converted);
+    }
+  }  // end of partition loop
 }
 
 DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);

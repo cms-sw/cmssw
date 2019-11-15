@@ -17,7 +17,9 @@
 class GEMPadDigiCluster {
 public:
   explicit GEMPadDigiCluster(std::vector<uint16_t> pads, int bx);
+  GEMPadDigiCluster(const GEMPadDigiCluster&);
   GEMPadDigiCluster();
+  ~GEMPadDigiCluster() {}
 
   bool operator==(const GEMPadDigiCluster& digi) const;
   bool operator!=(const GEMPadDigiCluster& digi) const;
