@@ -3,11 +3,7 @@
 
 GEMPadDigiCluster::GEMPadDigiCluster(std::vector<uint16_t> pads, int bx) : v_(pads), bx_(bx) {}
 
-GEMPadDigiCluster::GEMPadDigiCluster(const GEMPadDigiCluster& rhs)
-  : v_(rhs.pads())
-  , bx_(rhs.bx())
-{
-}
+GEMPadDigiCluster::GEMPadDigiCluster(const GEMPadDigiCluster& rhs) : v_(rhs.pads()), bx_(rhs.bx()) {}
 
 GEMPadDigiCluster::GEMPadDigiCluster() : v_(std::vector<uint16_t>()), bx_(-99) {}
 
@@ -31,15 +27,9 @@ bool GEMPadDigiCluster::operator<(const GEMPadDigiCluster& digi) const {
 
 bool GEMPadDigiCluster::isValid() const { return !v_.empty() and bx_ != -99; }
 
-void GEMPadDigiCluster::setTheta(uint16_t th)
-{
-  theta_ = th;
-}
+void GEMPadDigiCluster::setTheta(uint16_t th) { theta_ = th; }
 
-void GEMPadDigiCluster::setPhi(uint16_t phi)
-{
-  phi_ = phi;
-}
+void GEMPadDigiCluster::setPhi(uint16_t phi) { phi_ = phi; }
 
 std::ostream& operator<<(std::ostream& o, const GEMPadDigiCluster& digi) {
   o << " bx: " << digi.bx() << " pads: ";

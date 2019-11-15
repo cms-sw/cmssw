@@ -100,8 +100,7 @@ private:
   void sortClusters(const GEMPadDigiClusterContainer& in_clusters,
                     GEMPadDigiClusterSortedContainer& out_clusters) const;
   void selectClusters(const GEMPadDigiClusterSortedContainer& in, GEMPadDigiClusterCollection& out) const;
-  void convertClusters(const GEMPadDigiClusterCollection& in_clusters,
-                       GEMPadDigiClusterCollection& out_clusters) const;
+  void convertClusters(const GEMPadDigiClusterCollection& in_clusters, GEMPadDigiClusterCollection& out_clusters) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
@@ -302,10 +301,8 @@ void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterSortedCont
 
 void GEMPadDigiClusterProducer::convertClusters(const GEMPadDigiClusterCollection& in_clusters,
                                                 GEMPadDigiClusterCollection& out_clusters) const {
-
   // loop on partitions
   for (const auto& part : geometry_->etaPartitions()) {
-
     auto detid = part->id();
     auto clusters = in_clusters.get(detid);
 
@@ -314,13 +311,12 @@ void GEMPadDigiClusterProducer::convertClusters(const GEMPadDigiClusterCollectio
 
     // loop on clusters
     for (auto cl = clusters.first; cl < clusters.second; cl++) {
-
       // new converted cluster
       GEMPadDigiCluster converted(*cl);
 
       // calculate the center of the cluster
       int nPads = (*cl).pads().size();
-      float centerOfPad(nPads%2==0 ? (*cl).pads().at(nPads/2-1) : (*cl).pads().at((nPads-1)/2));
+      float centerOfPad(nPads % 2 == 0 ? (*cl).pads().at(nPads / 2 - 1) : (*cl).pads().at((nPads - 1) / 2));
       int triggerSector(CSCTriggerNumbering::triggerSectorFromLabels(detid.station(), 1, detid.chamber()));
 
       // do the conversion of roll and central pad number into theta and phi
