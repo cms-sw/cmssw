@@ -1,5 +1,5 @@
-#ifndef L1Trigger_ME0Trigger_ME0TriggerBuilder_h
-#define L1Trigger_ME0Trigger_ME0TriggerBuilder_h
+#ifndef L1Trigger_L1TGEM_ME0TriggerBuilder_h
+#define L1Trigger_L1TGEM_ME0TriggerBuilder_h
 
 /** \class ME0TriggerBuilder
  *
@@ -13,7 +13,7 @@
 #include "DataFormats/GEMDigi/interface/ME0PadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/ME0Trigger/interface/ME0Motherboard.h"
+#include "L1Trigger/L1TGEM/interface/ME0Motherboard.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

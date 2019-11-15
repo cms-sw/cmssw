@@ -1,5 +1,5 @@
-#ifndef L1Trigger_ME0Trigger_ME0TriggerProducer_h
-#define L1Trigger_ME0Trigger_ME0TriggerProducer_h
+#ifndef L1Trigger_L1TGEM_ME0TriggerProducer_h
+#define L1Trigger_L1TGEM_ME0TriggerProducer_h
 
 /** \class ME0TriggerProducer
  *

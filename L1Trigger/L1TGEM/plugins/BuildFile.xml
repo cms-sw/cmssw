@@ -1,4 +1,9 @@
 <use name="L1Trigger/L1TGEM"/>
 <use name="L1Trigger/L1TMuonEndCap"/>
 <use name="DataFormats/MuonDetId"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="L1Trigger/ME0Trigger"/>
+<use name="CondFormats/DataRecord"/>
+<use name="Geometry/Records"/>
+<library   file="*.cc" name="L1TGEMPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

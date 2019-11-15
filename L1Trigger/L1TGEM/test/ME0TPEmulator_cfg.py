@@ -38,7 +38,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-process.load('L1Trigger.ME0Trigger.me0TriggerConvertedPseudoDigis_cfi')
+process.load('L1Trigger.L1TGEM.me0TriggerConvertedPseudoDigis_cfi')
 process.me0TriggerConvertedPseudoDigis.info = 3
 
 
