@@ -44,6 +44,11 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     fatJetConeSize = cms.double(0.8),
     fatJetMinPt    = cms.double(170.),
     fatJetMaxEta   = cms.double(999.),
+
+    phoIsoConeSize = cms.double(0.4),
+    phoMaxRelIso = cms.double(0.5),
+    phoMinPt = cms.double(10),
+    phoMaxEta = cms.double(2.5),
 )
 
 rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
