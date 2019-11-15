@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TGEM.muonME0PadDigis_cfi import *
+from L1Trigger.L1TGEM.simMuonME0PadDigis_cfi import *
 from L1Trigger.L1TGEM.me0TriggerDigis_cfi import *
 from L1Trigger.L1TGEM.me0TriggerPseudoDigis_cff import *
 
