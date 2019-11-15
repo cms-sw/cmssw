@@ -74,7 +74,7 @@ public:
   /**
      @short Data Model Evolution
   */
-  static uint32_t convertToNewFormat(uint32_t valueOldForm, bool toaFiredOldForm) {
+  static uint32_t convertV9ToV10(uint32_t valueOldForm, bool toaFiredOldForm) {
     // combine value&toaFired from the dataformat V9-or-earlier
     // from persisted objects
     // to produce a value_ compatible w/ the V10 format
