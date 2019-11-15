@@ -42,15 +42,14 @@ namespace edm {
     std::set<std::tuple<BranchType, std::type_index, std::string>> registeredProducts;
 
     for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
-      if (p->transition_ == Transition::BeginRun || p->transition_ == Transition::EndRun) {
-        if (not iProd->hasAbilityToProduceInRuns()) {
-          throwProducesWithoutAbility("Run", p->typeID_.userClassName());
-        }
-      } else if (p->transition_ == Transition::BeginLuminosityBlock ||
-                 p->transition_ == Transition::EndLuminosityBlock) {
-        if (not iProd->hasAbilityToProduceInLumis()) {
-          throwProducesWithoutAbility("LuminosityBlock", p->typeID_.userClassName());
-        }
+      if (p->transition_ == Transition::BeginRun && not iProd->hasAbilityToProduceInBeginRuns()) {
+        throwProducesWithoutAbility("BeginRun", p->typeID_.userClassName());
+      } else if (p->transition_ == Transition::EndRun && not iProd->hasAbilityToProduceInEndRuns()) {
+        throwProducesWithoutAbility("EndRun", p->typeID_.userClassName());
+      } else if (p->transition_ == Transition::BeginLuminosityBlock && not iProd->hasAbilityToProduceInBeginLumis()) {
+        throwProducesWithoutAbility("BeginLuminosityBlock", p->typeID_.userClassName());
+      } else if (p->transition_ == Transition::EndLuminosityBlock && not iProd->hasAbilityToProduceInEndLumis()) {
+        throwProducesWithoutAbility("EndLuminosityBlock", p->typeID_.userClassName());
       }
       if (!checkDictionary(missingDictionaries, p->typeID_)) {
         checkDictionaryOfWrappedType(missingDictionaries, p->typeID_);
