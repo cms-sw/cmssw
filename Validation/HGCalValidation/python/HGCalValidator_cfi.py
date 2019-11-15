@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from Validation.HGCalValidation.CaloParticleSelectionForEfficiency_cfi import *
 from Validation.HGCalValidation.HGVHistoProducerAlgoBlock_cfi import *
 
-hgcalValidator = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
     ### general settings ###

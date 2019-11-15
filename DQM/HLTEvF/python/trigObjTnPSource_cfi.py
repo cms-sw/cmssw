@@ -45,7 +45,8 @@ _etaHist = cms.PSet(
     filler = cms.PSet(var = cms.string("eta"),localCuts = cms.VPSet())
     )
 
-trigObjTnPSource = cms.EDAnalyzer('TrigObjTnPSource',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+trigObjTnPSource = DQMEDAnalyzer('TrigObjTnPSource',
   triggerEvent = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   triggerResults = cms.InputTag('TriggerResults','','HLT'),
   histColls = cms.VPSet(cms.PSet(
