@@ -120,6 +120,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
                              iConfig.getParameter<std::vector<double>>("calibHF_b_EMHAD")),
       pfAlgo_(iConfig.getParameter<double>("pf_nsigma_ECAL"),
               iConfig.getParameter<double>("pf_nsigma_HCAL"),
+	      1., // will switch to parameter after rebase
               pfEnergyCalibration_,
               pfEnergyCalibrationHF_,
               iConfig) {
