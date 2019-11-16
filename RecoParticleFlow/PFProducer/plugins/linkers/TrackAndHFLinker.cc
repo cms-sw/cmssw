@@ -59,20 +59,12 @@ double TrackAndHFLinker::testLink
       if ((mlit->first == trackphi) && (mlit->second == tracketa))
 	break;
     
-    // If the link exist, we fill dist and linktest.     
-
-    if (mlit != multilinks.end()){     
-
-      edm::LogWarning("TrackHFLinker ") <<"Special case of linking with track and HF clusters and found multiple links ";
-      //std::cout << tracketa << " " << trackphi << std::endl;
-      //std::cout << clusterref->eta() << " " << clusterref->phi() << std::endl;
-
+    // If the link exist, we fill dist and linktest.
+    if (mlit != multilinks.end()){
       dist = LinkByRecHit::computeDist(hfreppos.Eta(), 
 				       hfreppos.Phi(), 
 				       tracketa, 
 				       trackphi);
-
-      
     } else {
     if ( tkAtHF.isValid() )
       dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, 
