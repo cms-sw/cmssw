@@ -531,20 +531,22 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
   TGeoMaterial* mat = mgr.GetMaterial(nam.c_str());
   if (nullptr == mat) {
     const char* matname = nam.c_str();
-    double density = xmat.density();
+    double density = xmat.attr<double>(DD_CMU(density)) / (dd4hep::g / dd4hep::cm3);
     int atomicNumber = xmat.attr<int>(DD_CMU(atomicNumber));
-    double atomicWeight = xmat.attr<double>(DD_CMU(atomicWeight));
+    double atomicWeight = xmat.attr<double>(DD_CMU(atomicWeight)) / (dd4hep::g / dd4hep::mole);
     TGeoElementTable* tab = mgr.GetElementTable();
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), 1, density);
     TGeoElement* elt = tab->FindElement(xmat.nameStr().c_str());
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
              "DD4CMS",
-             "+++ Converting material %-48s  Atomic weight %.3f, Atomic number %u, Density: %.3f.",
+             "+++ Converting material %-48s  Atomic weight %8.3f   [g/mol], Atomic number %u, Density: %8.3f [g/cm3] "
+             "ROOT: %8.3f [g/cm3]",
              ('"' + nam + '"').c_str(),
              atomicWeight,
              atomicNumber,
-             density);
+             density,
+             mix->GetDensity());
 
     bool newMatDef = false;
 
@@ -554,10 +556,10 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
                "DD4CMS",
                "    ROOT definition of %-50s Atomic weight %.3f, Atomic number %u, Number of nucleons %u",
                elt->GetName(),
-               (elt->A()) * g / mole,
+               (elt->A()),
                elt->Z(),
                elt->N());
-      if (atomicNumber != elt->Z() || atomicWeight != (elt->A()) * g / mole)
+      if (atomicNumber != elt->Z() || atomicWeight != elt->A())
         newMatDef = true;
     }
 
@@ -595,19 +597,21 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   xml_dim_t xmat(element);
   string nam = ns.prepend(xmat.nameStr());
+
   TGeoManager& mgr = description.manager();
   TGeoMaterial* mat = mgr.GetMaterial(nam.c_str());
   if (nullptr == mat) {
     const char* matname = nam.c_str();
-    double density = xmat.density();
+    double density = xmat.attr<double>(DD_CMU(density)) / (dd4hep::g / dd4hep::cm3);
     xml_coll_t composites(xmat, DD_CMU(MaterialFraction));
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), composites.size(), density);
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
              "DD4CMS",
-             "++ Converting material %-48s  Density: %.3f.",
+             "++ Converting material %-48s  Density: %8.3f [g/cm3] ROOT: %8.3f [g/cm3]",
              ('"' + nam + '"').c_str(),
-             density);
+             density,
+             mix->GetDensity());
 
     for (composites.reset(); composites; ++composites) {
       xml_dim_t xfrac(composites);
