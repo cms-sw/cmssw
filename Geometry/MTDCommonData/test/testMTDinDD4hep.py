@@ -16,12 +16,6 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      appendToDataLabel = cms.string('MTD')
 )
 
-#process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-#                                                 appendToDataLabel = cms.string('MTD')
-#)
-
-process.myprint = cms.OutputModule("AsciiOutputModule")
-
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDNumbering",
                                  DDDetector = cms.ESInputTag('','MTD'), 
                                  outFileName = cms.untracked.string('BTL'),
@@ -36,21 +30,17 @@ process.testETL = cms.EDAnalyzer("DD4hep_TestMTDNumbering",
                                )
 
 
-# process.testBTLpos = cms.EDAnalyzer("TestMTDPosition",
-#                                label = cms.untracked.string(''),
-#                                isMagField = cms.untracked.bool(False),
-#                                outFileName = cms.untracked.string('BTLpos'),
-#                                numNodesToDump = cms.untracked.uint32(0),
-#                                ddTopNodeName = cms.untracked.string('btl:BarrelTimingLayer')
-#                                )
+process.testBTLpos = cms.EDAnalyzer("DD4hep_TestMTDPosition",
+                                    DDDetector = cms.ESInputTag('','MTD'), 
+                                    outFileName = cms.untracked.string('BTLpos'),
+                                    ddTopNodeName = cms.untracked.string('BarrelTimingLayer')
+                                )
 
-# process.testETLpos = cms.EDAnalyzer("TestMTDPosition",
-#                                label = cms.untracked.string(''),
-#                                isMagField = cms.untracked.bool(False),
-#                                outFileName = cms.untracked.string('ETLpos'),
-#                                numNodesToDump = cms.untracked.uint32(0),
-#                                ddTopNodeName = cms.untracked.string('etl:EndcapTimingLayer')
-#                                )
+process.testETLpos = cms.EDAnalyzer("DD4hep_TestMTDPosition",
+                                    DDDetector = cms.ESInputTag('','MTD'), 
+                                    outFileName = cms.untracked.string('ETLpos'),
+                                    ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
+                               )
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet( INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
@@ -64,7 +54,5 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.Timing = cms.Service("Timing")
 
-#process.p1 = cms.Path(process.testBTL+process.testETL+process.testBTLpos+process.testETLpos)
-process.p1 = cms.Path(process.testBTL+process.testETL)
+process.p1 = cms.Path(process.testBTL+process.testETL+process.testBTLpos+process.testETLpos)
 
-process.e1 = cms.EndPath(process.myprint)

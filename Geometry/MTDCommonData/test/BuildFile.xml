@@ -12,3 +12,5 @@
 </library>
 <library   file="DD4hep_TestMTDNumbering.cc">
 </library>
+<library   file="DD4hep_TestMTDPosition.cc">
+</library>
