@@ -35,13 +35,13 @@ using namespace cms;
 class DD4hep_TestMTDNumbering : public edm::one::EDAnalyzer<> {
 public:
   explicit DD4hep_TestMTDNumbering(const edm::ParameterSet&);
-  ~DD4hep_TestMTDNumbering() override;
+  ~DD4hep_TestMTDNumbering() = default;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
-  void theBaseNumber(const std::vector<std::pair<std::string_view,unsigned int>>& gh);
+  void theBaseNumber(const std::vector<std::pair<std::string_view, uint32_t>>& gh);
 
 private:
   const edm::ESInputTag tag_;
@@ -55,18 +55,15 @@ private:
 };
 
 DD4hep_TestMTDNumbering::DD4hep_TestMTDNumbering(const edm::ParameterSet& iConfig)
-  : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
-    fname_(iConfig.getUntrackedParameter<std::string>("outFileName", "GeoHistory")),
-    ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "btl:BarrelTimingLayer")),
-    theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
-    thisN_(),
-    btlNS_(),
-    etlNS_() {}
-
-DD4hep_TestMTDNumbering::~DD4hep_TestMTDNumbering() {}
+    : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
+      fname_(iConfig.getUntrackedParameter<std::string>("outFileName", "GeoHistory")),
+      ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
+      theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
+      thisN_(),
+      btlNS_(),
+      etlNS_() {}
 
 void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   edm::ESTransientHandle<DDDetector> pDD;
   iSetup.get<IdealGeometryRecord>().get(tag_, pDD);
 
@@ -94,54 +91,53 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   const std::string fname = "dump" + fname_;
-  
-  DDFilteredView fv(pDD.product(),pDD.product()->description()->worldVolume());
+
+  DDFilteredView fv(pDD.product(), pDD.product()->description()->worldVolume());
   fv.next(0);
   edm::LogInfo("DD4hep_TestMTDNumbering") << fv.name();
 
   DDSpecParRefs specs;
-  std::string attribute("ReadOutName"),name;
-  if ( ddTopNodeName_ == "BarrelTimingLayer" ) {
+  std::string attribute("ReadOutName"), name;
+  if (ddTopNodeName_ == "BarrelTimingLayer") {
     name = "FastTimerHitsBarrel";
-  } else if ( ddTopNodeName_ == "EndcapTimingLayer" ) {
+  } else if (ddTopNodeName_ == "EndcapTimingLayer") {
     name = "FastTimerHitsEndcap";
   }
-  if ( name.empty() ) { 
+  if (name.empty()) {
     edm::LogError("DD4hep_TestMTDNumbering") << "No sensitive detector provided, abort";
     return;
   }
   pSP.product()->filter(specs, attribute, name);
 
   edm::LogVerbatim("Geometry").log([&specs](auto& log) {
-      log << "Filtered DD SpecPar Registry size: " << specs.size() << "\n";
-      for (const auto& t : specs) {
-        log << "\nRegExps { ";
-        for (const auto& ki : t->paths)
-          log << ki << " ";
-        log << "};\n ";
-        for (const auto& kl : t->spars) {
-          log << kl.first << " = ";
-          for (const auto& kil : kl.second) {
-            log << kil << " ";
-          }
-          log << "\n ";
+    log << "Filtered DD SpecPar Registry size: " << specs.size() << "\n";
+    for (const auto& t : specs) {
+      log << "\nRegExps { ";
+      for (const auto& ki : t->paths)
+        log << ki << " ";
+      log << "};\n ";
+      for (const auto& kl : t->spars) {
+        log << kl.first << " = ";
+        for (const auto& kil : kl.second) {
+          log << kil << " ";
         }
+        log << "\n ";
       }
-    });
-  
+    }
+  });
+
   std::ofstream dump(fname.c_str());
 
   bool write = false;
   bool isBarrel = true;
-  unsigned int level(0);
-  std::vector<std::pair<std::string_view,unsigned int>> geoHistory;
+  uint32_t level(0);
+  std::vector<std::pair<std::string_view, uint32_t>> geoHistory;
 
   do {
-
-    unsigned int clevel = fv.navPos().size();
-    unsigned int ccopy = (clevel > 1 ? fv.copyNum() : 0);
+    uint32_t clevel = fv.navPos().size();
+    uint32_t ccopy = (clevel > 1 ? fv.copyNum() : 0);
     geoHistory.resize(clevel);
-    geoHistory[clevel-1] = std::pair<std::string_view,unsigned int>(fv.name(),ccopy);
+    geoHistory[clevel - 1] = std::pair<std::string_view, uint32_t>(fv.name(), ccopy);
 
     if (fv.name() == "BarrelTimingLayer") {
       isBarrel = true;
@@ -150,25 +146,31 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
       isBarrel = false;
       edm::LogInfo("DD4hep_TestMTDNumbering") << "isBarrel = " << isBarrel;
     }
-   
-    auto print_path = [&](std::vector<std::pair<std::string_view,unsigned int>>& theHistory) {
+
+    auto print_path = [&](std::vector<std::pair<std::string_view, uint32_t>>& theHistory) {
       dump << " - ";
-      for ( const auto& t : theHistory ) {
-        dump << t.first + "["+t.second+"]/";
+      for (const auto& t : theHistory) {
+        dump << t.first + "[" + t.second + "]/";
       }
       dump << "\n";
     };
- 
+
 #ifdef EDM_ML_DEBUG
     edm::LogInfo("DD4hep_TestMTDNumbering") << level << " " << clevel << " " << fv.name() << " " << ccopy;
     edm::LogVerbatim("DD4hep_TestMTDNumbering").log([&geoHistory](auto& log) {
-        for ( const auto& t : geoHistory ) {
-          log << t.first + "["+t.second+"]/";
-        }
-      });
+      for (const auto& t : geoHistory) {
+        log << t.first + "[" + t.second + "]/";
+      }
+    });
 #endif
-    if ( level > 0 && fv.navPos().size() < level ) { level = 0; write = false; }
-    if ( fv.name() == ddTopNodeName_ ) { write = true; level = fv.navPos().size(); }
+    if (level > 0 && fv.navPos().size() < level) {
+      level = 0;
+      write = false;
+    }
+    if (fv.name() == ddTopNodeName_) {
+      write = true;
+      level = fv.navPos().size();
+    }
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
@@ -177,9 +179,12 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
 
       bool isSens = false;
 
-      for (auto const &t : specs) {
-        for (auto const &it : t->paths) {
-          if ( dd::compareEqual(fv.name(),dd::realTopName(it)) ) { isSens = true; break; } 
+      for (auto const& t : specs) {
+        for (auto const& it : t->paths) {
+          if (dd::compareEqual(fv.name(), dd::realTopName(it))) {
+            isSens = true;
+            break;
+          }
         }
       }
 
@@ -187,7 +192,7 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
 
       if (isSens) {
         theBaseNumber(geoHistory);
-               
+
         if (isBarrel) {
           BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
           BTLDetId theId(btlNS_.getUnitID(thisN_));
@@ -227,12 +232,13 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
   dump.close();
 }
 
-void DD4hep_TestMTDNumbering::theBaseNumber(const std::vector<std::pair<std::string_view,unsigned int>>& gh) {
+void DD4hep_TestMTDNumbering::theBaseNumber(const std::vector<std::pair<std::string_view, uint32_t>>& gh) {
   thisN_.reset();
   thisN_.setSize(gh.size());
 
-  for ( auto t = gh.rbegin() ; t != gh.rend(); ++t ){
-    std::string name; name.assign(t->first);
+  for (auto t = gh.rbegin(); t != gh.rend(); ++t) {
+    std::string name;
+    name.assign(t->first);
     int copyN(t->second);
     thisN_.addLevel(name, copyN);
 #ifdef EDM_ML_DEBUG
