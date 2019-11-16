@@ -31,4 +31,4 @@ GEMClusterContainer GEMMaskReClusterizer::doAction(const GEMDetId& id,
   return finClusters;
 }
 
-bool GEMMaskReClusterizer::get(const EtaPartitionMask& mask, int strip) const { return mask.test(strip - 1); }
+bool GEMMaskReClusterizer::get(const EtaPartitionMask& mask, int strip) const { return mask.test(strip); }
