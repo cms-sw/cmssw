@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
 
-from Configuration.Eras.Era_Phase2C4_timing_layer_bar_cff import Phase2C4_timing_layer_bar
-process = cms.Process('PROD',Phase2C4_timing_layer_bar)
+from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
+process = cms.Process('PROD',Phase2C4)
 process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('DIGI',eras.Phase2C8_timing_layer_bar)
+process = cms.Process('DIGI',eras.Phase2C8)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C9_timing_layer_bar_cff import Phase2C9_timing_layer_bar
-process = cms.Process('testHGCalRecoLocal',Phase2C9_timing_layer_bar)
+from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+process = cms.Process('testHGCalRecoLocal',Phase2C9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
