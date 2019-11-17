@@ -162,12 +162,15 @@ void DD4hep_TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventS
     };
 
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("DD4hep_TestMTDPosition") << level << " " << clevel << " " << fv.name() << " " << ccopy;
     edm::LogVerbatim("DD4hep_TestMTDPosition").log([&geoHistory](auto& log) {
       for (const auto& t : geoHistory) {
         log << t.first + "[" + t.second + "]/";
       }
     });
+    edm::LogVerbatim("DD4hep_TestMTDPosition") << "Translation = " 
+                                               << convertCmToMm(fv.translation().x()) << " "
+                                               << convertCmToMm(fv.translation().y()) << " "
+                                               << convertCmToMm(fv.translation().z());
 #endif
     if (level > 0 && fv.navPos().size() < level) {
       level = 0;
