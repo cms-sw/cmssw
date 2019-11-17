@@ -33,53 +33,53 @@
 #include <map>
 #include <typeinfo>
 
-template <typename T>
-class TTStubAlgorithm_official : public TTStubAlgorithm<T> {
-private:
-  /// Data members
-  bool mPerformZMatchingPS;
-  bool mPerformZMatching2S;
-  bool m_tilted;
-  std::string className_;
+template< typename T >
+class TTStubAlgorithm_official : public TTStubAlgorithm< T >
+{
+  private:
+    /// Data members
+    bool        mPerformZMatchingPS;
+    bool        mPerformZMatching2S;
+    bool        m_tilted;
+    std::string className_;
 
-  std::vector<double> barrelCut;
-  std::vector<std::vector<double>> ringCut;
-  std::vector<std::vector<double>> tiltedCut;
-  std::vector<double> barrelNTilt;
+    std::vector< double >                barrelCut;
+    std::vector< std::vector< double > > ringCut;
+    std::vector< std::vector< double > > tiltedCut;
+    std::vector< double >                barrelNTilt;
 
-public:
-  /// Constructor
-  TTStubAlgorithm_official(const TrackerGeometry *const theTrackerGeom,
-                           const TrackerTopology *const theTrackerTopo,
-                           std::vector<double> setBarrelCut,
-                           std::vector<std::vector<double>> setRingCut,
-                           std::vector<std::vector<double>> setTiltedCut,
-                           std::vector<double> setBarrelNTilt,
-                           bool aPerformZMatchingPS,
-                           bool aPerformZMatching2S)
-      : TTStubAlgorithm<T>(theTrackerGeom, theTrackerTopo, __func__) {
-    barrelCut = setBarrelCut;
-    ringCut = setRingCut;
-    tiltedCut = setTiltedCut;
-    barrelNTilt = setBarrelNTilt;
-    mPerformZMatchingPS = aPerformZMatchingPS;
-    mPerformZMatching2S = aPerformZMatching2S;
-  }
+  public:
+    /// Constructor
+    TTStubAlgorithm_official( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
+                             std::vector< double > setBarrelCut,
+                             std::vector< std::vector< double > > setRingCut,
+                             std::vector< std::vector< double > > setTiltedCut,
+                             std::vector< double > setBarrelNTilt,
+			      bool aPerformZMatchingPS, bool aPerformZMatching2S )
+      : TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
+    {
+      barrelCut = setBarrelCut;
+      ringCut = setRingCut;
+      tiltedCut = setTiltedCut;
+      barrelNTilt = setBarrelNTilt;
+      mPerformZMatchingPS = aPerformZMatchingPS;
+      mPerformZMatching2S = aPerformZMatching2S;
+    }
 
-  /// Destructor
-  ~TTStubAlgorithm_official() override {}
+    /// Destructor
+    ~TTStubAlgorithm_official() override{}
 
-  /// Matching operations
-  void PatternHitCorrelation(bool &aConfirmation,
-                             int &aDisplacement,
-                             int &anOffset,
-                             float &anROffset,
-                             float &anHardBend,
-                             const TTStub<T> &aTTStub) const override;
+    /// Matching operations
+    void PatternHitCorrelation( bool &aConfirmation,
+                                int &aDisplacement,
+                                int &anOffset,
+				float &anHardBend,
+                                const TTStub< T > &aTTStub ) const override;
+  // Removed real offset.  Ivan Reid 10.2019
 
-  float degradeBend(bool psModule, int window, int bend) const;
-
-};  /// Close class
+    float degradeBend(bool psModule, int window, int bend) const;
+    
+}; /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
@@ -89,17 +89,16 @@ public:
  */
 
 /// Matching operations
-template <>
-void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
-    bool &aConfirmation,
-    int &aDisplacement,
-    int &anOffset,
-    float &anROffset,
-    float &anHardBend,
-    const TTStub<Ref_Phase2TrackerDigi_> &aTTStub) const;
+template< >
+void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+                                                                       int &aDisplacement,
+                                                                       int &anOffset,
+								       float &anHardBend,
+                                                                       const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
-template <>
-float TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::degradeBend(bool psModule, int window, int bend) const;
+template< >
+float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psModule, int window, int bend) const;
+
 
 /*! \class   ES_TTStubAlgorithm_official
  *  \brief   Class to declare the algorithm to the framework
