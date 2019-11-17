@@ -1,14 +1,17 @@
-#include "Geometry/EcalCommonData/interface/EcalSimParametersFromDD.h"
 #include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "Geometry/EcalCommonData/interface/EcalSimParametersFromDD.h"
 #include <iostream>
 #include <iomanip>
 
 //#define EDM_ML_DEBUG
+
+using namespace geant_units::operators;
 
 template <typename T>
 void myPrint(std::string value, const std::vector<T>& vec) {
@@ -104,13 +107,7 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
   cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
 
   //First the specpars
-  char specName[10];
-  if (name == "EcalHitsEE")
-    sprintf(specName, "ecal_ee");
-  else if (name == "EcalHitsES")
-    sprintf(specName, "ecal_sf");
-  else
-    sprintf(specName, "ecal_eb");
+  std::string specName = ((name == "EcalHitsEE") ? "ecal_ee" : ((name == "EcalHitsES") ? "ecal_sf" : "ecal_eb"));
 
   php.useWeight_ = true;
   std::vector<double> tempD = fv.get<std::vector<double> >(specName, "EnergyWeight");
@@ -161,17 +158,18 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
   const cms::DDSpecParRegistry& mypar = cpv->specpars();
   mypar.filter(refs, attribute, name);
   fv.mergedSpecifics(refs);
-  bool dodet = fv.firstChild();
-  while (dodet) {
-    if (std::find(php.lvNames_.begin(), php.lvNames_.end(), fv.name()) == php.lvNames_.end()) {
-      php.matNames_.emplace_back(fv.materialName());
-      php.lvNames_.emplace_back(fv.name());
+  while (fv.firstChild()) {
+    const std::string name{fv.name().data(), fv.name().size()};
+    const std::string matName{cms::dd::noNamespace(fv.materialName()).data(),
+                              cms::dd::noNamespace(fv.materialName()).size()};
+    if (std::find(php.lvNames_.begin(), php.lvNames_.end(), name) == php.lvNames_.end()) {
+      php.matNames_.emplace_back(matName);
+      php.lvNames_.emplace_back(name);
       const std::vector<double>& paras = fv.parameters();
-      double dz = (fv.isATrapezoid()) ? (2 * paras[0]) : 0.0;
+      double dz = (fv.isATrapezoid()) ? convertCmToMm(2 * paras[0]) : 0.0;
       php.dzs_.emplace_back(dz);
     }
-    dodet = fv.nextSibling();
-  }
+  };
 
   return this->buildParameters(php);
 }
