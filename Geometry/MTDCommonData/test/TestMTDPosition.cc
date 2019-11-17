@@ -123,10 +123,8 @@ void TestMTDPosition::checkMTD(const DDCompactView& cpv, std::string fname, int 
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("TestMTDPosition") << fv.geoHistory();
-    edm::LogVerbatim("TestMTDPosition") << "Translation = " 
-                                        << fv.translation().x() << " "
-                                        << fv.translation().y() << " "
-                                        << fv.translation().z();
+    edm::LogVerbatim("TestMTDPosition") << "Translation = " << fv.translation().x() << " " << fv.translation().y()
+                                        << " " << fv.translation().z();
 #endif
 
     // Actions for MTD volumes: searchg for sensitive detectors
