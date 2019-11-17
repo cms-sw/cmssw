@@ -237,9 +237,10 @@ hgchebackDigitizer = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
             # n bits for the ADC (same as the silicon ROC)
-            adcNbits        = cms.uint32(13),
+            adcNbits        = cms.uint32(12),
             # ADC saturation : in this case we use the same variable but fC=MIP
-            adcSaturation_fC = cms.double(550.0), #value chosen to have 1MIP at 15ADC
+            adcSaturation_fC = cms.double(275.0), #value chosen to have 1MIP at 15ADC,
+            # together with the choice of adcNbits
             # threshold for digi production : in this case we use the same variable but fC=MIP
             adcThreshold_fC = cms.double(0.5),
             )
