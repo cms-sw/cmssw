@@ -499,7 +499,11 @@ namespace edmtest {
           blToken_{produces<IntProduct, edm::Transition::BeginLuminosityBlock>("beginLumi")},
           elToken_{produces<IntProduct, edm::Transition::EndLuminosityBlock>("endLumi")},
           erToken_{produces<IntProduct, edm::Transition::EndRun>("endRun")},
-          value_(p.getParameter<int>("ivalue")) {
+          value_(p.getParameter<int>("ivalue")),
+          brExpect_{p.getUntrackedParameter<int>("expectBeginRun")},
+          blExpect_{p.getUntrackedParameter<int>("expectBeginLuminosityBlock")},
+          elExpect_{p.getUntrackedParameter<int>("expectEndLuminosityBlock")},
+          erExpect_{p.getUntrackedParameter<int>("expectEndRun")} {
       {
         auto tag = p.getParameter<edm::InputTag>("consumesBeginRun");
         if (not tag.label().empty()) {
@@ -533,16 +537,21 @@ namespace edmtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& conf) {
       edm::ParameterSetDescription desc;
-      desc.add<int>("ivalue");
+      desc.add<int>("ivalue", 0);
       desc.add<edm::InputTag>("consumesBeginRun", {});
+      desc.addUntracked<int>("expectBeginRun", 0);
       desc.add<edm::InputTag>("consumesEndRun", {});
+      desc.addUntracked<int>("expectEndRun", 0);
       desc.add<edm::InputTag>("consumesBeginLuminosityBlock", {});
+      desc.addUntracked<int>("expectBeginLuminosityBlock", 0);
       desc.add<edm::InputTag>("consumesEndLuminosityBlock", {});
+      desc.addUntracked<int>("expectEndLuminosityBlock", 0);
 
       conf.addDefault(desc);
     }
 
   private:
+    void check(IntProduct, int) const;
     const edm::EDPutTokenT<IntProduct> brToken_;
     const edm::EDPutTokenT<IntProduct> blToken_;
     const edm::EDPutTokenT<IntProduct> elToken_;
@@ -552,34 +561,42 @@ namespace edmtest {
     edm::EDGetTokenT<IntProduct> blGet_;
     edm::EDGetTokenT<IntProduct> elGet_;
     edm::EDGetTokenT<IntProduct> erGet_;
+    const int brExpect_;
+    const int blExpect_;
+    const int elExpect_;
+    const int erExpect_;
   };
 
   void NonEventIntProducer::accumulate(edm::StreamID iID, edm::Event const& e, edm::EventSetup const&) const {}
   void NonEventIntProducer::globalBeginRunProduce(edm::Run& r, edm::EventSetup const&) const {
     if (not brGet_.isUninitialized()) {
-      r.get(brGet_);
+      check(r.get(brGet_), brExpect_);
     }
     r.emplace(brToken_, value_);
   }
   void NonEventIntProducer::globalEndRunProduce(edm::Run& r, edm::EventSetup const&) const {
     if (not erGet_.isUninitialized()) {
-      r.get(erGet_);
+      check(r.get(erGet_), erExpect_);
     }
     r.emplace(erToken_, value_);
   }
   void NonEventIntProducer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& l, edm::EventSetup const&) const {
     if (not blGet_.isUninitialized()) {
-      l.get(blGet_);
+      check(l.get(blGet_), blExpect_);
     }
     l.emplace(blToken_, value_);
   }
   void NonEventIntProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& l, edm::EventSetup const&) const {
     if (not elGet_.isUninitialized()) {
-      l.get(elGet_);
+      check(l.get(elGet_), elExpect_);
     }
     l.emplace(elToken_, value_);
   }
-
+  void NonEventIntProducer::check(IntProduct iProd, int iExpect) const {
+    if (iExpect != iProd.value) {
+      throw cms::Exception("BadValue") << "expected " << iExpect << " but got " << iProd.value;
+    }
+  }
 }  // namespace edmtest
 
 using edmtest::AddIntsProducer;
