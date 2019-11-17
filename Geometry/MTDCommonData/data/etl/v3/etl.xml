@@ -1378,7 +1378,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="313.5*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1392,7 +1392,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="6.54545*deg"/>
       <Numeric name="Radius" value="313.5*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1406,7 +1406,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="404.69*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1420,7 +1420,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="5.07042*deg"/>
       <Numeric name="Radius" value="404.69*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1434,7 +1434,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="489.88*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1448,7 +1448,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="5*deg"/>
       <Numeric name="Radius" value="489.88*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1462,7 +1462,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="581.61*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1476,7 +1476,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="4.09091*deg"/>
       <Numeric name="Radius" value="581.61*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1490,7 +1490,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="665.13*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1504,7 +1504,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="3.49515*deg"/>
       <Numeric name="Radius" value="665.13*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1518,7 +1518,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="757.36*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1532,7 +1532,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="3.46154*deg"/>
       <Numeric name="Radius" value="757.36*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1546,7 +1546,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="839.19*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1560,7 +1560,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="3*deg"/>
       <Numeric name="Radius" value="839.19*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1574,7 +1574,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="931.88*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1588,7 +1588,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="2.64706*deg"/>
       <Numeric name="Radius" value="931.88*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1602,7 +1602,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="1012*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1616,7 +1616,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="2.36842*deg"/>
       <Numeric name="Radius" value="1012*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1630,7 +1630,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="1105.11*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1644,7 +1644,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="2.36842*deg"/>
       <Numeric name="Radius" value="1105.11*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
@@ -1658,7 +1658,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="Radius" value="1183.5*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="0"/>
@@ -1672,7 +1672,7 @@
       <Numeric name="RangeAngle" value="360*deg"/>
       <Numeric name="StartAngle" value="2.14286*deg"/>
       <Numeric name="Radius" value="1183.5*mm"/>
-      <Vector name="Center" type="numeric" nEntries="3">0,0,-2.85</Vector>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
       <Numeric name="IsZPlus" value="1"/>
       <Numeric name="TiltAngle" value="90*deg"/>
       <Numeric name="IsFlipped" value="1"/>
