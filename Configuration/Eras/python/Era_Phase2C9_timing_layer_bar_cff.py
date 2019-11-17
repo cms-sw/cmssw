@@ -1,8 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from Configuration.Eras.Era_Phase2C9_timing_cff import Phase2C9_timing
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-
-Phase2C9_timing_layer_bar = cms.ModifierChain(Phase2C9_timing, phase2_timing_layer, phase2_timing_layer_bar)
-

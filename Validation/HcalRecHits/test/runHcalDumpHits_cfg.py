@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C8_timing_layer_bar_cff import Phase2C8_timing_layer_bar
+from Configuration.Eras.Era_Phase2C8_cff import Phase2C8
 
-process = cms.Process("HcalValid",Phase2C8_timing_layer_bar)
+process = cms.Process("HcalValid",Phase2C8)
 process.load("Configuration.Geometry.GeometryExtended2023D41Reco_cff")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")

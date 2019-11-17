@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('PROD',eras.Phase2C4_timing_layer_bar)
+process = cms.Process('PROD',eras.Phase2C4)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('DataFormats.MuonDetId.gemDetIdAnalyzer_cfi')
 

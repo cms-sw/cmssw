@@ -202,8 +202,7 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
@@ -241,7 +240,7 @@ phase2_tracker.toModify(mixData,
 )
 
 # MTD
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(mixData,
+phase2_timing_layer.toModify(mixData,
     workers = dict(
         mtdBarrel = cms.PSet(
             mtdDigitizer.barrelDigitizer,
