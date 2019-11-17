@@ -120,8 +120,8 @@ void HGCFEElectronics<DFr>::runTrivialShaper(
   if (maxADC < 0)
     // lower adcSaturation_fC_ by one part in a million
     // to esure largest charge convertred in bits is 0xfff==4095, not 0x1000
-    // no effect on charges loewer than; no impact on cpu time, only done once 
-    maxADC = adcSaturation_fC_*(1-1e-6);
+    // no effect on charges loewer than; no impact on cpu time, only done once
+    maxADC = adcSaturation_fC_ * (1 - 1e-6);
   for (int it = 0; it < (int)(chargeColl.size()); it++) {
     //brute force saturation, maybe could to better with an exponential like saturation
     const uint32_t adc = std::floor(std::min(chargeColl[it], maxADC) / lsbADC);
