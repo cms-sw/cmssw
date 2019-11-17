@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
  <SpecParSection label="caloutil.xml" eval="true">
   <SpecPar name="calo">
-   <PartSelector path="//CALO"/>
+   <PartSelector path="//TBHCal"/>
    <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
    <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
    <Parameter name="Calorimeter" value="CALO" eval="false"/>
