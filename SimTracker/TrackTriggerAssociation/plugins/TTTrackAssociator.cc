@@ -173,9 +173,10 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
     edm::RefProd<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> theStubAssoMap(TTStubAssociationMapHandle);
 
     /// Put the maps in the association object
-    associationMapForOutput->setTTTrackToTrackingParticleMap(trackToTrackingParticleMap);
-    associationMapForOutput->setTrackingParticleToTTTracksMap(trackingParticleToTrackVectorMap);
-    associationMapForOutput->setTTStubAssociationMap(theStubAssoMap);
+    associationMapForOutput->setTTTrackToTrackingParticleMap( trackToTrackingParticleMap ); 
+    associationMapForOutput->setTrackingParticleToTTTracksMap( trackingParticleToTrackVectorMap );
+    associationMapForOutput->setTTStubAssociationMap( theStubAssoMap );
+    associationMapForOutput->setAllowOneFalse2SStub( TTTrackAllowOneFalse2SStub );
 
     /// Put output in the event
     iEvent.put(std::move(associationMapForOutput), TTTracksInputTags.at(ncont1).instance());

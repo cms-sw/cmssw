@@ -87,8 +87,8 @@ void OuterTrackerMonitorTTStub::analyze(const edm::Event &iEvent, const edm::Eve
       DetId detIdStub = theTrackerGeometry->idToDet((tempStubRef->getClusterRef(0))->getDetId())->geographicalId();
 
       /// Get trigger displacement/offset
-      double displStub = tempStubRef->getTriggerDisplacement();
-      double offsetStub = tempStubRef->getTriggerOffset();
+      double displStub = tempStubRef->getRawBend();
+      double offsetStub = tempStubRef->getBendOffset();
 
       /// Define position stub by position inner cluster
       MeasurementPoint mp = (tempStubRef->getClusterRef(0))->findAverageLocalCoordinates();

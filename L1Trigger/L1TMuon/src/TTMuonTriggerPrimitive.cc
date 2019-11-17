@@ -15,7 +15,7 @@ TTTriggerPrimitive::TTTriggerPrimitive(const TTDetId& detid, const TTDigi& digi)
   const MeasurementPoint& mp = digi.getClusterRef(0)->findAverageLocalCoordinatesCentered();
   _data.row_f = mp.x();
   _data.col_f = mp.y();
-  _data.bend = digi.getTriggerBend();
+  _data.bend = digi.getBendFE();
   _data.bx = 0;
 }
 
