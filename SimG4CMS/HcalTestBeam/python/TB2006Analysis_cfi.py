@@ -8,7 +8,7 @@ def testbeam2006(process):
     process.load('Configuration.StandardSequences.Services_cff')
     process.load('SimGeneral.HepPDTESSource.pdt_cfi')
     process.load('Configuration.EventContent.EventContent_cff')
-    process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
+    process.load('Geometry.HcalTestBeamData.hcalDDDSimConstants_cff')
     process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
     process.load('GeneratorInterface.Core.generatorSmeared_cfi')
     process.load('SimG4Core.Application.g4SimHits_cfi')
@@ -66,6 +66,7 @@ def testbeam2006(process):
 
     process.g4SimHits.HCalSD.UseShowerLibrary    = False
     process.g4SimHits.HCalSD.UseHF   = False
+    process.g4SimHits.HCalSD.ForTBHCAL = True
     process.g4SimHits.HCalSD.ForTBH2 = False
 
     return(process)
