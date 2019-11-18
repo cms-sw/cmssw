@@ -85,7 +85,6 @@ void DQMFileSaverBase::globalEndLuminosityBlock(const edm::LuminosityBlock &iLS,
   fp.run_ = irun;
 
   this->saveLumi(fp);
-
 }
 
 void DQMFileSaverBase::globalEndRun(const edm::Run &iRun, const edm::EventSetup &) const {

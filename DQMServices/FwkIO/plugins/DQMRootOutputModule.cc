@@ -291,8 +291,7 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
 //    // do actual copying here;
 // }
 
-void DQMRootOutputModule::beginJob() {
-}
+void DQMRootOutputModule::beginJob() {}
 
 DQMRootOutputModule::~DQMRootOutputModule() {}
 
@@ -383,8 +382,7 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
 
   if (!shouldWrite)
     return;
-  std::vector<MonitorElement*> items(
-      dstore->getAllContents("", m_run, m_lumi));
+  std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, m_lumi));
   for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
     if ((*it)->getLumiFlag()) {
       std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
