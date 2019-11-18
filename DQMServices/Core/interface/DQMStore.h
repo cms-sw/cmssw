@@ -27,7 +27,7 @@ namespace dqm {
       NavigatorBase(){};
       std::string cwd_ = "";
     };
-  }
+  }  // namespace implementation
 
   namespace legacy {
 
@@ -370,7 +370,6 @@ namespace dqm {
     template <class ME>
     class DQMStore : public IGetter<ME, DQMStore<ME>>, public IBooker<ME, DQMStore<ME>> {
     public:
-
       // TODO: There are no references any more. we should gt rid of these.
       enum SaveReferenceTag { SaveWithoutReference, SaveWithReference, SaveWithReferenceForQTest };
       enum OpenRunDirs { KeepRunDirs, StripRunDirs };
@@ -437,9 +436,9 @@ namespace dqm {
     public:
       // internal -- figure out better protection.
       template <typename iFunc>
-      void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId, bool canSaveByLumi) {};
+      void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId, bool canSaveByLumi){};
       template <typename iFunc>
-      void meBookerGetter(iFunc f) {};
+      void meBookerGetter(iFunc f){};
 
       // Make a ME owned by this DQMStore. Will return a pointer to a ME owned
       // by this DQMStore: either an existing ME matching the key of `me` or
@@ -473,7 +472,7 @@ namespace dqm {
     public:
       typedef dqm::legacy::IBooker IBooker;
       typedef dqm::legacy::IGetter IGetter;
-      using  dqm::implementation::DQMStore<dqm::legacy::MonitorElement>::DQMStore;
+      using dqm::implementation::DQMStore<dqm::legacy::MonitorElement>::DQMStore;
     };
   }  // namespace legacy
   namespace reco {

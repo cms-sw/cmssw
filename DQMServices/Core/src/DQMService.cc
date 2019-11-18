@@ -78,9 +78,8 @@ void DQMService::flushStandalone() {
     // Lock the network layer so we can modify the data.
     net_->lock();
     bool updated = false;
-    
-    // TODO: re-implement sending MEs.
 
+    // TODO: re-implement sending MEs.
 
     // Find removed contents and clear the network cache.
     if (net_->removeLocalExcept(seen))
