@@ -65,14 +65,11 @@ DD4hep_TestMTDNumbering::DD4hep_TestMTDNumbering(const edm::ParameterSet& iConfi
       thisN_(),
       btlNS_(),
       etlNS_() {
-
   dddetToken_ = esConsumes<DDDetector, IdealGeometryRecord>(tag_);
   dspecToken_ = esConsumes<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
-
 }
 
 void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   auto pDD = iSetup.getTransientHandle(dddetToken_);
 
   auto pSP = iSetup.getTransientHandle(dspecToken_);

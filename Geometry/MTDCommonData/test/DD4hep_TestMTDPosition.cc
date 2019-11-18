@@ -71,14 +71,11 @@ DD4hep_TestMTDPosition::DD4hep_TestMTDPosition(const edm::ParameterSet& iConfig)
       thisN_(),
       btlNS_(),
       etlNS_() {
-
   dddetToken_ = esConsumes<DDDetector, IdealGeometryRecord>(tag_);
   dspecToken_ = esConsumes<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
-
 }
 
 void DD4hep_TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   auto pDD = iSetup.getTransientHandle(dddetToken_);
 
   auto pSP = iSetup.getTransientHandle(dspecToken_);
