@@ -7,6 +7,7 @@
  *
  */
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -70,3 +71,5 @@ void ME0TriggerPseudoProducer::produce(edm::StreamID, edm::Event& ev, const edm:
   // Put collections in event.
   ev.put(std::move(oc_trig));
 }
+
+DEFINE_FWK_MODULE(ME0TriggerPseudoProducer);
