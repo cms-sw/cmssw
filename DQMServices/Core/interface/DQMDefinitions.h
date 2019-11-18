@@ -1,7 +1,6 @@
 #ifndef DQMSERVICES_CORE_DQM_DEFINITIONS_H
 #define DQMSERVICES_CORE_DQM_DEFINITIONS_H
 
-#include "DQMServices/Core/interface/DQMChannel.h"
 
 namespace dqm {
   /** Numeric constants for quality test results.  The smaller the
