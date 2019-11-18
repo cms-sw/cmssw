@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 hgcROCSettings = cms.PSet( 
     # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
-    fwVersion         = cms.uint32(0),
+    fwVersion         = cms.uint32(2),
     # leakage to bunches -2, -1, in-time, +1, +2, +3 (from J. Kaplon)
     #NOTE: this is a fixed-size array inside the simulation (for speed) change accordingly!
     adcPulse          = cms.vdouble(0.00, 0.017,   0.817,   0.163,  0.003,  0.000),
