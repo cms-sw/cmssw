@@ -37,20 +37,6 @@ namespace {
       throw cms::Exception("HcalParametersFromDD") << "Failed to get " << s << " tag.";
     }
   }
-
-  int getTopologyMode(const std::string& s, bool type) {
-    int result(-1);
-    if (type) {
-      StringToEnumParser<HcalTopologyMode::Mode> eparser;
-      HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode)eparser.parseString(s);
-      result = static_cast<int>(mode);
-    } else {
-      StringToEnumParser<HcalTopologyMode::TriggerMode> eparser;
-      HcalTopologyMode::TriggerMode mode = (HcalTopologyMode::TriggerMode)eparser.parseString(s);
-      result = static_cast<int>(mode);
-    }
-    return result;
-  }
 }  // namespace
 
 bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) {
