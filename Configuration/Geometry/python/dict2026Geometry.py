@@ -1000,7 +1000,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
     },
 }
 
