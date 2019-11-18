@@ -9,7 +9,6 @@
 #include <execinfo.h>
 #include <cxxabi.h>
 
-
 namespace dqm {
 
   namespace legacy {
@@ -72,9 +71,9 @@ namespace dqm {
       return nullptr;
     }
 
-    template<class ME>
+    template <class ME>
     void DQMStore<ME>::printTrace(std::string const& message) {
-      edm::LogWarning("DQMStoreBooking").log([&]( auto& logger) {
+      edm::LogWarning("DQMStoreBooking").log([&](auto& logger) {
         std::regex s_rxtrace{"(.*)\\((.*)\\+0x.*\\).*(\\[.*\\])"};
         std::regex s_rxself{"^[^()]*dqm::implementation::.*|^[^()]*edm::.*|.*edm::convertException::wrap.*"};
 
@@ -139,7 +138,6 @@ namespace dqm {
         free(strings);
       });
     }
-
 
     template <class ME, class STORE>
     ME* IBooker<ME, STORE>::bookInt(TString const& name) {
@@ -378,7 +376,6 @@ namespace dqm {
       //TODO
     }
 
-
     template <class ME, class STORE>
     std::vector<dqm::harvesting::MonitorElement*> IGetter<ME, STORE>::getContents(std::string const& path) const {
       assert(!"NIY");
@@ -387,7 +384,6 @@ namespace dqm {
     void IGetter<ME, STORE>::getContents(std::vector<std::string>& into, bool showContents) const {
       assert(!"NIY");
     }
-
 
     template <class ME, class STORE>
     std::vector<dqm::harvesting::MonitorElement*> IGetter<ME, STORE>::getAllContents(std::string const& path) const {
@@ -429,10 +425,10 @@ namespace dqm {
     }
 
     template <class ME>
-    DQMStore<ME>::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&) : IGetter<ME, DQMStore<ME>>(this), IBooker<ME, DQMStore<ME>>(this) {}
+    DQMStore<ME>::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&)
+        : IGetter<ME, DQMStore<ME>>(this), IBooker<ME, DQMStore<ME>>(this) {}
     template <class ME>
     DQMStore<ME>::~DQMStore() {}
-
 
     template <class ME>
     void DQMStore<ME>::save(std::string const& filename,

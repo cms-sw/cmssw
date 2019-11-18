@@ -163,7 +163,7 @@ namespace dqm::impl {
     void setLumi(uint32_t ls) { data_.lumi = ls; }
 
   public:
-    MonitorElement(MonitorElementData* data, bool is_owned, bool is_readonly) {};
+    MonitorElement(MonitorElementData *data, bool is_owned, bool is_readonly){};
     MonitorElement &operator=(const MonitorElement &) = delete;
     MonitorElement &operator=(MonitorElement &&) = delete;
     virtual ~MonitorElement();

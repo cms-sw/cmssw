@@ -40,7 +40,6 @@ namespace dqm::impl {
     return h;
   }
 
-
   MonitorElement::~MonitorElement() {
     // TODO: this is only as long as we use the edm::Service DQMStore.
     delete mutable_;
