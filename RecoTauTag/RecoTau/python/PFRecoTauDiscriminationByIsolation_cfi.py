@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
-pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIsolation",
+pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIsolationContainer",
     PFTauProducer = cms.InputTag('pfRecoTauProducer'), #tau collection to discriminate
 
     # Require leading pion ensures that:
@@ -12,31 +12,13 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     Prediscriminants = requireLeadTrack,
 
     # Select which collections to use for isolation. You can select one or both
-    ApplyDiscriminationByECALIsolation = cms.bool(True), # use PFGammas when isolating
-    ApplyDiscriminationByTrackerIsolation = cms.bool(True), # use PFChargedHadr when isolating
-    ApplyDiscriminationByWeightedECALIsolation = cms.bool(False), #do not use pileup weighting of neutral deposits by default
     WeightECALIsolation = cms.double(1.), # apply a flat, overall weight to ECAL isolation. Useful to combine charged and neutral isolations with different relative weights. Default 1. 
 
-    applyOccupancyCut = cms.bool(True), # apply a cut on number of isolation objects
-    maximumOccupancy = cms.uint32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
-
-    applySumPtCut = cms.bool(False), # apply a cut on the sum Pt of the isolation objects
-    maximumSumPtCut = cms.double(6.0),
-
-    applyRelativeSumPtCut = cms.bool(False), # apply a cut on IsoPt/TotalPt
-    relativeSumPtCut = cms.double(0.0),
-    relativeSumPtOffset = cms.double(0.0),
-
     minTauPtForNoIso = cms.double(-99.), # minimum tau pt at which the isolation is completely relaxed. If negative, this is disabled
-    
-    applyPhotonPtSumOutsideSignalConeCut = cms.bool(False),
-    maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-    maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10),
 
     qualityCuts = PFTauQualityCuts, # set the standard quality cuts
 
     # Delta-Beta corrections to remove Pileup
-    applyDeltaBetaCorrection = cms.bool(False),
     particleFlowSrc = cms.InputTag("particleFlow"),
     vertexSrc = PFTauQualityCuts.primaryVertexSrc,
     # This must correspond to the cone size of the algorithm which built the
@@ -84,14 +66,16 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     rhoProducer = cms.InputTag("fixedGridRhoFastjetAll"),
     rhoConeSize = cms.double(0.5),
     rhoUEOffsetCorrection = cms.double(1.0),
-    UseAllPFCandsForWeights = cms.bool(False),
 
-    # moved these from .cc ifExists structures
-    storeRawOccupancy                     = cms.bool(False),
-    storeRawSumPt                         = cms.bool(False),
-    storeRawPUsumPt                       = cms.bool(False),
-    storeRawFootprintCorrection           = cms.bool(False),
-    storeRawPhotonSumPt_outsideSignalCone = cms.bool(False),
+    IDdefinitions = cms.VPSet(),
+    IDWPdefinitions = cms.VPSet(
+        cms.PSet(
+            IDname = cms.string("pfRecoTauDiscriminationByIsolation"),
+            maximumOccupancy = cms.uint32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
+            ApplyDiscriminationByTrackerIsolation = cms.bool(True), # use PFGammas when isolating
+            ApplyDiscriminationByECALIsolation = cms.bool(True), # use PFChargedHadr when isolating
+            )
+        ),
 
     verbosity = cms.int32(0),
 )

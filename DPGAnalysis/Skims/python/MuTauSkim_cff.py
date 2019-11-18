@@ -29,6 +29,7 @@ TauSkimPFTausSelected = cms.EDFilter("PFTauSelector",
 
 
   ),
+  discriminatorContainers = cms.VPSet(),
   #cut = cms.string('pt > 22. && abs(eta) < 2.3') #53X
   #cut = cms.string('et > 15. && abs(eta) < 2.5')  #75X
   #cut = cms.string('pt > 18. && abs(eta) < 2.3') #HTT 2015 TWIKI

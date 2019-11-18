@@ -85,7 +85,7 @@ pfTausProducer.src = cms.InputTag("pfTausProducerSansRefs")
 pfTausDiscriminationByDecayModeFinding = hpsPFTauDiscriminationByDecayModeFinding.clone()
 pfTausDiscriminationByDecayModeFinding.PFTauProducer="pfTausProducer"
 
-pfTausDiscriminationByIsolation= hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits.clone()
+pfTausDiscriminationByIsolation= hpsPFTauBasicDiscriminators.clone()
 pfTausDiscriminationByIsolation.PFTauProducer="pfTausProducer"
 
 pfTausrequireDecayMode = cms.PSet(

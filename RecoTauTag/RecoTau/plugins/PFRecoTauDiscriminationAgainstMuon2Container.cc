@@ -1,5 +1,5 @@
 
-/** \class PFRecoTauDiscriminationAgainstMuon2
+/** \class PFRecoTauDiscriminationAgainstMuon2Container
  *
  * Compute tau Id. discriminator against muons.
  * 
@@ -35,28 +35,28 @@ using reco::tau::format_vint;
 
 namespace {
 
-  class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProducerBase {
+  class PFRecoTauDiscriminationAgainstMuon2Container final : public PFTauDiscriminationProducerBaseForIDContainers {
     enum { kLoose, kMedium, kTight, kCustom };
 
   public:
-    explicit PFRecoTauDiscriminationAgainstMuon2(const edm::ParameterSet& cfg)
-        : PFTauDiscriminationProducerBase(cfg), moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
-      std::string discriminatorOption_string = cfg.getParameter<std::string>("discriminatorOption");
-      if (discriminatorOption_string == "loose")
-        discriminatorOption_ = kLoose;
-      else if (discriminatorOption_string == "medium")
-        discriminatorOption_ = kMedium;
-      else if (discriminatorOption_string == "tight")
-        discriminatorOption_ = kTight;
-      else if (discriminatorOption_string == "custom")
-        discriminatorOption_ = kCustom;
-      else
-        throw edm::Exception(edm::errors::UnimplementedFeature)
-            << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
-      hop_ = cfg.getParameter<double>("HoPMin");
-      maxNumberOfMatches_ = cfg.getParameter<int>("maxNumberOfMatches");
-      doCaloMuonVeto_ = cfg.getParameter<bool>("doCaloMuonVeto");
-      maxNumberOfHitsLast2Stations_ = cfg.getParameter<int>("maxNumberOfHitsLast2Stations");
+    explicit PFRecoTauDiscriminationAgainstMuon2Container(const edm::ParameterSet& cfg)
+        : PFTauDiscriminationProducerBaseForIDContainers(cfg), moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
+      wpDefs_ = cfg.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
+      // check content of discriminatorOption and add as enum to avoid string comparison per event
+      for(std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end(); ++wpDefsEntry){
+        std::string discriminatorOption_string = wpDefsEntry->getParameter<std::string>("discriminatorOption");
+        if (discriminatorOption_string == "loose")
+          wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kLoose);
+        else if (discriminatorOption_string == "medium")
+          wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kMedium);
+        else if (discriminatorOption_string == "tight")
+          wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kTight);
+        else if (discriminatorOption_string == "custom")
+          wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kCustom);
+        else
+          throw edm::Exception(edm::errors::UnimplementedFeature)
+              << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
+      }
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
       Muons_token = consumes<reco::MuonCollection>(srcMuons_);
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
@@ -71,21 +71,17 @@ namespace {
       maskHitsRPC_ = cfg.getParameter<vint>("maskHitsRPC");
       verbosity_ = cfg.getParameter<int>("verbosity");
     }
-    ~PFRecoTauDiscriminationAgainstMuon2() override {}
+    ~PFRecoTauDiscriminationAgainstMuon2Container() override {}
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-    double discriminate(const reco::PFTauRef&) const override;
+    reco::PFSingleTauDiscriminatorContainer discriminate(const reco::PFTauRef&) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     std::string moduleLabel_;
-    int discriminatorOption_;
-    double hop_;
-    int maxNumberOfMatches_;
-    bool doCaloMuonVeto_;
-    int maxNumberOfHitsLast2Stations_;
+    std::vector<edm::ParameterSet> wpDefs_;
     edm::InputTag srcMuons_;
     edm::Handle<reco::MuonCollection> muons_;
     edm::EDGetTokenT<reco::MuonCollection> Muons_token;
@@ -103,17 +99,17 @@ namespace {
     int verbosity_;
   };
 
-  std::atomic<unsigned int> PFRecoTauDiscriminationAgainstMuon2::numWarnings_{0};
+  std::atomic<unsigned int> PFRecoTauDiscriminationAgainstMuon2Container::numWarnings_{0};
 
-  void PFRecoTauDiscriminationAgainstMuon2::beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
+  void PFRecoTauDiscriminationAgainstMuon2Container::beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
     if (!srcMuons_.label().empty()) {
       evt.getByToken(Muons_token, muons_);
     }
   }
 
-  double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau) const {
+  reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuon2Container::discriminate(const reco::PFTauRef& pfTau) const {
     if (verbosity_) {
-      edm::LogPrint("PFTauAgainstMuon2") << "<PFRecoTauDiscriminationAgainstMuon2::discriminate>:";
+      edm::LogPrint("PFTauAgainstMuon2") << "<PFRecoTauDiscriminationAgainstMuon2Container::discriminate>:";
       edm::LogPrint("PFTauAgainstMuon2") << " moduleLabel = " << moduleLabel_;
       edm::LogPrint("PFTauAgainstMuon2") << "tau #" << pfTau.key() << ": Pt = " << pfTau->pt()
                                          << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi();
@@ -177,7 +173,7 @@ namespace {
             dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea / TMath::Pi()));
           } else {
             if (numWarnings_ < maxWarnings_) {
-              edm::LogInfo("PFRecoTauDiscriminationAgainstMuon2::discriminate")
+              edm::LogInfo("PFRecoTauDiscriminationAgainstMuon2Container::discriminate")
                   << "Jet associated to Tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta()
                   << ", phi = " << pfTau->phi() << " has area = " << jetArea << " !!";
               ++numWarnings_;
@@ -226,8 +222,10 @@ namespace {
     }
 
     bool passesCaloMuonVeto = true;
+    double energyECALplusHCAL;
+    const reco::Track* leadTrack = nullptr;
     if (pfLeadChargedHadron.isNonnull()) {
-      double energyECALplusHCAL = pfLeadChargedHadron->ecalEnergy() + pfLeadChargedHadron->hcalEnergy();
+      energyECALplusHCAL = pfLeadChargedHadron->ecalEnergy() + pfLeadChargedHadron->hcalEnergy();
       if (verbosity_) {
         if (pfLeadChargedHadron->trackRef().isNonnull()) {
           edm::LogPrint("PFTauAgainstMuon2")
@@ -239,44 +237,55 @@ namespace {
               << ", leadPFChargedHadronP = " << pfLeadChargedHadron->gsfTrackRef()->p();
         }
       }
-      const reco::Track* leadTrack = nullptr;
       if (pfLeadChargedHadron->trackRef().isNonnull())
         leadTrack = pfLeadChargedHadron->trackRef().get();
       else if (pfLeadChargedHadron->gsfTrackRef().isNonnull())
         leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
-      if (pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop_ * leadTrack->p()))
-        passesCaloMuonVeto = false;
+    }
+    reco::PFSingleTauDiscriminatorContainer result;
+    for(std::vector<edm::ParameterSet>::const_iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end(); ++wpDefsEntry){
+      //extract WP parameters
+      int discriminatorOption = wpDefsEntry->getParameter<int>("discriminatorOptionEnum");
+      double hop = wpDefsEntry->getParameter<double>("HoPMin");
+      int maxNumberOfMatches = wpDefsEntry->getParameter<int>("maxNumberOfMatches");
+      bool doCaloMuonVeto = wpDefsEntry->getParameter<bool>("doCaloMuonVeto");
+      int maxNumberOfHitsLast2Stations = wpDefsEntry->getParameter<int>("maxNumberOfHitsLast2Stations");
+      
+      if (pfLeadChargedHadron.isNonnull()) {
+        if (pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop * leadTrack->p()))
+          passesCaloMuonVeto = false;
+      }
+
+      bool discriminatorValue = false;
+      if (discriminatorOption == kLoose && numStationsWithMatches <= maxNumberOfMatches)
+        discriminatorValue = true;
+      else if (discriminatorOption == kMedium && numStationsWithMatches <= maxNumberOfMatches &&
+               numLast2StationsWithHits <= maxNumberOfHitsLast2Stations)
+        discriminatorValue = true;
+      else if (discriminatorOption == kTight && numStationsWithMatches <= maxNumberOfMatches &&
+               numLast2StationsWithHits <= maxNumberOfHitsLast2Stations && passesCaloMuonVeto)
+        discriminatorValue = true;
+      else if (discriminatorOption == kCustom) {
+        discriminatorValue = true;
+        if (maxNumberOfMatches >= 0 && numStationsWithMatches > maxNumberOfMatches)
+          discriminatorValue = false;
+        if (maxNumberOfHitsLast2Stations >= 0 && numLast2StationsWithHits > maxNumberOfHitsLast2Stations)
+          discriminatorValue = false;
+        if (doCaloMuonVeto && !passesCaloMuonVeto)
+          discriminatorValue = false;
+      }
+      result.workingPoints.push_back(discriminatorValue);
+      if (verbosity_)
+        edm::LogPrint("PFTauAgainstMuon2") << "--> returning discriminatorValue = " << discriminatorValue;
     }
 
-    double discriminatorValue = 0.;
-    if (discriminatorOption_ == kLoose && numStationsWithMatches <= maxNumberOfMatches_)
-      discriminatorValue = 1.;
-    else if (discriminatorOption_ == kMedium && numStationsWithMatches <= maxNumberOfMatches_ &&
-             numLast2StationsWithHits <= maxNumberOfHitsLast2Stations_)
-      discriminatorValue = 1.;
-    else if (discriminatorOption_ == kTight && numStationsWithMatches <= maxNumberOfMatches_ &&
-             numLast2StationsWithHits <= maxNumberOfHitsLast2Stations_ && passesCaloMuonVeto)
-      discriminatorValue = 1.;
-    else if (discriminatorOption_ == kCustom) {
-      bool pass = true;
-      if (maxNumberOfMatches_ >= 0 && numStationsWithMatches > maxNumberOfMatches_)
-        pass = false;
-      if (maxNumberOfHitsLast2Stations_ >= 0 && numLast2StationsWithHits > maxNumberOfHitsLast2Stations_)
-        pass = false;
-      if (doCaloMuonVeto_ && !passesCaloMuonVeto)
-        pass = false;
-      discriminatorValue = pass ? 1. : 0.;
-    }
-    if (verbosity_)
-      edm::LogPrint("PFTauAgainstMuon2") << "--> returning discriminatorValue = " << discriminatorValue;
-
-    return discriminatorValue;
+    return result;
   }
 
 }  // namespace
 
-void PFRecoTauDiscriminationAgainstMuon2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // pfRecoTauDiscriminationAgainstMuon2
+void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstMuon2Container
   edm::ParameterSetDescription desc;
   desc.add<std::vector<int>>("maskHitsRPC",
                              {
@@ -285,7 +294,6 @@ void PFRecoTauDiscriminationAgainstMuon2::fillDescriptions(edm::ConfigurationDes
                                  0,
                                  0,
                              });
-  desc.add<int>("maxNumberOfHitsLast2Stations", 0);
   desc.add<std::vector<int>>("maskMatchesRPC",
                              {
                                  0,
@@ -348,13 +356,28 @@ void PFRecoTauDiscriminationAgainstMuon2::fillDescriptions(edm::ConfigurationDes
                                  0,
                                  0,
                              });
-  desc.add<double>("HoPMin", 0.2);
-  desc.add<int>("maxNumberOfMatches", 0);
-  desc.add<std::string>("discriminatorOption", "loose");
   desc.add<double>("dRmuonMatch", 0.3);
   desc.add<edm::InputTag>("srcMuons", edm::InputTag("muons"));
-  desc.add<bool>("doCaloMuonVeto", false);
-  descriptions.add("pfRecoTauDiscriminationAgainstMuon2", desc);
+  
+  edm::ParameterSetDescription desc_wp;
+  desc_wp.add<std::string>("IDname");
+  desc_wp.add<std::string>("discriminatorOption");
+  desc_wp.add<double>("HoPMin");
+  desc_wp.add<int>("maxNumberOfMatches");
+  desc_wp.add<bool>("doCaloMuonVeto");
+  desc_wp.add<int>("maxNumberOfHitsLast2Stations");
+  edm::ParameterSet pset_wp;
+  pset_wp.addParameter<std::string>("pfRecoTauDiscriminationAgainstMuon2Container", "IDname");
+  pset_wp.addParameter<std::string>("discriminatorOption", "loose");
+  pset_wp.addParameter<double>("HoPMin", 0.2);
+  pset_wp.addParameter<int>("maxNumberOfMatches", 0);
+  pset_wp.addParameter<bool>("doCaloMuonVeto", false);
+  pset_wp.addParameter<int>("maxNumberOfHitsLast2Stations", 0);
+  std::vector<edm::ParameterSet> vpsd_wp;
+  vpsd_wp.push_back(pset_wp);
+  desc.addVPSet("IDWPdefinitions", desc_wp, vpsd_wp);
+  
+  descriptions.add("pfRecoTauDiscriminationAgainstMuon2Container", desc);
 }
 
-DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon2);
+DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon2Container);

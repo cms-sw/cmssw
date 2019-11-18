@@ -3,6 +3,7 @@
 // TAU includes
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminatorContainer.h"
 // ELECTRON includes
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -31,8 +32,13 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
     auto const& pfTau = iConfig.getUntrackedParameter<edm::ParameterSet>("PFTaus");
     PFTaus_ = consumes<reco::PFTauCollection>(pfTau.getUntrackedParameter<InputTag>("PFTauProducer"));
     auto discs = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminators");
+    auto discConts = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminatorContainers");
+    PFTauDisContIdx_ = pfTau.getUntrackedParameter<vector<int>>("PFTauDiscriminatorContainerIndices");
     for (edm::InputTag& tag : discs) {
       PFTauDis_.push_back(consumes<reco::PFTauDiscriminator>(tag));
+    }
+    for (edm::InputTag& tag : discConts){
+      PFTauDisCont_.push_back(consumes<reco::PFTauDiscriminatorContainer>(tag));
     }
     doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus", false);
     ptMinPFTau_ = pfTau.getUntrackedParameter<double>("ptMin", 15.);
@@ -149,6 +155,20 @@ void HLTTauRefProducer::doPFTaus(edm::Event& iEvent) const {
             break;
           }
         }
+        int idx = 0;
+        for (edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> const& token : PFTauDisCont_) {
+          edm::Handle<reco::PFTauDiscriminatorContainer> pftaudis;
+          if (iEvent.getByToken(token, pftaudis)) {
+            if ((*pftaudis)[thePFTau].workingPoints.empty() || !(*pftaudis)[thePFTau].workingPoints.at(PFTauDisContIdx_[idx])) { //WP vector not filled if prediscriminor in RecoTauDiscriminator failed.
+              passAll = false;
+              break;
+            }
+          } else {
+            passAll = false;
+            break;
+          }
+          idx++;
+       	}
         if (passAll) {
           product_PFTaus->emplace_back(pftau.px(), pftau.py(), pftau.pz(), pftau.energy());
         }

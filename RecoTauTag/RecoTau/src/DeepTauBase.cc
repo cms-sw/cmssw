@@ -45,13 +45,10 @@ namespace deep_tau {
     return fn_->Eval(0);
   }
 
-  DeepTauBase::Output::ResultMap DeepTauBase::Output::get_value(const edm::Handle<TauCollection>& taus,
+  std::unique_ptr<DeepTauBase::TauDiscriminator> DeepTauBase::Output::get_value(const edm::Handle<TauCollection>& taus,
                                                                 const tensorflow::Tensor& pred,
-                                                                const WPMap& working_points) const {
-    ResultMap output;
-    output[""] = std::make_unique<TauDiscriminator>(TauRefProd(taus));
-    for (const auto& wp : working_points)
-      output[wp.first] = std::make_unique<TauDiscriminator>(TauRefProd(taus));
+                                                                const WPList& working_points) const {
+    std::unique_ptr<TauDiscriminator> output = std::make_unique<TauDiscriminator>(TauRefProd(taus));
 
     for (size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
       float x = 0;
@@ -63,11 +60,11 @@ namespace deep_tau {
           den_val += pred.matrix<float>()(tau_index, den_elem);
         x = den_val != 0 ? x / den_val : std::numeric_limits<float>::max();
       }
-      output[""]->setValue(tau_index, x);
+      TauRef tauRef(taus, tau_index);
+      (*output)[tauRef].rawValues.push_back(x);
       for (const auto& wp : working_points) {
-        const auto& tau = taus->at(tau_index);
-        const bool pass = x > (*wp.second)(tau);
-        output[wp.first]->setValue(tau_index, pass);
+        const bool pass = x > (*wp)(taus->at(tau_index));
+        (*output)[tauRef].workingPoints.push_back(pass);
       }
     }
     return output;
@@ -83,11 +80,9 @@ namespace deep_tau {
         cache_(cache) {
     for (const auto& output_desc : outputs_) {
       produces<TauDiscriminator>(output_desc.first);
-      const auto& cut_pset = cfg.getParameter<edm::ParameterSet>(output_desc.first + "WP");
-      for (const std::string& wp_name : cut_pset.getParameterNames()) {
-        const auto& cut_str = cut_pset.getParameter<std::string>(wp_name);
-        workingPoints_[output_desc.first][wp_name] = std::make_unique<Cutter>(cut_str);
-        produces<TauDiscriminator>(output_desc.first + wp_name);
+      const auto& cut_list = cfg.getParameter<std::vector<std::string> >(output_desc.first + "WP");
+      for (const std::string& cut_str : cut_list) {
+        workingPoints_[output_desc.first].push_back(std::make_unique<Cutter>(cut_str));
       }
     }
   }
@@ -102,9 +97,8 @@ namespace deep_tau {
 
   void DeepTauBase::createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus) {
     for (const auto& output_desc : outputs_) {
-      auto result_map = output_desc.second.get_value(taus, pred, workingPoints_.at(output_desc.first));
-      for (auto& result : result_map)
-        event.put(std::move(result.second), output_desc.first + result.first);
+      auto result = output_desc.second.get_value(taus, pred, workingPoints_.at(output_desc.first));
+      event.put(std::move(result), output_desc.first);
     }
   }
 

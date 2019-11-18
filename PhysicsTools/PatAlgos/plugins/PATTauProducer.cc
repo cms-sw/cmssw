@@ -8,6 +8,7 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminatorContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -79,16 +80,31 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
   if (addTauID_) {
     // read the different tau ID names
     edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
-    std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
+    std::vector<std::string> names = idps.getParameterNamesForType<edm::ParameterSet>();
+    std::map<std::string, IDContainerData> idContainerMap;
     for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-      tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+      edm::ParameterSet idp = idps.getParameter<edm::ParameterSet>(*it);
+      int wpidx = idp.getParameter<int>("workingPointIndex");
+      edm::InputTag tag = idp.getParameter<edm::InputTag>("inputTag");
+      if (wpidx == -99){
+        tauIDSrcs_.push_back(NameTag(*it, tag));
+      }else{
+        std::map<std::string, IDContainerData>::iterator it2;
+        it2 = idContainerMap.insert(std::pair<std::string, IDContainerData>(tag.label()+tag.instance(), IDContainerData(tag, std::vector<NameWPIdx>()))).first;
+        it2->second.second.push_back(NameWPIdx(*it, wpidx));
+      }
     }
     // but in any case at least once
-    if (tauIDSrcs_.empty())
+    if (tauIDSrcs_.empty() && idContainerMap.empty())
       throw cms::Exception("Configuration") << "PATTauProducer: id addTauID is true, you must specify either:\n"
                                             << "\tPSet tauIDSources = { \n"
                                             << "\t\tInputTag <someName> = <someTag>   // as many as you want \n "
                                             << "\t}\n";
+
+    for (std::map<std::string, IDContainerData>::const_iterator mapEntry = idContainerMap.begin(); mapEntry != idContainerMap.end(); mapEntry++) {
+      tauIDSrcContainers_.push_back(mapEntry->second.second);
+      pfTauIDContainerTokens_.push_back(mayConsume<reco::PFTauDiscriminatorContainer>(mapEntry->second.first));
+    }
   }
   pfTauIDTokens_ = edm::vector_transform(
       tauIDSrcs_, [this](NameTag const& tag) { return mayConsume<reco::PFTauDiscriminator>(tag.second); });
@@ -340,31 +356,57 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     // prepare ID extraction
     if (addTauID_) {
+      size_t numberPlainTauIds = tauIDSrcs_.size();
+      size_t numberTauIds = numberPlainTauIds;
+      if (typeid(*tausRef) == typeid(reco::PFTau)) {
+        for(std::vector<std::vector<NameWPIdx> >::iterator it = tauIDSrcContainers_.begin(); it != tauIDSrcContainers_.end(); it++){
+          numberTauIds += it->size();
+        }
+      }
       std::string missingDiscriminators;
-      std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
+      std::vector<pat::Tau::IdPair> ids(numberTauIds);
       auto const& tausDeref = *tausRef;
-      for (size_t i = 0; i < tauIDSrcs_.size(); ++i) {
-        if (typeid(tausDeref) == typeid(reco::PFTau)) {
+      if (typeid(tausDeref) == typeid(reco::PFTau)) {
+        edm::Handle<reco::PFTauCollection> pfTauCollection;
+        iEvent.getByToken(pfTauToken_, pfTauCollection);
+        for (size_t i = 0; i < numberPlainTauIds; ++i) {
           //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
-          edm::Handle<reco::PFTauCollection> pfTauCollection;
-          iEvent.getByToken(pfTauToken_, pfTauCollection);
 
           edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
           iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
 
-          if (skipMissingTauID_ && !pfTauIdDiscr.isValid()) {
-            if (!missingDiscriminators.empty()) {
-              missingDiscriminators += ", ";
+          if(skipMissingTauID_ && !pfTauIdDiscr.isValid()){
+            if(!missingDiscriminators.empty()){
+              missingDiscriminators+=", ";
             }
-            missingDiscriminators += tauIDSrcs_[i].first;
+            missingDiscriminators+=tauIDSrcs_[i].first;
             continue;
           }
           ids[i].first = tauIDSrcs_[i].first;
           ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
-        } else {
-          throw cms::Exception("Type Mismatch")
-              << "PATTauProducer: unsupported datatype '" << typeid(tausDeref).name() << "' for tauSource\n";
         }
+        for (size_t i = 0; i < tauIDSrcContainers_.size(); ++i) {
+          edm::Handle<reco::PFTauDiscriminatorContainer> pfTauIdDiscr;
+          iEvent.getByToken(pfTauIDContainerTokens_[i], pfTauIdDiscr);
+          if(skipMissingTauID_ && !pfTauIdDiscr.isValid()){
+            for(std::vector<NameWPIdx>::const_iterator it = tauIDSrcContainers_[i].begin(); it != tauIDSrcContainers_[i].end(); it++){
+              if(!missingDiscriminators.empty()){
+                missingDiscriminators+=", ";
+              }
+              missingDiscriminators+=it->first;
+            }
+            continue;
+          }
+          for (size_t j = 0; j < tauIDSrcContainers_[i].size(); ++j) {
+            //std::cout << "filling PFTauDiscriminator '" << tauIDSrcContainers_[i][j].first << "' into pat::Tau object at index " << numberPlainTauIds + i + j << " ..." << std::endl;
+            ids[numberPlainTauIds + j].first = tauIDSrcContainers_[i][j].first;
+            ids[numberPlainTauIds + j].second = getTauIdDiscriminatorFromContainer(pfTauCollection, idx, pfTauIdDiscr, tauIDSrcContainers_[i][j].second);
+          }
+          numberPlainTauIds += tauIDSrcContainers_[i].size();
+        }
+      } else {
+        throw cms::Exception("Type Mismatch") <<
+          "PATTauProducer: unsupported datatype '" << typeid(tausDeref).name() << "' for tauSource\n";
       }
       if (!missingDiscriminators.empty() && firstOccurence_) {
         edm::LogWarning("DataSource") << "The following tau discriminators have not been found in the event:\n"
@@ -558,6 +600,17 @@ float PATTauProducer::getTauIdDiscriminator(const edm::Handle<TauCollectionType>
                                             const edm::Handle<TauDiscrType>& tauIdDiscr) {
   edm::Ref<TauCollectionType> tauRef(tauCollection, tauIdx);
   return (*tauIdDiscr)[tauRef];
+}
+float PATTauProducer::getTauIdDiscriminatorFromContainer(const edm::Handle<reco::PFTauCollection>& tauCollection, size_t tauIdx, const edm::Handle<reco::PFTauDiscriminatorContainer>& tauIdDiscr, int WPIdx)
+{
+  edm::Ref<reco::PFTauCollection> tauRef(tauCollection, tauIdx);
+  if (WPIdx < 0){
+      if ((*tauIdDiscr)[tauRef].rawValues.size()==1) return (*tauIdDiscr)[tauRef].rawValues.at(0); //Only 0th component filled with default value if prediscriminor in RecoTauDiscriminator failed.
+      return (*tauIdDiscr)[tauRef].rawValues.at(-1-WPIdx); //uses negative indices to access rawValues. In most cases only one rawValue at WPIdx=-1 exists.
+  }else{
+      if ((*tauIdDiscr)[tauRef].workingPoints.empty()) return 0.0; //WP vector not filled if prediscriminor in RecoTauDiscriminator failed. Set PAT output to false in this case
+      return (*tauIdDiscr)[tauRef].workingPoints.at(WPIdx);
+  }
 }
 
 // ParameterSet description for module
