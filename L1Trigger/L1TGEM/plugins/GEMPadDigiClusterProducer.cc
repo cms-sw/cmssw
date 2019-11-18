@@ -1,8 +1,5 @@
-#ifndef L1Trigger_L1TGEM_GEMPadDigiClusterProducer_h
-#define L1Trigger_L1TGEM_GEMPadDigiClusterProducer_h
-
 /**
- *  \class ME0PadDigiClusterProducer
+ *  \class GEMPadDigiClusterProducer
  *
  *  Produces GEM pad clusters from at most 8 adjacent GEM pads.
  *  Clusters are used downstream in the CSC local trigger to build
@@ -13,6 +10,8 @@
  *  \author Sven Dildick (TAMU)
  */
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -282,4 +281,4 @@ void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterSortedCont
 
 DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
 
-#endif
+DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
