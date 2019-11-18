@@ -19,7 +19,9 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
+//#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
+
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerClusterAlgoFactory.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
@@ -206,7 +208,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
     const reco::CaloCluster& sCl = (*clusterHandle)[i];
     if (sCl.size() >= 3) {
       std::vector<float> timeClhits;
-      std::vector<float> SoNClhits;
+      std::vector<float> timeErrorClhits;
 
       for (auto const& hit : sCl.hitsAndFractions()) {
         auto finder = hitmap.find(hit.first);
@@ -219,11 +221,11 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
         if (rhTime < 0.)
           continue;
         timeClhits.push_back(rhTime - timeOffset);
-	SoNClhits.push_back(rechit->signalOverSigmaNoise());
+	timeErrorClhits.push_back(1./rechit->timeError()/rechit->timeError());
       }
       if (timeClhits.size() >= 3){
-	std::string type = "hitSoN";
-	timeCl = hgcalsimclustertime::fixSizeHighestDensityResWeig(timeClhits, SoNClhits, type);
+	hgcalsimclustertime::ComputeClusterTime timeEstimator;
+	timeCl = timeEstimator.fixSizeHighestDensity(timeClhits, timeErrorClhits);
       }
     }
     times.push_back(timeCl);
