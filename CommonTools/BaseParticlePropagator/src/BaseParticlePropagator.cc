@@ -506,11 +506,10 @@ bool BaseParticlePropagator::propagateToHcalEntrance(bool first) {
 
 bool BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   //
-  // Propagation to VFCAL entrance
-  // TODO: include proper geometry
-  // Geometry taken from DAQ TDR Chapter 13
+  // Propagation to VFCAL (HF) entrance
+  // Geometry taken from xml: Geometry/CMSCommonData/data/cms.xml
 
-  setPropagationConditions(400.0, 1110.0, first);
+  setPropagationConditions(400.0, 1114.95, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
