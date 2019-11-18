@@ -6,6 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+//#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : HGCalRecHitWorkerBaseClass(ps) {
   rechitMaker_.reset(new HGCalRecHitSimpleAlgo());
@@ -191,7 +193,16 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   }
 
   myrechit.setEnergy(new_E);
-  myrechit.setSignalOverSigmaNoise(new_E / sigmaNoiseGeV);
+  float SoN = new_E / sigmaNoiseGeV;
+  myrechit.setSignalOverSigmaNoise(SoN);
+
+  if(myrechit.time() > -1){
+    hgcalsimclustertime::ComputeClusterTime timeEstimator(10., 1.e4, 0.02, 5.41);
+    float timeError = timeEstimator.getTimeError("recHit", SoN);
+    //    std::cout << " SoN = " << SoN << " log10(SoN) = " << log10(SoN) << " timeError = " << timeError << " time = " << myrechit.time() << std::endl;
+    myrechit.setTimeError(timeError);
+  }
+
   result.push_back(myrechit);
 
   return true;
