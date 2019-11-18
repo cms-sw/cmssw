@@ -37,8 +37,7 @@ HcalParametersESModule::HcalParametersESModule(const edm::ParameterSet& ps) {
   cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "HcalParametersESModule::HcalParametersESModule called with dd4hep: "
-                               << fromDD4Hep_;
+  edm::LogVerbatim("HCalGeom") << "HcalParametersESModule::HcalParametersESModule called with dd4hep: " << fromDD4Hep_;
 #endif
 }
 

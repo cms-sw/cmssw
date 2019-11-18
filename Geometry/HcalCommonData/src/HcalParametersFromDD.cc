@@ -136,12 +136,11 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
   } else {
     throw cms::Exception("HcalParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
- 
- return build(php);
+
+  return build(php);
 }
 
 bool HcalParametersFromDD::build(const HcalParameters& php) {
-
 #ifdef EDM_ML_DEBUG
   int i(0);
   std::cout << "HcalParametersFromDD: MaxDepth: ";
