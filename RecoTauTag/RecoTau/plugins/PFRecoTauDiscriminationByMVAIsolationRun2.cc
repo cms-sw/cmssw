@@ -191,7 +191,8 @@ namespace reco {
       evt.getByToken(Tau_token, taus_);
     }
 
-    reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& tau) const {
+    reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(
+        const PFTauRef& tau) const {
       reco::PFSingleTauDiscriminatorContainer result;
       result.rawValues = {-1.};
 
@@ -211,7 +212,8 @@ namespace reco {
         float chargedIsoPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(chargedIsoPtSum_index_);
         float neutralIsoPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(neutralIsoPtSum_index_);
         float puCorrPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(pucorrPtSum_index_);
-        float photonPtSumOutsideSignalCone = (*basicTauDiscriminators_)[tau].rawValues.at(photonPtSumOutsideSignalCone_index_);
+        float photonPtSumOutsideSignalCone =
+            (*basicTauDiscriminators_)[tau].rawValues.at(photonPtSumOutsideSignalCone_index_);
         float footprintCorrection = (*basicTauDiscriminators_)[tau].rawValues.at(footprintCorrection_index_);
 
         const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[tau];

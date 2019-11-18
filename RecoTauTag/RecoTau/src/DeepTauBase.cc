@@ -46,8 +46,8 @@ namespace deep_tau {
   }
 
   std::unique_ptr<DeepTauBase::TauDiscriminator> DeepTauBase::Output::get_value(const edm::Handle<TauCollection>& taus,
-                                                                const tensorflow::Tensor& pred,
-                                                                const WPList& working_points) const {
+                                                                                const tensorflow::Tensor& pred,
+                                                                                const WPList& working_points) const {
     std::unique_ptr<TauDiscriminator> output = std::make_unique<TauDiscriminator>(TauRefProd(taus));
 
     for (size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
@@ -80,7 +80,7 @@ namespace deep_tau {
         cache_(cache) {
     for (const auto& output_desc : outputs_) {
       produces<TauDiscriminator>(output_desc.first);
-      const auto& cut_list = cfg.getParameter<std::vector<std::string> >(output_desc.first + "WP");
+      const auto& cut_list = cfg.getParameter<std::vector<std::string>>(output_desc.first + "WP");
       for (const std::string& cut_str : cut_list) {
         workingPoints_[output_desc.first].push_back(std::make_unique<Cutter>(cut_str));
       }

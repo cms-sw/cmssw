@@ -20,7 +20,8 @@ private:
   edm::EDGetTokenT<pat::TauCollection> src_;
   typedef std::pair<std::string, edm::InputTag> NameTag;
   typedef std::pair<std::string, int> NameWPIdx;
-  typedef std::pair<edm::InputTag, std::vector<NameWPIdx> >IDContainerData; //to save input module tag and corresponding pairs <working point name for the output tree, WP index in the input ID container>
+  typedef std::pair<edm::InputTag, std::vector<NameWPIdx> >
+      IDContainerData;  //to save input module tag and corresponding pairs <working point name for the output tree, WP index in the input ID container>
   std::vector<NameTag> tauIDSrcs_;
   std::vector<std::vector<NameWPIdx> > tauIDSrcContainers_;
   std::vector<edm::EDGetTokenT<pat::PATTauDiscriminator> > patTauIDTokens_;
@@ -37,15 +38,18 @@ PATTauIDEmbedder::PATTauIDEmbedder(const edm::ParameterSet& cfg) {
   std::map<std::string, IDContainerData> idContainerMap;
   for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
     edm::ParameterSet idp = idps.getParameter<edm::ParameterSet>(*it);
-      int wpidx = idp.getParameter<int>("workingPointIndex");
-      edm::InputTag tag = idp.getParameter<edm::InputTag>("inputTag");
-      if (wpidx == -99){
-        tauIDSrcs_.push_back(NameTag(*it, tag));
-      }else{
-        std::map<std::string, IDContainerData>::iterator it2;
-        it2 = idContainerMap.insert(std::pair<std::string, IDContainerData>(tag.label()+tag.instance(), IDContainerData(tag, std::vector<NameWPIdx>()))).first;
-        it2->second.second.push_back(NameWPIdx(*it, wpidx));
-      }
+    int wpidx = idp.getParameter<int>("workingPointIndex");
+    edm::InputTag tag = idp.getParameter<edm::InputTag>("inputTag");
+    if (wpidx == -99) {
+      tauIDSrcs_.push_back(NameTag(*it, tag));
+    } else {
+      std::map<std::string, IDContainerData>::iterator it2;
+      it2 = idContainerMap
+                .insert(std::pair<std::string, IDContainerData>(tag.label() + tag.instance(),
+                                                                IDContainerData(tag, std::vector<NameWPIdx>())))
+                .first;
+      it2->second.second.push_back(NameWPIdx(*it, wpidx));
+    }
   }
   // but in any case at least once
   if (tauIDSrcs_.empty() && idContainerMap.empty())
@@ -53,7 +57,9 @@ PATTauIDEmbedder::PATTauIDEmbedder(const edm::ParameterSet& cfg) {
                                           << "\tPSet tauIDSources = { \n"
                                           << "\t\tInputTag <someName> = <someTag>   // as many as you want \n "
                                           << "\t}\n";
-  for (std::map<std::string, IDContainerData>::const_iterator mapEntry = idContainerMap.begin(); mapEntry != idContainerMap.end(); mapEntry++) {
+  for (std::map<std::string, IDContainerData>::const_iterator mapEntry = idContainerMap.begin();
+       mapEntry != idContainerMap.end();
+       mapEntry++) {
     tauIDSrcContainers_.push_back(mapEntry->second.second);
     patTauIDContainerTokens_.push_back(mayConsume<pat::PATTauDiscriminatorContainer>(mapEntry->second.first));
   }
@@ -61,7 +67,8 @@ PATTauIDEmbedder::PATTauIDEmbedder(const edm::ParameterSet& cfg) {
       tauIDSrcs_, [this](NameTag const& tag) { return mayConsume<pat::PATTauDiscriminator>(tag.second); });
   nNewPlainTauIds_ = tauIDSrcs_.size();
   nNewTauIds_ = nNewPlainTauIds_;
-  for(std::vector<std::vector<NameWPIdx> >::iterator it = tauIDSrcContainers_.begin(); it != tauIDSrcContainers_.end(); it++){
+  for (std::vector<std::vector<NameWPIdx> >::iterator it = tauIDSrcContainers_.begin(); it != tauIDSrcContainers_.end();
+       it++) {
     nNewTauIds_ += it->size();
   }
 
@@ -95,7 +102,7 @@ void PATTauIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
       tauIds[nTauIds + i].first = tauIDSrcs_[i].first;
       tauIds[nTauIds + i].second = (*tauDiscr)[inputTauRef];
     }
-    
+
     // store IDs that were produced in PATTauDiscriminatorContainer format
     size_t nEmbeddedIDs = nTauIds + nNewPlainTauIds_;
     edm::Handle<pat::PATTauDiscriminatorContainer> tauDiscrCont;
@@ -104,12 +111,20 @@ void PATTauIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
       for (size_t j = 0; j < tauIDSrcContainers_[i].size(); ++j) {
         tauIds[nEmbeddedIDs + j].first = tauIDSrcContainers_[i][j].first;
         int WPIdx = tauIDSrcContainers_[i][j].second;
-        if (WPIdx < 0){
-          if ((*tauDiscrCont)[inputTauRef].rawValues.size()==1) tauIds[nEmbeddedIDs + j].second = (*tauDiscrCont)[inputTauRef].rawValues.at(0); //Only 0th component filled with default value if prediscriminor in PatTauDiscriminator failed.
-          else tauIds[nEmbeddedIDs + j].second = (*tauDiscrCont)[inputTauRef].rawValues.at(-1-WPIdx); //uses negative indices to access rawValues. In most cases only one rawValue at WPIdx=-1 exists.
-        }else{
-          if ((*tauDiscrCont)[inputTauRef].workingPoints.empty()) tauIds[nEmbeddedIDs + j].second = 0.0; //WP vector not filled if prediscriminor in PatTauDiscriminator failed. Set PAT output to false in this case
-          else tauIds[nEmbeddedIDs + j].second = (*tauDiscrCont)[inputTauRef].workingPoints.at(WPIdx);
+        if (WPIdx < 0) {
+          if ((*tauDiscrCont)[inputTauRef].rawValues.size() == 1)
+            tauIds[nEmbeddedIDs + j].second = (*tauDiscrCont)[inputTauRef].rawValues.at(
+                0);  //Only 0th component filled with default value if prediscriminor in PatTauDiscriminator failed.
+          else
+            tauIds[nEmbeddedIDs + j].second = (*tauDiscrCont)[inputTauRef].rawValues.at(
+                -1 -
+                WPIdx);  //uses negative indices to access rawValues. In most cases only one rawValue at WPIdx=-1 exists.
+        } else {
+          if ((*tauDiscrCont)[inputTauRef].workingPoints.empty())
+            tauIds[nEmbeddedIDs + j].second =
+                0.0;  //WP vector not filled if prediscriminor in PatTauDiscriminator failed. Set PAT output to false in this case
+          else
+            tauIds[nEmbeddedIDs + j].second = (*tauDiscrCont)[inputTauRef].workingPoints.at(WPIdx);
         }
       }
       nEmbeddedIDs += tauIDSrcContainers_[i].size();

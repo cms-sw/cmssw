@@ -40,10 +40,12 @@ namespace {
 
   public:
     explicit PFRecoTauDiscriminationAgainstMuon2Container(const edm::ParameterSet& cfg)
-        : PFTauDiscriminationProducerBaseForIDContainers(cfg), moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
+        : PFTauDiscriminationProducerBaseForIDContainers(cfg),
+          moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
       wpDefs_ = cfg.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
       // check content of discriminatorOption and add as enum to avoid string comparison per event
-      for(std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end(); ++wpDefsEntry){
+      for (std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end();
+           ++wpDefsEntry) {
         std::string discriminatorOption_string = wpDefsEntry->getParameter<std::string>("discriminatorOption");
         if (discriminatorOption_string == "loose")
           wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kLoose);
@@ -107,7 +109,8 @@ namespace {
     }
   }
 
-  reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuon2Container::discriminate(const reco::PFTauRef& pfTau) const {
+  reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuon2Container::discriminate(
+      const reco::PFTauRef& pfTau) const {
     if (verbosity_) {
       edm::LogPrint("PFTauAgainstMuon2") << "<PFRecoTauDiscriminationAgainstMuon2Container::discriminate>:";
       edm::LogPrint("PFTauAgainstMuon2") << " moduleLabel = " << moduleLabel_;
@@ -243,14 +246,15 @@ namespace {
         leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
     }
     reco::PFSingleTauDiscriminatorContainer result;
-    for(std::vector<edm::ParameterSet>::const_iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end(); ++wpDefsEntry){
+    for (std::vector<edm::ParameterSet>::const_iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end();
+         ++wpDefsEntry) {
       //extract WP parameters
       int discriminatorOption = wpDefsEntry->getParameter<int>("discriminatorOptionEnum");
       double hop = wpDefsEntry->getParameter<double>("HoPMin");
       int maxNumberOfMatches = wpDefsEntry->getParameter<int>("maxNumberOfMatches");
       bool doCaloMuonVeto = wpDefsEntry->getParameter<bool>("doCaloMuonVeto");
       int maxNumberOfHitsLast2Stations = wpDefsEntry->getParameter<int>("maxNumberOfHitsLast2Stations");
-      
+
       if (pfLeadChargedHadron.isNonnull()) {
         if (pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop * leadTrack->p()))
           passesCaloMuonVeto = false;
@@ -358,7 +362,7 @@ void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::Configu
                              });
   desc.add<double>("dRmuonMatch", 0.3);
   desc.add<edm::InputTag>("srcMuons", edm::InputTag("muons"));
-  
+
   edm::ParameterSetDescription desc_wp;
   desc_wp.add<std::string>("IDname");
   desc_wp.add<std::string>("discriminatorOption");
@@ -376,7 +380,7 @@ void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::Configu
   std::vector<edm::ParameterSet> vpsd_wp;
   vpsd_wp.push_back(pset_wp);
   desc.addVPSet("IDWPdefinitions", desc_wp, vpsd_wp);
-  
+
   descriptions.add("pfRecoTauDiscriminationAgainstMuon2Container", desc);
 }
 

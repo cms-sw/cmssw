@@ -48,45 +48,51 @@ public:
     gammasNeeded_ = false;
     storeRawValue_.clear();
     std::vector<edm::ParameterSet> rawDefs = pset.getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
-    for(std::vector<edm::ParameterSet>::iterator rawDefsEntry = rawDefs.begin(); rawDefsEntry != rawDefs.end(); ++rawDefsEntry){
+    for (std::vector<edm::ParameterSet>::iterator rawDefsEntry = rawDefs.begin(); rawDefsEntry != rawDefs.end();
+         ++rawDefsEntry) {
       // Can only store one type
       int numStoreOptions = 0;
-      if (rawDefsEntry->getParameter<bool>("storeRawSumPt")){
+      if (rawDefsEntry->getParameter<bool>("storeRawSumPt")) {
         storeRawValue_.push_back(SumPt);
         ++numStoreOptions;
       }
-      if (rawDefsEntry->getParameter<bool>("storeRawOccupancy")){
+      if (rawDefsEntry->getParameter<bool>("storeRawOccupancy")) {
         storeRawValue_.push_back(Occupancy);
         ++numStoreOptions;
       }
-      if (rawDefsEntry->getParameter<bool>("storeRawPUsumPt")){
+      if (rawDefsEntry->getParameter<bool>("storeRawPUsumPt")) {
         storeRawValue_.push_back(PUsumPt);
         ++numStoreOptions;
       }
-      if (rawDefsEntry->getParameter<bool>("storeRawFootprintCorrection")){
+      if (rawDefsEntry->getParameter<bool>("storeRawFootprintCorrection")) {
         storeRawValue_.push_back(FootPrintCorrection);
         storeRawFootprintCorrection = true;
         ++numStoreOptions;
       }
-      if (rawDefsEntry->getParameter<bool>("storeRawPhotonSumPt_outsideSignalCone")){
+      if (rawDefsEntry->getParameter<bool>("storeRawPhotonSumPt_outsideSignalCone")) {
         storeRawValue_.push_back(PhotonSumPt);
         ++numStoreOptions;
       }
       if (numStoreOptions != 1) {
-        throw cms::Exception("BadIsoConfig") << "Multiple or none of 'store sum pt' and/or 'store occupancy' options are set."
-                                           << " These options are mutually exclusive.";
+        throw cms::Exception("BadIsoConfig")
+            << "Multiple or none of 'store sum pt' and/or 'store occupancy' options are set."
+            << " These options are mutually exclusive.";
       }
 
       includeGammas_.push_back(rawDefsEntry->getParameter<bool>("ApplyDiscriminationByECALIsolation"));
-      if (includeGammas_.back()) gammasNeeded_ = true;
+      if (includeGammas_.back())
+        gammasNeeded_ = true;
       calculateWeights_.push_back(rawDefsEntry->getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation"));
-      if (calculateWeights_.back()) weightsNeeded_ = true;
+      if (calculateWeights_.back())
+        weightsNeeded_ = true;
       includeTracks_.push_back(rawDefsEntry->getParameter<bool>("ApplyDiscriminationByTrackerIsolation"));
-      if (includeTracks_.back()) tracksNeeded_ = true;
+      if (includeTracks_.back())
+        tracksNeeded_ = true;
       applyDeltaBetaCorrection_.push_back(rawDefsEntry->getParameter<bool>("applyDeltaBetaCorrection"));
-      if (applyDeltaBetaCorrection_.back()) deltaBetaNeeded_ = true;
+      if (applyDeltaBetaCorrection_.back())
+        deltaBetaNeeded_ = true;
       useAllPFCandsForWeights_.push_back(rawDefsEntry->getParameter<bool>("UseAllPFCandsForWeights"));
-      
+
       // sanity check2 - can't use weighted and unweighted iso at the same time
       if (includeGammas_.back() && calculateWeights_.back()) {
         throw cms::Exception("BasIsoConfig")
@@ -94,10 +100,11 @@ public:
             << "have been set to true. These options are mutually exclusive.";
       }
     }
-    
+
     // Get configs for WPs - negative cut values are used to switch of the condition
     std::vector<edm::ParameterSet> wpDefs = pset.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
-    for(std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs.begin(); wpDefsEntry != wpDefs.end(); ++wpDefsEntry){
+    for (std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs.begin(); wpDefsEntry != wpDefs.end();
+         ++wpDefsEntry) {
       maximumSumPtCut_.push_back(wpDefsEntry->getParameter<double>("maximumSumPtCut"));
       applySumPtCut_.push_back(maximumSumPtCut_.back() >= 0.0);
       maximumOccupancy_.push_back(wpDefsEntry->getParameter<int>("maximumOccupancy"));
@@ -105,20 +112,27 @@ public:
       maximumRelativeSumPt_.push_back(wpDefsEntry->getParameter<double>("relativeSumPtCut"));
       offsetRelativeSumPt_.push_back(wpDefsEntry->getParameter<double>("relativeSumPtOffset"));
       applyRelativeSumPtCut_.push_back(maximumRelativeSumPt_.back() >= 0.0);
-      applyPhotonPtSumOutsideSignalConeCut_.push_back(wpDefsEntry->getParameter<bool>("applyPhotonPtSumOutsideSignalConeCut"));
-      maxAbsPhotonSumPt_outsideSignalCone_.push_back(wpDefsEntry->getParameter<double>("maxAbsPhotonSumPt_outsideSignalCone"));
-      maxRelPhotonSumPt_outsideSignalCone_.push_back(wpDefsEntry->getParameter<double>("maxRelPhotonSumPt_outsideSignalCone"));
+      applyPhotonPtSumOutsideSignalConeCut_.push_back(
+          wpDefsEntry->getParameter<bool>("applyPhotonPtSumOutsideSignalConeCut"));
+      maxAbsPhotonSumPt_outsideSignalCone_.push_back(
+          wpDefsEntry->getParameter<double>("maxAbsPhotonSumPt_outsideSignalCone"));
+      maxRelPhotonSumPt_outsideSignalCone_.push_back(
+          wpDefsEntry->getParameter<double>("maxRelPhotonSumPt_outsideSignalCone"));
 
       includeGammas_.push_back(wpDefsEntry->getParameter<bool>("ApplyDiscriminationByECALIsolation"));
-      if (includeGammas_.back()) gammasNeeded_ = true;
+      if (includeGammas_.back())
+        gammasNeeded_ = true;
       calculateWeights_.push_back(wpDefsEntry->getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation"));
-      if (calculateWeights_.back()) weightsNeeded_ = true;
+      if (calculateWeights_.back())
+        weightsNeeded_ = true;
       includeTracks_.push_back(wpDefsEntry->getParameter<bool>("ApplyDiscriminationByTrackerIsolation"));
-      if (includeTracks_.back()) tracksNeeded_ = true;
+      if (includeTracks_.back())
+        tracksNeeded_ = true;
       applyDeltaBetaCorrection_.push_back(wpDefsEntry->getParameter<bool>("applyDeltaBetaCorrection"));
-      if (applyDeltaBetaCorrection_.back()) deltaBetaNeeded_ = true;
+      if (applyDeltaBetaCorrection_.back())
+        deltaBetaNeeded_ = true;
       useAllPFCandsForWeights_.push_back(wpDefsEntry->getParameter<bool>("UseAllPFCandsForWeights"));
-      
+
       // sanity check2 - can't use weighted and unweighted iso at the same time
       if (includeGammas_.back() && calculateWeights_.back()) {
         throw cms::Exception("BasIsoConfig")
@@ -173,7 +187,7 @@ public:
       pileupQcutsGeneralQCuts_.reset(new tau::RecoTauQualityCuts(puFactorizedIsoQCuts.second));
 
       pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
-      pfCand_token = consumes<edm::View<reco::Candidate> >(pfCandSrc_);
+      pfCand_token = consumes<edm::View<reco::Candidate>>(pfCandSrc_);
       vertexSrc_ = pset.getParameter<edm::InputTag>("vertexSrc");
       vertex_token = consumes<reco::VertexCollection>(vertexSrc_);
       deltaBetaCollectionCone_ = pset.getParameter<double>("isoConeSizeForDeltaBeta");
@@ -237,7 +251,7 @@ private:
     StringCutObjectSelector<PFTau> selection_;
     StringObjectFunction<PFTau> offset_;
   };
-  std::vector<std::unique_ptr<FootprintCorrection> > footprintCorrections_;
+  std::vector<std::unique_ptr<FootprintCorrection>> footprintCorrections_;
 
   // Options to store the raw value in the discriminator instead of boolean pass/fail flag
   std::vector<StoredRawType> storeRawValue_;
@@ -266,7 +280,7 @@ private:
   // Delta Beta correction
   bool deltaBetaNeeded_;
   edm::InputTag pfCandSrc_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCand_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> pfCand_token;
   // Keep track of how many vertices are in the event
   edm::InputTag vertexSrc_;
   edm::EDGetTokenT<reco::VertexCollection> vertex_token;
@@ -289,7 +303,8 @@ private:
   int verbosity_;
 };
 
-void PFRecoTauDiscriminationByIsolationContainer::beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) {
+void PFRecoTauDiscriminationByIsolationContainer::beginEvent(const edm::Event& event,
+                                                             const edm::EventSetup& eventSetup) {
   // NB: The use of the PV in this context is necessitated by its use in
   // applying quality cuts to the different objects in the isolation cone
   // The vertex associator contains the logic to select the appropriate vertex
@@ -300,7 +315,7 @@ void PFRecoTauDiscriminationByIsolationContainer::beginEvent(const edm::Event& e
   // candidates from the event so we can find the PU tracks.
   if (deltaBetaNeeded_ || weightsNeeded_) {
     // Collect all the PF pile up tracks
-    edm::Handle<edm::View<reco::Candidate> > pfCandidates;
+    edm::Handle<edm::View<reco::Candidate>> pfCandidates;
     event.getByToken(pfCand_token, pfCandidates);
     chargedPFCandidatesInEvent_.clear();
     chargedPFCandidatesInEvent_.reserve(pfCandidates->size());
@@ -326,7 +341,8 @@ void PFRecoTauDiscriminationByIsolationContainer::beginEvent(const edm::Event& e
   }
 }
 
-reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContainer::discriminate(const PFTauRef& pfTau) const {
+reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContainer::discriminate(
+    const PFTauRef& pfTau) const {
   LogDebug("discriminate") << " tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi();
   LogDebug("discriminate") << *pfTau;
 
@@ -512,18 +528,18 @@ reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContai
   //Now all needed incredients are ready. Loop over all ID configurations and produce output
   reco::PFSingleTauDiscriminatorContainer result;
   const size_t n_raws = storeRawValue_.size();
-  for(size_t i=0; i<includeGammas_.size(); i++){
+  for (size_t i = 0; i < includeGammas_.size(); i++) {
     //determine number of raw values (needed to apply correct indices) and check whether a raw value or a flag is calculated
-    const bool output_is_raw = (i<n_raws);
+    const bool output_is_raw = (i < n_raws);
     const size_t iwp = i - n_raws;
-    
+
     bool failsOccupancyCut = false;
     bool failsSumPtCut = false;
     bool failsRelativeSumPtCut = false;
 
     //--- nObjects requirement
     int neutrals = isoNeutral_.size();
-    
+
     if (applyDeltaBetaCorrection_.at(i)) {
       neutrals -= TMath::Nint(deltaBetaFactorThisEvent_ * isoPU_.size());
     }
@@ -533,11 +549,12 @@ reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContai
 
     int nOccupants = isoCharged_.size() + neutrals;
 
-    if(!output_is_raw) failsOccupancyCut = (nOccupants > maximumOccupancy_.at(iwp));
+    if (!output_is_raw)
+      failsOccupancyCut = (nOccupants > maximumOccupancy_.at(iwp));
 
     double footprintCorrection_value = 0.;
-    if (applyFootprintCorrection_ || (output_is_raw && storeRawValue_.at(i)==FootPrintCorrection)) {
-      for (std::vector<std::unique_ptr<FootprintCorrection> >::const_iterator footprintCorrection =
+    if (applyFootprintCorrection_ || (output_is_raw && storeRawValue_.at(i) == FootPrintCorrection)) {
+      for (std::vector<std::unique_ptr<FootprintCorrection>>::const_iterator footprintCorrection =
                footprintCorrections_.begin();
            footprintCorrection != footprintCorrections_.end();
            ++footprintCorrection) {
@@ -550,18 +567,19 @@ reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContai
     double totalPt = 0.;
     double puPt = 0.;
     //--- Sum PT requirement
-    if ((!output_is_raw && (applySumPtCut_.at(iwp) || applyRelativeSumPtCut_.at(iwp))) || (output_is_raw && (storeRawValue_.at(i)==SumPt || storeRawValue_.at(i)==PUsumPt))) {
+    if ((!output_is_raw && (applySumPtCut_.at(iwp) || applyRelativeSumPtCut_.at(iwp))) ||
+        (output_is_raw && (storeRawValue_.at(i) == SumPt || storeRawValue_.at(i) == PUsumPt))) {
       double chargedPt = 0.;
       double neutralPt = 0.;
       double weightedNeutralPt = 0.;
-      if (includeTracks_.at(i)){
+      if (includeTracks_.at(i)) {
         for (auto const& isoObject : isoCharged_) {
           chargedPt += isoObject->pt();
         }
       }
 
       if (calculateWeights_.at(i)) {
-        if (useAllPFCandsForWeights_.at(i)){
+        if (useAllPFCandsForWeights_.at(i)) {
           for (auto const& isoObject : isoNeutralWeight_UseAllPFCands_) {
             weightedNeutralPt += isoObject.pt();
           }
@@ -582,7 +600,7 @@ reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContai
       LogTrace("discriminate") << "neutralPt = " << neutralPt;
       LogTrace("discriminate") << "weighted neutral Pt = " << weightedNeutralPt;
       LogTrace("discriminate") << "puPt = " << puPt << " (delta-beta corr. = " << (deltaBetaFactorThisEvent_ * puPt)
-                             << ")";
+                               << ")";
 
       if (calculateWeights_.at(i)) {
         neutralPt = weightedNeutralPt;
@@ -606,18 +624,20 @@ reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContai
 
       totalPt = chargedPt + weightGammas_ * neutralPt;
 
-      if(!output_is_raw){
+      if (!output_is_raw) {
         LogTrace("discriminate") << "totalPt = " << totalPt << " (cut = " << maximumSumPtCut_.at(iwp) << ")";
         failsSumPtCut = (totalPt > maximumSumPtCut_.at(iwp));
 
         //--- Relative Sum PT requirement
-        failsRelativeSumPtCut = (totalPt > ((pfTau->pt() - offsetRelativeSumPt_.at(iwp)) * maximumRelativeSumPt_.at(iwp)));
+        failsRelativeSumPtCut =
+            (totalPt > ((pfTau->pt() - offsetRelativeSumPt_.at(iwp)) * maximumRelativeSumPt_.at(iwp)));
       }
     }
 
     bool failsPhotonPtSumOutsideSignalConeCut = false;
     double photonSumPt_outsideSignalCone = 0.;
-    if ((!output_is_raw && applyPhotonPtSumOutsideSignalConeCut_.at(iwp)) || (output_is_raw && storeRawValue_.at(i)==PhotonSumPt)) {
+    if ((!output_is_raw && applyPhotonPtSumOutsideSignalConeCut_.at(iwp)) ||
+        (output_is_raw && storeRawValue_.at(i) == PhotonSumPt)) {
       const std::vector<reco::CandidatePtr>& signalGammas = pfTau->signalGammaCands();
       for (std::vector<reco::CandidatePtr>::const_iterator signalGamma = signalGammas.begin();
            signalGamma != signalGammas.end();
@@ -626,16 +646,17 @@ reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContai
         if (dR > pfTau->signalConeSize())
           photonSumPt_outsideSignalCone += (*signalGamma)->pt();
       }
-      if (!output_is_raw && (photonSumPt_outsideSignalCone > maxAbsPhotonSumPt_outsideSignalCone_.at(iwp) ||
-          photonSumPt_outsideSignalCone > (maxRelPhotonSumPt_outsideSignalCone_.at(iwp) * pfTau->pt()))) {
+      if (!output_is_raw &&
+          (photonSumPt_outsideSignalCone > maxAbsPhotonSumPt_outsideSignalCone_.at(iwp) ||
+           photonSumPt_outsideSignalCone > (maxRelPhotonSumPt_outsideSignalCone_.at(iwp) * pfTau->pt()))) {
         failsPhotonPtSumOutsideSignalConeCut = true;
       }
     }
 
     bool fails = !output_is_raw &&
                  ((applyOccupancyCut_.at(iwp) && failsOccupancyCut) || (applySumPtCut_.at(iwp) && failsSumPtCut) ||
-                 (applyRelativeSumPtCut_.at(iwp) && failsRelativeSumPtCut) ||
-                 (applyPhotonPtSumOutsideSignalConeCut_.at(iwp) && failsPhotonPtSumOutsideSignalConeCut));
+                  (applyRelativeSumPtCut_.at(iwp) && failsRelativeSumPtCut) ||
+                  (applyPhotonPtSumOutsideSignalConeCut_.at(iwp) && failsPhotonPtSumOutsideSignalConeCut));
 
     if (!output_is_raw && pfTau->pt() > minPtForNoIso_ && minPtForNoIso_ > 0.) {
       LogDebug("discriminate") << "tau pt = " << pfTau->pt() << "\t  min cutoff pt = " << minPtForNoIso_;
@@ -644,21 +665,21 @@ reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContai
     }
 
     // We did error checking in the constructor, so this is safe.
-    if(output_is_raw){
-      if (storeRawValue_.at(i)==SumPt) {
+    if (output_is_raw) {
+      if (storeRawValue_.at(i) == SumPt) {
         result.rawValues.push_back(totalPt);
-      } else if (storeRawValue_.at(i)==PUsumPt) {
+      } else if (storeRawValue_.at(i) == PUsumPt) {
         if (applyDeltaBetaCorrection_.at(i))
           result.rawValues.push_back(puPt);
         else if (applyRhoCorrection_)
           result.rawValues.push_back(rhoThisEvent_);
         else
           result.rawValues.push_back(0.);
-      } else if (storeRawValue_.at(i)==Occupancy) {
+      } else if (storeRawValue_.at(i) == Occupancy) {
         result.rawValues.push_back(nOccupants);
-      } else if (storeRawValue_.at(i)==FootPrintCorrection) {
+      } else if (storeRawValue_.at(i) == FootPrintCorrection) {
         result.rawValues.push_back(footprintCorrection_value);
-      } else if (storeRawValue_.at(i)==PhotonSumPt) {
+      } else if (storeRawValue_.at(i) == PhotonSumPt) {
         result.rawValues.push_back(photonSumPt_outsideSignalCone);
       }
     } else {
@@ -786,10 +807,10 @@ void PFRecoTauDiscriminationByIsolationContainer::fillDescriptions(edm::Configur
   desc.add<double>("isoConeSizeForDeltaBeta", 0.5);
   desc.add<double>("customOuterCone", -1.0);
   desc.add<edm::InputTag>("particleFlowSrc", edm::InputTag("particleFlow"));
-  
+
   // options for various stored ID raw values
   edm::ParameterSetDescription desc_idlist;
-  desc_idlist.add<string>("IDname"); //not needed by producer but required for mapping at PAT level
+  desc_idlist.add<string>("IDname");  //not needed by producer but required for mapping at PAT level
   desc_idlist.add<bool>("storeRawSumPt", false);
   desc_idlist.add<bool>("storeRawPUsumPt", false);
   desc_idlist.add<bool>("storeRawOccupancy", false);
@@ -800,11 +821,11 @@ void PFRecoTauDiscriminationByIsolationContainer::fillDescriptions(edm::Configur
   desc_idlist.add<bool>("ApplyDiscriminationByTrackerIsolation", false);
   desc_idlist.add<bool>("applyDeltaBetaCorrection", false);
   desc_idlist.add<bool>("UseAllPFCandsForWeights", false);
-  std::vector<edm::ParameterSet> vpsd_idlist; //by default, don't store any raw value
+  std::vector<edm::ParameterSet> vpsd_idlist;  //by default, don't store any raw value
   desc.addVPSet("IDdefinitions", desc_idlist, vpsd_idlist);
   // options for various stored ID WPs
   edm::ParameterSetDescription desc_idwplist;
-  desc_idwplist.add<string>("IDname"); //not needed by producer but required for mapping at PAT level
+  desc_idwplist.add<string>("IDname");  //not needed by producer but required for mapping at PAT level
   desc_idwplist.add<double>("maximumSumPtCut", -1.0);
   desc_idwplist.add<int>("maximumOccupancy", -1);
   desc_idwplist.add<double>("relativeSumPtCut", -1.0);
@@ -817,7 +838,7 @@ void PFRecoTauDiscriminationByIsolationContainer::fillDescriptions(edm::Configur
   desc_idwplist.add<bool>("ApplyDiscriminationByTrackerIsolation", false);
   desc_idwplist.add<bool>("applyDeltaBetaCorrection", false);
   desc_idwplist.add<bool>("UseAllPFCandsForWeights", false);
-  edm::ParameterSet pset_idwplist; //define default pset for WP
+  edm::ParameterSet pset_idwplist;  //define default pset for WP
   pset_idwplist.addParameter<string>("IDname", "pfRecoTauDiscriminationByIsolationContainer");
   pset_idwplist.addParameter<double>("maximumSumPtCut", -1.0);
   pset_idwplist.addParameter<int>("maximumOccupancy", 0);

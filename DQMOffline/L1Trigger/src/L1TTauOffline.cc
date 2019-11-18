@@ -44,13 +44,16 @@ const std::map<std::string, unsigned int> L1TTauOffline::PlotConfigNames = {
 //
 L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps)
     : theTauCollection_(consumes<reco::PFTauCollection>(ps.getUntrackedParameter<edm::InputTag>("tauInputTag"))),
-      AntiMuInputTag_(consumes<reco::PFTauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("antiMuInputTag"))),
+      AntiMuInputTag_(
+          consumes<reco::PFTauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("antiMuInputTag"))),
       AntiMuWPIndex_(ps.getUntrackedParameter<int>("antiMuWPIndex")),
-      AntiEleInputTag_(consumes<reco::PFTauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("antiEleInputTag"))),
+      AntiEleInputTag_(
+          consumes<reco::PFTauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("antiEleInputTag"))),
       AntiEleWPIndex_(ps.getUntrackedParameter<int>("antiEleWPIndex")),
       DecayModeFindingInputTag_(
           consumes<reco::PFTauDiscriminator>(ps.getUntrackedParameter<edm::InputTag>("decayModeFindingInputTag"))),
-      comb3TInputTag_(consumes<reco::PFTauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("comb3TInputTag"))),
+      comb3TInputTag_(
+          consumes<reco::PFTauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("comb3TInputTag"))),
       comb3TWPIndex_(ps.getUntrackedParameter<int>("comb3TWPIndex")),
       MuonInputTag_(consumes<reco::MuonCollection>(ps.getUntrackedParameter<edm::InputTag>("muonInputTag"))),
       MetInputTag_(consumes<reco::PFMETCollection>(ps.getUntrackedParameter<edm::InputTag>("metInputTag"))),
@@ -663,8 +666,10 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
       TLorentzVector mytau;
       mytau.SetPtEtaPhiE(tauIt->pt(), tauIt->eta(), tauIt->phi(), tauIt->energy());
 
-      if (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 && (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_] &&
-          (*antiele)[tauCandidate].workingPoints[AntiEleWPIndex_] && (*dmf)[tauCandidate] > 0.5 && (*comb3T)[tauCandidate].workingPoints[comb3TWPIndex_]) {
+      if (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 &&
+          (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_] &&
+          (*antiele)[tauCandidate].workingPoints[AntiEleWPIndex_] && (*dmf)[tauCandidate] > 0.5 &&
+          (*comb3T)[tauCandidate].workingPoints[comb3TWPIndex_]) {
         if (mymu.DeltaR(mytau) > 0.5 && (mymu + mytau).M() > 40 && (mymu + mytau).M() < 80 &&
             m_TightMuons[0]->charge() * tauIt->charge() < 0) {
           m_ProbeTaus.push_back(&(*tauIt));

@@ -28,7 +28,7 @@ struct PFTauSelectorDefinition {
   struct DiscContCutPair {
     edm::Handle<reco::PFTauDiscriminatorContainer> handle;
     edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> inputToken;
-    std::vector<std::pair<int,double> > rawCuts;
+    std::vector<std::pair<int, double> > rawCuts;
     std::vector<int> wpCuts;
   };
   typedef std::vector<DiscCutPair> DiscCutPairVec;
@@ -36,7 +36,8 @@ struct PFTauSelectorDefinition {
 
   PFTauSelectorDefinition(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) {
     std::vector<edm::ParameterSet> discriminators = cfg.getParameter<std::vector<edm::ParameterSet> >("discriminators");
-    std::vector<edm::ParameterSet> discriminatorContainers = cfg.getParameter<std::vector<edm::ParameterSet> >("discriminatorContainers");
+    std::vector<edm::ParameterSet> discriminatorContainers =
+        cfg.getParameter<std::vector<edm::ParameterSet> >("discriminatorContainers");
     // Build each of our cuts
     for (auto const& pset : discriminators) {
       DiscCutPair newCut;
@@ -46,15 +47,16 @@ struct PFTauSelectorDefinition {
     }
     for (auto const& pset : discriminatorContainers) {
       DiscContCutPair newCut;
-      newCut.inputToken = iC.consumes<reco::PFTauDiscriminatorContainer>(pset.getParameter<edm::InputTag>("discriminator"));
+      newCut.inputToken =
+          iC.consumes<reco::PFTauDiscriminatorContainer>(pset.getParameter<edm::InputTag>("discriminator"));
       std::vector<int> rawIdx = pset.getParameter<std::vector<int> >("rawIndices");
       std::vector<double> rawCutValues = pset.getParameter<std::vector<double> >("selectionCuts");
-      if (rawIdx.size()!=rawCutValues.size()) {
+      if (rawIdx.size() != rawCutValues.size()) {
         throw cms::Exception("PFTauSelectorBadHandle")
-          << "unequal number of TauIDContainer raw value indices and cut values given to PFTauSelector.";
+            << "unequal number of TauIDContainer raw value indices and cut values given to PFTauSelector.";
       }
-      for (size_t i=0; i<rawIdx.size(); i++){
-          newCut.rawCuts.push_back(std::pair<int,double>(rawIdx[i], rawCutValues[i]));
+      for (size_t i = 0; i < rawIdx.size(); i++) {
+        newCut.rawCuts.push_back(std::pair<int, double>(rawIdx[i], rawCutValues[i]));
       }
       newCut.wpCuts = pset.getParameter<std::vector<int> >("WPIndices");
       discriminatorContainers_.push_back(newCut);
@@ -97,22 +99,24 @@ struct PFTauSelectorDefinition {
           break;
         }
       }
-      if (passed){ // if passed so far, check other discriminators
+      if (passed) {  // if passed so far, check other discriminators
         for (auto const& disc : discriminatorContainers_) {
-          for (auto const& rawCut : disc.rawCuts){
+          for (auto const& rawCut : disc.rawCuts) {
             if (!((*disc.handle)[tau].rawValues.at(rawCut.first) > rawCut.second)) {
               passed = false;
               break;
             }
           }
-          if (!passed) break;
-          for (auto const& wpCut : disc.wpCuts){
-              if (!((*disc.handle)[tau].workingPoints.at(wpCut))) {
+          if (!passed)
+            break;
+          for (auto const& wpCut : disc.wpCuts) {
+            if (!((*disc.handle)[tau].workingPoints.at(wpCut))) {
               passed = false;
               break;
             }
           }
-          if (!passed) break;
+          if (!passed)
+            break;
         }
       }
 

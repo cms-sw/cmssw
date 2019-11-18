@@ -37,7 +37,7 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
     for (edm::InputTag& tag : discs) {
       PFTauDis_.push_back(consumes<reco::PFTauDiscriminator>(tag));
     }
-    for (edm::InputTag& tag : discConts){
+    for (edm::InputTag& tag : discConts) {
       PFTauDisCont_.push_back(consumes<reco::PFTauDiscriminatorContainer>(tag));
     }
     doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus", false);
@@ -159,7 +159,9 @@ void HLTTauRefProducer::doPFTaus(edm::Event& iEvent) const {
         for (edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> const& token : PFTauDisCont_) {
           edm::Handle<reco::PFTauDiscriminatorContainer> pftaudis;
           if (iEvent.getByToken(token, pftaudis)) {
-            if ((*pftaudis)[thePFTau].workingPoints.empty() || !(*pftaudis)[thePFTau].workingPoints.at(PFTauDisContIdx_[idx])) { //WP vector not filled if prediscriminor in RecoTauDiscriminator failed.
+            if ((*pftaudis)[thePFTau].workingPoints.empty() ||
+                !(*pftaudis)[thePFTau].workingPoints.at(
+                    PFTauDisContIdx_[idx])) {  //WP vector not filled if prediscriminor in RecoTauDiscriminator failed.
               passAll = false;
               break;
             }
@@ -168,7 +170,7 @@ void HLTTauRefProducer::doPFTaus(edm::Event& iEvent) const {
             break;
           }
           idx++;
-       	}
+        }
         if (passAll) {
           product_PFTaus->emplace_back(pftau.px(), pftau.py(), pftau.pz(), pftau.energy());
         }

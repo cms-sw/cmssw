@@ -8,34 +8,29 @@
 
 namespace reco {
   struct PFSingleTauDiscriminatorContainer {
-      std::vector<float> rawValues;
-      std::vector<bool> workingPoints;
-      operator float() const { return rawValues.at(0); }
-      
-      PFSingleTauDiscriminatorContainer(){}
-      PFSingleTauDiscriminatorContainer(float rawInit){ rawValues.push_back(rawInit); }
+    std::vector<float> rawValues;
+    std::vector<bool> workingPoints;
+    operator float() const { return rawValues.at(0); }
+
+    PFSingleTauDiscriminatorContainer() {}
+    PFSingleTauDiscriminatorContainer(float rawInit) { rawValues.push_back(rawInit); }
   };
 
-  typedef edm::AssociationVector<PFTauRefProd,std::vector<PFSingleTauDiscriminatorContainer> > PFTauDiscriminatorContainerBase;
-  
+  typedef edm::AssociationVector<PFTauRefProd, std::vector<PFSingleTauDiscriminatorContainer> >
+      PFTauDiscriminatorContainerBase;
+
   class PFTauDiscriminatorContainer : public PFTauDiscriminatorContainerBase {
   public:
-    PFTauDiscriminatorContainer() :
-      PFTauDiscriminatorContainerBase()
-      { }
-    
-    PFTauDiscriminatorContainer(const reco::PFTauRefProd & ref) :
-      PFTauDiscriminatorContainerBase(ref)
-      { }
-    
-    PFTauDiscriminatorContainer(const PFTauDiscriminatorContainerBase &v) :
-      PFTauDiscriminatorContainerBase(v)
-      { }
+    PFTauDiscriminatorContainer() : PFTauDiscriminatorContainerBase() {}
+
+    PFTauDiscriminatorContainer(const reco::PFTauRefProd &ref) : PFTauDiscriminatorContainerBase(ref) {}
+
+    PFTauDiscriminatorContainer(const PFTauDiscriminatorContainerBase &v) : PFTauDiscriminatorContainerBase(v) {}
   };
-  
-  typedef PFTauDiscriminatorContainer::value_type PFTauDiscriminatorContainerVT;  
-  typedef edm::Ref<PFTauDiscriminatorContainer> PFTauDiscriminatorContainerRef;  
-  typedef edm::RefProd<PFTauDiscriminatorContainer> PFTauDiscriminatorContainerRefProd;  
-  typedef edm::RefVector<PFTauDiscriminatorContainer> PFTauDiscriminatorContainerRefVector; 
-}
+
+  typedef PFTauDiscriminatorContainer::value_type PFTauDiscriminatorContainerVT;
+  typedef edm::Ref<PFTauDiscriminatorContainer> PFTauDiscriminatorContainerRef;
+  typedef edm::RefProd<PFTauDiscriminatorContainer> PFTauDiscriminatorContainerRefProd;
+  typedef edm::RefVector<PFTauDiscriminatorContainer> PFTauDiscriminatorContainerRefVector;
+}  // namespace reco
 #endif

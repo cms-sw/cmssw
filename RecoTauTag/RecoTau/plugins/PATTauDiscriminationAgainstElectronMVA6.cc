@@ -68,9 +68,10 @@ void PATTauDiscriminationAgainstElectronMVA6::beginEvent(const edm::Event& evt, 
   evt.getByToken(electronToken, Electrons);
 }
 
-pat::PATSingleTauDiscriminatorContainer PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTauRef) const {
+pat::PATSingleTauDiscriminatorContainer PATTauDiscriminationAgainstElectronMVA6::discriminate(
+    const TauRef& theTauRef) const {
   pat::PATSingleTauDiscriminatorContainer result;
-  result.rawValues = {1.,-1.};
+  result.rawValues = {1., -1.};
   double category = -1.;
   bool isGsfElectronMatched = false;
   float deltaRDummy = 9.9;

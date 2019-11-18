@@ -181,13 +181,14 @@ namespace reco {
       evt.getByToken(Tau_token, taus_);
     }
 
-    pat::PATSingleTauDiscriminatorContainer PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) const {
+    pat::PATSingleTauDiscriminatorContainer PATTauDiscriminationByMVAIsolationRun2::discriminate(
+        const TauRef& tau) const {
       // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
       pat::PATSingleTauDiscriminatorContainer result;
       result.rawValues = {-1.};
 
       // CV: computation of MVA value requires presence of leading charged hadron
-      if (tau->leadChargedHadrCand().isNull()){
+      if (tau->leadChargedHadrCand().isNull()) {
         result.rawValues.at(0) = 0.;
         return result;
       }

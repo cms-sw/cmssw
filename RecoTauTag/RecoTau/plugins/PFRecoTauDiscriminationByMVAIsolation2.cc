@@ -101,7 +101,8 @@ public:
     TauTransverseImpactParameters_token =
         consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
 
-    BasicTauDiscriminators_token = consumes<reco::PFTauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
+    BasicTauDiscriminators_token =
+        consumes<reco::PFTauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
     chargedIsoPtSum_index_ = cfg.getParameter<int>("srcChargedIsoPtSumIndex");
     neutralIsoPtSum_index_ = cfg.getParameter<int>("srcNeutralIsoPtSumIndex");
     pucorrPtSum_index_ = cfg.getParameter<int>("srcPUcorrPtSumIndex");
@@ -171,7 +172,9 @@ void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, c
 
 reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const {
   reco::PFSingleTauDiscriminatorContainer result;
-  result.rawValues = {-1.,0.}; // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
+  result.rawValues = {
+      -1.,
+      0.};  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
 
   // CV: computation of MVA value requires presence of leading charged hadron
   if (tau->leadChargedHadrCand().isNull())
