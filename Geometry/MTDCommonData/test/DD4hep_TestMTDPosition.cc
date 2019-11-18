@@ -55,6 +55,9 @@ private:
   MTDBaseNumber thisN_;
   BTLNumberingScheme btlNS_;
   ETLNumberingScheme etlNS_;
+
+  edm::ESGetToken<DDDetector, IdealGeometryRecord> dddetToken_;
+  edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> dspecToken_;
 };
 
 using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
@@ -67,14 +70,18 @@ DD4hep_TestMTDPosition::DD4hep_TestMTDPosition(const edm::ParameterSet& iConfig)
       ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
       thisN_(),
       btlNS_(),
-      etlNS_() {}
+      etlNS_() {
+
+  dddetToken_ = esConsumes<DDDetector, IdealGeometryRecord>(tag_);
+  dspecToken_ = esConsumes<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
+
+}
 
 void DD4hep_TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESTransientHandle<DDDetector> pDD;
-  iSetup.get<IdealGeometryRecord>().get(tag_, pDD);
 
-  edm::ESTransientHandle<DDSpecParRegistry> pSP;
-  iSetup.get<DDSpecParRegistryRcd>().get(tag_, pSP);
+  auto pDD = iSetup.getTransientHandle(dddetToken_);
+
+  auto pSP = iSetup.getTransientHandle(dspecToken_);
 
   if (ddTopNodeName_ != "BarrelTimingLayer" && ddTopNodeName_ != "EndcapTimingLayer") {
     edm::LogWarning("DD4hep_TestMTDPosition") << ddTopNodeName_ << "Not valid top MTD volume";
