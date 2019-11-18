@@ -7,7 +7,6 @@
 #endif
 
 #include "DQMServices/Core/interface/DQMNet.h"
-#include "DQMServices/Core/interface/QReport.h"
 
 #include "DataFormats/Histograms/interface/MonitorElementCollection.h"
 
@@ -35,6 +34,30 @@
 #include <cstdint>
 #include <sys/time.h>
 #include <tbb/spin_mutex.h>
+
+// TODO: cleaup the usages and remove.
+using QReport = MonitorElementData::QReport;
+using DQMChannel = MonitorElementData::QReport::DQMChannel;
+
+// TODO: move to a better location (changing all usages)
+namespace dqm {
+  /** Numeric constants for quality test results.  The smaller the
+      number, the less severe the message.  */
+  namespace qstatus {
+    static const int OTHER = 30;        //< Anything but 'ok','warning' or 'error'.
+    static const int DISABLED = 50;     //< Test has been disabled.
+    static const int INVALID = 60;      //< Problem preventing test from running.
+    static const int INSUF_STAT = 70;   //< Insufficient statistics.
+    static const int DID_NOT_RUN = 90;  //< Algorithm did not run.
+    static const int STATUS_OK = 100;   //< Test was succesful.
+    static const int WARNING = 200;     //< Test had some problems.
+    static const int ERROR = 300;       //< Test has failed.
+  }                                     // namespace qstatus
+
+  namespace me_util {
+    using Channel = DQMChannel;
+  }
+}  // namespace dqm
 
 class DQMService;
 namespace dqm::dqmstoreimpl {
@@ -153,14 +176,6 @@ namespace dqm::impl {
       // on edm and the DQM code to make sure we only turn mutable objects into
       // products once all processing is done (logically, this is safe).
     }
-
-    //TODO:  to be dropped.
-    TH1 *reference_;                 //< Current ROOT reference object.
-    TH1 *refvalue_;                  //< Soft reference if any.
-    std::vector<QReport> qreports_;  //< QReports associated to this object.
-
-    void globalize() { data_.moduleId = 0; }
-    void setLumi(uint32_t ls) { data_.lumi = ls; }
 
   public:
     MonitorElement(MonitorElementData *data, bool is_owned, bool is_readonly){};
@@ -303,20 +318,20 @@ namespace dqm::impl {
     bool isEfficiency() const { return data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
 
     /// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
-    const QReport *getQReport(const std::string &qtname) const;
+    const MonitorElementData::QReport *getQReport(const std::string &qtname) const;
     /// get map of QReports
-    std::vector<QReport *> getQReports() const;
+    std::vector<MonitorElementData::QReport *> getQReports() const;
     /// access QReport, potentially adding it.
-    void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
+    void getQReport(bool create, const std::string &qtname, MonitorElementData::QReport *&qr, DQMNet::QValue *&qv);
     /// propagate QReport status bits after change
     void updateQReportStats();
 
     /// get warnings from last set of quality tests
-    std::vector<QReport *> getQWarnings() const;
+    std::vector<MonitorElementData::QReport *> getQWarnings() const;
     /// get errors from last set of quality tests
-    std::vector<QReport *> getQErrors() const;
+    std::vector<MonitorElementData::QReport *> getQErrors() const;
     /// from last set of quality tests
-    std::vector<QReport *> getQOthers() const;
+    std::vector<MonitorElementData::QReport *> getQOthers() const;
 
     // const and data-independent -- safe
     virtual int getNbinsX() const;

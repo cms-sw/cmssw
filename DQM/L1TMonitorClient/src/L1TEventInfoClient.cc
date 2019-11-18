@@ -34,7 +34,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMDefinitions.h"
 
 #include <TH2F.h>
 #include "TROOT.h"
