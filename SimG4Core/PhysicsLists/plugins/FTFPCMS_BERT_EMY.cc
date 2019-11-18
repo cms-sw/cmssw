@@ -19,10 +19,10 @@ FTFPCMS_BERT_EMY::FTFPCMS_BERT_EMY(const edm::ParameterSet& p) : PhysicsList(p) 
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);
   bool tracking = p.getParameter<bool>("TrackingCut");
   double timeLimit = p.getParameter<double>("MaxTrackTime") * CLHEP::ns;
-  edm::LogVerbatim("PhysicsList") 
-    << "You are using the simulation engine: "
-    << "FTFP_BERT_EMY \n Flags for EM Physics " << emPhys << ", for Hadronic Physics "
-    << hadPhys << " and tracking cut " << tracking << "   t(ns)= " << timeLimit / CLHEP::ns;
+  edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: "
+                                  << "FTFP_BERT_EMY \n Flags for EM Physics " << emPhys << ", for Hadronic Physics "
+                                  << hadPhys << " and tracking cut " << tracking
+                                  << "   t(ns)= " << timeLimit / CLHEP::ns;
 
   if (emPhys) {
     // EM Physics
