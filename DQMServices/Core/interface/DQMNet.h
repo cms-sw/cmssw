@@ -18,6 +18,9 @@
 #include <set>
 #include <ext/hash_set>
 
+// for definition of QValue
+#inlcude "DataFormats/Histograms/interface/MonitorElementCollection.h"
+
 //class DQMStore;
 
 class DQMNet {
@@ -82,13 +85,7 @@ public:
   using TagList = std::vector<uint32_t>;  // DEPRECATED
   using WaitList = std::list<WaitObject>;
 
-  struct QValue {
-    int code;
-    float qtresult;
-    std::string message;
-    std::string qtname;
-    std::string algorithm;
-  };
+  using QValue = MonitorElementData::QValue;
 
   struct CoreObject {
     uint32_t flags;
