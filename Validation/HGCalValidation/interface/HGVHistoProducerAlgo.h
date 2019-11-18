@@ -93,64 +93,52 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_phi;
 
   //For multiclusters
-  dqm::reco::MonitorElement* h_score_multicl2caloparticle;
-  dqm::reco::MonitorElement* h_score_caloparticle2multicl;
-  dqm::reco::MonitorElement* h_energy_vs_score_multicl2caloparticle;
-  dqm::reco::MonitorElement* h_energy_vs_score_caloparticle2multicl;
-  //contiguous multiclusters
-  dqm::reco::MonitorElement* h_score_contimulticl2caloparticle;
-  dqm::reco::MonitorElement* h_score_caloparticle2contimulticl;
-  dqm::reco::MonitorElement* h_energy_vs_score_contimulticl2caloparticle;
-  dqm::reco::MonitorElement* h_energy_vs_score_caloparticle2contimulticl;
-  //non contiguous multiclusters
-  dqm::reco::MonitorElement* h_score_noncontimulticl2caloparticle;
-  dqm::reco::MonitorElement* h_score_caloparticle2noncontimulticl;
-  dqm::reco::MonitorElement* h_energy_vs_score_noncontimulticl2caloparticle;
-  dqm::reco::MonitorElement* h_energy_vs_score_caloparticle2noncontimulticl;
-  //Back to all multiclusters
-  dqm::reco::MonitorElement* h_num_multicl_eta;
-  dqm::reco::MonitorElement* h_num_multicl_phi;
-  dqm::reco::MonitorElement* h_numMerge_multicl_eta;
-  dqm::reco::MonitorElement* h_numMerge_multicl_phi;
-  dqm::reco::MonitorElement* h_sharedenergy_multicl2caloparticle;
-  dqm::reco::MonitorElement* h_sharedenergy_caloparticle2multicl;
-  dqm::reco::MonitorElement* h_sharedenergy_multicl2caloparticle_vs_eta;
-  dqm::reco::MonitorElement* h_sharedenergy_multicl2caloparticle_vs_phi;
-  dqm::reco::MonitorElement* h_sharedenergy_caloparticle2multicl_vs_eta;
-  dqm::reco::MonitorElement* h_sharedenergy_caloparticle2multicl_vs_phi;
-  dqm::reco::MonitorElement* h_denom_multicl_eta;
-  dqm::reco::MonitorElement* h_denom_multicl_phi;
-  dqm::reco::MonitorElement* h_num_caloparticle_eta;
-  dqm::reco::MonitorElement* h_num_caloparticle_phi;
-  dqm::reco::MonitorElement* h_numDup_multicl_eta;
-  dqm::reco::MonitorElement* h_numDup_multicl_phi;
-  dqm::reco::MonitorElement* h_denom_caloparticle_eta;
-  dqm::reco::MonitorElement* h_denom_caloparticle_phi;
-  dqm::reco::MonitorElement* h_cellAssociation;
-  dqm::reco::MonitorElement* h_multiclusternum;
-  dqm::reco::MonitorElement* h_contmulticlusternum;
-  dqm::reco::MonitorElement* h_noncontmulticlusternum;
-  dqm::reco::MonitorElement* h_clusternum_in_multicluster;
-  std::unordered_map<int, dqm::reco::MonitorElement*> h_clusternum_in_multicluster_perlayer;
-  dqm::reco::MonitorElement* h_multiplicityOfLCinMCL;
-  dqm::reco::MonitorElement* h_multiplicity_numberOfEventsHistogram;
-  dqm::reco::MonitorElement* h_multiplicity_zminus_numberOfEventsHistogram;
-  dqm::reco::MonitorElement* h_multiplicity_zplus_numberOfEventsHistogram;
-  dqm::reco::MonitorElement* h_multiplicityOfLCinMCL_vs_layercluster;
-  dqm::reco::MonitorElement* h_multiplicityOfLCinMCL_vs_layercluster_zminus;
-  dqm::reco::MonitorElement* h_multiplicityOfLCinMCL_vs_layercluster_zplus;
-  dqm::reco::MonitorElement* h_multiplicityOfLCinMCL_vs_layerclusterenergy;
-  dqm::reco::MonitorElement* h_clusternum_in_multicluster_vs_layer;
-  dqm::reco::MonitorElement* h_multicluster_pt;
-  dqm::reco::MonitorElement* h_multicluster_eta;
-  dqm::reco::MonitorElement* h_multicluster_phi;
-  dqm::reco::MonitorElement* h_multicluster_energy;
-  dqm::reco::MonitorElement* h_multicluster_x;
-  dqm::reco::MonitorElement* h_multicluster_y;
-  dqm::reco::MonitorElement* h_multicluster_z;
-  dqm::reco::MonitorElement* h_multicluster_firstlayer;
-  dqm::reco::MonitorElement* h_multicluster_lastlayer;
-  dqm::reco::MonitorElement* h_multicluster_layersnum;
+  std::vector<dqm::reco::MonitorElement*> h_score_multicl2caloparticle;
+  std::vector<dqm::reco::MonitorElement*> h_score_caloparticle2multicl;
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_multicl2caloparticle;
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2multicl;
+  std::vector<dqm::reco::MonitorElement*> h_num_multicl_eta;
+  std::vector<dqm::reco::MonitorElement*> h_num_multicl_phi;
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_multicl_eta;
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_multicl_phi;
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_multicl2caloparticle;
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2multicl;
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_multicl2caloparticle_vs_eta;
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_multicl2caloparticle_vs_phi;
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2multicl_vs_eta;
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2multicl_vs_phi;
+  std::vector<dqm::reco::MonitorElement*> h_denom_multicl_eta;
+  std::vector<dqm::reco::MonitorElement*> h_denom_multicl_phi;
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta;
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi;
+  std::vector<dqm::reco::MonitorElement*> h_numDup_multicl_eta;
+  std::vector<dqm::reco::MonitorElement*> h_numDup_multicl_phi;
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta;
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi;
+  std::vector<dqm::reco::MonitorElement*> h_multiclusternum;
+  std::vector<dqm::reco::MonitorElement*> h_contmulticlusternum;
+  std::vector<dqm::reco::MonitorElement*> h_noncontmulticlusternum;
+  std::vector<dqm::reco::MonitorElement*> h_clusternum_in_multicluster;
+  std::vector<std::unordered_map<int, dqm::reco::MonitorElement*>> h_clusternum_in_multicluster_perlayer;
+  std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinMCL;
+  std::vector<dqm::reco::MonitorElement*> h_multiplicity_numberOfEventsHistogram;
+  std::vector<dqm::reco::MonitorElement*> h_multiplicity_zminus_numberOfEventsHistogram;
+  std::vector<dqm::reco::MonitorElement*> h_multiplicity_zplus_numberOfEventsHistogram;
+  std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinMCL_vs_layercluster;
+  std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinMCL_vs_layercluster_zminus;
+  std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinMCL_vs_layercluster_zplus;
+  std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinMCL_vs_layerclusterenergy;
+  std::vector<dqm::reco::MonitorElement*> h_clusternum_in_multicluster_vs_layer;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_pt;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_eta;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_phi;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_energy;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_x;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_y;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_z;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_firstlayer;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_lastlayer;
+  std::vector<dqm::reco::MonitorElement*> h_multicluster_layersnum;
 };
 
 using Density = hgcal_clustering::Density;
@@ -181,12 +169,12 @@ public:
                                       std::map<DetId, const HGCRecHit*> const&,
                                       unsigned layers) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
+                                      int count,
                                       const std::vector<reco::HGCalMultiCluster>& multiClusters,
                                       std::vector<CaloParticle> const& cP,
                                       std::vector<size_t> const& cPIndices,
                                       std::map<DetId, const HGCRecHit*> const&,
-                                      unsigned layers,
-                                      std::vector<bool> contimulti) const;
+                                      unsigned layers) const;
   void fill_info_histos(const Histograms& histograms, unsigned layers) const;
   void fill_caloparticle_histos(const Histograms& histograms,
                                 int pdgid,
@@ -232,7 +220,7 @@ public:
 
   struct caloParticleOnLayer {
     unsigned int caloParticleId;
-    float energy = 0.f;
+    float energy = 0;
     std::vector<std::pair<DetId, float>> hits_and_fractions;
     std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };
