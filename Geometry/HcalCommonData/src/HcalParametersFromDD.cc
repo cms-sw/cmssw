@@ -2,7 +2,6 @@
 #include "Geometry/HcalCommonData/interface/HcalGeomParameters.h"
 #include "Geometry/HcalCommonData/interface/HcalTopologyMode.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
@@ -12,7 +11,7 @@
 #include <iostream>
 #include <iomanip>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 namespace {
   int getTopologyMode(const char* s, const DDsvalues_type& sv, bool type) {
@@ -27,16 +26,30 @@ namespace {
       if (type) {
         StringToEnumParser<HcalTopologyMode::Mode> eparser;
         HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode)eparser.parseString(fvec[0]);
-        result = (int)(mode);
+        result = static_cast<int>(mode);
       } else {
         StringToEnumParser<HcalTopologyMode::TriggerMode> eparser;
         HcalTopologyMode::TriggerMode mode = (HcalTopologyMode::TriggerMode)eparser.parseString(fvec[0]);
-        result = (int)(mode);
+        result = static_cast<int>(mode);
       }
       return result;
     } else {
       throw cms::Exception("HcalParametersFromDD") << "Failed to get " << s << " tag.";
     }
+  }
+
+  int getTopologyMode(const std::string& s, bool type) {
+    int result(-1);
+    if (type) {
+      StringToEnumParser<HcalTopologyMode::Mode> eparser;
+      HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode)eparser.parseString(s);
+      result = static_cast<int>(mode);
+    } else {
+      StringToEnumParser<HcalTopologyMode::TriggerMode> eparser;
+      HcalTopologyMode::TriggerMode mode = (HcalTopologyMode::TriggerMode)eparser.parseString(s);
+      result = static_cast<int>(mode);
+    }
+    return result;
   }
 }  // namespace
 
@@ -50,7 +63,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
   const int nEtaMax = 100;
 
   if (ok) {
-    HcalGeomParameters* geom = new HcalGeomParameters();
+    std::unique_ptr<HcalGeomParameters> geom = std::make_unique<HcalGeomParameters>();
     geom->loadGeometry(fv1, php);
     php.modHB = geom->getModHalfHBHE(0);
     php.modHE = geom->getModHalfHBHE(1);
@@ -78,7 +91,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
     php.etaMin[0] = 1;
     if (php.etaMax[1] >= php.etaMin[1])
       php.etaMax[1] = static_cast<int>(php.etaTable.size()) - 1;
-    php.etaMax[2] = php.etaMin[2] + (int)(php.rTable.size()) - 2;
+    php.etaMax[2] = php.etaMin[2] + static_cast<int>(php.rTable.size()) - 2;
     php.etaRange = DDVectorGetter::get("etaRange");
     php.gparHF = DDVectorGetter::get("gparHF");
     php.noff = dbl_to_int(DDVectorGetter::get("noff"));
@@ -123,6 +136,11 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
   } else {
     throw cms::Exception("HcalParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
+ 
+ return build(php);
+}
+
+bool HcalParametersFromDD::build(const HcalParameters& php) {
 
 #ifdef EDM_ML_DEBUG
   int i(0);
