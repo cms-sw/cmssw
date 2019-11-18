@@ -9,4 +9,3 @@ eleIsoFromDepositsTask = cms.Task(
     eleIsoFromDepsHcalDepth1FromTowers ,
     eleIsoFromDepsHcalDepth2FromTowers
 )
-eleIsoFromDeposits = cms.Task(eleIsoFromDepositsTask)

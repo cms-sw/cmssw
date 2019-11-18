@@ -13,4 +13,3 @@ eleIsoDepositsTask = cms.Task(
     eleIsoDepositHcalDepth1FromTowers ,
     eleIsoDepositHcalDepth2FromTowers
 )
-eleIsoDeposits = cms.Sequence(eleIsoDepositsTask)
