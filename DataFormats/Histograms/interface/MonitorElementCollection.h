@@ -111,10 +111,12 @@ struct MonitorElementData {
     /// (not relevant for all quality tests!)
     const std::vector<DQMChannel>& getBadChannels() const { return badChannels_; }
 
-    QReport(DQMNet::QValue* value) : qvalue_(value) {}
+    void setBadChannels(std::vector<DQMChannel> badChannels) { badChannels_ = badChannels; }
+
+    QReport(QValue* value) : qvalue_(value) {}
 
   private:
-    DQMNet::QValue* qvalue_;               //< Pointer to the actual data.
+    QValue* qvalue_;                       //< Pointer to the actual data.
     std::vector<DQMChannel> badChannels_;  //< Bad channels from QCriterion.
   };
 

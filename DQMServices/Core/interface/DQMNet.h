@@ -19,7 +19,7 @@
 #include <ext/hash_set>
 
 // for definition of QValue
-#inlcude "DataFormats/Histograms/interface/MonitorElementCollection.h"
+#include "DataFormats/Histograms/interface/MonitorElementCollection.h"
 
 //class DQMStore;
 
@@ -77,15 +77,13 @@ public:
   static const uint32_t MAX_PEER_WAITREQS = 128;
 
   struct Peer;
-  struct QValue;
   struct WaitObject;
 
+  using QValue = MonitorElementData::QReport::QValue;
   using DataBlob = std::vector<unsigned char>;
   using QReports = std::vector<QValue>;
   using TagList = std::vector<uint32_t>;  // DEPRECATED
   using WaitList = std::list<WaitObject>;
-
-  using QValue = MonitorElementData::QValue;
 
   struct CoreObject {
     uint32_t flags;

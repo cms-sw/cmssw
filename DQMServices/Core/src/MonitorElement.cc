@@ -43,7 +43,6 @@ namespace dqm::impl {
   MonitorElement::~MonitorElement() {
     // TODO: this is only as long as we use the edm::Service DQMStore.
     delete mutable_;
-    delete refvalue_;
   }
 
   //utility function to check the consistency of the axis labels
@@ -369,53 +368,58 @@ namespace dqm::impl {
     return result;
   }
 
-  const QReport *MonitorElement::getQReport(const std::string &qtname) const {
-    QReport *qr;
+  const MonitorElementData::QReport *MonitorElement::getQReport(const std::string &qtname) const {
+    MonitorElementData::MonitorElementData::QReport *qr;
     DQMNet::QValue *qv;
     const_cast<MonitorElement *>(this)->getQReport(false, qtname, qr, qv);
     return qr;
   }
 
-  std::vector<QReport *> MonitorElement::getQReports() const {
-    std::vector<QReport *> result;
-    result.reserve(qreports_.size());
-    for (size_t i = 0, e = qreports_.size(); i != e; ++i) {
-      const_cast<MonitorElement *>(this)->qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-      result.push_back(const_cast<QReport *>(&qreports_[i]));
+  // TODO: what was this logic ever supposed to do?
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQReports() const {
+    auto access = this->access();
+    std::vector<MonitorElementData::QReport *> result;
+    result.reserve(access.value.qreports_.size());
+    for (size_t i = 0, e = access.value.qreports_.size(); i != e; ++i) {
+      // TODO, WTF?: access.value.qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
+      result.push_back(const_cast<MonitorElementData::QReport *>(&access.value.qreports_[i]));
     }
     return result;
   }
 
-  std::vector<QReport *> MonitorElement::getQWarnings() const {
-    std::vector<QReport *> result;
-    result.reserve(qreports_.size());
-    for (size_t i = 0, e = qreports_.size(); i != e; ++i)
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQWarnings() const {
+    auto access = this->access();
+    std::vector<MonitorElementData::QReport *> result;
+    result.reserve(access.value.qreports_.size());
+    for (size_t i = 0, e = access.value.qreports_.size(); i != e; ++i)
       if (data_.qreports[i].code == dqm::qstatus::WARNING) {
-        const_cast<MonitorElement *>(this)->qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<QReport *>(&qreports_[i]));
+        // TODO, WTF?: access.value.qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
+        result.push_back(const_cast<MonitorElementData::QReport *>(&access.value.qreports_[i]));
       }
     return result;
   }
 
-  std::vector<QReport *> MonitorElement::getQErrors() const {
-    std::vector<QReport *> result;
-    result.reserve(qreports_.size());
-    for (size_t i = 0, e = qreports_.size(); i != e; ++i)
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQErrors() const {
+    auto access = this->access();
+    std::vector<MonitorElementData::QReport *> result;
+    result.reserve(access.value.qreports_.size());
+    for (size_t i = 0, e = access.value.qreports_.size(); i != e; ++i)
       if (data_.qreports[i].code == dqm::qstatus::ERROR) {
-        const_cast<MonitorElement *>(this)->qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<QReport *>(&qreports_[i]));
+        // TODO, WTF?: access.value.qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
+        result.push_back(const_cast<MonitorElementData::QReport *>(&access.value.qreports_[i]));
       }
     return result;
   }
 
-  std::vector<QReport *> MonitorElement::getQOthers() const {
-    std::vector<QReport *> result;
-    result.reserve(qreports_.size());
-    for (size_t i = 0, e = qreports_.size(); i != e; ++i)
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQOthers() const {
+    auto access = this->access();
+    std::vector<MonitorElementData::QReport *> result;
+    result.reserve(access.value.qreports_.size());
+    for (size_t i = 0, e = access.value.qreports_.size(); i != e; ++i)
       if (data_.qreports[i].code != dqm::qstatus::STATUS_OK && data_.qreports[i].code != dqm::qstatus::WARNING &&
           data_.qreports[i].code != dqm::qstatus::ERROR) {
-        const_cast<MonitorElement *>(this)->qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<QReport *>(&qreports_[i]));
+        // TODO, WTF?: access.value.qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
+        result.push_back(const_cast<MonitorElementData::QReport *>(&access.value.qreports_[i]));
       }
     return result;
   }
@@ -902,14 +906,17 @@ namespace dqm::impl {
     copyFunctions(from, orig);
   }
 
-  // --- Operations on MEs that are normally reset at end of monitoring cycle ---
-  void MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv) {
-    assert(qreports_.size() == data_.qreports.size());
+  void MonitorElement::getQReport(bool create,
+                                  const std::string &qtname,
+                                  MonitorElementData::QReport *&qr,
+                                  DQMNet::QValue *&qv) {
+    auto access = this->accessMut();
+    assert(access.value.qreports_.size() == data_.qreports.size());
 
     qr = nullptr;
     qv = nullptr;
 
-    size_t pos = 0, end = qreports_.size();
+    size_t pos = 0, end = access.value.qreports_.size();
     while (pos < end && data_.qreports[pos].qtname != qtname)
       ++pos;
 
@@ -917,7 +924,6 @@ namespace dqm::impl {
       return;
     else if (pos == end) {
       data_.qreports.emplace_back();
-      qreports_.push_back(QReport(nullptr));
 
       DQMNet::QValue &q = data_.qreports.back();
       q.code = dqm::qstatus::DID_NOT_RUN;
@@ -925,10 +931,10 @@ namespace dqm::impl {
       q.qtname = qtname;
       q.message = "NO_MESSAGE_ASSIGNED";
       q.algorithm = "UNKNOWN_ALGORITHM";
-      qreports_[pos].qvalue_ = &q;
+      access.value.qreports_.push_back(MonitorElementData::QReport(&q));
     }
 
-    qr = &qreports_[pos];
+    qr = &access.value.qreports_[pos];
     qv = &data_.qreports[pos];
   }
 

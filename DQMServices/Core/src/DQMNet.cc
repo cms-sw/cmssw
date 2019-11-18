@@ -1,5 +1,4 @@
 #include "DQMServices/Core/interface/DQMNet.h"
-#include "DQMServices/Core/interface/DQMDefinitions.h"
 #include "DQMServices/Core/src/DQMError.h"
 #include "classlib/iobase/InetServerSocket.h"
 #include "classlib/iobase/LocalServerSocket.h"
@@ -35,6 +34,20 @@
 using namespace lat;
 
 static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
+
+// TODO: Can't include the header file since that leads to ambiguities.
+namespace dqm {
+  namespace qstatus {
+    static const int OTHER = 30;        //< Anything but 'ok','warning' or 'error'.
+    static const int DISABLED = 50;     //< Test has been disabled.
+    static const int INVALID = 60;      //< Problem preventing test from running.
+    static const int INSUF_STAT = 70;   //< Insufficient statistics.
+    static const int DID_NOT_RUN = 90;  //< Algorithm did not run.
+    static const int STATUS_OK = 100;   //< Test was succesful.
+    static const int WARNING = 200;     //< Test had some problems.
+    static const int ERROR = 300;       //< Test has failed.
+  }                                     // namespace qstatus
+}  // namespace dqm
 
 //////////////////////////////////////////////////////////////////////
 // Generate log prefix.
