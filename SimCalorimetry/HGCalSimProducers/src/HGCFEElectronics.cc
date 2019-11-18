@@ -218,6 +218,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
 
   bool debug = debug_state;
   float timeToA = 0.f;
+  using namespace std;
 
   //first look at time
   //for pileup look only at intime signals
@@ -225,7 +226,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   int fireBX = 9;
   //noise fluctuation on charge is added after ToA computation
   //do not recheck the ToA firing threshold tdcForToAOnset_fC_[thickness-1] not to bias the efficiency
-  //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing
+  //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing  
   if (toaColl[fireBX] != 0.f) {
     timeToA = toaColl[fireBX];
     float jitter = getTimeJitter(chargeColl[fireBX], thickness);
@@ -352,7 +353,6 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       if (toaMode_ == WEIGHTEDBYE)
         finalToA /= totalCharge;
     }
-
     newCharge[it] = (totalCharge - tdcOnset_fC_);
 
     if (debug)
