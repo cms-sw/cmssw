@@ -11,7 +11,7 @@
 #include <iostream>
 #include <iomanip>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 namespace {
   int getTopologyMode(const char* s, const DDsvalues_type& sv, bool type) {
@@ -163,7 +163,6 @@ bool HcalParametersFromDD::build(const HcalParameters& php) {
     std::cout << " [" << ++i << "] = " << (*it) / CLHEP::deg;
   std::cout << std::endl;
   std::cout << "HcalParametersFromDD: " << php.layerGroupEtaSim.size() << " layerGroupEtaSim blocks" << std::endl;
-  std::vector<HcalParameters::LayerItem>::const_iterator jt;
   std::vector<int>::const_iterator kt;
   for (unsigned int k = 0; k < php.layerGroupEtaSim.size(); ++k) {
     std::cout << "layerGroupEtaSim[" << k << "] Layer " << php.layerGroupEtaSim[k].layer;
