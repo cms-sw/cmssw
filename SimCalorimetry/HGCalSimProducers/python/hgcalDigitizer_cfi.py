@@ -235,7 +235,7 @@ hgchebackDigitizer = cms.PSet(
         thresholdFollowsMIP = cms.bool(thresholdTracksMIP),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
-            fwVersion       = cms.uint32(0),
+            fwVersion       = cms.uint32(2),
             # n bits for the ADC (same as the silicon ROC)
             adcNbits        = cms.uint32(12),
             # ADC saturation : in this case we use the same variable but fC=MIP
