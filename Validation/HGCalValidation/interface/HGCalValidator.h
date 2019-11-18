@@ -55,7 +55,8 @@ public:
                                 std::vector<size_t>& selected_cPeff) const;
 
 protected:
-  std::vector<edm::InputTag> label;
+  edm::InputTag label_lcl;
+  std::vector<edm::InputTag> label_mcl;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool dolayerclustersPlots_;
@@ -64,7 +65,7 @@ protected:
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerclusters_;
-  edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster>> multiClusters_;
+  std::vector<edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster>>> label_mclTokens;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
