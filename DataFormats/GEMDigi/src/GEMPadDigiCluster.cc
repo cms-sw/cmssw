@@ -3,7 +3,8 @@
 
 GEMPadDigiCluster::GEMPadDigiCluster(std::vector<uint16_t> pads, int bx) : v_(pads), bx_(bx) {}
 
-GEMPadDigiCluster::GEMPadDigiCluster(const GEMPadDigiCluster& rhs) : v_(rhs.pads()), bx_(rhs.bx()) {}
+GEMPadDigiCluster::GEMPadDigiCluster(const GEMPadDigiCluster& rhs)
+    : v_(rhs.pads()), bx_(rhs.bx()), theta_(rhs.getTheta()), phi_(rhs.getPhi()) {}
 
 GEMPadDigiCluster::GEMPadDigiCluster() : v_(std::vector<uint16_t>()), bx_(-99) {}
 
