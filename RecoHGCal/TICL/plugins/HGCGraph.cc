@@ -13,7 +13,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                                       int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
                                       const std::vector<float> &mask,
-                                      const edm::ValueMap<float> &layerClustersTime,
+                                      const edm::ValueMap<std::pair<float,float>> &layerClustersTime,
                                       int deltaIEta,
                                       int deltaIPhi,
                                       float minCosTheta,
@@ -125,12 +125,20 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
 
 bool HGCGraph::areTimeCompatible(int innerIdx,
                                  int outerIdx,
-                                 const edm::ValueMap<float> &layerClustersTime,
+                                 const edm::ValueMap<std::pair<float,float>> &layerClustersTime,
                                  float maxDeltaTime) {
-  float timeIn = layerClustersTime.get(innerIdx);
-  float timeOut = layerClustersTime.get(outerIdx);
+  float timeIn = layerClustersTime.get(innerIdx).first;
+  float timeInE = layerClustersTime.get(innerIdx).second;
+  float timeOut = layerClustersTime.get(outerIdx).first;
+  float timeOutE = layerClustersTime.get(outerIdx).second;
 
-  return (timeIn == -99 || timeOut == -99 || std::abs(timeIn - timeOut) < maxDeltaTime);
+  if(timeIn != -99 && timeOut != -99){
+    std::cout << "\n  timeIn = " << timeIn << " timeOut = " << timeOut 
+	      << " dT = " << std::abs(timeIn - timeOut) << " eIn = " << timeInE << " eOut = " << timeOutE
+	      << " limit = " << maxDeltaTime * sqrt(timeInE*timeInE + timeOutE*timeOutE) << std::endl;
+  }
+
+  return (timeIn == -99 || timeOut == -99 || std::abs(timeIn - timeOut) < maxDeltaTime * sqrt(timeInE*timeInE + timeOutE*timeOutE));
 }
 
 //also return a vector of seedIndex for the reconstructed tracksters

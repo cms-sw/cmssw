@@ -32,7 +32,7 @@ namespace ticl {
       const edm::EventSetup& es;
       const std::vector<reco::CaloCluster>& layerClusters;
       const std::vector<float>& mask;
-      const edm::ValueMap<float>& layerClustersTime;
+      const edm::ValueMap<std::pair<float,float>>& layerClustersTime;
       const TICLLayerTiles& tiles;
       const std::vector<TICLSeedingRegion>& regions;
 
@@ -40,7 +40,7 @@ namespace ticl {
              const edm::EventSetup& eS,
              const std::vector<reco::CaloCluster>& lC,
              const std::vector<float>& mS,
-             const edm::ValueMap<float>& lT,
+             const edm::ValueMap<std::pair<float,float>>& lT,
              const TICLLayerTiles& tL,
              const std::vector<TICLSeedingRegion>& rG)
           : ev(eV), es(eS), layerClusters(lC), mask(mS), layerClustersTime(lT), tiles(tL), regions(rG) {}
