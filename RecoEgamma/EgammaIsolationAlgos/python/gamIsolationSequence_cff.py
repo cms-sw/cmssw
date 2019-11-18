@@ -8,4 +8,3 @@ gamIsolationTask = cms.Task(
     gamIsoDepositsTask,  
     gamIsoFromDepositsTask
 )
-gamIsolationSequence = cms.Sequence(gamIsolationTask)

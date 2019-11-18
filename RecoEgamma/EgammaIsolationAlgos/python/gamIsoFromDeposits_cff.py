@@ -9,4 +9,3 @@ gamIsoFromDepositsTask = cms.Task(
     gamIsoFromDepsHcalDepth1FromTowers ,
     gamIsoFromDepsHcalDepth2FromTowers
 )
-gamIsoFromDeposits = cms.Sequence(gamIsoFromDepositsTask) 

@@ -11,8 +11,6 @@ from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
 ckfTracksFromConversionsReRecoTask = cms.Task(conversionTrackCandidates,
                                               ckfOutInTracksFromConversions,
                                               ckfInOutTracksFromConversions)
-ckfTracksFromConversionsReReco = cms.Sequence(ckfTracksFromConversionsReRecoTask)
-
 
 #producer from general tracks collection, set tracker only and merged arbitrated flag
 generalConversionTrackProducerReReco = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
@@ -54,8 +52,6 @@ conversionTrackProducersReRecoTask = cms.Task(generalConversionTrackProducerReRe
                                               inOutConversionTrackProducerReReco,
                                               outInConversionTrackProducerReReco,
                                               gsfConversionTrackProducerReReco)
-conversionTrackProducersReReco = cms.Sequence(conversionTrackProducersReRecoTask)
-
 
 #merge generalTracks and conversionStepTracks collections, with arbitration by nhits then chi^2/ndof for ecalseededarbitrated, mergedarbitratedecalgeneral and mergedarbitrated flags
 generalConversionStepConversionTrackMergerReReco = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
@@ -113,7 +109,6 @@ conversionTrackMergersReRecoTask = cms.Task(inOutOutInConversionTrackMergerReRec
                                             generalConversionStepConversionTrackMergerReReco,
                                             generalInOutOutInConversionTrackMergerReReco,
                                             gsfGeneralInOutOutInConversionTrackMergerReReco)
-conversionTrackMergersReReco = cms.Sequence(conversionTrackMergersReRecoTask)
 
 conversionTrackTaskForReReco = cms.Task(ckfTracksFromConversionsReRecoTask,
                                         conversionTrackProducersReRecoTask,
