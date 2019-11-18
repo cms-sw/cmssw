@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 from SimMuon.GEMDigitizer.muonME0PseudoReDigis_cfi import *
 from RecoLocalMuon.GEMRecHit.me0RecHits_cfi import *
 from RecoLocalMuon.GEMSegment.me0Segments_cfi import *
-from L1Trigger.ME0Trigger.me0TriggerConvertedPseudoDigis_cfi import *
+from L1Trigger.L1TGEM.me0TriggerConvertedPseudoDigis_cfi import *
 
 simMuonME0PseudoReDigisCoarse = simMuonME0PseudoReDigis.clone(
     usePads = cms.bool(True)
