@@ -72,9 +72,10 @@ void PFRecoTauDiscriminationAgainstElectronMVA6::beginEvent(const edm::Event& ev
   evt.getByToken(GsfElectrons_token, gsfElectrons_);
 }
 
-reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& thePFTauRef) const {
+reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(
+    const PFTauRef& thePFTauRef) const {
   reco::PFSingleTauDiscriminatorContainer result;
-  result.rawValues = {1.,-1.};
+  result.rawValues = {1., -1.};
   double category = -1.;
   bool isGsfElectronMatched = false;
 

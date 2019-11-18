@@ -88,20 +88,22 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   tauProducerInputTagToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("TauProducer"));
   std::vector<edm::ParameterSet> temp_plainDiscriminators;
   std::vector<edm::ParameterSet> temp_discriminatorContainers;
-  for ( std::vector<edm::ParameterSet>::iterator it = discriminators_.begin();  it != discriminators_.end(); ++it ) {
-    if (it->getParameter<string>("container").empty()){
-        temp_plainDiscriminators.push_back( *it );
-        currentDiscriminatorToken_.push_back(
-            consumes<reco::PFTauDiscriminator>(edm::InputTag(it->getParameter<string>("discriminator"))));
-    }else{
-        temp_discriminatorContainers.push_back( *it );
-        currentDiscriminatorContainerToken_.push_back(
-            std::pair<edm::EDGetTokenT<reco::PFTauDiscriminatorContainer>, int>(consumes<reco::PFTauDiscriminatorContainer>(edm::InputTag(it->getParameter<string>("container"))), it->getParameter<int>("workingPointIndex")));
+  for (std::vector<edm::ParameterSet>::iterator it = discriminators_.begin(); it != discriminators_.end(); ++it) {
+    if (it->getParameter<string>("container").empty()) {
+      temp_plainDiscriminators.push_back(*it);
+      currentDiscriminatorToken_.push_back(
+          consumes<reco::PFTauDiscriminator>(edm::InputTag(it->getParameter<string>("discriminator"))));
+    } else {
+      temp_discriminatorContainers.push_back(*it);
+      currentDiscriminatorContainerToken_.push_back(std::pair<edm::EDGetTokenT<reco::PFTauDiscriminatorContainer>, int>(
+          consumes<reco::PFTauDiscriminatorContainer>(edm::InputTag(it->getParameter<string>("container"))),
+          it->getParameter<int>("workingPointIndex")));
     }
   }
   //sort discriminators_: first of type PFTauDiscriminator then PFTauDiscriminatorContainer
-  discriminators_=temp_plainDiscriminators;
-  discriminators_.insert(discriminators_.end(), temp_discriminatorContainers.begin(), temp_discriminatorContainers.end());
+  discriminators_ = temp_plainDiscriminators;
+  discriminators_.insert(
+      discriminators_.end(), temp_discriminatorContainers.begin(), temp_discriminatorContainers.end());
 
   tversion = edm::getReleaseVersion();
 
@@ -609,28 +611,33 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (!pass)
         continue;
 
-      for (unsigned j = 0; j < discriminators_.size(); j++){
+      for (unsigned j = 0; j < discriminators_.size(); j++) {
         string currentDiscriminatorLabel = discriminators_.at(j).getParameter<string>("discriminator");
         summaryMap.find(refCollection_ + "Den")->second->Fill(j);
 
         bool passesID;
-        if (j < currentDiscriminatorToken_.size()){
-            iEvent.getByToken( currentDiscriminatorToken_[j], currentDiscriminator );
-            passesID = ((*currentDiscriminator)[thePFTau] >= discriminators_.at(j).getParameter<double>("selectionCut"));
-        }else{
-            iEvent.getByToken( currentDiscriminatorContainerToken_[j-currentDiscriminatorToken_.size()].first, currentDiscriminatorContainer );
-            if (currentDiscriminatorContainerToken_[j-currentDiscriminatorToken_.size()].second == -1){
-                passesID = ((*currentDiscriminatorContainer)[thePFTau].rawValues.at(0) >= discriminators_.at(j).getParameter<double>("selectionCut"));
-            }else{
-                if((*currentDiscriminatorContainer)[thePFTau].workingPoints.empty()) passesID = false; //in case of prediscriminant fail at reco level
-                else passesID = (*currentDiscriminatorContainer)[thePFTau].workingPoints.at(currentDiscriminatorContainerToken_[j-currentDiscriminatorToken_.size()].second);
-            }
+        if (j < currentDiscriminatorToken_.size()) {
+          iEvent.getByToken(currentDiscriminatorToken_[j], currentDiscriminator);
+          passesID = ((*currentDiscriminator)[thePFTau] >= discriminators_.at(j).getParameter<double>("selectionCut"));
+        } else {
+          iEvent.getByToken(currentDiscriminatorContainerToken_[j - currentDiscriminatorToken_.size()].first,
+                            currentDiscriminatorContainer);
+          if (currentDiscriminatorContainerToken_[j - currentDiscriminatorToken_.size()].second == -1) {
+            passesID = ((*currentDiscriminatorContainer)[thePFTau].rawValues.at(0) >=
+                        discriminators_.at(j).getParameter<double>("selectionCut"));
+          } else {
+            if ((*currentDiscriminatorContainer)[thePFTau].workingPoints.empty())
+              passesID = false;  //in case of prediscriminant fail at reco level
+            else
+              passesID = (*currentDiscriminatorContainer)[thePFTau].workingPoints.at(
+                  currentDiscriminatorContainerToken_[j - currentDiscriminatorToken_.size()].second);
+          }
         }
-        if (passesID){
-          ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
-          etaTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->eta());
-          phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-          pileupTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(pvHandle->size());
+        if (passesID) {
+          ptTauVisibleMap.find(currentDiscriminatorLabel)->second->Fill(RefJet->pt());
+          etaTauVisibleMap.find(currentDiscriminatorLabel)->second->Fill(RefJet->eta());
+          phiTauVisibleMap.find(currentDiscriminatorLabel)->second->Fill(RefJet->phi() * 180.0 / TMath::Pi());
+          pileupTauVisibleMap.find(currentDiscriminatorLabel)->second->Fill(pvHandle->size());
           summaryMap.find(refCollection_ + "Num")->second->Fill(j);
 
           //fill the momentum resolution plots

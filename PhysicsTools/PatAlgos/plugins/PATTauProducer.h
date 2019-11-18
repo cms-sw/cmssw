@@ -89,7 +89,8 @@ namespace pat {
     bool addTauID_;
     typedef std::pair<std::string, edm::InputTag> NameTag;
     typedef std::pair<std::string, int> NameWPIdx;
-    typedef std::pair<edm::InputTag, std::vector<NameWPIdx> >IDContainerData; //to save input module tag and corresponding pairs <working point name for the output tree, WP index in the input ID container>
+    typedef std::pair<edm::InputTag, std::vector<NameWPIdx> >
+        IDContainerData;  //to save input module tag and corresponding pairs <working point name for the output tree, WP index in the input ID container>
     std::vector<NameTag> tauIDSrcs_;
     std::vector<std::vector<NameWPIdx> > tauIDSrcContainers_;
     std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > pfTauIDTokens_;
@@ -114,7 +115,10 @@ namespace pat {
 
     template <typename TauCollectionType, typename TauDiscrType>
     float getTauIdDiscriminator(const edm::Handle<TauCollectionType>&, size_t, const edm::Handle<TauDiscrType>&);
-    float getTauIdDiscriminatorFromContainer(const edm::Handle<reco::PFTauCollection>&, size_t, const edm::Handle<reco::PFTauDiscriminatorContainer>&, int);
+    float getTauIdDiscriminatorFromContainer(const edm::Handle<reco::PFTauCollection>&,
+                                             size_t,
+                                             const edm::Handle<reco::PFTauDiscriminatorContainer>&,
+                                             int);
   };
 
 }  // namespace pat

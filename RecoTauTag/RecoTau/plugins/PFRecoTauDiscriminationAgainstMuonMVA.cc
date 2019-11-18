@@ -164,14 +164,17 @@ namespace {
     }
   }  // namespace
 
-  reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) const {
+  reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuonMVA::discriminate(
+      const PFTauRef& tau) const {
     if (verbosity_) {
       edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:";
       edm::LogPrint("PFTauAgainstMuonMVA") << " moduleLabel = " << moduleLabel_;
     }
 
     reco::PFSingleTauDiscriminatorContainer result;
-    result.rawValues = {-1.,0.}; // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
+    result.rawValues = {
+        -1.,
+        0.};  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
 
     // CV: computation of anti-muon MVA value requires presence of leading charged hadron
     if (tau->leadPFChargedHadrCand().isNull())

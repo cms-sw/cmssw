@@ -49,7 +49,10 @@
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminatorContainer.h"
 
-template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType=double, class ConsumeType = TauDiscriminator>
+template <class TauType,
+          class TauDiscriminator,
+          class TauDiscriminatorDataType = double,
+          class ConsumeType = TauDiscriminator>
 class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
 public:
   // setup framework types for this tautype
@@ -110,9 +113,17 @@ private:
 };
 
 // define our implementations
-typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminatorContainer, reco::PFSingleTauDiscriminatorContainer, reco::PFTauDiscriminator> PFTauDiscriminationProducerBaseForIDContainers;
+typedef TauDiscriminationProducerBase<reco::PFTau,
+                                      reco::PFTauDiscriminatorContainer,
+                                      reco::PFSingleTauDiscriminatorContainer,
+                                      reco::PFTauDiscriminator>
+    PFTauDiscriminationProducerBaseForIDContainers;
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator> PFTauDiscriminationProducerBase;
-typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminatorContainer, pat::PATSingleTauDiscriminatorContainer, pat::PATTauDiscriminator> PATTauDiscriminationProducerBaseForIDContainers;
+typedef TauDiscriminationProducerBase<pat::Tau,
+                                      pat::PATTauDiscriminatorContainer,
+                                      pat::PATSingleTauDiscriminatorContainer,
+                                      pat::PATTauDiscriminator>
+    PATTauDiscriminationProducerBaseForIDContainers;
 typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator> PATTauDiscriminationProducerBase;
 
 /// helper function retrieve the correct cfi getter string (ie PFTauProducer)
