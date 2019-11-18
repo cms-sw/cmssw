@@ -45,7 +45,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
   edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
-  edm::EDGetTokenT<edm::ValueMap<float>> clustersTime_token_;
+  edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
   edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
 
@@ -77,7 +77,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
   filtered_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"));
   original_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
-  clustersTime_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("time_layerclusters"));
+  clustersTime_token_ = consumes<edm::ValueMap<std::pair<float,float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"));
   layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
   seeding_regions_token_ = consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"));
 
@@ -99,7 +99,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("min_cos_pointing", -1.);
   desc.add<int>("missing_layers", 0);
   desc.add<int>("min_clusters_per_ntuplet", 10);
-  desc.add<double>("max_delta_time", 0.09);
+  desc.add<double>("max_delta_time", 3.);  //nsigma
   desc.add<bool>("out_in_dfs", true);
   desc.add<int>("max_out_in_hops", 10);
   desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
@@ -119,7 +119,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
   edm::Handle<std::vector<float>> filtered_layerclusters_mask_h;
   edm::Handle<std::vector<float>> original_layerclusters_mask_h;
-  edm::Handle<edm::ValueMap<float>> time_clusters_h;
+  edm::Handle<edm::ValueMap<std::pair<float,float>>> time_clusters_h;
   edm::Handle<TICLLayerTiles> layer_clusters_tiles_h;
   edm::Handle<std::vector<TICLSeedingRegion>> seeding_regions_h;
 

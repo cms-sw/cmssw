@@ -8,6 +8,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PatternRecognitionbyCA.h"
 #include "HGCGraph.h"
+//#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 using namespace ticl;
 
@@ -70,6 +72,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
   int tracksterId = 0;
+  std::vector<float> times;
+  std::vector<float> timeErrors;
   for (auto const &ntuplet : foundNtuplets) {
     std::set<unsigned int> effective_cluster_idx;
     for (auto const &doublet : ntuplet) {
@@ -77,6 +81,15 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       auto outerCluster = doublets[doublet].outerClusterId();
       effective_cluster_idx.insert(innerCluster);
       effective_cluster_idx.insert(outerCluster);
+
+      //avoid double counting but also get the last outer 2Dcl
+      if(times.size() == 0){
+	times.push_back(input.layerClustersTime.get(innerCluster).first);
+	timeErrors.push_back(1./pow(input.layerClustersTime.get(innerCluster).second, 2));
+      }
+      times.push_back(input.layerClustersTime.get(outerCluster).first);
+      timeErrors.push_back(1./pow(input.layerClustersTime.get(outerCluster).second, 2));
+
       if (algo_verbosity_ > Advanced) {
         LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
                                       << innerCluster << " " << input.layerClusters[innerCluster].x() << " "
@@ -99,10 +112,25 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     //if a seeding region does not lead to any trackster
     tmp.seedID = input.regions[0].collectionID;
     tmp.seedIndex = seedIndices[tracksterId];
+    std::pair<float,float> timeTrackster (-99., -1.);
+    if (times.size() >= 3){
+
+      std::cout << " \n effective_cluster_idx size = " << effective_cluster_idx.size() << " time size = " << times.size() << std::endl;
+      for(unsigned int ij = 0; ij < times.size(); ++ij){
+	std::cout << " 2dcl time = " << times.at(ij) << " error = " << timeErrors.at(ij) << std::endl;
+      }
+
+      hgcalsimclustertime::ComputeClusterTime timeEstimator;
+      timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
+      std::cout << " time = " << timeTrackster.first << " error = " << timeTrackster.second << std::endl;
+    }
+    //tmp.time = timeTrackster.first;
+    //tmp.timeError = timeTrackster.second;
     std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices));
     result.push_back(tmp);
     tracksterId++;
   }
+
 
   for (auto &trackster : result) {
     assert(trackster.vertices.size() <= trackster.vertex_multiplicity.size());
