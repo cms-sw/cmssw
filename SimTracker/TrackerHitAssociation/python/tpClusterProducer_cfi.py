@@ -20,9 +20,6 @@ premix_stage2.toModify(tpClusterProducer,
 )
 
 
-from SimTracker.TrackerHitAssociation.tpClusterProducerHeterogeneousDefault_cfi import tpClusterProducerHeterogeneousDefault as _tpClusterProducerHeterogeneous
-tpClusterProducerHeterogeneous = _tpClusterProducerHeterogeneous.clone()
-
-from SimTracker.TrackerHitAssociation.tpClusterHeterogeneousConverter_cfi import tpClusterHeterogeneousConverter as _tpHeterogeneousConverter
-tpClusterProducerConverter = _tpHeterogeneousConverter.clone()
+from SimTracker.TrackerHitAssociation.tpClusterProducerCUDADefault_cfi import tpClusterProducerCUDADefault as _tpClusterProducerCUDA
+tpClusterProducerCUDA = _tpClusterProducerCUDA.clone()
 

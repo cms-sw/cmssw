@@ -4,40 +4,31 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
-
-#include "trackerHitAssociationHeterogeneousProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "SimTracker/TrackerHitAssociation/interface/trackerHitAssociationHeterogeneous.h"
 
 namespace clusterSLOnGPU {
 
-  using ClusterSLGPU = trackerHitAssociationHeterogeneousProduct::ClusterSLGPU;
-  using GPUProduct = trackerHitAssociationHeterogeneousProduct::GPUProduct;
-
+  using ClusterSLView = trackerHitAssociationHeterogeneous::ClusterSLView;
+  using Clus2TP = ClusterSLView::Clus2TP;
   using HitsOnGPU = TrackingRecHit2DSOAView;
   using HitsOnCPU = TrackingRecHit2DCUDA;
 
-  using Clus2TP = ClusterSLGPU::Clus2TP;
-
   class Kernel {
   public:
-    Kernel(cudaStream_t stream, bool dump);
-    ~Kernel() { deAlloc(); }
-    void algo(SiPixelDigisCUDA const& dd,
-              uint32_t ndigis,
-              HitsOnCPU const& hh,
-              uint32_t nhits,
-              uint32_t n,
-              cudaStream_t stream);
-    GPUProduct getProduct() { return GPUProduct{slgpu.me_d}; }
+    explicit Kernel(bool dump);
+    ~Kernel() {}
+    trackerHitAssociationHeterogeneous::ProductCUDA makeAsync(SiPixelDigisCUDA const& dd,
+                                                              uint32_t ndigis,
+                                                              HitsOnCPU const& hh,
+                                                              Clus2TP const* digi2tp,
+                                                              uint32_t nhits,
+                                                              uint32_t nlinks,
+                                                              cudaStream_t stream) const;
 
   private:
-    void alloc(cudaStream_t stream);
-    void deAlloc();
-    void zero(cudaStream_t stream);
-
   public:
-    ClusterSLGPU slgpu;
     bool doDump;
   };
 }  // namespace clusterSLOnGPU
