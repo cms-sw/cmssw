@@ -8,34 +8,26 @@
 
 class TrackAndHFLinker : public BlockElementLinkerBase {
 public:
-  TrackAndHFLinker(const edm::ParameterSet& conf) :
-    BlockElementLinkerBase(conf),
-    _useKDTree(conf.getParameter<bool>("useKDTree")),
-    _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
-  
-  double testLink 
-  ( const reco::PFBlockElement*,
-    const reco::PFBlockElement* ) const override;
+  TrackAndHFLinker(const edm::ParameterSet& conf)
+      : BlockElementLinkerBase(conf),
+        _useKDTree(conf.getParameter<bool>("useKDTree")),
+        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+
+  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree,_debug;
+  bool _useKDTree, _debug;
 };
 
-DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, 
-		  TrackAndHFLinker, 
-		  "TrackAndHFLinker");
+DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndHFLinker, "TrackAndHFLinker");
 
-double TrackAndHFLinker::testLink
-  ( const reco::PFBlockElement* elem1,
-    const reco::PFBlockElement* elem2) const {  
-
+double TrackAndHFLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   //KH: should consider extrapolating to the face of HF short fibers for HF HAD???
-  constexpr reco::PFTrajectoryPoint::LayerType VFcalEntrance =
-    reco::PFTrajectoryPoint::VFcalEntrance;
-  const reco::PFBlockElementCluster *hfelem(nullptr);
-  const reco::PFBlockElementTrack   *tkelem(nullptr);
+  constexpr reco::PFTrajectoryPoint::LayerType VFcalEntrance = reco::PFTrajectoryPoint::VFcalEntrance;
+  const reco::PFBlockElementCluster* hfelem(nullptr);
+  const reco::PFBlockElementTrack* tkelem(nullptr);
   double dist(-1.0);
-  if( elem1->type() < elem2->type() ) {
+  if (elem1->type() < elem2->type()) {
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);
     hfelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
   } else {
@@ -44,34 +36,27 @@ double TrackAndHFLinker::testLink
   }
   const reco::PFRecTrackRef& trackref = tkelem->trackRefPF();
   const reco::PFClusterRef& clusterref = hfelem->clusterRef();
-  const reco::PFCluster::REPPoint& hfreppos = clusterref->positionREP(); 
+  const reco::PFCluster::REPPoint& hfreppos = clusterref->positionREP();
 
-  const reco::PFTrajectoryPoint& tkAtHF =
-    trackref->extrapolatedPoint( VFcalEntrance );
-  if ( _useKDTree && hfelem->isMultilinksValide() ) { //KDTree Algo
+  const reco::PFTrajectoryPoint& tkAtHF = trackref->extrapolatedPoint(VFcalEntrance);
+  if (_useKDTree && hfelem->isMultilinksValide()) {  //KDTree Algo
     const reco::PFMultilinksType& multilinks = hfelem->getMultilinks();
     const double tracketa = tkAtHF.positionREP().Eta();
     const double trackphi = tkAtHF.positionREP().Phi();
-    
+
     // Check if the link Track/HF exist
     reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
     for (; mlit != multilinks.end(); ++mlit)
       if ((mlit->first == trackphi) && (mlit->second == tracketa))
-	break;
-    
+        break;
+
     // If the link exist, we fill dist and linktest.
-    if (mlit != multilinks.end()){
-      dist = LinkByRecHit::computeDist(hfreppos.Eta(), 
-				       hfreppos.Phi(), 
-				       tracketa, 
-				       trackphi);
+    if (mlit != multilinks.end()) {
+      dist = LinkByRecHit::computeDist(hfreppos.Eta(), hfreppos.Phi(), tracketa, trackphi);
     } else {
-    if ( tkAtHF.isValid() )
-      dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, 
-							*clusterref,
-							false, _debug );
+      if (tkAtHF.isValid())
+        dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, _debug);
     }
   }
   return dist;
 }
-

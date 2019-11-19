@@ -208,8 +208,8 @@ bool PFTrackTransformer::addPoints(reco::PFRecTrack& pftrack,
       pftrack.addPoint(dummyHOLayer);
     }
   } else {
-      PFTrajectoryPoint dummyHOLayer;
-      pftrack.addPoint(dummyHOLayer);
+    PFTrajectoryPoint dummyHOLayer;
+    pftrack.addPoint(dummyHOLayer);
   }
 
   //VFcal(HF) entrance

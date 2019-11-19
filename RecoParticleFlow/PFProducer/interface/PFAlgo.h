@@ -56,6 +56,9 @@ public:
   PFAlgo(double nSigmaECAL,
          double nSigmaHCAL,
          double nSigmaHF,
+         double resolHF_a,
+         double resolHF_b,
+         double resolHF_c,
          PFEnergyCalibration& calibration,
          PFEnergyCalibrationHF& thepfEnergyCalibrationHF,
          const edm::ParameterSet& pset);
@@ -155,11 +158,11 @@ private:
 
   //Looks for a HF-associated element in the block and produces a PFCandidate from it with HF_EM and/or HF_HAD calibrations
   void createCandidatesHF(const reco::PFBlock& block,
-			  reco::PFBlock::LinkData& linkData,
-			  const edm::OwnVector<reco::PFBlockElement>& elements,
-			  std::vector<bool>& active,
-			  const reco::PFBlockRef& blockref,
-			  ElementIndices& inds);
+                          reco::PFBlock::LinkData& linkData,
+                          const edm::OwnVector<reco::PFBlockElement>& elements,
+                          std::vector<bool>& active,
+                          const reco::PFBlockRef& blockref,
+                          ElementIndices& inds);
 
   void createCandidatesHCAL(const reco::PFBlock& block,
                             reco::PFBlock::LinkData& linkData,
@@ -246,6 +249,11 @@ private:
 
   /// number of sigma to judge energy excess in HF
   const double nSigmaHF_;
+
+  // HF resolution
+  const double resolHF_a_;
+  const double resolHF_b_;
+  const double resolHF_c_;
 
   PFEnergyCalibration& calibration_;
   PFEnergyCalibrationHF& thepfEnergyCalibrationHF_;
