@@ -280,5 +280,3 @@ void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterSortedCont
 }
 
 DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
-
-DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
