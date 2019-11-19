@@ -363,12 +363,10 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     if (addTauID_) {
       size_t numberPlainTauIds = tauIDSrcs_.size();
       size_t numberTauIds = numberPlainTauIds;
-      if (typeid(*tausRef) == typeid(reco::PFTau)) {
-        for (std::vector<std::vector<NameWPIdx>>::iterator it = tauIDSrcContainers_.begin();
-             it != tauIDSrcContainers_.end();
-             it++) {
-          numberTauIds += it->size();
-        }
+      for (std::vector<std::vector<NameWPIdx>>::iterator it = tauIDSrcContainers_.begin();
+           it != tauIDSrcContainers_.end();
+           it++) {
+        numberTauIds += it->size();
       }
       std::string missingDiscriminators;
       std::vector<pat::Tau::IdPair> ids(numberTauIds);
