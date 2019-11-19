@@ -120,7 +120,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
                              iConfig.getParameter<std::vector<double>>("calibHF_b_EMHAD")),
       pfAlgo_(iConfig.getParameter<double>("pf_nsigma_ECAL"),
               iConfig.getParameter<double>("pf_nsigma_HCAL"),
-	      1., // will switch to parameter after rebase
+              iConfig.getParameter<double>("pf_nsigma_HF"),
+              iConfig.getParameter<double>("resolHF_a"),
+              iConfig.getParameter<double>("resolHF_b"),
+              iConfig.getParameter<double>("resolHF_c"),
               pfEnergyCalibration_,
               pfEnergyCalibrationHF_,
               iConfig) {
@@ -408,6 +411,7 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   // number of sigmas for neutral energy detection
   desc.add<double>("pf_nsigma_ECAL", 0.0);
   desc.add<double>("pf_nsigma_HCAL", 1.0);
+  desc.add<double>("pf_nsigma_HF", 1.0);
 
   // ECAL/HCAL PF cluster calibration : take it from global tag ?
   desc.add<bool>("useCalibrationsFromDB", true);
@@ -448,6 +452,11 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<std::vector<double>>("calibHF_a_EMHAD", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
   desc.add<std::vector<double>>("calibHF_b_HADonly", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
   desc.add<std::vector<double>>("calibHF_b_EMHAD", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
+
+  // resolution parameters for HF: EPJC 53(2008)139, doi:10.1140/epjc/s10052-007-0459-4
+  desc.add<double>("resolHF_a", 2.799)->setComment("HF resolution - stochastic term");
+  desc.add<double>("resolHF_b", 0.114)->setComment("HF resolution - constant term");
+  desc.add<double>("resolHF_c", 0.0)->setComment("HF resolution - noise term");
 
   descriptions.add("particleFlow", desc);
 }
