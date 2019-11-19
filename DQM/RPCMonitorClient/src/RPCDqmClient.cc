@@ -26,8 +26,7 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& parameters_) {
   useRollInfo_ = parameters_.getUntrackedParameter<bool>("UseRollInfo", false);
   //check enabling
   enableDQMClients_ = parameters_.getUntrackedParameter<bool>("EnableRPCDqmClient", true);
-  //minimumEvents_ = parameters_.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
-  minimumEvents_ = parameters_.getUntrackedParameter<int>("MinimumRPCEvents", 1);
+  minimumEvents_ = parameters_.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
 
   std::string subsystemFolder = parameters_.getUntrackedParameter<std::string>("RPCFolder", "RPC");
   std::string recHitTypeFolder = parameters_.getUntrackedParameter<std::string>("RecHitTypeFolder", "AllHits");

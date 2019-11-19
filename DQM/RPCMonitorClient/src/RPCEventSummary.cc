@@ -28,8 +28,7 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
   globalFolder_  =  subsystemFolder +"/"+  recHitTypeFolder +"/"+ summaryFolder ;
   prefixFolder_  =  subsystemFolder +"/"+  recHitTypeFolder ;
 
-  //minimumEvents_= ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
-  minimumEvents_= ps.getUntrackedParameter<int>("MinimumRPCEvents", 1);
+  minimumEvents_= ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
   numberDisk_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
   doEndcapCertification_ = ps.getUntrackedParameter<bool>("EnableEndcapSummary", false);
 
