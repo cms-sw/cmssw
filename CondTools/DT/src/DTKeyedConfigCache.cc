@@ -39,7 +39,7 @@ DTKeyedConfigCache::DTKeyedConfigCache() : cachedBrickNumber(0), cachedStringNum
 //--------------
 DTKeyedConfigCache::~DTKeyedConfigCache() { purge(); }
 
-int DTKeyedConfigCache::get(cond::persistency::KeyList& keyList, int cfgId, const DTKeyedConfig*& obj) {
+int DTKeyedConfigCache::get(const cond::persistency::KeyList& keyList, int cfgId, const DTKeyedConfig*& obj) {
   bool cacheFound = false;
   int cacheAge = 999999999;
   std::map<int, counted_brick>::iterator cache_iter = brickMap.begin();
@@ -75,13 +75,10 @@ int DTKeyedConfigCache::get(cond::persistency::KeyList& keyList, int cfgId, cons
     }
   }
 
-  std::vector<unsigned long long> checkedKeys;
   std::shared_ptr<DTKeyedConfig> kBrick;
-  checkedKeys.push_back(cfgId);
   bool brickFound = false;
   try {
-    keyList.load(checkedKeys);
-    kBrick = keyList.get<DTKeyedConfig>(0);
+    kBrick = keyList.getUsingKey<DTKeyedConfig>(cfgId);
     if (kBrick.get())
       brickFound = (kBrick->getId() == cfgId);
   } catch (std::exception const& e) {
@@ -115,7 +112,7 @@ int DTKeyedConfigCache::get(cond::persistency::KeyList& keyList, int cfgId, cons
   return 999;
 }
 
-void DTKeyedConfigCache::getData(cond::persistency::KeyList& keyList, int cfgId, std::vector<std::string>& list) {
+void DTKeyedConfigCache::getData(const cond::persistency::KeyList& keyList, int cfgId, std::vector<std::string>& list) {
   const DTKeyedConfig* obj = nullptr;
   get(keyList, cfgId, obj);
   if (obj == nullptr)
