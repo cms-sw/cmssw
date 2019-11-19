@@ -2378,8 +2378,6 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             # Also note that the mutating visitor replaces sequences and tasks that have
             # modified contents with their modified contents, it does not modify the sequence
             # or task itself.
-            print(process.path21.dumpPython(PrintOptions()))
-            print('cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.sequence3, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.d, process.mesproducer, process.messource, process.mfilter, process.mproducer10, process.mproducer2, process.myTask6), process.myTask100, process.myTask5)\n')
             self.assertTrue(process.path21.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.sequence3, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.d, process.mesproducer, process.messource, process.mfilter, process.mproducer10, process.mproducer2, process.myTask6), process.myTask100, process.myTask5)\n')
 
             process.path22 = process.path21.copyAndExclude([process.d, process.mesproducer, process.mfilter])
@@ -2832,8 +2830,6 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
             self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
             self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
-            print("look")
-            print(p.values["sp"])
             self.assertEqual((True, ["sp@test1", "sp@test2"]), p.values["sp"][1].values["@all_cases"])
             self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
             self.assertEqual(["a", "sp", "sp@test1", "sp@test2"], p.values["@all_modules"][1])
