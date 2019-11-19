@@ -29,13 +29,14 @@ private:
     oneBitFraction,
     equalShare,
   };
+
   EnergyDivisionType energyDivisionType_;
   static constexpr int kHighDensityThickness_ = 0;
   static constexpr int kOddNumberMask_ = 1;
 
   HGCalTriggerTools triggerTools_;
   bool fixedDataSizePerHGCROC_;
-  bool coarsenTriggerCells_;
+  std::vector<unsigned> coarsenTriggerCells_;
   HGCalCoarseTriggerCellMapping coarseTCmapping_;
   HGCalCoarseTriggerCellMapping superTCmapping_;
 

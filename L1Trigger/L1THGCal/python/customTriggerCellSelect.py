@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, coarsetc_equalshare_proc, bestchoice_ndata_decentralized, mixedbcstc_conc_proc
+from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, coarsetc_equalshare_proc, bestchoice_ndata_decentralized, custom_conc_proc
 
 def custom_triggercellselect_supertriggercell(process,
                                               stcSize=supertc_conc_proc.stcSize,
@@ -73,16 +73,17 @@ def custom_coarsetc_equalshare(process,
     return process
     
 def custom_triggercellselect_mixedBestChoiceSuperTriggerCell(process,
-                                              stcSize=mixedbcstc_conc_proc.stcSize,
-                                              type_energy_division=mixedbcstc_conc_proc.type_energy_division,
-                                              fixedDataSizePerHGCROC=mixedbcstc_conc_proc.fixedDataSizePerHGCROC,
-                                              triggercells=mixedbcstc_conc_proc.NData
+                                              stcSize=custom_conc_proc.stcSize,
+                                              type_energy_division=custom_conc_proc.type_energy_division,
+                                              fixedDataSizePerHGCROC=custom_conc_proc.fixedDataSizePerHGCROC,
+                                              triggercells=custom_conc_proc.NData
                                               ):
-    parameters = mixedbcstc_conc_proc.clone(stcSize = stcSize,
-                                         type_energy_division = type_energy_division,
-                                         fixedDataSizePerHGCROC = fixedDataSizePerHGCROC,
-                                         NData=triggercells
-                                         )
+    parameters = custom_conc_proc.clone(stcSize = stcSize,
+                                        type_energy_division = type_energy_division,
+                                        fixedDataSizePerHGCROC = fixedDataSizePerHGCROC,
+                                        NData=triggercells,
+                                        Method = cms.vstring('bestChoiceSelect','superTriggerCellSelect','superTriggerCellSelect'),        
+    )
     process.hgcalConcentratorProducer.ProcessorParameters = parameters
     return process
 
