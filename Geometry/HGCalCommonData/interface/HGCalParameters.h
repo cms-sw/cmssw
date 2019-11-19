@@ -18,6 +18,10 @@ public:
 
   static constexpr double k_ScaleFromDDD = 0.1;
   static constexpr double k_ScaleToDDD = 10.0;
+  static constexpr double k_ScaleFromDD4Hep = 1.0;
+  static constexpr double k_ScaleToDD4Hep = 1.0;
+  static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
+  static constexpr double k_ScaleToDD4HepFromG4 = 0.1;
   static constexpr uint32_t k_CornerSize = 6;
 
   struct hgtrap {
