@@ -239,7 +239,8 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       findingRecord<HcalZSThresholdsRcd>();
     }
     if ((objectName == "RespCorrs") || (objectName == "ResponseCorrection") || all) {
-      auto& c = setWhatProduced(this, &HcalHardcodeCalibrations::produceRespCorrs).setConsumes(topoTokens_[kRespCorrs]);
+      auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceRespCorrs);
+      c.setConsumes(topoTokens_[kRespCorrs]);
       if (he_recalibration) {
         c.setConsumes(heDarkeningToken_, edm::ESInputTag("", "HE"));
       }
