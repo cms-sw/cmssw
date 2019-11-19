@@ -254,7 +254,7 @@ def getBasicTauDiscriminatorRawIndex(module, IDname, ignore_notfound=False):
                 return i
     if ignore_notfound: #used by combined searches for raw and WP indices which apply their own sanity checks
         return None
-    print "Basic Tau Discriminator <{}> not found!".format(IDname)
+    print("Basic Tau Discriminator <{}> not found!".format(IDname))
     raise Exception
 def getBasicTauDiscriminatorWPIndex(module, IDname, ignore_notfound=False):
     if hasattr(module, "IDWPdefinitions"):
@@ -264,7 +264,7 @@ def getBasicTauDiscriminatorWPIndex(module, IDname, ignore_notfound=False):
                 return i
     if ignore_notfound: #used by combined searches for raw and WP indices which apply their own sanity checks
         return None
-    print "Basic Tau Discriminator <{}> not found!".format(IDname)
+    print("Basic Tau Discriminator <{}> not found!".format(IDname))
     raise Exception
 
 
