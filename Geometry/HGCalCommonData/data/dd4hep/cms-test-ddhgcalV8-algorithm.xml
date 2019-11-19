@@ -28,11 +28,14 @@
     <Include ref="Geometry/CMSCommonData/data/cmsMother.xml"/>
     <Include ref="Geometry/CMSCommonData/data/caloBase/2026/v1/caloBase.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cmsCalo.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcal.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcalHEsil.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcal/v8/hgcal.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v8/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalEE/v8/hgcalEE.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalHEsil/v8/hgcalHEsil.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalCons/v8/hgcalCons.xml"/>
+    <Include ref="Geometry/HGCalSimData/data/hgcsensv8.xml"/>
+    <Include ref="Geometry/HGCalSimData/data/hgccons.xml"/>
+    <Include ref="Geometry/HGCalSimData/data/hgcProdCuts.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
   </IncludeSection>
   
