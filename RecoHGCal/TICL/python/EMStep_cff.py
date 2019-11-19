@@ -12,6 +12,7 @@ filteredLayerClustersEM = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgoAndSize",
     min_cluster_size = 2, # inclusive
     algo_number = 8,
+    LayerClustersInputMask = 'trackstersTrk',
     iteration_label = "EM"
 )
 
@@ -19,6 +20,7 @@ filteredLayerClustersEM = _filteredLayerClustersProducer.clone(
 
 trackstersEM = _trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersEM", "EM"),
+    original_mask = 'trackstersTrk',
     seeding_regions = "ticlSeedingGlobal",
     filter_on_categories = [0, 1],
     pid_threshold = 0.8,
