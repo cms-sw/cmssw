@@ -11,7 +11,6 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 filteredLayerClustersTrk = _filteredLayerClustersProducer.clone(
   clusterFilter = "ClusterFilterByAlgo",
   algo_number = 8,
-  LayerClustersInputMask = 'trackstersEM',
   iteration_label = "Trk"
 )
 
@@ -19,15 +18,15 @@ filteredLayerClustersTrk = _filteredLayerClustersProducer.clone(
 
 trackstersTrk = _trackstersProducer.clone(
   filtered_mask = cms.InputTag("filteredLayerClustersTrk", "Trk"),
-  original_mask = 'trackstersEM',
   seeding_regions = "ticlSeedingTrk",
   filter_on_categories = [2, 4], # filter muons and charged hadrons
   pid_threshold = 0.0,
   missing_layers = 5,
   min_clusters_per_ntuplet = 10,
-  min_cos_theta = 0.978, # ~12 degrees
-  min_cos_pointing = 0.866,
-  max_delta_time = -1.
+  min_cos_theta = 0.866, # ~30 degrees
+  min_cos_pointing = 0.798, # ~ 37 degrees
+  max_delta_time = -1.,
+  algo_verbosity = 0
 )
 
 # MULTICLUSTERS

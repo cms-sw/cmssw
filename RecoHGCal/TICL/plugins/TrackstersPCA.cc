@@ -9,6 +9,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
   std::cout << "-------" << std::endl;
   for (auto &trackster : tracksters) {
     pca.Clear();
+    trackster.raw_energy = 0.;
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
       auto fraction = 1.f / trackster.vertex_multiplicity[i];
       trackster.raw_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
@@ -42,13 +43,15 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
     const auto & eigenvectors = *(pca.GetEigenVectors());
     const auto & eigenvalues = *(pca.GetEigenValues());
     const auto & sigmas = *(pca.GetSigmas());
-    std::cout << "Trackster characteristics: " << std::endl;
-    std::cout << "Size: " << trackster.vertices.size() << std::endl;
-    std::cout << "Mean: " << mean[0] << ", " << mean[1] << ", " << mean[2] << std::endl;
-    std::cout << "EigenValues: " << eigenvalues[0] << ", " << eigenvalues[1] << ", " << eigenvalues[2]  << std::endl;
-    std::cout << "EigeVectors 1: " << eigenvectors(0, 0) << ", " << eigenvectors(1, 0) << ", " << eigenvectors(2, 0) <<std::endl;
-    std::cout << "EigeVectors 2: " << eigenvectors(0, 1) << ", " << eigenvectors(1, 1) << ", " << eigenvectors(2, 1) <<std::endl;
-    std::cout << "EigeVectors 3: " << eigenvectors(0, 2) << ", " << eigenvectors(1, 2) << ", " << eigenvectors(2, 2) <<std::endl;
-    std::cout << "Sigmas: " << sigmas[0] << ", " << sigmas[1] << ", " << sigmas[2] << std::endl;
+    if (0) {
+      std::cout << "Trackster characteristics: " << std::endl;
+      std::cout << "Size: " << trackster.vertices.size() << std::endl;
+      std::cout << "Mean: " << mean[0] << ", " << mean[1] << ", " << mean[2] << std::endl;
+      std::cout << "EigenValues: " << eigenvalues[0] << ", " << eigenvalues[1] << ", " << eigenvalues[2]  << std::endl;
+      std::cout << "EigeVectors 1: " << eigenvectors(0, 0) << ", " << eigenvectors(1, 0) << ", " << eigenvectors(2, 0) <<std::endl;
+      std::cout << "EigeVectors 2: " << eigenvectors(0, 1) << ", " << eigenvectors(1, 1) << ", " << eigenvectors(2, 1) <<std::endl;
+      std::cout << "EigeVectors 3: " << eigenvectors(0, 2) << ", " << eigenvectors(1, 2) << ", " << eigenvectors(2, 2) <<std::endl;
+      std::cout << "Sigmas: " << sigmas[0] << ", " << sigmas[1] << ", " << sigmas[2] << std::endl;
+    }
   }
 }
