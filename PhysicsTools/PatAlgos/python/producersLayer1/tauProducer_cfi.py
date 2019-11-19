@@ -12,7 +12,7 @@ def tauIDbasicinputs(module, wp):
         index = -index - 1 #use negative indices for raw values
     if index!=None:
         return cms.PSet(inputTag = cms.InputTag(module), workingPointIndex = cms.int32(index))
-    print "Basic Tau Discriminator <{}> <{}> for PAT configuration not found!".format(module, wp)
+    print("Basic Tau Discriminator <{}> <{}> for PAT configuration not found!".format(module, wp))
     raise Exception
 
 patTaus = cms.EDProducer("PATTauProducer",
