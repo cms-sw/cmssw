@@ -7,7 +7,10 @@ from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
 # Conversion Track producer  ( final fit )
 from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
 from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
-ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracksFromConversions*ckfInOutTracksFromConversions)
+ckfTracksFromConversionsTask = cms.Task(conversionTrackCandidates,
+                                        ckfOutInTracksFromConversions,
+                                        ckfInOutTracksFromConversions)
+ckfTracksFromConversions = cms.Sequence(ckfTracksFromConversionsTask)
 
 mustacheConversionTrackCandidates = conversionTrackCandidates.clone()
 mustacheConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
@@ -25,4 +28,7 @@ ckfInOutTracksFromMustacheConversions.src = cms.InputTag('mustacheConversionTrac
 ckfInOutTracksFromMustacheConversions.producer = cms.string('mustacheConversionTrackCandidates')
 ckfInOutTracksFromMustacheConversions.ComponentName = cms.string('ckfInOutTracksFromMustacheConversions')
 
-ckfTracksFromMustacheConversions = cms.Sequence(mustacheConversionTrackCandidates*ckfOutInTracksFromMustacheConversions*ckfInOutTracksFromMustacheConversions)
+ckfTracksFromMustacheConversionsTask = cms.Task(mustacheConversionTrackCandidates,
+                                                ckfOutInTracksFromMustacheConversions,
+                                                ckfInOutTracksFromMustacheConversions)
+ckfTracksFromMustacheConversions = cms.Sequence(ckfTracksFromMustacheConversionsTask)

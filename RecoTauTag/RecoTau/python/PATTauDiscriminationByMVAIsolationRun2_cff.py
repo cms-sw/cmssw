@@ -53,12 +53,13 @@ patDiscriminationByIsolationMVArun2v1VTight.mapping[0].cut = cms.string("replace
 patDiscriminationByIsolationMVArun2v1VVTight = patDiscriminationByIsolationMVArun2v1VLoose.clone()
 patDiscriminationByIsolationMVArun2v1VVTight.mapping[0].cut = cms.string("replaceMeByCut") # e.g. RecoTauTag_tauIdMVADBoldDMwLTv1_WPEff40
 
-mvaIsolation2SeqRun2 = cms.Sequence(
+mvaIsolation2TaskRun2 = cms.Task(
    patDiscriminationByIsolationMVArun2v1raw
-   + patDiscriminationByIsolationMVArun2v1VLoose
-   + patDiscriminationByIsolationMVArun2v1Loose
-   + patDiscriminationByIsolationMVArun2v1Medium
-   + patDiscriminationByIsolationMVArun2v1Tight
-   + patDiscriminationByIsolationMVArun2v1VTight
-   + patDiscriminationByIsolationMVArun2v1VVTight
+   , patDiscriminationByIsolationMVArun2v1VLoose
+   , patDiscriminationByIsolationMVArun2v1Loose
+   , patDiscriminationByIsolationMVArun2v1Medium
+   , patDiscriminationByIsolationMVArun2v1Tight
+   , patDiscriminationByIsolationMVArun2v1VTight
+   , patDiscriminationByIsolationMVArun2v1VVTight
 )
+mvaIsolation2SeqRun2 = cms.Sequence(mvaIsolation2TaskRun2)
