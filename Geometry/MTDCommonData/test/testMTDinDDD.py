@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CompareGeometryTest")
-process.load('Configuration.Geometry.GeometryExtended2023D24_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
@@ -22,7 +22,7 @@ process.testBTL = cms.EDAnalyzer("TestMTDNumbering",
                                outFileName = cms.untracked.string('BTL'),
                                numNodesToDump = cms.untracked.uint32(0),
                                ddTopNodeName = cms.untracked.string('btl:BarrelTimingLayer'),
-                               theLayout = cms.untracked.uint32(1)
+                               theLayout = cms.untracked.uint32(4)
                                )
 
 process.testETL = cms.EDAnalyzer("TestMTDNumbering",
