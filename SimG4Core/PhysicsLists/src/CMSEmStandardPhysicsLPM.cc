@@ -194,12 +194,10 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       G4UrbanMscModel* msc1 = new G4UrbanMscModel();
       G4WentzelVIModel* msc2 = new G4WentzelVIModel();
       G4UrbanMscModel* msc3 = new G4UrbanMscModel();
-      //---VI: these line should be moved down
-      msc3->SetLocked(true);
-      //---
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc3->SetHighEnergyLimit(highEnergyLimit);
+      msc3->SetLocked(true);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
       if (aRegion) {
@@ -311,11 +309,9 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       if (nullptr == pb) {
         pb = new G4hBremsstrahlung();
         pp = new G4hPairProduction();
-        //--- VI: these lines should be moved out of the brackets
-        pmsc = new G4hMultipleScattering();
-        pmsc->SetEmModel(new G4WentzelVIModel());
-        //---
       }
+      pmsc = new G4hMultipleScattering();
+      pmsc->SetEmModel(new G4WentzelVIModel());
 
       ph->RegisterProcess(pmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
