@@ -41,7 +41,6 @@
 //-------------------
 // Initializations --
 //-------------------
-cond::persistency::KeyList* DTUserKeyedConfigHandler::keyList = nullptr;
 
 //----------------
 // Constructors --
@@ -332,14 +331,12 @@ void DTUserKeyedConfigHandler::chkConfigList(const std::map<int, bool>& userBric
       continue;
     std::string brickConfigName = row["BRKNAME"].data<std::string>();
     std::cout << "brick " << brickConfigId << " : " << brickConfigName << std::endl;
-    checkedKeys.push_back(brickConfigId);
     bool brickFound = false;
     try {
-      std::cout << "load brick " << checkedKeys[0] << std::endl;
+      std::cout << "load brick " << brickConfigId << std::endl;
       std::cout << "key list " << keyList << std::endl;
-      keyList->load(checkedKeys);
       std::cout << "get brick..." << std::endl;
-      std::shared_ptr<DTKeyedConfig> brickCheck = keyList->get<DTKeyedConfig>(0);
+      std::shared_ptr<DTKeyedConfig> brickCheck = keyList->getUsingKey<DTKeyedConfig>(brickConfigId);
       if (brickCheck.get()) {
         brickFound = (brickCheck->getId() == brickConfigId);
       }
@@ -349,9 +346,7 @@ void DTUserKeyedConfigHandler::chkConfigList(const std::map<int, bool>& userBric
       std::cout << "brick " << brickConfigId << " missing, copy request" << std::endl;
       missingList.push_back(brickConfigId);
     }
-    checkedKeys.clear();
   }
-  keyList->load(checkedKeys);
 
   std::vector<int>::const_iterator brickIter = missingList.begin();
   std::vector<int>::const_iterator brickIend = missingList.end();
@@ -429,4 +424,4 @@ bool DTUserKeyedConfigHandler::userDiscardedKey(int key) {
   return true;
 }
 
-void DTUserKeyedConfigHandler::setList(cond::persistency::KeyList* list) { keyList = list; }
+void DTUserKeyedConfigHandler::setList(const cond::persistency::KeyList* list) { keyList = list; }
