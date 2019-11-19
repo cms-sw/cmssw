@@ -100,7 +100,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
   //density
   produces<Density>();
   //time for layer clusters
-  produces<edm::ValueMap<float>>(timeClname);
+  produces<edm::ValueMap<std::pair<float, float>>>(timeClname);
 }
 
 void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
