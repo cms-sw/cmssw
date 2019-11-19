@@ -105,9 +105,10 @@ lowPtForwardTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSele
     ) #end of clone
 
 # Final sequence
-LowPtForwardTripletStep = cms.Sequence(lowPtForwardTripletStepClusters*
-                                       lowPtForwardTripletStepSeedLayers*
-                                       lowPtForwardTripletStepSeeds*
-                                       lowPtForwardTripletStepTrackCandidates*
-                                       lowPtForwardTripletStepTracks*
+LowPtForwardTripletStepTask = cms.Task(lowPtForwardTripletStepClusters,
+                                       lowPtForwardTripletStepSeedLayers,
+                                       lowPtForwardTripletStepSeeds,
+                                       lowPtForwardTripletStepTrackCandidates,
+                                       lowPtForwardTripletStepTracks,
                                        lowPtForwardTripletStepSelector)
+LowPtForwardTripletStep = cms.Sequence(LowPtForwardTripletStepTask)
