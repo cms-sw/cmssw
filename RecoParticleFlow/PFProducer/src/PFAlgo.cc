@@ -1035,9 +1035,9 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     std::multimap<double, unsigned> hfEmElems;
     std::multimap<double, unsigned> hfHadElems;
     if (inds.trackIs.size()>0 && inds.hfEmIs.size()>0)
-      block.associatedElements(iTrack, linkData, hfEmElems, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
+      block.associatedElements(iEle, linkData, hfEmElems, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
     if (inds.trackIs.size()>0 && inds.hfHadIs.size()>0)
-      block.associatedElements(iTrack, linkData, hfHadElems, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
+      block.associatedElements(iEle, linkData, hfHadElems, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
 
 #ifdef EDM_ML_DEBUG
     for (const auto& pair : ecalElems) {
@@ -1159,7 +1159,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
       PFBlockElement::Type type = elements[index].type();
 
 #ifdef EDM_ML_DEBUG
-      double dist = block.dist(iTrack, index, linkData, reco::PFBlock::LINKTEST_ALL);
+      double dist = block.dist(iEle, index, linkData, reco::PFBlock::LINKTEST_ALL);
       LogTrace("PFAlgo|elementLoop") << "\telement " << elements[index] << " linked with distance " << dist;
 #endif
       assert(type == PFBlockElement::HFHAD);
@@ -1174,7 +1174,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
       } else {  // other associated hfhad
         // unlink from the track
         LogTrace("PFAlgo|elementLoop") << "\t\tsecondary hfhad cluster. unlinking";
-        block.setLink(iTrack, index, -1., linkData, PFBlock::LINKTEST_RECHIT);
+        block.setLink(iEle, index, -1., linkData, PFBlock::LINKTEST_RECHIT);
       }
     }  //loop hfhad elements
     
