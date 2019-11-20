@@ -196,21 +196,15 @@ namespace dqm::impl {
     uint32_t flags() const { return data_.flags; }
 
     /// get name of ME
-    const std::string &getName() const { return data_.objname; }
+    const std::string &getName() const { return access().key.path_.getObjectname(); }
 
     /// get pathname of parent folder
-    const std::string &getPathname() const { return *data_.dirname; }
+    const std::string &getPathname() const { return access().key.path_.getDirname(); }
 
     /// get full name of ME including Pathname
-    const std::string getFullname() const {
-      std::string path;
-      path.reserve(data_.dirname->size() + data_.objname.size() + 2);
-      path += *data_.dirname;
-      if (!data_.dirname->empty())
-        path += '/';
-      path += data_.objname;
-      return path;
-    }
+    const std::string getFullname() const { return access().key.path_.getFullname(); }
+
+    const edm::LuminosityBlockID getRunLumi() { return acces().key_.id_; }
 
     /// true if ME was updated in last monitoring cycle
     bool wasUpdated() const { return data_.flags & DQMNet::DQM_PROP_NEW; }

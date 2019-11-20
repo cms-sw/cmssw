@@ -42,11 +42,17 @@ namespace dqm {
 
     class IBooker : public dqm::implementation::NavigatorBase {
     public:
+      // functor to be passed as a default argument that does not do anything.
       struct NOOP {
-        // functor to be passed as a default argument that does not do anything.
         void operator()(TH1*) const {};
         void operator()() const {};
       };
+
+      //
+      // Booking Methods, templated to allow passing in lambdas.
+      // The variations taking ROOT object pointers do NOT take ownership of
+      // the object; it will be clone'd.
+      //
 
       template <typename FUNC = NOOP>
       MonitorElement* bookInt(TString const& name, FUNC onbooking = NOOP()) {
@@ -388,16 +394,25 @@ namespace dqm {
         });
       }
 
-      virtual MonitorElementData::Scope setScope(MonitorElementData::Scope newscope);
+      //
+      // all non-template interfaces are virtual.
+      //
 
+      virtual MonitorElementData::Scope setScope(MonitorElementData::Scope newscope);
       virtual ~IBooker();
 
     protected:
       IBooker(DQMStore* store);
-      MonitorElement* bookME(TString const& name, MonitorElementData::Kind kind, std::function<TH1*()> makeobject);
+      virtual uint64_t setModuleID(uint64_t moduleID);
+      virtual edm::LuminosityBlockID setRunLumi(edm::LuminosityBlockID runlumi);
+      virtual MonitorElement* bookME(TString const& name,
+                                     MonitorElementData::Kind kind,
+                                     std::function<TH1*()> makeobject);
 
       DQMStore* store_;
       MonitorElementData::Scope scope_;
+      uint64_t moduleID_;
+      edm::LuminosityBlockID runlumi_;
     };
 
     class IGetter : public dqm::implementation::NavigatorBase {
@@ -512,9 +527,12 @@ namespace dqm {
       template <typename iFunc>
       void meBookerGetter(iFunc f){};
 
-      // Will take ownership of the ROOT object in `me`, deleting it if not
-      // needed.
+      // Add ME to DQMStore datastructures. The object will be deleted if a
+      // similar object is already present.
+      // For global ME
       MonitorElement* putME(std::unique_ptr<MonitorElement>&& me);
+      // For local ME
+      MonitorElement* putME(std::unique_ptr<MonitorElement>&& me, uint64_t moduleID);
       // Log a backtrace on booking.
       void printTrace(std::string const& message);
       void enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
@@ -542,10 +560,16 @@ namespace dqm {
       // required. Prototype MEs are reset *before* inserting, so fill calls
       // can go into prototype MEs and not be lost.
       // Key is (run, lumi), potentially one or both 0 for SCOPE::RUN or SCOPE::JOB
-      std::map<std::pair<edm::RunNumber_t, edm::LuminosityBlockNumber_t>, std::set<MonitorElement*, MEComparison>>
-          globalMEs_;
+      // NEVER modify the key_ of a ME in these datastructures. Since we use
+      // pointers, this may be possible (not everything is const), but it could
+      // still corrupt the datastructure.
+      std::map<edm::LuminosityBlockID, std::set<MonitorElement*, MEComparison>> globalMEs_;
       // Key is (moduleID [, run]), run is only needed for edm::global.
+      // Legacy MEs have moduleID 0.
       std::map<uint64_t, std::set<MonitorElement*, MEComparison>> localMEs_;
+
+      // universal verbose flag.
+      int verbose_;
     };
   }  // namespace implementation
 

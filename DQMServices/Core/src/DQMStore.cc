@@ -34,36 +34,85 @@ namespace dqm::implementation {
     scope_ = newscope;
     return oldscope;
   }
+  uint64_t MonitorElementData::setModuleID(uint64_t moduleID) {
+    auto oldid = moduleID_;
+    moduleID_ = moduleID;
+    return oldid;
+  }
+
+  edm::LuminosityBlockID setRunLumi(edm::LuminosityBlockID runlumi) {
+    auto oldrunlumi = runlumi_;
+    runlumi_ = runlumi;
+    return oldrunlumi;
+  }
 
   MonitorElement* IBooker::bookME(TString const& name,
                                   MonitorElementData::Kind kind,
                                   std::function<TH1*()> makeobject) {
-    MonitorElementData* data = new MonitorElementData();
-    MonitorElementData::Key key;
-    key.kind_ = kind;
+    MonitorElementData::Path path;
     std::string fullpath = pwd() + std::string(name.View());
-    key.path_.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
-    key.scope_ = scope_;
-    data->key_ = key;
-    {
-      //MonitorElementData::Value::Access value(data->value_);
-      //value.object = std::unique_ptr<TH1>(object);
+    path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
+    MonitorElement* me store_->findME(path);
+    printTrace("Booking " + std::string(name) + (me ? " (existing)" : " (new)")); 
+    if (me == nullptr) {
+      // no existing global ME found. We need to instantiate one, and put it
+      // into the DQMStore. This will typically be a prototype, unless run and
+      // lumi are set and we proces a legacy booking call.
+      TH1* th1 = makeobject();
+      MonitorElementData medata;
+      medata.key_.path_ = path;
+      medata.key_.kind_ = kind;
+      medata.key_.scope_ = this->scope_;
+      // will be 0 ( = prototype) in the common case.
+      medata.key_.id_ = edm::LuminosityBlockID(this->run_, this_->lumi_);
+      medata.value_.object_ = std::unique_ptr<TH1>(th1);
+      MonitorElement* me_ptr = new MonitorElement(data, /* is_owned */ true, /* is_readonly */ false);
+      me = store_->putME(me_ptr);
     }
-
-    std::unique_ptr<MonitorElement> me =
-        std::make_unique<MonitorElement>(data, /* is_owned */ true, /* is_readonly */ false);
+    // me now points to a global ME owned by the DQMStore.
     assert(me);
-    MonitorElement* me_ptr = store_->putME(std::move(me));
-    assert(me_ptr);
-    return me_ptr;
+
+    // each booking call returns a unique "local" ME, which the DQMStore keeps
+    // in a container associated with the module (and potentially run, for
+    // DQMGlobalEDAnalyzer). This will later be update to point to different
+    // MEData (kept in a global ME) as needed.
+    MonitorElement* local_me = new MonitorElement(me);
+    me = store_->putME(local_me);
+    // me now points to a local ME owned by the DQMStore.
+    assert(me);
+    return me;
   }
 
-  MonitorElement* DQMStore::putME(std::unique_ptr<MonitorElement>&& me) {
-    //TODO
-    return nullptr;
+  MonitorElement* DQMStore::putME(MonitorElement* me) {
+    assert(me);
+    auto existing_new = globalMEs_[me->getRunLumi()].insert(me);
+    if (existing_new.second = true) {
+      // successfully inserted, return new object
+      return me;
+    } else {
+      // already present, return old object
+      delete me;
+      assert(!"Currently, this should never happen.");
+      return *(existing_new.first);
+    }
+  }
+
+  MonitorElement* DQMStore::putME(MonitorElement* me, uint64_t moduleID) {
+    assert(me);
+    auto existing_new = localMEs_[moduleID].insert(me);
+    if (existing_new.second = true) {
+      // successfully inserted, return new object
+      return me;
+    } else {
+      // already present, return old object
+      delete me;
+      assert(!"Currently, this should never happen.");
+      return *(existing_new.first);
+    }
   }
 
   void DQMStore::printTrace(std::string const& message) {
+    if (verbose_ < 3) return;
     edm::LogWarning("DQMStoreBooking").log([&](auto& logger) {
       std::regex s_rxtrace{"(.*)\\((.*)\\+0x.*\\).*(\\[.*\\])"};
       std::regex s_rxself{"^[^()]*dqm::implementation::.*|^[^()]*edm::.*|.*edm::convertException::wrap.*"};
@@ -167,7 +216,10 @@ namespace dqm::implementation {
 
   IGetter::~IGetter() {}
 
-  DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&) : IGetter(this), IBooker(this) {}
+  DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&) : IGetter(this), IBooker(this) {
+    verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
+  }
+
   DQMStore::~DQMStore() {}
 
   void DQMStore::save(std::string const& filename,
