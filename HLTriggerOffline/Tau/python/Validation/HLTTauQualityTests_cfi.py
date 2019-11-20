@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-hltTauQualityTesterForZ = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+hltTauQualityTesterForZ = DQMQualityTester(
                                         qtList = cms.untracked.FileInPath('HLTriggerOffline/Tau/data/QTDefault.xml'),
                                         #reportThreshold         = cms.untracked.string('black'),
                                         prescaleFactor          = cms.untracked.int32(1),
