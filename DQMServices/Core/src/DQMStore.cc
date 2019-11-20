@@ -34,13 +34,13 @@ namespace dqm::implementation {
     scope_ = newscope;
     return oldscope;
   }
-  uint64_t MonitorElementData::setModuleID(uint64_t moduleID) {
+  uint64_t IBooker::setModuleID(uint64_t moduleID) {
     auto oldid = moduleID_;
     moduleID_ = moduleID;
     return oldid;
   }
 
-  edm::LuminosityBlockID setRunLumi(edm::LuminosityBlockID runlumi) {
+  edm::LuminosityBlockID IBooker::setRunLumi(edm::LuminosityBlockID runlumi) {
     auto oldrunlumi = runlumi_;
     runlumi_ = runlumi;
     return oldrunlumi;
@@ -52,8 +52,8 @@ namespace dqm::implementation {
     MonitorElementData::Path path;
     std::string fullpath = pwd() + std::string(name.View());
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
-    MonitorElement* me store_->findME(path);
-    printTrace("Booking " + std::string(name) + (me ? " (existing)" : " (new)")); 
+    MonitorElement* me = store_->findME(path);
+    store_->printTrace("Booking " + std::string(name) + (me ? " (existing)" : " (new)"));
     if (me == nullptr) {
       // no existing global ME found. We need to instantiate one, and put it
       // into the DQMStore. This will typically be a prototype, unless run and
@@ -64,9 +64,9 @@ namespace dqm::implementation {
       medata.key_.kind_ = kind;
       medata.key_.scope_ = this->scope_;
       // will be 0 ( = prototype) in the common case.
-      medata.key_.id_ = edm::LuminosityBlockID(this->run_, this_->lumi_);
+      medata.key_.id_ = this->runlumi_;
       medata.value_.object_ = std::unique_ptr<TH1>(th1);
-      MonitorElement* me_ptr = new MonitorElement(data, /* is_owned */ true, /* is_readonly */ false);
+      MonitorElement* me_ptr = new MonitorElement(std::move(medata));
       me = store_->putME(me_ptr);
     }
     // me now points to a global ME owned by the DQMStore.
@@ -86,7 +86,7 @@ namespace dqm::implementation {
   MonitorElement* DQMStore::putME(MonitorElement* me) {
     assert(me);
     auto existing_new = globalMEs_[me->getRunLumi()].insert(me);
-    if (existing_new.second = true) {
+    if (existing_new.second == true) {
       // successfully inserted, return new object
       return me;
     } else {
@@ -100,7 +100,7 @@ namespace dqm::implementation {
   MonitorElement* DQMStore::putME(MonitorElement* me, uint64_t moduleID) {
     assert(me);
     auto existing_new = localMEs_[moduleID].insert(me);
-    if (existing_new.second = true) {
+    if (existing_new.second == true) {
       // successfully inserted, return new object
       return me;
     } else {
@@ -111,8 +111,15 @@ namespace dqm::implementation {
     }
   }
 
+  MonitorElement* DQMStore::findME(MonitorElementData::Path const& path) {
+    //TODO
+
+
+  }
+
   void DQMStore::printTrace(std::string const& message) {
-    if (verbose_ < 3) return;
+    if (verbose_ < 3)
+      return;
     edm::LogWarning("DQMStoreBooking").log([&](auto& logger) {
       std::regex s_rxtrace{"(.*)\\((.*)\\+0x.*\\).*(\\[.*\\])"};
       std::regex s_rxself{"^[^()]*dqm::implementation::.*|^[^()]*edm::.*|.*edm::convertException::wrap.*"};

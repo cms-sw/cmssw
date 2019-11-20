@@ -40,9 +40,23 @@ namespace dqm::impl {
     return h;
   }
 
+  MonitorElement::MonitorElement(MonitorElementData&& data) {
+    this->mutable_ = new MutableMonitorElementData();
+    this->frozen_ = nullptr;
+    this->mutable_.load()->data_ = std::move(data);
+    this->is_owned_ = true;
+    // TODO: update DQMNet::CoreObject.
+  }
+  MonitorElement::MonitorElement(MonitorElement* me) {
+    this->mutable_ = me->mutable_.load();
+    this->frozen_ = me->frozen_.load();
+    this->is_owned_ = false;
+    // TODO: update DQMNet::CoreObject.
+  }
+
   MonitorElement::~MonitorElement() {
-    // TODO: this is only as long as we use the edm::Service DQMStore.
-    delete mutable_;
+    if (is_owned_)
+      delete mutable_;
   }
 
   //utility function to check the consistency of the axis labels

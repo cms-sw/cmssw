@@ -103,6 +103,7 @@ namespace dqm::impl {
 
     std::atomic<MonitorElementData const *> frozen_;    // only set if this ME is in a product already
     std::atomic<MutableMonitorElementData *> mutable_;  // only set if there is a mutable copy of this ME
+    bool is_owned_; // true if we are responsible for deleting the mutable object.
     /** 
      * To do anything to the MEs data, one needs to obtain an access object.
      * This object will contain the lock guard if one is needed. We differentiate
@@ -169,6 +170,7 @@ namespace dqm::impl {
         return existing->accessMut();
       } else {
         // we won the race, and our clone is the real one now.
+        this->is_owned_ = true;
         return clone->accessMut();
       }
       // in either case, if somebody destroyed the mutable object between us
@@ -178,7 +180,11 @@ namespace dqm::impl {
     }
 
   public:
-    MonitorElement(MonitorElementData *data, bool is_owned, bool is_readonly){};
+    // Create ME using this data. A ROOT object pointer may be moved into the 
+    // new ME. The new ME will own this data.
+    MonitorElement(MonitorElementData&& data);
+    // Create a new ME sharing data with this existing ME.
+    MonitorElement(MonitorElement* me);
     MonitorElement &operator=(const MonitorElement &) = delete;
     MonitorElement &operator=(MonitorElement &&) = delete;
     virtual ~MonitorElement();
@@ -204,7 +210,7 @@ namespace dqm::impl {
     /// get full name of ME including Pathname
     const std::string getFullname() const { return access().key.path_.getFullname(); }
 
-    const edm::LuminosityBlockID getRunLumi() { return acces().key_.id_; }
+    const edm::LuminosityBlockID getRunLumi() { return access().key.id_; }
 
     /// true if ME was updated in last monitoring cycle
     bool wasUpdated() const { return data_.flags & DQMNet::DQM_PROP_NEW; }
