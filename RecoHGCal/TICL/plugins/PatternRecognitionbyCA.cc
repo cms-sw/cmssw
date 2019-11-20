@@ -145,7 +145,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     }
   }
 
-  ticl::assignPCAtoTracksters(result, input.layerClusters);
+  ticl::assignPCAtoTracksters(result, input.layerClusters,
+      rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);

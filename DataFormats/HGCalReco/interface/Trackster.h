@@ -45,6 +45,9 @@ namespace ticl {
     // regressed energy
     float regressed_energy;
     float raw_energy;
+    float raw_em_energy;
+    float raw_pt;
+    float raw_em_pt;
 
     // PCA Variables
     typedef math::XYZVector Vector;

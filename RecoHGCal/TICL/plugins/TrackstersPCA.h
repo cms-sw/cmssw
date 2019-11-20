@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace ticl {
-  void assignPCAtoTracksters(std::vector<Trackster> &, const std::vector<reco::CaloCluster>&);
+  void assignPCAtoTracksters(std::vector<Trackster> &, const std::vector<reco::CaloCluster>&, double);
 }
 
 #endif

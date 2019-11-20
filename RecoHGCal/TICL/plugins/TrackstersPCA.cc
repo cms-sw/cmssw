@@ -4,15 +4,20 @@
 #include <iostream>
 
 void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
-    const std::vector<reco::CaloCluster> &layerClusters) {
+    const std::vector<reco::CaloCluster> &layerClusters, double z_limit_em) {
   TPrincipal pca(3, "");
   std::cout << "-------" << std::endl;
   for (auto &trackster : tracksters) {
     pca.Clear();
     trackster.raw_energy = 0.;
+    trackster.raw_em_energy = 0.;
+    trackster.raw_pt = 0.;
+    trackster.raw_em_pt = 0.;
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
       auto fraction = 1.f / trackster.vertex_multiplicity[i];
       trackster.raw_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
+      if (layerClusters[trackster.vertices[i]].z() <= z_limit_em)
+        trackster.raw_em_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
       double point[3] = {
         layerClusters[trackster.vertices[i]].x(),
         layerClusters[trackster.vertices[i]].y(),
@@ -39,6 +44,9 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
     trackster.sigmas[0] = (float)(*(pca.GetSigmas()))[0];
     trackster.sigmas[1] = (float)(*(pca.GetSigmas()))[1];
     trackster.sigmas[2] = (float)(*(pca.GetSigmas()))[2];
+    auto norm = std::sqrt(trackster.eigenvectors[0].Unit().perp2());
+    trackster.raw_pt = norm * trackster.raw_energy;
+    trackster.raw_em_pt = norm * trackster.raw_em_energy;
     const auto & mean = *(pca.GetMeanValues());
     const auto & eigenvectors = *(pca.GetEigenVectors());
     const auto & eigenvalues = *(pca.GetEigenValues());

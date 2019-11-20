@@ -135,7 +135,8 @@ void TrackstersMergeProducer::mergeTrackstersTRK(const std::vector<Trackster> & 
     }
   }
 
-  assignPCAtoTracksters(output, layerClusters);
+  assignPCAtoTracksters(output, layerClusters,
+      rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
   energyRegressionAndID(layerClusters, output);
 }
 
@@ -322,7 +323,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     tracksterHAD_idx++;
   }
 
-  assignPCAtoTracksters(*result, layerClusters);
+  assignPCAtoTracksters(*result, layerClusters,
+      rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
   energyRegressionAndID(layerClusters, *result);
 
   evt.put(std::move(result));
