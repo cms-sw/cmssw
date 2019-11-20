@@ -50,6 +50,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
 
+  writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
+
   savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
 
   // check whether you need to run the integrated local triggers
@@ -68,6 +70,9 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   // for experimental simulation studies
   if (writeOutAllCLCTs_) {
     produces<CSCCLCTDigiCollection>("ALL");
+  }
+  if (writeOutAllALCTs_) {
+    produces<CSCALCTDigiCollection>("ALL");
   }
   produces<CSCCLCTPreTriggerDigiCollection>();
   produces<CSCCLCTPreTriggerCollection>();
@@ -142,6 +147,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
   std::unique_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
+  std::unique_ptr<CSCALCTDigiCollection> oc_alct_all(new CSCALCTDigiCollection);
   std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
   std::unique_ptr<CSCCLCTDigiCollection> oc_clct_all(new CSCCLCTDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerDigiCollection> oc_clctpretrigger(new CSCCLCTPreTriggerDigiCollection);
@@ -172,6 +178,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
                             gemPads,
                             gemPadClusters,
                             *oc_alct,
+                            *oc_alct_all,
                             *oc_clct,
                             *oc_clct_all,
                             *oc_alctpretrigger,
@@ -186,6 +193,9 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
 
   // Put collections in event.
   ev.put(std::move(oc_alct));
+  if (writeOutAllALCTs_){
+    ev.put(std::move(oc_alct_all), "ALL");
+  }
   ev.put(std::move(oc_clct));
   if (writeOutAllCLCTs_){
     ev.put(std::move(oc_clct_all), "ALL");
