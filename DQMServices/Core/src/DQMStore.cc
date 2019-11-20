@@ -113,7 +113,8 @@ namespace dqm::implementation {
     }
   }
 
-  MonitorElement* DQMStore::findME(MonitorElementData::Path const& path) {
+  template <typename MELIKE>
+  MonitorElement* DQMStore::findME(MELIKE const& path) {
     auto lock = std::scoped_lock(this->booking_mutex_);
     for (auto& [runlumi, meset] : this->globalMEs_) {
       auto it = meset.find(path);
@@ -196,16 +197,106 @@ namespace dqm::implementation {
   }
 
   void DQMStore::enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID) {
-    //TODO
-  }
+    // Make sure global MEs for the run/lumi exist (depending on scope), and
+    // point the local MEs for this module to these global MEs.
 
-  MonitorElementData* DQMStore::cloneMonitorElementData(MonitorElementData const* input) {
-    //TODO
-    return nullptr;
+    auto lock = std::scoped_lock(this->booking_mutex_);
+
+    // these are the MEs we need to update.
+    auto& localset = this->localMEs_[moduleID];
+    // this is where they need to point to.
+    auto& targetset = this->globalMEs_[edm::LuminosityBlockID(run, lumi)];
+    // this is where we can get MEs to reuse.
+    auto& prototypes = this->globalMEs_[edm::LuminosityBlockID()];
+
+    auto checkScope = [run, lumi](MonitorElementData::Scope scope) {
+      if (scope == MonitorElementData::Scope::JOB) {
+        return (run == 0 && lumi == 0);
+      } else if (scope == MonitorElementData::Scope::RUN) {
+        return (run != 0 && lumi == 0);
+      } else if (scope == MonitorElementData::Scope::LUMI) {
+        return (lumi != 0);
+      }
+      assert(!"Impossible Scope.");
+      return false;
+    };
+
+    for (MonitorElement* me : localset) {
+      auto target = targetset.find(me);  // lookup by path, thanks to MEComparison
+      if (target != targetset.end()) {
+        // we already have a ME, just use it!
+      } else {
+        // look for a prototype to reuse.
+        auto proto = prototypes.find(me);
+        if (proto != prototypes.end()) {
+          // first, check if this ME needs updating at all. We can only check
+          // the scope once we have an actual global ME instance, the local ME
+          // might not have any data attached!
+          if (checkScope((*proto)->getScope()) == false) {
+            continue;
+          }  // else
+          // reuse that.
+          MonitorElement* oldme = *proto;
+          prototypes.erase(proto);
+          auto medata = oldme->release(/* expectOwned */ true);  // destroy the ME, get its data.
+          delete oldme;
+          // in this situation, nobody should be filling the ME concurrently.
+          medata->data_.key_.id_ = edm::LuminosityBlockID(run, lumi);
+          auto newme = new MonitorElement(medata);
+          auto result = targetset.insert(newme);
+          assert(result.second);  // was new insertion
+          target = result.first;  // iterator to new ME
+        } else {
+          // no prototype available. That means we have concurrent Lumis/Runs,
+          // and need to make a clone now.
+          auto anyme = this->findME(me);
+          assert(anyme || !"local ME without any global ME!");
+          if (checkScope(anyme->getScope()) == false) {
+            continue;
+          }  // else
+          MonitorElementData newdata = anyme->cloneMEData();
+          auto newme = new MonitorElement(std::move(newdata));
+          newme->Reset();  // we cloned a ME in use, not an empty prototype
+          auto result = targetset.insert(newme);
+          assert(result.second);  // was new insertion
+          target = result.first;  // iterator to new ME
+        }
+      }
+      // now we have the proper global ME in the right place, point the local there.
+      me->switchData(*target);
+    }
   }
 
   void DQMStore::leaveLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID) {
-    //TODO
+    // here, we remove the pointers in the local MEs. No deletion or recycling
+    // yet -- this has to happen after the output module had a chance to do its
+    // work. We just leave the global MEs where they are. This is purely an
+    // accounting step, the cleanup code has to check that nobody is using the
+    // ME any more, and here we make sure that is the case.
+
+    auto lock = std::scoped_lock(this->booking_mutex_);
+
+    // these are the MEs we need to update.
+    auto& localset = this->localMEs_[moduleID];
+
+    auto checkScope = [run, lumi](MonitorElementData::Scope scope) {
+      if (scope == MonitorElementData::Scope::JOB) {
+        return (run == 0 && lumi == 0);
+      } else if (scope == MonitorElementData::Scope::RUN) {
+        return (run != 0 && lumi == 0);
+      } else if (scope == MonitorElementData::Scope::LUMI) {
+        return (lumi != 0);
+      }
+      assert(!"Impossible Scope.");
+      return false;
+    };
+
+    for (MonitorElement* me : localset) {
+      if (checkScope(me->getScope()) == true) {
+        // if we left the scope, simply release the data.
+        me->release(/* expectOwned */ false);
+      }
+    }
   }
 
   std::vector<dqm::harvesting::MonitorElement*> IGetter::getContents(std::string const& path) const { assert(!"NIY"); }

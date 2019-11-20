@@ -219,10 +219,19 @@ namespace dqm::impl {
     // Create ME using this data. A ROOT object pointer may be moved into the
     // new ME. The new ME will own this data.
     MonitorElement(MonitorElementData &&data);
+    // Create new ME and take ownership of this data.
+    MonitorElement(MutableMonitorElementData *data);
     // Create a new ME sharing data with this existing ME.
     MonitorElement(MonitorElement *me);
     MonitorElement &operator=(const MonitorElement &) = delete;
     MonitorElement &operator=(MonitorElement &&) = delete;
+    // return a new clone of the data of this ME. Calls ->Clone(), new object
+    // is owned by the returned value.
+    MonitorElementData cloneMEData();
+    // Remove access and ownership to the data. The flag is used for a sanity check.
+    MutableMonitorElementData *release(bool expectOwned);
+    // re-initialize this ME as a shared copy of the other.
+    void switchData(MonitorElement *other);
     virtual ~MonitorElement();
 
     /// Compare monitor elements, for ordering in sets.
@@ -248,6 +257,8 @@ namespace dqm::impl {
 
     const edm::LuminosityBlockID getRunLumi() { return access().key.id_; }
 
+    const MonitorElementData::Scope getScope() { return access().key.scope_; }
+
     /// true if ME was updated in last monitoring cycle
     bool wasUpdated() const { return data_.flags & DQMNet::DQM_PROP_NEW; }
 
@@ -259,10 +270,11 @@ namespace dqm::impl {
     void setResetMe(bool /* flag */) { data_.flags |= DQMNet::DQM_PROP_RESET; }
 
     /// true if ME is meant to be stored for each luminosity section
-    bool getLumiFlag() const { return data_.flags & DQMNet::DQM_PROP_LUMI; }
+    bool getLumiFlag() const { return access().key.scope_ == MonitorElementData::Scope::LUMI; }
 
     /// this ME is meant to be stored for each luminosity section
-    void setLumiFlag() { data_.flags |= DQMNet::DQM_PROP_LUMI; }
+    // we can't support this any more, but the ME might be safed by lumi anyways!
+    void setLumiFlag() { assert(getLumiFlag()); }
 
     /// this ME is meant to be an efficiency plot that must not be
     /// normalized when drawn in the DQM GUI.
