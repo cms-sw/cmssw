@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-#Values of these parameters are for the OT in this pSet (Default)
 digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
     Verbosity = cms.bool(False),
     TopFolderName = cms.string("Ph2TkDigi"),
@@ -21,7 +20,6 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
            xmax = cms.double(0.05),
            switch = cms.bool(True)
     ),
-    #problem
     DigiOccupancyPH = cms.PSet(
            Nbins = cms.int32(51),
            xmin = cms.double(-0.0001),
@@ -47,9 +45,9 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
            switch = cms.bool(True)
     ),
     PositionOfDigisPH = cms.PSet(
-           Nxbins = cms.int32(1016),
+           Nxbins = cms.int32(960),
            xmin   = cms.double(0.5),
-           xmax   = cms.double(1016.5),
+           xmax   = cms.double(960.5),
            Nybins = cms.int32(32),
            ymin   = cms.double(0.5),
            ymax   = cms.double(32.5),
@@ -95,12 +93,6 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
         Nbins = cms.int32(1024),
         xmin   = cms.double(0.5),
         xmax   = cms.double(1024.5),
-        switch = cms.bool(True)
-    ),  
-    ClusterPosition1DH = cms.PSet(
-        Nbins = cms.int32(1016),
-        xmin   = cms.double(0.5),
-        xmax   = cms.double(1016.5),
         switch = cms.bool(True)
     ),  
     ClusterPositionSH = cms.PSet(
