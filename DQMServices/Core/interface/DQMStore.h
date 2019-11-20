@@ -7,6 +7,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <functional>
+#include <mutex>
 
 // TODO: Remove at some point:
 #define TRACE(msg) \
@@ -17,13 +18,6 @@ namespace dqm {
   namespace implementation {
     using MonitorElement = dqm::legacy::MonitorElement;
     class DQMStore;
-
-    struct MEComparison {
-      using is_transparent = int;  // magic marker to allow C++14 heterogeneous set lookup.
-      bool operator()(MonitorElement* left, MonitorElement* right) const { return false; }
-      bool operator()(MonitorElement* left, MonitorElementData::Path const& right) const { return false; }
-      bool operator()(MonitorElementData::Path const& left, MonitorElement* right) const { return false; }
-    };
 
     // The common implementation to change folders
     class NavigatorBase {
@@ -523,9 +517,40 @@ namespace dqm {
     public:
       // internal -- figure out better protection.
       template <typename iFunc>
-      void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId, bool canSaveByLumi){};
+      void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId, bool canSaveByLumi) {
+        auto lock = std::scoped_lock(this->booking_mutex_);
+        IBooker& booker = *this;
+        // TODO: this may need to become more elaborate.
+        auto oldscope =
+            booker.setScope(canSaveByLumi ? MonitorElementData::Scope::LUMI : MonitorElementData::Scope::RUN);
+        assert(moduleId != 0 || !"moduleID must be set for normal booking transaction");
+        // run should be 0 unless this is DQMGlobalEDAnalyzer.
+        // The run number goes into the moduleID, since for the DQMGlobalEDAnalyzer,
+        // we need *different* localMEs within the same module.
+        // Access via this-> to allow access to protected member
+        auto oldmoduleid = this->setModuleID((((uint64_t)run) << 32) + moduleId);
+        assert(oldmoduleid == 0 || !"Nested booking transaction?");
+        // in a proper transaction we book prototypes, except DQMGlobalEDAnalyzer
+        // (run is set, MEs are booked for a fixed run).
+        auto oldrunlumi = this->setRunLumi(edm::LuminosityBlockID(run, 0));
+
+        f(booker);
+
+        booker.setScope(oldscope);
+        this->setModuleID(oldmoduleid);
+        this->setRunLumi(oldrunlumi);
+      };
+
       template <typename iFunc>
-      void meBookerGetter(iFunc f){};
+      void meBookerGetter(iFunc f) {
+        auto lock = std::scoped_lock(this->booking_mutex_);
+        // here, we make much less assumptions compared to bookTransaction.
+        // This is essentially legacy semantics except we actually take the lock.
+        f(*this, *this);
+        // TODO: we should maybe make sure that Scope changes are reset here,
+        // but also it makes sense to inherit the Scope from the environement
+        // (e.g. when meBookerGetter is called *inside* a booking transaction).
+      };
 
       // Add ME to DQMStore datastructures. The object will be deleted if a
       // similar object is already present.
@@ -565,10 +590,17 @@ namespace dqm {
       // NEVER modify the key_ of a ME in these datastructures. Since we use
       // pointers, this may be possible (not everything is const), but it could
       // still corrupt the datastructure.
-      std::map<edm::LuminosityBlockID, std::set<MonitorElement*, MEComparison>> globalMEs_;
+      std::map<edm::LuminosityBlockID, std::set<MonitorElement*, MonitorElement::MEComparison>> globalMEs_;
       // Key is (moduleID [, run]), run is only needed for edm::global.
       // Legacy MEs have moduleID 0.
-      std::map<uint64_t, std::set<MonitorElement*, MEComparison>> localMEs_;
+      std::map<uint64_t, std::set<MonitorElement*, MonitorElement::MEComparison>> localMEs_;
+      // Whenever modifying these sets, take tihs mutex. It's recursive, so we
+      // can be liberal -- lock on any access, but also lock on the full booking
+      // transaction. The former is required since also the MEComparison is not
+      // really thread safe, the latter since booking still uses a single,
+      // shared IBooker instance (`this`!), and the transaction needs to be
+      // atomic.
+      std::recursive_mutex booking_mutex_;
 
       // universal verbose flag.
       int verbose_;

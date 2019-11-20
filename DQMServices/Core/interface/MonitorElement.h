@@ -96,6 +96,42 @@ namespace dqm::impl {
     using Scalar = MonitorElementData::Scalar;
     using Kind = MonitorElementData::Kind;
 
+    // Comparison helper used in DQMStore to insert into sets. This needs deep
+    // private access to the MEData, that is why it lives here.
+    struct MEComparison {
+      using is_transparent = int;  // magic marker to allow C++14 heterogeneous set lookup.
+
+      // no locking here. We assume this is called from the DQMStore set
+      // operations, which need to be protected by a lock anyways.
+      bool operator()(MonitorElement *left, MonitorElement *right) const {
+        MonitorElementData const *l_frozen = left->frozen_.load();
+        MutableMonitorElementData const *l_mutable = left->mutable_.load();
+        MonitorElementData const *r_frozen = right->frozen_.load();
+        MutableMonitorElementData const *r_mutable = right->mutable_.load();
+
+        MonitorElementData::Path const &l = l_mutable ? l_mutable->data_.key_.path_ : l_frozen->key_.path_;
+        MonitorElementData::Path const &r = r_mutable ? r_mutable->data_.key_.path_ : r_frozen->key_.path_;
+
+        return (*this)(l, r);  // call implementation below
+      }
+      bool operator()(MonitorElement *left, MonitorElementData::Path const &right) const {
+        MonitorElementData const *l_frozen = left->frozen_.load();
+        MutableMonitorElementData const *l_mutable = left->mutable_.load();
+        MonitorElementData::Path const &l = l_mutable ? l_mutable->data_.key_.path_ : l_frozen->key_.path_;
+        return (*this)(l, right);  // call implementation below
+      }
+      bool operator()(MonitorElementData::Path const &left, MonitorElement *right) const {
+        MonitorElementData const *r_frozen = right->frozen_.load();
+        MutableMonitorElementData const *r_mutable = right->mutable_.load();
+        MonitorElementData::Path const &r = r_mutable ? r_mutable->data_.key_.path_ : r_frozen->key_.path_;
+        return (*this)(left, r);  // call implementation below
+      }
+      bool operator()(MonitorElementData::Path const &left, MonitorElementData::Path const &right) const {
+        return std::make_tuple(left.getDirname(), left.getObjectname()) <
+               std::make_tuple(right.getDirname(), right.getObjectname());
+      }
+    };
+
   protected:
     DQMNet::CoreObject data_;  //< Core object information.
     // TODO: we only use the ::Value part so far.
@@ -103,7 +139,7 @@ namespace dqm::impl {
 
     std::atomic<MonitorElementData const *> frozen_;    // only set if this ME is in a product already
     std::atomic<MutableMonitorElementData *> mutable_;  // only set if there is a mutable copy of this ME
-    bool is_owned_; // true if we are responsible for deleting the mutable object.
+    bool is_owned_;                                     // true if we are responsible for deleting the mutable object.
     /** 
      * To do anything to the MEs data, one needs to obtain an access object.
      * This object will contain the lock guard if one is needed. We differentiate
@@ -180,11 +216,11 @@ namespace dqm::impl {
     }
 
   public:
-    // Create ME using this data. A ROOT object pointer may be moved into the 
+    // Create ME using this data. A ROOT object pointer may be moved into the
     // new ME. The new ME will own this data.
-    MonitorElement(MonitorElementData&& data);
+    MonitorElement(MonitorElementData &&data);
     // Create a new ME sharing data with this existing ME.
-    MonitorElement(MonitorElement* me);
+    MonitorElement(MonitorElement *me);
     MonitorElement &operator=(const MonitorElement &) = delete;
     MonitorElement &operator=(MonitorElement &&) = delete;
     virtual ~MonitorElement();
