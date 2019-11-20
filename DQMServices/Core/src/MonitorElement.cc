@@ -47,9 +47,44 @@ namespace dqm::impl {
     this->is_owned_ = true;
     // TODO: update DQMNet::CoreObject.
   }
+  MonitorElement::MonitorElement(MutableMonitorElementData *data) {
+    this->mutable_ = data;
+    this->frozen_ = nullptr;
+    this->is_owned_ = true;
+    // TODO: update DQMNet::CoreObject.
+  }
   MonitorElement::MonitorElement(MonitorElement *me) {
     this->mutable_ = me->mutable_.load();
     this->frozen_ = me->frozen_.load();
+    this->is_owned_ = false;
+    // TODO: update DQMNet::CoreObject.
+  }
+
+  MonitorElementData MonitorElement::cloneMEData() {
+    MonitorElementData out;
+    auto access = this->access();
+    out.key_ = access.key;
+    out.value_.scalar_ = access.value.scalar_;
+    if (access.value.object_) {
+      out.value_.object_ = std::unique_ptr<TH1>(static_cast<TH1 *>(access.value.object_->Clone()));
+    }
+    return out;
+  }
+
+  MutableMonitorElementData *MonitorElement::release(bool expectOwned) {
+    assert(this->is_owned_ == expectOwned);
+    MutableMonitorElementData *data = this->mutable_.load();
+    this->mutable_ = nullptr;
+    this->frozen_ = nullptr;
+    this->is_owned_ = false;
+    assert(!expectOwned || data);
+    return data;
+  }
+
+  void MonitorElement::switchData(MonitorElement *other) {
+    assert(other);
+    this->mutable_ = other->mutable_.load();
+    this->frozen_ = other->frozen_.load();
     this->is_owned_ = false;
     // TODO: update DQMNet::CoreObject.
   }

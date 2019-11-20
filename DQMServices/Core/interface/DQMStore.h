@@ -517,22 +517,18 @@ namespace dqm {
     public:
       // internal -- figure out better protection.
       template <typename iFunc>
-      void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId, bool canSaveByLumi) {
+      void bookTransaction(iFunc f, uint32_t moduleId, bool canSaveByLumi) {
         auto lock = std::scoped_lock(this->booking_mutex_);
         IBooker& booker = *this;
         // TODO: this may need to become more elaborate.
         auto oldscope =
             booker.setScope(canSaveByLumi ? MonitorElementData::Scope::LUMI : MonitorElementData::Scope::RUN);
         assert(moduleId != 0 || !"moduleID must be set for normal booking transaction");
-        // run should be 0 unless this is DQMGlobalEDAnalyzer.
-        // The run number goes into the moduleID, since for the DQMGlobalEDAnalyzer,
-        // we need *different* localMEs within the same module.
         // Access via this-> to allow access to protected member
-        auto oldmoduleid = this->setModuleID((((uint64_t)run) << 32) + moduleId);
+        auto oldmoduleid = this->setModuleID(moduleId);
         assert(oldmoduleid == 0 || !"Nested booking transaction?");
-        // in a proper transaction we book prototypes, except DQMGlobalEDAnalyzer
-        // (run is set, MEs are booked for a fixed run).
-        auto oldrunlumi = this->setRunLumi(edm::LuminosityBlockID(run, 0));
+        // always book prototypes (except for Scope::JOB, where we can use these directly).
+        auto oldrunlumi = this->setRunLumi(edm::LuminosityBlockID());
 
         f(booker);
 
@@ -552,6 +548,12 @@ namespace dqm {
         // (e.g. when meBookerGetter is called *inside* a booking transaction).
       };
 
+      // modules are expected to call these callbacks when they change run/lumi.
+      // The DQMStore then updates the module's MEs, potentially cloning them
+      // if there are concurrent runs/lumis.
+      void enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
+      void leaveLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
+
       // Add ME to DQMStore datastructures. The object will be deleted if a
       // similar object is already present.
       // For global ME
@@ -559,18 +561,15 @@ namespace dqm {
       // For local ME
       MonitorElement* putME(MonitorElement* me, uint64_t moduleID);
       // Find a global ME of matching name, in any state.
-      MonitorElement* findME(MonitorElementData::Path const& path);
+      // MELIKE can be a MonitorElementData::Path or MonitorElement*.
+      template <typename MELIKE>
+      MonitorElement* findME(MELIKE const& path);
       // Log a backtrace on booking.
       void printTrace(std::string const& message);
-      void enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
-      void leaveLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
-
-      // Clone data including the underlying ROOT object (calls ->Clone()).
-      static MonitorElementData* cloneMonitorElementData(MonitorElementData const* input);
 
     private:
-      // TODO: MEComparison need to deref pointers, and allow comparison to
-      // bare strings, and provide `is_transparent` for heterogeneous lookup.
+      // MEComparison is a name-only comparison on MEs and Paths, allowing
+      // heterogeneous lookup.
       // The ME objects here are lightweight, all the important stuff is in the
       // MEData. However we never handle MEData directly, but always keep it
       // wrapped in MEs (created as needed). MEs can share MEData.

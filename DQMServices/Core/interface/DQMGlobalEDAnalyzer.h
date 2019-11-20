@@ -41,11 +41,11 @@ public:
           b.cd();
           bookHistograms(b, run, setup, *h);
         },
-        run.run(),
-        this->moduleDescription().id(),
+        // The run number is part of the module ID here, since we want distinct
+        // local MEs for each run cache.
+        (((uint64_t)run.run()) << 32) + this->moduleDescription().id(),
         /* canSaveByLumi */ false);
-    // We will not call enterLumi per-lumi, since this is strictly run-based.
-    // The MEs are booked for a fixed run, given in the transaction.
+    dqmstore_->enterLumi(run.run(), /* lumi */ 0, (((uint64_t)run.run()) << 32) + this->moduleDescription().id());
     return h;
   }
 
@@ -57,6 +57,7 @@ public:
   void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup) const final {
     auto const& h = *this->runCache(run.index());
     dqmEndRun(run, setup, h);
+    dqmstore_->leaveLumi(run.run(), /* lumi */ 0, (((uint64_t)run.run()) << 32) + this->moduleDescription().id());
     run.emplace(runToken_);
   }
 
