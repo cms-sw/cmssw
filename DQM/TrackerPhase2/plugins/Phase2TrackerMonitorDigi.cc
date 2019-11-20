@@ -423,7 +423,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					     Parameters.getParameter<double>("xmax"));
     else local_mes.NumberOfDigisPerDet = NULL;
 
-    if (pixelFlag_ || layer < 4){
+    if (pixelFlag_ || (layer < 4 || layer > 6)){
       Parameters =  config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
       HistoName.str("");
       HistoName << "DigiOccupancyP_" << fname2.str();
