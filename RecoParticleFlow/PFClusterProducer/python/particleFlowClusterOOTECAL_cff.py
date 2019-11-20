@@ -6,7 +6,6 @@ particleFlowClusterOOTECAL.inputECAL = cms.InputTag("particleFlowClusterOOTECALU
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(
-    particleFlowClusterOOTECAL.energyCorrector, 
-    recHitsEBLabel = "reducedEcalRecHitsEB",
-    recHitsEELabel = "reducedEcalRecHitsEE"
+    particleFlowClusterOOTECAL,
+    energyCorrector = dict(applyMVACorrections = True, maxPtForMVAEvaluation = 90., srfAwareCorrection = False, recHitsEBLabel = "reducedEcalRecHitsEB", recHitsEELabel = "reducedEcalRecHitsEE")
 )
