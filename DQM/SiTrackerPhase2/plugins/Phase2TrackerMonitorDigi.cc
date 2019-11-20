@@ -17,7 +17,7 @@
 
 #include <memory>
 
-#include "DQM/TrackerPhase2/plugins/Phase2TrackerMonitorDigi.h"
+#include "DQM/SiTrackerPhase2/plugins/Phase2TrackerMonitorDigi.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
