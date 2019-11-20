@@ -6,6 +6,8 @@
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
+#include <functional>
+
 // TODO: Remove at some point:
 #define TRACE(msg) \
   std::cout << "TRACE: " << __FILE__ << ":" << __LINE__ << "(" << __FUNCTION__ << ") " << msg << std::endl;
@@ -40,117 +42,351 @@ namespace dqm {
 
     class IBooker : public dqm::implementation::NavigatorBase {
     public:
-      virtual MonitorElement* bookInt(TString const& name);
-      virtual MonitorElement* bookFloat(TString const& name);
-      virtual MonitorElement* bookString(TString const& name, TString const& value);
-      virtual MonitorElement* book1D(
-          TString const& name, TString const& title, int const nchX, double const lowX, double const highX);
-      virtual MonitorElement* book1D(TString const& name, TString const& title, int nchX, float const* xbinsize);
-      virtual MonitorElement* book1D(TString const& name, TH1F* object);
-      virtual MonitorElement* book1S(TString const& name, TString const& title, int nchX, double lowX, double highX);
-      virtual MonitorElement* book1S(TString const& name, TH1S* object);
-      virtual MonitorElement* book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX);
-      virtual MonitorElement* book1DD(TString const& name, TH1D* object);
-      virtual MonitorElement* book2D(TString const& name,
-                                     TString const& title,
-                                     int nchX,
-                                     double lowX,
-                                     double highX,
-                                     int nchY,
-                                     double lowY,
-                                     double highY);
-      virtual MonitorElement* book2D(
-          TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize);
-      virtual MonitorElement* book2D(TString const& name, TH2F* object);
-      virtual MonitorElement* book2S(TString const& name,
-                                     TString const& title,
-                                     int nchX,
-                                     double lowX,
-                                     double highX,
-                                     int nchY,
-                                     double lowY,
-                                     double highY);
-      virtual MonitorElement* book2S(
-          TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize);
-      virtual MonitorElement* book2S(TString const& name, TH2S* object);
-      virtual MonitorElement* book2DD(TString const& name,
-                                      TString const& title,
-                                      int nchX,
-                                      double lowX,
-                                      double highX,
-                                      int nchY,
-                                      double lowY,
-                                      double highY);
-      virtual MonitorElement* book2DD(TString const& name, TH2D* object);
-      virtual MonitorElement* book3D(TString const& name,
-                                     TString const& title,
-                                     int nchX,
-                                     double lowX,
-                                     double highX,
-                                     int nchY,
-                                     double lowY,
-                                     double highY,
-                                     int nchZ,
-                                     double lowZ,
-                                     double highZ);
-      virtual MonitorElement* book3D(TString const& name, TH3F* object);
-      virtual MonitorElement* bookProfile(TString const& name,
-                                          TString const& title,
-                                          int nchX,
-                                          double lowX,
-                                          double highX,
-                                          int nchY,
-                                          double lowY,
-                                          double highY,
-                                          char const* option = "s");
-      virtual MonitorElement* bookProfile(TString const& name,
-                                          TString const& title,
-                                          int nchX,
-                                          double lowX,
-                                          double highX,
-                                          double lowY,
-                                          double highY,
-                                          char const* option = "s");
-      virtual MonitorElement* bookProfile(TString const& name,
-                                          TString const& title,
-                                          int nchX,
-                                          double const* xbinsize,
-                                          int nchY,
-                                          double lowY,
-                                          double highY,
-                                          char const* option = "s");
-      virtual MonitorElement* bookProfile(TString const& name,
-                                          TString const& title,
-                                          int nchX,
-                                          double const* xbinsize,
-                                          double lowY,
-                                          double highY,
-                                          char const* option = "s");
-      virtual MonitorElement* bookProfile(TString const& name, TProfile* object);
-      virtual MonitorElement* bookProfile2D(TString const& name,
-                                            TString const& title,
-                                            int nchX,
-                                            double lowX,
-                                            double highX,
-                                            int nchY,
-                                            double lowY,
-                                            double highY,
-                                            double lowZ,
-                                            double highZ,
-                                            char const* option = "s");
-      virtual MonitorElement* bookProfile2D(TString const& name,
-                                            TString const& title,
-                                            int nchX,
-                                            double lowX,
-                                            double highX,
-                                            int nchY,
-                                            double lowY,
-                                            double highY,
-                                            int nchZ,
-                                            double lowZ,
-                                            double highZ,
-                                            char const* option = "s");
-      virtual MonitorElement* bookProfile2D(TString const& name, TProfile2D* object);
+      struct NOOP {
+        // functor to be passed as a default argument that does not do anything.
+        void operator()(TH1*) const {};
+        void operator()() const {};
+      };
+
+      template <typename FUNC = NOOP>
+      MonitorElement* bookInt(TString const& name, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::INT, [=]() {
+          onbooking();
+          return nullptr;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* bookFloat(TString const& name, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind ::REAL, [=]() {
+          onbooking();
+          return nullptr;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* bookString(TString const& name, TString const& value, FUNC onbooking = NOOP()) {
+        // TODO: value unused!
+        return bookME(name, MonitorElementData::Kind::STRING, [=]() {
+          onbooking();
+          return nullptr;
+        });
+      }
+
+      template <typename FUNC = NOOP>
+      MonitorElement* book1D(TString const& name,
+                             TString const& title,
+                             int const nchX,
+                             double const lowX,
+                             double const highX,
+                             FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH1F, [=]() {
+          auto th1 = new TH1F(name, title, nchX, lowX, highX);
+          onbooking(th1);
+          return th1;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book1D(
+          TString const& name, TString const& title, int nchX, float const* xbinsize, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH1F, [=]() {
+          auto th1 = new TH1F(name, title, nchX, xbinsize);
+          onbooking(th1);
+          return th1;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book1D(TString const& name, TH1F* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH1F, [=]() {
+          auto th1 = static_cast<TH1F*>(object->Clone(name));
+          onbooking(th1);
+          return th1;
+        });
+      }
+
+      template <typename FUNC = NOOP>
+      MonitorElement* book1S(
+          TString const& name, TString const& title, int nchX, double lowX, double highX, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH1S, [=]() {
+          auto th1 = new TH1S(name, title, nchX, lowX, highX);
+          onbooking(th1);
+          return th1;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book1S(TString const& name, TH1S* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH1S, [=]() {
+          auto th1 = static_cast<TH1S*>(object->Clone(name));
+          onbooking(th1);
+          return th1;
+        });
+      }
+
+      template <typename FUNC = NOOP>
+      MonitorElement* book1DD(
+          TString const& name, TString const& title, int nchX, double lowX, double highX, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH1D, [=]() {
+          auto th1 = new TH1D(name, title, nchX, lowX, highX);
+          onbooking(th1);
+          return th1;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book1DD(TString const& name, TH1D* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH1D, [=]() {
+          auto th1 = static_cast<TH1D*>(object->Clone(name));
+          onbooking(th1);
+          return th1;
+        });
+      }
+
+      template <typename FUNC = NOOP>
+      MonitorElement* book2D(TString const& name,
+                             TString const& title,
+                             int nchX,
+                             double lowX,
+                             double highX,
+                             int nchY,
+                             double lowY,
+                             double highY,
+                             FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2F, [=]() {
+          auto th2 = new TH2F(name, title, nchX, lowX, highX, nchY, lowY, highY);
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book2D(TString const& name,
+                             TString const& title,
+                             int nchX,
+                             float const* xbinsize,
+                             int nchY,
+                             float const* ybinsize,
+                             FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2F, [=]() {
+          auto th2 = new TH2F(name, title, nchX, xbinsize, nchY, ybinsize);
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book2D(TString const& name, TH2F* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2F, [=]() {
+          auto th2 = static_cast<TH2F*>(object->Clone(name));
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book2S(TString const& name,
+                             TString const& title,
+                             int nchX,
+                             double lowX,
+                             double highX,
+                             int nchY,
+                             double lowY,
+                             double highY,
+                             FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2S, [=]() {
+          auto th2 = new TH2S(name, title, nchX, lowX, highX, nchY, lowY, highY);
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book2S(TString const& name,
+                             TString const& title,
+                             int nchX,
+                             float const* xbinsize,
+                             int nchY,
+                             float const* ybinsize,
+                             FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2S, [=]() {
+          auto th2 = new TH2S(name, title, nchX, xbinsize, nchY, ybinsize);
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book2S(TString const& name, TH2S* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2S, [=]() {
+          auto th2 = static_cast<TH2S*>(object->Clone(name));
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book2DD(TString const& name,
+                              TString const& title,
+                              int nchX,
+                              double lowX,
+                              double highX,
+                              int nchY,
+                              double lowY,
+                              double highY,
+                              FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2D, [=]() {
+          auto th2 = new TH2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book2DD(TString const& name, TH2D* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2D, [=]() {
+          auto th2 = static_cast<TH2D*>(object->Clone(name));
+          onbooking(th2);
+          return th2;
+        });
+      }
+
+      template <typename FUNC = NOOP>
+      MonitorElement* book3D(TString const& name,
+                             TString const& title,
+                             int nchX,
+                             double lowX,
+                             double highX,
+                             int nchY,
+                             double lowY,
+                             double highY,
+                             int nchZ,
+                             double lowZ,
+                             double highZ,
+                             FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH3F, [=]() {
+          auto th3 = new TH3F(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ);
+          onbooking(th3);
+          return th3;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* book3D(TString const& name, TH3F* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH3F, [=]() {
+          auto th3 = static_cast<TH3F*>(object->Clone(name));
+          onbooking(th3);
+          return th3;
+        });
+      }
+
+      template <typename FUNC = NOOP>
+      MonitorElement* bookProfile(TString const& name,
+                                  TString const& title,
+                                  int nchX,
+                                  double lowX,
+                                  double highX,
+                                  int /* nchY */,
+                                  double lowY,
+                                  double highY,
+                                  char const* option = "s",
+                                  FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE, [=]() {
+          auto tprofile = new TProfile(name, title, nchX, lowX, highX, lowY, highY, option);
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* bookProfile(TString const& name,
+                                  TString const& title,
+                                  int nchX,
+                                  double lowX,
+                                  double highX,
+                                  double lowY,
+                                  double highY,
+                                  char const* option = "s",
+                                  FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE, [=]() {
+          auto tprofile = new TProfile(name, title, nchX, lowX, highX, lowY, highY, option);
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* bookProfile(TString const& name,
+                                  TString const& title,
+                                  int nchX,
+                                  double const* xbinsize,
+                                  int /* nchY */,
+                                  double lowY,
+                                  double highY,
+                                  char const* option = "s",
+                                  FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE, [=]() {
+          auto tprofile = new TProfile(name, title, nchX, xbinsize, lowY, highY, option);
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* bookProfile(TString const& name,
+                                  TString const& title,
+                                  int nchX,
+                                  double const* xbinsize,
+                                  double lowY,
+                                  double highY,
+                                  char const* option = "s",
+                                  FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE, [=]() {
+          auto tprofile = new TProfile(name, title, nchX, xbinsize, lowY, highY, option);
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* bookProfile(TString const& name, TProfile* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE, [=]() {
+          auto tprofile = static_cast<TProfile*>(object->Clone(name));
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
+
+      template <typename FUNC = NOOP>
+      MonitorElement* bookProfile2D(TString const& name,
+                                    TString const& title,
+                                    int nchX,
+                                    double lowX,
+                                    double highX,
+                                    int nchY,
+                                    double lowY,
+                                    double highY,
+                                    double lowZ,
+                                    double highZ,
+                                    char const* option = "s",
+                                    FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE2D, [=]() {
+          auto tprofile = new TProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, lowZ, highZ, option);
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* bookProfile2D(TString const& name,
+                                    TString const& title,
+                                    int nchX,
+                                    double lowX,
+                                    double highX,
+                                    int nchY,
+                                    double lowY,
+                                    double highY,
+                                    int /* nchZ */,
+                                    double lowZ,
+                                    double highZ,
+                                    char const* option = "s",
+                                    FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE2D, [=]() {
+          auto tprofile = new TProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, lowZ, highZ, option);
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
+      template <typename FUNC = NOOP>
+      MonitorElement* bookProfile2D(TString const& name, TProfile2D* object, FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE2D, [=]() {
+          auto tprofile = static_cast<TProfile2D*>(object->Clone(name));
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
 
       virtual MonitorElementData::Scope setScope(MonitorElementData::Scope newscope);
 
@@ -158,7 +394,7 @@ namespace dqm {
 
     protected:
       IBooker(DQMStore* store);
-      MonitorElement* bookME(TString const& name, MonitorElementData::Kind kind, TH1* object);
+      MonitorElement* bookME(TString const& name, MonitorElementData::Kind kind, std::function<TH1*()> makeobject);
 
       DQMStore* store_;
       MonitorElementData::Scope scope_;
