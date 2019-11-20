@@ -99,10 +99,8 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t
     double tL = std::get<2>(hitRef) + LightCollSlopeL_ * distL;
 
     // --- Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-    //const int iBXL = std::floor( tL/bxTime_ ) + 9;
-    //const int iBXR = std::floor( tR/bxTime_ ) + 9;
-    const int iBXR = std::floor(std::get<2>(hitRef) / bxTime_) + 9;  // >>>>>> TO BE CHANGED
-    const int iBXL = std::floor(std::get<2>(hitRef) / bxTime_) + 9;  // >>>>>> TO BE CHANGED
+    const int iBXR = std::floor(tR / bxTime_) + 9;
+    const int iBXL = std::floor(tL / bxTime_) + 9;
 
     // --- Right side
     if (iBXR > 0 && iBXR < 15) {
