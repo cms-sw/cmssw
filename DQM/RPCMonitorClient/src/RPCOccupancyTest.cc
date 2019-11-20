@@ -176,5 +176,4 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
 
   if (AsyMe)
     AsyMe->setBinContent(xBin, yBin, asym);
-
 }
