@@ -48,6 +48,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
                             : edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
+  writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
+
   savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
 
   // check whether you need to run the integrated local triggers
@@ -63,6 +65,10 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   // register what this produces
   produces<CSCALCTDigiCollection>();
   produces<CSCCLCTDigiCollection>();
+  // for experimental simulation studies
+  if (writeOutAllCLCTs_) {
+    produces<CSCCLCTDigiCollection>("ALL");
+  }
   produces<CSCCLCTPreTriggerDigiCollection>();
   produces<CSCCLCTPreTriggerCollection>();
   produces<CSCALCTPreTriggerDigiCollection>();
@@ -137,6 +143,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // and downstream of MPC.
   std::unique_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
   std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
+  std::unique_ptr<CSCCLCTDigiCollection> oc_clct_all(new CSCCLCTDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerDigiCollection> oc_clctpretrigger(new CSCCLCTPreTriggerDigiCollection);
   std::unique_ptr<CSCALCTPreTriggerDigiCollection> oc_alctpretrigger(new CSCALCTPreTriggerDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
@@ -166,6 +173,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
                             gemPadClusters,
                             *oc_alct,
                             *oc_clct,
+                            *oc_clct_all,
                             *oc_alctpretrigger,
                             *oc_clctpretrigger,
                             *oc_pretrig,
@@ -179,6 +187,9 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // Put collections in event.
   ev.put(std::move(oc_alct));
   ev.put(std::move(oc_clct));
+  if (writeOutAllCLCTs_){
+    ev.put(std::move(oc_clct_all), "ALL");
+  }
   if (savePreTriggers_) {
     ev.put(std::move(oc_alctpretrigger));
     ev.put(std::move(oc_clctpretrigger));
