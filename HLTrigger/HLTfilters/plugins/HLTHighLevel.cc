@@ -41,7 +41,6 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig)
       andOr_(iConfig.getParameter<bool>("andOr")),
       throw_(iConfig.getParameter<bool>("throw")),
       eventSetupPathsKey_(iConfig.getParameter<std::string>("eventSetupPathsKey")),
-      watchAlCaRecoTriggerBitsRcd_(nullptr),
       HLTPatterns_(iConfig.getParameter<std::vector<std::string> >("HLTPaths")),
       HLTPathsByName_(),
       HLTPathsByIndex_() {
@@ -57,12 +56,8 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig)
           << HLTPatterns_.size() << " HLTPaths and\n"
           << " eventSetupPathsKey " << eventSetupPathsKey_ << ", choose either of them.";
     }
-    watchAlCaRecoTriggerBitsRcd_ = new edm::ESWatcher<AlCaRecoTriggerBitsRcd>;
+    watchAlCaRecoTriggerBitsRcd_.emplace();
   }
-}
-
-HLTHighLevel::~HLTHighLevel() {
-  delete watchAlCaRecoTriggerBitsRcd_;  // safe on null pointer...
 }
 
 //
