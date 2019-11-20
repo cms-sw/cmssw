@@ -166,7 +166,7 @@ struct MonitorElementData {
 
     std::string const& getDirname() const { return dirname_; }
     std::string const& getObjectname() const { return objname_; }
-    std::string const& getFullname() const { return dirname_ + objname_; }
+    std::string  getFullname() const { return dirname_ + objname_; }
 
     // Clean up the path and normalize it to preserve certain invariants.
     // Instead of reasoning about whatever properties of paths, we just parse

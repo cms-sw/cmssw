@@ -530,9 +530,11 @@ namespace dqm {
       // Add ME to DQMStore datastructures. The object will be deleted if a
       // similar object is already present.
       // For global ME
-      MonitorElement* putME(std::unique_ptr<MonitorElement>&& me);
+      MonitorElement* putME(MonitorElement* me);
       // For local ME
-      MonitorElement* putME(std::unique_ptr<MonitorElement>&& me, uint64_t moduleID);
+      MonitorElement* putME(MonitorElement* me, uint64_t moduleID);
+      // Find a global ME of matching name, in any state.
+      MonitorElement* findME(MonitorElementData::Path const& path);
       // Log a backtrace on booking.
       void printTrace(std::string const& message);
       void enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
