@@ -38,7 +38,7 @@ public:
           booker.cd();
           this->bookHistograms(booker, run, setup);
         },
-        run.run(),
+        /* run */ 0,  // run is assigned later, in enterLumi
         this->moduleDescription().id(),
         this->getCanSaveByLumi());
     edm::Service<DQMStore>()->enterLumi(run.run(), 0, this->moduleDescription().id());

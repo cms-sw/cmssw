@@ -40,14 +40,14 @@ namespace dqm::impl {
     return h;
   }
 
-  MonitorElement::MonitorElement(MonitorElementData&& data) {
+  MonitorElement::MonitorElement(MonitorElementData &&data) {
     this->mutable_ = new MutableMonitorElementData();
     this->frozen_ = nullptr;
     this->mutable_.load()->data_ = std::move(data);
     this->is_owned_ = true;
     // TODO: update DQMNet::CoreObject.
   }
-  MonitorElement::MonitorElement(MonitorElement* me) {
+  MonitorElement::MonitorElement(MonitorElement *me) {
     this->mutable_ = me->mutable_.load();
     this->frozen_ = me->frozen_.load();
     this->is_owned_ = false;

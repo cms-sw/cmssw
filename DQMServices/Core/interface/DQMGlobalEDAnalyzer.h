@@ -42,10 +42,10 @@ public:
           bookHistograms(b, run, setup, *h);
         },
         run.run(),
-        /* moduleID */ 0,
+        this->moduleDescription().id(),
         /* canSaveByLumi */ false);
-    // Populate run numbers, in case booking only books prototypes.
     // We will not call enterLumi per-lumi, since this is strictly run-based.
+    // The MEs are booked for a fixed run, given in the transaction.
     return h;
   }
 

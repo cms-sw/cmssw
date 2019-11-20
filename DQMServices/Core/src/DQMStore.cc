@@ -84,6 +84,7 @@ namespace dqm::implementation {
   }
 
   MonitorElement* DQMStore::putME(MonitorElement* me) {
+    auto lock = std::scoped_lock(this->booking_mutex_);
     assert(me);
     auto existing_new = globalMEs_[me->getRunLumi()].insert(me);
     if (existing_new.second == true) {
@@ -98,6 +99,7 @@ namespace dqm::implementation {
   }
 
   MonitorElement* DQMStore::putME(MonitorElement* me, uint64_t moduleID) {
+    auto lock = std::scoped_lock(this->booking_mutex_);
     assert(me);
     auto existing_new = localMEs_[moduleID].insert(me);
     if (existing_new.second == true) {
@@ -112,9 +114,16 @@ namespace dqm::implementation {
   }
 
   MonitorElement* DQMStore::findME(MonitorElementData::Path const& path) {
-    //TODO
-
-
+    auto lock = std::scoped_lock(this->booking_mutex_);
+    for (auto& [runlumi, meset] : this->globalMEs_) {
+      auto it = meset.find(path);
+      if (it != meset.end()) {
+        // no guarantee on which ME we return here -- only that clone'ing this
+        // would give a valid ME for that path.
+        return *it;
+      }
+    }
+    return nullptr;
   }
 
   void DQMStore::printTrace(std::string const& message) {

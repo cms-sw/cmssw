@@ -37,7 +37,7 @@ public:
           booker.cd();
           this->bookHistograms(booker, run, setup);
         },
-        run.run(),
+        /* run */ 0,  // MEs booked here apply for all runs
         this->moduleDescription().id(),
         this->getCanSaveByLumi());
     edm::Service<DQMStore>()->enterLumi(run.run(), 0, this->moduleDescription().id());
