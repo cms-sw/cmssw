@@ -11,12 +11,11 @@
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
 class PileupJetIDVarProducer : public edm::global::EDProducer<> {
-
 public:
   explicit PileupJetIDVarProducer(const edm::ParameterSet& iConfig)
       : srcJet_(consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("srcJet"))),
-        srcPileupJetId_(consumes<edm::ValueMap<StoredPileupJetIdentifier> >(iConfig.getParameter<edm::InputTag>("srcPileupJetId")))
-  {
+        srcPileupJetId_(
+            consumes<edm::ValueMap<StoredPileupJetIdentifier>>(iConfig.getParameter<edm::InputTag>("srcPileupJetId"))) {
     produces<edm::ValueMap<float>>("dR2Mean");
     produces<edm::ValueMap<float>>("majW");
     produces<edm::ValueMap<float>>("minW");
@@ -40,53 +39,51 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::Jet>> srcJet_;
-  edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier> > srcPileupJetId_;
+  edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier>> srcPileupJetId_;
 };
 
-
 // ------------ method called to produce the data  ------------
-void PileupJetIDVarProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const 
-{
+void PileupJetIDVarProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<edm::View<pat::Jet>> srcJet;
-  edm::Handle<edm::ValueMap<StoredPileupJetIdentifier> > srcPileupJetId; 
+  edm::Handle<edm::ValueMap<StoredPileupJetIdentifier>> srcPileupJetId;
 
   iEvent.getByToken(srcJet_, srcJet);
-  iEvent.getByToken(srcPileupJetId_, srcPileupJetId);  
+  iEvent.getByToken(srcPileupJetId_, srcPileupJetId);
 
   unsigned int nJet = srcJet->size();
 
-  std::vector<float>  dR2Mean(nJet,-1);
-  std::vector<float>  majW(nJet,-1);
-  std::vector<float>  minW(nJet,-1);
-  std::vector<float>  frac01(nJet,-1);
-  std::vector<float>  frac02(nJet,-1);
-  std::vector<float>  frac03(nJet,-1);
-  std::vector<float>  frac04(nJet,-1);
-  std::vector<float>  ptD(nJet,-1);
-  std::vector<float>  beta(nJet,-1);
-  std::vector<float>  pull(nJet,-1);
-  std::vector<float>  jetR(nJet,-1);
-  std::vector<float>  jetRchg(nJet,-1);
-  std::vector<int> nCharged(nJet,-1);
+  std::vector<float> dR2Mean(nJet, -1);
+  std::vector<float> majW(nJet, -1);
+  std::vector<float> minW(nJet, -1);
+  std::vector<float> frac01(nJet, -1);
+  std::vector<float> frac02(nJet, -1);
+  std::vector<float> frac03(nJet, -1);
+  std::vector<float> frac04(nJet, -1);
+  std::vector<float> ptD(nJet, -1);
+  std::vector<float> beta(nJet, -1);
+  std::vector<float> pull(nJet, -1);
+  std::vector<float> jetR(nJet, -1);
+  std::vector<float> jetRchg(nJet, -1);
+  std::vector<int> nCharged(nJet, -1);
 
   for (unsigned int ij = 0; ij < nJet; ij++) {
     auto jet = srcJet->ptrAt(ij);
 
     edm::RefToBase<pat::Jet> jetRef = srcJet->refAt(ij);
-    
-    dR2Mean[ij]    = (*srcPileupJetId)[jetRef].dR2Mean();
-    majW[ij]       = (*srcPileupJetId)[jetRef].majW();
-    minW[ij]       = (*srcPileupJetId)[jetRef].minW();
-    frac01[ij]     = (*srcPileupJetId)[jetRef].frac01();
-    frac02[ij]     = (*srcPileupJetId)[jetRef].frac02();
-    frac03[ij]     = (*srcPileupJetId)[jetRef].frac03();
-    frac04[ij]     = (*srcPileupJetId)[jetRef].frac04();
-    ptD[ij]        = (*srcPileupJetId)[jetRef].ptD();
-    beta[ij]       = (*srcPileupJetId)[jetRef].beta();
-    pull[ij]       = (*srcPileupJetId)[jetRef].pull();
-    jetR[ij]       = (*srcPileupJetId)[jetRef].jetR();
-    jetRchg[ij]    = (*srcPileupJetId)[jetRef].jetRchg();
-    nCharged[ij]   = (*srcPileupJetId)[jetRef].nCharged();
+
+    dR2Mean[ij] = (*srcPileupJetId)[jetRef].dR2Mean();
+    majW[ij] = (*srcPileupJetId)[jetRef].majW();
+    minW[ij] = (*srcPileupJetId)[jetRef].minW();
+    frac01[ij] = (*srcPileupJetId)[jetRef].frac01();
+    frac02[ij] = (*srcPileupJetId)[jetRef].frac02();
+    frac03[ij] = (*srcPileupJetId)[jetRef].frac03();
+    frac04[ij] = (*srcPileupJetId)[jetRef].frac04();
+    ptD[ij] = (*srcPileupJetId)[jetRef].ptD();
+    beta[ij] = (*srcPileupJetId)[jetRef].beta();
+    pull[ij] = (*srcPileupJetId)[jetRef].pull();
+    jetR[ij] = (*srcPileupJetId)[jetRef].jetR();
+    jetRchg[ij] = (*srcPileupJetId)[jetRef].jetRchg();
+    nCharged[ij] = (*srcPileupJetId)[jetRef].nCharged();
   }
 
   std::unique_ptr<edm::ValueMap<float>> dR2MeanV(new edm::ValueMap<float>());
@@ -160,13 +157,12 @@ void PileupJetIDVarProducer::produce(edm::StreamID streamID, edm::Event& iEvent,
   filler_jetRchg.insert(srcJet, jetRchg.begin(), jetRchg.end());
   filler_jetRchg.fill();
   iEvent.put(std::move(jetRchgV), "jetRchg");
-  
+
   std::unique_ptr<edm::ValueMap<int>> nChargedV(new edm::ValueMap<int>());
   edm::ValueMap<int>::Filler filler_nCharged(*nChargedV);
   filler_nCharged.insert(srcJet, nCharged.begin(), nCharged.end());
   filler_nCharged.fill();
   iEvent.put(std::move(nChargedV), "nCharged");
-
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
