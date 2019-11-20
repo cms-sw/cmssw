@@ -545,7 +545,7 @@ def serve_main():
     (re.compile('/workflow/(.*)$'), showworkflow),
     (re.compile('/info/(.*):(\d+)$'), showinfo),
     (re.compile('/why/(\d+)$'), showwhy),
-    (re.compile('/(.+)$'), showfile),
+    (re.compile('/([^.]*[.]?[^.]+[.]?[^.]*)$'), showfile),
     (re.compile('/$'), index),
   ]
 
