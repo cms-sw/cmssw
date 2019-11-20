@@ -55,7 +55,8 @@ public:
   /// constructor
   PFAlgo(double nSigmaECAL,
          double nSigmaHCAL,
-         double nSigmaHF,
+         double nSigmaHFEM,
+         double nSigmaHFHAD,
          double resolHF_a,
          double resolHF_b,
          double resolHF_c,
@@ -221,7 +222,8 @@ private:
 
   double hfEnergyResolution(double clusterEnergy) const;
 
-  double nSigmaHF(double clusterEnergy) const;
+  double nSigmaHFEM(double clusterEnergy) const;
+  double nSigmaHFHAD(double clusterEnergy) const;
 
   std::unique_ptr<reco::PFCandidateCollection> pfCandidates_;
   // the post-HF-cleaned candidates
@@ -248,7 +250,8 @@ private:
   const double nSigmaHCAL_;
 
   /// number of sigma to judge energy excess in HF
-  const double nSigmaHF_;
+  const double nSigmaHFEM_;
+  const double nSigmaHFHAD_;
 
   // HF resolution
   const double resolHF_a_;
