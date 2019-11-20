@@ -1,4 +1,4 @@
-#include "GeneratorInterface/GenFilters/interface/LHEPtFilter.h"
+#include "GeneratorInterface/GenFilters/plugins/LHEPtFilter.h"
 
 using namespace edm;
 using namespace std;
