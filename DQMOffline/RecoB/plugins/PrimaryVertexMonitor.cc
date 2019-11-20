@@ -136,9 +136,9 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   type[0] = iBooker.book1D("otherType", "Vertex type (other Vtx)", 3, -0.5, 2.5);
   type[1] = iBooker.book1D("tagType", "Vertex type (tagged Vtx)", 3, -0.5, 2.5);
   for (int i = 0; i < 2; ++i) {
-    type[i]->getTH1F()->GetXaxis()->SetBinLabel(1, "Valid, real");
-    type[i]->getTH1F()->GetXaxis()->SetBinLabel(2, "Valid, fake");
-    type[i]->getTH1F()->GetXaxis()->SetBinLabel(3, "Invalid");
+    type[i]->setBinLabel(1, "Valid, real");
+    type[i]->setBinLabel(2, "Valid, fake");
+    type[i]->setBinLabel(3, "Invalid");
   }
 
   //  get the store
@@ -154,10 +154,10 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   bsBeamWidthX = iBooker.book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 100, 0., 100.);
   bsBeamWidthY = iBooker.book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 100, 0., 100.);
   bsType = iBooker.book1D("bsType", "BeamSpot type", 4, -1.5, 2.5);
-  bsType->getTH1F()->GetXaxis()->SetBinLabel(1, "Unknown");
-  bsType->getTH1F()->GetXaxis()->SetBinLabel(2, "Fake");
-  bsType->getTH1F()->GetXaxis()->SetBinLabel(3, "LHC");
-  bsType->getTH1F()->GetXaxis()->SetBinLabel(4, "Tracker");
+  bsType->setBinLabel(1, "Unknown");
+  bsType->setBinLabel(2, "Fake");
+  bsType->setBinLabel(3, "LHC");
+  bsType->setBinLabel(4, "Tracker");
 
   //  get the store
   dqmLabel = TopFolderName_ + "/" + AlignmentLabel_;
