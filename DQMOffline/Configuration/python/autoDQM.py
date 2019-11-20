@@ -26,6 +26,9 @@ autoDQM = { 'common': ['@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon
                              'PostDQMOffline',
                              'DQMHarvestOuterTracker'],
 
+            'trackerPhase2': ['DQMOfflineTrackerPhase2',
+                              'PostDQMOffline',
+                              'DQMHarvestTrackerPhase2'],
 	    'dcs': ['DQMOfflineDCS',
 		    'PostDQMOffline',
 		    'DQMHarvestDCS'],
@@ -193,7 +196,7 @@ autoDQM = { 'common': ['@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon
                      'DQMNone'],
             }
 
-_phase2_allowed = ['trackingOnlyDQM','outerTracker','muon','hcal','hcal2','egamma']
+_phase2_allowed = ['trackingOnlyDQM','outerTracker', 'trackerPhase2', 'muon','hcal','hcal2','egamma']
 autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])

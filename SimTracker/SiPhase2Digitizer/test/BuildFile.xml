@@ -15,14 +15,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="SimTracker/SiPhase2Digitizer"/>
-<library   file="Phase2TrackerValidateDigi.cc" name="Phase2DigiValid">
-  <flags   EDM_PLUGIN="1"/>
-  <flags CXXFLAGS="-g3"/>
-</library>
-<library   file="Phase2TrackerMonitorDigi.cc" name="SiPhase2DigiMon">
-  <flags   EDM_PLUGIN="1"/>
-  <flags CXXFLAGS="-g3"/>
-</library>
 <library   file="TBeamTest.cc" name="TBeamTest">
   <flags   EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
