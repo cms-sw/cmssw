@@ -65,7 +65,7 @@ void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker& iBooker,
         iBooker.book2D(xvariable + "EtaPhiEffNum", "", nbinsEta_, etamin_, etamax_, nbinsPhi_, phimin_, phimax_);
     h_den_etaphi =
         iBooker.book2D(xvariable + "EtaPhiEffDenom", "", nbinsEta_, etamin_, etamax_, nbinsPhi_, phimin_, phimax_);
-    h_den_etaphi->getTH2F()->SetOption("COL");
+    h_den_etaphi->setOption("COL");
   }
 
   h_num_phi = iBooker.book1D(xvariable + "PhiEffNum", "", nbinsPhi_, phimin_, phimax_);

@@ -58,7 +58,7 @@ void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker& ibooker,
   for (unsigned int i = 0; i < 3; ++i) {
     me_notComplete[i]->getTH2F()->GetXaxis()->SetNdivisions(512);
     me_notComplete[i]->getTH2F()->GetYaxis()->SetNdivisions(505);
-    me_notComplete[i]->getTH2F()->SetXTitle("rmb");
+    me_notComplete[i]->setAxisTitle("rmb");
     me_notComplete[i]->getTH2F()->SetYTitle("link");
     me_notComplete[i]->getTH2F()->SetStats(false);
   }
