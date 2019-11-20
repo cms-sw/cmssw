@@ -225,7 +225,8 @@ process.dqmBeamSpotProblemMonitor.doTest            = False
 process.dqmBeamSpotProblemMonitor.pixelTracks  = 'pixelTracks'
 
 #
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/BeamMonitor/test/BeamSpotAvailableTest.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     qtestOnEndLumi = cms.untracked.bool(True),
