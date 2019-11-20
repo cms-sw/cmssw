@@ -115,10 +115,10 @@ TrackIPHistograms<T>::TrackIPHistograms(const std::string& baseNameTitle_,
         baseNameTitle_ + "QualHighPur", baseNameDescription_ + " High Purity Quality", nBins_, lowerBound_, upperBound_);
 
     if (statistics_) {
-      theQual_undefined->getTH1F()->Sumw2();
-      theQual_loose->getTH1F()->Sumw2();
-      theQual_tight->getTH1F()->Sumw2();
-      theQual_highpur->getTH1F()->Sumw2();
+      theQual_undefined->enableSumw2();
+      theQual_loose->enableSumw2();
+      theQual_tight->enableSumw2();
+      theQual_highpur->enableSumw2();
     }
   }
 }

@@ -1142,7 +1142,7 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
     hid = hidmanager.createHistoId("NumberOfClusters", "det", detid);
     mod_single.NumberOfClusters = bookME1D("TH1nClusters", hid.c_str(), ibooker);
     mod_single.NumberOfClusters->setAxisTitle("number of clusters in one detector module");
-    mod_single.NumberOfClusters->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+    mod_single.NumberOfClusters->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
 
   // ClusterPosition
@@ -1383,21 +1383,21 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
     HistoName = "ClusterCharge__" + label;
     subdetMEs.SubDetClusterChargeTH1 = bookME1D("TH1ClusterCharge", HistoName.c_str(), ibooker);
     subdetMEs.SubDetClusterChargeTH1->setAxisTitle("Cluster charge [ADC counts]");
-    subdetMEs.SubDetClusterChargeTH1->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+    subdetMEs.SubDetClusterChargeTH1->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
   // cluster width
   if (subdetswitchcluswidthon) {
     HistoName = "ClusterWidth__" + label;
     subdetMEs.SubDetClusterWidthTH1 = bookME1D("TH1ClusterWidth", HistoName.c_str(), ibooker);
     subdetMEs.SubDetClusterWidthTH1->setAxisTitle("Cluster width [strips]");
-    subdetMEs.SubDetClusterWidthTH1->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+    subdetMEs.SubDetClusterWidthTH1->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
   // Total Number of Cluster - 1D
   if (subdetswitchtotclusth1on) {
     HistoName = "TotalNumberOfCluster__" + label;
     subdetMEs.SubDetTotClusterTH1 = bookME1D("TH1TotalNumberOfClusters", HistoName.c_str(), ibooker);
     subdetMEs.SubDetTotClusterTH1->setAxisTitle("Total number of clusters in subdetector");
-    subdetMEs.SubDetTotClusterTH1->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+    subdetMEs.SubDetTotClusterTH1->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
   // Total Number of Cluster vs Time - Profile
   if (subdetswitchtotclusprofon) {
