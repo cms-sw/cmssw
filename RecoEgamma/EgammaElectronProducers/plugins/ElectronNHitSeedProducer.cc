@@ -125,12 +125,12 @@ void ElectronNHitSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   matcher_.setMeasTkEvtHandle(getHandle(iEvent, measTkEvtToken_));
 
   auto eleSeeds = std::make_unique<reco::ElectronSeedCollection>();
-
   auto initialSeedsHandle = getHandle(iEvent, initialSeedsToken_);
 
   auto beamSpotHandle = getHandle(iEvent, beamSpotToken_);
   GlobalPoint primVtxPos = convertToGP(beamSpotHandle->position());
 
+  // Loop over all super-cluster collections (typically barrel and forward are supplied separately)
   for (const auto& superClustersToken : superClustersTokens_) {
     auto superClustersHandle = getHandle(iEvent, superClustersToken);
     for (auto& superClusRef : *superClustersHandle) {
