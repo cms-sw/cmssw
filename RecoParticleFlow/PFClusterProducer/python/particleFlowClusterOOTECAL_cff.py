@@ -4,13 +4,9 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cff import *
 particleFlowClusterOOTECAL = particleFlowClusterECAL.clone()
 particleFlowClusterOOTECAL.inputECAL = cms.InputTag("particleFlowClusterOOTECALUncorrected")
 
-particleFlowClusterOOTECAL.energyCorrector.applyMVACorrections = True
-particleFlowClusterOOTECAL.energyCorrector.maxPtForMVAEvaluation = 90.    
-particleFlowClusterOOTECAL.energyCorrector.srfAwareCorrection = False
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(
-    particleFlowClusterOOTECAL.energyCorrector,
-    recHitsEBLabel = "reducedEcalRecHitsEB",
-    recHitsEELabel = "reducedEcalRecHitsEE"
+    particleFlowClusterOOTECAL,
+    energyCorrector = dict(applyMVACorrections = True, maxPtForMVAEvaluation = 90., srfAwareCorrection = False, recHitsEBLabel = "reducedEcalRecHitsEB", recHitsEELabel = "reducedEcalRecHitsEE")
 )
