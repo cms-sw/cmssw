@@ -94,12 +94,6 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( linkerName = cms.string("TrackAndHOLinker"),
                   linkType   = cms.string("TRACK:HO"),
                   useKDTree  = cms.bool(False) ),
-        cms.PSet( linkerName = cms.string("TrackAndHFLinker"),
-                  linkType   = cms.string("TRACK:HFEM"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("TrackAndHFLinker"),
-                  linkType   = cms.string("TRACK:HFHAD"),
-                  useKDTree  = cms.bool(True) ),
         cms.PSet( linkerName = cms.string("ECALAndHCALLinker"),
                   linkType   = cms.string("ECAL:HCAL"),
                   useKDTree  = cms.bool(False) ),
@@ -191,6 +185,22 @@ phase2_hgcal.toModify(
 #                  useKDTree  = cms.bool(False) )
 #)
 
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+_addTrackHFLinks = particleFlowBlock.linkDefinitions.copy()
+_addTrackHFLinks.append(
+  cms.PSet( linkerName = cms.string("TrackAndHFLinker"),
+            linkType   = cms.string("TRACK:HFEM"),
+            useKDTree  = cms.bool(True) )
+  )
+_addTrackHFLinks.append(
+  cms.PSet( linkerName = cms.string("TrackAndHFLinker"),
+            linkType   = cms.string("TRACK:HFHAD"),
+            useKDTree  = cms.bool(True) )
+)
+phase2_tracker.toModify(
+    particleFlowBlock,
+    linkDefinitions = _addTrackHFLinks
+)
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _addTiming = particleFlowBlock.elementImporters.copy()
