@@ -14,7 +14,8 @@ using namespace reco;
 
 PFAlgo::PFAlgo(double nSigmaECAL,
                double nSigmaHCAL,
-               double nSigmaHF,
+               double nSigmaHFEM,
+               double nSigmaHFHAD,
                double resolHF_a,
                double resolHF_b,
                double resolHF_c,
@@ -24,7 +25,8 @@ PFAlgo::PFAlgo(double nSigmaECAL,
     : pfCandidates_(new PFCandidateCollection),
       nSigmaECAL_(nSigmaECAL),
       nSigmaHCAL_(nSigmaHCAL),
-      nSigmaHF_(nSigmaHF),
+      nSigmaHFEM_(nSigmaHFEM),
+      nSigmaHFHAD_(nSigmaHFHAD),
       resolHF_a_(resolHF_a),
       resolHF_b_(resolHF_b),
       resolHF_c_(resolHF_c),
@@ -1035,15 +1037,14 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     std::multimap<double, unsigned> hcalElems;
     block.associatedElements(iEle, linkData, hcalElems, reco::PFBlockElement::HCAL, reco::PFBlock::LINKTEST_ALL);
 
-    LogTrace("PFAlgo|elementLoop") << "\tTrack " << iEle << " is linked to " << ecalElems.size() << " ecal and "
-                                   << hcalElems.size() << " hcal elements";
-
     std::multimap<double, unsigned> hfEmElems;
     std::multimap<double, unsigned> hfHadElems;
-    if (inds.trackIs.size() > 0 && inds.hfEmIs.size() > 0)
-      block.associatedElements(iEle, linkData, hfEmElems, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
-    if (inds.trackIs.size() > 0 && inds.hfHadIs.size() > 0)
-      block.associatedElements(iEle, linkData, hfHadElems, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
+    block.associatedElements(iEle, linkData, hfEmElems, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
+    block.associatedElements(iEle, linkData, hfHadElems, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
+
+    LogTrace("PFAlgo|elementLoop") << "\tTrack " << iEle << " is linked to " << ecalElems.size() << " ecal and "
+                                   << hcalElems.size() << " hcal and " << hfEmElems.size() << " hfEm and "
+                                   << hfHadElems.size() << " hfHad elements";
 
 #ifdef EDM_ML_DEBUG
     for (const auto& pair : ecalElems) {
@@ -1413,10 +1414,11 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
       double Caloresolution = hfEnergyResolution(totalChargedMomentum);
       Caloresolution *= totalChargedMomentum;
       double TotalError = sqrt(Caloresolution * Caloresolution + sumpError2);
-      double nsigma = nSigmaHF(totalChargedMomentum);
+      double nsigmaHFEM = nSigmaHFEM(totalChargedMomentum);
+      double nsigmaHFHAD = nSigmaHFHAD(totalChargedMomentum);
 
       // Create HFHAD candidates from excess energy
-      if ((energyHfHad - totalChargedMomentum) > nsigma * TotalError) {  // HfHad already excess
+      if ((energyHfHad - totalChargedMomentum) > nsigmaHFHAD * TotalError) {  // HfHad is excessive
         assert(energyHfEm == 0.);
         // HfHad candidate from excess
         double energyHfHadExcess = max(energyHfHad - totalChargedMomentum, 0.);
@@ -1455,12 +1457,26 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
             LogTrace("PFAlgo|createCandidatesHF")
                 << "\t\t\tactive, adding " << std::get<1>(hfemSatellite.second) << " to HFEM energy, and locking";
             active[std::get<0>(hfemSatellite.second)] = false;
+            // HfEm is excessive
+            if (hfemSatellite.first < 0. && (caloEnergyTmp - totalChargedMomentum) > nsigmaHFEM * TotalError) {
+              // HfEm candidate from excess
+              double energyHfEmExcess = max(caloEnergyTmp - totalChargedMomentum, 0.);
+              double uncalibratedenergyHfEmExcess = max(uncalibratedenergyHfEmTmp - totalChargedMomentum, 0.);
+              unsigned tmpi = reconstructCluster(*eclusterRef, energyHfEmExcess);
+              (*pfCandidates_)[tmpi].setHcalEnergy(0, 0.);
+              (*pfCandidates_)[tmpi].setEcalEnergy(uncalibratedenergyHfEmExcess, energyHfEmExcess);
+              (*pfCandidates_)[tmpi].setHoEnergy(0., 0.);
+              (*pfCandidates_)[tmpi].setPs1Energy(0.);
+              (*pfCandidates_)[tmpi].setPs2Energy(0.);
+              (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfEm);
+              energyHfEmTmp = max(energyHfEmTmp - energyHfEmExcess, 0.);
+              uncalibratedenergyHfEmTmp = max(uncalibratedenergyHfEmTmp - uncalibratedenergyHfEmExcess, 0.);
+            }
             energyHfEm = energyHfEmTmp;
             uncalibratedenergyHfEm = uncalibratedenergyHfEmTmp;
             energyHfHad = energyHfHadTmp;
             continue;
           }
-
           break;
         }  // loop over hfemsattelites ends
       }    // if HFHAD is excessive or not
@@ -3317,8 +3333,13 @@ double PFAlgo::hfEnergyResolution(double clusterEnergyHF) const {
   return resol;
 }
 
-double PFAlgo::nSigmaHF(double clusterEnergyHF) const {
-  double nS = nSigmaHF_ * (1. + exp(-clusterEnergyHF / 100.));
+double PFAlgo::nSigmaHFEM(double clusterEnergyHF) const {
+  double nS = nSigmaHFEM_ * (1. + exp(-clusterEnergyHF / 100.));
+  return nS;
+}
+
+double PFAlgo::nSigmaHFHAD(double clusterEnergyHF) const {
+  double nS = nSigmaHFHAD_ * (1. + exp(-clusterEnergyHF / 100.));
   return nS;
 }
 
@@ -3330,6 +3351,8 @@ ostream& operator<<(ostream& out, const PFAlgo& algo) {
   out << endl;
   out << "nSigmaECAL_     " << algo.nSigmaECAL_ << endl;
   out << "nSigmaHCAL_     " << algo.nSigmaHCAL_ << endl;
+  out << "nSigmaHFEM_     " << algo.nSigmaHFEM_ << endl;
+  out << "nSigmaHFHAD_    " << algo.nSigmaHFHAD_ << endl;
   out << endl;
   out << algo.calibration_ << endl;
   out << endl;

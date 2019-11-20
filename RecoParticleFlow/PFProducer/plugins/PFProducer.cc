@@ -120,7 +120,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
                              iConfig.getParameter<std::vector<double>>("calibHF_b_EMHAD")),
       pfAlgo_(iConfig.getParameter<double>("pf_nsigma_ECAL"),
               iConfig.getParameter<double>("pf_nsigma_HCAL"),
-              iConfig.getParameter<double>("pf_nsigma_HF"),
+              iConfig.getParameter<double>("pf_nsigma_HFEM"),
+              iConfig.getParameter<double>("pf_nsigma_HFHAD"),
               iConfig.getParameter<double>("resolHF_a"),
               iConfig.getParameter<double>("resolHF_b"),
               iConfig.getParameter<double>("resolHF_c"),
@@ -411,7 +412,8 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   // number of sigmas for neutral energy detection
   desc.add<double>("pf_nsigma_ECAL", 0.0);
   desc.add<double>("pf_nsigma_HCAL", 1.0);
-  desc.add<double>("pf_nsigma_HF", 1.0);
+  desc.add<double>("pf_nsigma_HFEM", 0.0);
+  desc.add<double>("pf_nsigma_HFHAD", 1.0);
 
   // ECAL/HCAL PF cluster calibration : take it from global tag ?
   desc.add<bool>("useCalibrationsFromDB", true);
