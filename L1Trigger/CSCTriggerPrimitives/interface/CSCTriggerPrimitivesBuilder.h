@@ -70,6 +70,7 @@ public:
              const GEMPadDigiCollection* gemPads,
              const GEMPadDigiClusterCollection* gemPadClusters,
              CSCALCTDigiCollection& oc_alct,
+             CSCALCTDigiCollection& oc_alct_all,
              CSCCLCTDigiCollection& oc_clct,
              CSCCLCTDigiCollection& oc_clct_all,
              CSCALCTPreTriggerDigiCollection& oc_alctpretrigger,
