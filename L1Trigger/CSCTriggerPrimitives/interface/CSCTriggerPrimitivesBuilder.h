@@ -71,6 +71,7 @@ public:
              const GEMPadDigiClusterCollection* gemPadClusters,
              CSCALCTDigiCollection& oc_alct,
              CSCCLCTDigiCollection& oc_clct,
+             CSCCLCTDigiCollection& oc_clct_all,
              CSCALCTPreTriggerDigiCollection& oc_alctpretrigger,
              CSCCLCTPreTriggerDigiCollection& oc_clctpretrigger,
              CSCCLCTPreTriggerCollection& oc_pretrig,
