@@ -5,7 +5,8 @@ from DQM.EcalCommon.EcalMEFormatter_cfi import ecalMEFormatter
 
 from DQMOffline.Ecal.EcalZmassClient_cfi import *
 
-dqmQTestEcal = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+dqmQTestEcal = DQMQualityTester(
 #    reportThreshold = cms.untracked.string('red'),
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalMonitorClient/data/EcalQualityTests.xml'),
