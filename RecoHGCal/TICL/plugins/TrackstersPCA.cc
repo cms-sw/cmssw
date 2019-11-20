@@ -16,7 +16,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
       auto fraction = 1.f / trackster.vertex_multiplicity[i];
       trackster.raw_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
-      if (layerClusters[trackster.vertices[i]].z() <= z_limit_em)
+      if (std::abs(layerClusters[trackster.vertices[i]].z()) <= z_limit_em)
         trackster.raw_em_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
       double point[3] = {
         layerClusters[trackster.vertices[i]].x(),
