@@ -69,7 +69,7 @@ autoCond = {
     'phase1_2021_design'       : '110X_mcRun3_2021_design_v5', # GT containing design conditions for Phase1 2021
     # GlobalTag for MC production with realistic conditions for Phase1 2021
     'phase1_2021_realistic'    : '110X_mcRun3_2021_realistic_Candidate_2019_10_31_12_09_00', # GT containing realistic conditions for Phase1 2021
-    # GlobalTag for MC production (cosmics) with realistic conditions for P666hase1 2021,  Strip tracker in DECO mode
+    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2021,  Strip tracker in DECO mode
     'phase1_2021_cosmics'      : '110X_mcRun3_2021cosmics_realistic_deco_Candidate_2019_10_31_12_19_14',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
     'phase1_2023_realistic'    : '110X_mcRun3_2023_realistic_Candidate_2019_11_04_22_24_44', # GT containing realistic conditions for Phase1 2023
