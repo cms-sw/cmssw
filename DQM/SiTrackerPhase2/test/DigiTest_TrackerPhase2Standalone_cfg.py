@@ -47,7 +47,7 @@ process.DQMoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('')
     )
 )
-process.load('DQM.TrackerPhase2.Phase2TrackerMonitorDigi_cff')
+process.load('DQM.SiTrackerPhase2.Phase2TrackerMonitorDigi_cff')
 process.digiana_seq = cms.Sequence(process.pixDigiMon * process.otDigiMon)
 
 process.load('DQMServices.Components.DQMEventInfo_cfi')

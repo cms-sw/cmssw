@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from DQM.TrackerPhase2.Phase2TrackerMonitorDigi_cff import *
+from DQM.SiTrackerPhase2.Phase2TrackerMonitorDigi_cff import *
 
 trackerphase2DQMSource = cms.Sequence( 
                              pixDigiMon 
