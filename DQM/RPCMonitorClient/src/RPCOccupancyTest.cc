@@ -82,7 +82,7 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
   Active_Dead = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 2, 0.5, 2.5);
   Active_Dead->setBinLabel(1, "Active Strips", 1);
   Active_Dead->setBinLabel(2, "Inactive Strips", 1);
-
+/*
   histoName.str("");
   histoName << "Barrel_OccupancyByStations_Normalized";
   Barrel_OccBySt = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 4, 0.5, 4.5);
@@ -98,7 +98,7 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
   EndCap_OccByRng->setBinLabel(2, "E+/R2", 1);
   EndCap_OccByRng->setBinLabel(3, "E-/R2", 1);
   EndCap_OccByRng->setBinLabel(4, "E-/R3", 1);
-
+*/
   for (int w = -2; w <= 2; w++) {  //loop on wheels
 
     histoName.str("");
@@ -108,7 +108,7 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
 
     rpcUtils.labelXAxisSector(AsyMeWheel[w + 2]);
     rpcUtils.labelYAxisRoll(AsyMeWheel[w + 2], 0, w, useRollInfo_);
-
+    /*
     if (useNormalization_) {
       histoName.str("");
       histoName << "OccupancyNormByEvents_Wheel" << w;
@@ -123,6 +123,7 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
 
       NormOccupDWheel[w + 2] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 100, 0.0, 0.205);
     }
+    */
   }  //end Barrel
 
   for (int d = -numberOfDisks_; d <= numberOfDisks_; d++) {
@@ -146,7 +147,7 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
 
     rpcUtils.labelXAxisSegment(AsyMeDisk[d + offset]);
     rpcUtils.labelYAxisRing(AsyMeDisk[d + offset], numberOfRings_, useRollInfo_);
-
+    /*
     if (useNormalization_) {
       histoName.str("");
       histoName << "OccupancyNormByEvents_Disk" << d;
@@ -166,6 +167,7 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
       histoName << "OccupancyNormByEvents_Distribution_Disk" << d;
       NormOccupDDisk[d + offset] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 100, 0.0, 0.205);
     }
+    */
   }  //End loop on Endcap
 }
 
@@ -179,25 +181,25 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
 
   if (detId.region() == 0) {
     AsyMe = AsyMeWheel[detId.ring() + 2];
-    if (useNormalization_) {
-      NormOccup = NormOccupWheel[detId.ring() + 2];
-      NormOccupD = NormOccupDWheel[detId.ring() + 2];
-    }
+    //if (useNormalization_) {
+      //NormOccup = NormOccupWheel[detId.ring() + 2];
+      //NormOccupD = NormOccupDWheel[detId.ring() + 2];
+    //}
 
   } else {
     if (-detId.station() + numberOfDisks_ >= 0) {
       if (detId.region() < 0) {
         AsyMe = AsyMeDisk[-detId.station() + numberOfDisks_];
-        if (useNormalization_) {
-          NormOccup = NormOccupDisk[-detId.station() + numberOfDisks_];
-          NormOccupD = NormOccupDDisk[-detId.station() + numberOfDisks_];
-        }
+        //if (useNormalization_) {
+          //NormOccup = NormOccupDisk[-detId.station() + numberOfDisks_];
+          //NormOccupD = NormOccupDDisk[-detId.station() + numberOfDisks_];
+        //}
       } else {
         AsyMe = AsyMeDisk[detId.station() + numberOfDisks_ - 1];
-        if (useNormalization_) {
-          NormOccup = NormOccupDisk[detId.station() + numberOfDisks_ - 1];
-          NormOccupD = NormOccupDDisk[detId.station() + numberOfDisks_ - 1];
-        }
+        //if (useNormalization_) {
+          //NormOccup = NormOccupDisk[detId.station() + numberOfDisks_ - 1];
+          //NormOccupD = NormOccupDDisk[detId.station() + numberOfDisks_ - 1];
+        //}
       }
     }
   }
@@ -239,7 +241,7 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
 
   if (AsyMe)
     AsyMe->setBinContent(xBin, yBin, asym);
-
+  /*
   float normoccup = 1;
   if (rpcevents_ != 0) {
     normoccup = (totEnt / rpcevents_);
@@ -268,4 +270,5 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
       EndCap_OccByRng->Fill(3, normoccup);
     }
   }
+  */
 }
