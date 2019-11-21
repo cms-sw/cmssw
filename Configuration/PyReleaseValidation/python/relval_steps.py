@@ -1413,17 +1413,17 @@ def lhegensim2018(fragment,howMuch):
     global step1LHEGenSimUp2018Default
     return merge([{'cfg':fragment},howMuch,step1LHEGenSimUp2018Default])
 
-def lhegensim2018RDbig(fragment,howMuch):
+def lhegensim2018RD(fragment,howMuch):
     global step1Up2018Defaults
     return merge([{'cfg':fragment},howMuch,{'--customise_commands': "\"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(50) \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) ) \""},step1Up2018Defaults])
 
-def lhegensim2018RD(fragment,howMuch):
+def lhegensim2018RDtest(fragment,howMuch):
     global step1Up2018Defaults
     return merge([{'cfg':fragment},howMuch,{'--customise_commands': "\"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5) \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) ) \""},step1Up2018Defaults])
 
 # for run dependent MC 
-steps['TTbar_13UP18_RD']=lhegensim2018RD('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(2,50))
-steps['TTbar_13UP18_RD_big']=lhegensim2018RDbig('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['TTbar_13UP18_RD_test']=lhegensim2018RDtest('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(2,50))
+steps['TTbar_13UP18_RD']=lhegensim2018RD('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 #
 
 
@@ -1765,8 +1765,8 @@ steps['DIGIPRMXUP17_PU25_RD']=merge([digiPremixUp2017Defaults25ns, { '--customis
 steps['DIGIPRMXLOCALUP17_PU25']=merge([digiPremixLocalPileupUp2017Defaults25ns])
 steps['DIGIPRMXUP18_PU25']=merge([digiPremixUp2018Defaults25ns])
 #
-steps['DIGIPRMXUP18_PU25_RD']=merge([digiPremixUp2018Defaults25ns, { '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC_first_IOV'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ), cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.ecal_sim_parameter_map.timeDependent=cms.bool(True) \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32(315257,316083)\"" } ])
-steps['DIGIPRMXUP18_PU25_RD_big']=merge([digiPremixUp2018Defaults25ns, { '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC_first_IOV'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ), cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.ecal_sim_parameter_map.timeDependent=cms.bool(True) \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32((315257,)*20 + (316082,)*20 + (316720,)*20 + (317527,)*20 + (320917,)*20 + (321414,)*20 + (321973,)*20 + (322492,)*20 + (324245,)*20)\"" } ])
+steps['DIGIPRMXUP18_PU25_RD_test']=merge([digiPremixUp2018Defaults25ns, { '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC_first_IOV'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ), cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.ecal_sim_parameter_map.timeDependent=cms.bool(True) \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32(315257,316083)\"" } ])
+steps['DIGIPRMXUP18_PU25_RD']=merge([digiPremixUp2018Defaults25ns, { '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC_first_IOV'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ), cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.ecal_sim_parameter_map.timeDependent=cms.bool(True) \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32((315257,)*20 + (316082,)*20 + (316720,)*20 + (317527,)*20 + (320917,)*20 + (321414,)*20 + (321973,)*20 + (322492,)*20 + (324245,)*20)\"" } ])
 #
 steps['DIGIPRMXLOCALUP18_PU25']=merge([digiPremixLocalPileupUp2018Defaults25ns])
 
@@ -2377,10 +2377,10 @@ steps['RECOPRMXUP17_PU25']=merge([
 steps['RECOPRMXUP18_PU25']=merge([
         {'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--procModifiers':'premix_stage2'},
         step3Up2015Defaults])
-steps['RECOPRMXUP18_PU25_RD']=merge([
+steps['RECOPRMXUP18_PU25_RD_test']=merge([
         {'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--procModifiers':'premix_stage2', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC_first_IOV'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ), cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.ecal_sim_parameter_map.timeDependent=cms.bool(True) \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32(1,316083)\""},
         step3Up2015Defaults])
-steps['RECOPRMXUP18_PU25_RD_big']=merge([
+steps['RECOPRMXUP18_PU25_RD']=merge([
         {'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--procModifiers':'premix_stage2', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC_first_IOV'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ), cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.ecal_sim_parameter_map.timeDependent=cms.bool(True) \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32((315257,)*20 + (316082,)*20 + (316720,)*20 + (317527,)*20 + (320917,)*20 + (321414,)*20 + (321973,)*20 + (322492,)*20 + (324245,)*20)\""},
         step3Up2015Defaults])
 steps['RECOPRMXUP18_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'},steps['RECOPRMXUP18_PU25']])
