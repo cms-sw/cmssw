@@ -2,9 +2,9 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                               'PostDQMOffline',
                               'DQMMessageLoggerClientSeq'],
 
-            'common': ['@dcs+@DQMMessageLogger+@strip+@pixel+@tracking+@L1TMon+@hlt+@beam+@castor+@physics+@tau',
+            'common': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@L1TMon+@hlt+@beam+@castor+@physics+@tau',
                         'PostDQMOffline',
-                        '@dcs+@DQMMessageLogger+@strip+@pixel+@tracking+@L1TMon+@hlt+@beam+@fed+@tau+dqmFastTimerServiceClient'],
+                        '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@L1TMon+@hlt+@beam+@fed+@tau+dqmFastTimerServiceClient'],
 
             'commonFakeHLT': ['@dcs+@DQMMessageLogger+@strip+@pixel+@tracking+@L1TMon+@beam+@castor+@physics+@tau',
                         'PostDQMOffline',
@@ -37,6 +37,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 	    'strip': ['DQMOfflineTrackerStrip',
 		      'PostDQMOffline',
 		      'DQMHarvestTrackerStrip+DQMCertTrackerStrip'],
+
+            'stripCommon': ['DQMOfflineTrackerStripCommon',
+                      'PostDQMOffline',
+                      'DQMHarvestTrackerStrip+DQMCertTrackerStrip'],
 
 	    'stripZeroBias': ['DQMOfflineTrackerStripMinBias',
 			      'PostDQMOffline',
