@@ -207,12 +207,12 @@ struct SiPixelTemplateStore {  //!< template storage structure
   SiPixelTemplateHeader head;
 #ifndef SI_PIXEL_TEMPLATE_USE_BOOST
   float cotbetaY[60];
-  float cotbetaX[5];
-  float cotalphaX[29];
+  float cotbetaX[60];
+  float cotalphaX[60];
   //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
   SiPixelTemplateEntry enty[60];
   //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
-  SiPixelTemplateEntry entx[5][29];
+  SiPixelTemplateEntry entx[60][60];
   void destroy(){};
 #else
   float* cotbetaY = nullptr;
