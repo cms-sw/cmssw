@@ -77,7 +77,7 @@ namespace dqm::implementation {
     // DQMGlobalEDAnalyzer). This will later be update to point to different
     // MEData (kept in a global ME) as needed.
     MonitorElement* local_me = new MonitorElement(me);
-    me = store_->putME(local_me);
+    me = store_->putME(local_me, this->moduleID_);
     // me now points to a local ME owned by the DQMStore.
     assert(me);
     return me;
@@ -263,6 +263,8 @@ namespace dqm::implementation {
         }
       }
       // now we have the proper global ME in the right place, point the local there.
+      // This is only safe if the name is exactly the same -- else it might corrupt
+      // the tree structure of the set!
       me->switchData(*target);
     }
   }
