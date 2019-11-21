@@ -47,7 +47,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
       startEtaBin = std::max(entryEtaBin - deltaIEta, 0);
       endEtaBin = std::min(entryEtaBin + deltaIEta + 1, nEtaBins);
       startPhiBin = entryPhiBin - deltaIPhi;
-      endPhiBin = entryPhiBin + deltaIPhi;
+      endPhiBin = entryPhiBin + deltaIPhi + 1;
     }
 
     for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
