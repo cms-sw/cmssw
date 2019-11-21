@@ -76,7 +76,7 @@ protected:
 
   bool hitExists(const G4Step*);
   bool checkHit();
-  CaloG4Hit* createNewHit(const G4Step*);
+  CaloG4Hit* createNewHit(const G4Step*, const G4Track*);
   void updateHit(CaloG4Hit*);
   void resetForNewPrimary(const G4Step*);
   double getAttenuation(const G4Step* aStep, double birk1, double birk2, double birk3) const;
@@ -105,7 +105,7 @@ protected:
     if (currentID == previousID) {
       updateHit(currentHit);
     } else if (!checkHit()) {
-      currentHit = createNewHit(step);
+      currentHit = createNewHit(step, step->GetTrack());
     }
   }
 
