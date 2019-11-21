@@ -8,69 +8,55 @@
 #include "GFlashHitMaker.hh"
 #include "G4Region.hh"
 
+LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet)
+    : G4VFastSimulationModel(name, region),
+      fEmin(parSet.getParameter<double>("LowEnergyGflashEcalEmin")),
+      fEmax(parSet.getParameter<double>("LowEnergyGflashEcalEmax")),
+      fRegion(region) {}
 
-LowEnergyFastSimModel::LowEnergyFastSimModel(
-    const G4String& name,
-    G4Region* region,
-    const edm::ParameterSet& parSet)
-    : G4VFastSimulationModel(name, region)
-    , fEmin(parSet.getParameter<double>("LowEnergyGflashEcalEmin"))
-    , fEmax(parSet.getParameter<double>("LowEnergyGflashEcalEmax"))
-    , fRegion(region)
-{}
-
-G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle)
-{
-    return &particle == G4Electron::Definition();
+G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle) {
+  return &particle == G4Electron::Definition();
 }
 
-G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack)
-{
-    G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy(); 
-    return energy > fEmin && energy < fEmax && fRegion == fastTrack.GetEnvelope(); 
+G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
+  G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  return energy > fEmin && energy < fEmax && fRegion == fastTrack.GetEnvelope();
 }
 
-void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
-{        
-    fastStep.KillPrimaryTrack();
-    fastStep.SetPrimaryTrackPathLength(0.0);
-    fastStep.SetTotalEnergyDeposited(
-        fastTrack.GetPrimaryTrack()->GetKineticEnergy());
+void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
+  fastStep.KillPrimaryTrack();
+  fastStep.SetPrimaryTrackPathLength(0.0);
+  fastStep.SetTotalEnergyDeposited(fastTrack.GetPrimaryTrack()->GetKineticEnergy());
 
+  const G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  const G4ThreeVector pos = fastTrack.GetPrimaryTrack()->GetPosition();
 
-    const G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-    const G4ThreeVector pos = fastTrack.GetPrimaryTrack()->GetPosition();
+  G4double inPointEnergy = param.GetInPointEnergyFraction(energy) * energy;
 
-    G4double inPointEnergy = param.GetInPointEnergyFraction(energy) * energy;
+  const auto momDir = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
+  const auto ortho = momDir.orthogonal();
+  const auto cross = momDir.cross(ortho);
 
-    const auto momDir = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
-    const auto ortho = momDir.orthogonal();
-    const auto cross = momDir.cross(ortho);
+  // in point energy deposition
+  GFlashEnergySpot spot;
+  spot.SetEnergy(inPointEnergy);
+  spot.SetPosition(pos);
+  fHitMaker.make(&spot, &fastTrack);
 
-    // in point energy deposition
-    GFlashEnergySpot spot;
-    spot.SetEnergy(inPointEnergy);
-    spot.SetPosition(pos);
+  // tail energy deposition
+  G4double etail = energy - inPointEnergy;
+  const G4int nspots = int(etail) + 1;
+  for (G4int i = 0; i < nspots; ++i) {
+    const G4double radius = param.GetRadius(energy);
+    const G4double z = param.GetZ();
+
+    const G4double phi = CLHEP::twopi * G4UniformRand();
+    const G4ThreeVector tailPos = pos + z * momDir + radius * std::cos(phi) * ortho + radius * std::sin(phi) * cross;
+
+    const G4double tailEnergy = etail / nspots;
+
+    spot.SetEnergy(tailEnergy);
+    spot.SetPosition(tailPos);
     fHitMaker.make(&spot, &fastTrack);
-
-    // tail energy deposition
-    G4double etail = energy - inPointEnergy;
-    const G4int nspots = int(etail) + 1;
-    for (G4int i = 0; i < nspots; ++i) {
-        const G4double radius = param.GetRadius(energy);
-        const G4double z = param.GetZ();
-
-        const G4double phi = CLHEP::twopi * G4UniformRand();
-        const G4ThreeVector tailPos = pos + z * momDir + 
-            radius * std::cos(phi) * ortho + 
-            radius * std::sin(phi) * cross;
-
-        const G4double tailEnergy = etail / nspots;
-
-        spot.SetEnergy(tailEnergy);
-        spot.SetPosition(tailPos);
-        fHitMaker.make(&spot, &fastTrack);
-    }
+  }
 }
-
-
