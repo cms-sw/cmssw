@@ -470,6 +470,33 @@ class Process(object):
                     s = self.__findFirstUsingModule(self.endpaths,oldValue)
                     if s is not None:
                         raise ValueError(msg1+"endpath "+s.label_()+msg2)
+
+            # In case of EDAlias, raise Exception always to avoid surprises
+            if isinstance(newValue, EDAlias):
+                oldValue = getattr(self, name)
+                #should check to see if used in task/sequence before complaining
+                newFile='top level config'
+                if hasattr(value,'_filename'):
+                    newFile = value._filename
+                oldFile='top level config'
+                if hasattr(oldValue,'_filename'):
+                    oldFile = oldValue._filename
+                msg1 = "Trying to override definition of "+name+" with an EDAlias while it is used by the "
+                msg2 = "\n new object defined in: "+newFile
+                msg2 += "\n existing object defined in: "+oldFile
+                s = self.__findFirstUsingModule(self.tasks,oldValue)
+                if s is not None:
+                    raise ValueError(msg1+"task "+s.label_()+msg2)
+                s = self.__findFirstUsingModule(self.sequences,oldValue)
+                if s is not None:
+                    raise ValueError(msg1+"sequence "+s.label_()+msg2)
+                s = self.__findFirstUsingModule(self.paths,oldValue)
+                if s is not None:
+                    raise ValueError(msg1+"path "+s.label_()+msg2)
+                s = self.__findFirstUsingModule(self.endpaths,oldValue)
+                if s is not None:
+                    raise ValueError(msg1+"endpath "+s.label_()+msg2)
+
             self._delattrFromSetattr(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -1943,6 +1970,23 @@ if __name__=="__main__":
             p2._Process__setObjectLabel(p2.s4, "foo")
             p2._Process__setObjectLabel(p2.s4, None)
             p2._Process__setObjectLabel(p2.s4, "bar")
+
+
+            p = Process('test')
+            p.a = EDProducer("MyProducer")
+            p.t = Task(p.a)
+            p.p = Path(p.t)
+            self.assertRaises(ValueError, p.extend, FromArg(a = EDProducer("YourProducer")))
+            self.assertRaises(ValueError, p.extend, FromArg(a = EDAlias()))
+            self.assertRaises(ValueError, p.__setattr__, "a", EDAlias())
+
+            p = Process('test')
+            p.a = EDProducer("MyProducer")
+            p.s = Sequence(p.a)
+            p.p = Path(p.s)
+            self.assertRaises(ValueError, p.extend, FromArg(a = EDProducer("YourProducer")))
+            self.assertRaises(ValueError, p.extend, FromArg(a = EDAlias()))
+            self.assertRaises(ValueError, p.__setattr__, "a", EDAlias())
 
         def testProcessDumpPython(self):
             self.assertEqual(Process("test").dumpPython(),
