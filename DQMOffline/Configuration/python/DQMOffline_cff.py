@@ -152,7 +152,7 @@ DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
 DQMOfflineTAU = cms.Sequence( produceDenomsData *
 				pfTauRunDQMValidation )
 
-DQMOfflineTrackerStrip = cms.Sequence( SiStripDQMTier0Common )
+DQMOfflineTrackerStripCommon = cms.Sequence( SiStripDQMTier0Common )
 
 DQMOfflineTrackerPixel = cms.Sequence( siPixelOfflineDQM_source )
 
