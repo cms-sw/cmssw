@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
-from future.utils import raise_
 from builtins import object
 import os
 import sys
@@ -10,6 +9,7 @@ import optparse
 import re
 import copy
 import subprocess
+import six
 
 # define regex
 wrapperRE      = re.compile (r'edm::Wrapper<(.+)\s*>$')
@@ -45,7 +45,7 @@ def expandFilename (filename, options):
     stdout, stderr = getOutput ('edmFileUtil -d %s' % filename)
     if stdout:
         return stdout.strip()
-    raise_(RuntimeError, "Could not successfully run 'edmFileUtil.' Error %s" \
+    raise (RuntimeError, "Could not successfully run 'edmFileUtil.' Error %s" \
           % stderr)
 
 
@@ -67,7 +67,7 @@ class Branch (object):
         name = trailingDotRE.sub ('', branchInfo.GetName())
         pieces = underscoreRE.split (name)
         if len (pieces) != 4:
-            raise_(ValueError, "%s not formatted as expected" % name)
+            raise (ValueError, "%s not formatted as expected" % name)
         self.typeString = pieces[0] # not currently used
         self.module     = pieces[1]
         self.label      = pieces[2]
@@ -87,7 +87,7 @@ class Branch (object):
                 found = True
                 break
         if not found:
-            raise_(ValueError, "%s does not match regexs provided" \
+            raise (ValueError, "%s does not match regexs provided" \
                   % self.fullname)
 
         
@@ -116,7 +116,7 @@ class Branch (object):
         # that order here.
         order = ['type', 'module', 'label', 'process']
         for obj in branchList:
-            for key, twoList in lengthDict.items():
+            for key, twoList in six.iteritems(lengthDict):
                 attribute = getattr (obj, key)
                 if len (attribute) + 2 > twoList[0]:
                     twoList[0] = len (attribute) + 2
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     rootfile = ROOT.TFile.Open( filename )
     os.dup2( oldStderr, sys.stderr.fileno() )
     if not rootfile:
-        raise_(RuntimeError, "Could not open file '%s'." % filename)
+        raise (RuntimeError, "Could not open file '%s'." % filename)
     Tree = rootfile.Get (treeName)
     branches = Tree.GetListOfBranches()
     branchList = []
