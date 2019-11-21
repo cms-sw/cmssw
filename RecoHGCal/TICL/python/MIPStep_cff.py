@@ -21,9 +21,9 @@ trackstersMIP = _trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
     seeding_regions = "ticlSeedingGlobal",
     missing_layers = 3,
-    min_clusters_per_ntuplet = 15,
+    min_clusters_per_ntuplet = 10,
     min_cos_theta = 0.99, # ~10 degrees
-    min_cos_pointing = 0.9,
+    min_cos_pointing = 0.5,
     out_in_dfs = False
 )
 
