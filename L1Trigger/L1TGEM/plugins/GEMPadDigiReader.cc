@@ -1,6 +1,6 @@
 /** \class GEMDigiReader
- *  Dumps GEM-CSC trigger pad digis 
- *  
+ *  Dumps GEM trigger pad digis
+ *
  *  \authors: Vadim Khotilovich
  */
 
@@ -9,20 +9,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+
 #include <map>
 #include <vector>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
-
-#include "DataFormats/Common/interface/DetSet.h"
 
 using namespace std;
 

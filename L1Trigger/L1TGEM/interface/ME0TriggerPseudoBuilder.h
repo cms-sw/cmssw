@@ -1,5 +1,5 @@
-#ifndef L1Trigger_ME0Trigger_ME0TriggerPseudoBuilder_h
-#define L1Trigger_ME0Trigger_ME0TriggerPseudoBuilder_h
+#ifndef L1Trigger_L1TGEM_ME0TriggerPseudoBuilder_h
+#define L1Trigger_L1TGEM_ME0TriggerPseudoBuilder_h
 
 /** \class ME0TriggerPseudoBuilder
  *
@@ -20,7 +20,7 @@ class ME0Geometry;
 class ME0TriggerPseudoBuilder {
 public:
   /** Configure the algorithm via constructor.
-   *  Receives ParameterSet percolated down from 
+   *  Receives ParameterSet percolated down from
    *  EDProducer which owns this Builder.
    */
   explicit ME0TriggerPseudoBuilder(const edm::ParameterSet&);
@@ -36,8 +36,8 @@ public:
   /* print all ME0 segments in the event */
   void dumpAllME0Segments(const ME0SegmentCollection& segments) const;
 
-  /** Max values of trigger labels for all ME0s; 
-   *  used to construct TMB processors. 
+  /** Max values of trigger labels for all ME0s;
+   *  used to construct TMB processors.
    */
   enum class trig_me0s { MAX_ENDCAPS = 2, MAX_CHAMBERS = 18 };
 

@@ -1,11 +1,42 @@
-#include "L1Trigger/ME0Trigger/plugins/ME0TriggerPseudoProducer.h"
-#include "L1Trigger/ME0Trigger/interface/ME0TriggerPseudoBuilder.h"
-#include "DataFormats/Common/interface/Handle.h"
+/** \class ME0TriggerPseudoProducer
+ *
+ * Takes offline ME0 segment as input
+ * Produces ME0 trigger objects
+ *
+ * \author Tao Huang (TAMU).
+ *
+ */
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "L1Trigger/L1TGEM/interface/ME0TriggerPseudoBuilder.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+
+class ME0TriggerPseudoBuilder;
+
+class ME0TriggerPseudoProducer : public edm::global::EDProducer<> {
+public:
+  explicit ME0TriggerPseudoProducer(const edm::ParameterSet&);
+  ~ME0TriggerPseudoProducer() override;
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  edm::InputTag me0segmentProducer_;
+  edm::EDGetTokenT<ME0SegmentCollection> me0segment_token_;
+  edm::ParameterSet config_;
+};
 
 ME0TriggerPseudoProducer::ME0TriggerPseudoProducer(const edm::ParameterSet& conf) {
   me0segmentProducer_ = conf.getParameter<edm::InputTag>("ME0SegmentProducer");
@@ -40,3 +71,5 @@ void ME0TriggerPseudoProducer::produce(edm::StreamID, edm::Event& ev, const edm:
   // Put collections in event.
   ev.put(std::move(oc_trig));
 }
+
+DEFINE_FWK_MODULE(ME0TriggerPseudoProducer);
