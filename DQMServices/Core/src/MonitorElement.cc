@@ -125,7 +125,7 @@ namespace dqm::impl {
     data_.moduleId = 0;
 
     // leaking a pointer here, but that should be fine.
-    data_.dirname = &access.key.path_.getDirname();
+    data_.dirname = access.key.path_.getDirname();
 
     data_.objname = access.key.path_.getObjectname();
 
