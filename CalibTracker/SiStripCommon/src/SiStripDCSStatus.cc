@@ -32,6 +32,8 @@ SiStripDCSStatus::SiStripDCSStatus(edm::ConsumesCollector& iC)
       initialised(false) {
   dcsStatusToken_ = iC.consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"));
   rawDataToken_ = iC.consumes<FEDRawDataCollection>(edm::InputTag("rawDataCollector"));
+  tTopoToken_ = iC.esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  fedCablingToken_ = iC.esConsumes<SiStripFedCabling, SiStripFedCablingRcd>();
 }
 //
 // -- Destructor
@@ -97,13 +99,10 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
 //
 void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto& tTopo = eSetup.getData(tTopoToken_);
+  const auto& fedCabling_ = eSetup.getData(fedCablingToken_);
 
-  edm::ESHandle<SiStripFedCabling> fedCabling_;
-  eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-  auto connectedFEDs = fedCabling_->fedIds();
+  auto connectedFEDs = fedCabling_.fedIds();
 
   edm::Handle<FEDRawDataCollection> rawDataHandle;
   //  e.getByLabel("source", rawDataHandle);
@@ -117,7 +116,7 @@ void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eS
   rawdataAbsent = false;
   const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
   for (std::vector<unsigned short>::const_iterator ifed = connectedFEDs.begin(); ifed != connectedFEDs.end(); ifed++) {
-    auto fedChannels = fedCabling_->fedConnections(*ifed);
+    auto fedChannels = fedCabling_.fedConnections(*ifed);
     if (!(rawDataCollection.FEDData(*ifed).size()) || !(rawDataCollection.FEDData(*ifed).data()))
       continue;
     // Check Modules Connected
@@ -134,9 +133,9 @@ void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eS
         TOBinDAQ = true;
         break;
       } else if (subdet.subdetId() == StripSubdetector::TEC) {
-        if (tTopo->tecSide(detId) == 2)
+        if (tTopo.tecSide(detId) == 2)
           TECFinDAQ = true;
-        else if (tTopo->tecSide(detId) == 1)
+        else if (tTopo.tecSide(detId) == 1)
           TECBinDAQ = true;
         break;
       }
