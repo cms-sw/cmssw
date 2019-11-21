@@ -101,34 +101,23 @@ namespace dqm::impl {
     struct MEComparison {
       using is_transparent = int;  // magic marker to allow C++14 heterogeneous set lookup.
 
-      // no locking here. We assume this is called from the DQMStore set
-      // operations, which need to be protected by a lock anyways.
+      auto make_tuple(MonitorElement* me) const {
+        return std::make_tuple(me->getPathname(), me->getName());
+      }
+      auto make_tuple(MonitorElementData::Path const& path) const {
+        return std::make_tuple(path.getDirname(), path.getObjectname());
+      }
       bool operator()(MonitorElement *left, MonitorElement *right) const {
-        MonitorElementData const *l_frozen = left->frozen_.load();
-        MutableMonitorElementData const *l_mutable = left->mutable_.load();
-        MonitorElementData const *r_frozen = right->frozen_.load();
-        MutableMonitorElementData const *r_mutable = right->mutable_.load();
-
-        MonitorElementData::Path const &l = l_mutable ? l_mutable->data_.key_.path_ : l_frozen->key_.path_;
-        MonitorElementData::Path const &r = r_mutable ? r_mutable->data_.key_.path_ : r_frozen->key_.path_;
-
-        return (*this)(l, r);  // call implementation below
+        return make_tuple(left) < make_tuple(right);
       }
       bool operator()(MonitorElement *left, MonitorElementData::Path const &right) const {
-        MonitorElementData const *l_frozen = left->frozen_.load();
-        MutableMonitorElementData const *l_mutable = left->mutable_.load();
-        MonitorElementData::Path const &l = l_mutable ? l_mutable->data_.key_.path_ : l_frozen->key_.path_;
-        return (*this)(l, right);  // call implementation below
+        return make_tuple(left) < make_tuple(right);
       }
       bool operator()(MonitorElementData::Path const &left, MonitorElement *right) const {
-        MonitorElementData const *r_frozen = right->frozen_.load();
-        MutableMonitorElementData const *r_mutable = right->mutable_.load();
-        MonitorElementData::Path const &r = r_mutable ? r_mutable->data_.key_.path_ : r_frozen->key_.path_;
-        return (*this)(left, r);  // call implementation below
+        return make_tuple(left) < make_tuple(right);
       }
       bool operator()(MonitorElementData::Path const &left, MonitorElementData::Path const &right) const {
-        return std::make_tuple(left.getDirname(), left.getObjectname()) <
-               std::make_tuple(right.getDirname(), right.getObjectname());
+        return make_tuple(left) < make_tuple(right);
       }
     };
 
@@ -252,10 +241,10 @@ namespace dqm::impl {
     uint32_t flags() const { return data_.flags; }
 
     /// get name of ME
-    const std::string &getName() const { return access().key.path_.getObjectname(); }
+    const std::string &getName() const { return this->data_.objname; }
 
     /// get pathname of parent folder
-    const std::string &getPathname() const { return access().key.path_.getDirname(); }
+    const std::string &getPathname() const { return this->data_.dirname; }
 
     /// get full name of ME including Pathname
     const std::string getFullname() const { return access().key.path_.getFullname(); }
