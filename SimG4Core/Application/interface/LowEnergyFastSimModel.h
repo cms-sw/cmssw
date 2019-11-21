@@ -15,9 +15,9 @@ class LowEnergyFastSimModel : public G4VFastSimulationModel {
 public:
     LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet);
 
-    virtual G4bool IsApplicable(const G4ParticleDefinition& particle) override;
-    virtual G4bool ModelTrigger(const G4FastTrack& fastTrack) override;
-    virtual void DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) override;
+    G4bool IsApplicable(const G4ParticleDefinition& particle) override;
+    G4bool ModelTrigger(const G4FastTrack& fastTrack) override;
+    void DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) override;
 
 private:
     const G4double fEmin;
