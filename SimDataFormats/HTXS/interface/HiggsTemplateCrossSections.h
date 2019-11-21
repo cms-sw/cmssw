@@ -296,15 +296,15 @@ namespace HTXS {
   /// F is a unique integer ( F < 99 ) corresponding to each Stage1_2 phase-space region (bin)
   namespace Stage1_2 {
     enum Category {
-      UNKNOWN  = 0,
+      UNKNOWN = 0,
       // Gluon fusion
       GG2H_FWDH = 100,
       GG2H_PTH_200_300 = 101,
       GG2H_PTH_300_450 = 102,
       GG2H_PTH_450_650 = 103,
       GG2H_PTH_GT650 = 104,
-      GG2H_0J_PTH_0_10   = 105,
-      GG2H_0J_PTH_GT10   = 106,
+      GG2H_0J_PTH_0_10 = 105,
+      GG2H_0J_PTH_GT10 = 106,
       GG2H_1J_PTH_0_60 = 107,
       GG2H_1J_PTH_60_120 = 108,
       GG2H_1J_PTH_120_200 = 109,
@@ -349,22 +349,24 @@ namespace HTXS {
       GG2HLL_PTV_150_250_GE1J = 504,
       GG2HLL_PTV_GT250 = 505,
       // ttH
-      TTH_FWDH = 600, 
+      TTH_FWDH = 600,
       TTH_PTH_0_60 = 601,
       TTH_PTH_60_120 = 602,
       TTH_PTH_120_200 = 603,
       TTH_PTH_200_300 = 604,
       TTH_PTH_GT300 = 605,
       // bbH
-      BBH_FWDH = 700, BBH = 701,
+      BBH_FWDH = 700,
+      BBH = 701,
       // tH
-      TH_FWDH = 800, TH = 801
+      TH_FWDH = 800,
+      TH = 801
     };
-  } // namespace Stage1_2
+  }  // namespace Stage1_2
 
   namespace Stage1_2_Fine {
     enum Category {
-      UNKNOWN  = 0,
+      UNKNOWN = 0,
       // Gluon fusion
       GG2H_FWDH = 100,
       GG2H_PTH_200_300_PTHJoverPTH_0_15 = 101,
@@ -375,8 +377,8 @@ namespace HTXS {
       GG2H_PTH_300_450_PTHJoverPTH_GT15 = 106,
       GG2H_PTH_450_650_PTHJoverPTH_GT15 = 107,
       GG2H_PTH_GT650_PTHJoverPTH_GT15 = 108,
-      GG2H_0J_PTH_0_10   = 109,
-      GG2H_0J_PTH_GT10   = 110,
+      GG2H_0J_PTH_0_10 = 109,
+      GG2H_0J_PTH_GT10 = 110,
       GG2H_1J_PTH_0_60 = 111,
       GG2H_1J_PTH_60_120 = 112,
       GG2H_1J_PTH_120_200 = 113,
@@ -472,7 +474,7 @@ namespace HTXS {
       GG2HLL_PTV_250_400_GE2J = 514,
       GG2HLL_PTV_GT400_GE2J = 515,
       // ttH
-      TTH_FWDH = 600, 
+      TTH_FWDH = 600,
       TTH_PTH_0_60 = 601,
       TTH_PTH_60_120 = 602,
       TTH_PTH_120_200 = 603,
@@ -480,11 +482,13 @@ namespace HTXS {
       TTH_PTH_300_450 = 605,
       TTH_PTH_GT450 = 606,
       // bbH
-      BBH_FWDH = 700, BBH = 701,
+      BBH_FWDH = 700,
+      BBH = 701,
       // tH
-      TH_FWDH = 800, TH = 801
+      TH_FWDH = 800,
+      TH = 801
     };
-  } // namespace Stage1_2_Fine
+  }  // namespace Stage1_2_Fine
 
   //#ifdef ROOT_TLorentzVector
   //typedef TLorentzVector TLV;
@@ -611,98 +615,106 @@ namespace HTXS {
   }
 
   inline int HTXSstage1_2_to_HTXSstage1_2_FineIndex(HTXS::Stage1_2::Category stage1_2,
-				 HiggsProdMode prodMode, tH_type tH) {
-
-    if(stage1_2==HTXS::Stage1_2::Category::UNKNOWN) return 0;
+                                                    HiggsProdMode prodMode,
+                                                    tH_type tH) {
+    if (stage1_2 == HTXS::Stage1_2::Category::UNKNOWN)
+      return 0;
     int P = (int)(stage1_2 / 100);
     int F = (int)(stage1_2 % 100);
     // 1.a spit tH categories
-    if (prodMode==HiggsProdMode::TH) {
-        // check that tH splitting is valid for Stage-1 FineIndex
-	// else return unknown category
-        if(tH==tH_type::noTH) return 0;
-	// check if forward tH
-	int fwdH = F==0?0:1;
-        return (94 + 2*(tH-1) +fwdH);
+    if (prodMode == HiggsProdMode::TH) {
+      // check that tH splitting is valid for Stage-1 FineIndex
+      // else return unknown category
+      if (tH == tH_type::noTH)
+        return 0;
+      // check if forward tH
+      int fwdH = F == 0 ? 0 : 1;
+      return (94 + 2 * (tH - 1) + fwdH);
     }
     // 1.b QQ2HQQ --> split into VBF, WH, ZH -> HQQ
-    // offset vector 1: input is the Higgs prodMode 
-    // first two indicies are dummies, given that this is only called for prodMode=2,3,4 
-    std::vector<int> pMode_offset = {0,0,35,46,57};
-    if (P==2) return (F + pMode_offset[prodMode]);
+    // offset vector 1: input is the Higgs prodMode
+    // first two indicies are dummies, given that this is only called for prodMode=2,3,4
+    std::vector<int> pMode_offset = {0, 0, 35, 46, 57};
+    if (P == 2)
+      return (F + pMode_offset[prodMode]);
     // 1.c GG2ZH split into gg->ZH-had and gg->ZH-lep
-    if (prodMode==HiggsProdMode::GG2ZH && P==1) return F + 18;
+    if (prodMode == HiggsProdMode::GG2ZH && P == 1)
+      return F + 18;
     // 1.d remaining categories
-    // offset vector 2: input is the Stage-1 category P 
+    // offset vector 2: input is the Stage-1 category P
     // third index is dummy, given that this is called for category P=0,1,3,4,5,6,7
-    std::vector<int> catP_offset =   {0,1,0,68,74,80,86,92};
+    std::vector<int> catP_offset = {0, 1, 0, 68, 74, 80, 86, 92};
     return (F + catP_offset[P]);
   }
 
   inline int HTXSstage1_2_to_HTXSstage1_2_FineIndex(const HiggsClassification &stxs,
-				 tH_type tH=noTH, bool jets_pT25 = false) {
+                                                    tH_type tH = noTH,
+                                                    bool jets_pT25 = false) {
     HTXS::Stage1_2::Category stage1_2 =
-    jets_pT25==false?stxs.stage1_2_cat_pTjet30GeV:
-    stxs.stage1_2_cat_pTjet25GeV;
-    return HTXSstage1_2_to_HTXSstage1_2_FineIndex(stage1_2,stxs.prodMode,tH);
+        jets_pT25 == false ? stxs.stage1_2_cat_pTjet30GeV : stxs.stage1_2_cat_pTjet25GeV;
+    return HTXSstage1_2_to_HTXSstage1_2_FineIndex(stage1_2, stxs.prodMode, tH);
   }
-    
+
   inline int HTXSstage1_2_to_index(HTXS::Stage1_2::Category stage1_2) {
     // the Stage-1 categories
     int P = (int)(stage1_2 / 100);
     int F = (int)(stage1_2 % 100);
     //std::vector<int> offset{0,1,13,19,24,29,33,35,37,39};
-    std::vector<int> offset{0,1,18,29,35,41,47,53,55,57};
+    std::vector<int> offset{0, 1, 18, 29, 35, 41, 47, 53, 55, 57};
     // convert to linear values
-    return ( F + offset[P] );
-    }
+    return (F + offset[P]);
+  }
 
-    //Same for Stage1_2_Fine categories
+  //Same for Stage1_2_Fine categories
   inline int HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(HTXS::Stage1_2_Fine::Category Stage1_2_Fine,
-                       HiggsProdMode prodMode, tH_type tH) {
-
-    if(Stage1_2_Fine==HTXS::Stage1_2_Fine::Category::UNKNOWN) return 0;
+                                                              HiggsProdMode prodMode,
+                                                              tH_type tH) {
+    if (Stage1_2_Fine == HTXS::Stage1_2_Fine::Category::UNKNOWN)
+      return 0;
     int P = (int)(Stage1_2_Fine / 100);
     int F = (int)(Stage1_2_Fine % 100);
     // 1.a spit tH categories
-    if (prodMode==HiggsProdMode::TH) {
-    // check that tH splitting is valid for Stage-1 FineIndex
-    // else return unknown category
-    if(tH==tH_type::noTH) return 0;
-    // check if forward tH
-    int fwdH = F==0?0:1;
-    return (189 + 2*(tH-1) +fwdH);
+    if (prodMode == HiggsProdMode::TH) {
+      // check that tH splitting is valid for Stage-1 FineIndex
+      // else return unknown category
+      if (tH == tH_type::noTH)
+        return 0;
+      // check if forward tH
+      int fwdH = F == 0 ? 0 : 1;
+      return (189 + 2 * (tH - 1) + fwdH);
     }
     // 1.b QQ2HQQ --> split into VBF, WH, ZH -> HQQ
     // offset vector 1: input is the Higgs prodMode
     // first two indicies are dummies, given that this is only called for prodMode=2,3,4
-    std::vector<int> pMode_offset = {0,0,57,82,107};
-    if (P==2) return (F + pMode_offset[prodMode]);
+    std::vector<int> pMode_offset = {0, 0, 57, 82, 107};
+    if (P == 2)
+      return (F + pMode_offset[prodMode]);
     // 1.c GG2ZH split into gg->ZH-had and gg->ZH-lep
-    if (prodMode==HiggsProdMode::GG2ZH && P==1) return F + 29;
+    if (prodMode == HiggsProdMode::GG2ZH && P == 1)
+      return F + 29;
     // 1.d remaining categories
     // offset vector 2: input is the Stage-1 category P
     // third index is dummy, given that this is called for category P=0,1,3,4,5,6,7
-    std::vector<int> catP_offset = {0,1,0,132,148,164,180,187};
+    std::vector<int> catP_offset = {0, 1, 0, 132, 148, 164, 180, 187};
     return (F + catP_offset[P]);
   }
 
   inline int HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(const HiggsClassification &stxs,
-                       tH_type tH=noTH, bool jets_pT25 = false) {
+                                                              tH_type tH = noTH,
+                                                              bool jets_pT25 = false) {
     HTXS::Stage1_2_Fine::Category Stage1_2_Fine =
-  jets_pT25==false?stxs.stage1_2_fine_cat_pTjet30GeV:
-  stxs.stage1_2_fine_cat_pTjet25GeV;
-    return HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(Stage1_2_Fine,stxs.prodMode,tH);
+        jets_pT25 == false ? stxs.stage1_2_fine_cat_pTjet30GeV : stxs.stage1_2_fine_cat_pTjet25GeV;
+    return HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(Stage1_2_Fine, stxs.prodMode, tH);
   }
 
   inline int HTXSstage1_2_Fine_to_index(HTXS::Stage1_2_Fine::Category Stage1_2_Fine) {
     // the Stage-1_2_Fine categories
     int P = (int)(Stage1_2_Fine / 100);
     int F = (int)(Stage1_2_Fine % 100);
-    std::vector<int> offset{0,1,29,54,70,86,102,109,111,113};
+    std::vector<int> offset{0, 1, 29, 54, 70, 86, 102, 109, 111, 113};
     // convert to linear values
-    return ( F + offset[P] );
-    }
+    return (F + offset[P]);
+  }
 
   // #endif
 
