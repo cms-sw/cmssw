@@ -9,18 +9,22 @@
 */
 
 #include <sys/time.h>
+#include <memory>
 #include <iostream>
 #include <vector>
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -45,9 +49,9 @@ class EBDataFrame_Ph2;
 
 class EcalEBPhase2TrigPrimAlgo {
 public:
-  explicit EcalEBPhase2TrigPrimAlgo(const EcalTrigTowerConstituentsMap *eTTmap,
-                                    const CaloGeometry *theGeometry,
-                                    int binofmax,
+  explicit EcalEBPhase2TrigPrimAlgo(int binofmax,
+                                    const edm::ParameterSet &spikeTaggerParams,
+                                    edm::ConsumesCollector &cc,
                                     bool debug);
 
   virtual ~EcalEBPhase2TrigPrimAlgo();
@@ -67,6 +71,7 @@ public:
     ecaltpgTimeWeightMap_ = ecaltpgTimeWeightMap;
     ecaltpgWeightGroup_ = ecaltpgWeightGroup;
   }
+  void getRecords(edm::EventSetup const &setup);
 
 private:
   //old void init(const edm::EventSetup & setup);
@@ -89,11 +94,13 @@ private:
   // return ind;
   // }
 
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
   const EcalTrigTowerConstituentsMap *eTTmap_ = nullptr;
-  const CaloGeometry *theGeometry_ = nullptr;
 
   int binOfMaximum_;
   int maxNrSamples_;
+  const edm::ParameterSet &spikeTaggerParams_;
+  edm::ConsumesCollector &cc_;
   bool debug_;
 
   int nrTowers_;  // nr of towers found by fillmap method
@@ -116,7 +123,7 @@ private:
 
   EcalEBPhase2AmplitudeReconstructor *amplitude_reconstructor_;
   EcalEBPhase2TimeReconstructor *time_reconstructor_;
-  EcalEBPhase2SpikeTagger *spike_tagger_;
+  std::unique_ptr<EcalEBPhase2SpikeTagger> spike_tagger_;
   EcalEBPhase2TPFormatter *tpFormatter_;
 
   //
@@ -140,7 +147,7 @@ private:
   std::vector<int64_t> outTime_;
 
   EcalEBPhase2TimeReconstructor *getTimeFinder() const { return time_reconstructor_; }
-  EcalEBPhase2SpikeTagger *getSpikeTagger() const { return spike_tagger_; }
+  EcalEBPhase2SpikeTagger *getSpikeTagger() const { return spike_tagger_.get(); }
   EcalEBPhase2TPFormatter *getTPFormatter() const { return tpFormatter_; }
 
   //
