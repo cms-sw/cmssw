@@ -3,7 +3,6 @@ from __future__ import print_function
 ## Tung, released under PSF license.
 ## http://code.activestate.com/recipes/534109/
 
-from builtins import object
 import re
 import os
 import xml.sax.handler
@@ -36,7 +35,7 @@ class DataNode (object):
         return name in self._attrs
 
 
-    def __bool__ (self):
+    def __nonzero__ (self):
         return bool (self._attrs or self._data)
 
 
@@ -175,7 +174,7 @@ class TreeBuilder (xml.sax.handler.ContentHandler):
         self.current = DataNode (nameChangeDict = self._ncDict)
         self._text_parts = []
         # xml attributes --> python attributes
-        for k, v in list(attrs.items()):
+        for k, v in attrs.items():
             self.current._add_xml_attr (TreeBuilder._name_mangle(k), v)
 
     def endElement (self, name):

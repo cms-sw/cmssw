@@ -10,10 +10,6 @@ This code began life in COMP/CRAB/python/LumiList.py
 """
 
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 from builtins import range
 import copy
 import json
@@ -21,7 +17,7 @@ import re
 try:
     from urllib.request import urlopen
 except ImportError:
-    from urllib.request import urlopen
+    from urllib2 import urlopen
 
 class LumiList(object):
     """
@@ -77,12 +73,12 @@ class LumiList(object):
         if isinstance(runsAndLumis, list):
             queued = {}
             for runLumiList in runsAndLumis:
-                for run, lumis in list(runLumiList.items()):
+                for run, lumis in runLumiList.items():
                     queued.setdefault(run, []).extend(lumis)
             runsAndLumis = queued
 
         if runsAndLumis:
-            for run in list(runsAndLumis.keys()):
+            for run in runsAndLumis.keys():
                 runString = str(run)
                 lastLumi = -1000
                 lumiList = runsAndLumis[run]
@@ -104,14 +100,14 @@ class LumiList(object):
                 self.compactList[runString] = [[1, 0xFFFFFFF]]
 
         if compactList:
-            for run in list(compactList.keys()):
+            for run in compactList.keys():
                 runString = str(run)
                 if compactList[run]:
                     self.compactList[runString] = compactList[run]
 
         # Compact each run and make it unique
 
-        for run in list(self.compactList.keys()):
+        for run in self.compactList.keys():
             newLumis = []
             for lumi in sorted(self.compactList[run]):
                 # If the next lumi starts inside or just after the last just change the endpoint of the first
@@ -182,8 +178,8 @@ class LumiList(object):
 
     def __or__(self, other):
         result = {}
-        aruns = list(self.compactList.keys())
-        bruns = list(other.compactList.keys())
+        aruns = self.compactList.keys()
+        bruns = other.compactList.keys()
         runs = set(aruns + bruns)
         for run in runs:
             overlap = sorted(self.compactList.get(run, []) + other.compactList.get(run, []))
@@ -246,7 +242,7 @@ class LumiList(object):
         Return the list of pairs representation
         """
         theList = []
-        runs = list(self.compactList.keys())
+        runs = self.compactList.keys()
         runs = sorted(run, key=int)
         for run in runs:
             lumis = self.compactList[run]
@@ -271,7 +267,7 @@ class LumiList(object):
         """
 
         parts = []
-        runs = list(self.compactList.keys())
+        runs = self.compactList.keys()
         runs = sorted(runs, key=int)
         for run in runs:
             lumis = self.compactList[run]
@@ -334,7 +330,7 @@ class LumiList(object):
         Selects only runs from runList in collection
         '''
         runsToDelete = []
-        for run in list(self.compactList.keys()):
+        for run in self.compactList.keys():
             if int(run) not in runList and run not in runList:
                 runsToDelete.append(run)
 

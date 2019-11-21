@@ -165,7 +165,7 @@ class LumiInfoCont (dict):
         # use lumFactor to make everything consistent
         #print "units", self.invunits, "factor", lumFactor
         self.totalRecLum /= lumFactor
-        for lumis in list(self.values()):
+        for lumis in self.values():
             lumis.delivered /= lumFactor
             lumis.recorded  /= lumFactor
         # Probably want to rename this next subroutine, but I'll leave

@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     alphaList = LumiList (filename = args[0])  # Read in first  JSON file
     if options.range:
-        keys = list(alphaList.compactList.keys())
+        keys = alphaList.compactList.keys()
         minRun = min (keys)
         maxRun = max (keys)
         print("runs %s - %s" % (minRun, maxRun))
