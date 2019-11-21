@@ -412,7 +412,7 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   // number of sigmas for neutral energy detection
   desc.add<double>("pf_nsigma_ECAL", 0.0);
   desc.add<double>("pf_nsigma_HCAL", 1.0);
-  desc.add<double>("pf_nsigma_HFEM", 0.0);
+  desc.add<double>("pf_nsigma_HFEM", 1.0);
   desc.add<double>("pf_nsigma_HFHAD", 1.0);
 
   // ECAL/HCAL PF cluster calibration : take it from global tag ?
