@@ -6,9 +6,9 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                         'PostDQMOffline',
                         '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@L1TMon+@hlt+@beam+@fed+@tau+dqmFastTimerServiceClient'],
 
-            'commonFakeHLT': ['@dcs+@DQMMessageLogger+@strip+@pixel+@tracking+@L1TMon+@beam+@castor+@physics+@tau',
+            'commonFakeHLT': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@L1TMon+@beam+@castor+@physics+@tau',
                         'PostDQMOffline',
-                        '@dcs+@DQMMessageLoggerClient+@strip+@pixel+@tracking+@L1TMon+@beam+@fed+@tau+dqmFastTimerServiceClient'],
+                        '@dcs+@DQMMessageLoggerClient+@stripCommon+@pixel+@tracking+@L1TMon+@beam+@fed+@tau+dqmFastTimerServiceClient'],
 
             'commonSiStripZeroBias': ['@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@trackingZeroBias+@L1TMon+@hlt+@beam+@castor+@physics',
                                       'PostDQMOffline',
