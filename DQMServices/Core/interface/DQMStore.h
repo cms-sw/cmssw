@@ -6,6 +6,7 @@
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
+#include <type_traits>
 #include <functional>
 #include <mutex>
 
@@ -48,21 +49,33 @@ namespace dqm {
       // the object; it will be clone'd.
       //
 
-      template <typename FUNC = NOOP>
+      // The function argument as an optional template parameter adds a lot of
+      // ambiguity to the overload resolution, since it accepts *anything* by
+      // default (and it does not help that we rely on implicit conversions for
+      // almost all of the arguments in many cases, converting string literal
+      // to TString and ints to floats, and 0 also prefers to convert to float*
+      // and so on ...).
+      // So, we use SFINAE to restrict the template parameter type, but that is
+      // also not that easy: there is no way to check for sth. callable in
+      // type_traits (`is_function` is not the right thing!), so instead we
+      // check for not-numeric things, which works most of the time (though e.g.
+      // enum constants somehow still pass as not arithmetic and need an
+      // explicit cast to resolve the ambiguity).
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookInt(TString const& name, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::INT, [=]() {
           onbooking();
           return nullptr;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookFloat(TString const& name, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind ::REAL, [=]() {
           onbooking();
           return nullptr;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookString(TString const& name, TString const& value, FUNC onbooking = NOOP()) {
         // TODO: value unused!
         return bookME(name, MonitorElementData::Kind::STRING, [=]() {
@@ -71,7 +84,7 @@ namespace dqm {
         });
       }
 
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1D(TString const& name,
                              TString const& title,
                              int const nchX,
@@ -84,7 +97,7 @@ namespace dqm {
           return th1;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1D(
           TString const& name, TString const& title, int nchX, float const* xbinsize, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH1F, [=]() {
@@ -93,7 +106,7 @@ namespace dqm {
           return th1;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1D(TString const& name, TH1F* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH1F, [=]() {
           auto th1 = static_cast<TH1F*>(object->Clone(name));
@@ -102,7 +115,7 @@ namespace dqm {
         });
       }
 
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1S(
           TString const& name, TString const& title, int nchX, double lowX, double highX, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH1S, [=]() {
@@ -111,7 +124,7 @@ namespace dqm {
           return th1;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1S(TString const& name, TH1S* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH1S, [=]() {
           auto th1 = static_cast<TH1S*>(object->Clone(name));
@@ -120,7 +133,7 @@ namespace dqm {
         });
       }
 
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1DD(
           TString const& name, TString const& title, int nchX, double lowX, double highX, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH1D, [=]() {
@@ -129,7 +142,7 @@ namespace dqm {
           return th1;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1DD(TString const& name, TH1D* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH1D, [=]() {
           auto th1 = static_cast<TH1D*>(object->Clone(name));
@@ -138,7 +151,7 @@ namespace dqm {
         });
       }
 
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2D(TString const& name,
                              TString const& title,
                              int nchX,
@@ -154,7 +167,7 @@ namespace dqm {
           return th2;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2D(TString const& name,
                              TString const& title,
                              int nchX,
@@ -168,7 +181,7 @@ namespace dqm {
           return th2;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2D(TString const& name, TH2F* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH2F, [=]() {
           auto th2 = static_cast<TH2F*>(object->Clone(name));
@@ -176,7 +189,7 @@ namespace dqm {
           return th2;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2S(TString const& name,
                              TString const& title,
                              int nchX,
@@ -192,7 +205,7 @@ namespace dqm {
           return th2;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2S(TString const& name,
                              TString const& title,
                              int nchX,
@@ -206,7 +219,7 @@ namespace dqm {
           return th2;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2S(TString const& name, TH2S* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH2S, [=]() {
           auto th2 = static_cast<TH2S*>(object->Clone(name));
@@ -214,7 +227,7 @@ namespace dqm {
           return th2;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2DD(TString const& name,
                               TString const& title,
                               int nchX,
@@ -230,7 +243,7 @@ namespace dqm {
           return th2;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2DD(TString const& name, TH2D* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH2D, [=]() {
           auto th2 = static_cast<TH2D*>(object->Clone(name));
@@ -239,7 +252,7 @@ namespace dqm {
         });
       }
 
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book3D(TString const& name,
                              TString const& title,
                              int nchX,
@@ -258,7 +271,7 @@ namespace dqm {
           return th3;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book3D(TString const& name, TH3F* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH3F, [=]() {
           auto th3 = static_cast<TH3F*>(object->Clone(name));
@@ -267,7 +280,7 @@ namespace dqm {
         });
       }
 
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile(TString const& name,
                                   TString const& title,
                                   int nchX,
@@ -284,7 +297,7 @@ namespace dqm {
           return tprofile;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile(TString const& name,
                                   TString const& title,
                                   int nchX,
@@ -300,7 +313,7 @@ namespace dqm {
           return tprofile;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile(TString const& name,
                                   TString const& title,
                                   int nchX,
@@ -316,7 +329,7 @@ namespace dqm {
           return tprofile;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile(TString const& name,
                                   TString const& title,
                                   int nchX,
@@ -331,7 +344,7 @@ namespace dqm {
           return tprofile;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile(TString const& name, TProfile* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TPROFILE, [=]() {
           auto tprofile = static_cast<TProfile*>(object->Clone(name));
@@ -340,7 +353,7 @@ namespace dqm {
         });
       }
 
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile2D(TString const& name,
                                     TString const& title,
                                     int nchX,
@@ -359,7 +372,7 @@ namespace dqm {
           return tprofile;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile2D(TString const& name,
                                     TString const& title,
                                     int nchX,
@@ -379,7 +392,7 @@ namespace dqm {
           return tprofile;
         });
       }
-      template <typename FUNC = NOOP>
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile2D(TString const& name, TProfile2D* object, FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TPROFILE2D, [=]() {
           auto tprofile = static_cast<TProfile2D*>(object->Clone(name));
