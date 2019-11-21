@@ -19,7 +19,6 @@ public:
   void DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) override;
 
 private:
-  const G4double fEmin;
   const G4double fEmax;
   const G4Envelope* const fRegion;
   GFlashHitMaker fHitMaker;

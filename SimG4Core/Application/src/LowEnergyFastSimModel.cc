@@ -10,7 +10,6 @@
 
 LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet)
     : G4VFastSimulationModel(name, region),
-      fEmin(parSet.getParameter<double>("LowEnergyGflashEcalEmin")),
       fEmax(parSet.getParameter<double>("LowEnergyGflashEcalEmax")),
       fRegion(region) {}
 
@@ -20,7 +19,7 @@ G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle)
 
 G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
   G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-  return energy > fEmin && energy < fEmax && fRegion == fastTrack.GetEnvelope();
+  return energy < fEmax && fRegion == fastTrack.GetEnvelope();
 }
 
 void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
@@ -29,13 +28,13 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   fastStep.SetTotalEnergyDeposited(fastTrack.GetPrimaryTrack()->GetKineticEnergy());
 
   const G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-  const G4ThreeVector pos = fastTrack.GetPrimaryTrack()->GetPosition();
+  const G4ThreeVector& pos = fastTrack.GetPrimaryTrack()->GetPosition();
 
   G4double inPointEnergy = param.GetInPointEnergyFraction(energy) * energy;
 
-  const auto momDir = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
-  const auto ortho = momDir.orthogonal();
-  const auto cross = momDir.cross(ortho);
+  const G4ThreeVector& momDir = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
+  const G4ThreeVector& ortho = momDir.orthogonal();
+  const G4ThreeVector& cross = momDir.cross(ortho);
 
   // in point energy deposition
   GFlashEnergySpot spot;
