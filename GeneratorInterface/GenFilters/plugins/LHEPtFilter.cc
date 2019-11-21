@@ -37,11 +37,11 @@
 class LHEPtFilter : public edm::EDFilter {
  public:
   explicit LHEPtFilter(const edm::ParameterSet&);
-  ~LHEPtFilter();
+  ~LHEPtFilter() override;
   
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   
@@ -100,7 +100,7 @@ bool LHEPtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
   double vpt_ = -1;
-  if (cands.size() >= 1) {
+  if (!cands.empty()) {
     ROOT::Math::PxPyPzEVector tot = cands.at(0);
     for (unsigned icand = 1; icand < cands.size(); ++icand) {
       tot += cands.at(icand);
