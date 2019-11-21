@@ -1578,7 +1578,7 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016'
                   }
 step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step2Upg2015Defaults])
 
-step2Upg2015DefaultsAPVSimu = merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},step2Upg2015Defaults])
+step2Upg2015DefaultsAPVSimu = merge([{'--era': 'Run2_2016_HIPM'},step2Upg2015Defaults])
 
 #for 2017
 step2Upg2017Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017',
@@ -1602,7 +1602,7 @@ step2Upg2018Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018'
 
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
-steps['DIGIUP15APVSimu']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},step2Upg2015Defaults])
+steps['DIGIUP15APVSimu']=merge([{'--era': 'Run2_2016_HIPM'},step2Upg2015Defaults])
 
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
@@ -1741,9 +1741,9 @@ digiPremixLocalPileupUp2018Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2018Defaults25ns])
 
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
-steps['DIGIPRMXUP15APVSimu_PU25']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15APVSimu_PU25']=merge([{'--era': 'Run2_2016_HIPM'},digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
-steps['DIGIPRMXLOCALUP15APVSimu_PU25']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},digiPremixLocalPileupUp2015Defaults25ns])
+steps['DIGIPRMXLOCALUP15APVSimu_PU25']=merge([{'--era': 'Run2_2016_HIPM'},digiPremixLocalPileupUp2015Defaults25ns])
 
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
