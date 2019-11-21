@@ -1261,13 +1261,13 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
   // so all elements must be HF (or include tracks linked to HF clusters).
   LogTrace("PFAlgo|createCandidatesHF") << "starting function PFAlgo::createCandidatesHF";
 
-  if (inds.trackIs.size() == 0)
+  if (inds.trackIs.empty())
     assert(inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size());
 
   //
   // Dealing with a block with at least one track
   //
-  if (inds.trackIs.size()) {
+  if (!inds.trackIs.empty()) {
     // sorted tracks associated with a HfHad cluster
     std::multimap<double, unsigned> sortedTracks;
     // HfEms associated with tracks linked to a HfHad cluster
