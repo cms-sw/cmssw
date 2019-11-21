@@ -1265,7 +1265,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
     assert(inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size());
 
   //
-  // Dealing with a block with at least one tracks
+  // Dealing with a block with at least one track
   //
   if (inds.trackIs.size()) {
     // sorted tracks associated with a HfHad cluster
