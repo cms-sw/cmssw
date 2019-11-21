@@ -13,8 +13,8 @@ public:
   }
 
   G4double GetRadius(G4double energy) const {
-    const G4double r1 = 156.52094133;
-    const G4double r2 = -1.02220543;
+    constexpr const G4double r1 = 156.52094133;
+    constexpr const G4double r2 = -1.02220543;
     const G4double r0 = r1 + r2 * energy;
     const G4double erand = G4UniformRand();
 
@@ -22,8 +22,8 @@ public:
   }
 
   G4double GetZ() const {
-    const G4double alpha = 0.02211515;
-    const G4double t = 0.66968625;
+    constexpr const G4double alpha = 0.02211515;
+    constexpr const G4double t = 0.66968625;
     const G4double erand = G4UniformRand();
 
     return -log(erand) / alpha + t;
