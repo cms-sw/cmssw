@@ -93,7 +93,7 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 (stage2L1Trigger & run3_GEM).toReplaceWith( SimL1TMuonTask, _run3_SimL1TMuonTask )
 
 ## ME0 TPs
-from L1Trigger.ME0Trigger.me0TriggerDigis_cff import *
+from L1Trigger.L1TGEM.me0TriggerDigis_cff import *
 _phase2_SimL1TMuonTask = SimL1TMuonTask.copy()
 _phase2_SimL1TMuonTask.add(me0TriggerAllDigiTask)
 
