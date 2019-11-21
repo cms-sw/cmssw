@@ -52,8 +52,14 @@ namespace dqm::implementation {
     MonitorElementData::Path path;
     std::string fullpath = pwd() + std::string(name.View());
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
+
+    // We should check if there is a local ME for this module and name already.
+    // However, there is nothing wrong with creating a new local ME and then
+    // having putME() drop it, so we do that (it's easier).
+
     MonitorElement* me = store_->findME(path);
     store_->printTrace("Booking " + std::string(name) + (me ? " (existing)" : " (new)"));
+
     if (me == nullptr) {
       // no existing global ME found. We need to instantiate one, and put it
       // into the DQMStore. This will typically be a prototype, unless run and
@@ -72,6 +78,15 @@ namespace dqm::implementation {
     // me now points to a global ME owned by the DQMStore.
     assert(me);
 
+    if (this->moduleID_ == 0) {
+      // this is a legacy/global/harvesting booking. In this case, we do not
+      // create a local ME and return the global directly. It is not advisable
+      // to hold this pointer, as we may delete the global ME later, but we
+      // promise to keep it valid for the entire job if there are no concurrent
+      // runs/lumis.
+      return me;
+    }
+
     // each booking call returns a unique "local" ME, which the DQMStore keeps
     // in a container associated with the module (and potentially run, for
     // DQMGlobalEDAnalyzer). This will later be update to point to different
@@ -80,7 +95,6 @@ namespace dqm::implementation {
     me = store_->putME(local_me, this->moduleID_);
     // me now points to a local ME owned by the DQMStore.
     assert(me);
-    // TODO: maybe return global ME for legacy/harvesting bookings.
     return me;
   }
 
@@ -108,8 +122,8 @@ namespace dqm::implementation {
       return me;
     } else {
       // already present, return old object
+      edm::LogInfo("DQMStore") << "ME " << me->getFullname() << " booked twice in the same module.";
       delete me;
-      assert(!"Currently, this should never happen.");
       return *(existing_new.first);
     }
   }
@@ -297,7 +311,8 @@ namespace dqm::implementation {
     };
 
     for (MonitorElement* me : localset) {
-      if (checkScope(me->getScope()) == true) {
+      // we have to be very careful with the ME here, it might not be backed by data at all.
+      if (me->isValid() && checkScope(me->getScope()) == true) {
         // if we left the scope, simply release the data.
         me->release(/* expectOwned */ false);
       }

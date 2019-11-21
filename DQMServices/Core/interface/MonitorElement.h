@@ -101,10 +101,8 @@ namespace dqm::impl {
     struct MEComparison {
       using is_transparent = int;  // magic marker to allow C++14 heterogeneous set lookup.
 
-      auto make_tuple(MonitorElement* me) const {
-        return std::make_tuple(me->getPathname(), me->getName());
-      }
-      auto make_tuple(MonitorElementData::Path const& path) const {
+      auto make_tuple(MonitorElement *me) const { return std::make_tuple(me->getPathname(), me->getName()); }
+      auto make_tuple(MonitorElementData::Path const &path) const {
         return std::make_tuple(path.getDirname(), path.getObjectname());
       }
       bool operator()(MonitorElement *left, MonitorElement *right) const {
@@ -227,6 +225,10 @@ namespace dqm::impl {
     // In a few places these flags are also still used by the ME.
     void syncCoreObject();
     virtual ~MonitorElement();
+
+    // check if the ME is currently backed by MEData; if false (almost) any
+    // access will throw.
+    bool isValid() const { return mutable_.load() || frozen_.load(); }
 
     /// Compare monitor elements, for ordering in sets.
     bool operator<(const MonitorElement &x) const { return DQMNet::setOrder(data_, x.data_); }
