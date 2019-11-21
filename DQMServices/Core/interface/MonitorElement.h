@@ -232,6 +232,8 @@ namespace dqm::impl {
     MutableMonitorElementData *release(bool expectOwned);
     // re-initialize this ME as a shared copy of the other.
     void switchData(MonitorElement *other);
+    // re-initialize taking ownership of this data.
+    void switchData(MutableMonitorElementData *data);
     // copy applicable fileds into the DQMNet core object for compatibility.
     // In a few places these flags are also still used by the ME.
     void syncCoreObject();

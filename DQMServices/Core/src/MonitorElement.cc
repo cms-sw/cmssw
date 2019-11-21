@@ -47,18 +47,8 @@ namespace dqm::impl {
     this->is_owned_ = true;
     syncCoreObject();
   }
-  MonitorElement::MonitorElement(MutableMonitorElementData *data) {
-    this->mutable_ = data;
-    this->frozen_ = nullptr;
-    this->is_owned_ = true;
-    syncCoreObject();
-  }
-  MonitorElement::MonitorElement(MonitorElement *me) {
-    this->mutable_ = me->mutable_.load();
-    this->frozen_ = me->frozen_.load();
-    this->is_owned_ = false;
-    syncCoreObject();
-  }
+  MonitorElement::MonitorElement(MutableMonitorElementData *data) { switchData(data); }
+  MonitorElement::MonitorElement(MonitorElement *me) { switchData(me); }
 
   MonitorElementData MonitorElement::cloneMEData() {
     MonitorElementData out;
@@ -86,6 +76,13 @@ namespace dqm::impl {
     this->mutable_ = other->mutable_.load();
     this->frozen_ = other->frozen_.load();
     this->is_owned_ = false;
+    syncCoreObject();
+  }
+
+  void MonitorElement::switchData(MutableMonitorElementData *data) {
+    this->mutable_ = data;
+    this->frozen_ = nullptr;
+    this->is_owned_ = true;
     syncCoreObject();
   }
 

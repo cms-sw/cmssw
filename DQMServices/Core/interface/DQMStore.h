@@ -424,6 +424,16 @@ namespace dqm {
 
     class IGetter : public dqm::implementation::NavigatorBase {
     public:
+      // The IGetter interface is not really suitable for concurrent lumis/runs,
+      // so we don't even try much to get it right. Harvesting needs to run
+      // sequentially for now. Therefore, the methods just return the next-best
+      // global MEs that they find, ignoring Scope and run/lumi.
+      // Since these are global MEs, they may be deleted at some point; don't
+      // store the pointers!
+      // They are also shared with other modules. That is save when running
+      // multi-threaded as long as getTH1() etc. are not used, but of course
+      // all dependencies need to be properly declared to get correct results.
+
       // TODO: review and possibly rename the all methods below:
       // get MEs that are direct children of full path `path`
       virtual std::vector<dqm::harvesting::MonitorElement*> getContents(std::string const& path) const;
@@ -464,6 +474,8 @@ namespace dqm {
 
     class DQMStore : public IGetter, public IBooker {
     public:
+      // IGetter uses the globalMEs_ directly.
+      friend IGetter;
       // TODO: There are no references any more. we should gt rid of these.
       enum SaveReferenceTag { SaveWithoutReference, SaveWithReference, SaveWithReferenceForQTest };
       enum OpenRunDirs { KeepRunDirs, StripRunDirs };

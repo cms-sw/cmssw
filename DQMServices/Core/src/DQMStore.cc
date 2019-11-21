@@ -80,6 +80,7 @@ namespace dqm::implementation {
     me = store_->putME(local_me, this->moduleID_);
     // me now points to a local ME owned by the DQMStore.
     assert(me);
+    // TODO: maybe return global ME for legacy/harvesting bookings.
     return me;
   }
 
@@ -239,11 +240,13 @@ namespace dqm::implementation {
           MonitorElement* oldme = *proto;
           prototypes.erase(proto);
           auto medata = oldme->release(/* expectOwned */ true);  // destroy the ME, get its data.
-          delete oldme;
           // in this situation, nobody should be filling the ME concurrently.
           medata->data_.key_.id_ = edm::LuminosityBlockID(run, lumi);
-          auto newme = new MonitorElement(medata);
-          auto result = targetset.insert(newme);
+          // We reuse the ME object here, even if we don't have to. This ensures
+          // that when running single-threaded without concurrent lumis/runs,
+          // the global MEs will also live forever and allow legacy usages.
+          oldme->switchData(medata);
+          auto result = targetset.insert(oldme);
           assert(result.second);  // was new insertion
           target = result.first;  // iterator to new ME
         } else {
@@ -301,21 +304,72 @@ namespace dqm::implementation {
     }
   }
 
-  std::vector<dqm::harvesting::MonitorElement*> IGetter::getContents(std::string const& path) const { assert(!"NIY"); }
+  std::vector<dqm::harvesting::MonitorElement*> IGetter::getContents(std::string const& pathname) const {
+    std::vector<MonitorElement*> out;
+    MonitorElementData::Path path;
+    path.set(pathname, MonitorElementData::Path::Type::DIR);
+    for (auto& [runlumi, meset] : store_->globalMEs_) {
+      auto it = meset.lower_bound(path);
+      // rfind can be used as a prefix match.
+      while (it != meset.end() && (*it)->getPathname() == path.getDirname()) {
+        out.push_back(*it);
+        ++it;
+      }
+    }
+    return out;
+  }
+
   void IGetter::getContents(std::vector<std::string>& into, bool showContents) const { assert(!"NIY"); }
 
-  std::vector<dqm::harvesting::MonitorElement*> IGetter::getAllContents(std::string const& path) const {
-    assert(!"NIY");
+  std::vector<dqm::harvesting::MonitorElement*> IGetter::getAllContents(std::string const& pathname) const {
+    std::vector<MonitorElement*> out;
+    MonitorElementData::Path path;
+    path.set(pathname, MonitorElementData::Path::Type::DIR);
+    // make sure this is normalized by getting it from Path object.
+    auto path_str = path.getFullname();
+    for (auto& [runlumi, meset] : store_->globalMEs_) {
+      auto it = meset.lower_bound(path);
+      // rfind can be used as a prefix match.
+      while (it != meset.end() && (*it)->getPathname().rfind(path_str, 0) == 0) {
+        out.push_back(*it);
+        ++it;
+      }
+    }
+    return out;
   }
-  std::vector<dqm::harvesting::MonitorElement*> IGetter::getAllContents(std::string const& path,
+  std::vector<dqm::harvesting::MonitorElement*> IGetter::getAllContents(std::string const& pathname,
                                                                         uint32_t runNumber,
                                                                         uint32_t lumi) const {
-    assert(!"NIY");
+    std::vector<MonitorElement*> out;
+    MonitorElementData::Path path;
+    path.set(pathname, MonitorElementData::Path::Type::DIR);
+    // make sure this is normalized by getting it from Path object.
+    auto path_str = path.getFullname();
+    auto meset = store_->globalMEs_[edm::LuminosityBlockID(runNumber, lumi)];
+    auto it = meset.lower_bound(path);
+    // rfind can be used as a prefix match.
+    while (it != meset.end() && (*it)->getFullname().rfind(path_str, 0) == 0) {
+      out.push_back(*it);
+      ++it;
+    }
+    return out;
   }
 
-  MonitorElement* IGetter::get(std::string const& fullpath) const { assert(!"NIY"); }
+  MonitorElement* IGetter::get(std::string const& fullpath) const {
+    MonitorElementData::Path path;
+    path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
+    // this only really makes sense if there is only one instance of this ME,
+    // but the signature of this mthod also only makes sense in that case.
+    return store_->findME(path);
+  }
 
-  MonitorElement* IGetter::getElement(std::string const& path) const { assert(!"NIY"); }
+  MonitorElement* IGetter::getElement(std::string const& path) const {
+    auto result = this->get(path);
+    if (result == nullptr) {
+      throw cms::Exception("iGetter Error") << "ME " << path << " was requested but not found.";
+    }
+    return result;
+  }
 
   std::vector<std::string> IGetter::getSubdirs() const { assert(!"NIY"); }
   std::vector<std::string> IGetter::getMEs() const { assert(!"NIY"); }
