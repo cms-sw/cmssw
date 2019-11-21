@@ -1738,6 +1738,37 @@ _DigiHits_TOT_HE_Scintillator = PlotGroup("DigiHits_TOT_HE_Scintillator", [
                                                                            Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                            ], ncols=4)
 
+#===================================================================================================================
+#Plot definition for HitCalibration
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": False}
+
+_LayerOccupancy = PlotGroup("LayerOccupancy", [
+                                               Plot("LayerOccupancy", title="LayerOccupancy", **_common)], ncols=1)
+
+_ReconstructableEnergyOverCPenergy = PlotGroup("ReconstructableEnergyOverCPenergy", [
+  Plot("h_EoP_CPene_100_calib_fraction", title="EoP_CPene_100_calib_fraction", **_common),
+  Plot("h_EoP_CPene_200_calib_fraction", title="EoP_CPene_200_calib_fraction", **_common),
+  Plot("h_EoP_CPene_300_calib_fraction", title="EoP_CPene_300_calib_fraction", **_common),
+])
+
+_ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy = PlotGroup("ParticleFlowClusterHGCalFromMultiCl", [
+  Plot("hgcal_EoP_CPene_100_calib_fraction", title="hgcal_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_EoP_CPene_200_calib_fraction", title="hgcal_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_EoP_CPene_300_calib_fraction", title="hgcal_EoP_CPene_300_calib_fraction", **_common),
+])
+
+_EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy = PlotGroup("EcalDrivenGsfElectronsFromMultiCl", [
+  Plot("hgcal_ele_EoP_CPene_100_calib_fraction", title="hgcal_ele_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_ele_EoP_CPene_200_calib_fraction", title="hgcal_ele_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_ele_EoP_CPene_300_calib_fraction", title="hgcal_ele_EoP_CPene_300_calib_fraction", **_common),
+])
+
+_PhotonsFromMultiCl_Closest_EoverCPenergy = PlotGroup("PhotonsFromMultiCl", [
+  Plot("hgcal_photon_EoP_CPene_100_calib_fraction", title="hgcal_photon_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_photon_EoP_CPene_200_calib_fraction", title="hgcal_photon_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_photon_EoP_CPene_300_calib_fraction", title="hgcal_photon_EoP_CPene_300_calib_fraction", **_common),
+])
+
 #=================================================================================================
 hgcalLayerClustersPlotter = Plotter()
 #We follow Chris categories in folders
@@ -2921,3 +2952,45 @@ hgcalHitPlotter.append("DigiHits_TOT", [
                                                       loopSubFolders=False,
                                                       purpose=PlotPurpose.Timing, page="DigiHits_TOT"
                                                       ))
+#=================================================================================================
+# hitCalibration
+hgcalHitCalibPlotter = Plotter()
+
+hgcalHitCalibPlotter.append("Layer_Occupancy", [
+                                                "DQMData/Run 1/HGCalHitCalibration/Run summary",
+                                                ], PlotFolder(
+                                                              _LayerOccupancy,
+                                                              loopSubFolders=False,
+                                                              purpose=PlotPurpose.Timing, page="Layer_Occupancy"
+                                                              ))
+hgcalHitCalibPlotter.append("ReconstructableEnergyOverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _ReconstructableEnergyOverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="ReconstructableEnergyOverCPenergy"
+        ))
+
+hgcalHitCalibPlotter.append("ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy"
+        ))
+
+hgcalHitCalibPlotter.append("PhotonsFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _PhotonsFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="PhotonsFromMultiCl_Closest_EoverCPenergy"
+        ))
+
+hgcalHitCalibPlotter.append("EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy"
+        ))
