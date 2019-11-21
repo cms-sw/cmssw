@@ -45,9 +45,12 @@ HGCalUncalibRecHit = cms.EDProducer(
         ),
 
     HGCHEBConfig = cms.PSet(
-        isSiFE  = cms.bool(False),
+        #isSiFE  = cms.bool(False), # GF
+        isSiFE  = cms.bool(True), # GF
         adcNbits      = hgchebackDigitizer.digiCfg.feCfg.adcNbits,
         adcSaturation = hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC,
+        tdcOnset      = hgchebackDigitizer.digiCfg.feCfg.tdcOnset_fC,
+        toaLSB_ns     = hgchebackDigitizer.digiCfg.feCfg.toaLSB_ns,
         fCPerMIP      = cms.vdouble(1.0,1.0,1.0) #dummy values, it's scintillator
         ),
 
