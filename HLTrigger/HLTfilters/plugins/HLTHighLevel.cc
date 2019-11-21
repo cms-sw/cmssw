@@ -16,7 +16,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -56,6 +55,7 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig)
           << HLTPatterns_.size() << " HLTPaths and\n"
           << " eventSetupPathsKey " << eventSetupPathsKey_ << ", choose either of them.";
     }
+    alcaRecotriggerBitsToken_ = esConsumes<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd>();
     watchAlCaRecoTriggerBitsRcd_.emplace();
   }
 }
@@ -174,10 +174,9 @@ std::vector<std::string> HLTHighLevel::pathsFromSetup(const std::string& key,
                                                       const edm::Event& event,
                                                       const edm::EventSetup& iSetup) const {
   // Get map of strings to concatenated list of names of HLT paths from EventSetup:
-  edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
-  iSetup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
+  const auto& triggerBits = iSetup.getData(alcaRecotriggerBitsToken_);
   typedef std::map<std::string, std::string> TriggerMap;
-  const TriggerMap& triggerMap = triggerBits->m_alcarecoToTrig;
+  const TriggerMap& triggerMap = triggerBits.m_alcarecoToTrig;
 
   auto listIter = triggerMap.find(key);
   if (listIter == triggerMap.end()) {
@@ -188,7 +187,7 @@ std::vector<std::string> HLTHighLevel::pathsFromSetup(const std::string& key,
 
   // We must avoid a map<string,vector<string> > in DB for performance reason,
   // so the paths are mapped into one string that we have to decompose:
-  return triggerBits->decompose(listIter->second);
+  return triggerBits.decompose(listIter->second);
 }
 
 // ------------ method called to produce the data  ------------
