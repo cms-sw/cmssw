@@ -760,7 +760,7 @@ namespace Rivet {
         else if (V.pt()<150) return QQ2HLNU_PTV_75_150;
       	else if (V.pt()>250) return QQ2HLNU_PTV_GT250;
       	// 150 < pTV/GeV < 250
-      	return jets.size()==0 ? QQ2HLNU_PTV_150_250_0J : QQ2HLNU_PTV_150_250_GE1J;
+      	return jets.empty() ? QQ2HLNU_PTV_150_250_0J : QQ2HLNU_PTV_150_250_GE1J;
       }
       // 4. qq->ZH->llH categories
       else if (prodMode==HTXS::QQ2ZH) {
@@ -769,7 +769,7 @@ namespace Rivet {
         else if (V.pt()<150) return QQ2HLL_PTV_75_150;
       	else if (V.pt()>250) return QQ2HLL_PTV_GT250;
       	// 150 < pTV/GeV < 250
-      	return jets.size()==0 ? QQ2HLL_PTV_150_250_0J : QQ2HLL_PTV_150_250_GE1J;
+      	return jets.empty() ? QQ2HLL_PTV_150_250_0J : QQ2HLL_PTV_150_250_GE1J;
       }
       // 5. gg->ZH->llH categories
       else if (prodMode==HTXS::GG2ZH ) {
@@ -777,7 +777,7 @@ namespace Rivet {
         else if (V.pt()<75) return GG2HLL_PTV_0_75;
         else if (V.pt()<150) return GG2HLL_PTV_75_150;
         else if (V.pt()>250) return GG2HLL_PTV_GT250;
-        return jets.size()==0 ? GG2HLL_PTV_150_250_0J : GG2HLL_PTV_150_250_GE1J;
+        return jets.empty() ? GG2HLL_PTV_150_250_0J : GG2HLL_PTV_150_250_GE1J;
       }
       // 6.ttH,bbH,tH categories
       else if (prodMode==HTXS::TTH) {
