@@ -36,10 +36,6 @@ SiStripDCSStatus::SiStripDCSStatus(edm::ConsumesCollector& iC)
   fedCablingToken_ = iC.esConsumes<SiStripFedCabling, SiStripFedCablingRcd>();
 }
 //
-// -- Destructor
-//
-SiStripDCSStatus::~SiStripDCSStatus() {}
-//
 // -- Get State
 //
 bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSetup) {
@@ -55,10 +51,10 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
   if ((*dcsStatus).empty())
     return retVal;
 
-  statusTIBTID = true;
-  statusTOB = true;
-  statusTECF = true;
-  statusTECB = true;
+  bool statusTIBTID = true;
+  bool statusTOB = true;
+  bool statusTECF = true;
+  bool statusTECB = true;
 
   bool dcsTIBTID = ((*dcsStatus)[0].ready(DcsStatus::TIBTID));
   bool dcsTOB = ((*dcsStatus)[0].ready(DcsStatus::TOB));

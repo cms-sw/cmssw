@@ -19,7 +19,6 @@ class SiStripDCSStatus {
 public:
   SiStripDCSStatus(edm::ConsumesCollector&& iC) : SiStripDCSStatus(iC){};
   SiStripDCSStatus(edm::ConsumesCollector& iC);
-  ~SiStripDCSStatus();
 
   bool getStatus(edm::Event const& e, edm::EventSetup const& eSetup);
 
@@ -27,7 +26,6 @@ private:
   void initialise(edm::Event const& e, edm::EventSetup const& eSetup);
 
   bool TIBTIDinDAQ, TOBinDAQ, TECFinDAQ, TECBinDAQ;
-  bool statusTIBTID, statusTOB, statusTECF, statusTECB;
   bool trackerAbsent;
   bool rawdataAbsent;
   bool initialised;
