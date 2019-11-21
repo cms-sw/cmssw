@@ -206,7 +206,7 @@ namespace Rivet {
 	  Particle top = getLastInstance(Particle(ptcl));
 	  if ( top.genParticle()->end_vertex() ) 
 	    for (auto child:top.children())
-	      if ( PID::isW(child.pdgId()) ) Ws += child;
+	      if ( PID::isW(child.pdgId()) ) Ws += getLastInstance(child);
 	}
       }
 
