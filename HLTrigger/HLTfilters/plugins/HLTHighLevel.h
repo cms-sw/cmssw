@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
@@ -30,6 +31,8 @@ namespace edm {
   class ConfigurationDescriptions;
   class TriggerResults;
 }  // namespace edm
+
+class AlCaRecoTriggerBits;
 class AlCaRecoTriggerBitsRcd;
 
 //
@@ -76,6 +79,8 @@ private:
   const std::string eventSetupPathsKey_;
   /// Watcher to be created and used if 'eventSetupPathsKey_' non empty:
   std::optional<edm::ESWatcher<AlCaRecoTriggerBitsRcd>> watchAlCaRecoTriggerBitsRcd_;
+  /// ESGetToken to read AlCaRecoTriggerBits
+  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> alcaRecotriggerBitsToken_;
 
   /// input patterns that will be expanded into trigger names
   std::vector<std::string> HLTPatterns_;
