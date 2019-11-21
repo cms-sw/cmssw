@@ -92,7 +92,6 @@ namespace Rivet {
       return false;
     }
 
-
     /// @brief Returns the classification object with the error code set.
     ///        Prints an warning message, and keeps track of number of errors
     HiggsClassification error(HiggsClassification &cat,
@@ -132,7 +131,6 @@ namespace Rivet {
       cat.stage1_2_cat_pTjet30GeV = HTXS::Stage1_2::UNKNOWN;
       cat.stage1_2_fine_cat_pTjet25GeV = HTXS::Stage1_2_Fine::UNKNOWN;
       cat.stage1_2_fine_cat_pTjet30GeV = HTXS::Stage1_2_Fine::UNKNOWN;
-
 
       if (prodMode == HTXS::UNKNOWN)
         return error(cat,
@@ -362,11 +360,11 @@ namespace Rivet {
       return VBFtopo ? (j1 + j2 + higgs.momentum()).pt() < 25 ? 2 : 1 : 0;
     }
 
-    /// @brief VBF topology selection Stage1.1
+    /// @brief VBF topology selection Stage1.1 and Stage1.2
     /// 0 = fail loose selection: m_jj > 350 GeV
     /// 1 pass loose, but fail additional cut pT(Hjj)<25. 2 pass pT(Hjj)>25 selection
     /// 3 pass tight (m_jj>700 GeV), but fail additional cut pT(Hjj)<25. 4 pass pT(Hjj)>25 selection
-    int vbfTopology_Stage1_1(const Jets &jets, const Particle &higgs) {
+    int vbfTopology_Stage1_X(const Jets &jets, const Particle &higgs) {
       if (jets.size() < 2)
         return 0;
       const FourMomentum &j1 = jets[0].momentum(), &j2 = jets[1].momentum();
@@ -379,31 +377,13 @@ namespace Rivet {
         return 0;
     }
 
-    /// @brief VBF topology selection Stage1.2
-    /// 0 = fail loose selection: m_jj > 350 GeV
-    /// 1 pass loose, but fail additional cut pT(Hjj)<25. 2 pass pT(Hjj)>25 selection
-    /// 3 pass tight (m_jj>700 GeV), but fail additional cut pT(Hjj)<25. 4 pass pT(Hjj)>25 selection
-    int vbfTopology_Stage1_2(const Jets &jets, const Particle &higgs) {
-      if (jets.size() < 2)
-        return 0;
-      const FourMomentum &j1 = jets[0].momentum(), &j2 = jets[1].momentum();
-      double mjj = (j1 + j2).mass();
-      if (mjj > 350 && mjj <= 700)
-        return (j1 + j2 + higgs.momentum()).pt() < 25 ? 1 : 2;
-      else if (mjj > 700)
-        return (j1 + j2 + higgs.momentum()).pt() < 25 ? 3 : 4;
-      else
-        return 0;
-    }
-
-
-    /// @brief VBF topology selection for Stage1.1 Fine
+    /// @brief VBF topology selection for Stage1.1 and Stage 1.2 Fine
     /// 0 = fail loose selection: m_jj > 350 GeV
     /// 1 pass loose, but fail additional cut pT(Hjj)<25. 2 pass pT(Hjj)>25 selection
     /// 3 pass 700<m_jj<1000 GeV, but fail additional cut pT(Hjj)<25. 4 pass pT(Hjj)>25 selection
     /// 5 pass 1000<m_jj<1500 GeV, but fail additional cut pT(Hjj)<25. 6 pass pT(Hjj)>25 selection
     /// 7 pass m_jj>1500 GeV, but fail additional cut pT(Hjj)<25. 8 pass pT(Hjj)>25 selection
-    int vbfTopology_Stage1_1_Fine(const Jets &jets, const Particle &higgs) {
+    int vbfTopology_Stage1_X_Fine(const Jets &jets, const Particle &higgs) {
       if (jets.size() < 2)
         return 0;
       const FourMomentum &j1 = jets[0].momentum(), &j2 = jets[1].momentum();
@@ -419,23 +399,6 @@ namespace Rivet {
       else
         return 0;
     }
-    /// @brief VBF topology selection for Stage1_2
-    /// 0 = fail loose selection: m_jj > 350 GeV
-    /// 1 pass loose, but fail additional cut pT(Hjj)<25. 2 pass pT(Hjj)>25 selection
-    /// 3 pass 700<m_jj<1000 GeV, but fail additional cut pT(Hjj)<25. 4 pass pT(Hjj)>25 selection
-    /// 5 pass 1000<m_jj<1500 GeV, but fail additional cut pT(Hjj)<25. 6 pass pT(Hjj)>25 selection
-    /// 7 pass m_jj>1500 GeV, but fail additional cut pT(Hjj)<25. 8 pass pT(Hjj)>25 selection
-    int vbfTopology_Stage1_2_Fine(const Jets &jets, const Particle &higgs) {
-      if (jets.size()<2) return 0;
-      const FourMomentum &j1=jets[0].momentum(), &j2=jets[1].momentum();
-      double mjj = (j1+j2).mass();
-      if(mjj>350 && mjj<=700) return (j1+j2+higgs.momentum()).pt()<25 ? 1 : 2;
-      else if(mjj>700 && mjj<=1000) return (j1+j2+higgs.momentum()).pt()<25 ? 3 : 4;
-      else if(mjj>1000 && mjj<=1500) return (j1+j2+higgs.momentum()).pt()<25 ? 5 : 6;
-      else if(mjj>1500) return (j1+j2+higgs.momentum()).pt()<25 ? 7 : 8;
-      else return 0;
-    }
-
 
     /// @brief Whether the Higgs is produced in association with a vector boson (VH)
     bool isVH(HTXS::HiggsProdMode p) { return p == HTXS::WH || p == HTXS::QQ2ZH || p == HTXS::GG2ZH; }
@@ -551,7 +514,7 @@ namespace Rivet {
                                                   const Particle &V) {
       using namespace HTXS::Stage1_1;
       int Njets = jets.size(), ctrlHiggs = std::abs(higgs.rapidity()) < 2.5, fwdHiggs = !ctrlHiggs;
-      int vbfTopo = vbfTopology_Stage1_1(jets, higgs);
+      int vbfTopo = vbfTopology_Stage1_X(jets, higgs);
 
       // 1. GGF Stage 1 categories
       //    Following YR4 write-up: XXXXX
@@ -653,7 +616,7 @@ namespace Rivet {
                                                             const Particle &V) {
       using namespace HTXS::Stage1_1_Fine;
       int Njets = jets.size(), ctrlHiggs = std::abs(higgs.rapidity()) < 2.5, fwdHiggs = !ctrlHiggs;
-      int vbfTopo = vbfTopology_Stage1_1_Fine(jets, higgs);
+      int vbfTopo = vbfTopology_Stage1_X_Fine(jets, higgs);
 
       // 1. GGF Stage 1.1 categories
       //    Following YR4 write-up: XXXXX
@@ -756,7 +719,7 @@ namespace Rivet {
 					     const Particle &V) {
       using namespace HTXS::Stage1_2;
       int Njets=jets.size(), ctrlHiggs = std::abs(higgs.rapidity())<2.5, fwdHiggs = !ctrlHiggs;
-      int vbfTopo = vbfTopology(jets,higgs);
+      int vbfTopo = vbfTopology_Stage1_X(jets,higgs);
 
       // 1. GGF Stage 1 categories
       //    Following YR4 write-up: XXXXX
@@ -833,7 +796,7 @@ namespace Rivet {
                          const Particle &V) {
       using namespace HTXS::Stage1_2_Fine;
       int Njets=jets.size(), ctrlHiggs = std::abs(higgs.rapidity())<2.5, fwdHiggs = !ctrlHiggs;
-      int vbfTopo = vbfTopology_Stage1_2_Fine(jets,higgs);
+      int vbfTopo = vbfTopology_Stage1_X_Fine(jets,higgs);
 
       // 1. GGF Stage 1.2 categories
       //    Following YR4 write-up: XXXXX
@@ -1000,7 +963,6 @@ namespace Rivet {
       hist_stage1_2_pTjet30->fill(cat.stage1_2_cat_pTjet30GeV%100 + off1_2, weight);
       hist_stage1_2_fine_pTjet25->fill(cat.stage1_2_fine_cat_pTjet25GeV%100 + off1_2f, weight);
       hist_stage1_2_fine_pTjet30->fill(cat.stage1_2_fine_cat_pTjet30GeV%100 + off1_2f, weight);
-
 
       // Fill histograms: variables used in the categorization
       hist_pT_Higgs->fill(cat.higgs.pT(), weight);
