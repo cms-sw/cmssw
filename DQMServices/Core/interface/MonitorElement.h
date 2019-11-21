@@ -232,6 +232,9 @@ namespace dqm::impl {
     MutableMonitorElementData *release(bool expectOwned);
     // re-initialize this ME as a shared copy of the other.
     void switchData(MonitorElement *other);
+    // copy applicable fileds into the DQMNet core object for compatibility.
+    // In a few places these flags are also still used by the ME.
+    void syncCoreObject();
     virtual ~MonitorElement();
 
     /// Compare monitor elements, for ordering in sets.
@@ -365,14 +368,16 @@ namespace dqm::impl {
     /// will not be normalized when rendered within the DQM GUI.
     bool isEfficiency() const { return data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
 
+    // used to implement getQErrors et. al.
+    template <typename FILTER>
+    std::vector<MonitorElementData::QReport *> filterQReports(FILTER filter) const;
+
     /// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
     const MonitorElementData::QReport *getQReport(const std::string &qtname) const;
     /// get map of QReports
     std::vector<MonitorElementData::QReport *> getQReports() const;
     /// access QReport, potentially adding it.
     void getQReport(bool create, const std::string &qtname, MonitorElementData::QReport *&qr, DQMNet::QValue *&qv);
-    /// propagate QReport status bits after change
-    void updateQReportStats();
 
     /// get warnings from last set of quality tests
     std::vector<MonitorElementData::QReport *> getQWarnings() const;
@@ -483,11 +488,6 @@ namespace dqm::impl {
     void addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2);
     void copyFunctions(TH1 *from, TH1 *to);
     void copyFrom(TH1 *from);
-
-  public:
-    const uint32_t run() const { return data_.run; }
-    const uint32_t lumi() const { return data_.lumi; }
-    const uint32_t moduleId() const { return data_.moduleId; }
   };
 
 }  // namespace dqm::impl

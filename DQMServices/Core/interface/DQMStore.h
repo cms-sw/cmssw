@@ -416,10 +416,10 @@ namespace dqm {
                                      MonitorElementData::Kind kind,
                                      std::function<TH1*()> makeobject);
 
-      DQMStore* store_;
-      MonitorElementData::Scope scope_;
-      uint64_t moduleID_;
-      edm::LuminosityBlockID runlumi_;
+      DQMStore* store_ = nullptr;
+      MonitorElementData::Scope scope_ = MonitorElementData::Scope::JOB;
+      uint64_t moduleID_ = 0;
+      edm::LuminosityBlockID runlumi_ = edm::LuminosityBlockID();
     };
 
     class IGetter : public dqm::implementation::NavigatorBase {

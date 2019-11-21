@@ -92,17 +92,21 @@ struct MonitorElementData {
       }
     };
 
+    /// access underlying value
+    QValue& getValue() { return qvalue_; };
+    QValue const& getValue() const { return qvalue_; };
+
     /// get test status
-    int getStatus() const { return qvalue_->code; }
+    int getStatus() const { return qvalue_.code; }
 
     /// get test result i.e. prob value
-    float getQTresult() const { return qvalue_->qtresult; }
+    float getQTresult() const { return qvalue_.qtresult; }
 
     /// get message attached to test
-    const std::string& getMessage() const { return qvalue_->message; }
+    const std::string& getMessage() const { return qvalue_.message; }
 
     /// get name of quality test
-    const std::string& getQRName() const { return qvalue_->qtname; }
+    const std::string& getQRName() const { return qvalue_.qtname; }
 
     /// get quality test algorithm
     const std::string& getAlgorithm() const { return qvalue_->algorithm; }
@@ -113,10 +117,10 @@ struct MonitorElementData {
 
     void setBadChannels(std::vector<DQMChannel> badChannels) { badChannels_ = badChannels; }
 
-    QReport(QValue* value) : qvalue_(value) {}
+    QReport(QValue value) : qvalue_(value) {}
 
   private:
-    QValue* qvalue_;                       //< Pointer to the actual data.
+    QValue qvalue_;                        //< Pointer to the actual data.
     std::vector<DQMChannel> badChannels_;  //< Bad channels from QCriterion.
   };
 

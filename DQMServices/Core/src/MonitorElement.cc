@@ -45,19 +45,19 @@ namespace dqm::impl {
     this->frozen_ = nullptr;
     this->mutable_.load()->data_ = std::move(data);
     this->is_owned_ = true;
-    // TODO: update DQMNet::CoreObject.
+    syncCoreObject();
   }
   MonitorElement::MonitorElement(MutableMonitorElementData *data) {
     this->mutable_ = data;
     this->frozen_ = nullptr;
     this->is_owned_ = true;
-    // TODO: update DQMNet::CoreObject.
+    syncCoreObject();
   }
   MonitorElement::MonitorElement(MonitorElement *me) {
     this->mutable_ = me->mutable_.load();
     this->frozen_ = me->frozen_.load();
     this->is_owned_ = false;
-    // TODO: update DQMNet::CoreObject.
+    syncCoreObject();
   }
 
   MonitorElementData MonitorElement::cloneMEData() {
@@ -86,7 +86,70 @@ namespace dqm::impl {
     this->mutable_ = other->mutable_.load();
     this->frozen_ = other->frozen_.load();
     this->is_owned_ = false;
-    // TODO: update DQMNet::CoreObject.
+    syncCoreObject();
+  }
+
+  void MonitorElement::syncCoreObject() {
+    auto access = this->access();
+    data_.flags &= ~DQMNet::DQM_PROP_TYPE_MASK;
+    data_.flags |= (int)access.key.kind_;
+
+    // mark as updated.
+    data_.flags |= DQMNet::DQM_PROP_NEW;
+
+    // lumi flag is approximately equivalent to Scope::LUMI.
+    data_.flags &= ~DQMNet::DQM_PROP_LUMI;
+    if (access.key.scope_ == MonitorElementData::Scope::LUMI) {
+      data_.flags |= DQMNet::DQM_PROP_LUMI;
+    }
+
+    // these are unsupported and always off.
+    data_.flags &= ~DQMNet::DQM_PROP_HAS_REFERENCE;
+    data_.flags &= ~DQMNet::DQM_PROP_TAGGED;
+    data_.flags &= ~DQMNet::DQM_PROP_RESET;
+    data_.flags &= ~DQMNet::DQM_PROP_ACCUMULATE;
+
+    // we use ROOT's internal efficiency flag as the truth
+    data_.flags &= ~DQMNet::DQM_PROP_EFFICIENCY_PLOT;
+    if (access.value.object_ && access.value.object_->TestBit(TH1::kIsAverage)) {
+      data_.flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT;
+    }
+
+    data_.tag = 0;
+
+    // don't touch version (a timestamp).
+
+    // we could set proper values here, but nobody should use them.
+    data_.run = 0;
+    data_.lumi = 0;
+
+    // these are relics from the threaded migration and should not be used anywhere.
+    data_.streamId = 0;
+    data_.moduleId = 0;
+
+    // leaking a pointer here, but that should be fine.
+    data_.dirname = &access.key.path_.getDirname();
+
+    data_.objname = access.key.path_.getObjectname();
+
+    data_.flags &= ~DQMNet::DQM_PROP_REPORT_ALARM;
+    data_.qreports.clear();
+    for (QReport const &qr : access.value.qreports_) {
+      data_.qreports.push_back(qr.getValue());
+      switch (qr.getStatus()) {
+        case dqm::qstatus::STATUS_OK:
+          break;
+        case dqm::qstatus::WARNING:
+          data_.flags |= DQMNet::DQM_PROP_REPORT_WARN;
+          break;
+        case dqm::qstatus::ERROR:
+          data_.flags |= DQMNet::DQM_PROP_REPORT_ERROR;
+          break;
+        default:
+          data_.flags |= DQMNet::DQM_PROP_REPORT_OTHER;
+          break;
+      }
+    }
   }
 
   MonitorElement::~MonitorElement() {
@@ -424,53 +487,38 @@ namespace dqm::impl {
     return qr;
   }
 
-  // TODO: what was this logic ever supposed to do?
-  std::vector<MonitorElementData::QReport *> MonitorElement::getQReports() const {
+  template <typename FILTER>
+  std::vector<MonitorElementData::QReport *> MonitorElement::filterQReports(FILTER filter) const {
     auto access = this->access();
     std::vector<MonitorElementData::QReport *> result;
-    result.reserve(access.value.qreports_.size());
-    for (size_t i = 0, e = access.value.qreports_.size(); i != e; ++i) {
-      // TODO, WTF?: access.value.qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-      result.push_back(const_cast<MonitorElementData::QReport *>(&access.value.qreports_[i]));
+    for (MonitorElementData::QReport const &qr : access.value.qreports_) {
+      if (filter(qr)) {
+        // const_cast here because this API always violated cons'ness. Should
+        // make the result type const and fix all usages.
+        result.push_back(const_cast<MonitorElementData::QReport *>(&qr));
+      }
     }
     return result;
   }
 
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQReports() const {
+    return filterQReports([](MonitorElementData::QReport const &qr) { return true; });
+  }
+
   std::vector<MonitorElementData::QReport *> MonitorElement::getQWarnings() const {
-    auto access = this->access();
-    std::vector<MonitorElementData::QReport *> result;
-    result.reserve(access.value.qreports_.size());
-    for (size_t i = 0, e = access.value.qreports_.size(); i != e; ++i)
-      if (data_.qreports[i].code == dqm::qstatus::WARNING) {
-        // TODO, WTF?: access.value.qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<MonitorElementData::QReport *>(&access.value.qreports_[i]));
-      }
-    return result;
+    return filterQReports(
+        [](MonitorElementData::QReport const &qr) { return qr.getStatus() == dqm::qstatus::WARNING; });
   }
 
   std::vector<MonitorElementData::QReport *> MonitorElement::getQErrors() const {
-    auto access = this->access();
-    std::vector<MonitorElementData::QReport *> result;
-    result.reserve(access.value.qreports_.size());
-    for (size_t i = 0, e = access.value.qreports_.size(); i != e; ++i)
-      if (data_.qreports[i].code == dqm::qstatus::ERROR) {
-        // TODO, WTF?: access.value.qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<MonitorElementData::QReport *>(&access.value.qreports_[i]));
-      }
-    return result;
+    return filterQReports([](MonitorElementData::QReport const &qr) { return qr.getStatus() == dqm::qstatus::ERROR; });
   }
 
   std::vector<MonitorElementData::QReport *> MonitorElement::getQOthers() const {
-    auto access = this->access();
-    std::vector<MonitorElementData::QReport *> result;
-    result.reserve(access.value.qreports_.size());
-    for (size_t i = 0, e = access.value.qreports_.size(); i != e; ++i)
-      if (data_.qreports[i].code != dqm::qstatus::STATUS_OK && data_.qreports[i].code != dqm::qstatus::WARNING &&
-          data_.qreports[i].code != dqm::qstatus::ERROR) {
-        // TODO, WTF?: access.value.qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<MonitorElementData::QReport *>(&access.value.qreports_[i]));
-      }
-    return result;
+    return filterQReports([](MonitorElementData::QReport const &qr) {
+      return qr.getStatus() != dqm::qstatus::STATUS_OK && qr.getStatus() != dqm::qstatus::WARNING &&
+             qr.getStatus() != dqm::qstatus::ERROR;
+    });
   }
 
   void MonitorElement::incompatible(const char *func) const {
@@ -972,38 +1020,18 @@ namespace dqm::impl {
     if (pos == end && !create)
       return;
     else if (pos == end) {
-      data_.qreports.emplace_back();
-
-      DQMNet::QValue &q = data_.qreports.back();
+      DQMNet::QValue q;
       q.code = dqm::qstatus::DID_NOT_RUN;
       q.qtresult = 0;
       q.qtname = qtname;
       q.message = "NO_MESSAGE_ASSIGNED";
       q.algorithm = "UNKNOWN_ALGORITHM";
-      access.value.qreports_.push_back(MonitorElementData::QReport(&q));
+      access.value.qreports_.push_back(MonitorElementData::QReport(q));
+      syncCoreObject();
     }
 
     qr = &access.value.qreports_[pos];
-    qv = &data_.qreports[pos];
-  }
-
-  /// Refresh QReport stats, usually after MEs were read in from a file.
-  void MonitorElement::updateQReportStats() {
-    data_.flags &= ~DQMNet::DQM_PROP_REPORT_ALARM;
-    for (auto &qreport : data_.qreports)
-      switch (qreport.code) {
-        case dqm::qstatus::STATUS_OK:
-          break;
-        case dqm::qstatus::WARNING:
-          data_.flags |= DQMNet::DQM_PROP_REPORT_WARN;
-          break;
-        case dqm::qstatus::ERROR:
-          data_.flags |= DQMNet::DQM_PROP_REPORT_ERROR;
-          break;
-        default:
-          data_.flags |= DQMNet::DQM_PROP_REPORT_OTHER;
-          break;
-      }
+    qv = &(qr->getValue());
   }
 
   // -------------------------------------------------------------------
