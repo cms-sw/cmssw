@@ -147,9 +147,9 @@ void ParametrisedEMPhysics::ConstructProcess() {
     if (!m_tpmod) {
       m_tpmod = new TLSmod;
     }
-    edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics: GFlash Construct for e+-: " 
-                                             << gem << "  " << ghad << " " << lowEnergyGem 
-                                             << " for hadrons: " << gemHad << "  " << ghadHad;
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  " << ghad << " " << lowEnergyGem
+        << " for hadrons: " << gemHad << "  " << ghadHad;
 
     m_tpmod->theFastSimulationManagerProcess.reset(new G4FastSimulationManagerProcess());
 
@@ -162,7 +162,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
 
     if (gemHad || ghadHad) {
       G4Proton::Proton()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
-      G4AntiProton::AntiProton()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4AntiProton::AntiProton()->GetProcessManager()->AddDiscreteProcess(
+          m_tpmod->theFastSimulationManagerProcess.get());
       G4PionPlus::PionPlus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
       G4PionMinus::PionMinus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
       G4KaonPlus::KaonPlus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
@@ -182,7 +183,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
           m_tpmod->theEcalEMShowerModel.reset(new GFlashEMShowerModel("GflashEcalEMShowerModel", aRegion, theParSet));
         } else if (lowEnergyGem) {
           //Low energy electromagnetic Shower Model for ECAL
-          m_tpmod->theLowEnergyFastSimModel.reset(new LowEnergyFastSimModel("LowEnergyFastSimModel", aRegion, theParSet));
+          m_tpmod->theLowEnergyFastSimModel.reset(
+              new LowEnergyFastSimModel("LowEnergyFastSimModel", aRegion, theParSet));
         }
 
         if (gemHad) {
