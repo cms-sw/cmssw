@@ -125,12 +125,10 @@ process.slimmedJetsSmeared = cms.EDProducer('SmearedPATJetProducer',
        debug = cms.untracked.bool(False),
    # Systematic variation
    # 0: Nominal
-   # -1: -1 sigma total (down variation)
-   # 1: +1 sigma total (up variation)
-   # -2: -2 sigma stat-only (down variation)
-   # 2: +2 sigma stat-only (up variation)
-   # -3, 3, -4, 4,... systematic variations down and up
+   # -1: -1 sigma (down variation)
+   # 1: +1 sigma (up variation)
    variation = cms.int32(0),  # If not specified, default to 0
+   uncertaintySource = cms.string(""), # If not specified, default to Total
        )
 process.p=cms.Path(process.slimmedJetsSmeared)
 
@@ -141,11 +139,10 @@ process.slimmedJetsSmearedUp=process.slimmedJetsSmeared.clone(variation=cms.int3
 process.p+=process.slimmedJetsSmearedUp
 
 # example for cumputing statistical and systematic uncertainties on jet resolution separately
-#for i in range(2,7):
-#  setattr(process,"slimmedJetsSmearedDown"+str(i),process.slimmedJetsSmeared.clone(variation=cms.int32(-i)))
-#  process.p+=getattr(process,"slimmedJetsSmearedDown"+str(i))
-#for i in range(2,7):
-#  setattr(process,"slimmedJetsSmearedUp"+str(i),process.slimmedJetsSmeared.clone(variation=cms.int32(i)))
-#  process.p+=getattr(process,"slimmedJetsSmearedUp"+str(i))
+#for source in ["Stat","Jec","Gaus","Rest","Time"]:
+#  setattr(process,"slimmedJetsSmeared"+source+"Down",process.slimmedJetsSmeared.clone(uncertaintySource=source,variation=cms.int32(-1)))
+#  process.p+=getattr(process,"slimmedJetsSmeared"+source+"Down")
+#  setattr(process,"slimmedJetsSmeared"+source+"Up",process.slimmedJetsSmeared.clone(uncertaintySource=source,variation=cms.int32(1)))
+#  process.p+=getattr(process,"slimmedJetsSmeared"+source+"Up")
 
 process.schedule=cms.Schedule(process.p,process.MINIAODSIMoutput_step)

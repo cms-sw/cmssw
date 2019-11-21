@@ -26,17 +26,7 @@
 #include <TFormula.h>
 #endif
 
-enum class Variation { NOMINAL = 0, DOWN = 1, UP = 2,
-                       DOWN2 = 3, UP2 = 4,
-                       DOWN3 = 5, UP3 = 6,
-                       DOWN4 = 7, UP4 = 8,
-                       DOWN5 = 9, UP5 = 10,
-                       DOWN6 = 11, UP6 = 12,
-                       DOWN7 = 13, UP7 = 14,
-                       DOWN8 = 15, UP8 = 16,
-                       DOWN9 = 17, UP9 = 18,
-                       DOWN10 = 19, UP10 = 20
-                     };
+enum class Variation { NOMINAL = 0, DOWN = 1, UP = 2 };
 
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper) {
@@ -167,6 +157,10 @@ namespace JME {
 
       size_t nVariables() const { return m_variables.size(); }
 
+      const std::vector<std::string>& getParametersName() const { return m_parameters_name; }
+
+      size_t nParameters() const { return m_parameters_name.size(); }
+
       std::string getFormulaString() const { return m_formula_str; }
 
 #ifndef STANDALONE
@@ -188,6 +182,7 @@ namespace JME {
 #endif
       std::vector<Binning> m_bins COND_TRANSIENT;
       std::vector<Binning> m_variables COND_TRANSIENT;
+      std::vector<std::string> m_parameters_name COND_TRANSIENT;
 
       COND_SERIALIZABLE;
     };

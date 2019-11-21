@@ -128,19 +128,24 @@ public:
         m_genJetMatcher = std::make_shared<pat::GenJetMatcher>(cfg, consumesCollector());
 
       std::int32_t variation = cfg.getParameter<std::int32_t>("variation");
+      if (cfg.exists("uncertaintySource"))
+        m_uncertaintySource = cfg.getParameter<std::string>("uncertaintySource");
       m_nomVar = 1;
       if (variation == 0)
         m_systematic_variation = Variation::NOMINAL;
+      else if (variation == 1)
+        m_systematic_variation = Variation::UP;
+      else if (variation == -1)
+        m_systematic_variation = Variation::DOWN;
       else if (variation == 101) {
         m_systematic_variation = Variation::NOMINAL;
         m_nomVar = 1;
       } else if (variation == -101) {
         m_systematic_variation = Variation::NOMINAL;
         m_nomVar = -1;
-      } else if (variation < 0)
-        m_systematic_variation = Variation(-variation*2-1); // Variation::DOWN*
-      else if (variation > 0)
-        m_systematic_variation = Variation(variation*2); // Variation::UP*
+      } else
+        throw edm::Exception(edm::errors::ConfigFileReadError,
+                             "Invalid value for 'variation' parameter. Only -1, 0, 1 or 101, -101 are supported.");
     }
 
     produces<JetCollection>();
@@ -153,6 +158,7 @@ public:
     desc.add<bool>("enabled");
     desc.add<edm::InputTag>("rho");
     desc.add<std::int32_t>("variation", 0);
+    desc.add<std::string>("uncertaintySource", "");
     desc.add<std::uint32_t>("seed", 37428479);
     desc.add<bool>("skipGenMatching", false);
     desc.add<bool>("useDeterministicSeed", true);
@@ -223,7 +229,8 @@ public:
       double jet_resolution = resolution.getResolution(
           {{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}, {JME::Binning::Rho, *rho}});
       double jer_sf = resolution_sf.getScaleFactor({{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}},
-                                                   m_systematic_variation);
+                                                   m_systematic_variation,
+                                                   m_uncertaintySource);
 
       if (m_debug) {
         std::cout << "jet:  pt: " << jet.pt() << "  eta: " << jet.eta() << "  phi: " << jet.phi()
@@ -305,6 +312,7 @@ private:
   std::string m_jets_algo_pt;
   std::string m_jets_algo;
   Variation m_systematic_variation;
+  std::string m_uncertaintySource;
   bool m_useDeterministicSeed;
   bool m_debug;
   std::shared_ptr<pat::GenJetMatcher> m_genJetMatcher;
