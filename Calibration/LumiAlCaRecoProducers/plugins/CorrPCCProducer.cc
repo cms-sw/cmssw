@@ -353,8 +353,8 @@ void CorrPCCProducer::calculateCorrections (std::vector<float> uncorrected, std:
       }
     }
     if(nped>0){
-      pedestal=pedestal/nped;
       pedestal_unc=sqrt(pedestal)/nped;
+      pedestal=pedestal/nped;
     }
     for(size_t i=0; i<LumiConstants::numBX; i++){
       corrected_tmp_.at(i)=corrected_tmp_.at(i)-pedestal;
