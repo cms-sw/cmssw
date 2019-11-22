@@ -143,7 +143,7 @@ private:
 
 static const bool useL1GtTriggerMenuLite(true);
 IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig)
-    : m_l1GtUtils(iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this),
+    : m_l1GtUtils(iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this, L1GtUtils::UseEventSetupIn::Event),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       l1Names_(iConfig.getUntrackedParameter<std::vector<std::string> >("L1Seed")),
       theTrackQuality_(iConfig.getUntrackedParameter<std::string>("TrackQuality", "highPurity")),

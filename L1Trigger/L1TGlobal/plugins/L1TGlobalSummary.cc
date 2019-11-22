@@ -67,7 +67,11 @@ L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig) {
   readPrescalesFromFile_ = iConfig.getParameter<bool>("ReadPrescalesFromFile");
   minBx_ = iConfig.getParameter<int>("MinBx");
   maxBx_ = iConfig.getParameter<int>("MaxBx");
-  gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, extInputTag_);
+  l1t::UseEventSetupIn useEventSetupIn = l1t::UseEventSetupIn::Run;
+  if (dumpTriggerResults_ || dumpTriggerSummary_) {
+    useEventSetupIn = l1t::UseEventSetupIn::RunAndEvent;
+  }
+  gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, extInputTag_, useEventSetupIn);
   finalOrCount = 0;
 
   if (readPrescalesFromFile_) {

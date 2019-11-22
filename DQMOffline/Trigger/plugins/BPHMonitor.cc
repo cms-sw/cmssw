@@ -1234,6 +1234,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<double>("minprob", 0.005);
   desc.add<double>("mincos", 0.95);
   desc.add<double>("minDS", 3.);
+  desc.add<unsigned int>("stageL1Trigger", 1);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

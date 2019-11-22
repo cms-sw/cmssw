@@ -18,11 +18,13 @@
 static const bool useL1EventSetup(true);
 static const bool useL1GtTriggerMenuLite(false);
 
-GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC)
+GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config,
+                                                 edm::ConsumesCollector& iC,
+                                                 l1t::UseEventSetupIn use)
     : GenericTriggerEventFlag(config, iC, false) {
   if (config.exists("andOrL1")) {
     if (stage2_) {
-      l1uGt_.reset(new l1t::L1TGlobalUtil(config, iC));
+      l1uGt_.reset(new l1t::L1TGlobalUtil(config, iC, use));
     }
   }
 }
