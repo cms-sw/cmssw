@@ -46,33 +46,27 @@ private:
   ticl::Tile tile_;
 };
 
-class TICLLayerTiles {
+template <typename T>
+class TICLGenericTile {
 public:
-  // This class represents a collection of Tiles, one for each layer in
-  // HGCAL. The layer numbering should account for both sides of HGCAL and is
-  // not handled internally. It is the user's responsibility to properly
-  // number the layers and consistently access them here.
-  const TICLLayerTile& operator[](int layer) const { return tiles_[layer]; }
-  void fill(int layer, double eta, double phi, unsigned int layerClusterId) {
-    tiles_[layer].fill(eta, phi, layerClusterId);
+  // This class represents a generic collection of Tiles. The additional index
+  // numbering is not handled internally. It is the user's responsibility to
+  // properly use and consistently access it here.
+  const TICLLayerTile& operator[](int index) const { return tiles_[index]; }
+  void fill(int index, double eta, double phi, unsigned int objectId) {
+    tiles_[index].fill(eta, phi, objectId);
   }
 
 private:
-  ticl::Tiles tiles_;
+  T tiles_;
 };
 
-class TICLTracksterTiles {
-public:
-  // This class represents a collection of Tiles, one for each layer in
-  // HGCAL. The layer numbering should account for both sides of HGCAL and is
-  // not handled internally. It is the user's responsibility to properly
-  // number the layers and consistently access them here.
-  const TICLLayerTile& operator[](int iteration) const { return tiles_[iteration]; }
-  void fill(int iteration, double eta, double phi, unsigned int tracksterId) {
-    tiles_[iteration].fill(eta, phi, tracksterId);
-  }
+namespace ticl {
+  using Tiles = std::array<TICLLayerTile, constants::nLayers>;
+  using TracksterTiles = std::array<TICLLayerTile, constants::iterations>;
+} // namespace ticl
 
-private:
-  ticl::TracksterTiles tiles_;
-};
+using TICLLayerTiles = TICLGenericTile<ticl::Tiles>;
+using TICLTracksterTiles = TICLGenericTile<ticl::TracksterTiles>;
+
 #endif
