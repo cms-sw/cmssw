@@ -1261,15 +1261,21 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
   // so all elements must be HF (or include tracks linked to HF clusters).
   LogTrace("PFAlgo|createCandidatesHF") << "starting function PFAlgo::createCandidatesHF";
 
-  if (inds.trackIs.empty())
-    assert(inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size());
+  int ntrack = 0;
+  for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
+    PFBlockElement::Type type = elements[iEle].type();
+    if (type == PFBlockElement::TRACK)
+      ntrack++;
+  }
 
   //
   // Dealing with a block with at least one track
+  // Occasionally, there are only inactive tracks and multiple HF clusters. Consider such blocks too.
   //
-  if (!inds.trackIs.empty()) {
+  if (ntrack) {  // count any tracks (not only active tracks)
     // sorted tracks associated with a HfHad cluster
     std::multimap<double, unsigned> sortedTracks;
+    std::multimap<double, unsigned> sortedTracksActive;
     // HfEms associated with tracks linked to a HfHad cluster
     std::multimap<unsigned, std::pair<double, unsigned>> associatedHfEms;
     // Temporary map for HfEm satellite clusters
@@ -1280,13 +1286,13 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
     //
     for (unsigned iHfHad : inds.hfHadIs) {
       PFBlockElement::Type type = elements[iHfHad].type();
-
       assert(type == PFBlockElement::HFHAD);
 
       PFClusterRef hclusterRef = elements[iHfHad].clusterRef();
       assert(!hclusterRef.isNull());
 
       sortedTracks.clear();
+      sortedTracksActive.clear();
       associatedHfEms.clear();
       hfemSatellites.clear();
 
@@ -1306,7 +1312,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
 
       LogTrace("PFAlgo|createCandidatesHF") << sortedTracks.size() << " associated tracks:";
 
-      double totalChargedMomentum = 0;
+      double totalChargedMomentum = 0.;
       double sumpError2 = 0.;
 
       //
@@ -1325,7 +1331,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
         reco::TrackRef trackRef = elements[iTrack].trackRef();
         assert(!trackRef.isNull());
 
-        // introduce tracking errors
+        // Introduce tracking errors
         double trackMomentum = trackRef->p();
         totalChargedMomentum += trackMomentum;
 
@@ -1333,17 +1339,20 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
         double Dp = trackRef->qoverpError() * trackMomentum * trackMomentum;
         sumpError2 += Dp * Dp;
 
-        // look for ECAL elements associated to iTrack (associated to iHfHad)
+        // Store active tracks for 2nd loop to create charged hadrons
+        sortedTracksActive.emplace(trk.first, iTrack);
+
+        // look for HFEM elements associated to iTrack (associated to iHfHad)
         std::multimap<double, unsigned> sortedHfEms;
         block.associatedElements(
             iTrack, linkData, sortedHfEms, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
 
-        LogTrace("PFAlgo|createCandidatesHF") << "number of EfEm elements linked to this track: " << sortedHfEms.size();
+        LogTrace("PFAlgo|createCandidatesHF") << "number of HfEm elements linked to this track: " << sortedHfEms.size();
 
         bool connectedToHfEm = false;  // Will become true if there is at least one HFEM cluster connected
 
         //
-        // Loop over all connected HFEM clusters
+        // Loop over all HFEM clusters connected to iTrack
         //
         for (auto const& hfem : sortedHfEms) {
           unsigned iHfEm = hfem.second;
@@ -1358,8 +1367,8 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
           // Sanity checks
           PFBlockElement::Type type = elements[iHfEm].type();
           assert(type == PFBlockElement::HFEM);
-          PFClusterRef eclusterref = elements[iHfEm].clusterRef();
-          assert(!eclusterref.isNull());
+          PFClusterRef eclusterRef = elements[iHfEm].clusterRef();
+          assert(!eclusterRef.isNull());
 
           // Check if this HFEM is not closer to another track - ignore it in that case
           std::multimap<double, unsigned> sortedTracksHfEm;
@@ -1370,13 +1379,11 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
             continue;
 
           double distHfEm = block.dist(jTrack, iHfEm, linkData, reco::PFBlock::LINKTEST_ALL);
-
-          float hfemEnergy = eclusterref->energy();
+          double hfemEnergy = eclusterRef->energy();
 
           if (!connectedToHfEm) {  // This is the closest HFEM cluster - will add its energy later
 
             LogTrace("PFAlgo|createCandidatesHF") << "closest: " << elements[iHfEm];
-
             connectedToHfEm = true;
             std::pair<unsigned, double> satellite(iHfEm, hfemEnergy);
             hfemSatellites.emplace(-1., satellite);
@@ -1417,8 +1424,56 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
       double nsigmaHFEM = nSigmaHFEM(totalChargedMomentum);
       double nsigmaHFHAD = nSigmaHFHAD(totalChargedMomentum);
 
-      // Create HFHAD candidates from excess energy
-      if ((energyHfHad - totalChargedMomentum) > nsigmaHFHAD * TotalError) {  // HfHad is excessive
+      //
+      // Handle case that no track gets associated to HfHad cluster (e.g. tracks already consumed by e.g. elementLoop)
+      if (sortedTracksActive.empty()) {
+        // look for HFEM elements associated to iHfHad
+        std::multimap<double, unsigned> sortedHfEms;
+        block.associatedElements(
+            iHfHad, linkData, sortedHfEms, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
+        //
+        // If iHfHad is connected to HFEM cluster, Loop over all of them
+        //
+        if (!sortedHfEms.empty()) {
+          for (auto const& hfem : sortedHfEms) {
+            unsigned iHfEm = hfem.second;
+            // Ignore HFEM cluters already used
+            if (!active[iHfEm])
+              continue;
+            PFClusterRef eclusterRef = elements[iHfEm].clusterRef();
+            assert(!eclusterRef.isNull());
+            double hfemEnergy = eclusterRef->energy();
+            uncalibratedenergyHfEm += hfemEnergy;
+            energyHfEm = uncalibratedenergyHfEm;
+            if (thepfEnergyCalibrationHF_.getcalibHF_use() == true) {
+              energyHfEm = thepfEnergyCalibrationHF_.energyEmHad(
+                  uncalibratedenergyHfEm, 0.0, eclusterRef->positionREP().Eta(), eclusterRef->positionREP().Phi());
+              energyHfHad = thepfEnergyCalibrationHF_.energyEmHad(
+                  0.0, uncalibratedenergyHfHad, hclusterRef->positionREP().Eta(), hclusterRef->positionREP().Phi());
+            }  // calib true
+          }    // loop over sortedHfEm
+        }      // if !sortedHfEms.empty()
+        //
+        // Create HF candidates
+        unsigned tmpi = reconstructCluster(*hclusterRef, energyHfEm + energyHfHad);
+        (*pfCandidates_)[tmpi].setHcalEnergy(uncalibratedenergyHfHad, energyHfHad);
+        (*pfCandidates_)[tmpi].setEcalEnergy(uncalibratedenergyHfEm, energyHfEm);
+        (*pfCandidates_)[tmpi].setHoEnergy(0., 0.);
+        (*pfCandidates_)[tmpi].setPs1Energy(0.);
+        (*pfCandidates_)[tmpi].setPs2Energy(0.);
+        (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfHad);
+        for (auto const& hfem : sortedHfEms) {
+          unsigned iHfEm = hfem.second;
+          if (!active[iHfEm])
+            continue;
+          (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfEm);
+        }
+
+      }  // if sortedTracksActive.empty() ends
+      //
+      // Tracks are associated.
+      // Create HFHAD candidates from excess energy w.r.t. tracks
+      else if ((energyHfHad - totalChargedMomentum) > nsigmaHFHAD * TotalError) {  // HfHad is excessive
         assert(energyHfEm == 0.);
         // HfHad candidate from excess
         double energyHfHadExcess = max(energyHfHad - totalChargedMomentum, 0.);
@@ -1430,10 +1485,13 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
         (*pfCandidates_)[tmpi].setPs1Energy(0.);
         (*pfCandidates_)[tmpi].setPs2Energy(0.);
         (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfHad);
-      } else {
-        // If there is a room for HFEM satellites to get associated,
-        // loop over all HFEM satellites, starting for the closest to the various tracks
-        // and adding other satellites until saturation of the total track momentum
+      }
+      //
+      // If there is a room for HFEM satellites to get associated,
+      // loop over all HFEM satellites, starting for the closest to the various tracks
+      // and adding other satellites until saturation of the total track momentum
+      //
+      else {
         for (auto const& hfemSatellite : hfemSatellites) {
           //
           uncalibratedenergyHfEmTmp += std::get<1>(hfemSatellite.second);  // KH: raw HFEM energy
@@ -1457,7 +1515,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
             LogTrace("PFAlgo|createCandidatesHF")
                 << "\t\t\tactive, adding " << std::get<1>(hfemSatellite.second) << " to HFEM energy, and locking";
             active[std::get<0>(hfemSatellite.second)] = false;
-            // HfEm is excessive
+            // HfEm is excessive (possible for the first hfemSatellite)
             if (hfemSatellite.first < 0. && (caloEnergyTmp - totalChargedMomentum) > nsigmaHFEM * TotalError) {
               // HfEm candidate from excess
               double energyHfEmExcess = max(caloEnergyTmp - totalChargedMomentum, 0.);
@@ -1482,18 +1540,12 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
       }    // if HFHAD is excessive or not
 
       //
-      // Loop over all tracks associated to this HFHAD cluster *again*
+      // Loop over all tracks associated to this HFHAD cluster *again* in order to produce charged hadrons
       //
-      for (auto const& trk : sortedTracks) {
+      for (auto const& trk : sortedTracksActive) {
         unsigned iTrack = trk.second;
 
-        // Check the track has not already been used
-        if (!active[iTrack])
-          continue;
-        // Sanity check 1
-        PFBlockElement::Type type = elements[iTrack].type();
-        assert(type == reco::PFBlockElement::TRACK);
-        // Sanity check 2
+        // Sanity check
         reco::TrackRef trackRef = elements[iTrack].trackRef();
         assert(!trackRef.isNull());
 
@@ -1503,16 +1555,13 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
         unsigned tmpi = reconstructTrack(elements[iTrack]);
         active[iTrack] = false;
         (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfHad);
-
-        auto myEcals = associatedHfEms.equal_range(iTrack);
-        for (auto ii = myEcals.first; ii != myEcals.second; ++ii) {
-          unsigned iEcal = ii->second.second;
-          if (active[iEcal])
+        auto myHfEms = associatedHfEms.equal_range(iTrack);
+        for (auto ii = myHfEms.first; ii != myHfEms.second; ++ii) {
+          unsigned iHfEm = ii->second.second;
+          if (active[iHfEm])
             continue;
-          (*pfCandidates_)[tmpi].addElementInBlock(blockref, iEcal);
+          (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfEm);
         }
-
-        //for(auto&& iHfEm: iHfEmAssociated) (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfEm);
         double frac = 0.;
         if (totalChargedMomentum)
           frac = trackRef->p() / totalChargedMomentum;
@@ -1641,9 +1690,9 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
     cand.addElementInBlock(blockref, inds.hfHadIs[0]);
     LogTrace("PFAlgo|createCandidatesHF") << "HF EM+HAD found ! " << energyHfEm << " " << energyHfHad;
   } else {
-    // 1 HF element in the block,
-    // but number of elements not equal to 1 or 2
-    edm::LogWarning("PFAlgo::createCandidatesHF") << "Warning: HF, but n elem different from 1 or 2, and no track";
+    // Unusual blocks including HF elements, but do not fit any of the above categories
+    edm::LogWarning("PFAlgo::createCandidatesHF")
+        << "Warning: HF, but n elem different from 1 or 2 or >=3 or !trackIs.empty()";
     edm::LogWarning("PFAlgo::createCandidatesHF") << block;
   }
   LogTrace("PFAlgo|createCandidateHF") << "end of function PFAlgo::createCandidateHF";
@@ -3069,9 +3118,14 @@ void PFAlgo::processBlock(const reco::PFBlockRef& blockref,
   elementLoop(block, linkData, elements, active, blockref, inds, deadArea);
 
   // Reconstruct pfCandidate from HF (either EM-only, Had-only or both)
+  // For phase2, process also pfblocks containing HF clusters and linked tracks
   if (!(inds.hfEmIs.empty() && inds.hfHadIs.empty())) {
     createCandidatesHF(block, linkData, elements, active, blockref, inds);
-    return;
+    if (inds.hcalIs.empty() && inds.ecalIs.empty())
+      return;
+    edm::LogWarning("PFAlgo::processBlock")
+        << "Block contains HF clusters, but also contains ECAL or HCAL clusters. Continue.";
+    edm::LogWarning("PFAlgo::processBlock") << block;
   }
 
   createCandidatesHCAL(block, linkData, elements, active, blockref, inds, deadArea);
