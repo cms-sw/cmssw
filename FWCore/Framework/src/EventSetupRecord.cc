@@ -99,5 +99,12 @@ namespace edm {
          << "returned by the setWhatProduced function.";
       throw ex;
     }
+
+    void EventSetupRecord::throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel) {
+      throw cms::Exception("MustUseESGetToken")
+          << "Called EventSetupRecord::get without using a ESGetToken.\n While requesting data type:" << iTypeName
+          << " label:'" << iLabel << "'";
+    }
+
   }  // namespace eventsetup
 }  // namespace edm

@@ -1150,11 +1150,11 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
         hMExLS = ibooker.book2D("MExLS", "MEx_LS", 200, -200, 200, 250, 0., 2500.);
         hMExLS->setAxisTitle("MEx [GeV]", 1);
         hMExLS->setAxisTitle("Lumi Section", 2);
-        hMExLS->getTH2F()->SetOption("colz");
+        hMExLS->setOption("colz");
         hMEyLS = ibooker.book2D("MEyLS", "MEy_LS", 200, -200, 200, 250, 0., 2500.);
         hMEyLS->setAxisTitle("MEy [GeV]", 1);
         hMEyLS->setAxisTitle("Lumi Section", 2);
-        hMEyLS->getTH2F()->SetOption("colz");
+        hMEyLS->setOption("colz");
         map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MExLS", hMExLS));
         map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MEyLS", hMEyLS));
       }
@@ -1326,7 +1326,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 }
 
 // ***********************************************************
-void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void METAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   //
   //--- Check the time length of the Run from the lumi section plots
 

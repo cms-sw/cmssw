@@ -32,8 +32,7 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig, edm::Co
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
                                        edm::ConsumesCollector& iC,
                                        const MuonServiceProxy* service)
-    : theTkLayerMeasurements(),
-      theTracker(nullptr),
+    : theTracker(nullptr),
       theMeasTracker(nullptr),
       theNavigation(nullptr),
       theService(service),
@@ -98,7 +97,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
       if ((*inl == nullptr))
         break;
       //         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue;
-      alltm = findMeasurements_new(*inl, staState);
+      alltm = findMeasurements(*inl, staState);
       if ((!alltm.empty())) {
         LogTrace(theCategory) << "final compatible layer: " << ndesLayer;
         break;
@@ -213,7 +212,6 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
   if (theUpdateStateFlag) {
     iEvent.getByToken(theMeasurementTrackerEventToken, theMeasTrackerEvent);
-    theTkLayerMeasurements = LayerMeasurements(*theMeasTracker, *theMeasTrackerEvent);
   }
 
   bool trackerGeomChanged = false;
@@ -291,7 +289,7 @@ void TSGFromPropagation::validMeasurements(std::vector<TrajectoryMeasurement>& t
   return;
 }
 
-std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements_new(
+std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements(
     const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
   std::vector<TrajectoryMeasurement> result;
 
@@ -315,14 +313,6 @@ std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements_new(
     }
   }
 
-  return result;
-}
-
-std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements(
-    const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
-  std::vector<TrajectoryMeasurement> result =
-      tkLayerMeasurements()->measurements((*nl), staState, *propagator(), *estimator());
-  validMeasurements(result);
   return result;
 }
 

@@ -52,6 +52,7 @@ double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
   switch (cluster.layer()) {
     case PFLayer::ECAL_BARREL:
       barrel = true;
+      [[fallthrough]];
     case PFLayer::ECAL_ENDCAP:
 #ifdef PFLOW_DEBUG
       if (debug)
@@ -77,6 +78,7 @@ double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
 
     case PFLayer::HCAL_BARREL1:
       barrel = true;
+      [[fallthrough]];
     case PFLayer::HCAL_ENDCAP:
 #ifdef PFLOW_DEBUG
       if (debug)
@@ -159,6 +161,7 @@ double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
       break;
 
     case PFLayer::PS1:
+      [[fallthrough]];
     case PFLayer::PS2:
       //Note Alex: Nothing implemented for the
       //PreShower (No resolution maps yet)

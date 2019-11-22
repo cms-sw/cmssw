@@ -29,6 +29,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Utilities/interface/ESProductTag.h"
+
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
@@ -37,63 +39,86 @@
 class SiStripLorentzAngleDepESProducer : public edm::ESProducer {
 public:
   SiStripLorentzAngleDepESProducer(const edm::ParameterSet&);
-  ~SiStripLorentzAngleDepESProducer() override{};
 
-  std::unique_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleDepRcd&);
+  std::shared_ptr<SiStripLorentzAngle const> produce(const SiStripLorentzAngleDepRcd&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::ParameterSet getLatency;
-  edm::ParameterSet getPeak;
-  edm::ParameterSet getDeconv;
+  edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleToken_;
 };
 
-SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::ParameterSet& iConfig)
-    : getLatency(iConfig.getParameter<edm::ParameterSet>("LatencyRecord")),
-      getPeak(iConfig.getParameter<edm::ParameterSet>("LorentzAnglePeakMode")),
-      getDeconv(iConfig.getParameter<edm::ParameterSet>("LorentzAngleDeconvMode")) {
-  setWhatProduced(this);
+SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::ParameterSet& iConfig) {
+  auto const getLatency = iConfig.getParameter<edm::ParameterSet>("LatencyRecord");
+  // How useful the "record" parameter really is?
+  if (getLatency.getParameter<std::string>("record") != "SiStripLatencyRcd") {
+    throw edm::Exception(edm::errors::Configuration,
+                         "[SiStripLorentzAngleDepESProducer::ctor] No Latency Record found ");
+  }
+
+  auto const getPeak = iConfig.getParameter<edm::ParameterSet>("LorentzAnglePeakMode");
+  if (getPeak.getParameter<std::string>("record") != "SiStripLorentzAngleRcd") {
+    throw edm::Exception(edm::errors::Configuration,
+                         "[SiStripLorentzAngleDepESProducer::ctor] No Lorentz Angle Record found ");
+  }
+
+  auto const getDeconv = iConfig.getParameter<edm::ParameterSet>("LorentzAngleDeconvMode");
+  // How useful the "record" parameter really is?
+  if (getDeconv.getParameter<std::string>("record") != "SiStripLorentzAngleRcd") {
+    throw edm::Exception(edm::errors::Configuration,
+                         "[SiStripLorentzAngleDepESProducer::ctor] No Lorentz Angle Record found ");
+  }
+
+  auto const peakLabel{getPeak.getUntrackedParameter<std::string>("label")};
+  auto const deconvLabel{getDeconv.getUntrackedParameter<std::string>("label")};
+  setWhatProduced(this).setMayConsume(
+      lorentzAngleToken_,
+      [peakLabel, deconvLabel](auto const& get, edm::ESTransientHandle<SiStripLatency> iLatency) {
+        if (iLatency->singleReadOutMode() == 1) {
+          return get("", peakLabel);
+        }
+        return get("", deconvLabel);
+      },
+      edm::ESProductTag<SiStripLatency, SiStripLatencyRcd>("", getLatency.getUntrackedParameter<std::string>("label")));
 
   edm::LogInfo("SiStripLorentzAngleDepESProducer") << "ctor" << std::endl;
 }
 
-std::unique_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(
+std::shared_ptr<SiStripLorentzAngle const> SiStripLorentzAngleDepESProducer::produce(
     const SiStripLorentzAngleDepRcd& iRecord) {
-  std::unique_ptr<SiStripLorentzAngle> siStripLA;
   edm::LogInfo("SiStripLorentzAngleDepESProducer") << "Producer called" << std::endl;
 
-  std::string latencyRecordName = getLatency.getParameter<std::string>("record");
-  std::string latencyLabel = getLatency.getUntrackedParameter<std::string>("label");
-  bool peakMode = false;
+  //tell shared_ptr not to delete the product since it is already owned by the record
+  return std::shared_ptr<SiStripLorentzAngle const>(&iRecord.get(lorentzAngleToken_), [](auto) {});
+}
 
-  if (latencyRecordName == "SiStripLatencyRcd") {
-    edm::ESHandle<SiStripLatency> latency;
-    iRecord.getRecord<SiStripLatencyRcd>().get(latencyLabel, latency);
-    if (latency->singleReadOutMode() == 1)
-      peakMode = true;
-  } else
-    edm::LogError("SiStripLorentzAngleDepESProducer")
-        << "[SiStripLorentzAngleDepESProducer::produce] No Latency Record found " << std::endl;
+void SiStripLorentzAngleDepESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription latency;
+    latency.add<std::string>("record", "SiStripLatencyRcd");
+    latency.addUntracked<std::string>("label", "");
 
-  std::string lorentzAngleRecordName;
-  std::string lorentzAngleLabel;
-
-  if (peakMode) {
-    lorentzAngleRecordName = getPeak.getParameter<std::string>("record");
-    lorentzAngleLabel = getPeak.getUntrackedParameter<std::string>("label");
-  } else {
-    lorentzAngleRecordName = getDeconv.getParameter<std::string>("record");
-    lorentzAngleLabel = getDeconv.getUntrackedParameter<std::string>("label");
+    desc.add<edm::ParameterSetDescription>("LatencyRecord", latency);
   }
 
-  if (lorentzAngleRecordName == "SiStripLorentzAngleRcd") {
-    edm::ESHandle<SiStripLorentzAngle> siStripLorentzAngle;
-    iRecord.getRecord<SiStripLorentzAngleRcd>().get(lorentzAngleLabel, siStripLorentzAngle);
-    siStripLA.reset(new SiStripLorentzAngle(*(siStripLorentzAngle.product())));
-  } else
-    edm::LogError("SiStripLorentzAngleDepESProducer")
-        << "[SiStripLorentzAngleDepESProducer::produce] No Lorentz Angle Record found " << std::endl;
+  {
+    edm::ParameterSetDescription peak;
+    peak.add<std::string>("record", "SiStripLorentzAngleRcd");
+    peak.addUntracked<std::string>("label", "peak");
 
-  return siStripLA;
+    desc.add<edm::ParameterSetDescription>("LorentzAnglePeakMode", peak);
+  }
+
+  {
+    edm::ParameterSetDescription deconv;
+    deconv.add<std::string>("record", "SiStripLorentzAngleRcd");
+    deconv.addUntracked<std::string>("label", "deconvolution");
+
+    desc.add<edm::ParameterSetDescription>("LorentzAngleDeconvMode", deconv);
+  }
+
+  descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripLorentzAngleDepESProducer);

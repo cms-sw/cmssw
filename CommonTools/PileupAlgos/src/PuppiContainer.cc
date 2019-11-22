@@ -15,7 +15,9 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
   fInvert = iConfig.getParameter<bool>("invertPuppi");
   fUseExp = iConfig.getParameter<bool>("useExp");
   fPuppiWeightCut = iConfig.getParameter<double>("MinPuppiWeight");
-  fPtMax = iConfig.getParameter<double>("PtMaxNeutrals");
+  fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
+  fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
+  fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
   std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
   fNAlgos = lAlgos.size();
   for (unsigned int i0 = 0; i0 < lAlgos.size(); i0++) {
@@ -279,7 +281,7 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
       //Compute an Experimental Puppi Weight with delta Z info (very simple example)
       pChi2 = getChi2FromdZ(rParticle.dZ);
       //Now make sure Neutrals are not set
-      if (rParticle.pfType > 3)
+      if ((std::abs(rParticle.pdgId) == 22) || (std::abs(rParticle.pdgId) == 130))
         pChi2 = 0;
     }
     //Fill and compute the PuppiWeight
@@ -303,8 +305,13 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
     //Basic Cuts
     if (pWeight * fPFParticles[i0].pt() < fPuppiAlgo[pPupId].neutralPt(fNPV) && rParticle.id == 0)
       pWeight = 0;  //threshold cut on the neutral Pt
-    if ((fPtMax > 0) && (rParticle.id == 0))
-      pWeight = min(max(pWeight, fPFParticles[i0].pt() / fPtMax), 1.);
+    // Protect high pT photons (important for gamma to hadronic recoil balance)
+    if ((fPtMaxPhotons > 0) && (rParticle.pdgId == 22) && (std::abs(fPFParticles[i0].eta()) < fEtaMaxPhotons) &&
+        (fPFParticles[i0].pt() > fPtMaxPhotons))
+      pWeight = 1.;
+    // Protect high pT neutrals
+    else if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
+      pWeight = std::clamp(fPFParticles[i0].pt() / fPtMaxNeutrals, pWeight, 1.);
     if (pWeight < fPuppiWeightCut)
       pWeight = 0;  //==> Elminate the low Weight stuff
     if (fInvert)

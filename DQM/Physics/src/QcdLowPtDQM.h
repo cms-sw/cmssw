@@ -2,7 +2,7 @@
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -23,7 +23,7 @@ namespace qlpd {
   struct Cache {};
 }  // namespace qlpd
 
-class QcdLowPtDQM : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<qlpd::Cache>> {
+class QcdLowPtDQM : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<qlpd::Cache>> {
 public:
   class Pixel {
   public:
@@ -127,7 +127,7 @@ public:
   std::shared_ptr<qlpd::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
                                                           const edm::EventSetup &) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &iSetup) override;
-  void endRun(const edm::Run &r, const edm::EventSetup &iSetup) override;
+  void dqmEndRun(const edm::Run &r, const edm::EventSetup &iSetup) override;
 
 private:
   void book1D(DQMStore::IBooker &,

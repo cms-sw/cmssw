@@ -88,7 +88,7 @@
 	<flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="TGeoMgrFromDddPlugin.cc"
+<library file="TGeoMgrFromDdd.cc"
          name="FireworksGeometryTGeoMgrFromDddPlugin">
         <use name="Fireworks/Geometry"/>
 	<flags EDM_PLUGIN="1"/>

@@ -23,7 +23,7 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace cms_units::operators;
 
 class DDHCalBarrelAlgo : public DDAlgorithm {

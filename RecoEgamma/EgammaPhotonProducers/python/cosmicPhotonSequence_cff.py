@@ -10,4 +10,5 @@ photons.usePrimaryVertex = cms.bool(False)
 photons.minSCEtBarrel = cms.double(0.0)
 photons.minSCEtEndcap = cms.double(0.0)
 
-cosmicPhotonSequence = cms.Sequence(photonCore+photons)
+cosmicPhotonTask = cms.Task(photonCore,photons)
+cosmicPhotonSequence = cms.Sequence(cosmicPhotonTask)

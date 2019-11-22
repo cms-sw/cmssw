@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -24,7 +24,7 @@
 class BeamFitter;
 class PVFitter;
 
-class AlcaBeamMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class AlcaBeamMonitor : public DQMOneLumiEDAnalyzer<> {
 public:
   AlcaBeamMonitor(const edm::ParameterSet&);
   ~AlcaBeamMonitor() override;
@@ -32,8 +32,8 @@ public:
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
 
 private:
   //Typedefs

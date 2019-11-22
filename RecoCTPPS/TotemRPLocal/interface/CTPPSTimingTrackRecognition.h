@@ -200,9 +200,9 @@ CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::getHitSpatialRange(const HitV
   SpatialRange result;
 
   for (const auto& hit : hits) {
-    const float xBegin = hit.getX() - 0.5f * hit.getXWidth(), xEnd = hit.getX() + 0.5f * hit.getXWidth();
-    const float yBegin = hit.getY() - 0.5f * hit.getYWidth(), yEnd = hit.getY() + 0.5f * hit.getYWidth();
-    const float zBegin = hit.getZ() - 0.5f * hit.getZWidth(), zEnd = hit.getZ() + 0.5f * hit.getZWidth();
+    const float xBegin = hit.x() - 0.5f * hit.xWidth(), xEnd = hit.x() + 0.5f * hit.xWidth();
+    const float yBegin = hit.y() - 0.5f * hit.yWidth(), yEnd = hit.y() + 0.5f * hit.yWidth();
+    const float zBegin = hit.z() - 0.5f * hit.zWidth(), zEnd = hit.z() + 0.5f * hit.zWidth();
 
     if (!initialized) {
       result.xBegin = xBegin;
@@ -232,10 +232,10 @@ inline bool CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const Hi
   float mean_num = 0.f, mean_denom = 0.f;
   bool valid_hits = false;
   for (const auto& hit : hits) {
-    if (hit.getTPrecision() <= 0.)
+    if (hit.tPrecision() <= 0.)
       continue;
-    const float weight = std::pow(hit.getTPrecision(), -2);
-    mean_num += weight * hit.getT();
+    const float weight = std::pow(hit.tPrecision(), -2);
+    mean_num += weight * hit.time();
     mean_denom += weight;
     valid_hits = true;  // at least one valid hit to account for
   }

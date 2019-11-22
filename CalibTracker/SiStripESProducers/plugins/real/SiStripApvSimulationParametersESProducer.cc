@@ -36,15 +36,15 @@ private:
 };
 
 SiStripApvSimulationParametersESSource::SiStripApvSimulationParametersESSource(const edm::ParameterSet& conf)
-    : baseline_nBins_(conf.getParameter<unsigned int>("apvBaselines_nBinsPerBaseline")),
-      baseline_min_(conf.getParameter<double>("apvBaselines_minBaseline")),
-      baseline_max_(conf.getParameter<double>("apvBaselines_maxBaseline")) {
+    : baseline_nBins_(conf.getUntrackedParameter<unsigned int>("apvBaselines_nBinsPerBaseline")),
+      baseline_min_(conf.getUntrackedParameter<double>("apvBaselines_minBaseline")),
+      baseline_max_(conf.getUntrackedParameter<double>("apvBaselines_maxBaseline")) {
   setWhatProduced(this);
   findingRecord<SiStripApvSimulationParametersRcd>();
-  for (const auto x : conf.getParameter<std::vector<double>>("apvBaselines_puBinEdges")) {
+  for (const auto x : conf.getUntrackedParameter<std::vector<double>>("apvBaselines_puBinEdges")) {
     puBinEdges_.push_back(x);
   }
-  for (const auto x : conf.getParameter<std::vector<double>>("apvBaselines_zBinEdges")) {
+  for (const auto x : conf.getUntrackedParameter<std::vector<double>>("apvBaselines_zBinEdges")) {
     zBinEdges_.push_back(x);
   }
   for (const auto x : conf.getUntrackedParameter<std::vector<double>>("apvBaselines_rBinEdges_TID")) {

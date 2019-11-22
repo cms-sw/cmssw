@@ -100,7 +100,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
       outputDebugFile.open(debugFile.str().c_str(), ios::app);
     }
 
-    beginLuminosityBlock(iEvent.getLuminosityBlock(), iSetup);
+    dqmBeginLuminosityBlock(iEvent.getLuminosityBlock(), iSetup);
   } else if (beginTimeOfFit != 0) {
     totalHits += HitCounter(iEvent);
 
@@ -922,7 +922,7 @@ void Vx3DHLTAnalyzer::printFitParams(const vector<double>& fitResults) {
   cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8 + nParams] << endl;
 }
 
-void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
+void Vx3DHLTAnalyzer::dqmBeginLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
   // @@@ If statement to avoid problems with non-sequential lumisections @@@
   if ((lumiCounter == 0) && (lumiBlock.luminosityBlock() > lastLumiOfFit)) {
     beginTimeOfFit = lumiBlock.beginTime().value();
@@ -934,7 +934,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock, con
     reset("scratch");
 }
 
-void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
+void Vx3DHLTAnalyzer::dqmEndLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
   stringstream histTitle;
   double minXfit, maxXfit;
   int goodData;

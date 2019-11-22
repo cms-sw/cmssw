@@ -1,8 +1,8 @@
 /****************************************************************************
  *
  * This is a part of TOTEM offline software.
- * Authors: 
- *	Jan Kašpar (jan.kaspar@gmail.com) 
+ * Authors:
+ *	Jan Kašpar (jan.kaspar@gmail.com)
  *
  ****************************************************************************/
 
@@ -24,7 +24,7 @@
  *   bits [24:24] => arm: 0 (sector 45), 1 (sector 56)
  *   bits [22:23] => station: 0 (210m), 1 (cylyndrical pots), 2 (220m)
  *   bits [19:21] => Roman Pot: 0 (near top), 1 (near bottom), 2 (near horizontal), 3 (far horizontal), 4 (far top), 5 (far bottom)
- *   bits [0:18] => available for derived classes 
+ *   bits [0:18] => available for derived classes
  *
  * The ...Name() methods implement the official naming scheme based on EDMS 906715.
 **/
@@ -71,11 +71,11 @@ public:
 
   //-------------------- id getters for higher-level objects --------------------
 
-  CTPPSDetId getArmId() const { return CTPPSDetId(rawId() & (~lowMaskArm)); }
+  CTPPSDetId armId() const { return CTPPSDetId(rawId() & (~lowMaskArm)); }
 
-  CTPPSDetId getStationId() const { return CTPPSDetId(rawId() & (~lowMaskStation)); }
+  CTPPSDetId stationId() const { return CTPPSDetId(rawId() & (~lowMaskStation)); }
 
-  CTPPSDetId getRPId() const { return CTPPSDetId(rawId() & (~lowMaskRP)); }
+  CTPPSDetId rpId() const { return CTPPSDetId(rawId() & (~lowMaskRP)); }
 
   //-------------------- name methods --------------------
 

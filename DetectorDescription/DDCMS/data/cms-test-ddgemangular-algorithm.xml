@@ -30,7 +30,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml'/>
@@ -40,11 +40,4 @@
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
   </IncludeSection>
-  
-  <PosPartSection label="">
-    <PosPart copyNumber="1">
-      <rParent name=":world_volume"/>
-      <rChild name="cms:OCMS"/>
-    </PosPart>
-  </PosPartSection>
 </DDDefinition>

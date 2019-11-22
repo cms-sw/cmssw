@@ -107,16 +107,17 @@ discriminationByIsolationMVArun2v1Tight.mapping[0].cut = cms.string("newDMwLTEff
 discriminationByIsolationMVArun2v1VTight = discriminationByIsolationMVArun2v1VLoose.clone()
 discriminationByIsolationMVArun2v1VTight.mapping[0].cut = cms.string("newDMwLTEff40")
 
-mvaIsolation2SeqRun2 = cms.Sequence(
+mvaIsolation2TaskRun2 = cms.Task(
     chargedIsoPtSum
-   + neutralIsoPtSum
-   + puCorrPtSum
-   + photonPtSumOutsideSignalCone
-   + footprintCorrection
-   + discriminationByIsolationMVArun2v1raw
-   + discriminationByIsolationMVArun2v1VLoose
-   + discriminationByIsolationMVArun2v1Loose
-   + discriminationByIsolationMVArun2v1Medium
-   + discriminationByIsolationMVArun2v1Tight
-   + discriminationByIsolationMVArun2v1VTight
+   , neutralIsoPtSum
+   , puCorrPtSum
+   , photonPtSumOutsideSignalCone
+   , footprintCorrection
+   , discriminationByIsolationMVArun2v1raw
+   , discriminationByIsolationMVArun2v1VLoose
+   , discriminationByIsolationMVArun2v1Loose
+   , discriminationByIsolationMVArun2v1Medium
+   , discriminationByIsolationMVArun2v1Tight
+   , discriminationByIsolationMVArun2v1VTight
 )
+mvaIsolation2SeqRun2 = cms.Sequence(mvaIsolation2TaskRun2)

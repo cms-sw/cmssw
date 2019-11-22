@@ -103,11 +103,11 @@ void TotemRPLocalTrackFitter::produce(edm::Event &e, const edm::EventSetup &setu
       // here it would make sense to skip non-fittable patterns, but to keep the logic
       // equivalent to version 7_0_4, nothing is skipped
       /*
-      if (pattern.getFittable() == false)
+      if (pattern.fittable() == false)
         continue;
       */
 
-      switch (pattern.getProjection()) {
+      switch (pattern.projection()) {
         case TotemRPUVPattern::projU:
           n_U++;
           idx_U = pi;
@@ -133,25 +133,25 @@ void TotemRPLocalTrackFitter::produce(edm::Event &e, const edm::EventSetup &setu
     }
 
     // again, to follow the logic from version 7_0_4, skip the non-fittable patterns here
-    if (!rpv[idx_U].getFittable() || !rpv[idx_V].getFittable())
+    if (!rpv[idx_U].fittable() || !rpv[idx_V].fittable())
       continue;
 
     // combine U and V hits
     DetSetVector<TotemRPRecHit> hits;
-    for (auto &ids : rpv[idx_U].getHits()) {
+    for (auto &ids : rpv[idx_U].hits()) {
       auto &ods = hits.find_or_insert(ids.detId());
       for (auto &h : ids)
         ods.push_back(h);
     }
 
-    for (auto &ids : rpv[idx_V].getHits()) {
+    for (auto &ids : rpv[idx_V].hits()) {
       auto &ods = hits.find_or_insert(ids.detId());
       for (auto &h : ids)
         ods.push_back(h);
     }
 
     // run fit
-    double z0 = geometry->getRPTranslation(rpId).z();
+    double z0 = geometry->rpTranslation(rpId).z();
 
     TotemRPLocalTrack track;
     fitter_.fitTrack(hits, z0, *geometry, track);
@@ -161,7 +161,7 @@ void TotemRPLocalTrackFitter::produce(edm::Event &e, const edm::EventSetup &setu
 
     if (verbosity_ > 5) {
       unsigned int n_hits = 0;
-      for (auto &hds : track.getHits())
+      for (auto &hds : track.hits())
         n_hits += hds.size();
 
       LogVerbatim("TotemRPLocalTrackFitter")

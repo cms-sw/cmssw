@@ -1,11 +1,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
@@ -20,7 +20,7 @@
 
 class PreMixingPhase2TrackerWorker : public PreMixingWorker {
 public:
-  PreMixingPhase2TrackerWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+  PreMixingPhase2TrackerWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
   ~PreMixingPhase2TrackerWorker() override = default;
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
@@ -48,9 +48,9 @@ private:
 };
 
 PreMixingPhase2TrackerWorker::PreMixingPhase2TrackerWorker(const edm::ParameterSet& ps,
-                                                           edm::ProducerBase& producer,
+                                                           edm::ProducesCollector producesCollector,
                                                            edm::ConsumesCollector&& iC)
-    : digitizer_(ps, producer, iC),
+    : digitizer_(ps, producesCollector, iC),
       pixelSignalToken_(iC.consumes<edm::DetSetVector<PixelDigi>>(ps.getParameter<edm::InputTag>("pixelLabelSig"))),
       trackerSignalToken_(iC.consumes<edm::DetSetVector<PixelDigi>>(ps.getParameter<edm::InputTag>("trackerLabelSig"))),
       pixelPileupLabel_(ps.getParameter<edm::InputTag>("pixelPileInputTag")),

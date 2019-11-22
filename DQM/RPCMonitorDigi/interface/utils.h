@@ -9,8 +9,8 @@
 #include <string>
 
 namespace rpcdqm {
-  using dqm::legacy::DQMStore;
-  using dqm::legacy::MonitorElement;
+  using dqm::reco::DQMStore;
+  using dqm::reco::MonitorElement;
 
   enum RPCMeFLag { OCCUPANCY = 1, CLUSTERSIZE = 2, MULTIPLICITY = 3, BX = 4 };
 

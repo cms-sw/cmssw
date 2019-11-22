@@ -13,7 +13,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"

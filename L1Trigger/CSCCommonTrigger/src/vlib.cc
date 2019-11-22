@@ -950,11 +950,11 @@ void module::PrintHeader() {
   time_t aclock;
   time(&aclock);
   newtime = localtime(&aclock);
-  username = getenv("USER");
+  username = std::getenv("USER");
   if (username == NULL || strlen(username) < 2)
-    username = getenv("USERNAME");
+    username = std::getenv("USERNAME");
   if (username == NULL || strlen(username) < 2)
-    username = getenv("LOGNAME");
+    username = std::getenv("LOGNAME");
   cout << "// This  Verilog HDL  source  file was  automatically generated" << std::endl;
   cout << "// by C++ model based on VPP library. Modification of this file" << std::endl;
   cout << "// is possible, but if you want to keep it in sync with the C++" << std::endl;

@@ -274,7 +274,7 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
   }
 }
 
-void SUSY_HLT_MuEle_Hadronic::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_MuEle_Hadronic::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_MuEle_Hadronic") << "SUSY_HLT_MuEle_Hadronic::endRun" << std::endl;
 }
 

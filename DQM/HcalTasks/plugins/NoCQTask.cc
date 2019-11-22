@@ -125,12 +125,12 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void NoCQTask::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::beginLuminosityBlock(lb, es);
+/* virtual */ void NoCQTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::dqmBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void NoCQTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::endLuminosityBlock(lb, es);
+/* virtual */ void NoCQTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(NoCQTask);

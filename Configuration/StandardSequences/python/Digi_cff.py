@@ -28,10 +28,16 @@ from SimGeneral.Configuration.SimGeneral_cff import *
 # add updating the GEN information by default
 from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
-from SimGeneral.PileupInformation.genPUProtons_cfi import *
 
 doAllDigiTask = cms.Task(generatorSmeared, calDigiTask, muonDigiTask)
-pdigiTask_nogen = cms.Task(generatorSmeared, cms.TaskPlaceholder("randomEngineStateProducer"), cms.TaskPlaceholder("mix"), doAllDigiTask, addPileupInfo, genPUProtons)
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+# premixing stage2 runs muon digis after PreMixingModule (configured in DataMixerPreMix_cff)
+premix_stage2.toReplaceWith(doAllDigiTask, doAllDigiTask.copyAndExclude([muonDigiTask]))
+
+pdigiTask_nogen = cms.Task(generatorSmeared, cms.TaskPlaceholder("randomEngineStateProducer"), cms.TaskPlaceholder("mix"), doAllDigiTask, addPileupInfo)
+# premixing stage2 runs addPileupInfo after PreMixingModule (configured in DataMixerPreMix_cff)
+premix_stage2.toReplaceWith(pdigiTask_nogen, pdigiTask_nogen.copyAndExclude([addPileupInfo]))
+
 pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask)
 
 doAllDigi = cms.Sequence(doAllDigiTask)
@@ -45,6 +51,13 @@ pdigiTask_hi = cms.Task(pdigiTask, heavyIon)
 pdigiTask_hi_nogen = cms.Task(pdigiTask_nogen, genJetMETTask, heavyIon)
 pdigi_hi=cms.Sequence(pdigiTask_hi)
 pdigi_hi_nogen=cms.Sequence(pdigiTask_hi_nogen)
+
+# define genPUProtons as an EDProducer only when not in premixing stage2 job
+# in premixing stage2 genPUProtons is an EDAlias, defined in aliases_PreMix_cfi
+def _premixStage2GenPUProtons(process):
+    process.load("SimGeneral.PileupInformation.genPUProtons_cfi")
+    process.pdigiTask_nogen.add(process.genPUProtons)
+modifyDigi_premixStage2GenPUProtons = (~premix_stage2).makeProcessModifier(_premixStage2GenPUProtons)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def _fastSimDigis(process):

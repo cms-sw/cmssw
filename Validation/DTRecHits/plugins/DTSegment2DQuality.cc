@@ -65,7 +65,7 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet &pset) {
   }
 }
 
-void DTSegment2DQuality::bookHistograms(DQMStore::ConcurrentBooker &booker,
+void DTSegment2DQuality::bookHistograms(DQMStore::IBooker &booker,
                                         edm::Run const &run,
                                         edm::EventSetup const &setup,
                                         Histograms &histograms) const {

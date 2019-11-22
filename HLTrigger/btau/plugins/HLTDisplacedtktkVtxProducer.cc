@@ -70,12 +70,6 @@ void HLTDisplacedtktkVtxProducer::fillDescriptions(edm::ConfigurationDescription
   descriptions.add("hltDisplacedtktkVtxProducer", desc);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void HLTDisplacedtktkVtxProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTDisplacedtktkVtxProducer::endJob() {}
-
 // ------------ method called on each new Event  ------------
 void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   double const firstTrackMass = massParticle1_;
@@ -205,7 +199,7 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 }
 
 bool HLTDisplacedtktkVtxProducer::checkPreviousCand(const TrackRef& trackref,
-                                                    vector<RecoChargedCandidateRef>& refVect) {
+                                                    const vector<RecoChargedCandidateRef>& refVect) const {
   bool ok = false;
   for (auto& i : refVect) {
     if (i->get<TrackRef>() == trackref) {

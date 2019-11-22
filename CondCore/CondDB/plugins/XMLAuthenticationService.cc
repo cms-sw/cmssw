@@ -395,7 +395,7 @@ std::set<std::string> cond::XMLAuthenticationService::XMLAuthenticationService::
   }
 
   // Try to find other files in the path variable
-  const char* thePathVariable = ::getenv("CORAL_AUTH_PATH");
+  const char* thePathVariable = std::getenv("CORAL_AUTH_PATH");
   if (!thePathVariable)
     return fileNames;
   log << coral::Debug << "File \"" << m_inputFileName

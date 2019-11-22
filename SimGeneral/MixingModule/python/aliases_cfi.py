@@ -65,6 +65,12 @@ simHFNoseUnsuppressedDigis = cms.EDAlias(
     )
 )
 
+simAPVsaturation = cms.EDAlias(
+    mix = cms.VPSet(
+        cms.PSet(type = cms.string('bool'))
+    )
+)
+
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(simCastorDigis, mix = None)
 
@@ -91,3 +97,4 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(simCastorDigis, mix = None)
 fastSim.toModify(simSiPixelDigis, mix = None)
 fastSim.toModify(simSiStripDigis, mix = None)
+fastSim.toModify(simAPVsaturation, mix = None)

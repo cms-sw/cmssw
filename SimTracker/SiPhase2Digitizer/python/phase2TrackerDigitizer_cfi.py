@@ -44,7 +44,7 @@ phase2TrackerDigitizer = cms.PSet(
       Odd_column_interchannelCoupling_next_column = cms.double(0.0),
       Even_column_interchannelCoupling_next_column = cms.double(0.0),
       SigmaZero = cms.double(0.00037),  		#D.B.: 3.7um spread for 300um-thick sensor, renormalized in digitizerAlgo
-      SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
+      SigmaCoeff = cms.double(0),  		#S.D: setting SigmaCoeff=0 for IT-pixel
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
       LorentzAngle_DB = cms.bool(True),			
       TanLorentzAnglePerTesla_Endcap = cms.double(0.106),

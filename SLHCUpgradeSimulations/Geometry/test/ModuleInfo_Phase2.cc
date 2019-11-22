@@ -32,13 +32,13 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 //#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -47,5 +47,5 @@ iterativeConePu5CaloJets.jetPtMin = 10
 #                                         alias = cms.untracked.string('IC5HiGenJet'),
 #                                         coneRadius = cms.double(0.5)
 #                                         )
-
-runjets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets)
+runjetsTask = cms.Task(caloTowersRecTask,caloTowers,iterativeConePu5CaloJets)
+runjets = cms.Sequence(runjetsTask)

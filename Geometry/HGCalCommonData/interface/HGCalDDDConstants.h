@@ -137,7 +137,7 @@ public:
   int waferMax() const { return waferMax_[1]; }
   int waferMin() const { return waferMax_[0]; }
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
-  std::pair<double, double> waferPosition(int waferU, int waferV, bool reco) const;
+  std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug = false) const;
   double waferSepar(bool reco) const {
     return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD * hgpar_->sensorSeparation_);
   }
@@ -175,6 +175,7 @@ private:
   bool isValidCell(int layindex, int wafer, int cell) const;
   bool isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
+  std::pair<double, double> waferPosition(int waferU, int waferV, bool reco) const;
 
   const double k_horizontalShift = 1.0;
   const float dPhiMin = 0.02;

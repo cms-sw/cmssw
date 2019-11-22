@@ -32,14 +32,17 @@ public:
   using ReturnType = std::unique_ptr<MuonDDDConstants>;
 
   ReturnType produce(const MuonNumberingRecord&);
+
+private:
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> geomToken_;
 };
 
-MuonNumberingInitialization::MuonNumberingInitialization(const edm::ParameterSet&) { setWhatProduced(this); }
+MuonNumberingInitialization::MuonNumberingInitialization(const edm::ParameterSet&) {
+  setWhatProduced(this).setConsumes(geomToken_);
+}
 
 MuonNumberingInitialization::ReturnType MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord) {
-  const IdealGeometryRecord& idealGeometryRecord = iRecord.getRecord<IdealGeometryRecord>();
-  edm::ESTransientHandle<DDCompactView> pDD;
-  idealGeometryRecord.get(pDD);
+  edm::ESTransientHandle<DDCompactView> pDD = iRecord.getTransientHandle(geomToken_);
 
   return std::make_unique<MuonDDDConstants>(*pDD);
 }

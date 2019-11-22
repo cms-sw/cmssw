@@ -37,7 +37,6 @@ namespace edm {
   public:
     template <typename T>
     friend class ParameterDescription;
-    enum Bool { False = 0, True = 1, Unknown = 2 };
 
     // default-construct
     ParameterSet();
@@ -1044,8 +1043,5 @@ namespace edm {
 
   template <>
   std::vector<std::string> ParameterSet::getParameterNamesForType<VParameterSet>(bool trackiness) const;
-
-  ParameterSet::Bool operator&&(ParameterSet::Bool a, ParameterSet::Bool b);
-
 }  // namespace edm
 #endif

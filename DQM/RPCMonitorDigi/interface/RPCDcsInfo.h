@@ -9,12 +9,12 @@
 #include <FWCore/ServiceRegistry/interface/Service.h>
 
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 ///Data Format
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
-class RPCDcsInfo : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class RPCDcsInfo : public DQMOneLumiEDAnalyzer<> {
 public:
   /// Constructor
   RPCDcsInfo(const edm::ParameterSet& ps);
@@ -26,7 +26,7 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
 private:
   void makeDcsInfo(const edm::Event& e);

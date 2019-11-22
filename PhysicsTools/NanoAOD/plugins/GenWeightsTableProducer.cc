@@ -10,6 +10,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "boost/algorithm/string.hpp"
 
@@ -123,6 +124,37 @@ namespace {
     }
   };
 
+  struct CounterMap {
+    std::map<std::string, Counter> countermap;
+    Counter* active_el = nullptr;
+    std::string active_label = "";
+    void merge(const CounterMap& other) {
+      for (const auto& y : other.countermap)
+        countermap[y.first].merge(y.second);
+      active_el = nullptr;
+    }
+    void clear() {
+      for (auto x : countermap)
+        x.second.clear();
+    }
+    void setLabel(std::string label) {
+      active_el = &(countermap[label]);
+      active_label = label;
+    }
+    void checkLabelSet() {
+      if (!active_el)
+        throw cms::Exception("LogicError", "Called CounterMap::get() before setting the active label\n");
+    }
+    Counter* get() {
+      checkLabelSet();
+      return active_el;
+    }
+    std::string& getLabel() {
+      checkLabelSet();
+      return active_label;
+    }
+  };
+
   ///  ---- RunCache object for dynamic choice of LHE IDs ----
   struct DynamicWeightChoice {
     // choice of LHE weights
@@ -178,9 +210,9 @@ namespace {
   };
 }  // namespace
 
-class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<Counter>,
+class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<CounterMap>,
                                                                edm::RunCache<DynamicWeightChoice>,
-                                                               edm::RunSummaryCache<Counter>,
+                                                               edm::RunSummaryCache<CounterMap>,
                                                                edm::EndRunProducer> {
 public:
   GenWeightsTableProducer(edm::ParameterSet const& params)
@@ -190,6 +222,8 @@ public:
                                       [this](const edm::InputTag& tag) { return mayConsume<LHEEventProduct>(tag); })),
         lheRunTag_(edm::vector_transform(
             lheLabel_, [this](const edm::InputTag& tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
+        genLumiInfoHeadTag_(
+            mayConsume<GenLumiInfoHeader, edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
         namedWeightIDs_(params.getParameter<std::vector<std::string>>("namedWeightIDs")),
         namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
         lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
@@ -198,6 +232,7 @@ public:
         debugRun_(debug_.load()),
         hasIssuedWarning_(false) {
     produces<nanoaod::FlatTable>();
+    produces<std::string>("genModel");
     produces<nanoaod::FlatTable>("LHEScale");
     produces<nanoaod::FlatTable>("LHEPdf");
     produces<nanoaod::FlatTable>("LHEReweighting");
@@ -220,7 +255,7 @@ public:
 
   void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
     // get my counter for weights
-    Counter* counter = streamCache(id);
+    Counter* counter = streamCache(id)->get();
 
     // generator information (always available)
     edm::Handle<GenEventInfoProduct> genInfo;
@@ -232,6 +267,10 @@ public:
     out->setDoc("generator weight");
     out->addColumnValue<float>("", weight, "generator weight", nanoaod::FlatTable::FloatColumn);
     iEvent.put(std::move(out));
+
+    std::string model_label = streamCache(id)->getLabel();
+    auto outM = std::make_unique<std::string>((!model_label.empty()) ? std::string("GenModel_") + model_label : "");
+    iEvent.put(std::move(outM), "genModel");
 
     // tables for LHE weights, may not be filled
     std::unique_ptr<nanoaod::FlatTable> lheScaleTab, lhePdfTab, lheRwgtTab, lheNamedTab;
@@ -724,52 +763,75 @@ public:
   }
 
   // create an empty counter
-  std::unique_ptr<Counter> beginStream(edm::StreamID) const override { return std::make_unique<Counter>(); }
+  std::unique_ptr<CounterMap> beginStream(edm::StreamID) const override { return std::make_unique<CounterMap>(); }
   // inizialize to zero at begin run
   void streamBeginRun(edm::StreamID id, edm::Run const&, edm::EventSetup const&) const override {
     streamCache(id)->clear();
   }
+  void streamBeginLuminosityBlock(edm::StreamID id,
+                                  edm::LuminosityBlock const& lumiBlock,
+                                  edm::EventSetup const& eventSetup) const override {
+    auto counterMap = streamCache(id);
+    edm::Handle<GenLumiInfoHeader> genLumiInfoHead;
+    lumiBlock.getByToken(genLumiInfoHeadTag_, genLumiInfoHead);
+    if (!genLumiInfoHead.isValid())
+      edm::LogWarning("LHETablesProducer")
+          << "No GenLumiInfoHeader product found, will not fill generator model string.\n";
+    counterMap->setLabel(genLumiInfoHead.isValid() ? genLumiInfoHead->configDescription() : "");
+  }
   // create an empty counter
-  std::shared_ptr<Counter> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
-    return std::make_shared<Counter>();
+  std::shared_ptr<CounterMap> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
+    return std::make_shared<CounterMap>();
   }
   // add this stream to the summary
   void streamEndRunSummary(edm::StreamID id,
                            edm::Run const&,
                            edm::EventSetup const&,
-                           Counter* runCounter) const override {
-    runCounter->merge(*streamCache(id));
+                           CounterMap* runCounterMap) const override {
+    runCounterMap->merge(*streamCache(id));
   }
   // nothing to do per se
-  void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, Counter* runCounter) const override {}
+  void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, CounterMap* runCounterMap) const override {}
   // write the total to the run
-  void globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&, Counter const* runCounter) const override {
+  void globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&, CounterMap const* runCounterMap) const override {
     auto out = std::make_unique<nanoaod::MergeableCounterTable>();
-    out->addInt("genEventCount", "event count", runCounter->num);
-    out->addFloat("genEventSumw", "sum of gen weights", runCounter->sumw);
-    out->addFloat("genEventSumw2", "sum of gen (weight^2)", runCounter->sumw2);
 
-    double norm = runCounter->sumw ? 1.0 / runCounter->sumw : 1;
-    auto sumScales = runCounter->sumScale;
-    for (auto& val : sumScales)
-      val *= norm;
-    out->addVFloat("LHEScaleSumw", "Sum of genEventWeight * LHEScaleWeight[i], divided by genEventSumw", sumScales);
-    auto sumPDFs = runCounter->sumPDF;
-    for (auto& val : sumPDFs)
-      val *= norm;
-    out->addVFloat("LHEPdfSumw", "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw", sumPDFs);
-    if (!runCounter->sumRwgt.empty()) {
-      auto sumRwgts = runCounter->sumRwgt;
-      for (auto& val : sumRwgts)
+    for (auto x : runCounterMap->countermap) {
+      auto runCounter = &(x.second);
+      std::string label = std::string("_") + x.first;
+      std::string doclabel = (!x.first.empty()) ? (std::string(", for model label ") + x.first) : "";
+
+      out->addInt("genEventCount" + label, "event count" + doclabel, runCounter->num);
+      out->addFloat("genEventSumw" + label, "sum of gen weights" + doclabel, runCounter->sumw);
+      out->addFloat("genEventSumw2" + label, "sum of gen (weight^2)" + doclabel, runCounter->sumw2);
+
+      double norm = runCounter->sumw ? 1.0 / runCounter->sumw : 1;
+      auto sumScales = runCounter->sumScale;
+      for (auto& val : sumScales)
+        val *= norm;
+      out->addVFloat("LHEScaleSumw" + label,
+                     "Sum of genEventWeight * LHEScaleWeight[i], divided by genEventSumw" + doclabel,
+                     sumScales);
+      auto sumPDFs = runCounter->sumPDF;
+      for (auto& val : sumPDFs)
         val *= norm;
       out->addVFloat(
-          "LHEReweightingSumw", "Sum of genEventWeight * LHEReweightingWeight[i], divided by genEventSumw", sumRwgts);
-    }
-    if (!runCounter->sumNamed.empty()) {  // it could be empty if there's no LHE info in the sample
-      for (unsigned int i = 0, n = namedWeightLabels_.size(); i < n; ++i) {
-        out->addFloat("LHESumw_" + namedWeightLabels_[i],
-                      "Sum of genEventWeight * LHEWeight_" + namedWeightLabels_[i] + ", divided by genEventSumw",
-                      runCounter->sumNamed[i] * norm);
+          "LHEPdfSumw" + label, "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw" + doclabel, sumPDFs);
+      if (!runCounter->sumRwgt.empty()) {
+        auto sumRwgts = runCounter->sumRwgt;
+        for (auto& val : sumRwgts)
+          val *= norm;
+        out->addVFloat("LHEReweightingSumw" + label,
+                       "Sum of genEventWeight * LHEReweightingWeight[i], divided by genEventSumw" + doclabel,
+                       sumRwgts);
+      }
+      if (!runCounter->sumNamed.empty()) {  // it could be empty if there's no LHE info in the sample
+        for (unsigned int i = 0, n = namedWeightLabels_.size(); i < n; ++i) {
+          out->addFloat(
+              "LHESumw_" + namedWeightLabels_[i] + label,
+              "Sum of genEventWeight * LHEWeight_" + namedWeightLabels_[i] + ", divided by genEventSumw" + doclabel,
+              runCounter->sumNamed[i] * norm);
+        }
       }
     }
     iRun.put(std::move(out));
@@ -781,6 +843,8 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("genEvent", edm::InputTag("generator"))
         ->setComment("tag for the GenEventInfoProduct, to get the main weight");
+    desc.add<edm::InputTag>("genLumiInfoHeader", edm::InputTag("generator"))
+        ->setComment("tag for the GenLumiInfoProduct, to get the model string");
     desc.add<std::vector<edm::InputTag>>("lheInfo", std::vector<edm::InputTag>{{"externalLHEProducer"}, {"source"}})
         ->setComment("tag(s) for the LHE information (LHEEventProduct and LHERunInfoProduct)");
 
@@ -804,6 +868,7 @@ protected:
   const std::vector<edm::InputTag> lheLabel_;
   const std::vector<edm::EDGetTokenT<LHEEventProduct>> lheTag_;
   const std::vector<edm::EDGetTokenT<LHERunInfoProduct>> lheRunTag_;
+  const edm::EDGetTokenT<GenLumiInfoHeader> genLumiInfoHeadTag_;
 
   std::vector<uint32_t> preferredPDFLHAIDs_;
   std::unordered_map<std::string, uint32_t> lhaNameToID_;

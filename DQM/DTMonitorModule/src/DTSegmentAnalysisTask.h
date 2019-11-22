@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -36,7 +36,7 @@
 class DTGeometry;
 class DTTimeEvolutionHisto;
 
-class DTSegmentAnalysisTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTSegmentAnalysisTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);

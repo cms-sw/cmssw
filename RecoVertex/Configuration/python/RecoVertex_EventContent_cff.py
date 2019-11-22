@@ -28,8 +28,7 @@ RecoVertexAOD = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 
 _phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4D__*',
                                             'keep *_offlinePrimaryVertices4DWithBS__*',
@@ -51,7 +50,7 @@ _phase2_tktiming_AddNewContent(RecoVertexAOD)
 
 def _phase2_tktiming_layer_AddNewContent(mod):
     temp = mod.outputCommands + _phase2_tktiming_layer_RecoVertexEventContent
-    (phase2_timing_layer_tile | phase2_timing_layer_bar).toModify( mod, outputCommands = temp )
+    phase2_timing_layer.toModify( mod, outputCommands = temp )
 
 _phase2_tktiming_layer_AddNewContent(RecoVertexFEVT)
 _phase2_tktiming_layer_AddNewContent(RecoVertexRECO)

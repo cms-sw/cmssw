@@ -20,7 +20,10 @@ import os
 import sys
 import glob
 import shutil
-import cPickle
+if sys.version_info[0]>2:
+  import _pickle as cPickle
+else:
+  import cPickle
 import subprocess
 import re
 import argparse

@@ -28,7 +28,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="DataFormats/Alignment"/>
 <use   name="Geometry/Records"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="rootcore"/>
 <use   name="root"/>
 <export>

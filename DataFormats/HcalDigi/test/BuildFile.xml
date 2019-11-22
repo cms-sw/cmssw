@@ -1,6 +1,5 @@
 <library   file="HcalDigiDump.cc" name="HcalDigiDump">
   <flags   EDM_PLUGIN="1"/>
-  <use   name="boost"/>
   <use   name="DataFormats/HcalDigi"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>

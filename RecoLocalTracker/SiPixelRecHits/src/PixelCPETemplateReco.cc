@@ -2,7 +2,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
 
 // Geometry services
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 //#define DEBUG

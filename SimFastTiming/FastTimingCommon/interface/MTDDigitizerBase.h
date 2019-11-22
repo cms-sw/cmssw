@@ -1,10 +1,10 @@
 #ifndef FastTimingSimProducers_FastTimingCommon_MTDDigitizerBase_h
 #define FastTimingSimProducers_FastTimingCommon_MTDDigitizerBase_h
 
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -30,7 +30,9 @@ class PileUpEventPrincipal;
 
 class MTDDigitizerBase {
 public:
-  MTDDigitizerBase(const edm::ParameterSet& config, edm::ConsumesCollector& iC, edm::ProducerBase& parent)
+  MTDDigitizerBase(const edm::ParameterSet& config,
+                   edm::ProducesCollector producesCollector,
+                   edm::ConsumesCollector& iC)
       : inputSimHits_(config.getParameter<edm::InputTag>("inputSimHits")),
         digiCollection_(config.getParameter<std::string>("digiCollectionTag")),
         verbosity_(config.getUntrackedParameter<uint32_t>("verbosity", 0)),
@@ -43,15 +45,15 @@ public:
 
     if (name_ == "BTLTileDigitizer" || name_ == "BTLBarDigitizer") {
       if (premixStage1_) {
-        parent.produces<PMTDSimAccumulator>(digiCollection_);
+        producesCollector.produces<PMTDSimAccumulator>(digiCollection_);
       } else {
-        parent.produces<BTLDigiCollection>(digiCollection_);
+        producesCollector.produces<BTLDigiCollection>(digiCollection_);
       }
     } else if (name_ == "ETLDigitizer")
       if (premixStage1_) {
-        parent.produces<PMTDSimAccumulator>(digiCollection_);
+        producesCollector.produces<PMTDSimAccumulator>(digiCollection_);
       } else {
-        parent.produces<ETLDigiCollection>(digiCollection_);
+        producesCollector.produces<ETLDigiCollection>(digiCollection_);
       }
     else
       throw cms::Exception("[MTDDigitizerBase::MTDDigitizerBase]") << name_ << " is an invalid MTD digitizer name";
@@ -109,7 +111,7 @@ private:
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 typedef edmplugin::PluginFactory<MTDDigitizerBase*(
-    const edm::ParameterSet&, edm::ConsumesCollector&, edm::ProducerBase&)>
+    const edm::ParameterSet&, edm::ProducesCollector, edm::ConsumesCollector&)>
     MTDDigitizerFactory;
 
 #endif

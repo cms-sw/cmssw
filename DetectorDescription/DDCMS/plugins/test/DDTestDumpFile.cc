@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 #include "DD4hep/DD4hepRootPersistency.h"
@@ -42,9 +42,9 @@ DDTestDumpFile::DDTestDumpFile(const ParameterSet& iConfig)
 void DDTestDumpFile::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestDumpFile::analyze: " << m_label;
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<GeometryFileRcd>().get(m_label, det);
+  iEventSetup.get<IdealGeometryRecord>().get(m_label, det);
 
-  TGeoManager& geom = det->description()->manager();
+  TGeoManager& geom = det->manager();
 
   int level = 1 + geom.GetTopVolume()->CountNodes(100, 3);
 

@@ -33,7 +33,6 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
-#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 
 #include <vector>
@@ -73,6 +72,11 @@ public:
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs() const;
 
+  /** get best/second best CLCT
+   * Note: CLCT has BX shifted */
+  CSCCLCTDigi getBestCLCT(int bx) const;
+  CSCCLCTDigi getSecondCLCT(int bx) const;
+
   std::vector<int> preTriggerBXs() const { return thePreTriggerBXs; }
 
   /** read out CLCTs in ME1a , ME1b */
@@ -80,13 +84,13 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1a() const;
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
+protected:
   /** Best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   /** Second best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
-protected:
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
   void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
@@ -144,17 +148,6 @@ protected:
   /* does a given half-strip have a pre-trigger? */
   bool ispretrig[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
 
-public:
-  /** Pre-defined patterns. */
-  // New set of halfstrip patterns for 2007 version of the algorithm.
-  // For the given pattern, set the unused parts of the pattern to 999.
-  // Pattern[i][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN] contains bend direction.
-  // Bend of 0 is right/straight and bend of 1 is left.
-  // Pattern[i][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN+1] contains pattern maximum width
-  static const int pattern2007_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
-  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN + 2];
-
-protected:
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
   enum CLCT_INDICES {

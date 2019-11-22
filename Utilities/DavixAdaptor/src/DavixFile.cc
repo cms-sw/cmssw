@@ -67,7 +67,7 @@ void DavixFile::abort(void) {
 void DavixFile::configureDavixLogLevel() {
   long logLevel = 0;
   char *logptr = nullptr;
-  char const *const davixDebug = getenv("Davix_Debug");
+  char const *const davixDebug = std::getenv("Davix_Debug");
   if (davixDebug != nullptr) {
     logLevel = strtol(davixDebug, &logptr, 0);
     if (errno) {
@@ -110,10 +110,10 @@ static int X509Authentication(void *userdata, const SessionInfo &info, X509Crede
   char default_proxy[64];
   snprintf(default_proxy, sizeof(default_proxy), "/tmp/x509up_u%d", geteuid());
   // X509_USER_PROXY
-  if (getenv("X509_USER_PROXY")) {
+  if (std::getenv("X509_USER_PROXY")) {
     edm::LogInfo("DavixFile") << "X509_USER_PROXY found in environment."
                               << " Will use it for authentication";
-    ucert = ukey = getenv("X509_USER_PROXY");
+    ucert = ukey = std::getenv("X509_USER_PROXY");
   }
   // Default proxy location
   else if (access(default_proxy, R_OK) == 0) {
@@ -122,14 +122,14 @@ static int X509Authentication(void *userdata, const SessionInfo &info, X509Crede
     ucert = ukey = default_proxy;
   }
   // X509_USER_CERT
-  else if (getenv("X509_USER_CERT")) {
-    ucert = getenv("X509_USER_CERT");
+  else if (std::getenv("X509_USER_CERT")) {
+    ucert = std::getenv("X509_USER_CERT");
   }
   // X509_USER_KEY only if X509_USER_CERT was found
-  if (!ucert.empty() && getenv("X509_USER_KEY")) {
+  if (!ucert.empty() && std::getenv("X509_USER_KEY")) {
     edm::LogInfo("DavixFile") << "X509_USER_{CERT|KEY} found in environment"
                               << " Will use it for authentication";
-    ukey = getenv("X509_USER_KEY");
+    ukey = std::getenv("X509_USER_KEY");
   }
   // Check if vars are set...
   if (ucert.empty() || ukey.empty()) {
@@ -193,7 +193,7 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
   davixReqParams.setClientCertCallbackX509(&X509Authentication, nullptr);
   // Set also CERT_DIR if it is set in envinroment, otherwise use default
   const char *cert_dir = nullptr;
-  if ((cert_dir = getenv("X509_CERT_DIR")) == nullptr)
+  if ((cert_dir = std::getenv("X509_CERT_DIR")) == nullptr)
     cert_dir = "/etc/grid-security/certificates";
   davixReqParams.addCertificateAuthorityPath(cert_dir);
 

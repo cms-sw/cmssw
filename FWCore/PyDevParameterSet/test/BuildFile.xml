@@ -4,4 +4,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PyDevParameterSet"/>
   <use   name="FWCore/Utilities"/>
+  <ifrelease name="_PY3_">
+    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
+  </ifrelease>
 </bin>

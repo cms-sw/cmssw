@@ -34,66 +34,92 @@
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
+#include "FWCore/Utilities/interface/ESProductTag.h"
+
 class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
 public:
   SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet&);
-  ~SiStripBackPlaneCorrectionDepESProducer() override{};
 
-  std::unique_ptr<SiStripBackPlaneCorrection> produce(const SiStripBackPlaneCorrectionDepRcd&);
+  std::shared_ptr<SiStripBackPlaneCorrection const> produce(const SiStripBackPlaneCorrectionDepRcd&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::ParameterSet getLatency;
-  edm::ParameterSet getPeak;
-  edm::ParameterSet getDeconv;
+  edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> backPlaneCorrectionToken_;
 };
 
-SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet& iConfig)
-    : getLatency(iConfig.getParameter<edm::ParameterSet>("LatencyRecord")),
-      getPeak(iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionPeakMode")),
-      getDeconv(iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionDeconvMode")) {
-  setWhatProduced(this);
-
+SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet& iConfig) {
   edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "ctor" << std::endl;
-}
 
-std::unique_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProducer::produce(
-    const SiStripBackPlaneCorrectionDepRcd& iRecord) {
-  std::unique_ptr<SiStripBackPlaneCorrection> siStripBPC;
-  edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "Producer called" << std::endl;
-
-  std::string latencyRecordName = getLatency.getParameter<std::string>("record");
-  std::string latencyLabel = getLatency.getUntrackedParameter<std::string>("label");
-  bool peakMode = false;
-
-  if (latencyRecordName == "SiStripLatencyRcd") {
-    edm::ESHandle<SiStripLatency> latency;
-    iRecord.getRecord<SiStripLatencyRcd>().get(latencyLabel, latency);
-    if (latency->singleReadOutMode() == 1)
-      peakMode = true;
-  } else
-    edm::LogError("SiStripBackPlaneCorrectionDepESProducer")
-        << "[SiStripBackPlaneCorrectionDepESProducer::produce] No Latency Record found " << std::endl;
-
-  std::string backPlaneCorrectionRecordName;
-  std::string backPlaneCorrectionLabel;
-
-  if (peakMode) {
-    backPlaneCorrectionRecordName = getPeak.getParameter<std::string>("record");
-    backPlaneCorrectionLabel = getPeak.getUntrackedParameter<std::string>("label");
-  } else {
-    backPlaneCorrectionRecordName = getDeconv.getParameter<std::string>("record");
-    backPlaneCorrectionLabel = getDeconv.getUntrackedParameter<std::string>("label");
+  auto getLatency = iConfig.getParameter<edm::ParameterSet>("LatencyRecord");
+  // How useful the "record" parameter really is?
+  if (getLatency.getParameter<std::string>("record") != "SiStripLatencyRcd") {
+    throw edm::Exception(edm::errors::Configuration,
+                         "[SiStripBackPlaneCorrectionDepESProducer::ctor] No Latency Record found ");
   }
 
-  if (backPlaneCorrectionRecordName == "SiStripBackPlaneCorrectionRcd") {
-    edm::ESHandle<SiStripBackPlaneCorrection> siStripBackPlaneCorrection;
-    iRecord.getRecord<SiStripBackPlaneCorrectionRcd>().get(backPlaneCorrectionLabel, siStripBackPlaneCorrection);
-    siStripBPC = std::make_unique<SiStripBackPlaneCorrection>(*(siStripBackPlaneCorrection.product()));
-  } else
-    edm::LogError("SiStripBackPlaneCorrectionDepESProducer")
-        << "[SiStripBackPlaneCorrectionDepESProducer::produce] No Lorentz Angle Record found " << std::endl;
+  auto getPeak = iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionPeakMode");
+  if (getPeak.getParameter<std::string>("record") != "SiStripBackPlaneCorrectionRcd") {
+    throw edm::Exception(edm::errors::Configuration,
+                         "[SiStripBackPlaneCorrectionDepESProducer::ctor] No Lorentz Angle Record found ");
+  }
 
-  return siStripBPC;
+  auto getDeconv = iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionDeconvMode");
+  // How useful the "record" parameter really is?
+  if (getDeconv.getParameter<std::string>("record") != "SiStripBackPlaneCorrectionRcd") {
+    throw edm::Exception(edm::errors::Configuration,
+                         "[SiStripBackPlaneCorrectionDepESProducer::ctor] No Lorentz Angle Record found ");
+  }
+
+  auto peakLabel{getPeak.getUntrackedParameter<std::string>("label")};
+  auto deconvLabel{getDeconv.getUntrackedParameter<std::string>("label")};
+
+  setWhatProduced(this).setMayConsume(
+      backPlaneCorrectionToken_,
+      [peakLabel, deconvLabel](auto const& get, edm::ESTransientHandle<SiStripLatency> iLatency) {
+        if (iLatency->singleReadOutMode() == 1) {
+          return get("", peakLabel);
+        }
+        return get("", deconvLabel);
+      },
+      edm::ESProductTag<SiStripLatency, SiStripLatencyRcd>("", getLatency.getUntrackedParameter<std::string>("label")));
+}
+
+std::shared_ptr<SiStripBackPlaneCorrection const> SiStripBackPlaneCorrectionDepESProducer::produce(
+    const SiStripBackPlaneCorrectionDepRcd& iRecord) {
+  edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "Producer called" << std::endl;
+
+  //tell shared_ptr not to delete the product since it is already owned by the record
+  return std::shared_ptr<SiStripBackPlaneCorrection const>(&iRecord.get(backPlaneCorrectionToken_), [](auto) {});
+}
+
+void SiStripBackPlaneCorrectionDepESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription latency;
+    latency.add<std::string>("record", "SiStripLatencyRcd");
+    latency.addUntracked<std::string>("label", "");
+
+    desc.add<edm::ParameterSetDescription>("LatencyRecord", latency);
+  }
+
+  {
+    edm::ParameterSetDescription peak;
+    peak.add<std::string>("record", "SiStripBackPlaneCorrectionRcd");
+    peak.addUntracked<std::string>("label", "peak");
+
+    desc.add<edm::ParameterSetDescription>("BackPlaneCorrectionPeakMode", peak);
+  }
+
+  {
+    edm::ParameterSetDescription deconv;
+    deconv.add<std::string>("record", "SiStripBackPlaneCorrectionRcd");
+    deconv.addUntracked<std::string>("label", "deconvolution");
+
+    desc.add<edm::ParameterSetDescription>("BackPlaneCorrectionDeconvMode", deconv);
+  }
+
+  descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripBackPlaneCorrectionDepESProducer);

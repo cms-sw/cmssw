@@ -8,12 +8,14 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 //
-HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC)
+HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset,
+                                 edm::ProducesCollector producesCollector,
+                                 edm::ConsumesCollector& iC)
     : HGCDigiProducer(pset, iC) {
   if (pset.getParameter<bool>("premixStage1")) {
-    mixMod.produces<PHGCSimAccumulator>(theDigitizer_.digiCollection());
+    producesCollector.produces<PHGCSimAccumulator>(theDigitizer_.digiCollection());
   } else {
-    mixMod.produces<HGCalDigiCollection>(theDigitizer_.digiCollection());
+    producesCollector.produces<HGCalDigiCollection>(theDigitizer_.digiCollection());
   }
 }
 

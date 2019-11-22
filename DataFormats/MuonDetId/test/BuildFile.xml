@@ -7,18 +7,3 @@
 <bin   name="testCSCDetId" file="testCSCDetId.cc,testMuonDetId.cpp">
   <use   name="cppunit"/>
 </bin>
-<use   name="Geometry/CSCGeometry"/>
-<use   name="Geometry/Records"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<library   file="CSCDetIdAnalyzer.cc" name="CSCDetIdAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="RPCDetIdAnalyzer.cc" name="RPCDetIdAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="GEMDetIdAnalyzer.cc" name="GEMDetIdAnalyzer">
-  <use name="DataFormats/GEMRecHit"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

@@ -40,7 +40,7 @@
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
@@ -79,7 +79,7 @@ private:
   edm::ESGetToken<Alignments, DTAlignmentRcd> m_alignmentsToken;
   edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> m_alignmentErrorsToken;
   edm::ESGetToken<MuonNumbering, MuonNumberingRecord> m_mdcToken;
-  edm::ESGetToken<DDDetector, GeometryFileRcd> m_cpvToken;
+  edm::ESGetToken<DDDetector, IdealGeometryRecord> m_cpvToken;
   edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> m_registryToken;
   const ESInputTag m_tag;
   const string m_alignmentsLabel;
@@ -110,7 +110,7 @@ DTGeometryESProducer::DTGeometryESProducer(const ParameterSet& iConfig)
 
   if (m_fromDDD) {
     m_mdcToken = cc.consumesFrom<MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});
-    m_cpvToken = cc.consumesFrom<DDDetector, GeometryFileRcd>(m_tag);
+    m_cpvToken = cc.consumesFrom<DDDetector, IdealGeometryRecord>(m_tag);
     m_registryToken = cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(m_tag);
   }
 

@@ -128,10 +128,10 @@ void XrdFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int pe
   m_close = true;
 
   // Send the monitoring info, if available.
-  // Note: getenv is not reentrant.
+  // Note: std::getenv is not reentrant.
   // Commenting out until this is available in the new client.
   /*
-  char * crabJobId = getenv(kCrabJobIdEnv);
+  char * crabJobId = std::getenv(kCrabJobIdEnv);
   if (crabJobId) {
     kXR_unt32 dictId;
     m_file->SendMonitoringInfo(crabJobId, &dictId);

@@ -25,7 +25,7 @@
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithmRecord.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"

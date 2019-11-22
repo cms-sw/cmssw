@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
+from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import run2_HLTconditions_2017
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from PhysicsTools.NanoAOD.common_cff import ExtVar
 import copy
 
@@ -40,7 +39,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                               "8*filter('*OverlapFilterIsoEle*PFTau*') + " \
                               "16*filter('hltEle*Ele*CaloIdLTrackIdLIsoVL*Filter') + " \
                               "32*filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*')  + " \
-                              "64*filter('*OverlapFilterIsoEle*PFTau*') + " \
+                              "64*filter('hltOverlapFilterIsoEle*PFTau*') + " \
                               "128*filter('hltEle*Ele*Ele*CaloIdLTrackIdLDphiLeg*Filter') + " \
                               "256*max(filter('hltL3fL1Mu*DoubleEG*Filtered*'),filter('hltMu*DiEle*CaloIdLTrackIdLElectronleg*Filter')) + " \
                               "512*max(filter('hltL3fL1DoubleMu*EG*Filter*'),filter('hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter')) + " \
@@ -143,8 +142,8 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
 # ERA-dependent configuration
 # Tune filter and collection names to 2016 HLT menus
 # FIXME: check non-lepton objects and cross check leptons
-selections80X = copy.deepcopy(triggerObjectTable.selections)
-for sel in selections80X:
+selections2016 = copy.deepcopy(triggerObjectTable.selections)
+for sel in selections2016:
     if sel.name=='Muon':
         sel.sel = cms.string("type(83) && pt > 5 && (coll('hlt*L3MuonCandidates') || coll('hlt*TkMuonCands') || coll('hlt*TrkMuonCands'))")
         sel.qualityBits = cms.string("filter('*RelTrkIso*Filtered0p4') + 2*filter('hltL3cr*IsoFiltered0p09') + 4*filter('*OverlapFilter*IsoMu*PFTau*') + 8*filter('hltL3f*IsoFiltered0p09')")
@@ -158,14 +157,13 @@ for sel in selections80X:
         sel.qualityBits = cms.string("filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter') + 2*filter('hltEle*WPTight*TrackIsoFilter*') + 4*filter('hltEle*WPLoose*TrackIsoFilter') + 8*filter('*OverlapFilter*IsoEle*PFTau*')")
         #sel.qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = WPLoose, 4 = WPTight, 8 = OverlapFilter PFTau")
 
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
+run2_HLTconditions_2016.toModify(
   triggerObjectTable,
-  selections = selections80X
+  selections = selections2016
 )
 
 from PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff import prefiringweight
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(prefiringweight, DataEra = cms.string("2016BtoH"))
+run2_HLTconditions_2016.toModify(prefiringweight, DataEra = cms.string("2016BtoH"))
 
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
     variables = cms.PSet(
@@ -179,5 +177,4 @@ triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
 
 _triggerObjectTables_withL1PreFiring = triggerObjectTables.copy()
 _triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable + triggerObjectTable)
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)
+(run2_HLTconditions_2016 | run2_HLTconditions_2017).toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)

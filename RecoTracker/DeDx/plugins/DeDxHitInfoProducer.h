@@ -13,7 +13,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"

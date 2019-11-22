@@ -224,8 +224,8 @@ void SiStripCommissioningSource::endJob() {
   // Retrieve SCRATCH directory
   std::string scratch = "SCRATCH";  //@@ remove trailing slash!!!
   std::string dir = "";
-  if (getenv(scratch.c_str()) != nullptr) {
-    dir = getenv(scratch.c_str());
+  if (std::getenv(scratch.c_str()) != nullptr) {
+    dir = std::getenv(scratch.c_str());
   }
 
   // Add directory path

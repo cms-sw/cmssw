@@ -37,7 +37,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 
 class CSCMotherboard : public CSCBaseboard {
 public:
@@ -90,8 +89,9 @@ protected:
   /** Container for second correlated LCT. */
   CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
 
-  // helper function to return ALCT with correct central BX
+  // helper function to return ALCT/CLCT with correct central BX
   CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
+  CSCCLCTDigi getBXShiftedCLCT(const CSCCLCTDigi&) const;
 
   /** Configuration parameters. */
   unsigned int mpc_block_me1a;

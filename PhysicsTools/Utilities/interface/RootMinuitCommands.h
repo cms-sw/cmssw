@@ -107,8 +107,8 @@ namespace fit {
   template <typename Function>
   void RootMinuitCommands<Function>::init(const char* fileName) {
     using namespace std;
-    string cmssw_release_base = getenv("CMSSW_RELEASE_BASE");
-    string cmssw_base = getenv("CMSSW_BASE");
+    string cmssw_release_base = std::getenv("CMSSW_RELEASE_BASE");
+    string cmssw_base = std::getenv("CMSSW_BASE");
     vector<string> directories;
     directories.reserve(3);
     directories.emplace_back(".");

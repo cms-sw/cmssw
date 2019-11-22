@@ -63,7 +63,7 @@ std::vector<MEChannel*> ME::_trees = std::vector<MEChannel*>(4, (MEChannel*)null
 bool ME::useElectronicNumbering = false;
 
 TString ME::lmdataPath(int lmr) {
-  TString out_(getenv("MELMDAT"));
+  TString out_(std::getenv("MELMDAT"));
   out_ += "/";
   out_ += ME::smName(lmr);
   out_ += "/";
@@ -71,14 +71,14 @@ TString ME::lmdataPath(int lmr) {
 }
 
 TString ME::primPath(int lmr) {
-  TString out_(getenv("MESTORE"));
+  TString out_(std::getenv("MESTORE"));
   out_ += "/";
   out_ += ME::smName(lmr);
   out_ += "/";
   return out_;
 }
 
-TString ME::path() { return TString(getenv("MUSECAL")) + "/"; }
+TString ME::path() { return TString(std::getenv("MUSECAL")) + "/"; }
 
 TString ME::rootFileName(ME::Header header, ME::Settings settings) {
   // get the laser monitoring region and super-module

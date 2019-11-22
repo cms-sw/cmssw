@@ -50,7 +50,7 @@ private:
   void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   /// Method called for each event.
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-  void endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
+  void dqmEndRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   void endJob() override;
 
   /// Copy (to be modified) of the input ParameterSet from configuration file.

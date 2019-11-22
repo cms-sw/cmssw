@@ -5,7 +5,7 @@
  *
  * Cluster of maximal 8 adjacent GEM pad digis
  * with the same BX
- *  
+ *
  * \author Sven Dildick
  *
  */
@@ -22,6 +22,7 @@ public:
   bool operator==(const GEMPadDigiCluster& digi) const;
   bool operator!=(const GEMPadDigiCluster& digi) const;
   bool operator<(const GEMPadDigiCluster& digi) const;
+  bool isValid() const;
 
   const std::vector<uint16_t>& pads() const { return v_; }
   int bx() const { return bx_; }

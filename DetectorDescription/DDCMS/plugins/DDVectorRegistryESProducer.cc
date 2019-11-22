@@ -27,7 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
@@ -47,12 +47,11 @@ public:
   ReturnType produce(const DDVectorRegistryRcd&);
 
 private:
-  const string m_label;
+  edm::ESGetToken<DDDetector, IdealGeometryRecord> m_token;
 };
 
-DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
-    : m_label(iConfig.getParameter<string>("appendToDataLabel")) {
-  setWhatProduced(this);
+DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig) {
+  setWhatProduced(this).setConsumes(m_token, edm::ESInputTag("", iConfig.getParameter<string>("appendToDataLabel")));
 }
 
 DDVectorRegistryESProducer::~DDVectorRegistryESProducer() {}
@@ -64,10 +63,7 @@ void DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions
 
 DDVectorRegistryESProducer::ReturnType DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord) {
   LogDebug("Geometry") << "DDVectorRegistryESProducer::produce\n";
-  edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
-
-  const DDVectorsMap& registry = det->vectors();
+  const DDVectorsMap& registry = iRecord.get(m_token).vectors();
 
   auto product = std::make_unique<DDVectorRegistry>();
   product->vectors.insert(registry.begin(), registry.end());

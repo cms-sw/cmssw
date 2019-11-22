@@ -45,7 +45,6 @@
 #include "TString.h"
 
 // #include <iostream>
-#include <boost/assign/list_of.hpp>
 #include <vector>
 #include <map>
 #include <sstream>
@@ -280,8 +279,7 @@ void SiStripBackplaneCalibration::beginOfJob(AlignableTracker *aliTracker,
                                              AlignableMuon * /*aliMuon*/,
                                              AlignableExtras * /*aliExtras*/) {
   //specify the sub-detectors for which the back plane correction is determined: all strips
-  const std::vector<int> sdets =
-      boost::assign::list_of(SiStripDetId::TIB)(SiStripDetId::TID)(SiStripDetId::TOB)(SiStripDetId::TEC);
+  const std::vector<int> sdets = {SiStripDetId::TIB, SiStripDetId::TID, SiStripDetId::TOB, SiStripDetId::TEC};
 
   moduleGroupSelector_ = new TkModuleGroupSelector(aliTracker, moduleGroupSelCfg_, sdets);
 

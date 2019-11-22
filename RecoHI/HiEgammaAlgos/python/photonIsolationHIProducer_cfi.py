@@ -29,6 +29,6 @@ photonProducer=cms.InputTag("islandPhotons")
 from RecoEcal.EgammaClusterProducers.islandBasicClusters_cfi import *
 
 islandBasicClustersGED = islandBasicClusters.clone()
-photonIsolationHISequence = cms.Sequence(islandBasicClusters * photonIsolationHIProducerpp)
-photonIsolationHISequenceGED = cms.Sequence(islandBasicClustersGED * photonIsolationHIProducerppGED)
-photonIsolationHISequenceIsland = cms.Sequence(islandBasicClusters * photonIsolationHIProducerppIsland)
+photonIsolationHITask = cms.Task(islandBasicClusters , photonIsolationHIProducerpp)
+photonIsolationHITaskGED = cms.Task(islandBasicClustersGED , photonIsolationHIProducerppGED)
+photonIsolationHITaskIsland = cms.Task(islandBasicClusters , photonIsolationHIProducerppIsland)

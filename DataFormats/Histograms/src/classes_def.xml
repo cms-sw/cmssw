@@ -73,4 +73,9 @@
 
  <class name="DQMToken" ClassVersion="0"/>
  <class name="edm::Wrapper<DQMToken>" persistent="false"/>
+ <class name="MonitorElementCollection" persistent="false"/>
+ <class name="edm::Wrapper<MonitorElementCollection>" persistent="false"/>
+ <class name="MonitorElementData" persistent="false"/>
+ <class name="edm::Wrapper<MonitorElementData>" persistent="false"/>
+
 </lcgdict>

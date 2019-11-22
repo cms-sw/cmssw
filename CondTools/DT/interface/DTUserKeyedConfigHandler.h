@@ -59,7 +59,7 @@ public:
   void getNewObjects() override;
   std::string id() const override;
 
-  static void setList(cond::persistency::KeyList* list);
+  void setList(const cond::persistency::KeyList* list);
 
 private:
   int dataRun;
@@ -79,7 +79,7 @@ private:
   bool userDiscardedKey(int key);
   static bool sameConfigList(const std::vector<DTConfigKey>& cfgl, const std::vector<DTConfigKey>& cfgr);
 
-  static cond::persistency::KeyList* keyList;
+  const cond::persistency::KeyList* keyList = nullptr;
 };
 
 #endif  // DTUserKeyedConfigHandler_H

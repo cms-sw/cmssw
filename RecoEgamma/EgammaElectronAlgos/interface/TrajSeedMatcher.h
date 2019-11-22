@@ -33,8 +33,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/RecoGeometry/interface/GlobalDetLayerGeometry.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-
-#include <unordered_map>
+#include "RecoEgamma/EgammaElectronAlgos/interface/utils.h"
 
 namespace edm {
   class EventSetup;
@@ -45,23 +44,6 @@ namespace edm {
 
 class FreeTrajectoryState;
 class TrackingRecHit;
-
-//stolen from PixelHitMatcher
-//decide if its evil or not later
-//actually I think the answer is, yes, yes its evil
-//maybe replace with less evil?
-namespace std {
-  template <>
-  struct hash<std::pair<int, GlobalPoint> > {
-    std::size_t operator()(const std::pair<int, GlobalPoint>& g) const {
-      auto h1 = std::hash<unsigned long long>()((unsigned long long)g.first);
-      unsigned long long k;
-      memcpy(&k, &g.second, sizeof(k));
-      auto h2 = std::hash<unsigned long long>()(k);
-      return h1 ^ (h2 << 1);
-    }
-  };
-}  // namespace std
 
 class TrajSeedMatcher {
 public:
@@ -215,7 +197,7 @@ private:
                                       const GlobalPoint& candPos,
                                       const GlobalPoint& vprim,
                                       const float energy,
-                                      const int charge);
+                                      const TrajectoryStateOnSurface& initialTrajState);
 
   static float getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos,
                                         const GlobalPoint& hitPos,
@@ -244,6 +226,10 @@ private:
                                                         const GlobalPoint& point,
                                                         const PropagatorWithMaterial& propagator);
 
+  TrajectoryStateOnSurface makeTrajStateOnSurface(const GlobalPoint& pos,
+                                                  const GlobalPoint& vtx,
+                                                  const float energy,
+                                                  const int charge) const;
   void clearCache();
 
   bool passesMatchSel(const SCHitMatch& hit, const size_t hitNr) const;
@@ -263,6 +249,12 @@ private:
 
   size_t getNrHitsRequired(const int nrValidLayers) const;
 
+  //parameterised b-fields may not be valid for entire detector, just tracker volume
+  //however need we ecal so we auto select based on the position
+  const MagneticField& getMagField(const GlobalPoint& point) const {
+    return useParamMagFieldIfDefined_ && magFieldParam_->isDefined(point) ? *magFieldParam_ : *magField_;
+  }
+
 private:
   static constexpr float kElectronMass_ = 0.000511;
   static constexpr float kPhiCut_ = -0.801144;  //cos(2.5)
@@ -270,13 +262,18 @@ private:
   std::unique_ptr<PropagatorWithMaterial> backwardPropagator_;
   unsigned long long cacheIDMagField_;
   edm::ESHandle<MagneticField> magField_;
+  edm::ESHandle<MagneticField> magFieldParam_;
   edm::Handle<MeasurementTrackerEvent> measTkEvt_;
   edm::ESHandle<NavigationSchool> navSchool_;
   edm::ESHandle<DetLayerGeometry> detLayerGeom_;
+  std::string paramMagFieldLabel_;
   std::string navSchoolLabel_;
   std::string detLayerGeomLabel_;
 
   bool useRecoVertex_;
+  bool enableHitSkipping_;
+  bool requireExactMatchCount_;
+  bool useParamMagFieldIfDefined_;
   std::vector<std::unique_ptr<MatchingCuts> > matchingCuts_;
 
   //these two varibles determine how hits we require
@@ -290,8 +287,8 @@ private:
   std::unordered_map<int, TrajectoryStateOnSurface> trajStateFromVtxPosChargeCache_;
   std::unordered_map<int, TrajectoryStateOnSurface> trajStateFromVtxNegChargeCache_;
 
-  std::unordered_map<std::pair<int, GlobalPoint>, TrajectoryStateOnSurface> trajStateFromPointPosChargeCache_;
-  std::unordered_map<std::pair<int, GlobalPoint>, TrajectoryStateOnSurface> trajStateFromPointNegChargeCache_;
+  IntGlobalPointPairUnorderedMap<TrajectoryStateOnSurface> trajStateFromPointPosChargeCache_;
+  IntGlobalPointPairUnorderedMap<TrajectoryStateOnSurface> trajStateFromPointNegChargeCache_;
 };
 
 #endif

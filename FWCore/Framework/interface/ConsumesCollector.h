@@ -39,9 +39,9 @@ namespace edm {
   class ConsumesCollector {
   public:
     ConsumesCollector() = delete;
-    ConsumesCollector(ConsumesCollector const&) = delete;
+    ConsumesCollector(ConsumesCollector const&);
     ConsumesCollector(ConsumesCollector&&) = default;
-    ConsumesCollector& operator=(ConsumesCollector const&) = delete;
+    ConsumesCollector& operator=(ConsumesCollector const&);
     ConsumesCollector& operator=(ConsumesCollector&&) = default;
 
     // ---------- member functions ---------------------------

@@ -89,11 +89,11 @@ void CTPPSDirectProtonSimulationValidator::analyze(const edm::Event& iEvent, con
 
   // process tracks
   for (const auto& simuTrack : *simuTracks) {
-    const CTPPSDetId rpId(simuTrack.getRPId());
+    const CTPPSDetId rpId(simuTrack.rpId());
     for (const auto& recoTrack : *recoTracks) {
-      if (simuTrack.getRPId() == recoTrack.getRPId()) {
+      if (simuTrack.rpId() == recoTrack.rpId()) {
         unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
-        rpPlots_[rpDecId].fill(simuTrack.getX(), simuTrack.getY(), recoTrack.getX(), recoTrack.getY());
+        rpPlots_[rpDecId].fill(simuTrack.x(), simuTrack.y(), recoTrack.x(), recoTrack.y());
       }
     }
   }

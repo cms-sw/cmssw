@@ -44,34 +44,28 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
   os.str("");
   os << "Occupancy_" << nameRoll;
   meMap[os.str()] = ibooker.book1D(os.str(), os.str(), nstrips, 0.5, nstrips + 0.5);
-  ibooker.tag(meMap[os.str()], rpcdqm::OCCUPANCY);
 
   os.str("");
   os << "BXDistribution_" << nameRoll;
   meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 7, -3.5, 3.5);
-  ibooker.tag(meMap[os.str()], rpcdqm::BX);
 
   if (detId.region() == 0) {
     os.str("");
     os << "ClusterSize_" << nameRoll;
     meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 15, 0.5, 15.5);
-    ibooker.tag(meMap[os.str()], rpcdqm::CLUSTERSIZE);
 
     os.str("");
     os << "Multiplicity_" << nameRoll;
     meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 30, 0.5, 30.5);
-    ibooker.tag(meMap[os.str()], rpcdqm::MULTIPLICITY);
 
   } else {
     os.str("");
     os << "ClusterSize_" << nameRoll;
     meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 10, 0.5, 10.5);
-    ibooker.tag(meMap[os.str()], rpcdqm::CLUSTERSIZE);
 
     os.str("");
     os << "Multiplicity_" << nameRoll;
     meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 15, 0.5, 15.5);
-    ibooker.tag(meMap[os.str()], rpcdqm::MULTIPLICITY);
   }
 
   os.str("");

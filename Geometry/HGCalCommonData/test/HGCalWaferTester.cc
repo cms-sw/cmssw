@@ -69,13 +69,14 @@ void HGCalWaferTester::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
   std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) << " Sectors = " << hgdc.sectors() << std::endl;
   if ((hgdc.geomMode() == HGCalGeometryMode::Hexagon8) || (hgdc.geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+    int layer = hgdc.firstLayer();
     for (int u = -12; u <= 12; ++u) {
-      std::pair<double, double> xy = hgdc.waferPosition(u, 0, reco_);
+      std::pair<double, double> xy = hgdc.waferPosition(layer, u, 0, reco_);
       std::cout << " iz = +, u = " << u << ", v = 0: x = " << xy.first << " y = " << xy.second << "\n"
                 << " iz = -, u = " << u << ", v = 0: x = " << -xy.first << " y = " << xy.second << "\n";
     }
     for (int v = -12; v <= 12; ++v) {
-      std::pair<double, double> xy = hgdc.waferPosition(0, v, reco_);
+      std::pair<double, double> xy = hgdc.waferPosition(layer, 0, v, reco_);
       std::cout << " iz = +, u = 0, v = " << v << ": x = " << xy.first << " y = " << xy.second << "\n"
                 << " iz = -, u = 0, v = " << v << ": x = " << -xy.first << " y = " << xy.second << "\n";
     }

@@ -24,9 +24,9 @@ public:
   ~PedestalTask() override {}
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
 protected:
   //	funcs

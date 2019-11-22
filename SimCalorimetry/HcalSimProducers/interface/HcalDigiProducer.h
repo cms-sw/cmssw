@@ -1,6 +1,7 @@
 #ifndef SimCalorimetry_HcalSimProducers_HcalDigiProducer_h
 #define SimCalorimetry_HcalSimProducers_HcalDigiProducer_h
 
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
@@ -8,7 +9,6 @@
 
 namespace edm {
   class ConsumesCollector;
-  class ProducerBase;
   class ParameterSet;
   class StreamID;
 }  // namespace edm
@@ -19,7 +19,7 @@ namespace CLHEP {
 
 class HcalDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HcalDigiProducer(edm::ParameterSet const &pset, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
+  HcalDigiProducer(edm::ParameterSet const &pset, edm::ProducesCollector, edm::ConsumesCollector &iC);
 
   HcalDigiProducer(edm::ParameterSet const &pset, edm::ConsumesCollector &iC);
 

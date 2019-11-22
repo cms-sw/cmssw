@@ -141,14 +141,14 @@ trackingPhase1.toModify(hiRegitMuDetachedTripletStepSelector, trackSelectors= cm
         )
 )
 
-hiRegitMuonDetachedTripletStep = cms.Sequence(hiRegitMuDetachedTripletStepClusters*
-                                              hiRegitMuDetachedTripletStepSeedLayers*
-                                              hiRegitMuDetachedTripletStepTrackingRegions*
-                                              hiRegitMuDetachedTripletStepHitDoublets*
-                                              hiRegitMuDetachedTripletStepHitTriplets*
-                                              hiRegitMuDetachedTripletStepSeeds*
-                                              hiRegitMuDetachedTripletStepTrackCandidates*
-                                              hiRegitMuDetachedTripletStepTracks*
+hiRegitMuonDetachedTripletStepTask = cms.Task(hiRegitMuDetachedTripletStepClusters,
+                                              hiRegitMuDetachedTripletStepSeedLayers,
+                                              hiRegitMuDetachedTripletStepTrackingRegions,
+                                              hiRegitMuDetachedTripletStepHitDoublets,
+                                              hiRegitMuDetachedTripletStepHitTriplets,
+                                              hiRegitMuDetachedTripletStepSeeds,
+                                              hiRegitMuDetachedTripletStepTrackCandidates,
+                                              hiRegitMuDetachedTripletStepTracks,
                                               hiRegitMuDetachedTripletStepSelector
                                               )
-
+hiRegitMuonDetachedTripletStep = cms.Sequence(hiRegitMuonDetachedTripletStepTask)

@@ -116,7 +116,6 @@ Ref: A template for a interproduct reference to a member of a product_.
 #include "boost/call_traits.hpp"
 #include "boost/type_traits.hpp"
 #include "boost/mpl/has_xxx.hpp"
-#include "boost/utility/enable_if.hpp"
 
 #include <vector>
 #include <type_traits>
@@ -124,13 +123,13 @@ Ref: A template for a interproduct reference to a member of a product_.
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
 
 template <typename C, typename K>
-typename boost::enable_if<has_key_compare<C>, bool>::type compare_key(K const& lhs, K const& rhs) {
+typename std::enable_if<has_key_compare<C>::value, bool>::type compare_key(K const& lhs, K const& rhs) {
   typedef typename C::key_compare comparison_functor;
   return comparison_functor()(lhs, rhs);
 }
 
 template <typename C, typename K>
-typename boost::disable_if<has_key_compare<C>, bool>::type compare_key(K const& lhs, K const& rhs) {
+typename std::enable_if<!(has_key_compare<C>::value), bool>::type compare_key(K const& lhs, K const& rhs) {
   return lhs < rhs;
 }
 

@@ -4,7 +4,7 @@
 #ifndef __RecoHGCal_TICL_PRbyCA_H__
 #define __RecoHGCal_TICL_PRbyCA_H__
 #include <memory>  // unique_ptr
-#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 

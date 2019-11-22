@@ -31,21 +31,21 @@ DTGeometryTest::DTGeometryTest(const ParameterSet& iConfig)
       m_token(esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{"", m_label})) {}
 
 void DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup) {
-  LogVerbatim("Geometry") << "DTGeometryTest::analyze: " << m_label;
+  LogVerbatim("DTGeometryTest") << "DTGeometryTest::analyze: " << m_label;
   ESTransientHandle<DTGeometry> pDD = iEventSetup.getTransientHandle(m_token);
 
-  LogVerbatim("Geometry") << " Geometry node for DTGeom is  " << &(*pDD);
-  LogVerbatim("Geometry") << " I have " << pDD->detTypes().size() << " detTypes";
-  LogVerbatim("Geometry") << " I have " << pDD->detUnits().size() << " detUnits";
-  LogVerbatim("Geometry") << " I have " << pDD->dets().size() << " dets";
-  LogVerbatim("Geometry") << " I have " << pDD->layers().size() << " layers";
-  LogVerbatim("Geometry") << " I have " << pDD->superLayers().size() << " superlayers";
-  LogVerbatim("Geometry") << " I have " << pDD->chambers().size() << " chambers";
+  LogVerbatim("DTGeometryTest") << " Geometry node for DTGeom is " << (pDD.isValid() ? "valid" : "not valid");
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->detTypes().size() << " detTypes";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->detUnits().size() << " detUnits";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->dets().size() << " dets";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->layers().size() << " layers";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->superLayers().size() << " superlayers";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->chambers().size() << " chambers";
 
   // check chamber
-  LogVerbatim("Geometry") << "CHAMBERS " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "CHAMBERS " << string(120, '-');
 
-  LogVerbatim("Geometry").log([&](auto& log) {
+  LogVerbatim("DTGeometryTest").log([&](auto& log) {
     for (auto det : pDD->chambers()) {
       const BoundPlane& surf = det->surface();
       log << "Chamber " << det->id() << " Position " << surf.position() << " normVect " << surf.normalVector()
@@ -53,11 +53,11 @@ void DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup) {
           << surf.bounds().length() << "\n";
     }
   });
-  LogVerbatim("Geometry") << "END " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "END " << string(120, '-');
 
   // check superlayers
-  LogVerbatim("Geometry") << "SUPERLAYERS " << string(120, '-');
-  LogVerbatim("Geometry").log([&](auto& log) {
+  LogVerbatim("DTGeometryTest") << "SUPERLAYERS " << string(120, '-');
+  LogVerbatim("DTGeometryTest").log([&](auto& log) {
     for (auto det : pDD->superLayers()) {
       const BoundPlane& surf = det->surface();
       log << "SuperLayer " << det->id() << " chamber " << det->chamber()->id() << " Position " << surf.position()
@@ -65,12 +65,12 @@ void DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup) {
           << surf.bounds().thickness() << "/" << surf.bounds().length() << "\n";
     }
   });
-  LogVerbatim("Geometry") << "END " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "END " << string(120, '-');
 
   // check layers
-  LogVerbatim("Geometry") << "LAYERS " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "LAYERS " << string(120, '-');
 
-  LogVerbatim("Geometry").log([&](auto& log) {
+  LogVerbatim("DTGeometryTest").log([&](auto& log) {
     for (auto det : pDD->layers()) {
       const DTTopology& topo = det->specificTopology();
       const BoundPlane& surf = det->surface();
@@ -82,7 +82,7 @@ void DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup) {
           << surf.bounds().length() << "\n";
     }
   });
-  LogVerbatim("Geometry") << "END " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "END " << string(120, '-');
 }
 
 DEFINE_FWK_MODULE(DTGeometryTest);

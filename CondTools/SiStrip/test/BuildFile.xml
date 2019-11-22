@@ -1,4 +1,4 @@
-<architecture name="slc.*_amd64_.*">
+<architecture name="(slc|cc).*_amd64_.*">
   <ifcxx11_abi value="1">
     <flags SETENV="LD_PRELOAD=$(CMS_ORACLEOCCI_LIB)"/>
   </ifcxx11_abi>

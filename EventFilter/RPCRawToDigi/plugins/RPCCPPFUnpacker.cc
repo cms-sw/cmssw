@@ -5,7 +5,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -16,15 +15,15 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCAMCLinkEvents.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCMP7Record.h"
 
-RPCCPPFUnpacker::RPCCPPFUnpacker(edm::stream::EDProducerBase& producer, edm::ParameterSet const& config)
-    : RPCAMCUnpacker(producer, config),
+RPCCPPFUnpacker::RPCCPPFUnpacker(edm::ParameterSet const& config, edm::ProducesCollector producesCollector)
+    : RPCAMCUnpacker(config, producesCollector),
       fill_counters_(config.getParameter<bool>("fillAMCCounters")),
       bx_min_(config.getParameter<int>("bxMin")),
       bx_max_(config.getParameter<int>("bxMax")) {
-  producer.produces<RPCDigiCollection>();
-  producer.produces<l1t::CPPFDigiCollection>();
+  producesCollector.produces<RPCDigiCollection>();
+  producesCollector.produces<l1t::CPPFDigiCollection>();
   if (fill_counters_) {
-    producer.produces<RPCAMCLinkCounters>("RPCAMCUnpacker");
+    producesCollector.produces<RPCAMCLinkCounters>("RPCAMCUnpacker");
   }
 }
 

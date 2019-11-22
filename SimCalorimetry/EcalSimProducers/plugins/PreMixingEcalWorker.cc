@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -19,7 +19,7 @@
 
 class PreMixingEcalWorker : public PreMixingWorker {
 public:
-  PreMixingEcalWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC);
+  PreMixingEcalWorker(const edm::ParameterSet &ps, edm::ProducesCollector, edm::ConsumesCollector &&iC);
   ~PreMixingEcalWorker() override = default;
 
   PreMixingEcalWorker(const PreMixingEcalWorker &) = delete;
@@ -58,7 +58,7 @@ private:
 
 // Constructor
 PreMixingEcalWorker::PreMixingEcalWorker(const edm::ParameterSet &ps,
-                                         edm::ProducerBase &producer,
+                                         edm::ProducesCollector producesCollector,
                                          edm::ConsumesCollector &&iC)
     : EBPileInputTag_(ps.getParameter<edm::InputTag>("EBPileInputTag")),
       EEPileInputTag_(ps.getParameter<edm::InputTag>("EEPileInputTag")),
@@ -78,9 +78,9 @@ PreMixingEcalWorker::PreMixingEcalWorker(const edm::ParameterSet &ps,
   EEDigiCollectionDM_ = ps.getParameter<std::string>("EEDigiCollectionDM");
   ESDigiCollectionDM_ = ps.getParameter<std::string>("ESDigiCollectionDM");
 
-  producer.produces<EBDigiCollection>(EBDigiCollectionDM_);
-  producer.produces<EEDigiCollection>(EEDigiCollectionDM_);
-  producer.produces<ESDigiCollection>(ESDigiCollectionDM_);
+  producesCollector.produces<EBDigiCollection>(EBDigiCollectionDM_);
+  producesCollector.produces<EEDigiCollection>(EEDigiCollectionDM_);
+  producesCollector.produces<ESDigiCollection>(ESDigiCollectionDM_);
 
   myEcalDigitizer_.setEBNoiseSignalGenerator(&theEBSignalGenerator);
   myEcalDigitizer_.setEENoiseSignalGenerator(&theEESignalGenerator);

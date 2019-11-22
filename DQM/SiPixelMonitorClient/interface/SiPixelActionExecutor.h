@@ -90,7 +90,6 @@ private:
                    std::vector<std::string> &me_names,
                    bool isbarrel,
                    bool isUpgrade);
-  void fillDeviations(DQMStore::IGetter &iGetter);
   void fillFEDErrorSummary(DQMStore::IBooker &iBooker,
                            DQMStore::IGetter &iGetter,
                            std::string dir_name,

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <!-- debug_materials/ -->
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+
+<!-- 
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <ConstantsSection label="" eval="true">
+    <Constant name="world_x" value="5*m"/>
+    <Constant name="world_y" value="5*m"/>
+    <Constant name="world_z" value="5*m"/>
+    <Constant name="fm"      value="1e-12*m"/>
+    <Constant name="Air"     value="materials:Air"     type="string"/>
+    <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
+  </ConstantsSection>
+
+  <IncludeSection>
+    <Include ref="DetectorDescription/DDCMS/data/testTreeNavigation.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
+  </IncludeSection>
+  
+  <PosPartSection label="">
+    <PosPart copyNumber="2">
+      <rParent name=":world_volume"/>
+      <rChild name="testTreeNavigation:MotherOfAllBoxes"/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>

@@ -4,7 +4,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -16,7 +16,7 @@
 namespace l1s {
   struct Empty {};
 }  // namespace l1s
-class L1Scalers : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<l1s::Empty>> {
+class L1Scalers : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<l1s::Empty>> {
 public:
   L1Scalers(const edm::ParameterSet &ps);
   ~L1Scalers() override{};

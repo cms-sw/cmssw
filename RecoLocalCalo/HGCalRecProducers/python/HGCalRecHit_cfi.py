@@ -217,6 +217,7 @@ HGCalRecHit = cms.EDProducer(
     layerNoseWeights = dEdX.weightsNose,
 
     thicknessCorrection = cms.vdouble(1.132,1.092,1.084), # 100, 200, 300 um
+    thicknessNoseCorrection = cms.vdouble(1.132,1.092,1.084), # 100, 200, 300 um
     HGCEE_noise_fC = hgceeDigitizer.digiCfg.noise_fC,
     HGCEE_cce = hgceeDigitizer.digiCfg.chargeCollectionEfficiencies,
     HGCHEF_noise_fC = hgchefrontDigitizer.digiCfg.noise_fC,
@@ -232,3 +233,5 @@ HGCalRecHit = cms.EDProducer(
 
 phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = [0.759,0.760,0.773] ) #120um, 200um, 300um
 phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.781,0.775,0.769] ) #120um, 200um, 300um
+
+phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.759,0.760,0.773])

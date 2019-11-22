@@ -108,7 +108,7 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet &pset) {
   local_ = pset.getUntrackedParameter<bool>("local", true);
 }
 
-void DTRecHitQuality::bookHistograms(DQMStore::ConcurrentBooker &booker,
+void DTRecHitQuality::bookHistograms(DQMStore::IBooker &booker,
                                      edm::Run const &run,
                                      edm::EventSetup const &setup,
                                      Histograms &histograms) const {

@@ -13,7 +13,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,17 +27,15 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTDisplacedmumuVtxProducer : public edm::stream::EDProducer<> {
+class HLTDisplacedmumuVtxProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTDisplacedmumuVtxProducer(const edm::ParameterSet&);
   ~HLTDisplacedmumuVtxProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual void beginJob();
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
+  bool checkPreviousCand(const reco::TrackRef& trackref, const std::vector<reco::RecoChargedCandidateRef>& ref2) const;
 
   const edm::InputTag srcTag_;
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;

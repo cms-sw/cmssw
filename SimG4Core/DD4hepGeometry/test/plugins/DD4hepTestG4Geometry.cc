@@ -6,7 +6,7 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DDG4/Geant4Converter.h"
 #include "DD4hep/Detector.h"
 
@@ -42,7 +42,7 @@ void DD4hepTestG4Geometry::analyze(const Event&, const EventSetup& iEventSetup) 
   ESTransientHandle<DDVectorRegistry> reg;
   regRecord.get(m_tag.module(), reg);
 
-  const GeometryFileRcd& ddRecord = iEventSetup.get<GeometryFileRcd>();
+  const auto& ddRecord = iEventSetup.get<IdealGeometryRecord>();
   ESTransientHandle<DDDetector> ddd;
   ddRecord.get(m_tag.module(), ddd);
 

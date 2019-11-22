@@ -39,7 +39,6 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 

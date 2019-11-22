@@ -320,7 +320,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup) 
 //
 // -------------------------------------- endRun --------------------------------------------
 //
-void L1TTauOffline::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+void L1TTauOffline::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("L1TTauOffline") << "L1TTauOffline::endRun" << std::endl;
 }
 

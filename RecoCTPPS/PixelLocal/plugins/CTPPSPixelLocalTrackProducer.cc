@@ -164,7 +164,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
     if (verbosity_ > 2)
       edm::LogInfo("CTPPSPixelLocalTrackProducer")
           << "Hits found in plane = " << recHitSet.detId() << " number = " << recHitSet.size();
-    CTPPSPixelDetId tmpRomanPotId = CTPPSPixelDetId(recHitSet.detId()).getRPId();
+    CTPPSPixelDetId tmpRomanPotId = CTPPSPixelDetId(recHitSet.detId()).rpId();
     uint32_t hitOnPlane = recHitSet.size();
 
     //Get the number of hits per pot
@@ -185,7 +185,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   //remove rechit for pot with too many hits or containing planes with too many hits
   for (const auto &recHitSet : recHitVector) {
     const auto tmpDetectorId = CTPPSPixelDetId(recHitSet.detId());
-    const auto tmpRomanPotId = tmpDetectorId.getRPId();
+    const auto tmpRomanPotId = tmpDetectorId.rpId();
 
     if ((maxHitPerRomanPot_ >= 0 && mapHitPerPot[tmpRomanPotId] > (uint32_t)maxHitPerRomanPot_) ||
         find(listOfPotWithHighOccupancyPlanes.begin(), listOfPotWithHighOccupancyPlanes.end(), tmpRomanPotId) !=
@@ -210,7 +210,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
 
   for (const auto &pattern : patternVector) {
     CTPPSPixelDetId firstHitDetId = CTPPSPixelDetId(pattern.at(0).detId);
-    CTPPSPixelDetId romanPotId = firstHitDetId.getRPId();
+    CTPPSPixelDetId romanPotId = firstHitDetId.rpId();
 
     std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane>>
         hitOnPlaneMap;  //hit of the pattern organized by plane
@@ -218,7 +218,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
     //loop on all the hits of the pattern
     for (const auto &hit : pattern) {
       CTPPSPixelDetId hitDetId = CTPPSPixelDetId(hit.detId);
-      CTPPSPixelDetId tmpRomanPotId = hitDetId.getRPId();
+      CTPPSPixelDetId tmpRomanPotId = hitDetId.rpId();
 
       if (tmpRomanPotId != romanPotId) {  //check that the hits belong to the same tracking station
         throw cms::Exception("CTPPSPixelLocalTrackProducer")
@@ -238,7 +238,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
     trackFinder_->setRomanPotId(romanPotId);
     trackFinder_->setHits(&hitOnPlaneMap);
     trackFinder_->setGeometry(&geometry);
-    trackFinder_->setZ0(geometry.getRPTranslation(romanPotId).z());
+    trackFinder_->setZ0(geometry.rpTranslation(romanPotId).z());
     trackFinder_->findTracks(iEvent.getRun().id().run());
     std::vector<CTPPSPixelLocalTrack> tmpTracksVector = trackFinder_->getLocalTracks();
 

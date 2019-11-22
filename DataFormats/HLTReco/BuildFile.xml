@@ -7,7 +7,6 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/METReco"/>
-<use   name="boost"/>
 
 <export>
   <lib   name="1"/>

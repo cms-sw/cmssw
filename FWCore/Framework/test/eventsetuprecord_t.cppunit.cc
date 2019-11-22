@@ -181,7 +181,7 @@ void testEventsetupRecord::getTest() {
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr);
+  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
   ESHandle<Dummy> dummyPtr;
   CPPUNIT_ASSERT(not dummyRecord.get(dummyPtr));
   CPPUNIT_ASSERT(not dummyPtr.isValid());
@@ -276,7 +276,7 @@ namespace {
 
     DummyRecord makeRecord() {
       DummyRecord ret;
-      ret.setImpl(&dummyRecordImpl, 0, consumer.esGetTokenIndices(edm::Transition::Event), nullptr);
+      ret.setImpl(&dummyRecordImpl, 0, consumer.esGetTokenIndices(edm::Transition::Event), nullptr, false);
       return ret;
     }
   };
@@ -459,7 +459,7 @@ void testEventsetupRecord::getWithTokenTest() {
 void testEventsetupRecord::getNodataExpTest() {
   EventSetupRecordImpl recImpl(DummyRecord::keyForClass(), &activityRegistry);
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&recImpl, 0, nullptr, nullptr);
+  dummyRecord.setImpl(&recImpl, 0, nullptr, nullptr, false);
   FailingDummyProxy dummyProxy;
 
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
@@ -479,7 +479,7 @@ void testEventsetupRecord::getExepTest() {
   dummyRecordImpl.add(dummyDataKey, &dummyProxy);
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr);
+  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
   dummyRecord.get(dummyPtr);
   //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), ExceptionType);
 }
@@ -492,7 +492,7 @@ void testEventsetupRecord::doGetTest() {
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr);
+  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
   CPPUNIT_ASSERT(!dummyRecord.doGet(dummyDataKey));
 
   dummyRecordImpl.add(dummyDataKey, &dummyProxy);
@@ -536,7 +536,7 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(keys.empty());
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr);
+  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
 
   std::vector<ComponentDescription const*> esproducers;
   dummyRecordImpl.getESProducers(esproducers);
@@ -650,7 +650,7 @@ void testEventsetupRecord::doGetExepTest() {
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr);
+  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
   CPPUNIT_ASSERT(!dummyRecord.doGet(dummyDataKey));
 
   dummyRecordImpl.add(dummyDataKey, &dummyProxy);
@@ -666,7 +666,7 @@ void testEventsetupRecord::proxyResetTest() {
   EventSetupRecordProvider const* constRecordProvider = dummyProvider.get();
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&constRecordProvider->firstRecordImpl(), 0, nullptr, nullptr);
+  dummyRecord.setImpl(&constRecordProvider->firstRecordImpl(), 0, nullptr, nullptr, false);
 
   Dummy myDummy;
   std::shared_ptr<WorkingDummyProxy> workingProxy = std::make_shared<WorkingDummyProxy>(&myDummy);
@@ -716,7 +716,7 @@ void testEventsetupRecord::transientTest() {
   auto dummyProvider = std::make_unique<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
 
   DummyRecord dummyRecordNoConst;
-  dummyRecordNoConst.setImpl(&dummyProvider->firstRecordImpl(), 0, nullptr, nullptr);
+  dummyRecordNoConst.setImpl(&dummyProvider->firstRecordImpl(), 0, nullptr, nullptr, false);
   EventSetupRecord const& dummyRecord = dummyRecordNoConst;
 
   eventsetup::EventSetupRecordImpl& nonConstDummyRecordImpl = *const_cast<EventSetupRecordImpl*>(dummyRecord.impl_);

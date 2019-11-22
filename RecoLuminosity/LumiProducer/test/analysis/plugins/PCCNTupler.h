@@ -20,7 +20,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"

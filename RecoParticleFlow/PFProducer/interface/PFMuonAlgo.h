@@ -5,6 +5,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -15,7 +16,9 @@ class PFMuonAlgo {
 
 public:
   /// constructor
-  PFMuonAlgo(edm::ParameterSet const&);
+  PFMuonAlgo(edm::ParameterSet const&, bool postMuonCleaning);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   ////STATIC MUON ID METHODS
   static bool isMuon(const reco::PFBlockElement& elt);
@@ -118,14 +121,14 @@ private:
   const reco::VertexCollection* vertices_;
 
   //Configurables
+  // for PFMuonAlgo::goodMuonTracks/muonTracks
   const double maxDPtOPt_;
-  const int minTrackerHits_;
-  const int minPixelHits_;
+  // for PFMuonAlgo::reconstructMuon
   const reco::TrackBase::TrackQuality trackQuality_;
   const double errorCompScale_;
-  const double eventFractionCleaning_;
-  const double dzPV_;
+  // for postCleaning (postClean/addMissingMuons)
   const bool postCleaning_;
+  const double eventFractionCleaning_;
   const double minPostCleaningPt_;
   const double eventFactorCosmics_;
   const double metSigForCleaning_;

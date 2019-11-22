@@ -267,9 +267,6 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::endRun(const edm::Run&, const edm::EventSetup&) {}
-
-//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
   if (subdetswitchtotdigifailureon) {
     isStableBeams = false;
@@ -1021,9 +1018,8 @@ void SiStripMonitorDigi::createModuleMEs(DQMStore::IBooker& ibooker, ModMEs& mod
   if (moduleswitchnumdigison) {
     hid = hidmanager.createHistoId("NumberOfDigis", "det", detid);
     mod_single.NumberOfDigis = ibooker.book1D(hid, hid, 21, -0.5, 20.5);
-    ibooker.tag(mod_single.NumberOfDigis, detid);
     mod_single.NumberOfDigis->setAxisTitle("number of digis in one detector module");
-    mod_single.NumberOfDigis->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+    mod_single.NumberOfDigis->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
 
   //nr. of digis per strip in module
@@ -1031,15 +1027,13 @@ void SiStripMonitorDigi::createModuleMEs(DQMStore::IBooker& ibooker, ModMEs& mod
     hid = hidmanager.createHistoId("NumberOfDigisPerStrip", "det", detid);
     short nstrips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128;
     mod_single.NumberOfDigisPerStrip = ibooker.book1D(hid, hid, nstrips, -0.5, nstrips + 0.5);
-    ibooker.tag(mod_single.NumberOfDigisPerStrip, detid);
     mod_single.NumberOfDigisPerStrip->setAxisTitle("number of (digis > 0) per strip");
-    mod_single.NumberOfDigisPerStrip->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+    mod_single.NumberOfDigisPerStrip->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
   //#ADCs for hottest strip
   if (moduleswitchadchotteston) {
     hid = hidmanager.createHistoId("ADCsHottestStrip", "det", detid);
     mod_single.ADCsHottestStrip = bookME1D(ibooker, "TH1ADCsHottestStrip", hid.c_str());
-    ibooker.tag(mod_single.ADCsHottestStrip, detid);  // 6 APVs -> 768 strips
     mod_single.ADCsHottestStrip->setAxisTitle("number of ADCs for hottest strip");
   }
 
@@ -1047,7 +1041,6 @@ void SiStripMonitorDigi::createModuleMEs(DQMStore::IBooker& ibooker, ModMEs& mod
   if (moduleswitchadccooleston) {
     hid = hidmanager.createHistoId("ADCsCoolestStrip", "det", detid);
     mod_single.ADCsCoolestStrip = bookME1D(ibooker, "TH1ADCsCoolestStrip", hid.c_str());
-    ibooker.tag(mod_single.ADCsCoolestStrip, detid);
     mod_single.ADCsCoolestStrip->setAxisTitle("number of ADCs for coolest strip");
   }
 
@@ -1055,7 +1048,6 @@ void SiStripMonitorDigi::createModuleMEs(DQMStore::IBooker& ibooker, ModMEs& mod
   if (moduleswitchdigiadcson) {
     hid = hidmanager.createHistoId("DigiADCs", "det", detid);
     mod_single.DigiADCs = bookME1D(ibooker, "TH1DigiADCs", hid.c_str());
-    ibooker.tag(mod_single.DigiADCs, detid);
     mod_single.DigiADCs->setAxisTitle("number of ADCs for each digi");
   }
 
@@ -1063,7 +1055,6 @@ void SiStripMonitorDigi::createModuleMEs(DQMStore::IBooker& ibooker, ModMEs& mod
   if (moduleswitchstripoccupancyon) {
     hid = hidmanager.createHistoId("StripOccupancy", "det", detid);
     mod_single.StripOccupancy = bookME1D(ibooker, "TH1StripOccupancy", hid.c_str());
-    ibooker.tag(mod_single.StripOccupancy, detid);
     mod_single.StripOccupancy->setAxisTitle("strip occupancy");
   }
 }

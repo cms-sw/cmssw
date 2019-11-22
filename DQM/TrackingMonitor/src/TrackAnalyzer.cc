@@ -2033,13 +2033,13 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
                         tkmes.TrackEtaPhiInvertedoutofphase->getTH2F()->GetBinContent(ii, jj);
 
           if (Sum1 == 0 || Sum2 == 0) {
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->getTH2F()->SetBinContent(ii, jj, 1);
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->getTH2F()->SetBinContent(ii, jj, 1);
+            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, 1);
+            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, 1);
           } else {
             double ratio1 = Sub1 / Sum1;
             double ratio2 = Sub2 / Sum2;
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->getTH2F()->SetBinContent(ii, jj, ratio1);
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->getTH2F()->SetBinContent(ii, jj, ratio2);
+            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, ratio1);
+            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, ratio2);
           }
         }
       }

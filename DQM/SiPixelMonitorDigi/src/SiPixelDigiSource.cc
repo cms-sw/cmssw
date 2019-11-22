@@ -27,7 +27,7 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 // DataFormats
@@ -100,7 +100,7 @@ SiPixelDigiSource::~SiPixelDigiSource() {
   LogInfo("PixelDQM") << "SiPixelDigiSource::~SiPixelDigiSource: Destructor" << endl;
 }
 
-void SiPixelDigiSource::beginLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
+void SiPixelDigiSource::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
   int thisls = lb.id().luminosityBlock();
 
   if (modOn && thisls % 10 == 0 && averageDigiOccupancy) {
@@ -159,7 +159,7 @@ void SiPixelDigiSource::beginLuminosityBlock(const edm::LuminosityBlock& lb, edm
   }
 }
 
-void SiPixelDigiSource::endLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
+void SiPixelDigiSource::dqmEndLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
   int thisls = lb.id().luminosityBlock();
 
   float averageBPIXFed = float(nBPIXDigis) / 32.;

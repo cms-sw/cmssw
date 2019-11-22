@@ -860,11 +860,11 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void RecHitTask::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::beginLuminosityBlock(lb, es);
+/* virtual */ void RecHitTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::dqmBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void RecHitTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void RecHitTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype != fOnline)
     return;
 
@@ -934,7 +934,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   //	in the end always do the DQTask::endLumi
-  DQTask::endLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(RecHitTask);

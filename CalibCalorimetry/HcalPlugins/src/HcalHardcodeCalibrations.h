@@ -4,6 +4,7 @@
 // ESSource to generate default HCAL calibration objects
 //
 #include <map>
+#include <unordered_map>
 #include <string>
 
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -17,6 +18,8 @@
 #include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 
 class ParameterSet;
 
@@ -55,7 +58,6 @@ public:
   HcalHardcodeCalibrations(const edm::ParameterSet&);
   ~HcalHardcodeCalibrations() override;
 
-  void produce(){};
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -63,8 +65,11 @@ protected:
                       const edm::IOVSyncValue&,
                       edm::ValidityInterval&) override;
 
-  std::unique_ptr<HcalPedestals> producePedestals_(const HcalPedestalsRcd& rcd, bool eff);
-  std::unique_ptr<HcalPedestalWidths> producePedestalWidths_(const HcalPedestalWidthsRcd& rcd, bool eff);
+  std::unique_ptr<HcalPedestals> producePedestals_(const HcalPedestalsRcd& rcd,
+                                                   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>&,
+                                                   bool eff);
+  std::unique_ptr<HcalPedestalWidths> producePedestalWidths_(
+      const HcalPedestalWidthsRcd& rcd, const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>&, bool eff);
   std::unique_ptr<HcalPedestals> producePedestals(const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths(const HcalPedestalWidthsRcd& rcd);
   std::unique_ptr<HcalPedestals> produceEffectivePedestals(const HcalPedestalsRcd& rcd);
@@ -104,11 +109,43 @@ protected:
   std::unique_ptr<HcalTPParameters> produceTPParameters(const HcalTPParametersRcd& rcd);
 
 private:
+  enum {
+    kPedestals,
+    kPedestalWidths,
+    kEffectivePedestals,
+    kEffectivePedestalWidths,
+    kGains,
+    kGainWidths,
+    kQIEData,
+    kQIETypes,
+    kChannelQuality,
+    kRespCorrs,
+    kLUTCorrs,
+    kPFCorrs,
+    kTimeCorrs,
+    kZSThresholds,
+    kL1TriggerObjects,
+    kElectronicsMap,
+    kValidationCorrs,
+    kLutMetadata,
+    kRecoParams,
+    kTimingParams,
+    kLongRecoParams,
+    kZDCLowGainFractions,
+    kMCParams,
+    kFlagHFDigiTimeParams,
+    kFrontEndMap,
+    kSiPMParameters,
+    kTPChannelParameters
+  };
   HcalDbHardcode dbHardcode;
   double iLumi;
   std::unique_ptr<HBHERecalibration> hb_recalibration;
   std::unique_ptr<HBHERecalibration> he_recalibration;
   std::unique_ptr<HFRecalibration> hf_recalibration;
+  std::unordered_map<int, edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>> topoTokens_;
+  edm::ESGetToken<HBHEDarkening, HBHEDarkeningRecord> heDarkeningToken_;
+  edm::ESGetToken<HBHEDarkening, HBHEDarkeningRecord> hbDarkeningToken_;
   bool switchGainWidthsForTrigPrims;
   bool setHEdsegm;
   bool setHBdsegm;

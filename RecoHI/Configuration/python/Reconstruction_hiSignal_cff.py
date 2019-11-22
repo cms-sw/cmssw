@@ -13,32 +13,35 @@ dropAllExceptFinalProducts = cms.PSet()
 hiSignalGlobalPrimTracks = hiGlobalPrimTracks.clone()
 hiSignalSelectedTracks = hiSelectedTracks.clone()
 hiSelectedTracks.src = cms.InputTag("hiSignalGlobalPrimTracks")
-heavyIonTracking = cms.Sequence(hiPixelVertices
-                                * hiPrimSeeds
-                                * hiPrimTrackCandidates
-                                * hiSignalGlobalPrimTracks
-                                * hiSelectedTracks
+heavyIonTrackingTask = cms.Task(hiPixelVerticesTask
+                                ,hiPrimSeedsTask
+                                ,hiPrimTrackCandidates
+                                ,hiSignalGlobalPrimTracks
+                                ,hiSelectedTracks
                                 )
+heavyIonTracking = cms.Sequence(heavyIonTrackingTask)
 
 #Ecal
 hiSignalCorrectedIslandBarrelSuperClusters = correctedIslandBarrelSuperClusters.clone()
 hiSignalCorrectedIslandEndcapSuperClusters = correctedIslandEndcapSuperClusters.clone()
 
-islandClusteringSequence = cms.Sequence(islandBasicClusters
-                                        *islandSuperClusters
-                                        *hiSignalCorrectedIslandBarrelSuperClusters
-                                        *hiSignalCorrectedIslandEndcapSuperClusters
-                                        )
+islandClusteringTask = cms.Task(islandBasicClusters
+                                ,islandSuperClusters
+                                ,hiSignalCorrectedIslandBarrelSuperClusters
+                                ,hiSignalCorrectedIslandEndcapSuperClusters
+                                )
+islandClusteringSequence = cms.Sequence(islandClusteringTask)
 
 #Jets
 hiSignalIterativeConePu5CaloJets = iterativeConePu5CaloJets.clone()
-runjets = cms.Sequence(caloTowersRec*caloTowers*hiSignalIterativeConePu5CaloJets)
+runjetsTask = cms.Task(caloTowersRecTask,caloTowers,hiSignalIterativeConePu5CaloJets)
+runjets = cms.Sequence(runjetsTask)
 
 #Muons
 hiSignalGlobalMuons = globalMuons.clone()
 hiSignalGlobalMuons.TrackerCollectionLabel = 'hiSignalGlobalPrimTracks'
-muontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*hiSignalGlobalMuons)
-
+muontrackingTask = cms.Task(standAloneMuonSeedsTask,standAloneMuons,hiSignalGlobalMuons)
+muontracking = cms.Sequence(muontrackingTask)
 
 #Use same sequences as Reconstruction_HI_cff
 

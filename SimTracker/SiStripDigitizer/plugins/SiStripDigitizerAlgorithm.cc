@@ -327,6 +327,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     LocalPoint localPos = topol->localPosition(0);
     GlobalPoint globalPos = det->surface().toGlobal(Local3DPoint(localPos.x(), localPos.y(), localPos.z()));
     float detSet_z = fabs(globalPos.z());
+    float detSet_r = globalPos.perp();
 
     // Store SCD, before APV sim
     outStripAmplitudes.reserve(numStrips);
@@ -335,48 +336,51 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     }
 
     // Simulate APV response for each strip
-    if (SubDet == SiStripSubdetector::TIB || SubDet == SiStripSubdetector::TOB) {
-      for (int strip = 0; strip < numStrips; ++strip) {
-        if (detAmpl[strip] > 0) {
-          // Convert charge from electrons to fC
-          double stripCharge = detAmpl[strip] * apv_fCPerElectron_;
+    for (int strip = 0; strip < numStrips; ++strip) {
+      if (detAmpl[strip] > 0) {
+        // Convert charge from electrons to fC
+        double stripCharge = detAmpl[strip] * apv_fCPerElectron_;
 
-          // Get APV baseline
-          double baselineV = 0;
-          if (SubDet == SiStripSubdetector::TIB) {
-            baselineV = apvSimulationParametersHandle->sampleTIB(tTopo->tibLayer(detId), detSet_z, nTruePU_, engine);
-          } else if (SubDet == SiStripSubdetector::TOB) {
-            baselineV = apvSimulationParametersHandle->sampleTOB(tTopo->tobLayer(detId), detSet_z, nTruePU_, engine);
-          }
-          // Store APV baseline for this strip
-          outStripAPVBaselines.emplace_back(SiStripRawDigi(baselineV));
-
-          // Fitted parameters from G Hall/M Raymond
-          double maxResponse = apv_maxResponse_;
-          double rate = apv_rate_;
-
-          double outputChargeInADC = 0;
-          if (baselineV < apv_maxResponse_) {
-            // Convert V0 into baseline charge
-            double baselineQ = -1.0 * rate * log(2 * maxResponse / (baselineV + maxResponse) - 1);
-
-            // Add charge deposited in this BX
-            double newStripCharge = baselineQ + stripCharge;
-
-            // Apply APV response
-            double signalV = 2 * maxResponse / (1 + exp(-1.0 * newStripCharge / rate)) - maxResponse;
-            double gain = signalV - baselineV;
-
-            // Convert gain (mV) to charge (assuming linear region of APV) and then to electrons
-            double outputCharge = gain / apv_mVPerQ_;
-            outputChargeInADC = outputCharge / apv_fCPerElectron_;
-          }
-
-          // Output charge back to original container
-          detAmpl[strip] = outputChargeInADC;
+        // Get APV baseline
+        double baselineV = 0;
+        if (SubDet == SiStripSubdetector::TIB) {
+          baselineV = apvSimulationParametersHandle->sampleTIB(tTopo->tibLayer(detId), detSet_z, nTruePU_, engine);
+        } else if (SubDet == SiStripSubdetector::TOB) {
+          baselineV = apvSimulationParametersHandle->sampleTOB(tTopo->tobLayer(detId), detSet_z, nTruePU_, engine);
+        } else if (SubDet == SiStripSubdetector::TID) {
+          baselineV = apvSimulationParametersHandle->sampleTID(tTopo->tidWheel(detId), detSet_r, nTruePU_, engine);
+        } else if (SubDet == SiStripSubdetector::TEC) {
+          baselineV = apvSimulationParametersHandle->sampleTEC(tTopo->tecWheel(detId), detSet_r, nTruePU_, engine);
         }
+        // Store APV baseline for this strip
+        outStripAPVBaselines.emplace_back(SiStripRawDigi(baselineV));
+
+        // Fitted parameters from G Hall/M Raymond
+        double maxResponse = apv_maxResponse_;
+        double rate = apv_rate_;
+
+        double outputChargeInADC = 0;
+        if (baselineV < apv_maxResponse_) {
+          // Convert V0 into baseline charge
+          double baselineQ = -1.0 * rate * log(2 * maxResponse / (baselineV + maxResponse) - 1);
+
+          // Add charge deposited in this BX
+          double newStripCharge = baselineQ + stripCharge;
+
+          // Apply APV response
+          double signalV = 2 * maxResponse / (1 + exp(-1.0 * newStripCharge / rate)) - maxResponse;
+          double gain = signalV - baselineV;
+
+          // Convert gain (mV) to charge (assuming linear region of APV) and then to electrons
+          double outputCharge = gain / apv_mVPerQ_;
+          outputChargeInADC = outputCharge / apv_fCPerElectron_;
+        }
+
+        // Output charge back to original container
+        detAmpl[strip] = outputChargeInADC;
       }
     }
+
     // Store SCD, after APV sim
     outStripAmplitudesPostAPV.reserve(numStrips);
     for (int strip = 0; strip < numStrips; ++strip)

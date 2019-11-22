@@ -193,7 +193,7 @@ void PhotonValidatorMiniAOD::bookHistograms(DQMStore::IBooker &iBooker,
   h_phoIso_[2] = iBooker.book1D(histname + "Endcap_miniAOD", "PF photonIso:  Endcap", etBin, etMin, 20.);
 }
 
-void PhotonValidatorMiniAOD::endRun(edm::Run const &r, edm::EventSetup const &theEventSetup) {}
+void PhotonValidatorMiniAOD::dqmEndRun(edm::Run const &r, edm::EventSetup const &theEventSetup) {}
 
 void PhotonValidatorMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // ********************************************************************************

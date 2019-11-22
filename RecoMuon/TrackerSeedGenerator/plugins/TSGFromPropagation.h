@@ -55,8 +55,6 @@ private:
 
   TrajectoryStateOnSurface outerTkState(const TrackCand&) const;
 
-  const LayerMeasurements* tkLayerMeasurements() const { return &theTkLayerMeasurements; }
-
   const TrajectoryStateUpdator* updator() const { return theUpdator; }
 
   const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
@@ -73,9 +71,6 @@ private:
 
   /// select valid measurements
   void validMeasurements(std::vector<TrajectoryMeasurement>&) const;
-
-  /// look for measurements on the first compatible layer (faster way)
-  std::vector<TrajectoryMeasurement> findMeasurements_new(const DetLayer*, const TrajectoryStateOnSurface&) const;
 
   /// look for measurements on the first compatible layer
   std::vector<TrajectoryMeasurement> findMeasurements(const DetLayer*, const TrajectoryStateOnSurface&) const;
@@ -112,8 +107,6 @@ private:
   unsigned long long theCacheId_TG;
 
   std::string theCategory;
-
-  LayerMeasurements theTkLayerMeasurements;
 
   edm::ESHandle<GeometricSearchTracker> theTracker;
 

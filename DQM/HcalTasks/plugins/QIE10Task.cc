@@ -154,9 +154,9 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps) : DQTask(ps) {
   _ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 }
 
-/* virtual */ void QIE10Task::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void QIE10Task::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   //	finish
-  DQTask::endLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ void QIE10Task::_process(edm::Event const& e, edm::EventSetup const&) {

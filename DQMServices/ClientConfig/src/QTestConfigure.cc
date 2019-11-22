@@ -45,14 +45,6 @@ bool QTestConfigure::enableTests(const std::map<std::string, std::map<std::strin
       this->EnableContentSigmaTest(testName, params, bei);
     if (!std::strcmp(testType.c_str(), MeanWithinExpected::getAlgoName().c_str()))
       this->EnableMeanWithinExpectedTest(testName, params, bei);
-    if (!std::strcmp(testType.c_str(), Comp2RefEqualH::getAlgoName().c_str()))
-      this->EnableComp2RefEqualHTest(testName, params, bei);
-    if (!std::strcmp(testType.c_str(), Comp2RefChi2::getAlgoName().c_str()))
-      this->EnableComp2RefChi2Test(testName, params, bei);
-    if (!std::strcmp(testType.c_str(), Comp2Ref2DChi2::getAlgoName().c_str()))
-      this->EnableComp2Ref2DChi2Test(testName, params, bei);
-    if (!std::strcmp(testType.c_str(), Comp2RefKolmogorov::getAlgoName().c_str()))
-      this->EnableComp2RefKolmogorovTest(testName, params, bei);
     if (!std::strcmp(testType.c_str(), ContentsWithinExpected::getAlgoName().c_str()))
       this->EnableContentsWithinExpectedTest(testName, params, bei);
     if (!std::strcmp(testType.c_str(), CompareToMedian::getAlgoName().c_str()))
@@ -63,77 +55,6 @@ bool QTestConfigure::enableTests(const std::map<std::string, std::map<std::strin
       this->EnableCheckVarianceTest(testName, params, bei);
   }
   return false;
-}
-
-void QTestConfigure::EnableComp2RefEqualHTest(std::string testName,
-                                              const std::map<std::string, std::string> &params,
-                                              DQMStore *bei) {
-  QCriterion *qc1;
-  if (!bei->getQCriterion(testName)) {
-    testsConfigured.push_back(testName);
-    qc1 = bei->createQTest(Comp2RefEqualH::getAlgoName(), testName);
-  } else {
-    qc1 = bei->getQCriterion(testName);
-  }
-  Comp2RefEqualH *me_qc1 = (Comp2RefEqualH *)qc1;
-  double warning = atof(findOrDefault(params, "warning", "0"));
-  double error = atof(findOrDefault(params, "error", "0"));
-  me_qc1->setWarningProb(warning);
-  me_qc1->setErrorProb(error);
-}
-
-void QTestConfigure::EnableComp2RefChi2Test(std::string testName,
-                                            const std::map<std::string, std::string> &params,
-                                            DQMStore *bei) {
-  QCriterion *qc1;
-  if (!bei->getQCriterion(testName)) {
-    testsConfigured.push_back(testName);
-    qc1 = bei->createQTest(Comp2RefChi2::getAlgoName(), testName);
-  } else {
-    qc1 = bei->getQCriterion(testName);
-  }
-  Comp2RefChi2 *me_qc1 = (Comp2RefChi2 *)qc1;
-  double warning = atof(findOrDefault(params, "warning", "0"));
-  double error = atof(findOrDefault(params, "error", "0"));
-  me_qc1->setWarningProb(warning);
-  me_qc1->setErrorProb(error);
-}
-
-void QTestConfigure::EnableComp2Ref2DChi2Test(std::string testName,
-                                              const std::map<std::string, std::string> &params,
-                                              DQMStore *bei) {
-  QCriterion *qc1;
-  if (!bei->getQCriterion(testName)) {
-    testsConfigured.push_back(testName);
-    qc1 = bei->createQTest(Comp2Ref2DChi2::getAlgoName(), testName);
-  } else {
-    qc1 = bei->getQCriterion(testName);
-  }
-  Comp2Ref2DChi2 *me_qc1 = (Comp2Ref2DChi2 *)qc1;
-  double warning = atof(findOrDefault(params, "warning", "0"));
-  double error = atof(findOrDefault(params, "error", "0"));
-  int minEntries = atoi(findOrDefault(params, "minEntries", "0"));
-  me_qc1->setWarningProb(warning);
-  me_qc1->setErrorProb(error);
-  if (minEntries != 0)
-    me_qc1->setMinimumEntries(minEntries);
-}
-
-void QTestConfigure::EnableComp2RefKolmogorovTest(std::string testName,
-                                                  const std::map<std::string, std::string> &params,
-                                                  DQMStore *bei) {
-  QCriterion *qc1;
-  if (!bei->getQCriterion(testName)) {
-    testsConfigured.push_back(testName);
-    qc1 = bei->createQTest(Comp2RefKolmogorov::getAlgoName(), testName);
-  } else {
-    qc1 = bei->getQCriterion(testName);
-  }
-  Comp2RefKolmogorov *me_qc1 = (Comp2RefKolmogorov *)qc1;
-  double warning = atof(findOrDefault(params, "warning", "0"));
-  double error = atof(findOrDefault(params, "error", "0"));
-  me_qc1->setWarningProb(warning);
-  me_qc1->setErrorProb(error);
 }
 
 void QTestConfigure::EnableXRangeTest(std::string testName,

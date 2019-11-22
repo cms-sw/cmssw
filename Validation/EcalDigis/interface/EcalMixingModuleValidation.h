@@ -90,7 +90,7 @@ protected:
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
   // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   void checkPedestals(const edm::EventSetup& c);

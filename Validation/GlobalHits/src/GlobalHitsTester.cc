@@ -73,15 +73,6 @@ void GlobalHitsTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
 
   ibooker.setCurrentFolder("GlobalTestV/TProfile2D");
   meTestProfile2 = ibooker.bookProfile2D("Profile2", "Profile2", 100, -10., 10., 100, -10, 10., 100, -10., 10.);
-
-  ibooker.tag(meTestTH1F, 1);
-  ibooker.tag(meTestTH2F, 2);
-  ibooker.tag(meTestTH3F, 3);
-  ibooker.tag(meTestProfile1, 4);
-  ibooker.tag(meTestProfile2, 5);
-  ibooker.tag(meTestString, 6);
-  ibooker.tag(meTestInt, 7);
-  ibooker.tag(meTestFloat, 8);
 }
 
 void GlobalHitsTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {

@@ -7,7 +7,6 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
@@ -31,9 +30,9 @@ namespace {
   typedef dqm::reco::MonitorElement MonitorElement;
 
   struct RunBasedHistograms {
-    ConcurrentMonitorElement orbit_bx_all;
-    std::vector<ConcurrentMonitorElement> orbit_bx;
-    std::vector<ConcurrentMonitorElement> orbit_bx_all_byLS;
+    dqm::reco::MonitorElement* orbit_bx_all;
+    std::vector<dqm::reco::MonitorElement*> orbit_bx;
+    std::vector<dqm::reco::MonitorElement*> orbit_bx_all_byLS;
   };
 }  // namespace
 
@@ -46,10 +45,7 @@ public:
 
 private:
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&, RunBasedHistograms&) const override;
-  void bookHistograms(DQMStore::ConcurrentBooker&,
-                      edm::Run const&,
-                      edm::EventSetup const&,
-                      RunBasedHistograms&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, RunBasedHistograms&) const override;
   void dqmAnalyze(edm::Event const&, edm::EventSetup const&, RunBasedHistograms const&) const override;
 
   // number of bunch crossings
@@ -124,7 +120,7 @@ void TriggerBxVsOrbitMonitor::dqmBeginRun(edm::Run const& run,
   histograms.orbit_bx.resize(std::size(s_tcds_trigger_types));
 }
 
-void TriggerBxVsOrbitMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
+void TriggerBxVsOrbitMonitor::bookHistograms(DQMStore::IBooker& booker,
                                              edm::Run const& run,
                                              edm::EventSetup const& setup,
                                              RunBasedHistograms& histograms) const {
@@ -143,8 +139,8 @@ void TriggerBxVsOrbitMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
                                           s_orbit_range + 1,
                                           -0.5,
                                           s_orbit_range + 0.5);
-  histograms.orbit_bx_all.setXTitle("BX");
-  histograms.orbit_bx_all.setYTitle("orbit");
+  histograms.orbit_bx_all->setXTitle("BX");
+  histograms.orbit_bx_all->setYTitle("orbit");
 
   for (unsigned int i = 0; i < nLS; ++i) {
     std::string iname = std::to_string(i);
@@ -156,8 +152,8 @@ void TriggerBxVsOrbitMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
                                                     s_orbit_range + 1,
                                                     -0.5,
                                                     s_orbit_range + 0.5);
-    histograms.orbit_bx_all_byLS[i].setXTitle("BX");
-    histograms.orbit_bx_all_byLS[i].setYTitle("orbit");
+    histograms.orbit_bx_all_byLS[i]->setXTitle("BX");
+    histograms.orbit_bx_all_byLS[i]->setYTitle("orbit");
   }
 
   booker.setCurrentFolder(m_dqm_path + "/orbitVsBX/TCDS");
@@ -171,8 +167,8 @@ void TriggerBxVsOrbitMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
                                              s_orbit_range + 1,
                                              -0.5,
                                              s_orbit_range + 0.5);
-      histograms.orbit_bx[i].setXTitle("BX");
-      histograms.orbit_bx[i].setYTitle("orbit");
+      histograms.orbit_bx[i]->setXTitle("BX");
+      histograms.orbit_bx[i]->setYTitle("orbit");
     }
   }
 }
@@ -184,16 +180,16 @@ void TriggerBxVsOrbitMonitor::dqmAnalyze(edm::Event const& event,
   unsigned int ls = event.id().luminosityBlock();
   unsigned int orbit = event.orbitNumber() % s_orbit_range;
   unsigned int bx = event.bunchCrossing();
-  histograms.orbit_bx_all.fill(bx, orbit);
+  histograms.orbit_bx_all->Fill(bx, orbit);
 
   int iLS = ls - m_minLS;
   if (iLS >= 0 and iLS < int(histograms.orbit_bx_all_byLS.size()))
-    histograms.orbit_bx_all_byLS[iLS].fill(bx, orbit);
+    histograms.orbit_bx_all_byLS[iLS]->Fill(bx, orbit);
 
   // monitor the bx distribution for the TCDS trigger types
   size_t size = std::size(s_tcds_trigger_types);
   if (type < size and histograms.orbit_bx[type]) {
-    histograms.orbit_bx[type].fill(bx, orbit);
+    histograms.orbit_bx[type]->Fill(bx, orbit);
   }
 }
 

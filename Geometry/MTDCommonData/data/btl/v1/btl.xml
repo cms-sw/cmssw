@@ -1,0 +1,2602 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="btl.xml" eval="true">
+    <Constant name="BTLrmin" value="1161.0*mm"/>
+    <Constant name="BTLrmax" value="1188.0*mm"/>
+    <!-- <Constant name="BTLz" value="2660.0*mm"/> -->
+    <Constant name="BTLz" value="2910.0*mm"/>
+  </ConstantsSection>
+
+  <RotationSection label="btl.xml">
+    <Rotation name="NEGATIVEZMODULETILT0" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg" phiZ="270*deg"/>
+    <Rotation name="OUTERTRACKERRODTOMODULE" thetaX="90*deg" phiX="90*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="0*deg"/>
+    <Rotation name="POSITIVEZMODULETILT0" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg" phiZ="90*deg"/>
+    <Rotation name="Y180" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
+  </RotationSection>
+
+  <SolidSection label="btl.xml">
+    <Polycone name="BarrelTimingLayer" startPhi="0*deg" deltaPhi="360*deg">
+      <ZSection z="-[BTLz]"         rMin="[BTLrmin]"          rMax="[BTLrmax]" />
+      <ZSection z="[BTLz]"          rMin="[BTLrmin]"          rMax="[BTLrmax]" />
+    </Polycone>
+    <Box name="BModule1Layer1PositiveZ" dx="92*mm" dy="26.1*mm" dz="9*mm"/>
+    <Box name="BModule1Layer1NegativeZ" dx="92*mm" dy="26.1*mm" dz="9*mm"/>
+    <Box name="BModule1Layer1PositiveZTimingwafer" dx="92*mm" dy="26.1*mm" dz="2*mm"/>
+    <Box name="BModule1Layer1NegativeZTimingwafer" dx="92*mm" dy="26.1*mm" dz="2*mm"/>
+    <Box name="BModule1Layer1Timingactive" dx="28.8*mm" dy="1.575*mm" dz="1.875*mm"/>
+    <Box name="BModule1Layer1PositiveZFSide" dx="92*mm" dy="26.1*mm" dz="0.8*mm"/>
+    <Box name="BModule1Layer1PositiveZSupportPlate" dx="92*mm" dy="26.1*mm" dz="1.5*mm"/>
+    <Box name="BModule1Layer1NegativeZFSide" dx="92*mm" dy="26.1*mm" dz="0.8*mm"/>
+    <Box name="BModule1Layer1NegativeZSupportPlate" dx="92*mm" dy="26.1*mm" dz="1.5*mm"/>
+    <Box name="BModule17Layer1PositiveZ" dx="92*mm" dy="26.1*mm" dz="9*mm"/>
+    <Box name="BModule17Layer1NegativeZ" dx="92*mm" dy="26.1*mm" dz="9*mm"/>
+    <Box name="BModule17Layer1PositiveZTimingwafer" dx="92*mm" dy="26.1*mm" dz="2*mm"/>
+    <Box name="BModule17Layer1NegativeZTimingwafer" dx="92*mm" dy="26.1*mm" dz="2*mm"/>
+    <Box name="BModule17Layer1Timingactive" dx="28.8*mm" dy="1.575*mm" dz="1.5*mm"/>
+    <Box name="BModule17Layer1PositiveZFSide" dx="92*mm" dy="26.1*mm" dz="0.8*mm"/>
+    <Box name="BModule17Layer1PositiveZSupportPlate" dx="92*mm" dy="26.1*mm" dz="1.5*mm"/>
+    <Box name="BModule17Layer1NegativeZFSide" dx="92*mm" dy="26.1*mm" dz="0.8*mm"/>
+    <Box name="BModule17Layer1NegativeZSupportPlate" dx="92*mm" dy="26.1*mm" dz="1.5*mm"/>
+    <Box name="BModule33Layer1PositiveZ" dx="92*mm" dy="26.1*mm" dz="9*mm"/>
+    <Box name="BModule33Layer1NegativeZ" dx="92*mm" dy="26.1*mm" dz="9*mm"/>
+    <Box name="BModule33Layer1PositiveZTimingwafer" dx="92*mm" dy="26.1*mm" dz="2*mm"/>
+    <Box name="BModule33Layer1NegativeZTimingwafer" dx="92*mm" dy="26.1*mm" dz="2*mm"/>
+    <Box name="BModule33Layer1Timingactive" dx="28.8*mm" dy="1.575*mm" dz="1.2*mm"/>
+    <Box name="BModule33Layer1PositiveZFSide" dx="92*mm" dy="26.1*mm" dz="0.8*mm"/>
+    <Box name="BModule33Layer1PositiveZSupportPlate" dx="92*mm" dy="26.1*mm" dz="1.5*mm"/>
+    <Box name="BModule33Layer1NegativeZFSide" dx="92*mm" dy="26.1*mm" dz="0.8*mm"/>
+    <Box name="BModule33Layer1NegativeZSupportPlate" dx="92*mm" dy="26.1*mm" dz="1.5*mm"/>
+    <Box name="Rod1" dx="9.01*mm" dy="92.01*mm" dz="2505.61*mm"/>
+    <Tubs name="Layer1" rMin="1165.48*mm" rMax="1187.09*mm" dz="2505.62*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  </SolidSection>
+
+  <LogicalPartSection label="btl.xml">
+    <LogicalPart name="BarrelTimingLayer" category="unspecified">
+      <rSolid name="BarrelTimingLayer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1PositiveZ" category="unspecified">
+      <rSolid name="btl:BModule1Layer1PositiveZ"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1NegativeZ" category="unspecified">
+      <rSolid name="btl:BModule1Layer1NegativeZ"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1PositiveZTimingwafer" category="unspecified">
+      <rSolid name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1NegativeZTimingwafer" category="unspecified">
+      <rSolid name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1Timingactive" category="unspecified">
+      <rSolid name="btl:BModule1Layer1Timingactive"/>
+      <rMaterial name="materials:LYSO"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1PositiveZFSide" category="unspecified">
+      <rSolid name="btl:BModule1Layer1PositiveZFSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeBModule1Layer1PositiveZFSide"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1PositiveZSupportPlate" category="unspecified">
+      <rSolid name="btl:BModule1Layer1PositiveZSupportPlate"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1NegativeZFSide" category="unspecified">
+      <rSolid name="btl:BModule1Layer1NegativeZFSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeBModule1Layer1PositiveZFSide"/>
+    </LogicalPart>
+    <LogicalPart name="BModule1Layer1NegativeZSupportPlate" category="unspecified">
+      <rSolid name="btl:BModule1Layer1NegativeZSupportPlate"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1PositiveZ" category="unspecified">
+      <rSolid name="btl:BModule17Layer1PositiveZ"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1NegativeZ" category="unspecified">
+      <rSolid name="btl:BModule17Layer1NegativeZ"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1PositiveZTimingwafer" category="unspecified">
+      <rSolid name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1NegativeZTimingwafer" category="unspecified">
+      <rSolid name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1Timingactive" category="unspecified">
+      <rSolid name="btl:BModule17Layer1Timingactive"/>
+      <rMaterial name="materials:LYSO"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1PositiveZFSide" category="unspecified">
+      <rSolid name="btl:BModule17Layer1PositiveZFSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeBModule1Layer1PositiveZFSide"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1PositiveZSupportPlate" category="unspecified">
+      <rSolid name="btl:BModule17Layer1PositiveZSupportPlate"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1NegativeZFSide" category="unspecified">
+      <rSolid name="btl:BModule17Layer1NegativeZFSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeBModule1Layer1PositiveZFSide"/>
+    </LogicalPart>
+    <LogicalPart name="BModule17Layer1NegativeZSupportPlate" category="unspecified">
+      <rSolid name="btl:BModule17Layer1NegativeZSupportPlate"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1PositiveZ" category="unspecified">
+      <rSolid name="btl:BModule33Layer1PositiveZ"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1NegativeZ" category="unspecified">
+      <rSolid name="btl:BModule33Layer1NegativeZ"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1PositiveZTimingwafer" category="unspecified">
+      <rSolid name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1NegativeZTimingwafer" category="unspecified">
+      <rSolid name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1Timingactive" category="unspecified">
+      <rSolid name="btl:BModule33Layer1Timingactive"/>
+      <rMaterial name="materials:LYSO"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1PositiveZFSide" category="unspecified">
+      <rSolid name="btl:BModule33Layer1PositiveZFSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeBModule1Layer1PositiveZFSide"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1PositiveZSupportPlate" category="unspecified">
+      <rSolid name="btl:BModule33Layer1PositiveZSupportPlate"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1NegativeZFSide" category="unspecified">
+      <rSolid name="btl:BModule33Layer1NegativeZFSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeBModule1Layer1PositiveZFSide"/>
+    </LogicalPart>
+    <LogicalPart name="BModule33Layer1NegativeZSupportPlate" category="unspecified">
+      <rSolid name="btl:BModule33Layer1NegativeZSupportPlate"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Rod1" category="unspecified">
+      <rSolid name="btl:Rod1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Layer1" category="unspecified">
+      <rSolid name="btl:Layer1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+   <PosPartSection label="btl.xml">
+    <PosPart copyNumber="1">
+     <rParent name="tracker:Tracker"/>
+     <rChild name="btl:BarrelTimingLayer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="26.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-26.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule1Layer1PositiveZ"/>
+      <rChild name="btl:BModule1Layer1PositiveZTimingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule1Layer1NegativeZ"/>
+      <rChild name="btl:BModule1Layer1NegativeZTimingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="17">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="17">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="18">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="18">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="19">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="19">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="20">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="20">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="21">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="21">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="22">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="22">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="23">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="23">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="24">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="24">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="25">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="25">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="26">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="26">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="27">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="27">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="28">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="28">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="29">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="29">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="30">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="30">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="31">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="31">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="32">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="32">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="33">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="33">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="34">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="34">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="35">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="35">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="36">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="36">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="37">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="37">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="38">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="38">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="39">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="39">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="40">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="40">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="41">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="41">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="42">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="42">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="43">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="43">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="44">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="44">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="45">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="45">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="46">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="46">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="47">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="47">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="48">
+      <rParent name="btl:BModule1Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="48">
+      <rParent name="btl:BModule1Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule1Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule1Layer1PositiveZ"/>
+      <rChild name="btl:BModule1Layer1PositiveZFSide"/>
+      <Translation x="0*mm" y="0*mm" z="5.8*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule1Layer1PositiveZ"/>
+      <rChild name="btl:BModule1Layer1PositiveZSupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-3.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule1Layer1NegativeZ"/>
+      <rChild name="btl:BModule1Layer1NegativeZFSide"/>
+      <Translation x="0*mm" y="0*mm" z="5.8*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule1Layer1NegativeZ"/>
+      <rChild name="btl:BModule1Layer1NegativeZSupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-3.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="78.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-78.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="130.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-130.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="182.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-182.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="234.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-234.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="287.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-287.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="339.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-339.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="391.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-391.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="443.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-443.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="495.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-495.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="548.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-548.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="600.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-600.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="652.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-652.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="704.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-704.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="756.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-756.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="809.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule1Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-809.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="861.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-861.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule17Layer1PositiveZ"/>
+      <rChild name="btl:BModule17Layer1PositiveZTimingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule17Layer1NegativeZ"/>
+      <rChild name="btl:BModule17Layer1NegativeZTimingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="17">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="17">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="18">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="18">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="19">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="19">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="20">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="20">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="21">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="21">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="22">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="22">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="23">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="23">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="24">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="24">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="25">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="25">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="26">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="26">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="27">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="27">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="28">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="28">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="29">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="29">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="30">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="30">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="31">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="31">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="32">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="32">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="33">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="33">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="34">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="34">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="35">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="35">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="36">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="36">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="37">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="37">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="38">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="38">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="39">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="39">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="40">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="40">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="41">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="41">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="42">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="42">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="43">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="43">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="44">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="44">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="45">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="45">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="46">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="46">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="47">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="47">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="48">
+      <rParent name="btl:BModule17Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="48">
+      <rParent name="btl:BModule17Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule17Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule17Layer1PositiveZ"/>
+      <rChild name="btl:BModule17Layer1PositiveZFSide"/>
+      <Translation x="0*mm" y="0*mm" z="5.8*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule17Layer1PositiveZ"/>
+      <rChild name="btl:BModule17Layer1PositiveZSupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-3.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule17Layer1NegativeZ"/>
+      <rChild name="btl:BModule17Layer1NegativeZFSide"/>
+      <Translation x="0*mm" y="0*mm" z="5.8*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule17Layer1NegativeZ"/>
+      <rChild name="btl:BModule17Layer1NegativeZSupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-3.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="913.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-913.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="965.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-965.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1017.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1017.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1070.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1070.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1122.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1122.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1174.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1174.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1226.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1226.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1278.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1278.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1331.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1331.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1383.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1383.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1435.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1435.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1487.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1487.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1539.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1539.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1592.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1592.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1644.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule17Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1644.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1696.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1696.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule33Layer1PositiveZ"/>
+      <rChild name="btl:BModule33Layer1PositiveZTimingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule33Layer1NegativeZ"/>
+      <rChild name="btl:BModule33Layer1NegativeZTimingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="17">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="17">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="18">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="18">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="19">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="19">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="20">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="20">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="21">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="21">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="22">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="22">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="23">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="23">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="-1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="24">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="24">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="-1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="25">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="25">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="26">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="26">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="1.63125*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="27">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="27">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="1.63125*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="28">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="28">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="29">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="29">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="4.89375*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="30">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="30">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="4.89375*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="31">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="31">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="32">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="32">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="8.15625*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="33">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="33">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="8.15625*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="34">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="34">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="35">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="35">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="11.4188*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="36">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="36">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="11.4188*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="37">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="37">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="38">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="38">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="14.6813*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="39">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="39">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="14.6813*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="40">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="40">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="41">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="41">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="17.9438*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="42">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="42">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="17.9438*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="43">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="43">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="44">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="44">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="21.2063*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="45">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="45">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="21.2063*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="46">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="46">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="-61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="47">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="47">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="0*mm" y="24.4688*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="48">
+      <rParent name="btl:BModule33Layer1PositiveZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:POSITIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="48">
+      <rParent name="btl:BModule33Layer1NegativeZTimingwafer"/>
+      <rChild name="btl:BModule33Layer1Timingactive"/>
+      <rRotation name="btl:NEGATIVEZMODULETILT0"/>
+      <Translation x="61.3333*mm" y="24.4688*mm" z="-0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule33Layer1PositiveZ"/>
+      <rChild name="btl:BModule33Layer1PositiveZFSide"/>
+      <Translation x="0*mm" y="0*mm" z="5.8*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule33Layer1PositiveZ"/>
+      <rChild name="btl:BModule33Layer1PositiveZSupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-3.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule33Layer1NegativeZ"/>
+      <rChild name="btl:BModule33Layer1NegativeZFSide"/>
+      <Translation x="0*mm" y="0*mm" z="5.8*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BModule33Layer1NegativeZ"/>
+      <rChild name="btl:BModule33Layer1NegativeZSupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-3.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1748.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1748.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1800.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1800.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1853.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1853.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1905.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1905.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="1957.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-1957.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2009.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2009.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2061.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2061.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2114.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2114.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2166.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="10">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2166.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2218.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2218.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2270.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2270.7*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2322.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2322.9*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2375.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2375.1*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2427.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2427.3*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1PositiveZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="2479.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="btl:Rod1"/>
+      <rChild name="btl:BModule33Layer1NegativeZ"/>
+      <rRotation name="btl:OUTERTRACKERRODTOMODULE"/>
+      <Translation x="0*mm" y="0*mm" z="-2479.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:BarrelTimingLayer"/>
+      <rChild name="btl:Layer1"/>
+    </PosPart>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1"/>
+      <String name="ChildName" value="btl:Rod1"/>
+      <Numeric name="Tilt" value="90*deg"/>
+      <Numeric name="StartAngle" value="6.88889*deg"/>
+      <Numeric name="RangeAngle" value="166.222*deg"/>
+      <Numeric name="RadiusIn" value="1174.5*mm"/>
+      <Numeric name="RadiusOut" value="1174.5*mm"/>
+      <Numeric name="ZPosition" value="0.0*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1"/>
+      <String name="ChildName" value="btl:Rod1"/>
+      <Numeric name="Tilt" value="90*deg"/>
+      <Numeric name="StartAngle" value="-173.111*deg"/>
+      <Numeric name="RangeAngle" value="166.222*deg"/>
+      <Numeric name="RadiusIn" value="1174.5*mm"/>
+      <Numeric name="RadiusOut" value="1174.5*mm"/>
+      <Numeric name="ZPosition" value="0.0*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+   </PosPartSection>
+
+</DDDefinition>

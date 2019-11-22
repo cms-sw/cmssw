@@ -368,11 +368,11 @@ namespace edmtest {
         return std::make_unique<Cache>();
       }
 
-      std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
+      std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const& iLB,
                                                                      edm::EventSetup const&) const override {
         ++m_count;
         auto gCache = std::make_shared<UnsafeCache>();
-        ++(gCache->lumi);
+        gCache->lumi = iLB.luminosityBlockAuxiliary().luminosityBlock();
         return gCache;
       }
 
@@ -383,28 +383,30 @@ namespace edmtest {
       }
 
       void streamEndLuminosityBlockSummary(edm::StreamID iID,
-                                           edm::LuminosityBlock const&,
+                                           edm::LuminosityBlock const& iLB,
                                            edm::EventSetup const&,
                                            UnsafeCache* gCache) const override {
         ++m_count;
-        if (gCache->lumi == 0) {
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
           throw cms::Exception("out of sequence")
-              << "streamEndLuminosityBlockSummary after globalEndLuminosityBlockSummary in Stream " << iID.value();
+              << "streamEndLuminosityBlockSummary unexpected lumi number in Stream " << iID.value();
         }
         auto sCache = streamCache(iID);
         gCache->value += sCache->value;
         sCache->value = 0;
       }
 
-      void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
+      void globalEndLuminosityBlockSummary(edm::LuminosityBlock const& iLB,
                                            edm::EventSetup const&,
                                            UnsafeCache* gCache) const override {
         ++m_count;
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+          throw cms::Exception("out of sequence") << "globalEndLuminosityBlockSummary unexpected lumi number";
+        }
         if (gCache->value != cvalue_) {
           throw cms::Exception("cache value")
               << "LumiSummaryIntFilter cache value " << gCache->value << " but it was supposed to be " << cvalue_;
         }
-        --(gCache->lumi);
       }
 
       ~LumiSummaryIntFilter() {

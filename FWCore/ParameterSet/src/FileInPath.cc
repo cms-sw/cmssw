@@ -38,7 +38,7 @@ namespace {
 
   // Remove symlinks from path
   std::string removeSymLinks(std::string const& envName) {
-    char const* const var = getenv(envName.c_str());
+    char const* const var = std::getenv(envName.c_str());
     if (var == nullptr) {
       return std::string();
     }
@@ -48,7 +48,7 @@ namespace {
   }
 
   std::string removeSymLinksSrc(std::string const& envName) {
-    char const* const var = getenv(envName.c_str());
+    char const* const var = std::getenv(envName.c_str());
     if (var == nullptr) {
       return std::string();
     }
@@ -61,7 +61,7 @@ namespace {
   }
 
   std::string removeSymLinksTokens(std::string const& envName) {
-    char const* const var = getenv(envName.c_str());
+    char const* const var = std::getenv(envName.c_str());
     if (var == nullptr) {
       return std::string();
     }
@@ -429,8 +429,8 @@ namespace edm {
     throw edm::Exception(edm::errors::FileInPathError)
         << "edm::FileInPath unable to find file " << relativePath_ << " anywhere in the search path."
         << "\nThe search path is defined by: " << PathVariableName << "\n${" << PathVariableName
-        << "} is: " << getenv(PathVariableName.c_str()) << "\nCurrent directory is: " << bf::initial_path().string()
-        << "\n";
+        << "} is: " << std::getenv(PathVariableName.c_str())
+        << "\nCurrent directory is: " << bf::initial_path().string() << "\n";
   }
 
   void FileInPath::disableFileLookup() { s_fileLookupDisabled = true; }

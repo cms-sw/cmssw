@@ -21,8 +21,8 @@ class RunPromptReco:
         self.writeRECO = False
         self.writeAOD = False
         self.writeMINIAOD = False
-	self.writeDQM = False
-	self.writeDQMIO = False
+        self.writeDQM = False
+        self.writeDQMIO = False
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
@@ -65,10 +65,10 @@ class RunPromptReco:
         if self.writeMINIAOD:
             dataTiers.append("MINIAOD")
             print("Configuring to Write out MiniAOD")
-	if self.writeDQM:
+        if self.writeDQM:
             dataTiers.append("DQM")
             print("Configuring to Write out DQM")
-	if self.writeDQMIO:
+        if self.writeDQMIO:
             dataTiers.append("DQMIO")
             print("Configuring to Write out DQMIO")
         if self.alcaRecos:
@@ -119,13 +119,13 @@ class RunPromptReco:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
-        pklFile = open("RunPromptRecoCfg.pkl", "w")
+        pklFile = open("RunPromptRecoCfg.pkl", "wb")
         psetFile = open("RunPromptRecoCfg.py", "w")
         try:
-            pickle.dump(process, pklFile)
+            pickle.dump(process, pklFile, protocol=0)
             psetFile.write("import FWCore.ParameterSet.Config as cms\n")
             psetFile.write("import pickle\n")
-            psetFile.write("handle = open('RunPromptRecoCfg.pkl')\n")
+            psetFile.write("handle = open('RunPromptRecoCfg.pkl','rb')\n")
             psetFile.write("process = pickle.load(handle)\n")
             psetFile.write("handle.close()\n")
             psetFile.close()

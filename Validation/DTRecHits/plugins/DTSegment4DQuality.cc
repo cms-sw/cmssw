@@ -75,7 +75,7 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet &pset) {
   local_ = pset.getUntrackedParameter<bool>("local", false);
 }
 
-void DTSegment4DQuality::bookHistograms(DQMStore::ConcurrentBooker &booker,
+void DTSegment4DQuality::bookHistograms(DQMStore::IBooker &booker,
                                         edm::Run const &run,
                                         edm::EventSetup const &setup,
                                         Histograms &histograms) const {

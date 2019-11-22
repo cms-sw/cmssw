@@ -2,6 +2,7 @@
 <use   name="CondFormats/Calibration"/>
 <use   name="FWCore/Framework"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/BeamSpotObjects"/>
 <library   file="stubs/PedestalsAnalyzer.cc" name="PedestalsAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -14,5 +15,10 @@
 <library   file="stubs/EfficiencyByLabelAnalyzer.cc" name="ExEfficiencyByLabelAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
-
-
+<library   file="stubs/TestConcurrentIOVsCondCore.cc" name="TestConcurrentIOVsCondCore">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<bin   file="TestCondCoreESSources.cpp" name="UnitTestConcurrentIOVsCondCore">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash CondCore/ESSources/test TestConcurrentIOVsCondCore.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>

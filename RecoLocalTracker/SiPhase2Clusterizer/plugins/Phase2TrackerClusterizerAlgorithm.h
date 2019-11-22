@@ -6,7 +6,7 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "Phase2TrackerClusterizerArray.h"
 

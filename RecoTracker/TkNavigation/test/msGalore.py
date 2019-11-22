@@ -51,8 +51,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag,'auto:phase1_2017_realistic', ''
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
-process.AutoMagneticFieldESProducer.valueOverride = 18000
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.VolumeBasedMagneticFieldESProducer.valueOverride = 18000
 
 from RecoTracker.TkNavigation.TkMSParameterizationBuilder_cfi import *
 process.load('RecoTracker.TkNavigation.TkMSParameterizationBuilder_cfi')

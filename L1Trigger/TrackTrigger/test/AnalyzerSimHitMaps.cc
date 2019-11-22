@@ -12,7 +12,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

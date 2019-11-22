@@ -155,9 +155,9 @@ namespace evf {
     //find microstate definition path (required by the module)
     struct stat statbuf;
     std::string microstateBaseSuffix = "src/EventFilter/Utilities/plugins/microstatedef.jsd";
-    std::string microstatePath = std::string(getenv("CMSSW_BASE")) + "/" + microstateBaseSuffix;
+    std::string microstatePath = std::string(std::getenv("CMSSW_BASE")) + "/" + microstateBaseSuffix;
     if (stat(microstatePath.c_str(), &statbuf)) {
-      microstatePath = std::string(getenv("CMSSW_RELEASE_BASE")) + "/" + microstateBaseSuffix;
+      microstatePath = std::string(std::getenv("CMSSW_RELEASE_BASE")) + "/" + microstateBaseSuffix;
       if (stat(microstatePath.c_str(), &statbuf)) {
         microstatePath = microstateBaseSuffix;
         if (stat(microstatePath.c_str(), &statbuf))

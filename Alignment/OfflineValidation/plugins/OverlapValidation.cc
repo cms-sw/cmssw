@@ -40,8 +40,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"

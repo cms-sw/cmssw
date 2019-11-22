@@ -53,7 +53,7 @@ namespace {
 
   std::string defaultURL() {
     std::string returnValue;
-    const char *tmp = getenv("CMS_PATH");
+    const char *tmp = std::getenv("CMS_PATH");
     if (tmp) {
       returnValue = tmp;
     }

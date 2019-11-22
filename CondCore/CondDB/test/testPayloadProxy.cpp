@@ -13,6 +13,19 @@
 
 using namespace cond::persistency;
 
+cond::ValidityInterval setIntervalFor(cond::persistency::Session& session,
+                                      cond::persistency::IOVProxy& iovProxy,
+                                      cond::Iov_t& iov,
+                                      cond::Time_t time) {
+  session.transaction().start(true);
+  auto it = iovProxy.find(time);
+  if (it != iovProxy.end()) {
+    iov = *it;
+  }
+  session.transaction().commit();
+  return cond::ValidityInterval(iov.since, iov.till);
+}
+
 int main(int argc, char** argv) {
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
@@ -62,27 +75,44 @@ int main(int argc, char** argv) {
     std::cout << "# iov changes committed!..." << std::endl;
     ::sleep(2);
 
-    PayloadProxy<MyTestData> pp0;
-    pp0.setUp(session);
-    PayloadProxy<std::string> pp1;
-    pp1.setUp(session);
+    cond::Iov_t iov0;
+    auto requests0 = std::make_shared<std::vector<cond::Iov_t>>();
+    PayloadProxy<MyTestData> pp0(&iov0, &session, &requests0);
 
-    pp0.loadTag("MyNewIOV2");
-    cond::ValidityInterval v1 = pp0.setIntervalFor(25, true);
+    cond::Iov_t iov1;
+    auto requests1 = std::make_shared<std::vector<cond::Iov_t>>();
+    PayloadProxy<std::string> pp1(&iov1, &session, &requests1);
+
+    session.transaction().start(true);
+    cond::persistency::IOVProxy iovProxy0 = session.readIov("MyNewIOV2");
+    session.transaction().commit();
+
+    cond::ValidityInterval v1 = setIntervalFor(session, iovProxy0, iov0, 25);
+    pp0.initializeForNewIOV();
+    pp0.make();
+
     const MyTestData& rd0 = pp0();
     if (rd0 != d0) {
       std::cout << "ERROR: MyTestData object read different from source." << std::endl;
     } else {
       std::cout << "MyTestData instance valid from " << v1.first << " to " << v1.second << std::endl;
     }
-    cond::ValidityInterval v2 = pp0.setIntervalFor(35, true);
+
+    cond::ValidityInterval v2 = setIntervalFor(session, iovProxy0, iov0, 35);
+    pp0.initializeForNewIOV();
+    pp0.make();
+
     const MyTestData& rd1 = pp0();
     if (rd1 != d0) {
       std::cout << "ERROR: MyTestData object read different from source." << std::endl;
     } else {
       std::cout << "MyTestData instance valid from " << v2.first << " to " << v2.second << std::endl;
     }
-    cond::ValidityInterval v3 = pp0.setIntervalFor(100000, true);
+
+    cond::ValidityInterval v3 = setIntervalFor(session, iovProxy0, iov0, 100000);
+    pp0.initializeForNewIOV();
+    pp0.make();
+
     const MyTestData& rd2 = pp0();
     if (rd2 != d1) {
       std::cout << "ERROR: MyTestData object read different from source." << std::endl;
@@ -90,20 +120,29 @@ int main(int argc, char** argv) {
       std::cout << "MyTestData instance valid from " << v3.first << " to " << v3.second << std::endl;
     }
 
-    pp1.loadTag("StringData2");
+    session.transaction().start(true);
+    cond::persistency::IOVProxy iovProxy1 = session.readIov("StringData2");
+    session.transaction().commit();
+
     try {
-      pp1.setIntervalFor(345);
+      setIntervalFor(session, iovProxy1, iov1, 345);
     } catch (cond::persistency::Exception& e) {
       std::cout << "Expected error: " << e.what() << std::endl;
     }
-    cond::ValidityInterval vs1 = pp1.setIntervalFor(1000000, true);
+
+    cond::ValidityInterval vs1 = setIntervalFor(session, iovProxy1, iov1, 1000000);
+    pp1.initializeForNewIOV();
+    pp1.make();
     const std::string& rd3 = pp1();
     if (rd3 != d2) {
       std::cout << "ERROR: std::string object read different from source." << std::endl;
     } else {
       std::cout << "std::string instance valid from " << vs1.first << " to " << vs1.second << std::endl;
     }
-    cond::ValidityInterval vs2 = pp1.setIntervalFor(3000000, true);
+
+    cond::ValidityInterval vs2 = setIntervalFor(session, iovProxy1, iov1, 3000000);
+    pp1.initializeForNewIOV();
+    pp1.make();
     const std::string& rd4 = pp1();
     if (rd4 != d3) {
       std::cout << "ERROR: std::string object read different from source." << std::endl;
@@ -111,15 +150,19 @@ int main(int argc, char** argv) {
       std::cout << "std::string instance valid from " << vs2.first << " to " << vs2.second << std::endl;
     }
 
-    PayloadProxy<std::string> pp2;
-    pp2.setUp(session);
-    pp2.loadTag("StringData3");
+    cond::Iov_t iov2;
+    auto requests2 = std::make_shared<std::vector<cond::Iov_t>>();
+    PayloadProxy<std::string> pp2(&iov2, &session, &requests2);
+
+    session.transaction().start(true);
+    cond::persistency::IOVProxy iovProxy2 = session.readIov("StringData3");
+    session.transaction().commit();
+
     try {
-      pp2.setIntervalFor(4294967296);
+      setIntervalFor(session, iovProxy2, iov2, 4294967296);
     } catch (cond::persistency::Exception& e) {
       std::cout << "Expected error: " << e.what() << std::endl;
     }
-
   } catch (const std::exception& e) {
     std::cout << "ERROR: " << e.what() << std::endl;
     return -1;

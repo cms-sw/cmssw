@@ -4,10 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # Used only in some eras
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 
 ### MVAIso 2017v2
 ## DBoldDM
@@ -16,7 +14,7 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw = patDiscriminationByIsola
    PATTauProducer = cms.InputTag('slimmedTaus'),
    Prediscriminants = noPrediscriminants,
    loadMVAfromDB = cms.bool(True),
-   mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2"), # name of the training you want to use
+   mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT"), # name of the training you want to use
    mvaOpt = cms.string("DBoldDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
    verbosity = cms.int32(0)
 )
@@ -27,33 +25,33 @@ patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT = patDiscriminationByI
    toMultiplex = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw'),
    key = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw','category'),
    loadMVAfromDB = cms.bool(True),
-   mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_mvaOutput_normalization"), # normalization fo the training you want to use
+   mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_mvaOutput_normalization"), # normalization fo the training you want to use
    mapping = cms.VPSet(
       cms.PSet(
          category = cms.uint32(0),
-         cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_WPEff95"), # this is the name of the working point you want to use
+         cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_VVLoose"), # this is the name of the working point you want to use
          variable = cms.string("pt"),
       )
    )
 )
 # VLoose WP
 patTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.clone()
-patTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_WPEff90")
+patTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_VLoose")
 # Loose WP
 patTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.clone()
-patTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_WPEff80")
+patTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_Loose")
 # Medium WP
 patTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.clone()
-patTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_WPEff70")
+patTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_Medium")
 # Tight WP
 patTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.clone()
-patTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_WPEff60")
+patTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_Tight")
 # VTight WP
 patTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.clone()
-patTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_WPEff50")
+patTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_VTight")
 # VVTights WP
 patTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.clone()
-patTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_WPEff40")
+patTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_VVTight")
 # MVAIso DBoldDM Seqeunce
 patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTSeq = cms.Sequence(
     patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw
@@ -71,7 +69,7 @@ patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw = patDiscriminationByIsola
    PATTauProducer = cms.InputTag('slimmedTaus'),
    Prediscriminants = noPrediscriminants,
    loadMVAfromDB = cms.bool(True),
-   mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2"), # name of the training you want to use
+   mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT"), # name of the training you want to use
    mvaOpt = cms.string("DBnewDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
    verbosity = cms.int32(0)
 )
@@ -82,33 +80,33 @@ patTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT = patDiscriminationByI
    toMultiplex = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
    key = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw','category'),
    loadMVAfromDB = cms.bool(True),
-   mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_mvaOutput_normalization"), # normalization fo the training you want to use
+   mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_mvaOutput_normalization"), # normalization fo the training you want to use
    mapping = cms.VPSet(
       cms.PSet(
          category = cms.uint32(0),
-         cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff95"), # this is the name of the working point you want to use
+         cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_VVLoose"), # this is the name of the working point you want to use
          variable = cms.string("pt"),
       )
    )
 )
 # VLoose WP
 patTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT.clone()
-patTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff90")
+patTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_VLoose")
 # Loose WP
 patTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT.clone()
-patTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff80")
+patTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_Loose")
 # Medium WP
 patTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT.clone()
-patTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff70")
+patTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_Medium")
 # Tight WP
 patTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT.clone()
-patTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff60")
+patTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_Tight")
 # VTight WP
 patTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT.clone()
-patTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff50")
+patTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_VTight")
 # VVTights WP
 patTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT.clone()
-patTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff40")
+patTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_VVTight")
 # MVAIso DBnewDM Seqeunce
 patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTSeq = cms.Sequence(
     patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw
@@ -126,7 +124,7 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw = patDiscriminationBy
    PATTauProducer = cms.InputTag('slimmedTaus'),
    Prediscriminants = noPrediscriminants,
    loadMVAfromDB = cms.bool(True),
-   mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2"), # name of the training you want to use
+   mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT"), # name of the training you want to use
    mvaOpt = cms.string("DBoldDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
    srcChargedIsoPtSum = cms.string('chargedIsoPtSumdR03'),
    srcFootprintCorrection = cms.string('footprintCorrectiondR03'),
@@ -142,33 +140,33 @@ patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMdR0p3wLT = patDiscriminati
    toMultiplex = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw'),
    key = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw','category'),
    loadMVAfromDB = cms.bool(True),
-   mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_mvaOutput_normalization"), # normalization fo the training you want to use
+   mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_mvaOutput_normalization"), # normalization fo the training you want to use
    mapping = cms.VPSet(
       cms.PSet(
          category = cms.uint32(0),
-         cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff95"), # this is the name of the working point you want to use
+         cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_VVLoose"), # this is the name of the working point you want to use
          variable = cms.string("pt"),
       )
    )
 )
 # VLoose WP
 patTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMdR0p3wLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMdR0p3wLT.clone()
-patTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff90")
+patTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_VLoose")
 # Loose WP
 patTauDiscriminationByLooseIsolationMVArun2v1DBoldDMdR0p3wLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMdR0p3wLT.clone()
-patTauDiscriminationByLooseIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff80")
+patTauDiscriminationByLooseIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_Loose")
 # Medium WP
 patTauDiscriminationByMediumIsolationMVArun2v1DBoldDMdR0p3wLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMdR0p3wLT.clone()
-patTauDiscriminationByMediumIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff70")
+patTauDiscriminationByMediumIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_Medium")
 # Tight WP
 patTauDiscriminationByTightIsolationMVArun2v1DBoldDMdR0p3wLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMdR0p3wLT.clone()
-patTauDiscriminationByTightIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff60")
+patTauDiscriminationByTightIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_Tight")
 # VTight WP
 patTauDiscriminationByVTightIsolationMVArun2v1DBoldDMdR0p3wLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMdR0p3wLT.clone()
-patTauDiscriminationByVTightIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff50")
+patTauDiscriminationByVTightIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_VTight")
 # VVTights WP
 patTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMdR0p3wLT = patTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMdR0p3wLT.clone()
-patTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff40")
+patTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMdR0p3wLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_VVTight")
 # MVAIso DBoldDMdR0p3 Seqeunce
 patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTSeq = cms.Sequence(
     patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw
@@ -291,21 +289,21 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq = cms.Sequence(
 
 
 ### Define new anit-e discriminants (2018)
-antiElectronDiscrMVA6_version = "MVA6v3_noeveto"
+antiElectronDiscrMVA6_version = "MVA"
 ## Raw
 from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 patTauDiscriminationByElectronRejectionMVA62018Raw = patTauDiscriminationAgainstElectronMVA6.clone(
     Prediscriminants = noPrediscriminants, #already selected for MiniAOD
     vetoEcalCracks = False, #keep tau candidates in EB-EE cracks
-    mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL',
-    mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC',
-    mvaName_NoEleMatch_woGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL',
-    mvaName_NoEleMatch_woGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC',
-    mvaName_wGwGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL',
-    mvaName_wGwGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC',
-    mvaName_woGwGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL',
-    mvaName_woGwGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC'
+    mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_wGwoGSF_BL',
+    mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_wGwoGSF_EC',
+    mvaName_NoEleMatch_woGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_woGwoGSF_BL',
+    mvaName_NoEleMatch_woGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_woGwoGSF_EC',
+    mvaName_wGwGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_wGwGSF_BL',
+    mvaName_wGwGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_wGwGSF_EC',
+    mvaName_woGwGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_woGwGSF_BL',
+    mvaName_woGwGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_woGwGSF_EC'
 )
 ## anti-e 2018 WPs
 from RecoTauTag.RecoTau.PATTauDiscriminantCutMultiplexer_cfi import patTauDiscriminantCutMultiplexer
@@ -318,42 +316,42 @@ patTauDiscriminationByVLooseElectronRejectionMVA62018 = patTauDiscriminantCutMul
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
-            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL_WPeff98'),
+            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_woGwoGSF_BL_VLoose'),
             variable = cms.string('pt')
         ),
         cms.PSet(
             category = cms.uint32(2),
-            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL_WPeff98'),
+            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_wGwoGSF_BL_VLoose'),
             variable = cms.string('pt')
         ),
         cms.PSet(
             category = cms.uint32(5),
-            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL_WPeff98'),
+            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_woGwGSF_BL_VLoose'),
             variable = cms.string('pt')
         ),
         cms.PSet(
             category = cms.uint32(7),
-            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL_WPeff98'),
+            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_wGwGSF_BL_VLoose'),
             variable = cms.string('pt')
         ),
         cms.PSet(
             category = cms.uint32(8),
-            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC_WPeff98'),
+            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_woGwoGSF_EC_VLoose'),
             variable = cms.string('pt')
         ),
         cms.PSet(
             category = cms.uint32(10),
-            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC_WPeff98'),
+            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_wGwoGSF_EC_VLoose'),
             variable = cms.string('pt')
         ),
         cms.PSet(
             category = cms.uint32(13),
-            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC_WPeff98'),
+            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_woGwGSF_EC_VLoose'),
             variable = cms.string('pt')
         ),
         cms.PSet(
             category = cms.uint32(15),
-            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC_WPeff98'),
+            cut = cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_wGwGSF_EC_VLoose'),
             variable = cms.string('pt')
         )
     )
@@ -361,19 +359,19 @@ patTauDiscriminationByVLooseElectronRejectionMVA62018 = patTauDiscriminantCutMul
 # Loose
 patTauDiscriminationByLooseElectronRejectionMVA62018 = patTauDiscriminationByVLooseElectronRejectionMVA62018.clone()
 for m in patTauDiscriminationByLooseElectronRejectionMVA62018.mapping:
-    m.cut = m.cut.value().replace("WPeff98", "WPeff90")
+    m.cut = m.cut.value().replace("VLoose", "Loose")
 # Medium
 patTauDiscriminationByMediumElectronRejectionMVA62018 = patTauDiscriminationByVLooseElectronRejectionMVA62018.clone()
 for m in patTauDiscriminationByMediumElectronRejectionMVA62018.mapping:
-    m.cut = m.cut.value().replace("WPeff98", "WPeff80")
+    m.cut = m.cut.value().replace("VLoose", "Medium")
 # Tight
 patTauDiscriminationByTightElectronRejectionMVA62018 = patTauDiscriminationByVLooseElectronRejectionMVA62018.clone()
 for m in patTauDiscriminationByTightElectronRejectionMVA62018.mapping:
-    m.cut = m.cut.value().replace("WPeff98", "WPeff70")
+    m.cut = m.cut.value().replace("VLoose", "Tight")
 # VTight
 patTauDiscriminationByVTightElectronRejectionMVA62018 = patTauDiscriminationByVLooseElectronRejectionMVA62018.clone()
 for m in patTauDiscriminationByVTightElectronRejectionMVA62018.mapping:
-    m.cut = m.cut.value().replace("WPeff98", "WPeff60")
+    m.cut = m.cut.value().replace("VLoose", "VTight")
 ### Define v1 anit-e discriminants (2015)
 antiElectronDiscrMVA6v1_version = "MVA6v1"
 ## Raw
@@ -398,7 +396,7 @@ patTauDiscriminationByVLooseElectronRejectionMVA62015 = patTauDiscriminationByVL
     key = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62015Raw","category")
 )
 for m in patTauDiscriminationByVLooseElectronRejectionMVA62015.mapping:
-    m.cut = m.cut.value().replace(antiElectronDiscrMVA6_version, antiElectronDiscrMVA6v1_version).replace("WPeff98", "WPEff99")
+    m.cut = m.cut.value().replace(antiElectronDiscrMVA6_version, antiElectronDiscrMVA6v1_version + "_gbr").replace("VLoose", "WPEff99")
 # Loose
 patTauDiscriminationByLooseElectronRejectionMVA62015 = patTauDiscriminationByVLooseElectronRejectionMVA62015.clone()
 for m in patTauDiscriminationByLooseElectronRejectionMVA62015.mapping:
@@ -433,8 +431,7 @@ _patTauDiscriminationByElectronRejection2015Seq = cms.Sequence(
     +patTauDiscriminationByVTightElectronRejectionMVA62015
 )
 patTauDiscriminationByElectronRejectionSeq = _patTauDiscriminationByElectronRejection2015Seq.copy()
-for era in [run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
-    era.toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
+(~run2_miniAOD_80XLegacy).toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
                       _patTauDiscriminationByElectronRejection2018Seq)
 
 
@@ -548,8 +545,7 @@ _tauIDSourcesWithAntiE2015 = cms.PSet(
     _antiETauIDSources2015
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE2015
-for era in [run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
-    era.toModify(slimmedTausUpdated,
+(~run2_miniAOD_80XLegacy).toModify(slimmedTausUpdated,
                  tauIDSources = _tauIDSourcesWithAntiE2018
     )
 

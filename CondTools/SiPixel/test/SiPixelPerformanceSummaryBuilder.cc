@@ -10,7 +10,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"

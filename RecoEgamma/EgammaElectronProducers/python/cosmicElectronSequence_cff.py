@@ -11,7 +11,7 @@ from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 
 # module to produce electron seeds
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 
 
@@ -24,4 +24,5 @@ gsfElectrons.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEnd
 gsfElectrons.barrelClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
 gsfElectrons.endcapClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
 
-cosmicElectronSequence = cms.Sequence(gsfElectronSequence)
+cosmicElectronTask = cms.Task(gsfElectronTask)
+cosmicElectronSequence = cms.Sequence(cosmicElectronTask)

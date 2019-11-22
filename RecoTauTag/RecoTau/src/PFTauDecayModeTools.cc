@@ -1,5 +1,4 @@
 #include <map>
-#include <boost/assign.hpp>
 #include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
