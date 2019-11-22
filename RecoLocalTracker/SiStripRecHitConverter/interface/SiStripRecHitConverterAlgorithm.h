@@ -53,7 +53,6 @@ private:
   bool useModule(const uint32_t id) const;
 
   bool useQuality, maskBad128StripBlocks, doMatching;
-  uint32_t tracker_cache_id, cpe_cache_id, quality_cache_id;
   edm::ESInputTag cpeTag, matcherTag, qualityTag;
   edm::ESHandle<TrackerGeometry> tracker;
   edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
