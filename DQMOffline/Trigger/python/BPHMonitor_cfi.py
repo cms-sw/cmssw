@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.Trigger.bphMonitoring_cfi import bphMonitoring
+from DQMOffline.Trigger.bphMonitoring_cfi import bphMonitoring as _bphMonitoring
 
-hltBPHmonitoring = bphMonitoring.clone()
+hltBPHmonitoring = _bphMonitoring.clone()
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltBPHmonitoring, stageL1Trigger = 2)
+
 #hltBPHmonitoring.options = cms.untracked.PSet(
 #    SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
