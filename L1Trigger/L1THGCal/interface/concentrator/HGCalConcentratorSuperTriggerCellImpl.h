@@ -4,6 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 #include "L1Trigger/L1THGCal/interface/HGCalCoarseTriggerCellMapping.h"
+#include "L1Trigger/L1THGCal/interface/HGCalVFECompressionImpl.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerCellCalibration.h"
 
 #include <array>
 #include <vector>
@@ -18,6 +20,7 @@ public:
     triggerTools_.eventSetup(es);
     coarseTCmapping_.eventSetup(es);
     superTCmapping_.eventSetup(es);
+    calibration_.eventSetup(es);
   }
 
 private:
@@ -32,6 +35,7 @@ private:
 
   HGCalTriggerTools triggerTools_;
   bool fixedDataSizePerHGCROC_;
+  bool coarsenTriggerCells_;
   HGCalCoarseTriggerCellMapping coarseTCmapping_;
   HGCalCoarseTriggerCellMapping superTCmapping_;
 
@@ -42,6 +46,9 @@ private:
 
   //Parameters for energyDivisionType_ = equalShare
   static constexpr int kTriggerCellsForDivision_ = 4;
+
+  HGCalTriggerCellCalibration calibration_;
+  HGCalVFECompressionImpl vfeCompression_;
 
   class SuperTriggerCell {
   private:
@@ -90,6 +97,7 @@ private:
                              std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput) const;
   void assignSuperTriggerCellEnergyAndPosition(l1t::HGCalTriggerCell& c, const SuperTriggerCell& stc) const;
   float getTriggerCellOneBitFraction(float tcPt, float sumPt) const;
+  uint32_t getCompressedSTCEnergy(const SuperTriggerCell& stc) const;
 };
 
 #endif

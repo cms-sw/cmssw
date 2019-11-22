@@ -9,10 +9,9 @@ public:
   HGCalVFECompressionImpl(const edm::ParameterSet& conf);
 
   void compress(const std::unordered_map<uint32_t, uint32_t>&, std::unordered_map<uint32_t, std::array<uint32_t, 2> >&);
+  void compressSingle(const uint32_t value, uint32_t& compressedCode, uint32_t& compressedValue) const;
 
 private:
-  void compressSingle(const uint32_t value, uint32_t& compressedCode, uint32_t& compressedValue);
-
   uint32_t exponentBits_;
   uint32_t mantissaBits_;
   bool rounding_;
