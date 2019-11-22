@@ -16,9 +16,6 @@ SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::Para
     : useQuality(conf.getParameter<bool>("useSiStripQuality")),
       maskBad128StripBlocks(conf.getParameter<bool>("MaskBadAPVFibers")),
       doMatching(conf.getParameter<bool>("doMatching")),
-      tracker_cache_id(0),
-      cpe_cache_id(0),
-      quality_cache_id(0),
       cpeTag(conf.getParameter<edm::ESInputTag>("StripCPE")),
       matcherTag(conf.getParameter<edm::ESInputTag>("Matcher")),
       qualityTag(conf.getParameter<edm::ESInputTag>("siStripQualityLabel")) {}
@@ -33,22 +30,13 @@ void SiStripRecHitConverterAlgorithm::fillPSetDescription(edm::ParameterSetDescr
 }
 
 void SiStripRecHitConverterAlgorithm::initialize(const edm::EventSetup& es) {
-  uint32_t tk_cache_id = es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
-  uint32_t c_cache_id = es.get<TkStripCPERecord>().cacheIdentifier();
-  uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
-
-  if (tk_cache_id != tracker_cache_id) {
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
-    tracker_cache_id = tk_cache_id;
-  }
-  if (c_cache_id != cpe_cache_id) {
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  if (doMatching) {
     es.get<TkStripCPERecord>().get(matcherTag, matcher);
-    es.get<TkStripCPERecord>().get(cpeTag, parameterestimator);
-    cpe_cache_id = c_cache_id;
   }
-  if (useQuality && q_cache_id != quality_cache_id) {
+  es.get<TkStripCPERecord>().get(cpeTag, parameterestimator);
+  if (useQuality) {
     es.get<SiStripQualityRcd>().get(qualityTag, quality);
-    quality_cache_id = q_cache_id;
   }
 }
 
