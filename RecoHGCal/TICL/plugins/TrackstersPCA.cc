@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackstersPCA.h"
 #include "TPrincipal.h"
 
@@ -6,7 +7,7 @@
 void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
     const std::vector<reco::CaloCluster> &layerClusters, double z_limit_em) {
   TPrincipal pca(3, "");
-  std::cout << "-------" << std::endl;
+  LogDebug("TrackstersPCA") << "-------" << std::endl;
   for (auto &trackster : tracksters) {
     pca.Clear();
     trackster.raw_energy = 0.;
@@ -51,15 +52,13 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
     const auto & eigenvectors = *(pca.GetEigenVectors());
     const auto & eigenvalues = *(pca.GetEigenValues());
     const auto & sigmas = *(pca.GetSigmas());
-    if (0) {
-      std::cout << "Trackster characteristics: " << std::endl;
-      std::cout << "Size: " << trackster.vertices.size() << std::endl;
-      std::cout << "Mean: " << mean[0] << ", " << mean[1] << ", " << mean[2] << std::endl;
-      std::cout << "EigenValues: " << eigenvalues[0] << ", " << eigenvalues[1] << ", " << eigenvalues[2]  << std::endl;
-      std::cout << "EigeVectors 1: " << eigenvectors(0, 0) << ", " << eigenvectors(1, 0) << ", " << eigenvectors(2, 0) <<std::endl;
-      std::cout << "EigeVectors 2: " << eigenvectors(0, 1) << ", " << eigenvectors(1, 1) << ", " << eigenvectors(2, 1) <<std::endl;
-      std::cout << "EigeVectors 3: " << eigenvectors(0, 2) << ", " << eigenvectors(1, 2) << ", " << eigenvectors(2, 2) <<std::endl;
-      std::cout << "Sigmas: " << sigmas[0] << ", " << sigmas[1] << ", " << sigmas[2] << std::endl;
-    }
+    LogDebug("TrackstersPCA") << "Trackster characteristics: " << std::endl;
+    LogDebug("TrackstersPCA") << "Size: " << trackster.vertices.size() << std::endl;
+    LogDebug("TrackstersPCA") << "Mean: " << mean[0] << ", " << mean[1] << ", " << mean[2] << std::endl;
+    LogDebug("TrackstersPCA") << "EigenValues: " << eigenvalues[0] << ", " << eigenvalues[1] << ", " << eigenvalues[2]  << std::endl;
+    LogDebug("TrackstersPCA") << "EigeVectors 1: " << eigenvectors(0, 0) << ", " << eigenvectors(1, 0) << ", " << eigenvectors(2, 0) <<std::endl;
+    LogDebug("TrackstersPCA") << "EigeVectors 2: " << eigenvectors(0, 1) << ", " << eigenvectors(1, 1) << ", " << eigenvectors(2, 1) <<std::endl;
+    LogDebug("TrackstersPCA") << "EigeVectors 3: " << eigenvectors(0, 2) << ", " << eigenvectors(1, 2) << ", " << eigenvectors(2, 2) <<std::endl;
+    LogDebug("TrackstersPCA") << "Sigmas: " << sigmas[0] << ", " << sigmas[1] << ", " << sigmas[2] << std::endl;
   }
 }
