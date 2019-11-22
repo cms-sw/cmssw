@@ -333,6 +333,12 @@ namespace edm {
         }
       }
     }
-    graph::throwIfImproperDependencies(edgeToPathMap, pathIndexToModuleIndexOrder, pathNames, moduleIndexToNames);
+    // Don't bother if there are no modules in any paths (the
+    // dependence check crashes if the configuration has only Paths
+    // with Tasks with modules, but nothing to trigger any work to
+    // run)
+    if (not moduleIndexToPathIndex.empty()) {
+      graph::throwIfImproperDependencies(edgeToPathMap, pathIndexToModuleIndexOrder, pathNames, moduleIndexToNames);
+    }
   }
 }  // namespace edm
