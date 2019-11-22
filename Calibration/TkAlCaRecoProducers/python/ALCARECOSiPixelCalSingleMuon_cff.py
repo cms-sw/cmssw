@@ -4,7 +4,7 @@ import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 # AlCaReco for track based calibration using min. bias events
 ALCARECOSiPixelCalSingleMuonHLTFilter = copy.deepcopy(hltHighLevel)
-seqALCARECOSiPixelCalSingleMuon = cms.Sequence(ALCARECOSiPixelCalSingleMuonHLTFilter)
+#seqALCARECOSiPixelCalSingleMuon = cms.Sequence(ALCARECOSiPixelCalSingleMuonHLTFilter)
 ALCARECOSiPixelCalSingleMuonHLTFilter.andOr = True ## choose logical OR between Triggerbits
 ALCARECOSiPixelCalSingleMuonHLTFilter.throw = False ## dont throw on unknown path names
 ALCARECOSiPixelCalSingleMuonHLTFilter.eventSetupPathsKey = 'SiPixelCalSingleMuon'
@@ -17,7 +17,6 @@ ALCARECOSiPixelCalSingleMuon.applyBasicCuts = True
 ALCARECOSiPixelCalSingleMuon.ptMin = 3.0 #GeV
 ALCARECOSiPixelCalSingleMuon.etaMin = -3.5
 ALCARECOSiPixelCalSingleMuon.etaMax = 3.5
-ALCARECOSiPixelCalSingleMuon.nHitMin = 2
 
 # Sequence #
 seqALCARECOSiPixelCalSingleMuon = cms.Sequence(ALCARECOSiPixelCalSingleMuonHLTFilter+ALCARECOSiPixelCalSingleMuon)

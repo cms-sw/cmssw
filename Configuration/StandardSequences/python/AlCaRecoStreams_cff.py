@@ -347,7 +347,7 @@ ALCARECOStreamTkAlUpsilonMuMuPA = cms.FilteredStream(
         )
 
 ALCARECOStreamSiPixelCalSingleMuon = cms.FilteredStream(
-	responsible = 'Tamas Vami',
+	responsible = 'Tamas Almos Vami',
 	name = 'SiPixelCalSingleMuon',
 	paths  = (pathALCARECOSiPixelCalSingleMuon),
 	content = OutALCARECOSiPixelCalSingleMuon.outputCommands,
