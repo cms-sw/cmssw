@@ -11,8 +11,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-TYPELOOKUP_DATA_REG(SiStripRecHitMatcher);
 
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf)
     : useQuality(conf.getParameter<bool>("useSiStripQuality")),
