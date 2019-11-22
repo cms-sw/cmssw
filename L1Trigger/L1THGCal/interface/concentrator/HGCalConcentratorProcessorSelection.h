@@ -13,7 +13,7 @@
 
 class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBase {
 private:
-  enum SelectionType { thresholdSelect, bestChoiceSelect, superTriggerCellSelect };
+  enum SelectionType { thresholdSelect, bestChoiceSelect, superTriggerCellSelect, mixedBestChoiceSuperTriggerCell };
 
 public:
   HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf);

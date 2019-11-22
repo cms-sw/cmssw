@@ -64,5 +64,6 @@ namespace DataFormats {
     edm::Wrapper<edm::PtrVector<l1t::HGCalCluster>> w_hgcalClusterList;
 
     l1t::ClusterShapes clusterShapes;
+    std::map<l1t::HGCalMulticluster::EnergyInterpretation, double> ei;
   }  // namespace L1THGCal
 }  // namespace DataFormats

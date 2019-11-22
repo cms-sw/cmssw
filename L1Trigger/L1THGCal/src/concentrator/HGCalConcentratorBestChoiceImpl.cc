@@ -24,6 +24,10 @@ void HGCalConcentratorBestChoiceImpl::select(unsigned nLinks,
       [](const l1t::HGCalTriggerCell& a, const l1t::HGCalTriggerCell& b) -> bool { return a.mipPt() > b.mipPt(); });
 
   uint32_t nLinksIndex = 0;
+  if (nLinks > kLinkMask_) {
+    throw cms::Exception("BadConfig") << "BestChoice: Nlinks=" << nLinks
+                                      << " larger then the max supported number of links " << kLinkMask_;
+  }
   nLinksIndex |= ((nLinks - 1) & kLinkMask_);
   nLinksIndex |= (((nWafers - 1) & kWaferMask_) << kWaferOffset_);
   unsigned nData = nData_.at(nLinksIndex);
