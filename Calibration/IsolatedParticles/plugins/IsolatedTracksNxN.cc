@@ -19,6 +19,7 @@
 // system include files
 #include <cmath>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -158,7 +159,7 @@ private:
   void clearTreeVectors();
 
 private:
-  L1GtUtils m_l1GtUtils;
+  std::unique_ptr<L1GtUtils> m_l1GtUtils;
   static constexpr size_t nL1BitsMax = 128;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
@@ -298,8 +299,7 @@ static const bool useL1EventSetup(true);
 static const bool useL1GtTriggerMenuLite(true);
 
 IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet &iConfig)
-    : m_l1GtUtils(iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this),
-      trackerHitAssociatorConfig_(consumesCollector()),
+    : trackerHitAssociatorConfig_(consumesCollector()),
       doMC_(iConfig.getUntrackedParameter<bool>("doMC", false)),
       writeAllTracks_(iConfig.getUntrackedParameter<bool>("writeAllTracks", false)),
       myverbose_(iConfig.getUntrackedParameter<int>("verbosity", 5)),
@@ -488,6 +488,11 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet &iConfig)
       t_hsim3x3CharHad(nullptr),
       t_hsim5x5CharHad(nullptr),
       t_hsim7x7CharHad(nullptr) {
+  if (L1TriggerAlgoInfo_) {
+    m_l1GtUtils = std::make_unique<L1GtUtils>(
+        iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this, L1GtUtils::UseEventSetupIn::Event);
+  }
+
   usesResource(TFileService::kSharedResource);
 
   //now do what ever initialization is needed
@@ -771,11 +776,11 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
   //===================== save L1 Trigger information =======================
   if (L1TriggerAlgoInfo_) {
-    m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
+    m_l1GtUtils->getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
 
     int iErrorCode = -1;
     int l1ConfCode = -1;
-    const bool l1Conf = m_l1GtUtils.availableL1Configuration(iErrorCode, l1ConfCode);
+    const bool l1Conf = m_l1GtUtils->availableL1Configuration(iErrorCode, l1ConfCode);
     if (!l1Conf) {
       edm::LogVerbatim("IsoTrack")
           << "\nL1 configuration code:" << l1ConfCode << "\nNo valid L1 trigger configuration available."
@@ -783,7 +788,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
           << "\nNo return here, in order to test each method, protected against configuration error.";
     }
 
-    const L1GtTriggerMenu *m_l1GtMenu = m_l1GtUtils.ptrL1TriggerMenuEventSetup(iErrorCode);
+    const L1GtTriggerMenu *m_l1GtMenu = m_l1GtUtils->ptrL1TriggerMenuEventSetup(iErrorCode);
     const AlgorithmMap &algorithmMap = m_l1GtMenu->gtAlgorithmMap();
     const std::string &menuName = m_l1GtMenu->gtTriggerMenuName();
 
@@ -807,8 +812,8 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
       std::string algName = itAlgo->first;
       int algBitNumber = (itAlgo->second).algoBitNumber();
-      bool decision = m_l1GtUtils.decision(iEvent, itAlgo->first, iErrorCode);
-      int preScale = m_l1GtUtils.prescaleFactor(iEvent, itAlgo->first, iErrorCode);
+      bool decision = m_l1GtUtils->decision(iEvent, itAlgo->first, iErrorCode);
+      int preScale = m_l1GtUtils->prescaleFactor(iEvent, itAlgo->first, iErrorCode);
 
       // save the algo names which fired
       if (decision) {

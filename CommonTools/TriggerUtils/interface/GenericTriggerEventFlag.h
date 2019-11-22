@@ -91,16 +91,26 @@ public:
   //however I set things up such that its an error to try and configure the stage-1 L1 here
   //hence the extra private constructor
   //tldr: use these constructors, not the other two if unsure, if you get it wrong, there'll be an error
-  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
-      : GenericTriggerEventFlag(config, iC) {}
-  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC);
+  GenericTriggerEventFlag(const edm::ParameterSet& config,
+                          edm::ConsumesCollector&& iC,
+                          l1t::UseEventSetupIn use = l1t::UseEventSetupIn::RunAndEvent)
+      : GenericTriggerEventFlag(config, iC, use) {}
+  GenericTriggerEventFlag(const edm::ParameterSet& config,
+                          edm::ConsumesCollector& iC,
+                          l1t::UseEventSetupIn use = l1t::UseEventSetupIn::RunAndEvent);
 
   // Constructors must be called from the ED module's c'tor
   template <typename T>
-  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector&& iC, T& module);
+  GenericTriggerEventFlag(const edm::ParameterSet& config,
+                          edm::ConsumesCollector&& iC,
+                          T& module,
+                          l1t::UseEventSetupIn use = l1t::UseEventSetupIn::RunAndEvent);
 
   template <typename T>
-  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, T& module);
+  GenericTriggerEventFlag(const edm::ParameterSet& config,
+                          edm::ConsumesCollector& iC,
+                          T& module,
+                          l1t::UseEventSetupIn use = l1t::UseEventSetupIn::RunAndEvent);
 
   // Public methods
   bool on() { return on_; }
@@ -152,17 +162,27 @@ public:
 template <typename T>
 GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config,
                                                  edm::ConsumesCollector&& iC,
-                                                 T& module)
-    : GenericTriggerEventFlag(config, iC, module) {}
+                                                 T& module,
+                                                 l1t::UseEventSetupIn use)
+    : GenericTriggerEventFlag(config, iC, module, use) {}
 
 template <typename T>
-GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, T& module)
+GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config,
+                                                 edm::ConsumesCollector& iC,
+                                                 T& module,
+                                                 l1t::UseEventSetupIn use)
     : GenericTriggerEventFlag(config, iC, true) {
   if (config.exists("andOrL1")) {
     if (stage2_) {
-      l1uGt_ = std::make_unique<l1t::L1TGlobalUtil>(config, iC);
+      l1uGt_ = std::make_unique<l1t::L1TGlobalUtil>(config, iC, use);
     } else {
-      l1Gt_ = std::make_unique<L1GtUtils>(config, iC, false, module);
+      L1GtUtils::UseEventSetupIn useL1GtUtilsIn = L1GtUtils::UseEventSetupIn::Run;
+      if (use == l1t::UseEventSetupIn::RunAndEvent) {
+        useL1GtUtilsIn = L1GtUtils::UseEventSetupIn::RunAndEvent;
+      } else if (use == l1t::UseEventSetupIn::Event) {
+        useL1GtUtilsIn = L1GtUtils::UseEventSetupIn::Event;
+      }
+      l1Gt_ = std::make_unique<L1GtUtils>(config, iC, false, module, useL1GtUtilsIn);
     }
   }
   //these pointers are already null so no need to reset them to a nullptr

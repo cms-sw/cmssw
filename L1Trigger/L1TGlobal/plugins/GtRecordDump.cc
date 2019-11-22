@@ -22,6 +22,7 @@
 // system include files
 #include <fstream>
 #include <iomanip>
+#include <memory>
 
 // user include files
 //   base class
@@ -114,7 +115,7 @@ namespace l1t {
     int m_minBxVectors;
     int m_maxBxVectors;
 
-    L1TGlobalUtil* m_gtUtil;
+    std::unique_ptr<L1TGlobalUtil> m_gtUtil;
 
   private:
     int m_tvVersion;
@@ -154,7 +155,8 @@ namespace l1t {
     std::string preScaleFileName = iConfig.getParameter<std::string>("psFileName");
     unsigned int preScColumn = iConfig.getParameter<int>("psColumn");
 
-    m_gtUtil = new L1TGlobalUtil(iConfig, consumesCollector(), *this, uGtAlgInputTag, uGtExtInputTag);
+    m_gtUtil = std::make_unique<L1TGlobalUtil>(
+        iConfig, consumesCollector(), *this, uGtAlgInputTag, uGtExtInputTag, l1t::UseEventSetupIn::Event);
     m_gtUtil->OverridePrescalesAndMasks(preScaleFileName, preScColumn);
   }
 

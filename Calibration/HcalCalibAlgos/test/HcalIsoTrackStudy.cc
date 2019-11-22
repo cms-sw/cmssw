@@ -290,7 +290,7 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
   std::string prdnam = iConfig.getUntrackedParameter<std::string>("producerName", "");
   edm::InputTag algTag = iConfig.getParameter<edm::InputTag>("algInputTag");
   edm::InputTag extTag = iConfig.getParameter<edm::InputTag>("extInputTag");
-  l1GtUtils_ = new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag, extTag);
+  l1GtUtils_ = new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag, extTag, l1t::UseEventSetupIn::Event);
   // define tokens for access
   tok_trigEvt_ = consumes<trigger::TriggerEvent>(triggerEvent_);
   tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);

@@ -61,8 +61,10 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   turnOnTrigger_ = iConfig.exists("turnOnTrigger") && iConfig.getParameter<bool>("turnOnTrigger");
   genericTriggerEventFlag_ =
       (iConfig.exists("GenericTriggerSelection") && turnOnTrigger_)
-          ? new GenericTriggerEventFlag(
-                iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection"), consumesCollector(), *this)
+          ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection"),
+                                        consumesCollector(),
+                                        *this,
+                                        l1t::UseEventSetupIn::Run)
           : nullptr;
   if (genericTriggerEventFlag_ != nullptr)
     LogDebug(moduleLabel_) << "--> GenericTriggerSelection parameters found in " << moduleLabel_ << "."
