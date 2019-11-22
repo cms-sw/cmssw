@@ -1,10 +1,11 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/plugins/SiStripRecHitConverter.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 SiStripRecHitConverter::SiStripRecHitConverter(edm::ParameterSet const& conf)
-    : recHitConverterAlgorithm(conf),
+    : recHitConverterAlgorithm(conf, consumesCollector()),
       matchedRecHitsTag(conf.getParameter<std::string>("matchedRecHits")),
       rphiRecHitsTag(conf.getParameter<std::string>("rphiRecHits")),
       stereoRecHitsTag(conf.getParameter<std::string>("stereoRecHits")),
