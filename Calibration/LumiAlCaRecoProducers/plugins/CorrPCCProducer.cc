@@ -123,7 +123,7 @@ private:
 
   float pedestal;
   float pedestal_unc;
-  TGraphErrors *pedestalGraph;
+  TGraphErrors* pedestalGraph;
 
   LumiCorrections* pccCorrections;
 
@@ -175,7 +175,7 @@ CorrPCCProducer::CorrPCCProducer(const edm::ParameterSet& iConfig) {
   type1resGraph->SetMarkerStyle(8);
   type2resGraph->SetMarkerStyle(8);
 
-  pedestalGraph= new TGraphErrors();
+  pedestalGraph = new TGraphErrors();
   pedestalGraph->SetName("Pedestal");
   pedestalGraph->GetYaxis()->SetTitle("pedestal value (counts) per lumi section");
   pedestalGraph->GetXaxis()->SetTitle("Unique LS ID");
@@ -333,24 +333,24 @@ void CorrPCCProducer::calculateCorrections(std::vector<float> uncorrected,
   }
 
   float lumiMax = getMaximum(corrected_tmp_);
-  float threshold = lumiMax*0.2;
+  float threshold = lumiMax * 0.2;
   
   //here subtract the pedestal
-  pedestal=0.;
-  pedestal_unc=0.;
-  int nped=0;
-  for(size_t i=0; i<LumiConstants::numBX; i++){
-    if(corrected_tmp_.at(i)<threshold){
-      pedestal+=corrected_tmp_.at(i);
+  pedestal = 0.;
+  pedestal_unc = 0.;
+  int nped = 0;
+  for (size_t i = 0; i < LumiConstants::numBX; i++) {
+    if(corrected_tmp_.at(i) < threshold) {
+      pedestal += corrected_tmp_.at(i);
       nped++;
     }
   }
-  if(nped>0){
-    pedestal_unc=sqrt(pedestal)/nped;
-    pedestal=pedestal/nped; 
+  if (nped > 0) {
+    pedestal_unc = sqrt(pedestal) / nped;
+    pedestal = pedestal / nped; 
   }
-  for(size_t i=0; i<LumiConstants::numBX; i++){
-    corrected_tmp_.at(i)=corrected_tmp_.at(i)-pedestal;
+  for (size_t i = 0; i < LumiConstants::numBX; i++) {
+    corrected_tmp_.at(i) = corrected_tmp_.at(i) - pedestal;
   }
 
   
@@ -615,8 +615,8 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
     type1FracGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, mean_type1_residual_unc);
     type1resGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, mean_type1_residual_unc);
     type2resGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, mean_type2_residual_unc);
-    pedestalGraph->SetPoint(iBlock,thisIOV+approxLumiBlockSize_/2.0,pedestal);
-    pedestalGraph->SetPointError(iBlock,approxLumiBlockSize_/2.0,pedestal_unc);
+    pedestalGraph->SetPoint(iBlock, thisIOV + approxLumiBlockSize_ / 2.0, pedestal);
+    pedestalGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, pedestal_unc);
     
     edm::LogInfo("INFO")
         << "iBlock type1Frac mean_type1_residual mean_type2_residual mean_type1_residual_unc mean_type2_residual_unc "
@@ -628,8 +628,8 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
     mean_type2_residual = 0.0;
     mean_type1_residual_unc = 0;
     mean_type2_residual_unc = 0;
-    pedestal=0.;
-    pedestal_unc=0.;
+    pedestal = 0.;
+    pedestal_unc = 0.;
 
     iBlock++;
 
