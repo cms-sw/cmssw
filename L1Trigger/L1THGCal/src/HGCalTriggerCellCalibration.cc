@@ -1,4 +1,4 @@
-#include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalTriggerCellCalibration.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerCellCalibration.h"
 
 //class constructor
 HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet& conf)
@@ -17,7 +17,7 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
   }
 }
 
-void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell) {
+void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell) const {
   bool isSilicon = triggerTools_.isSilicon(trgCell.detId());
 
   /* get the hardware pT in ADC counts: */
@@ -42,7 +42,7 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
   trgCell.setMipPt(trgCellMipPt);
 }
 
-void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell) {
+void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell) const {
   const double MevToGeV(0.001);
 
   DetId trgdetid(trgCell.detId());
@@ -70,7 +70,7 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
   trgCell.setP4(calibP4);
 }
 
-void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell) {
+void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell) const {
   /* calibrate from ADC count to transverse mip */
   calibrateInMipT(trgCell);
 

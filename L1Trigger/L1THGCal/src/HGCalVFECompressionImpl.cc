@@ -1,4 +1,4 @@
-#include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFECompressionImpl.h"
+#include "L1Trigger/L1THGCal/interface/HGCalVFECompressionImpl.h"
 
 HGCalVFECompressionImpl::HGCalVFECompressionImpl(const edm::ParameterSet& conf)
     : exponentBits_(conf.getParameter<uint32_t>("exponentBits")),
@@ -14,7 +14,7 @@ HGCalVFECompressionImpl::HGCalVFECompressionImpl(const edm::ParameterSet& conf)
 
 void HGCalVFECompressionImpl::compressSingle(const uint32_t value,
                                              uint32_t& compressedCode,
-                                             uint32_t& compressedValue) {
+                                             uint32_t& compressedValue) const {
   // check for saturation
   if (value > saturationValue_) {
     compressedCode = saturationCode_;

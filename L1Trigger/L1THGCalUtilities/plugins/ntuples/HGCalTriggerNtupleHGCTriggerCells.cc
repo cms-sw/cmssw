@@ -47,8 +47,8 @@ private:
   edm::ESHandle<HGCalTriggerGeometryBase> geometry_;
 
   static const unsigned kPanelOffset_ = 0;
-  static const unsigned kPanelMask_ = 0x1F;
-  static const unsigned kSectorOffset_ = 5;
+  static const unsigned kPanelMask_ = 0x7F;
+  static const unsigned kSectorOffset_ = 7;
   static const unsigned kSectorMask_ = 0x7;
 
   int tc_n_;

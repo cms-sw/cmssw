@@ -170,7 +170,7 @@ int HGCalTriggerTools::zside(const DetId& id) const {
 
 int HGCalTriggerTools::thicknessIndex(const DetId& id, bool tc) const {
   if (isScintillator(id)) {
-    throw cms::Exception("IncompatibleDetId") << "Trying to get the sensor thickness of a scintillator detid";
+    return kScintillatorPseudoThicknessIndex_;
   }
   unsigned det = id.det();
   int thickness = 0;
