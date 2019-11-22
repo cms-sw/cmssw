@@ -15,7 +15,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 HcalGeomParameters::HcalGeomParameters() {
 #ifdef EDM_ML_DEBUG
