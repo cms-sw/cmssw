@@ -1,5 +1,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/plugins/SiStripRecHitConverter.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 SiStripRecHitConverter::SiStripRecHitConverter(edm::ParameterSet const& conf)
     : recHitConverterAlgorithm(conf),
@@ -17,6 +19,21 @@ SiStripRecHitConverter::SiStripRecHitConverter(edm::ParameterSet const& conf)
     produces<SiStripRecHit2DCollection>(rphiRecHitsTag + "Unmatched");
     produces<SiStripRecHit2DCollection>(stereoRecHitsTag + "Unmatched");
   }
+}
+
+void SiStripRecHitConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("ClusterProducer", edm::InputTag("siStripClusters"));
+  desc.add<std::string>("rphiRecHits", "rphiRecHit");
+  desc.add<std::string>("stereoRecHits", "stereoRecHit");
+  desc.add<std::string>("matchedRecHits", "matchedRecHit");
+
+  SiStripRecHitConverterAlgorithm::fillPSetDescription(desc);
+
+  // unused? could be removed after parameter gets removed from HLT menu?
+  desc.addOptionalUntracked<int>("VerbosityLevel");
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void SiStripRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) {

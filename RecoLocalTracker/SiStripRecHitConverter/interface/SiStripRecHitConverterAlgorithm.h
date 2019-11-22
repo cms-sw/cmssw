@@ -14,6 +14,7 @@
 
 namespace edm {
   class ParameterSet;
+  class ParameterSetDescription;
   class EventSetup;
 }  // namespace edm
 
@@ -42,6 +43,8 @@ public:
   void initialize(const edm::EventSetup&);
   void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output);
   void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output, LocalVector trackdirection);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   void match(products& output, LocalVector trackdirection) const;

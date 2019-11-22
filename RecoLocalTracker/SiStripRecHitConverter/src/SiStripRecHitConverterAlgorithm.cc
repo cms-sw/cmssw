@@ -9,13 +9,14 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 TYPELOOKUP_DATA_REG(SiStripRecHitMatcher);
 
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf)
     : useQuality(conf.getParameter<bool>("useSiStripQuality")),
-      maskBad128StripBlocks(conf.existsAs<bool>("MaskBadAPVFibers") && conf.getParameter<bool>("MaskBadAPVFibers")),
+      maskBad128StripBlocks(conf.getParameter<bool>("MaskBadAPVFibers")),
       doMatching(conf.getParameter<bool>("doMatching")),
       tracker_cache_id(0),
       cpe_cache_id(0),
@@ -23,6 +24,15 @@ SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::Para
       cpeTag(conf.getParameter<edm::ESInputTag>("StripCPE")),
       matcherTag(conf.getParameter<edm::ESInputTag>("Matcher")),
       qualityTag(conf.getParameter<edm::ESInputTag>("siStripQualityLabel")) {}
+
+void SiStripRecHitConverterAlgorithm::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("useSiStripQuality", false);
+  desc.add<bool>("MaskBadAPVFibers", false);
+  desc.add<bool>("doMatching", true);
+  desc.add<edm::ESInputTag>("StripCPE", edm::ESInputTag("StripCPEfromTrackAngleESProducer", "StripCPEfromTrackAngle"));
+  desc.add<edm::ESInputTag>("Matcher", edm::ESInputTag("SiStripRecHitMatcherESProducer", "StandardMatcher"));
+  desc.add<edm::ESInputTag>("siStripQualityLabel", edm::ESInputTag());
+}
 
 void SiStripRecHitConverterAlgorithm::initialize(const edm::EventSetup& es) {
   uint32_t tk_cache_id = es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
