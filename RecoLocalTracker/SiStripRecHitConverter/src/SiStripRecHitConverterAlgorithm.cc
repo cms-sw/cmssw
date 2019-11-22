@@ -8,17 +8,27 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/Ref.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf)
+SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf,
+                                                                 edm::ConsumesCollector iC)
     : useQuality(conf.getParameter<bool>("useSiStripQuality")),
       maskBad128StripBlocks(conf.getParameter<bool>("MaskBadAPVFibers")),
       doMatching(conf.getParameter<bool>("doMatching")),
-      cpeTag(conf.getParameter<edm::ESInputTag>("StripCPE")),
-      matcherTag(conf.getParameter<edm::ESInputTag>("Matcher")),
-      qualityTag(conf.getParameter<edm::ESInputTag>("siStripQualityLabel")) {}
+      trackerToken(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      cpeToken(iC.esConsumes<StripClusterParameterEstimator, TkStripCPERecord>(
+          conf.getParameter<edm::ESInputTag>("StripCPE"))) {
+  if (doMatching) {
+    matcherToken = iC.esConsumes<SiStripRecHitMatcher, TkStripCPERecord>(conf.getParameter<edm::ESInputTag>("Matcher"));
+  }
+  if (useQuality) {
+    qualityToken =
+        iC.esConsumes<SiStripQuality, SiStripQualityRcd>(conf.getParameter<edm::ESInputTag>("siStripQualityLabel"));
+  }
+}
 
 void SiStripRecHitConverterAlgorithm::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<bool>("useSiStripQuality", false);
@@ -30,13 +40,13 @@ void SiStripRecHitConverterAlgorithm::fillPSetDescription(edm::ParameterSetDescr
 }
 
 void SiStripRecHitConverterAlgorithm::initialize(const edm::EventSetup& es) {
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  tracker = &es.getData(trackerToken);
+  parameterestimator = &es.getData(cpeToken);
   if (doMatching) {
-    es.get<TkStripCPERecord>().get(matcherTag, matcher);
+    matcher = &es.getData(matcherToken);
   }
-  es.get<TkStripCPERecord>().get(cpeTag, parameterestimator);
   if (useQuality) {
-    es.get<SiStripQualityRcd>().get(qualityTag, quality);
+    quality = &es.getData(qualityToken);
   }
 }
 
