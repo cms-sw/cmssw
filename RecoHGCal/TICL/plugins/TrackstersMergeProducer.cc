@@ -131,18 +131,18 @@ void TrackstersMergeProducer::mergeTrackstersTRK(const std::vector<Trackster> & 
   for (auto const  & t : input) {
     if (seedIndices.find(t.seedIndex) != seedIndices.end()) {
       if (debug_) {
-        std::cout << "Seed index: " << t.seedIndex
+        LogDebug("TrackstersMergeProducer") << "Seed index: " << t.seedIndex
           << " already used by trackster: " << seedIndices[t.seedIndex]
           << std::endl;
       }
       auto & old = output[seedIndices[t.seedIndex]];
       auto updated_size = old.vertices.size();
       if (debug_){
-        std::cout << "Old size: " << updated_size << std::endl;
+        LogDebug("TrackstersMergeProducer") << "Old size: " << updated_size << std::endl;
       }
       updated_size += t.vertices.size();
       if (debug_) {
-        std::cout << "Updatd size: " << updated_size << std::endl;
+        LogDebug("TrackstersMergeProducer") << "Updatd size: " << updated_size << std::endl;
       }
       old.vertices.reserve(updated_size);
       old.vertex_multiplicity.reserve(updated_size);
@@ -156,7 +156,7 @@ void TrackstersMergeProducer::mergeTrackstersTRK(const std::vector<Trackster> & 
           );
     } else {
       if (debug_) {
-        std::cout << "Passing down trackster " << output.size()
+        LogDebug("TrackstersMergeProducer") << "Passing down trackster " << output.size()
           << " with seedIndex: " << t.seedIndex << std::endl;
         seedIndices[t.seedIndex] = output.size();
         output.push_back(t);
@@ -223,7 +223,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     tracksterTile.fill(tracksterIteration, s.origin.eta(), s.origin.phi(), seedId++);
 
     if (debug_) {
-      std::cout << "Seed index: " << seedId
+      LogDebug("TrackstersMergeProducer") << "Seed index: " << seedId
         << " internal index: " << s.index
         << " origin: " << s.origin
         << " mom: " << s.directionAtOrigin
@@ -247,7 +247,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       int entryPhiBin = tracksterTile[3].phiBin(t.barycenter.phi());
       int bin = tracksterTile[3].globalBin(t.barycenter.eta(), t.barycenter.phi());
       if (debug_) {
-        std::cout << "TrackstersMergeProducer Tracking obj: " << t.barycenter
+        LogDebug("TrackstersMergeProducer") << "TrackstersMergeProducer Tracking obj: " << t.barycenter
           << " in bin " << bin
           << " etaBin " << entryEtaBin
           << " phiBin " << entryPhiBin
@@ -263,7 +263,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       auto diff_pt_sigmas = diff_pt/pt_err;
       auto e_over_h = (t.raw_em_pt/((t.raw_pt-t.raw_em_pt) != 0. ? (t.raw_pt-t.raw_em_pt) : -1.));
       if (debug_) {
-        std::cout << "Original seed pos " << original_seed.origin
+        LogDebug("TrackstersMergeProducer") << "Original seed pos " << original_seed.origin
           << ", mom: " << original_seed.directionAtOrigin.mag()
           << " calo_pt(" << t.raw_pt << "/" << t.raw_em_pt << "/"
           <<  e_over_h << ") - seed_pt(" << trk_pt << "): " << diff_pt
@@ -286,8 +286,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             auto const & searchableTracksters = recoverEM ? trackstersEM : trackstersHAD;
             auto & searchableUsed = recoverEM ? usedTrackstersEM : usedTrackstersHAD;
             if (debug_) {
-              std::cout << "Trying to recover energy (EM?):" << recoverEM << std::endl;
-              std::cout << "Candidates in bin " << ibin << " are: " << searchable.size() << std::endl;
+              LogDebug("TrackstersMergeProducer") << "Trying to recover energy (EM?):" << recoverEM << std::endl;
+              LogDebug("TrackstersMergeProducer") << "Candidates in bin " << ibin << " are: " << searchable.size() << std::endl;
             }
             for (auto const & s : searchable) {
               auto const & st = searchableTracksters[s];
@@ -302,7 +302,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                     std::back_inserter(combined.vertex_multiplicity));
                 result->push_back(combined);
                 if (debug_) {
-                  std::cout << " linked to st obj: " << st.barycenter
+                  LogDebug("TrackstersMergeProducer") << " linked to st obj: " << st.barycenter
                     << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(st.eigenvectors[0]))
                     << std::endl
                     << " regressed energy: " << st.regressed_energy
@@ -313,7 +313,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                 }
               } else {
                 if (debug_) {
-                  std::cout << " Missed link to st obj: " << st.barycenter
+                  LogDebug("TrackstersMergeProducer") << " Missed link to st obj: " << st.barycenter
                     << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(st.eigenvectors[0]))
                     << std::endl
                     << " regressed energy: " << st.regressed_energy
@@ -328,7 +328,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
         }
       } else if (diff_pt_sigmas > pt_sigma_high_) {
         if (debug_) {
-          std::cout << "Object should be split" << std::endl;
+          LogDebug("TrackstersMergeProducer") << "Object should be split" << std::endl;
         }
       } else {
         result->push_back(t);
@@ -340,11 +340,11 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     for (auto const & t : trackstersHAD) {
       int bin = tracksterTile[2].globalBin(t.barycenter.eta(), t.barycenter.phi());
       if (debug_) {
-        std::cout << "TrackstersMergeProducer HAD obj: " << t.barycenter
+        LogDebug("TrackstersMergeProducer") << "TrackstersMergeProducer HAD obj: " << t.barycenter
           << " regressed energy: " << t.regressed_energy
           << " raw_energy: " << t.raw_energy
           << std::endl;
-        std::cout << "Trying to associate closeby em energy" << std::endl;
+        LogDebug("TrackstersMergeProducer") << "Trying to associate closeby em energy" << std::endl;
       }
       auto const & ems = tracksterTile[0][bin];
       auto tracksterEM_idx = 0;
@@ -361,7 +361,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
               std::back_inserter(combined.vertex_multiplicity));
           result->push_back(combined);
           if (debug_) {
-            std::cout << " linked to em obj: " << em.barycenter
+            LogDebug("TrackstersMergeProducer") << " linked to em obj: " << em.barycenter
               << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]))
               << std::endl
               << " regressed energy: " << em.regressed_energy
@@ -371,7 +371,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
           }
         } else {
           if (debug_) {
-            std::cout << " Missed link to em obj: " << em.barycenter
+            LogDebug("TrackstersMergeProducer") << " Missed link to em obj: " << em.barycenter
               << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]))
               << std::endl
               << " regressed energy: " << em.regressed_energy
@@ -585,7 +585,7 @@ void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> 
 
   int counter = 0;
   for (auto const & t : tracksters) {
-    std::cout << counter++ << " TrackstersMergeProducer " << label << " obj barycenter: "
+    LogDebug("TrackstersMergeProducer") << counter++ << " TrackstersMergeProducer " << label << " obj barycenter: "
       << t.barycenter
       << " eta,phi: " << t.barycenter.eta() << ", " << t.barycenter.phi()
       << " pt: " << std::sqrt(t.eigenvectors[0].Unit().perp2())*t.raw_energy
@@ -600,13 +600,13 @@ void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> 
       << " regressed energy: " << t.regressed_energy
       << " probs: ";
     for (auto const & p : t.id_probabilities) {
-      std::cout << p << " ";
+      LogDebug("TrackstersMergeProducer") << p << " ";
     }
-    std::cout << " sigmas: ";
+    LogDebug("TrackstersMergeProducer") << " sigmas: ";
     for (auto const & s : t.sigmas) {
-      std::cout << s << " ";
+      LogDebug("TrackstersMergeProducer") << s << " ";
     }
-    std::cout << std::endl;
+    LogDebug("TrackstersMergeProducer") << std::endl;
   }
 }
 
