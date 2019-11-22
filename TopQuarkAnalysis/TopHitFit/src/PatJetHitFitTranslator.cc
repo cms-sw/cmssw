@@ -19,7 +19,7 @@ namespace hitfit {
 
   template <>
   JetTranslatorBase<pat::Jet>::JetTranslatorBase() {
-    std::string CMSSW_BASE(getenv("CMSSW_BASE"));
+    std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string resolution_filename =
         CMSSW_BASE + std::string("/src/TopQuarkAnalysis/PatHitFit/data/exampleJetResolution.txt");
     udscResolution_ = EtaDepResolution(resolution_filename);
@@ -32,7 +32,7 @@ namespace hitfit {
 
   template <>
   JetTranslatorBase<pat::Jet>::JetTranslatorBase(const std::string& udscFile, const std::string& bFile) {
-    std::string CMSSW_BASE(getenv("CMSSW_BASE"));
+    std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string udscResolution_filename;
     std::string bResolution_filename;
 
@@ -63,7 +63,7 @@ namespace hitfit {
                                                  const std::string& jetCorrectionLevel,
                                                  double jes,
                                                  double jesB) {
-    std::string CMSSW_BASE(getenv("CMSSW_BASE"));
+    std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string udscResolution_filename;
     std::string bResolution_filename;
 

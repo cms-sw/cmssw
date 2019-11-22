@@ -83,8 +83,8 @@ private:
   // ----------member data ---------------------------
   const std::string nameDetector_;
   const edm::InputTag source_;
-  const bool ifNose_, ifHCAL_;
-  const int verbosity_, SampleIndx_, nbinR_, nbinZ_, nbinEta_;
+  const bool ifNose_, ifHCAL_, ifLayer_;
+  const int verbosity_, SampleIndx_, nbinR_, nbinZ_, nbinEta_, nLayers_;
   const double rmin_, rmax_, zmin_, zmax_, etamin_, etamax_;
   edm::EDGetToken digiSource_;
   const HGCalGeometry* hgcGeom_;
@@ -92,6 +92,7 @@ private:
   int layers_, layerFront_, geomType_;
   TH1D *h_Charge_, *h_ADC_, *h_LayZp_, *h_LayZm_;
   TH2D *h_RZ_, *h_EtaPhi_;
+  std::vector<TH2D*> h_XY_;
   TH1D *h_W1_, *h_W2_, *h_C1_, *h_C2_, *h_Ly_;
 };
 
@@ -100,11 +101,13 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig)
       source_(iConfig.getParameter<edm::InputTag>("digiSource")),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
       ifHCAL_(iConfig.getUntrackedParameter<bool>("ifHCAL", false)),
+      ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       SampleIndx_(iConfig.getUntrackedParameter<int>("sampleIndex", 5)),
       nbinR_(iConfig.getUntrackedParameter<int>("nBinR", 300)),
       nbinZ_(iConfig.getUntrackedParameter<int>("nBinZ", 300)),
       nbinEta_(iConfig.getUntrackedParameter<int>("nBinEta", 200)),
+      nLayers_(iConfig.getUntrackedParameter<int>("layers", 28)),
       rmin_(iConfig.getUntrackedParameter<double>("rMin", 0.0)),
       rmax_(iConfig.getUntrackedParameter<double>("rMax", 300.0)),
       zmin_(iConfig.getUntrackedParameter<double>("zMin", 300.0)),
@@ -138,6 +141,7 @@ void HGCalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("digiSource", edm::InputTag("hgcalDigis", "EE"));
   desc.addUntracked<bool>("ifNose", false);
   desc.addUntracked<bool>("ifHCAL", false);
+  desc.addUntracked<bool>("ifLayer", false);
   desc.addUntracked<int>("verbosity", 0);
   desc.addUntracked<int>("sampleIndex", 0);
   desc.addUntracked<double>("rMin", 0.0);
@@ -149,6 +153,7 @@ void HGCalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<int>("nBinR", 300);
   desc.addUntracked<int>("nBinZ", 300);
   desc.addUntracked<int>("nBinEta", 200);
+  desc.addUntracked<int>("layers", 28);
   descriptions.add("hgcalDigiStudyEE", desc);
 }
 
@@ -160,11 +165,22 @@ void HGCalDigiStudy::beginJob() {
   hname << "RZ_" << nameDetector_;
   title << "R vs Z for " << nameDetector_;
   h_RZ_ = fs->make<TH2D>(hname.str().c_str(), title.str().c_str(), nbinZ_, zmin_, zmax_, nbinR_, rmin_, rmax_);
-  hname.str("");
-  title.str("");
-  hname << "EtaPhi_" << nameDetector_;
-  title << "#phi vs #eta for " << nameDetector_;
-  h_EtaPhi_ = fs->make<TH2D>(hname.str().c_str(), title.str().c_str(), nbinEta_, etamin_, etamax_, 200, -M_PI, M_PI);
+  if (ifLayer_) {
+    for (int ly = 0; ly < nLayers_; ++ly) {
+      hname.str("");
+      title.str("");
+      hname << "XY_L" << (ly + 1);
+      title << "Y vs X at Layer " << (ly + 1);
+      h_XY_.emplace_back(
+          fs->make<TH2D>(hname.str().c_str(), title.str().c_str(), nbinR_, -rmax_, rmax_, nbinR_, -rmax_, rmax_));
+    }
+  } else {
+    hname.str("");
+    title.str("");
+    hname << "EtaPhi_" << nameDetector_;
+    title << "#phi vs #eta for " << nameDetector_;
+    h_EtaPhi_ = fs->make<TH2D>(hname.str().c_str(), title.str().c_str(), nbinEta_, etamin_, etamax_, 200, -M_PI, M_PI);
+  }
   hname.str("");
   title.str("");
   hname << "Charge_" << nameDetector_;
@@ -443,7 +459,12 @@ void HGCalDigiStudy::digiValidation(const T1& detId, const T2* geom, int layer, 
   h_Charge_->Fill(hinfo.charge);
   h_ADC_->Fill(hinfo.adc);
   h_RZ_->Fill(std::abs(hinfo.z), hinfo.r);
-  h_EtaPhi_->Fill(hinfo.eta, hinfo.phi);
+  if (ifLayer_) {
+    if (layer <= static_cast<int>(h_XY_.size()))
+      h_XY_[layer - 1]->Fill(gcoord.x(), gcoord.y());
+  } else {
+    h_EtaPhi_->Fill(hinfo.eta, hinfo.phi);
+  }
   if (hinfo.z > 0)
     h_LayZp_->Fill(hinfo.layer, hinfo.charge);
   else

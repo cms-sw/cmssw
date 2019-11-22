@@ -403,8 +403,8 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void RawTask::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::beginLuminosityBlock(lb, es);
+/* virtual */ void RawTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::dqmBeginLuminosityBlock(lb, es);
 
   //	_cBadQualityvsLS.extendAxisRange(_currentLS);
 
@@ -415,7 +415,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	_cSummaryvsLS.extendAxisRange(_currentLS);
 }
 
-/* virtual */ void RawTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void RawTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype != fOnline)
     return;
 
@@ -480,7 +480,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _xBadQLS.reset();
 
   //	in the end always do the DQTask::endLumi
-  DQTask::endLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(RawTask);

@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -44,7 +44,7 @@
 
 class PreMixingSiStripWorker : public PreMixingWorker {
 public:
-  PreMixingSiStripWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+  PreMixingSiStripWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
   ~PreMixingSiStripWorker() override = default;
 
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -144,7 +144,7 @@ private:
 };
 
 PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
-                                               edm::ProducerBase& producer,
+                                               edm::ProducesCollector producesCollector,
                                                edm::ConsumesCollector&& iC)
     : gainLabel(ps.getParameter<std::string>("Gain")),
       SingleStripNoise(ps.getParameter<bool>("SingleStripNoise")),
@@ -172,8 +172,8 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
   SiStripDigiCollectionDM_ = ps.getParameter<std::string>("SiStripDigiCollectionDM");
   SistripAPVListDM_ = ps.getParameter<std::string>("SiStripAPVListDM");
 
-  producer.produces<edm::DetSetVector<SiStripDigi>>(SiStripDigiCollectionDM_);
-  producer.produces<bool>(SiStripDigiCollectionDM_ + "SimulatedAPVDynamicGain");
+  producesCollector.produces<edm::DetSetVector<SiStripDigi>>(SiStripDigiCollectionDM_);
+  producesCollector.produces<bool>(SiStripDigiCollectionDM_ + "SimulatedAPVDynamicGain");
 
   if (APVSaturationFromHIP_) {
     SistripAPVLabelSig_ = ps.getParameter<edm::InputTag>("SistripAPVLabelSig");
@@ -561,46 +561,49 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         LocalPoint localPos = topol->localPosition(0);
         GlobalPoint globalPos = sgd->surface().toGlobal(Local3DPoint(localPos.x(), localPos.y(), localPos.z()));
         float detSet_z = fabs(globalPos.z());
+        float detSet_r = globalPos.perp();
 
         const uint32_t SubDet = DetId(detID).subdetId();
         // Simulate APV response for each strip
-        if (SubDet == SiStripSubdetector::TIB || SubDet == SiStripSubdetector::TOB) {
-          for (int strip = 0; strip < numStrips; ++strip) {
-            if (detAmpl[strip] > 0) {
-              // Convert charge from electrons to fC
-              double stripCharge = detAmpl[strip] * apv_fCPerElectron_;
+        for (int strip = 0; strip < numStrips; ++strip) {
+          if (detAmpl[strip] > 0) {
+            // Convert charge from electrons to fC
+            double stripCharge = detAmpl[strip] * apv_fCPerElectron_;
 
-              // Get APV baseline
-              double baselineV = 0;
-              if (SubDet == SiStripSubdetector::TIB) {
-                baselineV = apvSimulationParametersHandle->sampleTIB(tTopo->tibLayer(detID), detSet_z, nTruePU, engine);
-              } else if (SubDet == SiStripSubdetector::TOB) {
-                baselineV = apvSimulationParametersHandle->sampleTOB(tTopo->tobLayer(detID), detSet_z, nTruePU, engine);
-              }
-              // Fitted parameters from G Hall/M Raymond
-              double maxResponse = apv_maxResponse_;
-              double rate = apv_rate_;
-
-              double outputChargeInADC = 0;
-              if (baselineV < apv_maxResponse_) {
-                // Convert V0 into baseline charge
-                double baselineQ = -1.0 * rate * log(2 * maxResponse / (baselineV + maxResponse) - 1);
-
-                // Add charge deposited in this BX
-                double newStripCharge = baselineQ + stripCharge;
-
-                // Apply APV response
-                double signalV = 2 * maxResponse / (1 + exp(-1.0 * newStripCharge / rate)) - maxResponse;
-                double gain = signalV - baselineV;
-
-                // Convert gain (mV) to charge (assuming linear region of APV) and then to electrons
-                double outputCharge = gain / apv_mVPerQ_;
-                outputChargeInADC = outputCharge / apv_fCPerElectron_;
-              }
-
-              // Output charge back to original container
-              detAmpl[strip] = outputChargeInADC;
+            // Get APV baseline
+            double baselineV = 0;
+            if (SubDet == SiStripSubdetector::TIB) {
+              baselineV = apvSimulationParametersHandle->sampleTIB(tTopo->tibLayer(detID), detSet_z, nTruePU, engine);
+            } else if (SubDet == SiStripSubdetector::TOB) {
+              baselineV = apvSimulationParametersHandle->sampleTOB(tTopo->tobLayer(detID), detSet_z, nTruePU, engine);
+            } else if (SubDet == SiStripSubdetector::TID) {
+              baselineV = apvSimulationParametersHandle->sampleTID(tTopo->tidWheel(detID), detSet_r, nTruePU, engine);
+            } else if (SubDet == SiStripSubdetector::TEC) {
+              baselineV = apvSimulationParametersHandle->sampleTEC(tTopo->tecWheel(detID), detSet_r, nTruePU, engine);
             }
+            // Fitted parameters from G Hall/M Raymond
+            double maxResponse = apv_maxResponse_;
+            double rate = apv_rate_;
+
+            double outputChargeInADC = 0;
+            if (baselineV < apv_maxResponse_) {
+              // Convert V0 into baseline charge
+              double baselineQ = -1.0 * rate * log(2 * maxResponse / (baselineV + maxResponse) - 1);
+
+              // Add charge deposited in this BX
+              double newStripCharge = baselineQ + stripCharge;
+
+              // Apply APV response
+              double signalV = 2 * maxResponse / (1 + exp(-1.0 * newStripCharge / rate)) - maxResponse;
+              double gain = signalV - baselineV;
+
+              // Convert gain (mV) to charge (assuming linear region of APV) and then to electrons
+              double outputCharge = gain / apv_mVPerQ_;
+              outputChargeInADC = outputCharge / apv_fCPerElectron_;
+            }
+
+            // Output charge back to original container
+            detAmpl[strip] = outputChargeInADC;
           }
         }
       }

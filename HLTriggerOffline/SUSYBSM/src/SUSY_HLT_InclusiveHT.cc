@@ -169,7 +169,7 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const &e, edm::EventSetup const &e
   }
 }
 
-void SUSY_HLT_InclusiveHT::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_InclusiveHT::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::endRun" << std::endl;
 }
 

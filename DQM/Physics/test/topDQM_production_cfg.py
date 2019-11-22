@@ -107,11 +107,11 @@ process.p      = cms.Path(
     #process.DiElectronDQM              +
     #process.ElecMuonDQM                +
     #process.topSingleMuonLooseDQM      +
-    process.ak4PFCHSL1FastL2L3CorrectorChain * process.topSingleMuonMediumDQM     +
+    process.dqmAk4PFCHSL1FastL2L3CorrectorChain * process.topSingleMuonMediumDQM     +
     #process.topSingleElectronLooseDQM  +
-    process.ak4PFCHSL1FastL2L3CorrectorChain * process.topSingleElectronMediumDQM +
-    process.ak4PFCHSL1FastL2L3CorrectorChain * process.singleTopMuonMediumDQM      +
-    process.ak4PFCHSL1FastL2L3CorrectorChain * process.singleTopElectronMediumDQM
+    process.dqmAk4PFCHSL1FastL2L3CorrectorChain * process.topSingleElectronMediumDQM +
+    process.dqmAk4PFCHSL1FastL2L3CorrectorChain * process.singleTopMuonMediumDQM      +
+    process.dqmAk4PFCHSL1FastL2L3CorrectorChain * process.singleTopElectronMediumDQM
 )
 process.endjob = cms.Path(
     process.endOfProcess

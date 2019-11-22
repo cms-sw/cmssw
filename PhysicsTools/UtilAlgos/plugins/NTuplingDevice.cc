@@ -66,7 +66,7 @@ NTuplingDevice::NTuplingDevice(const edm::ParameterSet& iConfig) {
   ntupler_ = NTuplerFactory::get()->create(ntuplerName, ntPset);
 
   //register the leaves from the ntupler
-  ntupler_->registerleaves(this);
+  ntupler_->registerleaves(producesCollector());
 
   //put a dummy product if the ntupler does not output on edm
   produces<double>("dummy");

@@ -38,5 +38,4 @@ trackingGlobalRecoTask = cms.Task(ckftracksTask, trackExtrapolator)
 trackingGlobalReco = cms.Sequence(trackingGlobalRecoTask)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-_fastSim_trackingGlobalReco = cms.Sequence(trackExtrapolator)
-fastSim.toReplaceWith(trackingGlobalReco,_fastSim_trackingGlobalReco)
+fastSim.toReplaceWith(trackingGlobalRecoTask, cms.Task(doAlldEdXEstimatorsTask, trackExtrapolator))

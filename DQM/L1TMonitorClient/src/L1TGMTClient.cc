@@ -43,7 +43,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
   if (eff_eta_dtcsc != nullptr) {
     eff_eta_dtcsc->setAxisTitle("eta", 1);
     if (eff_eta_dtcsc->getTH1F()->GetSumw2N() == 0)
-      eff_eta_dtcsc->getTH1F()->Sumw2();
+      eff_eta_dtcsc->enableSumw2();
   }
 
   eff_eta_rpc = bookClone1DVB(ibooker, igetter, "eff_eta_rpc", "efficiency RPC vs eta", "eta_DTCSC_and_RPC");
@@ -51,7 +51,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
   if (eff_eta_rpc != nullptr) {
     eff_eta_rpc->setAxisTitle("eta", 1);
     if (eff_eta_rpc->getTH1F()->GetSumw2N() == 0)
-      eff_eta_rpc->getTH1F()->Sumw2();
+      eff_eta_rpc->enableSumw2();
   }
 
   eff_phi_dtcsc = bookClone1D(ibooker, igetter, "eff_phi_dtcsc", "efficiency DTCSC vs phi", "phi_DTCSC_and_RPC");
@@ -59,7 +59,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
   if (eff_phi_dtcsc != nullptr) {
     eff_phi_dtcsc->setAxisTitle("phi (deg)", 1);
     if (eff_phi_dtcsc->getTH1F()->GetSumw2N() == 0)
-      eff_phi_dtcsc->getTH1F()->Sumw2();
+      eff_phi_dtcsc->enableSumw2();
   }
 
   eff_phi_rpc = bookClone1D(ibooker, igetter, "eff_phi_rpc", "efficiency RPC vs phi", "phi_DTCSC_and_RPC");
@@ -67,7 +67,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
   if (eff_phi_rpc != nullptr) {
     eff_phi_rpc->setAxisTitle("phi (deg)", 1);
     if (eff_phi_rpc->getTH1F()->GetSumw2N() == 0)
-      eff_phi_rpc->getTH1F()->Sumw2();
+      eff_phi_rpc->enableSumw2();
   }
 
   eff_etaphi_dtcsc =
@@ -77,7 +77,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
     eff_etaphi_dtcsc->setAxisTitle("eta", 1);
     eff_etaphi_dtcsc->setAxisTitle("phi (deg)", 2);
     if (eff_etaphi_dtcsc->getTH2F()->GetSumw2N() == 0)
-      eff_etaphi_dtcsc->getTH2F()->Sumw2();
+      eff_etaphi_dtcsc->enableSumw2();
   }
 
   eff_etaphi_rpc =
@@ -87,7 +87,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
     eff_etaphi_rpc->setAxisTitle("eta", 1);
     eff_etaphi_rpc->setAxisTitle("phi (deg)", 2);
     if (eff_etaphi_rpc->getTH2F()->GetSumw2N() == 0)
-      eff_etaphi_rpc->getTH2F()->Sumw2();
+      eff_etaphi_rpc->enableSumw2();
   }
 
   processHistograms(ibooker, igetter);

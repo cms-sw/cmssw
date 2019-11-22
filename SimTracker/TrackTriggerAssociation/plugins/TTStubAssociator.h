@@ -32,7 +32,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 

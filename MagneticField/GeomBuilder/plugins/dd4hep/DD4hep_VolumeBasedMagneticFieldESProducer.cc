@@ -17,7 +17,6 @@
 
 #include "MagneticField/GeomBuilder/src/DD4hep_MagGeoBuilder.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"

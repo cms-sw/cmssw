@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
 process = cms.Process("PROD",Phase2C4)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2023D28Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D35Reco_cff")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')

@@ -32,7 +32,7 @@
 
   <IncludeSection>
     <Include ref="DetectorDescription/DDCMS/data/testDDAngularAlgorithm.xml"/>
-    <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
   </IncludeSection>
   
 </DDDefinition>

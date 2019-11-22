@@ -30,7 +30,7 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       continue;
 
     // retrieve the geometry element associated to this DetID
-    const DetGeomDesc* det = geom.getSensor(detid);
+    const DetGeomDesc* det = geom.sensor(detid);
 
     const float x_pos = det->translation().x(), y_pos = det->translation().y();
     float z_pos = 0.;
@@ -51,7 +51,7 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert(detid);
 
     for (const auto& digi : vec) {
-      const int t_lead = digi.getLeadingEdge(), t_trail = digi.getTrailingEdge();
+      const int t_lead = digi.leadingEdge(), t_trail = digi.trailingEdge();
       // skip invalid digis
       if (t_lead == 0 && t_trail == 0)
         continue;
@@ -87,8 +87,8 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
           ch_t_precis,
           time_slice,
           // readout information
-          digi.getHPTDCErrorFlags(),
-          digi.getMultipleHit());
+          digi.hptdcErrorFlags(),
+          digi.multipleHit());
     }
   }
 }

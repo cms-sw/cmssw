@@ -79,14 +79,14 @@ namespace cond {
       // authentication
       if (authPath.empty()) {
         // first try to check the env...
-        const char* authEnv = ::getenv(cond::auth::COND_AUTH_PATH);
+        const char* authEnv = std::getenv(cond::auth::COND_AUTH_PATH);
         if (authEnv) {
           authPath += authEnv;
         }
       }
       int authSys = m_authSys;
       // first attempt, look at the env...
-      const char* authSysEnv = ::getenv(cond::auth::COND_AUTH_SYS);
+      const char* authSysEnv = std::getenv(cond::auth::COND_AUTH_SYS);
       if (authSysEnv) {
         authSys = ::atoi(authSysEnv);
       }
@@ -97,7 +97,7 @@ namespace cond {
       std::string servName("");
       if (authSys == CondDbKey) {
         if (authPath.empty()) {
-          const char* authEnv = ::getenv("HOME");
+          const char* authEnv = std::getenv("HOME");
           if (authEnv) {
             authPath += authEnv;
           }

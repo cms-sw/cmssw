@@ -17,8 +17,13 @@ DQMOfflinePrePOG = cms.Sequence(
     dqmPhysics *
     produceDenomsData *
     pfTauRunDQMValidation
-    
     )
+
+# Fix Jet Corrector in FastSim
+topSingleMuonMediumDQM.setup.jetExtras.jetCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+topSingleElectronMediumDQM.setup.jetExtras.jetCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+singleTopMuonMediumDQM.setup.jetExtras.jetCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+singleTopElectronMediumDQM.setup.jetExtras.jetCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 
 DQMOffline = cms.Sequence(DQMOfflinePrePOG)
 PostDQMOffline = cms.Sequence()

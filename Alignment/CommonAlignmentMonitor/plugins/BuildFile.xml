@@ -91,7 +91,6 @@
   <use   name="DataFormats/CSCRecHit"/>
   <use   name="DataFormats/DTRecHit"/>
   <use   name="DataFormats/TrackingRecHit"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
   <use   name="Geometry/DTGeometry"/>
   <use   name="Geometry/CSCGeometry"/>
   <use   name="Geometry/CommonDetUnit"/>
@@ -104,7 +103,6 @@
 
 <library   name="AlignmentStats" file="AlignmentStats.cc">
   <use   name="FWCore/Utilities"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
   <use   name="Geometry/Records"/>
   <use   name="Alignment/CommonAlignment"/>
   <use   name="Alignment/TrackerAlignment"/>

@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 // user include files
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -28,8 +29,6 @@
 #include "DataFormats/Luminosity/interface/LumiDetails.h"  // Luminosity Information
 #include "DataFormats/Luminosity/interface/LumiSummary.h"  // Luminosity Information
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 #include <TString.h>
@@ -42,7 +41,7 @@
 // class declaration
 //
 
-class L1TRate_Offline : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TRate_Offline : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   enum Errors { UNKNOWN = 1, WARNING_PY_MISSING_FIT = 2 };
 

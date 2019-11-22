@@ -92,7 +92,7 @@ defaultOptions.nConcurrentLumis = '1'
 def dumpPython(process,name):
     theObject = getattr(process,name)
     if isinstance(theObject,cms.Path) or isinstance(theObject,cms.EndPath) or isinstance(theObject,cms.Sequence):
-        return "process."+name+" = " + theObject.dumpPython("process")
+        return "process."+name+" = " + theObject.dumpPython()
     elif isinstance(theObject,_Module) or isinstance(theObject,cms.ESProducer):
         return "process."+name+" = " + theObject.dumpPython()+"\n"
     else:
@@ -1915,7 +1915,7 @@ class ConfigBuilder(object):
 
 
     def expandMapping(self,seqList,mapping,index=None):
-        maxLevel=20
+        maxLevel=25
         level=0
         while '@' in repr(seqList) and level<maxLevel:
             level+=1
@@ -1964,8 +1964,12 @@ class ConfigBuilder(object):
                 #will get in the schedule, smoothly
                 getattr(self.process,pathName).insert(0,self.process.genstepfilter)
 
+
         pathName='dqmofflineOnPAT_step'
         for (i,sequence) in enumerate(postSequenceList):
+	    #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
+            if (sequenceList[i]==postSequenceList[i]):
+                      continue
             if (i!=0):
                 pathName='dqmofflineOnPAT_%d_step'%(i)
 

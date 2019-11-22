@@ -271,9 +271,9 @@ void DDCoreToDDXMLOutput::solid(const DDSolid& solid, std::ostream& xos) {
       std::vector<double> zs = rs.zscaleVec();
 
       xos << "<ExtrudedPolygon name=\"" << rs.toString() << "\"";
-      for (unsigned int i : x)
+      for (unsigned int i = 0; i < x.size(); ++i)
         xos << " <XYPoint x=\"" << x[i] << "*mm\" y=\"" << y[i] << "*mm\"/>\n";
-      for (unsigned int k : z)
+      for (unsigned int k = 0; k < z.size(); ++k)
         xos << " <ZXYSection z=\"" << z[k] << "*mm\" x=\"" << zx[k] << "*mm\" y=\"" << zy[k] << "*mm scale=" << zs[k]
             << "*mm\"/>\n";
       xos << "</ExtrudedPolygon>\n";

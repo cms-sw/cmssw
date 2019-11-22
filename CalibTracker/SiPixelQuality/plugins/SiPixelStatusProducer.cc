@@ -34,7 +34,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 // EDProducer related dataformat
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"

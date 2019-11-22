@@ -26,11 +26,12 @@ public:
 
 private:
   edm::ParameterSet pset_;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> ddToken_;
 };
 
 MTDCPEESProducer::MTDCPEESProducer(const edm::ParameterSet& p) {
   pset_ = p;
-  setWhatProduced(this, "MTDCPEBase");
+  setWhatProduced(this, "MTDCPEBase").setConsumes(ddToken_);
 }
 
 // Configuration descriptions
@@ -40,10 +41,7 @@ void MTDCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 std::unique_ptr<MTDClusterParameterEstimator> MTDCPEESProducer::produce(const MTDCPERecord& iRecord) {
-  edm::ESHandle<MTDGeometry> pDD;
-  iRecord.getRecord<MTDDigiGeometryRecord>().get(pDD);
-
-  return std::make_unique<MTDCPEBase>(pset_, *pDD.product());
+  return std::make_unique<MTDCPEBase>(pset_, iRecord.get(ddToken_));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

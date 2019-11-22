@@ -8,7 +8,7 @@
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "SimG4Core/DD4hepGeometry/interface/DD4hep_DDDWorld.h"
 #include "DDG4/Geant4Converter.h"
@@ -83,7 +83,7 @@ void DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup) {
   ESTransientHandle<DDVectorRegistry> reg;
   regRecord.get(tag_, reg);
 
-  const GeometryFileRcd& ddRecord = iEventSetup.get<GeometryFileRcd>();
+  const auto& ddRecord = iEventSetup.get<IdealGeometryRecord>();
   ESTransientHandle<DDDetector> ddd;
   ddRecord.get(tag_, ddd);
 

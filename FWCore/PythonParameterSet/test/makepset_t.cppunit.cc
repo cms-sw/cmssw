@@ -208,8 +208,8 @@ void testmakepset::fileinpathAux() {
     edm::FileInPath ufip = innerps.getUntrackedParameter<edm::FileInPath>("ufip");
     CPPUNIT_ASSERT(innerps.existsAs<int>("extraneous"));
     CPPUNIT_ASSERT(!innerps.existsAs<int>("absent"));
-    char* releaseBase = getenv("CMSSW_RELEASE_BASE");
-    char* localBase = getenv("CMSSW_BASE");
+    char* releaseBase = std::getenv("CMSSW_RELEASE_BASE");
+    char* localBase = std::getenv("CMSSW_BASE");
     localArea = (releaseBase != nullptr && strlen(releaseBase) != 0 && strcmp(releaseBase, localBase));
     if (localArea) {
       // Need to account for possible symbolic links

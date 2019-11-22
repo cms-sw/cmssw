@@ -6,7 +6,7 @@ process.load('SimG4CMS.HcalTestBeam.TB2007GeometryNoESXML_cfi')
 process.load('SimGeneral.HepPDTESSource.pdt_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
+process.load('Geometry.HcalTestBeamData.hcalDDDSimConstants_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
 process.load('GeneratorInterface.Core.generatorSmeared_cfi')
@@ -133,6 +133,7 @@ process.g4SimHits.HCalSD.WtFile     = ' '
 process.g4SimHits.HCalSD.UseShowerLibrary    = False
 process.g4SimHits.HCalSD.TestNumberingScheme = False
 process.g4SimHits.HCalSD.UseHF   = False
+process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression1,

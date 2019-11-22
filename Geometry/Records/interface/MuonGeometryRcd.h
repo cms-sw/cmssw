@@ -2,7 +2,6 @@
 #define GEOMETRY_RECORDS_MUON_GEOMETRY_RCD_H
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
@@ -16,7 +15,6 @@ class MuonGeometryRcd
     : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRcd,
                                                             boost::mpl::vector<MuonNumberingRcd,
                                                                                DDSpecParRegistryRcd,
-                                                                               DetectorDescriptionRcd,
                                                                                GlobalPositionRcd,
                                                                                DTAlignmentRcd,
                                                                                DTAlignmentErrorRcd,

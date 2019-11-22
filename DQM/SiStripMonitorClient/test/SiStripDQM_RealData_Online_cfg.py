@@ -100,7 +100,8 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #--------------------------
 # Quality Test
 #--------------------------
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     getQualityTestsFromFile = cms.untracked.bool(True)

@@ -6,11 +6,11 @@
 
 TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
   std::string dirString;
-  auto dir = getenv("LOCAL_TEST_DIR");
+  auto dir = std::getenv("LOCAL_TEST_DIR");
   if (dir) {
     dirString = dir;
   } else {
-    auto base_dir = getenv("CMSSW_BASE");
+    auto base_dir = std::getenv("CMSSW_BASE");
     if (base_dir) {
       dirString = base_dir;
       dirString += "/src/FWCore/Services/test";

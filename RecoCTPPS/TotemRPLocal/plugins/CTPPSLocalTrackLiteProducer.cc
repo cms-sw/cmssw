@@ -99,16 +99,15 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
         if (!trk.isValid())
           continue;
 
-        float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<14>(trk.getX0());
-        float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
-        float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
-        float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getY0Sigma());
-        float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTx());
-        float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTxSigma());
-        float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTy());
-        float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
-        float roundedChiSquaredOverNDF =
-            MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
+        float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<14>(trk.x0());
+        float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.x0Sigma());
+        float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.y0());
+        float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.y0Sigma());
+        float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.tx());
+        float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.txSigma());
+        float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.ty());
+        float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.tySigma());
+        float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.chiSquaredOverNDF());
 
         pOut->emplace_back(rpId,  // detector info
                                   // spatial info
@@ -124,7 +123,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
                            // reconstruction info
                            roundedChiSquaredOverNDF,
                            CTPPSpixelLocalTrackReconstructionInfo::invalid,
-                           trk.getNumberOfPointsUsedForFit(),
+                           trk.numberOfPointsUsedForFit(),
                            // timing info
                            0.,
                            0.);
@@ -146,16 +145,16 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
         if (!trk.isValid())
           continue;
 
-        const float abs_time = trk.getT() + trk.getOOTIndex() * HPTDC_TIME_SLICE_WIDTH;
+        const float abs_time = trk.time() + trk.ootIndex() * HPTDC_TIME_SLICE_WIDTH;
         if (abs_time < timingTrackTMin_ || abs_time > timingTrackTMax_)
           continue;
 
-        float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
-        float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
-        float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
-        float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getY0Sigma());
+        float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.x0());
+        float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.x0Sigma());
+        float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.y0());
+        float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.y0Sigma());
         float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(abs_time);
-        float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getTSigma());
+        float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.timeSigma());
 
         pOut->emplace_back(rpId,  // detector info
                                   // spatial info
@@ -171,7 +170,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
                            // reconstruction info
                            0.,
                            CTPPSpixelLocalTrackReconstructionInfo::invalid,
-                           trk.getNumOfPlanes(),
+                           trk.numberOfPlanes(),
                            // timing info
                            roundedT,
                            roundedTSigma);
@@ -192,18 +191,18 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
         for (const auto &trk : rpv) {
           if (!trk.isValid())
             continue;
-          if (trk.getTx() > pixelTrackTxMin_ && trk.getTx() < pixelTrackTxMax_ && trk.getTy() > pixelTrackTyMin_ &&
-              trk.getTy() < pixelTrackTyMax_) {
-            float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
-            float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
-            float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
-            float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getY0Sigma());
-            float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTx());
-            float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTxSigma());
-            float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTy());
-            float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
+          if (trk.tx() > pixelTrackTxMin_ && trk.tx() < pixelTrackTxMax_ && trk.ty() > pixelTrackTyMin_ &&
+              trk.ty() < pixelTrackTyMax_) {
+            float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.x0());
+            float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.x0Sigma());
+            float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.y0());
+            float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.y0Sigma());
+            float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.tx());
+            float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.txSigma());
+            float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.ty());
+            float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.tySigma());
             float roundedChiSquaredOverNDF =
-                MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
+                MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.chiSquaredOverNDF());
 
             pOut->emplace_back(rpId,  // detector info
                                       // spatial info
@@ -218,8 +217,8 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
                                roundedTySigma,
                                // reconstruction info
                                roundedChiSquaredOverNDF,
-                               trk.getRecoInfo(),
-                               trk.getNumberOfPointsUsedForFit(),
+                               trk.recoInfo(),
+                               trk.numberOfPointsUsedForFit(),
                                // timing info
                                0.,
                                0.);

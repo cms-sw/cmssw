@@ -46,7 +46,7 @@ TotemRPLocalTrack::TotemRPLocalTrack(double z0,
 
 //----------------------------------------------------------------------------------------------------
 
-TVectorD TotemRPLocalTrack::getParameterVector() const {
+TVectorD TotemRPLocalTrack::parameterVector() const {
   TVectorD v(dimension);
 
   for (int i = 0; i < dimension; ++i)
@@ -64,7 +64,7 @@ void TotemRPLocalTrack::setParameterVector(const TVectorD &track_params_vector) 
 
 //----------------------------------------------------------------------------------------------------
 
-TMatrixD TotemRPLocalTrack::getCovarianceMatrix() const {
+TMatrixD TotemRPLocalTrack::covarianceMatrix() const {
   TMatrixD m(dimension, dimension);
 
   for (int i = 0; i < dimension; ++i)

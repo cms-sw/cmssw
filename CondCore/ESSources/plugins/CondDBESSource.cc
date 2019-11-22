@@ -52,7 +52,7 @@ namespace {
     cond::persistency::IOVProxy get(std::string name) const override {
       CondDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);
       if (p != m_proxies.end())
-        return (*p).second->proxy()->iov();
+        return (*p).second->iovProxy();
       return cond::persistency::IOVProxy();
     }
 
@@ -78,7 +78,7 @@ namespace {
         ;
     //if ( proxy.proxy()->stats.nLoad>0) {
     out << "Time look up, payloadIds:" << std::endl;
-    const auto& pids = proxy.proxy()->requests();
+    const auto& pids = *proxy.requests();
     for (auto id : pids)
       out << "   " << id.since << " - " << id.till << " : " << id.payloadId << std::endl;
   }
@@ -263,7 +263,7 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
   ProxyMap::iterator b = m_proxies.begin();
   ProxyMap::iterator e = m_proxies.end();
   for (; b != e; b++) {
-    (*b).second->proxy()->loadMore(visitor);
+    (*b).second->proxy(0)->loadMore(visitor);
 
     /// required by eventsetup
     EventSetupRecordKey recordKey(EventSetupRecordKey::TypeTag::findType((*b).first));
@@ -396,7 +396,7 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
                                    << ", timestamp: " << iTime.time().value()
                                    << "; from CondDBESSource::setIntervalFor";
 
-    timetype = (*pmIter).second->proxy()->timeType();
+    timetype = (*pmIter).second->timeType();
 
     cond::Time_t abtime = cond::time::fromIOVSyncValue(iTime, timetype);
     userTime = (0 == abtime);
@@ -453,8 +453,8 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
                                        << "\" from IOV tag \"" << tcIter->second.tagName() << "\" to be consumed by "
                                        << iTime.eventID() << ", timestamp: " << iTime.time().value()
                                        << "; from CondDBESSource::setIntervalFor";
-        pmIter->second->proxy()->setUp(iSess->second.first);
-        pmIter->second->proxy()->reload();
+        pmIter->second->session() = iSess->second.first;
+        pmIter->second->reload();
         //if( isSizeIncreased )
         //edm::LogInfo( "CondDBESSource" ) << "After reconnecting, an increased size of the IOV sequence labeled by tag \"" << tcIter->second.tag
         //				 << "\" was found; from CondDBESSource::setIntervalFor";
@@ -466,7 +466,7 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
                                        << pmIter->second->label() << "\" to be consumed by " << iTime.eventID()
                                        << ", timestamp: " << iTime.time().value()
                                        << "; from CondDBESSource::setIntervalFor";
-        pmIter->second->proxy()->reload();
+        pmIter->second->reload();
         //if( isSizeIncreased )
         //  edm::LogInfo( "CondDBESSource" ) << "After refreshing, an increased size of the IOV sequence labeled by tag \"" << tcIter->second.tag
         //				   << "\" was found; from CondDBESSource::setIntervalFor";
@@ -485,7 +485,7 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
     */
 
     //query the IOVSequence
-    cond::ValidityInterval validity = (*pmIter).second->proxy()->setIntervalFor(abtime);
+    cond::ValidityInterval validity = (*pmIter).second->setIntervalFor(abtime);
 
     edm::LogInfo("CondDBESSource") << "Validity coming from IOV sequence for record \"" << recordname
                                    << "\" and label \"" << pmIter->second->label() << "\": (" << validity.first << ", "
@@ -528,7 +528,7 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
 
 //required by EventSetup System
 edm::eventsetup::DataProxyProvider::KeyedProxiesVector CondDBESSource::registerProxies(
-    const EventSetupRecordKey& iRecordKey, unsigned int /* iovIndex */) {
+    const EventSetupRecordKey& iRecordKey, unsigned int iovIndex) {
   KeyedProxiesVector keyedProxiesVector;
 
   std::string recordname = iRecordKey.name();
@@ -545,10 +545,21 @@ edm::eventsetup::DataProxyProvider::KeyedProxiesVector CondDBESSource::registerP
     if (nullptr != (*p).second.get()) {
       edm::eventsetup::TypeTag type = (*p).second->type();
       DataKey key(type, edm::eventsetup::IdTags((*p).second->label().c_str()));
-      keyedProxiesVector.emplace_back(key, (*p).second->edmProxy());
+      keyedProxiesVector.emplace_back(key, (*p).second->edmProxy(iovIndex));
     }
   }
   return keyedProxiesVector;
+}
+
+void CondDBESSource::initConcurrentIOVs(const EventSetupRecordKey& key, unsigned int nConcurrentIOVs) {
+  std::string recordname = key.name();
+  ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
+  ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
+  for (ProxyMap::const_iterator p = b; p != e; ++p) {
+    if (p->second) {
+      p->second->initConcurrentIOVs(nConcurrentIOVs);
+    }
+  }
 }
 
 // Fills tag collection from the given globaltag

@@ -12,9 +12,6 @@ process = cms.Process("DISPLAY")
 
 #process.load("Configuration.StandardSequences.GeometryExtended_cff")
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-#process.load("MagneticField.Engine.volumeBasedMagneticField_120812_cfi")
-#process.load("MagneticField.Engine.volumeBasedMagneticField_120812_largeYE4_cfi")
-#process.load("MagneticField.Engine.volumeBasedMagneticField_130503_largeYE4_cfi")
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 
 MFGeom=True;
@@ -27,22 +24,14 @@ if MFGeom:
 #         'MagneticField/GeomBuilder/data/test.xml',
           # for 090322 and older
 #         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml',
-#        'MagneticField/GeomBuilder/data/MagneticFieldParameters_07.xml',
 
-          # for v7 (120812)
-#         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1_v7_large.xml',
-#         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_2_v7_large.xml',
-
-          # for v9 (130503)
-#         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1_v9_large.xml',
-#         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_2_v9_large.xml',
 
           # for 160812
         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml',
         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml',
 
-         'Geometry/CMSCommonData/data/materials.xml'),
-      rootNodeName = cms.string('cms:MCMS')
+        'Geometry/CMSCommonData/data/materials.xml'),
+      rootNodeName = cms.string('cmsMagneticField:MAGF')
  ) 
 else : 
  process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")

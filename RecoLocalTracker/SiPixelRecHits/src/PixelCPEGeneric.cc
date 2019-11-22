@@ -1,6 +1,6 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 // this is needed to get errors from templates

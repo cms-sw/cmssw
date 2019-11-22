@@ -96,7 +96,7 @@ public:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

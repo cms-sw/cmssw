@@ -8,7 +8,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2019_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.dumper = cms.EDAnalyzer("GEMDigiReader"
+process.dumper = cms.EDAnalyzer("GEMDigiReader",
     simhitToken = cms.InputTag("g4SimHits","MuonGEMHits"), 
     gemDigiToken = cms.InputTag("simMuonGEMDigis"), 
     gemDigiSimLinkToken = cms.InputTag("simMuonGEMDigis","GEM") 

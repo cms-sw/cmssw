@@ -335,6 +335,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         HFDarkening               = cms.bool(False),
         UseHF                     = cms.untracked.bool(True),
         ForTBH2                   = cms.untracked.bool(False),
+        ForTBHCAL                 = cms.untracked.bool(False),
         UseLayerWt                = cms.untracked.bool(False),
         WtFile                    = cms.untracked.string('None'),
         TestNS                    = cms.untracked.bool(False),
@@ -343,7 +344,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     CaloTrkProcessing = cms.PSet(
         TestBeam   = cms.bool(False),
         EminTrack  = cms.double(0.01),
-        PutHistory = cms.bool(False)
+        PutHistory = cms.bool(False),
+        DoFineCalo = cms.bool(False),
+        EminFineTrack = cms.double(10000.0),
+        EminFinePhoton = cms.double(5000.0)
     ),
     HFShower = cms.PSet(
         common_UsePMT,

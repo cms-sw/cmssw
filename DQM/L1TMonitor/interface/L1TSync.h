@@ -32,7 +32,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
@@ -43,7 +43,7 @@
 #include <string>
 #include <vector>
 
-class L1TSync : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TSync : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   enum BeamMode {
     NOMODE = 1,

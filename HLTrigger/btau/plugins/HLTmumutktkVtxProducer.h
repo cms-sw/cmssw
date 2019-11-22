@@ -46,7 +46,7 @@ public:
 private:
   bool overlap(const reco::TrackRef& trackref1, const reco::TrackRef& trackref2);
   static FreeTrajectoryState initialFreeState(const reco::Track&, const MagneticField*);
-  bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
+  bool checkPreviousCand(const reco::TrackRef& trackref, const std::vector<reco::RecoChargedCandidateRef>& ref2) const;
 
   const edm::InputTag muCandTag_;
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;

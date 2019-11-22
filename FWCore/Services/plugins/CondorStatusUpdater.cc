@@ -211,7 +211,7 @@ bool CondorStatusService::isChirpSupported() {
     return true;
   }
 
-  return getenv("_CONDOR_CHIRP_CONFIG") && updateChirp("Elapsed", "0");
+  return std::getenv("_CONDOR_CHIRP_CONFIG") && updateChirp("Elapsed", "0");
 }
 
 void CondorStatusService::firstUpdate() {

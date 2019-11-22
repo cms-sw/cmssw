@@ -39,7 +39,8 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testMetaGraphLoading);
 
 void testMetaGraphLoading::setUp() {
-  dataPath = cmsswPath("/test/" + std::string(getenv("SCRAM_ARCH")) + "/" + boost::filesystem::unique_path().string());
+  dataPath =
+      cmsswPath("/test/" + std::string(std::getenv("SCRAM_ARCH")) + "/" + boost::filesystem::unique_path().string());
 
   // create the graph
   std::string testPath = cmsswPath("/src/PhysicsTools/TensorFlow/test");

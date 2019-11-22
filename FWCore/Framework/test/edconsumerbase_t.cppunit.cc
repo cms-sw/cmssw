@@ -101,9 +101,15 @@ namespace {
   public:
     IntsConsumesCollectorConsumer(std::vector<edm::InputTag> const& iTags) {
       m_tokens.reserve(iTags.size());
-      edm::ConsumesCollector c{consumesCollector()};
+      edm::ConsumesCollector collector{consumesCollector()};
+      edm::ConsumesCollector collectorCopy(collector);
+      edm::ConsumesCollector collectorCopy1(collector);
+      edm::ConsumesCollector collectorCopy2(collector);
+      collectorCopy1 = collectorCopy;
+      collectorCopy2 = std::move(collectorCopy1);
+
       for (auto const& tag : iTags) {
-        m_tokens.push_back(c.consumes<std::vector<int>>(tag));
+        m_tokens.push_back(collectorCopy2.consumes<std::vector<int>>(tag));
       }
     }
 

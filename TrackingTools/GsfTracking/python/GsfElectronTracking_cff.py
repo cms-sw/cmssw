@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 
 electronSeedsTask = cms.Task(trackerDrivenElectronSeeds,ecalDrivenElectronSeeds,electronMergedSeeds) 

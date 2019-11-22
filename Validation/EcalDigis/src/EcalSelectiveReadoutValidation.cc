@@ -848,7 +848,7 @@ void EcalSelectiveReadoutValidation::dqmBeginRun(edm::Run const& r, edm::EventSe
   initAsciiFile();
 }
 
-void EcalSelectiveReadoutValidation::endRun(const edm::Run& r, const edm::EventSetup& es) {
+void EcalSelectiveReadoutValidation::dqmEndRun(const edm::Run& r, const edm::EventSetup& es) {
   meL1aRate_->Fill(getL1aRate());
 }
 

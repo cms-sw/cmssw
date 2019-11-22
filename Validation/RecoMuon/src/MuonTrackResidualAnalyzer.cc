@@ -116,7 +116,7 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
       ibooker.book2D("DeltaPtVsEtaSim2", "#Delta P_{t} vs #eta gen, sim quantity", 120, -3., 3., 500, -250., 250.);
 }
 
-void MuonTrackResidualAnalyzer::endRun(edm::Run const &, edm::EventSetup const &) {
+void MuonTrackResidualAnalyzer::dqmEndRun(edm::Run const &, edm::EventSetup const &) {
   if (!out.empty() && dbe_)
     dbe_->save(out);
 }

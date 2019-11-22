@@ -29,20 +29,19 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/eta3/etaMax.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cms/2026/v3/cms.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsextent/2018/v2/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/caloBase/2026/v2/caloBase.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/2015/v2/muonNumbering.xml'/>
     <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
     <Include ref='Geometry/MuonSimData/data/muonProdCuts/2021/v2/muonProdCuts.xml'/>
     <Include ref='Geometry/MuonSimData/data/muonSens.xml'/>
-    <Include ref='DetectorDescription/DDCMS/data/trackerParameters.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml'/>
     <Include ref='DetectorDescription/DDCMS/data/testDDVectors.xml'/>
   </IncludeSection>
-  
-  <PosPartSection label="">
-    <PosPart copyNumber="1">
-      <rParent name=":world_volume"/>
-      <rChild name="cms:OCMS"/>
-    </PosPart>
-  </PosPartSection>
 </DDDefinition>

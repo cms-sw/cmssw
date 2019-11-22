@@ -23,7 +23,9 @@ PFAlgo::PFAlgo(double nSigmaECAL,
       calibration_(calibration),
       thepfEnergyCalibrationHF_(thepfEnergyCalibrationHF),
       connector_() {
-  pfmu_ = std::make_unique<PFMuonAlgo>(pset);
+  const edm::ParameterSet pfMuonAlgoParams = pset.getParameter<edm::ParameterSet>("PFMuonAlgoParameters");
+  bool postMuonCleaning = pset.getParameter<bool>("postMuonCleaning");
+  pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams, postMuonCleaning);
 
   // Muon parameters
   muonHCAL_ = pset.getParameter<std::vector<double>>("muon_HCAL");
@@ -74,20 +76,14 @@ void PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate>& pfEgammaCa
 
 void PFAlgo::setMuonHandle(const edm::Handle<reco::MuonCollection>& muons) { muonHandle_ = muons; }
 
-void PFAlgo::setPostHFCleaningParameters(bool postHFCleaning,
-                                         double minHFCleaningPt,
-                                         double minSignificance,
-                                         double maxSignificance,
-                                         double minSignificanceReduction,
-                                         double maxDeltaPhiPt,
-                                         double minDeltaMet) {
+void PFAlgo::setPostHFCleaningParameters(bool postHFCleaning, const edm::ParameterSet& pfHFCleaningParams) {
   postHFCleaning_ = postHFCleaning;
-  minHFCleaningPt_ = minHFCleaningPt;
-  minSignificance_ = minSignificance;
-  maxSignificance_ = maxSignificance;
-  minSignificanceReduction_ = minSignificanceReduction;
-  maxDeltaPhiPt_ = maxDeltaPhiPt;
-  minDeltaMet_ = minDeltaMet;
+  minHFCleaningPt_ = pfHFCleaningParams.getParameter<double>("minHFCleaningPt");
+  minSignificance_ = pfHFCleaningParams.getParameter<double>("minSignificance");
+  maxSignificance_ = pfHFCleaningParams.getParameter<double>("maxSignificance");
+  minSignificanceReduction_ = pfHFCleaningParams.getParameter<double>("minSignificanceReduction");
+  maxDeltaPhiPt_ = pfHFCleaningParams.getParameter<double>("maxDeltaPhiPt");
+  minDeltaMet_ = pfHFCleaningParams.getParameter<double>("minDeltaMet");
 }
 
 void PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
@@ -1311,6 +1307,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
   LogTrace("PFAlgo|createCandidatesHCAL")
       << "start of function PFAlgo::createCandidatesHCAL, inds.hcalIs.size()=" << inds.hcalIs.size();
 
+  // --------------- loop hcal ------------------
+
   for (unsigned iHcal : inds.hcalIs) {
     PFBlockElement::Type type = elements[iHcal].type();
 
@@ -2419,7 +2417,9 @@ void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock& block,
                                           std::vector<bool>& deadArea) {
   // Processing the remaining HCAL clusters
   LogTrace("PFAlgo|createCandidatesHCALUnlinked")
-      << "start of function, PFAlgo::createCandidatesHCALUnlinked, hcalIs.size()=" << inds.hcalIs.size();
+      << "start of function PFAlgo::createCandidatesHCALUnlinked, hcalIs.size()=" << inds.hcalIs.size();
+
+  // --------------- loop remaining hcal ------------------
 
   for (unsigned iHcal : inds.hcalIs) {
     // Keep ECAL and HO elements for reference in the PFCandidate
@@ -2615,7 +2615,9 @@ void PFAlgo::createCandidatesECAL(const reco::PFBlock& block,
                                   ElementIndices& inds,
                                   std::vector<bool>& deadArea) {
   LogTrace("PFAlgo|createCandidatesECAL")
-      << "start of function PFALgo::createCandidatesECAL(), ecalIs.size()=" << inds.ecalIs.size();
+      << "start of function PFAlgo::createCandidatesECAL(), ecalIs.size()=" << inds.ecalIs.size();
+
+  // --------------- loop ecal ------------------
 
   // for each ecal element iEcal = ecalIs[i] in turn:
 

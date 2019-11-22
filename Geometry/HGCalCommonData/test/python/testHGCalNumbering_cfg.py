@@ -11,6 +11,7 @@ process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

@@ -74,6 +74,7 @@ Example: two algorithms each creating only one objects
 
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
+#include "FWCore/Framework/interface/es_impl/MayConsumeChooserBase.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
 
@@ -101,6 +102,8 @@ namespace edm {
   public:
     ESProducer();
     ~ESProducer() noexcept(false) override;
+    ESProducer(const ESProducer&) = delete;                   // stop default
+    ESProducer const& operator=(const ESProducer&) = delete;  // stop default
 
     void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
     ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
@@ -109,6 +112,21 @@ namespace edm {
       }
       return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESProxyIndex const*>(nullptr)
                                                       : &(itemsToGetFromRecords_[iIndex].front());
+    }
+
+    template <typename Record>
+    void updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) {
+      if (itemsToGetFromRecords_.empty() or itemsToGetFromRecords_[iIndex].empty()) {
+        return;
+      }
+      auto const info = consumesInfos_[iIndex].get();
+      for (size_t i = 0; i < info->size(); ++i) {
+        auto chooserBase = (*info)[i].chooser_.get();
+        if (chooserBase) {
+          auto chooser = static_cast<eventsetup::impl::MayConsumeChooserBase<Record>*>(chooserBase);
+          itemsToGetFromRecords_[iIndex][i] = chooser->makeChoice(iRecord);
+        }
+      }
     }
 
   protected:
@@ -169,9 +187,6 @@ namespace edm {
       consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
       return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(), id);
     }
-
-    ESProducer(const ESProducer&) = delete;                   // stop default
-    ESProducer const& operator=(const ESProducer&) = delete;  // stop default
 
   private:
     template <typename CallbackT, typename TList, typename TRecord>

@@ -6,7 +6,7 @@
 
 class GsfElectronProducer : public GsfElectronBaseProducer {
 public:
-  explicit GsfElectronProducer(const edm::ParameterSet&, const gsfAlgoHelpers::HeavyObjectCache*);
+  explicit GsfElectronProducer(const edm::ParameterSet&, const GsfElectronAlgo::HeavyObjectCache*);
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 protected:

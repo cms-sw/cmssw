@@ -36,7 +36,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 // Trigger Headers
 //
@@ -46,7 +46,7 @@ namespace l1tderct {
   struct Empty {};
 }  // namespace l1tderct
 
-class L1TdeRCT : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<l1tderct::Empty>> {
+class L1TdeRCT : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<l1tderct::Empty>> {
 public:
   // Constructor
   L1TdeRCT(const edm::ParameterSet& ps);

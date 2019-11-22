@@ -104,12 +104,6 @@ void HLTDisplacedtktktkVtxProducer::fillDescriptions(edm::ConfigurationDescripti
   descriptions.add("hltDisplacedtktktkVtxProducer", desc);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void HLTDisplacedtktktkVtxProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTDisplacedtktktkVtxProducer::endJob() {}
-
 // ------------ method called on each new Event  ------------
 void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get hold of track trks
@@ -280,7 +274,7 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
 }
 
 bool HLTDisplacedtktktkVtxProducer::checkPreviousCand(const TrackRef& trackref,
-                                                      vector<RecoChargedCandidateRef>& refVect) {
+                                                      const vector<RecoChargedCandidateRef>& refVect) const {
   bool ok = false;
   for (auto& i : refVect) {
     if (i->get<TrackRef>() == trackref) {

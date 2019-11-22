@@ -196,7 +196,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
     dbe_->setCurrentFolder(folderName_);
 
     // split hlt scalers up into groups of 20
-    const int maxlen = 40;
+    const int maxlen = 64;
     char metitle[maxlen];                     // histo name
     char mename[maxlen];                      // ME name
     int numHistos = int(npaths / kPerHisto);  // this hasta be w/o remainders

@@ -3,7 +3,6 @@ from __future__ import print_function
 #-toDo: move this to common?
 
 import logging
-import cStringIO
 import json
 import os
 import sys

@@ -50,7 +50,7 @@ public:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
-  void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmEndRun(const edm::Run& run, const edm::EventSetup& c) override;
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   int FillHitValHist(int side, int section, int channel, double energy, double time);

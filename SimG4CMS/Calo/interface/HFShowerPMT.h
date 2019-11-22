@@ -9,7 +9,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
 class G4Step;

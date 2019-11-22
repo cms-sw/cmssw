@@ -19,8 +19,8 @@
 
 #include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
@@ -300,5 +300,3 @@ void SiPixelOfflineCalibAnalysisBase::addTF1ToDQMMonitoringElement(MonitorElemen
   }
   return;
 }
-//define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelOfflineCalibAnalysisBase);

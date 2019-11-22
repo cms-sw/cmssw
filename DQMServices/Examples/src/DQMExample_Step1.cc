@@ -282,7 +282,7 @@ void DQMExample_Step1::analyze(edm::Event const &e, edm::EventSetup const &eSetu
 // -------------------------------------- endRun
 // --------------------------------------------
 //
-void DQMExample_Step1::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void DQMExample_Step1::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("DQMExample_Step1") << "DQMExample_Step1::endRun" << std::endl;
 }
 

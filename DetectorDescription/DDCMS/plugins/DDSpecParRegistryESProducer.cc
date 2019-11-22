@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
@@ -45,12 +45,12 @@ public:
   ReturnType produce(const DDSpecParRegistryRcd&);
 
 private:
-  const string m_label;
+  edm::ESGetToken<DDDetector, IdealGeometryRecord> m_token;
 };
 
-DDSpecParRegistryESProducer::DDSpecParRegistryESProducer(const edm::ParameterSet& iConfig)
-    : m_label(iConfig.getParameter<std::string>("appendToDataLabel")) {
-  setWhatProduced(this);
+DDSpecParRegistryESProducer::DDSpecParRegistryESProducer(const edm::ParameterSet& iConfig) {
+  setWhatProduced(this).setConsumes(m_token,
+                                    edm::ESInputTag("", iConfig.getParameter<std::string>("appendToDataLabel")));
 }
 
 DDSpecParRegistryESProducer::~DDSpecParRegistryESProducer() {}
@@ -61,12 +61,9 @@ void DDSpecParRegistryESProducer::fillDescriptions(edm::ConfigurationDescription
 }
 
 DDSpecParRegistryESProducer::ReturnType DDSpecParRegistryESProducer::produce(const DDSpecParRegistryRcd& iRecord) {
-  edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
-
-  const DDSpecParRegistry* registry = det->description()->extension<DDSpecParRegistry>();
+  const DDSpecParRegistry& registry = iRecord.get(m_token).specpars();
   auto product = std::make_unique<DDSpecParRegistry>();
-  product->specpars.insert(registry->specpars.begin(), registry->specpars.end());
+  product->specpars.insert(registry.specpars.begin(), registry.specpars.end());
   return product;
 }
 

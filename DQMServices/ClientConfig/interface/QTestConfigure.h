@@ -55,26 +55,6 @@ private:
                                     DQMStore* bei);
 
   //===================== new quality tests in the parser =============================//
-  ///Creates Comp2RefEqualH test
-  void EnableComp2RefEqualHTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
-
-  ///Creates Comp2RefChi2 test
-  void EnableComp2RefChi2Test(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
-
-  ///Creates Comp2Ref2DChi2 test
-  void EnableComp2Ref2DChi2Test(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
-
-  ///Creates EnableComp2RefKolmogorov test
-  void EnableComp2RefKolmogorovTest(std::string testName,
-                                    const std::map<std::string, std::string>& params,
-                                    DQMStore* bei);
-
-  /*
-    ///Creates MostProbableLandauROOT test
-  void EnableMostProbableLandauTest( const std::string &roTEST_NAME,
-                                     std::map<std::string, std::string> &roMParams, DQMStore *bei);
-  */
-
   /// Creates ContentsWithinRangeROOT test
   void EnableContentsWithinExpectedTest(std::string testName,
                                         const std::map<std::string, std::string>& params,

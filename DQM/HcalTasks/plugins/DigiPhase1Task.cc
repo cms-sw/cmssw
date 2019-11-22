@@ -642,12 +642,12 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void DigiPhase1Task::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::beginLuminosityBlock(lb, es);
+/* virtual */ void DigiPhase1Task::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::dqmBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void DigiPhase1Task::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::endLuminosityBlock(lb, es);
+/* virtual */ void DigiPhase1Task::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(DigiPhase1Task);

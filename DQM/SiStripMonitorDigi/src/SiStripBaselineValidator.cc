@@ -45,10 +45,8 @@ void SiStripBaselineValidator::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder("SiStrip/BaselineValidator");
 
   h1NumbadAPVsRes_ = ibooker.book1D("ResAPVs", ";#ResAPVs", 100, 1.0, 10001);
-  ibooker.tag(h1NumbadAPVsRes_, 1);
 
   h1ADC_vs_strip_ = ibooker.book2D("ADCvsAPVs", ";ADCvsAPVs", 768, -0.5, 767.5, 1023, -0.5, 1022.5);
-  ibooker.tag(h1ADC_vs_strip_, 2);
 
   return;
 }

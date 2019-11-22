@@ -3164,7 +3164,7 @@ void PhotonValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
   thePhotonMCTruthFinder_.reset(new PhotonMCTruthFinder());
 }
 
-void PhotonValidator::endRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
+void PhotonValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
   thePhotonMCTruthFinder_.reset();
 }
 

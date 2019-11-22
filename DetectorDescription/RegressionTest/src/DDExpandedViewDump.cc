@@ -22,7 +22,7 @@ void DDExpandedViewDump(ostream& os, DDExpandedView& ex, size_t skip, size_t sto
   bool go(true);
   int count(0);
   bool dotrans(true);
-  if (getenv("DDNOTRANS"))
+  if (std::getenv("DDNOTRANS"))
     dotrans = false;
   ++skip;
   while (go) {

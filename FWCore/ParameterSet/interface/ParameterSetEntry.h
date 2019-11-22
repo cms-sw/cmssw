@@ -8,6 +8,7 @@
   */
 
 #include "FWCore/Utilities/interface/atomic_value_ptr.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 namespace cms {
@@ -57,7 +58,7 @@ namespace edm {
     bool isTracked_;
     // can be internally reconstituted from the ID, in an
     // ostensibly const function
-    mutable atomic_value_ptr<ParameterSet> thePSet_;
+    CMS_THREAD_SAFE mutable atomic_value_ptr<ParameterSet> thePSet_;
 
     ParameterSetID theID_;
   };

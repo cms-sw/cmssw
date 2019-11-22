@@ -38,7 +38,7 @@ void RPVFATSimulator::ConvertChargeToHits(const simromanpot::strip_charge_map &s
 
   if (verbosity_) {
     for (unsigned int i = 0; i < output_digi.size(); ++i) {
-      edm::LogInfo("RPVFATSimulator") << output_digi[i].getStripNumber() << "\n";
+      edm::LogInfo("RPVFATSimulator") << output_digi[i].stripNumber() << "\n";
     }
   }
 }

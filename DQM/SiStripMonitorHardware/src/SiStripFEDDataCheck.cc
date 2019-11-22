@@ -58,7 +58,7 @@ public:
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
@@ -333,7 +333,7 @@ void SiStripFEDCheckPlugin::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 // ------------ method called once each run just after ending the event loop  ------------
-void SiStripFEDCheckPlugin::endRun(edm::Run const&, edm::EventSetup const&) { updateHistograms(); }
+void SiStripFEDCheckPlugin::dqmEndRun(edm::Run const&, edm::EventSetup const&) { updateHistograms(); }
 
 void SiStripFEDCheckPlugin::updateCabling(const edm::EventSetup& eventSetup) {
   uint32_t currentCacheId = eventSetup.get<SiStripFedCablingRcd>().cacheIdentifier();

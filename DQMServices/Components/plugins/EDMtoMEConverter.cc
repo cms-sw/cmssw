@@ -354,10 +354,6 @@ void EDMtoMEConverter::getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iG
           AddMonitorElement<METype>::call(iBooker, iGetter, &metoedmobject[i].object, dir, name, iGetFrom);
       maybeSetLumiFlag(me, iGetFrom);
 
-      // attach taglist
-      for (const auto &tag : metoedmobject[i].tags) {
-        iBooker.tag(me, tag);
-      }
     }  // end loop thorugh metoedmobject
   });
 }

@@ -754,7 +754,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['essources'].append( "-es_hardcode" )
       self.options['essources'].append( "-magfield" )
 
-      self.options['esmodules'].append( "-AutoMagneticFieldESProducer" )
       self.options['esmodules'].append( "-SlaveField0" )
       self.options['esmodules'].append( "-SlaveField20" )
       self.options['esmodules'].append( "-SlaveField30" )

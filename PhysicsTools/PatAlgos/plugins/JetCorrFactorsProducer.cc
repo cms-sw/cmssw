@@ -163,10 +163,12 @@ float JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet
   if (patjet) {
     corrector->setJetEta(patjet->correctedP4(0).eta());
     corrector->setJetPt(patjet->correctedP4(0).pt());
+    corrector->setJetPhi(patjet->correctedP4(0).phi());
     corrector->setJetE(patjet->correctedP4(0).energy());
   } else {
     corrector->setJetEta(jet->eta());
     corrector->setJetPt(jet->pt());
+    corrector->setJetPhi(jet->phi());
     corrector->setJetE(jet->energy());
   }
   if (emf_ && dynamic_cast<const reco::CaloJet*>(&*jet)) {

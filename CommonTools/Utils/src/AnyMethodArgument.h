@@ -11,10 +11,8 @@
 
 #include <boost/variant.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_floating_point.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/mpl/if.hpp>
+#include <type_traits>
 
 namespace reco {
   namespace parser {
@@ -101,13 +99,13 @@ namespace reco {
 
       // we handle all integer types through 'int', as that's the way they are parsed by boost::spirit
       template <typename I>
-      typename boost::enable_if<boost::is_integral<I>, std::pair<AnyMethodArgument, int> >::type operator()(
+      typename std::enable_if<std::is_integral<I>::value, std::pair<AnyMethodArgument, int> >::type operator()(
           const I &t) const {
         return doInt(t);
       }
 
       template <typename F>
-      typename boost::enable_if<boost::is_floating_point<F>, std::pair<AnyMethodArgument, int> >::type operator()(
+      typename std::enable_if<std::is_floating_point<F>::value, std::pair<AnyMethodArgument, int> >::type operator()(
           const F &t) const {
         if (dataType_ == typeid(double)) {
           return retOk_<F, double>(t, 0);

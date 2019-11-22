@@ -27,8 +27,7 @@ HGCalTriggerDetId::HGCalTriggerDetId(
 
 HGCalTriggerDetId::HGCalTriggerDetId(const DetId& gen) {
   if (!gen.null()) {
-    if ((gen.det() != HGCalTrigger) || (((gen.subdetId() & kHGCalSubdetMask) != HGCalEETrigger) &&
-                                        ((gen.subdetId() & kHGCalSubdetMask) != HGCalHSiTrigger))) {
+    if (gen.det() != HGCalTrigger) {
       throw cms::Exception("Invalid DetId")
           << "Cannot initialize HGCalTriggerDetId from " << std::hex << gen.rawId() << std::dec;
     }
@@ -38,8 +37,7 @@ HGCalTriggerDetId::HGCalTriggerDetId(const DetId& gen) {
 
 HGCalTriggerDetId& HGCalTriggerDetId::operator=(const DetId& gen) {
   if (!gen.null()) {
-    if ((gen.det() != HGCalTrigger) || (((gen.subdetId() & kHGCalSubdetMask) != HGCalEETrigger) &&
-                                        ((gen.subdetId() & kHGCalSubdetMask) != HGCalHSiTrigger))) {
+    if (gen.det() != HGCalTrigger) {
       throw cms::Exception("Invalid DetId")
           << "Cannot assign HGCalTriggerDetId from " << std::hex << gen.rawId() << std::dec;
     }

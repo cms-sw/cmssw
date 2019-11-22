@@ -80,7 +80,7 @@ void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   }
 }
 
-void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+void DTDCSByLumiTask::dqmBeginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   theLumis++;
 
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
@@ -92,7 +92,7 @@ void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
   }
 }
 
-void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+void DTDCSByLumiTask::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
   if (DTHVRecordFound) {
     context.get<DTHVStatusRcd>().get(hvStatus);
   }

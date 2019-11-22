@@ -20,7 +20,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
@@ -203,47 +203,49 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
 
   // Quadrant names.
   auto pxbarrel = extractors[intern("PXBarrel")];
-  addExtractor(intern("HalfCylinder"),
-               [coord, pxbarrel](InterestingQuantities const& iq) {
-                 if (pxbarrel(iq) != UNDEFINED)
-                   return UNDEFINED;
-                 int quadrant = coord->quadrant(iq.sourceModule);
-                 switch (quadrant) {
-                   case 1:
-                     return Value(12);  // mO
-                   case 2:
-                     return Value(11);  // mI
-                   case 3:
-                     return Value(22);  // pO
-                   case 4:
-                     return Value(21);  // pI
-                   default:
-                     return UNDEFINED;
-                 }
-               },
-               0,
-               0  // N/A
+  addExtractor(
+      intern("HalfCylinder"),
+      [coord, pxbarrel](InterestingQuantities const& iq) {
+        if (pxbarrel(iq) != UNDEFINED)
+          return UNDEFINED;
+        int quadrant = coord->quadrant(iq.sourceModule);
+        switch (quadrant) {
+          case 1:
+            return Value(12);  // mO
+          case 2:
+            return Value(11);  // mI
+          case 3:
+            return Value(22);  // pO
+          case 4:
+            return Value(21);  // pI
+          default:
+            return UNDEFINED;
+        }
+      },
+      0,
+      0  // N/A
   );
-  addExtractor(intern("Shell"),
-               [coord, pxbarrel](InterestingQuantities const& iq) {
-                 if (pxbarrel(iq) == UNDEFINED)
-                   return UNDEFINED;
-                 int quadrant = coord->quadrant(iq.sourceModule);
-                 switch (quadrant) {
-                   case 1:
-                     return Value(12);  // mO
-                   case 2:
-                     return Value(11);  // mI
-                   case 3:
-                     return Value(22);  // pO
-                   case 4:
-                     return Value(21);  // pI
-                   default:
-                     return UNDEFINED;
-                 }
-               },
-               0,
-               0  // N/A
+  addExtractor(
+      intern("Shell"),
+      [coord, pxbarrel](InterestingQuantities const& iq) {
+        if (pxbarrel(iq) == UNDEFINED)
+          return UNDEFINED;
+        int quadrant = coord->quadrant(iq.sourceModule);
+        switch (quadrant) {
+          case 1:
+            return Value(12);  // mO
+          case 2:
+            return Value(11);  // mI
+          case 3:
+            return Value(22);  // pO
+          case 4:
+            return Value(21);  // pI
+          default:
+            return UNDEFINED;
+        }
+      },
+      0,
+      0  // N/A
   );
 
   // Online Numbering.
@@ -364,60 +366,66 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
 void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
   // extractors for quantities that are roughly time-based. We cannot book plots based on these; they have to
   // be grouped away in step1.
-  addExtractor(intern("Lumisection"),
-               [](InterestingQuantities const& iq) {
-                 if (!iq.sourceEvent)
-                   return UNDEFINED;
-                 return Value(iq.sourceEvent->luminosityBlock());
-               },
-               1,
-               iConfig.getParameter<int>("max_lumisection"));
+  addExtractor(
+      intern("Lumisection"),
+      [](InterestingQuantities const& iq) {
+        if (!iq.sourceEvent)
+          return UNDEFINED;
+        return Value(iq.sourceEvent->luminosityBlock());
+      },
+      1,
+      iConfig.getParameter<int>("max_lumisection"));
 
   int onlineblock = iConfig.getParameter<int>("onlineblock");
   int n_onlineblocks = iConfig.getParameter<int>("n_onlineblocks");
-  addExtractor(intern("OnlineBlock"),
-               [onlineblock](InterestingQuantities const& iq) {
-                 if (!iq.sourceEvent)
-                   return UNDEFINED;
-                 return Value(onlineblock + iq.sourceEvent->luminosityBlock() / onlineblock);
-               },
-               // note: this range is not visible anywhere (if the RenderPlugin does its job),
-               // but the strange range allows the RenderPlugin to know the block size.
-               onlineblock,
-               onlineblock + n_onlineblocks - 1);
+  addExtractor(
+      intern("OnlineBlock"),
+      [onlineblock](InterestingQuantities const& iq) {
+        if (!iq.sourceEvent)
+          return UNDEFINED;
+        return Value(onlineblock + iq.sourceEvent->luminosityBlock() / onlineblock);
+      },
+      // note: this range is not visible anywhere (if the RenderPlugin does its job),
+      // but the strange range allows the RenderPlugin to know the block size.
+      onlineblock,
+      onlineblock + n_onlineblocks - 1);
 
   int lumiblock = iConfig.getParameter<int>("lumiblock");
-  addExtractor(intern("LumiBlock"),
-               [lumiblock](InterestingQuantities const& iq) {
-                 if (!iq.sourceEvent)
-                   return UNDEFINED;
-                 // The '-1' is for making 1-10 the same block rather than 0-9
-                 // The '+0.5' makes the block span an integer range rather n.5-m.5
-                 return Value(((iq.sourceEvent->luminosityBlock() - 1) / lumiblock) + 0.5);
-               },
-               -0.5,
-               iConfig.getParameter<int>("max_lumisection") / lumiblock);
+  addExtractor(
+      intern("LumiBlock"),
+      [lumiblock](InterestingQuantities const& iq) {
+        if (!iq.sourceEvent)
+          return UNDEFINED;
+        // The '-1' is for making 1-10 the same block rather than 0-9
+        // The '+0.5' makes the block span an integer range rather n.5-m.5
+        return Value(((iq.sourceEvent->luminosityBlock() - 1) / lumiblock) + 0.5);
+      },
+      -0.5,
+      iConfig.getParameter<int>("max_lumisection") / lumiblock);
 
-  addExtractor(intern("BX"),
-               [](InterestingQuantities const& iq) {
-                 if (!iq.sourceEvent)
-                   return UNDEFINED;
-                 return Value(iq.sourceEvent->bunchCrossing());
-               },
-               1,
-               iConfig.getParameter<int>("max_bunchcrossing"));
+  addExtractor(
+      intern("BX"),
+      [](InterestingQuantities const& iq) {
+        if (!iq.sourceEvent)
+          return UNDEFINED;
+        return Value(iq.sourceEvent->bunchCrossing());
+      },
+      1,
+      iConfig.getParameter<int>("max_bunchcrossing"));
 }
 
 void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
   // stuff that is within modules. Might require some phase0/phase1/strip switching later
-  addExtractor(intern("row"),
-               [](InterestingQuantities const& iq) { return Value(iq.row); },
-               0,
-               iConfig.getParameter<int>("module_rows") - 1);
-  addExtractor(intern("col"),
-               [](InterestingQuantities const& iq) { return Value(iq.col); },
-               0,
-               iConfig.getParameter<int>("module_cols") - 1);
+  addExtractor(
+      intern("row"),
+      [](InterestingQuantities const& iq) { return Value(iq.row); },
+      0,
+      iConfig.getParameter<int>("module_rows") - 1);
+  addExtractor(
+      intern("col"),
+      [](InterestingQuantities const& iq) { return Value(iq.col); },
+      0,
+      iConfig.getParameter<int>("module_cols") - 1);
 }
 
 void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {

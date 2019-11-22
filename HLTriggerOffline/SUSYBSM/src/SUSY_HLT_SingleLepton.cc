@@ -18,8 +18,8 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 namespace {
-  typedef dqm::legacy::DQMStore DQMStore;
-  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
 
   bool Contains(const std::string &text, const std::string &pattern) { return text.find(pattern) != std::string::npos; }
 
@@ -741,7 +741,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   }
 }
 
-void SUSY_HLT_SingleLepton::endRun(const edm::Run &run, const edm::EventSetup &eSetup) {
+void SUSY_HLT_SingleLepton::dqmEndRun(const edm::Run &run, const edm::EventSetup &eSetup) {
   edm::LogInfo("SUSY_HLT_SingleLepton") << "SUSY_HLT_SingleLepton::endRun\n";
 }
 

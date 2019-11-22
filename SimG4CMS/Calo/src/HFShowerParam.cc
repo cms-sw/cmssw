@@ -87,15 +87,15 @@ HFShowerParam::HFShowerParam(const std::string& name,
 #endif
 
   if (useShowerLibrary)
-    showerLibrary_.reset(new HFShowerLibrary(name, hcalConstants_, hps, p));
+    showerLibrary_ = std::make_unique<HFShowerLibrary>(name, hcalConstants_, hps, p);
   else
     showerLibrary_.reset(nullptr);
   if (useGflash)
-    gflash_.reset(new HFGflash(p));
+    gflash_ = std::make_unique<HFGflash>(p);
   else
     gflash_.reset(nullptr);
-  fibre_.reset(new HFFibre(name, hcalConstants_, hps, p));
-  attLMeanInv_ = fibre_.get()->attLength(lambdaMean);
+  fibre_ = std::make_unique<HFFibre>(name, hcalConstants_, hps, p);
+  attLMeanInv_ = fibre_->attLength(lambdaMean);
   edm::LogVerbatim("HFShower") << "att. length used for (lambda=" << lambdaMean
                                << ") = " << 1 / (attLMeanInv_ * CLHEP::cm) << " cm";
 }
@@ -160,7 +160,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
     if (edep > 0) {
       if ((showerLibrary_.get() || gflash_.get()) && isKilled && pin > edMin_ && (!other)) {
         if (showerLibrary_.get()) {
-          std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary_.get()->getHits(aStep, isKilled, weight, onlyLong_);
+          std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary_->getHits(aStep, isKilled, weight, onlyLong_);
           for (unsigned int i = 0; i < hitSL.size(); i++) {
             bool ok = true;
 #ifdef EDM_ML_DEBUG
@@ -202,7 +202,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
             }
           }
         } else {  // GFlash clusters with known z
-          std::vector<HFGflash::Hit> hitSL = gflash_.get()->gfParameterization(aStep, onlyLong_);
+          std::vector<HFGflash::Hit> hitSL = gflash_->gfParameterization(aStep, onlyLong_);
           for (unsigned int i = 0; i < hitSL.size(); ++i) {
             bool ok = true;
             G4ThreeVector pe_effect(hitSL[i].position.x(), hitSL[i].position.y(), hitSL[i].position.z());
@@ -248,7 +248,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
                 ok = false;
             }
             //attenuation
-            double dist = fibre_.get()->zShift(localPoint, depth, 0);  // distance to PMT
+            double dist = fibre_->zShift(localPoint, depth, 0);  // distance to PMT
             double r1 = G4UniformRand();
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HFShower") << "HFShowerParam:Distance to PMT (" << npmt << ") " << dist
@@ -263,7 +263,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
                   << "HFShowerParam:Extra exclusion " << r2 << ">" << weight << " " << (r2 > weight);
 #endif
               if (r2 < weight) {
-                double time = fibre_.get()->tShift(localPoint, depth, 0);
+                double time = fibre_->tShift(localPoint, depth, 0);
 
                 hit.position = hitSL[i].position;
                 hit.depth = depth;
@@ -299,7 +299,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
         path = "Rest";
         edep *= pePerGeV_;
         double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-        double time = fibre_.get()->tShift(localPoint, 1, 0);  // remaining part
+        double time = fibre_->tShift(localPoint, 1, 0);  // remaining part
         bool ok = true;
         if (applyFidCut_) {  // @@ For showerlibrary no z-cut for Short (no z)
           int npmt = HFFibreFiducial::PMTNumber(hitPoint);
@@ -325,7 +325,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
           }
 #endif
           if (zz >= gpar_[0]) {
-            time = fibre_.get()->tShift(localPoint, 2, 0);
+            time = fibre_->tShift(localPoint, 2, 0);
             hit.depth = 2;
             hit.time = tSlice + time;
             hits.push_back(hit);

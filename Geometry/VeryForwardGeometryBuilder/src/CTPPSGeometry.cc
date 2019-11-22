@@ -45,9 +45,9 @@ void CTPPSGeometry::build(const DetGeomDesc* gD) {
   // build sets
   for (const auto& it : sensors_map_) {
     const CTPPSDetId detId(it.first);
-    const CTPPSDetId rpId = detId.getRPId();
-    const CTPPSDetId stId = detId.getStationId();
-    const CTPPSDetId armId = detId.getArmId();
+    const CTPPSDetId rpId = detId.rpId();
+    const CTPPSDetId stId = detId.stationId();
+    const CTPPSDetId armId = detId.armId();
 
     stations_in_arm_[armId].insert(armId);
     rps_in_station_[stId].insert(rpId);
@@ -77,8 +77,8 @@ bool CTPPSGeometry::addRP(unsigned int id, const DetGeomDesc*& gD) {
 
 //----------------------------------------------------------------------------------------------------
 
-const DetGeomDesc* CTPPSGeometry::getSensor(unsigned int id) const {
-  auto g = getSensorNoThrow(id);
+const DetGeomDesc* CTPPSGeometry::sensor(unsigned int id) const {
+  auto g = sensorNoThrow(id);
   if (nullptr == g) {
     throw cms::Exception("CTPPSGeometry") << "Not found detector with ID " << id << ", i.e. " << CTPPSDetId(id);
   }
@@ -87,7 +87,7 @@ const DetGeomDesc* CTPPSGeometry::getSensor(unsigned int id) const {
 
 //----------------------------------------------------------------------------------------------------
 
-const DetGeomDesc* CTPPSGeometry::getSensorNoThrow(unsigned int id) const noexcept {
+const DetGeomDesc* CTPPSGeometry::sensorNoThrow(unsigned int id) const noexcept {
   auto it = sensors_map_.find(id);
   if (it == sensors_map_.end()) {
     return nullptr;
@@ -97,8 +97,8 @@ const DetGeomDesc* CTPPSGeometry::getSensorNoThrow(unsigned int id) const noexce
 
 //----------------------------------------------------------------------------------------------------
 
-const DetGeomDesc* CTPPSGeometry::getRP(unsigned int id) const {
-  auto rp = getRPNoThrow(id);
+const DetGeomDesc* CTPPSGeometry::rp(unsigned int id) const {
+  auto rp = rpNoThrow(id);
   if (nullptr == rp) {
     throw cms::Exception("CTPPSGeometry") << "Not found RP device with ID " << id << ", i.e. " << CTPPSDetId(id);
   }
@@ -107,7 +107,7 @@ const DetGeomDesc* CTPPSGeometry::getRP(unsigned int id) const {
 
 //----------------------------------------------------------------------------------------------------
 
-const DetGeomDesc* CTPPSGeometry::getRPNoThrow(unsigned int id) const noexcept {
+const DetGeomDesc* CTPPSGeometry::rpNoThrow(unsigned int id) const noexcept {
   auto it = rps_map_.find(id);
   if (it == rps_map_.end()) {
     return nullptr;
@@ -117,7 +117,7 @@ const DetGeomDesc* CTPPSGeometry::getRPNoThrow(unsigned int id) const noexcept {
 }
 
 //----------------------------------------------------------------------------------------------------
-const std::set<unsigned int>& CTPPSGeometry::getStationsInArm(unsigned int id) const {
+const std::set<unsigned int>& CTPPSGeometry::stationsInArm(unsigned int id) const {
   auto it = stations_in_arm_.find(id);
   if (it == stations_in_arm_.end())
     throw cms::Exception("CTPPSGeometry") << "Arm with ID " << id << " not found.";
@@ -126,7 +126,7 @@ const std::set<unsigned int>& CTPPSGeometry::getStationsInArm(unsigned int id) c
 
 //----------------------------------------------------------------------------------------------------
 
-const std::set<unsigned int>& CTPPSGeometry::getRPsInStation(unsigned int id) const {
+const std::set<unsigned int>& CTPPSGeometry::rpsInStation(unsigned int id) const {
   auto it = rps_in_station_.find(id);
   if (it == rps_in_station_.end())
     throw cms::Exception("CTPPSGeometry") << "Station with ID " << id << " not found.";
@@ -135,7 +135,7 @@ const std::set<unsigned int>& CTPPSGeometry::getRPsInStation(unsigned int id) co
 
 //----------------------------------------------------------------------------------------------------
 
-const std::set<unsigned int>& CTPPSGeometry::getSensorsInRP(unsigned int id) const {
+const std::set<unsigned int>& CTPPSGeometry::sensorsInRP(unsigned int id) const {
   auto it = dets_in_rp_.find(id);
   if (it == dets_in_rp_.end())
     throw cms::Exception("CTPPSGeometry") << "RP with ID " << id << " not found.";
@@ -151,7 +151,7 @@ CLHEP::Hep3Vector CTPPSGeometry::localToGlobal(const DetGeomDesc* gd, const CLHE
 //----------------------------------------------------------------------------------------------------
 
 CLHEP::Hep3Vector CTPPSGeometry::localToGlobal(unsigned int id, const CLHEP::Hep3Vector& r) const {
-  return localToGlobal(getSensor(id), r);
+  return localToGlobal(sensor(id), r);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -164,31 +164,31 @@ CLHEP::Hep3Vector CTPPSGeometry::globalToLocal(const DetGeomDesc* gd, const CLHE
 //----------------------------------------------------------------------------------------------------
 
 CLHEP::Hep3Vector CTPPSGeometry::globalToLocal(unsigned int id, const CLHEP::Hep3Vector& r) const {
-  return globalToLocal(getSensor(id), r);
+  return globalToLocal(sensor(id), r);
 }
 
 //----------------------------------------------------------------------------------------------------
 
 CLHEP::Hep3Vector CTPPSGeometry::localToGlobalDirection(unsigned int id, const CLHEP::Hep3Vector& dir) const {
-  return getSensor(id)->rotation() * dir;
+  return sensor(id)->rotation() * dir;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 CLHEP::Hep3Vector CTPPSGeometry::globalToLocalDirection(unsigned int id, const CLHEP::Hep3Vector& dir) const {
-  return getSensor(id)->rotation().Inverse() * dir;
+  return sensor(id)->rotation().Inverse() * dir;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::getSensorTranslation(unsigned int id) const {
-  auto gd = getSensor(id);
+CLHEP::Hep3Vector CTPPSGeometry::sensorTranslation(unsigned int id) const {
+  auto gd = sensor(id);
   return CLHEP::Hep3Vector(gd->translation().x(), gd->translation().y(), gd->translation().z());
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::getRPTranslation(unsigned int id) const {
-  auto gd = getRP(id);
+CLHEP::Hep3Vector CTPPSGeometry::rpTranslation(unsigned int id) const {
+  auto gd = rp(id);
   return CLHEP::Hep3Vector(gd->translation().x(), gd->translation().y(), gd->translation().z());
 }

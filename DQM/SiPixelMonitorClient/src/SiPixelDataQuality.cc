@@ -26,7 +26,7 @@
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
@@ -858,7 +858,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
       }
       for (int j = 0; j < 4; ++j) {
         static const char buf[] = "Pixel/Barrel/NClustertoChargeRatio_NormMod%i";
-        char modplot[sizeof(buf) + 2];
+        char modplot[sizeof(buf) + 16];
         sprintf(modplot, buf, j + 1);
         MonitorElement *meFinal = iGetter.get(modplot);
         if (!meFinal)

@@ -45,20 +45,16 @@ kt4HiGenJets.doRhoFastjet  = cms.bool(False)
 
 kt6HiGenJets = kt4HiGenJets.clone(rParam=0.6)
 
-
-
-hiRecoGenJets = cms.Sequence(
-    iterativeCone5HiGenJets +
-    kt4HiGenJets +
-    kt6HiGenJets +
-    ak1HiGenJets +
-    ak2HiGenJets +
-    ak3HiGenJets +
-    ak4HiGenJets +
-    ak5HiGenJets +
-    ak6HiGenJets +
+hiRecoGenJetsTask = cms.Task(
+    iterativeCone5HiGenJets ,
+    kt4HiGenJets ,
+    kt6HiGenJets ,
+    ak1HiGenJets ,
+    ak2HiGenJets ,
+    ak3HiGenJets ,
+    ak4HiGenJets ,
+    ak5HiGenJets ,
+    ak6HiGenJets ,
     ak7HiGenJets
     )
-
-
-
+hiRecoGenJets = cms.Sequence(hiRecoGenJetsTask)

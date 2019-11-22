@@ -304,7 +304,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HGCalSimData/data/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
         ],
         4 : [
@@ -313,6 +313,7 @@ caloDict = {
             'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
         ],
         "sim" : [
+            'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
@@ -381,7 +382,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HGCalSimData/data/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
             'Geometry/ForwardSimData/data/hfnosesens.xml',
         ],
@@ -392,6 +393,7 @@ caloDict = {
             'Geometry/ForwardSimData/data/hfnoseProdCuts.xml',
         ],
         "sim" : [
+            'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *',
@@ -469,6 +471,7 @@ caloDict = {
             'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
         ],
         "sim" : [
+            'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
@@ -518,7 +521,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
             'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
-            'Geometry/HGCalCommonData/data/hgcal/v10/hgcal.xml',
+            'Geometry/HGCalCommonData/data/hgcal/v11/hgcal.xml',
             'Geometry/HGCalCommonData/data/hgcalEE/v10/hgcalEE.xml',
             'Geometry/HGCalCommonData/data/hgcalHEsil/v11/hgcalHEsil.xml',
             'Geometry/HGCalCommonData/data/hgcalHEmix/v11/hgcalHEmix.xml',
@@ -541,6 +544,7 @@ caloDict = {
             'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
         ],
         "sim" : [
+            'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
@@ -590,14 +594,14 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
             'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
-            'Geometry/HGCalCommonData/data/hgcal/v10/hgcal.xml',
+            'Geometry/HGCalCommonData/data/hgcal/v11/hgcal.xml',
             'Geometry/HGCalCommonData/data/hgcalEE/v10/hgcalEE.xml',
             'Geometry/HGCalCommonData/data/hgcalHEsil/v11/hgcalHEsil.xml',
             'Geometry/HGCalCommonData/data/hgcalHEmix/v11/hgcalHEmix.xml',
             'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
             'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
             'Geometry/HGCalCommonData/data/hgcalCons/v11/hgcalCons.xml',
-            'Geometry/ForwardCommonData/data/hfnose/v1/hfnose.xml',
+            'Geometry/ForwardCommonData/data/hfnose/v2/hfnose.xml',
             'Geometry/ForwardCommonData/data/hfnoseWafer/v1/hfnoseWafer.xml',
             'Geometry/ForwardCommonData/data/hfnoseCell/v1/hfnoseCell.xml',
             'Geometry/ForwardCommonData/data/hfnoseCons/v1/hfnoseCons.xml',
@@ -619,6 +623,7 @@ caloDict = {
             'Geometry/ForwardSimData/data/hfnoseProdCuts.xml',
         ],
         "sim" : [
+            'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *',
@@ -883,7 +888,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
     },
     "I7" : {
         1 : [
@@ -911,7 +916,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
     },
     "I9" : {
         1 : [
@@ -939,7 +944,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
     },
     "I10" : {
         1 : [
@@ -967,7 +972,35 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
+        "era" : "phase2_timing, phase2_timing_layer",
+    },
+    "I11" : {
+        1 : [
+            'Geometry/MTDCommonData/data/mtdMaterial/v1/mtdMaterial.xml',
+            'Geometry/MTDCommonData/data/btl/v1/btl.xml',
+            'Geometry/MTDCommonData/data/btl/v1/btlStructureTopology.xml',
+            'Geometry/MTDCommonData/data/etl/v3/etl.xml',
+            'Geometry/MTDCommonData/data/mtdParameters/v1/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/v1/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/v1/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer",
     },
 }
 
@@ -983,6 +1016,7 @@ detectorVersionDict = {
     ("O3","T15","C10","M3","F3","I10") : "D47",
     ("O3","T16","C9","M3","F2","I10") : "D48",
     ("O4","T15","C9","M4","F2","I10") : "D49",
+    ("O4","T15","C9","M4","F2","I11") : "D50",
  }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42" ])

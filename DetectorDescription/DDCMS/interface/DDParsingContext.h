@@ -4,6 +4,7 @@
 #include "DD4hep/Detector.h"
 
 #include <string>
+#include <variant>
 #include "tbb/concurrent_unordered_map.h"
 #include "tbb/concurrent_vector.h"
 #include "tbb/concurrent_queue.h"
@@ -38,6 +39,35 @@ namespace cms {
     tbb::concurrent_unordered_map<std::string, dd4hep::Volume> volumes;
     tbb::concurrent_vector<std::string> disabledAlgs;
     tbb::concurrent_queue<std::string> namespaces;
+
+    template <class TYPE>
+    struct BooleanShape {
+      BooleanShape(const std::string& aName, const std::string& bName, dd4hep::Transform3D t)
+          : firstSolidName(aName), secondSolidName(bName), transform(t) {}
+
+      const std::string firstSolidName;
+      const std::string secondSolidName;
+      dd4hep::Transform3D transform;
+
+      dd4hep::Solid make(dd4hep::Solid firstSolid, dd4hep::Solid secondSolid) {
+        return TYPE(firstSolid, secondSolid, transform);
+      }
+    };
+
+    std::map<std::string,
+             std::variant<BooleanShape<dd4hep::UnionSolid>,
+                          BooleanShape<dd4hep::SubtractionSolid>,
+                          BooleanShape<dd4hep::IntersectionSolid>>>
+        unresolvedShapes;
+
+    struct CompositeMaterial {
+      CompositeMaterial(const std::string& n, double f) : name(n), fraction(f) {}
+
+      const std::string name;
+      double fraction;
+    };
+
+    std::map<std::string, std::vector<CompositeMaterial>> unresolvedMaterials;
 
     bool geo_inited = false;
 

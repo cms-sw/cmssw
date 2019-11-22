@@ -712,7 +712,7 @@ namespace Rivet {
       // check that the production mode has been set
       // if running in standalone Rivet the production mode is set through an env variable
       if (m_HiggsProdMode == HTXS::UNKNOWN) {
-        char *pm_env = getenv("HIGGSPRODMODE");
+        char *pm_env = std::getenv("HIGGSPRODMODE");
         string pm(pm_env == nullptr ? "" : pm_env);
         if (pm == "GGF")
           m_HiggsProdMode = HTXS::GGF;

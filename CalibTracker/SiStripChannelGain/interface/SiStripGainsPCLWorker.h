@@ -54,7 +54,7 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -76,7 +76,7 @@ class SiStripGainsPCLWorker : public DQMGlobalEDAnalyzer<APVGain::APVGainHistogr
 public:
   explicit SiStripGainsPCLWorker(const edm::ParameterSet &);
 
-  void bookHistograms(DQMStore::ConcurrentBooker &,
+  void bookHistograms(DQMStore::IBooker &,
                       edm::Run const &,
                       edm::EventSetup const &,
                       APVGain::APVGainHistograms &) const override;

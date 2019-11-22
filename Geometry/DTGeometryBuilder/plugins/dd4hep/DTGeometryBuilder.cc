@@ -64,13 +64,11 @@ void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, c
       bool doLayers = fview.sibling();
       while (doLayers) {
         DTLayer* l = buildLayer(fview, sl, num);
-        //fview.unCheckNode();
         geom.add(l);
 
         doLayers = fview.sibling();  // go to next Layer
       }
-      // Done with layers, go up
-      // fview.up();
+      // Done with layers
 
       geom.add(sl);
       doSL = fview.nextSibling();  // go to next SL
@@ -95,7 +93,7 @@ DTGeometryBuilder::RCPPlane DTGeometryBuilder::plane(const DDFilteredView& fview
 DTChamber* DTGeometryBuilder::buildChamber(DDFilteredView& fview, const MuonNumbering& muonConstants) const {
   int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
   DTChamberId detId(rawid);
-  auto const par = fview.parameters();
+  auto const& par = fview.parameters();
   // par[0] r-phi  dimension - different in different chambers
   // par[1] z      dimension - constant 125.55 cm
   // par[2] radial thickness - almost constant about 18 cm

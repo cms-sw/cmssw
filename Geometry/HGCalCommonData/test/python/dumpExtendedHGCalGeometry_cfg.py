@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEODUMP")
-process.load("Geometry.HGCalCommonData.testGeometryExtended_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D35_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
@@ -19,6 +19,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
                             ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('CMS2023D28.root'))
+                              outputFileName = cms.untracked.string('CMS2026D35.root'))
 
 process.p = cms.Path(process.dump)

@@ -230,7 +230,7 @@ if __name__ == "__main__":
             
             process.p =  cms.Path(process.f1+cms.ignore(process.f2)+process.f3+process.s, process.t2)
             ignoreAllFiltersOnPath(process.p)
-            self.assertEqual(process.p.dumpPython(None),'cms.Path(cms.ignore(process.f1)+cms.ignore(process.f2)+cms.ignore(process.f3)+cms.ignore(process.f4), process.t1, process.t2)\n')
+            self.assertEqual(process.p.dumpPython(),'cms.Path(cms.ignore(process.f1)+cms.ignore(process.f2)+cms.ignore(process.f3)+cms.ignore(process.f4), process.t1, process.t2)\n')
 
         def testNoSchedule(self):
             import FWCore.ParameterSet.Config as cms
@@ -285,13 +285,13 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,'analyzer1'))
             self.assert_(hasattr(process,'analyzer2'))
 
-            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.analyzer1, cms.Task(process.a, process.b, process.d, process.f2))\n')
-            self.assertEqual(process.p2.dumpPython(None),'cms.Path(cms.Task(process.a, process.b))\n')
-            self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1, cms.Task(process.m, process.n))\n')
-            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+~process.f1, cms.Task(process.a, process.b, process.f4))\n')
-            self.assertEqual(process.p5.dumpPython(None),'cms.Path(cms.Task(process.a, process.b), cms.Task(process.r, process.s))\n')
-            self.assertEqual(process.end1.dumpPython(None),'cms.EndPath(process.out1+process.out2+process.analyzer1+process.analyzer2, cms.Task(process.a, process.b, process.f1))\n')
-            self.assertEqual(process.end2.dumpPython(None),'cms.EndPath()\n')
+            self.assertEqual(process.p1.dumpPython(),'cms.Path(process.f1+process.analyzer1, cms.Task(process.a, process.b, process.d, process.f2))\n')
+            self.assertEqual(process.p2.dumpPython(),'cms.Path(cms.Task(process.a, process.b))\n')
+            self.assertEqual(process.p3.dumpPython(),'cms.Path(process.f1, cms.Task(process.m, process.n))\n')
+            self.assertEqual(process.p4.dumpPython(),'cms.Path(process.f2+~process.f1, cms.Task(process.a, process.b, process.f4))\n')
+            self.assertEqual(process.p5.dumpPython(),'cms.Path(cms.Task(process.a, process.b), cms.Task(process.r, process.s))\n')
+            self.assertEqual(process.end1.dumpPython(),'cms.EndPath(process.out1+process.out2+process.analyzer1+process.analyzer2, cms.Task(process.a, process.b, process.f1))\n')
+            self.assertEqual(process.end2.dumpPython(),'cms.EndPath()\n')
 
         def testWithSchedule(self):
             import FWCore.ParameterSet.Config as cms
@@ -339,13 +339,13 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,"f4"))
             self.assert_(hasattr(process,"p5"))
 
-            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f2, cms.Task(process.a, process.b, process.d, process.f1))\n')
-            self.assertEqual(process.p2.dumpPython(None),'cms.Path(cms.Task(process.a, process.b))\n')
-            self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
-            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+~process.f1, cms.Task(process.a, process.b))\n')
-            self.assertEqual(process.p5.dumpPython(None),'cms.Path(process.f4, cms.Task(process.a))\n')
-            self.assertEqual(process.end1.dumpPython(None),'cms.EndPath(process.out1+process.out2+process.analyzer1+process.analyzer2, cms.Task(process.a, process.b, process.f1))\n')
-            self.assertEqual(process.end2.dumpPython(None),'cms.EndPath()\n')
+            self.assertEqual(process.p1.dumpPython(),'cms.Path(process.f2, cms.Task(process.a, process.b, process.d, process.f1))\n')
+            self.assertEqual(process.p2.dumpPython(),'cms.Path(cms.Task(process.a, process.b))\n')
+            self.assertEqual(process.p3.dumpPython(),'cms.Path(process.f1)\n')
+            self.assertEqual(process.p4.dumpPython(),'cms.Path(process.f2+~process.f1, cms.Task(process.a, process.b))\n')
+            self.assertEqual(process.p5.dumpPython(),'cms.Path(process.f4, cms.Task(process.a))\n')
+            self.assertEqual(process.end1.dumpPython(),'cms.EndPath(process.out1+process.out2+process.analyzer1+process.analyzer2, cms.Task(process.a, process.b, process.f1))\n')
+            self.assertEqual(process.end2.dumpPython(),'cms.EndPath()\n')
 
             self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3,process.end1,process.end2])
             listOfTasks = list(process.schedule._tasks)
@@ -373,8 +373,8 @@ if __name__ == "__main__":
             process.task = createTaskWithAllProducersAndFilters(process)
             process.path = cms.Path(process.a, process.task)
 
-            self.assertEqual(process.task.dumpPython(None),'cms.Task(process.a, process.b, process.c, process.f1, process.f2, process.f3)\n')
-            self.assertEqual(process.path.dumpPython(None),'cms.Path(process.a, process.task)\n')
+            self.assertEqual(process.task.dumpPython(),'cms.Task(process.a, process.b, process.c, process.f1, process.f2, process.f3)\n')
+            self.assertEqual(process.path.dumpPython(),'cms.Path(process.a, process.task)\n')
 
         def testConvertToSingleModuleEndPaths(self):
             import FWCore.ParameterSet.Config as cms
@@ -383,10 +383,10 @@ if __name__ == "__main__":
             process.b = cms.EDAnalyzer("B")
             process.c = cms.EDProducer("C")
             process.ep = cms.EndPath(process.a+process.b,cms.Task(process.c))
-            self.assertEqual(process.ep.dumpPython(None),'cms.EndPath(process.a+process.b, cms.Task(process.c))\n')
+            self.assertEqual(process.ep.dumpPython(),'cms.EndPath(process.a+process.b, cms.Task(process.c))\n')
             convertToSingleModuleEndPaths(process)
             self.assertEqual(False,hasattr(process,"ep"))
-            self.assertEqual(process.a_endpath.dumpPython(None),'cms.EndPath(process.a, cms.Task(process.c))\n')
-            self.assertEqual(process.b_endpath.dumpPython(None),'cms.EndPath(process.b, cms.Task(process.c))\n')
+            self.assertEqual(process.a_endpath.dumpPython(),'cms.EndPath(process.a, cms.Task(process.c))\n')
+            self.assertEqual(process.b_endpath.dumpPython(),'cms.EndPath(process.b, cms.Task(process.c))\n')
 
     unittest.main()

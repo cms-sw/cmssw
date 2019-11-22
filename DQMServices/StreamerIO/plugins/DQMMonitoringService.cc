@@ -15,7 +15,7 @@
 namespace dqmservices {
 
   DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet& pset, edm::ActivityRegistry& ar) {
-    const char* x = getenv("DQM2_SOCKET");
+    const char* x = std::getenv("DQM2_SOCKET");
     if (x) {
       std::cerr << "Monitoring pipe: " << x << std::endl;
       mstream_.connect(boost::asio::local::stream_protocol::endpoint(x));

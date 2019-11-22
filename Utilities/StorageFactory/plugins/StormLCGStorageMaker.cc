@@ -14,7 +14,7 @@ class StormLcgGtStorageMaker : public StorageMaker {
   std::string getTURL(const std::string &surl) const {
     // PrepareToGet timeout
     std::string timeout("300");
-    if (char *p = getenv("CMS_STORM_LCG_GT_TIMEOUT"))
+    if (char *p = std::getenv("CMS_STORM_LCG_GT_TIMEOUT"))
       timeout = p;
 
     /* Build the command line:

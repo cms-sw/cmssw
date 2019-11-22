@@ -659,8 +659,8 @@ void CommissioningHistograms::save(std::string& path, uint32_t run_number, std::
     // Retrieve SCRATCH directory
     std::string scratch = "SCRATCH";
     std::string dir = "";
-    if (getenv(scratch.c_str()) != nullptr) {
-      dir = getenv(scratch.c_str());
+    if (std::getenv(scratch.c_str()) != nullptr) {
+      dir = std::getenv(scratch.c_str());
     }
 
     // Add directory path

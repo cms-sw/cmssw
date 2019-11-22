@@ -188,7 +188,7 @@ void EcalMixingModuleValidation::bookHistograms(DQMStore::IBooker& ibooker, edm:
   meESShapeRatio_ = ibooker.book1D(histo, histo, 3, 0, 3.);
 }
 
-void EcalMixingModuleValidation::endRun(const edm::Run& run, const edm::EventSetup& c) {
+void EcalMixingModuleValidation::dqmEndRun(const edm::Run& run, const edm::EventSetup& c) {
   // add shapes for each bunch crossing and divide the digi by the result
 
   std::vector<MonitorElement*> theBunches;
@@ -673,6 +673,7 @@ void EcalMixingModuleValidation::findPedestal(const DetId& detId, int gainId, do
     switch (gainId) {
       case 0:
         ped = item.mean_x1;
+        break;
       case 1:
         ped = item.mean_x12;
         break;

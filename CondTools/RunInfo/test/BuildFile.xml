@@ -1,6 +1,7 @@
 <use name="CondTools/RunInfo"/>
 
-<architecture name="slc.*_amd64_.*">
+<architecture name="(slc|cc).*_amd64_.*">
   <use name="py2-sqlalchemy"/>
   <test name="RunInfoStart_O2O_test" command="RunInfoStart_O2O_test.sh"/>
 </architecture>
+<test name="CondToolsRunInfoTest" command="test_runinfo.sh"/>

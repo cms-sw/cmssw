@@ -1,7 +1,0 @@
-<use name="DataFormats/SiStripDetId"/>
-<use name="FWCore/MessageLogger"/>
-<use name="DQMServices/Core" />
-<use name="rootcore"/>
-<export>
-  <lib name="DQMSiStripHistoricInfoClient"/>
-</export>

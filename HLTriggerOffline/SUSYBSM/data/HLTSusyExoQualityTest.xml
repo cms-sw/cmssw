@@ -1,17 +1,3 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="RecoDistributionComparison">
-        <TYPE>Comp2RefKolmogorov</TYPE>	
-	<PARAM name="testparam">0</PARAM>
-	<PARAM name="error">0.000001</PARAM>
-	<PARAM name="warning">0.00001</PARAM>
-</QTEST>
-
-
-<LINK name="HLT/SusyExo/Reco*/*">
-	<!--<TestName activate="true">KolmogorovQTest0.3</TestName> -->
-	<TestName activate="true">RecoDistributionComparison</TestName>
-</LINK>
-
-
 </TESTSCONFIGURATION>

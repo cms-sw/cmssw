@@ -44,15 +44,6 @@ https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
 </QTEST>
 
 
-<QTEST name="histoMatching">
-<TYPE>Comp2RefKolmogorov</TYPE>
-<PARAM name="testparam">0</PARAM>
-<PARAM name="error">0.01</PARAM>
-<PARAM name="warning">0.20</PARAM>
-</QTEST>
-
-
-
 <QTEST name="efficiencyCheckDoubleTauHigh">
         <TYPE>ContentsYRange</TYPE>
         <PARAM name="ymin">0.85</PARAM>

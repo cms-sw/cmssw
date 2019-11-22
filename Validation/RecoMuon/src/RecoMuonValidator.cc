@@ -809,7 +809,7 @@ void RecoMuonValidator::dqmBeginRun(const edm::Run&, const EventSetup& eventSetu
 //
 //End run
 //
-void RecoMuonValidator::endRun(edm::Run const&, edm::EventSetup const&) {
+void RecoMuonValidator::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
   if (dbe_ && !outputFileName_.empty())
     dbe_->save(outputFileName_);
 }

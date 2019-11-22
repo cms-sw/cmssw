@@ -36,6 +36,7 @@
 
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -153,8 +154,9 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<edm::View<reco::VertexCompositePtrCandidate>> svsIn;
   iEvent.getByToken(svs_, svsIn);
   auto selCandSv = std::make_unique<PtrVector<reco::Candidate>>();
-  std::vector<float> dlen, dlenSig, pAngle;
+  std::vector<float> dlen, dlenSig, pAngle, dxy, dxySig;
   VertexDistance3D vdist;
+  VertexDistanceXY vdistXY;
 
   size_t i = 0;
   const auto& PV0 = pvsIn->front();
@@ -168,8 +170,12 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         edm::Ptr<reco::Candidate> c = svsIn->ptrAt(i);
         selCandSv->push_back(c);
         double dx = (PV0.x() - sv.vx()), dy = (PV0.y() - sv.vy()), dz = (PV0.z() - sv.vz());
-        double pdotv = (dx * sv.px() + dy * sv.py() + dz * sv.pz()) / sv.p();
+        double pdotv = (dx * sv.px() + dy * sv.py() + dz * sv.pz()) / sv.p() / sqrt(dx * dx + dy * dy + dz * dz);
         pAngle.push_back(std::acos(pdotv));
+        Measurement1D d2d = vdistXY.distance(
+            PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
+        dxy.push_back(d2d.value());
+        dxySig.push_back(d2d.significance());
       }
     }
     i++;
@@ -179,6 +185,8 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // For SV we fill from here only stuff that cannot be created with the SimpleFlatTableProducer
   svsTable->addColumn<float>("dlen", dlen, "decay length in cm", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("dlenSig", dlenSig, "decay length significance", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("dxy", dxy, "2D decay length in cm", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("dxySig", dxySig, "2D decay length significance", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>(
       "pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", nanoaod::FlatTable::FloatColumn, 10);
 

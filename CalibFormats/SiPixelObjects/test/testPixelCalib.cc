@@ -1,5 +1,5 @@
 //
-// Test program that will read and write out 
+// Test program that will read and write out
 // DAC settings, trim bitsa and maskbits for a
 // readout link object.
 //
@@ -19,11 +19,10 @@
 using namespace pos;
 using namespace std;
 
-int main(){
- 
+int main() {
   //First lets do some tests of the PixelROCName class
 
-  //std::string path(getenv("XDAQ_ROOT"));
+  //std::string path(std::getenv("XDAQ_ROOT"));
   //path+="/pixel/PixelFEDInterface/test/";
   //PixelFEDCard card(path+"params_fed.dat");
 
@@ -33,32 +32,30 @@ int main(){
 
   //return 0;
 
-
   cout << "Will open translation.dat" << endl;
 
-  PixelTimer t,t2,t3,t4;
+  PixelTimer t, t2, t3, t4;
 
   t2.start();
 
   PixelNameTranslation nametranslation("translation.dat");
 
   t2.stop();
-  cout << "Time to read name translations:"<<t2.tottime() << endl;
-  
+  cout << "Time to read name translations:" << t2.tottime() << endl;
+
   t3.start();
 
   PixelCalibConfiguration calib("calib.dat");
 
   t3.stop();
-  cout << "Time to read calib.dat:"<<t3.tottime() << endl;
+  cout << "Time to read calib.dat:" << t3.tottime() << endl;
 
   t4.start();
 
   PixelDetectorConfig detconfig("detectconfig.dat");
 
   t4.stop();
-  cout << "Time to read detectconfig:"<<t4.tottime() << endl;
-
+  cout << "Time to read detectconfig:" << t4.tottime() << endl;
 
   PixelPortcardMap portcardmap("portcardmap.dat");
 
@@ -66,13 +63,9 @@ int main(){
 
   PixelTKFECConfig tkfecconfig("tkfecconfig.dat");
 
-  
+  const std::set<std::string>& portcards = portcardmap.portcards(&detconfig);
 
-  const std::set<std::string>& portcards=portcardmap.portcards(&detconfig);
- 
-
-
-  cout << "Will start to build ROC list"<<endl;
+  cout << "Will start to build ROC list" << endl;
 
   t.start();
 
@@ -80,11 +73,11 @@ int main(){
 
   t.stop();
 
-  cout << "Done with building ROC list"<<endl;
+  cout << "Done with building ROC list" << endl;
 
-  cout<< "Size of ROC list:"<<calib.rocList().size()<<endl;
+  cout << "Size of ROC list:" << calib.rocList().size() << endl;
 
-  cout << "Time to build ROC list:"<<t.tottime() << endl;
+  cout << "Time to build ROC list:" << t.tottime() << endl;
 
   /*
   
@@ -99,9 +92,6 @@ int main(){
     }
   }
   */
-  
-
 
   return 0;
-
 }

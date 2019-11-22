@@ -7,8 +7,8 @@ condbon::condbon() noexcept(false) {
   std::string db_user;
   std::string db_pass;
   env = oracle::occi::Environment::createEnvironment(oracle::occi::Environment::OBJECT);
-  char *c_user = ::getenv("CONDBON_AUTH_USER");
-  char *c_pass = ::getenv("CONDBON_AUTH_PASSWORD");
+  char *c_user = std::getenv("CONDBON_AUTH_USER");
+  char *c_pass = std::getenv("CONDBON_AUTH_PASSWORD");
   db_user = std::string(c_user);
   db_pass = std::string(c_pass);
   con = env->createConnection(db_user, db_pass, "omds");

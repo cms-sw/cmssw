@@ -186,11 +186,13 @@ void JetResolutionDemo::analyze(const edm::Event& iEvent, const edm::EventSetup&
     m_res_vs_eta->Fill(jet.eta(), r);
 
     // We do the same thing to access the scale factors
-    float sf = res_sf.getScaleFactor({{JME::Binning::JetEta, jet.eta()}});
+    float sf = res_sf.getScaleFactor({{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}});
 
     // Access up and down variation of the scale factor
-    float sf_up = res_sf.getScaleFactor({{JME::Binning::JetEta, jet.eta()}}, Variation::UP);
-    float sf_down = res_sf.getScaleFactor({{JME::Binning::JetEta, jet.eta()}}, Variation::DOWN);
+    float sf_up =
+        res_sf.getScaleFactor({{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}}, Variation::UP);
+    float sf_down =
+        res_sf.getScaleFactor({{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}}, Variation::DOWN);
 
     if (m_debug) {
       std::cout << "Scale factors (Nominal / Up / Down) : " << sf << " / " << sf_up << " / " << sf_down << std::endl;

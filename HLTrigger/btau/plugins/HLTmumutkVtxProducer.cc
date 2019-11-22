@@ -234,7 +234,8 @@ bool HLTmumutkVtxProducer::overlap(const TrackRef& trackref1, const TrackRef& tr
   return false;
 }
 
-bool HLTmumutkVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef>& refVect) {
+bool HLTmumutkVtxProducer::checkPreviousCand(const TrackRef& trackref,
+                                             const vector<RecoChargedCandidateRef>& refVect) const {
   bool ok = false;
   for (auto& i : refVect) {
     if (i->get<TrackRef>() == trackref) {

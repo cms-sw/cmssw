@@ -38,7 +38,7 @@ public:
     ~SelectionCut() = default;
 
     bool operator()(const reco::RecoEcalCandidateRef& cand) const {
-      CutValues cut = std::abs(cand->eta()) < 1.479 ? ebCut_ : eeCut_;
+      CutValues cut = std::abs(cand->eta()) < kEBEEEtaBound_ ? ebCut_ : eeCut_;
       return cut(*cand, getVar(cand));
     }
 
@@ -98,11 +98,16 @@ private:
 
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candsToken_;
   std::vector<SelectionCut> cuts_;
+  float minEtCutEB_;
+  float minEtCutEE_;
+  static constexpr float kEBEEEtaBound_ = 1.479;
 };
 
 template <typename OutCollType>
 EgammaHLTFilteredObjProducer<OutCollType>::EgammaHLTFilteredObjProducer(const edm::ParameterSet& pset)
-    : candsToken_(consumes<reco::RecoEcalCandidateCollection>(pset.getParameter<edm::InputTag>("cands"))) {
+    : candsToken_(consumes<reco::RecoEcalCandidateCollection>(pset.getParameter<edm::InputTag>("cands"))),
+      minEtCutEB_(pset.getParameter<double>("minEtCutEB")),
+      minEtCutEE_(pset.getParameter<double>("minEtCutEE")) {
   const auto& cutPsets = pset.getParameter<std::vector<edm::ParameterSet> >("cuts");
   for (auto& cutPset : cutPsets) {
     cuts_.push_back(SelectionCut(cutPset, consumesCollector()));
@@ -115,6 +120,8 @@ template <typename OutCollType>
 void EgammaHLTFilteredObjProducer<OutCollType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("cands", edm::InputTag("hltEgammaCandidates"));
+  desc.add<double>("minEtCutEB", 0);
+  desc.add<double>("minEtCutEE", 0);
 
   edm::ParameterSetDescription cutsDesc;
   edm::ParameterSetDescription regionCutsDesc;
@@ -149,10 +156,17 @@ void EgammaHLTFilteredObjProducer<OutCollType>::produce(edm::Event& iEvent, cons
   for (size_t candNr = 0; candNr < candsHandle->size(); candNr++) {
     reco::RecoEcalCandidateRef candRef(candsHandle, candNr);
     bool passAllCuts = true;
-    for (const auto& cut : cuts_) {
-      if (!cut(candRef)) {
-        passAllCuts = false;
-        break;
+
+    float minEtCut = std::abs(candRef->eta()) < kEBEEEtaBound_ ? minEtCutEB_ : minEtCutEE_;
+    if (candRef->et() < minEtCut)
+      passAllCuts = false;
+
+    if (passAllCuts) {
+      for (const auto& cut : cuts_) {
+        if (!cut(candRef)) {
+          passAllCuts = false;
+          break;
+        }
       }
     }
     if (passAllCuts)

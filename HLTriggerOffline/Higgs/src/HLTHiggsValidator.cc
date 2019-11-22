@@ -64,7 +64,7 @@ void HLTHiggsValidator::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 }
 
-void HLTHiggsValidator::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void HLTHiggsValidator::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // vector<HLTMuonPlotter>::iterator iter;
   // for(std::vector<HLTHiggsPlotter>::iterator iter = _analyzers.begin();
   //                 iter != analyzers_.end(); ++iter)

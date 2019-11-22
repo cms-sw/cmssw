@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from __future__ import print_function
 from ROOT import TFile, gStyle,gPad ,TObject, TCanvas, TH1, TH1F, TH2F, TLegend, TPaletteAxis, TList, TLine, TAttLine, TF1,TAxis
 import re

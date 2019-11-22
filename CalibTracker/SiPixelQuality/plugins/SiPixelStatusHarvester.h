@@ -5,7 +5,7 @@
  *  harvest per-lumi prduced SiPixelDetector status and make the payload for SiPixelQualityFromDB
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 // Pixel quality harvester
@@ -20,7 +20,7 @@
 #include "TH1.h"
 #include "TFile.h"
 
-class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>,
+class SiPixelStatusHarvester : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks>,
                                private HistogramManagerHolder {
   enum { BADROC, PERMANENTBADROC, FEDERRORROC, STUCKTBMROC, OTHERBADROC, PROMPTBADROC };
 
@@ -35,7 +35,7 @@ public:
   void beginJob() override;
   void endJob() override;
   void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup) final;
-  void endRunProduce(edm::Run&, const edm::EventSetup&) final;
+  void dqmEndRun(const edm::Run&, const edm::EventSetup&) final;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) final;
 
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
@@ -89,7 +89,7 @@ private:
   void constructTag(std::map<int, SiPixelQuality*> siPixelQualityTag,
                     edm::Service<cond::service::PoolDBOutputService>& poolDbService,
                     std::string tagName,
-                    edm::Run& iRun);
+                    edm::Run const& iRun);
 };
 
 #endif

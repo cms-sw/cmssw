@@ -29,12 +29,13 @@ recoAllJetsPUOffsetCorrTask=cms.Task(fixedGridRhoFastjetAllCalo,
                                      ak4CaloJetsPUCorr)
 recoAllJetsPUOffsetCorr=cms.Sequence(recoAllJetsPUOffsetCorrTask)
 
-from RecoHI.HiJetAlgos.HiRecoJets_cff import caloTowersRec, caloTowers, akPu4CaloJets
+from RecoHI.HiJetAlgos.HiRecoJets_cff import caloTowersRecTask, caloTowers, akPu4CaloJets
 
-recoJetsHI =cms.Sequence(fixedGridRhoFastjetAllCalo+
-                         fixedGridRhoFastjetCentralCalo+
-                         ak4CaloJets+
-                         caloTowersRec+
-                         caloTowers+
+recoJetsHITask =cms.Task(fixedGridRhoFastjetAllCalo,
+                         fixedGridRhoFastjetCentralCalo,
+                         ak4CaloJets,
+                         caloTowersRecTask,
+                         caloTowers,
                          akPu4CaloJets
                          )
+recoJetsHI =cms.Sequence(recoJetsHITask)

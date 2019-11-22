@@ -8,7 +8,8 @@ from RecoEgamma.EgammaPhotonProducers.conversionTracks_cff import *
 #from RecoEgamma.EgammaTools.PhotonConversionMVAComputer_cfi import *
 from RecoEgamma.EgammaPhotonProducers.conversions_cfi import *
 #conversionSequence = cms.Sequence(ckfTracksFromConversions*conversions)
-conversionSequence = cms.Sequence(conversions)
+conversionTask = cms.Task(conversions)
+conversionSequence = cms.Sequence(conversionTask)
 
 oldegConversions = conversions.clone()
 oldegConversions.scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters")

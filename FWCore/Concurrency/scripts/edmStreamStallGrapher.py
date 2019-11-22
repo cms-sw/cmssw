@@ -6,7 +6,6 @@ from operator import attrgetter,itemgetter
 import sys
 from collections import defaultdict
 import six
-
 #----------------------------------------------
 def printHelp():
     s = '''
@@ -422,9 +421,7 @@ def printStalledModulesInOrder(stalledModules):
         t.sort(reverse=True)
         priorities.append((name,sum(t),t))
 
-    def sumSort(i,j):
-        return cmp(i[1],j[1])
-    priorities.sort(cmp=sumSort, reverse=True)
+    priorities.sort(key=lambda a: a[1], reverse=True)
 
     nameColumn = "Stalled Module"
     maxNameSize = max(maxNameSize, len(nameColumn))
@@ -571,14 +568,14 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
     for nthreads, ts in groupby(preparedTimes, itemgetter(2)):
         theTS = [(t[0],t[1]) for t in ts]
         if doPlot:
-            theTimes = [(t[0]/1000.,t[1]/1000.) for t in theTS]
+            theTimes = [(t[0]/1000000.,t[1]/1000000.) for t in theTS]
             yspan = (stream-0.4+height,height*(nthreads-1))
             ax.broken_barh(theTimes, yspan, facecolors=color, edgecolors=color, linewidth=0)
         if addToStackTimes:
             allStackTimes[color].extend(theTS*(nthreads-threadOffset))
 
 #----------------------------------------------
-def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder):
+def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder, setXAxis, xLower, xUpper):
 
     stalledModuleNames = set([x for x in stalledModuleInfo.iterkeys()])
     streamLowestRow = [[] for x in range(numStreams)]
@@ -732,11 +729,13 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     ax.set_ylabel("Stream ID")
     ax.set_ylim(-0.5,numStreams-0.5)
     ax.yaxis.set_ticks(range(numStreams))
+    if (setXAxis):
+        ax.set_xlim((xLower, xUpper))
 
     height = 0.8/maxNumberOfConcurrentModulesOnAStream
     allStackTimes={'green': [],'limegreen':[], 'red': [], 'blue': [], 'orange': [], 'darkviolet': []}
     for iStream,lowestRow in enumerate(streamLowestRow):
-        times=[(x.begin/1000., x.delta/1000.) for x in lowestRow] # Scale from msec to sec.
+        times=[(x.begin/1000000., x.delta/1000000.) for x in lowestRow] # Scale from microsec to sec.
         colors=[x.color for x in lowestRow]
         # for each stream, plot the lowest row
         ax.broken_barh(times,(iStream-0.4,height),facecolors=colors,edgecolors=colors,linewidth=0)
@@ -799,7 +798,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
             xs = mergeContiguousBlocks(xs)
 
             for height, xpairs in groupby(xs, itemgetter(2)):
-                finalxs = [(e[0]/1000.,e[1]/1000.) for e in xpairs]
+                finalxs = [(e[0]/1000000.,e[1]/1000000.) for e in xpairs]
                 # plot the stacked plot, one color and one height on each call to broken_barh
                 axStack.broken_barh(finalxs, (0, height), facecolors=color, edgecolors=color, linewidth=0)
 
@@ -852,6 +851,13 @@ if __name__=="__main__":
     parser.add_argument('-t', '--timings',
                         action='store_true',
                         help='''Create a dictionary of module labels and their timings from the stall monitor log. Write the dictionary filea as a json file modules-timings.json.''')
+    parser.add_argument('-l', '--lowerxaxis',
+                        type=float,
+                        default=0.0,
+                        help='''Lower limit of x axis, default 0, not used if upper limit not set''')
+    parser.add_argument('-u', '--upperxaxis',
+                        type=float,
+                        help='''Upper limit of x axis, if not set then x axis limits are set automatically''')
     args = parser.parse_args()
 
     # Process parsed options
@@ -863,6 +869,13 @@ if __name__=="__main__":
     doModuleTimings = False
     if args.timings:
         doModuleTimings = True
+
+    setXAxis = False
+    xUpper = 0.0
+    if args.upperxaxis is not None:
+        setXAxis = True
+        xUpper = args.upperxaxis
+    xLower = args.lowerxaxis
 
     doGraphic = False
     if pdfFile is not None:
@@ -903,7 +916,7 @@ if __name__=="__main__":
         createAsciiImage(reader.processingSteps(), reader.numStreams, reader.maxNameSize)
     else:
         sys.stderr.write(">creating PDF\n")
-        createPDFImage(pdfFile, shownStacks, reader.processingSteps(), reader.numStreams, stalledModules, displayExternalWork, checkOrder)
+        createPDFImage(pdfFile, shownStacks, reader.processingSteps(), reader.numStreams, stalledModules, displayExternalWork, checkOrder, setXAxis, xLower, xUpper)
     printStalledModulesInOrder(stalledModules)
     if doModuleTimings:
         sys.stderr.write(">creating module-timings.json\n")

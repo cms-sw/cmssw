@@ -3,7 +3,7 @@
 <use   name="CondFormats/MFObjects"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/DataRecord"/>
-<library   file="MagFieldConfigDBWriter.cc" name="CondFormatsMFObjectsTest">
+<library   file="MagFieldConfigDBWriter.cc,MagFieldConfigTestESProducer.cc" name="CondFormatsMFObjectsTest">
   <flags   EDM_PLUGIN="1"/>
 </library>
 

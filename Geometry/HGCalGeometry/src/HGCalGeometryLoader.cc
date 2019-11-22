@@ -132,7 +132,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
           int type = topology.dddConstants().getTypeHex(layer, u, v);
           DetId detId = (topology.isHFNose() ? (DetId)(HFNoseDetId(zside, type, layer, u, v, 0, 0))
                                              : (DetId)(HGCSiliconDetId(det, zside, type, layer, u, v, 0, 0)));
-          const auto& w = topology.dddConstants().waferPosition(u, v, true);
+          const auto& w = topology.dddConstants().waferPosition(layer, u, v, true);
           double xx = (zside > 0) ? w.first : -w.first;
           CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
           const HepGeom::Transform3D ht3d(mytr.hr, h3v);

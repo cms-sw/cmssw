@@ -132,7 +132,7 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id,
   }
 
   // book new RP histogram, if not yet done
-  CTPPSDetId rpId = detId.getRPId();
+  CTPPSDetId rpId = detId.rpId();
   rpId.rpName(path, TotemRPDetId::nPath);
   const string rp_efficiency_name = "plane efficiency";
   MonitorElement *rp_efficiency = igetter.get(path + "/" + rp_efficiency_name);

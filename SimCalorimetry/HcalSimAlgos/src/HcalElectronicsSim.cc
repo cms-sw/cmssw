@@ -1,4 +1,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalTDC.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -8,8 +10,12 @@
 #include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 
-HcalElectronicsSim::HcalElectronicsSim(HcalAmplifier* amplifier, const HcalCoderFactory* coderFactory, bool PreMixing)
-    : theAmplifier(amplifier),
+HcalElectronicsSim::HcalElectronicsSim(const HcalSimParameterMap* parameterMap,
+                                       HcalAmplifier* amplifier,
+                                       const HcalCoderFactory* coderFactory,
+                                       bool PreMixing)
+    : theParameterMap(parameterMap),
+      theAmplifier(amplifier),
       theCoderFactory(coderFactory),
       theStartingCapId(0),
       theStartingCapIdIsRandom(true),
@@ -137,6 +143,13 @@ void HcalElectronicsSim::analogToDigital(
 void HcalElectronicsSim::analogToDigital(
     CLHEP::HepRandomEngine* engine, CaloSamples& lf, QIE11DataFrame& result, double preMixFactor, unsigned preMixBits) {
   analogToDigitalImpl(engine, lf, result, preMixFactor, preMixBits);
+  if (!PreMixDigis) {
+    const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(lf.id()));
+    if (pars.threshold_currentTDC() > 0.) {
+      HcalTDC theTDC((pars.threshold_currentTDC()));
+      theTDC.timing(lf, result);
+    }
+  }
 }
 
 void HcalElectronicsSim::newEvent(CLHEP::HepRandomEngine* engine) {

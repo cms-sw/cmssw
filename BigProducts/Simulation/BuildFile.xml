@@ -20,6 +20,7 @@
 <use name="SimG4Core/DD4hepGeometry"/>
 <use name="Validation/HcalHits"/>
 <use name="Validation/EcalHits"/>
+<use name="Validation/HGCalValidation"/>
 <use name="SimDataFormats/ValidationFormats"/>
 <use name="geant4static"/>
 <flags DROP_DEP="geant4core"/>

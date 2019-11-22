@@ -1,5 +1,7 @@
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetIdToModule.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <cmath>
@@ -127,6 +129,8 @@ void testTriggerCell(int type) {
             }
           }
           std::cout << "Trigger Cell: " << idt << " obtained from cell (" << error[ok] << ")" << std::endl;
+          std::cout << "Check " << idt << " from rawId " << HGCalTriggerDetId(idt.rawId()) << " from DetId "
+                    << HGCalTriggerDetId(DetId(idt.rawId())) << std::endl;
           ++ntot;
           if (ok == 0)
             ++nerror;
@@ -138,10 +142,28 @@ void testTriggerCell(int type) {
             << std::endl;
 }
 
+void testModule(HFNoseDetId const& id) {
+  HFNoseDetIdToModule hfn;
+  HFNoseDetId module = hfn.getModule(id);
+  std::vector<HFNoseDetId> ids = hfn.getDetIds(module);
+  std::string ok = "***** ERROR *****";
+  for (auto const& id0 : ids) {
+    if (id0 == id) {
+      ok = "";
+      break;
+    }
+  }
+  std::cout << "Module ID of " << id << " is " << module << " which has " << ids.size() << " cells " << ok << std::endl;
+  for (unsigned int k = 0; k < ids.size(); ++k)
+    std::cout << "ID[" << k << "] " << ids[k] << std::endl;
+}
+
 int main() {
   testCell(0);
   testWafer(1, 299.47, 1041.45);
   testWafer(8, 312.55, 1086.97);
   testTriggerCell(0);
+  testModule(HFNoseDetId(1, 0, 1, 3, 3, 0, 5));
+  testModule(HFNoseDetId(-1, 0, 5, 2, -2, 7, 5));
   return 0;
 }

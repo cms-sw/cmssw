@@ -20,9 +20,10 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronSeedHeavyObjectCache.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+
+#include "LowPtGsfElectronSeedHeavyObjectCache.h"
 
 class LowPtGsfElectronSeedProducer final
     : public edm::stream::EDProducer<edm::GlobalCache<lowptgsfeleseed::HeavyObjectCache> > {

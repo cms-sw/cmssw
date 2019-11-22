@@ -99,7 +99,7 @@ void SUSY_HLT_MuonFakes::analyze(edm::Event const &e, edm::EventSetup const &eSe
   //  }
 }
 
-void SUSY_HLT_MuonFakes::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_MuonFakes::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_MuonFakes") << "SUSY_HLT_MuonFakes::endRun" << std::endl;
 }
 

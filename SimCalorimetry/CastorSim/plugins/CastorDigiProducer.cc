@@ -20,7 +20,7 @@
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet &ps,
-                                       edm::ProducerBase &mixMod,
+                                       edm::ProducesCollector producesCollector,
                                        edm::ConsumesCollector &iC)
     : theParameterMap(new CastorSimParameterMap(ps)),
       theCastorShape(new CastorShape()),
@@ -35,7 +35,7 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet &ps,
   theHitsProducerTag = ps.getParameter<edm::InputTag>("hitsProducer");
   iC.consumes<std::vector<PCaloHit>>(theHitsProducerTag);
 
-  mixMod.produces<CastorDigiCollection>();
+  producesCollector.produces<CastorDigiCollection>();
 
   theCastorResponse->setHitFilter(&theCastorHitFilter);
 

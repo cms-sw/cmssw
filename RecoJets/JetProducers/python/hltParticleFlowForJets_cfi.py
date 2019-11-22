@@ -53,7 +53,7 @@ hltParticleFlowBlock = cms.EDProducer("PFBlockProducer",
 )
 
 
-from RecoParticleFlow.PFProducer.particleFlow_cfi import particleFlowTmp
+from RecoParticleFlow.PFProducer.particleFlow_cff import particleFlowTmp
 
 hltParticleFlow = particleFlowTmp.clone(
     GedPhotonValueMap = cms.InputTag(""),

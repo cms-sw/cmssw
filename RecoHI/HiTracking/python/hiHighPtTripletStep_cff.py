@@ -225,18 +225,18 @@ hiHighPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.tr
     )
 
 
-hiHighPtTripletStep = cms.Sequence(hiHighPtTripletStepClusters*
-                                     hiHighPtTripletStepSeedLayers*
-                                     hiHighPtTripletStepTrackingRegions*
-                                     hiHighPtTripletStepTracksHitDoubletsCA* 
-                                     hiHighPtTripletStepTracksHitTripletsCA* 
-				     pixelFitterByHelixProjections*
-                                     hiHighPtTripletStepPixelTracksFilter*
-                                     hiHighPtTripletStepPixelTracks*
-                                     hiHighPtTripletStepSeeds*
-                                     hiHighPtTripletStepTrackCandidates*
-                                     hiHighPtTripletStepTracks*
-                                     hiHighPtTripletStepSelector*
+hiHighPtTripletStepTask = cms.Task(hiHighPtTripletStepClusters,
+                                     hiHighPtTripletStepSeedLayers,
+                                     hiHighPtTripletStepTrackingRegions,
+                                     hiHighPtTripletStepTracksHitDoubletsCA, 
+                                     hiHighPtTripletStepTracksHitTripletsCA, 
+				     pixelFitterByHelixProjections,
+                                     hiHighPtTripletStepPixelTracksFilter,
+                                     hiHighPtTripletStepPixelTracks,
+                                     hiHighPtTripletStepSeeds,
+                                     hiHighPtTripletStepTrackCandidates,
+                                     hiHighPtTripletStepTracks,
+                                     hiHighPtTripletStepSelector,
                                      hiHighPtTripletStepQual)
-
+hiHighPtTripletStep = cms.Sequence(hiHighPtTripletStepTask)
 

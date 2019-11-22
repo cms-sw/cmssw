@@ -29,12 +29,14 @@ public:
   std::unique_ptr<MTDTimeCalib> produce(const MTDTimeCalibRecord&);
 
 private:
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> ddToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> topoToken_;
   edm::ParameterSet pset_;
 };
 
 MTDTimeCalibESProducer::MTDTimeCalibESProducer(const edm::ParameterSet& p) {
   pset_ = p;
-  setWhatProduced(this, "MTDTimeCalib");
+  setWhatProduced(this, "MTDTimeCalib").setConsumes(ddToken_).setConsumes(topoToken_);
 }
 
 // Configuration descriptions
@@ -49,13 +51,7 @@ void MTDTimeCalibESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 std::unique_ptr<MTDTimeCalib> MTDTimeCalibESProducer::produce(const MTDTimeCalibRecord& iRecord) {
-  edm::ESHandle<MTDGeometry> pDD;
-  iRecord.getRecord<MTDDigiGeometryRecord>().get(pDD);
-
-  edm::ESHandle<MTDTopology> pTopo;
-  iRecord.getRecord<MTDTopologyRcd>().get(pTopo);
-
-  return std::make_unique<MTDTimeCalib>(pset_, pDD.product(), pTopo.product());
+  return std::make_unique<MTDTimeCalib>(pset_, &iRecord.get(ddToken_), &iRecord.get(topoToken_));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

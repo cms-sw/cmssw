@@ -1,7 +1,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/TrajectoryState"/>
 <use   name="DataFormats/SiStripDigi"/>
-<use   name="boost"/>
 
 <export>
   <lib   name="1"/>

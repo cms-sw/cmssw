@@ -38,16 +38,16 @@ process.MessageLogger = cms.Service(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
-                                            appendToDataLabel = cms.string('MUON')
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-geometry-2021.xml'),
+                                            appendToDataLabel = cms.string('CMS')
                                             )
 
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('MUON')
+                                                     appendToDataLabel = cms.string('CMS')
                                                      )
 
 process.test = cms.EDAnalyzer("DDTestSpecParsFilter",
-                              DDDetector = cms.ESInputTag('','MUON'),
+                              DDDetector = cms.ESInputTag('','CMS'),
                               attribute = cms.untracked.string('MuStructure'),
                               value = cms.untracked.string('MuonBarrelDT')
                               )

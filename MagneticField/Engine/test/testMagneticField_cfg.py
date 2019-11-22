@@ -1,35 +1,25 @@
-#
+# This cfi shows an example of how to activate some debugging tests of the field
+# map geometry and data tables.
+# For further information, please refer to
+# https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMagneticField#Development_workflow
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MAGNETICFIELDTEST")
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun = cms.untracked.uint32(300000)
+)
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-# Example configuration for the magnetic field
 
-# Uncomment ONE of the following:
-
-### Uniform field
-#process.load("Configuration.StandardSequences.MagneticField_0T_cff")
-#process.localUniform.ZFieldInTesla = 3.8
-
-
-### Full field map, static configuration for each field value
-#process.load("Configuration.StandardSequences.MagneticField_20T_cff")
-#process.load("Configuration.StandardSequences.MagneticField_30T_cff")
-#process.load("Configuration.StandardSequences.MagneticField_35T_cff")
-#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-#process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-#process.load("MagneticField.Engine.volumeBasedMagneticField_130503_largeYE4_cfi")
+### Static configuration for a given field map
+### Please note that except for DEBUGGING you should use the standard sequence
+### Configuration.StandardSequences.MagneticField_cff instead!
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
-
-
-### Activate verbose debug mode + additional checks on geometry
-# process.VolumeBasedMagneticFieldESProducer.debugBuilder = True
 
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -51,6 +41,13 @@ process.testField  = cms.EDAnalyzer("testMagneticField")
 process.p1 = cms.Path(process.testField)
 
 
-### Activate the check of finding volumes at random points 
-#process.testVolumeGeometry = cms.EDAnalyzer("testMagGeometryAnalyzer")
-#process.p2 = cms.Path(process.testVolumeGeometry) 
+### Activate the check of finding volumes at random points.
+### This test is useful during developlment of new geometries to check
+### that no gaps/holes are present and that all volumes are searchable.
+process.testVolumeGeometry = cms.EDAnalyzer("testMagGeometryAnalyzer")
+process.p2 = cms.Path(process.testVolumeGeometry) 
+
+### Activate verbose mode of geometry building as well as additional
+### consistency checks on geometry
+#process.VolumeBasedMagneticFieldESProducer.debugBuilder = True
+

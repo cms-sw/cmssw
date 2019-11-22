@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
+
+  <SolidSection label="testTreeNavigation.xml">
+    <Box name="aBox" dx="10*m" dy="10*m" dz="30*m"/>
+    <Box name="bBox" dx="1*m" dy="1*m" dz="3*m"/>
+    <Box name="cBox" dx="10*cm" dy="10*cm" dz="30*cm"/>
+    <Box name="dBox" dx="1*cm" dy="1*cm" dz="3*cm"/>
+    <Box name="fBox" dx="1*mm" dy="1*mm" dz="3*mm"/>
+    <Box name="MotherOfAllBoxes" dx="90*m" dy="90*m" dz="150*m"/>
+  </SolidSection>
+  <LogicalPartSection label="testTreeNavigation.xml">
+    <LogicalPart name="MotherOfAllBoxes" category="unspecified">
+      <rSolid name="MotherOfAllBoxes"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="aBox" category="unspecified">
+      <rSolid name="aBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="bBox" category="unspecified">
+      <rSolid name="bBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="cBox" category="unspecified">
+      <rSolid name="cBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="dBox" category="unspecified">
+      <rSolid name="dBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="fBox" category="unspecified">
+      <rSolid name="fBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="bBranchBox" category="unspecified">
+      <rSolid name="bBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="cBranchBox" category="unspecified">
+      <rSolid name="cBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="dBranchBox" category="unspecified">
+      <rSolid name="dBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="fBranchBox" category="unspecified">
+      <rSolid name="fBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:MotherOfAllBoxes"/>
+    <String name="ChildName" value="aBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="50*m"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:aBox"/>
+    <String name="ChildName" value="bBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="8*m"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:bBox"/>
+    <String name="ChildName" value="cBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="80*cm"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:cBox"/>
+    <String name="ChildName" value="dBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="8*cm"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:dBox"/>
+    <String name="ChildName" value="fBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="0.8*cm"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:aBox"/>
+    <String name="ChildName" value="bBranchBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="8*m"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 2*m </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:bBranchBox"/>
+    <String name="ChildName" value="cBranchBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="80*cm"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:cBranchBox"/>
+    <String name="ChildName" value="dBranchBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="8*cm"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+    <rParent name="testTreeNavigation:dBranchBox"/>
+    <String name="ChildName" value="fBranchBox"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="StartAngle" value="0*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Numeric name="Radius" value="0.8*cm"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
+  </Algorithm>
+  <SpecParSection label="testTreeNavigation.xml">
+    <SpecPar name="BoxCPar">
+      <PartSelector path="//cBox"/>
+      <Parameter name="DetStructure" value="BoxC"/>
+    </SpecPar>
+    <SpecPar name="BoxFPar">
+      <PartSelector path="//dBox/fBox"/>
+      <Parameter name="DetStructure" value="BoxF"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

@@ -27,7 +27,6 @@
 <use   name="MagneticField/Records"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaElectronAlgos"/>
-<use   name="RecoEgamma/EgammaElectronProducers"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="RecoTracker/CkfPattern"/>

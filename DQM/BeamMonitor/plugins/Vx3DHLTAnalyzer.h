@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -40,7 +40,7 @@ typedef struct {
   double Covariance[DIM][DIM];
 } VertexType;
 
-class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class Vx3DHLTAnalyzer : public DQMOneLumiEDAnalyzer<> {
 public:
   Vx3DHLTAnalyzer(const edm::ParameterSet&);
   ~Vx3DHLTAnalyzer() override;
@@ -50,8 +50,8 @@ protected:
 
 private:
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   unsigned int HitCounter(const edm::Event& iEvent);

@@ -22,33 +22,29 @@ namespace {
 
 }  // namespace
 
-PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig)
+PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig, bool postMuonCleaning)
 
     : pfCosmicsMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfCleanedTrackerAndGlobalMuonCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfFakeMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfPunchThroughMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfPunchThroughHadronCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
-      pfAddedMuonCandidates_(std::make_unique<reco::PFCandidateCollection>())
+      pfAddedMuonCandidates_(std::make_unique<reco::PFCandidateCollection>()),
 
-      ,
       maxDPtOPt_(getParameter<double>(iConfig, "maxDPtOPt", 1.0)),
-      minTrackerHits_(getParameter<int>(iConfig, "minTrackerHits", 8)),
-      minPixelHits_(getParameter<int>(iConfig, "minPixelHits", 1)),
       trackQuality_(reco::TrackBase::qualityByName(getParameter<std::string>(iConfig, "trackQuality", "highPurity"))),
-      errorCompScale_(getParameter<double>(iConfig, "ptErrorScale", 4.0)),
-      eventFractionCleaning_(getParameter<double>(iConfig, "eventFractionForCleaning", 0.75)),
-      dzPV_(getParameter<double>(iConfig, "dzPV", 0.2)),
-      postCleaning_(getParameter<bool>(iConfig, "postMuonCleaning", false))  // disable by default (for HLT)
-      ,
+      errorCompScale_(getParameter<double>(iConfig, "ptErrorScale", 8.0)),
+
+      postCleaning_(postMuonCleaning),  // disable by default (for HLT)
+      eventFractionCleaning_(getParameter<double>(iConfig, "eventFractionForCleaning", 0.5)),
       minPostCleaningPt_(getParameter<double>(iConfig, "minPtForPostCleaning", 20.)),
       eventFactorCosmics_(getParameter<double>(iConfig, "eventFactorForCosmics", 10.)),
       metSigForCleaning_(getParameter<double>(iConfig, "metSignificanceForCleaning", 3.)),
       metSigForRejection_(getParameter<double>(iConfig, "metSignificanceForRejection", 4.)),
       metFactorCleaning_(getParameter<double>(iConfig, "metFactorForCleaning", 4.)),
-      eventFractionRejection_(getParameter<double>(iConfig, "eventFractionForRejection", 0.75)),
+      eventFractionRejection_(getParameter<double>(iConfig, "eventFractionForRejection", 0.8)),
       metFactorRejection_(getParameter<double>(iConfig, "metFactorForRejection", 4.)),
-      metFactorHighEta_(getParameter<double>(iConfig, "metFactorForHighEta", 4.)),
+      metFactorHighEta_(getParameter<double>(iConfig, "metFactorForHighEta", 25.)),
       ptFactorHighEta_(getParameter<double>(iConfig, "ptFactorForHighEta", 2.)),
       metFactorFake_(getParameter<double>(iConfig, "metFactorForFakes", 4.)),
       minPunchThroughMomentum_(getParameter<double>(iConfig, "minMomentumForPunchThrough", 100.)),
@@ -1036,4 +1032,28 @@ void PFMuonAlgo::removeDeadCandidates(reco::PFCandidateCollection* obj, const st
     obj->at(indices.at(i)) = obj->at(collSize - i - 1);
 
   obj->resize(collSize - indices.size());
+}
+
+void PFMuonAlgo::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  // Muon ID and post cleaning parameters
+  iDesc.add<double>("maxDPtOPt", 1.0);
+  iDesc.add<std::string>("trackQuality", "highPurity");
+  iDesc.add<double>("ptErrorScale", 8.0);
+
+  iDesc.add<double>("eventFractionForCleaning", 0.5);
+  iDesc.add<double>("minPtForPostCleaning", 20.0);
+  iDesc.add<double>("eventFactorForCosmics", 10.0);
+  iDesc.add<double>("metSignificanceForCleaning", 3.0);
+  iDesc.add<double>("metSignificanceForRejection", 4.0);
+  iDesc.add<double>("metFactorForCleaning", 4.0);
+  iDesc.add<double>("eventFractionForRejection", 0.8);
+  iDesc.add<double>("metFactorForRejection", 4.0);
+  iDesc.add<double>("metFactorForHighEta", 25.0);
+  iDesc.add<double>("ptFactorForHighEta", 2.0);
+  iDesc.add<double>("metFactorForFakes", 4.0);
+  iDesc.add<double>("minMomentumForPunchThrough", 100.0);
+  iDesc.add<double>("minEnergyForPunchThrough", 100.0);
+  iDesc.add<double>("punchThroughFactor", 3.0);
+  iDesc.add<double>("punchThroughMETFactor", 4.0);
+  iDesc.add<double>("cosmicRejectionDistance", 1.0);
 }

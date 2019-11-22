@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
@@ -26,7 +26,7 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSCommonDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<std::vector<int>>> {
+class CTPPSCommonDQMSource : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<std::vector<int>>> {
 public:
   CTPPSCommonDQMSource(const edm::ParameterSet &ps);
   ~CTPPSCommonDQMSource() override;
@@ -351,7 +351,7 @@ void CTPPSCommonDQMSource::analyzeTracks(edm::Event const &event, edm::EventSetu
   map<unsigned int, set<signed int>> ms_rp_idx_arm;
 
   for (auto &tr : *hTracks) {
-    const CTPPSDetId rpId(tr.getRPId());
+    const CTPPSDetId rpId(tr.rpId());
     const unsigned int arm = rpId.arm();
     const unsigned int stNum = rpId.station();
     const unsigned int rpNum = rpId.rp();
@@ -429,7 +429,7 @@ void CTPPSCommonDQMSource::analyzeTracks(edm::Event const &event, edm::EventSetu
   map<unsigned int, set<unsigned int>> mTop, mHor, mBot;
 
   for (auto &tr : *hTracks) {
-    CTPPSDetId rpId(tr.getRPId());
+    CTPPSDetId rpId(tr.rpId());
     const unsigned int rpNum = rpId.rp();
     const unsigned int armIdx = rpId.arm();
 
@@ -447,8 +447,8 @@ void CTPPSCommonDQMSource::analyzeTracks(edm::Event const &event, edm::EventSetu
     {
       auto it = ap.trackingRPPlots.find(rpDecId);
       if (it != ap.trackingRPPlots.end()) {
-        it->second.h_x->Fill(tr.getX());
-        it->second.h_y->Fill(tr.getY());
+        it->second.h_x->Fill(tr.x());
+        it->second.h_y->Fill(tr.y());
       }
     }
 
@@ -456,8 +456,8 @@ void CTPPSCommonDQMSource::analyzeTracks(edm::Event const &event, edm::EventSetu
     {
       auto it = ap.timingRPPlots.find(rpDecId);
       if (it != ap.timingRPPlots.end()) {
-        it->second.h_x->Fill(tr.getX());
-        it->second.h_time->Fill(tr.getTime());
+        it->second.h_x->Fill(tr.x());
+        it->second.h_time->Fill(tr.time());
       }
     }
   }

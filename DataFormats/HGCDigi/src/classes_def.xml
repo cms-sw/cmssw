@@ -1,5 +1,14 @@
 <lcgdict>
-   <class name="HGCSample"/>
+   <class name="HGCSample" ClassVersion="10">
+    <version ClassVersion="10" checksum="2120380856"/>
+    <ioread sourceClass = "HGCSample" version="[-9]" targetClass="HGCSample" source="uint32_t value_; bool toaFired_;" target="value_">
+      <![CDATA[
+	       HGCSample tmp(HGCSample::convertV9ToV10(onfile.value_, onfile.toaFired_));
+	       *newObj=tmp;
+      ]]>
+    </ioread>
+   </class>
+
    <class name="std::vector<HGCSample>"/>
 
    <!-- Not specific -->

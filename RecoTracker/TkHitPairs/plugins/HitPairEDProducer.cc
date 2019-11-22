@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -42,7 +43,7 @@ namespace {
     ImplBase(const edm::ParameterSet& iConfig);
     virtual ~ImplBase() = default;
 
-    virtual void produces(edm::ProducerBase& producer) const = 0;
+    virtual void produces(edm::ProducesCollector) const = 0;
 
     virtual void produce(const bool clusterCheckOk, edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 
@@ -73,9 +74,9 @@ namespace {
         : ImplBase(iConfig), regionsLayers_(&layerPairBegins_, std::forward<Args>(args)...) {}
     ~Impl() override = default;
 
-    void produces(edm::ProducerBase& producer) const override {
-      T_SeedingHitSets::produces(producer);
-      T_IntermediateHitDoublets::produces(producer);
+    void produces(edm::ProducesCollector producesCollector) const override {
+      T_SeedingHitSets::produces(producesCollector);
+      T_IntermediateHitDoublets::produces(producesCollector);
     }
 
     void produce(const bool clusterCheckOk, edm::Event& iEvent, const edm::EventSetup& iSetup) override {
@@ -137,7 +138,7 @@ namespace {
     DoNothing(const SeedingLayerSetsHits*) {}
     DoNothing(edm::RunningAverage*) {}
 
-    static void produces(edm::ProducerBase&){};
+    static void produces(edm::ProducesCollector){};
 
     void reserve(size_t) {}
 
@@ -156,7 +157,9 @@ namespace {
     ImplSeedingHitSets(edm::RunningAverage* localRA)
         : seedingHitSets_(std::make_unique<RegionsSeedingHitSets>()), localRA_(localRA) {}
 
-    static void produces(edm::ProducerBase& producer) { producer.produces<RegionsSeedingHitSets>(); }
+    static void produces(edm::ProducesCollector producesCollector) {
+      producesCollector.produces<RegionsSeedingHitSets>();
+    }
 
     void reserve(size_t regionsSize) { seedingHitSets_->reserve(regionsSize, localRA_->upper()); }
 
@@ -191,7 +194,9 @@ namespace {
     ImplIntermediateHitDoublets(const SeedingLayerSetsHits* layers)
         : intermediateHitDoublets_(std::make_unique<IntermediateHitDoublets>(layers)), layers_(layers) {}
 
-    static void produces(edm::ProducerBase& producer) { producer.produces<IntermediateHitDoublets>(); }
+    static void produces(edm::ProducesCollector producesCollector) {
+      producesCollector.produces<IntermediateHitDoublets>();
+    }
 
     void reserve(size_t regionsSize) { intermediateHitDoublets_->reserve(regionsSize, layers_->size()); }
 
@@ -476,7 +481,7 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig) {
   if (!clusterCheckTag.label().empty())
     clusterCheckToken_ = consumes<bool>(clusterCheckTag);
 
-  impl_->produces(*this);
+  impl_->produces(producesCollector());
 }
 
 void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

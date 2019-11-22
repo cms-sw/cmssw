@@ -69,7 +69,7 @@ void CTPPSDiamondLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventS
     const CTPPSDiamondDetId detid(vec.detId());
     for (const auto& hit : vec) {
       // skip hits without a leading edge
-      if (hit.getOOTIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)
+      if (hit.ootIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)
         continue;
 
       switch (detid.arm()) {

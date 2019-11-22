@@ -82,10 +82,10 @@ akCs4PFJets.GhostArea     = cms.double(0.005)
 
 akCs3PFJets = akCs4PFJets.clone(rParam       = cms.double(0.3))
 
-hiRecoPFJets = cms.Sequence(
+hiRecoPFJetsTask = cms.Task(
     PFTowers
-    *akPu3PFJets*akPu4PFJets*akPu5PFJets
-    *kt4PFJetsForRho*hiFJRhoProducer
-    *akCs3PFJets*akCs4PFJets
+    ,akPu3PFJets,akPu4PFJets,akPu5PFJets
+    ,kt4PFJetsForRho,hiFJRhoProducer
+    ,akCs3PFJets,akCs4PFJets
     )
-
+hiRecoPFJets = cms.Sequence(hiRecoPFJetsTask)
