@@ -334,26 +334,25 @@ void CorrPCCProducer::calculateCorrections(std::vector<float> uncorrected,
 
   float lumiMax = getMaximum(corrected_tmp_);
   float threshold = lumiMax * 0.2;
-  
+
   //here subtract the pedestal
   pedestal = 0.;
   pedestal_unc = 0.;
   int nped = 0;
   for (size_t i = 0; i < LumiConstants::numBX; i++) {
-    if(corrected_tmp_.at(i) < threshold) {
+    if (corrected_tmp_.at(i) < threshold) {
       pedestal += corrected_tmp_.at(i);
       nped++;
     }
   }
   if (nped > 0) {
     pedestal_unc = sqrt(pedestal) / nped;
-    pedestal = pedestal / nped; 
+    pedestal = pedestal / nped;
   }
   for (size_t i = 0; i < LumiConstants::numBX; i++) {
     corrected_tmp_.at(i) = corrected_tmp_.at(i) - pedestal;
   }
 
-  
   evaluateCorrectionResiduals(corrected_tmp_);
 
   float integral_uncorr_clusters = 0;
@@ -617,7 +616,7 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
     type2resGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, mean_type2_residual_unc);
     pedestalGraph->SetPoint(iBlock, thisIOV + approxLumiBlockSize_ / 2.0, pedestal);
     pedestalGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, pedestal_unc);
-    
+
     edm::LogInfo("INFO")
         << "iBlock type1Frac mean_type1_residual mean_type2_residual mean_type1_residual_unc mean_type2_residual_unc "
         << iBlock << " " << type1Frac << " " << mean_type1_residual << " " << mean_type2_residual << " "
