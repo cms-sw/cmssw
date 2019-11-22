@@ -578,6 +578,10 @@ namespace dqm {
       // if there are concurrent runs/lumis.
       void enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
       void leaveLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
+      // this is triggered by a framework hook to remove/recycle MEs after a
+      // run/lumi is saved. We do this via the edm::Service interface to make
+      // sure it runs after *all* output modules, even if there are multiple.
+      void cleanupLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi);
 
       // Add ME to DQMStore datastructures. The object will be deleted if a
       // similar object is already present.

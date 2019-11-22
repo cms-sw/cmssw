@@ -2,6 +2,7 @@
 #define DQM_DEPRECATED
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include <string>
 #include <regex>
 #include <csignal>
@@ -69,8 +70,19 @@ namespace dqm::implementation {
       medata.key_.path_ = path;
       medata.key_.kind_ = kind;
       medata.key_.scope_ = this->scope_;
-      // will be 0 ( = prototype) in the common case.
-      medata.key_.id_ = this->runlumi_;
+
+      // will be (0,0) ( = prototype) in the common case.
+      // This branching is for harvesting, where we have run/lumi in the booker.
+      if (this->scope_ == MonitorElementData::Scope::JOB) {
+        medata.key_.id_ = edm::LuminosityBlockID();
+      } else if (this->scope_ == MonitorElementData::Scope::RUN) {
+        medata.key_.id_ = edm::LuminosityBlockID(this->runlumi_.run(), 0);
+      } else if (this->scope_ == MonitorElementData::Scope::LUMI) {
+        medata.key_.id_ = this->runlumi_;
+      } else {
+        assert(!"Illegal scope");
+      }
+
       medata.value_.object_ = std::unique_ptr<TH1>(th1);
       MonitorElement* me_ptr = new MonitorElement(std::move(medata));
       me = store_->putME(me_ptr);
@@ -319,6 +331,70 @@ namespace dqm::implementation {
     }
   }
 
+  void DQMStore::cleanupLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) {
+    // now, we are done with the lumi, no modules have any work to do on these
+    // MEs, and the output modules have saved this lumi/run. Remove/recycle
+    // the MEs here.
+
+    auto lock = std::scoped_lock(this->booking_mutex_);
+
+    // in case of end-job cleanup we need different logic because of the
+    // prototype set.
+    assert(run != 0 || lumi != 0);
+    auto& prototypes = this->globalMEs_[edm::LuminosityBlockID()];
+
+    // these are the MEs we need to get rid of...
+    auto meset = std::set<MonitorElement*, MonitorElement::MEComparison>();
+    // ... we take them out first.
+    meset.swap(this->globalMEs_[edm::LuminosityBlockID(run, lumi)]);
+
+    // temporary buffer for the MEs to recycle, we must not change the key
+    // while they are in a set.
+    auto torecycle = std::vector<MonitorElement*>();
+
+    // here, this is only a sanity check and not functionally needed.
+    auto checkScope = [run, lumi](MonitorElementData::Scope scope) {
+      if (scope == MonitorElementData::Scope::JOB) {
+        assert(run == 0 && lumi == 0);
+      } else if (scope == MonitorElementData::Scope::RUN) {
+        assert(run != 0 && lumi == 0);
+      } else if (scope == MonitorElementData::Scope::LUMI) {
+        assert(lumi != 0);
+      } else {
+        assert(!"Impossible Scope.");
+      }
+    };
+
+    for (MonitorElement* me : meset) {
+      assert(me->isValid());       // global MEs should always be valid.
+      checkScope(me->getScope());  // we should only see MEs of one scope here.
+      auto other = this->findME(me);
+      if (other) {
+        // we still have a global one, so we can just remove this.
+        delete me;
+      } else {
+        // we will modify the ME, so it needs to be out of the set.
+        // use a temporary vector to be save.
+        torecycle.push_back(me);
+      }
+    }
+
+    meset.clear();
+
+    for (MonitorElement* me : torecycle) {
+      auto medata = me->release(/* expectOwned */ true);  // destroy the ME, get its data.
+      medata->data_.key_.id_ = edm::LuminosityBlockID();  // prototype
+      // We reuse the ME object here, even if we don't have to. This ensures
+      // that when running single-threaded without concurrent lumis/runs,
+      // the global MEs will also live forever and allow legacy usages.
+      me->switchData(medata);
+      // reset here (not later) to still catch random legacy fill calls.
+      me->Reset();
+      auto result = prototypes.insert(me);
+      assert(result.second);  // was new insertion, else findME should succeed
+    }
+  }
+
   std::vector<dqm::harvesting::MonitorElement*> IGetter::getContents(std::string const& pathname) const {
     std::vector<MonitorElement*> out;
     MonitorElementData::Path path;
@@ -394,8 +470,22 @@ namespace dqm::implementation {
 
   IGetter::~IGetter() {}
 
-  DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&) : IGetter(this), IBooker(this) {
+  DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar) : IGetter(this), IBooker(this) {
     verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
+
+    // Set lumi and run for legacy booking.
+    // This is no more than a guess with concurrent runs/lumis, but should be
+    // correct for purely sequential legacy stuff.
+    // TODO: detect concurrent runs/lumis and disable legacy API in case?
+    ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) { this->setRunLumi(gc.luminosityBlockID()); });
+    ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) { this->setRunLumi(gc.luminosityBlockID()); });
+
+    // Delete/recycle MEs after output modules have run.
+    ar.watchPostGlobalEndRun(
+        [this](edm::GlobalContext const& gc) { this->cleanupLumi(gc.luminosityBlockID().run(), 0); });
+    ar.watchPostGlobalEndLumi([this](edm::GlobalContext const& gc) {
+      this->cleanupLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().value());
+    });
   }
 
   DQMStore::~DQMStore() {}
