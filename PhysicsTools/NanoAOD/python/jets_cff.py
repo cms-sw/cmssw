@@ -456,6 +456,9 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 		     doc="index of first subjet"),
         subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", int,
 		     doc="index of second subjet"),
+        nBHadrons=Var("jetFlavourInfo().getbHadrons().size()", int, doc="number of b-hadrons",precision=10),
+        nCHadrons=Var("jetFlavourInfo().getcHadrons().size()", int, doc="number of c-hadrons",precision=10),
+
 
 #        btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="CMVA V2 btag discriminator",precision=10),
 #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
@@ -500,6 +503,8 @@ subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         tau4 = Var("userFloat('NjettinessAK8Subjets:tau4')",float, doc="Nsubjettiness (4 axis)",precision=10),
         n2b1 = Var("userFloat('nb1AK8PuppiSoftDropSubjets:ecfN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('nb1AK8PuppiSoftDropSubjets:ecfN3')", float, doc="N3 with beta=1", precision=10),
+        nBHadrons=Var("jetFlavourInfo().getbHadrons().size()", int, doc="number of b-hadrons",precision=10),
+        nCHadrons=Var("jetFlavourInfo().getcHadrons().size()", int, doc="number of c-hadrons",precision=10),
     )
 )
 
