@@ -93,6 +93,11 @@
     <!-- <field name="values_" mapping="blob"/> -->
   </class>
 
+  <class name="SiStripApvSimulationParameters" class_version="0">
+    <field name="m_barrelParam_xInt" transient="true"/>
+    <field name="m_endcapParam_xInt" transient="true"/>
+  </class>
+
   <class name="Phase2TrackerModule" ClassVersion="11">
    <version ClassVersion="11" checksum="707066581"/>
     <version ClassVersion="10" checksum="2583259051"/>

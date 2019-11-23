@@ -6,6 +6,7 @@ int main()
 {
     testSerialization<FedChannelConnection>();
     testSerialization<SiStripApvGain>();
+    testSerialization<SiStripApvSimulationParameters>();
     testSerialization<SiStripBackPlaneCorrection>();
     testSerialization<SiStripBadStrip>();
     testSerialization<SiStripBadStrip::DetRegistry>();
@@ -43,6 +44,5 @@ int main()
     testSerialization<Phase2TrackerCabling>();
     testSerialization<Phase2TrackerModule>();
     testSerialization<std::vector<Phase2TrackerModule> >();
-
     return 0;
 }

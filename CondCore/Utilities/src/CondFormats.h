@@ -151,6 +151,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvSimulationParameters.h"
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"

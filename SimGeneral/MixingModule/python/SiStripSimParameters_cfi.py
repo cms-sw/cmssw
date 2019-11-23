@@ -116,7 +116,14 @@ SiStripSimBlock = cms.PSet(
     #
     TOFCutForDeconvolution     = cms.double(50.0),
     TOFCutForPeak              = cms.double(100.0),
-    Inefficiency               = cms.double(0.0)
+    Inefficiency               = cms.double(0.0),
+    # APV Dynamic Gain Simulation
+    includeAPVSimulation       = cms.bool( False ),
+    apv_maxResponse            = cms.double( 729 ),
+    apv_rate                   = cms.double( 66.2 ),
+    apv_mVPerQ                 = cms.double( 5.5 ),
+    apvfCPerElectron           = cms.double( 1.602e-4 ),
+    fracOfEventsToSimAPV       = cms.double( 0.5376 ),
 )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
