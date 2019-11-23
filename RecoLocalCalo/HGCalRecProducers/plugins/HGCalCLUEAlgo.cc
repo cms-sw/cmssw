@@ -556,6 +556,7 @@ template<typename T>
 Density HGCalCLUEAlgoT<T>::getDensity() { return density_; }
 
 
+template void HGCalCLUEAlgo::makeClusters();
 template void HGCalCLUEAlgo::setDensity (const unsigned int);
 template void HGCalCLUEAlgo::prepareDataStructures(unsigned int);
 template int  HGCalCLUEAlgo::findAndAssignClusters(const unsigned int, float, float);
