@@ -566,3 +566,13 @@ template Density HGCalCLUEAlgo::getDensity();
 template void HGCalCLUEAlgo::getEventSetupPerAlgorithm(const edm::EventSetup&);
 
 
+template void HFNoseCLUEAlgo::makeClusters();
+template void HFNoseCLUEAlgo::setDensity (const unsigned int);
+template void HFNoseCLUEAlgo::prepareDataStructures(unsigned int);
+template int  HFNoseCLUEAlgo::findAndAssignClusters(const unsigned int, float, float);
+template void HFNoseCLUEAlgo::populate(const HGCRecHitCollection&);
+template std::vector<reco::BasicCluster> HFNoseCLUEAlgo::getClusters(bool);
+template Density HFNoseCLUEAlgo::getDensity();
+template void HFNoseCLUEAlgo::getEventSetupPerAlgorithm(const edm::EventSetup&);
+
+

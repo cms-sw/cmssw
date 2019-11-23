@@ -84,7 +84,12 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
   }
 
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
-  algo = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
+  if (detector == "HFNose") {
+    algo = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet);
+  } else {
+    algo = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
+  }
+
   algo->setAlgoId(algoId);
 
   produces<std::vector<float>>("InitialLayerClustersMask");
