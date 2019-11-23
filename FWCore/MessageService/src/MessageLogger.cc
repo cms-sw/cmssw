@@ -263,6 +263,7 @@ namespace edm {
       });
 
       iRegistry.watchPostBeginJob(this, &MessageLogger::postBeginJob);
+      iRegistry.watchPreEndJob(this, &MessageLogger::preEndJob);
       iRegistry.watchPostEndJob(this, &MessageLogger::postEndJob);
       iRegistry.watchJobFailure(this, &MessageLogger::jobFailure);  // change log 14
 
@@ -815,6 +816,11 @@ namespace edm {
     void MessageLogger::postGlobalEndLumi(GlobalContext const&) {
       edm::MessageDrop::instance()->runEvent = "PostGlobalEndLumi";
       edm::MessageDrop::instance()->setSinglet("PostGlobalEndLumi");  // changelog 17
+    }
+
+    void MessageLogger::preEndJob() {
+      edm::MessageDrop::instance()->runEvent = "EndJob";
+      edm::MessageDrop::instance()->setSinglet("EndJob");  // changelog
     }
 
     void MessageLogger::postEndJob() {

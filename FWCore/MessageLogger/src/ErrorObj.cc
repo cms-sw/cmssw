@@ -164,7 +164,7 @@ namespace edm {
 
   void ErrorObj::setModule(const ELstring& module) { myXid.module = module; }
 
-  void ErrorObj::setContext(const ELstring& c) { myContext = c; }
+  void ErrorObj::setContext(const std::string_view& c) { myContext = c; }
 
   void ErrorObj::setSubroutine(const ELstring& subroutine) {
 #ifdef ErrorObj_SUB_TRACE
