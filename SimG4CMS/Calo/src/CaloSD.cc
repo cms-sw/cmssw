@@ -174,7 +174,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
                                 << " currentID= (" << currentID << ") previousID= (" << previousID << ")";
 #endif
     if (!hitExists(aStep)) {
-      currentHit = createNewHit(aStep);
+      currentHit = createNewHit(aStep, aStep->GetTrack());
     }
     return true;
   }
@@ -230,7 +230,7 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 #endif
       }
       if (!checkHit()) {
-        currentHit = createNewHit(&fFakeStep);
+        currentHit = createNewHit(&fFakeStep, track);
       }
     }
     return true;
@@ -341,8 +341,7 @@ bool CaloSD::checkHit() {
 
 int CaloSD::getNumberOfHits() { return theHC->entries(); }
 
-CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
-  auto const theTrack = aStep->GetTrack();
+CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD::CreateNewHit " << getNumberOfHits() << " for " << GetName()
                               << " Unit:" << currentID.unitID() << " " << currentID.depth() << " Edep= " << edepositEM
