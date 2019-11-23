@@ -362,6 +362,9 @@ namespace edm {
     /// skip some events.
     void decreaseRemainingEventsBy(int iSkipped);
 
+    ///Begin protected makes it easier to do template programming
+    virtual void beginJob();
+
   private:
     bool eventLimitReached() const { return remainingEvents_ == 0; }
     bool lumiLimitReached() const {
@@ -393,7 +396,6 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
-    virtual void beginJob();
     virtual void endJob();
     virtual std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> resourceSharedWithDelayedReader_();
 
