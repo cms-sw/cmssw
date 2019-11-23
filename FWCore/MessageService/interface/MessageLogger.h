@@ -57,6 +57,7 @@ namespace edm {
 
     private:
       void postBeginJob();
+      void preEndJob();
       void postEndJob();
       void jobFailure();
 
