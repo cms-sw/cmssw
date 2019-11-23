@@ -45,7 +45,7 @@ def expandFilename (filename, options):
     stdout, stderr = getOutput ('edmFileUtil -d %s' % filename)
     if stdout:
         return stdout.strip()
-    raise (RuntimeError, "Could not successfully run 'edmFileUtil.' Error %s" \
+    raise RuntimeError("Could not successfully run 'edmFileUtil.' Error %s" \
           % stderr)
 
 
@@ -67,7 +67,7 @@ class Branch (object):
         name = trailingDotRE.sub ('', branchInfo.GetName())
         pieces = underscoreRE.split (name)
         if len (pieces) != 4:
-            raise (ValueError, "%s not formatted as expected" % name)
+            raise ValueError("%s not formatted as expected" % name)
         self.typeString = pieces[0] # not currently used
         self.module     = pieces[1]
         self.label      = pieces[2]
@@ -87,7 +87,7 @@ class Branch (object):
                 found = True
                 break
         if not found:
-            raise (ValueError, "%s does not match regexs provided" \
+            raise ValueError("%s does not match regexs provided" \
                   % self.fullname)
 
         
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     rootfile = ROOT.TFile.Open( filename )
     os.dup2( oldStderr, sys.stderr.fileno() )
     if not rootfile:
-        raise (RuntimeError, "Could not open file '%s'." % filename)
+        raise RuntimeError("Could not open file '%s'." % filename)
     Tree = rootfile.Get (treeName)
     branches = Tree.GetListOfBranches()
     branchList = []
