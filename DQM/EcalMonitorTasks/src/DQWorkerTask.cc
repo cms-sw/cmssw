@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace ecaldqm {
-  DQWorkerTask::DQWorkerTask() : DQWorker(), resettable_() {}
+  DQWorkerTask::DQWorkerTask() : DQWorker() {}
 
   /*static*/
   void DQWorkerTask::fillDescriptions(edm::ParameterSetDescription& _desc) { DQWorker::fillDescriptions(_desc); }
@@ -16,25 +16,7 @@ namespace ecaldqm {
     for (MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr) {
       if (willConvertToEDM_)
         mItr->second->setBatchMode();
-
-      // TEMPORARY MEASURE - softReset does not accept variable bin size as of September 2012
-      // isVariableBinning is true for 1. MESetEcal or MESetNonObject with any custom binning or 2. MESetTrend
-      // In principle it is sufficient to protect the MESetTrends from being reset
-      if (mItr->second->getBinType() != ecaldqm::binning::kTrend && !mItr->second->isVariableBinning() &&
-          mItr->second->getKind() != MonitorElement::Kind::REAL)
-        resettable_.insert(mItr->first);
     }
-  }
-
-  void DQWorkerTask::softReset() {
-    std::for_each(
-        resettable_.begin(), resettable_.end(), [this](std::string const& name) { this->MEs_.at(name).softReset(); });
-  }
-
-  void DQWorkerTask::recoverStats() {
-    std::for_each(resettable_.begin(), resettable_.end(), [this](std::string const& name) {
-      this->MEs_.at(name).recoverStats();
-    });
   }
 
   void DependencySet::formSequenceFragment_(Dependency const& _d,

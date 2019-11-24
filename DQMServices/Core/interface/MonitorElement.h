@@ -291,8 +291,6 @@ namespace dqm::impl {
     void ShiftFillLast(double y, double ye = 0., int32_t xscale = 1);
 
     virtual void Reset();
-    DQM_DEPRECATED
-    virtual void softReset();
 
     // mostly used for IO, should be private.
     std::string valueString() const;
@@ -410,12 +408,6 @@ namespace dqm::impl {
 
     void setAxisTimeOffset(double toffset, const char *option = "local", int axis = 1);
 
-    /// whether soft-reset is enabled; default is false
-    bool isSoftResetEnabled() const { return refvalue_ != nullptr; }
-
-    /// whether ME contents should be accumulated over multiple monitoring periods; default: false
-    bool isAccumulateEnabled() const { return data_.flags & DQMNet::DQM_PROP_ACCUMULATE; }
-
     /// true if ME is marked for deletion
     bool markedToDelete() const { return data_.flags & DQMNet::DQM_PROP_MARKTODELETE; }
 
@@ -429,16 +421,9 @@ namespace dqm::impl {
     /// true if ME should be reset at end of monitoring cycle
     bool resetMe() const { return data_.flags & DQMNet::DQM_PROP_RESET; }
 
-    /// if true, will accumulate ME contents (over many periods)
-    /// until method is called with flag = false again
-    void setAccumulate(bool /* flag */) { data_.flags |= DQMNet::DQM_PROP_ACCUMULATE; }
-
     TAxis const *getAxis(Access const &access, const char *func, int axis) const;
     TAxis *getAxis(AccessMut const &access, const char *func, int axis) const;
 
-    // ------------ Operations for MEs that are normally never reset ---------
-  protected:
-    void disableSoftReset();
     void addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2);
     void addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2);
     void copyFunctions(TH1 *from, TH1 *to);
