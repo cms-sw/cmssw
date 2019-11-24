@@ -72,10 +72,6 @@ void L1EmulatorErrorFlagClient::initialize() {
 void L1EmulatorErrorFlagClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   ibooker.setCurrentFolder("L1TEMU/EventInfo");
 
-  if ((m_meSummaryErrorFlagMap = igetter.get("L1TEMU/EventInfo/summaryErrorFlagMap"))) {
-    igetter.removeElement(m_meSummaryErrorFlagMap->getName());
-  }
-
   // define a histogram
   m_meSummaryErrorFlagMap =
       ibooker.book1D("L1SummaryErrorFlagMap", "L1SummaryErrorFlagMap", m_nrL1Systems, 1, m_nrL1Systems + 1);

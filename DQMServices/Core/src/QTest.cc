@@ -1,7 +1,6 @@
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/src/DQMError.h"
-#include "DQMServices/Core/src/QStatisticalTests.h"
 #include "Math/ProbFuncMathCore.h"
 #include "TMath.h"
 #include <cmath>

@@ -64,7 +64,6 @@ process.TFileService.fileName = '.oO[outputFile]Oo.'
 ######################################################################
 ######################################################################
 offlineDqmFileOutputTemplate = """
-process.TrackerOfflineValidationSummary.oO[offlineValidationMode]Oo..removeModuleLevelHists = .oO[offlineModuleLevelHistsTransient]Oo.
 process.DqmSaverTkAl.workflow = '.oO[workflow]Oo.'
 process.DqmSaverTkAl.dirName = '.oO[workdir]Oo./.'
 process.DqmSaverTkAl.forceRunNumber = .oO[firstRunNumber]Oo.

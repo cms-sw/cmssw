@@ -62,8 +62,6 @@ namespace ecaldqm {
 
     void reset(double = 0., double = 0., double = 0.) override;
 
-    void softReset() override;
-
   protected:
     void fill_(unsigned, int, double) override;
     void fill_(unsigned, int, double, double) override;
