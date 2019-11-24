@@ -299,11 +299,6 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
   ibooker.setCurrentFolder(dirEventInfo);
 
-  // remove m_meReportSummary if it exists
-  if ((m_meReportSummary = igetter.get(dirEventInfo + "/reportSummary"))) {
-    igetter.removeElement(m_meReportSummary->getName());
-  }
-
   // ...and book it again
   m_meReportSummary = ibooker.bookFloat("reportSummary");
 
@@ -361,10 +356,6 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
   }
 
   ibooker.setCurrentFolder(dirEventInfo);
-
-  if ((m_meReportSummaryMap = igetter.get(dirEventInfo + "/reportSummaryMap"))) {
-    igetter.removeElement(m_meReportSummaryMap->getName());
-  }
 
   // define a histogram with two bins on X and maximum of m_nrL1Systems, m_nrL1Objects on Y
 

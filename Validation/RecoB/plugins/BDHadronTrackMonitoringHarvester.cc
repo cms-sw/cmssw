@@ -170,30 +170,6 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker &ibook, DQMSt
     nTrk_relative_dusgjet->setBinContent(i + 1, mean_dusgjets[i] / meanAll_dusgjets);
     nTrk_std_dusgjet->setBinContent(i + 1, std_dusgjets[i]);
   }
-
-  // ***********************
-  //
-  // Remove histograms with nTracks that we do not want to show
-  //
-  // ***********************
-
-  // b jets
-  for (unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-    iget.removeElement("nTrk_bjet_" + BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
-  }
-  iget.removeElement("nTrkAll_bjet");
-
-  // c jets
-  for (unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-    iget.removeElement("nTrk_cjet_" + BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
-  }
-  iget.removeElement("nTrkAll_cjet");
-
-  // dusg jets
-  for (unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-    iget.removeElement("nTrk_dusgjet_" + BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
-  }
-  iget.removeElement("nTrkAll_dusgjet");
 }
 
 // define this as a plug-in
