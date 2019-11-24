@@ -22,7 +22,7 @@
 #include "Math/Vector4Dfwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,26 +34,22 @@
 // class declaration
 //
 
-class LHEPtFilter : public edm::EDFilter {
+class LHEPtFilter : public edm::global::EDFilter<> {
 public:
   explicit LHEPtFilter(const edm::ParameterSet&);
   ~LHEPtFilter() override;
 
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<LHEEventProduct> src_;
-  std::vector<lhef::HEPEUP::FiveVector> lheParticles;
-  std::vector<ROOT::Math::PxPyPzEVector> cands;
   std::vector<int> pdgIdVec_;
   std::set<int> pdgIds_;  // Set of PDG Ids to include
   double ptMin_;          // number of particles required to pass filter
   double ptMax_;          // number of particles required to pass filter
-  int totalEvents_;       // counters
-  int passedEvents_;
 };
 
 using namespace edm;
@@ -62,9 +58,7 @@ using namespace std;
 LHEPtFilter::LHEPtFilter(const edm::ParameterSet& iConfig)
     : pdgIdVec_(iConfig.getParameter<std::vector<int>>("selectedPdgIds")),
       ptMin_(iConfig.getParameter<double>("ptMin")),
-      ptMax_(iConfig.getParameter<double>("ptMax")),
-      totalEvents_(0),
-      passedEvents_(0) {
+      ptMax_(iConfig.getParameter<double>("ptMax")) {
   //here do whatever other initialization is needed
   src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
   pdgIds_ = std::set<int>(pdgIdVec_.begin(), pdgIdVec_.end());
@@ -76,14 +70,13 @@ LHEPtFilter::~LHEPtFilter() {
 }
 
 // ------------ method called to skim the data  ------------
-bool LHEPtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  cands.clear();
+bool LHEPtFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  
   edm::Handle<LHEEventProduct> EvtHandle;
   iEvent.getByToken(src_, EvtHandle);
 
-  totalEvents_++;
-
-  lheParticles = EvtHandle->hepeup().PUP;
+  std::vector<lhef::HEPEUP::FiveVector> lheParticles = EvtHandle->hepeup().PUP;
+  std::vector<ROOT::Math::PxPyPzEVector> cands;
 
   for (unsigned int i = 0; i < lheParticles.size(); ++i) {
     if (EvtHandle->hepeup().ISTUP[i] != 1) {  // keep only outgoing particles
@@ -104,17 +97,10 @@ bool LHEPtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     vpt_ = tot.pt();
   }
   if ((ptMax_ < 0. || vpt_ <= ptMax_) && vpt_ > ptMin_) {
-    passedEvents_++;
     return true;
   } else {
     return false;
   }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void LHEPtFilter::endJob() {
-  edm::LogInfo("LHEPtFilter") << "=== Results of LHEPtFilter: passed " << passedEvents_ << "/" << totalEvents_
-                              << " events" << std::endl;
 }
 
 //define this as a plug-in
