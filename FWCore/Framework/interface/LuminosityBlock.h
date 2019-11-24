@@ -22,6 +22,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
@@ -33,6 +34,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <optional>
 
 namespace edm {
   class ModuleCallingContext;
@@ -100,7 +102,12 @@ namespace edm {
     template <typename PROD>
     void getManyByType(std::vector<Handle<PROD>>& results) const;
 
-    Run const& getRun() const { return *run_; }
+    Run const& getRun() const {
+      if (not run_) {
+        fillRun();
+      }
+      return run_.value();
+    }
 
     ///Put a new product.
     template <typename PROD>
@@ -157,6 +164,8 @@ namespace edm {
     ProductPtrVec& putProducts() { return putProducts_; }
     ProductPtrVec const& putProducts() const { return putProducts_; }
 
+    void fillRun() const;
+
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
@@ -171,7 +180,7 @@ namespace edm {
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     LuminosityBlockAuxiliary const& aux_;
-    std::shared_ptr<Run const> const run_;
+    mutable std::optional<Run> run_;
     ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;
