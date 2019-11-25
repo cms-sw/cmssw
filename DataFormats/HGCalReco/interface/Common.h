@@ -24,7 +24,7 @@ namespace ticl {
 namespace ticlHFNose::constants {
   constexpr float minEta = 3.f;
   constexpr float maxEta = 4.2f;
-  constexpr int nEtaBins = 34;
+  constexpr int nEtaBins = 24;
   constexpr int nPhiBins = 126;
   constexpr int nLayers = 16;
 }  // namespace ticlHFnose::constants
