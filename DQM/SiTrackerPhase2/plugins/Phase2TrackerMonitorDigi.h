@@ -9,8 +9,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
+class MonitorElement;
 class PixelDigi;
 class Phase2TrackerDigi;
 class TrackerGeometry;
@@ -27,14 +27,16 @@ public:
     MonitorElement* DigiOccupancyP;
     MonitorElement* DigiOccupancyS;
     MonitorElement* ChargeXYMap;
-    MonitorElement* PositionOfDigis;
+    MonitorElement* PositionOfDigisP;
+    MonitorElement* PositionOfDigisS;
     MonitorElement* ChargeOfDigis;
     MonitorElement* ChargeOfDigisVsWidth;
     MonitorElement* TotalNumberOfDigisPerLayer;
     MonitorElement* NumberOfHitDetectorsPerLayer;
     MonitorElement* NumberOfClustersPerDet;
     MonitorElement* ClusterWidth;
-    MonitorElement* ClusterPosition;
+    MonitorElement* ClusterPositionP;
+    MonitorElement* ClusterPositionS;
     MonitorElement* FractionOfOvTBits;
     MonitorElement* FractionOfOvTBitsVsEta;
     MonitorElement* EtaOccupancyProfP;
@@ -57,6 +59,7 @@ private:
 
   edm::ParameterSet config_;
   std::map<unsigned int, DigiMEs> layerMEs;
+  //  std::map<unsigned int, std::map<unsigned int ,DigiMEs>> ringMEs;
   bool pixelFlag_;
   std::string geomType_;
   edm::InputTag otDigiSrc_;

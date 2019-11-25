@@ -21,7 +21,7 @@ from Validation.L1T.postProcessorL1Gen_cff import *
 from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_harvestingV_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 from Validation.SiOuterTrackerV.SiOuterTrackerMCHarvesting_cff import *
-
+from Validation.SiTrackerPhase2V.Phase2TrackerMCHarvesting_cff import *
 
 postValidationTracking = cms.Sequence(
       postProcessorTrackSequence
@@ -125,6 +125,7 @@ _phase2_postValidation = _run3_postValidation.copy()
 _phase2_postValidation += hgcalPostProcessor
 _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
+_phase2_postValidation += trackerphase2ValidationHarvesting
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith( postValidation, _run3_postValidation )
