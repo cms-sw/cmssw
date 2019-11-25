@@ -47,9 +47,9 @@ process.DQMoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('')
     )
 )
-process.load('SimTracker.SiPhase2Digitizer.Phase2TrackerMonitorDigi_cff')
-process.load('SimTracker.SiPhase2Digitizer.Phase2TrackerValidateDigi_cff')
-process.digiana_seq = cms.Sequence(process.pixDigiMon * process.otDigiMon * process.pixDigiValid * process.otDigiValid)
+
+process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidateDigi_cff')
+process.digiana_seq = cms.Sequence(process.pixDigiValid * process.otDigiValid)
 
 process.load('DQMServices.Components.DQMEventInfo_cfi')
 process.dqmEnv.subSystemFolder = cms.untracked.string('Ph2TkDigi')
