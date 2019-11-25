@@ -28,7 +28,6 @@ namespace edm {
     fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
 
     for (auto& prod : *this) {
-      prod->setProcessHistory(processHistory());
       prod->setMergeableRunProductMetadata(mergeableRunProductMetadataPtr_.get());
     }
   }

@@ -539,17 +539,14 @@ namespace edm {
   }
 
   void DataManagingProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                                   ProcessHistory const& ph,
                                                    ProductID const& pid) {
-    productData_.setProvenance(provRetriever, ph, pid);
+    productData_.setProvenance(provRetriever, pid);
   }
 
   void DataManagingProductResolver::setMergeableRunProductMetadataInProductData(
       MergeableRunProductMetadata const* mrpm) {
     productData_.setMergeableRunProductMetadata(mrpm);
   }
-
-  void DataManagingProductResolver::setProcessHistory_(ProcessHistory const& ph) { productData_.setProcessHistory(ph); }
 
   ProductProvenance const* DataManagingProductResolver::productProvenancePtr_() const {
     return provenance()->productProvenance();
@@ -568,13 +565,9 @@ namespace edm {
 
   bool DataManagingProductResolver::singleProduct_() const { return true; }
 
-  void AliasProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                            ProcessHistory const& ph,
-                                            ProductID const& pid) {
-    realProduct_.setProvenance(provRetriever, ph, pid);
+  void AliasProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) {
+    realProduct_.setProvenance(provRetriever, pid);
   }
-
-  void AliasProductResolver::setProcessHistory_(ProcessHistory const& ph) { realProduct_.setProcessHistory(ph); }
 
   ProductProvenance const* AliasProductResolver::productProvenancePtr_() const {
     return provenance()->productProvenance();
@@ -658,11 +651,10 @@ namespace edm {
   }
 
   void SwitchBaseProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                                 ProcessHistory const& ph,
                                                  ProductID const& pid) {
     // insertIntoSet is const, so let's exploit that to fake the getting of the "input" product
     provRetriever->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
-    productData_.setProvenance(provRetriever, ph, pid);
+    productData_.setProvenance(provRetriever, pid);
   }
 
   void SwitchBaseProductResolver::resetProductData_(bool deleteEarly) {
@@ -742,12 +734,9 @@ namespace edm {
   }
 
   void ParentProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                                    ProcessHistory const& ph,
                                                     ProductID const& pid) {
     provRetriever_ = provRetriever;
   }
-
-  void ParentProcessProductResolver::setProcessHistory_(ProcessHistory const& ph) {}
 
   ProductProvenance const* ParentProcessProductResolver::productProvenancePtr_() const {
     return provRetriever_ ? provRetriever_->branchIDToProvenance(bd_->originalBranchID()) : nullptr;
@@ -1013,11 +1002,7 @@ namespace edm {
     setCache(skipCurrentProcess, newCacheIndex, nullptr);
   }
 
-  void NoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const*,
-                                                ProcessHistory const&,
-                                                ProductID const&) {}
-
-  void NoProcessProductResolver::setProcessHistory_(ProcessHistory const&) {}
+  void NoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const*, ProductID const&) {}
 
   ProductProvenance const* NoProcessProductResolver::productProvenancePtr_() const { return nullptr; }
 
@@ -1125,11 +1110,7 @@ namespace edm {
         ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
   }
 
-  void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const*,
-                                                            ProcessHistory const&,
-                                                            ProductID const&) {}
-
-  void SingleChoiceNoProcessProductResolver::setProcessHistory_(ProcessHistory const&) {}
+  void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const*, ProductID const&) {}
 
   ProductProvenance const* SingleChoiceNoProcessProductResolver::productProvenancePtr_() const { return nullptr; }
 
