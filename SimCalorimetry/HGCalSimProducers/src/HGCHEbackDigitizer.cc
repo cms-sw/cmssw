@@ -174,8 +174,13 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
         LogDebug("HGCHEbackDigitizer") << "totalIniMIPs: " << totalIniMIPs << " totalMIPs: " << totalMIPs << std::endl;
       }
 
-      //store
+      //store charge
       chargeColl[i] = totalMIPs;
+
+      //update time of arrival
+      toa[i] = cell.hit_info[1][i];
+      if (myFEelectronics_->toaMode() == HGCFEElectronics<HGCalDataFrame>::WEIGHTEDBYE && totalIniMIPs > 0)
+        toa[i] = cell.hit_info[1][i] / totalIniMIPs;
     }
 
     //init a new data frame and run shaper
