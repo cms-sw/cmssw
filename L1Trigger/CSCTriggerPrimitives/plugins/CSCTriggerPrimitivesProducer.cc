@@ -193,11 +193,11 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
 
   // Put collections in event.
   ev.put(std::move(oc_alct));
-  if (writeOutAllALCTs_){
+  if (writeOutAllALCTs_) {
     ev.put(std::move(oc_alct_all), "All");
   }
   ev.put(std::move(oc_clct));
-  if (writeOutAllCLCTs_){
+  if (writeOutAllCLCTs_) {
     ev.put(std::move(oc_clct_all), "All");
   }
   if (savePreTriggers_) {
