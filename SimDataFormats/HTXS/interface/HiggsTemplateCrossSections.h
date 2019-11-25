@@ -540,6 +540,8 @@ namespace Stage1_1 {
     return cat;
   }
 
+  inline int HTXSstage1_to_HTXSstage1FineIndex(HTXS::Stage1::Category stage1, 
+                         HiggsProdMode prodMode, tH_type tH) {
       if(stage1==HTXS::Stage1::Category::UNKNOWN) return 0;
       int P = (int)(stage1 / 100);
       int F = (int)(stage1 % 100);

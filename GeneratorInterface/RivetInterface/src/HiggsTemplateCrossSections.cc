@@ -1,4 +1,5 @@
-
+#ifndef TRUTHRIVETTOOLS_HIGGSTEMPLATECROSSSECTIONS_CC
+#define TRUTHRIVETTOOLS_HIGGSTEMPLATECROSSSECTIONS_CC
 // -*- C++ -*-
 #include "Rivet/Analysis.hh"
 #include "Rivet/Particle.hh"
