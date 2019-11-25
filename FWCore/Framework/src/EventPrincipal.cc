@@ -128,7 +128,6 @@ namespace edm {
         //  in the ProductID lookup so we need the alias BranchID.
         auto const& bd = prod->branchDescription();
         prod->setProvenance(productProvenanceRetrieverPtr(),
-                            processHistory(),
                             branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
       }
     }

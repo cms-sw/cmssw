@@ -136,19 +136,14 @@ namespace edm {
     StableProvenance const* stableProvenance() const { return &provenance()->stable(); }
 
     // Initializes the event independent portion of the provenance, plus the process history ID, the product ID, and the provRetriever.
-    void setProvenance(ProductProvenanceRetriever const* provRetriever,
-                       ProcessHistory const& ph,
-                       ProductID const& pid) {
-      setProvenance_(provRetriever, ph, pid);
+    void setProvenance(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) {
+      setProvenance_(provRetriever, pid);
     }
 
     // Initializes the portion of the provenance related to mergeable run products.
     void setMergeableRunProductMetadata(MergeableRunProductMetadata const* mrpm) {
       setMergeableRunProductMetadata_(mrpm);
     }
-
-    // Initializes the process history.
-    void setProcessHistory(ProcessHistory const& ph) { setProcessHistory_(ph); }
 
     // Write the product to the stream.
     void write(std::ostream& os) const;
@@ -201,11 +196,8 @@ namespace edm {
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
     virtual Provenance const* provenance_() const = 0;
     virtual std::string const& resolvedModuleLabel_() const = 0;
-    virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                ProcessHistory const& ph,
-                                ProductID const& pid) = 0;
+    virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) = 0;
     virtual void setMergeableRunProductMetadata_(MergeableRunProductMetadata const*);
-    virtual void setProcessHistory_(ProcessHistory const& ph) = 0;
     virtual ProductProvenance const* productProvenancePtr_() const = 0;
     virtual void resetProductData_(bool deleteEarly) = 0;
     virtual bool singleProduct_() const = 0;

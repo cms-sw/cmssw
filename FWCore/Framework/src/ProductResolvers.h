@@ -89,10 +89,7 @@ namespace edm {
     Provenance const* provenance_() const final { return &productData_.provenance(); }
 
     std::string const& resolvedModuleLabel_() const final { return moduleLabel(); }
-    void setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                        ProcessHistory const& ph,
-                        ProductID const& pid) final;
-    void setProcessHistory_(ProcessHistory const& ph) final;
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) final;
     ProductProvenance const* productProvenancePtr_() const final;
     bool singleProduct_() const final;
 
@@ -249,10 +246,7 @@ namespace edm {
     Provenance const* provenance_() const final { return realProduct_.provenance(); }
 
     std::string const& resolvedModuleLabel_() const override { return realProduct_.moduleLabel(); }
-    void setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                        ProcessHistory const& ph,
-                        ProductID const& pid) override;
-    void setProcessHistory_(ProcessHistory const& ph) override;
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) override;
     ProductProvenance const* productProvenancePtr_() const override;
     void resetProductData_(bool deleteEarly) override;
     bool singleProduct_() const override;
@@ -297,10 +291,7 @@ namespace edm {
     }
     Provenance const* provenance_() const final { return &productData_.provenance(); }
     std::string const& resolvedModuleLabel_() const final { return moduleLabel(); }
-    void setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                        ProcessHistory const& ph,
-                        ProductID const& pid) final;
-    void setProcessHistory_(ProcessHistory const& ph) final { productData_.setProcessHistory(ph); }
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) final;
     ProductProvenance const* productProvenancePtr_() const final { return provenance()->productProvenance(); }
     void resetProductData_(bool deleteEarly) final;
     bool singleProduct_() const final { return true; }
@@ -413,10 +404,7 @@ namespace edm {
     void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override { bd_ = bd; }
     Provenance const* provenance_() const final { return realProduct_->provenance(); }
     std::string const& resolvedModuleLabel_() const override { return realProduct_->moduleLabel(); }
-    void setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                        ProcessHistory const& ph,
-                        ProductID const& pid) override;
-    void setProcessHistory_(ProcessHistory const& ph) override;
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) override;
     ProductProvenance const* productProvenancePtr_() const override;
     void resetProductData_(bool deleteEarly) override;
     bool singleProduct_() const override;
@@ -479,10 +467,7 @@ namespace edm {
     Provenance const* provenance_() const override;
 
     std::string const& resolvedModuleLabel_() const override { return moduleLabel(); }
-    void setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                        ProcessHistory const& ph,
-                        ProductID const& pid) override;
-    void setProcessHistory_(ProcessHistory const& ph) override;
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) override;
     ProductProvenance const* productProvenancePtr_() const override;
     void resetProductData_(bool deleteEarly) override;
     bool singleProduct_() const override;
@@ -539,10 +524,7 @@ namespace edm {
     Provenance const* provenance_() const override;
 
     std::string const& resolvedModuleLabel_() const override { return moduleLabel(); }
-    void setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                        ProcessHistory const& ph,
-                        ProductID const& pid) override;
-    void setProcessHistory_(ProcessHistory const& ph) override;
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) override;
     ProductProvenance const* productProvenancePtr_() const override;
     void resetProductData_(bool deleteEarly) override;
     bool singleProduct_() const override;

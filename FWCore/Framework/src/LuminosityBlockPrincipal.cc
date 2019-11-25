@@ -16,10 +16,6 @@ namespace edm {
   void LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry,
                                                               DelayedReader* reader) {
     fillPrincipal(aux_.processHistoryID(), processHistoryRegistry, reader);
-
-    for (auto& prod : *this) {
-      prod->setProcessHistory(processHistory());
-    }
   }
 
   void LuminosityBlockPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
