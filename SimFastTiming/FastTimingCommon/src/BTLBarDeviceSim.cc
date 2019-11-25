@@ -99,11 +99,11 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t
     double tL = std::get<2>(hitRef) + LightCollSlopeL_ * distL;
 
     // --- Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-    const int iBXR = std::floor(tR / bxTime_) + 9;
-    const int iBXL = std::floor(tL / bxTime_) + 9;
+    const int iBXR = std::floor(tR / bxTime_) + mtd_digitizer::kInTimeBX;
+    const int iBXL = std::floor(tL / bxTime_) + mtd_digitizer::kInTimeBX;
 
     // --- Right side
-    if (iBXR > 0 && iBXR < 15) {
+    if (iBXR > 0 && iBXR < mtd_digitizer::kNumberOfBX) {
       // Accumulate the energy of simHits in the same crystal
       (simHitIt->second).hit_info[0][iBXR] += Npe;
 
@@ -113,7 +113,7 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t
     }
 
     // --- Left side
-    if (iBXL > 0 && iBXL < 15) {
+    if (iBXL > 0 && iBXL < mtd_digitizer::kNumberOfBX) {
       // Accumulate the energy of simHits in the same crystal
       (simHitIt->second).hit_info[2][iBXL] += Npe;
 

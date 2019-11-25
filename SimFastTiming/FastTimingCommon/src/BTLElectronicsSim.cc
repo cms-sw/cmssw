@@ -38,6 +38,7 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset)
       cosPhi_(0.5 * (sqrt(1. + CorrCoeff_) + sqrt(1. - CorrCoeff_))),
       sinPhi_(0.5 * CorrCoeff_ / cosPhi_),
       ScintillatorDecayTime2_(ScintillatorDecayTime_ * ScintillatorDecayTime_),
+      ScintillatorDecayTimeInv_(1. / ScintillatorDecayTime_),
       SPTR2_(SinglePhotonTimeResolution_ * SinglePhotonTimeResolution_),
       DCRxRiseTime_(DarkCountRate_ * ScintillatorRiseTime_),
       SigmaElectronicNoise2_(SigmaElectronicNoise_ * SigmaElectronicNoise_),
@@ -49,8 +50,8 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   MTDSimHitData chargeColl, toa1, toa2;
 
   for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
-    // --- Digitize only the in-time bucket (BX=9):
-    const unsigned int iBX = 9;
+    // --- Digitize only the in-time bucket:
+    const unsigned int iBX = mtd_digitizer::kInTimeBX;
 
     chargeColl.fill(0.f);
     toa1.fill(0.f);
@@ -85,11 +86,11 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       if (smearTimeForOOTtails_) {
         float rate_oot = 0.;
         // Loop on earlier OOT hits
-        for (unsigned int ibx = 0; ibx < 9; ++ibx) {
+        for (unsigned int ibx = 0; ibx < mtd_digitizer::kInTimeBX; ++ibx) {
           if ((it->second).hit_info[2 * iside][ibx] > 0.) {
             float npe_oot = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[2 * iside][ibx]);
-            rate_oot += npe_oot * exp((it->second).hit_info[1 + 2 * iside][ibx] / ScintillatorDecayTime_) /
-                        ScintillatorDecayTime_;
+            rate_oot += npe_oot * exp((it->second).hit_info[1 + 2 * iside][ibx] * ScintillatorDecayTimeInv_) *
+                        ScintillatorDecayTimeInv_;
           }
         }  // ibx loop
 

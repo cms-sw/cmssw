@@ -80,6 +80,7 @@ private:
   const float sinPhi_;
 
   const float ScintillatorDecayTime2_;
+  const float ScintillatorDecayTimeInv_;
   const float SPTR2_;
   const float DCRxRiseTime_;
   const float SigmaElectronicNoise2_;
