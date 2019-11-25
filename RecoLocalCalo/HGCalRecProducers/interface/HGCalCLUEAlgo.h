@@ -28,7 +28,7 @@
 
 using Density = hgcal_clustering::Density;
 
-template<typename TILE>
+template <typename TILE>
 class HGCalCLUEAlgoT : public HGCalClusteringAlgoBase {
 public:
   HGCalCLUEAlgoT(const edm::ParameterSet& ps)
@@ -211,6 +211,5 @@ private:
 
 using HGCalCLUEAlgo = HGCalCLUEAlgoT<HGCalLayerTiles>;
 using HFNoseCLUEAlgo = HGCalCLUEAlgoT<HFNoseLayerTiles>;
-
 
 #endif
