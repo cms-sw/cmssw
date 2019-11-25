@@ -3304,13 +3304,20 @@ for step in upgradeStepDict.keys():
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
                 if (step in upgradeStepDict or step.replace("PUPRMX", "PU")) and key in upgradeStepDict[step]:
-                    steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
+                    stepKey = k
+                    # Include premixing stage1 only for SingleNu, use special step name
+                    if 'Premix' in step:
+                        if not 'SingleNu' in k:
+                            continue
+                        stepKey = 'PREMIX_'+key+'_'+step
+
+                    steps[stepKey]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
                     #get inputs in case of -i...but no need to specify in great detail
                     #however, there can be a conflict of beam spots but this is lost in the dataset name
                     #so please be careful
                     s=frag[:-4]+'_'+key
-                    if 'FastSim' not in k and 'Premix' not in step and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
-                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                    if 'FastSim' not in stepKey and 'Premix' not in step and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
+                        steps[stepKey+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key

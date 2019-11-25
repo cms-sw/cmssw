@@ -56,7 +56,7 @@ for year in upgradeKeys:
                         s = s + 'PU' # later processing requires to have PU here
                         # Hardcode nu gun fragment below in order to use it for combined stage1+stage2
                         # Anyway all other fragments are irrelevant for premixing stage1
-                        stepList[specialType].append(stepMaker(key,"SingleNuE10_cf",s,specialWF.suffix))
+                        stepList[specialType].append(stepMaker(key,'PREMIX',s,specialWF.suffix))
                     elif (specialType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
