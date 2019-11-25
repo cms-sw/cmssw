@@ -109,11 +109,12 @@ namespace edm {
     }
 
     // Fill in helper map for Branch to ProductID mapping
-    if(not branchListIndexes_.empty()) {
+    if (not branchListIndexes_.empty()) {
       ProcessIndex pix = 0;
-      branchListIndexToProcessIndex_.resize(1+*std::max_element(branchListIndexes_.begin(), branchListIndexes_.end()) ,std::numeric_limits<BranchListIndex>::max());
+      branchListIndexToProcessIndex_.resize(1 + *std::max_element(branchListIndexes_.begin(), branchListIndexes_.end()),
+                                            std::numeric_limits<BranchListIndex>::max());
       for (auto const& blindex : branchListIndexes_) {
-        branchListIndexToProcessIndex_[blindex]= pix;
+        branchListIndexToProcessIndex_[blindex] = pix;
         ++pix;
       }
     }
@@ -206,7 +207,7 @@ namespace edm {
     IndexRange range = branchIDListHelper_->branchIDToIndexMap().equal_range(bid);
     for (Iter it = range.first; it != range.second; ++it) {
       BranchListIndex blix = it->second.first;
-      if( blix < branchListIndexToProcessIndex_.size()) {
+      if (blix < branchListIndexToProcessIndex_.size()) {
         auto v = branchListIndexToProcessIndex_[blix];
         if (v != std::numeric_limits<BranchListIndex>::max()) {
           ProductIndex productIndex = it->second.second;
