@@ -172,7 +172,7 @@ namespace edm {
 
     BranchListIndexes branchListIndexes_;
 
-    std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
+    std::vector<ProcessIndex> branchListIndexToProcessIndex_;
 
     StreamID streamID_;
   };

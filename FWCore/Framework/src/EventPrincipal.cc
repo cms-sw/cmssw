@@ -109,10 +109,13 @@ namespace edm {
     }
 
     // Fill in helper map for Branch to ProductID mapping
-    ProcessIndex pix = 0;
-    for (auto const& blindex : branchListIndexes_) {
-      branchListIndexToProcessIndex_.insert(std::make_pair(blindex, pix));
-      ++pix;
+    if(not branchListIndexes_.empty()) {
+      ProcessIndex pix = 0;
+      branchListIndexToProcessIndex_.resize(1+*std::max_element(branchListIndexes_.begin(), branchListIndexes_.end()) ,std::numeric_limits<BranchListIndex>::max());
+      for (auto const& blindex : branchListIndexes_) {
+        branchListIndexToProcessIndex_[blindex]= pix;
+        ++pix;
+      }
     }
 
     // Fill in the product ID's in the product holders.
@@ -203,11 +206,13 @@ namespace edm {
     IndexRange range = branchIDListHelper_->branchIDToIndexMap().equal_range(bid);
     for (Iter it = range.first; it != range.second; ++it) {
       BranchListIndex blix = it->second.first;
-      std::map<BranchListIndex, ProcessIndex>::const_iterator i = branchListIndexToProcessIndex_.find(blix);
-      if (i != branchListIndexToProcessIndex_.end()) {
-        ProductIndex productIndex = it->second.second;
-        ProcessIndex processIndex = i->second;
-        return ProductID(processIndex + 1, productIndex + 1);
+      if( blix < branchListIndexToProcessIndex_.size()) {
+        auto v = branchListIndexToProcessIndex_[blix];
+        if (v != std::numeric_limits<BranchListIndex>::max()) {
+          ProductIndex productIndex = it->second.second;
+          ProcessIndex processIndex = v;
+          return ProductID(processIndex + 1, productIndex + 1);
+        }
       }
     }
     // cannot throw, because some products may legitimately not have product ID's (e.g. pile-up).
