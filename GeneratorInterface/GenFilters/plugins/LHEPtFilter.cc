@@ -42,7 +42,6 @@ public:
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<LHEEventProduct> src_;
@@ -71,7 +70,6 @@ LHEPtFilter::~LHEPtFilter() {
 
 // ------------ method called to skim the data  ------------
 bool LHEPtFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  
   edm::Handle<LHEEventProduct> EvtHandle;
   iEvent.getByToken(src_, EvtHandle);
 
