@@ -19,10 +19,10 @@ public:
 
 private:
   std::vector<unsigned> nData_;
-  static const unsigned kNDataSize_ = 128;
-  static const uint32_t kWaferOffset_ = 4;
-  static const uint32_t kWaferMask_ = 0x7;
-  static const uint32_t kLinkMask_ = 0xF;
+  static constexpr unsigned kNDataSize_ = 128;
+  static constexpr uint32_t kWaferOffset_ = 4;
+  static constexpr uint32_t kWaferMask_ = 0x7;
+  static constexpr uint32_t kLinkMask_ = 0xF;
 
   HGCalTriggerTools triggerTools_;
 };
