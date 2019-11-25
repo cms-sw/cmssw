@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cassert>
 
-template<typename T>
+template <typename T>
 class LayerTilesT {
 public:
   void fill(const std::vector<float>& x,
@@ -82,13 +82,11 @@ public:
   int getGlobalBinByBin(int xBin, int yBin) const { return xBin + yBin * T::nColumns; }
 
   int getGlobalBinEtaPhi(float eta, float phi) const {
-    return T::nColumns * T::nRows + getEtaBin(eta) +
-           getPhiBin(phi) * T::nColumnsEta;
+    return T::nColumns * T::nRows + getEtaBin(eta) + getPhiBin(phi) * T::nColumnsEta;
   }
 
   int getGlobalBinByBinEtaPhi(int etaBin, int phiBin) const {
-    return T::nColumns * T::nRows + etaBin +
-           phiBin * T::nColumnsEta;
+    return T::nColumns * T::nRows + etaBin + phiBin * T::nColumnsEta;
   }
 
   std::array<int, 4> searchBox(float xMin, float xMax, float yMin, float yMax) const {
@@ -117,7 +115,6 @@ public:
 private:
   std::array<std::vector<int>, T::nTiles> tiles_;
 };
-
 
 using HGCalLayerTiles = LayerTilesT<hgcaltilesconstants::TileConstants>;
 using HFNoseLayerTiles = LayerTilesT<hfnosetilesconstants::TileConstants>;
