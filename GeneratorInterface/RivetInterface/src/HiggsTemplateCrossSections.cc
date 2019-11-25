@@ -1096,7 +1096,7 @@ namespace Rivet {
       book(hist_stage1_pTjet30, "HTXS_stage1_pTjet30", 40, 0, 40);
       book(hist_stage1_2_pTjet25, "HTXS_stage1_2_pTjet25", 57, 0, 57);
       book(hist_stage1_2_pTjet30, "HTXS_stage1_2_pTjet30", 57, 0, 57);
-      book(hist_stage1_2_pTjet25, "HTXS_stage1_2_fine_pTjet25", 113, 0, 113);
+      book(hist_stage1_2_fine_pTjet25, "HTXS_stage1_2_fine_pTjet25", 113, 0, 113);
       book(hist_stage1_2_fine_pTjet30, "HTXS_stage1_2_fine_pTjet30", 113, 0, 113);
       book(hist_pT_Higgs, "pT_Higgs", 80, 0, 400);
       book(hist_y_Higgs, "y_Higgs", 80, -4, 4);
