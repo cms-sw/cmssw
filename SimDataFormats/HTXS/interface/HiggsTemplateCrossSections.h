@@ -690,6 +690,7 @@ namespace Stage1_1 {
 
   // #endif
 
+}  // namespace HTXS
 
 #ifdef RIVET_Particle_HH
 //#ifdef HIGGSTRUTHCLASSIFIER_HIGGSTRUTHCLASSIFIER_CC
