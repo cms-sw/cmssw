@@ -63,13 +63,13 @@ namespace edm {
                                           ProductProvenanceRetriever const& provRetriever,
                                           DelayedReader* reader,
                                           bool deepCopyRetriever) {
-    eventSelectionIDs_ = eventSelectionIDs;
+    eventSelectionIDs_ = std::move(eventSelectionIDs);
     if (deepCopyRetriever) {
       provRetrieverPtr_->deepCopy(provRetriever);
     } else {
       provRetrieverPtr_->mergeParentProcessRetriever(provRetriever);
     }
-    branchListIndexes_ = branchListIndexes;
+    branchListIndexes_ = std::move(branchListIndexes);
     if (branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
       branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
@@ -81,8 +81,8 @@ namespace edm {
                                           ProcessHistoryRegistry const& processHistoryRegistry,
                                           EventSelectionIDVector&& eventSelectionIDs,
                                           BranchListIndexes&& branchListIndexes) {
-    eventSelectionIDs_ = eventSelectionIDs;
-    branchListIndexes_ = branchListIndexes;
+    eventSelectionIDs_ = std::move(eventSelectionIDs);
+    branchListIndexes_ = std::move(branchListIndexes);
     if (branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
       branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
