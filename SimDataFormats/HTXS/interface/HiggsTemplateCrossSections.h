@@ -539,8 +539,9 @@ namespace Stage1_1 {
     cat.isZ2vvDecay = htxs_cat_rivet.isZ2vvDecay;
     return cat;
   }
->>>>>>> Adding HTXS stage 1.2
 
+inline int HTXSstage1_to_HTXSstage1FineIndex(HTXS::Stage1::Category stage1, 
+                         HiggsProdMode prodMode, tH_type tH) {
       if(stage1==HTXS::Stage1::Category::UNKNOWN) return 0;
       int P = (int)(stage1 / 100);
       int F = (int)(stage1 % 100);
@@ -689,6 +690,7 @@ namespace Stage1_1 {
 
   // #endif
 
+} // namespace HTXS
 
 #ifdef RIVET_Particle_HH
 //#ifdef HIGGSTRUTHCLASSIFIER_HIGGSTRUTHCLASSIFIER_CC
