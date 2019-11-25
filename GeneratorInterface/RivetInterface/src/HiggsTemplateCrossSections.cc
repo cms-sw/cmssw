@@ -62,9 +62,11 @@ namespace Rivet {
 
     /// @brief Checks whether the input particle has a child with a given PDGID
     bool hasChild(const GenParticle *ptcl, int pdgID) {
-      for (auto child : Particle(*ptcl).children())
-        if (child.pdgId() == pdgID)
+      for (auto child : Particle(*ptcl).children()) {
+        if (child.pdgId() == pdgID) {
           return true;
+        }
+      }
       return false;
     }
 
@@ -78,17 +80,21 @@ namespace Rivet {
 
     /// @brief Return true is particle decays to quarks
     bool quarkDecay(const Particle &p) {
-      for (auto child : p.children())
-        if (PID::isQuark(child.pdgId()))
+      for (auto child : p.children()) {
+        if (PID::isQuark(child.pdgId())) {
           return true;
+        }
+      }
       return false;
     }
 
     /// @brief Return true if particle decays to charged leptons.
     bool ChLeptonDecay(const Particle &p) {
-      for (auto child : p.children())
-        if (PID::isChLepton(child.pdgId()))
+      for (auto child : p.children()) {
+        if (PID::isChLepton(child.pdgId())) {
           return true;
+        }
+      }
       return false;
     }
 
