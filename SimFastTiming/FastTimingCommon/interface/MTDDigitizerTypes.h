@@ -40,6 +40,9 @@ namespace mtd_digitizer {
   // intermediate det id for ETL
   typedef std::unordered_map<MTDCellId, MTDCellInfo> MTDSimHitDataAccumulator;
 
+  constexpr int kNumberOfBX = 15;
+  constexpr int kInTimeBX = 9;
+
 }  // namespace mtd_digitizer
 
 namespace std {
