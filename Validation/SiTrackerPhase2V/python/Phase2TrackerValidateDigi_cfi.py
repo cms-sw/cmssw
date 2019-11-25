@@ -31,37 +31,44 @@ digiValid = DQMEDAnalyzer('Phase2TrackerValidateDigi',
     TrackPtH = cms.PSet(
         Nbins  = cms.int32(50),
         xmin   = cms.double(0.0),
-        xmax   = cms.double(100.0)
+        xmax   = cms.double(100.0),
+        switch = cms.bool(True)
     ),
     TrackEtaH = cms.PSet(
         Nbins  = cms.int32(45),
         xmin   = cms.double(-4.5),
-        xmax   = cms.double(4.5)
+        xmax   = cms.double(4.5),
+        switch = cms.bool(True)
     ),
     TrackPhiH = cms.PSet(
         Nbins  = cms.int32(64),
         xmin   = cms.double(-3.2),
-        xmax   = cms.double(3.2)
+        xmax   = cms.double(3.2),
+        switch = cms.bool(True)
     ),  
     SimHitElossH = cms.PSet(
         Nbins  = cms.int32(100),
         xmin   = cms.double(0.0),
-        xmax   = cms.double(100000.0)
+        xmax   = cms.double(100000.0),
+        switch = cms.bool(True)
     ),  
     SimHitDxH = cms.PSet(
         Nbins  = cms.int32(1000),
         xmin   = cms.double(0.0),
-        xmax   = cms.double(0.1)
+        xmax   = cms.double(0.1),
+        switch = cms.bool(True)
     ),
     SimHitDyH = cms.PSet(
         Nbins  = cms.int32(1000),
         xmin   = cms.double(0.0),
-        xmax   = cms.double(0.1)
+        xmax   = cms.double(0.1),
+        switch = cms.bool(True)
     ),
     SimHitDzH = cms.PSet(
         Nbins  = cms.int32(150),
         xmin   = cms.double(0.0),
-        xmax   = cms.double(0.03)
+        xmax   = cms.double(0.03),
+        switch = cms.bool(True)
     ),
     XYPositionMapH = cms.PSet(
         Nxbins = cms.int32(1250),
@@ -69,7 +76,8 @@ digiValid = DQMEDAnalyzer('Phase2TrackerValidateDigi',
         xmax   = cms.double(1250.),
         Nybins = cms.int32(1250),
         ymin   = cms.double(-1250.),
-        ymax   = cms.double(1250.)
+        ymax   = cms.double(1250.),
+        switch = cms.bool(False)
     ),
     RZPositionMapH = cms.PSet(
         Nxbins = cms.int32(3000),
@@ -77,7 +85,8 @@ digiValid = DQMEDAnalyzer('Phase2TrackerValidateDigi',
         xmax   = cms.double(3000.),
         Nybins = cms.int32(1250),
         ymin   = cms.double(0.),
-        ymax   = cms.double(1250.)
+        ymax   = cms.double(1250.),
+        switch = cms.bool(False)
     ),
    TOFEtaMapH = cms.PSet(
         Nxbins = cms.int32(45),
@@ -85,7 +94,8 @@ digiValid = DQMEDAnalyzer('Phase2TrackerValidateDigi',
         xmax   = cms.double(4.5),
         Nybins = cms.int32(100),
         ymin   = cms.double(0.),
-        ymax   = cms.double(50.)
+        ymax   = cms.double(50.),
+        switch = cms.bool(False)
     ),
    TOFPhiMapH = cms.PSet(
         Nxbins = cms.int32(64),
@@ -93,7 +103,8 @@ digiValid = DQMEDAnalyzer('Phase2TrackerValidateDigi',
         xmax   = cms.double(3.2),
         Nybins = cms.int32(100),
         ymin   = cms.double(0.),
-        ymax   = cms.double(50.)
+        ymax   = cms.double(50.),
+        switch = cms.bool(False)
     ),
    TOFZMapH = cms.PSet(
         Nxbins = cms.int32(3000),
@@ -101,7 +112,8 @@ digiValid = DQMEDAnalyzer('Phase2TrackerValidateDigi',
         xmax   = cms.double(300.),
         Nybins = cms.int32(100),
         ymin   = cms.double(0.),
-        ymax   = cms.double(50.)
+        ymax   = cms.double(50.),
+        switch = cms.bool(False)
     ),
     TOFRMapH = cms.PSet(
         Nxbins = cms.int32(1200),
@@ -109,7 +121,8 @@ digiValid = DQMEDAnalyzer('Phase2TrackerValidateDigi',
         xmax   = cms.double(120.),
         Nybins = cms.int32(100),
         ymin   = cms.double(0.),
-        ymax   = cms.double(50.)
+        ymax   = cms.double(50.),
+        switch = cms.bool(False)
     )
 )
 

@@ -14,7 +14,7 @@
 //
 // system include files
 #include <memory>
-#include "SimTracker/SiPhase2Digitizer/test/Phase2TrackerValidateDigi.h"
+#include "Validation/SiTrackerPhase2V/plugins/Phase2TrackerValidateDigi.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -41,7 +41,7 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // DQM Histograming
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 // constructors
@@ -248,8 +248,10 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
       if (((*isim).tof() - pdPos.mag() / cval) < tofLowerCut_ || ((*isim).tof() - pdPos.mag() / cval) > tofUpperCut_)
         continue;
 
-      SimulatedXYPositionMap->Fill(pdPos.x() * 10., pdPos.y() * 10.);
-      SimulatedRZPositionMap->Fill(pdPos.z() * 10., std::hypot(pdPos.x(), pdPos.y()) * 10.);
+      if (SimulatedXYPositionMap)
+        SimulatedXYPositionMap->Fill(pdPos.x() * 10., pdPos.y() * 10.);
+      if (SimulatedRZPositionMap)
+        SimulatedRZPositionMap->Fill(pdPos.z() * 10., std::hypot(pdPos.x(), pdPos.y()) * 10.);
 
       const TrackerGeomDet* geomDetUnit(tGeom->idToDetUnit(detId));
       const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(geomDetUnit);
@@ -261,14 +263,21 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
       totalHits++;
       pos->second.nHits++;
 
-      local_mes.SimHitDx->Fill(std::fabs((*isim).entryPoint().x() - (*isim).exitPoint().x()));
-      local_mes.SimHitDy->Fill(std::fabs((*isim).entryPoint().y() - (*isim).exitPoint().y()));
-      local_mes.SimHitDz->Fill(std::fabs((*isim).entryPoint().z() - (*isim).exitPoint().z()));
+      if (local_mes.SimHitDx)
+        local_mes.SimHitDx->Fill(std::fabs((*isim).entryPoint().x() - (*isim).exitPoint().x()));
+      if (local_mes.SimHitDy)
+        local_mes.SimHitDy->Fill(std::fabs((*isim).entryPoint().y() - (*isim).exitPoint().y()));
+      if (local_mes.SimHitDz)
+        local_mes.SimHitDz->Fill(std::fabs((*isim).entryPoint().z() - (*isim).exitPoint().z()));
 
-      SimulatedTOFEtaMap->Fill(pdPos.eta(), (*isim).timeOfFlight());
-      SimulatedTOFPhiMap->Fill(pdPos.phi(), (*isim).timeOfFlight());
-      SimulatedTOFRMap->Fill(std::hypot(pdPos.x(), pdPos.y()), (*isim).timeOfFlight());
-      SimulatedTOFZMap->Fill(pdPos.z(), (*isim).timeOfFlight());
+      if (SimulatedTOFEtaMap)
+        SimulatedTOFEtaMap->Fill(pdPos.eta(), (*isim).timeOfFlight());
+      if (SimulatedTOFPhiMap)
+        SimulatedTOFPhiMap->Fill(pdPos.phi(), (*isim).timeOfFlight());
+      if (SimulatedTOFRMap)
+        SimulatedTOFRMap->Fill(std::hypot(pdPos.x(), pdPos.y()), (*isim).timeOfFlight());
+      if (SimulatedTOFZMap)
+        SimulatedTOFZMap->Fill(pdPos.z(), (*isim).timeOfFlight());
 
       bool digiFlag;
 
@@ -278,40 +287,47 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
         digiFlag = findOTDigi(rawid, id);
 
       if (fabs(eta) < etaCut_) {
-        local_mes.SimTrackPt->Fill(pt);
-        if (digiFlag)
+        if (local_mes.SimTrackPt)
+          local_mes.SimTrackPt->Fill(pt);
+        if (digiFlag && local_mes.MatchedTrackPt)
           local_mes.MatchedTrackPt->Fill(pt);
-        else
+        else if (local_mes.MissedDigiTrackPt)
           local_mes.MissedDigiTrackPt->Fill(pt);
       }
       if (pt > ptCut_) {
-        local_mes.SimTrackEta->Fill(eta);
-        if (digiFlag)
+        if (local_mes.SimTrackEta)
+          local_mes.SimTrackEta->Fill(eta);
+        if (digiFlag && local_mes.MatchedTrackEta)
           local_mes.MatchedTrackEta->Fill(eta);
-        else
+        else if (local_mes.MissedDigiTrackEta)
           local_mes.MissedDigiTrackEta->Fill(eta);
       }
       if (fabs(eta) < etaCut_ && pt > ptCut_) {
-        local_mes.SimTrackPhi->Fill(phi);
-        if (digiFlag)
+        if (local_mes.SimTrackPhi)
+          local_mes.SimTrackPhi->Fill(phi);
+        if (digiFlag && local_mes.MatchedTrackPhi)
           local_mes.MatchedTrackPhi->Fill(phi);
-        else
+        else if (local_mes.MissedDigiTrackPhi)
           local_mes.MissedDigiTrackPhi->Fill(phi);
       }
       if (digiFlag) {
         pos->second.nDigis++;
-        MatchedRZPositionMap->Fill(pdPos.z() * 10., std::hypot(pdPos.x(), pdPos.y()) * 10.);
-        MatchedXYPositionMap->Fill(pdPos.x() * 10., pdPos.y() * 10.);
-        if (nColumns <= 2)
+        if (MatchedRZPositionMap)
+          MatchedRZPositionMap->Fill(pdPos.z() * 10., std::hypot(pdPos.x(), pdPos.y()) * 10.);
+        if (MatchedXYPositionMap)
+          MatchedXYPositionMap->Fill(pdPos.x() * 10., pdPos.y() * 10.);
+        if (nColumns <= 2 && local_mes.MatchedSimHitElossS)
           local_mes.MatchedSimHitElossS->Fill((*isim).energyLoss() / GeVperElectron);
-        else
+        else if (local_mes.MatchedSimHitElossP)
           local_mes.MatchedSimHitElossP->Fill((*isim).energyLoss() / GeVperElectron);
       } else {
-        local_mes.MissedDigiLocalXposVsYPos->Fill((*isim).localPosition().x(), (*isim).localPosition().y());
-        local_mes.MissedDigiTimeWindow->Fill(std::fabs((*isim).timeOfFlight() - pdPos.mag() / cval));
-        if (nColumns <= 2)
+        if (local_mes.MissedDigiLocalXposVsYPos)
+          local_mes.MissedDigiLocalXposVsYPos->Fill((*isim).localPosition().x(), (*isim).localPosition().y());
+        if (local_mes.MissedDigiTimeWindow)
+          local_mes.MissedDigiTimeWindow->Fill(std::fabs((*isim).timeOfFlight() - pdPos.mag() / cval));
+        if (nColumns <= 2 && local_mes.MissedDigiSimHitElossS)
           local_mes.MissedDigiSimHitElossS->Fill((*isim).energyLoss() / GeVperElectron);
-        else
+        else if (local_mes.MissedDigiSimHitElossP)
           local_mes.MissedDigiSimHitElossP->Fill((*isim).energyLoss() / GeVperElectron);
       }
     }
@@ -393,123 +409,172 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker& ibooker,
   edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("TrackPtH");
   HistoName.str("");
   HistoName << "SimulatedTrackPt";
-  SimulatedTrackPt = ibooker.book1D(HistoName.str(),
-                                    HistoName.str(),
-                                    Parameters.getParameter<int32_t>("Nbins"),
-                                    Parameters.getParameter<double>("xmin"),
-                                    Parameters.getParameter<double>("xmax"));
-
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackPt = ibooker.book1D(HistoName.str(),
+                                      HistoName.str(),
+                                      Parameters.getParameter<int32_t>("Nbins"),
+                                      Parameters.getParameter<double>("xmin"),
+                                      Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackPt = nullptr;
+  /*  
   HistoName.str("");
-  HistoName << "SimulatedTrackPt";
-  SimulatedTrackPt = ibooker.book1D(HistoName.str(),
-                                    HistoName.str(),
-                                    Parameters.getParameter<int32_t>("Nbins"),
-                                    Parameters.getParameter<double>("xmin"),
-                                    Parameters.getParameter<double>("xmax"));
+  HistoName << "SimulatedTrackPt";   
+  SimulatedTrackPt = ibooker.book1D(HistoName.str(),HistoName.str(),
+				  Parameters.getParameter<int32_t>("Nbins"),
+						Parameters.getParameter<double>("xmin"),
+  						Parameters.getParameter<double>("xmax");*/
   HistoName.str("");
   HistoName << "SimulatedTrackPtP";
-  SimulatedTrackPtP = ibooker.book1D(HistoName.str(),
-                                     HistoName.str(),
-                                     Parameters.getParameter<int32_t>("Nbins"),
-                                     Parameters.getParameter<double>("xmin"),
-                                     Parameters.getParameter<double>("xmax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackPtP = ibooker.book1D(HistoName.str(),
+                                       HistoName.str(),
+                                       Parameters.getParameter<int32_t>("Nbins"),
+                                       Parameters.getParameter<double>("xmin"),
+                                       Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackPtP = nullptr;
   HistoName.str("");
   HistoName << "SimulatedTrackPtS";
-  SimulatedTrackPtS = ibooker.book1D(HistoName.str(),
-                                     HistoName.str(),
-                                     Parameters.getParameter<int32_t>("Nbins"),
-                                     Parameters.getParameter<double>("xmin"),
-                                     Parameters.getParameter<double>("xmax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackPtS = ibooker.book1D(HistoName.str(),
+                                       HistoName.str(),
+                                       Parameters.getParameter<int32_t>("Nbins"),
+                                       Parameters.getParameter<double>("xmin"),
+                                       Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackPtS = nullptr;
 
   Parameters = config_.getParameter<edm::ParameterSet>("TrackEtaH");
-
   HistoName.str("");
   HistoName << "SimulatedTrackEta";
-  SimulatedTrackEta = ibooker.book1D(HistoName.str(),
-                                     HistoName.str(),
-                                     Parameters.getParameter<int32_t>("Nbins"),
-                                     Parameters.getParameter<double>("xmin"),
-                                     Parameters.getParameter<double>("xmax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackEta = ibooker.book1D(HistoName.str(),
+                                       HistoName.str(),
+                                       Parameters.getParameter<int32_t>("Nbins"),
+                                       Parameters.getParameter<double>("xmin"),
+                                       Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackEta = nullptr;
   HistoName.str("");
   HistoName << "SimulatedTrackEtaP";
-  SimulatedTrackEtaP = ibooker.book1D(HistoName.str(),
-                                      HistoName.str(),
-                                      Parameters.getParameter<int32_t>("Nbins"),
-                                      Parameters.getParameter<double>("xmin"),
-                                      Parameters.getParameter<double>("xmax"));
-
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackEtaP = ibooker.book1D(HistoName.str(),
+                                        HistoName.str(),
+                                        Parameters.getParameter<int32_t>("Nbins"),
+                                        Parameters.getParameter<double>("xmin"),
+                                        Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackEtaP = nullptr;
   HistoName.str("");
   HistoName << "SimulatedTrackEtaS";
-  SimulatedTrackEtaS = ibooker.book1D(HistoName.str(),
-                                      HistoName.str(),
-                                      Parameters.getParameter<int32_t>("Nbins"),
-                                      Parameters.getParameter<double>("xmin"),
-                                      Parameters.getParameter<double>("xmax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackEtaS = ibooker.book1D(HistoName.str(),
+                                        HistoName.str(),
+                                        Parameters.getParameter<int32_t>("Nbins"),
+                                        Parameters.getParameter<double>("xmin"),
+                                        Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackEtaS = nullptr;
 
   Parameters = config_.getParameter<edm::ParameterSet>("TrackPhiH");
   HistoName.str("");
   HistoName << "SimulatedTrackPhi";
-  SimulatedTrackPhi = ibooker.book1D(HistoName.str(),
-                                     HistoName.str(),
-                                     Parameters.getParameter<int32_t>("Nbins"),
-                                     Parameters.getParameter<double>("xmin"),
-                                     Parameters.getParameter<double>("xmax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackPhi = ibooker.book1D(HistoName.str(),
+                                       HistoName.str(),
+                                       Parameters.getParameter<int32_t>("Nbins"),
+                                       Parameters.getParameter<double>("xmin"),
+                                       Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackPhi = nullptr;
+
   HistoName.str("");
   HistoName << "SimulatedTrackPhiP";
-  SimulatedTrackPhiP = ibooker.book1D(HistoName.str(),
-                                      HistoName.str(),
-                                      Parameters.getParameter<int32_t>("Nbins"),
-                                      Parameters.getParameter<double>("xmin"),
-                                      Parameters.getParameter<double>("xmax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackPhiP = ibooker.book1D(HistoName.str(),
+                                        HistoName.str(),
+                                        Parameters.getParameter<int32_t>("Nbins"),
+                                        Parameters.getParameter<double>("xmin"),
+                                        Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackPhiP = nullptr;
 
   HistoName.str("");
   HistoName << "SimulatedTrackPhiS";
-  SimulatedTrackPhiS = ibooker.book1D(HistoName.str(),
-                                      HistoName.str(),
-                                      Parameters.getParameter<int32_t>("Nbins"),
-                                      Parameters.getParameter<double>("xmin"),
-                                      Parameters.getParameter<double>("xmax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTrackPhiS = ibooker.book1D(HistoName.str(),
+                                        HistoName.str(),
+                                        Parameters.getParameter<int32_t>("Nbins"),
+                                        Parameters.getParameter<double>("xmin"),
+                                        Parameters.getParameter<double>("xmax"));
+  else
+    SimulatedTrackPhiS = nullptr;
 
   Parameters = config_.getParameter<edm::ParameterSet>("XYPositionMapH");
   HistoName.str("");
   HistoName << "SimulatedXPosVsYPos";
-  SimulatedXYPositionMap = ibooker.book2D(HistoName.str(),
-                                          HistoName.str(),
-                                          Parameters.getParameter<int32_t>("Nxbins"),
-                                          Parameters.getParameter<double>("xmin"),
-                                          Parameters.getParameter<double>("xmax"),
-                                          Parameters.getParameter<int32_t>("Nybins"),
-                                          Parameters.getParameter<double>("ymin"),
-                                          Parameters.getParameter<double>("ymax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedXYPositionMap = ibooker.book2D(HistoName.str(),
+                                            HistoName.str(),
+                                            Parameters.getParameter<int32_t>("Nxbins"),
+                                            Parameters.getParameter<double>("xmin"),
+                                            Parameters.getParameter<double>("xmax"),
+                                            Parameters.getParameter<int32_t>("Nybins"),
+                                            Parameters.getParameter<double>("ymin"),
+                                            Parameters.getParameter<double>("ymax"));
+  else
+    SimulatedXYPositionMap = nullptr;
+
   Parameters = config_.getParameter<edm::ParameterSet>("RZPositionMapH");
   HistoName.str("");
   HistoName << "SimulatedRPosVsZPos";
-  SimulatedRZPositionMap = ibooker.book2D(HistoName.str(),
-                                          HistoName.str(),
-                                          Parameters.getParameter<int32_t>("Nxbins"),
-                                          Parameters.getParameter<double>("xmin"),
-                                          Parameters.getParameter<double>("xmax"),
-                                          Parameters.getParameter<int32_t>("Nybins"),
-                                          Parameters.getParameter<double>("ymin"),
-                                          Parameters.getParameter<double>("ymax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedRZPositionMap = ibooker.book2D(HistoName.str(),
+                                            HistoName.str(),
+                                            Parameters.getParameter<int32_t>("Nxbins"),
+                                            Parameters.getParameter<double>("xmin"),
+                                            Parameters.getParameter<double>("xmax"),
+                                            Parameters.getParameter<int32_t>("Nybins"),
+                                            Parameters.getParameter<double>("ymin"),
+                                            Parameters.getParameter<double>("ymax"));
+  else
+    SimulatedRZPositionMap = nullptr;
 
   //add TOF maps
   Parameters = config_.getParameter<edm::ParameterSet>("TOFEtaMapH");
   HistoName.str("");
   HistoName << "SimulatedTOFVsEta";
-  SimulatedTOFEtaMap = ibooker.book2D(HistoName.str(),
-                                      HistoName.str(),
-                                      Parameters.getParameter<int32_t>("Nxbins"),
-                                      Parameters.getParameter<double>("xmin"),
-                                      Parameters.getParameter<double>("xmax"),
-                                      Parameters.getParameter<int32_t>("Nybins"),
-                                      Parameters.getParameter<double>("ymin"),
-                                      Parameters.getParameter<double>("ymax"));
-
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTOFEtaMap = ibooker.book2D(HistoName.str(),
+                                        HistoName.str(),
+                                        Parameters.getParameter<int32_t>("Nxbins"),
+                                        Parameters.getParameter<double>("xmin"),
+                                        Parameters.getParameter<double>("xmax"),
+                                        Parameters.getParameter<int32_t>("Nybins"),
+                                        Parameters.getParameter<double>("ymin"),
+                                        Parameters.getParameter<double>("ymax"));
+  else
+    SimulatedTOFEtaMap = nullptr;
   Parameters = config_.getParameter<edm::ParameterSet>("TOFPhiMapH");
   HistoName.str("");
   HistoName << "SimulatedTOFVsPhi";
-  SimulatedTOFPhiMap = ibooker.book2D(HistoName.str(),
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTOFPhiMap = ibooker.book2D(HistoName.str(),
+                                        HistoName.str(),
+                                        Parameters.getParameter<int32_t>("Nxbins"),
+                                        Parameters.getParameter<double>("xmin"),
+                                        Parameters.getParameter<double>("xmax"),
+                                        Parameters.getParameter<int32_t>("Nybins"),
+                                        Parameters.getParameter<double>("ymin"),
+                                        Parameters.getParameter<double>("ymax"));
+  else
+    SimulatedTOFPhiMap = nullptr;
+  Parameters = config_.getParameter<edm::ParameterSet>("TOFRMapH");
+  HistoName.str("");
+  HistoName << "SimulatedTOFVsR";
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTOFRMap = ibooker.book2D(HistoName.str(),
                                       HistoName.str(),
                                       Parameters.getParameter<int32_t>("Nxbins"),
                                       Parameters.getParameter<double>("xmin"),
@@ -517,30 +582,22 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker& ibooker,
                                       Parameters.getParameter<int32_t>("Nybins"),
                                       Parameters.getParameter<double>("ymin"),
                                       Parameters.getParameter<double>("ymax"));
-
-  Parameters = config_.getParameter<edm::ParameterSet>("TOFRMapH");
-  HistoName.str("");
-  HistoName << "SimulatedTOFVsR";
-  SimulatedTOFRMap = ibooker.book2D(HistoName.str(),
-                                    HistoName.str(),
-                                    Parameters.getParameter<int32_t>("Nxbins"),
-                                    Parameters.getParameter<double>("xmin"),
-                                    Parameters.getParameter<double>("xmax"),
-                                    Parameters.getParameter<int32_t>("Nybins"),
-                                    Parameters.getParameter<double>("ymin"),
-                                    Parameters.getParameter<double>("ymax"));
-
+  else
+    SimulatedTOFRMap = nullptr;
   Parameters = config_.getParameter<edm::ParameterSet>("TOFZMapH");
   HistoName.str("");
   HistoName << "SimulatedTOFVsZ";
-  SimulatedTOFZMap = ibooker.book2D(HistoName.str(),
-                                    HistoName.str(),
-                                    Parameters.getParameter<int32_t>("Nxbins"),
-                                    Parameters.getParameter<double>("xmin"),
-                                    Parameters.getParameter<double>("xmax"),
-                                    Parameters.getParameter<int32_t>("Nybins"),
-                                    Parameters.getParameter<double>("ymin"),
-                                    Parameters.getParameter<double>("ymax"));
+  if (Parameters.getParameter<bool>("switch"))
+    SimulatedTOFZMap = ibooker.book2D(HistoName.str(),
+                                      HistoName.str(),
+                                      Parameters.getParameter<int32_t>("Nxbins"),
+                                      Parameters.getParameter<double>("xmin"),
+                                      Parameters.getParameter<double>("xmax"),
+                                      Parameters.getParameter<int32_t>("Nybins"),
+                                      Parameters.getParameter<double>("ymin"),
+                                      Parameters.getParameter<double>("ymax"));
+  else
+    SimulatedTOFZMap = nullptr;
 
   HistoName.str("");
   HistoName << "NumberOfSimHitsPerTrackVsLayer";
@@ -570,25 +627,32 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker& ibooker,
   Parameters = config_.getParameter<edm::ParameterSet>("XYPositionMapH");
   HistoName.str("");
   HistoName << "MatchedSimXPosVsYPos";
-  MatchedXYPositionMap = ibooker.book2D(HistoName.str(),
-                                        HistoName.str(),
-                                        Parameters.getParameter<int32_t>("Nxbins"),
-                                        Parameters.getParameter<double>("xmin"),
-                                        Parameters.getParameter<double>("xmax"),
-                                        Parameters.getParameter<int32_t>("Nybins"),
-                                        Parameters.getParameter<double>("ymin"),
-                                        Parameters.getParameter<double>("ymax"));
+  if (Parameters.getParameter<bool>("switch"))
+    MatchedXYPositionMap = ibooker.book2D(HistoName.str(),
+                                          HistoName.str(),
+                                          Parameters.getParameter<int32_t>("Nxbins"),
+                                          Parameters.getParameter<double>("xmin"),
+                                          Parameters.getParameter<double>("xmax"),
+                                          Parameters.getParameter<int32_t>("Nybins"),
+                                          Parameters.getParameter<double>("ymin"),
+                                          Parameters.getParameter<double>("ymax"));
+  else
+    MatchedXYPositionMap = nullptr;
+
   Parameters = config_.getParameter<edm::ParameterSet>("RZPositionMapH");
   HistoName.str("");
   HistoName << "MatchedSimRPosVsZPos";
-  MatchedRZPositionMap = ibooker.book2D(HistoName.str(),
-                                        HistoName.str(),
-                                        Parameters.getParameter<int32_t>("Nxbins"),
-                                        Parameters.getParameter<double>("xmin"),
-                                        Parameters.getParameter<double>("xmax"),
-                                        Parameters.getParameter<int32_t>("Nybins"),
-                                        Parameters.getParameter<double>("ymin"),
-                                        Parameters.getParameter<double>("ymax"));
+  if (Parameters.getParameter<bool>("switch"))
+    MatchedRZPositionMap = ibooker.book2D(HistoName.str(),
+                                          HistoName.str(),
+                                          Parameters.getParameter<int32_t>("Nxbins"),
+                                          Parameters.getParameter<double>("xmin"),
+                                          Parameters.getParameter<double>("xmax"),
+                                          Parameters.getParameter<int32_t>("Nybins"),
+                                          Parameters.getParameter<double>("ymin"),
+                                          Parameters.getParameter<double>("ymax"));
+  else
+    MatchedRZPositionMap = nullptr;
 }
 //
 // -- Book Layer Histograms
@@ -636,155 +700,206 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("TrackPtH");
     HistoName.str("");
     HistoName << "SimTrackPt_" << fname2.str();
-    local_mes.SimTrackPt = ibooker.book1D(HistoName.str(),
-                                          HistoName.str(),
-                                          Parameters.getParameter<int32_t>("Nbins"),
-                                          Parameters.getParameter<double>("xmin"),
-                                          Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.SimTrackPt = ibooker.book1D(HistoName.str(),
+                                            HistoName.str(),
+                                            Parameters.getParameter<int32_t>("Nbins"),
+                                            Parameters.getParameter<double>("xmin"),
+                                            Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.SimTrackPt = nullptr;
     HistoName.str("");
     HistoName << "MatchedTrackPt_" << fname2.str();
-    local_mes.MatchedTrackPt = ibooker.book1D(HistoName.str(),
-                                              HistoName.str(),
-                                              Parameters.getParameter<int32_t>("Nbins"),
-                                              Parameters.getParameter<double>("xmin"),
-                                              Parameters.getParameter<double>("xmax"));
-    HistoName.str("");
-    HistoName << "MissedHitTrackPt_" << fname2.str();
-    local_mes.MissedHitTrackPt = ibooker.book1D(HistoName.str(),
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MatchedTrackPt = ibooker.book1D(HistoName.str(),
                                                 HistoName.str(),
                                                 Parameters.getParameter<int32_t>("Nbins"),
                                                 Parameters.getParameter<double>("xmin"),
                                                 Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MatchedTrackPt = nullptr;
+    HistoName.str("");
+    HistoName << "MissedHitTrackPt_" << fname2.str();
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedHitTrackPt = ibooker.book1D(HistoName.str(),
+                                                  HistoName.str(),
+                                                  Parameters.getParameter<int32_t>("Nbins"),
+                                                  Parameters.getParameter<double>("xmin"),
+                                                  Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MissedHitTrackPt = nullptr;
     HistoName.str("");
     HistoName << "MissedDigiTrackPt_" << fname2.str();
-    local_mes.MissedDigiTrackPt = ibooker.book1D(HistoName.str(),
-                                                 HistoName.str(),
-                                                 Parameters.getParameter<int32_t>("Nbins"),
-                                                 Parameters.getParameter<double>("xmin"),
-                                                 Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedDigiTrackPt = ibooker.book1D(HistoName.str(),
+                                                   HistoName.str(),
+                                                   Parameters.getParameter<int32_t>("Nbins"),
+                                                   Parameters.getParameter<double>("xmin"),
+                                                   Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MissedDigiTrackPt = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("TrackEtaH");
-
     HistoName.str("");
     HistoName << "SimTrackEta_" << fname2.str();
-    local_mes.SimTrackEta = ibooker.book1D(HistoName.str(),
-                                           HistoName.str(),
-                                           Parameters.getParameter<int32_t>("Nbins"),
-                                           Parameters.getParameter<double>("xmin"),
-                                           Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.SimTrackEta = ibooker.book1D(HistoName.str(),
+                                             HistoName.str(),
+                                             Parameters.getParameter<int32_t>("Nbins"),
+                                             Parameters.getParameter<double>("xmin"),
+                                             Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.SimTrackEta = nullptr;
     HistoName.str("");
     HistoName << "MatchedTrackEta_" << fname2.str();
-    local_mes.MatchedTrackEta = ibooker.book1D(HistoName.str(),
-                                               HistoName.str(),
-                                               Parameters.getParameter<int32_t>("Nbins"),
-                                               Parameters.getParameter<double>("xmin"),
-                                               Parameters.getParameter<double>("xmax"));
-
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MatchedTrackEta = ibooker.book1D(HistoName.str(),
+                                                 HistoName.str(),
+                                                 Parameters.getParameter<int32_t>("Nbins"),
+                                                 Parameters.getParameter<double>("xmin"),
+                                                 Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MatchedTrackEta = nullptr;
     HistoName.str("");
     HistoName << "MissedHitTrackEta_" << fname2.str();
-    local_mes.MissedHitTrackEta = ibooker.book1D(HistoName.str(),
-                                                 HistoName.str(),
-                                                 Parameters.getParameter<int32_t>("Nbins"),
-                                                 Parameters.getParameter<double>("xmin"),
-                                                 Parameters.getParameter<double>("xmax"));
-
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedHitTrackEta = ibooker.book1D(HistoName.str(),
+                                                   HistoName.str(),
+                                                   Parameters.getParameter<int32_t>("Nbins"),
+                                                   Parameters.getParameter<double>("xmin"),
+                                                   Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MissedHitTrackEta = nullptr;
     HistoName.str("");
     HistoName << "MissedDigiTrackEta_" << fname2.str();
-    local_mes.MissedDigiTrackEta = ibooker.book1D(HistoName.str(),
-                                                  HistoName.str(),
-                                                  Parameters.getParameter<int32_t>("Nbins"),
-                                                  Parameters.getParameter<double>("xmin"),
-                                                  Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedDigiTrackEta = ibooker.book1D(HistoName.str(),
+                                                    HistoName.str(),
+                                                    Parameters.getParameter<int32_t>("Nbins"),
+                                                    Parameters.getParameter<double>("xmin"),
+                                                    Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MissedDigiTrackEta = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("TrackPhiH");
-
     HistoName.str("");
     HistoName << "SimTrackPhi_" << fname2.str();
-    local_mes.SimTrackPhi = ibooker.book1D(HistoName.str(),
-                                           HistoName.str(),
-                                           Parameters.getParameter<int32_t>("Nbins"),
-                                           Parameters.getParameter<double>("xmin"),
-                                           Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.SimTrackPhi = ibooker.book1D(HistoName.str(),
+                                             HistoName.str(),
+                                             Parameters.getParameter<int32_t>("Nbins"),
+                                             Parameters.getParameter<double>("xmin"),
+                                             Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.SimTrackPhi = nullptr;
     HistoName.str("");
     HistoName << "MatchedTrackPhi_" << fname2.str();
-    local_mes.MatchedTrackPhi = ibooker.book1D(HistoName.str(),
-                                               HistoName.str(),
-                                               Parameters.getParameter<int32_t>("Nbins"),
-                                               Parameters.getParameter<double>("xmin"),
-                                               Parameters.getParameter<double>("xmax"));
-    HistoName.str("");
-    HistoName << "MissedHitTrackPhi_" << fname2.str();
-    local_mes.MissedHitTrackPhi = ibooker.book1D(HistoName.str(),
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MatchedTrackPhi = ibooker.book1D(HistoName.str(),
                                                  HistoName.str(),
                                                  Parameters.getParameter<int32_t>("Nbins"),
                                                  Parameters.getParameter<double>("xmin"),
                                                  Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MatchedTrackPhi = nullptr;
+    HistoName.str("");
+    HistoName << "MissedHitTrackPhi_" << fname2.str();
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedHitTrackPhi = ibooker.book1D(HistoName.str(),
+                                                   HistoName.str(),
+                                                   Parameters.getParameter<int32_t>("Nbins"),
+                                                   Parameters.getParameter<double>("xmin"),
+                                                   Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MissedHitTrackPhi = nullptr;
     HistoName.str("");
     HistoName << "MissedDigiTrackPhi_" << fname2.str();
-    local_mes.MissedDigiTrackPhi = ibooker.book1D(HistoName.str(),
-                                                  HistoName.str(),
-                                                  Parameters.getParameter<int32_t>("Nbins"),
-                                                  Parameters.getParameter<double>("xmin"),
-                                                  Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedDigiTrackPhi = ibooker.book1D(HistoName.str(),
+                                                    HistoName.str(),
+                                                    Parameters.getParameter<int32_t>("Nbins"),
+                                                    Parameters.getParameter<double>("xmin"),
+                                                    Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MissedDigiTrackPhi = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitElossH");
     HistoName.str("");
     HistoName << "MatchedSimHitElossS_" << fname2.str();
-    local_mes.MatchedSimHitElossS = ibooker.book1D(HistoName.str(),
-                                                   HistoName.str(),
-                                                   Parameters.getParameter<int32_t>("Nbins"),
-                                                   Parameters.getParameter<double>("xmin"),
-                                                   Parameters.getParameter<double>("xmax"));
-
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MatchedSimHitElossS = ibooker.book1D(HistoName.str(),
+                                                     HistoName.str(),
+                                                     Parameters.getParameter<int32_t>("Nbins"),
+                                                     Parameters.getParameter<double>("xmin"),
+                                                     Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MatchedSimHitElossS = nullptr;
     HistoName.str("");
     HistoName << "MatchedSimHitElossP_" << fname2.str();
-    local_mes.MatchedSimHitElossP = ibooker.book1D(HistoName.str(),
-                                                   HistoName.str(),
-                                                   Parameters.getParameter<int32_t>("Nbins"),
-                                                   Parameters.getParameter<double>("xmin"),
-                                                   Parameters.getParameter<double>("xmax"));
-
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MatchedSimHitElossP = ibooker.book1D(HistoName.str(),
+                                                     HistoName.str(),
+                                                     Parameters.getParameter<int32_t>("Nbins"),
+                                                     Parameters.getParameter<double>("xmin"),
+                                                     Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MatchedSimHitElossP = nullptr;
     HistoName.str("");
     HistoName << "MissedDigiSimHitElossS_" << fname2.str();
-    local_mes.MissedDigiSimHitElossS = ibooker.book1D(HistoName.str(),
-                                                      HistoName.str(),
-                                                      Parameters.getParameter<int32_t>("Nbins"),
-                                                      Parameters.getParameter<double>("xmin"),
-                                                      Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedDigiSimHitElossS = ibooker.book1D(HistoName.str(),
+                                                        HistoName.str(),
+                                                        Parameters.getParameter<int32_t>("Nbins"),
+                                                        Parameters.getParameter<double>("xmin"),
+                                                        Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MissedDigiSimHitElossS = nullptr;
     HistoName.str("");
     HistoName << "MissedDigiSimHitElossP_" << fname2.str();
-    local_mes.MissedDigiSimHitElossP = ibooker.book1D(HistoName.str(),
-                                                      HistoName.str(),
-                                                      Parameters.getParameter<int32_t>("Nbins"),
-                                                      Parameters.getParameter<double>("xmin"),
-                                                      Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedDigiSimHitElossP = ibooker.book1D(HistoName.str(),
+                                                        HistoName.str(),
+                                                        Parameters.getParameter<int32_t>("Nbins"),
+                                                        Parameters.getParameter<double>("xmin"),
+                                                        Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.MissedDigiSimHitElossP = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitDxH");
     HistoName.str("");
     HistoName << "SimHitDx_" << fname2.str();
-    local_mes.SimHitDx = ibooker.book1D(HistoName.str(),
-                                        HistoName.str(),
-                                        Parameters.getParameter<int32_t>("Nbins"),
-                                        Parameters.getParameter<double>("xmin"),
-                                        Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.SimHitDx = ibooker.book1D(HistoName.str(),
+                                          HistoName.str(),
+                                          Parameters.getParameter<int32_t>("Nbins"),
+                                          Parameters.getParameter<double>("xmin"),
+                                          Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.SimHitDx = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitDyH");
     HistoName.str("");
     HistoName << "SimHitDy_" << fname2.str();
-    local_mes.SimHitDy = ibooker.book1D(HistoName.str(),
-                                        HistoName.str(),
-                                        Parameters.getParameter<int32_t>("Nbins"),
-                                        Parameters.getParameter<double>("xmin"),
-                                        Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.SimHitDy = ibooker.book1D(HistoName.str(),
+                                          HistoName.str(),
+                                          Parameters.getParameter<int32_t>("Nbins"),
+                                          Parameters.getParameter<double>("xmin"),
+                                          Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.SimHitDy = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitDzH");
     HistoName.str("");
     HistoName << "SimHitDz_" << fname2.str();
-    local_mes.SimHitDz = ibooker.book1D(HistoName.str(),
-                                        HistoName.str(),
-                                        Parameters.getParameter<int32_t>("Nbins"),
-                                        Parameters.getParameter<double>("xmin"),
-                                        Parameters.getParameter<double>("xmax"));
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.SimHitDz = ibooker.book1D(HistoName.str(),
+                                          HistoName.str(),
+                                          Parameters.getParameter<int32_t>("Nbins"),
+                                          Parameters.getParameter<double>("xmin"),
+                                          Parameters.getParameter<double>("xmax"));
+    else
+      local_mes.SimHitDz = nullptr;
 
     HistoName.str("");
     HistoName << "BunchXingWindow_" << fname2.str();
@@ -802,8 +917,10 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     Parameters = config_.getParameter<edm::ParameterSet>("TOFEtaMapH");
     HistoName.str("");
     HistoName << "MissedDigiTimeWindow_" << fname2.str();
-    local_mes.MissedDigiTimeWindow = ibooker.book1D(HistoName.str(), HistoName.str(), 100, -0.5, 49.5);
-
+    if (Parameters.getParameter<bool>("switch"))
+      local_mes.MissedDigiTimeWindow = ibooker.book1D(HistoName.str(), HistoName.str(), 100, -0.5, 49.5);
+    else
+      local_mes.MissedDigiTimeWindow = nullptr;
     local_mes.nDigis = 0;
     layerMEs.insert(std::make_pair(layer, local_mes));
   }
