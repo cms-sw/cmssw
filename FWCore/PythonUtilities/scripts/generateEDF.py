@@ -1,6 +1,10 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
+from __future__ import division
+from builtins import zip
+from builtins import object
+from past.utils import old_div
 from builtins import range
 import sys
 import re
@@ -56,7 +60,7 @@ class LumiInfo (object):
                     self.numXings += 1
             except:
                 raise RuntimeError("Inst Lumi Info malformed")
-            self.aveInstLum = self.totInstLum / (self.numXings)
+            self.aveInstLum = old_div(self.totInstLum, (self.numXings))
             self.xingInfo   = True
         self.key       = (self.run, self.lumi)
         self.keyString = self.key.__str__()
@@ -76,7 +80,7 @@ class LumiInfo (object):
         self.numXings = 1
         xing = 1
         self.aveInstLum = self.totInstLum = lum = \
-                          self.delivered / LumiInfo.lumiSectionLength
+                          old_div(self.delivered, LumiInfo.lumiSectionLength)
         self.instLums.append( (xing, lum) )
         self.xingInfo = True
         return True
@@ -85,7 +89,7 @@ class LumiInfo (object):
     def deadtime (self):
         if not self.delivered:
             return 1
-        return 1 - (self.recorded / self.delivered)
+        return 1 - (old_div(self.recorded, self.delivered))
 
 
     def __str__ (self):
@@ -199,7 +203,7 @@ class LumiInfoCont (dict):
         for key, lumi in six.iteritems(self):
             total += lumi.recorded
             lumi.totalRecorded = total
-            lumi.fracRecorded  = total / self.totalRecLum
+            lumi.fracRecorded  = old_div(total, self.totalRecLum)
         # calculate numbers for average xing instantaneous luminosity
         if not self.xingInfo:
             # nothing to do here
@@ -224,8 +228,8 @@ class LumiInfoCont (dict):
             lumi = self[tup[1]]
             total += lumi.recorded
             lumi.totalAXILrecorded = total
-            lumi.fracAXILrecorded  = total / self.totalRecLum
-            lumi.fracAXIL = lumi.aveInstLum / maxAveInstLum
+            lumi.fracAXILrecorded  = old_div(total, self.totalRecLum)
+            lumi.fracAXIL = old_div(lumi.aveInstLum, maxAveInstLum)
 
 
 #############################
@@ -313,7 +317,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                 weight += event[1]
                 if not usePoints:
                     continue
-                factor = weight / totalWeight
+                factor = old_div(weight, totalWeight)
                 try:
                     intLum = lumiCont[key].totalRecorded
                 except:
@@ -322,7 +326,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                 if lumiCont.minIntLum and lumiCont.minIntLum > intLum or \
                    lumiCont.maxIntLum and lumiCont.maxIntLum < intLum:
                     continue
-                lumFrac = intLum / lumiCont.totalRecLum
+                lumFrac = old_div(intLum, lumiCont.totalRecLum)
                 xVals.append( lumiCont[key].totalRecorded)
                 yVals.append (factor)
                 expectedVals.append (lumFrac)
@@ -337,7 +341,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         ## Reset Expected ##
         ####################
         if options.resetExpected:
-            slope = (yVals[-1] - yVals[0]) / (xVals[-1] - xVals[0])
+            slope = old_div((yVals[-1] - yVals[0]), (xVals[-1] - xVals[0]))
             print("slope", slope)
             for index, old in enumerate (expectedVals):
                 expectedVals[index] = yVals[0] + \
@@ -388,8 +392,8 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             for thisRange in rangeList:
                 upper = thisRange[1]
                 lower = thisRange[0]
-                slope = (yVals[upper] - yVals[lower]) / \
-                        (xVals[upper] - xVals[lower])
+                slope = old_div((yVals[upper] - yVals[lower]), \
+                        (xVals[upper] - xVals[lower]))
                 print("slope", slope)
                 # now go over the range inclusively
                 pairList = []
@@ -421,7 +425,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         eventTupList.sort()
         for eventTup in eventTupList:
             weight += eventTup[5]
-            factor = weight / totalWeight
+            factor = old_div(weight, totalWeight)
             if 'instLum' == options.edfMode:
                 xVals.append (eventTup[0])
             else:
@@ -433,7 +437,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         raise RuntimeError("It looks like Charles screwed up if you are seeing this.")
 
     size = len (xVals)
-    step = int (math.sqrt(size) / 2 + 1)
+    step = int (old_div(math.sqrt(size), 2) + 1)
     if options.printValues:
         for index in range (size):
             print("%8f %8f %8f" % (xVals[index], yVals[index], expectedVals[index]), end=' ')
@@ -441,7 +445,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                 denom = xVals[index] - xVals[index - step]
                 numer = yVals[index] - yVals[index - step]
                 if denom:
-                    print(" %8f" % (numer / denom), end=' ')
+                    print(" %8f" % (old_div(numer, denom)), end=' ')
             if 0 == index % step:
                 print(" **", end=' ') ## indicates statistically independent
                              ## slope measurement
@@ -462,7 +466,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
 
     # run statistical tests
     if options.weights:
-        print("average weight per event:", weight / ( size - 1))
+        print("average weight per event:", old_div(weight, ( size - 1)))
     maxDistance = ROOT.TMath.KolmogorovTest (size, yArray,
                                              size, expected,
                                              "M")
