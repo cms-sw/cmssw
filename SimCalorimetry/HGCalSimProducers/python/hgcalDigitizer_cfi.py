@@ -156,12 +156,12 @@ hgchebackDigitizer = cms.PSet(
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
         thresholdFollowsMIP = cms.bool(thresholdTracksMIP),
         feCfg = hgcROCSettings.clone(
-            adcNbits        = cms.uint32(10),      # standard ROC operations (was 2 bits more up to 11_0_0_pre12)
-            adcSaturation_fC = cms.double(68.75),  # keep the adc LSB the same (i.e. set saturation one quarter value of pre12)
-            tdcSaturation_fC  = cms.double(1000),  # allow up to 1000 MIPs as a max range, including ToA mode
-            targetMIPvalue_ADC   = cms.uint32(15), # to be used for HGCROC gain proposal
-            adcThreshold_fC = cms.double(0.5),     # unchanged with respect to pre12
-            tdcOnset_fC       = cms.double(55),    # turn on TDC when 80% of the ADC range is reached (one quarter of pre12
+            adcNbits        = 10,      # standard ROC operations (was 2 bits more up to 11_0_0_pre12)
+            adcSaturation_fC = 68.75,  # keep the adc LSB the same (i.e. set saturation one quarter value of pre12)
+            tdcSaturation_fC  = 1000,  # allow up to 1000 MIPs as a max range, including ToA mode
+            targetMIPvalue_ADC   = 15, # to be used for HGCROC gain proposal
+            adcThreshold_fC = 0.5,     # unchanged with respect to pre12
+            tdcOnset_fC       = 55,    # turn on TDC when 80% of the ADC range is reached (one quarter of pre12
             #                                        indicative at this point)
             tdcForToAOnset_fC = cms.vdouble(12.,12.,12.),  #turn ToA for 20% of the TDC threshold (indicative at this point)
         )
