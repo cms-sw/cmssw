@@ -15,10 +15,14 @@
 namespace CAConstants {
 
   // constants
+#ifndef ONLY_PHICUT
 #ifdef GPU_SMALL_EVENTS
   constexpr uint32_t maxNumberOfTuples() { return 3 * 1024; }
 #else
   constexpr uint32_t maxNumberOfTuples() { return 24 * 1024; }
+#endif
+#else
+  constexpr uint32_t maxNumberOfTuples() { return 48 * 1024; }
 #endif
   constexpr uint32_t maxNumberOfQuadruplets() { return maxNumberOfTuples(); }
 #ifndef ONLY_PHICUT
@@ -30,8 +34,8 @@ namespace CAConstants {
   constexpr uint32_t maxCellsPerHit() { return 128 / 2; }
 #endif
 #else
-  constexpr uint32_t maxNumberOfDoublets() { return 448 * 1024; }
-  constexpr uint32_t maxCellsPerHit() { return 4 * 128; }
+  constexpr uint32_t maxNumberOfDoublets() { return 2*1024 * 1024; }
+  constexpr uint32_t maxCellsPerHit() { return 8 * 128; }
 #endif
   constexpr uint32_t maxNumOfActiveDoublets() { return maxNumberOfDoublets() / 4; }
 
@@ -43,8 +47,13 @@ namespace CAConstants {
   using hindex_type = uint16_t;  // FIXME from siPixelRecHitsHeterogeneousProduct
   using tindex_type = uint16_t;  //  for tuples
 
+#ifndef ONLY_PHICUT
   using CellNeighbors = GPU::VecArray<uint32_t, 36>;
   using CellTracks = GPU::VecArray<tindex_type, 42>;
+#else
+  using CellNeighbors = GPU::VecArray<uint32_t, 64>;
+  using CellTracks = GPU::VecArray<tindex_type, 64>;
+#endif
 
   using CellNeighborsVector = GPU::SimpleVector<CellNeighbors>;
   using CellTracksVector = GPU::SimpleVector<CellTracks>;

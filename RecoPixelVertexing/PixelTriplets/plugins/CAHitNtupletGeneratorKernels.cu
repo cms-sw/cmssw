@@ -194,9 +194,9 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   }
 
   assert(nActualPairs <= gpuPixelDoublets::nPairs);
-  int stride = 1;
+  int stride = 4;
   int threadsPerBlock = gpuPixelDoublets::getDoubletsFromHistoMaxBlockSize / stride;
-  int blocks = (2 * nhits + threadsPerBlock - 1) / threadsPerBlock;
+  int blocks = (4 * nhits + threadsPerBlock - 1) / threadsPerBlock;
   dim3 blks(1, blocks, 1);
   dim3 thrs(stride, threadsPerBlock, 1);
   gpuPixelDoublets::getDoubletsFromHisto<<<blks, thrs, 0, stream>>>(device_theCells_.get(),
@@ -208,8 +208,8 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
                                                                     nActualPairs,
                                                                     m_params.idealConditions_,
                                                                     m_params.doClusterCut_,
-                                                                    m_params.doZCut_,
-                                                                    m_params.doPhiCut_,
+                                                                    m_params.doZ0Cut_,
+                                                                    m_params.doPtCut_,
                                                                     m_params.maxNumberOfDoublets_);
   cudaCheck(cudaGetLastError());
 
