@@ -48,6 +48,8 @@ public:
 
 private:
   int _verbosity;
+  int tdc_1;
+  int tdc_2;
   std::string electronicsMapLabel_;
 
   edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame> > tok_QIE10DigiCollection_;
@@ -61,6 +63,8 @@ private:
 
 HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
     : _verbosity(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+      tdc_1(iConfig.getParameter<int>("tdc1")),
+      tdc_2(iConfig.getParameter<int>("tdc2")),
       electronicsMapLabel_(iConfig.getParameter<std::string>("ElectronicsMap")),
       tok_QIE10DigiCollection_(
           consumes<HcalDataFrameContainer<QIE10DataFrame> >(iConfig.getParameter<edm::InputTag>("QIE10"))),
@@ -146,7 +150,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
 
       //   convert to hb qie data if hb
       if (HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
-        qiedf = convertHB(qiedf);
+        qiedf = convertHB(qiedf, tdc_1, tdc_2);
 
       if (!uhtrs.exist(uhtrIndex)) {
         uhtrs.newUHTR(uhtrIndex, presamples);
@@ -274,6 +278,8 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("Verbosity", 0);
+  desc.add<int>("tdc1", 4);
+  desc.add<int>("tdc2", 20);
   desc.add<std::string>("ElectronicsMap", "");
   desc.add<edm::InputTag>("QIE10", edm::InputTag("simHcalDigis", "HFQIE10DigiCollection"));
   desc.add<edm::InputTag>("QIE11", edm::InputTag("simHcalDigis", "HBHEQIE11DigiCollection"));
