@@ -2,7 +2,6 @@
 #define CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DSOAView_h
 
 #include <cuda_runtime.h>
-#include <cuda/api_wrappers.h>
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
