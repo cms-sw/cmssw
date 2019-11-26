@@ -4,8 +4,6 @@
 #include <random>
 #include <vector>
 
-#include <cuda/api_wrappers.h>
-
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
@@ -95,8 +93,6 @@ __global__ void print(ZVertices const* pdata, WorkSpace const* pws) {
 int main() {
 #ifdef __CUDACC__
   exitSansCUDADevices();
-
-  auto current_device = cuda::device::current::get();
 
   auto onGPU_d = cudautils::make_device_unique<ZVertices[]>(1, nullptr);
   auto ws_d = cudautils::make_device_unique<WorkSpace[]>(1, nullptr);
