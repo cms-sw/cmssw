@@ -81,7 +81,7 @@ struct SiPixelGenErrorStore {  //!< template storage structure
   float cotbetaY[TEMP_ENTRY_SIZEY];
   float cotbetaX[TEMP_ENTRY_SIZEX_B];
   float cotalphaX[TEMP_ENTRY_SIZEX_A];
-  //!< 60 y templates spanning cluster lengths from 0px to +18px 
+  //!< 60 y templates spanning cluster lengths from 0px to +18px
   SiPixelGenErrorEntry enty[TEMP_ENTRY_SIZEY];
   //!< 60 x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 60 slices
   SiPixelGenErrorEntry entx[TEMP_ENTRY_SIZEX_B][TEMP_ENTRY_SIZEX_A];
@@ -89,8 +89,8 @@ struct SiPixelGenErrorStore {  //!< template storage structure
   float* cotbetaY;
   float* cotbetaX;
   float* cotalphaX;
-  boost::multi_array<SiPixelGenErrorEntry, 1> enty;  //!< use 1d entry to store [60] entries 
-  //!< use 2d entry to store [60][60] entries 
+  boost::multi_array<SiPixelGenErrorEntry, 1> enty;  //!< use 1d entry to store [60] entries
+  //!< use 2d entry to store [60][60] entries
   boost::multi_array<SiPixelGenErrorEntry, 2> entx;
 #endif
 };
