@@ -62,8 +62,8 @@ namespace cAHitNtupletGenerator {
            bool idealConditions,
            bool doStats,
            bool doClusterCut,
-           bool doZCut,
-           bool doPhiCut,
+           bool doZ0Cut,
+           bool doPtCut,
            float ptmin,
            float CAThetaCutBarrel,
            float CAThetaCutForward,
@@ -82,8 +82,8 @@ namespace cAHitNtupletGenerator {
           idealConditions_(idealConditions),
           doStats_(doStats),
           doClusterCut_(doClusterCut),
-          doZCut_(doZCut),
-          doPhiCut_(doPhiCut),
+          doZ0Cut_(doZ0Cut),
+          doPtCut_(doPtCut),
           ptmin_(ptmin),
           CAThetaCutBarrel_(CAThetaCutBarrel),
           CAThetaCutForward_(CAThetaCutForward),
@@ -103,8 +103,8 @@ namespace cAHitNtupletGenerator {
     const bool idealConditions_;
     const bool doStats_;
     const bool doClusterCut_;
-    const bool doZCut_;
-    const bool doPhiCut_;
+    const bool doZ0Cut_;
+    const bool doPtCut_;
     const float ptmin_;
     const float CAThetaCutBarrel_;
     const float CAThetaCutForward_;

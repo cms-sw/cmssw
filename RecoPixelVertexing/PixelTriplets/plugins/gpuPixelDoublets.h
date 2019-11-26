@@ -93,8 +93,8 @@ namespace gpuPixelDoublets {
                                 int nActualPairs,
                                 bool ideal_cond,
                                 bool doClusterCut,
-                                bool doZCut,
-                                bool doPhiCut,
+                                bool doZ0Cut,
+                                bool doPtCut,
                                 uint32_t maxNumOfDoublets) {
     auto const& __restrict__ hh = *hhp;
     doubletsFromHisto(layerPairs,
@@ -111,8 +111,8 @@ namespace gpuPixelDoublets {
                       maxr,
                       ideal_cond,
                       doClusterCut,
-                      doZCut,
-                      doPhiCut,
+                      doZ0Cut,
+                      doPtCut,
                       maxNumOfDoublets);
   }
 
