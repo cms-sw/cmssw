@@ -30,7 +30,7 @@ TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
   }
 
   SECTION("Allocating too much") {
-    constexpr size_t maxSize = 1 << 27;  // 8**9
+    constexpr size_t maxSize = 1 << 30;  // 8**10
     auto ptr = cudautils::make_device_unique<char[]>(maxSize, stream);
     ptr.reset();
     REQUIRE_THROWS(ptr = cudautils::make_device_unique<char[]>(maxSize + 1, stream));
