@@ -2,7 +2,7 @@
 
 import sys, os
 import argparse
-from extend_argparse import *
+from HLTrigger.Configuration.extend_argparse import *
 
 import HLTrigger.Configuration.Tools.confdb  as confdb
 import HLTrigger.Configuration.Tools.options as options
