@@ -33,8 +33,7 @@ thicknessCorrection_200 = thicknessCorrection[1]
 # NOSE parameters
 fCPerMIPnose = recoparam.HGCalUncalibRecHit.HGCHFNoseConfig.fCPerMIP
 layerWeightsNose = recocalibparam.dEdX.weightsNose
-##thicknessCorrectionNose = recocalibparam.HGCalRecHit.thicknessNoseCorrection
-thicknessCorrectionNose = [0.759,0.760,0.773]
+thicknessCorrectionNose = recocalibparam.HGCalRecHit.thicknessNoseCorrection
 
 # Parameters used in several places
 triggerCellLsbBeforeCompression = 100./1024.

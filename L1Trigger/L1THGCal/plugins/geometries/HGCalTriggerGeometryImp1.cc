@@ -128,7 +128,6 @@ void HGCalTriggerGeometryImp1::buildMaps()
     unsigned moduleId =
         (tc2mItr != trigger_cells_to_modules_.end() ? tc2mItr->second
                                                     : 0);  // 0 if the trigger cell doesn't belong to a module
-    // unsigned moduleId = trigger_cells_to_modules_.at(triggercellId);
     // FIXME: empty neighbours
     std::unique_ptr<const HGCalTriggerGeometry::TriggerCell> triggercellPtr(
         new HGCalTriggerGeometry::TriggerCell(triggercellId, moduleId, triggercellPoint, list_cells(), cellIds));

@@ -58,8 +58,6 @@ GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
     // to distinguish a TC detId
   }
 
-  // FIXME: to do HFNose
-
   GlobalPoint position = geom_->getTriggerCellPosition(id);
   return position;
 }
