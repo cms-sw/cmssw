@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from Configuration.Eras.Era_Phase2C6_timing_layer_bar_cff import Phase2C6_timing_layer_bar
-process = cms.Process('DIGI',Phase2C6_timing_layer_bar)
+from Configuration.Eras.Era_Phase2C6_cff import Phase2C6
+process = cms.Process('DIGI',Phase2C6)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

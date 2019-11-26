@@ -235,7 +235,6 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules()
     unsigned triggerCell = cell_triggerCell.second;
     auto itr_exist = trigger_cells_to_cells.emplace(triggerCell, list_cells());
     itr_exist.first->second.emplace(cell);
-    // trigger_cells_to_cells.at(triggerCell).emplace(cell);
   }
   for (const auto& triggerCell_cells : trigger_cells_to_cells) {
     unsigned triggerCellId = triggerCell_cells.first;
@@ -253,7 +252,6 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules()
     unsigned moduleId = (triggerCellToModuleItr != trigger_cells_to_modules_.end()
                              ? triggerCellToModuleItr->second
                              : 0);  // 0 if the trigger cell doesn't belong to a module
-    // unsigned moduleId = trigger_cells_to_modules_.at(triggercellId);
     // FIXME: empty neighbours
     trigger_cells_.emplace(triggerCellId,
                            std::make_unique<const HGCalTriggerGeometry::TriggerCell>(
@@ -270,7 +268,6 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules()
     unsigned module = triggerCell_module.second;
     auto itr_exist = modules_to_trigger_cells.emplace(module, list_triggerCells());
     itr_exist.first->second.emplace(triggerCell);
-    // modules_to_trigger_cells.at(module).emplace(triggerCell);
   }
   for (const auto& module_triggerCell : modules_to_trigger_cells) {
     unsigned moduleId = module_triggerCell.first;
