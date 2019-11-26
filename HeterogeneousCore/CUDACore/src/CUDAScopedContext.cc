@@ -44,8 +44,7 @@ namespace impl {
     stream_ = cudautils::getCUDAStreamCache().getCUDAStream();
   }
 
-  CUDAScopedContextBase::CUDAScopedContextBase(const CUDAProductBase& data)
-      : currentDevice_(data.device()) {
+  CUDAScopedContextBase::CUDAScopedContextBase(const CUDAProductBase& data) : currentDevice_(data.device()) {
     cudaCheck(cudaSetDevice(currentDevice_));
     if (data.mayReuseStream()) {
       stream_ = data.streamPtr();

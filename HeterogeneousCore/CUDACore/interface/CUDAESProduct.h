@@ -11,11 +11,13 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/eventIsOccurred.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAEventCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 
 template <typename T>
 class CUDAESProduct {
 public:
-  CUDAESProduct() : gpuDataPerDevice_(cuda::device::count()) {
+  CUDAESProduct() : gpuDataPerDevice_(cudautils::cudaDeviceCount()) {
     for (size_t i = 0; i < gpuDataPerDevice_.size(); ++i) {
       gpuDataPerDevice_[i].m_event = cudautils::getCUDAEventCache().getCUDAEvent();
     }
@@ -27,7 +29,7 @@ public:
   // to the CUDA stream
   template <typename F>
   const T& dataForCurrentDeviceAsync(cudaStream_t cudaStream, F transferAsync) const {
-    auto device = cuda::device::current::get().id();
+    auto device = cudautils::currentDevice();
 
     auto& data = gpuDataPerDevice_[device];
 

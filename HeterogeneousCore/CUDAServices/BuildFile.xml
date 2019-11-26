@@ -4,7 +4,6 @@
 <use name="FWCore/MessageLogger"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="cuda"/>
-<use name="cuda-api-wrappers"/>
 <use name="cub"/>
 
 <export>

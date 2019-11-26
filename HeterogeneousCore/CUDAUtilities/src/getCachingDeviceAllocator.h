@@ -3,9 +3,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 #include "CachingDeviceAllocator.h"
-
-#include <cuda/api_wrappers.h>
 
 #include <iomanip>
 
@@ -29,7 +28,7 @@ namespace cudautils {
       size_t ret = std::numeric_limits<size_t>::max();
       int currentDevice;
       cudaCheck(cudaGetDevice(&currentDevice));
-      const int numberOfDevices = cuda::device::count();
+      const int numberOfDevices = cudaDeviceCount();
       for (int i = 0; i < numberOfDevices; ++i) {
         size_t freeMemory, totalMemory;
         cudaCheck(cudaSetDevice(i));

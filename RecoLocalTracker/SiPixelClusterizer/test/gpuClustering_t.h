@@ -10,12 +10,12 @@
 #include <vector>
 
 #ifdef __CUDACC__
-#include <cuda/api_wrappers.h>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 #endif
 
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
@@ -25,7 +25,7 @@ int main(void) {
 #ifdef __CUDACC__
   exitSansCUDADevices();
 
-  if (cuda::device::count() == 0) {
+  if (cudautils::cudaDeviceCount() == 0) {
     std::cerr << "No CUDA devices on this system"
               << "\n";
     exit(EXIT_FAILURE);
@@ -44,7 +44,6 @@ int main(void) {
   auto h_clus = std::make_unique<int[]>(numElements);
 
 #ifdef __CUDACC__
-  auto current_device = cuda::device::current::get();
   auto d_id = cudautils::make_device_unique<uint16_t[]>(numElements, nullptr);
   auto d_x = cudautils::make_device_unique<uint16_t[]>(numElements, nullptr);
   auto d_y = cudautils::make_device_unique<uint16_t[]>(numElements, nullptr);

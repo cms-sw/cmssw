@@ -8,13 +8,12 @@
 #include <random>
 #include <set>
 
-#include <cuda/api_wrappers.h>
-
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 
 template <typename T>
 struct RS {
@@ -41,13 +40,11 @@ void go(bool useShared) {
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
 
-  if (cuda::device::count() == 0) {
+  if (cudautils::cudaDeviceCount() == 0) {
     std::cerr << "No CUDA devices on this system"
               << "\n";
     exit(EXIT_FAILURE);
   }
-
-  auto current_device = cuda::device::current::get();
 
   constexpr int blocks = 10;
   constexpr int blockSize = 256 * 32;

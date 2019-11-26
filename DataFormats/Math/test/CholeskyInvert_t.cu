@@ -13,13 +13,12 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
-#include <cuda/api_wrappers.h>
-
 #include "DataFormats/Math/interface/choleskyInversion.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 
 constexpr int stride() { return 5 * 1024; }
 template <int DIM>
@@ -94,13 +93,11 @@ void go(bool soa) {
   auto delta1 = delta;
   auto delta2 = delta;
 
-  if (cuda::device::count() == 0) {
+  if (cudautils::cudaDeviceCount() == 0) {
     std::cerr << "No CUDA devices on this system"
               << "\n";
     exit(EXIT_FAILURE);
   }
-
-  auto current_device = cuda::device::current::get();
 
   constexpr unsigned int SIZE = 4 * 1024;
 

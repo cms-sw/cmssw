@@ -4,8 +4,6 @@
 #include <atomic>
 #include <memory>
 
-#include <cuda/api_wrappers.h>
-
 #include "HeterogeneousCore/CUDAUtilities/interface/SharedStreamPtr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/SharedEventPtr.h"
 

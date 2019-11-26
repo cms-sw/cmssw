@@ -89,8 +89,6 @@ void go() {
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
 
-  auto current_device = cuda::device::current::get();
-
   int numElements = 200000;
   size_t size = numElements * sizeof(float);
   std::cout << "[Vector of " << numElements << " elements]\n";

@@ -1,11 +1,10 @@
 #include <cassert>
 #include <iostream>
 
-#include <cuda/api_wrappers.h>
-
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 
 __global__ void testBinaryFind() {
   int data[] = {1, 1, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6};
@@ -24,13 +23,11 @@ __global__ void testBinaryFind() {
 }
 
 void wrapper() {
-  if (cuda::device::count() == 0) {
+  if (cudautils::cudaDeviceCount() == 0) {
     std::cerr << "No CUDA devices on this system"
               << "\n";
     exit(EXIT_FAILURE);
   }
-
-  auto current_device = cuda::device::current::get();
 
   cudautils::launch(testBinaryFind, {32, 64});
 }

@@ -5,7 +5,6 @@
 #include <utility>
 
 #include <cuda_runtime_api.h>
-#include <cuda/api_wrappers.h>
 
 #include "catch.hpp"
 

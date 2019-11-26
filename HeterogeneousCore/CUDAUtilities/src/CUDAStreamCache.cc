@@ -2,8 +2,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/ScopedSetDevice.h"
-
-#include <cuda/api_wrappers.h>
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 
 namespace cudautils {
   void CUDAStreamCache::Deleter::operator()(cudaStream_t stream) const {
@@ -15,7 +14,7 @@ namespace cudautils {
 
   // CUDAStreamCache should be constructed by the first call to
   // getCUDAStreamCache() only if we have CUDA devices present
-  CUDAStreamCache::CUDAStreamCache() : cache_(cuda::device::count()) {}
+  CUDAStreamCache::CUDAStreamCache() : cache_(cudautils::cudaDeviceCount()) {}
 
   SharedStreamPtr CUDAStreamCache::getCUDAStream() {
     const auto dev = cudautils::currentDevice();
@@ -33,7 +32,7 @@ namespace cudautils {
     // CUDAStreamCache lives through multiple tests (and go through
     // multiple shutdowns of the framework).
     cache_.clear();
-    cache_.resize(cuda::device::count());
+    cache_.resize(cudautils::cudaDeviceCount());
   }
 
   CUDAStreamCache& getCUDAStreamCache() {

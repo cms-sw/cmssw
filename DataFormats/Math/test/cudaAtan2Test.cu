@@ -66,8 +66,6 @@ void go() {
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
 
-  auto current_device = cuda::device::current::get();
-
   // atan2
   delta -= (std::chrono::high_resolution_clock::now() - start);
 

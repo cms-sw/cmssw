@@ -5,8 +5,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-
-#include <cuda/api_wrappers.h>
+#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
 
 namespace {
   template <typename T>
@@ -97,9 +96,9 @@ cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const 
   int blocksPerGrid = (NUM_VALUES + threadsPerBlock - 1) / threadsPerBlock;
 
   auto d_c = cudautils::make_device_unique<float[]>(NUM_VALUES, stream);
-  auto current_device = cuda::device::current::get();
+  auto current_device = cudautils::currentDevice();
   edm::LogVerbatim("TestHeterogeneousEDProducerGPU")
-      << "  " << label << " GPU launching kernels device " << current_device.id() << " CUDA stream " << stream;
+      << "  " << label << " GPU launching kernels device " << current_device << " CUDA stream " << stream;
   vectorAdd<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(d_a.get(), d_b.get(), d_c.get(), NUM_VALUES);
 
   auto d_ma = cudautils::make_device_unique<float[]>(NUM_VALUES * NUM_VALUES, stream);
@@ -120,8 +119,8 @@ cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const 
   matrixMulVector<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(d_mc.get(), d_b.get(), d_c.get(), NUM_VALUES);
 
   edm::LogVerbatim("TestHeterogeneousEDProducerGPU")
-      << "  " << label << " GPU kernels launched, returning return pointer device " << current_device.id()
-      << " CUDA stream " << stream;
+      << "  " << label << " GPU kernels launched, returning return pointer device " << current_device << " CUDA stream "
+      << stream;
   return d_a;
 }
 

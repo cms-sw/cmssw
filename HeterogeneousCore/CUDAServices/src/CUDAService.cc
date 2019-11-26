@@ -3,7 +3,6 @@
 #include <limits>
 
 #include <cuda.h>
-#include <cuda/api_wrappers.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -16,6 +15,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
 #include "HeterogeneousCore/CUDAUtilities/src/getCachingDeviceAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/src/getCachingHostAllocator.h"
 
@@ -391,6 +391,6 @@ int CUDAService::deviceWithMostFreeMemory() const {
   return device;
 }
 
-void CUDAService::setCurrentDevice(int device) const { cuda::device::current::set(device); }
+void CUDAService::setCurrentDevice(int device) const { cudaCheck(cudaSetDevice(device)); }
 
-int CUDAService::getCurrentDevice() const { return cuda::device::current::get().id(); }
+int CUDAService::getCurrentDevice() const { return cudautils::currentDevice(); }

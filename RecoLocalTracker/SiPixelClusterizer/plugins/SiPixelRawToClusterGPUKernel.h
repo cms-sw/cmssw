@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <cuda_runtime.h>
-#include "cuda/api_wrappers.h"
 
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"

@@ -7,10 +7,11 @@
 #include <memory>
 
 #ifdef __CUDACC__
-#include <cuda/api_wrappers.h>
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
+
 #endif
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
@@ -99,7 +100,7 @@ __global__ void verifyBulk(Assoc const* __restrict__ assoc, AtomicPairCounter co
 int main() {
 #ifdef __CUDACC__
   exitSansCUDADevices();
-  auto current_device = cuda::device::current::get();
+  auto current_device = cudautils::currentDevice();
 #else
   // make sure cuda emulation is working
   std::cout << "cuda x's " << threadIdx.x << ' ' << blockIdx.x << ' ' << blockDim.x << ' ' << gridDim.x << std::endl;

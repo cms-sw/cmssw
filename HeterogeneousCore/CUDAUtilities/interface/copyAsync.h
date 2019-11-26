@@ -5,8 +5,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
-#include <cuda/api_wrappers.h>
-
 #include <type_traits>
 
 namespace cudautils {

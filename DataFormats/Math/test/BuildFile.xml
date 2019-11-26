@@ -98,7 +98,6 @@
 
 <bin file="cudaAtan2Test.cu" name="DFM_Atan2">
   <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
   <use name="vdt_headers"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
@@ -107,7 +106,6 @@
 
 <bin file="cudaMathTest.cu" name="DFM_Math">
   <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
   <use name="vdt_headers"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
@@ -116,7 +114,6 @@
 
 <bin file="cudaMathTest.cu" name="DFM_MathRepr">
   <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
   <use name="vdt_headers"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
@@ -125,7 +122,6 @@
 
 <bin file="CholeskyInvert_t.cu" name="CholeskyInvertOnGPU_t">
   <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>
 

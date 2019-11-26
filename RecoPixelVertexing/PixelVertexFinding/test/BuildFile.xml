@@ -21,7 +21,6 @@
 
 <bin file="gpuVertexFinder_t.cu" name="gpuVertexFinderByDensity_t">
   <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   <flags CXXFLAGS="-g"/>
 </bin>
@@ -32,14 +31,12 @@
 
 <bin file="gpuVertexFinder_t.cu" name="gpuVertexFinderDBSCAN_t">
   <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG -DUSE_DBSCAN"/>
   <flags CXXFLAGS="-g"/>
 </bin>
 
 <bin file="gpuVertexFinder_t.cu" name="gpuVertexFinderIterative_t">
   <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG -DUSE_ITERATIVE"/>
   <flags CXXFLAGS="-g"/>
 </bin>

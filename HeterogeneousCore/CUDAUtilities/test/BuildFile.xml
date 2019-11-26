@@ -15,17 +15,14 @@
 </bin>
 
 <bin file="cudastdAlgorithm_t.cu" name="gpuCudastdAlgorithm_t">
-  <use name="cuda-api-wrappers"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
 <bin file="radixSort_t.cu" name="gpuRadixSort_t">
-  <use name="cuda-api-wrappers"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
 <bin file="radixSort_t.cu" name="gpuRadixSort_debug">
-  <use name="cuda-api-wrappers"/>
   <flags CUDA_FLAGS="-g -G -DGPU_DEBUG"/>
   <flags REM_CUDA_FLAGS="--generate-line-info -lineinfo"/>
 </bin>
@@ -35,20 +32,17 @@
 </bin>
 
 <bin file="HistoContainer_t.cu" name="gpuHistoContainer_t">
-  <use name="cuda-api-wrappers"/>
   <use name="cub"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
 <bin file="HistoContainer_t.cu" name="gpuHistoContainer_debug">
-  <use name="cuda-api-wrappers"/>
   <use name="cub"/>
   <flags CUDA_FLAGS="-g -G -DGPU_DEBUG"/>
   <flags REM_CUDA_FLAGS="--generate-line-info -lineinfo"/>
 </bin>
 
 <bin file="OneHistoContainer_t.cu" name="gpuOneHistoContainer_t">
-  <use name="cuda-api-wrappers"/>
   <use name="cub"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
@@ -58,7 +52,6 @@
 </bin>
 
 <bin file="OneToManyAssoc_t.cu" name="gpuOneToManyAssoc_t">
-  <use name="cuda-api-wrappers"/>
   <use name="cub"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>

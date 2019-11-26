@@ -8,7 +8,6 @@
 #include <memory>
 #include <numeric>
 
-#include <cuda/api_wrappers.h>
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
@@ -50,7 +49,6 @@ int main(void) {
   float le[3 * size];
   float ge[6 * size];
 
-  auto current_device = cuda::device::current::get();
   auto d_xl = cudautils::make_device_unique<float[]>(size, nullptr);
   auto d_yl = cudautils::make_device_unique<float[]>(size, nullptr);
 
