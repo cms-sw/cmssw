@@ -1,0 +1,13 @@
+<xml DocumentType="AlignmentDescription">
+	<!-- RP   3 -->
+	<rp id="1981284352" sh_x="-4370" sh_y="0" />
+
+	<!-- RP   2 -->
+	<rp id="1980760064" sh_x="-3470" sh_y="0" />
+
+	<!-- RP 102 -->
+	<rp id="1997537280" sh_x="+40000" sh_y="0" />
+
+	<!-- RP 103 -->
+	<rp id="1998061568" sh_x="-3500" sh_y="0" />
+</xml>
