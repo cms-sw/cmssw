@@ -8,7 +8,7 @@ import sys
 import argparse
 import root_numpy
 import numpy as np
-from blacklist import get_blacklist
+from DQMServices.FileIO.blacklist import get_blacklist
 
 def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_version, output_dir_path):
    base_file = ROOT.TFile(base_file_path, 'read')
