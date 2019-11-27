@@ -135,10 +135,13 @@ namespace edm {
     // Retrieves pointer to a class containing the event independent provenance.
     StableProvenance const* stableProvenance() const { return &provenance()->stable(); }
 
-    // Initializes the event independent portion of the provenance, plus the process history ID, the product ID, and the provRetriever.
-    void setProvenance(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) {
-      setProvenance_(provRetriever, pid);
+    // Initialize the mechanism to retrieve per event provenance
+    void setProductProvenanceRetriever(ProductProvenanceRetriever const* provRetriever) {
+      setProductProvenanceRetriever_(provRetriever);
     }
+
+    // Initializes the ProductID
+    void setProductID(ProductID const& pid) { setProductID_(pid); }
 
     // Initializes the portion of the provenance related to mergeable run products.
     void setMergeableRunProductMetadata(MergeableRunProductMetadata const* mrpm) {
@@ -196,7 +199,8 @@ namespace edm {
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
     virtual Provenance const* provenance_() const = 0;
     virtual std::string const& resolvedModuleLabel_() const = 0;
-    virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) = 0;
+    virtual void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) = 0;
+    virtual void setProductID_(ProductID const& pid) = 0;
     virtual void setMergeableRunProductMetadata_(MergeableRunProductMetadata const*);
     virtual ProductProvenance const* productProvenancePtr_() const = 0;
     virtual void resetProductData_(bool deleteEarly) = 0;

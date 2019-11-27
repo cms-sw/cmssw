@@ -538,10 +538,11 @@ namespace edm {
     return false;
   }
 
-  void DataManagingProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                                   ProductID const& pid) {
-    productData_.setProvenance(provRetriever, pid);
+  void DataManagingProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
+    productData_.setProvenance(provRetriever);
   }
+
+  void DataManagingProductResolver::setProductID_(ProductID const& pid) { productData_.setProductID(pid); }
 
   void DataManagingProductResolver::setMergeableRunProductMetadataInProductData(
       MergeableRunProductMetadata const* mrpm) {
@@ -565,9 +566,11 @@ namespace edm {
 
   bool DataManagingProductResolver::singleProduct_() const { return true; }
 
-  void AliasProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) {
-    realProduct_.setProvenance(provRetriever, pid);
+  void AliasProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
+    realProduct_.setProductProvenanceRetriever(provRetriever);
   }
+
+  void AliasProductResolver::setProductID_(ProductID const& pid) { realProduct_.setProductID(pid); }
 
   ProductProvenance const* AliasProductResolver::productProvenancePtr_() const {
     return provenance()->productProvenance();
@@ -650,11 +653,13 @@ namespace edm {
         << "Contact a Framework developer\n";
   }
 
-  void SwitchBaseProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                                 ProductID const& pid) {
+  void SwitchBaseProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
+    productData_.setProvenance(provRetriever);
+  }
+
+  void SwitchBaseProductResolver::setProductID_(ProductID const& pid) {
     // insertIntoSet is const, so let's exploit that to fake the getting of the "input" product
-    provRetriever->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
-    productData_.setProvenance(provRetriever, pid);
+    productData_.setProductID(pid);
   }
 
   void SwitchBaseProductResolver::resetProductData_(bool deleteEarly) {
@@ -663,6 +668,11 @@ namespace edm {
     if (not deleteEarly) {
       status_ = defaultStatus_;
     }
+  }
+
+  void SwitchBaseProductResolver::updateProvenance() const {
+    return productData_.provenance().store()->insertIntoSet(
+        ProductProvenance(branchDescription().branchID(), parentageID_));
   }
 
   ProductResolverBase::Resolution SwitchProducerProductResolver::resolveProduct_(Principal const& principal,
@@ -697,6 +707,7 @@ namespace edm {
       // module has an exception while running
       auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
         if (nullptr != iException) {
+          updateProvenance();
           waitingTasks().doneWaiting(*iException);
         } else {
           waitingTasks().doneWaiting(std::exception_ptr());
@@ -730,13 +741,15 @@ namespace edm {
     if (skipCurrentProcess) {
       return;
     }
+    updateProvenance();
     realProduct().prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
   }
 
-  void ParentProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                                    ProductID const& pid) {
+  void ParentProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
     provRetriever_ = provRetriever;
   }
+
+  void ParentProcessProductResolver::setProductID_(ProductID const&) {}
 
   ProductProvenance const* ParentProcessProductResolver::productProvenancePtr_() const {
     return provRetriever_ ? provRetriever_->branchIDToProvenance(bd_->originalBranchID()) : nullptr;
@@ -1002,7 +1015,9 @@ namespace edm {
     setCache(skipCurrentProcess, newCacheIndex, nullptr);
   }
 
-  void NoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const*, ProductID const&) {}
+  void NoProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const*) {}
+
+  void NoProcessProductResolver::setProductID_(ProductID const&) {}
 
   ProductProvenance const* NoProcessProductResolver::productProvenancePtr_() const { return nullptr; }
 
@@ -1110,7 +1125,9 @@ namespace edm {
         ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
   }
 
-  void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const*, ProductID const&) {}
+  void SingleChoiceNoProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const*) {}
+
+  void SingleChoiceNoProcessProductResolver::setProductID_(ProductID const&) {}
 
   ProductProvenance const* SingleChoiceNoProcessProductResolver::productProvenancePtr_() const { return nullptr; }
 

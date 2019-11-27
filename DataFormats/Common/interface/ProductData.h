@@ -52,10 +52,9 @@ namespace edm {
 
     void unsafe_resetProductData() const { wrapper_.reset(); }
 
-    void setProvenance(ProductProvenanceRetriever const* provRetriever, ProductID const& pid) {
-      prov_.setProductID(pid);
-      prov_.setStore(provRetriever);
-    }
+    void setProvenance(ProductProvenanceRetriever const* provRetriever) { prov_.setStore(provRetriever); }
+
+    void setProductID(ProductID const& pid) { prov_.setProductID(pid); }
 
     void setMergeableRunProductMetadata(MergeableRunProductMetadataBase const* mrpm) {
       prov_.setMergeableRunProductMetadata(mrpm);
