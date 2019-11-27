@@ -87,7 +87,6 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
 
     SECTION("Joining multiple CUDA streams") {
       cudautils::ScopedSetDevice setDeviceForThisScope(defaultDevice);
-      auto current_device = cuda::device::current::get();
 
       // Mimick a producer on the first CUDA stream
       int h_a1 = 1;

@@ -1,6 +1,5 @@
 <use name="cub"/>
 <use name="cuda"/>
-<use name="cuda-api-wrappers"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
 

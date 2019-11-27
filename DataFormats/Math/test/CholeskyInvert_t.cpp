@@ -1,4 +1,4 @@
-// nvcc -O3 CholeskyDecomp_t.cu -Icuda-api-wrappers/src/ --expt-relaxed-constexpr -gencode arch=compute_61,code=sm_61 --compiler-options="-Ofast -march=native"
+// nvcc -O3 CholeskyDecomp_t.cu --expt-relaxed-constexpr -gencode arch=compute_61,code=sm_61 --compiler-options="-Ofast -march=native"
 // add -DDOPROF to run  nvprof --metrics all
 
 #include <algorithm>

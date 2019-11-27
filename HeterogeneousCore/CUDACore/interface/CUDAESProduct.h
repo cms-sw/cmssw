@@ -3,17 +3,16 @@
 
 #include <atomic>
 #include <cassert>
+#include <mutex>
 #include <vector>
-
-#include <cuda/api_wrappers.h>
 
 #include "FWCore/Concurrency/interface/hardware_pause.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/eventIsOccurred.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAEventCache.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/eventIsOccurred.h"
 
 template <typename T>
 class CUDAESProduct {

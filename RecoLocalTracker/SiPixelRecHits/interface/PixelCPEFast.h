@@ -3,8 +3,6 @@
 
 #include <utility>
 
-#include <cuda/api_wrappers.h>
-
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelGenError.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"

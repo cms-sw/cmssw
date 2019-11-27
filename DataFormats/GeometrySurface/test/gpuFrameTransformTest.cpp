@@ -70,7 +70,6 @@ int main(void) {
 
   SFrame sf1(f1.position().x(), f1.position().y(), f1.position().z(), f1.rotation());
 
-  // auto d_sf = cuda::memory::device::make_unique<SFrame[]>(current_device, 1);
   auto d_sf = cudautils::make_device_unique<char[]>(sizeof(SFrame), nullptr);
   cudaCheck(cudaMemcpy(d_sf.get(), &sf1, sizeof(SFrame), cudaMemcpyHostToDevice));
 

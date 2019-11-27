@@ -371,11 +371,6 @@ int CUDAService::deviceWithMostFreeMemory() const {
   size_t maxFreeMemory = 0;
   int device = -1;
   for (int i = 0; i < numberOfDevices_; ++i) {
-    /*
-    // TODO: understand why the api-wrappers version gives same value for all devices
-    auto device = cuda::device::get(i);
-    auto freeMemory = device.memory.amount_free();
-    */
     size_t freeMemory, totalMemory;
     cudaSetDevice(i);
     cudaMemGetInfo(&freeMemory, &totalMemory);

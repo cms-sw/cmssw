@@ -1,8 +1,6 @@
 #ifndef CalibTracker_SiPixelESProducers_interface_SiPixelGainCalibrationForHLTGPU_h
 #define CalibTracker_SiPixelESProducers_interface_SiPixelGainCalibrationForHLTGPU_h
 
-#include <cuda/api_wrappers.h>
-
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAESProduct.h"
 

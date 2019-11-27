@@ -1,19 +1,17 @@
 #ifndef HeterogeneousCore_CUDACore_CUDAScopedContext_h
 #define HeterogeneousCore_CUDACore_CUDAScopedContext_h
 
+#include <optional>
+
+#include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAContextState.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/SharedStreamPtr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/SharedEventPtr.h"
-
-#include <cuda/api_wrappers.h>
-
-#include <optional>
+#include "HeterogeneousCore/CUDAUtilities/interface/SharedStreamPtr.h"
 
 namespace cudatest {
   class TestCUDAScopedContext;
