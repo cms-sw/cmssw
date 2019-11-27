@@ -87,9 +87,7 @@ SiPixelGainCalibrationForHLTGPU::GPUData::~GPUData() {
 const SiPixelGainForHLTonGPU* SiPixelGainCalibrationForHLTGPU::getGPUProductAsync(cudaStream_t cudaStream) const {
   const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     cudaCheck(cudaMalloc((void**)&data.gainForHLTonGPU, sizeof(SiPixelGainForHLTonGPU)));
-    cudaCheck(
-        cudaMalloc((void**)&data.gainDataOnGPU,
-                   this->gains_->data().size()));  // TODO: this could be changed to cuda::memory::device::unique_ptr<>
+    cudaCheck(cudaMalloc((void**)&data.gainDataOnGPU, this->gains_->data().size()));
     // gains.data().data() is used also for non-GPU code, we cannot allocate it on aligned and write-combined memory
     cudaCheck(cudaMemcpyAsync(
         data.gainDataOnGPU, this->gains_->data().data(), this->gains_->data().size(), cudaMemcpyDefault, stream));
