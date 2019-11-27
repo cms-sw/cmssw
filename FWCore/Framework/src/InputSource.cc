@@ -274,7 +274,8 @@ namespace edm {
   }
 
   void InputSource::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
-    lumiPrincipal.fillLuminosityBlockPrincipal(processHistoryRegistry());
+    auto history = processHistoryRegistry().getMapped(lumiPrincipal.aux().processHistoryID());
+    lumiPrincipal.fillLuminosityBlockPrincipal(history);
   }
 
   void InputSource::readEvent(EventPrincipal& ep, StreamContext& streamContext) {

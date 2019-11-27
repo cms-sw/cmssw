@@ -361,7 +361,7 @@ namespace edm {
     bool deepCopyRetriever = false;
     ep.fillEventPrincipal(
         aux,
-        processHistoryRegistry,
+        &principal.processHistory(),
         std::move(esids),
         std::move(bli),
         *(principal.productProvenanceRetrieverPtr()),  //NOTE: this transfers the per product provenance
@@ -504,7 +504,7 @@ namespace edm {
     auto& processHistoryRegistry = processHistoryRegistries_[historyLumiOffset_ + lbpp->index()];
     inUseLumiPrincipals_[principal.index()] = lbpp;
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
-    lbpp->fillLuminosityBlockPrincipal(processHistoryRegistry, principal.reader());
+    lbpp->fillLuminosityBlockPrincipal(&principal.processHistory(), principal.reader());
     lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
     LuminosityBlockPrincipal& lbp = *lbpp;
     propagateProducts(InLumi, principal, lbp);

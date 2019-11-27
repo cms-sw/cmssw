@@ -43,7 +43,6 @@ namespace edm {
   class HistoryAppender;
   class MergeableRunProductMetadata;
   class ModuleCallingContext;
-  class ProcessHistoryRegistry;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class SharedResourcesAcquirer;
@@ -81,7 +80,7 @@ namespace edm {
 
     void adjustIndexesAfterProductRegistryAddition();
 
-    void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry const& phr, DelayedReader* reader);
+    void fillPrincipal(ProcessHistoryID const& hist, ProcessHistory const* phr, DelayedReader* reader);
 
     void clearPrincipal();
 
