@@ -3,8 +3,9 @@
 
 #include <memory>
 
-#include <cuda/api_wrappers.h>
 #include <cuda_runtime.h>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 namespace cudautils {
   namespace host {
@@ -13,7 +14,7 @@ namespace cudautils {
         // Additional layer of types to distinguish from host::unique_ptr
         class HostDeleter {
         public:
-          void operator()(void *ptr) { cuda::throw_if_error(cudaFreeHost(ptr)); }
+          void operator()(void *ptr) { cudaCheck(cudaFreeHost(ptr)); }
         };
       }  // namespace impl
 
@@ -47,7 +48,7 @@ namespace cudautils {
     static_assert(std::is_trivially_constructible<T>::value,
                   "Allocating with non-trivial constructor on the pinned host memory is not supported");
     void *mem;
-    cuda::throw_if_error(cudaHostAlloc(&mem, sizeof(T), flags));
+    cudaCheck(cudaHostAlloc(&mem, sizeof(T), flags));
     return
         typename cudautils::host::noncached::impl::make_host_unique_selector<T>::non_array(reinterpret_cast<T *>(mem));
   }
@@ -59,7 +60,7 @@ namespace cudautils {
     static_assert(std::is_trivially_constructible<element_type>::value,
                   "Allocating with non-trivial constructor on the pinned host memory is not supported");
     void *mem;
-    cuda::throw_if_error(cudaHostAlloc(&mem, n * sizeof(element_type), flags));
+    cudaCheck(cudaHostAlloc(&mem, n * sizeof(element_type), flags));
     return typename cudautils::host::noncached::impl::make_host_unique_selector<T>::unbounded_array(
         reinterpret_cast<element_type *>(mem));
   }

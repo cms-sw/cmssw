@@ -25,8 +25,7 @@ end
 #include <iostream>
 #include <memory>
 #include <random>
-
-#include "cuda/api_wrappers.h"
+#include <stdexcept>
 
 #ifdef __CUDACC__
 #define inline __host__ __device__ inline
@@ -189,8 +188,8 @@ int main() {
     go<USESIN>();
     go<USELOG>();
     go<USELOG, true>();
-  } catch (cuda::runtime_error &ex) {
-    std::cerr << "CUDA error: " << ex.what() << std::endl;
+  } catch (std::runtime_error &ex) {
+    std::cerr << "CUDA or std runtime error: " << ex.what() << std::endl;
     exit(EXIT_FAILURE);
   } catch (...) {
     std::cerr << "A non-CUDA error occurred" << std::endl;

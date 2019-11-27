@@ -25,8 +25,7 @@ end
 #include <iostream>
 #include <memory>
 #include <random>
-
-#include "cuda/api_wrappers.h"
+#include <stdexcept>
 
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
@@ -104,8 +103,8 @@ int main() {
     go<5>();
     go<7>();
     go<9>();
-  } catch (cuda::runtime_error &ex) {
-    std::cerr << "CUDA error: " << ex.what() << std::endl;
+  } catch (std::runtime_error &ex) {
+    std::cerr << "CUDA or std runtime error: " << ex.what() << std::endl;
     exit(EXIT_FAILURE);
   } catch (...) {
     std::cerr << "A non-CUDA error occurred" << std::endl;
