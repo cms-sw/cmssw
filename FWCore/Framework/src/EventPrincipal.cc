@@ -45,6 +45,12 @@ namespace edm {
         branchListIndexToProcessIndex_(),
         streamID_(streamIndex) {
     assert(thinnedAssociationsHelper_);
+
+    for (auto& prod : *this) {
+      if (prod->singleProduct()) {
+        prod->setProductProvenanceRetriever(productProvenanceRetrieverPtr());
+      }
+    }
   }
 
   void EventPrincipal::clearEventPrincipal() {
@@ -129,8 +135,7 @@ namespace edm {
 
         // NOTE:productProvenanceRetrieverPtr() always returns the same pointer
         auto const& bd = prod->branchDescription();
-        prod->setProvenance(productProvenanceRetrieverPtr(),
-                            branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
+        prod->setProductID(branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
       }
     }
   }
