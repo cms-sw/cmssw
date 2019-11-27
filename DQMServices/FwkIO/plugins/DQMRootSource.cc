@@ -272,10 +272,10 @@ namespace {
         // We make our own MEs here, to avoid a round-trip through the booking API.
         MonitorElementData meData;
         meData.key_ = key;
-          if (m_kind == MonitorElementData::Kind::INT)
-            meData.value_.scalar_.num = m_buffer;
-          else if (m_kind == MonitorElementData::Kind::REAL)
-            meData.value_.scalar_.real = m_buffer;
+        if (m_kind == MonitorElementData::Kind::INT)
+          meData.value_.scalar_.num = m_buffer;
+        else if (m_kind == MonitorElementData::Kind::REAL)
+          meData.value_.scalar_.real = m_buffer;
         auto me = new MonitorElement(std::move(meData));
         dqmstore->putME(me);
       }
@@ -446,9 +446,12 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   const int numFiles = m_catalog.fileNames().size();
   m_openFiles.reserve(numFiles);
 
-  // TODO: add support to fallback files: https://github.com/cms-sw/cmssw/pull/28064/files
-  for (auto& filename : m_catalog.fileNames()) {
+  for (auto& fileitem : m_catalog.fileCatalogItems()) {
+    auto filename = fileitem.fileName();
+    auto fallbackname = fileitem.fallbackFileName();
+    bool hasFallback = !fallbackname.empty() && fallbackname != filename;
     TFile* file;
+    std::list<std::string> originalInfo;
 
     // Try to open a file
     try {
@@ -461,27 +464,82 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
         std::rethrow_exception(e);
       }
 
-      m_openFiles.insert(m_openFiles.begin(), file);
     } catch (cms::Exception const& e) {
-      if (!m_skipBadFiles) {
-        edm::Exception ex(edm::errors::FileOpenError, "", e);
-        ex.addContext("Opening DQM Root file");
-        ex << "\nInput file " << filename << " was not found, could not be opened, or is corrupted.\n";
-        throw ex;
+      if (!hasFallback) {
+        if (m_skipBadFiles) {
+          continue;
+        } else {
+          edm::Exception ex(edm::errors::FileOpenError, "", e);
+          ex.addContext("Opening DQM Root file");
+          ex << "\nInput file " << filename << " was not found, could not be opened, or is corrupted.\n";
+          throw ex;
+        }
       }
+      originalInfo = e.additionalInfo();  // save in case of fallback error
     }
 
     // Check if a file is usable
-    if (!file->IsZombie()) {
+    if (file && !file->IsZombie()) {
       logFileAction("Successfully opened file ", filename.c_str());
     } else {
-      if (!m_skipBadFiles) {
-        edm::Exception ex(edm::errors::FileOpenError);
-        ex << "Input file " << filename.c_str() << " could not be opened.\n";
-        ex.addContext("Opening DQM Root file");
-        throw ex;
+      if (!hasFallback) {
+        if (!m_skipBadFiles) {
+          edm::Exception ex(edm::errors::FileOpenError);
+          ex << "Input file " << filename.c_str() << " could not be opened.\n";
+          ex.addContext("Opening DQM Root file");
+          throw ex;
+        }
+      }
+      if (file) {
+        delete file;
+        file = nullptr;
       }
     }
+
+    if (!file && hasFallback) {
+      logFileAction("  Initiating request to open fallback file ", fallbackname.c_str());
+      try {
+        {
+          TDirectory::TContext contextEraser;
+          file = TFile::Open(fallbackname.c_str());
+        }
+        std::exception_ptr e = edm::threadLocalException::getException();
+        if (e != std::exception_ptr()) {
+          edm::threadLocalException::setException(std::exception_ptr());
+          std::rethrow_exception(e);
+        }
+      } catch (cms::Exception const& e) {
+        if (m_skipBadFiles) {
+          continue;
+        } else {
+          edm::Exception ex(edm::errors::FileOpenError, "", e);
+          ex.addContext("Opening DQM Root file");
+          ex << "\nInput file " << filename << " and fallback input file " << fallbackname
+             << " were not found, could not be opened, or are corrupted.\n";
+          for (auto const& s : originalInfo) {
+            ex.addAdditionalInfo(s);
+          }
+          throw ex;
+        }
+      }
+      if (not file->IsZombie()) {
+        logFileAction("  Successfully opened fallback file ", fallbackname.c_str());
+      } else {
+        if (m_skipBadFiles) {
+          continue;
+        } else {
+          edm::Exception ex(edm::errors::FileOpenError);
+          ex << "Input file " << filename << " and fallback input file " << fallbackname << " could not be opened.\n";
+          ex.addContext("Opening DQM Root file");
+          for (auto const& s : originalInfo) {
+            ex.addAdditionalInfo(s);
+          }
+          throw ex;
+        }
+      }
+    }
+
+    m_openFiles.insert(m_openFiles.begin(), file);
 
     // Check file format version, which is encoded in the Title of the TFile
     if (strcmp(file->GetTitle(), "1") != 0) {
