@@ -4,12 +4,12 @@ import FWCore.ParameterSet.Config as cms
 from RecoCTPPS.ProtonReconstruction.ctppsProtons_cff import *
 
 # undo unapplicable settings
-del ctppsRPAlignmentCorrectionsDataESSourceXML
-del esPreferLocalAlignment
+#del ctppsRPAlignmentCorrectionsDataESSourceXML
+#del esPreferLocalAlignment
 
-ctppsOpticalFunctionsESSource.configuration = cms.VPSet()
-del ctppsOpticalFunctionsESSource
-del esPreferLocalOptics
+#ctppsOpticalFunctionsESSource.configuration = cms.VPSet()
+#del ctppsOpticalFunctionsESSource
+#del esPreferLocalOptics
 del ctppsInterpolatedOpticalFunctionsESSource
 
 # beam parameters as declared by LHC
