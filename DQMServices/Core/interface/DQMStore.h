@@ -452,6 +452,10 @@ namespace dqm {
       // return ME identified by full path `path`, or nullptr
       virtual MonitorElement* get(std::string const& fullpath) const;
 
+      // This is the most specific way to get a ME, specifying also run and
+      // lumi in the key. Primarily for internal use.
+      virtual MonitorElement* get(MonitorElementData::Key const& key) const;
+
       // same as get, throws an exception if histogram not found
       // Deprecated simply because it is barely used.
       DQM_DEPRECATED
