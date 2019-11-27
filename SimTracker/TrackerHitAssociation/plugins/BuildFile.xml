@@ -1,13 +1,10 @@
+<use name="cuda"/>
 <use name="Geometry/Records" />
 <use name="Geometry/TrackerGeometryBuilder" />
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
-<use name="HeterogeneousCore/Producer"/>
-<use name="HeterogeneousCore/Product"/>
 <use name="SimDataFormats/TrackingAnalysis" />
 <use name="SimTracker/TrackerHitAssociation" />
-
 <library file="*.cc *.cu" name="SimTrackerTrackerHitAssociationPlugins">
-  <use name="cuda"/>
   <flags EDM_PLUGIN="1"/>
 </library>

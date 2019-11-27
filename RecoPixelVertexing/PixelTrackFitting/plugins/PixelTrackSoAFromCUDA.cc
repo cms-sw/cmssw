@@ -2,22 +2,20 @@
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
+#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
-#include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
-
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 
 class PixelTrackSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:

@@ -1,11 +1,12 @@
 #ifndef CUDADataFormatsCommonHeterogeneousSoA_H
 #define CUDADataFormatsCommonHeterogeneousSoA_H
 
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include <cassert>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 // a heterogeneous unique pointer...
 template <typename T>
