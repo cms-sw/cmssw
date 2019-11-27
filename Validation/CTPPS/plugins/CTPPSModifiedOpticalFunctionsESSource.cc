@@ -23,8 +23,7 @@ public:
   std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> produce(const CTPPSInterpolatedOpticsRcd &);
 
 private:
-  std::string inputOpticsLabel_;
-  std::string outputOpticsLabel_;
+  edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> inputOpticsToken_;
 
   std::string scenario_;
 
@@ -37,15 +36,14 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSModifiedOpticalFunctionsESSource::CTPPSModifiedOpticalFunctionsESSource(const edm::ParameterSet &iConfig)
-    : inputOpticsLabel_(iConfig.getParameter<std::string>("inputOpticsLabel")),
-      outputOpticsLabel_(iConfig.getParameter<std::string>("outputOpticsLabel")),
-      scenario_(iConfig.getParameter<std::string>("scenario")),
+    : scenario_(iConfig.getParameter<std::string>("scenario")),
       factor_(iConfig.getParameter<double>("factor")),
       rpDecId_45_N_(iConfig.getParameter<unsigned int>("rpId_45_N")),
       rpDecId_45_F_(iConfig.getParameter<unsigned int>("rpId_45_F")),
       rpDecId_56_N_(iConfig.getParameter<unsigned int>("rpId_56_N")),
       rpDecId_56_F_(iConfig.getParameter<unsigned int>("rpId_56_F")) {
-  setWhatProduced(this, outputOpticsLabel_);
+  setWhatProduced(this, iConfig.getParameter<std::string>("outputOpticsLabel"))
+      .setConsumes(inputOpticsToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("inputOpticsLabel")));
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -73,12 +71,11 @@ void CTPPSModifiedOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationD
 std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSModifiedOpticalFunctionsESSource::produce(
     const CTPPSInterpolatedOpticsRcd &iRecord) {
   // get input
-  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hInput;
-  iRecord.get(inputOpticsLabel_, hInput);
+  LHCInterpolatedOpticalFunctionsSetCollection const &input = iRecord.get(inputOpticsToken_);
 
   // prepare output
   std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> output =
-      std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>(*hInput);
+      std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>(input);
 
   // premare arm/RP id map
   struct ArmInfo {
