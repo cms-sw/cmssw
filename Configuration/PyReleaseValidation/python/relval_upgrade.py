@@ -78,7 +78,9 @@ for year in upgradeKeys:
             if inclPremix:
                 # premixing stage1, only for NuGun
                 if info.dataset=="NuGun":
-                    workflows[numWF+upgradeWFs['Premix'].offset] = [info.dataset, stepList['Premix']]
+                    # The first element of the list sets the dataset name(?)
+                    datasetName = 'PREMIXUP' + key[2:].replace("PU", "").replace("Design", "") + '_PU25'
+                    workflows[numWF+upgradeWFs['Premix'].offset] = [datasetName, stepList['Premix']]
 
                 # premixing stage2
                 slist = []
