@@ -228,16 +228,16 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("ChargedCandidates", edm::InputTag("hltL3MuonCandidates"));
-  desc.add<edm::InputTag>("Tracks", edm::InputTag("hltL3Muons"));
-  desc.add<edm::InputTag>("EcalPFClusterIsoMap", edm::InputTag("hltMuonEcalPFClusterIsoForMuons"));
-  desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltMuonHcalPFClusterIsoForMuons"));
-  desc.add<edm::InputTag>("TrackIsoMap", edm::InputTag("hltMuonTkRelIsolationCut0p09Map:combinedRelativeIsoDeposits"));
-  desc.add<edm::InputTag>("displacedvertexCollection", edm::InputTag("hltDisplacedmumuVtxProducerDoubleMu3NoVtx"));
-  desc.add<double>("muonPtCut", 4.0);
+  desc.add<edm::InputTag>("ChargedCandidates", edm::InputTag("hltIterL3MuonCandidates"));
+  desc.add<edm::InputTag>("Tracks", edm::InputTag("hltPixelTracks"));
+  desc.add<edm::InputTag>("EcalPFClusterIsoMap", edm::InputTag("hltMuonEcalMFPFClusterIsoForMuons"));
+  desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltMuonHcalRegPFClusterIsoForMuons"));
+  desc.add<edm::InputTag>("TrackIsoMap", edm::InputTag("hltMuonTkRelIsolationCut0p07Map:combinedRelativeIsoDeposits"));
+  desc.add<edm::InputTag>("displacedvertexCollection", edm::InputTag("hltPixelVertices"));
+  desc.add<double>("muonPtCut", 3.0);
   desc.add<double>("muonEtaCut", 2.4);
   desc.add<double>("minVtxProbCut", 0.001);
-  desc.add<edm::InputTag>("InputLinks", edm::InputTag("hltL3MuonsIterL3LinksNoVtx"));
+  desc.add<edm::InputTag>("InputLinks", edm::InputTag("hltL3MuonsIterL3Links"));
 
   descriptions.add("hltScoutingMuonProducer", desc);
 }
