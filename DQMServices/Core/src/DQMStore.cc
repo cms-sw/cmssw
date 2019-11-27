@@ -455,7 +455,7 @@ namespace dqm::implementation {
   }
 
   MonitorElement* IGetter::get(MonitorElementData::Key const& key) const {
-    auto meset = store_->globalMEs_[key.id_];
+    auto const& meset = store_->globalMEs_[key.id_];
     auto it = meset.find(key.path_);
     if (it != meset.end()) {
       assert((*it)->getScope() == key.scope_);

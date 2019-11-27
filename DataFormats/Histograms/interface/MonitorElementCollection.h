@@ -181,7 +181,7 @@ struct MonitorElementData {
     void set(std::string path, Path::Type type) {
       std::string in(path);
       std::vector<std::string> buf;
-      std::regex dir("^/*([^/]+)");
+      static std::regex const dir("^/*([^/]+)");
       std::smatch m;
 
       while (std::regex_search(in, m, dir)) {
