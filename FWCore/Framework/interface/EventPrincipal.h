@@ -40,7 +40,6 @@ namespace edm {
   class StreamContext;
   class ThinnedAssociation;
   class ThinnedAssociationsHelper;
-  class ProcessHistoryRegistry;
   class RunPrincipal;
 
   class EventPrincipal : public Principal {
@@ -61,15 +60,15 @@ namespace edm {
     ~EventPrincipal() override {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            ProcessHistory const* processHistory,
                             DelayedReader* reader = nullptr);
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            ProcessHistory const* processHistory,
                             EventSelectionIDVector&& eventSelectionIDs,
                             BranchListIndexes&& branchListIndexes);
     //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            ProcessHistory const* processHistory,
                             EventSelectionIDVector&& eventSelectionIDs,
                             BranchListIndexes&& branchListIndexes,
                             ProductProvenanceRetriever const& provRetriever,

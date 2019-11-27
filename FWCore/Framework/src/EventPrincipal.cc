@@ -57,7 +57,7 @@ namespace edm {
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
-                                          ProcessHistoryRegistry const& processHistoryRegistry,
+                                          ProcessHistory const* processHistory,
                                           EventSelectionIDVector&& eventSelectionIDs,
                                           BranchListIndexes&& branchListIndexes,
                                           ProductProvenanceRetriever const& provRetriever,
@@ -74,11 +74,11 @@ namespace edm {
       // Add index into BranchIDListRegistry for products produced this process
       branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
     }
-    fillEventPrincipal(aux, processHistoryRegistry, reader);
+    fillEventPrincipal(aux, processHistory, reader);
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
-                                          ProcessHistoryRegistry const& processHistoryRegistry,
+                                          ProcessHistory const* processHistory,
                                           EventSelectionIDVector&& eventSelectionIDs,
                                           BranchListIndexes&& branchListIndexes) {
     eventSelectionIDs_ = std::move(eventSelectionIDs);
@@ -87,18 +87,18 @@ namespace edm {
       // Add index into BranchIDListRegistry for products produced this process
       branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
     }
-    fillEventPrincipal(aux, processHistoryRegistry, nullptr);
+    fillEventPrincipal(aux, processHistory, nullptr);
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
-                                          ProcessHistoryRegistry const& processHistoryRegistry,
+                                          ProcessHistory const* processHistory,
                                           DelayedReader* reader) {
     if (aux.event() == invalidEventNumber) {
       throw Exception(errors::LogicError) << "EventPrincipal::fillEventPrincipal, Invalid event number provided in "
                                              "EventAuxiliary, It is illegal for the event number to be 0\n";
     }
 
-    fillPrincipal(aux.processHistoryID(), processHistoryRegistry, reader);
+    fillPrincipal(aux.processHistoryID(), processHistory, reader);
     aux_ = aux;
     aux_.setProcessHistoryID(processHistoryID());
 
@@ -126,6 +126,8 @@ namespace edm {
         //  Under that condition, we want the ProductID to be the same as the original.
         //  If not, then we've internally changed the original BranchID to the alias BranchID
         //  in the ProductID lookup so we need the alias BranchID.
+
+        // NOTE:productProvenanceRetrieverPtr() always returns the same pointer
         auto const& bd = prod->branchDescription();
         prod->setProvenance(productProvenanceRetrieverPtr(),
                             branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
