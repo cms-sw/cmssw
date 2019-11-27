@@ -132,3 +132,9 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
         switch = cms.bool(False)
     )
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(digiMon,
+                       InnerPixelDigiSource = "mixData:Pixel",
+                       OuterTrackerDigiSource="mixData:Tracker"
+                                                                 )
