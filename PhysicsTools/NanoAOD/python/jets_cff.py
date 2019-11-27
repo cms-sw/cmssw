@@ -456,9 +456,6 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 		     doc="index of first subjet"),
         subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", int,
 		     doc="index of second subjet"),
-        nBHadrons=Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
-        nCHadrons=Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons"),
-
 
 #        btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="CMVA V2 btag discriminator",precision=10),
 #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
@@ -503,8 +500,6 @@ subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         tau4 = Var("userFloat('NjettinessAK8Subjets:tau4')",float, doc="Nsubjettiness (4 axis)",precision=10),
         n2b1 = Var("userFloat('nb1AK8PuppiSoftDropSubjets:ecfN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('nb1AK8PuppiSoftDropSubjets:ecfN3')", float, doc="N3 with beta=1", precision=10),
-        nBHadrons=Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
-        nCHadrons=Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons"),
     )
 )
 
@@ -616,6 +611,18 @@ genJetAK8FlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
     deltaR = cms.double(0.1),
     jetFlavourInfos = cms.InputTag("genJetAK8FlavourAssociation"),
 )
+fatJetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = fatJetTable.src,
+    cut = fatJetTable.cut,
+    name = fatJetTable.name,
+    singleton = cms.bool(False),
+    extension = cms.bool(True),
+    variables = cms.PSet(
+        nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
+        nCHadrons = Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons"),
+    )
+)
+
 genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
     cut = cms.string(""),  ## These don't get a pt cut, but in miniAOD only subjets from fat jets with pt > 100 are kept
@@ -627,6 +634,18 @@ genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
+subjetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = subJetTable.src,
+    cut = subJetTable.cut,
+    name = subJetTable.name,
+    singleton = cms.bool(False),
+    extension = cms.bool(True),
+    variables = cms.PSet(
+        nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
+        nCHadrons = Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons"),
+    )
+)
+
 ### Era dependent customization
 run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
@@ -645,7 +664,7 @@ run2_jme_2016.toReplaceWith(jetSequence, _jetSequence_2016)
 jetTables = cms.Sequence(bjetMVA+bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
-jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
+jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+fatJetMCTable+genSubJetAK8Table+subjetMCTable)
 _jetMC_pre94X = jetMC.copy()
 _jetMC_pre94X.insert(_jetMC_pre94X.index(genJetFlavourTable),genJetFlavourAssociation)
 _jetMC_pre94X.remove(genSubJetAK8Table)
