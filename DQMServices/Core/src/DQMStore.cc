@@ -450,8 +450,18 @@ namespace dqm::implementation {
     MonitorElementData::Path path;
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
     // this only really makes sense if there is only one instance of this ME,
-    // but the signature of this mthod also only makes sense in that case.
+    // but the signature of this method also only makes sense in that case.
     return store_->findME(path);
+  }
+
+  MonitorElement* IGetter::get(MonitorElementData::Key const& key) const {
+    auto meset = store_->globalMEs_[key.id_];
+    auto it = meset.find(key.path_);
+    if (it != meset.end()) {
+      assert((*it)->getScope() == key.scope_);
+      return *it;
+    }
+    return nullptr;
   }
 
   MonitorElement* IGetter::getElement(std::string const& path) const {

@@ -18,12 +18,14 @@
 #include "TTree.h"
 #include "TString.h"
 
-// user include files
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Sources/interface/PuttableSourceBase.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -47,6 +49,7 @@
 
 namespace {
   typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
 
   // TODO: this should probably be moved somewhere else
   class DQMMergeHelper {
@@ -89,7 +92,8 @@ namespace {
           edm::LogError("MergeFailure") << "Failed to merge DQM element " << original->GetName();
         }
       } else {
-        // TODO: Redo. What's wrong with this implementation?
+        // TODO: Redo. This is both more strict than what ROOT checks for yet
+        // allows cases where ROOT fails with merging.
         if (original->GetNbinsX() == toAdd->GetNbinsX() &&
             original->GetXaxis()->GetXmin() == toAdd->GetXaxis()->GetXmin() &&
             original->GetXaxis()->GetXmax() == toAdd->GetXaxis()->GetXmax() &&
@@ -110,8 +114,6 @@ namespace {
       }
     }
   };
-
-  using MonitorElementsFromFile = std::map<std::tuple<int, int>, std::vector<MonitorElementData*>>;
 
   // This struct allows to find all MEs belonging to a run-lumi pair
   // All files will be open at once so m_file property indicates the file where data is saved.
@@ -145,7 +147,7 @@ namespace {
     TreeReaderBase(MonitorElementData::Kind kind) : m_kind(kind) {}
     virtual ~TreeReaderBase() {}
 
-    virtual void read(ULong64_t iIndex, MonitorElementsFromFile& mesFromFile, int run, int lumi) = 0;
+    virtual void read(ULong64_t iIndex, DQMStore* dqmstore, int run, int lumi) = 0;
     virtual void setTree(TTree* iTree) = 0;
 
   protected:
@@ -163,7 +165,7 @@ namespace {
       assert(m_kind != MonitorElementData::Kind::STRING);
     }
 
-    void read(ULong64_t iIndex, MonitorElementsFromFile& mesFromFile, int run, int lumi) override {
+    void read(ULong64_t iIndex, DQMStore* dqmstore, int run, int lumi) override {
       // This will populate the fields as defined in setTree method
       m_tree->GetEntry(iIndex);
 
@@ -171,30 +173,19 @@ namespace {
       key.kind_ = m_kind;
       key.path_.set(*m_fullName, MonitorElementData::Path::Type::DIR_AND_NAME);
       key.scope_ = lumi == 0 ? MonitorElementData::Scope::RUN : MonitorElementData::Scope::LUMI;
-      // TODO: What should the range be for per run MEs? Now lumi will be 0 and not the max lumi for that run.
-      key.coveredrange_ = edm::LuminosityBlockRange(run, lumi, run, lumi);
+      key.id_ = edm::LuminosityBlockID(run, lumi);
 
-      std::vector<MonitorElementData*> runLumiMEs = mesFromFile[std::make_tuple(run, lumi)];
-      bool merged = false;
-      for (MonitorElementData* meData : runLumiMEs) {
-        if (meData->key_ == key) {
-          // Merge with already existing ME!
-          MonitorElementData::Value::Access value(meData->value_);
-          DQMMergeHelper::mergeTogether(value.object.get(), m_buffer);
-          merged = true;
-          break;
-        }
-      }
-
-      if (!merged) {
-        MonitorElementData* meData = new MonitorElementData();
-        meData->key_ = key;
-        {
-          MonitorElementData::Value::Access value(meData->value_);
-          value.object = std::unique_ptr<T>((T*)(m_buffer->Clone()));
-        }
-
-        mesFromFile[std::make_tuple(run, lumi)].push_back(meData);
+      auto existing = dqmstore->get(key);
+      if (existing) {
+        // TODO: make sure there is sufficient locking here.
+        DQMMergeHelper::mergeTogether(existing->getTH1(), m_buffer);
+      } else {
+        // We make our own MEs here, to avoid a round-trip through the booking API.
+        MonitorElementData meData;
+        meData.key_ = key;
+        meData.value_.object_ = std::unique_ptr<T>((T*)(m_buffer->Clone()));
+        auto me = new MonitorElement(std::move(meData));
+        dqmstore->putME(me);
       }
     }
 
@@ -219,7 +210,7 @@ namespace {
       assert(m_kind == MonitorElementData::Kind::STRING);
     }
 
-    void read(ULong64_t iIndex, MonitorElementsFromFile& mesFromFile, int run, int lumi) override {
+    void read(ULong64_t iIndex, DQMStore* dqmstore, int run, int lumi) override {
       // This will populate the fields as defined in setTree method
       m_tree->GetEntry(iIndex);
 
@@ -227,29 +218,18 @@ namespace {
       key.kind_ = m_kind;
       key.path_.set(*m_fullName, MonitorElementData::Path::Type::DIR_AND_NAME);
       key.scope_ = lumi == 0 ? MonitorElementData::Scope::RUN : MonitorElementData::Scope::LUMI;
-      key.coveredrange_ = edm::LuminosityBlockRange(run, lumi, run, lumi);
+      key.id_ = edm::LuminosityBlockID(run, lumi);
 
-      std::vector<MonitorElementData*> runLumiMEs = mesFromFile[std::make_tuple(run, lumi)];
-      bool merged = false;
-      for (MonitorElementData* meData : runLumiMEs) {
-        if (meData->key_ == key) {
-          // Keep the latest one
-          MonitorElementData::Value::Access value(meData->value_);
-          value.scalar.str = *m_value;
-          merged = true;
-          break;
-        }
-      }
-
-      if (!merged) {
-        MonitorElementData* meData = new MonitorElementData();
-        meData->key_ = key;
-        {
-          MonitorElementData::Value::Access value(meData->value_);
-          value.scalar.str = *m_value;
-        }
-
-        mesFromFile[std::make_tuple(run, lumi)].push_back(std::move(meData));
+      auto existing = dqmstore->get(key);
+      if (existing) {
+        existing->Fill(*m_value);
+      } else {
+        // We make our own MEs here, to avoid a round-trip through the booking API.
+        MonitorElementData meData;
+        meData.key_ = key;
+        meData.value_.scalar_.str = *m_value;
+        auto me = new MonitorElement(std::move(meData));
+        dqmstore->putME(me);
       }
     }
 
@@ -275,7 +255,7 @@ namespace {
       assert(m_kind == MonitorElementData::Kind::INT || m_kind == MonitorElementData::Kind::REAL);
     }
 
-    void read(ULong64_t iIndex, MonitorElementsFromFile& mesFromFile, int run, int lumi) override {
+    void read(ULong64_t iIndex, DQMStore* dqmstore, int run, int lumi) override {
       // This will populate the fields as defined in setTree method
       m_tree->GetEntry(iIndex);
 
@@ -283,35 +263,21 @@ namespace {
       key.kind_ = m_kind;
       key.path_.set(*m_fullName, MonitorElementData::Path::Type::DIR_AND_NAME);
       key.scope_ = lumi == 0 ? MonitorElementData::Scope::RUN : MonitorElementData::Scope::LUMI;
-      key.coveredrange_ = edm::LuminosityBlockRange(run, lumi, run, lumi);
+      key.id_ = edm::LuminosityBlockID(run, lumi);
 
-      std::vector<MonitorElementData*> runLumiMEs = mesFromFile[std::make_tuple(run, lumi)];
-      bool merged = false;
-      for (MonitorElementData* meData : runLumiMEs) {
-        if (meData->key_ == key) {
-          // Keep the latest one
-          MonitorElementData::Value::Access value(meData->value_);
+      auto existing = dqmstore->get(key);
+      if (existing) {
+        existing->Fill(m_buffer);
+      } else {
+        // We make our own MEs here, to avoid a round-trip through the booking API.
+        MonitorElementData meData;
+        meData.key_ = key;
           if (m_kind == MonitorElementData::Kind::INT)
-            value.scalar.num = m_buffer;
+            meData.value_.scalar_.num = m_buffer;
           else if (m_kind == MonitorElementData::Kind::REAL)
-            value.scalar.real = m_buffer;
-          merged = true;
-          break;
-        }
-      }
-
-      if (!merged) {
-        MonitorElementData* meData = new MonitorElementData();
-        meData->key_ = key;
-        {
-          MonitorElementData::Value::Access value(meData->value_);
-          if (m_kind == MonitorElementData::Kind::INT)
-            value.scalar.num = m_buffer;
-          else if (m_kind == MonitorElementData::Kind::REAL)
-            value.scalar.real = m_buffer;
-        }
-
-        mesFromFile[std::make_tuple(run, lumi)].push_back(std::move(meData));
+            meData.value_.scalar_.real = m_buffer;
+        auto me = new MonitorElement(std::move(meData));
+        dqmstore->putME(me);
       }
     }
 
@@ -355,7 +321,7 @@ private:
   void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) override;
   void readEvent_(edm::EventPrincipal&) override;
 
-  // Read MEs from m_fileMetadatas to m_MEsFromFile till run or lumi transition
+  // Read MEs from m_fileMetadatas to DQMStore  till run or lumi transition
   void readElements();
   // True if m_currentIndex points to an element that has a different
   // run or lumi than the previous element (a transition needs to happen).
@@ -364,7 +330,7 @@ private:
   void readNextItemType();
 
   // These methods will be called by the framework.
-  // MEs in m_MEsFromFile will be put to products.
+  // MEs in DQMStore  will be put to products.
   void beginRun(edm::Run& run);
   void beginLuminosityBlock(edm::LuminosityBlock& lumi);
 
@@ -394,8 +360,6 @@ private:
   unsigned int m_currentIndex;
   // All open DQMIO files
   std::vector<TFile*> m_openFiles;
-  // MEs read from files and merged if needed. Ready to be put into products
-  MonitorElementsFromFile m_MEsFromFile;
   // An item here is a row read from DQMIO indices (metadata) table
   std::vector<FileMetadata> m_fileMetadatas;
 };
@@ -438,7 +402,6 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_currentIndex(0),
       m_openFiles(std::vector<TFile*>()),
-      m_MEsFromFile(MonitorElementsFromFile()),
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
@@ -459,8 +422,8 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
     m_treeReaders[kTProfile2DIndex].reset(new TreeObjectReader<TProfile2D>(MonitorElementData::Kind::TPROFILE2D));
   }
 
-  produces<MonitorElementCollection, edm::Transition::BeginRun>("DQMGenerationRecoRun");
-  produces<MonitorElementCollection, edm::Transition::BeginLuminosityBlock>("DQMGenerationRecoLumi");
+  produces<DQMToken, edm::Transition::BeginRun>("DQMGenerationRecoRun");
+  produces<DQMToken, edm::Transition::BeginLuminosityBlock>("DQMGenerationRecoLumi");
 }
 
 DQMRootSource::~DQMRootSource() {
@@ -618,7 +581,7 @@ void DQMRootSource::readElements() {
     ULong64_t endIndex = metadata.m_lastIndex + 1;
 
     for (; index != endIndex; ++index) {
-      reader->read(index, m_MEsFromFile, metadata.m_run, metadata.m_lumi);
+      reader->read(index, edm::Service<DQMStore>().operator->(), metadata.m_run, metadata.m_lumi);
     }
   }
 }
@@ -658,42 +621,13 @@ void DQMRootSource::readNextItemType() {
 }
 
 void DQMRootSource::beginRun(edm::Run& run) {
-  TRACE("Begin run: " + std::to_string(run.run()))
-
-  std::unique_ptr<MonitorElementCollection> product = std::make_unique<MonitorElementCollection>();
-
-  auto mes = m_MEsFromFile[std::make_tuple(run.run(), 0)];
-
-  TRACE("Found MEs: " + std::to_string(mes.size()))
-
-  for (MonitorElementData* meData_ptr : mes) {
-    product->push_back(meData_ptr);
-  }
-
+  std::unique_ptr<DQMToken> product = std::make_unique<DQMToken>();
   run.put(std::move(product), "DQMGenerationRecoRun");
-
-  // Remove already processed MEs
-  m_MEsFromFile[std::make_tuple(run.run(), 0)] = std::vector<MonitorElementData*>();
 }
 
 void DQMRootSource::beginLuminosityBlock(edm::LuminosityBlock& lumi) {
-  TRACE("Begin lumi: " + std::to_string(lumi.luminosityBlock()))
-
-  std::unique_ptr<MonitorElementCollection> product = std::make_unique<MonitorElementCollection>();
-
-  auto mes = m_MEsFromFile[std::make_tuple(lumi.run(), lumi.luminosityBlock())];
-
-  TRACE("Found MEs: " + std::to_string(mes.size()))
-
-  for (MonitorElementData* meData_ptr : mes) {
-    assert(meData_ptr != nullptr);
-    product->push_back(meData_ptr);
-  }
-
+  std::unique_ptr<DQMToken> product = std::make_unique<DQMToken>();
   lumi.put(std::move(product), "DQMGenerationRecoLumi");
-
-  // Remove already processed MEs
-  m_MEsFromFile[std::make_tuple(lumi.run(), lumi.luminosityBlock())] = std::vector<MonitorElementData*>();
 }
 
 bool DQMRootSource::keepIt(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) const {
