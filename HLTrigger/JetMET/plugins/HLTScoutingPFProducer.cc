@@ -242,7 +242,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
 void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pfJetCollection", edm::InputTag("hltAK4PFJets"));
-  desc.add<edm::InputTag>("pfJetTagCollection", edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF"));
+  desc.add<edm::InputTag>("pfJetTagCollection", edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF"));
   desc.add<edm::InputTag>("pfCandidateCollection", edm::InputTag("hltParticleFlow"));
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
   desc.add<edm::InputTag>("metCollection", edm::InputTag("hltPFMETProducer"));
