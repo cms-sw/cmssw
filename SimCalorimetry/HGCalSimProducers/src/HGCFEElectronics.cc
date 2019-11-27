@@ -352,7 +352,6 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       if (toaMode_ == WEIGHTEDBYE)
         finalToA /= totalCharge;
     }
-
     newCharge[it] = (totalCharge - tdcOnset_fC_);
 
     if (debug)
