@@ -147,14 +147,14 @@ DDTruncTubs::DDTruncTubs(const DDFilteredView &fv) : valid{fv.isATruncTube()} {
     LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs cutAtDelta = " << params[6];
     LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs cutInside = " << params[7];
 
-    zHalf_      = params[0]; // This order determined by reading DD4hep source code
-    rIn_        = params[1];
-    rOut_       = params[2];
-    startPhi_   = params[3];
-    deltaPhi_   = params[4];
+    zHalf_ = params[0];  // This order determined by reading DD4hep source code
+    rIn_ = params[1];
+    rOut_ = params[2];
+    startPhi_ = params[3];
+    deltaPhi_ = params[4];
     cutAtStart_ = params[5];
     cutAtDelta_ = params[6];
-    cutInside_  = (params[7] != 0);
+    cutInside_ = (params[7] != 0);
 
     /* The git history of this file from before 2019-11-25 has code for converting
      * from the internal DD4hep parameters for a TruncatedTube to the eight parameters
