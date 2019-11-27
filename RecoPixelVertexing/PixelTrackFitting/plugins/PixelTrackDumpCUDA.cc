@@ -1,27 +1,25 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
-#include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-
-#include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 
 class PixelTrackDumpCUDA : public edm::global::EDAnalyzer<> {
 public:
