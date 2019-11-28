@@ -59,13 +59,12 @@ namespace edm {
     //do not clear luminosityBlockPrincipal_ since
     // it is only connected at beginLumi transition
     provRetrieverPtr_->reset();
-    branchListIndexToProcessIndex_.clear();
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
                                           ProcessHistory const* processHistory,
-                                          EventSelectionIDVector&& eventSelectionIDs,
-                                          BranchListIndexes&& branchListIndexes,
+                                          EventSelectionIDVector eventSelectionIDs,
+                                          BranchListIndexes branchListIndexes,
                                           ProductProvenanceRetriever const& provRetriever,
                                           DelayedReader* reader,
                                           bool deepCopyRetriever) {
@@ -75,30 +74,48 @@ namespace edm {
     } else {
       provRetrieverPtr_->mergeParentProcessRetriever(provRetriever);
     }
-    branchListIndexes_ = std::move(branchListIndexes);
-    if (branchIDListHelper_->hasProducedProducts()) {
-      // Add index into BranchIDListRegistry for products produced this process
-      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+    if (wasBranchListIndexesChangedFromInput(branchListIndexes)) {
+      if (branchIDListHelper_->hasProducedProducts()) {
+        // Add index into BranchIDListRegistry for products produced this process
+        branchListIndexes.push_back(branchIDListHelper_->producedBranchListIndex());
+      }
+      updateBranchListIndexes(std::move(branchListIndexes));
     }
-    fillEventPrincipal(aux, processHistory, reader);
+    commonFillEventPrincipal(aux, processHistory, reader);
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
                                           ProcessHistory const* processHistory,
-                                          EventSelectionIDVector&& eventSelectionIDs,
-                                          BranchListIndexes&& branchListIndexes) {
+                                          EventSelectionIDVector eventSelectionIDs,
+                                          BranchListIndexes branchListIndexes) {
     eventSelectionIDs_ = std::move(eventSelectionIDs);
-    branchListIndexes_ = std::move(branchListIndexes);
-    if (branchIDListHelper_->hasProducedProducts()) {
-      // Add index into BranchIDListRegistry for products produced this process
-      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+
+    if (wasBranchListIndexesChangedFromInput(branchListIndexes)) {
+      if (branchIDListHelper_->hasProducedProducts()) {
+        // Add index into BranchIDListRegistry for products produced this process
+        branchListIndexes.push_back(branchIDListHelper_->producedBranchListIndex());
+      }
+      updateBranchListIndexes(std::move(branchListIndexes));
     }
-    fillEventPrincipal(aux, processHistory, nullptr);
+    commonFillEventPrincipal(aux, processHistory, nullptr);
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
                                           ProcessHistory const* processHistory,
                                           DelayedReader* reader) {
+    if (branchListIndexes_.empty() and branchIDListHelper_->hasProducedProducts()) {
+      // Add index into BranchIDListRegistry for products produced this process
+      //  if it hasn't already been filled in by the other fillEventPrincipal or by an earlier call to this function
+      BranchListIndexes indexes;
+      indexes.push_back(branchIDListHelper_->producedBranchListIndex());
+      updateBranchListIndexes(std::move(indexes));
+    }
+    commonFillEventPrincipal(aux, processHistory, reader);
+  }
+
+  void EventPrincipal::commonFillEventPrincipal(EventAuxiliary const& aux,
+                                                ProcessHistory const* processHistory,
+                                                DelayedReader* reader) {
     if (aux.event() == invalidEventNumber) {
       throw Exception(errors::LogicError) << "EventPrincipal::fillEventPrincipal, Invalid event number provided in "
                                              "EventAuxiliary, It is illegal for the event number to be 0\n";
@@ -107,13 +124,21 @@ namespace edm {
     fillPrincipal(aux.processHistoryID(), processHistory, reader);
     aux_ = aux;
     aux_.setProcessHistoryID(processHistoryID());
+  }
 
-    if (branchListIndexes_.empty() and branchIDListHelper_->hasProducedProducts()) {
-      // Add index into BranchIDListRegistry for products produced this process
-      //  if it hasn't already been filled in by the other fillEventPrincipal or by an earlier call to this function
-      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+  bool EventPrincipal::wasBranchListIndexesChangedFromInput(BranchListIndexes const& fromInput) const {
+    //fromInput does not contain entries for what is being produced in this job.
+    auto end = branchListIndexes_.end();
+    if (end != branchListIndexes_.begin() and branchIDListHelper_->hasProducedProducts()) {
+      --end;
     }
 
+    return not std::equal(fromInput.begin(), fromInput.end(), branchListIndexes_.begin(), end);
+  }
+
+  void EventPrincipal::updateBranchListIndexes(BranchListIndexes&& branchListIndexes) {
+    branchListIndexes_ = std::move(branchListIndexes);
+    branchListIndexToProcessIndex_.clear();
     // Fill in helper map for Branch to ProductID mapping
     if (not branchListIndexes_.empty()) {
       ProcessIndex pix = 0;
@@ -133,7 +158,6 @@ namespace edm {
         //  If not, then we've internally changed the original BranchID to the alias BranchID
         //  in the ProductID lookup so we need the alias BranchID.
 
-        // NOTE:productProvenanceRetrieverPtr() always returns the same pointer
         auto const& bd = prod->branchDescription();
         prod->setProductID(branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
       }

@@ -64,13 +64,13 @@ namespace edm {
                             DelayedReader* reader = nullptr);
     void fillEventPrincipal(EventAuxiliary const& aux,
                             ProcessHistory const* processHistory,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes);
+                            EventSelectionIDVector eventSelectionIDs,
+                            BranchListIndexes branchListIndexes);
     //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
     void fillEventPrincipal(EventAuxiliary const& aux,
                             ProcessHistory const* processHistory,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes,
+                            EventSelectionIDVector eventSelectionIDs,
+                            BranchListIndexes branchListIndexes,
                             ProductProvenanceRetriever const& provRetriever,
                             DelayedReader* reader = nullptr,
                             bool deepCopyRetriever = true);
@@ -155,6 +155,12 @@ namespace edm {
       return get_underlying_safe(provRetrieverPtr_);
     }
     std::shared_ptr<ProductProvenanceRetriever>& provRetrieverPtr() { return get_underlying_safe(provRetrieverPtr_); }
+
+    bool wasBranchListIndexesChangedFromInput(BranchListIndexes const&) const;
+    void updateBranchListIndexes(BranchListIndexes&&);
+    void commonFillEventPrincipal(EventAuxiliary const& aux,
+                                  ProcessHistory const* processHistory,
+                                  DelayedReader* reader);
 
   private:
     EventAuxiliary aux_;
