@@ -89,7 +89,10 @@ def upload(files):
             print('Exception uploading a file: %s' % ex)
 
 def generate_summary_html(output_dir, pr_list, summary_dir):
-    template_file = open(os.path.join(os.getenv('CMSSW_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html'), 'r')
+    template_file_path = os.path.join(os.getenv('CMSSW_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html')
+    if not os.path.isfile(template_file_path):
+        template_file_path = os.path.join(os.getenv('CMSSW_RELEASE_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html')
+    template_file = open(template_file_path, 'r')
     result = template_file.read()
 
     result = result.replace('$PR_LIST$', pr_list)
