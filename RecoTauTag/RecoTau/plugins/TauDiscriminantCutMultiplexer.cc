@@ -381,7 +381,7 @@ void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValu
     desc.addVPSet("mapping", desc_mapping, vpsd_mapping);
   }
 
-  desc.add<std::vector<std::string>>("workingPoints");
+  desc.add<std::vector<std::string>>("workingPoints", std::vector<std::string>());
   desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
   desc.add<bool>("loadMVAfromDB", true);
   ParentClass::fillProducerDescriptions(desc);  // inherited from the base
