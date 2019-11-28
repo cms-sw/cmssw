@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
-hcalGlobalRecoSequence = cms.Sequence(hbhereco)
+hcalGlobalRecoTask = cms.Task(hbhereco)
+hcalGlobalRecoSequence = cms.Sequence(hcalGlobalRecoTask)
 
 from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
 
