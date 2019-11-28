@@ -384,11 +384,10 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
     return;
   std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, m_lumi));
   for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
-    if ((*it)->getLumiFlag()) {
-      std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
-      assert(itFound != m_dqmKindToTypeIndex.end());
-      m_treeHelpers[itFound->second]->fill(*it);
-    }
+    assert((*it)->getScope() == MonitorElementData::Scope::LUMI);
+    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
+    assert(itFound != m_dqmKindToTypeIndex.end());
+    m_treeHelpers[itFound->second]->fill(*it);
   }
 
   const edm::ProcessHistoryID& id = iLumi.processHistoryID();
@@ -441,11 +440,10 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun) {
 
   std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, 0));
   for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
-    if (not(*it)->getLumiFlag()) {
-      std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
-      assert(itFound != m_dqmKindToTypeIndex.end());
-      m_treeHelpers[itFound->second]->fill(*it);
-    }
+    assert((*it)->getScope() == MonitorElementData::Scope::RUN);
+    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
+    assert(itFound != m_dqmKindToTypeIndex.end());
+    m_treeHelpers[itFound->second]->fill(*it);
   }
 
   const edm::ProcessHistoryID& id = iRun.processHistoryID();

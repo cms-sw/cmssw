@@ -7,7 +7,8 @@ process.Tracer = cms.Service("Tracer")
 process.load('Configuration.StandardSequences.Services_cff')
 
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring('')
+    fileNames = cms.untracked.vstring(''),
+    reScope = cms.untracked.string("RUN")
 )
 
 process.options = cms.untracked.PSet(
@@ -36,6 +37,22 @@ process.options = cms.untracked.PSet(
     throwIfIllegalParameter = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(False)
 )
+process.out = cms.OutputModule(
+  "DQMRootOutputModule",
+   fileName = cms.untracked.string("harvesting_out.root"),
+   outputCommands = cms.untracked.vstring(
+     'keep *'
+   )
+)      
+process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
+    convention = cms.untracked.string('Offline'),
+    fileFormat = cms.untracked.string('ROOT'),
+    producer = cms.untracked.string('DQM'),
+    workflow = cms.untracked.string('/A/B/C'),
+    dirName = cms.untracked.string('.'),
+)
+process.o = cms.EndPath(process.out + process.dqmSaver)
+
 process.source.fileNames = cms.untracked.vstring(
   'file:_DoubleMuon_Run2018D-12Nov2019_UL2018-v2_DQMIO/3C5DD0BD-4370-AD40-BF5C-2FDCE02A327A.root',
   'file:_DoubleMuon_Run2018D-12Nov2019_UL2018-v2_DQMIO/E78D6DAD-556D-014F-84D4-B244EDE72106.root',
