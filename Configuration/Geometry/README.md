@@ -48,7 +48,7 @@ Several detector combinations have been generated:
 * D48 = T16+C9+M3+I10+O3+F2
 * D49 = T15+C9+M4+I10+O4+F2
 * D50 = T15+C9+M4+I11+O4+F2
-* D51 = T17+C9+M4+I11+O4+F2
-* D52 = T18+C9+M4+I11+O4+F2
+* D51 = T17+C9+M4+I10+O4+F2
+* D52 = T18+C9+M4+I10+O4+F2
 
 D35 is the MTD TDR baseline, D41 is the L1T TDR baseline, and D49 is the HLT TDR baseline.
