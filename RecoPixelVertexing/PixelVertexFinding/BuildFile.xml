@@ -1,19 +1,20 @@
-<flags EDM_PLUGIN="1"/>
+<use name="CUDADataFormats/Vertex"/>
+<use name="CommonTools/Clustering1D"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="DataFormats/GeometryCommonDetAlgo"/>
-<use name="CommonTools/Clustering1D"/>
-<use name="DataFormats/TrackReco"/>
-<use name="RecoPixelVertexing/PixelTriplets"/>
-<use name="RecoPixelVertexing/PixelTrackFitting"/>
-
-<use name="DataFormats/SiPixelCluster"/>
-<use name="DataFormats/JetReco"/>
-<use name="RecoLocalTracker/Records"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
-<use name="DataFormats/TrackerRecHit2D"/>
-
+<use name="RecoLocalTracker/Records"/>
+<use name="RecoPixelVertexing/PixelTrackFitting"/>
+<use name="RecoPixelVertexing/PixelTriplets"/>
+<flags EDM_PLUGIN="1"/>

@@ -11,6 +11,10 @@
 <use   name="root"/>
 <use   name="rootminuit"/>
 <use   name="eigen"/>
+<use   name="cuda"/>
+<use   name="CUDADataFormats/EcalRecHitSoA"/>
+<use   name="HeterogeneousCore/CUDAUtilities"/>
+<use   name="HeterogeneousCore/CUDACore"/>
 
 <export>
   <lib   name="1"/>
