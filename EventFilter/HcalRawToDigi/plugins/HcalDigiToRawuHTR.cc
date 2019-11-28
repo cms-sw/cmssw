@@ -48,8 +48,8 @@ public:
 
 private:
   int _verbosity;
-  int tdc_1;
-  int tdc_2;
+  int tdc1_;
+  int tdc2_;
   std::string electronicsMapLabel_;
 
   edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame> > tok_QIE10DigiCollection_;
@@ -63,8 +63,8 @@ private:
 
 HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
     : _verbosity(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      tdc_1(iConfig.getParameter<int>("tdc1")),
-      tdc_2(iConfig.getParameter<int>("tdc2")),
+      tdc1_(iConfig.getParameter<int>("tdc1")),
+      tdc2_(iConfig.getParameter<int>("tdc2")),
       electronicsMapLabel_(iConfig.getParameter<std::string>("ElectronicsMap")),
       tok_QIE10DigiCollection_(
           consumes<HcalDataFrameContainer<QIE10DataFrame> >(iConfig.getParameter<edm::InputTag>("QIE10"))),
@@ -150,7 +150,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
 
       //   convert to hb qie data if hb
       if (HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
-        qiedf = convertHB(qiedf, tdc_1, tdc_2);
+        qiedf = convertHB(qiedf, tdc1_, tdc2_);
 
       if (!uhtrs.exist(uhtrIndex)) {
         uhtrs.newUHTR(uhtrIndex, presamples);
