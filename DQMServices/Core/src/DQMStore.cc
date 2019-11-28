@@ -436,7 +436,7 @@ namespace dqm::implementation {
     path.set(pathname, MonitorElementData::Path::Type::DIR);
     // make sure this is normalized by getting it from Path object.
     auto path_str = path.getFullname();
-    auto meset = store_->globalMEs_[edm::LuminosityBlockID(runNumber, lumi)];
+    auto const& meset = store_->globalMEs_[edm::LuminosityBlockID(runNumber, lumi)];
     auto it = meset.lower_bound(path);
     // rfind can be used as a prefix match.
     while (it != meset.end() && (*it)->getFullname().rfind(path_str, 0) == 0) {
@@ -487,15 +487,22 @@ namespace dqm::implementation {
     // This is no more than a guess with concurrent runs/lumis, but should be
     // correct for purely sequential legacy stuff.
     // TODO: detect concurrent runs/lumis and disable legacy API in case?
-    ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) { this->setRunLumi(gc.luminosityBlockID()); });
-    ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) { this->setRunLumi(gc.luminosityBlockID()); });
-
-    // Delete/recycle MEs after output modules have run.
-    ar.watchPostGlobalEndRun(
-        [this](edm::GlobalContext const& gc) { this->cleanupLumi(gc.luminosityBlockID().run(), 0); });
-    ar.watchPostGlobalEndLumi([this](edm::GlobalContext const& gc) {
-      this->cleanupLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().value());
+    // TODO: There is no callback for "after the last output module wrote", so
+    // instead we infer that from seeing the next run/lumi. Won't work with
+    // concurrent runs/lumis.
+    ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) {
+      if (this->runlumi_.run() != 0) {
+        this->cleanupLumi(this->runlumi_.run(), 0);
+      }
+      this->setRunLumi(gc.luminosityBlockID());
     });
+    ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) {
+      if (this->runlumi_.luminosityBlock() != 0) {
+        this->cleanupLumi(this->runlumi_.run(), this->runlumi_.luminosityBlock());
+      }
+      this->setRunLumi(gc.luminosityBlockID());
+    });
+    // no cleanup at end of job, we don't really need it.
   }
 
   DQMStore::~DQMStore() {}

@@ -43,6 +43,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include "format.h"
@@ -630,6 +631,10 @@ void DQMRootSource::readRun_(edm::RunPrincipal& rpCache) {
   } while (!isRunOrLumiTransition());
 
   readNextItemType();
+
+  edm::Service<edm::JobReport> jr;
+  jr->reportInputRunNumber(rpCache.id().run());
+  rpCache.fillRunPrincipal(processHistoryRegistryForUpdate());
 }
 
 void DQMRootSource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) {
@@ -640,6 +645,10 @@ void DQMRootSource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache)
   } while (!isRunOrLumiTransition());
 
   readNextItemType();
+
+  edm::Service<edm::JobReport> jr;
+  jr->reportInputLumiSection(lbCache.id().run(), lbCache.id().luminosityBlock());
+  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
 }
 
 void DQMRootSource::readEvent_(edm::EventPrincipal&) {}
