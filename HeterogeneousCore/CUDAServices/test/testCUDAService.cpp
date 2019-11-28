@@ -111,16 +111,6 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
       WARN("Device with most free memory " << dev << "\n"
                                            << "     as given by CUDAService " << cs.deviceWithMostFreeMemory());
     }
-
-    SECTION("CUDAService set/get the current device") {
-      for (int i = 0; i < deviceCount; ++i) {
-        cs.setCurrentDevice(i);
-        int device = -1;
-        cudaGetDevice(&device);
-        REQUIRE(device == i);
-        REQUIRE(device == cs.getCurrentDevice());
-      }
-    }
   }
 
   SECTION("Force to be disabled") {

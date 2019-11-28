@@ -37,12 +37,6 @@ public:
   // Returns the id of device with most free memory. If none is found, returns -1.
   int deviceWithMostFreeMemory() const;
 
-  // Set the current device
-  void setCurrentDevice(int device) const;
-
-  // Get the current device
-  int getCurrentDevice() const;
-
 private:
   int numberOfDevices_ = 0;
   std::vector<std::pair<int, int>> computeCapabilities_;
