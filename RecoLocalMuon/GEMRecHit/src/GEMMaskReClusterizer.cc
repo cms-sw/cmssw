@@ -2,7 +2,6 @@
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
 #include "RecoLocalMuon/GEMRecHit/interface/GEMCluster.h"
-#include "RecoLocalMuon/GEMRecHit/interface/GEMClusterizer.h"
 #include "RecoLocalMuon/GEMRecHit/interface/GEMMaskReClusterizer.h"
 
 GEMClusterContainer GEMMaskReClusterizer::doAction(const GEMDetId& id,
