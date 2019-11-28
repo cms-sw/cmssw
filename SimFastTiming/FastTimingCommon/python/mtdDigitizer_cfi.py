@@ -33,6 +33,7 @@ _barrel_tile_MTDDigitizer = cms.PSet(
         SigmaElectronicNoise       = cms.double(1.),    # [p.e.]
         SigmaClock                 = cms.double(0.015), # [ns]
         CorrelationCoefficient     = cms.double(1.),
+        SmearTimeForOOTtails       = cms.bool(True),
         Npe_to_pC                  = cms.double(0.016), # [pC] 
         Npe_to_V                   = cms.double(0.0064),# [V] 
 
