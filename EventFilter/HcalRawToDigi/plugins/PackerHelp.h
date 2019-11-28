@@ -637,7 +637,7 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe, int tdc1, int tdc2, int tdcmax) {
       tdc = 0;
     else if (tdc > tdc1 && tdc <= tdc2)
       tdc = 1;
-    else if (tdc2 < tdcmax && tdc > tdc2 && tdc <= tdcmax)
+    else if (tdc > tdc2 && tdc <= tdcmax)
       tdc = 2;
     else
       tdc = 3;
