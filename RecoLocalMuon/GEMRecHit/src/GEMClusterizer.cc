@@ -1,6 +1,6 @@
 #include "RecoLocalMuon/GEMRecHit/interface/GEMClusterizer.h"
 
-GEMClusterContainer GEMClusterizer::doAction(const GEMDigiCollection::Range& digiRange) {
+GEMClusterContainer GEMClusterizer::doAction(const GEMDigiCollection::Range& digiRange, const EtaPartitionMask& mask) {
   GEMClusterContainer initialCluster, finalCluster;
   // Return empty container for null input
   if (std::distance(digiRange.second, digiRange.first) == 0)
@@ -8,6 +8,8 @@ GEMClusterContainer GEMClusterizer::doAction(const GEMDigiCollection::Range& dig
 
   // Start from single digi recHits
   for (auto digi = digiRange.first; digi != digiRange.second; ++digi) {
+    if (mask.test(digi->strip()))
+      continue;
     GEMCluster cl(digi->strip(), digi->strip(), digi->bx());
     initialCluster.insert(cl);
   }
