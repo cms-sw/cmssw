@@ -144,22 +144,43 @@ namespace {
 
   class TreeReaderBase {
   public:
-    TreeReaderBase(MonitorElementData::Kind kind) : m_kind(kind) {}
+    TreeReaderBase(MonitorElementData::Kind kind, MonitorElementData::Scope rescope)
+        : m_kind(kind), m_rescope(rescope) {}
     virtual ~TreeReaderBase() {}
 
+    MonitorElementData::Key makeKey(std::string const& fullname, int run, int lumi) {
+      MonitorElementData::Key key;
+      key.kind_ = m_kind;
+      key.path_.set(fullname, MonitorElementData::Path::Type::DIR_AND_NAME);
+      if (m_rescope == MonitorElementData::Scope::LUMI) {
+        // no rescoping
+        key.scope_ = lumi == 0 ? MonitorElementData::Scope::RUN : MonitorElementData::Scope::LUMI;
+        key.id_ = edm::LuminosityBlockID(run, lumi);
+      } else if (m_rescope == MonitorElementData::Scope::RUN) {
+        // everything becomes run, we'll never see Scope::JOB inside DQMIO files.
+        key.scope_ = MonitorElementData::Scope::RUN;
+        key.id_ = edm::LuminosityBlockID(run, 0);
+      } else if (m_rescope == MonitorElementData::Scope::JOB) {
+        // Everything is aggregated over the entire job.
+        key.scope_ = MonitorElementData::Scope::JOB;
+        key.id_ = edm::LuminosityBlockID(0, 0);
+      } else {
+        assert(!"Invalid Scope in rescope option.");
+      }
+      return key;
+    }
     virtual void read(ULong64_t iIndex, DQMStore* dqmstore, int run, int lumi) = 0;
     virtual void setTree(TTree* iTree) = 0;
 
   protected:
     MonitorElementData::Kind m_kind;
-    TTree* m_tree;
+    MonitorElementData::Scope m_rescope;
   };
 
   template <class T>
   class TreeObjectReader : public TreeReaderBase {
   public:
-    TreeObjectReader(MonitorElementData::Kind kind)
-        : TreeReaderBase(kind), m_tree(nullptr), m_fullName(nullptr), m_buffer(nullptr), m_tag(0) {
+    TreeObjectReader(MonitorElementData::Kind kind, MonitorElementData::Scope rescope) : TreeReaderBase(kind, rescope) {
       assert(m_kind != MonitorElementData::Kind::INT);
       assert(m_kind != MonitorElementData::Kind::REAL);
       assert(m_kind != MonitorElementData::Kind::STRING);
@@ -169,12 +190,7 @@ namespace {
       // This will populate the fields as defined in setTree method
       m_tree->GetEntry(iIndex);
 
-      MonitorElementData::Key key;
-      key.kind_ = m_kind;
-      key.path_.set(*m_fullName, MonitorElementData::Path::Type::DIR_AND_NAME);
-      key.scope_ = lumi == 0 ? MonitorElementData::Scope::RUN : MonitorElementData::Scope::LUMI;
-      key.id_ = edm::LuminosityBlockID(run, lumi);
-
+      auto key = makeKey(*m_fullName, run, lumi);
       auto existing = dqmstore->get(key);
       if (existing) {
         // TODO: make sure there is sufficient locking here.
@@ -197,16 +213,15 @@ namespace {
     }
 
   private:
-    TTree* m_tree;
-    std::string* m_fullName;
-    T* m_buffer;
-    uint32_t m_tag;
+    TTree* m_tree = nullptr;
+    std::string* m_fullName = nullptr;
+    T* m_buffer = nullptr;
+    uint32_t m_tag = 0;
   };
 
   class TreeStringReader : public TreeReaderBase {
   public:
-    TreeStringReader(MonitorElementData::Kind kind)
-        : TreeReaderBase(kind), m_tree(nullptr), m_fullName(nullptr), m_value(nullptr), m_tag(0) {
+    TreeStringReader(MonitorElementData::Kind kind, MonitorElementData::Scope rescope) : TreeReaderBase(kind, rescope) {
       assert(m_kind == MonitorElementData::Kind::STRING);
     }
 
@@ -214,13 +229,9 @@ namespace {
       // This will populate the fields as defined in setTree method
       m_tree->GetEntry(iIndex);
 
-      MonitorElementData::Key key;
-      key.kind_ = m_kind;
-      key.path_.set(*m_fullName, MonitorElementData::Path::Type::DIR_AND_NAME);
-      key.scope_ = lumi == 0 ? MonitorElementData::Scope::RUN : MonitorElementData::Scope::LUMI;
-      key.id_ = edm::LuminosityBlockID(run, lumi);
-
+      auto key = makeKey(*m_fullName, run, lumi);
       auto existing = dqmstore->get(key);
+
       if (existing) {
         existing->Fill(*m_value);
       } else {
@@ -241,17 +252,16 @@ namespace {
     }
 
   private:
-    TTree* m_tree;
-    std::string* m_fullName;
-    std::string* m_value;
-    uint32_t m_tag;
+    TTree* m_tree = nullptr;
+    std::string* m_fullName = nullptr;
+    std::string* m_value = nullptr;
+    uint32_t m_tag = 0;
   };
 
   template <class T>
   class TreeSimpleReader : public TreeReaderBase {
   public:
-    TreeSimpleReader(MonitorElementData::Kind kind)
-        : TreeReaderBase(kind), m_tree(nullptr), m_fullName(nullptr), m_buffer(0), m_tag(0) {
+    TreeSimpleReader(MonitorElementData::Kind kind, MonitorElementData::Scope rescope) : TreeReaderBase(kind, rescope) {
       assert(m_kind == MonitorElementData::Kind::INT || m_kind == MonitorElementData::Kind::REAL);
     }
 
@@ -259,13 +269,9 @@ namespace {
       // This will populate the fields as defined in setTree method
       m_tree->GetEntry(iIndex);
 
-      MonitorElementData::Key key;
-      key.kind_ = m_kind;
-      key.path_.set(*m_fullName, MonitorElementData::Path::Type::DIR_AND_NAME);
-      key.scope_ = lumi == 0 ? MonitorElementData::Scope::RUN : MonitorElementData::Scope::LUMI;
-      key.id_ = edm::LuminosityBlockID(run, lumi);
-
+      auto key = makeKey(*m_fullName, run, lumi);
       auto existing = dqmstore->get(key);
+
       if (existing) {
         existing->Fill(m_buffer);
       } else {
@@ -289,10 +295,10 @@ namespace {
     }
 
   private:
-    TTree* m_tree;
-    std::string* m_fullName;
-    T m_buffer;
-    uint32_t m_tag;
+    TTree* m_tree = nullptr;
+    std::string* m_fullName = nullptr;
+    T m_buffer = 0;
+    uint32_t m_tag = 0;
   };
 
 }  // namespace
@@ -351,6 +357,7 @@ private:
   unsigned int m_filterOnRun;
   edm::InputFileCatalog m_catalog;
   std::vector<edm::LuminosityBlockRange> m_lumisToProcess;
+  MonitorElementData::Scope m_rescope;
 
   edm::InputSource::ItemType m_nextItemType;
   // Each ME type gets its own reader
@@ -376,6 +383,10 @@ void DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<std::string>>("fileNames")->setComment("Names of files to be processed.");
   desc.addUntracked<unsigned int>("filterOnRun", 0)->setComment("Just limit the process to the selected run.");
+  desc.addUntracked<std::string>("reScope", "")
+      ->setComment(
+          "Accumulate histograms more coarsely."
+          " Options: \"RUN\": turn LUMI histograms into RUN histograms, \"JOB\": turn everything into JOB histograms.");
   desc.addUntracked<bool>("skipBadFiles", false)->setComment("Skip the file if it is not valid");
   desc.addUntracked<std::string>("overrideCatalog", std::string())
       ->setComment("An alternate file catalog to use instead of the standard site one.");
@@ -398,6 +409,11 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
                 iPSet.getUntrackedParameter<std::string>("overrideCatalog")),
       m_lumisToProcess(iPSet.getUntrackedParameter<std::vector<edm::LuminosityBlockRange>>(
           "lumisToProcess", std::vector<edm::LuminosityBlockRange>())),
+      m_rescope(std::map<std::string, MonitorElementData::Scope>{
+          {"", MonitorElementData::Scope::LUMI},
+          {"LUMI", MonitorElementData::Scope::LUMI},
+          {"RUN", MonitorElementData::Scope::RUN},
+          {"JOB", MonitorElementData::Scope::JOB}}[iPSet.getUntrackedParameter<std::string>("reScope", "")]),
       m_nextItemType(edm::InputSource::IsFile),
       m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_currentIndex(0),
@@ -408,18 +424,19 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
   if (m_catalog.fileNames().size() == 0) {
     m_nextItemType = edm::InputSource::IsStop;
   } else {
-    m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>(MonitorElementData::Kind::INT));
-    m_treeReaders[kFloatIndex].reset(new TreeSimpleReader<double>(MonitorElementData::Kind::REAL));
-    m_treeReaders[kStringIndex].reset(new TreeStringReader(MonitorElementData::Kind::STRING));
-    m_treeReaders[kTH1FIndex].reset(new TreeObjectReader<TH1F>(MonitorElementData::Kind::TH1F));
-    m_treeReaders[kTH1SIndex].reset(new TreeObjectReader<TH1S>(MonitorElementData::Kind::TH1S));
-    m_treeReaders[kTH1DIndex].reset(new TreeObjectReader<TH1D>(MonitorElementData::Kind::TH1D));
-    m_treeReaders[kTH2FIndex].reset(new TreeObjectReader<TH2F>(MonitorElementData::Kind::TH2F));
-    m_treeReaders[kTH2SIndex].reset(new TreeObjectReader<TH2S>(MonitorElementData::Kind::TH2S));
-    m_treeReaders[kTH2DIndex].reset(new TreeObjectReader<TH2D>(MonitorElementData::Kind::TH2D));
-    m_treeReaders[kTH3FIndex].reset(new TreeObjectReader<TH3F>(MonitorElementData::Kind::TH3F));
-    m_treeReaders[kTProfileIndex].reset(new TreeObjectReader<TProfile>(MonitorElementData::Kind::TPROFILE));
-    m_treeReaders[kTProfile2DIndex].reset(new TreeObjectReader<TProfile2D>(MonitorElementData::Kind::TPROFILE2D));
+    m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>(MonitorElementData::Kind::INT, m_rescope));
+    m_treeReaders[kFloatIndex].reset(new TreeSimpleReader<double>(MonitorElementData::Kind::REAL, m_rescope));
+    m_treeReaders[kStringIndex].reset(new TreeStringReader(MonitorElementData::Kind::STRING, m_rescope));
+    m_treeReaders[kTH1FIndex].reset(new TreeObjectReader<TH1F>(MonitorElementData::Kind::TH1F, m_rescope));
+    m_treeReaders[kTH1SIndex].reset(new TreeObjectReader<TH1S>(MonitorElementData::Kind::TH1S, m_rescope));
+    m_treeReaders[kTH1DIndex].reset(new TreeObjectReader<TH1D>(MonitorElementData::Kind::TH1D, m_rescope));
+    m_treeReaders[kTH2FIndex].reset(new TreeObjectReader<TH2F>(MonitorElementData::Kind::TH2F, m_rescope));
+    m_treeReaders[kTH2SIndex].reset(new TreeObjectReader<TH2S>(MonitorElementData::Kind::TH2S, m_rescope));
+    m_treeReaders[kTH2DIndex].reset(new TreeObjectReader<TH2D>(MonitorElementData::Kind::TH2D, m_rescope));
+    m_treeReaders[kTH3FIndex].reset(new TreeObjectReader<TH3F>(MonitorElementData::Kind::TH3F, m_rescope));
+    m_treeReaders[kTProfileIndex].reset(new TreeObjectReader<TProfile>(MonitorElementData::Kind::TPROFILE, m_rescope));
+    m_treeReaders[kTProfile2DIndex].reset(
+        new TreeObjectReader<TProfile2D>(MonitorElementData::Kind::TPROFILE2D, m_rescope));
   }
 
   produces<DQMToken, edm::Transition::BeginRun>("DQMGenerationRecoRun");
