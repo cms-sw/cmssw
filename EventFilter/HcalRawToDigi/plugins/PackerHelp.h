@@ -616,7 +616,7 @@ public:
 
 // converts HE QIE digies to HB data format
 
-QIE11DataFrame convertHB(QIE11DataFrame qiehe, int tdc1, int tdc2) {
+QIE11DataFrame convertHB(QIE11DataFrame qiehe, int tdc1, int tdc2, int tdcmax) {
   QIE11DataFrame qiehb = qiehe;
   int adc, tdc;
   bool soi;
@@ -637,7 +637,7 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe, int tdc1, int tdc2) {
       tdc = 0;
     else if (tdc > tdc1 && tdc <= tdc2)
       tdc = 1;
-    else if (tdc2 < 49 && tdc > tdc2 && tdc <= 49)
+    else if (tdc2 < tdcmax && tdc > tdc2 && tdc <= tdcmax)
       tdc = 2;
     else
       tdc = 3;

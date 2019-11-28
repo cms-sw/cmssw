@@ -50,6 +50,7 @@ private:
   int _verbosity;
   int tdc1_;
   int tdc2_;
+  static constexpr int tdcmax_ = 49;
   std::string electronicsMapLabel_;
 
   edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame> > tok_QIE10DigiCollection_;
@@ -75,6 +76,8 @@ HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
       tok_TPDigiCollection_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("TP"))),
       premix_(iConfig.getParameter<bool>("premix")) {
   produces<FEDRawDataCollection>("");
+  if (!(tdc1_ >= 0 && tdc1_ <= tdc2_ && tdc2_ <= tdcmax_))
+    edm::LogWarning("HcalDigiToRawuHTR") << " incorrect TDC ranges " << tdc1_ << ", " << tdc2_ << ", " << tdcmax_;
 }
 
 HcalDigiToRawuHTR::~HcalDigiToRawuHTR() {}
@@ -150,7 +153,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
 
       //   convert to hb qie data if hb
       if (HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
-        qiedf = convertHB(qiedf, tdc1_, tdc2_);
+        qiedf = convertHB(qiedf, tdc1_, tdc2_, tdcmax_);
 
       if (!uhtrs.exist(uhtrIndex)) {
         uhtrs.newUHTR(uhtrIndex, presamples);
