@@ -461,12 +461,10 @@ void CTPPSProtonReconstructionPlotter::CalculateTimingTrackingDistance(const rec
   const double z_j = geometry.rpTranslation(tr_j.rpId()).z();
 
   // interpolation from tracking RPs
-  const double z_ti =
-      -geometry.rpTranslation(tr_ti.rpId()).z();  // the minus sign fixes a bug in the diamond geometry
+  const double z_ti = -geometry.rpTranslation(tr_ti.rpId()).z();  // the minus sign fixes a bug in the diamond geometry
   const double f_i = (z_ti - z_j) / (z_i - z_j), f_j = (z_i - z_ti) / (z_i - z_j);
   const double x_inter = f_i * tr_i.x() + f_j * tr_j.x();
-  const double x_inter_unc_sq =
-      f_i * f_i * tr_i.xUnc() * tr_i.xUnc() + f_j * f_j * tr_j.xUnc() * tr_j.xUnc();
+  const double x_inter_unc_sq = f_i * f_i * tr_i.xUnc() * tr_i.xUnc() + f_j * f_j * tr_j.xUnc() * tr_j.xUnc();
 
   // save distance
   de_x = tr_ti.x() - x_inter;

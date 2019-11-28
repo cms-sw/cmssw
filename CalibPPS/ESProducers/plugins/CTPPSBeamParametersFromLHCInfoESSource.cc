@@ -55,15 +55,15 @@ CTPPSBeamParametersFromLHCInfoESSource::CTPPSBeamParametersFromLHCInfoESSource(c
   defaultParameters_.setVtxStddevY(iConfig.getParameter<double>("vtxStddevY"));
   defaultParameters_.setVtxStddevZ(iConfig.getParameter<double>("vtxStddevZ"));
 
-  setWhatProduced(this)
-      .setConsumes(lhcInfoToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")));
+  setWhatProduced(this).setConsumes(lhcInfoToken_,
+                                    edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")));
 }
 
 //----------------------------------------------------------------------------------------------------
 
 std::unique_ptr<CTPPSBeamParameters> CTPPSBeamParametersFromLHCInfoESSource::produce(
     const CTPPSBeamParametersRcd& iRecord) {
-  LHCInfo const &lhcInfo = iRecord.get(lhcInfoToken_);
+  LHCInfo const& lhcInfo = iRecord.get(lhcInfoToken_);
 
   auto bp = std::make_unique<CTPPSBeamParameters>(defaultParameters_);
 
