@@ -53,7 +53,7 @@ process.localreco = cms.Sequence(muonlocalreco)
 
 #????
 #process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-#process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+#process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 #process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 #process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff')
 

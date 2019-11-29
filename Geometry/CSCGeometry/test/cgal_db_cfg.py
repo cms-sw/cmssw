@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GeometryTest")
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
 process.GlobalTag.globaltag = 'MC_61_V2::All'
