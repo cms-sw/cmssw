@@ -21,15 +21,21 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  std::string cablingMapLabel_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
+  edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> qualityToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
   bool useQuality_;
 };
 
 SiPixelFedCablingMapGPUWrapperESProducer::SiPixelFedCablingMapGPUWrapperESProducer(const edm::ParameterSet& iConfig)
-    : cablingMapLabel_(iConfig.getParameter<std::string>("CablingMapLabel")),
-      useQuality_(iConfig.getParameter<bool>("UseQualityInfo")) {
-  std::string myname = iConfig.getParameter<std::string>("ComponentName");
-  setWhatProduced(this, myname);
+    : useQuality_(iConfig.getParameter<bool>("UseQualityInfo")) {
+  std::string component = iConfig.getParameter<std::string>("ComponentName");
+  auto cc = setWhatProduced(this, component);
+  cc.setConsumes(cablingMapToken_, edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingMapLabel")});
+  if (useQuality_) {
+    cc.setConsumes(qualityToken_);
+  }
+  cc.setConsumes(geometryToken_);
 }
 
 void SiPixelFedCablingMapGPUWrapperESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -45,18 +51,15 @@ void SiPixelFedCablingMapGPUWrapperESProducer::fillDescriptions(edm::Configurati
 
 std::unique_ptr<SiPixelFedCablingMapGPUWrapper> SiPixelFedCablingMapGPUWrapperESProducer::produce(
     const CkfComponentsRecord& iRecord) {
-  edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-  iRecord.getRecord<SiPixelFedCablingMapRcd>().get(cablingMapLabel_, cablingMap);
+  auto cablingMap = iRecord.getTransientHandle(cablingMapToken_);
 
   const SiPixelQuality* quality = nullptr;
   if (useQuality_) {
-    edm::ESTransientHandle<SiPixelQuality> qualityInfo;
-    iRecord.getRecord<SiPixelQualityRcd>().get(qualityInfo);
+    auto qualityInfo = iRecord.getTransientHandle(qualityToken_);
     quality = qualityInfo.product();
   }
 
-  edm::ESTransientHandle<TrackerGeometry> geom;
-  iRecord.getRecord<TrackerDigiGeometryRecord>().get(geom);
+  auto geom = iRecord.getTransientHandle(geometryToken_);
 
   return std::make_unique<SiPixelFedCablingMapGPUWrapper>(*cablingMap, *geom, quality);
 }

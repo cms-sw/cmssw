@@ -57,9 +57,11 @@ private:
 
   CUDAContextState ctxState_;
 
-  edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
+  edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher_;
+  edm::ESGetToken<SiPixelFedCablingMapGPUWrapper, CkfComponentsRecord> gpuMapToken_;
+  edm::ESGetToken<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd> gainsToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 
-  std::string cablingMapLabel_;
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
   std::vector<unsigned int> fedIds_;
   const SiPixelFedCablingMap* cablingMap_ = nullptr;
@@ -78,7 +80,10 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
     : rawGetToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"))),
       digiPutToken_(produces<CUDAProduct<SiPixelDigisCUDA>>()),
       clusterPutToken_(produces<CUDAProduct<SiPixelClustersCUDA>>()),
-      cablingMapLabel_(iConfig.getParameter<std::string>("CablingMapLabel")),
+      gpuMapToken_(esConsumes<SiPixelFedCablingMapGPUWrapper, CkfComponentsRecord>()),
+      gainsToken_(esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>()),
+      cablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
       useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
       usePilotBlade_(iConfig.getParameter<bool>("UsePilotBlade"))  // Control the usage of pilot-blade data, FED=40
@@ -125,8 +130,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
                                       edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   CUDAScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
 
-  edm::ESHandle<SiPixelFedCablingMapGPUWrapper> hgpuMap;
-  iSetup.get<CkfComponentsRecord>().get(hgpuMap);
+  auto hgpuMap = iSetup.getHandle(gpuMapToken_);
   if (hgpuMap->hasQuality() != useQuality_) {
     throw cms::Exception("LogicError")
         << "UseQuality of the module (" << useQuality_
@@ -135,8 +139,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
   // get the GPU product already here so that the async transfer can begin
   const auto* gpuMap = hgpuMap->getGPUProductAsync(ctx.stream());
 
-  edm::ESHandle<SiPixelGainCalibrationForHLTGPU> hgains;
-  iSetup.get<SiPixelGainCalibrationForHLTGPURcd>().get(hgains);
+  auto hgains = iSetup.getHandle(gainsToken_);
   // get the GPU product already here so that the async transfer can begin
   const auto* gpuGains = hgains->getGPUProductAsync(ctx.stream());
 
@@ -155,10 +158,9 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
   }
 
   // initialize cabling map or update if necessary
-  if (recordWatcher.check(iSetup)) {
+  if (recordWatcher_.check(iSetup)) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
-    edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel_, cablingMap);  //Tav
+    auto cablingMap = iSetup.getTransientHandle(cablingMapToken_);
     cablingMap_ = cablingMap.product();
     fedIds_ = cablingMap->fedIds();
     cabling_ = cablingMap->cablingTree();

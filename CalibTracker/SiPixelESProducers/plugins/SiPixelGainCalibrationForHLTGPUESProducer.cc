@@ -20,10 +20,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  edm::ESGetToken<SiPixelGainCalibrationForHLT, SiPixelGainCalibrationForHLTRcd> gainsToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
 };
 
 SiPixelGainCalibrationForHLTGPUESProducer::SiPixelGainCalibrationForHLTGPUESProducer(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(gainsToken_).setConsumes(geometryToken_);
 }
 
 void SiPixelGainCalibrationForHLTGPUESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -33,12 +35,8 @@ void SiPixelGainCalibrationForHLTGPUESProducer::fillDescriptions(edm::Configurat
 
 std::unique_ptr<SiPixelGainCalibrationForHLTGPU> SiPixelGainCalibrationForHLTGPUESProducer::produce(
     const SiPixelGainCalibrationForHLTGPURcd& iRecord) {
-  edm::ESHandle<SiPixelGainCalibrationForHLT> gains;
-  iRecord.getRecord<SiPixelGainCalibrationForHLTRcd>().get(gains);
-
-  edm::ESHandle<TrackerGeometry> geom;
-  iRecord.getRecord<TrackerDigiGeometryRecord>().get(geom);
-
+  auto gains = iRecord.getHandle(gainsToken_);
+  auto geom = iRecord.getHandle(geometryToken_);
   return std::make_unique<SiPixelGainCalibrationForHLTGPU>(*gains, *geom);
 }
 

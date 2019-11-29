@@ -41,7 +41,9 @@ public:
                const SiPixelGenErrorDBObject *,
                const SiPixelLorentzAngle *);
 
-  ~PixelCPEFast() override;
+  ~PixelCPEFast() override = default;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   // The return value can only be used safely in kernels launched on
   // the same cudaStream, or after cudaStreamSynchronize.
