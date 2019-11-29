@@ -247,7 +247,8 @@ void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
 TrackerGeometry::ModuleType TrackerGeometry::getDetectorType(DetId detid) const {
   for (auto iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
-    if (detid.rawId() <=  detid_max.rawId()) return std::get<1>(iVal);
+    if (detid.rawId() <= detid_max.rawId())
+      return std::get<1>(iVal);
     // don't get unless necessary...  idr 12/6/19
   }
   return TrackerGeometry::ModuleType::UNKNOWN;

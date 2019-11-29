@@ -26,34 +26,34 @@
 #include <map>
 #include <typeinfo>
 
-template< typename T >
-class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
-{
-  private:
-    /// Data members
-    bool        mPerformZMatching2S;
-    std::string className_;
+template <typename T>
+class TTStubAlgorithm_cbc3 : public TTStubAlgorithm<T> {
+private:
+  /// Data members
+  bool mPerformZMatching2S;
+  std::string className_;
 
-  public:
-    /// Constructor
-    TTStubAlgorithm_cbc3( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo, bool aPerformZMatching2S ): 
-                     TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
-    {
-      mPerformZMatching2S = aPerformZMatching2S;
-    }
+public:
+  /// Constructor
+  TTStubAlgorithm_cbc3(const TrackerGeometry *const theTrackerGeom,
+                       const TrackerTopology *const theTrackerTopo,
+                       bool aPerformZMatching2S)
+      : TTStubAlgorithm<T>(theTrackerGeom, theTrackerTopo, __func__) {
+    mPerformZMatching2S = aPerformZMatching2S;
+  }
 
-    /// Destructor
-    ~TTStubAlgorithm_cbc3() override{}
+  /// Destructor
+  ~TTStubAlgorithm_cbc3() override {}
 
-    /// Matching operations
-    void PatternHitCorrelation( bool &aConfirmation,
-                                int &aDisplacement,
-                                int &anOffset,
-				float &anHardBend,
-                                const TTStub< T > &aTTStub ) const override;
+  /// Matching operations
+  void PatternHitCorrelation(bool &aConfirmation,
+                             int &aDisplacement,
+                             int &anOffset,
+                             float &anHardBend,
+                             const TTStub<T> &aTTStub) const override;
   // Removed real offset.  Ivan Reid 10/2019
 
-}; /// Close class
+};  /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
@@ -63,12 +63,13 @@ class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
  */
 
 /// Matching operations
-template< >
-void TTStubAlgorithm_cbc3< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
-                                                                    int &aDisplacement,
-                                                                    int &anOffset,
-								    float &anHardBend,
-                                                                    const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
+template <>
+void TTStubAlgorithm_cbc3<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
+    bool &aConfirmation,
+    int &aDisplacement,
+    int &anOffset,
+    float &anHardBend,
+    const TTStub<Ref_Phase2TrackerDigi_> &aTTStub) const;
 
 /*! \class   ES_TTStubAlgorithm_cbc3
  *  \brief   Class to declare the algorithm to the framework
