@@ -2,7 +2,7 @@
 #define GeomDetType_H
 
 #include <string>
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 
 class Topology;
 

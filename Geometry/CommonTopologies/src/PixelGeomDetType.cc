@@ -1,4 +1,4 @@
-// #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+// #include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 
 // void PixelGeomDetType::setTopology( TopologyType* topol)
 // {

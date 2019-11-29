@@ -1,4 +1,4 @@
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 using namespace GeomDetEnumerators;
 

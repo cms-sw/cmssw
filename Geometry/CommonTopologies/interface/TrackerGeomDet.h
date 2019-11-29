@@ -1,7 +1,7 @@
 #ifndef CommonDet_TrackerGeomDet_H
 #define CommonDet_TrackerGeomDet_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 class TrackerGeomDet : public GeomDet {
 protected:

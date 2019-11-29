@@ -1,7 +1,7 @@
 #ifndef CommonDet_MuonGeomDet_H
 #define CommonDet_MuonGeomDet_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometrySurface/interface/LocalErrorExtended.h"
 
