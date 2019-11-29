@@ -20,15 +20,13 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
@@ -116,24 +114,25 @@ namespace {
 
 }  // namespace
 
-class DummyFillDQMStore : public edm::EDAnalyzer {
+class DummyFillDQMStore : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit DummyFillDQMStore(const edm::ParameterSet&);
   ~DummyFillDQMStore();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+
+
+private:
 
   // ----------member data ---------------------------
+  edm::ParameterSet iConfig;
   std::vector<std::shared_ptr<FillerBase> > m_runFillers;
   std::vector<std::shared_ptr<FillerBase> > m_lumiFillers;
   bool m_fillRuns;
@@ -154,11 +153,17 @@ private:
 DummyFillDQMStore::DummyFillDQMStore(const edm::ParameterSet& iConfig)
     : m_fillRuns(iConfig.getUntrackedParameter<bool>("fillRuns")),
       m_fillLumis(iConfig.getUntrackedParameter<bool>("fillLumis")) {
+  this->iConfig = iConfig;
+}
+
+void DummyFillDQMStore::bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) {
+  // this is fine as long as we don't do concurrent booking.
   edm::Service<DQMStore> dstore;
 
   typedef std::vector<edm::ParameterSet> PSets;
   const PSets& elements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("elements");
   if (m_fillRuns) {
+    dstore->setScope(MonitorElementData::Scope::RUN);
     m_runFillers.reserve(elements.size());
     for (PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
@@ -173,6 +178,7 @@ DummyFillDQMStore::DummyFillDQMStore(const edm::ParameterSet& iConfig)
   }
 
   if (m_fillLumis) {
+    dstore->setScope(MonitorElementData::Scope::LUMI);
     m_lumiFillers.reserve(elements.size());
     for (PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
@@ -217,17 +223,8 @@ void DummyFillDQMStore::analyze(edm::Event const& iEvent, edm::EventSetup const&
 */
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void DummyFillDQMStore::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void DummyFillDQMStore::endJob() {}
-
-// ------------ method called when starting to processes a run  ------------
-void DummyFillDQMStore::beginRun(edm::Run const&, edm::EventSetup const&) {}
-
 // ------------ method called when ending the processing of a run  ------------
-void DummyFillDQMStore::endRun(edm::Run const&, edm::EventSetup const&) {
+void DummyFillDQMStore::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
   for (std::vector<std::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin(), itEnd = m_runFillers.end();
        it != itEnd;
        ++it) {
@@ -236,7 +233,7 @@ void DummyFillDQMStore::endRun(edm::Run const&, edm::EventSetup const&) {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void DummyFillDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+void DummyFillDQMStore::dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
   for (std::vector<std::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin(), itEnd = m_lumiFillers.end();
        it != itEnd;
        ++it) {
@@ -245,7 +242,7 @@ void DummyFillDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::E
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void DummyFillDQMStore::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+void DummyFillDQMStore::dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
   for (std::vector<std::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin(), itEnd = m_lumiFillers.end();
        it != itEnd;
        ++it) {
