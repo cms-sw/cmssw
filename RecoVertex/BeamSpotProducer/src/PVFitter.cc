@@ -84,8 +84,10 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   // preset quality cut to "infinite"
   dynamicQualityCut_ = 1.e30;
 
-  hPVx = std::unique_ptr<TH2F>(new TH2F("hPVx", "PVx vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
-  hPVy = std::unique_ptr<TH2F>(new TH2F("hPVy", "PVy vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
+  hPVx = std::unique_ptr<TH2F>(
+      new TH2F("hPVx", "PVx vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
+  hPVy = std::unique_ptr<TH2F>(
+      new TH2F("hPVy", "PVy vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
   hPVx->SetDirectory(nullptr);
   hPVy->SetDirectory(nullptr);
 }
@@ -93,7 +95,6 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollect
 PVFitter::~PVFitter() {}
 
 void PVFitter::readEvent(const edm::Event& iEvent) {
-
   //------ Primary Vertices
   edm::Handle<reco::VertexCollection> PVCollection;
   bool hasPVs = false;
@@ -244,11 +245,11 @@ bool PVFitter::runBXFitter() {
     // refit with harder selection on vertices
     //
     fcn.setLimits(upar.Value(0) - sigmaCut_ * upar.Value(3),
-                   upar.Value(0) + sigmaCut_ * upar.Value(3),
-                   upar.Value(1) - sigmaCut_ * upar.Value(5),
-                   upar.Value(1) + sigmaCut_ * upar.Value(5),
-                   upar.Value(2) - sigmaCut_ * upar.Value(8),
-                   upar.Value(2) + sigmaCut_ * upar.Value(8));
+                  upar.Value(0) + sigmaCut_ * upar.Value(3),
+                  upar.Value(1) - sigmaCut_ * upar.Value(5),
+                  upar.Value(1) + sigmaCut_ * upar.Value(5),
+                  upar.Value(2) - sigmaCut_ * upar.Value(8),
+                  upar.Value(2) + sigmaCut_ * upar.Value(8));
     ierr = migrad(0, 1.);
     if (!ierr.IsValid()) {
       edm::LogInfo("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;
@@ -402,11 +403,11 @@ bool PVFitter::runFitter() {
     errors = ierr.UserParameters().Errors();
 
     fcn.setLimits(results[0] - sigmaCut_ * results[3],
-                   results[0] + sigmaCut_ * results[3],
-                   results[1] - sigmaCut_ * results[5],
-                   results[1] + sigmaCut_ * results[5],
-                   results[2] - sigmaCut_ * results[8],
-                   results[2] + sigmaCut_ * results[8]);
+                  results[0] + sigmaCut_ * results[3],
+                  results[1] - sigmaCut_ * results[5],
+                  results[1] + sigmaCut_ * results[5],
+                  results[2] - sigmaCut_ * results[8],
+                  results[2] + sigmaCut_ * results[8]);
     ierr = migrad(0, 1.);
     if (!ierr.IsValid()) {
       edm::LogWarning("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;
