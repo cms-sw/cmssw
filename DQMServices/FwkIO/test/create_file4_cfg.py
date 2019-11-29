@@ -18,7 +18,7 @@ for i in range(0,10):
 
 # A dummy tracked parameter is added to force the ProcessHistoryID to be different
 # It serves no other purpose.
-process.filler = cms.EDAnalyzer("DummyFillDQMStore",
+process.filler = cms.EDProducer("DummyFillDQMStore",
                                 elements=cms.untracked.VPSet(*elements),
                                 fillRuns = cms.untracked.bool(True),
                                 fillLumis = cms.untracked.bool(True),

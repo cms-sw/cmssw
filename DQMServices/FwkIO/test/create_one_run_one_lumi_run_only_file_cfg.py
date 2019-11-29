@@ -13,7 +13,7 @@ for i in range(0,10):
                                        title=cms.untracked.string("Foo"+str(i)),
                                        value=cms.untracked.double(i)))
 
-process.filler = cms.EDAnalyzer("DummyFillDQMStore",
+process.filler = cms.EDProducer("DummyFillDQMStore",
                                 elements=cms.untracked.VPSet(*elements),
                                 fillRuns = cms.untracked.bool(True),
                                 fillLumis = cms.untracked.bool(False))
