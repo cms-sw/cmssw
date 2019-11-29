@@ -277,8 +277,8 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
     if (idet == 3) {
       // HB
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "HB " << fv.name() << " Shape " //<< fv.shape() 
-				   << " Layer " << lay << " R " << t.Rho();
+      edm::LogVerbatim("HCalGeom") << "HB " << fv.name() << " Shape "  //<< fv.shape()
+                                   << " Layer " << lay << " R " << t.Rho();
 #endif
       if (lay >= 0 && lay < 20) {
         ib_[lay]++;
@@ -363,8 +363,8 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
     } else if (idet == 4) {
       // HE
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "HE " << fv.name() << " Shape " //<< fv.shape() 
-				   << " Layer " << lay << " Z " << t.z();
+      edm::LogVerbatim("HCalGeom") << "HE " << fv.name() << " Shape "  //<< fv.shape()
+                                   << " Layer " << lay << " Z " << t.z();
 #endif
       if (lay >= 0 && lay < 20) {
         ie_[lay]++;
@@ -407,8 +407,8 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
       // HF
       if (!hf) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "HF " << fv.name() << " Shape " //<< fv.shape() 
-				     << " Z " << t.z() << " with " << paras.size() << " Parameters";
+        edm::LogVerbatim("HCalGeom") << "HF " << fv.name() << " Shape "  //<< fv.shape()
+                                     << " Z " << t.z() << " with " << paras.size() << " Parameters";
         for (unsigned j = 0; j < paras.size(); j++)
           edm::LogVerbatim("HCalGeom") << "HF Parameter[" << j << "] = " << paras[j];
 #endif
@@ -423,7 +423,7 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
       }
 #ifdef EDM_ML_DEBUG
     } else {
-      edm::LogVerbatim("HCalGeom") << "Unknown Detector " << idet << " for " << fv.name() << " Shape " //<< fv.shape()
+      edm::LogVerbatim("HCalGeom") << "Unknown Detector " << idet << " for " << fv.name() << " Shape "  //<< fv.shape()
                                    << " R " << t.Rho() << " Z " << t.z();
 #endif
     }
@@ -470,7 +470,7 @@ void HcalGeomParameters::clear(HcalParameters& php) {
   nzHB_ = nmodHB_ = 0;
   nzHE_ = nmodHE_ = 0;
   for (int i = 0; i < 4; ++i)
-    etaHO_[i] = 0; 
+    etaHO_[i] = 0;
   zVcal_ = dzVcal_ = dlShort_ = 0;
   rminHO_ = dzVcal_ = -1.;
   for (int i = 0; i < maxLayer_; ++i) {
@@ -486,7 +486,6 @@ void HcalGeomParameters::clear(HcalParameters& php) {
 }
 
 void HcalGeomParameters::loadfinal(HcalParameters& php) {
-  
   int ibmx = 0, iemx = 0;
   for (int i = 0; i < maxLayer_; i++) {
     if (ib_[i] > 0) {
@@ -500,8 +499,8 @@ void HcalGeomParameters::loadfinal(HcalParameters& php) {
       iemx = i + 1;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "Index " << i << " Barrel " << ib_[i] << " " << rb_[i] << " Endcap " << ie_[i] << " "
-                                 << ze_[i] << ":" << rminHE_[i] << ":" << rmaxHE_[i];
+    edm::LogVerbatim("HCalGeom") << "Index " << i << " Barrel " << ib_[i] << " " << rb_[i] << " Endcap " << ie_[i]
+                                 << " " << ze_[i] << ":" << rminHE_[i] << ":" << rmaxHE_[i];
 #endif
   }
   for (int i = 4; i >= 0; i--) {
@@ -515,8 +514,8 @@ void HcalGeomParameters::loadfinal(HcalParameters& php) {
     }
 #ifdef EDM_ML_DEBUG
     if (ib_[i] == 0 || ie_[i] == 0)
-      edm::LogVerbatim("HCalGeom") << "Index " << i << " Barrel " << ib_[i] << " " << rb_[i] << " Endcap " << ie_[i] << " "
-                                   << ze_[i];
+      edm::LogVerbatim("HCalGeom") << "Index " << i << " Barrel " << ib_[i] << " " << rb_[i] << " Endcap " << ie_[i]
+                                   << " " << ze_[i];
 #endif
   }
 

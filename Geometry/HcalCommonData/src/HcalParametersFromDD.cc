@@ -169,59 +169,59 @@ bool HcalParametersFromDD::build(const cms::DDCompactView* cpv, HcalParameters& 
 
     for (auto const& it : vmap) {
       if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "phioff")) {
-	for (const auto& i : it.second)
-	  php.phioff.emplace_back(i);
+        for (const auto& i : it.second)
+          php.phioff.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etaTable")) {
-	for (const auto& i : it.second)
-	  php.etaTable.emplace_back(i);
+        for (const auto& i : it.second)
+          php.etaTable.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "rTable")) {
-	for (const auto& i : it.second)
-	  php.rTable.emplace_back(i);
+        for (const auto& i : it.second)
+          php.rTable.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "phibin")) {
-	for (const auto& i : it.second)
-	  php.phibin.emplace_back(i);
+        for (const auto& i : it.second)
+          php.phibin.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "phitable")) {
-	for (const auto& i : it.second)
-	  php.phitable.emplace_back(i);
+        for (const auto& i : it.second)
+          php.phitable.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etaMin")) {
-	for (const auto& i : it.second)
-	  php.etaMin.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          php.etaMin.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etaMax")) {
-	for (const auto& i : it.second)
-	  php.etaMax.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          php.etaMax.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etaRange")) {
-	for (const auto& i : it.second)
-	  php.etaRange.emplace_back(i);
+        for (const auto& i : it.second)
+          php.etaRange.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "gparHF")) {
-	for (const auto& i : it.second)
-	  php.gparHF.emplace_back(i);
+        for (const auto& i : it.second)
+          php.gparHF.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "noff")) {
-	for (const auto& i : it.second)
-	  php.noff.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          php.noff.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "Layer0Wt")) {
-	for (const auto& i : it.second)
-	  php.Layer0Wt.emplace_back(i);
+        for (const auto& i : it.second)
+          php.Layer0Wt.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HBGains")) {
-	for (const auto& i : it.second)
-	  php.HBGains.emplace_back(i);
+        for (const auto& i : it.second)
+          php.HBGains.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HBShift")) {
-	for (const auto& i : it.second)
-	  php.HBShift.emplace_back(round(i));
+        for (const auto& i : it.second)
+          php.HBShift.emplace_back(round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HEBGains")) {
-	for (const auto& i : it.second)
-	  php.HEGains.emplace_back(i);
+        for (const auto& i : it.second)
+          php.HEGains.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HEShift")) {
-	for (const auto& i : it.second)
-	  php.HEShift.emplace_back(round(i));
+        for (const auto& i : it.second)
+          php.HEShift.emplace_back(round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HFGains")) {
-	for (const auto& i : it.second)
-	  php.HFGains.emplace_back(i);
+        for (const auto& i : it.second)
+          php.HFGains.emplace_back(i);
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HFShift")) {
-	for (const auto& i : it.second)
-	  php.HFShift.emplace_back(round(i));
+        for (const auto& i : it.second)
+          php.HFShift.emplace_back(round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "maxDepth")) {
-	for (const auto& i : it.second)
-	  php.maxDepth.emplace_back(round(i));
+        for (const auto& i : it.second)
+          php.maxDepth.emplace_back(round(i));
       }
     }
     for (unsigned int i = 1; i <= nEtaMax; ++i) {
@@ -229,18 +229,18 @@ bool HcalParametersFromDD::build(const cms::DDCompactView* cpv, HcalParameters& 
       sstm << "layerGroupSimEta" << i;
       std::string tempName = sstm.str();
       for (auto const& it : vmap) {
-	if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), tempName)) {
-	  HcalParameters::LayerItem layerGroupEta;
-	  layerGroupEta.layer = i;
-	  for (const auto& i : it.second)
-	    layerGroupEta.layerGroup.emplace_back(round(i));
-	  php.layerGroupEtaSim.emplace_back(layerGroupEta);
-	  break;
-	}
+        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), tempName)) {
+          HcalParameters::LayerItem layerGroupEta;
+          layerGroupEta.layer = i;
+          for (const auto& i : it.second)
+            layerGroupEta.layerGroup.emplace_back(round(i));
+          php.layerGroupEtaSim.emplace_back(layerGroupEta);
+          break;
+        }
       }
       php.etaMin[0] = 1;
       if (php.etaMax[1] >= php.etaMin[1])
-	php.etaMax[1] = static_cast<int>(php.etaTable.size()) - 1;
+        php.etaMax[1] = static_cast<int>(php.etaTable.size()) - 1;
       php.etaMax[2] = php.etaMin[2] + static_cast<int>(php.rTable.size()) - 2;
     }
   } else {
@@ -268,11 +268,11 @@ bool HcalParametersFromDD::build(const cms::DDCompactView* cpv, HcalParameters& 
     php.topologyMode = ((trigMode & 0xFF) << 8) | (topoMode & 0xFF);
     for (auto const& it : vmap) {
       if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etagroup")) {
-	for (const auto& i : it.second)
-	  php.etagroup.emplace_back(round(i));
+        for (const auto& i : it.second)
+          php.etagroup.emplace_back(round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "phigroup")) {
-	for (const auto& i : it.second)
-	  php.phigroup.emplace_back(round(i));
+        for (const auto& i : it.second)
+          php.phigroup.emplace_back(round(i));
       }
     }
     for (unsigned int i = 1; i <= nEtaMax; ++i) {
@@ -280,14 +280,14 @@ bool HcalParametersFromDD::build(const cms::DDCompactView* cpv, HcalParameters& 
       sstm << "layerGroupRecEta" << i;
       std::string tempName = sstm.str();
       for (auto const& it : vmap) {
-	if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), tempName)) {
-	  HcalParameters::LayerItem layerGroupEta;
-	  layerGroupEta.layer = i;
-	  for (const auto& i : it.second)
-	    layerGroupEta.layerGroup.emplace_back(round(i));
-	  php.layerGroupEtaRec.emplace_back(layerGroupEta);
-	  break;
-	}
+        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), tempName)) {
+          HcalParameters::LayerItem layerGroupEta;
+          layerGroupEta.layer = i;
+          for (const auto& i : it.second)
+            layerGroupEta.layerGroup.emplace_back(round(i));
+          php.layerGroupEtaRec.emplace_back(layerGroupEta);
+          break;
+        }
       }
     }
   } else {
@@ -341,7 +341,8 @@ bool HcalParametersFromDD::build(const HcalParameters& php) {
   for (it = php.phitable.begin(), i = 0; it != php.phitable.end(); ++it)
     ss7 << " [" << ++i << "] = " << convertRadToDeg(*it);
   edm::LogVerbatim("HCalGeom") << ss7.str();
-  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD: " << php.layerGroupEtaSim.size() << " layerGroupEtaSim blocks" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD: " << php.layerGroupEtaSim.size() << " layerGroupEtaSim blocks"
+                               << std::endl;
   std::vector<int>::const_iterator kt;
   for (unsigned int k = 0; k < php.layerGroupEtaSim.size(); ++k) {
     std::stringstream ss8;
@@ -413,7 +414,8 @@ bool HcalParametersFromDD::build(const HcalParameters& php) {
       ss19 << " " << ++i << ":" << (*kt);
     edm::LogVerbatim("HCalGeom") << ss19.str();
   }
-  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD: (topology|trigger)Mode " << std::hex << php.topologyMode << std::dec;
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD: (topology|trigger)Mode " << std::hex << php.topologyMode
+                               << std::dec;
 #endif
 
   return true;
