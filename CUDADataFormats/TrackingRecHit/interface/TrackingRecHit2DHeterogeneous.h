@@ -91,7 +91,7 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
         (std::is_same<Traits, cudaCompat::GPUTraits>::value) {
       cudautils::copyAsync(m_view, view, stream);
     } else {
-      m_view.reset(view.release());
+      m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
     }
     return;
   }
@@ -138,7 +138,7 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
       (std::is_same<Traits, cudaCompat::GPUTraits>::value) {
     cudautils::copyAsync(m_view, view, stream);
   } else {
-    m_view.reset(view.release());
+    m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
   }
 }
 
