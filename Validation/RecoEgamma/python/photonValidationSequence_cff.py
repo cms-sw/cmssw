@@ -48,12 +48,19 @@ oldpfPhotonValidation.rBin = 48
 oldpfPhotonValidation.eoverpMin = 0.
 oldpfPhotonValidation.eoverpMax = 5.
 
-
+import Validation.RecoEgamma.tkConvValidator_cfi
 
 
 
 # selectors go in separate "pre-" sequence
 photonPrevalidationSequence = cms.Sequence(tpSelection*tpSelecForFakeRate*tpSelecForEfficiency)
 photonValidationSequence = cms.Sequence(trackAssociatorByHitsForPhotonValidation*photonValidation*pfPhotonValidation*trackAssociatorByHitsForConversionValidation*tkConversionValidation)
+
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify( photonValidation, useTP = cms.bool(False) )
+phase2_common.toModify( pfPhotonValidation, useTP = cms.bool(False) )
+phase2_common.toModify( oldpfPhotonValidation, useTP = cms.bool(False) )
+phase2_common.toModify( tkConversionValidation, useTP = cms.bool(False) )
 
 
