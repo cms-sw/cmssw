@@ -723,7 +723,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
 
     // residuals vs pT
 
-    for (Int_t l = 0; l < thePTBINS[i]-1; l++) {
+    for (Int_t l = 0; l < thePTBINS[i] - 1; l++) {
       dxyPtResiduals[i][l] = (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Transv_pT_Residuals/histo_dxy_pT_plot%i", l));
       dzPtResiduals[i][l] = (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Long_pT_Residuals/histo_dz_pT_plot%i", l));
 
@@ -2028,7 +2028,8 @@ void arrangeBiasCanvas(TCanvas *canv,
             if (theTitle.Contains("Norm"))
               safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? 1. : safeDelta;
             else
-              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? safeDelta*10. : safeDelta;
+              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? safeDelta * 10.
+                                                                                                     : safeDelta;
 
             dBiasTrend[k][i]->GetYaxis()->SetRangeUser(0., theExtreme + (safeDelta / 2.));
           } else {
@@ -2039,8 +2040,8 @@ void arrangeBiasCanvas(TCanvas *canv,
               TGaxis::SetMaxDigits(4);
               dBiasTrend[k][i]->GetYaxis()->SetRangeUser(0., theExtreme + (safeDelta * 2.));
             } else {
-
-	      safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? safeDelta*10. : safeDelta;
+              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? safeDelta * 10.
+                                                                                                     : safeDelta;
 
               dBiasTrend[k][i]->GetYaxis()->SetRangeUser(-theExtreme - (safeDelta / 2.), theExtreme + (safeDelta / 2.));
             }
