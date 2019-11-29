@@ -116,7 +116,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT5_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -151,7 +151,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -186,7 +186,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -221,7 +221,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -256,7 +256,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',

@@ -17,7 +17,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
 
