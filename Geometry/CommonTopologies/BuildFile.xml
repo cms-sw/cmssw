@@ -1,5 +1,9 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="CondFormats/Alignment"/>
+<use   name="DataFormats/GeometryCommonDetAlgo"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/DetId"/>
+<use   name="FWCore/Utilities"/>
 <use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>
