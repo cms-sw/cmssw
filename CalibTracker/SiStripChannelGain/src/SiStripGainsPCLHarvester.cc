@@ -21,22 +21,35 @@
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainsPCLHarvester.h"
 #include "CalibTracker/SiStripChannelGain/interface/APVGainHelpers.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 #include <sstream>
+#include <TTree.h>
 
 //********************************************************************************//
-SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
-    : doStoreOnDB(false), GOOD(0), BAD(0), MASKED(0), NStripAPVs(0), NPixelDets(0) {
-  m_Record = ps.getUntrackedParameter<std::string>("Record", "SiStripApvGainRcd");
-  CalibrationLevel = ps.getUntrackedParameter<int>("CalibrationLevel", 0);
-  MinNrEntries = ps.getUntrackedParameter<double>("minNrEntries", 20);
-  m_DQMdir = ps.getUntrackedParameter<std::string>("DQMdir", "AlCaReco/SiStripGains");
-  m_calibrationMode = ps.getUntrackedParameter<std::string>("calibrationMode", "StdBunch");
-  tagCondition_NClusters = ps.getUntrackedParameter<double>("NClustersForTagProd", 2E8);
-  tagCondition_GoodFrac = ps.getUntrackedParameter<double>("GoodFracForTagProd", 0.95);
-  doChargeMonitorPerPlane = ps.getUntrackedParameter<bool>("doChargeMonitorPerPlane", false);
-  VChargeHisto = ps.getUntrackedParameter<std::vector<std::string>>("ChargeHisto");
+SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps):
+  doStoreOnDB(false),
+  GOOD(0),
+  BAD(0),
+  MASKED(0),
+  NStripAPVs(0),
+  NPixelDets(0),
+{
+  m_Record                = ps.getUntrackedParameter<std::string> ("Record"             , "SiStripApvGainRcd");
+  CalibrationLevel        = ps.getUntrackedParameter<int>         ("CalibrationLevel"   ,   0);
+  MinNrEntries            = ps.getUntrackedParameter<double>      ("minNrEntries"       ,  20);
+  m_DQMdir                = ps.getUntrackedParameter<std::string> ("DQMdir"             , "AlCaReco/SiStripGains");
+  m_calibrationMode       = ps.getUntrackedParameter<std::string> ("calibrationMode"    , "StdBunch");
+  tagCondition_NClusters  = ps.getUntrackedParameter<double>      ("NClustersForTagProd", 2E8);
+  tagCondition_GoodFrac   = ps.getUntrackedParameter<double>      ("GoodFracForTagProd" , 0.95);
+  doChargeMonitorPerPlane = ps.getUntrackedParameter<bool>        ("doChargeMonitorPerPlane" ,  false);
+  VChargeHisto            = ps.getUntrackedParameter<std::vector<std::string> >  ("ChargeHisto");
+
+  fit_gaussianConvolution_ = ps.getUntrackedParameter<bool>("FitGaussianConvolution", false);
+  fit_gaussianConvolutionTOBL56_ = ps.getUntrackedParameter<bool>("FitGaussianConvolutionTOBL5L6", false);
+  fit_dataDrivenRange_ = ps.getUntrackedParameter<bool>("FitDataDrivenRange", false);
+  storeGainsTree_ = ps.getUntrackedParameter<bool>("StoreGainsTree", false);
 
   //Set the monitoring element tag and store
   dqm_tag_.reserve(7);
@@ -141,7 +154,11 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
   }
 
   //Collect the statistics for monitoring and validation
-  gainQualityMonitor(ibooker_, Charge_Vs_Index);
+  gainQualityMonitor(ibooker_,Charge_Vs_Index);
+
+  if (storeGainsTree_) {
+    storeGainsTree(Charge_Vs_Index->getTH2S()->GetXaxis());
+  }
 }
 
 //********************************************************************************//
@@ -365,6 +382,102 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
   }
 }
 
+namespace {
+
+  std::pair<double,double> findFitRange(TH1* inputHisto) {
+    const auto prevErrorIgnoreLevel = gErrorIgnoreLevel;
+    gErrorIgnoreLevel = kError;
+    auto charge_clone = std::unique_ptr<TH1D>(dynamic_cast<TH1D*>(inputHisto->Rebin(10, "charge_clone")));
+    gErrorIgnoreLevel = prevErrorIgnoreLevel;
+    float max_content = -1;
+    float xMax = -1;
+    for (int i = 1; i<charge_clone->GetNbinsX()+1; ++i) {
+      const auto bin_content = charge_clone->GetBinContent(i);
+      const auto bin_center = charge_clone->GetXaxis()->GetBinCenter(i);
+      if ( (bin_content > max_content) && (bin_center > 100.) ) {
+	max_content = bin_content;
+	xMax = bin_center;
+      }
+    }
+    return std::pair<double,double>(xMax-100., xMax+500.);
+  }
+
+  Double_t langaufun(Double_t *x, Double_t *par)
+  {
+  // Numeric constants
+    Double_t invsq2pi = 0.3989422804014;   // (2 pi)^(-1/2)
+    Double_t mpshift  = -0.22278298;       // Landau maximum location
+    
+    // Control constants
+    Double_t np = 100.0;      // number of convolution steps
+    Double_t sc =   5.0;      // convolution extends to +-sc Gaussian sigmas
+  
+    // Variables
+    Double_t xx;
+    Double_t mpc;
+    Double_t fland;
+    Double_t sum = 0.0;
+    Double_t xlow,xupp;
+    Double_t step;
+    Double_t i;
+    
+    // MP shift correction
+    mpc = par[1] - mpshift * par[0];
+  
+    // Range of convolution integral
+    xlow = x[0] - sc * par[3];
+    xupp = x[0] + sc * par[3];
+    
+    step = (xupp-xlow) / np;
+
+    // Convolution integral of Landau and Gaussian by sum
+    for(i=1.0; i<=np/2; i++) {
+      xx = xlow + (i-.5) * step;
+      fland = TMath::Landau(xx,mpc,par[0]) / par[0];
+      sum += fland * TMath::Gaus(x[0],xx,par[3]);
+     
+      xx = xupp - (i-.5) * step;
+      fland = TMath::Landau(xx,mpc,par[0]) / par[0];
+
+      sum += fland * TMath::Gaus(x[0],xx,par[3]);
+    }
+
+    return (par[2] * step * sum * invsq2pi / par[3]);
+  }
+
+  std::unique_ptr<TF1> langaufit(TH1D *his, Double_t *fitrange, Double_t *startvalues, Double_t *parlimitslo, Double_t *parlimitshi, Double_t *fitparams, Double_t *fiterrors, Double_t *ChiSqr, Int_t *NDF)
+  {
+
+    Int_t i;
+    Char_t FunName[100];
+
+    sprintf(FunName,"Fitfcn_%s",his->GetName());
+
+    TF1 *ffitold = (TF1*)gROOT->GetListOfFunctions()->FindObject(FunName);
+    if (ffitold) delete ffitold;
+
+    auto ffit = std::make_unique<TF1>(FunName,langaufun,fitrange[0],fitrange[1],4);
+    //TF1 *ffit = new TF1(FunName,langaufun,his->GetXaxis()->GetXmin(),his->GetXaxis()->GetXmax(),4);
+    ffit->SetParameters(startvalues);
+    ffit->SetParNames("Width","MP","Area","GSigma");
+
+    for (i=0; i<4; i++) {
+      ffit->SetParLimits(i, parlimitslo[i], parlimitshi[i]);
+    }
+
+    his->Fit(FunName,"QRB0");   // fit within specified range, use ParLimits, do not plot
+
+    ffit->GetParameters(fitparams);    // obtain fit parameters
+    for (i=0; i<4; i++) {
+      fiterrors[i] = ffit->GetParError(i);     // obtain fit parameter errors
+    }
+    ChiSqr[0] = ffit->GetChisquare();  // obtain chi^2
+    NDF[0] = ffit->GetNDF();           // obtain ndf
+
+    return ffit;              // return fit function
+  }
+}
+
 //********************************************************************************//
 void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index) {
   unsigned int I = 0;
@@ -443,10 +556,16 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
       printf("Unknown Calibration Level, will assume %i\n", CalibrationLevel);
     }
 
-    getPeakOfLandau(Proj, FitResults);
-    APV->FitMPV = FitResults[0];
-    APV->FitMPVErr = FitResults[1];
-    APV->FitWidth = FitResults[2];
+    std::pair<double,double> fitRange{50., 5400.};
+    if (fit_dataDrivenRange_) {
+      fitRange = findFitRange(Proj);
+    }
+    const bool isTOBL5L6 = (DetId{APV->DetId}.subdetId() == StripSubdetector::TOB) && ( tTopo_->tobLayer(APV->DetId) > 4 );
+    getPeakOfLandau(Proj, FitResults, fitRange.first, fitRange.second,
+		    ( isTOBL5L6 ? fit_gaussianConvolutionTOBL56_ : fit_gaussianConvolution_ ));
+    APV->FitMPV      = FitResults[0];
+    APV->FitMPVErr   = FitResults[1];
+    APV->FitWidth    = FitResults[2];
     APV->FitWidthErr = FitResults[3];
     APV->FitChi2 = FitResults[4];
     APV->FitNorm = FitResults[5];
@@ -470,29 +589,46 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
 }
 
 //********************************************************************************//
-void SiStripGainsPCLHarvester::getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange, double HighRange) {
-  FitResults[0] = -0.5;  //MPV
-  FitResults[1] = 0;     //MPV error
-  FitResults[2] = -0.5;  //Width
-  FitResults[3] = 0;     //Width error
-  FitResults[4] = -0.5;  //Fit Chi2/NDF
-  FitResults[5] = 0;     //Normalization
+void 
+SiStripGainsPCLHarvester::getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange, double HighRange, bool gaussianConvolution)
+{
 
-  if (InputHisto->GetEntries() < MinNrEntries)
-    return;
+  if (InputHisto->GetEntries() < MinNrEntries) return;
 
-  // perform fit with standard landau
-  TF1 MyLandau("MyLandau", "landau", LowRange, HighRange);
-  MyLandau.SetParameter(1, 300);
-  InputHisto->Fit(&MyLandau, "0QR WW");
-
-  // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
-  FitResults[0] = MyLandau.GetParameter(1);                     //MPV
-  FitResults[1] = MyLandau.GetParError(1);                      //MPV error
-  FitResults[2] = MyLandau.GetParameter(2);                     //Width
-  FitResults[3] = MyLandau.GetParError(2);                      //Width error
-  FitResults[4] = MyLandau.GetChisquare() / MyLandau.GetNDF();  //Fit Chi2/NDF
-  FitResults[5] = MyLandau.GetParameter(0);
+  if (gaussianConvolution) {
+    Double_t fr[2] = { LowRange, HighRange };
+    Double_t sv[4]   = {  25., 300., InputHisto->Integral(), 40. };
+    Double_t pllo[4] = {  0.5, 100., 1.0 ,  0.4 };
+    Double_t plhi[4] = { 100., 500., 1.e7, 100. };
+    Double_t fp[4], fpe[4];
+    Double_t chisqr;
+    Int_t    ndf;
+    auto fitsnr = langaufit(dynamic_cast<TH1D*>(InputHisto), fr, sv, pllo, plhi, fp, fpe, &chisqr, &ndf);
+    FitResults[0]         = fitsnr->GetMaximumX();  //MPV
+    FitResults[1]         = fpe[1];   //MPV error // FIXME add error propagation
+    FitResults[2]         = fp[0];  //Width
+    FitResults[3]         = fpe[0];   //Width error
+    FitResults[4]         = chisqr / ndf;  //Fit Chi2/NDF
+    FitResults[5]         = fp[2];
+  } else {
+    // perform fit with standard landau
+    FitResults[0]         = -0.5;  //MPV
+    FitResults[1]         =  0;    //MPV error
+    FitResults[2]         = -0.5;  //Width
+    FitResults[3]         =  0;    //Width error
+    FitResults[4]         = -0.5;  //Fit Chi2/NDF
+    FitResults[5]         = 0;     //Normalization
+    TF1 MyLandau("MyLandau","landau",LowRange, HighRange);
+    MyLandau.SetParameter(1,300);
+    InputHisto->Fit(&MyLandau,"0QR WW");
+    // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
+    FitResults[0]         = MyLandau.GetParameter(1);  //MPV
+    FitResults[1]         = MyLandau.GetParError(1);   //MPV error
+    FitResults[2]         = MyLandau.GetParameter(2);  //Width
+    FitResults[3]         = MyLandau.GetParError(2);   //Width error
+    FitResults[4]         = MyLandau.GetChisquare() / MyLandau.GetNDF();  //Fit Chi2/NDF
+    FitResults[5]         = MyLandau.GetParameter(0);
+  }
 }
 
 //********************************************************************************//
@@ -687,6 +823,70 @@ std::unique_ptr<SiStripApvGain> SiStripGainsPCLHarvester::getNewObject(const Mon
   }
 
   return obj;
+}
+
+void SiStripGainsPCLHarvester::storeGainsTree(const TAxis* chVsIdxXaxis) const
+{
+  unsigned int  t_Index, t_Bin, t_DetId;
+  unsigned char t_APVId, t_SubDet;
+  float t_x, t_y, t_z, t_Eta, t_R, t_Phi, t_Thickness;
+  float t_FitMPV, t_FitMPVErr, t_FitWidth, t_FitWidthErr, t_FitChi2NDF, t_FitNorm;
+  double t_Gain, t_PrevGain, t_PrevGainTick, t_NEntries;
+  bool t_isMasked;
+  auto tree = edm::Service<TFileService>()->make<TTree>("APVGain", "APVGain");
+  tree->Branch("Index"       , &t_Index       , "Index/i");
+  tree->Branch("Bin"         , &t_Bin         , "Bin/i");
+  tree->Branch("DetId"       , &t_DetId       , "DetId/i");
+  tree->Branch("APVId"       , &t_APVId       , "APVId/b");
+  tree->Branch("SubDet"      , &t_SubDet      , "SubDet/b");
+  tree->Branch("x"           , &t_x           , "x/F");
+  tree->Branch("y"           , &t_y           , "y/F");
+  tree->Branch("z"           , &t_z           , "z/F");
+  tree->Branch("Eta"         , &t_Eta         , "Eta/F");
+  tree->Branch("R"           , &t_R           , "R/F");
+  tree->Branch("Phi"         , &t_Phi         , "Phi/F");
+  tree->Branch("Thickness"   , &t_Thickness   , "Thickness/F");
+  tree->Branch("FitMPV"      , &t_FitMPV      , "FitMPV/F");
+  tree->Branch("FitMPVErr"   , &t_FitMPVErr   , "FitMPVErr/F");
+  tree->Branch("FitWidth"    , &t_FitWidth    , "FitWidth/F");
+  tree->Branch("FitWidthErr" , &t_FitWidthErr , "FitWidthErr/F");
+  tree->Branch("FitChi2NDF"  , &t_FitChi2NDF  , "FitChi2NDF/F");
+  tree->Branch("FitNorm"     , &t_FitNorm     , "FitNorm/F");
+  tree->Branch("Gain"        , &t_Gain        , "Gain/D");
+  tree->Branch("PrevGain"    , &t_PrevGain    , "PrevGain/D");
+  tree->Branch("PrevGainTick", &t_PrevGainTick, "PrevGainTick/D");
+  tree->Branch("NEntries"    , &t_NEntries    , "NEntries/D");
+  tree->Branch("isMasked"    , &t_isMasked    , "isMasked/O");
+
+  for ( const auto iAPV : APVsCollOrdered ) {
+    if (iAPV) {
+      t_Index         = iAPV->Index;
+      t_Bin           = chVsIdxXaxis->FindBin(iAPV->Index);
+      t_DetId         = iAPV->DetId;
+      t_APVId         = iAPV->APVId;
+      t_SubDet        = iAPV->SubDet;
+      t_x             = iAPV->x;
+      t_y             = iAPV->y;
+      t_z             = iAPV->z;
+      t_Eta           = iAPV->Eta;
+      t_R             = iAPV->R;
+      t_Phi           = iAPV->Phi;
+      t_Thickness     = iAPV->Thickness;
+      t_FitMPV        = iAPV->FitMPV;
+      t_FitMPVErr     = iAPV->FitMPVErr;
+      t_FitWidth      = iAPV->FitWidth;
+      t_FitWidthErr   = iAPV->FitWidthErr;
+      t_FitChi2NDF    = iAPV->FitChi2;
+      t_FitNorm       = iAPV->FitNorm;
+      t_Gain          = iAPV->Gain;
+      t_PrevGain      = iAPV->PreviousGain;
+      t_PrevGainTick  = iAPV->PreviousGainTick;
+      t_NEntries      = iAPV->NEntries;
+      t_isMasked      = iAPV->isMasked;
+
+      tree->Fill();
+    }
+  }
 }
 
 //********************************************************************************//
