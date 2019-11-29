@@ -65,7 +65,8 @@ namespace StubPtConsistency {
         correction = fabs(stub_z) / stub_r;
 
       float stubBend = stubRef->getBendFE();
-      if (!isBarrel && stub_z<0.0) stubBend=-stubBend; // flip sign of bend if in negative end cap
+      if (!isBarrel && stub_z < 0.0)
+        stubBend = -stubBend;  // flip sign of bend if in negative end cap
 
       float trackBend = -(sensorSpacing * stub_r * mMagneticFieldStrength * (speedOfLightConverted / 2)) /
                         (stripPitch * trk_signedPt * correction);

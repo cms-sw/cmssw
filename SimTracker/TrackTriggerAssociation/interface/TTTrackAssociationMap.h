@@ -30,54 +30,59 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-template< typename T >
-class TTTrackAssociationMap
-{
-  public:
-    /// Constructors
-    TTTrackAssociationMap();
+template <typename T>
+class TTTrackAssociationMap {
+public:
+  /// Constructors
+  TTTrackAssociationMap();
 
-    /// Destructor
-    ~TTTrackAssociationMap();
+  /// Destructor
+  ~TTTrackAssociationMap();
 
-    /// Data members:   getABC( ... )
-    /// Helper methods: findABC( ... )
+  /// Data members:   getABC( ... )
+  /// Helper methods: findABC( ... )
 
-    /// Maps
-    std::map< edm::Ptr< TTTrack< T > >, edm::Ptr< TrackingParticle > >                getTTTrackToTrackingParticleMap() const
-      { return trackToTrackingParticleMap; }
-    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTTrack< T > > > > getTrackingParticleToTTTracksMap() const
-      { return trackingParticleToTrackVectorMap; }
+  /// Maps
+  std::map<edm::Ptr<TTTrack<T> >, edm::Ptr<TrackingParticle> > getTTTrackToTrackingParticleMap() const {
+    return trackToTrackingParticleMap;
+  }
+  std::map<edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<T> > > > getTrackingParticleToTTTracksMap() const {
+    return trackingParticleToTrackVectorMap;
+  }
 
-    void setTTTrackToTrackingParticleMap( std::map< edm::Ptr< TTTrack< T > >, edm::Ptr< TrackingParticle > > aMap )
-      { trackToTrackingParticleMap = aMap; }
-    void setTrackingParticleToTTTracksMap( std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTTrack< T > > > > aMap )
-      { trackingParticleToTrackVectorMap = aMap; }
-    void setTTStubAssociationMap( edm::RefProd< TTStubAssociationMap< T > > aStubAssoMap )
-      { theStubAssociationMap = aStubAssoMap; }
+  void setTTTrackToTrackingParticleMap(std::map<edm::Ptr<TTTrack<T> >, edm::Ptr<TrackingParticle> > aMap) {
+    trackToTrackingParticleMap = aMap;
+  }
+  void setTrackingParticleToTTTracksMap(
+      std::map<edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<T> > > > aMap) {
+    trackingParticleToTrackVectorMap = aMap;
+  }
+  void setTTStubAssociationMap(edm::RefProd<TTStubAssociationMap<T> > aStubAssoMap) {
+    theStubAssociationMap = aStubAssoMap;
+  }
 
-    /// Operations
-    edm::Ptr< TrackingParticle >            findTrackingParticlePtr( edm::Ptr< TTTrack< T > > aTrack ) const;
-    std::vector< edm::Ptr< TTTrack< T > > > findTTTrackPtrs( edm::Ptr< TrackingParticle > aTrackingParticle ) const; 
+  /// Operations
+  edm::Ptr<TrackingParticle> findTrackingParticlePtr(edm::Ptr<TTTrack<T> > aTrack) const;
+  std::vector<edm::Ptr<TTTrack<T> > > findTTTrackPtrs(edm::Ptr<TrackingParticle> aTrackingParticle) const;
 
-    /// MC Truth methods
-    bool isGenuine( edm::Ptr< TTTrack< T > > aTrack ) const;
-    bool isLooselyGenuine( edm::Ptr< TTTrack< T > > aTrack ) const;
-    bool isCombinatoric( edm::Ptr< TTTrack< T > > aTrack ) const;
-    bool isUnknown( edm::Ptr< TTTrack< T > > aTrack ) const;
+  /// MC Truth methods
+  bool isGenuine(edm::Ptr<TTTrack<T> > aTrack) const;
+  bool isLooselyGenuine(edm::Ptr<TTTrack<T> > aTrack) const;
+  bool isCombinatoric(edm::Ptr<TTTrack<T> > aTrack) const;
+  bool isUnknown(edm::Ptr<TTTrack<T> > aTrack) const;
 
   void setAllowOneFalse2SStub(bool allowFalse2SStub);
   bool getAllowOneFalse2SStub();
 
-  private:
-    /// Data members
-    std::map< edm::Ptr< TTTrack< T > >, edm::Ptr< TrackingParticle > >                trackToTrackingParticleMap;
-    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTTrack< T > > > > trackingParticleToTrackVectorMap;
-    edm::RefProd< TTStubAssociationMap< T > >                                         theStubAssociationMap;
+private:
+  /// Data members
+  std::map<edm::Ptr<TTTrack<T> >, edm::Ptr<TrackingParticle> > trackToTrackingParticleMap;
+  std::map<edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<T> > > > trackingParticleToTrackVectorMap;
+  edm::RefProd<TTStubAssociationMap<T> > theStubAssociationMap;
 
   bool AllowOneFalse2SStub;
 
-}; /// Close class
+};  /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
