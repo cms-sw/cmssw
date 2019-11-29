@@ -87,7 +87,7 @@ void PixelCPEFastESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<bool>("LoadTemplatesFromDB", true);
   desc.add<bool>("UseErrorsFromTemplates", true);
   desc.add<double>("EdgeClusterErrorX", 50.0);
-  desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag("",""));
+  desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag());
   desc.add<bool>("useLAWidthFromDB", true);
   desc.add<bool>("TruncatePixelCharge", true);
   desc.add<int>("ClusterProbComputationFlag", 0);
