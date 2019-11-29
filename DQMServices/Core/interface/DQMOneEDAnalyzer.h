@@ -32,6 +32,7 @@ public:
   }
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
+    edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     dqmBeginRun(run, setup);
     edm::Service<DQMStore>()->bookTransaction(
         [this, &run, &setup](DQMStore::IBooker& booker) {
