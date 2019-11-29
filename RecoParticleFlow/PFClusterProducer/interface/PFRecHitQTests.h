@@ -5,6 +5,8 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFSeedingThresholds.h" 
+#include "CondFormats/DataRecord/interface/EcalPFSeedingThresholdsRcd.h" 
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
@@ -712,4 +714,65 @@ protected:
   const double thresholdSNR_;
 };
 
+
+//  M.G. Quality test that checks seeding threshold read from the DB
+//
+class PFRecHitQTestDBSeedingThreshold : public PFRecHitQTestBase {
+ public: PFRecHitQTestDBSeedingThreshold():eventSetup_(nullptr){
+    }
+
+    PFRecHitQTestDBSeedingThreshold(const edm::ParameterSet& iConfig):
+     PFRecHitQTestBase(iConfig),
+     applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")),    
+     eventSetup_(nullptr){
+    }
+
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
+        eventSetup_=&iSetup;
+    }
+
+    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
+      if (applySelectionsToAllCrystals_) return pass(hit);  
+      return fullReadOut or pass(hit);
+    }
+    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+protected:
+
+  bool applySelectionsToAllCrystals_;
+  const edm::EventSetup * eventSetup_;
+
+
+  bool pass(const reco::PFRecHit& hit){
+
+    edm::ESHandle<EcalPFSeedingThresholds> ths;
+    (*eventSetup_).get<EcalPFSeedingThresholdsRcd>().get(ths);
+
+    float threshold = (*ths)[hit.detId()];
+    
+    if (hit.energy()>threshold) return true;
+
+    return false;
+  }
+};
+
+
 #endif
+
