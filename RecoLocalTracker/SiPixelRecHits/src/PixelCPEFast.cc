@@ -303,8 +303,6 @@ void PixelCPEFast::fillParamsForGpu() {
   memcpy(m_layerGeometry.layer, phase1PixelTopology::layer.data(), phase1PixelTopology::layer.size());
 }
 
-PixelCPEFast::~PixelCPEFast() {}
-
 PixelCPEFast::GPUData::~GPUData() {
   if (d_paramsOnGPU != nullptr) {
     cudaFree((void*)h_paramsOnGPU.m_commonParams);
@@ -582,4 +580,7 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
   auto yerr_sq = yerr * yerr;
 
   return LocalError(xerr_sq, 0, yerr_sq);
+}
+
+void PixelCPEFast::fillPSetDescription(edm::ParameterSetDescription& desc) {
 }
