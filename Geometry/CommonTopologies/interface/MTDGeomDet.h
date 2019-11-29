@@ -1,7 +1,7 @@
 #ifndef CommonDet_MTDGeomDet_H
 #define CommonDet_MTDGeomDet_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 class MTDGeomDet : public GeomDet {
 protected:

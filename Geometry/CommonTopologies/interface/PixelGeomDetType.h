@@ -1,7 +1,7 @@
 #ifndef Geometry_TrackerGeometryBuilder_PixelGeomDetType_H
 #define Geometry_TrackerGeometryBuilder_PixelGeomDetType_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 /**

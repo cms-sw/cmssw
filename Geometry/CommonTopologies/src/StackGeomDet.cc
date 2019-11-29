@@ -1,4 +1,4 @@
-#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
+#include "Geometry/CommonTopologies/interface/StackGeomDet.h"
 
 StackGeomDet::StackGeomDet(BoundPlane* sp,
                            const GeomDetUnit* lowerDet,

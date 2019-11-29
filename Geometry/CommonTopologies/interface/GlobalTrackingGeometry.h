@@ -13,7 +13,7 @@
  *  \author M. Sani
  */
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 #include <vector>
 #include <atomic>
 

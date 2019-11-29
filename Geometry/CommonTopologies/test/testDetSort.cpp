@@ -1,6 +1,6 @@
 #include "Utilities/General/interface/precomputed_value_sort.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/DetSorting.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/DetSorting.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 

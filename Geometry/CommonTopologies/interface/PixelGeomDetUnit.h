@@ -1,7 +1,7 @@
-#ifndef Geometry_CommonDetUnit_PixelGeomDetUnit_H
-#define Geometry_CommonDetUnit_PixelGeomDetUnit_H
+#ifndef Geometry_CommonTopologies_PixelGeomDetUnit_H
+#define Geometry_CommonTopologies_PixelGeomDetUnit_H
 
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonTopologies/interface/ProxyPixelTopology.h"
 

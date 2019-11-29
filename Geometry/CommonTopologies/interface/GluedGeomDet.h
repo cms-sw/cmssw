@@ -1,7 +1,7 @@
 #ifndef Geometry_TrackerGeometryBuilder_GluedGeomDet_H
 #define Geometry_TrackerGeometryBuilder_GluedGeomDet_H
 
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 class GluedGeomDet final : public TrackerGeomDet {

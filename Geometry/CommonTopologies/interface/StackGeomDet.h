@@ -1,7 +1,7 @@
-#ifndef Geometry_CommonDetUnit_StackGeomDet_H
-#define Geometry_CommonDetUnit_StackGeomDet_H
+#ifndef Geometry_CommonTopologies_StackGeomDet_H
+#define Geometry_CommonTopologies_StackGeomDet_H
 
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 class StackGeomDet : public TrackerGeomDet {

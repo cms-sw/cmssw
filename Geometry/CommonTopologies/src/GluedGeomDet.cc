@@ -1,4 +1,4 @@
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
 
 GluedGeomDet::GluedGeomDet(BoundPlane* sp,
                            const GeomDetUnit* monoDet,

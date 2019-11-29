@@ -19,7 +19,7 @@
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include <vector>
 #include <unordered_map>
 

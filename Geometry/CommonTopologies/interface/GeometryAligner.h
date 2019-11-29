@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/CommonDetUnit/interface/DetPositioner.h"
+#include "Geometry/CommonTopologies/interface/DetPositioner.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
@@ -18,7 +18,7 @@
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"

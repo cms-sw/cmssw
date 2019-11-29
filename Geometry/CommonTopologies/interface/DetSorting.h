@@ -2,7 +2,7 @@
 #define DetSorting_h
 
 #include <DataFormats/GeometrySurface/interface/GeometricSorting.h>
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 namespace geomsort {
 
