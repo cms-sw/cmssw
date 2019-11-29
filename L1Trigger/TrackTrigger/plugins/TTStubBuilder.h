@@ -155,9 +155,8 @@ bool TTStubBuilder<T>::SortStubBendPairs(const std::pair<unsigned int, double>& 
 }
 
 /// Analogous sorting routine directly from stubs
-template< typename T >
-bool TTStubBuilder< T >::SortStubsBend( const TTStub< T >& left, const TTStub< T >& right )
-{
+template <typename T>
+bool TTStubBuilder<T>::SortStubsBend(const TTStub<T>& left, const TTStub<T>& right) {
   return fabs(left.getBendFE()) < fabs(right.getBendFE());
 }
 
