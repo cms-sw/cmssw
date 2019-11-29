@@ -366,6 +366,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         r9 = Var("full5x5_r9()",float,doc="R9 of the supercluster, calculated with full 5x5 region",precision=10),
         sieie = Var("full5x5_sigmaIetaIeta()",float,doc="sigma_IetaIeta of the supercluster, calculated with full 5x5 region",precision=10),
         eInvMinusPInv = Var("(1-eSuperClusterOverP())/ecalEnergy()",float,doc="1/E_SC - 1/p_trk",precision=10),
+        scEnergy = Var("superCluster().energy()",float,doc="supercluster energy",precision=10),
 
         mvaFall17V1Iso = Var("userFloat('mvaFall17V1Iso')",float,doc="MVA Iso ID V1 score"),
         mvaFall17V1Iso_WP80 = Var("userInt('mvaFall17V1Iso_WP80')",bool,doc="MVA Iso ID V1 WP80"),
