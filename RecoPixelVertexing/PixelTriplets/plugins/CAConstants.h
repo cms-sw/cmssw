@@ -34,7 +34,7 @@ namespace CAConstants {
   constexpr uint32_t maxCellsPerHit() { return 128 / 2; }
 #endif
 #else
-  constexpr uint32_t maxNumberOfDoublets() { return 2*1024 * 1024; }
+  constexpr uint32_t maxNumberOfDoublets() { return 2 * 1024 * 1024; }
   constexpr uint32_t maxCellsPerHit() { return 8 * 128; }
 #endif
   constexpr uint32_t maxNumOfActiveDoublets() { return maxNumberOfDoublets() / 4; }

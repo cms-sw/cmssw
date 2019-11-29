@@ -57,7 +57,7 @@ namespace cudautils {
   inline void launchZero(Histo *__restrict__ h,
                          cudaStream_t stream
 #ifndef __CUDACC__
-                         = 0
+                         = cudaStreamDefault
 #endif
   ) {
     uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
@@ -72,12 +72,12 @@ namespace cudautils {
   inline void launchFinalize(Histo *__restrict__ h,
                              uint8_t *__restrict__ ws
 #ifndef __CUDACC__
-                             = nullptr
+                             = cudaStreamDefault
 #endif
                              ,
                              cudaStream_t stream
 #ifndef __CUDACC__
-                             = 0
+                             = cudaStreamDefault
 #endif
   ) {
 #ifdef __CUDACC__
@@ -101,7 +101,7 @@ namespace cudautils {
                                  int nthreads,
                                  cudaStream_t stream
 #ifndef __CUDACC__
-                                 = 0
+                                 = cudaStreamDefault
 #endif
   ) {
     launchZero(h, stream);
