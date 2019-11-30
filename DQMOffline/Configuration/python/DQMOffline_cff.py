@@ -16,6 +16,7 @@ from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
+from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -151,10 +152,12 @@ DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
                                 DQMOfflineVertex 
                                 )
 
+DQMOfflineTrackerPhase2 = cms.Sequence( trackerphase2DQMSource )
+
 DQMOfflineTAU = cms.Sequence( produceDenomsData *
 				pfTauRunDQMValidation )
 
-DQMOfflineTrackerStrip = cms.Sequence( SiStripDQMTier0Common )
+DQMOfflineTrackerStripCommon = cms.Sequence( SiStripDQMTier0Common )
 
 DQMOfflineTrackerPixel = cms.Sequence( siPixelOfflineDQM_source )
 
@@ -236,4 +239,3 @@ phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndE
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
 DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 #PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
-
