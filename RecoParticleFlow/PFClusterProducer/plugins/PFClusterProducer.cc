@@ -22,10 +22,13 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
     _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf));
   }
 
-  const edm::VParameterSet& seedcleanerConfs = conf.getParameterSetVector("seedCleaners");
-  for (const auto& conf : seedcleanerConfs) {
-      const std::string& seedcleanerName = conf.getParameter<std::string>("algoName");
-      _seedcleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(seedcleanerName, conf));
+  if (conf.exists("seedCleaners")){ 
+      const edm::VParameterSet& seedcleanerConfs = conf.getParameterSetVector("seedCleaners");
+  
+      for (const auto& conf : seedcleanerConfs) {
+          const std::string& seedcleanerName = conf.getParameter<std::string>("algoName");
+          _seedcleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(seedcleanerName, conf));
+  }
   }
   
   edm::ConsumesCollector sumes = consumesCollector();
