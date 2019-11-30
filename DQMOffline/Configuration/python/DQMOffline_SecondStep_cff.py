@@ -117,6 +117,7 @@ from DQM.SiOuterTracker.OuterTrackerClientConfig_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorClient.pixelTrackingEffFromHitPattern_cff import *
+from DQM.TrackingMonitorClient.pixelVertexResolutionClient_cfi import *
 
 DQMHarvestDCS = cms.Sequence ( dqmDcsInfoClient )
 
@@ -175,7 +176,8 @@ DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( DQMHarvestTrigger )
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )
 
-DQMHarvestPixelTracking = cms.Sequence( pixelTrackingEffFromHitPattern )
+DQMHarvestPixelTracking = cms.Sequence( pixelTrackingEffFromHitPattern *
+                                        pixelVertexResolutionClient )
 
 DQMHarvestOuterTracker = cms.Sequence(
                                  dqmDcsInfoClient *

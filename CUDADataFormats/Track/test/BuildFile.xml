@@ -1,0 +1,13 @@
+<use name="HeterogeneousCore/CUDAUtilities"/>
+
+<bin file="TrajectoryStateSOA_t.cpp" name="cpuTrajectoryStateSOA_t">
+  <use name="eigen"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+</bin>
+
+<bin file="TrajectoryStateSOA_t.cu" name="gpuTrajectoryStateSOA_t">
+  <use name="eigen"/>
+  <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+</bin>
+

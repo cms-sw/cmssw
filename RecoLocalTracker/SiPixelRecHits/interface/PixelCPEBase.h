@@ -78,11 +78,13 @@ public:
   };
 
   struct ClusterParam {
+    ClusterParam() {}
     ClusterParam(const SiPixelCluster& cl) : theCluster(&cl) {}
 
     virtual ~ClusterParam() = default;
 
-    const SiPixelCluster* theCluster;
+    const SiPixelCluster* theCluster = nullptr;
+    ;
 
     //--- Cluster-level quantities (filled in computeAnglesFrom....)
     float cotalpha;

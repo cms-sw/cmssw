@@ -1,6 +1,11 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="clhep"/>
+<use   name="CUDADataFormats/EcalRecHitSoA"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="HeterogeneousCore/CUDACore"/>
+<use   name="HeterogeneousCore/CUDAUtilities"/>
+<use   name="cuda"/>
 <export>
   <lib   name="1"/>
 </export>

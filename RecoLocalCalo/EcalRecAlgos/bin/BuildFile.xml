@@ -1,0 +1,7 @@
+<bin name="makeEcalGpuValidationPlots" file="makeEcalGpuValidationPlots.cpp">
+    <use name="root"/>
+    <use name="rootgraphics"/>
+    <use name="CUDADataFormats/EcalRecHitSoA"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/EcalRecHit"/>
+</bin>
