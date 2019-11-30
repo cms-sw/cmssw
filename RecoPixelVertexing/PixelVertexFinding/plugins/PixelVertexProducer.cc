@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelVertexFinding/interface/PixelVertexProducer.h"
+#include "RecoPixelVertexing/PixelVertexFinding/plugins/PixelVertexProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -180,3 +180,5 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   e.put(std::move(vertexes));
 }
+
+DEFINE_FWK_MODULE(PixelVertexProducer);
