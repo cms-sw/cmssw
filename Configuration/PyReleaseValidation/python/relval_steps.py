@@ -960,7 +960,7 @@ steps['QCD_Pt_80_120_13_PPREF']=merge([ppRefDefaults2017,gen2017('QCD_Pt_80_120_
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
 #step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@fake,VALIDATION:@standardValidation,DQM:@standardDQM',
-step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQMFS',
                            '--fast':'',
                            '--beamspot'    : 'Realistic8TeVCollision',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -968,7 +968,7 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW
                            '--relval':'27000,3000'},
                           step1Defaults])
 #step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@relval2016,VALIDATION:@standardValidation,DQM:@standardDQM',
-step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQMFS',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc',
                            '--beamspot'    : 'Realistic50ns13TeVCollision',
@@ -984,7 +984,7 @@ step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
 step1FastUpg2015_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
                                                 step1FastUpg2015Defaults])
 
-step1FastUpg2017Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2017Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQMFS',
                            '--fast':'',
                            '--conditions'  :'auto:phase1_2017_realistic',
                            '--beamspot'    : 'Realistic25ns13TeVEarly2017Collision',
@@ -1000,7 +1000,7 @@ step1FastPU17NewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
 step1FastUpg2017_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
                                                 step1FastUpg2017Defaults])
 
-step1FastUpg2018Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2018Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQMFS',
                            '--fast':'',
                            '--conditions'  :'auto:phase1_2018_realistic',
                            '--beamspot'    :'Realistic25ns13TeVEarly2018Collision',
@@ -1578,7 +1578,7 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016'
                   }
 step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step2Upg2015Defaults])
 
-step2Upg2015DefaultsAPVSimu = merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},step2Upg2015Defaults])
+step2Upg2015DefaultsAPVSimu = merge([{'--era': 'Run2_2016_HIPM'},step2Upg2015Defaults])
 
 #for 2017
 step2Upg2017Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017',
@@ -1602,7 +1602,7 @@ step2Upg2018Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018'
 
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
-steps['DIGIUP15APVSimu']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},step2Upg2015Defaults])
+steps['DIGIUP15APVSimu']=merge([{'--era': 'Run2_2016_HIPM'},step2Upg2015Defaults])
 
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
@@ -1741,9 +1741,9 @@ digiPremixLocalPileupUp2018Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2018Defaults25ns])
 
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
-steps['DIGIPRMXUP15APVSimu_PU25']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15APVSimu_PU25']=merge([{'--era': 'Run2_2016_HIPM'},digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
-steps['DIGIPRMXLOCALUP15APVSimu_PU25']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},digiPremixLocalPileupUp2015Defaults25ns])
+steps['DIGIPRMXLOCALUP15APVSimu_PU25']=merge([{'--era': 'Run2_2016_HIPM'},digiPremixLocalPileupUp2015Defaults25ns])
 
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
@@ -2556,7 +2556,7 @@ steps['HARVESTGEN2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTG
 
 
 #data
-steps['HARVESTD']={'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM',
+steps['HARVESTD']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM',
                    '--conditions':'auto:run1_data',
                    '--data':'',
                    '--filetype':'DQM',
