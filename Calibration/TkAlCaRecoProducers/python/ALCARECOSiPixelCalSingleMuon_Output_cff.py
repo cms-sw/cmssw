@@ -7,7 +7,6 @@ OutALCARECOSiPixelCalSingleMuon_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring(
       'keep *_ALCARECOSiPixelCalSingleMuon_*_*',
       'keep *_muons__*',
-      'keep *_siPixelClusters_*_*',
       'keep *_offlinePrimaryVertices_*_*',
       'keep *_*riggerResults_*_HLT'
      )
