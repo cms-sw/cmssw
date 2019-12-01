@@ -7,22 +7,19 @@
 //#include <unordered_map>
 
 class ECALPFSeedCleaner : public RecHitTopologicalCleanerBase {
- public:
-
+public:
   ECALPFSeedCleaner(const edm::ParameterSet& conf);
   ECALPFSeedCleaner(const ECALPFSeedCleaner&) = delete;
   ECALPFSeedCleaner& operator=(const ECALPFSeedCleaner&) = delete;
 
   void update(const edm::EventSetup&) override;
 
-  void clean( const edm::Handle<reco::PFRecHitCollection>& input,
-	      std::vector<bool>& mask ) override;
+  void clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) override;
 
- private:
-  edm::ESHandle<EcalPFSeedingThresholds> ths_; 
+private:
+  edm::ESHandle<EcalPFSeedingThresholds> ths_;
 };
 
-DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory,
-		  ECALPFSeedCleaner,"ECALPFSeedCleaner");
+DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory, ECALPFSeedCleaner, "ECALPFSeedCleaner");
 
 #endif

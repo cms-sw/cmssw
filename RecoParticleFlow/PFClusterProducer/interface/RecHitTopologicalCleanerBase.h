@@ -17,8 +17,8 @@ public:
   RecHitTopologicalCleanerBase& operator=(const RecHitTopologicalCleanerBase&) = delete;
 
   virtual void clean(const edm::Handle<reco::PFRecHitCollection>&, std::vector<bool>&) = 0;
-  virtual void update(const edm::EventSetup&){}
-  
+  virtual void update(const edm::EventSetup&) {}
+
   const std::string& name() const { return _algoName; }
 
 private:
