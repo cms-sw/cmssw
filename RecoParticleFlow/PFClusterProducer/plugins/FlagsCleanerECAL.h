@@ -5,7 +5,6 @@
 
 class FlagsCleanerECAL : public RecHitTopologicalCleanerBase {
 public:
-
   FlagsCleanerECAL(const edm::ParameterSet& conf);
   FlagsCleanerECAL(const FlagsCleanerECAL&) = delete;
   FlagsCleanerECAL& operator=(const FlagsCleanerECAL&) = delete;
@@ -14,11 +13,8 @@ public:
   void clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) override;
 
 private:
-
-
-  std::vector<int> v_chstatus_excl_; // list of rechit status flags to be excluded from seeding
+  std::vector<int> v_chstatus_excl_;  // list of rechit status flags to be excluded from seeding
   bool checkFlags(const reco::PFRecHit& hit);
-  
 };
 
 DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory, FlagsCleanerECAL, "FlagsCleanerECAL");
