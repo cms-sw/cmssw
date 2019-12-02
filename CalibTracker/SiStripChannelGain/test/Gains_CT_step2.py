@@ -9,7 +9,7 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing("analysis")
 options.register("globalTag", "92X_dataRun2_Express_v2", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Global tag (express, to check the homogeneity of the calibration range")
 options.register("outputDbFile", "sqlite_file:promptCalibConditions.db", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Connection string of output database")
-options.register("fitMethod", "legacy", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Fit strategy (Legacy, DDRng, DDRngAllConv, or DDRngConvExceptTOBL5L6")
+options.register("fitMethod", "Legacy", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Fit strategy (Legacy, DDRng, DDRngAllConv, or DDRngConvExceptTOBL5L6")
 options.register("DQMOutput", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "Produce DQM output")
 options.parseArguments()
 
