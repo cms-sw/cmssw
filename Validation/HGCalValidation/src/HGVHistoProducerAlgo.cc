@@ -192,7 +192,9 @@ void HGVHistoProducerAlgo::bookInfo(DQMStore::IBooker& ibook, Histograms& histog
   histograms.maxlayerzp = ibook.bookInt("maxlayerzp");
 }
 
-void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid) {
+void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook,
+                                                  Histograms& histograms,
+                                                  int pdgid) {
   histograms.h_caloparticle_eta[pdgid] =
       ibook.book1D("num_caloparticle_eta", "N of caloparticle vs eta", nintEta_, minEta_, maxEta_);
   histograms.h_caloparticle_eta_Zorigin[pdgid] =
@@ -532,13 +534,14 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
   //---------------------------------------------------------------------------------------------------------------------------
 }
 
-void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned layers) {
+void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook,
+                                                  Histograms& histograms,
+                                                  unsigned layers) {
   histograms.h_score_multicl2caloparticle.push_back(ibook.book1D(
       "Score_multicl2caloparticle", "Score of Multi Cluster per CaloParticle", nintScore_, minScore_, maxScore_));
   histograms.h_score_caloparticle2multicl.push_back(ibook.book1D(
       "Score_caloparticle2multicl", "Score of CaloParticle per Multi Cluster", nintScore_, minScore_, maxScore_));
-  histograms.h_energy_vs_score_multicl2caloparticle.push_back(
-      ibook.book2D("Energy_vs_Score_multi2caloparticle",
+  histograms.h_energy_vs_score_multicl2caloparticle.push_back(ibook.book2D("Energy_vs_Score_multi2caloparticle",
                    "Energy vs Score of Multi Cluster per CaloParticle",
                    nintScore_,
                    minScore_,
@@ -2171,7 +2174,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
     if (assocDuplicate) {
       histograms.h_numDup_multicl_eta[count]->Fill(multiClusters[mclId].eta());
       histograms.h_numDup_multicl_phi[count]->Fill(multiClusters[mclId].phi());
-    } else {
+    }
       if (assocFakeMerge > 0) {
         histograms.h_num_multicl_eta[count]->Fill(multiClusters[mclId].eta());
         histograms.h_num_multicl_phi[count]->Fill(multiClusters[mclId].phi());
@@ -2192,9 +2195,8 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
             multiClusters[mclId].phi(), sharedeneCPallLayers / multiClusters[mclId].energy());
       }
       if (assocFakeMerge >= 2) {
-        histograms.h_numMerge_multicl_eta[count]->Fill(multiClusters[mclId].eta());
-        histograms.h_numMerge_multicl_phi[count]->Fill(multiClusters[mclId].phi());
-      }
+      histograms.h_numMerge_multicl_eta[count]->Fill(multiClusters[mclId].eta());
+      histograms.h_numMerge_multicl_phi[count]->Fill(multiClusters[mclId].phi());
     }
     histograms.h_denom_multicl_eta[count]->Fill(multiClusters[mclId].eta());
     histograms.h_denom_multicl_phi[count]->Fill(multiClusters[mclId].phi());
