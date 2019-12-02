@@ -17,9 +17,10 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'MTDValidation' : ['', 'globalValidationMTD', 'mtdValidationPostProcessor'],
                    'OuterTrackerValidation' : ['', 'globalValidationOuterTracker', 'postValidationOuterTracker'],
                    'ecalValidation_phase2' : ['', 'validationECALPhase2', ''],
+                   'TrackerPhase2Validation' : ['', 'trackerphase2ValidationSource', 'trackerphase2ValidationHarvesting'],
                  }
 
-_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation', 'electronOnlyValidation', 'photonOnlyValidation','bTagOnlyValidation', 'tauOnlyValidation', 'hcalOnlyValidation', 'HGCalValidation', 'MTDValidation', 'OuterTrackerValidation', 'ecalValidation_phase2']
+_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation', 'electronOnlyValidation', 'photonOnlyValidation','bTagOnlyValidation', 'tauOnlyValidation', 'hcalOnlyValidation', 'HGCalValidation', 'MTDValidation', 'OuterTrackerValidation', 'ecalValidation_phase2', 'TrackerPhase2Validation']
 autoValidation['phase2Validation'] = ['','','']
 for i in range(0,3):
     autoValidation['phase2Validation'][i] = '+'.join([_f for _f in [autoValidation[m][i] for m in _phase2_allowed] if _f])
