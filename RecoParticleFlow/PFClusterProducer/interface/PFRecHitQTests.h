@@ -84,10 +84,8 @@ protected:
     (*eventSetup_).get<EcalPFRecHitThresholdsRcd>().get(ths);
 
     float threshold = (*ths)[hit.detId()];
-    if (hit.energy() > threshold)
-      return true;
-
-    return false;
+    return hit.energy() > threshold ;
+   
   }
 };
 
