@@ -1,0 +1,5 @@
+<iftool name="cuda-gcc-support">
+<bin name="cudaComputeCapabilities" file="cudaComputeCapabilities.cpp">
+  <use name="cuda"/>
+</bin>
+</iftool>
