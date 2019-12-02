@@ -108,12 +108,15 @@ process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
 #
 #process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
 
+# example for smearing the jet resolution
 process.slimmedJetsSmeared = cms.EDProducer('SmearedPATJetProducer',
        src = cms.InputTag('slimmedJets'),
        enabled = cms.bool(True),
        rho = cms.InputTag("fixedGridRhoFastjetAll"),
        algo = cms.string('AK4PFchs'),
        algopt = cms.string('AK4PFchs_pt'),
+       #resolutionFile = cms.FileInPath('Autumn18_V7_MC_PtResolution_AK4PFchs.txt'),
+       #scaleFactorFile = cms.FileInPath('combined_SFs_uncertSources.txt'),
 
        genJets = cms.InputTag('slimmedGenJets'),
        dRMax = cms.double(0.2),
@@ -125,8 +128,21 @@ process.slimmedJetsSmeared = cms.EDProducer('SmearedPATJetProducer',
    # -1: -1 sigma (down variation)
    # 1: +1 sigma (up variation)
    variation = cms.int32(0),  # If not specified, default to 0
+   uncertaintySource = cms.string(""), # If not specified, default to Total
        )
-
 process.p=cms.Path(process.slimmedJetsSmeared)
+
+# example for computing total uncertainties on jet resolution
+process.slimmedJetsSmearedDown=process.slimmedJetsSmeared.clone(variation=cms.int32(-1))
+process.p+=process.slimmedJetsSmearedDown
+process.slimmedJetsSmearedUp=process.slimmedJetsSmeared.clone(variation=cms.int32(1))
+process.p+=process.slimmedJetsSmearedUp
+
+# example for cumputing statistical and systematic uncertainties on jet resolution separately
+#for source in ["Stat","Jec","Gaus","Rest","Time"]:
+#  setattr(process,"slimmedJetsSmeared"+source+"Down",process.slimmedJetsSmeared.clone(uncertaintySource=source,variation=cms.int32(-1)))
+#  process.p+=getattr(process,"slimmedJetsSmeared"+source+"Down")
+#  setattr(process,"slimmedJetsSmeared"+source+"Up",process.slimmedJetsSmeared.clone(uncertaintySource=source,variation=cms.int32(1)))
+#  process.p+=getattr(process,"slimmedJetsSmeared"+source+"Up")
 
 process.schedule=cms.Schedule(process.p,process.MINIAODSIMoutput_step)
