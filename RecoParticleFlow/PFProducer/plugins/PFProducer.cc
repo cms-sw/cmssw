@@ -33,7 +33,7 @@
 
 #include "TFile.h"
 
-/**\class PFProducer 
+/**\class PFProducer
 \brief Producer for particle flow reconstructed particles (PFCandidates)
 
 This producer makes use of PFAlgo, the particle flow algorithm.
@@ -122,9 +122,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
               iConfig.getParameter<double>("pf_nsigma_HCAL"),
               iConfig.getParameter<double>("pf_nsigma_HFEM"),
               iConfig.getParameter<double>("pf_nsigma_HFHAD"),
-              iConfig.getParameter<double>("resolHF_a"),
-              iConfig.getParameter<double>("resolHF_b"),
-              iConfig.getParameter<double>("resolHF_c"),
+              iConfig.getParameter<std::vector<double>>("resolHF_square"),
               pfEnergyCalibration_,
               pfEnergyCalibrationHF_,
               iConfig) {
@@ -456,9 +454,8 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<std::vector<double>>("calibHF_b_EMHAD", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
 
   // resolution parameters for HF: EPJC 53(2008)139, doi:10.1140/epjc/s10052-007-0459-4
-  desc.add<double>("resolHF_a", 2.799)->setComment("HF resolution - stochastic term");
-  desc.add<double>("resolHF_b", 0.114)->setComment("HF resolution - constant term");
-  desc.add<double>("resolHF_c", 0.0)->setComment("HF resolution - noise term");
+  desc.add<std::vector<double>>("resolHF_square", {2.799 * 2.799, 0.114 * 0.114, 0.0 * 0.0})
+      ->setComment("HF resolution - stochastic, constant, noise term squares");
 
   descriptions.add("particleFlow", desc);
 }
