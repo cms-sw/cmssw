@@ -72,11 +72,6 @@ void KDTreeLinkerTrackHF::insertTargetElt(reco::PFBlockElement* track) {
 void KDTreeLinkerTrackHF::insertFieldClusterElt(reco::PFBlockElement* hfCluster) {
   const reco::PFClusterRef& clusterref = hfCluster->clusterRef();
 
-  // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
-  //   if (!((clusterref->layer() == PFLayer::HF_ENDCAP) ||
-  // 	(clusterref->layer() == PFLayer::HF_BARREL1)))
-  //     return;
-
   const std::vector<reco::PFRecHitFraction>& fraction = clusterref->recHitFractions();
 
   // We create a list of hfCluster
@@ -85,7 +80,7 @@ void KDTreeLinkerTrackHF::insertFieldClusterElt(reco::PFBlockElement* hfCluster)
     const reco::PFRecHitRef& rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
 
-    if ((rh.isNull()) || (fract < 1E-4))
+    if ((rh.isNull()) || (fract < cutOffFrac))
       continue;
 
     const reco::PFRecHit& rechit = *rh;
@@ -164,10 +159,9 @@ void KDTreeLinkerTrackHF::searchLinks() {
       trackphi += 2 * M_PI;
 
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
-    // Same envelope for cap et barrel rechits.
     double inflation = 1.;
-    float rangeeta = (cristalPhiEtaMaxSize_ * (1.5 + 0.5) + 0.2 * fabs(dHeta)) * inflation;
-    float rangephi = (cristalPhiEtaMaxSize_ * (1.5 + 0.5) + 0.2 * fabs(dHphi)) * inflation;
+    float rangeeta = (cristalPhiEtaMaxSize_ * 2.0 + 0.2 * fabs(dHeta)) * inflation;
+    float rangephi = (cristalPhiEtaMaxSize_ * 2.0 + 0.2 * fabs(dHphi)) * inflation;
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<reco::PFRecHit const*> recHits;

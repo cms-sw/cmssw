@@ -81,6 +81,9 @@ protected:
   // substracting (adding) 2Pi. This field define the threshold of this operation.
   float phiOffset_ = 0.25;
 
+  // rechit with fraction this value will be ignored in KDTreeLinker
+  const float cutOffFrac = 1E-4;
+
   // Debug boolean. Not used until now.
   bool debug_ = false;
 };

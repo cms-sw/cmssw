@@ -100,7 +100,7 @@ void KDTreeLinkerPSEcal::insertFieldClusterElt(reco::PFBlockElement *ecalCluster
     const reco::PFRecHitRef &rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
 
-    if ((rh.isNull()) || (fract < 1E-4))
+    if ((rh.isNull()) || (fract < cutOffFrac))
       continue;
 
     const reco::PFRecHit &rechit = *rh;
