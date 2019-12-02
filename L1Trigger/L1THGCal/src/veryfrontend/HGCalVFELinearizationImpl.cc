@@ -13,7 +13,12 @@ HGCalVFELinearizationImpl::HGCalVFELinearizationImpl(const edm::ParameterSet& co
       tdcOnset_sc_(conf.getParameter<double>("tdcOnset_sc")),
       adcnBits_sc_(conf.getParameter<uint32_t>("adcnBits_sc")),
       tdcsaturation_sc_(conf.getParameter<double>("tdcsaturation_sc")),
-      linnBits_(conf.getParameter<uint32_t>("linnBits")) {
+      linnBits_(conf.getParameter<uint32_t>("linnBits")),
+      oot_coefficients_(conf.getParameter<std::vector<double>>("oot_coefficients")) {
+  const int kOot_order = 2;
+  if (oot_coefficients_.size() != kOot_order) {
+    throw cms::Exception("BadConfiguration") << "OOT subtraction needs " << kOot_order << " coefficients";
+  }
   adcLSB_si_ = adcsaturation_si_ / pow(2., adcnBits_si_);
   tdcLSB_si_ = tdcsaturation_si_ / pow(2., tdcnBits_si_);
   adcLSB_sc_ = adcsaturation_sc_ / pow(2., adcnBits_sc_);
@@ -23,11 +28,11 @@ HGCalVFELinearizationImpl::HGCalVFELinearizationImpl(const edm::ParameterSet& co
 
 void HGCalVFELinearizationImpl::linearize(const std::vector<HGCDataFrame<DetId, HGCSample>>& dataframes,
                                           std::vector<std::pair<DetId, uint32_t>>& linearized_dataframes) {
-  double amplitude = 0.;
-  uint32_t amplitude_int = 0;
   const int kIntimeSample = 2;
 
   for (const auto& frame : dataframes) {  //loop on DIGI
+    double amplitude = 0.;
+    uint32_t amplitude_int = 0;
     unsigned det = frame.id().det();
     double adcLSB = 0.;
     double tdcLSB = 0.;
@@ -38,6 +43,21 @@ void HGCalVFELinearizationImpl::linearize(const std::vector<HGCDataFrame<DetId, 
       tdcLSB = tdcLSB_si_;
       tdcOnset = tdcOnset_si_;
       linLSB = linLSB_si_;
+      if (frame[kIntimeSample].mode()) {  //TOT mode
+        amplitude = (floor(tdcOnset / adcLSB) + 1.0) * adcLSB + double(frame[kIntimeSample].data()) * tdcLSB;
+      } else {  //ADC mode
+        double data = frame[kIntimeSample].data();
+        // applies OOT PU subtraction only in the ADC mode
+        if (!frame[kIntimeSample - 1].mode()) {
+          data += oot_coefficients_[kIntimeSample - 1] * frame[kIntimeSample - 1].data();
+          if (!frame[kIntimeSample - 2].mode()) {
+            data += oot_coefficients_[kIntimeSample - 2] * frame[kIntimeSample - 2].data();
+          }
+        }
+        amplitude = std::max(0., data) * adcLSB;
+      }
+
+      amplitude_int = uint32_t(floor(amplitude / linLSB + 0.5));
     } else if (det == DetId::Hcal || det == DetId::HGCalHSc) {
       adcLSB = adcLSB_sc_;
       tdcLSB = tdcLSB_sc_;
@@ -51,6 +71,8 @@ void HGCalVFELinearizationImpl::linearize(const std::vector<HGCDataFrame<DetId, 
     }
 
     amplitude_int = uint32_t(floor(amplitude / linLSB + 0.5));
+    if (amplitude_int == 0)
+      continue;
     if (amplitude_int > linMax_)
       amplitude_int = linMax_;
 
