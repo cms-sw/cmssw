@@ -54,7 +54,6 @@ public:
   void endRun(edm::Run const& run, edm::EventSetup const& isetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-
 private:
   virtual void checkBookAPVColls(const edm::EventSetup& setup);
   void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override;
@@ -63,14 +62,18 @@ private:
   int statCollectionFromMode(const char* tag) const;
 
   void algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index);
-  void getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400, bool gaussianConvolution=false);
-  bool IsGoodLandauFit(double* FitResults); 
+  void getPeakOfLandau(TH1* InputHisto,
+                       double* FitResults,
+                       double LowRange = 50,
+                       double HighRange = 5400,
+                       bool gaussianConvolution = false);
+  bool IsGoodLandauFit(double* FitResults);
 
   bool produceTagFilter(const MonitorElement* Charge_Vs_Index);
   std::unique_ptr<SiStripApvGain> getNewObject(const MonitorElement* Charge_Vs_Index);
 
   bool doStoreOnDB;
-  bool doChargeMonitorPerPlane;   /*!< Charge monitor per detector plane */
+  bool doChargeMonitorPerPlane; /*!< Charge monitor per detector plane */
   bool storeGainsTree_;
   unsigned int GOOD;
   unsigned int BAD;
