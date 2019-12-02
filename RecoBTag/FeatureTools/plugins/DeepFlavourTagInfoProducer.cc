@@ -191,7 +191,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   double negative_cut = 0;  //used only with flip_
   if (flip_) {              //FIXME: Check if can do even less often than once per event
     const edm::Provenance* prov = shallow_tag_infos.provenance();
-    const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov);
+    const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov, iEvent.processHistory());
     negative_cut = ((psetFromProvenance.getParameter<edm::ParameterSet>("computer"))
                         .getParameter<edm::ParameterSet>("trackSelection"))
                        .getParameter<double>("sip3dSigMax");
