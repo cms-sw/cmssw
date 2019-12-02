@@ -95,7 +95,7 @@ void DQMProtobufReader::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCa
 
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache.id().run(), lbCache.id().luminosityBlock());
-  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistry().getMapped(lbCache.aux().processHistoryID()));
 }
 
 void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
