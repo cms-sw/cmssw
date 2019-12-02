@@ -141,8 +141,10 @@ namespace edm {
     //size_t size() const;
 
     void setConsumer(EDConsumerBase const* iConsumer) { consumer_ = iConsumer; }
+    EDConsumerBase const* getConsumer() const { return consumer_; }
 
     void setSharedResourcesAcquirer(SharedResourcesAcquirer* iSra) { resourcesAcquirer_ = iSra; }
+    SharedResourcesAcquirer* getSharedResourcesAcquirer() const { return resourcesAcquirer_; }
 
     void setProducer(ProducerBase const* iProd) { prodBase_ = iProd; }
 
@@ -172,6 +174,7 @@ namespace edm {
 
     BranchDescription const& getBranchDescription(unsigned int iPutTokenIndex) const;
     ProductID const& getProductID(unsigned int iPutTokenIndex) const;
+    ModuleDescription const& moduleDescription() const { return md_; }
 
     std::vector<edm::ProductResolverIndex> const& putTokenIndexToProductResolverIndex() const;
 

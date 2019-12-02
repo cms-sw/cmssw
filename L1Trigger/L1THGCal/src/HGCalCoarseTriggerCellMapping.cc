@@ -2,10 +2,11 @@
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 
 HGCalCoarseTriggerCellMapping::HGCalCoarseTriggerCellMapping(const std::vector<unsigned>& ctcSize)
-    : ctcSize_(!ctcSize.empty() ? ctcSize : std::vector<unsigned>{2, 2, 2, 2}) {
-  if (ctcSize_.size() != kNLayers_) {
+    : ctcSize_(!ctcSize.empty() ? ctcSize
+                                : std::vector<unsigned>{kNHGCalLayersMax_ * kNThicknesses_, kCTCsizeVeryFine_}) {
+  if (ctcSize_.size() != (kNHGCalLayersMax_ + 1) * kNThicknesses_) {
     throw cms::Exception("HGCTriggerParameterError")
-        << "Inconsistent size of coarse trigger cell size vector" << ctcSize_.size();
+        << "Inconsistent size of coarse trigger cell size vector " << ctcSize_.size();
   }
 
   for (auto ctc : ctcSize_)
@@ -45,49 +46,10 @@ void HGCalCoarseTriggerCellMapping::checkSizeValidity(int ctcSize) const {
 
 uint32_t HGCalCoarseTriggerCellMapping::getRepresentativeDetId(uint32_t tcid) const {
   uint32_t representativeid = 0;
-  DetId tc_Id(tcid);
-  if (tc_Id.det() == DetId::Forward) {  //V8
-    if (triggerTools_.isScintillator(tcid)) {
-      representativeid = tcid;  //stc not available in scintillator for v8
-    } else {
-      representativeid = tcid & ~1;
-    }
-  } else if (tc_Id.det() == DetId::HGCalTrigger || tc_Id.det() == DetId::HGCalHSc) {  //V9
-
-    if (triggerTools_.isScintillator(tcid)) {
-      HGCScintillatorDetId tc_IdV9(tcid);
-      uint32_t newPhi = tc_IdV9.iphi() & ~1;
-      representativeid = tcid & kHGCalScinCellMaskInv_;
-      representativeid |=
-          (((tc_IdV9.ietaAbs() & HGCScintillatorDetId::kHGCalRadiusMask) << HGCScintillatorDetId::kHGCalRadiusOffset) |
-           ((newPhi & HGCScintillatorDetId::kHGCalPhiMask) << HGCScintillatorDetId::kHGCalPhiOffset));
-
-    } else {
-      int uPrime = 0;
-      int newU = 0;
-      int newV = 0;
-      HGCalTriggerDetId tc_IdV9(tcid);
-      int rocnum = detIdToROC_.getROCNumber(tc_IdV9.triggerCellU(), tc_IdV9.triggerCellV(), 1);
-      if (rocnum == kRoc0deg_) {
-        uPrime = tc_IdV9.triggerCellU();
-        newU = (uPrime & ~1);
-        newV = tc_IdV9.triggerCellV() - tc_IdV9.triggerCellU() + newU;
-      } else if (rocnum == kRoc120deg_) {
-        uPrime = tc_IdV9.triggerCellU() - tc_IdV9.triggerCellV() - 1;
-        newU = (uPrime & ~1) + tc_IdV9.triggerCellV() + 1;
-        newV = tc_IdV9.triggerCellV();
-      } else if (rocnum == kRoc240deg_) {
-        uPrime = tc_IdV9.triggerCellV() - kRotate4_;
-        newU = tc_IdV9.triggerCellU();
-        newV = (uPrime & ~1) + kRotate4_;
-      }
-
-      representativeid = tcid & kHGCalCellMaskV9Inv_;
-      representativeid |= (((newU & HGCalTriggerDetId::kHGCalCellUMask) << HGCalTriggerDetId::kHGCalCellUOffset) |
-                           ((newV & HGCalTriggerDetId::kHGCalCellVMask) << HGCalTriggerDetId::kHGCalCellVOffset));
-    }
-  }
-
+  //Firstly get coarse trigger cell Id
+  uint32_t ctcId = getCoarseTriggerCellId(tcid);
+  //Get list of the constituent TCs, and choose (arbitrarily) the first one
+  representativeid = getConstituentTriggerCells(ctcId).at(0);
   if (triggerTools_.getTriggerGeometry()->validTriggerCell(representativeid)) {
     return representativeid;
   } else {
@@ -96,13 +58,10 @@ uint32_t HGCalCoarseTriggerCellMapping::getRepresentativeDetId(uint32_t tcid) co
 }
 
 uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) const {
-  int thickness = 0;
-  if (triggerTools_.isSilicon(detid)) {
-    thickness = triggerTools_.thicknessIndex(detid, true);
-  } else if (triggerTools_.isScintillator(detid)) {
-    thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-  }
-  int ctcSize = ctcSize_.at(thickness);
+  unsigned int layer = triggerTools_.layerWithOffset(detid);
+  int thickness = triggerTools_.thicknessIndex(detid, true);
+
+  int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
 
   DetId tc_Id(detid);
   if (tc_Id.det() == DetId::Forward) {  //V8
@@ -123,8 +82,9 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) c
     if (triggerTools_.isScintillator(detid)) {
       HGCScintillatorDetId tc_IdV9(detid);
 
-      int tcSplit = ((tc_IdV9.ietaAbs() << HGCScintillatorDetId::kHGCalRadiusOffset) | tc_IdV9.iphi()) &
+      int tcSplit = (((tc_IdV9.ietaAbs() - 1) << HGCScintillatorDetId::kHGCalRadiusOffset) | (tc_IdV9.iphi() - 1)) &
                     kSplit_v9_Scin_.at(ctcSize);
+
       detid = (detid & kHGCalScinCellMaskInv_) | tcSplit;
 
       return detid;
@@ -160,13 +120,9 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) c
 }
 
 std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(uint32_t ctcId) const {
-  int thickness = 0;
-  if (triggerTools_.isSilicon(ctcId)) {
-    thickness = triggerTools_.thicknessIndex(ctcId, true);
-  } else if (triggerTools_.isScintillator(ctcId)) {
-    thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-  }
-  int ctcSize = ctcSize_.at(thickness);
+  int thickness = triggerTools_.thicknessIndex(ctcId, true);
+  unsigned int layer = triggerTools_.layerWithOffset(ctcId);
+  int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
 
   std::vector<uint32_t> output_ids;
   DetId tc_Id(ctcId);
@@ -192,7 +148,13 @@ std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(
         if ((i & splitInv) != i)
           continue;
 
-        output_ids.emplace_back(ctcId | i);
+        HGCScintillatorDetId prime = (ctcId | i);
+        unsigned outid = (ctcId & kHGCalScinCellMaskInv_) |
+                         (((prime.iradiusAbs() + 1) << HGCScintillatorDetId::kHGCalRadiusOffset) | (prime.iphi() + 1));
+
+        if (triggerTools_.getTriggerGeometry()->validTriggerCell(outid)) {
+          output_ids.emplace_back(outid);
+        }
       }
 
     } else {
@@ -222,7 +184,9 @@ std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(
         outid |= (((u & HGCalTriggerDetId::kHGCalCellUMask) << HGCalTriggerDetId::kHGCalCellUOffset) |
                   ((v & HGCalTriggerDetId::kHGCalCellVMask) << HGCalTriggerDetId::kHGCalCellVOffset));
 
-        output_ids.emplace_back(outid);
+        if (triggerTools_.getTriggerGeometry()->validTriggerCell(outid)) {
+          output_ids.emplace_back(outid);
+        }
       }
     }
   }
@@ -238,6 +202,5 @@ GlobalPoint HGCalCoarseTriggerCellMapping::getCoarseTriggerCellPosition(uint32_t
   }
 
   GlobalPoint average_point(average_vector / constituentTCs.size());
-
   return average_point;
 }

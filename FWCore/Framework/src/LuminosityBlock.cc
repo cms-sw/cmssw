@@ -13,10 +13,7 @@ namespace edm {
                                    ModuleDescription const& md,
                                    ModuleCallingContext const* moduleCallingContext,
                                    bool isAtEnd)
-      : provRecorder_(lbp, md, isAtEnd),
-        aux_(lbp.aux()),
-        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext, false)),
-        moduleCallingContext_(moduleCallingContext) {}
+      : provRecorder_(lbp, md, isAtEnd), aux_(lbp.aux()), run_(), moduleCallingContext_(moduleCallingContext) {}
 
   LuminosityBlock::~LuminosityBlock() {}
 
@@ -29,13 +26,22 @@ namespace edm {
   void LuminosityBlock::setConsumer(EDConsumerBase const* iConsumer) {
     provRecorder_.setConsumer(iConsumer);
     if (run_) {
-      const_cast<Run*>(run_.get())->setConsumer(iConsumer);
+      run_->setConsumer(iConsumer);
     }
   }
 
   void LuminosityBlock::setSharedResourcesAcquirer(SharedResourcesAcquirer* iResourceAcquirer) {
     provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
-    const_cast<Run*>(run_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
+    if (run_) {
+      run_->setSharedResourcesAcquirer(iResourceAcquirer);
+    }
+  }
+
+  void LuminosityBlock::fillRun() const {
+    run_.emplace(
+        luminosityBlockPrincipal().runPrincipal(), provRecorder_.moduleDescription(), moduleCallingContext_, false);
+    run_->setSharedResourcesAcquirer(provRecorder_.getSharedResourcesAcquirer());
+    run_->setConsumer(provRecorder_.getConsumer());
   }
 
   void LuminosityBlock::setProducer(ProducerBase const* iProducer) {

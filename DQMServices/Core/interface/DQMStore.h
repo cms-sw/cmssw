@@ -247,12 +247,6 @@ namespace dqm::dqmstoreimpl {
         return owner_->getContents(std::forward<Args>(args)...);
       }
 
-      // for the supported syntaxes, see the declarations of DQMStore::removeElement
-      template <typename... Args>
-      void removeElement(Args&&... args) {
-        return owner_->removeElement(std::forward<Args>(args)...);
-      }
-
       std::vector<MonitorElement*> getAllContents(std::string const& path, uint32_t runNumber = 0, uint32_t lumi = 0);
       MonitorElement* get(std::string const& path);
 
@@ -506,17 +500,6 @@ namespace dqm::dqmstoreimpl {
     std::vector<MonitorElement*> getContents(std::string const& path) const;
     void getContents(std::vector<std::string>& into, bool showContents = true) const;
 
-    // ---------------------- softReset methods -------------------------------
-    void softReset(MonitorElement* me);
-    void disableSoftReset(MonitorElement* me);
-
-    // ---------------------- Public deleting ---------------------------------
-    void rmdir(std::string const& fullpath);
-    void removeContents();
-    void removeContents(std::string const& dir);
-    void removeElement(std::string const& name);
-    void removeElement(std::string const& dir, std::string const& name, bool warning = true);
-
     // ------------------------------------------------------------------------
     // ---------------------- public I/O --------------------------------------
     void save(std::string const& filename,
@@ -554,7 +537,6 @@ namespace dqm::dqmstoreimpl {
     int useQTestByMatch(std::string const& pattern, std::string const& qtname);
     void runQTests();
     int getStatus(std::string const& path = "") const;
-    void scaleElements();
 
   private:
     // ---------------- Navigation -----------------------
@@ -650,9 +632,6 @@ namespace dqm::dqmstoreimpl {
     static void collate3D(MonitorElement* me, TH3F* h, unsigned verbose);
     static void collateProfile(MonitorElement* me, TProfile* h, unsigned verbose);
     static void collateProfile2D(MonitorElement* me, TProfile2D* h, unsigned verbose);
-
-    // --- Operations on MEs that are normally reset at end of monitoring cycle ---
-    void setAccumulate(MonitorElement* me, bool flag);
 
     void print_trace(std::string const& dir, std::string const& name);
 

@@ -45,7 +45,7 @@ from Validation.Configuration.hgcalSimValid_cff import *
 from Validation.Configuration.mtdSimValid_cff import *
 from Validation.SiOuterTrackerV.OuterTrackerSourceConfigV_cff import *
 from Validation.Configuration.ecalSimValid_cff import *
-
+from Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidationTracking = cms.Sequence(
@@ -192,6 +192,7 @@ _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid
 
 _phase2_globalValidation = _run3_globalValidation.copy()
+_phase2_globalValidation += trackerphase2ValidationSource
 _phase2_globalValidation += me0SimValid
 
 

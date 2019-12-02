@@ -19,9 +19,6 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-
 #include <string>
 
 HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps) {
@@ -74,22 +71,13 @@ HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps
   produces<reco::SuperClusterCollection>(outputCollection_);
 
   // instanciate the correction algo object
-  energyCorrector_ =
-      std::make_unique<HiEgammaSCEnergyCorrectionAlgo>(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
-
-  // energy correction class
-  if (applyEnergyCorrection_)
-    EnergyCorrection_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
+  energyCorrector_ = std::make_unique<HiEgammaSCEnergyCorrectionAlgo>(sigmaElectronicNoise_, fCorrPset, verbosity_);
 }
 
 HiEgammaSCCorrectionMaker::~HiEgammaSCCorrectionMaker() = default;
 
 void HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es) {
   using namespace edm;
-
-  // initialize energy correction class
-  if (applyEnergyCorrection_)
-    EnergyCorrection_->init(es);
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -99,7 +87,7 @@ void HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& 
 
   edm::ESHandle<CaloTopology> pTopology;
   es.get<CaloTopologyRecord>().get(theCaloTopo_);
-  const CaloTopology* topology = theCaloTopo_.product();
+  const CaloTopology& topology = *theCaloTopo_;
 
   std::string rHInputCollection = rHInputProducerTag_.instance();
   if (rHInputCollection == "EcalRecHitsEB") {
@@ -143,8 +131,7 @@ void HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& 
   for (aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++) {
     reco::SuperCluster newClus;
     if (applyEnergyCorrection_)
-      newClus = energyCorrector_->applyCorrection(
-          *aClus, *hitCollection, sCAlgo_, geometry_p, topology, EnergyCorrection_.get());
+      newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, *geometry_p, topology);
     else
       newClus = *aClus;
 

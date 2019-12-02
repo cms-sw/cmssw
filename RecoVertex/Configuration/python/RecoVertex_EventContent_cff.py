@@ -36,9 +36,7 @@ _phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4D__*'
 
 _phase2_tktiming_layer_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4DnoPID__*',
                                             'keep *_offlinePrimaryVertices4DnoPIDWithBS__*',
-                                            'keep *_tofPID_*_*',
-                                            'keep *_offlinePrimaryVertices4Dfastsim__*',
-                                            'keep *_offlinePrimaryVertices4DfastsimWithBS__*']
+                                            'keep *_tofPID_*_*']
 
 def _phase2_tktiming_AddNewContent(mod):
     temp = mod.outputCommands + _phase2_tktiming_RecoVertexEventContent

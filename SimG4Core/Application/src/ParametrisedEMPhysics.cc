@@ -8,6 +8,7 @@
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 #include "SimG4Core/Application/interface/GFlashEMShowerModel.h"
 #include "SimG4Core/Application/interface/GFlashHadronShowerModel.h"
+#include "SimG4Core/Application/interface/LowEnergyFastSimModel.h"
 #include "SimG4Core/Application/interface/ElectronLimiter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -52,6 +53,7 @@ const G4String rname[NREG] = {"EcalRegion",
 
 struct ParametrisedEMPhysics::TLSmod {
   std::unique_ptr<GFlashEMShowerModel> theEcalEMShowerModel;
+  std::unique_ptr<LowEnergyFastSimModel> theLowEnergyFastSimModel;
   std::unique_ptr<GFlashEMShowerModel> theHcalEMShowerModel;
   std::unique_ptr<GFlashHadronShowerModel> theEcalHadShowerModel;
   std::unique_ptr<GFlashHadronShowerModel> theHcalHadShowerModel;
@@ -136,34 +138,39 @@ void ParametrisedEMPhysics::ConstructProcess() {
 
   // GFlash part
   bool gem = theParSet.getParameter<bool>("GflashEcal");
+  bool lowEnergyGem = theParSet.getParameter<bool>("LowEnergyGflashEcal");
   bool ghad = theParSet.getParameter<bool>("GflashHcal");
   bool gemHad = theParSet.getParameter<bool>("GflashEcalHad");
   bool ghadHad = theParSet.getParameter<bool>("GflashHcalHad");
 
-  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
-  if (gem || ghad || gemHad || ghadHad) {
+  if (gem || ghad || lowEnergyGem || gemHad || ghadHad) {
     if (!m_tpmod) {
       m_tpmod = new TLSmod;
     }
-    edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  "
-                                             << ghad << " for hadrons: " << gemHad << "  " << ghadHad;
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  " << ghad << " " << lowEnergyGem
+        << " for hadrons: " << gemHad << "  " << ghadHad;
 
     m_tpmod->theFastSimulationManagerProcess.reset(new G4FastSimulationManagerProcess());
 
     if (gem || ghad) {
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4Electron::Electron());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4Positron::Positron());
-    }
-    if (gemHad || ghadHad) {
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4Proton::Proton());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4AntiProton::AntiProton());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4PionPlus::PionPlus());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4PionMinus::PionMinus());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4KaonPlus::KaonPlus());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4KaonMinus::KaonMinus());
+      G4Electron::Electron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4Positron::Positron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+    } else if (lowEnergyGem) {
+      G4Electron::Electron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
     }
 
-    if (gem || gemHad) {
+    if (gemHad || ghadHad) {
+      G4Proton::Proton()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4AntiProton::AntiProton()->GetProcessManager()->AddDiscreteProcess(
+          m_tpmod->theFastSimulationManagerProcess.get());
+      G4PionPlus::PionPlus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4PionMinus::PionMinus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4KaonPlus::KaonPlus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4KaonMinus::KaonMinus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+    }
+
+    if (gem || gemHad || lowEnergyGem) {
       G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion", false);
 
       if (!aRegion) {
@@ -174,7 +181,12 @@ void ParametrisedEMPhysics::ConstructProcess() {
         if (gem) {
           //Electromagnetic Shower Model for ECAL
           m_tpmod->theEcalEMShowerModel.reset(new GFlashEMShowerModel("GflashEcalEMShowerModel", aRegion, theParSet));
+        } else if (lowEnergyGem) {
+          //Low energy electromagnetic Shower Model for ECAL
+          m_tpmod->theLowEnergyFastSimModel.reset(
+              new LowEnergyFastSimModel("LowEnergyFastSimModel", aRegion, theParSet));
         }
+
         if (gemHad) {
           //Electromagnetic Shower Model for ECAL
           m_tpmod->theEcalHadShowerModel.reset(
@@ -201,6 +213,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
       }
     }
   }
+
+  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // Step limiters for e+-
   bool eLimiter = theParSet.getParameter<bool>("ElectronStepLimit");

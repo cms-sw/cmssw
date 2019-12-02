@@ -15,6 +15,7 @@ from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
 from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
+from DQM.SiTrackerPhase2.Phase2TrackerDQMHarvesting_cff import *
 
 DQMOffline_SecondStepDCS = cms.Sequence( dqmDcsInfoClient )
 
@@ -183,6 +184,8 @@ DQMHarvestOuterTracker = cms.Sequence(
                                  DQMMessageLoggerClientSeq *
                                  dqmFastTimerServiceClient
                                  )
+DQMHarvestTrackerPhase2 = cms.Sequence(trackerphase2DQMHarvesting)
+
 
 DQMHarvestCTPPS = cms.Sequence(ctppsDQMHarvest)
 

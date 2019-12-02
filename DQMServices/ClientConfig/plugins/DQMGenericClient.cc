@@ -552,7 +552,6 @@ void DQMGenericClient::computeEfficiency(DQMStore::IBooker& ibooker,
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, std::hypot(effVal, errVal));
     }
-    removeMEIfBooked(newEfficMEName, igetter);
     ibooker.bookProfile(newEfficMEName, efficHist);
     delete efficHist;
   }
@@ -572,13 +571,10 @@ void DQMGenericClient::computeEfficiency(DQMStore::IBooker& ibooker,
     TString histClassName = myHistClass->GetName();
 
     if (histClassName == "TH1F") {
-      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book1D(newEfficMEName, (TH1F*)efficHist);
     } else if (histClassName == "TH2F") {
-      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book2D(newEfficMEName, (TH2F*)efficHist);
     } else if (histClassName == "TH3F") {
-      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book3D(newEfficMEName, (TH3F*)efficHist);
     }
 
@@ -699,8 +695,6 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker,
   float* lowedgesfloats = new float[nBin + 1];
   ME* meanME;
   ME* sigmaME;
-  removeMEIfBooked(newPrefix + "_Mean", igetter);
-  removeMEIfBooked(newPrefix + "_Sigme", igetter);
   if (hSrc->GetXaxis()->GetXbins()->GetSize()) {
     for (int j = 0; j < nBin + 1; ++j)
       lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
@@ -774,7 +768,6 @@ void DQMGenericClient::computeProfile(DQMStore::IBooker& ibooker,
 
   std::unique_ptr<TProfile> profile(hSrc->ProfileX());  // We own the pointer
   profile->SetTitle(profileMETitle.c_str());
-  removeMEIfBooked(profileMEName, igetter);
   ibooker.bookProfile(profileMEName, profile.get());  // ibooker makes a copy
 }
 
@@ -1068,12 +1061,6 @@ void DQMGenericClient::generic_eff(TH1* denom, TH1* numer, MonitorElement* effic
 
   //efficiencyHist->setMinimum(0.0);
   //efficiencyHist->setMaximum(1.0);
-}
-
-void DQMGenericClient::removeMEIfBooked(const std::string& meName, DQMStore::IGetter& igetter) {
-  if (igetter.get(meName)) {
-    igetter.removeElement(meName);
-  }
 }
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("HcalParametersTest")
 
 process.load('Geometry.HcalCommonData.testPhase2GeometryFineXML_cfi')
-process.load('Geometry.HcalCommonData.hcalParameters_cfi')
-process.load('Geometry.HcalCommonData.hcalSimulationParameters_cfi')
+process.load('Geometry.HcalCommonData.hcalParameters_cff')
+process.load('Geometry.HcalCommonData.hcalSimulationParameters_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.source = cms.Source("EmptySource")

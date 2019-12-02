@@ -44,15 +44,6 @@ offlinePrimaryVertices4DwithPID=offlinePrimaryVertices4D.clone(vertices="unsorte
                                                      trackTimeResoTag="tofPID:sigmat0safe")
 offlinePrimaryVertices4DwithPIDWithBS=offlinePrimaryVertices4DwithPID.clone(vertices="unsortedOfflinePrimaryVertices4DwithPID:WithBS")
 
-unsortedOfflinePrimaryVertices4Dfastsim = unsortedOfflinePrimaryVertices4D.clone()
-trackWithVertexRefSelectorBeforeSorting4Dfastsim = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices4Dfastsim",
-                                                                                    ptMax=9e99,
-                                                                                    ptErrorCut=9e99)
-trackRefsForJetsBeforeSorting4Dfastsim = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting4Dfastsim")
-offlinePrimaryVertices4Dfastsim=offlinePrimaryVertices4D.clone(vertices="unsortedOfflinePrimaryVertices4Dfastsim",
-                                                            particles="trackRefsForJetsBeforeSorting4Dfastsim")
-offlinePrimaryVertices4DfastsimWithBS=offlinePrimaryVertices4Dfastsim.clone(vertices="unsortedOfflinePrimaryVertices4Dfastsim:WithBS")
-
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer

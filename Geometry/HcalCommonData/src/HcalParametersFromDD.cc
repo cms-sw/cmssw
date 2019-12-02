@@ -2,7 +2,7 @@
 #include "Geometry/HcalCommonData/interface/HcalGeomParameters.h"
 #include "Geometry/HcalCommonData/interface/HcalTopologyMode.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
@@ -12,7 +12,8 @@
 #include <iostream>
 #include <iomanip>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 namespace {
   int getTopologyMode(const char* s, const DDsvalues_type& sv, bool type) {
@@ -27,11 +28,11 @@ namespace {
       if (type) {
         StringToEnumParser<HcalTopologyMode::Mode> eparser;
         HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode)eparser.parseString(fvec[0]);
-        result = (int)(mode);
+        result = static_cast<int>(mode);
       } else {
         StringToEnumParser<HcalTopologyMode::TriggerMode> eparser;
         HcalTopologyMode::TriggerMode mode = (HcalTopologyMode::TriggerMode)eparser.parseString(fvec[0]);
-        result = (int)(mode);
+        result = static_cast<int>(mode);
       }
       return result;
     } else {
@@ -50,7 +51,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
   const int nEtaMax = 100;
 
   if (ok) {
-    HcalGeomParameters* geom = new HcalGeomParameters();
+    std::unique_ptr<HcalGeomParameters> geom = std::make_unique<HcalGeomParameters>();
     geom->loadGeometry(fv1, php);
     php.modHB = geom->getModHalfHBHE(0);
     php.modHE = geom->getModHalfHBHE(1);
@@ -78,7 +79,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
     php.etaMin[0] = 1;
     if (php.etaMax[1] >= php.etaMin[1])
       php.etaMax[1] = static_cast<int>(php.etaTable.size()) - 1;
-    php.etaMax[2] = php.etaMin[2] + (int)(php.rTable.size()) - 2;
+    php.etaMax[2] = php.etaMin[2] + static_cast<int>(php.rTable.size()) - 2;
     php.etaRange = DDVectorGetter::get("etaRange");
     php.gparHF = DDVectorGetter::get("gparHF");
     php.noff = dbl_to_int(DDVectorGetter::get("noff"));
@@ -124,44 +125,79 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
     throw cms::Exception("HcalParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
 
+  return build(php);
+}
+
+bool HcalParametersFromDD::build(const HcalParameters& php) {
 #ifdef EDM_ML_DEBUG
   int i(0);
-  std::cout << "HcalParametersFromDD: MaxDepth: ";
-  for (const auto& it : php.maxDepth)
-    std::cout << it << ", ";
-  std::cout << std::endl;
-  std::cout << "HcalParametersFromDD: ModHB [" << php.modHB.size() << "]: ";
-  for (const auto& it : php.modHB)
-    std::cout << it << ", ";
-  std::cout << std::endl;
-  std::cout << "HcalParametersFromDD: ModHE [" << php.modHE.size() << "]: ";
-  for (const auto& it : php.modHE)
-    std::cout << it << ", ";
-  std::cout << std::endl;
-  std::cout << "HcalParametersFromDD: " << php.phioff.size() << " phioff values";
-  std::vector<double>::const_iterator it;
-  for (it = php.phioff.begin(), i = 0; it != php.phioff.end(); ++it)
-    std::cout << " [" << ++i << "] = " << (*it) / CLHEP::deg;
-  std::cout << std::endl;
-  std::cout << "HcalParametersFromDD: " << php.etaTable.size() << " entries for etaTable";
-  for (it = php.etaTable.begin(), i = 0; it != php.etaTable.end(); ++it)
-    std::cout << " [" << ++i << "] = " << (*it);
-  std::cout << std::endl;
-  std::cout << "HcalParametersFromDD: " << php.rTable.size() << " entries for rTable";
-  for (it = php.rTable.begin(), i = 0; it != php.rTable.end(); ++it)
-    std::cout << " [" << ++i << "] = " << (*it) / CLHEP::cm;
-  std::cout << std::endl;
-  std::cout << "HcalParametersFromDD: " << php.phibin.size() << " phibin values";
-  for (it = php.phibin.begin(), i = 0; it != php.phibin.end(); ++it)
-    std::cout << " [" << ++i << "] = " << (*it) / CLHEP::deg;
-  std::cout << std::endl;
-  std::cout << "HcalParametersFromDD: " << php.phitable.size() << " phitable values";
-  for (it = php.phitable.begin(), i = 0; it != php.phitable.end(); ++it)
-    std::cout << " [" << ++i << "] = " << (*it) / CLHEP::deg;
-  std::cout << std::endl;
+  std::stringstream ss0;
+  for (unsigned int it = 0; it < php.maxDepth.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss0 << "\n";
+    }
+    ss0 << " [" << it << "] " << php.maxDepth[it];
+  }
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD::maxDepth: " << php.maxDepth.size() << ": " << ss0.str();
+  std::stringstream ss1;
+  for (unsigned int it = 0; it < php.modHB.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss1 << "\n";
+    }
+    ss1 << " [" << it << "] " << php.modHB[it];
+  }
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD::modHB: " << php.modHB.size() << ": " << ss1.str();
+  std::stringstream ss2;
+  for (unsigned int it = 0; it < php.modHE.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss2 << "\n";
+    }
+    ss2 << " [" << it << "] " << php.modHE[it];
+  }
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD::modHE: " << php.modHE.size() << ": " << ss2.str();
+  std::stringstream ss3;
+  for (unsigned int it = 0; it < php.phioff.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss3 << "\n";
+    }
+    ss3 << " [" << it << "] " << convertRadToDeg(php.phioff[it]);
+  }
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD::phiOff: " << php.phioff.size() << ": " << ss3.str();
+  std::stringstream ss4;
+  for (unsigned int it = 0; it < php.etaTable.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss4 << "\n";
+    }
+    ss4 << " [" << it << "] " << php.etaTable[it];
+  }
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD::etaTable: " << php.etaTable.size() << ": " << ss4.str();
+  std::stringstream ss5;
+  for (unsigned int it = 0; it < php.rTable.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss5 << "\n";
+    }
+    ss5 << " [" << it << "] " << convertMmToCm(php.rTable[it]);
+  }
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD::rTable: " << php.rTable.size() << ": " << ss5.str();
+  std::stringstream ss6;
+  for (unsigned int it = 0; it < php.phibin.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss6 << "\n";
+    }
+    ss6 << " [" << it << "] " << convertRadToDeg(php.phibin[it]);
+  }
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD:phibin: " << php.phibin.size() << ": " << ss6.str();
+  std::stringstream ss7;
+  for (unsigned int it = 0; it < php.phitable.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss7 << "\n";
+    }
+    ss7 << " [" << it << "] " << convertRadToDeg(php.phitable[it]);
+  }
+  edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD:phitable: " << php.phitable.size() << ": " << ss7.str();
   std::cout << "HcalParametersFromDD: " << php.layerGroupEtaSim.size() << " layerGroupEtaSim blocks" << std::endl;
-  std::vector<HcalParameters::LayerItem>::const_iterator jt;
   std::vector<int>::const_iterator kt;
+  std::vector<double>::const_iterator it;
   for (unsigned int k = 0; k < php.layerGroupEtaSim.size(); ++k) {
     std::cout << "layerGroupEtaSim[" << k << "] Layer " << php.layerGroupEtaSim[k].layer;
     for (kt = php.layerGroupEtaSim[k].layerGroup.begin(), i = 0; kt != php.layerGroupEtaSim[k].layerGroup.end(); ++kt)

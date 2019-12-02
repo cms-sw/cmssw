@@ -114,10 +114,6 @@ void EcalDQMonitorTask::dqmBeginRun(edm::Run const& _run, edm::EventSetup const&
 }
 
 void EcalDQMonitorTask::dqmEndRun(edm::Run const& _run, edm::EventSetup const& _es) {
-  if (lastResetTime_ != 0)
-    executeOnWorkers_([](ecaldqm::DQWorker* worker) { static_cast<ecaldqm::DQWorkerTask*>(worker)->recoverStats(); },
-                      "recoverStats");
-
   ecaldqmEndRun(_run, _es);
 
   executeOnWorkers_([](ecaldqm::DQWorker* worker) { worker->releaseMEs(); }, "releaseMEs", "releasing histograms");
@@ -133,9 +129,7 @@ void EcalDQMonitorTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& _lumi,
   if (lastResetTime_ != 0 && (time(nullptr) - lastResetTime_) / 3600. > resetInterval_) {
     if (verbosity_ > 0)
       edm::LogInfo("EcalDQM") << moduleName_ << ": Soft-resetting the histograms";
-    executeOnWorkers_([](ecaldqm::DQWorker* worker) { static_cast<ecaldqm::DQWorkerTask*>(worker)->softReset(); },
-                      "softReset");
-
+    // TODO: soft-reset is no longer supported.
     lastResetTime_ = time(nullptr);
   }
 }

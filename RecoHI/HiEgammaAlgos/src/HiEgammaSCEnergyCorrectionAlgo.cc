@@ -7,34 +7,30 @@
 #include <string>
 #include <vector>
 
-HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(
-    float noise,
-    reco::CaloCluster::AlgoId theAlgo,
-    const edm::ParameterSet& pSet,
-    HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity) {
-  sigmaElectronicNoise_ = noise;
-  verbosity_ = verbosity;
+HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(float noise,
+                                                               const edm::ParameterSet& pSet,
+                                                               HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity)
+    : sigmaElectronicNoise_(noise),
+      verbosity_(verbosity),
 
-  // Parameters
-  p_fBrem_ = pSet.getParameter<std::vector<double> >("fBremVect");
-  p_fBremTh_ = pSet.getParameter<std::vector<double> >("fBremThVect");
-  p_fEta_ = pSet.getParameter<std::vector<double> >("fEtaVect");
-  p_fEtEta_ = pSet.getParameter<std::vector<double> >("fEtEtaVect");
+      // Parameters
+      p_fEta_(pSet.getParameter<std::vector<double> >("fEtaVect")),
+      p_fBremTh_(pSet.getParameter<std::vector<double> >("fBremThVect")),
+      p_fBrem_(pSet.getParameter<std::vector<double> >("fBremVect")),
+      p_fEtEta_(pSet.getParameter<std::vector<double> >("fEtEtaVect")),
 
-  // Min R9
-  minR9Barrel_ = pSet.getParameter<double>("minR9Barrel");
-  minR9Endcap_ = pSet.getParameter<double>("minR9Endcap");
+      // Min R9
+      minR9Barrel_(pSet.getParameter<double>("minR9Barrel")),
+      minR9Endcap_(pSet.getParameter<double>("minR9Endcap")),
 
-  // Max R9
-  maxR9_ = pSet.getParameter<double>("maxR9");
-}
+      // Max R9
+      maxR9_(pSet.getParameter<double>("maxR9")) {}
 
 reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster& cl,
                                                                    const EcalRecHitCollection& rhc,
-                                                                   reco::CaloCluster::AlgoId theAlgo,
-                                                                   const CaloSubdetectorGeometry* geometry,
-                                                                   const CaloTopology* topology,
-                                                                   EcalClusterFunctionBaseClass* EnergyCorrection) {
+                                                                   reco::CaloCluster::AlgoId algoId,
+                                                                   const CaloSubdetectorGeometry& geometry,
+                                                                   const CaloTopology& topology) const {
   // Print out a little bit of trivial info to be sure all is well
   if (verbosity_ <= pINFO) {
     std::cout << "   HiEgammaSCEnergyCorrectionAlgo::applyCorrection" << std::endl;
@@ -65,7 +61,7 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
 
   // Find the algorithm used to construct the basic clusters making up the supercluster
   if (verbosity_ <= pINFO) {
-    std::cout << "   The seed cluster used algo " << theAlgo;
+    std::cout << "   The seed cluster used algo " << algoId;
   }
 
   // Find the detector region of the supercluster
@@ -90,7 +86,7 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
 
   // Create a SuperClusterShapeAlgo
   // which calculates phiWidth and etaWidth
-  SuperClusterShapeAlgo SCShape(&rhc, geometry);
+  SuperClusterShapeAlgo SCShape(&rhc, &geometry);
 
   double phiWidth = 0.;
   double etaWidth = 0.;
@@ -101,8 +97,8 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
   etaWidth = SCShape.etaWidth();
 
   // Calculate r9 and 5x5 energy
-  float e3x3 = EcalClusterTools::e3x3(*(cl.seed()), &rhc, &(*topology));
-  float e5x5 = EcalClusterTools::e5x5(*(cl.seed()), &rhc, &(*topology));
+  float e3x3 = EcalClusterTools::e3x3(*(cl.seed()), &rhc, &topology);
+  float e5x5 = EcalClusterTools::e5x5(*(cl.seed()), &rhc, &topology);
   float r9 = e3x3 / cl.rawEnergy();
 
   // Calculate the new supercluster energy
@@ -113,13 +109,13 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
   // if r9 > maxR9_ -> uncaptured brem.
   if ((r9 < minR9Barrel_ && theBase == EcalBarrel) || (r9 < minR9Endcap_ && theBase == EcalEndcap)) {
     // if r9 is greater than threshold, then use the SC raw energy
-    newEnergy = (cl.rawEnergy()) / fEta(cl.eta(), theAlgo, theBase) / fBrem(phiWidth / etaWidth, theAlgo, theBase) /
-                fEtEta(cl.energy() / cosh(cl.eta()), cl.eta(), theAlgo, theBase);
+    newEnergy = (cl.rawEnergy()) / fEta(cl.eta(), algoId, theBase) / fBrem(phiWidth / etaWidth, algoId, theBase) /
+                fEtEta(cl.energy() / cosh(cl.eta()), cl.eta(), algoId, theBase);
 
   } else {
     if (r9 < maxR9_) {
       // use 5x5 energy if r9 < threshold
-      newEnergy = e5x5 / fEta(cl.eta(), theAlgo, theBase);
+      newEnergy = e5x5 / fEta(cl.eta(), algoId, theBase);
     } else {
       // it comes from a uncaptured brem, doesn't correct
       newEnergy = cl.rawEnergy();
@@ -153,13 +149,13 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
 
 float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et,
                                              float eta,
-                                             reco::CaloCluster::AlgoId theAlgo,
+                                             reco::CaloCluster::AlgoId algoId,
                                              EcalSubdetector theBase) const {
   int offset = 0;
   float factor;
-  if ((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) {
+  if ((theBase == EcalBarrel) && (algoId == reco::CaloCluster::island)) {
     offset = 0;
-  } else if ((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) {
+  } else if ((theBase == EcalEndcap) && (algoId == reco::CaloCluster::island)) {
     offset = 7;
   }
 
@@ -178,14 +174,12 @@ float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et,
   return factor;
 }
 
-float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta,
-                                           reco::CaloCluster::AlgoId theAlgo,
-                                           EcalSubdetector theBase) const {
+float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta, reco::CaloCluster::AlgoId algoId, EcalSubdetector theBase) const {
   int offset = 0;
   float factor;
-  if ((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) {
+  if ((theBase == EcalBarrel) && (algoId == reco::CaloCluster::island)) {
     offset = 0;
-  } else if ((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) {
+  } else if ((theBase == EcalEndcap) && (algoId == reco::CaloCluster::island)) {
     offset = 3;
   }
 
@@ -201,15 +195,15 @@ float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta,
 }
 
 float HiEgammaSCEnergyCorrectionAlgo::fBrem(float brem,
-                                            reco::CaloCluster::AlgoId theAlgo,
+                                            reco::CaloCluster::AlgoId algoId,
                                             EcalSubdetector theBase) const {
   int det = 0;
   int offset = 0;
   float factor;
-  if ((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) {
+  if ((theBase == EcalBarrel) && (algoId == reco::CaloCluster::island)) {
     det = 0;
     offset = 0;
-  } else if ((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) {
+  } else if ((theBase == EcalEndcap) && (algoId == reco::CaloCluster::island)) {
     det = 1;
     offset = 6;
   }
@@ -232,12 +226,12 @@ float HiEgammaSCEnergyCorrectionAlgo::fBrem(float brem,
 //   char *var ="rawEnergy/cosh(genMatchedEta)/(1.01606-0.0162668*abs(eta))/genMatchedPt/(1.022-0.02812*phiWidth/etaWidth+0.001637*phiWidth*phiWidth/etaWidth/etaWidth)/((0.682554+0.0253013*scSize-(0.0007907)*scSize*scSize+(1.166e-5)*scSize*scSize*scSize-(6.7387e-8)*scSize*scSize*scSize*scSize)*(scSize<40)+(scSize>=40))/((1.016-0.009877*((clustersSize<=4)*clustersSize+(clustersSize>4)*4)))";
 
 float HiEgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry,
-                                                 reco::CaloCluster::AlgoId theAlgo,
+                                                 reco::CaloCluster::AlgoId algoId,
                                                  EcalSubdetector theBase) const {
   float x = (float)nCry;
   float result = 1.f;
 
-  if ((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) {
+  if ((theBase == EcalBarrel) && (algoId == reco::CaloCluster::island)) {
     float const p0 = 0.682554f;
     float const p1 = 0.0253013f;
     float const p2 = -0.0007907f;
@@ -251,7 +245,7 @@ float HiEgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry,
       result = 1.f;
   }
 
-  else if ((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) {
+  else if ((theBase == EcalEndcap) && (algoId == reco::CaloCluster::island)) {
     float const p0 = 0.712185f;
     float const p1 = 0.0273609f;
     float const p2 = -0.00103818f;

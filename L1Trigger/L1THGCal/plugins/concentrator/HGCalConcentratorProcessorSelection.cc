@@ -19,6 +19,10 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
   } else if (selectionType == "superTriggerCellSelect") {
     selectionType_ = superTriggerCellSelect;
     superTriggerCellImpl_ = std::make_unique<HGCalConcentratorSuperTriggerCellImpl>(conf);
+  } else if (selectionType == "mixedBestChoiceSuperTriggerCell") {
+    selectionType_ = mixedBestChoiceSuperTriggerCell;
+    bestChoiceImpl_ = std::make_unique<HGCalConcentratorBestChoiceImpl>(conf);
+    superTriggerCellImpl_ = std::make_unique<HGCalConcentratorSuperTriggerCellImpl>(conf);
   } else {
     throw cms::Exception("HGCTriggerParameterError")
         << "Unknown type of concentrator selection '" << selectionType << "'";
@@ -54,12 +58,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
     std::vector<l1t::HGCalTriggerCell> trigCellVecCoarsened;
 
-    int thickness = 0;
-    if (triggerTools_.isSilicon(module_trigcell.second.at(0).detId())) {
-      thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId(), true);
-    } else if (triggerTools_.isScintillator(module_trigcell.second.at(0).detId())) {
-      thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-    }
+    int thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId(), true);
 
     if (coarsenTriggerCells_ || (fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_)) {
       coarsenerImpl_->coarsen(module_trigcell.second, trigCellVecCoarsened);
@@ -69,13 +68,30 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
           thresholdImpl_->select(trigCellVecCoarsened, trigCellVecOutput);
           break;
         case bestChoiceSelect:
-          bestChoiceImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
-                                  geometry_->getModuleSize(module_trigcell.first),
-                                  trigCellVecCoarsened,
-                                  trigCellVecOutput);
+          if (triggerTools_.isEm(module_trigcell.first)) {
+            bestChoiceImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
+                                    geometry_->getModuleSize(module_trigcell.first),
+                                    module_trigcell.second,
+                                    trigCellVecOutput);
+          } else {
+            bestChoiceImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
+                                    geometry_->getModuleSize(module_trigcell.first),
+                                    trigCellVecCoarsened,
+                                    trigCellVecOutput);
+          }
           break;
         case superTriggerCellSelect:
           superTriggerCellImpl_->select(trigCellVecCoarsened, trigCellVecOutput);
+          break;
+        case mixedBestChoiceSuperTriggerCell:
+          if (triggerTools_.isEm(module_trigcell.first)) {
+            bestChoiceImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
+                                    geometry_->getModuleSize(module_trigcell.first),
+                                    trigCellVecCoarsened,
+                                    trigCellVecOutput);
+          } else {
+            superTriggerCellImpl_->select(trigCellVecCoarsened, trigCellVecOutput);
+          }
           break;
         default:
           // Should not happen, selection type checked in constructor
@@ -95,6 +111,16 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
           break;
         case superTriggerCellSelect:
           superTriggerCellImpl_->select(module_trigcell.second, trigCellVecOutput);
+          break;
+        case mixedBestChoiceSuperTriggerCell:
+          if (triggerTools_.isEm(module_trigcell.first)) {
+            bestChoiceImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
+                                    geometry_->getModuleSize(module_trigcell.first),
+                                    module_trigcell.second,
+                                    trigCellVecOutput);
+          } else {
+            superTriggerCellImpl_->select(module_trigcell.second, trigCellVecOutput);
+          }
           break;
         default:
           // Should not happen, selection type checked in constructor

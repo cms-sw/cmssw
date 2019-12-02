@@ -51,6 +51,9 @@ private:
   edm::FileInPath l1tCellNeighborsMapping_;
   edm::FileInPath l1tCellNeighborsSciMapping_;
 
+  unsigned hSc_links_per_module_ = 1;
+  unsigned hSc_wafers_per_module_ = 3;
+
   // module related maps
   std::unordered_map<unsigned, unsigned> wafer_to_module_;
   std::unordered_multimap<unsigned, unsigned> module_to_wafers_;
@@ -117,7 +120,9 @@ HGCalTriggerGeometryV9Imp1::HGCalTriggerGeometryV9Imp1(const edm::ParameterSet& 
       l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping")),
       l1tLinksMapping_(conf.getParameter<edm::FileInPath>("L1TLinksMapping")),
       l1tCellNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsMapping")),
-      l1tCellNeighborsSciMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsSciMapping")) {
+      l1tCellNeighborsSciMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsSciMapping")),
+      hSc_links_per_module_(conf.getParameter<unsigned>("ScintillatorLinksPerModule")),
+      hSc_wafers_per_module_(conf.getParameter<unsigned>("ScintillatorWafersPerModule")) {
   std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedModules");
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_modules_, disconnected_modules_.end()));
   tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
@@ -481,11 +486,11 @@ unsigned HGCalTriggerGeometryV9Imp1::getLinksInModule(const unsigned module_id) 
   unsigned layer = layerWithOffset(module_det_id);
   // Scintillator
   if (module_det_id.subdetId() == ForwardSubdetector::HGCHEB) {
-    links = 1;
+    links = hSc_links_per_module_;
   }
   // Silicon
   else {
-    const unsigned sector0_mask = 0x1F;
+    const unsigned sector0_mask = 0x7F;
     module = (module & sector0_mask);
     links = links_per_module_.at(packLayerWaferId(layer, module));
   }
@@ -496,11 +501,10 @@ unsigned HGCalTriggerGeometryV9Imp1::getModuleSize(const unsigned module_id) con
   HGCalDetId module_det_id(module_id);
   unsigned module = module_det_id.wafer();
   unsigned layer = layerWithOffset(module_det_id);
-  const unsigned scintillatorDummySize = 3;
   unsigned nWafers = 1;
   // Scintillator
   if (module_det_id.subdetId() == ForwardSubdetector::HGCHEB) {
-    nWafers = scintillatorDummySize;
+    nWafers = hSc_wafers_per_module_;
   }
   // Silicon
   else {
