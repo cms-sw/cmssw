@@ -51,13 +51,13 @@ __global__ void testTSSoA(TS* pts, int n) {
 }
 
 #ifdef __CUDACC__
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #endif
 
 int main() {
 #ifdef __CUDACC__
-  exitSansCUDADevices();
+  requireCUDADevices();
 #endif
 
   TS ts;

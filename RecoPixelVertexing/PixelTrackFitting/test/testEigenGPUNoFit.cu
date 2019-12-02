@@ -4,7 +4,7 @@
 #include <Eigen/Eigenvalues>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 #include "test_common.h"
 
 using namespace Eigen;
@@ -215,7 +215,7 @@ void testEigenvalues() {
 }
 
 int main(int argc, char *argv[]) {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   testEigenvalues();
   testInverse3x3();
