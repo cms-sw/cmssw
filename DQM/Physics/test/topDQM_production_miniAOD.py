@@ -88,7 +88,6 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 process.MessageLogger.categories.append('SingleTopTChannelLeptonDQM'   )
 process.MessageLogger.cerr.SingleTopTChannelLeptonDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line added to avoid crash when changing run number
 
 
 process.load("DQM.Physics.topSingleLeptonDQM_miniAOD_cfi")

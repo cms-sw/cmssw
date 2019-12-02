@@ -2808,60 +2808,6 @@ namespace dqm::dqmstoreimpl {
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
-  /// delete directory and all contents;
-  /// delete directory (all contents + subfolders);
-  void DQMStore::rmdir(std::string const& path) {
-    std::string clean;
-    std::string const* cleaned = nullptr;
-    cleanTrailingSlashes(path, clean, cleaned);
-    MonitorElement proto(cleaned, std::string());
-
-    auto e = data_.end();
-    auto i = data_.lower_bound(proto);
-    while (i != e && isSubdirectory(*cleaned, *i->data_.dirname))
-      data_.erase(i++);
-
-    auto de = dirs_.end();
-    auto di = dirs_.lower_bound(*cleaned);
-    while (di != de && isSubdirectory(*cleaned, *di))
-      dirs_.erase(di++);
-  }
-
-  /// remove all monitoring elements from directory;
-  void DQMStore::removeContents(std::string const& dir) {
-    MonitorElement proto(&dir, std::string());
-    auto e = data_.end();
-    auto i = data_.lower_bound(proto);
-    while (i != e && isSubdirectory(dir, *i->data_.dirname))
-      if (dir == *i->data_.dirname)
-        data_.erase(i++);
-      else
-        ++i;
-  }
-
-  /// erase all monitoring elements in current directory (not including subfolders);
-  void DQMStore::removeContents() { removeContents(pwd_); }
-
-  /// erase monitoring element in current directory
-  /// (opposite of book1D,2D,etc. action);
-  void DQMStore::removeElement(std::string const& name) { removeElement(pwd_, name); }
-
-  /// remove monitoring element from directory;
-  /// if warning = true, print message if element does not exist
-  void DQMStore::removeElement(std::string const& dir, std::string const& name, bool const warning /* = true */) {
-    MonitorElement proto(&dir, name);
-    auto pos = data_.find(proto);
-    if (pos != data_.end())
-      data_.erase(pos);
-    else if (warning) {
-      std::cout << "DQMStore: WARNING: attempt to remove non-existent"
-                << " monitor element '" << name << "' in '" << dir << "'\n";
-    }
-  }
-
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
   /// get QCriterion corresponding to <qtname>
   /// (null pointer if QCriterion does not exist)
   QCriterion* DQMStore::getQCriterion(std::string const& qtname) const {
@@ -2977,29 +2923,6 @@ namespace dqm::dqmstoreimpl {
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
-  /// reset contents (does not erase contents permanently)
-  /// (makes copy of current contents; will be subtracted from future contents)
-  void DQMStore::softReset(MonitorElement* me) {
-    if (me)
-      me->softReset();
-  }
-
-  // reverts action of softReset
-  void DQMStore::disableSoftReset(MonitorElement* me) {
-    if (me)
-      me->disableSoftReset();
-  }
-
-  /// if true, will accumulate ME contents (over many periods)
-  /// until method is called with flag = false again
-  void DQMStore::setAccumulate(MonitorElement* me, bool const flag) {
-    if (me)
-      me->setAccumulate(flag);
-  }
-
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
   void DQMStore::showDirStructure() const {
     std::vector<std::string> contents;
     getContents(contents);
@@ -3026,75 +2949,4 @@ namespace dqm::dqmstoreimpl {
     return me && isSubdirectory(s_collateDirName, *me->data_.dirname);
   }
 
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-  /** Invoke this method after flushing all recently changed monitoring.
-    Clears updated flag on all MEs and calls their Reset() method. */
-  void DQMStore::scaleElements() {
-    if (scaleFlag_ == 0.0)
-      return;
-    if (verbose_ > 0)
-      std::cout << " =========== "
-                << " ScaleFlag " << scaleFlag_ << std::endl;
-    double factor = scaleFlag_;
-    int events = 1;
-    if (dirExists("Info/EventInfo")) {
-      if (scaleFlag_ == -1.0) {
-        MonitorElement* scale_me = get("Info/EventInfo/ScaleFactor");
-        if (scale_me && scale_me->kind() == MonitorElement::Kind::REAL)
-          factor = scale_me->getFloatValue();
-      }
-      MonitorElement* event_me = get("Info/EventInfo/processedEvents");
-      if (event_me && event_me->kind() == MonitorElement::Kind::INT)
-        events = event_me->getIntValue();
-    }
-    factor = factor / (events * 1.0);
-
-    for (auto const& m : data_) {
-      auto& me = const_cast<MonitorElement&>(m);
-      switch (me.kind()) {
-        case MonitorElement::Kind::TH1F: {
-          me.getTH1F()->Scale(factor);
-          break;
-        }
-        case MonitorElement::Kind::TH1S: {
-          me.getTH1S()->Scale(factor);
-          break;
-        }
-        case MonitorElement::Kind::TH1D: {
-          me.getTH1D()->Scale(factor);
-          break;
-        }
-        case MonitorElement::Kind::TH2F: {
-          me.getTH2F()->Scale(factor);
-          break;
-        }
-        case MonitorElement::Kind::TH2S: {
-          me.getTH2S()->Scale(factor);
-          break;
-        }
-        case MonitorElement::Kind::TH2D: {
-          me.getTH2D()->Scale(factor);
-          break;
-        }
-        case MonitorElement::Kind::TH3F: {
-          me.getTH3F()->Scale(factor);
-          break;
-        }
-        case MonitorElement::Kind::TPROFILE: {
-          me.getTProfile()->Scale(factor);
-          break;
-        }
-        case MonitorElement::Kind::TPROFILE2D: {
-          me.getTProfile2D()->Scale(factor);
-          break;
-        }
-        default:
-          if (verbose_ > 0)
-            std::cout << " The DQM object '" << me.getFullname() << "' is not scalable object " << std::endl;
-          continue;
-      }
-    }
-  }
 }  // namespace dqm::dqmstoreimpl

@@ -108,13 +108,13 @@ void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
       for (const auto& tomask : theGEMMaskedStripsObj->getMaskVec()) {
         if (tomask.rawId == rawId) {
           const int bit = tomask.strip;
-          mask.set(bit - 1);
+          mask.set(bit);
         }
       }
       for (const auto& tomask : theGEMDeadStripsObj->getDeadVec()) {
         if (tomask.rawId == rawId) {
           const int bit = tomask.strip;
-          mask.set(bit - 1);
+          mask.set(bit);
         }
       }
       // add to masking map if masking present in etaPartition

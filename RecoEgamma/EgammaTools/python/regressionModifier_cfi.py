@@ -240,11 +240,11 @@ regressionModifier80X = \
 regressionModifier = regressionModifier94X.clone()
 
 
+from Configuration.Eras.Modifier_run2_egamma_2016_cff import run2_egamma_2016
 from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
-run2_egamma_2017.toReplaceWith(regressionModifier,regressionModifier106XUL)
-
 from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
-run2_egamma_2018.toReplaceWith(regressionModifier,regressionModifier106XUL)
+
+(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toReplaceWith(regressionModifier,regressionModifier106XUL)
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toReplaceWith(regressionModifier,regressionModifier103XLowPtPho)

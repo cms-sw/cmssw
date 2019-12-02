@@ -47,6 +47,7 @@ void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::Configuration
   desc.add<bool>("useEventsWithNoVertex", true);
   desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
   desc.add<bool>("usePV", false);
+  desc.add<bool>("includeFourthHit", false);
 
   edm::ParameterSetDescription psd0;
   psd0.add<std::string>("ComponentName", std::string("SeedFromConsecutiveHitsCreator"));
@@ -70,6 +71,7 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
       useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
       builderName(cfg.getParameter<std::string>("TTRHBuilder")),
       usePV_(cfg.getParameter<bool>("usePV")),
+      includeFourthHit_(cfg.getParameter<bool>("includeFourthHit")),
       theInputCollectionTag(consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"))),
       theInputVertexCollectionTag(
           consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"))) {
@@ -144,8 +146,12 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
         SeedFromConsecutiveHitsCreator seedCreator(seedCreatorPSet);
         seedCreator.init(region, es, nullptr);
-        seedCreator.makeSeed(*result,
-                             SeedingHitSet(hits[0], hits[1], hits.size() > 2 ? hits[2] : SeedingHitSet::nullPtr()));
+        seedCreator.makeSeed(
+            *result,
+            SeedingHitSet(hits[0],
+                          hits[1],
+                          hits.size() > 2 ? hits[2] : SeedingHitSet::nullPtr(),
+                          (includeFourthHit_ && hits.size() > 3) ? hits[3] : SeedingHitSet::nullPtr()));
       }
     }
   }

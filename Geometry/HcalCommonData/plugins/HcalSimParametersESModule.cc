@@ -50,7 +50,7 @@ void HcalSimParametersESModule::fillDescriptions(edm::ConfigurationDescriptions&
 
 HcalSimParametersESModule::ReturnType HcalSimParametersESModule::produce(const HcalParametersRcd& iRecord) {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalESModule") << "HcalSimParametersESModule::produce(const HcalParametersRcd& iRecord)";
+  edm::LogInfo("HCalGeom") << "HcalSimParametersESModule::produce(const HcalParametersRcd& iRecord)";
 #endif
 
   auto ptp = std::make_unique<HcalSimulationParameters>();

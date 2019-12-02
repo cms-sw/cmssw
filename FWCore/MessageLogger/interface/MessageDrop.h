@@ -29,6 +29,7 @@
 // system include files
 
 #include <string>
+#include <string_view>
 
 // Change log
 //
@@ -97,7 +98,7 @@ namespace edm {
     void setSinglet(const char* sing);
     void clear();
 
-    std::string runEvent;
+    std::string_view runEvent;
     unsigned int streamID;
     bool debugEnabled;    // change log 8
     bool infoEnabled;     // change log 8

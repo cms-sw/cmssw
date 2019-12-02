@@ -518,12 +518,6 @@ namespace ecaldqm {
     }
   }
 
-  void MESetDet2D::softReset() {
-    MESet::softReset();
-    if (!batchMode_ && kind_ == MonitorElement::Kind::TPROFILE2D)
-      resetAll(0., 0., -1.);
-  }
-
   void MESetDet2D::fill_(unsigned _iME, int _bin, double _w) {
     if (kind_ == MonitorElement::Kind::TPROFILE2D) {
       MonitorElement *me(mes_.at(_iME));
