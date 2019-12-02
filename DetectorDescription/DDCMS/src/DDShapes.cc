@@ -156,9 +156,11 @@ DDTruncTubs::DDTruncTubs(const DDFilteredView &fv) : valid{fv.isATruncTube()} {
     cutAtDelta_ = params[6];
     cutInside_ = (params[7] != 0);
 
-    /* The git history of this file from before 2019-11-25 has code for converting
-     * from the internal DD4hep parameters for a TruncatedTube to the eight parameters
-     * used by CMS.
+    /* Previous versions of DD4hep output parameters that required more complex conversion
+     * to produce the values CMS needs. Now the desired values are returned directly by the
+     * "dimensions" function.  If the more complex conversion is ever needed again, the git history
+     * of this file from before 2019-11-25 has code for converting from the internal DD4hep parameters
+     * for a TruncatedTube to the eight parameters used by CMS.
      * There is also example code for checking the parameters of the TGeoCompositeShape.
     */
   }
