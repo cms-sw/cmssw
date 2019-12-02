@@ -57,6 +57,9 @@ double TrackAndHFLinker::testLink(const reco::PFBlockElement* elem1, const reco:
       if (tkAtHF.isValid())
         dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, _debug);
     }
+  } else {  // Old algorithm
+    if (tkAtHF.isValid())
+      dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, _debug);
   }
   return dist;
 }
