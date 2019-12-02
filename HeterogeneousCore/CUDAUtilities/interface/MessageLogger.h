@@ -15,9 +15,9 @@ namespace cudautils {
     ~MessageLogger() = default;
 
     MessageLogger(MessageLogger const&) = delete;
-    MessageLogger(MessageLogger &&) = delete;
-    MessageLogger & operator=(MessageLogger const&) = delete;
-    MessageLogger & operator=(MessageLogger &&) = delete;
+    MessageLogger(MessageLogger&&) = delete;
+    MessageLogger& operator=(MessageLogger const&) = delete;
+    MessageLogger& operator=(MessageLogger&&) = delete;
 
     template <typename T>
     MessageLogger& operator<<(T const& element) {
