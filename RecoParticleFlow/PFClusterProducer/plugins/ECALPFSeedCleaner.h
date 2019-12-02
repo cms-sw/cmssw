@@ -4,7 +4,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 #include "CondFormats/EcalObjects/interface/EcalPFSeedingThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFSeedingThresholdsRcd.h"
-//#include <unordered_map>
 
 class ECALPFSeedCleaner : public RecHitTopologicalCleanerBase {
 public:
