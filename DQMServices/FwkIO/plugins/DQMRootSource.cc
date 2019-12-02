@@ -592,6 +592,27 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   // Sort to make sure runs and lumis appear in sequential order
   std::sort(m_fileMetadatas.begin(), m_fileMetadatas.end());
 
+  // If we have lumisections without matching runs, insert dummy runs here.
+  unsigned int run = 0;
+  auto toadd = std::vector<FileMetadata>();
+  for (auto& metadata : m_fileMetadatas) {
+    if (run < metadata.m_run && metadata.m_lumi != 0) {
+      // run transition and lumi transition at the same time!
+      FileMetadata dummy{0};  // zero initialize
+      dummy.m_run = metadata.m_run;
+      dummy.m_lumi = 0;
+      dummy.m_type = kNoTypesStored;
+      toadd.push_back(dummy);
+    }
+    run = metadata.m_run;
+  }
+
+  if (!toadd.empty()) {
+    // rather than trying to insert at the right places, just append and sort again.
+    m_fileMetadatas.insert(m_fileMetadatas.end(), toadd.begin(), toadd.end());
+    std::sort(m_fileMetadatas.begin(), m_fileMetadatas.end());
+  }
+
   for (auto& metadata : m_fileMetadatas)
     metadata.describe();
 
@@ -715,8 +736,13 @@ void DQMRootSource::beginLuminosityBlock(edm::LuminosityBlock& lumi) {
 }
 
 bool DQMRootSource::keepIt(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) const {
-  if (run == m_filterOnRun)
+  if (m_filterOnRun != 0 && run != m_filterOnRun) {
+    return false;
+  }
+
+  if (m_lumisToProcess.size() == 0) {
     return true;
+  }
 
   for (edm::LuminosityBlockRange const& lumiToProcess : m_lumisToProcess) {
     if (run >= lumiToProcess.startRun() && run <= lumiToProcess.endRun()) {

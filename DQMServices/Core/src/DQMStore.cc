@@ -55,8 +55,7 @@ namespace dqm::implementation {
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
 
     // We should check if there is a local ME for this module and name already.
-    // However, there is nothing wrong with creating a new local ME and then
-    // having putME() drop it, so we do that (it's easier).
+    // However, it is easier to do that in putME().
 
     MonitorElement* me = store_->findME(path);
     store_->printTrace("Booking " + std::string(name) + (me ? " (existing)" : " (new)"));
@@ -103,8 +102,8 @@ namespace dqm::implementation {
     // in a container associated with the module (and potentially run, for
     // DQMGlobalEDAnalyzer). This will later be update to point to different
     // MEData (kept in a global ME) as needed.
-    MonitorElement* local_me = new MonitorElement(me);
-    me = store_->putME(local_me, this->moduleID_);
+    // putME creates the local ME object as needed.
+    me = store_->putME(me, this->moduleID_);
     // me now points to a local ME owned by the DQMStore.
     assert(me);
     return me;
@@ -128,15 +127,29 @@ namespace dqm::implementation {
   MonitorElement* DQMStore::putME(MonitorElement* me, uint64_t moduleID) {
     auto lock = std::scoped_lock(this->booking_mutex_);
     assert(me);
-    auto existing_new = localMEs_[moduleID].insert(me);
-    if (existing_new.second == true) {
+    auto& localmes = localMEs_[moduleID];
+    auto existing = localmes.find(me);
+    if (existing == localmes.end()) {
+      // insert new local ME
+      MonitorElement* local_me = new MonitorElement(me);
+      auto existing_new = localmes.insert(local_me);
       // successfully inserted, return new object
-      return me;
+      assert(existing_new.second == true);  // insert successful
+      return local_me;
     } else {
       // already present, return old object
+      auto local_me = *existing;
       edm::LogInfo("DQMStore") << "ME " << me->getFullname() << " booked twice in the same module.";
-      delete me;
-      return *(existing_new.first);
+      // the existing local ME might not have data attached (e.g. in 2nd run)
+      // in that case, we attach the global ME provided by booking above.
+      // This may be a prototype or of a random run/lumi, but it ensures that
+      // even LUMI histos are always valid after booking (as we promise for
+      // legacy modules -- for sequential runs/lumis, there is only ever one
+      // global ME, and the local one points to it).
+      if (!local_me->isValid()) {
+        local_me->switchData(me);
+      }
+      return local_me;
     }
   }
 
@@ -493,6 +506,9 @@ namespace dqm::implementation {
     ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) {
       if (this->runlumi_.run() != 0) {
         this->cleanupLumi(this->runlumi_.run(), 0);
+      }
+      if (this->runlumi_.luminosityBlock() != 0) {
+        this->cleanupLumi(this->runlumi_.run(), this->runlumi_.luminosityBlock());
       }
       this->setRunLumi(gc.luminosityBlockID());
     });

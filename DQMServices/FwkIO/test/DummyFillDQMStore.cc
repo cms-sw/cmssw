@@ -127,10 +127,7 @@ public:
   virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-
-
 private:
-
   // ----------member data ---------------------------
   edm::ParameterSet iConfig;
   std::vector<std::shared_ptr<FillerBase> > m_runFillers;
@@ -164,6 +161,7 @@ void DummyFillDQMStore::bookHistograms(DQMStore::IBooker&, edm::Run const&, edm:
   const PSets& elements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("elements");
   if (m_fillRuns) {
     dstore->setScope(MonitorElementData::Scope::RUN);
+    m_runFillers.clear();
     m_runFillers.reserve(elements.size());
     for (PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
@@ -179,6 +177,7 @@ void DummyFillDQMStore::bookHistograms(DQMStore::IBooker&, edm::Run const&, edm:
 
   if (m_fillLumis) {
     dstore->setScope(MonitorElementData::Scope::LUMI);
+    m_lumiFillers.clear();
     m_lumiFillers.reserve(elements.size());
     for (PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
