@@ -6,7 +6,6 @@
 #include <cuda_runtime.h>
 
 // CMSSW headers
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelRawToClusterGPUKernel.h"
@@ -61,11 +60,6 @@ namespace pixelgpudetails {
     if (nHits) {
       setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
       cudaCheck(cudaGetLastError());
-    }
-
-    if (nHits >= TrackingRecHit2DSOAView::maxHits()) {
-      edm::LogWarning("PixelRecHitGPUKernel")
-          << "Hits Overflow " << nHits << " > " << TrackingRecHit2DSOAView::maxHits();
     }
 
     if (nHits) {
