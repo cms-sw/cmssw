@@ -192,7 +192,7 @@ namespace {
       m_tree->GetEntry(iIndex);
 
       auto key = makeKey(*m_fullName, run, lumi);
-      auto existing = dqmstore->get(key);
+      auto existing = dqmstore->findOrRecycle(key);
       if (existing) {
         // TODO: make sure there is sufficient locking here.
         DQMMergeHelper::mergeTogether(existing->getTH1(), m_buffer);
@@ -231,7 +231,7 @@ namespace {
       m_tree->GetEntry(iIndex);
 
       auto key = makeKey(*m_fullName, run, lumi);
-      auto existing = dqmstore->get(key);
+      auto existing = dqmstore->findOrRecycle(key);
 
       if (existing) {
         existing->Fill(*m_value);
@@ -271,7 +271,7 @@ namespace {
       m_tree->GetEntry(iIndex);
 
       auto key = makeKey(*m_fullName, run, lumi);
-      auto existing = dqmstore->get(key);
+      auto existing = dqmstore->findOrRecycle(key);
 
       if (existing) {
         existing->Fill(m_buffer);
