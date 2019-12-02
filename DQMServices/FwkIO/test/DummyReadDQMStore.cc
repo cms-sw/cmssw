@@ -63,11 +63,9 @@ namespace {
     virtual ~TH1FReader(){};
 
     void read() {
+      m_element = m_store->get(m_name);
       if (0 == m_element) {
-        m_element = m_store->get(m_name);
-        if (0 == m_element) {
-          throw cms::Exception("MissingElement") << "The element: " << m_name << " was not found";
-        }
+        throw cms::Exception("MissingElement") << "The element: " << m_name << " was not found";
       }
       TH1F* hist = m_element->getTH1F();
       assert(m_indexToCheck < m_means.size());
