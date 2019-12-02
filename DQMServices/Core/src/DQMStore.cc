@@ -236,6 +236,47 @@ namespace dqm::implementation {
     });
   }
 
+  MonitorElement* DQMStore::findOrRecycle(MonitorElementData::Key const& key) {
+    // This is specifically for DQMRootSource, or other input modules. These
+    // are special in that they use the legacy interface (no moduleID, no local
+    // MEs) but need to be able to handle concurrent lumisections correctly.
+    // The logic is very similar to that in enterLumi; this is enterLumi for
+    // Input Modules.
+    auto lock = std::scoped_lock(this->booking_mutex_);
+    auto existing = this->get(key);
+    if (existing) {
+      // exactly matching ME found, needs merging with the new data.
+      return existing;
+    }  // else
+
+    // this is where we'd expect the ME.
+    auto& targetset = this->globalMEs_[key.id_];
+    // this is where we can get MEs to reuse.
+    auto& prototypes = this->globalMEs_[edm::LuminosityBlockID()];
+
+    auto proto = prototypes.find(key.path_);
+    if (proto != prototypes.end()) {
+      MonitorElement* oldme = *proto;
+      assert(oldme->getScope() == key.scope_);
+      prototypes.erase(proto);
+      auto medata = oldme->release(/* expectOwned */ true);  // destroy the ME, get its data.
+      // in this situation, nobody should be filling the ME concurrently.
+      medata->data_.key_.id_ = key.id_;
+      // We reuse the ME object here, even if we don't have to. This ensures
+      // that when running single-threaded without concurrent lumis/runs,
+      // the global MEs will also live forever and allow legacy usages.
+      oldme->switchData(medata);
+      auto result = targetset.insert(oldme);
+      assert(result.second);       // was new insertion
+      auto newme = *result.first;  // iterator to new ME
+      assert(oldme == newme);      // recycling!
+      // newme is reset and ready to accept data.
+      return newme;
+    }  // else
+
+    return nullptr;
+  }
+
   void DQMStore::enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID) {
     // Make sure global MEs for the run/lumi exist (depending on scope), and
     // point the local MEs for this module to these global MEs.

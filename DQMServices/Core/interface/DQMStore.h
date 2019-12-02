@@ -577,6 +577,8 @@ namespace dqm {
         // (e.g. when meBookerGetter is called *inside* a booking transaction).
       };
 
+      // For input modules: trigger recycling without local ME/enterLumi/moduleID.
+      MonitorElement* findOrRecycle(MonitorElementData::Key const&);
       // modules are expected to call these callbacks when they change run/lumi.
       // The DQMStore then updates the module's MEs, potentially cloning them
       // if there are concurrent runs/lumis.
