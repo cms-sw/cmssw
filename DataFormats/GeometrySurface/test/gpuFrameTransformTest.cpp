@@ -13,7 +13,7 @@
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 
 void toGlobalWrapper(SOAFrame<float> const *frame,
                      float const *xl,
@@ -26,7 +26,7 @@ void toGlobalWrapper(SOAFrame<float> const *frame,
                      uint32_t n);
 
 int main(void) {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   typedef float T;
   typedef TkRotation<T> Rotation;

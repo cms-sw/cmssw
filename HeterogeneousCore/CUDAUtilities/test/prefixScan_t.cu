@@ -4,7 +4,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 
 template <typename T>
 __global__ void testPrefixScan(uint32_t size) {
@@ -72,7 +72,7 @@ __global__ void verify(uint32_t const *v, uint32_t n) {
 }
 
 int main() {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   std::cout << "warp level" << std::endl;
   // std::cout << "warp 32" << std::endl;

@@ -40,7 +40,7 @@ end
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 std::mt19937 eng;
@@ -181,7 +181,7 @@ void go() {
 }
 
 int main() {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   try {
     go<USEEXP>();

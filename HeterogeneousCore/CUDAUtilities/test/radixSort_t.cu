@@ -10,7 +10,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
@@ -169,7 +169,7 @@ void go(bool useShared) {
 }
 
 int main() {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   bool useShared = false;
 

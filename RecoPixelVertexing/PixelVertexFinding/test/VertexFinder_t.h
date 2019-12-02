@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #ifdef USE_DBSCAN
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksDBSCAN.h"
@@ -92,7 +92,7 @@ __global__ void print(ZVertices const* pdata, WorkSpace const* pws) {
 
 int main() {
 #ifdef __CUDACC__
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   auto onGPU_d = cudautils::make_device_unique<ZVertices[]>(1, nullptr);
   auto ws_d = cudautils::make_device_unique<WorkSpace[]>(1, nullptr);

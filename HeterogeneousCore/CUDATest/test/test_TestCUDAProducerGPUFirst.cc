@@ -5,7 +5,7 @@
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDATest/interface/CUDAThing.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include <iostream>
@@ -59,7 +59,7 @@ process.moduleToTest(process.toTest)
 )_"};
   edm::test::TestProcessor::Config config{baseConfig};
 
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   constexpr int defaultDevice = 0;
 

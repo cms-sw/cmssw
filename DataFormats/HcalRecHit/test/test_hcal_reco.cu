@@ -10,7 +10,7 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFQIE10Info.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 
 template <typename T>
 __global__ void kernel_test_hcal_rechits(T *other) {
@@ -110,7 +110,7 @@ void test_hcal_hbhechinfo() {
 }
 
 int main(int argc, char **argv) {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   test_hcal_rechits<HBHERecHit>();
   test_hcal_rechits<HFRecHit>();

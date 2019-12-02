@@ -1,10 +1,10 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 
 __global__ void testIt(int one) { assert(one == 1); }
 
 int main(int argc, char* argv[]) {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   testIt<<<1, 1>>>(argc);
   cudaDeviceSynchronize();

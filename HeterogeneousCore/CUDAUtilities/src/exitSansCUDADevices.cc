@@ -3,9 +3,9 @@
 
 #include <cuda_runtime.h>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 
-void exitSansCUDADevices() {
+void requireCUDADevices() {
   int devices = 0;
   auto status = cudaGetDeviceCount(&devices);
   if (status != cudaSuccess) {

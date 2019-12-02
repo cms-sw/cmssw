@@ -1,6 +1,6 @@
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 namespace testTrackingRecHit2D {
@@ -10,7 +10,7 @@ namespace testTrackingRecHit2D {
 }
 
 int main() {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   cudaStream_t stream;
   cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));

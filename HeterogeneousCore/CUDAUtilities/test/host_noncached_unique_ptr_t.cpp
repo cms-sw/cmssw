@@ -1,10 +1,10 @@
 #include "catch.hpp"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 
 TEST_CASE("host_noncached_unique_ptr", "[cudaMemTools]") {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   SECTION("Single element") {
     auto ptr1 = cudautils::make_host_noncached_unique<int>();

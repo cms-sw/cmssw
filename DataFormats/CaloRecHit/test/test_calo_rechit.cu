@@ -5,7 +5,7 @@
 #include <cuda_runtime.h>
 
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 
 __global__ void kernel_test_calo_rechit(CaloRecHit* other) {
   CaloRecHit rh{DetId(0), 10, 1, 0, 0};
@@ -43,7 +43,7 @@ void test_calo_rechit() {
 }
 
 int main(int argc, char** argv) {
-  exitSansCUDADevices();
+  requireCUDADevices();
 
   test_calo_rechit();
 
