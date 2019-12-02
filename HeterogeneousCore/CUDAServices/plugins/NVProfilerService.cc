@@ -41,6 +41,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
 using namespace std::string_literals;
 
@@ -302,6 +303,9 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const& config, edm::Activ
     : highlightModules_(config.getUntrackedParameter<std::vector<std::string>>("highlightModules")),
       showModulePrefetching_(config.getUntrackedParameter<bool>("showModulePrefetching")),
       skipFirstEvent_(config.getUntrackedParameter<bool>("skipFirstEvent")) {
+  // make sure that CUDA is initialised, and that the CUDAService destructor is called after this service's destructor
+  edm::Service<CUDAService> cudaService;
+
   std::sort(highlightModules_.begin(), highlightModules_.end());
 
   // create the NVTX domain for global EDM transitions
