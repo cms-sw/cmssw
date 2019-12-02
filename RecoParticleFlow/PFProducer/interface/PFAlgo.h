@@ -57,9 +57,7 @@ public:
          double nSigmaHCAL,
          double nSigmaHFEM,
          double nSigmaHFHAD,
-         double resolHF_a,
-         double resolHF_b,
-         double resolHF_c,
+         std::vector<double> resolHF_square,
          PFEnergyCalibration& calibration,
          PFEnergyCalibrationHF& thepfEnergyCalibrationHF,
          const edm::ParameterSet& pset);
@@ -254,9 +252,7 @@ private:
   const double nSigmaHFHAD_;
 
   // HF resolution
-  const double resolHF_a_;
-  const double resolHF_b_;
-  const double resolHF_c_;
+  const std::vector<double> resolHF_square_;
 
   PFEnergyCalibration& calibration_;
   PFEnergyCalibrationHF& thepfEnergyCalibrationHF_;
@@ -333,6 +329,11 @@ private:
   bool useVertices_ = false;
 
   edm::Handle<reco::MuonCollection> muonHandle_;
+
+  // Named constants
+  const double nSigmaEConstHCAL = 100.;
+  const double nSigmaEConstHFEM = 100.;
+  const double nSigmaEConstHFHAD = 100.;
 };
 
 #endif
