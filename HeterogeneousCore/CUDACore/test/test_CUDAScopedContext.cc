@@ -39,7 +39,9 @@ namespace {
 }  // namespace
 
 TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
-  requireCUDADevices();
+  if (not hasCUDADevices()) {
+    return;
+  }
 
   constexpr int defaultDevice = 0;
   {

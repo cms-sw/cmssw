@@ -30,7 +30,9 @@ TEST_CASE("Use of CUDAProduct template", "[CUDACore]") {
     auto bar = std::move(foo);
   }
 
-  requireCUDADevices();
+  if (not hasCUDADevices()) {
+    return;
+  }
 
   constexpr int defaultDevice = 0;
   cudaCheck(cudaSetDevice(defaultDevice));

@@ -8,7 +8,9 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
 
 TEST_CASE("memsetAsync", "[cudaMemTools]") {
-  requireCUDADevices();
+  if (not hasCUDADevices()) {
+    return;
+  }
 
   cudaStream_t stream;
   cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));

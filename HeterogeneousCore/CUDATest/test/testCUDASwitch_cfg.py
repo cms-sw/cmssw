@@ -6,7 +6,6 @@ silent = True
 #includeAnalyzer = True
 includeAnalyzer = False
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
 process = cms.Process("Test")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")

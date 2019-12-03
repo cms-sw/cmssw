@@ -25,6 +25,10 @@ process.moduleToTest(process.toTest)
   SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
 
   SECTION("No event data") {
+    // Calls produce(), so don't call without a GPU
+    if (not hasCUDADevices()) {
+      return;
+    }
     edm::test::TestProcessor tester(config);
 
     REQUIRE_NOTHROW(tester.test());
@@ -59,7 +63,9 @@ process.moduleToTest(process.toTest)
 )_"};
   edm::test::TestProcessor::Config config{baseConfig};
 
-  requireCUDADevices();
+  if (not hasCUDADevices()) {
+    return;
+  }
 
   constexpr int defaultDevice = 0;
 
