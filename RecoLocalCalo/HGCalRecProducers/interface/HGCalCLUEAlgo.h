@@ -19,8 +19,6 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
-#include "tbb/task_arena.h"
-#include "tbb/tbb.h"
 // C/C++ headers
 #include <set>
 #include <string>
