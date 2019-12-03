@@ -156,5 +156,18 @@
   <class name="edm::Wrapper<edm::RefVector<edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<vector<reco::CaloCluster>,reco::CaloCluster> >,edm::Ref<vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<vector<reco::ClusterShape>,reco::ClusterShape> > >,edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> >::Find> >" />
   <class name="edm::Wrapper<edm::RefVector<edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<vector<reco::SuperCluster>,reco::SuperCluster> >,edm::Ref<vector<reco::HFEMClusterShape>,reco::HFEMClusterShape,edm::refhelper::FindUsingAdvance<vector<reco::HFEMClusterShape>,reco::HFEMClusterShape> > >,edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >::Find> >" />
 
+  
+  <class name="reco::EgTrigSumObj" ClassVersion="10">
+   <version ClassVersion="10" checksum="2636406548"/>
+  </class>
+  <class name="std::vector<reco::EgTrigSumObj>"/>
+  <class name="edm::Wrapper<std::vector<reco::EgTrigSumObj> >"/>
+  <class name="edm::Ref<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj,edm::refhelper::FindUsingAdvance<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj> >"/>
+  <class name="edm::RefProd<std::vector<reco::EgTrigSumObj> >"/>
+  <class name="edm::RefVector<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj,edm::refhelper::FindUsingAdvance<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj,edm::refhelper::FindUsingAdvance<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj,edm::refhelper::FindUsingAdvance<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj> > >"/>
+  <class name="edm::Wrapper<std::vector<edm::Ref<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj,edm::refhelper::FindUsingAdvance<std::vector<reco::EgTrigSumObj>,reco::EgTrigSumObj> > > >"/>
+
 </lcgdict>
 
