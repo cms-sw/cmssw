@@ -4,6 +4,7 @@
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/HcalIsolatedTrack"/>
