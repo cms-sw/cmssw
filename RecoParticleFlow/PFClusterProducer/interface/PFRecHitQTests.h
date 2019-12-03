@@ -710,17 +710,17 @@ protected:
 //
 class PFRecHitQTestDBSeedingThreshold : public PFRecHitQTestBase {
 public:
-
   PFRecHitQTestDBSeedingThreshold(const edm::ParameterSet& iConfig)
       : PFRecHitQTestBase(iConfig),
-        applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")){}
+        applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")) {}
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
-      iSetup.get<EcalPFSeedingThresholdsRcd>().get(ths_);
+    iSetup.get<EcalPFSeedingThresholdsRcd>().get(ths_);
   }
 
   bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override {
-    if (applySelectionsToAllCrystals_) return pass(hit);
+    if (applySelectionsToAllCrystals_)
+      return pass(hit);
     return fullReadOut or pass(hit);
   }
   bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override { return pass(hit); }
@@ -737,9 +737,8 @@ protected:
   edm::ESHandle<EcalPFSeedingThresholds> ths_;
 
   bool pass(const reco::PFRecHit& hit) {
-
-      float threshold = (*ths_)[hit.detId()];      
-      return (hit.energy() > threshold);
+    float threshold = (*ths_)[hit.detId()];
+    return (hit.energy() > threshold);
   }
 };
 
