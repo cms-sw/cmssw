@@ -52,15 +52,14 @@ namespace gpuVertexFinder {
              float ierrmax,  // max error to be "seed"
              float ichi2max  // max normalized distance to cluster
              )
-        : oneKernel_(oneKernel && !(useDBSCAN||useIterative)),
+        : oneKernel_(oneKernel && !(useDBSCAN || useIterative)),
           useDensity_(useDensity),
           useDBSCAN_(useDBSCAN),
           useIterative_(useIterative),
           minT(iminT),
           eps(ieps),
           errmax(ierrmax),
-          chi2max(ichi2max) {
-          }
+          chi2max(ichi2max) {}
 
     ~Producer() = default;
 

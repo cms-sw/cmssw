@@ -49,43 +49,40 @@ namespace gpuVertexFinder {
 #ifndef THREE_KERNELS
   __global__ void vertexFinderOneKernel(gpuVertexFinder::ZVertices* pdata,
                                         gpuVertexFinder::WorkSpace* pws,
-                                        int minT,    // min number of neighbours to be "seed"
+                                        int minT,      // min number of neighbours to be "seed"
                                         float eps,     // max absolute distance to cluster
                                         float errmax,  // max error to be "seed"
                                         float chi2max  // max normalized distance to cluster,
   ) {
-    clusterTracksByDensity(pdata,pws,minT,eps,errmax,chi2max);
+    clusterTracksByDensity(pdata, pws, minT, eps, errmax, chi2max);
     __syncthreads();
-    fitVertices(pdata,pws, 50.);
+    fitVertices(pdata, pws, 50.);
     __syncthreads();
-    splitVertices(pdata,pws, 9.f);
+    splitVertices(pdata, pws, 9.f);
     __syncthreads();
-    fitVertices(pdata,pws, 5000.);
+    fitVertices(pdata, pws, 5000.);
     __syncthreads();
-    sortByPt2(pdata,pws);
+    sortByPt2(pdata, pws);
   }
 #else
   __global__ void vertexFinderKernel1(gpuVertexFinder::ZVertices* pdata,
-                                           gpuVertexFinder::WorkSpace* pws,
-                                        int minT,    // min number of neighbours to be "seed"
-                                           float eps,     // max absolute distance to cluster
-                                        float errmax,  // max error to be "seed"
-                                           float chi2max  // max normalized distance to cluster,
+                                      gpuVertexFinder::WorkSpace* pws,
+                                      int minT,      // min number of neighbours to be "seed"
+                                      float eps,     // max absolute distance to cluster
+                                      float errmax,  // max error to be "seed"
+                                      float chi2max  // max normalized distance to cluster,
   ) {
-    clusterTracksByDensity(pdata,pws,minT,eps,errmax,chi2max);
+    clusterTracksByDensity(pdata, pws, minT, eps, errmax, chi2max);
     __syncthreads();
-    fitVertices(pdata,pws, 50.);
+    fitVertices(pdata, pws, 50.);
   }
 
-  __global__ void vertexFinderKernel2(gpuVertexFinder::ZVertices* pdata,
-                                    gpuVertexFinder::WorkSpace* pws)
-  {
-    fitVertices(pdata,pws, 5000.);
+  __global__ void vertexFinderKernel2(gpuVertexFinder::ZVertices* pdata, gpuVertexFinder::WorkSpace* pws) {
+    fitVertices(pdata, pws, 5000.);
     __syncthreads();
-    sortByPt2(pdata,pws);
+    sortByPt2(pdata, pws);
   }
 #endif
-
 
 #ifdef __CUDACC__
   ZVertexHeterogeneous Producer::makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin) const {
@@ -120,10 +117,10 @@ namespace gpuVertexFinder {
 
 #ifdef __CUDACC__
     if (oneKernel_) {
-      // implemented only for density clustesrs   
+      // implemented only for density clustesrs
 #ifndef THREE_KERNELS
       vertexFinderOneKernel<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
-#else 
+#else
       vertexFinderKernel1<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
       cudaCheck(cudaGetLastError());
       // one block per vertex...
@@ -131,7 +128,7 @@ namespace gpuVertexFinder {
       cudaCheck(cudaGetLastError());
       vertexFinderKernel2<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get());
 #endif
-    } else {   // five kernels
+    } else {  // five kernels
       if (useDensity_) {
         clusterTracksByDensityKernel<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
       } else if (useDBSCAN_) {
@@ -147,7 +144,7 @@ namespace gpuVertexFinder {
       cudaCheck(cudaGetLastError());
       fitVerticesKernel<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), 5000.);
       cudaCheck(cudaGetLastError());
-      sortByPt2Kernel<<<1, 1024-256, 0, stream>>>(soa, ws_d.get());
+      sortByPt2Kernel<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get());
     }
     cudaCheck(cudaGetLastError());
 #else  // __CUDACC__
@@ -161,7 +158,8 @@ namespace gpuVertexFinder {
     // std::cout << "found " << (*ws_d).nvIntermediate << " vertices " << std::endl;
     fitVertices(soa, ws_d.get(), 50.);
     // one block per vertex!
-    blockIdx.x = 0; gridDim.x=1;
+    blockIdx.x = 0;
+    gridDim.x = 1;
     splitVertices(soa, ws_d.get(), 9.f);
     resetGrid();
     fitVertices(soa, ws_d.get(), 5000.);

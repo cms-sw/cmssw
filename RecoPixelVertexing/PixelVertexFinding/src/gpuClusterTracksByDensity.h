@@ -18,11 +18,11 @@ namespace gpuVertexFinder {
   // based on Rodrighez&Laio algo
   //
   __device__ __forceinline__ void clusterTracksByDensity(gpuVertexFinder::ZVertices* pdata,
-                                         gpuVertexFinder::WorkSpace* pws,
-                                         int minT,      // min number of neighbours to be "seed"
-                                         float eps,     // max absolute distance to cluster
-                                         float errmax,  // max error to be "seed"
-                                         float chi2max  // max normalized distance to cluster
+                                                         gpuVertexFinder::WorkSpace* pws,
+                                                         int minT,      // min number of neighbours to be "seed"
+                                                         float eps,     // max absolute distance to cluster
+                                                         float errmax,  // max error to be "seed"
+                                                         float chi2max  // max normalized distance to cluster
   ) {
     using namespace gpuVertexFinder;
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
@@ -220,14 +220,14 @@ namespace gpuVertexFinder {
   }
 
   __global__ void clusterTracksByDensityKernel(gpuVertexFinder::ZVertices* pdata,
-                                         gpuVertexFinder::WorkSpace* pws,
-                                         int minT,    // min number of neighbours to be "seed"
-                                         float eps,     // max absolute distance to cluster
-                                         float errmax,  // max error to be "seed"
-                                         float chi2max  // max normalized distance to cluster
+                                               gpuVertexFinder::WorkSpace* pws,
+                                               int minT,      // min number of neighbours to be "seed"
+                                               float eps,     // max absolute distance to cluster
+                                               float errmax,  // max error to be "seed"
+                                               float chi2max  // max normalized distance to cluster
   ) {
-   clusterTracksByDensity(pdata,pws,minT,eps,errmax,chi2max);
- }
+    clusterTracksByDensity(pdata, pws, minT, eps, errmax, chi2max);
+  }
 
 }  // namespace gpuVertexFinder
 

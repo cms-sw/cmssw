@@ -13,8 +13,8 @@
 namespace gpuVertexFinder {
 
   __device__ __forceinline__ void fitVertices(ZVertices* pdata,
-                              WorkSpace* pws,
-                              float chi2Max  // for outlier rejection
+                                              WorkSpace* pws,
+                                              float chi2Max  // for outlier rejection
   ) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
 
@@ -102,12 +102,11 @@ namespace gpuVertexFinder {
   }
 
   __global__ void fitVerticesKernel(ZVertices* pdata,
-                              WorkSpace* pws,
-                              float chi2Max  // for outlier rejection
+                                    WorkSpace* pws,
+                                    float chi2Max  // for outlier rejection
   ) {
-
-   fitVertices(pdata,pws,chi2Max);
- }
+    fitVertices(pdata, pws, chi2Max);
+  }
 
 }  // namespace gpuVertexFinder
 
