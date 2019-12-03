@@ -99,7 +99,7 @@ class Alignment:
         # check if at least one of the two ways to define the alignment was used
         if self.alignmentName == None and not self.hasAlignmentCondition:
             print("Error: No alignment object name or record was defined for alignment {}".format(self.name))
-            #~ sys.exit()
+            sys.exit()
         
 
 class ApeMeasurement:
