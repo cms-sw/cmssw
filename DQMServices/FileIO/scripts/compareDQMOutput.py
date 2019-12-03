@@ -89,7 +89,10 @@ def upload(files):
             print('Exception uploading a file: %s' % ex)
 
 def generate_summary_html(output_dir, pr_list, summary_dir):
-    template_file = open(os.path.join(os.path.dirname(__file__), 'dqm-histo-comparison-summary-template.html'), 'r')
+    template_file_path = os.path.join(os.getenv('CMSSW_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html')
+    if not os.path.isfile(template_file_path):
+        template_file_path = os.path.join(os.getenv('CMSSW_RELEASE_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html')
+    template_file = open(template_file_path, 'r')
     result = template_file.read()
 
     result = result.replace('$PR_LIST$', pr_list)
@@ -146,8 +149,12 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--pr-list', help='A list of PRs participating in the comparison', default='')
     args = parser.parse_args()
 
-    # Get the repository and a number of the PR which triggered the comparison
-    pr_number = args.pr_list.split(' ')[0].split('/')[1].replace('#', '_')
+    # Get the number of the PR which triggered the comparison
+    pr_number = 'Unknown'
+    try:
+        pr_number = args.pr_list.split(' ')[0].split('/')[1].replace('#', '_')
+    except:
+        pass
 
     collect_and_compare_files(args.base_dir, args.pr_dir, args.output_dir, args.nprocs, pr_number, args.test_number, args.release_format)
     upload_to_gui(args.output_dir, args.nprocs)
