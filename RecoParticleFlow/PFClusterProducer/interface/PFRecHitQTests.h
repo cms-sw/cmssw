@@ -40,10 +40,7 @@ protected:
   double threshold_;
 
   bool pass(const reco::PFRecHit& hit) {
-    if (hit.energy() > threshold_)
-      return true;
-
-    return false;
+      return hit.energy() > threshold_;    
   }
 };
 
