@@ -132,7 +132,7 @@ namespace {
 
       std::vector<int> boundaries;
       AlignmentPI::partitions currentPart = AlignmentPI::BPix;
-      for (unsigned int i = 0; i <= ref_ali.size(); i++) {
+      for (unsigned int i = 0; i < ref_ali.size(); i++) {
         if (ref_ali[i].rawId() == target_ali[i].rawId()) {
           counter++;
           int subid = DetId(ref_ali[i].rawId()).subdetId();
@@ -359,7 +359,7 @@ namespace {
       }
 
       int loopedComponents(0);
-      for (unsigned int i = 0; i <= ref_ali.size(); i++) {
+      for (unsigned int i = 0; i < ref_ali.size(); i++) {
         if (ref_ali[i].rawId() == target_ali[i].rawId()) {
           loopedComponents++;
           int subid = DetId(ref_ali[i].rawId()).subdetId();
