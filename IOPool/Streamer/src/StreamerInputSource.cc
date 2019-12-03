@@ -312,19 +312,20 @@ namespace edm {
       BranchDescription const branchDesc(*spitem.desc());
       // This ProductProvenance constructor inserts into the entry description registry
       if (spitem.parents()) {
-        ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
+        std::optional<ProductProvenance> productProvenance{std::in_place, spitem.branchID(), *spitem.parents()};
         if (spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(
-              branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), &productProvenance);
+          eventPrincipal.putOnRead(branchDesc,
+                                   std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())),
+                                   std::move(productProvenance));
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), &productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), std::move(productProvenance));
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
       } else {
-        ProductProvenance const* productProvenance = nullptr;
+        std::optional<ProductProvenance> productProvenance;
         if (spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
           eventPrincipal.putOnRead(
