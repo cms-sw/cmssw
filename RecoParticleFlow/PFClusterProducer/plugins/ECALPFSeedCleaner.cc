@@ -17,7 +17,6 @@ void ECALPFSeedCleaner::clean(const edm::Handle<reco::PFRecHitCollection>& input
   });
 
   for (const auto& idx : ordered_hits) {
-
     if (!mask[idx])
       continue;  // is it useful ?
     const reco::PFRecHit& rechit = hits[idx];
