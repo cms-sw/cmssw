@@ -16,6 +16,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
@@ -58,7 +59,13 @@ private:
   // Switch for verbosity
   bool debug;
 
-  // Lable of 4D segments in the event
+  // Switch detailed Layer by Layer plots or just summary
+  bool doDetailedPlots;
+
+  // Label for Digis
+  edm::EDGetTokenT<DTDigiCollection> dtDigiToken_;
+
+  // Label of 4D segments in the event
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Lable of 1D rechits in the event
@@ -71,6 +78,15 @@ private:
   void fillHistos(DTLayerId lId, int firstWire, int lastWire, int missingWire, bool UnassHit);
 
   std::map<DTLayerId, std::vector<MonitorElement*> > histosPerL;
+
+  MonitorElement * digisPerEvent;
+  MonitorElement * segments4DPerEvent;
+  MonitorElement * recHitsPerEvent;
+  MonitorElement * recHitsPer4DSegment;
+  MonitorElement * t0From4DPhiSegment;
+  MonitorElement * t0From4DZSegment;
+  // station, wheel for ints
+  std::map<int, std::map<int,MonitorElement*> > digisPerRing;
 };
 #endif
 
