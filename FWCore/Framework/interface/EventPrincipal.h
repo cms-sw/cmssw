@@ -152,6 +152,7 @@ namespace edm {
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
     unsigned int transitionIndex_() const override;
+    void changedIndexes_() final;
 
     std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {
       return get_underlying_safe(provRetrieverPtr_);
