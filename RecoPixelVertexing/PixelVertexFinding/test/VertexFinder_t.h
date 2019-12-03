@@ -23,23 +23,23 @@
 
 #ifdef ONE_KERNEL
 #ifdef __CUDACC__
-  __global__ void vertexFinderOneKernel(gpuVertexFinder::ZVertices* pdata,
-                                           gpuVertexFinder::WorkSpace* pws,
-                                           int minT,    // min number of neighbours to be "seed"
-                                           float eps,     // max absolute distance to cluster
-                                        float errmax,  // max error to be "seed"
-                                           float chi2max  // max normalized distance to cluster,
-  ) {
-    clusterTracksByDensity(pdata,pws,minT,eps,errmax,chi2max);
-    __syncthreads();
-    fitVertices(pdata,pws, 50.);
-    __syncthreads();
-    splitVertices(pdata,pws, 9.f);    
-    __syncthreads();
-    fitVertices(pdata,pws, 5000.);
-    __syncthreads();
-    sortByPt2(pdata,pws);
-  }
+__global__ void vertexFinderOneKernel(gpuVertexFinder::ZVertices* pdata,
+                                      gpuVertexFinder::WorkSpace* pws,
+                                      int minT,      // min number of neighbours to be "seed"
+                                      float eps,     // max absolute distance to cluster
+                                      float errmax,  // max error to be "seed"
+                                      float chi2max  // max normalized distance to cluster,
+) {
+  clusterTracksByDensity(pdata, pws, minT, eps, errmax, chi2max);
+  __syncthreads();
+  fitVertices(pdata, pws, 50.);
+  __syncthreads();
+  splitVertices(pdata, pws, 9.f);
+  __syncthreads();
+  fitVertices(pdata, pws, 5000.);
+  __syncthreads();
+  sortByPt2(pdata, pws);
+}
 #endif
 #endif
 
@@ -265,7 +265,6 @@ int main() {
 
 #ifdef __CUDACC__
       // one vertex per block!!!
- //     cudautils::launch(splitVerticesKernel, {1, 256}, onGPU_d.get(), ws_d.get(), 9.f);
       cudautils::launch(splitVerticesKernel, {1024, 64}, onGPU_d.get(), ws_d.get(), 9.f);
       cudaCheck(cudaMemcpy(&nv, LOC_WS(nvIntermediate), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 #else
