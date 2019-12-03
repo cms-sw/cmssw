@@ -174,10 +174,10 @@ namespace edm {
 
   void EventPrincipal::putOnRead(BranchDescription const& bd,
                                  std::unique_ptr<WrapperBase> edp,
-                                 ProductProvenance const* productProvenance) const {
+                                 std::optional<ProductProvenance> productProvenance) const {
     assert(!bd.produced());
     if (productProvenance) {
-      productProvenanceRetrieverPtr()->insertIntoSet(*productProvenance);
+      productProvenanceRetrieverPtr()->insertIntoSet(std::move(*productProvenance));
     }
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
