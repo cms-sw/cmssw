@@ -15,9 +15,9 @@
 
 // A fake Det class
 
-class MyDet : public GeomDet {
+class MyDet : public TrackerGeomDet {
 public:
-  MyDet(BoundPlane *bp) : GeomDet(bp) {}
+  MyDet(BoundPlane *bp) : TrackerGeomDet(bp) {}
 
   virtual DetId geographicalId() const { return DetId(); }
   virtual std::vector<const GeomDet *> components() const { return std::vector<const GeomDet *>(); }
