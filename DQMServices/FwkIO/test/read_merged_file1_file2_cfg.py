@@ -25,6 +25,8 @@ process.check = cms.EDAnalyzer("RunLumiEventChecker",
 readRunElements = list()
 for i in range(0,10):
     readRunElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
+                                          runs  = cms.untracked.vint32(1),
+                                          lumis = cms.untracked.vint32(0),
                                           means = cms.untracked.vdouble(i),
                                           entries=cms.untracked.vdouble(2)
                                           ))
@@ -32,6 +34,8 @@ for i in range(0,10):
 readLumiElements=list()
 for i in range(0,10):
     readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
+                                          runs  = cms.untracked.vint32([1 for x in range(0,20)]),
+                                          lumis = cms.untracked.vint32([x+1 for x in range(0,20)]),
                                           means = cms.untracked.vdouble([i for x in range(0,20)]),
                                           entries=cms.untracked.vdouble([1 for x in range(0,20)])
                                           ))
