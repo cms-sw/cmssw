@@ -37,7 +37,7 @@ namespace edm {
       : Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender, isForPrimaryProcess),
         aux_(),
         luminosityBlockPrincipal_(nullptr),
-        provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
+        provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex, *reg)),
         eventSelectionIDs_(),
         branchIDListHelper_(branchIDListHelper),
         thinnedAssociationsHelper_(thinnedAssociationsHelper),
@@ -215,6 +215,8 @@ namespace edm {
   }
 
   unsigned int EventPrincipal::transitionIndex_() const { return streamID_.value(); }
+
+  void EventPrincipal::changedIndexes_() { provRetrieverPtr_->update(productRegistry()); }
 
   static void throwProductDeletedException(ProductID const& pid,
                                            edm::EventPrincipal::ConstProductResolverPtr const phb) {

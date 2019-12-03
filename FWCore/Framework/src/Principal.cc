@@ -885,6 +885,7 @@ namespace edm {
 
   void Principal::adjustIndexesAfterProductRegistryAddition() {
     if (preg_->getNextIndexValue(branchType_) != productResolvers_.size()) {
+      bool changed = false;
       productResolvers_.resize(preg_->getNextIndexValue(branchType_));
       for (auto const& prod : preg_->productList()) {
         BranchDescription const& bd = prod.second;
@@ -896,8 +897,12 @@ namespace edm {
             assert(!bd.produced());
             auto cbd = std::make_shared<BranchDescription const>(bd);
             addInputProduct(cbd);
+            changed = true;
           }
         }
+      }
+      if (changed) {
+        changedIndexes_();
       }
     }
     assert(preg_->getNextIndexValue(branchType_) == productResolvers_.size());
