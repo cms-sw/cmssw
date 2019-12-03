@@ -89,5 +89,17 @@
    <version ClassVersion="10" checksum="2181075001"/>
   </class>
   <class name="edm::Wrapper<trigger::HLTPrescaleTable>"/>
+  
+  <class name="trigger::EgammaObject" ClassVersion="3">
+   <version ClassVersion="3" checksum="2024664439"/>
+  </class>
+  <class name="std::vector<trigger::EgammaObject>"/>
+  <class name="edm::Wrapper<std::vector<trigger::EgammaObject> >"/>
+  <class name="edm::Ref<std::vector<trigger::EgammaObject>,trigger::EgammaObject,edm::refhelper::FindUsingAdvance<std::vector<trigger::EgammaObject>,trigger::EgammaObject> >"/>
+  <class name="edm::RefProd<std::vector<trigger::EgammaObject> >"/>
+  <class name="edm::RefVector<std::vector<trigger::EgammaObject>,trigger::EgammaObject,edm::refhelper::FindUsingAdvance<std::vector<trigger::EgammaObject>,trigger::EgammaObject> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<trigger::EgammaObject>,trigger::EgammaObject,edm::refhelper::FindUsingAdvance<std::vector<trigger::EgammaObject>,trigger::EgammaObject> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<trigger::EgammaObject>,trigger::EgammaObject,edm::refhelper::FindUsingAdvance<std::vector<trigger::EgammaObject>,trigger::EgammaObject> > >"/>
+  <class name="edm::Wrapper<std::vector<edm::Ref<std::vector<trigger::EgammaObject>,trigger::EgammaObject,edm::refhelper::FindUsingAdvance<std::vector<trigger::EgammaObject>,trigger::EgammaObject> > > >"/>
 
 </lcgdict>
