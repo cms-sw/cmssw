@@ -13,8 +13,8 @@ namespace gpuVertexFinder {
 
   // workspace used in the vertex reco algos
   struct WorkSpace {
-    static constexpr uint32_t MAXTRACKS = 16000;
-    static constexpr uint32_t MAXVTX = 1024;
+    static constexpr uint32_t MAXTRACKS = ZVertexSoA::MAXTRACKS;
+    static constexpr uint32_t MAXVTX = ZVertexSoA::MAXVTX;
 
     uint32_t ntrks;            // number of "selected tracks"
     uint16_t itrk[MAXTRACKS];  // index of original track
