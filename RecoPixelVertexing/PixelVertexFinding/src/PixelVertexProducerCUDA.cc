@@ -44,7 +44,8 @@ private:
 
 PixelVertexProducerCUDA::PixelVertexProducerCUDA(const edm::ParameterSet& conf)
     : m_OnGPU(conf.getParameter<bool>("onGPU")),
-      m_gpuAlgo(conf.getParameter<bool>("useDensity"),
+      m_gpuAlgo(conf.getParameter<bool>("oneKernel"),
+                conf.getParameter<bool>("useDensity"),
                 conf.getParameter<bool>("useDBSCAN"),
                 conf.getParameter<bool>("useIterative"),
                 conf.getParameter<int>("minT"),
@@ -68,6 +69,7 @@ void PixelVertexProducerCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   // Only one of these three algos can be used at once.
   // Maybe this should become a Plugin Factory
   desc.add<bool>("onGPU", true);
+  desc.add<bool>("oneKernel", true);
   desc.add<bool>("useDensity", true);
   desc.add<bool>("useDBSCAN", false);
   desc.add<bool>("useIterative", false);

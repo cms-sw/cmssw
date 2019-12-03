@@ -17,7 +17,7 @@ namespace gpuVertexFinder {
   //
   // based on Rodrighez&Laio algo
   //
-  __global__ void clusterTracksByDensity(gpuVertexFinder::ZVertices* pdata,
+  __device__ __forceinline__ void clusterTracksByDensity(gpuVertexFinder::ZVertices* pdata,
                                          gpuVertexFinder::WorkSpace* pws,
                                          int minT,      // min number of neighbours to be "seed"
                                          float eps,     // max absolute distance to cluster
@@ -218,6 +218,16 @@ namespace gpuVertexFinder {
     if (verbose && 0 == threadIdx.x)
       printf("found %d proto vertices\n", foundClusters);
   }
+
+  __global__ void clusterTracksByDensityKernel(gpuVertexFinder::ZVertices* pdata,
+                                         gpuVertexFinder::WorkSpace* pws,
+                                         int minT,    // min number of neighbours to be "seed"
+                                         float eps,     // max absolute distance to cluster
+                                         float errmax,  // max error to be "seed"
+                                         float chi2max  // max normalized distance to cluster
+  ) {
+   clusterTracksByDensity(pdata,pws,minT,eps,errmax,chi2max);
+ }
 
 }  // namespace gpuVertexFinder
 

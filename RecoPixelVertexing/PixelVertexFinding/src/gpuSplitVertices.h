@@ -12,7 +12,7 @@
 
 namespace gpuVertexFinder {
 
-  __global__ void splitVertices(ZVertices* pdata, WorkSpace* pws, float maxChi2) {
+  __device__ __forceinline__ void splitVertices(ZVertices* pdata, WorkSpace* pws, float maxChi2) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
 
     auto& __restrict__ data = *pdata;
@@ -32,20 +32,20 @@ namespace gpuVertexFinder {
     assert(zt);
 
     // one vertex per block
-    auto kv = blockIdx.x;
+    for ( auto kv = blockIdx.x; kv<nvFinal; kv += gridDim.x) {
 
-    if (kv >= nvFinal)
-      return;
     if (nn[kv] < 4)
-      return;
+      continue;
     if (chi2[kv] < maxChi2 * float(nn[kv]))
-      return;
+      continue;
 
-    assert(nn[kv] < 1023);
-    __shared__ uint32_t it[1024];   // track index
-    __shared__ float zz[1024];      // z pos
-    __shared__ uint8_t newV[1024];  // 0 or 1
-    __shared__ float ww[1024];      // z weight
+    constexpr int MAXTK = 512;
+    assert(nn[kv] < MAXTK);
+    if (nn[kv] >= MAXTK) continue; // too bad FIXME
+    __shared__ uint32_t it[MAXTK];   // track index
+    __shared__ float zz[MAXTK];      // z pos
+    __shared__ uint8_t newV[MAXTK];  // 0 or 1
+    __shared__ float ww[MAXTK];      // z weight
 
     __shared__ uint32_t nq;  // number of track for this vertex
     nq = 0;
@@ -54,7 +54,7 @@ namespace gpuVertexFinder {
     // copy to local
     for (auto k = threadIdx.x; k < nt; k += blockDim.x) {
       if (iv[k] == int(kv)) {
-        auto old = atomicInc(&nq, 1024);
+        auto old = atomicInc(&nq, MAXTK);
         zz[old] = zt[k] - zv[kv];
         newV[old] = zz[old] < 0 ? 0 : 1;
         ww[old] = 1.f / ezt2[k];
@@ -104,7 +104,7 @@ namespace gpuVertexFinder {
 
     // avoid empty vertices
     if (0 == wnew[0] || 0 == wnew[1])
-      return;
+      continue;
 
     // quality cut
     auto dist2 = (znew[0] - znew[1]) * (znew[0] - znew[1]);
@@ -115,7 +115,7 @@ namespace gpuVertexFinder {
       printf("inter %d %f %f\n", 20 - maxiter, chi2Dist, dist2 * wv[kv]);
 
     if (chi2Dist < 4)
-      return;
+      continue;
 
     // get a new global vertex
     __shared__ uint32_t igv;
@@ -126,6 +126,12 @@ namespace gpuVertexFinder {
       if (1 == newV[k])
         iv[it[k]] = igv;
     }
+
+  } // loop on vertices
+  }
+
+  __global__ void splitVerticesKernel(ZVertices* pdata, WorkSpace* pws, float maxChi2) {
+     splitVertices(pdata, pws, maxChi2);
   }
 
 }  // namespace gpuVertexFinder

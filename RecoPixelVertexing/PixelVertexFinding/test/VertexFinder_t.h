@@ -15,11 +15,33 @@
 #define CLUSTERIZE clusterTracksIterative
 #else
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksByDensity.h"
-#define CLUSTERIZE clusterTracksByDensity
+#define CLUSTERIZE clusterTracksByDensityKernel
 #endif
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuFitVertices.h"
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuSortByPt2.h"
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuSplitVertices.h"
+
+#ifdef ONE_KERNEL
+#ifdef __CUDACC__
+  __global__ void vertexFinderOneKernel(gpuVertexFinder::ZVertices* pdata,
+                                           gpuVertexFinder::WorkSpace* pws,
+                                           int minT,    // min number of neighbours to be "seed"
+                                           float eps,     // max absolute distance to cluster
+                                        float errmax,  // max error to be "seed"
+                                           float chi2max  // max normalized distance to cluster,
+  ) {
+    clusterTracksByDensity(pdata,pws,minT,eps,errmax,chi2max);
+    __syncthreads();
+    fitVertices(pdata,pws, 50.);
+    __syncthreads();
+    splitVertices(pdata,pws, 9.f);    
+    __syncthreads();
+    fitVertices(pdata,pws, 5000.);
+    __syncthreads();
+    sortByPt2(pdata,pws);
+  }
+#endif
+#endif
 
 using namespace gpuVertexFinder;
 
@@ -151,13 +173,17 @@ int main() {
       cudaCheck(cudaGetLastError());
       cudaDeviceSynchronize();
 
+#ifdef ONE_KERNEL
+      cudautils::launch(vertexFinderOneKernel, {1, 512 + 256}, onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
+#else
       cudautils::launch(CLUSTERIZE, {1, 512 + 256}, onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
+#endif
       print<<<1, 1, 0, 0>>>(onGPU_d.get(), ws_d.get());
 
       cudaCheck(cudaGetLastError());
       cudaDeviceSynchronize();
 
-      cudautils::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
+      cudautils::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
       cudaCheck(cudaGetLastError());
       cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 
@@ -219,7 +245,7 @@ int main() {
       }
 
 #ifdef __CUDACC__
-      cudautils::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
+      cudautils::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
       cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
       cudaCheck(cudaMemcpy(nn, LOC_ONGPU(ndof), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
       cudaCheck(cudaMemcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float), cudaMemcpyDeviceToHost));
@@ -239,23 +265,23 @@ int main() {
 
 #ifdef __CUDACC__
       // one vertex per block!!!
-      cudautils::launch(splitVertices, {1024, 64}, onGPU_d.get(), ws_d.get(), 9.f);
+ //     cudautils::launch(splitVerticesKernel, {1, 256}, onGPU_d.get(), ws_d.get(), 9.f);
+      cudautils::launch(splitVerticesKernel, {1024, 64}, onGPU_d.get(), ws_d.get(), 9.f);
       cudaCheck(cudaMemcpy(&nv, LOC_WS(nvIntermediate), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 #else
-      gridDim.x = 1024;  // nv ????
+      gridDim.x = 1;
       assert(blockIdx.x == 0);
-      for (; blockIdx.x < gridDim.x; ++blockIdx.x)
-        splitVertices(onGPU_d.get(), ws_d.get(), 9.f);
+      splitVertices(onGPU_d.get(), ws_d.get(), 9.f);
       resetGrid();
       nv = ws_d->nvIntermediate;
 #endif
       std::cout << "after split " << nv << std::endl;
 
 #ifdef __CUDACC__
-      cudautils::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 5000.f);
+      cudautils::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 5000.f);
       cudaCheck(cudaGetLastError());
 
-      cudautils::launch(sortByPt2, {1, 256}, onGPU_d.get(), ws_d.get());
+      cudautils::launch(sortByPt2Kernel, {1, 256}, onGPU_d.get(), ws_d.get());
       cudaCheck(cudaGetLastError());
       cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 #else

@@ -12,7 +12,7 @@
 
 namespace gpuVertexFinder {
 
-  __global__ void fitVertices(ZVertices* pdata,
+  __device__ __forceinline__ void fitVertices(ZVertices* pdata,
                               WorkSpace* pws,
                               float chi2Max  // for outlier rejection
   ) {
@@ -100,6 +100,14 @@ namespace gpuVertexFinder {
     if (verbose && 0 == threadIdx.x)
       printf("and %d noise\n", noise);
   }
+
+  __global__ void fitVerticesKernel(ZVertices* pdata,
+                              WorkSpace* pws,
+                              float chi2Max  // for outlier rejection
+  ) {
+
+   fitVertices(pdata,pws,chi2Max);
+ }
 
 }  // namespace gpuVertexFinder
 

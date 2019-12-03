@@ -43,7 +43,8 @@ namespace gpuVertexFinder {
     using WorkSpace = gpuVertexFinder::WorkSpace;
     using TkSoA = pixelTrack::TrackSoA;
 
-    Producer(bool useDensity,
+    Producer(bool oneKernel,
+             bool useDensity,
              bool useDBSCAN,
              bool useIterative,
              int iminT,      // min number of neighbours to be "core"
@@ -51,13 +52,15 @@ namespace gpuVertexFinder {
              float ierrmax,  // max error to be "seed"
              float ichi2max  // max normalized distance to cluster
              )
-        : useDensity_(useDensity),
+        : oneKernel_(oneKernel && !(useDBSCAN||useIterative)),
+          useDensity_(useDensity),
           useDBSCAN_(useDBSCAN),
           useIterative_(useIterative),
           minT(iminT),
           eps(ieps),
           errmax(ierrmax),
-          chi2max(ichi2max) {}
+          chi2max(ichi2max) {
+          }
 
     ~Producer() = default;
 
@@ -65,6 +68,7 @@ namespace gpuVertexFinder {
     ZVertexHeterogeneous make(TkSoA const* tksoa, float ptMin) const;
 
   private:
+    const bool oneKernel_;
     const bool useDensity_;
     const bool useDBSCAN_;
     const bool useIterative_;
