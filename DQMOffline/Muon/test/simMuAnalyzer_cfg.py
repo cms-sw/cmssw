@@ -14,7 +14,7 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
 
 process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
 
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 

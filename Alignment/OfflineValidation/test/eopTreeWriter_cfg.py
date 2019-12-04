@@ -55,7 +55,7 @@ process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 #from TrackingTools.TrackAssociator.default_cfi import *
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagator_cfi")
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")

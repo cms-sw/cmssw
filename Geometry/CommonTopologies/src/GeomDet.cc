@@ -1,5 +1,5 @@
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/ModifiedSurfaceGenerator.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 GeomDet::~GeomDet() { delete theAlignmentPositionError; }
@@ -31,8 +31,8 @@ bool GeomDet::setAlignmentPositionError(const AlignmentPositionError& ape) {
   return ape.valid();
 }
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 GeomDet::SubDetector GeomDet::subDetector() const { return type().subDetector(); }
