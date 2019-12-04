@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -11,10 +12,11 @@
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
+
+static const double tan10deg = std::tan(10._deg);
 
 HcalGeomParameters::HcalGeomParameters() {
 #ifdef EDM_ML_DEBUG
@@ -194,14 +196,14 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
           php.zxHE.emplace_back(std::abs(t.z()));
           php.rhoxHE.emplace_back(t.Rho() * std::cos(t.phi()));
           php.dyHE.emplace_back(dy * std::cos(t.phi()));
-          dx1 -= 0.5 * (t.rho() - dy) * std::cos(t.phi()) * std::tan(10 * CLHEP::deg);
-          dx2 -= 0.5 * (t.rho() + dy) * std::cos(t.phi()) * std::tan(10 * CLHEP::deg);
+          dx1 -= 0.5 * (t.rho() - dy) * std::cos(t.phi()) * tan10deg;
+          dx2 -= 0.5 * (t.rho() + dy) * std::cos(t.phi()) * tan10deg;
           php.dx1HE.emplace_back(-dx1);
           php.dx2HE.emplace_back(-dx2);
           php.layHE.emplace_back(lay);
         }
       }
-      if (copy[nsiz - 1] == 21 || copy[nsiz - 1] == 71) {
+      if (copy[nsiz - 1] == kHELayer1_ || copy[nsiz - 1] == kHELayer2_) {
         int iz = copy[nsiz - 7];
         int fi = copy[nsiz - 5];
         unsigned int it1 = find(iz, ize_);
@@ -386,14 +388,14 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
           php.zxHE.emplace_back(std::abs(t.z()));
           php.rhoxHE.emplace_back(t.Rho() * std::cos(t.phi()));
           php.dyHE.emplace_back(dy * std::cos(t.phi()));
-          dx1 -= 0.5 * (t.Rho() - dy) * std::cos(t.phi()) * std::tan(10 * CLHEP::deg);
-          dx2 -= 0.5 * (t.Rho() + dy) * std::cos(t.phi()) * std::tan(10 * CLHEP::deg);
+          dx1 -= 0.5 * (t.Rho() - dy) * std::cos(t.phi()) * tan10deg;
+          dx2 -= 0.5 * (t.Rho() + dy) * std::cos(t.phi()) * tan10deg;
           php.dx1HE.emplace_back(-dx1);
           php.dx2HE.emplace_back(-dx2);
           php.layHE.emplace_back(lay);
         }
       }
-      if (copy[nsiz - 1] == 21 || copy[nsiz - 1] == 71) {
+      if (copy[nsiz - 1] == kHELayer1_ || copy[nsiz - 1] == kHELayer2_) {
         int iz = copy[nsiz - 7];
         int fi = copy[nsiz - 5];
         unsigned int it1 = find(iz, ize_);
