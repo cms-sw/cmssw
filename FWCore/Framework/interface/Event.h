@@ -307,6 +307,8 @@ namespace edm {
     ProductPtrVec putProducts_;
 
     EventAuxiliary const& aux_;
+    // measurable performance gain by only creating LuminosityBlock when needed
+    // mutables are allowed in this case because edm::Event is only accessed by one thread
     CMS_SA_ALLOW mutable std::optional<LuminosityBlock> luminosityBlock_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
