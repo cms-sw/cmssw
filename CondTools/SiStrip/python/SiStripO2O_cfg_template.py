@@ -26,7 +26,7 @@ _CFGLINES_
 
 if 'CONFDB' not in os.environ:
     import CondCore.Utilities.credentials as auth
-    user, _, passwd = auth.get_credentials('COND_AUTH_PATH', 'cms_omds_tunnel/cms_trk_r')
+    user, _, passwd = auth.get_credentials('cms_omds_tunnel/cms_trk_r')
     process.SiStripConfigDb.ConfDb = '{user}/{passwd}@{path}'.format(user=user, passwd=passwd, path='cms_omds_tunnel')
 
 process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
