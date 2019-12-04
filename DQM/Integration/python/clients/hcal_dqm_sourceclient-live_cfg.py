@@ -11,8 +11,8 @@ import os, sys, socket, string
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process      = cms.Process('HCALDQM', Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process      = cms.Process('HCALDQM', Run3)
 subsystem    = 'Hcal'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
 debugstr     = "### HcalDQM::cfg::DEBUG: "
@@ -28,7 +28,8 @@ useMap       = False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '106X_dataRun2_PromptLike_Candidate_2019_05_04_08_47_47'
+	process.GlobalTag.globaltag = '106X_dataRun3_HLT_Candidate_2019_11_26_14_48_16'
+	#process.GlobalTag.globaltag = '106X_dataRun2_PromptLike_Candidate_2019_05_04_08_47_47'
 	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
@@ -47,7 +48,8 @@ referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
-process.source.minEventsPerLumi=100
+if not useFileInput:
+	process.source.minEventsPerLumi = 100
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
@@ -92,6 +94,7 @@ process.emulTPDigis.FG_threshold = cms.uint32(2)
 process.emulTPDigis.InputTagFEDRaw = rawTag
 process.emulTPDigis.upgradeHF = cms.bool(True)
 process.emulTPDigis.upgradeHE = cms.bool(True)
+process.emulTPDigis.upgradeHB = cms.bool(True)
 process.emulTPDigis.inputLabel = cms.VInputTag("hcalDigis", "hcalDigis")
 process.emulTPDigis.inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis")
 # Enable ZS on emulated TPs, to match what is done in data
@@ -147,7 +150,8 @@ process.load('DQM.HcalTasks.HcalQualityTests')
 if useMap:
     process.GlobalTag.toGet.append(cms.PSet(
 		record = cms.string("HcalElectronicsMapRcd"),
-        tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
+        #tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
+        tag = cms.string("HcalElectronicsMap_v9.0_hlt"),
         )
     )    
 
