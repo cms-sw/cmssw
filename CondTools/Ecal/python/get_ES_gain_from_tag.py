@@ -2,6 +2,8 @@
 # I needs in this order:
 # - the tag name
 
+__author__ = 'Giacomo Cucciati'
+
 import sys
 import cx_Oracle
 
