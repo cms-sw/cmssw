@@ -4,7 +4,12 @@ function die { echo $1: status $2 ;  exit $2; }
 
 pushd ${LOCAL_TMP_DIR}
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py || die 'Failure using PrePoolInputTest_cfg.py' $?
+cmsRun -j PoolInputTest_jobreport.xml --parameter-set ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py || die 'Failure using PrePoolInputTest_cfg.py' $?
+
+cmsRun ${LOCAL_TEST_DIR}/PoolGUIDTest_cfg.py file:PoolInputTest.root && die 'PoolGUIDTest_cfg.py PoolInputTest.root did not throw an exception' 1
+GUID_NAME=$(fgrep GUID PoolInputTest_jobreport.xml | sed -E 's/<.?GUID>//g').root
+cp PoolInputTest.root ${GUID_NAME}
+cmsRun ${LOCAL_TEST_DIR}/PoolGUIDTest_cfg.py file:${GUID_NAME} || die 'Failure using PoolGUIDTest_cfg.py ${GUID_NAME}' $?
 
 cp PoolInputTest.root PoolInputOther.root
 

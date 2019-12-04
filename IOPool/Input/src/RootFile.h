@@ -81,7 +81,8 @@ namespace edm {
              bool bypassVersionCheck,
              bool labelRawDataLikeMC,
              bool usingGoToEvent,
-             bool enablePrefetching);
+             bool enablePrefetching,
+             bool enforceGUIDInFileName);
     ~RootFile();
 
     RootFile(RootFile const&) = delete; // Disallow copying and moving
@@ -192,6 +193,7 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> savedRunAuxiliary_; // backward compatibility
     bool skipAnyEvents_;
     bool noEventSort_;
+    bool enforceGUIDInFileName_;
     int whyNotFastClonable_;
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     bool branchListIndexesUnchanged_;

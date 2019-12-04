@@ -65,6 +65,8 @@ namespace edm {
        ExceededResourceVSize = 8030,
        ExceededResourceRSS = 8031,
        ExceededResourceTime = 8032,
+
+       FileNameInconsistentWithGUID = 8034,
       
        EventGenerationFailure = 8501,
 
