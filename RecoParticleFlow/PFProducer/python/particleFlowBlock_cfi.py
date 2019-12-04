@@ -90,7 +90,9 @@ particleFlowBlock = cms.EDProducer(
                   useKDTree  = cms.bool(True) ),
         cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
                   linkType   = cms.string("TRACK:HCAL"),
-                  useKDTree  = cms.bool(True) ),
+                  useKDTree  = cms.bool(True),
+                  trajectoryLayerEntrance = cms.untracked.string("HCALEntrance"),
+                  trajectoryLayerExit = cms.untracked.string("HCALExit")),
         cms.PSet( linkerName = cms.string("TrackAndHOLinker"),
                   linkType   = cms.string("TRACK:HO"),
                   useKDTree  = cms.bool(False) ),
@@ -116,7 +118,7 @@ particleFlowBlock = cms.EDProducer(
                   linkType   = cms.string("TRACK:GSF"),
                   useKDTree  = cms.bool(False),
                   useConvertedBrems = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("GSFAndBREMLinker"),# here
+        cms.PSet( linkerName = cms.string("GSFAndBREMLinker"),
                   linkType   = cms.string("GSF:BREM"),
                   useKDTree  = cms.bool(False) ),
         cms.PSet( linkerName = cms.string("GSFAndGSFLinker"),
@@ -188,14 +190,18 @@ phase2_hgcal.toModify(
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 _addTrackHFLinks = particleFlowBlock.linkDefinitions.copy()
 _addTrackHFLinks.append(
-  cms.PSet( linkerName = cms.string("TrackAndHFLinker"),
+  cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
             linkType   = cms.string("TRACK:HFEM"),
-            useKDTree  = cms.bool(True) )
+            useKDTree  = cms.bool(True),
+            trajectoryLayerEntrance = cms.untracked.string("VFcalEntrance"),
+            trajectoryLayerExit = cms.untracked.string(""))
   )
 _addTrackHFLinks.append(
-  cms.PSet( linkerName = cms.string("TrackAndHFLinker"),
+  cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
             linkType   = cms.string("TRACK:HFHAD"),
-            useKDTree  = cms.bool(True) )
+            useKDTree  = cms.bool(True),
+            trajectoryLayerEntrance = cms.untracked.string("VFcalEntrance"),
+            trajectoryLayerExit = cms.untracked.string(""))
 )
 phase2_tracker.toModify(
     particleFlowBlock,
