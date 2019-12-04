@@ -723,7 +723,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
 
     // residuals vs pT
 
-    for (Int_t l = 0; l < thePTBINS[i]; l++) {
+    for (Int_t l = 0; l < thePTBINS[i] - 1; l++) {
       dxyPtResiduals[i][l] = (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Transv_pT_Residuals/histo_dxy_pT_plot%i", l));
       dzPtResiduals[i][l] = (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Long_pT_Residuals/histo_dz_pT_plot%i", l));
 
@@ -797,6 +797,12 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
     return;
   } else {
     nBins_ = theNBINS[0];
+
+    // adjust also the limit for the fit
+    _boundSx = (nBins_ / 4.) - 0.5;
+    _boundDx = 3 * (nBins_ / 4.) - 0.5;
+    _boundMax = nBins_ - 0.5;
+
     std::cout << "======================================================" << std::endl;
     std::cout << "FitPVResiduals::FitPVResiduals(): the number of bins is: " << nBins_ << std::endl;
     std::cout << "======================================================" << std::endl;
@@ -1601,7 +1607,6 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
 
     dxyLadderTrend->SaveAs("dxyLadderTrend_" + theStrDate + theStrAlignment + ".pdf");
     dxyLadderTrend->SaveAs("dxyLadderTrend_" + theStrDate + theStrAlignment + ".png");
-    dxyLadderTrend->SaveAs("dxyLadderTrend_" + theStrDate + theStrAlignment + ".root");
 
     delete dxyLadderTrend;
   }
@@ -2023,7 +2028,8 @@ void arrangeBiasCanvas(TCanvas *canv,
             if (theTitle.Contains("Norm"))
               safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? 1. : safeDelta;
             else
-              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? 50. : safeDelta;
+              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? safeDelta * 10.
+                                                                                                     : safeDelta;
 
             dBiasTrend[k][i]->GetYaxis()->SetRangeUser(0., theExtreme + (safeDelta / 2.));
           } else {
@@ -2034,6 +2040,9 @@ void arrangeBiasCanvas(TCanvas *canv,
               TGaxis::SetMaxDigits(4);
               dBiasTrend[k][i]->GetYaxis()->SetRangeUser(0., theExtreme + (safeDelta * 2.));
             } else {
+              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? safeDelta * 10.
+                                                                                                     : safeDelta;
+
               dBiasTrend[k][i]->GetYaxis()->SetRangeUser(-theExtreme - (safeDelta / 2.), theExtreme + (safeDelta / 2.));
             }
           }
