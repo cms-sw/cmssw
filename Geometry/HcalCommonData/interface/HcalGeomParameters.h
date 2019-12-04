@@ -46,6 +46,7 @@ private:
   double dzVcal_;             // Half length of the HF
   double dlShort_;            // Diference of length between long and short
   static const int maxLayer_ = 20;
+  static const int kHELayer1_ = 21, kHELayer2_ = 71;
   std::vector<double> rb_, ze_, thkb_, thke_;
   std::vector<int> ib_, ie_, izb_, phib_, ize_, phie_;
   std::vector<double> rxb_, rminHE_, rmaxHE_;
