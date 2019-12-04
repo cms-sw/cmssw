@@ -84,7 +84,9 @@ namespace edm {
     class ProducedProvenanceInfo {
     public:
       ProducedProvenanceInfo(BranchID iBid) : provenance_{iBid}, isParentageSet_{false} {}
-      ProducedProvenanceInfo(ProducedProvenanceInfo&&) = default;
+      ProducedProvenanceInfo(ProducedProvenanceInfo&& iOther)
+          : provenance_{std::move(iOther.provenance_)},
+            isParentageSet_{iOther.isParentageSet_.load(std::memory_order_acquire)} {}
       ProducedProvenanceInfo(ProducedProvenanceInfo const& iOther) : provenance_{iOther.provenance_.branchID()} {
         bool isSet = iOther.isParentageSet_.load(std::memory_order_acquire);
         if (isSet) {
@@ -93,7 +95,11 @@ namespace edm {
         isParentageSet_.store(isSet, std::memory_order_release);
       }
 
-      ProducedProvenanceInfo& operator=(ProducedProvenanceInfo&&) = default;
+      ProducedProvenanceInfo& operator=(ProducedProvenanceInfo&& iOther) {
+        provenance_ = std::move(iOther.provenance_);
+        isParentageSet_.store(iOther.isParentageSet_.load(std::memory_order_acquire), std::memory_order_release);
+        return *this;
+      }
       ProducedProvenanceInfo& operator=(ProducedProvenanceInfo const& iOther) {
         bool isSet = iOther.isParentageSet_.load(std::memory_order_acquire);
         if (isSet) {
