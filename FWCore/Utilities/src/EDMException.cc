@@ -41,6 +41,7 @@ namespace edm {
       FILLENTRY(ExceededResourceVSize),
       FILLENTRY(ExceededResourceRSS),
       FILLENTRY(ExceededResourceTime),
+      FILLENTRY(FileNameInconsistentWithGUID),
       FILLENTRY(EventGenerationFailure),
       FILLENTRY(CaughtSignal)
     };
