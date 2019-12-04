@@ -34,7 +34,7 @@ PFAlgo::PFAlgo(double nSigmaECAL,
   pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams, postMuonCleaning);
 
   // HF resolution parameters
-  assert(resolHF_square_.size() == 3);
+  assert(resolHF_square_.size() == 3);  // make sure that stochastic, constant, noise (i.e. three) terms are specified.
 
   // Muon parameters
   muonHCAL_ = pset.getParameter<std::vector<double>>("muon_HCAL");
@@ -1256,14 +1256,12 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
                                 std::vector<bool>& active,
                                 const reco::PFBlockRef& blockref,
                                 ElementIndices& inds) {
-  // there is at least one HF element in this block.
-  // so all elements must be HF (or include tracks linked to HF clusters).
   LogTrace("PFAlgo|createCandidatesHF") << "starting function PFAlgo::createCandidatesHF";
 
   bool trackInBlock = !inds.trackIs.empty();
   // inds.trackIs can be empty, even if there are tracks in this block,
   // but we want to check if this block has any track including inactive ones
-  if (!trackInBlock) {
+  if (!trackInBlock)
     for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
       PFBlockElement::Type type = elements[iEle].type();
       if (type == PFBlockElement::TRACK) {
@@ -1271,7 +1269,10 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
         break;
       }
     }
-  }
+  // there is at least one HF element in this block.
+  // in case of no track, all elements must be HF
+  if (!trackInBlock)
+    assert(inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size());
 
   //
   // Dealing with a block with at least one track
@@ -1415,6 +1416,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
             hclusterRef->positionREP().Eta(),
             hclusterRef->positionREP().Phi());
       }
+      double calibFactorHfHad = (uncalibratedenergyHfHad > 0.) ? energyHfHad / uncalibratedenergyHfHad : 1.;
 
       // HfEm energy
       double energyHfEmTmp = 0.;
@@ -1478,11 +1480,13 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
         assert(energyHfEm == 0.);
         // HfHad candidate from excess
         double energyHfHadExcess = max(energyHfHad - totalChargedMomentum, 0.);
-        double uncalibratedenergyHfHadExcess = max(uncalibratedenergyHfHad - totalChargedMomentum, 0.);
+        double uncalibratedenergyHfHadExcess = energyHfHadExcess / calibFactorHfHad;
         unsigned tmpi = reconstructCluster(*hclusterRef, energyHfHadExcess);
         (*pfCandidates_)[tmpi].setHcalEnergy(uncalibratedenergyHfHadExcess, energyHfHadExcess);
         (*pfCandidates_)[tmpi].setEcalEnergy(0., 0.);
         (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfHad);
+        energyHfHad = max(energyHfHad - energyHfHadExcess, 0.);
+        uncalibratedenergyHfHad = max(uncalibratedenergyHfHad - uncalibratedenergyHfHadExcess, 0.);
       }
       //
       // If there is a room for HFEM satellites to get associated,
@@ -1506,6 +1510,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
           }
 
           double caloEnergyTmp = energyHfEmTmp + energyHfHadTmp;
+          double calibFactorHfEm = (uncalibratedenergyHfEmTmp > 0.) ? energyHfEmTmp / uncalibratedenergyHfEmTmp : 1.;
 
           // Continue looping until all closest clusters are exhausted and as long as
           // the calorimetric energy does not saturate the total momentum.
@@ -1517,10 +1522,10 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
             if (hfemSatellite.first < 0. && (caloEnergyTmp - totalChargedMomentum) > nsigmaHFEM * totalError) {
               // HfEm candidate from excess
               double energyHfEmExcess = max(caloEnergyTmp - totalChargedMomentum, 0.);
-              double uncalibratedenergyHfEmExcess = max(uncalibratedenergyHfEmTmp - totalChargedMomentum, 0.);
+              double uncalibratedenergyHfEmExcess = energyHfEmExcess / calibFactorHfEm;
               unsigned tmpi = reconstructCluster(*eclusterRef, energyHfEmExcess);
-              (*pfCandidates_)[tmpi].setHcalEnergy(0, 0.);
               (*pfCandidates_)[tmpi].setEcalEnergy(uncalibratedenergyHfEmExcess, energyHfEmExcess);
+              (*pfCandidates_)[tmpi].setHcalEnergy(0, 0.);
               (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfEm);
               energyHfEmTmp = max(energyHfEmTmp - energyHfEmExcess, 0.);
               uncalibratedenergyHfEmTmp = max(uncalibratedenergyHfEmTmp - uncalibratedenergyHfEmExcess, 0.);
