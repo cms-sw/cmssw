@@ -1,3 +1,4 @@
+#test comment to check O2O tests
 <architecture name="(slc|cc).*_amd64_.*">
   <ifcxx11_abi value="1">
     <flags SETENV="LD_PRELOAD=$(CMS_ORACLEOCCI_LIB)"/>
