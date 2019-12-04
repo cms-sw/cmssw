@@ -77,6 +77,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;
     bool usingGoToEvent_;
     bool enablePrefetching_;
+    bool enforceGUIDInFileName_;
   };  // class RootPrimaryFileSequence
 }  // namespace edm
 #endif
