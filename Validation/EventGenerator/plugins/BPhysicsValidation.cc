@@ -25,8 +25,6 @@ BPhysicsValidation::BPhysicsValidation(const edm::ParameterSet& iPSet)
 
 BPhysicsValidation::~BPhysicsValidation() {}
 
-void BPhysicsValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void BPhysicsValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) {
   DQMHelper dqm(&i);
   i.setCurrentFolder("Generator/BPhysics");

@@ -165,7 +165,6 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
     }      // at least two offline jets
   }        // accept trigger
 }
-void TagAndProbeBtagTriggerMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

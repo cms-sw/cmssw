@@ -29,7 +29,7 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 //
 #include <map>
@@ -55,7 +55,7 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-class PhotonValidator : public DQMEDAnalyzer {
+class PhotonValidator : public DQMOneEDAnalyzer<> {
 public:
   //
   explicit PhotonValidator(const edm::ParameterSet&);

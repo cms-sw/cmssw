@@ -534,10 +534,6 @@ void L1TStage2CaloLayer2Offline::fillJetEfficiencies(const double& recoEt, const
 //
 // -------------------------------------- endRun --------------------------------------------
 //
-void L1TStage2CaloLayer2Offline::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::endRun" << std::endl;
-}
-
 //
 // -------------------------------------- book histograms --------------------------------------------
 //

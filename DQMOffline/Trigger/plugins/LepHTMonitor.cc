@@ -203,10 +203,6 @@ LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps)
 
 LepHTMonitor::~LepHTMonitor() { edm::LogInfo("LepHTMonitor") << "Destructor LepHTMonitor::~LepHTMonitor\n"; }
 
-void LepHTMonitor::dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) {
-  edm::LogInfo("LepHTMonitor") << "LepHTMonitor::beginRun\n";
-}
-
 void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun, const edm::EventSetup &iSetup) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::bookHistograms\n";
   //book at beginRun
@@ -552,10 +548,6 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
         h_pfHTTurnOn_num_->Fill(pfHT);
     }
   }
-}
-
-void LepHTMonitor::dqmEndRun(const edm::Run &run, const edm::EventSetup &eSetup) {
-  edm::LogInfo("LepHTMonitor") << "LepHTMonitor::endRun\n";
 }
 
 //define this as a plug-in

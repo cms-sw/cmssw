@@ -73,7 +73,7 @@
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -86,7 +86,7 @@
 #include <map>
 #include <string>
 
-class METAnalyzer : public DQMEDAnalyzer {
+class METAnalyzer : public DQMOneEDAnalyzer<> {
 public:
   /// Constructor
   METAnalyzer(const edm::ParameterSet&);

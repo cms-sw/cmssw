@@ -34,8 +34,6 @@ L1TdeStage2CaloLayer1::L1TdeStage2CaloLayer1(const edm::ParameterSet& ps)
 
 L1TdeStage2CaloLayer1::~L1TdeStage2CaloLayer1() {}
 
-void L1TdeStage2CaloLayer1::dqmBeginRun(const edm::Run&, const edm::EventSetup&) {}
-
 void L1TdeStage2CaloLayer1::analyze(const edm::Event& event, const edm::EventSetup& es) {
   edm::Handle<CaloTowerBxCollection> dataTowers;
   event.getByToken(dataSource_, dataTowers);
