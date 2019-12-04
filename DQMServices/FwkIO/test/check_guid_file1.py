@@ -7,7 +7,7 @@ fname_root = "dqm_file1.root"
 fname_report = "dqm_file1_jobreport.xml"
 
 f = ROOT.TFile.Open(fname_root)
-guid_file = f.GetUUID().AsString()
+guid_file = f.GetUUID().AsString().upper()
 f.Close()
 
 guid_report = None
