@@ -9,5 +9,5 @@ from Geometry.RPCGeometry.rpcGeometry_cfi import *
 from Geometry.DTGeometry.dtGeometry_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+from Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi import *
 

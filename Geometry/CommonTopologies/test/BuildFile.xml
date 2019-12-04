@@ -13,3 +13,11 @@
   <use   name="FWCore/Utilities"/>
  <flags   TEST_RUNNER_ARGS="/bin/bash Geometry/CommonTopologies/test runTest.sh"/>
 </bin>
+<bin   file="testDetSort.cpp" name="testDetSort">
+  <use   name="Geometry/CommonTopologies"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="boost"/>
+</bin>
+<bin   file="testGeomDetEnumerators.cpp" name="testGeomDetEnumerators">
+  <use   name="Geometry/CommonTopologies"/>
+</bin>
