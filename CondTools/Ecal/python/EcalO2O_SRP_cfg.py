@@ -4,8 +4,6 @@ import CondTools.Ecal.db_credentials as auth
 process = cms.Process("ProcessOne")
 
 process.load("CondCore.CondDB.CondDB_cfi")
-#process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_COND_34X_ECAL'
-#process.CondDB.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
 process.CondDB.connect = 'sqlite_file:EcalSRSettings.db'
 
 
@@ -32,7 +30,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     )
 )
 
-db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+db_reader_account = 'CMS_ECAL_R'
+db_service,db_user,db_pwd = auth.get_db_credentials( db_reader_account )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB,

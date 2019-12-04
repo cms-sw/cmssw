@@ -18,7 +18,8 @@ process.essource = cms.ESSource("PoolDBESSource",
                                 toGet = cms.VPSet( psetForRecord( recordName ) )
 )
 
-db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+db_reader_account = 'CMS_ECAL_R'
+db_service,db_user,db_pwd = auth.get_db_credentials( db_reader_account )
 
 process.conf_o2o = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
     SinceAppendMode = cms.bool(True),
