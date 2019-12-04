@@ -37,7 +37,8 @@ _spikeAndDoubleSpikeCleaner_ECAL = cms.PSet(
 #flag cleaning to mark hits not to be used for seeding
 _seedsFlagsCleaner_ECAL = cms.PSet(
     algoName = cms.string("FlagsCleanerECAL"),    
-    RecHitFlagsToBeExcluded= cms.vstring('kNeighboursRecovered')                
+    #RecHitFlagsToBeExcluded= cms.vstring('kNeighboursRecovered')
+    RecHitFlagsToBeExcluded= cms.vstring() 
 )
 
 # crystal-dependent seeding thresholds
