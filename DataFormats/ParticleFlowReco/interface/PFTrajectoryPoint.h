@@ -5,13 +5,11 @@
 #include <vector>
 #include <map>
 #include <iosfwd>
-#include <boost/assign.hpp>
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Rtypes.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Math/GenVector/PositionVector3D.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 namespace reco {
 
