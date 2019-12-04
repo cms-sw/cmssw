@@ -15,7 +15,7 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -39,13 +39,6 @@
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
 #include "DataFormats/CastorReco/interface/CastorJet.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/JetReco/interface/CastorJetID.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "RecoJets/JetProducers/interface/CastorJetIDHelper.h"
-#include "RecoJets/JetProducers/plugins/CastorJetIDProducer.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
@@ -69,7 +62,7 @@
 #include <sys/time.h>
 #include <vector>
 
-class CastorMonitorModule : public DQMEDAnalyzer {
+class CastorMonitorModule : public DQMOneEDAnalyzer<> {
 public:
   CastorMonitorModule(const edm::ParameterSet &ps);
   ~CastorMonitorModule() override;

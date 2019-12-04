@@ -15,7 +15,7 @@
  *          Christian Veelken
  */
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
@@ -24,7 +24,7 @@
 class EwkElecTauHistManager;
 class EwkMuTauHistManager;
 
-class EwkTauDQM : public DQMEDAnalyzer {
+class EwkTauDQM : public DQMOneEDAnalyzer<> {
 public:
   EwkTauDQM(const edm::ParameterSet&);
   ~EwkTauDQM() override;

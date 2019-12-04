@@ -72,8 +72,6 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
 
@@ -180,8 +178,6 @@ void SiStripCMMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
   if (fillAllDetailedHistograms_)
     cmHists_.bookAllFEDHistograms(ibooker);
 }
-
-void SiStripCMMonitorPlugin::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
 // ------------ method called to for each event  ------------
 void SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

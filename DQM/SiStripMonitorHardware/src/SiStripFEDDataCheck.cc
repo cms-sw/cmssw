@@ -44,13 +44,13 @@
 
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 //
 // Class declaration
 //
 
-class SiStripFEDCheckPlugin : public DQMEDAnalyzer {
+class SiStripFEDCheckPlugin : public DQMOneEDAnalyzer<> {
 public:
   explicit SiStripFEDCheckPlugin(const edm::ParameterSet&);
   ~SiStripFEDCheckPlugin() override;
