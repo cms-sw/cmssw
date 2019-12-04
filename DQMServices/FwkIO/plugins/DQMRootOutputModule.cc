@@ -328,12 +328,14 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
 
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
+  std::string guid{m_file->GetUUID().AsString()};
+  std::transform(guid.begin(), guid.end(), guid.begin(), (int (*)(int))std::toupper);
   m_jrToken = jr->outputFileOpened(m_fileName,
                                    m_logicalFileName,
                                    std::string(),
                                    "DQMRootOutputModule",
                                    description().moduleLabel(),
-                                   m_file->GetUUID().AsString(),
+                                   std::move(guid),
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
