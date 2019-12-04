@@ -119,8 +119,18 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
       kdtrees_.emplace_back(KDTreeLinkerFactory::get()->create(pfx_kdtree + linkerName));
       kdtrees_.back()->setTargetType(std::min(type1, type2));
       kdtrees_.back()->setFieldType(std::max(type1, type2));
-    }
-  }
+      // giving entrance and exit points - necessary for track-hcal links
+      const std::string trajectoryLayerEntranceString =
+          conf.getUntrackedParameter<std::string>("trajectoryLayerEntrance", "");
+      const std::string trajectoryLayerExitString = conf.getUntrackedParameter<std::string>("trajectoryLayerExit", "");
+      const reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance =
+          reco::PFTrajectoryPoint::layerTypeFromString(trajectoryLayerEntranceString);
+      const reco::PFTrajectoryPoint::LayerType trajectoryLayerExit =
+          reco::PFTrajectoryPoint::layerTypeFromString(trajectoryLayerExitString);
+      if (trajectoryLayerEntrance != reco::PFTrajectoryPoint::Unknown)
+        kdtrees_.back()->setTrajectoryPoints(trajectoryLayerEntrance, trajectoryLayerExit);
+    }  // useKDTree
+  }    // loop over confs
 }
 
 void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& sumes) {

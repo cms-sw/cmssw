@@ -23,6 +23,10 @@ public:
 
   void setFieldType(const reco::PFBlockElement::Type &fld) { _fieldType = fld; }
 
+  // set trajectory points, necessary for track-HCAL links
+  virtual void setTrajectoryPoints(const reco::PFTrajectoryPoint::LayerType trajectoryPointEntrance,
+                                   const reco::PFTrajectoryPoint::LayerType trajectoryPointExit){};
+
   const reco::PFBlockElement::Type &targetType() const { return _targetType; }
 
   const reco::PFBlockElement::Type &fieldType() const { return _fieldType; }

@@ -34,6 +34,9 @@ public:
   // Here we free all allocated structures.
   void clear() override;
 
+  void setTrajectoryPoints(const reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance,
+                           const reco::PFTrajectoryPoint::LayerType trajectoryLayerExit) override;
+
 private:
   // Data used by the KDTree algorithm : sets of Tracks and HCAL clusters.
   BlockEltSet targetSet_;
@@ -50,6 +53,11 @@ private:
 
   // KD trees
   KDTreeLinkerAlgo<reco::PFRecHit const*> tree_;
+
+  // TrajectoryPoints
+  reco::PFTrajectoryPoint::LayerType _trajectoryLayerEntrance;
+  reco::PFTrajectoryPoint::LayerType _trajectoryLayerExit;
+  bool _checkExit;
 };
 
 // the text name is different so that we can easily
@@ -64,9 +72,23 @@ KDTreeLinkerTrackHcal::KDTreeLinkerTrackHcal() : KDTreeLinkerBase() {
 KDTreeLinkerTrackHcal::~KDTreeLinkerTrackHcal() { clear(); }
 
 void KDTreeLinkerTrackHcal::insertTargetElt(reco::PFBlockElement* track) {
-  if (track->trackRefPF()->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance).isValid()) {
+  if (track->trackRefPF()->extrapolatedPoint(_trajectoryLayerEntrance).isValid()) {
     targetSet_.insert(track);
   }
+}
+
+void KDTreeLinkerTrackHcal::setTrajectoryPoints(const reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance,
+                                                const reco::PFTrajectoryPoint::LayerType trajectoryLayerExit) {
+  _trajectoryLayerEntrance = trajectoryLayerEntrance;
+  _trajectoryLayerExit = trajectoryLayerExit;
+  // make sure the requested setting is a supported mode
+  assert((_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
+          _trajectoryLayerExit == reco::PFTrajectoryPoint::HCALExit) ||
+         (_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
+          _trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ||
+         (_trajectoryLayerEntrance == reco::PFTrajectoryPoint::VFcalEntrance &&
+          _trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown));
+  _checkExit = (_trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ? false : true;
 }
 
 void KDTreeLinkerTrackHcal::insertFieldClusterElt(reco::PFBlockElement* hcalCluster) {
@@ -142,19 +164,24 @@ void KDTreeLinkerTrackHcal::searchLinks() {
   for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {
     reco::PFRecTrackRef trackref = (*it)->trackRefPF();
 
-    const reco::PFTrajectoryPoint& atHCAL = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
-    const reco::PFTrajectoryPoint& atHCALExit = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALExit);
+    const reco::PFTrajectoryPoint& atHCAL = trackref->extrapolatedPoint(_trajectoryLayerEntrance);
 
     // The track didn't reach hcal
     if (!atHCAL.isValid())
       continue;
 
-    double dHeta = atHCALExit.positionREP().eta() - atHCAL.positionREP().eta();
-    float dHphi = atHCALExit.positionREP().phi() - atHCAL.positionREP().phi();
-    if (dHphi > M_PI)
-      dHphi = dHphi - 2. * M_PI;
-    else if (dHphi < -M_PI)
-      dHphi = dHphi + 2. * M_PI;
+    // In case the exit point check is requested, check eta and phi differences between entrance and exit
+    double dHeta = 0.0;
+    float dHphi = 0.0;
+    if (_checkExit) {
+      const reco::PFTrajectoryPoint& atHCALExit = trackref->extrapolatedPoint(_trajectoryLayerExit);
+      dHeta = atHCALExit.positionREP().eta() - atHCAL.positionREP().eta();
+      dHphi = atHCALExit.positionREP().phi() - atHCAL.positionREP().phi();
+      if (dHphi > M_PI)
+        dHphi = dHphi - 2. * M_PI;
+      else if (dHphi < -M_PI)
+        dHphi = dHphi + 2. * M_PI;
+    }  // _checkExit
 
     float tracketa = atHCAL.positionREP().eta() + 0.1 * dHeta;
     float trackphi = atHCAL.positionREP().phi() + 0.1 * dHphi;
@@ -217,7 +244,7 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
 
     for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
       reco::PFRecTrackRef trackref = (*jt)->trackRefPF();
-      const reco::PFTrajectoryPoint& atHCAL = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
+      const reco::PFTrajectoryPoint& atHCAL = trackref->extrapolatedPoint(_trajectoryLayerEntrance);
       double tracketa = atHCAL.positionREP().eta();
       double trackphi = atHCAL.positionREP().phi();
 

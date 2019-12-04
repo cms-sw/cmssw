@@ -5,11 +5,13 @@
 #include <vector>
 #include <map>
 #include <iosfwd>
+#include <boost/assign.hpp>
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Rtypes.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Math/GenVector/PositionVector3D.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace reco {
 
@@ -52,9 +54,34 @@ namespace reco {
       HOLayer = 8,
       /// VFcal(HF) front face
       VFcalEntrance = 9,
-
-      NLayers = 10
+      // Number of valid layers
+      NLayers = 10,
+      // Unknown
+      Unknown = -1
     };
+
+    static std::map<std::string, LayerType> create_map() {
+      std::map<std::string, LayerType> m;
+      m["ClosestApproach"] = LayerType::ClosestApproach;
+      m["BeamPipeOrEndVertex"] = LayerType::BeamPipeOrEndVertex;
+      m["PS1"] = LayerType::PS1;
+      m["PS2"] = LayerType::PS2;
+      m["ECALEntrance"] = LayerType::ECALEntrance;
+      m["ECALShowerMax"] = LayerType::ECALShowerMax;
+      m["HCALEntrance"] = LayerType::HCALEntrance;
+      m["HCALExit"] = LayerType::HCALExit;
+      m["HOLayer"] = LayerType::HOLayer;
+      m["VFcalEntrance"] = LayerType::VFcalEntrance;
+      return m;
+    }
+    static LayerType layerTypeFromString(std::string layerTypeString) {
+      std::map<std::string, LayerType> layerTypeMap = create_map();
+      std::map<std::string, LayerType>::iterator it = layerTypeMap.find(layerTypeString);
+      if (it != layerTypeMap.end())
+        return it->second;
+      else
+        return LayerType::Unknown;
+    }
 
     /// default constructor. Set variables at default dummy values
     PFTrajectoryPoint();
