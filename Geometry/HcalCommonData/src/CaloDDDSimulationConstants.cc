@@ -1,7 +1,7 @@
 #include "Geometry/HcalCommonData/interface/CaloDDDSimulationConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 CaloDDDSimulationConstants::CaloDDDSimulationConstants(const CaloSimulationParameters* csp) : calospar_(csp) {
 #ifdef EDM_ML_DEBUG
