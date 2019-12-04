@@ -42,7 +42,9 @@ public:
     edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
   }
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {}
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
+    edm::Service<DQMStore>()->enterLumi(lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
+  }
 
   void accumulate(edm::Event const& event, edm::EventSetup const& setup) final { analyze(event, setup); }
 
