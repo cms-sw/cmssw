@@ -20,8 +20,8 @@ class ConfigToPayloadMapDef(object):
 
 
 class DbManagerDAQ(DbManager):
-    def __init__(self, db, authFile=None):
-        DbManager.__init__(self, db, authFile)
+    def __init__(self, db, authPath=None):
+        DbManager.__init__(self, db, authPath)
         self.ConfigToPayloadMap = make_dbtype(ConfigToPayloadMapDef, self.schema)
         if self.schema:
             self.ConfigToPayloadMapSqlite = make_dbtype(ConfigToPayloadMapDef, schema=None)
