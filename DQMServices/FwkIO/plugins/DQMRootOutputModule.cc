@@ -36,7 +36,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/Digest.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -334,7 +333,7 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    "DQMRootOutputModule",
                                    description().moduleLabel(),
-                                   edm::createGlobalIdentifier(),
+                                   m_file->GetUUID().AsString(),
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
