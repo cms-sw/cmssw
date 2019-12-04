@@ -164,7 +164,8 @@ namespace edm {
                      bool bypassVersionCheck,
                      bool labelRawDataLikeMC,
                      bool usingGoToEvent,
-                     bool enablePrefetching)
+                     bool enablePrefetching,
+                     bool enforceGUIDInFileName)
       : file_(fileName),
         logicalFile_(logicalFileName),
         processConfiguration_(processConfiguration),
@@ -187,6 +188,7 @@ namespace edm {
         savedRunAuxiliary_(),
         skipAnyEvents_(skipAnyEvents),
         noEventSort_(noEventSort),
+        enforceGUIDInFileName_(enforceGUIDInFileName),
         whyNotFastClonable_(0),
         hasNewlyDroppedBranch_(),
         branchListIndexesUnchanged_(false),
@@ -1138,6 +1140,27 @@ namespace edm {
     if (!eventTree_.isValid()) {
       throw Exception(errors::EventCorruption) << "'Events' tree is corrupted or not present\n"
                                                << "in the input file.\n";
+    }
+    if (enforceGUIDInFileName_) {
+      auto begin = file_.rfind("/");
+      if (begin == std::string::npos) {
+        begin = file_.rfind(":");
+        if (begin == std::string::npos) {
+          // shouldn't really happen?
+          begin = 0;
+        } else {
+          begin += 1;
+        }
+      } else {
+        begin += 1;
+      }
+      auto end = file_.find(".", begin);
+      auto guidFromName = std::string_view(file_).substr(begin, end - begin);
+      if (guidFromName != fid_.fid()) {
+        throw edm::Exception(edm::errors::FileNameInconsistentWithGUID)
+            << "GUID " << guidFromName << " extracted from file name " << file_
+            << " is inconsistent with the GUID read from the file " << fid_.fid();
+      }
     }
 
     if (fileFormatVersion().hasIndexIntoFile()) {

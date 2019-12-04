@@ -66,6 +66,8 @@ namespace edm {
 
       FileWriteError = 8033,
 
+      FileNameInconsistentWithGUID = 8034,
+
       EventGenerationFailure = 8501,
 
       CaughtSignal = 9000
