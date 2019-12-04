@@ -19,7 +19,7 @@ process.StandAloneTest = cms.EDAnalyzer("StandAloneTest", Tracks = cms.InputTag(
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")

@@ -7,7 +7,7 @@ from Configuration.Geometry.GeometryExtended2018_cff import *
 # Reconstruction geometry services
 #  Tracking Geometry
 #bah - well, this is not a cfi!
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *

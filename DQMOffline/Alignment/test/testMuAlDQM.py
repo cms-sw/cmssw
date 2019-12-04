@@ -22,7 +22,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 
 # reconstruction sequence for Cosmics
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")

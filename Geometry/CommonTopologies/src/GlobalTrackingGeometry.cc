@@ -3,7 +3,7 @@
  *  \author M. Sani
  */
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"

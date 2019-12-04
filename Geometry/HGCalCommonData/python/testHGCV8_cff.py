@@ -8,7 +8,7 @@ from Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi import *
 from Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi import *
 
 # tracker
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *

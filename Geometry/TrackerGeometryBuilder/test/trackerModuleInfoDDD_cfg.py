@@ -6,7 +6,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
 process.load('Configuration.Geometry.GeometryExtended_cff')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.TrackerGeometryBuilder.trackerParameters_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerTopology_cfi')
 
