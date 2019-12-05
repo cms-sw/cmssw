@@ -379,23 +379,21 @@ namespace edm {
               aliasForModLabel = iEvent.getProvenance(productProvenance->branchID()).moduleLabel();
               LogAbsolute("EventContent") << "Is an alias for " << aliasForModLabel;
             }
-            ProcessHistory const* processHistory = prov.processHistoryPtr();
-            if (processHistory) {
-              for (ProcessConfiguration const& pc : *processHistory) {
-                if (pc.processName() == prov.processName()) {
-                  ParameterSetID const& psetID = pc.parameterSetID();
-                  pset::Registry const* psetRegistry = pset::Registry::instance();
-                  ParameterSet const* processPset = psetRegistry->getMapped(psetID);
-                  if (processPset) {
-                    if (processPset->existsAs<ParameterSet>(modLabel)) {
-                      if (isAlias) {
-                        LogAbsolute("EventContent") << "Alias PSet";
-                      }
-                      LogAbsolute("EventContent") << processPset->getParameterSet(modLabel);
+            ProcessHistory const& processHistory = iEvent.processHistory();
+            for (ProcessConfiguration const& pc : processHistory) {
+              if (pc.processName() == prov.processName()) {
+                ParameterSetID const& psetID = pc.parameterSetID();
+                pset::Registry const* psetRegistry = pset::Registry::instance();
+                ParameterSet const* processPset = psetRegistry->getMapped(psetID);
+                if (processPset) {
+                  if (processPset->existsAs<ParameterSet>(modLabel)) {
+                    if (isAlias) {
+                      LogAbsolute("EventContent") << "Alias PSet";
                     }
-                    if (isAlias and processPset->existsAs<ParameterSet>(aliasForModLabel)) {
-                      LogAbsolute("EventContent") << processPset->getParameterSet(aliasForModLabel);
-                    }
+                    LogAbsolute("EventContent") << processPset->getParameterSet(modLabel);
+                  }
+                  if (isAlias and processPset->existsAs<ParameterSet>(aliasForModLabel)) {
+                    LogAbsolute("EventContent") << processPset->getParameterSet(aliasForModLabel);
                   }
                 }
               }

@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <string>

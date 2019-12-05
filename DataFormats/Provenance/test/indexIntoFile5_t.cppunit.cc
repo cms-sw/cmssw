@@ -7,7 +7,6 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 

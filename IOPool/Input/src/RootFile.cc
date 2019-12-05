@@ -1450,8 +1450,9 @@ namespace edm {
 
     // We're not done ... so prepare the EventPrincipal
     eventTree_.insertEntryForIndex(principal.transitionIndex());
+    auto history = processHistoryRegistry_->getMapped(eventAux().processHistoryID());
     principal.fillEventPrincipal(eventAux(),
-                                 *processHistoryRegistry_,
+                                 history,
                                  std::move(eventSelectionIDs_),
                                  std::move(branchListIndexes_),
                                  *(makeProductProvenanceRetriever(principal.streamID().value())),
@@ -1605,7 +1606,8 @@ namespace edm {
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
     // NOTE: we use 0 for the index since do not do delayed reads for LuminosityBlockPrincipals
     lumiTree_.insertEntryForIndex(0);
-    lumiPrincipal.fillLuminosityBlockPrincipal(*processHistoryRegistry_, lumiTree_.resetAndGetRootDelayedReader());
+    auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
+    lumiPrincipal.fillLuminosityBlockPrincipal(history, lumiTree_.resetAndGetRootDelayedReader());
     // Read in all the products now.
     lumiPrincipal.readAllFromSourceAndMergeImmediately();
     ++indexIntoFileIter_;

@@ -62,7 +62,7 @@ void GsfElectronProducer::beginEvent(edm::Event& event, const edm::EventSetup& s
     pfTranslatorParametersChecked_ = true;
     edm::Handle<edm::ValueMap<float> > pfMva;
     event.getByToken(pfMVA_, pfMva);
-    checkPfTranslatorParameters(edm::parameterSet(*pfMva.provenance()));
+    checkPfTranslatorParameters(edm::parameterSet(*pfMva.provenance(), event.processHistory()));
   }
 
   // call to base class

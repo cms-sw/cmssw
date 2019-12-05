@@ -329,8 +329,9 @@ Bool_t TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       auto rp = std::make_shared<edm::RunPrincipal>(runAux, m_->reg(), m_->pc_, nullptr, 0);
       auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(m_->reg(), m_->pc_, nullptr, 0);
       lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
+      auto history = m_->phreg_->getMapped(eaux->processHistoryID());
       m_->ep_->fillEventPrincipal(*eaux,
-                                  *m_->phreg_,
+                                  history,
                                   std::move(eventSelectionIDs),
                                   std::move(branchListIndexes),
                                   *(m_->provRetriever_),
