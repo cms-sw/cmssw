@@ -71,7 +71,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     IDWPdefinitions = cms.VPSet(
         cms.PSet(
             IDname = cms.string("pfRecoTauDiscriminationByIsolation"),
-            maximumOccupancy = cms.uint32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
+            maximumOccupancy = cms.int32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
             ApplyDiscriminationByTrackerIsolation = cms.bool(True), # use PFGammas when isolating
             ApplyDiscriminationByECALIsolation = cms.bool(True), # use PFChargedHadr when isolating
             )
