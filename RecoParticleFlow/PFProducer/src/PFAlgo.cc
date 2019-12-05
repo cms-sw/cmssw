@@ -1281,7 +1281,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
   if (trackInBlock) {  // count any tracks (not only active tracks)
     // sorted tracks associated with a HfHad cluster
     std::multimap<double, unsigned> sortedTracks;
-    std::multimap<double, unsigned> sortedTracksActive; // only active ones
+    std::multimap<double, unsigned> sortedTracksActive;  // only active ones
     // HfEms associated with tracks linked to a HfHad cluster
     std::multimap<unsigned, std::pair<double, unsigned>> associatedHfEms;
     // Temporary map for HfEm satellite clusters
@@ -1470,7 +1470,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
         for (auto const& hfem : sortedHfEmsActive) {
           unsigned iHfEm = hfem.second;
           (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfEm);
-	  active[iHfEm] = false;
+          active[iHfEm] = false;
         }
 
       }  // if sortedTracksActive.empty() ends

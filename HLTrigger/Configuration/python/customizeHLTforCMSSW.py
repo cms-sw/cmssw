@@ -46,7 +46,7 @@ def synchronizeHCALHLTofflineRun3on2018data(process):
     # this function bring back the Run3 menu to a Run2-2018 like meny, for testing in data 2018
 
     #----------------------------------------------------------------------------------------------------------
-    # adapt threshold for HB  - in 2018 only one depth 
+    # adapt threshold for HB  - in 2018 only one depth
 
     for producer in producers_by_type(process, "PFClusterProducer"):
         if producer.seedFinder.thresholdsByDetector[0].detector.value() == 'HCAL_BARREL1':
@@ -165,7 +165,7 @@ def customiseFor2017DtUnpacking(process):
     return process
 
 # for PFBlockProducer/Algo change to enable both track-HCAL and track-HF links
-hltPFBlockLinkDefPrePhase2 = cms.VPSet( 
+hltPFBlockLinkDefPrePhase2 = cms.VPSet(
     cms.PSet(  linkType = cms.string( "PS1:ECAL" ),
                useKDTree = cms.bool( True ),
                linkerName = cms.string( "PreshowerAndECALLinker" )
@@ -208,5 +208,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor28442(process)
-    
+
     return process
