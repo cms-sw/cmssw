@@ -189,14 +189,16 @@ namespace JME {
     }
 
     void JetResolutionObject::Definition::init() {
-    if ((!m_formula_str.empty()) && (m_formula_str.find(' ') == std::string::npos))
+    if (!m_formula_str.empty()) {
+     if (m_formula_str.find(' ') == std::string::npos)
 #ifndef STANDALONE
             m_formula = std::make_shared<reco::FormulaEvaluator>(m_formula_str);
 #else
             m_formula = std::make_shared<TFormula>("jet_resolution_formula", m_formula_str.c_str());
 #endif
-    else
+     else
       m_parameters_name = getTokens(m_formula_str);
+    }
         for (const auto& bin: m_bins_name) {
             const auto& b = JetParameters::binning_to_string.right.find(bin);
             if (b == JetParameters::binning_to_string.right.cend()) {
