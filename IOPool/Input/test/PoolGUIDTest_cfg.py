@@ -14,9 +14,7 @@ for a in sys.argv:
 process = cms.Process("TESTRECO")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
+process.maxEvents.input = -1
 process.OtherThing = cms.EDProducer("OtherThingProducer")
 process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer")
 
