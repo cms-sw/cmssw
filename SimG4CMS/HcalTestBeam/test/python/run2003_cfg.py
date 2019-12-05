@@ -5,6 +5,7 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("SimG4CMS.HcalTestBeam.TB2003GeometryXML_cfi")
 process.load("Geometry.HcalTestBeamData.hcalDDDSimConstants_cff")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
