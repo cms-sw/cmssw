@@ -1324,22 +1324,22 @@ namespace {
 
         if (subid == StripSubdetector::TIB) {
           ratios["TIB"]->Fill(ratio);
-          scatters["TIB"]->Fill(lastmap[index], firstmap[index]);
+          scatters["TIB"]->Fill(firstmap[index], lastmap[index]);
         }
 
         if (subid == StripSubdetector::TOB) {
           ratios["TOB"]->Fill(ratio);
-          scatters["TOB"]->Fill(lastmap[index], firstmap[index]);
+          scatters["TOB"]->Fill(firstmap[index], lastmap[index]);
         }
 
         if (subid == StripSubdetector::TID) {
           ratios["TID"]->Fill(ratio);
-          scatters["TID"]->Fill(lastmap[index], firstmap[index]);
+          scatters["TID"]->Fill(firstmap[index], lastmap[index]);
         }
 
         if (subid == StripSubdetector::TEC) {
           ratios["TEC"]->Fill(ratio);
-          scatters["TEC"]->Fill(lastmap[index], firstmap[index]);
+          scatters["TEC"]->Fill(firstmap[index], lastmap[index]);
         }
       }
 
