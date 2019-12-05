@@ -90,7 +90,7 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
       edm::LogVerbatim("HCalGeom") << "HB " << sol.name() << " Shape " << sol.shape() << " Layer " << lay << " R "
                                    << t.Rho();
 #endif
-      if (lay >= 0 && lay < 20) {
+      if (lay >= 0 && lay < maxLayer_) {
         ib_[lay]++;
         rb_[lay] += t.Rho();
         if (thkb_[lay] <= 0) {
@@ -176,7 +176,7 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
       edm::LogVerbatim("HCalGeom") << "HE " << sol.name() << " Shape " << sol.shape() << " Layer " << lay << " Z "
                                    << t.z();
 #endif
-      if (lay >= 0 && lay < 20) {
+      if (lay >= 0 && lay < maxLayer_) {
         ie_[lay]++;
         ze_[lay] += std::abs(t.z());
         if (thke_[lay] <= 0)
@@ -282,7 +282,7 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
       edm::LogVerbatim("HCalGeom") << "HB " << fv.name() << " Shape "  //<< fv.shape()
                                    << " Layer " << lay << " R " << t.Rho();
 #endif
-      if (lay >= 0 && lay < 20) {
+      if (lay >= 0 && lay < maxLayer_) {
         ib_[lay]++;
         rb_[lay] += t.Rho();
         if (thkb_[lay] <= 0) {
@@ -368,7 +368,7 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
       edm::LogVerbatim("HCalGeom") << "HE " << fv.name() << " Shape "  //<< fv.shape()
                                    << " Layer " << lay << " Z " << t.z();
 #endif
-      if (lay >= 0 && lay < 20) {
+      if (lay >= 0 && lay < maxLayer_) {
         ie_[lay]++;
         ze_[lay] += std::abs(t.z());
         if (thke_[lay] <= 0)
