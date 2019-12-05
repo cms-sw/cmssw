@@ -75,7 +75,7 @@ namespace JME {
         std::string s;
         for (const auto& piece : parameter_names)
           s += piece + " ";
-        throw "Invalid value for 'uncertaintySource' parameter. Only " + s + " are supported.";
+        throw cms::Exception("InvalidParameter") << "Invalid value for 'uncertaintySource' parameter. Only " + s + " are supported.\n";
       }
     }
     return parameters_values[parameter];
