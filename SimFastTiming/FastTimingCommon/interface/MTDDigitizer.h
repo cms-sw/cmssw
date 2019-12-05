@@ -69,7 +69,7 @@ namespace mtd_digitizer {
     constexpr uint16_t base = 1 << PMTDSimAccumulator::Data::sampleOffset;
 
     simResult.reserve(simData.size());
-    // mimicing the digitization
+    // mimicking the digitization
     for (const auto& elem : simData) {
       // store only non-zero
       for (size_t iEn = 0; iEn < nEnergies; ++iEn) {
@@ -77,7 +77,7 @@ namespace mtd_digitizer {
         for (size_t iSample = 0; iSample < nSamples; ++iSample) {
           if (samples[iSample] > minCharge) {
             unsigned short packed;
-            if (iEn == 1) {
+            if (iEn == 1 || iEn == 3) {
               // assuming linear range for tof of 0..26
               packed = samples[iSample] / PREMIX_MAX_TOF * base;
             } else {
@@ -108,13 +108,13 @@ namespace mtd_digitizer {
       size_t iSample = detIdIndexHitInfo.sampleIndex();
 
       float value;
-      if (iEn == 1) {
+      if (iEn == 1 || iEn == 3) {
         value = static_cast<float>(detIdIndexHitInfo.data()) / base * PREMIX_MAX_TOF;
       } else {
         value = logintpack::unpack16log(detIdIndexHitInfo.data(), minPackChargeLog, maxPackChargeLog, base);
       }
 
-      if (iEn == 0) {
+      if (iEn == 0 || iEn == 2) {
         hit_info[iEn][iSample] += value;
       } else if (hit_info[iEn][iSample] == 0) {
         // For iEn==1 the digitizers just set the TOF of the first SimHit

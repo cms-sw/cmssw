@@ -60,7 +60,7 @@ private:
   const float DarkCountRate_;
   const float SigmaElectronicNoise_;
   const float SigmaClock_;
-
+  const bool smearTimeForOOTtails_;
   const float Npe_to_pC_;
   const float Npe_to_V_;
 
@@ -80,6 +80,7 @@ private:
   const float sinPhi_;
 
   const float ScintillatorDecayTime2_;
+  const float ScintillatorDecayTimeInv_;
   const float SPTR2_;
   const float DCRxRiseTime_;
   const float SigmaElectronicNoise2_;
