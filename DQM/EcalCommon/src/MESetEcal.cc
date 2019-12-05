@@ -70,6 +70,11 @@ namespace ecaldqm {
   void MESetEcal::book(DQMStore::IBooker &_ibooker) {
     using namespace std;
 
+    _ibooker.setScope(MonitorElementData::Scope::RUN);
+    if (lumiFlag_) {
+      _ibooker.setScope(MonitorElementData::Scope::LUMI);
+    }
+
     clear();
 
     vector<string> mePaths(generatePaths());
@@ -263,9 +268,6 @@ namespace ecaldqm {
         // solution, where isMap is the last bit.
         me->getTH1()->SetUniqueID(uint32_t(2 * (actualObject + 1) + (isMap ? 1 : 0)));
       }
-
-      if (lumiFlag_)
-        me->setLumiFlag();
 
       mes_.push_back(me);
     }
