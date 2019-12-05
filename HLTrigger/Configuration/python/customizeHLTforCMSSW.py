@@ -200,6 +200,8 @@ def customiseFor28442(process):
         process.hltParticleFlowBlockForTaus.linkDefinitions = hltPFBlockLinkDefPrePhase2
     if hasattr(process,'hltParticleFlowBlockReg'):
         process.hltParticleFlowBlockReg.linkDefinitions = hltPFBlockLinkDefPrePhase2
+    if hasattr(process,'hltParticleFlowBlockPPOnAA'):
+        process.hltParticleFlowBlockPPOnAA.linkDefinitions = hltPFBlockLinkDefPrePhase2
     return process
 
 # CMSSW version specific customizations
