@@ -1,7 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
-<library file="*.cc" name="RecoBTagDeepBoostedJetPlugins">
+<library file="*.cc" name="RecoBTagONNXRuntimePlugins">
   <use name="DataFormats/BTauReco"/>
-  <use name="PhysicsTools/MXNet"/>
+  <use name="PhysicsTools/ONNXRuntime"/>
   <flags EDM_PLUGIN="1"/>
 </library>
