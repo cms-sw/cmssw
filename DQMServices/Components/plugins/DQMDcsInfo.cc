@@ -45,8 +45,8 @@ void DQMDcsInfo::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder(subsystemname_ + "/" + dcsinfofolder_);
 
+  ibooker.setScope(MonitorElementData::Scope::LUMI);
   DCSbyLS_ = ibooker.book1D("DCSbyLS", "DCS", 25, 0., 25.);
-  DCSbyLS_->setLumiFlag();
 
   // initialize
   for (bool& dc : dcs)

@@ -52,8 +52,7 @@ namespace {
           m_runs(iPSet.getUntrackedParameter<std::vector<int> >("runs")),
           m_lumis(iPSet.getUntrackedParameter<std::vector<int> >("lumis")),
           m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
-          m_entries(iPSet.getUntrackedParameter<std::vector<double> >("entries"))
-           {
+          m_entries(iPSet.getUntrackedParameter<std::vector<double> >("entries")) {
       assert(m_means.size() == m_entries.size());
       std::string extension;
       if (iSetLumiFlag) {

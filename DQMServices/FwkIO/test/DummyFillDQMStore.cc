@@ -56,9 +56,6 @@ namespace {
                                 m_steps,
                                 m_min,
                                 iPSet.getUntrackedParameter<double>("highX"));
-      if (iSetLumiFlag) {
-        m_element->setLumiFlag();
-      }
       m_hist = m_element->getTH1F();
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
@@ -92,9 +89,6 @@ namespace {
                                 iPSet.getUntrackedParameter<int>("nchY"),
                                 iPSet.getUntrackedParameter<double>("lowY"),
                                 iPSet.getUntrackedParameter<double>("highY"));
-      if (iSetLumiFlag) {
-        m_element->setLumiFlag();
-      }
       m_hist = m_element->getTH2F();
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
