@@ -24,11 +24,14 @@
 PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiDiagnostics = iConfig.getParameter<bool>("puppiDiagnostics");
   fPuppiForLeptons = iConfig.getParameter<bool>("puppiForLeptons");
+  fUseFromPVLooseTight = iConfig.getParameter<bool>("UseFromPVLooseTight");
   fUseDZ = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut = iConfig.getParameter<double>("DeltaZCut");
+  fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
   fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
+  fPtMaxNeutralsStartSlope = iConfig.getParameter<double>("PtMaxNeutralsStartSlope");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
   fUseWeightsNoLep = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
@@ -157,13 +160,15 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           }
           if (tmpFromPV == 1 || tmpFromPV == 2) {
             pReco.id = 0;
-            if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) < fDZCut))
+            if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+              pReco.id = 2;
+            else if (fUseDZ && (std::abs(pDZ) < fDZCut))
               pReco.id = 1;
-            if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) > fDZCut))
+            else if (fUseDZ && (std::abs(pDZ) > fDZCut))
               pReco.id = 2;
-            if (fPuppiForLeptons && tmpFromPV == 1)
+            else if (fUseFromPVLooseTight && tmpFromPV == 1)
               pReco.id = 2;
-            if (fPuppiForLeptons && tmpFromPV == 2)
+            else if (fUseFromPVLooseTight && tmpFromPV == 2)
               pReco.id = 1;
           }
         }
@@ -187,13 +192,15 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           if (lPack->fromPV() == (pat::PackedCandidate::PVTight) ||
               lPack->fromPV() == (pat::PackedCandidate::PVLoose)) {
             pReco.id = 0;
-            if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) < fDZCut))
+            if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+              pReco.id = 2;
+            else if (fUseDZ && (std::abs(pDZ) < fDZCut))
               pReco.id = 1;
-            if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) > fDZCut))
+            else if (fUseDZ && (std::abs(pDZ) > fDZCut))
               pReco.id = 2;
-            if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
+            else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
               pReco.id = 2;
-            if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVTight))
+            else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVTight))
               pReco.id = 1;
           }
         }
@@ -346,11 +353,14 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", false);
   desc.add<bool>("puppiForLeptons", false);
+  desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<double>("DeltaZCut", 0.3);
+  desc.add<double>("PtMaxCharged", 0.);
   desc.add<double>("PtMaxPhotons", 0.);
   desc.add<double>("EtaMaxPhotons", 2.5);
   desc.add<double>("PtMaxNeutrals", 200.);
+  desc.add<double>("PtMaxNeutralsStartSlope", 0.);
   desc.add<bool>("useExistingWeights", false);
   desc.add<bool>("useWeightsNoLep", false);
   desc.add<bool>("clonePackedCands", false);
