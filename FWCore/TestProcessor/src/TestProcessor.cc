@@ -394,7 +394,7 @@ namespace edm {
       pep->clearEventPrincipal();
       pep->fillEventPrincipal(
           edm::EventAuxiliary(EventID(runNumber_, lumiNumber_, eventNumber_), "", Timestamp(), false),
-          processHistoryRegistry_,
+          nullptr,
           nullptr);
       assert(lumiPrincipal_.get() != nullptr);
       pep->setLuminosityBlockPrincipal(lumiPrincipal_.get());

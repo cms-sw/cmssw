@@ -612,7 +612,7 @@ void DQMRootSource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache)
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache.id().run(), lbCache.id().luminosityBlock());
 
-  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistry().getMapped(lbCache.aux().processHistoryID()));
 }
 
 std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {

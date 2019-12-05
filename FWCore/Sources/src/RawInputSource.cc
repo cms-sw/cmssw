@@ -7,6 +7,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -47,7 +48,8 @@ namespace edm {
   }
 
   void RawInputSource::makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary) {
-    eventPrincipal.fillEventPrincipal(eventAuxiliary, processHistoryRegistry());
+    auto history = processHistoryRegistry().getMapped(eventAuxiliary.processHistoryID());
+    eventPrincipal.fillEventPrincipal(eventAuxiliary, history);
   }
 
   InputSource::ItemType RawInputSource::getNextItemType() {
