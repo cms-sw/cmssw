@@ -95,7 +95,7 @@ ECalSD::ECalSD(const std::string& name,
     edm::LogError("EcalSim") << "ECalSD : Cannot find EcalSimulationParameters for " << name;
     throw cms::Exception("Unknown", "ECalSD") << "Cannot find EcalSimulationParameters for " << name << "\n";
   }
-  
+
   // Use of Weight
   useWeight = ecalSimParameters_->useWeight_;
 #ifdef EDM_ML_DEBUG
@@ -356,12 +356,12 @@ void ECalSD::initMap() {
       if (crystalMat.size() == matname.size() && !strcmp(crystalMat.c_str(), matname.c_str())) {
         if (!any(lvused, lv)) {
           lvused.push_back(lv);
-	  double dz = ecalSimParameters_->dzs_[it];
-	  xtalLMap.insert(std::pair<const G4LogicalVolume*, double>(lv, dz * type));
-	  lv = nameMap[lvname + "_refl"];
-	  if (lv != nullptr) {
-	    xtalLMap.insert(std::pair<const G4LogicalVolume*, double>(lv, -dz * type));
-	  }
+          double dz = ecalSimParameters_->dzs_[it];
+          xtalLMap.insert(std::pair<const G4LogicalVolume*, double>(lv, dz * type));
+          lv = nameMap[lvname + "_refl"];
+          if (lv != nullptr) {
+            xtalLMap.insert(std::pair<const G4LogicalVolume*, double>(lv, -dz * type));
+          }
         }
       } else {
         if (!any(noWeight, lv)) {
