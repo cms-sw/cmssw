@@ -54,7 +54,7 @@ private:
   double getBirkL3(const G4Step *);
 
   // initialised before run
-  const EcalSimulationParameters* ecalSimParameters_;
+  const EcalSimulationParameters *ecalSimParameters_;
   EcalNumberingScheme *numberingScheme_;
   bool useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool useBirk, useBirkL3;
