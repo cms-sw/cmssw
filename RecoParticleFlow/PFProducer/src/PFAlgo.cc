@@ -1260,7 +1260,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
 
   bool trackInBlock = !inds.trackIs.empty();
   // inds.trackIs can be empty, even if there are tracks in this block,
-  // but we want to check if this block has any track including inactive ones
+  // but what we want to check is if this block has any track including inactive ones
   if (!trackInBlock)
     for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
       PFBlockElement::Type type = elements[iEle].type();
@@ -1281,7 +1281,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
   if (trackInBlock) {  // count any tracks (not only active tracks)
     // sorted tracks associated with a HfHad cluster
     std::multimap<double, unsigned> sortedTracks;
-    std::multimap<double, unsigned> sortedTracksActive;
+    std::multimap<double, unsigned> sortedTracksActive; // only active ones
     // HfEms associated with tracks linked to a HfHad cluster
     std::multimap<unsigned, std::pair<double, unsigned>> associatedHfEms;
     // Temporary map for HfEm satellite clusters
@@ -1447,7 +1447,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
             // Ignore HFEM cluters already used
             if (!active[iHfEm])
               continue;
-            sortedHfEms.emplace(hfem);
+            sortedHfEmsActive.emplace(hfem);
             PFClusterRef eclusterRef = elements[iHfEm].clusterRef();
             assert(!eclusterRef.isNull());
             double hfemEnergy = eclusterRef->energy();
@@ -1470,6 +1470,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
         for (auto const& hfem : sortedHfEmsActive) {
           unsigned iHfEm = hfem.second;
           (*pfCandidates_)[tmpi].addElementInBlock(blockref, iHfEm);
+	  active[iHfEm] = false;
         }
 
       }  // if sortedTracksActive.empty() ends
