@@ -128,8 +128,7 @@ public:
         m_genJetMatcher = std::make_shared<pat::GenJetMatcher>(cfg, consumesCollector());
 
       std::int32_t variation = cfg.getParameter<std::int32_t>("variation");
-      if (cfg.exists("uncertaintySource"))
-        m_uncertaintySource = cfg.getParameter<std::string>("uncertaintySource");
+      m_uncertaintySource = cfg.getParameter<std::string>("uncertaintySource");
       m_nomVar = 1;
       if (variation == 0)
         m_systematic_variation = Variation::NOMINAL;
