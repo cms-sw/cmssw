@@ -161,7 +161,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           if (tmpFromPV == 1 || tmpFromPV == 2) {
             pReco.id = 0;
             if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
-              pReco.id = 2;
+              pReco.id = 1;
             else if (fUseDZ && (std::abs(pDZ) < fDZCut))
               pReco.id = 1;
             else if (fUseDZ && (std::abs(pDZ) > fDZCut))
@@ -193,7 +193,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               lPack->fromPV() == (pat::PackedCandidate::PVLoose)) {
             pReco.id = 0;
             if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
-              pReco.id = 2;
+              pReco.id = 1;
             else if (fUseDZ && (std::abs(pDZ) < fDZCut))
               pReco.id = 1;
             else if (fUseDZ && (std::abs(pDZ) > fDZCut))
