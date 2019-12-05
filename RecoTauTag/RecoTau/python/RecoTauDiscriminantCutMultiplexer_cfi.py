@@ -17,11 +17,11 @@ recoTauDiscriminantCutMultiplexer = recoTauDiscriminantCutMultiplexerDefault.clo
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
-            cut = cms.double(0.5),
+            cut = cms.string("fixme"),
         ),
         cms.PSet(
             category = cms.uint32(1),
-            cut = cms.double(0.2),
+            cut = cms.string("fixme"),
         ),
     )
 )

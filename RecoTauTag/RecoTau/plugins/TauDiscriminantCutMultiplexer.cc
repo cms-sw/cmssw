@@ -367,21 +367,24 @@ void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValu
   {
     edm::ParameterSet pset_mapping;
     pset_mapping.addParameter<unsigned int>("category", 0);
-    pset_mapping.addParameter<double>("cut", 0.);
+    pset_mapping.addParameter<std::string>("cut", "fixme");
     edm::ParameterSetDescription desc_mapping;
     desc_mapping.add<unsigned int>("category", 0);
-    desc_mapping.addNode(edm::ParameterDescription<std::string>("cut", true) xor
-                         edm::ParameterDescription<double>("cut", true));
-    // it seems the parameter string "variable" exists only when "cut" is string
+    desc_mapping.add<std::string>("cut", "fixme");
+    // it seems the parameter string "variable" exists only when workingPoints are string
     // see hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT in RecoTauTag/Configuration/python/HPSPFTaus_cff.py
-    desc_mapping.addOptional<std::string>("variable")->setComment("the parameter is required when \"cut\" is string");
+    desc_mapping.addOptional<std::string>("variable")
+        ->setComment("the parameter is required when \"workingPoints\" are string");
     //  desc_mapping.add<double>("cut",0.);
     std::vector<edm::ParameterSet> vpsd_mapping;
     vpsd_mapping.push_back(pset_mapping);
     desc.addVPSet("mapping", desc_mapping, vpsd_mapping);
   }
 
-  desc.add<std::vector<std::string>>("workingPoints", std::vector<std::string>());
+  std::vector<double> defaultWP;
+  defaultWP.push_back(0.0);
+  desc.addNode(edm::ParameterDescription<std::vector<double>>("workingPoints", defaultWP, true) xor
+               edm::ParameterDescription<std::vector<std::string>>("workingPoints", true));
   desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
   desc.add<bool>("loadMVAfromDB", true);
   ParentClass::fillProducerDescriptions(desc);  // inherited from the base
