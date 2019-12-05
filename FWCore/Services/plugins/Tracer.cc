@@ -102,6 +102,9 @@ namespace edm {
       void preGlobalEndRun(GlobalContext const&);
       void postGlobalEndRun(GlobalContext const&);
 
+      void preGlobalWriteRun(GlobalContext const&);
+      void postGlobalWriteRun(GlobalContext const&);
+
       void preStreamBeginRun(StreamContext const&);
       void postStreamBeginRun(StreamContext const&);
 
@@ -113,6 +116,9 @@ namespace edm {
 
       void preGlobalEndLumi(GlobalContext const&);
       void postGlobalEndLumi(GlobalContext const&);
+
+      void preGlobalWriteLumi(GlobalContext const&);
+      void postGlobalWriteLumi(GlobalContext const&);
 
       void preStreamBeginLumi(StreamContext const&);
       void postStreamBeginLumi(StreamContext const&);
@@ -261,6 +267,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreGlobalEndRun(this, &Tracer::preGlobalEndRun);
   iRegistry.watchPostGlobalEndRun(this, &Tracer::postGlobalEndRun);
 
+  iRegistry.watchPreGlobalWriteRun(this, &Tracer::preGlobalWriteRun);
+  iRegistry.watchPostGlobalWriteRun(this, &Tracer::postGlobalWriteRun);
+
   iRegistry.watchPreStreamBeginRun(this, &Tracer::preStreamBeginRun);
   iRegistry.watchPostStreamBeginRun(this, &Tracer::postStreamBeginRun);
 
@@ -272,6 +281,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   iRegistry.watchPreGlobalEndLumi(this, &Tracer::preGlobalEndLumi);
   iRegistry.watchPostGlobalEndLumi(this, &Tracer::postGlobalEndLumi);
+
+  iRegistry.watchPreGlobalWriteLumi(this, &Tracer::preGlobalWriteLumi);
+  iRegistry.watchPostGlobalWriteLumi(this, &Tracer::postGlobalWriteLumi);
 
   iRegistry.watchPreStreamBeginLumi(this, &Tracer::preStreamBeginLumi);
   iRegistry.watchPostStreamBeginLumi(this, &Tracer::postStreamBeginLumi);
@@ -647,6 +659,26 @@ void Tracer::postGlobalEndRun(GlobalContext const& gc) {
   }
 }
 
+void Tracer::preGlobalWriteRun(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " starting: global write run " << gc.luminosityBlockID().run()
+      << " : time = " << gc.timestamp().value();
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::postGlobalWriteRun(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " finished: global write run " << gc.luminosityBlockID().run()
+      << " : time = " << gc.timestamp().value();
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
 void Tracer::preStreamBeginRun(StreamContext const& sc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
@@ -721,6 +753,26 @@ void Tracer::postGlobalEndLumi(GlobalContext const& gc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: global end lumi: run = " << gc.luminosityBlockID().run()
+      << " lumi = " << gc.luminosityBlockID().luminosityBlock() << " time = " << gc.timestamp().value();
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::preGlobalWriteLumi(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " starting: global write lumi: run = " << gc.luminosityBlockID().run()
+      << " lumi = " << gc.luminosityBlockID().luminosityBlock() << " time = " << gc.timestamp().value();
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::postGlobalWriteLumi(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " finished: global write lumi: run = " << gc.luminosityBlockID().run()
       << " lumi = " << gc.luminosityBlockID().luminosityBlock() << " time = " << gc.timestamp().value();
   if (dumpNonModuleContext_) {
     out << "\n" << gc;
