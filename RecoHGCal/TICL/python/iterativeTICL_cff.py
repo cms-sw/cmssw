@@ -35,3 +35,8 @@ iterTICLTask = cms.Task(ticlLayerTileTask
 
 iterTICL = cms.Sequence(iterTICLTask)
 
+def injectTICLintoPF(process):
+    if getattr(process,'particleFlowTmp', None):
+      process.particleFlowTmp.src = ['particleFlowTmpBarrel', 'pfTICLProducer']
+
+    return process
