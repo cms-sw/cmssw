@@ -120,9 +120,13 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
       kdtrees_.back()->setTargetType(std::min(type1, type2));
       kdtrees_.back()->setFieldType(std::max(type1, type2));
       // giving entrance and exit points - necessary for track-hcal links
-      const std::string trajectoryLayerEntranceString =
-          conf.getUntrackedParameter<std::string>("trajectoryLayerEntrance", "");
-      const std::string trajectoryLayerExitString = conf.getUntrackedParameter<std::string>("trajectoryLayerExit", "");
+      const std::string trajectoryLayerEntranceString(conf.existsAs<std::string>("trajectoryLayerEntrance")
+                                                          ? conf.getParameter<std::string>("trajectoryLayerEntrance")
+                                                          : "");
+      const std::string trajectoryLayerExitString(conf.existsAs<std::string>("trajectoryLayerExit")
+                                                      ? conf.getParameter<std::string>("trajectoryLayerExit")
+                                                      : "");
+      // convert TrajectoryLayers info from string to enum
       const reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance =
           reco::PFTrajectoryPoint::layerTypeFromString(trajectoryLayerEntranceString);
       const reco::PFTrajectoryPoint::LayerType trajectoryLayerExit =

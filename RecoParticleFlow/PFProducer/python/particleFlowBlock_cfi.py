@@ -91,8 +91,8 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
                   linkType   = cms.string("TRACK:HCAL"),
                   useKDTree  = cms.bool(True),
-                  trajectoryLayerEntrance = cms.untracked.string("HCALEntrance"),
-                  trajectoryLayerExit = cms.untracked.string("HCALExit")),
+                  trajectoryLayerEntrance = cms.string("HCALEntrance"),
+                  trajectoryLayerExit = cms.string("HCALExit")),
         cms.PSet( linkerName = cms.string("TrackAndHOLinker"),
                   linkType   = cms.string("TRACK:HO"),
                   useKDTree  = cms.bool(False) ),
@@ -193,15 +193,15 @@ _addTrackHFLinks.append(
   cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
             linkType   = cms.string("TRACK:HFEM"),
             useKDTree  = cms.bool(True),
-            trajectoryLayerEntrance = cms.untracked.string("VFcalEntrance"),
-            trajectoryLayerExit = cms.untracked.string(""))
+            trajectoryLayerEntrance = cms.string("VFcalEntrance"),
+            trajectoryLayerExit = cms.string(""))
   )
 _addTrackHFLinks.append(
   cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
             linkType   = cms.string("TRACK:HFHAD"),
             useKDTree  = cms.bool(True),
-            trajectoryLayerEntrance = cms.untracked.string("VFcalEntrance"),
-            trajectoryLayerExit = cms.untracked.string(""))
+            trajectoryLayerEntrance = cms.string("VFcalEntrance"),
+            trajectoryLayerExit = cms.string(""))
 )
 phase2_tracker.toModify(
     particleFlowBlock,
@@ -240,4 +240,3 @@ phase2_timing_layer.toModify(
     particleFlowBlock,
     elementImporters = _addTimingLayer
 )
-
