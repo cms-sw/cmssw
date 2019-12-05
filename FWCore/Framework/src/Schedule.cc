@@ -1136,8 +1136,37 @@ namespace edm {
                                ProcessContext const* processContext,
                                ActivityRegistry* activityRegistry,
                                MergeableRunProductMetadata const* mergeableRunProductMetadata) {
+    auto token = ServiceRegistry::instance().presentToken();
+    GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
+                                LuminosityBlockID(rp.run(), 0),
+                                rp.index(),
+                                LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                                rp.endTime(),
+                                processContext);
+    auto t =
+        make_waiting_task(tbb::task::allocate_root(),
+                          [task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
+                            try {
+                              //services can depend on other services
+                              ServiceRegistry::Operate op(token);
+
+                              activityRegistry->postGlobalWriteRunSignal_(globalContext);
+                            } catch (...) {
+                            }
+                            std::exception_ptr ptr;
+                            if (iExcept) {
+                              ptr = *iExcept;
+                            }
+                            task.doneWaiting(ptr);
+                          });
+    try {
+      activityRegistry->preGlobalWriteRunSignal_(globalContext);
+    } catch (...) {
+    }
+    WaitingTaskHolder tHolder(t);
+
     for (auto& c : all_output_communicators_) {
-      c->writeRunAsync(task, rp, processContext, activityRegistry, mergeableRunProductMetadata);
+      c->writeRunAsync(tHolder, rp, processContext, activityRegistry, mergeableRunProductMetadata);
     }
   }
 
@@ -1145,8 +1174,37 @@ namespace edm {
                                 LuminosityBlockPrincipal const& lbp,
                                 ProcessContext const* processContext,
                                 ActivityRegistry* activityRegistry) {
+    auto token = ServiceRegistry::instance().presentToken();
+    GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
+                                lbp.id(),
+                                lbp.runPrincipal().index(),
+                                lbp.index(),
+                                lbp.beginTime(),
+                                processContext);
+
+    auto t =
+        make_waiting_task(tbb::task::allocate_root(),
+                          [task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
+                            try {
+                              //services can depend on other services
+                              ServiceRegistry::Operate op(token);
+
+                              activityRegistry->postGlobalWriteLumiSignal_(globalContext);
+                            } catch (...) {
+                            }
+                            std::exception_ptr ptr;
+                            if (iExcept) {
+                              ptr = *iExcept;
+                            }
+                            task.doneWaiting(ptr);
+                          });
+    try {
+      activityRegistry->preGlobalWriteLumiSignal_(globalContext);
+    } catch (...) {
+    }
+    WaitingTaskHolder tHolder(t);
     for (auto& c : all_output_communicators_) {
-      c->writeLumiAsync(task, lbp, processContext, activityRegistry);
+      c->writeLumiAsync(tHolder, lbp, processContext, activityRegistry);
     }
   }
 
