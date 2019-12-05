@@ -12,19 +12,20 @@ public:
   TrackAndHCALLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
         _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _trajectoryLayerEntranceString(
-            conf.getUntrackedParameter<std::string>("trajectoryLayerEntrance", "HCALEntrance")),
-        _trajectoryLayerExitString(conf.getUntrackedParameter<std::string>("trajectoryLayerExit", "HCALExit")),
+        _trajectoryLayerEntranceString(conf.getParameter<std::string>("trajectoryLayerEntrance")),
+        _trajectoryLayerExitString(conf.getParameter<std::string>("trajectoryLayerExit")),
         _debug(conf.getUntrackedParameter<bool>("debug", false)) {
     // convert TrajectoryLayers info from string to enum
     _trajectoryLayerEntrance = reco::PFTrajectoryPoint::layerTypeFromString(_trajectoryLayerEntranceString);
     _trajectoryLayerExit = reco::PFTrajectoryPoint::layerTypeFromString(_trajectoryLayerExitString);
+    // make sure the requested setting is supported
     assert((_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
             _trajectoryLayerExit == reco::PFTrajectoryPoint::HCALExit) ||
            (_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
             _trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ||
            (_trajectoryLayerEntrance == reco::PFTrajectoryPoint::VFcalEntrance &&
             _trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown));
+    // flag if exit layer should be checked or not
     _checkExit = (_trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ? false : true;
   }
 
@@ -43,8 +44,6 @@ private:
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndHCALLinker, "TrackAndHCALLinker");
 
 double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
-  //constexpr reco::PFTrajectoryPoint::LayerType HCALEntrance = reco::PFTrajectoryPoint::HCALEntrance;
-  //constexpr reco::PFTrajectoryPoint::LayerType HCALExit = reco::PFTrajectoryPoint::HCALExit;
   const reco::PFBlockElementCluster* hcalelem(nullptr);
   const reco::PFBlockElementTrack* tkelem(nullptr);
   double dist(-1.0);

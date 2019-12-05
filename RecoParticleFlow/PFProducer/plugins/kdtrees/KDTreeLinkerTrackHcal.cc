@@ -81,13 +81,14 @@ void KDTreeLinkerTrackHcal::setTrajectoryPoints(const reco::PFTrajectoryPoint::L
                                                 const reco::PFTrajectoryPoint::LayerType trajectoryLayerExit) {
   _trajectoryLayerEntrance = trajectoryLayerEntrance;
   _trajectoryLayerExit = trajectoryLayerExit;
-  // make sure the requested setting is a supported mode
+  // make sure the requested setting is supported
   assert((_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
           _trajectoryLayerExit == reco::PFTrajectoryPoint::HCALExit) ||
          (_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
           _trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ||
          (_trajectoryLayerEntrance == reco::PFTrajectoryPoint::VFcalEntrance &&
           _trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown));
+  // flag if exit layer should be checked or not
   _checkExit = (_trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ? false : true;
 }
 
