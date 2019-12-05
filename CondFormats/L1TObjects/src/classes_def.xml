@@ -300,7 +300,6 @@
   <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01">
     <field name="m_gctEtaBinBoundaries" mapping="blob" />
   </class>
-  <enum name="L1GtBoard" />
   <enum name="L1GtPsbQuad" />
   <class name="std::vector<L1TUtmAlgorithm>"/>
   <class name="std::map<std::string, L1TUtmAlgorithm>"/>
