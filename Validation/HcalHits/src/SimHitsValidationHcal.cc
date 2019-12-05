@@ -390,6 +390,8 @@ std::vector<std::pair<std::string, std::string>> SimHitsValidationHcal::getHisto
   maxDepth = std::max(maxDepth, maxDepthHO_);
 
   std::vector<std::pair<std::string, std::string>> divisions;
+  // divisions and types need to be in sync
+  types.clear();
   std::pair<std::string, std::string> names;
   char name1[40], name2[40];
   SimHitsValidationHcal::idType type;
