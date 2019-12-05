@@ -519,17 +519,15 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 
 void FWRecoGeometryESProducer::addFTLGeometry(FWRecoGeometry& fwRecoGeometry) {
   // do the barrel
-  std::vector<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds());
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-    unsigned int id = insert_id(it->rawId(), fwRecoGeometry);
-    const auto& cor = m_ftlBarrelGeom->getCorners(*it);
+  for (const auto& detid : m_ftlBarrelGeom->getValidDetIds()) {
+    unsigned int id = insert_id(detid.rawId(), fwRecoGeometry);
+    const auto& cor = m_ftlBarrelGeom->getCorners(detid);
     fillPoints(id, cor.begin(), cor.end(), fwRecoGeometry);
   }
   // do the endcap
-  vid = std::move(m_ftlEndcapGeom->getValidDetIds());
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-    unsigned int id = insert_id(it->rawId(), fwRecoGeometry);
-    const auto& cor = m_ftlEndcapGeom->getCorners(*it);
+  for (const auto& detid : m_ftlEndcapGeom->getValidDetIds()) {
+    unsigned int id = insert_id(detid.rawId(), fwRecoGeometry);
+    const auto& cor = m_ftlEndcapGeom->getCorners(detid);
     fillPoints(id, cor.begin(), cor.end(), fwRecoGeometry);
   }
 }
