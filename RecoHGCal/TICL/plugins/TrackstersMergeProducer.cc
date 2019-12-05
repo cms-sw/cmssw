@@ -388,6 +388,11 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   tracksterTRK_idx = 0;
   for (auto const & t : trackstersTRK) {
+    if (debug_) {
+      LogDebug("TrackstersMergeProducer") << " Considering trackster "
+        << tracksterTRK_idx << " as used: "
+        << usedTrackstersTRK[tracksterTRK_idx] << std::endl;
+    }
     if (! usedTrackstersTRK[tracksterTRK_idx]) {
       result->push_back(t);
     }
@@ -396,6 +401,11 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   auto tracksterEM_idx = 0;
   for (auto const & t : trackstersEM) {
+    if (debug_) {
+      LogDebug("TrackstersMergeProducer") << " Considering trackster "
+        << tracksterEM_idx << " as used: "
+        << usedTrackstersEM[tracksterEM_idx] << std::endl;
+    }
     if (! usedTrackstersEM[tracksterEM_idx]) {
       result->push_back(t);
     }
@@ -404,6 +414,11 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   tracksterHAD_idx = 0;
   for (auto const & t : trackstersHAD) {
+    if (debug_) {
+      LogDebug("TrackstersMergeProducer") << " Considering trackster "
+        << tracksterHAD_idx << " as used: "
+        << usedTrackstersHAD[tracksterHAD_idx] << std::endl;
+    }
     if (! usedTrackstersHAD[tracksterHAD_idx]) {
       result->push_back(t);
     }
