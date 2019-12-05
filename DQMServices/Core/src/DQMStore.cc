@@ -526,9 +526,32 @@ namespace dqm::implementation {
     return result;
   }
 
-  std::vector<std::string> IGetter::getSubdirs() const { assert(!"NIY"); }
+  std::vector<std::string> IGetter::getSubdirs() const {
+    // This is terribly inefficient, esp. if this method is then used to
+    // recursively enumerate whatever getAllContents would return anyways.
+    // But that is fine, any such code should just use getAllContents instead.
+    std::set<std::string> subdirs;
+    for (auto me : this->getAllContents(this->cwd_)) {
+      auto name = me->getPathname();
+      auto subdirname = name.substr(this->cwd_.length(), std::string::npos);
+      auto dirname = subdirname.substr(0, subdirname.find("/"));
+      subdirs.insert(dirname);
+    }
+    std::vector<std::string> out;
+    for (auto dir : subdirs) {
+      if (dir.length() == 0)
+        continue;
+      out.push_back(dir);
+    }
+    return out;
+  }
+
   std::vector<std::string> IGetter::getMEs() const { assert(!"NIY"); }
-  bool IGetter::dirExists(std::string const& path) const { assert(!"NIY"); }
+
+  bool IGetter::dirExists(std::string const& path) const {
+    // we don't claim this is fast.
+    return this->getAllContents(path).size() > 0;
+  }
 
   IGetter::IGetter(DQMStore* store) { store_ = store; }
 
@@ -573,7 +596,9 @@ namespace dqm::implementation {
                       SaveReferenceTag ref,
                       int minStatus,
                       std::string const& fileupdate) {
-    assert(!"NIY");
+    TRACE("filename " << filename << " path " << path << " pattern " << pattern << " rewrite " << rewrite << " run "
+                      << run << " lumi " << lumi << " minStatus " << minStatus << " fileupdate " << fileupdate);
+    //assert(!"NIY");
   }
   void DQMStore::savePB(std::string const& filename, std::string const& path, uint32_t run, uint32_t lumi) {
     assert(!"NIY");
@@ -584,9 +609,16 @@ namespace dqm::implementation {
                       std::string const& prepend,
                       OpenRunDirs stripdirs,
                       bool fileMustExist) {
-    assert(!"NIY");
+    TRACE("filename " << filename << " overwrite " << overwrite << " path " << path << " prepend " << prepend
+                      << " fileMustExist " << fileMustExist);
+    //assert(!"NIY");
+    return false;
   }
-  bool DQMStore::load(std::string const& filename, OpenRunDirs stripdirs, bool fileMustExist) { assert(!"NIY"); }
+  bool DQMStore::load(std::string const& filename, OpenRunDirs stripdirs, bool fileMustExist) {
+    TRACE("filename " << filename << " fileMustExist " << fileMustExist);
+    //assert(!"NIY");
+    return false;
+  }
 
   void DQMStore::showDirStructure() const { assert(!"NIY"); }
 
