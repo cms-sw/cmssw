@@ -12,6 +12,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include <memory>
 #include <vector>
@@ -44,7 +45,8 @@ namespace edm {
     void doReadEvent(EventPrincipal& eventPrincipal, F&& f) {
       assert(BASE::eventCached() || BASE::processingMode() != BASE::RunsLumisAndEvents);
       EventAuxiliary aux(eventID_, BASE::processGUID(), Timestamp(presentTime_), isRealData_, eType_);
-      eventPrincipal.fillEventPrincipal(aux, BASE::processHistoryRegistry());
+      auto history = BASE::processHistoryRegistry().getMapped(aux.processHistoryID());
+      eventPrincipal.fillEventPrincipal(aux, history);
       f(eventPrincipal);
       BASE::resetEventCached();
     }

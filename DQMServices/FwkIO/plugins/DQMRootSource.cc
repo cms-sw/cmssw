@@ -612,7 +612,7 @@ void DQMRootSource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache)
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache.id().run(), lbCache.id().luminosityBlock());
 
-  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistry().getMapped(lbCache.aux().processHistoryID()));
 }
 
 std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
@@ -632,13 +632,15 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     ++m_presentIndexItr;
 
   edm::Service<edm::JobReport> jr;
+  std::string guid{m_file->GetUUID().AsString()};
+  std::transform(guid.begin(), guid.end(), guid.begin(), (int (*)(int))std::toupper);
   m_jrToken = jr->inputFileOpened(m_presentlyOpenFileName,
                                   m_catalog.logicalFileNames()[m_fileIndex - 1],
                                   std::string(),
                                   std::string(),
                                   "DQMRootSource",
                                   "source",
-                                  m_file->GetUUID().AsString(),  //edm::createGlobalIdentifier(),
+                                  std::move(guid),
                                   std::vector<std::string>());
 
   return std::unique_ptr<edm::FileBlock>(new edm::FileBlock);

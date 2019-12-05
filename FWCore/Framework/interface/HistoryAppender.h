@@ -9,7 +9,6 @@
 namespace edm {
 
   class ProcessConfiguration;
-  class ProcessHistoryRegistry;
 
   class HistoryAppender {
   public:

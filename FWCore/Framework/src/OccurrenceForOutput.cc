@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"

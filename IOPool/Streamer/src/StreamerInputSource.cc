@@ -288,7 +288,8 @@ namespace edm {
     EventSelectionIDVector ids(sendEvent_->eventSelectionIDs());
     BranchListIndexes indexes(sendEvent_->branchListIndexes());
     branchIDListHelper()->fixBranchListIndexes(indexes);
-    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistry(), std::move(ids), std::move(indexes));
+    auto history = processHistoryRegistry().getMapped(sendEvent_->aux().processHistoryID());
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), history, std::move(ids), std::move(indexes));
 
     //We now know which eventPrincipal to use and we can reuse the slot in
     // streamToEventPrincipalHolders to own the memory
