@@ -206,20 +206,20 @@ struct SiPixelTemplateHeader {  //!< template header structure
 struct SiPixelTemplateStore {  //!< template storage structure
   SiPixelTemplateHeader head;
 #ifndef SI_PIXEL_TEMPLATE_USE_BOOST
-  float cotbetaY[60];
-  float cotbetaX[5];
-  float cotalphaX[29];
-  //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
-  SiPixelTemplateEntry enty[60];
-  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
-  SiPixelTemplateEntry entx[5][29];
+  float cotbetaY[TEMP_ENTRY_SIZEY];
+  float cotbetaX[TEMP_ENTRY_SIZEX_B];
+  float cotalphaX[TEMP_ENTRY_SIZEX_A];
+  //!< 60 y templates spanning cluster lengths from 0px to +18px
+  SiPixelTemplateEntry enty[TEMP_ENTRY_SIZEY];
+  //!< 60 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 60 slices
+  SiPixelTemplateEntry entx[TEMP_ENTRY_SIZEX_B][TEMP_ENTRY_SIZEX_A];
   void destroy(){};
 #else
   float* cotbetaY = nullptr;
   float* cotbetaX = nullptr;
   float* cotalphaX = nullptr;
-  boost::multi_array<SiPixelTemplateEntry, 1> enty;  //!< use 1d entry to store [60] barrel entries or [28] fpix entries
-  //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
+  boost::multi_array<SiPixelTemplateEntry, 1> enty;  //!< use 1d entry to store [60] entries
+  //!< use 2d entry to store [60][60] entries
   boost::multi_array<SiPixelTemplateEntry, 2> entx;
   void destroy() {  // deletes arrays created by pushfile method of SiPixelTemplate
     if (cotbetaY != nullptr)
