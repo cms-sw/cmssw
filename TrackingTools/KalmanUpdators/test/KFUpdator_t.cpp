@@ -46,9 +46,9 @@ Matrix5 buildCovariance(float y) {
 
 // A fake Det class
 
-class MyDet : public GeomDet {
+class MyDet : public TrackerGeomDet {
 public:
-  MyDet(BoundPlane* bp, DetId id) : GeomDet(bp) { setDetId(id); }
+  MyDet(BoundPlane* bp, DetId id) : TrackerGeomDet(bp) { setDetId(id); }
 
   virtual std::vector<const GeomDet*> components() const { return std::vector<const GeomDet*>(); }
 
