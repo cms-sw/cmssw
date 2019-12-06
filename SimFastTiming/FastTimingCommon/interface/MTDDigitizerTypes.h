@@ -23,7 +23,7 @@ namespace mtd_digitizer {
   };
 
   // Maximum value of time-of-flight for premixing packing
-  constexpr float PREMIX_MAX_TOF = 26.0f;
+  constexpr float PREMIX_MAX_TOF = 25.0f;
 
   struct MTDCellId {
     MTDCellId() : detid_(0), row_(0), column_(0) {}
