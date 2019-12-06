@@ -43,6 +43,7 @@
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
+#include "FWCore/Utilities/interface/stemFromPath.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 
@@ -1142,20 +1143,7 @@ namespace edm {
                                                << "in the input file.\n";
     }
     if (enforceGUIDInFileName_) {
-      auto begin = file_.rfind("/");
-      if (begin == std::string::npos) {
-        begin = file_.rfind(":");
-        if (begin == std::string::npos) {
-          // shouldn't really happen?
-          begin = 0;
-        } else {
-          begin += 1;
-        }
-      } else {
-        begin += 1;
-      }
-      auto end = file_.find(".", begin);
-      auto guidFromName = std::string_view(file_).substr(begin, end - begin);
+      auto guidFromName = stemFromPath(file_);
       if (guidFromName != fid_.fid()) {
         throw edm::Exception(edm::errors::FileNameInconsistentWithGUID)
             << "GUID " << guidFromName << " extracted from file name " << file_
