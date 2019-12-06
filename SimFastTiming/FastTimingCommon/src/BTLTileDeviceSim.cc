@@ -93,7 +93,7 @@ void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_
 
     // --- Store the time of the first SimHit in the i-th BX
     if ((simHitIt->second).hit_info[1][iBX] == 0 || toa < (simHitIt->second).hit_info[1][iBX])
-      (simHitIt->second).hit_info[1][iBX] = toa;
+      (simHitIt->second).hit_info[1][iBX] = toa - (iBX - mtd_digitizer::kInTimeBX) * bxTime_;
 
   }  // hitRef loop
 }
