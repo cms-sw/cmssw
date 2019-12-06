@@ -86,11 +86,11 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       if (smearTimeForOOTtails_) {
         float rate_oot = 0.;
         // Loop on earlier OOT hits
-        for (unsigned int ibx = 0; ibx < mtd_digitizer::kInTimeBX; ++ibx) {
+        for (int ibx = 0; ibx < mtd_digitizer::kInTimeBX; ++ibx) {
           if ((it->second).hit_info[2 * iside][ibx] > 0.) {
+            float hit_time = (it->second).hit_info[1 + 2 * iside][ibx] + bxTime_ * (ibx - mtd_digitizer::kInTimeBX);
             float npe_oot = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[2 * iside][ibx]);
-            rate_oot += npe_oot * exp((it->second).hit_info[1 + 2 * iside][ibx] * ScintillatorDecayTimeInv_) *
-                        ScintillatorDecayTimeInv_;
+            rate_oot += npe_oot * exp(hit_time * ScintillatorDecayTimeInv_) * ScintillatorDecayTimeInv_;
           }
         }  // ibx loop
 

@@ -109,7 +109,7 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t
 
       // Store the time of the first SimHit in the i-th BX
       if ((simHitIt->second).hit_info[1][iBXR] == 0 || tR < (simHitIt->second).hit_info[1][iBXR])
-        (simHitIt->second).hit_info[1][iBXR] = tR;
+        (simHitIt->second).hit_info[1][iBXR] = tR - (iBXR - mtd_digitizer::kInTimeBX) * bxTime_;
     }
 
     // --- Left side
@@ -119,7 +119,7 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t
 
       // Store the time of the first SimHit in the i-th BX
       if ((simHitIt->second).hit_info[3][iBXL] == 0 || tL < (simHitIt->second).hit_info[3][iBXL])
-        (simHitIt->second).hit_info[3][iBXL] = tL;
+        (simHitIt->second).hit_info[3][iBXL] = tL - (iBXL - mtd_digitizer::kInTimeBX) * bxTime_;
     }
 
   }  // hitRef loop
