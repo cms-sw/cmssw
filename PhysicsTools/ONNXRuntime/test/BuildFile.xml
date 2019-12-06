@@ -1,3 +1,6 @@
+<ifarchitecture name="_ppc64le_">
+<flags SKIP_FILES="%"/>
+</ifarchitecture>
 <bin name="testONNXRuntime" file="testRunner.cpp, testONNXRuntime.cc">
     <use name="boost_filesystem" />
     <use name="cppunit" />

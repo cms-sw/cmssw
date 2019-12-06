@@ -1,3 +1,6 @@
+<ifarchitecture name="_ppc64le_">
+<flags SKIP_FILES="%"/>
+</ifarchitecture>
 <use name="onnxruntime"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
