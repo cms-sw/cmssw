@@ -59,10 +59,10 @@ namespace mtd_digitizer {
                                     const float minCharge,
                                     const float maxCharge) {
     constexpr auto nEnergies = std::tuple_size<decltype(MTDCellInfo().hit_info)>::value;
-    static_assert(nEnergies <= PMTDSimAccumulator::Data::energyMask + 1,
-                  "PMTDSimAccumulator bit pattern needs to updated");
-    static_assert(nSamples <= PMTDSimAccumulator::Data::sampleMask + 1,
-                  "PMTDSimAccumulator bit pattern needs to updated");
+    static_assert(nEnergies == PMTDSimAccumulator::Data::energyMask + 1,
+                  "PMTDSimAccumulator bit pattern needs to be updated");
+    static_assert(nSamples == PMTDSimAccumulator::Data::sampleMask,
+                  "PMTDSimAccumulator bit pattern needs to be updated");
 
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
     const float maxPackChargeLog = std::log(maxCharge);
@@ -78,7 +78,7 @@ namespace mtd_digitizer {
           if (samples[iSample] > minCharge) {
             unsigned short packed;
             if (iEn == 1 || iEn == 3) {
-              // assuming linear range for tof of 0..26
+              // assuming linear range for tof of 0..25
               packed = samples[iSample] / PREMIX_MAX_TOF * base;
             } else {
               packed = logintpack::pack16log(samples[iSample], minPackChargeLog, maxPackChargeLog, base);
@@ -106,6 +106,10 @@ namespace mtd_digitizer {
 
       size_t iEn = detIdIndexHitInfo.energyIndex();
       size_t iSample = detIdIndexHitInfo.sampleIndex();
+
+      if ( iEn > PMTDSimAccumulator::Data::energyMask + 1 || iSample > PMTDSimAccumulator::Data::sampleMask )
+	throw cms::Exception("MTDDigitixer::loadSimHitAccumulator") << "Index out of range: iEn = " << iEn
+	  << " iSample = " << iSample << std::endl;
 
       float value;
       if (iEn == 1 || iEn == 3) {
