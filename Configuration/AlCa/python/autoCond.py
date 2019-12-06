@@ -60,9 +60,9 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
     'phase1_2018_realistic_HEfail' :  '106X_upgrade2018_realistic_HEfail_v11',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '106X_upgrade2018cosmics_realistic_deco_v7',
+    'phase1_2018_cosmics'      :   '106X_upgrade2018cosmics_realistic_deco_v9',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
-    'phase1_2018_cosmics_peak' :   '106X_upgrade2018cosmics_realistic_peak_v8',
+    'phase1_2018_cosmics_peak' :   '106X_upgrade2018cosmics_realistic_peak_v9',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2021
     'phase1_2021_design'       : '106X_upgrade2021_design_v5', # GT containing design conditions for Phase1 2021
     # GlobalTag for MC production with realistic conditions for Phase1 2021
