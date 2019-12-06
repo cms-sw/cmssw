@@ -41,6 +41,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <memory>
 #include <string>
@@ -306,15 +307,17 @@ namespace edm {
     ProductPtrVec putProducts_;
 
     EventAuxiliary const& aux_;
-    mutable std::optional<LuminosityBlock> luminosityBlock_;
+    // measurable performance gain by only creating LuminosityBlock when needed
+    // mutables are allowed in this case because edm::Event is only accessed by one thread
+    CMS_SA_ALLOW mutable std::optional<LuminosityBlock> luminosityBlock_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the PrincipalGetAdapter. gotBranchIDs_ is
     // merely a cache reflecting what has been retrieved from the
     // Principal class.
     typedef std::unordered_set<BranchID::value_type> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
-    mutable std::vector<bool> gotBranchIDsFromPrevious_;
+    CMS_SA_ALLOW mutable BranchIDSet gotBranchIDs_;
+    CMS_SA_ALLOW mutable std::vector<bool> gotBranchIDsFromPrevious_;
     std::vector<BranchID>* previousBranchIDs_ = nullptr;
     std::vector<BranchID>* gotBranchIDsFromAcquire_ = nullptr;
 
@@ -322,7 +325,7 @@ namespace edm {
     void addToGotBranchIDs(BranchID const& branchID) const;
 
     // We own the retrieved Views, and have to destroy them.
-    mutable std::vector<std::shared_ptr<ViewBase>> gotViews_;
+    CMS_SA_ALLOW mutable std::vector<std::shared_ptr<ViewBase>> gotViews_;
 
     StreamID streamID_;
     ModuleCallingContext const* moduleCallingContext_;
