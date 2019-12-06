@@ -87,7 +87,11 @@ namespace dqm::impl {
   }
 
   void MonitorElement::syncCoreObject() {
-    auto access = this->access();
+    auto access = this->accessMut();
+    syncCoreObject(access);
+  }
+
+  void MonitorElement::syncCoreObject(AccessMut &access) {
     data_.flags &= ~DQMNet::DQM_PROP_TYPE_MASK;
     data_.flags |= (int)access.key.kind_;
 
@@ -1024,7 +1028,7 @@ namespace dqm::impl {
       q.message = "NO_MESSAGE_ASSIGNED";
       q.algorithm = "UNKNOWN_ALGORITHM";
       access.value.qreports_.push_back(MonitorElementData::QReport(q));
-      syncCoreObject();
+      syncCoreObject(access);
     }
 
     qr = &access.value.qreports_[pos];

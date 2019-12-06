@@ -224,6 +224,7 @@ namespace dqm::impl {
     // copy applicable fileds into the DQMNet core object for compatibility.
     // In a few places these flags are also still used by the ME.
     void syncCoreObject();
+    void syncCoreObject(AccessMut &access);
     virtual ~MonitorElement();
 
     // check if the ME is currently backed by MEData; if false (almost) any
