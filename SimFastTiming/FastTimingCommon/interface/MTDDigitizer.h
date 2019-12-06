@@ -107,9 +107,9 @@ namespace mtd_digitizer {
       size_t iEn = detIdIndexHitInfo.energyIndex();
       size_t iSample = detIdIndexHitInfo.sampleIndex();
 
-      if ( iEn > PMTDSimAccumulator::Data::energyMask + 1 || iSample > PMTDSimAccumulator::Data::sampleMask )
-	throw cms::Exception("MTDDigitixer::loadSimHitAccumulator") << "Index out of range: iEn = " << iEn
-	  << " iSample = " << iSample << std::endl;
+      if (iEn > PMTDSimAccumulator::Data::energyMask + 1 || iSample > PMTDSimAccumulator::Data::sampleMask)
+        throw cms::Exception("MTDDigitixer::loadSimHitAccumulator")
+            << "Index out of range: iEn = " << iEn << " iSample = " << iSample << std::endl;
 
       float value;
       if (iEn == 1 || iEn == 3) {
