@@ -22,7 +22,7 @@ void FlagsCleanerECAL::clean(const edm::Handle<reco::PFRecHitCollection>& input,
 // returns true if one of the flags in the exclusion list is up
 bool FlagsCleanerECAL::checkFlags(const reco::PFRecHit& hit) {
   for (auto flag : v_chstatus_excl_) {  // check if one of the flags is up
-    if (hit.getFlags() & (0x1 << flag))
+    if (hit.flags() & (0x1 << flag))
       return true;
   }
   return false;
