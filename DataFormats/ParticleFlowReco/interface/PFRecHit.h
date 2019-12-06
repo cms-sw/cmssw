@@ -108,7 +108,7 @@ namespace reco {
     double pt2() const { return energy_ * energy_ * (position().perp2() / position().mag2()); }
 
     // Detector-dependent status flag
-    uint32_t getFlags() const { return flags_; }
+    uint32_t flags() const { return flags_; }
 
     //
     void setFlags(uint32_t flags) { flags_ = flags; }
