@@ -35,6 +35,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -669,7 +670,7 @@ void DQMRootSource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache)
 
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache.id().run(), lbCache.id().luminosityBlock());
-  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistry().getMapped(lbCache.aux().processHistoryID()));
 }
 
 void DQMRootSource::readEvent_(edm::EventPrincipal&) {}
