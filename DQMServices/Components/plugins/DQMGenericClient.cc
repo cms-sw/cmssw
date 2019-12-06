@@ -1,30 +1,237 @@
 /*
  *  Class:DQMGenericClient 
  *
+ *  DQM histogram post processor
  *
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
 
-#include "DQMServices/ClientConfig/interface/DQMGenericClient.h"
-
-#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
+#include <TH1.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TClass.h>
 #include <TString.h>
 #include <TPRegexp.h>
+#include <TDirectory.h>
+#include <TEfficiency.h>
 
+#include <set>
 #include <cmath>
+#include <string>
+#include <vector>
 #include <climits>
 #include <boost/tokenizer.hpp>
 
 using namespace std;
 using namespace edm;
+
+class DQMGenericClient : public DQMEDHarvester {
+public:
+  DQMGenericClient(const edm::ParameterSet& pset);
+  ~DQMGenericClient() override{};
+
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
+                             DQMStore::IGetter& igetter,
+                             const edm::LuminosityBlock& lumiSeg,
+                             const edm::EventSetup& c) override;
+  void dqmEndRun(DQMStore::IBooker&, DQMStore::IGetter&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override{};
+
+  enum class EfficType { none = 0, efficiency, fakerate, simpleratio };
+
+  struct EfficOption {
+    std::string name, title;
+    std::string numerator, denominator;
+    EfficType type;
+    bool isProfile;
+  };
+
+  struct ResolOption {
+    std::string namePrefix, titlePrefix;
+    std::string srcName;
+  };
+
+  struct ProfileOption {
+    std::string name, title;
+    std::string srcName;
+  };
+
+  struct NormOption {
+    std::string name, normHistName;
+  };
+
+  struct CDOption {
+    std::string name;
+    bool ascending;
+  };
+
+  struct NoFlowOption {
+    std::string name;
+  };
+
+  void computeEfficiency(DQMStore::IBooker& ibooker,
+                         DQMStore::IGetter& igetter,
+                         const std::string& startDir,
+                         const std::string& efficMEName,
+                         const std::string& efficMETitle,
+                         const std::string& recoMEName,
+                         const std::string& simMEName,
+                         const EfficType type = EfficType::efficiency,
+                         const bool makeProfile = false);
+  void computeResolution(DQMStore::IBooker& ibooker,
+                         DQMStore::IGetter& igetter,
+                         const std::string& startDir,
+                         const std::string& fitMEPrefix,
+                         const std::string& fitMETitlePrefix,
+                         const std::string& srcMEName);
+  void computeProfile(DQMStore::IBooker& ibooker,
+                      DQMStore::IGetter& igetter,
+                      const std::string& startDir,
+                      const std::string& profileMEName,
+                      const std::string& profileMETitle,
+                      const std::string& srcMEName);
+
+  void normalizeToEntries(DQMStore::IBooker& ibooker,
+                          DQMStore::IGetter& igetter,
+                          const std::string& startDir,
+                          const std::string& histName,
+                          const std::string& normHistName);
+  void makeCumulativeDist(DQMStore::IBooker& ibooker,
+                          DQMStore::IGetter& igetter,
+                          const std::string& startDir,
+                          const std::string& cdName,
+                          bool ascending = true);
+  void makeNoFlowDist(DQMStore::IBooker& ibooker,
+                      DQMStore::IGetter& igetter,
+                      const std::string& startDir,
+                      const std::string& cdName);
+
+  void limitedFit(MonitorElement* srcME, MonitorElement* meanME, MonitorElement* sigmaME);
+
+private:
+  unsigned int verbose_;
+  bool runOnEndLumi_;
+  bool runOnEndJob_;
+  bool makeGlobalEffPlot_;
+  bool isWildcardUsed_;
+  bool resLimitedFit_;
+
+  DQMStore* theDQM;
+  std::vector<std::string> subDirs_;
+  std::string outputFileName_;
+
+  std::vector<EfficOption> efficOptions_;
+  std::vector<ResolOption> resolOptions_;
+  std::vector<ProfileOption> profileOptions_;
+  std::vector<NormOption> normOptions_;
+  std::vector<CDOption> cdOptions_;
+  std::vector<NoFlowOption> noFlowOptions_;
+
+  void generic_eff(TH1* denom, TH1* numer, MonitorElement* efficiencyHist, const EfficType type = EfficType::efficiency);
+
+  void findAllSubdirectories(DQMStore::IBooker& ibooker,
+                             DQMStore::IGetter& igetter,
+                             std::string dir,
+                             std::set<std::string>* myList,
+                             const TString& pattern);
+
+  void makeAllPlots(DQMStore::IBooker&, DQMStore::IGetter&);
+
+  void removeMEIfBooked(const std::string& meName, DQMStore::IGetter& igetter);
+};
+
+class FitSlicesYTool {
+public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  FitSlicesYTool(MonitorElement* me) {
+    const bool oldAddDir = TH1::AddDirectoryStatus();
+    TH1::AddDirectory(true);
+    // ... create your hists
+    TH2F* h = me->getTH2F();
+    h->FitSlicesY(nullptr, 0, -1, 0, "QNR SERIAL");
+    string name(h->GetName());
+    h0 = (TH1*)gDirectory->Get((name + "_0").c_str());
+    h1 = (TH1*)gDirectory->Get((name + "_1").c_str());
+    h2 = (TH1*)gDirectory->Get((name + "_2").c_str());
+    h3 = (TH1*)gDirectory->Get((name + "_chi2").c_str());
+    TH1::AddDirectory(oldAddDir);
+  }
+
+  /// Destructor
+  ~FitSlicesYTool() {
+    delete h0;
+    delete h1;
+    delete h2;
+    delete h3;
+  }
+  /// Fill the ME with the mean value of the gaussian fit in each slice
+  void getFittedMean(MonitorElement* me) {
+    if (!(h1 && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
+    if (h1->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
+        //       me->setBinEntries(bin+1, 1.);
+      }
+    } else {
+      throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+    }
+  }
+  /// Fill the ME with the sigma value of the gaussian fit in each slice
+  void getFittedSigma(MonitorElement* me) {
+    if (!(h2 && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
+    if (h2->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
+        //       me->setBinEntries(bin+1, 1.);
+      }
+    } else {
+      throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+    }
+  }
+  /// Fill the ME with the mean value (with error) of the gaussian fit in each slice
+  void getFittedMeanWithError(MonitorElement* me) {
+    if (!(h1 && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
+    if (h1->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
+        //       me->setBinEntries(bin+1, 1.);
+        me->setBinError(bin + 1, h1->GetBinError(bin + 1));
+      }
+    } else {
+      throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+    }
+  }
+  /// Fill the ME with the sigma value (with error) of the gaussian fit in each slice
+  void getFittedSigmaWithError(MonitorElement* me) {
+    if (!(h2 && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
+    if (h2->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
+        //       me->setBinEntries(bin+1, 1.);
+        me->setBinError(bin + 1, h2->GetBinError(bin + 1));
+      }
+    } else {
+      throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+    }
+  }
+
+private:
+  TH1* h0;
+  TH1* h1;
+  TH1* h2;
+  TH1* h3;
+};
 
 typedef DQMGenericClient::MonitorElement ME;
 
@@ -360,20 +567,21 @@ void DQMGenericClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   }
 }
 
-void DQMGenericClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-  // Update 2014-04-02
-  // Migrated back to the endJob. the DQMFileSaver logic has
-  // to be reviewed to guarantee that the endJob is properly
-  // considered. The splitting per run is done centrally when
-  // running the harvesting in production
-
-  // Update 2009-09-23
-  // Migrated all code from endJob to this function
-  // endJob is not necessarily called in the proper sequence
-  // and does not necessarily book histograms produced in
-  // that step.
-  // It more robust to do the histogram manipulation in
-  // this endRun function
+void DQMGenericClient::dqmEndRun(DQMStore::IBooker& ibooker,
+                                 DQMStore::IGetter& igetter,
+                                 edm::Run const&,
+                                 edm::EventSetup const&) {
+  // Create new MEs in endRun, even though we are requested to do it in endJob.
+  // This gives the QTests a chance to run, before summaries are created in
+  // endJob. The negative side effect is that we cannot run the GenericClient
+  // for plots produced in Harvesting, but that seems rather rare.
+  //
+  // It is important that this is still save in the presence of multiple runs,
+  // first because in multi-run harvesting, we accumulate statistics over all
+  // runs and have full statistics at the endRun of the last run, and second,
+  // because we set the efficiencyFlag so any further aggregation should produce
+  // correct results. Also, all operations should be idempotent; running them
+  // more than once does no harm.
 
   // needed to access the DQMStore::save method
   theDQM = nullptr;
@@ -1062,5 +1270,7 @@ void DQMGenericClient::generic_eff(TH1* denom, TH1* numer, MonitorElement* effic
   //efficiencyHist->setMinimum(0.0);
   //efficiencyHist->setMaximum(1.0);
 }
+
+DEFINE_FWK_MODULE(DQMGenericClient);
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

@@ -36,19 +36,15 @@ public:
   /// (not relevant for all quality tests!)
   const std::vector<DQMChannel> &getBadChannels() const { return badChannels_; }
 
-  /// get QCriterion
-  const QCriterion *getQCriterion() const { return qcriterion_; }
-
 private:
   friend class QCriterion;
   friend class dqm::legacy::MonitorElement;  // for running the quality test
   friend class dqm::impl::MonitorElement;    // for running the quality test
   friend class dqm::dqmstoreimpl::DQMStore;  // for setting QReport parameters after receiving report
 
-  QReport(DQMNet::QValue *value, QCriterion *qc) : qvalue_(value), qcriterion_(qc) {}
+  QReport(DQMNet::QValue *value) : qvalue_(value) {}
 
   DQMNet::QValue *qvalue_;               //< Pointer to the actual data.
-  QCriterion *qcriterion_;               //< Pointer to QCriterion algorithm.
   std::vector<DQMChannel> badChannels_;  //< Bad channels from QCriterion.
 };
 

@@ -2,13 +2,13 @@
   <flags   CPPDEFINES="DQMGLOBAL"/>
   <flags   EDM_PLUGIN="1"/>
   <use   name="DataFormats/Scalers"/>
-  <use   name="DQMServices/ClientConfig"/>
   <use   name="DQMServices/Core"/>
   <use   name="EventFilter/CSCRawToDigi"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PluginManager"/>
+  <use   name="Utilities/Xerces"/>
   <use   name="xerces-c"/>
   <use   name="boost"/>
 </library>
