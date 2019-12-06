@@ -36,7 +36,6 @@
 #include <sys/time.h>
 #include <tbb/spin_mutex.h>
 
-class QCriterion;
 class DQMService;
 namespace dqm::dqmstoreimpl {
   class DQMStore;
@@ -316,15 +315,17 @@ namespace dqm::impl {
     const QReport *getQReport(const std::string &qtname) const;
     /// get map of QReports
     std::vector<QReport *> getQReports() const;
+    /// access QReport, potentially adding it.
+    void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
+    /// propagate QReport status bits after change
+    void updateQReportStats();
+
     /// get warnings from last set of quality tests
     std::vector<QReport *> getQWarnings() const;
     /// get errors from last set of quality tests
     std::vector<QReport *> getQErrors() const;
     /// from last set of quality tests
     std::vector<QReport *> getQOthers() const;
-
-    /// run all quality tests
-    void runQTests();
 
     // const and data-independent -- safe
     virtual int getNbinsX() const;
@@ -429,12 +430,6 @@ namespace dqm::impl {
     void copyFunctions(TH1 *from, TH1 *to);
     void copyFrom(TH1 *from);
 
-    // --- Operations on MEs that are normally reset at end of monitoring cycle ---
-    void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
-    void addQReport(const DQMNet::QValue &desc, QCriterion *qc);
-    void addQReport(QCriterion *qc);
-    void updateQReportStats();
-
   public:
     const uint32_t run() const { return data_.run; }
     const uint32_t lumi() const { return data_.lumi; }
@@ -498,7 +493,6 @@ namespace dqm::legacy {
     virtual TProfile2D *getTProfile2D() const {
       return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTProfile2D();
     };
-    void runQTests();
   };
 }  // namespace dqm::legacy
 namespace dqm::harvesting {

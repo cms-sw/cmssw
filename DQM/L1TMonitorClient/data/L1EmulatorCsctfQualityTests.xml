@@ -166,3 +166,4 @@
 	<LINK name="*dtStubPhi_1d">
 		<TestName activate="true">L1EMulatorCSCTF_dtStubPhi</TestName>
 	</LINK>
+</TESTSCONFIGURATION>
