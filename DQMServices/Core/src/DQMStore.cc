@@ -546,7 +546,14 @@ namespace dqm::implementation {
     return out;
   }
 
-  std::vector<std::string> IGetter::getMEs() const { assert(!"NIY"); }
+  std::vector<std::string> IGetter::getMEs() const {
+    auto mes = this->getContents(this->cwd_);
+    std::vector<std::string> out;
+    for (auto me : mes) {
+      out.push_back(me->getName());
+    }
+    return out;
+  }
 
   bool IGetter::dirExists(std::string const& path) const {
     // we don't claim this is fast.
