@@ -49,7 +49,7 @@ public:
 
   typedef OmniClusterRef::ClusterStripRef ClusterRef;
   ClusterRef cluster() const { return cluster_strip(); }
-  const GeomDetUnit* originalDet() const { return static_cast<const GeomDetUnit*>(theOriginalDet); }
+  const GeomDetUnit* originalDet() const { return &dynamic_cast<const GeomDetUnit&>(*theOriginalDet); }
   unsigned int originalId() const { return trackerHitRTTI::projId(*this); }
 
   // not useful only for backward compatibility
