@@ -4,6 +4,7 @@
   <class name="edm::Wrapper<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag> >"/>
   <class name="edm::Wrapper<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > >"/>
   <class name="std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >"/>
+  <class name="edm::Wrapper<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >"/>
 <selection>
   <class pattern="ROOT::Math::SMatrix<*>" />
   <class pattern="ROOT::Math::MatRepStd<*>" />
