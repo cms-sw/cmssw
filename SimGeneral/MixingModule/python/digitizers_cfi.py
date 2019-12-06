@@ -51,7 +51,7 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 )
 
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, HGCAL_noise_fC, HGCAL_noise_heback, HGCAL_chargeCollectionEfficiencies, HGCAL_ileakParam_toUse, HGCAL_cceParams_toUse, HGCAL_noises
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, HGCAL_noise_fC, HGCAL_noise_MIP, HGCAL_chargeCollectionEfficiencies, HGCAL_noises
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theDigitizers,
@@ -72,13 +72,19 @@ run3_common.toModify( theDigitizers, castor = None )
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing.toModify( theDigitizers,
                         ecalTime = ecalTimeDigitizer.clone() )
 
-from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+from SimFastTiming.Configuration.SimFastTiming_cff import fastTimeDigitizer
 phase2_timing_layer.toModify( theDigitizers,
-                              fastTimingLayer = mtdDigitizer.clone() )
+                        fastTimingLayer = fastTimeDigitizer.clone() )
+
+from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify( theDigitizers,
+                                                               fastTimingLayer = mtdDigitizer.clone() )
 
 premix_stage2.toModify(theDigitizers,
     ecal = None,
@@ -92,7 +98,7 @@ premix_stage2.toModify(theDigitizers,
 (premix_stage2 & phase2_hfnose).toModify(theDigitizers,
     hfnoseDigitizer = dict(premixStage1 = True),
 )
-(premix_stage2 & phase2_timing_layer).toModify(theDigitizers,
+(premix_stage2 & (phase2_timing_layer_tile | phase2_timing_layer_bar)).toModify(theDigitizers,
     fastTimingLayer = dict(
         barrelDigitizer = dict(premixStage1 = True),
         endcapDigitizer = dict(premixStage1 = True)
@@ -101,6 +107,7 @@ premix_stage2.toModify(theDigitizers,
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
+theDigitizersValid.calotruth = cms.PSet( caloParticles )
 
 phase2_hgcal.toModify( theDigitizersValid,
                        calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?

@@ -2,27 +2,27 @@ import FWCore.ParameterSet.Config as cms
 
 caloParticles = cms.PSet(
 	accumulatorType = cms.string('CaloTruthAccumulator'),
-#	createUnmergedCollection = cms.bool(True),
-#	createMergedBremsstrahlung = cms.bool(True),
-#	createInitialVertexCollection = cms.bool(False),
-#	alwaysAddAncestors = cms.bool(True),
+	#createUnmergedCollection = cms.bool(True),
+	#createMergedBremsstrahlung = cms.bool(True),
+	#createInitialVertexCollection = cms.bool(False),
+	#alwaysAddAncestors = cms.bool(True),
         MinEnergy = cms.double(0.5),
         MaxPseudoRapidity = cms.double(5.0),
         premixStage1 = cms.bool(False),
 	maximumPreviousBunchCrossing = cms.uint32(0),
 	maximumSubsequentBunchCrossing = cms.uint32(0),
 	simHitCollections = cms.PSet(
-            hgc = cms.VInputTag(
-                cms.InputTag('g4SimHits','HGCHitsEE'),
-                cms.InputTag('g4SimHits','HGCHitsHEfront'),
-                cms.InputTag('g4SimHits','HcalHits')
-            ),
+#            hgc = cms.VInputTag(
+#                cms.InputTag('g4SimHits','HGCHitsEE'),
+#                cms.InputTag('g4SimHits','HGCHitsHEfront'),
+#                cms.InputTag('g4SimHits','HcalHits')
+#            ),
 #            hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
-#            ecal = cms.VInputTag(
-#                cms.InputTag('g4SimHits','EcalHitsEE'),
-#                cms.InputTag('g4SimHits','EcalHitsEB'),
-#                cms.InputTag('g4SimHits','EcalHitsES')
-#            )
+            ecal = cms.VInputTag(
+                cms.InputTag('g4SimHits','EcalHitsEE'),
+                cms.InputTag('g4SimHits','EcalHitsEB'),
+                cms.InputTag('g4SimHits','EcalHitsES')
+            )
 	),
 	simTrackCollection = cms.InputTag('g4SimHits'),
 	simVertexCollection = cms.InputTag('g4SimHits'),
@@ -38,12 +38,6 @@ from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 phase2_hgcalV9.toModify(
     caloParticles,
     simHitCollections = dict(hgc = {2 : cms.InputTag('g4SimHits','HGCHitsHEback')} ),
-)
-
-from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
-phase2_hfnose.toModify(
-    caloParticles,
-    simHitCollections = dict(hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')])
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
