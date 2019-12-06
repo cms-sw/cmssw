@@ -17,6 +17,8 @@
 #ifndef SiPixelGenError_h
 #define SiPixelGenError_h 1
 
+#include "SiPixelTemplateDefs.h"
+
 #include <vector>
 #include <cassert>
 #include "boost/multi_array.hpp"
@@ -76,19 +78,19 @@ struct SiPixelGenErrorHeader {  //!< template header structure
 struct SiPixelGenErrorStore {  //!< template storage structure
   SiPixelGenErrorHeader head;
 #ifndef SI_PIXEL_TEMPLATE_USE_BOOST
-  float cotbetaY[60];
-  float cotbetaX[5];
-  float cotalphaX[29];
-  //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
-  SiPixelGenErrorEntry enty[60];
-  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
-  SiPixelGenErrorEntry entx[5][29];
+  float cotbetaY[TEMP_ENTRY_SIZEY];
+  float cotbetaX[TEMP_ENTRY_SIZEX_B];
+  float cotalphaX[TEMP_ENTRY_SIZEX_A];
+  //!< 60 y templates spanning cluster lengths from 0px to +18px
+  SiPixelGenErrorEntry enty[TEMP_ENTRY_SIZEY];
+  //!< 60 x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 60 slices
+  SiPixelGenErrorEntry entx[TEMP_ENTRY_SIZEX_B][TEMP_ENTRY_SIZEX_A];
 #else
   float* cotbetaY;
   float* cotbetaX;
   float* cotalphaX;
-  boost::multi_array<SiPixelGenErrorEntry, 1> enty;  //!< use 1d entry to store [60] barrel entries or [28] fpix entries
-  //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
+  boost::multi_array<SiPixelGenErrorEntry, 1> enty;  //!< use 1d entry to store [60] entries
+  //!< use 2d entry to store [60][60] entries
   boost::multi_array<SiPixelGenErrorEntry, 2> entx;
 #endif
 };
