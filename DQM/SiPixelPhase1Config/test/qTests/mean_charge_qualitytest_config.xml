@@ -1,4 +1,4 @@
-<TESTCONFIGURATION>
+<TESTSCONFIGURATION>
   <!-- QTESTS for MEAN CHARGE: -->
 
   <!-- PXBARREL -->
@@ -537,4 +537,4 @@
         <TestName activate="true">Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+3:mean_charge</TestName>
       </LINK>
 
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

@@ -80,7 +80,6 @@ public:
   /// (not relevant for all quality tests!)
   virtual std::vector<DQMChannel> getBadChannels() const { return std::vector<DQMChannel>(); }
 
-protected:
   QCriterion(std::string qtname) {
     qtname_ = std::move(qtname);
     init();
@@ -90,12 +89,11 @@ protected:
 
   virtual ~QCriterion() = default;
 
-  virtual float runTest(const MonitorElement *me);
-  /// set algorithm name
-  void setAlgoName(std::string name) { algoName_ = std::move(name); }
+  /// default "probability" values for setting warnings & errors when running tests
+  static const float WARNING_PROB_THRESHOLD;
+  static const float ERROR_PROB_THRESHOLD;
 
   float runTest(const MonitorElement *me, QReport &qr, DQMNet::QValue &qv) {
-    assert(qr.qcriterion_ == this);
     assert(qv.qtname == qtname_);
 
     prob_ = runTest(me);  // this runTest goes to SimpleTest derivates
@@ -125,6 +123,12 @@ protected:
     return prob_;
   }
 
+protected:
+  /// set algorithm name
+  void setAlgoName(std::string name) { algoName_ = std::move(name); }
+
+  virtual float runTest(const MonitorElement *me);
+
   /// set message after test has run
   virtual void setMessage() = 0;
 
@@ -138,10 +142,6 @@ protected:
   int verbose_;
 
 private:
-  /// default "probability" values for setting warnings & errors when running tests
-  static const float WARNING_PROB_THRESHOLD;
-  static const float ERROR_PROB_THRESHOLD;
-
   /// for creating and deleting class instances
   friend class dqm::dqmstoreimpl::DQMStore;
   /// for running the test
