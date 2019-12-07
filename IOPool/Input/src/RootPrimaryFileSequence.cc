@@ -32,7 +32,8 @@ namespace edm {
         treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize") : 0U),
         duplicateChecker_(new DuplicateChecker(pset)),
         usingGoToEvent_(false),
-        enablePrefetching_(false) {
+        enablePrefetching_(false),
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
@@ -137,7 +138,8 @@ namespace edm {
                                       input_.bypassVersionCheck(),
                                       input_.labelRawDataLikeMC(),
                                       usingGoToEvent_,
-                                      enablePrefetching_);
+                                      enablePrefetching_,
+                                      enforceGUIDInFileName_);
   }
 
   bool RootPrimaryFileSequence::nextFile() {
@@ -322,6 +324,10 @@ namespace edm {
         ->setComment(
             "'strict':     Branches in each input file must match those in the first file.\n"
             "'permissive': Branches in each input file may be any subset of those in the first file.");
+    desc.addUntracked<bool>("enforceGUIDInFileName", false)
+        ->setComment(
+            "True:  file name part is required to be equal to the GUID of the file\n"
+            "False: file name can be anything");
 
     EventSkipperByID::fillDescription(desc);
     DuplicateChecker::fillDescription(desc);
