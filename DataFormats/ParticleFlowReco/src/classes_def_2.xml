@@ -43,7 +43,8 @@
   </class>
 
 
-  <class name="reco::PFRecHit" ClassVersion="18">
+  <class name="reco::PFRecHit" ClassVersion="19"> 
+   <version ClassVersion="19" checksum="3022044895"/> 
    <version ClassVersion="18" checksum="3122773923"/>
    <version ClassVersion="17" checksum="2606786437"/>
    <version ClassVersion="10" checksum="1807687081"/>
