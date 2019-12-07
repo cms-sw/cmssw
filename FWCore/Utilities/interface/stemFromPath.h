@@ -1,7 +1,6 @@
 #ifndef FWCore_Utilities_stemFromPath_h
 #define FWCore_Utilities_stemFromPath_h
 
-#include <string>
 #include <string_view>
 
 namespace edm {
@@ -14,7 +13,7 @@ namespace edm {
   // std/boost::filesystem is that tehcnically these paths are not
   // filesystem paths, but paths in CMS LFN/PFN space that (may) have
   // different rules.
-  std::string_view stemFromPath(const std::string& path);
+  std::string_view stemFromPath(std::string_view path);
 }  // namespace edm
 
 #endif
