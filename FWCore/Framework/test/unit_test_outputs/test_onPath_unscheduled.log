@@ -163,6 +163,8 @@
 ++++++ starting: global end lumi for module: label = 'getTwo' id = 6
 ++++++ finished: global end lumi for module: label = 'getTwo' id = 6
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1000000
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1000000
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: end run: stream = 0 run = 1 time = 1000030
 ++++++ starting: end run for module: stream = 0 label = 'two' id = 5
 ++++++ finished: end run for module: stream = 0 label = 'two' id = 5
@@ -175,6 +177,8 @@
 ++++++ starting: global end run for module: label = 'getTwo' id = 6
 ++++++ finished: global end run for module: label = 'getTwo' id = 6
 ++++ finished: global end run 1 : time = 1000030
+++++ starting: global write run 1 : time = 1000030
+++++ finished: global write run 1 : time = 1000030
 ++++ starting: end stream for module: stream = 0 label = 'one' id = 3
 ++++ finished: end stream for module: stream = 0 label = 'one' id = 3
 ++++ starting: end stream for module: stream = 0 label = 'getOne' id = 4

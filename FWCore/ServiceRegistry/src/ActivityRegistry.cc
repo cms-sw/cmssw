@@ -134,6 +134,9 @@ namespace edm {
     preGlobalEndRunSignal_.connect(std::cref(iOther.preGlobalEndRunSignal_));
     postGlobalEndRunSignal_.connect(std::cref(iOther.postGlobalEndRunSignal_));
 
+    preGlobalWriteRunSignal_.connect(std::cref(iOther.preGlobalWriteRunSignal_));
+    postGlobalWriteRunSignal_.connect(std::cref(iOther.postGlobalWriteRunSignal_));
+
     preStreamBeginRunSignal_.connect(std::cref(iOther.preStreamBeginRunSignal_));
     postStreamBeginRunSignal_.connect(std::cref(iOther.postStreamBeginRunSignal_));
 
@@ -145,6 +148,9 @@ namespace edm {
 
     preGlobalEndLumiSignal_.connect(std::cref(iOther.preGlobalEndLumiSignal_));
     postGlobalEndLumiSignal_.connect(std::cref(iOther.postGlobalEndLumiSignal_));
+
+    preGlobalWriteLumiSignal_.connect(std::cref(iOther.preGlobalWriteLumiSignal_));
+    postGlobalWriteLumiSignal_.connect(std::cref(iOther.postGlobalWriteLumiSignal_));
 
     preStreamBeginLumiSignal_.connect(std::cref(iOther.preStreamBeginLumiSignal_));
     postStreamBeginLumiSignal_.connect(std::cref(iOther.postStreamBeginLumiSignal_));
@@ -308,6 +314,9 @@ namespace edm {
     copySlotsToFrom(preGlobalEndRunSignal_, iOther.preGlobalEndRunSignal_);
     copySlotsToFromReverse(postGlobalEndRunSignal_, iOther.postGlobalEndRunSignal_);
 
+    copySlotsToFrom(preGlobalWriteRunSignal_, iOther.preGlobalWriteRunSignal_);
+    copySlotsToFromReverse(postGlobalWriteRunSignal_, iOther.postGlobalWriteRunSignal_);
+
     copySlotsToFrom(preStreamBeginRunSignal_, iOther.preStreamBeginRunSignal_);
     copySlotsToFromReverse(postStreamBeginRunSignal_, iOther.postStreamBeginRunSignal_);
 
@@ -319,6 +328,9 @@ namespace edm {
 
     copySlotsToFrom(preGlobalEndLumiSignal_, iOther.preGlobalEndLumiSignal_);
     copySlotsToFromReverse(postGlobalEndLumiSignal_, iOther.postGlobalEndLumiSignal_);
+
+    copySlotsToFrom(preGlobalWriteLumiSignal_, iOther.preGlobalWriteLumiSignal_);
+    copySlotsToFromReverse(postGlobalWriteLumiSignal_, iOther.postGlobalWriteLumiSignal_);
 
     copySlotsToFrom(preStreamBeginLumiSignal_, iOther.preStreamBeginLumiSignal_);
     copySlotsToFromReverse(postStreamBeginLumiSignal_, iOther.postStreamBeginLumiSignal_);
