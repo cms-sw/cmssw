@@ -1068,10 +1068,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 2 time = 25000001
@@ -1846,10 +1858,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 1 lumi = 2 time = 25000001
+++++ starting: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ finished: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ starting: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ finished: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ starting: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ finished: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ starting: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ finished: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ starting: global write lumi: run = 1 lumi = 2 time = 25000001
+++++ starting: global write lumi: run = 1 lumi = 2 time = 25000001
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 1 lumi = 2 time = 25000001
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 1 lumi = 2 time = 25000001
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 3 time = 45000001
@@ -2300,10 +2324,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 1 lumi = 3 time = 45000001
+++++ starting: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ finished: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ starting: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ finished: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ starting: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ finished: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ starting: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ finished: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ starting: global write lumi: run = 1 lumi = 3 time = 45000001
+++++ starting: global write lumi: run = 1 lumi = 3 time = 45000001
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 1 lumi = 3 time = 45000001
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 1 lumi = 3 time = 45000001
 ++++ starting: end run: stream = 0 run = 1 time = 50000001
 ++++ finished: end run: stream = 0 run = 1 time = 50000001
 ++++ starting: end run: stream = 0 run = 1 time = 0
@@ -2366,10 +2402,22 @@
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end run for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end run 1 : time = 0
+++++ starting: global write run 1 : time = 50000001
+++++ finished: global write run 1 : time = 50000001
+++++ starting: global write run 1 : time = 0
+++++ finished: global write run 1 : time = 0
+++++ starting: global write run 1 : time = 0
+++++ finished: global write run 1 : time = 0
+++++ starting: global write run 1 : time = 0
+++++ finished: global write run 1 : time = 0
+++++ starting: global write run 1 : time = 0
+++++ starting: global write run 1 : time = 0
 ++++++ starting: write run for module: label = 'out' id = 37
 ++++++ finished: write run for module: label = 'out' id = 37
+++++ finished: global write run 1 : time = 0
 ++++++ starting: write run for module: label = 'out' id = 24
 ++++++ finished: write run for module: label = 'out' id = 24
+++++ finished: global write run 1 : time = 0
 ++++ starting: source run
 ++++ finished: source run
 ++++ starting: global begin run 2 : time = 55000001
@@ -3208,10 +3256,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 2 lumi = 1 time = 55000001
+++++ starting: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ finished: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ starting: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ finished: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ starting: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ finished: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ starting: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ finished: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ starting: global write lumi: run = 2 lumi = 1 time = 55000001
+++++ starting: global write lumi: run = 2 lumi = 1 time = 55000001
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 2 lumi = 1 time = 55000001
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 2 lumi = 1 time = 55000001
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 2 lumi = 2 time = 75000001
@@ -3986,10 +4046,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 2 lumi = 2 time = 75000001
+++++ starting: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ finished: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ starting: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ finished: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ starting: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ finished: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ starting: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ finished: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ starting: global write lumi: run = 2 lumi = 2 time = 75000001
+++++ starting: global write lumi: run = 2 lumi = 2 time = 75000001
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 2 lumi = 2 time = 75000001
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 2 lumi = 2 time = 75000001
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 2 lumi = 3 time = 95000001
@@ -4440,10 +4512,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 2 lumi = 3 time = 95000001
+++++ starting: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ finished: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ starting: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ finished: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ starting: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ finished: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ starting: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ finished: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ starting: global write lumi: run = 2 lumi = 3 time = 95000001
+++++ starting: global write lumi: run = 2 lumi = 3 time = 95000001
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 2 lumi = 3 time = 95000001
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 2 lumi = 3 time = 95000001
 ++++ starting: end run: stream = 0 run = 2 time = 100000001
 ++++ finished: end run: stream = 0 run = 2 time = 100000001
 ++++ starting: end run: stream = 0 run = 2 time = 0
@@ -4506,10 +4590,22 @@
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end run for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end run 2 : time = 0
+++++ starting: global write run 2 : time = 100000001
+++++ finished: global write run 2 : time = 100000001
+++++ starting: global write run 2 : time = 0
+++++ finished: global write run 2 : time = 0
+++++ starting: global write run 2 : time = 0
+++++ finished: global write run 2 : time = 0
+++++ starting: global write run 2 : time = 0
+++++ finished: global write run 2 : time = 0
+++++ starting: global write run 2 : time = 0
+++++ starting: global write run 2 : time = 0
 ++++++ starting: write run for module: label = 'out' id = 37
 ++++++ finished: write run for module: label = 'out' id = 37
+++++ finished: global write run 2 : time = 0
 ++++++ starting: write run for module: label = 'out' id = 24
 ++++++ finished: write run for module: label = 'out' id = 24
+++++ finished: global write run 2 : time = 0
 ++++ starting: source run
 ++++ finished: source run
 ++++ starting: global begin run 3 : time = 105000001
@@ -5348,10 +5444,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 3 lumi = 1 time = 105000001
+++++ starting: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ finished: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ starting: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ finished: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ starting: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ finished: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ starting: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ finished: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ starting: global write lumi: run = 3 lumi = 1 time = 105000001
+++++ starting: global write lumi: run = 3 lumi = 1 time = 105000001
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 3 lumi = 1 time = 105000001
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 3 lumi = 1 time = 105000001
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 3 lumi = 2 time = 125000001
@@ -6126,10 +6234,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 3 lumi = 2 time = 125000001
+++++ starting: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ finished: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ starting: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ finished: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ starting: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ finished: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ starting: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ finished: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ starting: global write lumi: run = 3 lumi = 2 time = 125000001
+++++ starting: global write lumi: run = 3 lumi = 2 time = 125000001
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 3 lumi = 2 time = 125000001
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 3 lumi = 2 time = 125000001
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 3 lumi = 3 time = 145000001
@@ -6580,10 +6700,22 @@
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end lumi for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end lumi: run = 3 lumi = 3 time = 145000001
+++++ starting: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ finished: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ starting: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ finished: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ starting: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ finished: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ starting: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ finished: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ starting: global write lumi: run = 3 lumi = 3 time = 145000001
+++++ starting: global write lumi: run = 3 lumi = 3 time = 145000001
 ++++++ starting: write lumi for module: label = 'out' id = 37
 ++++++ finished: write lumi for module: label = 'out' id = 37
+++++ finished: global write lumi: run = 3 lumi = 3 time = 145000001
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
+++++ finished: global write lumi: run = 3 lumi = 3 time = 145000001
 ++++ starting: end run: stream = 0 run = 3 time = 150000001
 ++++ finished: end run: stream = 0 run = 3 time = 150000001
 ++++ starting: end run: stream = 0 run = 3 time = 0
@@ -6646,10 +6778,22 @@
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global end run for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global end run 3 : time = 0
+++++ starting: global write run 3 : time = 150000001
+++++ finished: global write run 3 : time = 150000001
+++++ starting: global write run 3 : time = 0
+++++ finished: global write run 3 : time = 0
+++++ starting: global write run 3 : time = 0
+++++ finished: global write run 3 : time = 0
+++++ starting: global write run 3 : time = 0
+++++ finished: global write run 3 : time = 0
+++++ starting: global write run 3 : time = 0
+++++ starting: global write run 3 : time = 0
 ++++++ starting: write run for module: label = 'out' id = 37
 ++++++ finished: write run for module: label = 'out' id = 37
+++++ finished: global write run 3 : time = 0
 ++++++ starting: write run for module: label = 'out' id = 24
 ++++++ finished: write run for module: label = 'out' id = 24
+++++ finished: global write run 3 : time = 0
 ++++ starting: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 5
 ++++ finished: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 5
 ++++ starting: end stream for module: stream = 0 label = 'get' id = 6
