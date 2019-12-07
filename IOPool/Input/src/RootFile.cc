@@ -43,6 +43,7 @@
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
+#include "FWCore/Utilities/interface/stemFromPath.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 
@@ -164,7 +165,8 @@ namespace edm {
                      bool bypassVersionCheck,
                      bool labelRawDataLikeMC,
                      bool usingGoToEvent,
-                     bool enablePrefetching)
+                     bool enablePrefetching,
+                     bool enforceGUIDInFileName)
       : file_(fileName),
         logicalFile_(logicalFileName),
         processConfiguration_(processConfiguration),
@@ -187,6 +189,7 @@ namespace edm {
         savedRunAuxiliary_(),
         skipAnyEvents_(skipAnyEvents),
         noEventSort_(noEventSort),
+        enforceGUIDInFileName_(enforceGUIDInFileName),
         whyNotFastClonable_(0),
         hasNewlyDroppedBranch_(),
         branchListIndexesUnchanged_(false),
@@ -1138,6 +1141,14 @@ namespace edm {
     if (!eventTree_.isValid()) {
       throw Exception(errors::EventCorruption) << "'Events' tree is corrupted or not present\n"
                                                << "in the input file.\n";
+    }
+    if (enforceGUIDInFileName_) {
+      auto guidFromName = stemFromPath(file_);
+      if (guidFromName != fid_.fid()) {
+        throw edm::Exception(edm::errors::FileNameInconsistentWithGUID)
+            << "GUID " << guidFromName << " extracted from file name " << file_
+            << " is inconsistent with the GUID read from the file " << fid_.fid();
+      }
     }
 
     if (fileFormatVersion().hasIndexIntoFile()) {
