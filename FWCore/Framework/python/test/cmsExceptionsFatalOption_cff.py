@@ -30,5 +30,6 @@ Rethrow = cms.untracked.vstring(
   'ProductDoesNotSupportViews',
   'ProductDoesNotSupportPtr',
   'NotFound',
-  'FormatIncompatibility'
+  'FormatIncompatibility',
+  'FileNameInconsistentWithGUID',
 )
