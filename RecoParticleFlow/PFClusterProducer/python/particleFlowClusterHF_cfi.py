@@ -105,6 +105,7 @@ particleFlowClusterHF = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHF"),
     recHitCleaners = cms.VPSet(),
+    seedCleaners = cms.VPSet(),
     seedFinder = _localMaxSeeds_HF,
     initialClusteringStep = _topoClusterizer_HF,
     pfClusterBuilder = _pfClusterizer_HF,

@@ -16,6 +16,7 @@ particleFlowClusterHBHE = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHBHE"),
     recHitCleaners = cms.VPSet(),
+    seedCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string("LocalMaximumSeedFinder"),
         thresholdsByDetector = cms.VPSet(
