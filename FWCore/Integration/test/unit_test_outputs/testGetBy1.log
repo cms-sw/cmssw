@@ -906,8 +906,34 @@ GlobalContext: transition = EndLuminosityBlock
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
 
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1
+GlobalContext: transition = WriteLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
+
 ++++++ starting: write lumi for module: label = 'out' id = 8
 ++++++ finished: write lumi for module: label = 'out' id = 8
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1
+GlobalContext: transition = WriteLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
+
+++++ starting: global write lumi: run = 1 lumi = 1 time = 1
+GlobalContext: transition = WriteLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
+
+++++ finished: global write lumi: run = 1 lumi = 1 time = 1
+GlobalContext: transition = WriteLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
+
 ++++ starting: end run: stream = 0 run = 1 time = 15000001
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
@@ -998,8 +1024,34 @@ GlobalContext: transition = EndRun
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
 
+++++ starting: global write run 1 : time = 15000001
+GlobalContext: transition = WriteRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
+
 ++++++ starting: write run for module: label = 'out' id = 8
 ++++++ finished: write run for module: label = 'out' id = 8
+++++ finished: global write run 1 : time = 15000001
+GlobalContext: transition = WriteRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
+
+++++ starting: global write run 1 : time = 0
+GlobalContext: transition = WriteRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
+
+++++ finished: global write run 1 : time = 0
+GlobalContext: transition = WriteRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
+
 ++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 4
 ++++ finished: end stream for module: stream = 0 label = 'intProducer' id = 4
 ++++ starting: end stream for module: stream = 0 label = 'a1' id = 5
