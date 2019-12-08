@@ -40,6 +40,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
                                     pset.getParameter<double>("minRapidityCP"),
                                     pset.getParameter<double>("maxRapidityCP"),
                                     pset.getParameter<int>("minHitCP"),
+                                    pset.getParameter<int>("maxSimClustersCP"),
                                     pset.getParameter<double>("tipCP"),
                                     pset.getParameter<double>("lipCP"),
                                     pset.getParameter<bool>("signalOnlyCP"),
