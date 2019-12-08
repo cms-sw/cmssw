@@ -207,7 +207,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                  << std::endl;
       continue;
     }
-    cPIndices.emplace_back(cpId);
+    // Make the real, physics driven, selection con CaloParticles
+    if (cpSelector(caloParticles[cpId], simVertices)) {
+      cPIndices.emplace_back(cpId);
+    }
   }
 
   // ##############################################
