@@ -26,8 +26,6 @@ using namespace edm;
 
 typedef DQMRivetClient::MonitorElement ME;
 
-TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
-
 DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
   typedef std::vector<edm::ParameterSet> VPSet;
   typedef std::vector<std::string> vstring;
