@@ -2007,7 +2007,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
     mclsharedenergy[i].resize(nMultiClusters);
     mclsharedenergyfrac[i].resize(nMultiClusters);
     for (unsigned int j = 0; j < nMultiClusters; ++j) {
-      score3d[i][j] = 0.f;
+      score3d[i][j] = 1.f;
       mclsharedenergy[i][j] = 0.f;
       mclsharedenergyfrac[i][j] = 0.f;
     }
