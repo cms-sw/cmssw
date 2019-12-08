@@ -1620,11 +1620,12 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
                                                           const std::vector<reco::HGCalMultiCluster>& multiClusters,
                                                           std::vector<CaloParticle> const& cP,
                                                           std::vector<size_t> const& cPIndices,
+                                                          std::vector<size_t> const& cPSelectedIndices,
                                                           std::map<DetId, const HGCRecHit*> const& hitMap,
                                                           unsigned layers) const {
   auto nMultiClusters = multiClusters.size();
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
-  auto nCaloParticles = cP.size();
+  auto nCaloParticles = cPIndices.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInMultiCluster>> detIdToMultiClusterId_Map;
@@ -2024,8 +2025,10 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
     }
   }
 
-  //Loop though caloparticles
-  for (const auto& cpId : cPIndices) {
+  // Here we do fill the plots to compute the different metrics linked to
+  // gen-level, namely efficiency an duplicate. In this loop we should restrict
+  // only to the selected caloParaticles.
+  for (const auto& cpId : cPSelectedIndices) {
     //We need to keep the multiclusters ids that are related to
     //CaloParticle under study for the final filling of the score.
     std::vector<unsigned int> cpId_mclId_related;
@@ -2179,6 +2182,9 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
 
   }  //end of loop through caloparticles
 
+  // Here we do fill the plots to compute the different metrics linked to
+  // reco-level, namely fake-rate an merge-rate. In this loop we should *not*
+  // restrict only to the selected caloParaticles.
   for (unsigned int mclId = 0; mclId < nMultiClusters; ++mclId) {
     auto assocFakeMerge = tracksters_fakemerge[mclId];
     auto assocDuplicate = tracksters_duplicate[mclId];
@@ -2219,6 +2225,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
                                                      const std::vector<reco::HGCalMultiCluster>& multiClusters,
                                                      std::vector<CaloParticle> const& cP,
                                                      std::vector<size_t> const& cPIndices,
+                                                     std::vector<size_t> const& cPSelectedIndices,
                                                      std::map<DetId, const HGCRecHit*> const& hitMap,
                                                      unsigned layers) const {
   //Each event to be treated as two events:
@@ -2405,7 +2412,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
     histograms.h_noncontmulticlusternum[count]->Fill(tnnoncontmclmz);
   }
 
-  multiClusters_to_CaloParticles(histograms, count, multiClusters, cP, cPIndices, hitMap, layers);
+  multiClusters_to_CaloParticles(histograms, count, multiClusters, cP, cPIndices, cPSelectedIndices, hitMap, layers);
 }
 
 double HGVHistoProducerAlgo::distance2(const double x1,
