@@ -174,6 +174,7 @@ public:
                                       const std::vector<reco::HGCalMultiCluster>& multiClusters,
                                       std::vector<CaloParticle> const& cP,
                                       std::vector<size_t> const& cPIndices,
+                                      std::vector<size_t> const& cPSelectedIndices,
                                       std::map<DetId, const HGCRecHit*> const&,
                                       unsigned layers) const;
   void fill_info_histos(const Histograms& histograms, unsigned layers) const;
@@ -198,6 +199,7 @@ public:
                                  const std::vector<reco::HGCalMultiCluster>& multiClusters,
                                  std::vector<CaloParticle> const& cP,
                                  std::vector<size_t> const& cPIndices,
+                                 std::vector<size_t> const& cPSelectedIndices,
                                  std::map<DetId, const HGCRecHit*> const&,
                                  unsigned layers) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
