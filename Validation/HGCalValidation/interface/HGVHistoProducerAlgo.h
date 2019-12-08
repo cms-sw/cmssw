@@ -166,6 +166,7 @@ public:
                                       const reco::CaloClusterCollection& clusters,
                                       std::vector<CaloParticle> const& cP,
                                       std::vector<size_t> const& cPIndices,
+                                      std::vector<size_t> const& cPSelectedIndices,
                                       std::map<DetId, const HGCRecHit*> const&,
                                       unsigned layers) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
@@ -187,6 +188,7 @@ public:
                                    const Density& densities,
                                    std::vector<CaloParticle> const& cP,
                                    std::vector<size_t> const& cPIndices,
+                                   std::vector<size_t> const& cPSelectedIndices,
                                    std::map<DetId, const HGCRecHit*> const&,
                                    std::map<double, double> cummatbudg,
                                    unsigned layers,

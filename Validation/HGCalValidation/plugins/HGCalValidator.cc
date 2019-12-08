@@ -207,10 +207,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                  << std::endl;
       continue;
     }
-    // Make the real, physics driven, selection con CaloParticles
-    if (cpSelector(caloParticles[cpId], simVertices)) {
-      cPIndices.emplace_back(cpId);
-    }
+    cPIndices.emplace_back(cpId);
   }
 
   // ##############################################
@@ -242,6 +239,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     densities,
                                                     caloParticles,
                                                     cPIndices,
+                                                    selected_cPeff,
                                                     hitMap,
                                                     cummatbudg,
                                                     totallayers_to_monitor_,
@@ -266,7 +264,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
 
       histoProducerAlgo_->fill_multi_cluster_histos(
-          histograms.histoProducerAlgo, wml, multiClusters, caloParticles, cPIndices, hitMap, totallayers_to_monitor_);
+          histograms.histoProducerAlgo, wml, multiClusters, caloParticles, selected_cPeff, hitMap, totallayers_to_monitor_);
 
       //General Info on multiclusters
       LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
