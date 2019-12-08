@@ -116,6 +116,8 @@ public:
   void limitedFit(MonitorElement* srcME, MonitorElement* meanME, MonitorElement* sigmaME);
 
 private:
+  TPRegexp metacharacters_;
+  TPRegexp nonPerlWildcard_;
   unsigned int verbose_;
   bool runOnEndLumi_;
   bool runOnEndJob_;
@@ -235,10 +237,8 @@ private:
 
 typedef DQMGenericClient::MonitorElement ME;
 
-TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
-TPRegexp nonPerlWildcard("\\w\\*|^\\*");
-
-DQMGenericClient::DQMGenericClient(const ParameterSet& pset) {
+DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
+    : metacharacters_("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]"), nonPerlWildcard_("\\w\\*|^\\*") {
   typedef std::vector<edm::ParameterSet> VPSet;
   typedef std::vector<std::string> vstring;
   typedef boost::escaped_list_separator<char> elsc;
@@ -607,7 +607,7 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
     if (subDir[subDir.size() - 1] == '/')
       subDir.erase(subDir.size() - 1);
 
-    if (TString(subDir).Contains(metacharacters)) {
+    if (TString(subDir).Contains(metacharacters_)) {
       isWildcardUsed_ = true;
 
       const string::size_type shiftPos = subDir.rfind('/');
@@ -1198,7 +1198,7 @@ void DQMGenericClient::findAllSubdirectories(DQMStore::IBooker& ibooker,
     return;
   }
   if (pattern != "") {
-    if (pattern.Contains(nonPerlWildcard))
+    if (pattern.Contains(nonPerlWildcard_))
       pattern.ReplaceAll("*", ".*");
     TPRegexp regexp(pattern);
     ibooker.cd(dir);
