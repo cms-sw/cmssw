@@ -638,6 +638,9 @@ namespace dqm {
 
       // universal verbose flag.
       int verbose_;
+      // If set to true, error out whenever things happen that are not safe for
+      // legacy modules.
+      bool assertLegacySafe_;
     };
   }  // namespace implementation
 
