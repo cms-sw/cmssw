@@ -337,6 +337,11 @@ namespace dqm::implementation {
           if (checkScope(anyme->getScope()) == false) {
             continue;
           }  // else
+
+          // whenever we clone global MEs, it is no longer safe to hold
+          // pointers to them.
+          assert(!assertLegacySafe_);
+
           MonitorElementData newdata = anyme->cloneMEData();
           auto newme = new MonitorElement(std::move(newdata));
           newme->Reset();  // we cloned a ME in use, not an empty prototype
@@ -566,6 +571,7 @@ namespace dqm::implementation {
 
   DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar) : IGetter(this), IBooker(this) {
     verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
+    assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", true);
 
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be
