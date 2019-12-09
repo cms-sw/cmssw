@@ -217,6 +217,9 @@ namespace edm {
     }
 
   private:
+    //called by adjustIndexesAfterProductRegistryAddition only if an index actually changed
+    virtual void changedIndexes_() {}
+
     void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
     void addInputProduct(std::shared_ptr<BranchDescription const> bd);
