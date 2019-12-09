@@ -1,7 +1,6 @@
-#include "DQMFileSaver.h"
 #include "DQMServices/Components/interface/fillJson.h"
-#include "DQMServices/Core/src/DQMError.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/src/DQMError.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -33,6 +32,118 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include <boost/property_tree/ptree.hpp>
+#include <sys/time.h>
+#include <string>
+
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include <boost/property_tree/ptree.hpp>
+#include <sys/time.h>
+#include <string>
+
+namespace evf {
+  class FastMonitoringService;
+}
+namespace saverDetails {
+  struct NoCache {};
+}  // namespace saverDetails
+
+class DQMFileSaver : public edm::global::EDAnalyzer<edm::RunCache<saverDetails::NoCache>,
+                                                    edm::LuminosityBlockCache<saverDetails::NoCache> > {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  DQMFileSaver(const edm::ParameterSet &ps);
+
+  static boost::property_tree::ptree fillJson(int run,
+                                              int lumi,
+                                              const std::string &dataFilePathName,
+                                              const std::string &transferDestinationStr,
+                                              const std::string &mergeTypeStr,
+                                              evf::FastMonitoringService *fms);
+
+protected:
+  void save(std::string const &filename,
+            std::string const &path = "",
+            std::string const &pattern = "",
+            std::string const &rewrite = "",
+            uint32_t const run = 0,
+            uint32_t const lumi = 0);
+
+  void beginJob() override;
+  std::shared_ptr<saverDetails::NoCache> globalBeginRun(const edm::Run &, const edm::EventSetup &) const override;
+  std::shared_ptr<saverDetails::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
+                                                                    const edm::EventSetup &) const override;
+  void analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const override;
+  void globalEndRun(const edm::Run &, const edm::EventSetup &) const override;
+  void endJob() override;
+
+public:
+  enum Convention {
+    Online,
+    Offline,
+    FilterUnit,
+  };
+
+  enum FileFormat { ROOT, PB };
+
+private:
+  void saveForOfflinePB(const std::string &workflow, int run) const;
+  void saveForOffline(const std::string &workflow, int run, int lumi) const;
+
+  void saveForOnlinePB(int run, const std::string &suffix) const;
+  void saveForOnline(int run, const std::string &suffix, const std::string &rewrite) const;
+
+  void saveForFilterUnit(const std::string &rewrite, int run, int lumi, const FileFormat fileFormat) const;
+  void saveJobReport(const std::string &filename) const;
+
+  bool createDirectoryIfNeededAndCd(const std::string &path) const;
+
+  Convention convention_;
+  FileFormat fileFormat_;
+  std::string workflow_;
+  std::string producer_;
+  std::string stream_label_;
+  std::string dirName_;
+  std::string child_;
+  std::string filterName_;
+  int version_;
+  bool runIsComplete_;
+  bool enableMultiThread_;
+  bool fakeFilterUnitMode_;
+
+  int saveByLumiSection_;
+  int saveByRun_;
+  bool saveAtJobEnd_;
+  int saveReference_;
+  int saveReferenceQMin_;
+  int forceRunNumber_;
+
+  std::string fileBaseName_;
+  mutable std::atomic<int> fileUpdate_;
+
+  DQMStore *dbe_;
+  mutable std::atomic<int> nrun_;
+  mutable std::atomic<int> nlumi_;
+
+  // needed only for the harvesting step when saving in the endJob
+  mutable std::atomic<int> irun_;
+
+  // Services used in DAQ2 (so for FilterUnit case only)
+  evf::FastMonitoringService *fms_;
+
+  static const std::string streamPrefix_;
+  static const std::string streamSuffix_;
+  std::string transferDestination_;
+  std::string mergeType_;
+};
 
 //--------------------------------------------------------
 const std::string DQMFileSaver::streamPrefix_("stream");
@@ -342,7 +453,7 @@ void DQMFileSaver::saveForFilterUnit(const std::string &rewrite,
 }
 
 void DQMFileSaver::saveJobReport(const std::string &filename) const {
-   return;
+  return;
   // Report the file to job report service.
   edm::Service<edm::JobReport> jr;
   if (jr.isAvailable()) {
@@ -619,7 +730,12 @@ void DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock &iLS, con
   }
 }
 
-void DQMFileSaver::globalEndRun(const edm::Run &iRun, const edm::EventSetup &) const {
+void DQMFileSaver::save(std::string const &filename,
+                        std::string const &path /* = "" */,
+                        std::string const &pattern /* = "" */,
+                        std::string const &rewrite /* = "" */,
+                        uint32_t const run /* = 0 */,
+                        uint32_t const lumi /* = 0 */) {
   // TFile flushes to disk with fsync() on every TDirectory written to
   // the file.  This makes DQM file saving painfully slow, and
   // ironically makes it _more_ likely the file saving gets
@@ -627,76 +743,68 @@ void DQMFileSaver::globalEndRun(const edm::Run &iRun, const edm::EventSetup &) c
   // simply ignores the flush synchronisation.
   class TFileNoSync : public TFile {
   public:
-    TFileNoSync(char const* file, char const* opt) : TFile{file, opt} {}
+    TFileNoSync(char const *file, char const *opt) : TFile{file, opt} {}
     Int_t SysSync(Int_t) override { return 0; }
   };
 
   std::cout << "DQMFileSaver::globalEndRun()" << std::endl;
 
-  //std::string filename = "legacy.root"; //onlineOfflineFileName(fileBaseName_, std::string(suffix), workflow, child_, ROOT);
   char suffix[64];
-  sprintf(suffix, "R%09d", iRun.run());
-  // workflow_ = "TestingLegacyOutputModule1";
-  // child_ = "DQMIO";
-  std::string filename = onlineOfflineFileName(fileBaseName_, std::string(suffix), "/Legacy/Output/Module1", "DQMIO", ROOT);
-  TFileNoSync *file = new TFileNoSync(filename.c_str(), "RECREATE"); // open file
+  sprintf(suffix, "R%09d", run);
+  TFileNoSync *file = new TFileNoSync(filename.c_str(), "RECREATE");  // open file
 
   // Traverse all MEs
-  auto mes = dbe_->getAllContents(""); // TODO run/lumi and/or job?
+  auto mes = dbe_->getAllContents("");  // TODO run/lumi and/or job?
   for (auto me : mes) {
     // Modify dirname to comply with DQM GUI format. Change:
     // A/B/C/plot
     // into:
     // DQMData/Run X/A/Run summary/B/C/plot
     std::string dirName = me->getPathname();
-    uint64_t  firstSlashPos = dirName.find("/");
+    uint64_t firstSlashPos = dirName.find("/");
     if (firstSlashPos == std::string::npos) {
       firstSlashPos = dirName.length();
     }
     dirName = dirName.substr(0, firstSlashPos) + "/Run summary" + dirName.substr(firstSlashPos, dirName.size());
-    dirName = "DQMData/Run " + std::to_string(iRun.run()) + "/" + dirName;
-    
+    dirName = "DQMData/Run " + std::to_string(run) + "/" + dirName;
+
     std::string objectName = me->getName();
 
     // Create dir if it doesn't exist and cd into it
     createDirectoryIfNeededAndCd(dirName);
-    
+
     // INTs are saved as strings in this format: <objectName>i=value</objectName>
     // REALs are saved as strings in this format: <objectName>f=value</objectName>
     // STRINGs are saved as strings in this format: <objectName>s="value"</objectName>
-    if(me->kind() == MonitorElement::Kind::INT) {
+    if (me->kind() == MonitorElement::Kind::INT) {
       int value = me->getIntValue();
       std::string content = "<" + objectName + ">i=" + std::to_string(value) + "</" + objectName + ">";
       TObjString str(content.c_str());
       str.Write();
-    }
-    else if(me->kind() == MonitorElement::Kind::REAL) {
+    } else if (me->kind() == MonitorElement::Kind::REAL) {
       double value = me->getFloatValue();
       std::string content = "<" + objectName + ">f=" + std::to_string(value) + "</" + objectName + ">";
       TObjString str(content.c_str());
       str.Write();
-    }
-    else if(me->kind() == MonitorElement::Kind::STRING) {
+    } else if (me->kind() == MonitorElement::Kind::STRING) {
       std::string value = me->getStringValue();
       std::string content = "<" + objectName + ">s=\"" + value.c_str() + "\"</" + objectName + ">";
       TObjString str(content.c_str());
       str.Write();
-    }
-    else {
+    } else {
       // Write a histogram
-      TH1* value = me->getTH1();
+      TH1 *value = me->getTH1();
       value->Write();
     }
 
     // Go back to the root directory
     gDirectory->cd("/");
   }
-  
-  file->Close();
 
-  std::cout << "DQMFileSaver::globalEndRun() after" << std::endl;
-  return;
-  
+  file->Close();
+}
+
+void DQMFileSaver::globalEndRun(const edm::Run &iRun, const edm::EventSetup &) const {
   int irun = iRun.id().run();
   irun_ = irun;
   if (irun > 0 && saveByRun_ > 0 && (nrun_ % saveByRun_) == 0) {
@@ -786,26 +894,31 @@ bool DQMFileSaver::createDirectoryIfNeededAndCd(const std::string &path) const {
   while (true) {
     // Check if this subdirectory component exists.  If yes, make sure
     // it is actually a subdirectory.  Otherwise create or cd into it.
-    std::string part(path, start, end-start);
-    TObject* o = gDirectory->Get(part.c_str());
-    if (o && ! dynamic_cast<TDirectory*>(o))
-      raiseDQMError("DQMStore", "Attempt to create directory '%s' in a file"
+    std::string part(path, start, end - start);
+    TObject *o = gDirectory->Get(part.c_str());
+    if (o && !dynamic_cast<TDirectory *>(o))
+      raiseDQMError("DQMStore",
+                    "Attempt to create directory '%s' in a file"
                     " fails because the part '%s' already exists and is not"
-                    " directory", path.c_str(), part.c_str());
+                    " directory",
+                    path.c_str(),
+                    part.c_str());
     else if (!o)
       gDirectory->mkdir(part.c_str());
 
     if (!gDirectory->cd(part.c_str()))
-      raiseDQMError("DQMStore", "Attempt to create directory '%s' in a file"
+      raiseDQMError("DQMStore",
+                    "Attempt to create directory '%s' in a file"
                     " fails because could not cd into subdirectory '%s'",
-                    path.c_str(), part.c_str());
+                    path.c_str(),
+                    part.c_str());
 
     // Stop if we reached the end, ignoring any trailing '/'.
-    if (end+1 >= path.size())
+    if (end + 1 >= path.size())
       break;
 
     // Find the next path component.
-    start = end+1;
+    start = end + 1;
     end = path.find('/', start);
     if (end == std::string::npos)
       end = path.size();
@@ -813,3 +926,6 @@ bool DQMFileSaver::createDirectoryIfNeededAndCd(const std::string &path) const {
 
   return true;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DQMFileSaver);
