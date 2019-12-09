@@ -264,7 +264,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
       book1D(ib, histo, digiAmp);
 
     sprintf(histo, "HcalDigiTask_number_of_amplitudes_above_10fC_%s", sub);
-    book1D(ib, histo, ndigis);
+    book1D(ib, histo, Ndigis);
 
     for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
       sprintf(histo, "HcalDigiTask_ADC0_adc_depth%d_%s", depth, sub);
