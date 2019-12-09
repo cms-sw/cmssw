@@ -183,7 +183,6 @@ static std::string onlineOfflineFileName(const std::string &fileBaseName,
 }
 
 void DQMFileSaver::saveForOfflinePB(const std::string &workflow, int run) const {
-  return;
   char suffix[64];
   sprintf(suffix, "R%09d", run);
   std::string filename = onlineOfflineFileName(fileBaseName_, std::string(suffix), workflow, child_, PB);
@@ -191,8 +190,6 @@ void DQMFileSaver::saveForOfflinePB(const std::string &workflow, int run) const 
 }
 
 void DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) const {
-  return;
-  std::cout << "DQMFileSaver::saveForOffline" << std::endl;
   char suffix[64];
   sprintf(suffix, "R%09d", run);
 
@@ -279,7 +276,6 @@ static void doSaveForOnline(DQMFileSaver::DQMStore *store,
                             int saveRefQMin,
                             const std::string &filterName,
                             DQMFileSaver::FileFormat fileFormat) {
-  return;
   // TODO(rovere): fix the online case. so far we simply rely on the
   // fact that we assume we will not run multithreaded in online.
   if (fileFormat == DQMFileSaver::ROOT)
@@ -289,13 +285,12 @@ static void doSaveForOnline(DQMFileSaver::DQMStore *store,
 }
 
 void DQMFileSaver::saveForOnlinePB(int run, const std::string &suffix) const {
-  return;
   // The file name contains the Online workflow name,
   // as we do not want to look inside the DQMStore,
   // and the @a suffix, defined in the run/lumi transitions.
   // TODO(diguida): add the possibility to change the dir structure with rewrite.
   std::string filename = onlineOfflineFileName(fileBaseName_, suffix, workflow_, child_, PB);
-  doSaveForOnline(&*dbe_,
+  doSaveForOnline(dbe_,
                   run,
                   enableMultiThread_,
                   filename,
@@ -309,14 +304,13 @@ void DQMFileSaver::saveForOnlinePB(int run, const std::string &suffix) const {
 }
 
 void DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::string &rewrite) const {
-#if 0
   std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
 
   for (size_t i = 0, e = systems.size(); i != e; ++i) {
     if (systems[i] != "Reference") {
       dbe_->cd();
       if (MonitorElement *me = dbe_->get(systems[i] + "/EventInfo/processName")) {
-        doSaveForOnline(&*dbe_,
+        doSaveForOnline(dbe_,
                         run,
                         enableMultiThread_,
                         fileBaseName_ + me->getStringValue() + suffix + child_ + ".root",
@@ -339,7 +333,7 @@ void DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::
       std::vector<MonitorElement *> pNamesVector =
           dbe_->getMatchingContents("^" + systems[i] + "/.*/EventInfo/processName", lat::Regexp::Perl);
       if (!pNamesVector.empty()) {
-        doSaveForOnline(&*dbe_,
+        doSaveForOnline(dbe_,
                         run,
                         enableMultiThread_,
                         fileBaseName_ + systems[i] + suffix + child_ + ".root",
@@ -358,7 +352,7 @@ void DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::
   // if no EventInfo Folder is found, then store subsystem wise
   for (size_t i = 0, e = systems.size(); i != e; ++i)
     if (systems[i] != "Reference")
-      doSaveForOnline(&*dbe_,
+      doSaveForOnline(dbe_,
                       run,
                       enableMultiThread_,
                       fileBaseName_ + systems[i] + suffix + child_ + ".root",
@@ -369,7 +363,6 @@ void DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::
                       saveReferenceQMin_,
                       "",
                       ROOT);
-#endif
 }
 
 boost::property_tree::ptree DQMFileSaver::fillJson(int run,
@@ -385,7 +378,6 @@ void DQMFileSaver::saveForFilterUnit(const std::string &rewrite,
                                      int run,
                                      int lumi,
                                      const DQMFileSaver::FileFormat fileFormat) const {
-  return;
   // get from DAQ2 services where to store the files according to their format
   namespace bpt = boost::property_tree;
 
@@ -453,7 +445,6 @@ void DQMFileSaver::saveForFilterUnit(const std::string &rewrite,
 }
 
 void DQMFileSaver::saveJobReport(const std::string &filename) const {
-  return;
   // Report the file to job report service.
   edm::Service<edm::JobReport> jr;
   if (jr.isAvailable()) {
@@ -634,7 +625,6 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
 //--------------------------------------------------------
 void DQMFileSaver::beginJob() {
-#if 0
   nrun_ = nlumi_ = irun_ = 0;
 
   // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
@@ -644,11 +634,9 @@ void DQMFileSaver::beginJob() {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
     mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(stream_label_, evf::MergeTypePB);
   }
-#endif
 }
 
 std::shared_ptr<saverDetails::NoCache> DQMFileSaver::globalBeginRun(const edm::Run &r, const edm::EventSetup &) const {
-  return nullptr;
   ++nrun_;
 
   // For Filter Unit, create an empty ini file:
@@ -678,7 +666,6 @@ void DQMFileSaver::analyze(edm::StreamID, const edm::Event &e, const edm::EventS
 }
 
 void DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock &iLS, const edm::EventSetup &) const {
-  return;
   int ilumi = iLS.id().luminosityBlock();
   int irun = iLS.id().run();
   if (ilumi > 0 && saveByLumiSection_ > 0) {
@@ -866,8 +853,6 @@ void DQMFileSaver::globalEndRun(const edm::Run &iRun, const edm::EventSetup &) c
 }
 
 void DQMFileSaver::endJob() {
-  return;
-  std::cout << "DQMFileSaver::endJob()" << std::endl;
   if (saveAtJobEnd_) {
     if (convention_ == Offline && forceRunNumber_ > 0)
       saveForOffline(workflow_, forceRunNumber_, 0);
