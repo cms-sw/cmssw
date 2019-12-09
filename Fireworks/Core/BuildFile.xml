@@ -31,12 +31,7 @@
 <use name="rootgeom"/>
 <use name="rootgeompainter"/>
 <use name="rootguihtml"/>
-<architecture name="!osx10">
-<lib name="GX11"/>
-</architecture>
-<architecture name="osx10">
-<lib name="GCocoa"/>
-</architecture>
+<use name="rootx11"/>
 <use name="rootrgl"/>
 <use name="rootglew"/>
 <use name="rootgui"/>
