@@ -1,14 +1,14 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include <vector>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <regex>
+#include <vector>
 
 class HGCalTriggerGeometryV9Imp1 : public HGCalTriggerGeometryBase {
 public:
@@ -16,6 +16,8 @@ public:
 
   void initialize(const CaloGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
+
   void reset() final;
 
   unsigned getTriggerCellFromCell(const unsigned) const final;
@@ -174,6 +176,14 @@ void HGCalTriggerGeometryV9Imp1::initialize(const HGCalGeometry* hgc_ee_geometry
   fillNeighborMap(l1tCellNeighborsMapping_, trigger_cell_neighbors_, false);        // silicon
   fillNeighborMap(l1tCellNeighborsSciMapping_, trigger_cell_neighbors_sci_, true);  // scintillator
   fillInvalidTriggerCells();
+}
+
+void HGCalTriggerGeometryV9Imp1::initialize(const HGCalGeometry* hgc_ee_geometry,
+                                            const HGCalGeometry* hgc_hsi_geometry,
+                                            const HGCalGeometry* hgc_hsc_geometry,
+                                            const HGCalGeometry* hgc_nose_geometry) {
+  throw cms::Exception("BadGeometry") << "HGCalTriggerGeometryV9Imp1 geometry cannot be initialized with the "
+                                         "HFNose geometry; use HGCalTriggerGeometryV9Imp2";
 }
 
 unsigned HGCalTriggerGeometryV9Imp1::getTriggerCellFromCell(const unsigned cell_id) const {
