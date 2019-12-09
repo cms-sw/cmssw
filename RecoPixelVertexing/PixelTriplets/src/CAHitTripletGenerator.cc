@@ -203,6 +203,8 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 
     if (index == 0) {
       createGraphStructure(layers, g);
+      caThetaCut.setCutValuesByLayerIds(g);
+      caPhiCut.setCutValuesByLayerIds(g);
     } else {
       clearGraphStructure(layers, g);
     }

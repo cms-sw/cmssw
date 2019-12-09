@@ -191,6 +191,8 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
     foundQuadruplets.clear();
     if (index == 0) {
       createGraphStructure(layers, g);
+      caThetaCut.setCutValuesByLayerIds(g);
+      caPhiCut.setCutValuesByLayerIds(g);
     } else {
       clearGraphStructure(layers, g);
     }

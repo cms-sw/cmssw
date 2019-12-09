@@ -128,8 +128,8 @@ private:
   const bool fitFastCircleChi2Cut;
   const bool useBendingCorrection;
 
-  const CACut caThetaCut;
-  const CACut caPhiCut;
+  CACut caThetaCut;
+  CACut caPhiCut;
   const float caHardPtCut = 0.f;
 };
 #endif

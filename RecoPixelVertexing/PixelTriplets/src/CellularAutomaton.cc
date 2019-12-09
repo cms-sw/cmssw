@@ -4,8 +4,8 @@
 
 void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublets *> &hitDoublets,
                                               const TrackingRegion &region,
-                                              CACut thetaCut,
-                                              CACut phiCut,
+                                              const CACut &thetaCut,
+                                              const CACut &phiCut,
                                               const float hardPtCut) {
   int tsize = 0;
   for (auto hd : hitDoublets) {
@@ -18,8 +18,6 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
   float region_origin_y = region.origin().y();
   float region_origin_radius = region.originRBound();
 
-  thetaCut.setCutValuesByLayerIds(theLayerGraph);
-  phiCut.setCutValuesByLayerIds(theLayerGraph);
 
   std::vector<bool> alreadyVisitedLayerPairs;
   alreadyVisitedLayerPairs.resize(theLayerGraph.theLayerPairs.size());
@@ -142,8 +140,8 @@ void CellularAutomaton::findNtuplets(std::vector<CACell::CAntuplet> &foundNtuple
 void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hitDoublets,
                                      std::vector<CACell::CAntuplet> &foundTriplets,
                                      TrackingRegion const &region,
-                                     CACut thetaCut,  //const float thetaCut,
-                                     CACut phiCut,    //const float phiCut,
+                                     const CACut &thetaCut,
+                                     const CACut &phiCut,
                                      const float hardPtCut) {
   int tsize = 0;
   for (auto hd : hitDoublets) {
@@ -157,8 +155,6 @@ void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hit
   float region_origin_y = region.origin().y();
   float region_origin_radius = region.originRBound();
 
-  thetaCut.setCutValuesByLayerIds(theLayerGraph);
-  phiCut.setCutValuesByLayerIds(theLayerGraph);
 
   std::vector<bool> alreadyVisitedLayerPairs;
   alreadyVisitedLayerPairs.resize(theLayerGraph.theLayerPairs.size());
