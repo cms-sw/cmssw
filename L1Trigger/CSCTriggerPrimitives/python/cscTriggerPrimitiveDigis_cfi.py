@@ -17,6 +17,12 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # If True, output collections will only be built for good chambers
     checkBadChambers = cms.bool(True),
 
+    # Write out all CLCTs
+    writeOutAllCLCTs = cms.bool(False),
+
+    # Write out all ALCTs
+    writeOutAllALCTs = cms.bool(False),
+
     # Write out pre-triggers
     savePreTriggers = cms.bool(False),
 

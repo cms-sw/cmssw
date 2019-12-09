@@ -1,14 +1,14 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include <vector>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <regex>
+#include <vector>
 
 class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase {
 public:
@@ -16,6 +16,7 @@ public:
 
   void initialize(const CaloGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void reset() final;
 
   unsigned getTriggerCellFromCell(const unsigned) const final;
@@ -152,6 +153,14 @@ void HGCalTriggerGeometryHexLayerBasedImp1::initialize(const HGCalGeometry* hgc_
                                                        const HGCalGeometry* hgc_hsc_geometry) {
   throw cms::Exception("BadGeometry")
       << "HGCalTriggerGeometryHexLayerBasedImp1 geometry cannot be initialized with the V9 HGCAL geometry";
+}
+
+void HGCalTriggerGeometryHexLayerBasedImp1::initialize(const HGCalGeometry* hgc_ee_geometry,
+                                                       const HGCalGeometry* hgc_hsi_geometry,
+                                                       const HGCalGeometry* hgc_hsc_geometry,
+                                                       const HGCalGeometry* hgc_nose_geometry) {
+  throw cms::Exception("BadGeometry")
+      << "HGCalTriggerGeometryHexLayerBasedImp1 geometry cannot be initialized with the V9 HGCAL+Nose geometry";
 }
 
 unsigned HGCalTriggerGeometryHexLayerBasedImp1::getTriggerCellFromCell(const unsigned cell_id) const {

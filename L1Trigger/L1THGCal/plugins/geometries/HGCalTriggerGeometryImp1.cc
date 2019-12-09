@@ -1,12 +1,12 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 
-#include <vector>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <vector>
 
 class HGCalTriggerGeometryImp1 : public HGCalTriggerGeometryGenericMapping {
 public:
@@ -14,6 +14,7 @@ public:
 
   void initialize(const CaloGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
 
 private:
   edm::FileInPath l1tCellsMapping_;
@@ -47,6 +48,17 @@ void HGCalTriggerGeometryImp1::initialize(const HGCalGeometry* hgc_ee_geometry,
 {
   throw cms::Exception("BadGeometry")
       << "HGCalTriggerGeometryImp1 geometry cannot be initialized with the V9 HGCAL geometry";
+}
+
+/*****************************************************************/
+void HGCalTriggerGeometryImp1::initialize(const HGCalGeometry* hgc_ee_geometry,
+                                          const HGCalGeometry* hgc_hsi_geometry,
+                                          const HGCalGeometry* hgc_hsc_geometry,
+                                          const HGCalGeometry* hgc_nose_geometry)
+/*****************************************************************/
+{
+  throw cms::Exception("BadGeometry")
+      << "HGCalTriggerGeometryImp1 geometry cannot be initialized with the V9 HGCAL+NOSE geometry";
 }
 
 /*****************************************************************/
@@ -116,7 +128,6 @@ void HGCalTriggerGeometryImp1::buildMaps()
     unsigned moduleId =
         (tc2mItr != trigger_cells_to_modules_.end() ? tc2mItr->second
                                                     : 0);  // 0 if the trigger cell doesn't belong to a module
-    //unsigned moduleId = trigger_cells_to_modules_.at(triggercellId);
     // FIXME: empty neighbours
     std::unique_ptr<const HGCalTriggerGeometry::TriggerCell> triggercellPtr(
         new HGCalTriggerGeometry::TriggerCell(triggercellId, moduleId, triggercellPoint, list_cells(), cellIds));

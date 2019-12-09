@@ -87,6 +87,11 @@ int HGCalShowerShape::coreShowerLength(const l1t::HGCalMulticluster& c3d,
     if (!pass(*id_cluster.second, c3d))
       continue;
     unsigned layer = triggerGeometry.triggerLayer(id_cluster.second->detId());
+    if (triggerTools_.isNose(id_cluster.second->detId()))
+      nlayers = triggerTools_.layers(ForwardSubdetector::HFNose);
+    else {
+      nlayers = triggerTools_.layers(ForwardSubdetector::ForwardEmpty);
+    }
     if (layer == 0 || layer > nlayers)
       continue;
     layers[layer - 1] = true;  //layer 0 doesn't exist, so shift by -1
@@ -117,6 +122,11 @@ float HGCalShowerShape::percentileLayer(const l1t::HGCalMulticluster& c3d,
       if (!pass(*id_tc.second, c3d))
         continue;
       unsigned layer = triggerGeometry.triggerLayer(id_tc.second->detId());
+      if (triggerTools_.isNose(id_tc.second->detId()))
+        nlayers = triggerTools_.layers(ForwardSubdetector::HFNose);
+      else {
+        nlayers = triggerTools_.layers(ForwardSubdetector::ForwardEmpty);
+      }
       if (layer == 0 || layer > nlayers)
         continue;
       layers[layer - 1] += id_tc.second->pt();  //layer 0 doesn't exist, so shift by -1
