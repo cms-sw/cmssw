@@ -14,7 +14,7 @@
 <use name="rooteve"/>
 <use name="rootrgl"/>
 <use name="rootguihtml"/>
-<lib name="GX11"/>
+<use name="rootx11"/>
 <use name="boost_python"/>
 <use name="FWCore/PythonParameterSet"/>
 <export>
