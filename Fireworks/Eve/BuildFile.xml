@@ -4,9 +4,9 @@
 <use name="CondFormats/RunInfo"/>
 <use name="rootcore"/>
 <use name="rootinteractive"/>
-<lib name="Geom"/>
-<lib name="Gui"/>
-<lib name="Eve"/>
+<use name="rootgeom"/>
+<use name="rootgui"/>
+<use name="rooteve"/>
 <export>
 <lib name="1"/>
 </export>

@@ -1,8 +1,8 @@
 <use name="DataFormats/EgammaReco"/>
 <use name="Fireworks/Core"/>
 <use name="rootcore"/>
-<lib name="Eve"/>
-<lib name="Geom"/>
+<use name="rooteve"/>
+<use name="rootgeom"/>
 <export>
   <lib name="1"/>
 </export>
