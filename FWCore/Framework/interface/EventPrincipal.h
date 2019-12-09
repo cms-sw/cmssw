@@ -26,6 +26,7 @@ is the DataBlock.
 #include <memory>
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace edm {
   class BranchID;
@@ -128,7 +129,7 @@ namespace edm {
 
     void putOnRead(BranchDescription const& bd,
                    std::unique_ptr<WrapperBase> edp,
-                   ProductProvenance const* productProvenance) const;
+                   std::optional<ProductProvenance> productProvenance) const;
 
     WrapperBase const* getIt(ProductID const& pid) const override;
     WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
@@ -150,6 +151,7 @@ namespace edm {
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
     unsigned int transitionIndex_() const override;
+    void changedIndexes_() final;
 
     std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {
       return get_underlying_safe(provRetrieverPtr_);
