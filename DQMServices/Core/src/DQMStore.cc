@@ -223,7 +223,7 @@ namespace dqm::implementation {
         }
       }
 
-      if (clean_trace.size() > 0) {
+      if (!clean_trace.empty()) {
         logger << message << " at ";
         for (auto const& s : clean_trace) {
           logger << s << "; ";
@@ -537,7 +537,7 @@ namespace dqm::implementation {
     // But that is fine, any such code should just use getAllContents instead.
     std::set<std::string> subdirs;
     for (auto me : this->getAllContents(this->cwd_)) {
-      auto name = me->getPathname();
+      const auto& name = me->getPathname();
       auto subdirname = name.substr(this->cwd_.length(), std::string::npos);
       auto dirname = subdirname.substr(0, subdirname.find("/"));
       subdirs.insert(dirname);
@@ -562,7 +562,7 @@ namespace dqm::implementation {
 
   bool IGetter::dirExists(std::string const& path) const {
     // we don't claim this is fast.
-    return this->getAllContents(path).size() > 0;
+    return !this->getAllContents(path).empty();
   }
 
   IGetter::IGetter(DQMStore* store) { store_ = store; }
@@ -576,18 +576,13 @@ namespace dqm::implementation {
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be
     // correct for purely sequential legacy stuff.
-    ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) {
-      this->setRunLumi(gc.luminosityBlockID());
-    });
-    ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) {
-      this->setRunLumi(gc.luminosityBlockID());
-    });
+    ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) { this->setRunLumi(gc.luminosityBlockID()); });
+    ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) { this->setRunLumi(gc.luminosityBlockID()); });
     ar.watchPostGlobalWriteLumi([this](edm::GlobalContext const& gc) {
-        this->cleanupLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
+      this->cleanupLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
     });
-    ar.watchPostGlobalWriteRun([this](edm::GlobalContext const& gc) {
-        this->cleanupLumi(gc.luminosityBlockID().run(), 0);
-    });
+    ar.watchPostGlobalWriteRun(
+        [this](edm::GlobalContext const& gc) { this->cleanupLumi(gc.luminosityBlockID().run(), 0); });
     // no cleanup at end of job, we don't really need it.
   }
 

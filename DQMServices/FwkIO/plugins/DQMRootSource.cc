@@ -339,8 +339,8 @@ private:
 
   // These methods will be called by the framework.
   // MEs in DQMStore  will be put to products.
-  void beginRun(edm::Run& run);
-  void beginLuminosityBlock(edm::LuminosityBlock& lumi);
+  void beginRun(edm::Run& run) override;
+  void beginLuminosityBlock(edm::LuminosityBlock& lumi) override;
 
   // If the run matches the filterOnRun configuration parameter, the run
   // (and all its lumis) will be kept.
@@ -423,7 +423,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
-  if (m_catalog.fileNames().size() == 0) {
+  if (m_catalog.fileNames().empty()) {
     m_nextItemType = edm::InputSource::IsStop;
   } else {
     m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>(MonitorElementData::Kind::INT, m_rescope));
@@ -466,8 +466,8 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   m_openFiles.reserve(numFiles);
 
   for (auto& fileitem : m_catalog.fileCatalogItems()) {
-    auto filename = fileitem.fileName();
-    auto fallbackname = fileitem.fallbackFileName();
+    const auto& filename = fileitem.fileName();
+    const auto& fallbackname = fileitem.fallbackFileName();
     bool hasFallback = !fallbackname.empty() && fallbackname != filename;
     TFile* file;
     std::list<std::string> originalInfo;
@@ -618,7 +618,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     metadata.describe();
 
   // Stop if there's nothing to process. Otherwise start the run.
-  if (m_fileMetadatas.size() == 0)
+  if (m_fileMetadatas.empty())
     m_nextItemType = edm::InputSource::IsStop;
   else
     m_nextItemType = edm::InputSource::IsRun;
@@ -741,7 +741,7 @@ bool DQMRootSource::keepIt(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lu
     return false;
   }
 
-  if (m_lumisToProcess.size() == 0) {
+  if (m_lumisToProcess.empty()) {
     return true;
   }
 
