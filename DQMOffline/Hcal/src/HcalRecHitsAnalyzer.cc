@@ -496,19 +496,19 @@ void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     meRecHitsCleanedEnergyHO = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
 
     sprintf(histo, "HcalRecHitTask_timing_HO");
-    meTimeHO = ibooker.book1DD(histo, histo, 70, -48., 92.);
+    meTimeHO = ibooker.book1DD(histo, histo, 80, -80., 80.);
 
     sprintf(histo, "HcalRecHitTask_timing_vs_energy_HO");
-    meTE_HO = ibooker.book2D(histo, histo, 60, -5., 55., 70, -48., 92.);
+    meTE_HO = ibooker.book2D(histo, histo, 60, -5., 55., 80, -80., 80.);
 
     sprintf(histo, "HcalRecHitTask_timing_vs_energy_High_HO");
-    meTE_High_HO = ibooker.book2D(histo, histo, 100, -5., 995., 70, -48., 92.);
+    meTE_High_HO = ibooker.book2D(histo, histo, 100, -5., 995., 80, -80., 80.);
 
     sprintf(histo, "HcalRecHitTask_timing_vs_energy_profile_HO");
-    meTEprofileHO = ibooker.bookProfile(histo, histo, 60, -5., 55., -48., 92., " ");
+    meTEprofileHO = ibooker.bookProfile(histo, histo, 60, -5., 55., -80., 80., " ");
 
     sprintf(histo, "HcalRecHitTask_timing_vs_energy_profile_High_HO");
-    meTEprofileHO_High = ibooker.bookProfile(histo, histo, 100, -5., 995., -48., 92., " ");
+    meTEprofileHO_High = ibooker.bookProfile(histo, histo, 100, -5., 995., -80., 80., " ");
   }
 
   // ********************** HF ************************************

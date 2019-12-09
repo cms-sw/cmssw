@@ -366,19 +366,19 @@ void CaloTowersAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     // MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf(histo, "CaloTowersTask_energy_HCAL_HF");
-    meEnergyHcal_HF = ibooker.book1D(histo, histo, 6040, -200, 30000);
+    meEnergyHcal_HF = ibooker.book1D(histo, histo, 1001, -100., 1000000.);
 
     sprintf(histo, "CaloTowersTask_energy_ECAL_HF");
-    meEnergyEcal_HF = ibooker.book1D(histo, histo, 2440, -200, 12000);
+    meEnergyEcal_HF = ibooker.book1D(histo, histo, 701, -100., 70000.);
 
     sprintf(histo, "CaloTowersTask_number_of_fired_towers_HF");
-    meNumFiredTowers_HF = ibooker.book1D(histo, histo, 1000, 0, 2000);
+    meNumFiredTowers_HF = ibooker.book1D(histo, histo, 1000, 0., 2000.);
 
     sprintf(histo, "CaloTowersTask_MET_HF");
     MET_HF = ibooker.book1D(histo, histo, 500, 0., 500.);
 
     sprintf(histo, "CaloTowersTask_SET_HF");
-    SET_HF = ibooker.book1D(histo, histo, 2000, 0., 2000.);
+    SET_HF = ibooker.book1D(histo, histo, 500, 0., 5000.);
     //-------------------------------------------------------------------------------------------
 
     // Timing histos and profiles -- all six are necessary
