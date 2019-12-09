@@ -570,24 +570,17 @@ namespace dqm::implementation {
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be
     // correct for purely sequential legacy stuff.
-    // TODO: detect concurrent runs/lumis and disable legacy API in case?
-    // TODO: There is no callback for "after the last output module wrote", so
-    // instead we infer that from seeing the next run/lumi. Won't work with
-    // concurrent runs/lumis.
     ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) {
-      if (this->runlumi_.run() != 0) {
-        this->cleanupLumi(this->runlumi_.run(), 0);
-      }
-      if (this->runlumi_.luminosityBlock() != 0) {
-        this->cleanupLumi(this->runlumi_.run(), this->runlumi_.luminosityBlock());
-      }
       this->setRunLumi(gc.luminosityBlockID());
     });
     ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) {
-      if (this->runlumi_.luminosityBlock() != 0) {
-        this->cleanupLumi(this->runlumi_.run(), this->runlumi_.luminosityBlock());
-      }
       this->setRunLumi(gc.luminosityBlockID());
+    });
+    ar.watchPostGlobalWriteLumi([this](edm::GlobalContext const& gc) {
+        this->cleanupLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
+    });
+    ar.watchPostGlobalWriteRun([this](edm::GlobalContext const& gc) {
+        this->cleanupLumi(gc.luminosityBlockID().run(), 0);
     });
     // no cleanup at end of job, we don't really need it.
   }
