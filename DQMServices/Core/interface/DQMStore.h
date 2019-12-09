@@ -23,12 +23,14 @@ namespace dqm {
     // The common implementation to change folders
     class NavigatorBase {
     public:
-      void cd();
-      void cd(std::string const& dir);
+      virtual void cd();
+      virtual void cd(std::string const& dir);
       // This is the only method that is allowed to change cwd_ value
-      void setCurrentFolder(std::string const& fullpath);
-      void goUp();
-      std::string const& pwd();
+      virtual void setCurrentFolder(std::string const& fullpath);
+      virtual void goUp();
+      virtual std::string const& pwd();
+
+      virtual ~NavigatorBase() {}
 
     protected:
       NavigatorBase(){};
@@ -406,7 +408,7 @@ namespace dqm {
       //
 
       virtual MonitorElementData::Scope setScope(MonitorElementData::Scope newscope);
-      virtual ~IBooker();
+      ~IBooker() override;
 
     protected:
       IBooker(DQMStore* store);
@@ -468,7 +470,7 @@ namespace dqm {
       // returns whether there are objects at full path `path`
       virtual bool dirExists(std::string const& path) const;
 
-      virtual ~IGetter();
+      ~IGetter() override;
 
     protected:
       IGetter(DQMStore* store);
@@ -485,7 +487,7 @@ namespace dqm {
       enum OpenRunDirs { KeepRunDirs, StripRunDirs };
 
       DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&);
-      ~DQMStore();
+      ~DQMStore() override;
 
       // ------------------------------------------------------------------------
       // ---------------------- public I/O --------------------------------------
@@ -525,23 +527,23 @@ namespace dqm {
 
       // ------------------------------------------------------------------------
       // ------------ IBooker/IGetter overrides to prevent ambiguity ------------
-      virtual void cd() {
+      void cd() override {
         this->IBooker::cd();
         this->IGetter::cd();
       }
-      virtual void cd(std::string const& dir) {
+      void cd(std::string const& dir) override {
         this->IBooker::cd(dir);
         this->IGetter::cd(dir);
       }
-      virtual void setCurrentFolder(std::string const& fullpath) {
+      void setCurrentFolder(std::string const& fullpath) override {
         this->IBooker::setCurrentFolder(fullpath);
         this->IGetter::setCurrentFolder(fullpath);
       }
-      virtual void goUp() {
+      void goUp() override {
         this->IBooker::goUp();
         this->IGetter::goUp();
       }
-      std::string const& pwd() { return this->IBooker::pwd(); }
+      std::string const& pwd() override { return this->IBooker::pwd(); }
 
     public:
       // internal -- figure out better protection.
