@@ -10,6 +10,7 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
 
 /* ROOT */
 #include "Math/Vector3D.h"
@@ -115,13 +116,22 @@ namespace l1t {
         double fraction = (id_fraction != constituentsFraction_.end() ? id_fraction->second : 1.);
         if ((id.det() == DetId::Forward && id.subdetId() == HGCEE) || (id.det() == DetId::HGCalEE) ||
             (id.det() == DetId::HGCalTrigger &&
-             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger)) {
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger) ||
+            (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose && HFNoseDetId(id).isEE()) ||
+            (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger &&
+             HFNoseTriggerDetId(id).isEE())) {
           pt_em += id_constituent.second->pt() * fraction;
         } else if ((id.det() == DetId::Forward && id.subdetId() == HGCHEF) ||
                    (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) || (id.det() == DetId::HGCalHSi) ||
                    (id.det() == DetId::HGCalHSc) ||
                    (id.det() == DetId::HGCalTrigger &&
-                    HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger)) {
+                    HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger) ||
+                   (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose &&
+                    HFNoseDetId(id).isHE()) ||
+                   (id.det() == DetId::HGCalTrigger &&
+                    HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger &&
+                    HFNoseTriggerDetId(id).isHSilicon())) {
           pt_had += id_constituent.second->pt() * fraction;
         }
       }

@@ -2,16 +2,16 @@
 #define __L1Trigger_L1THGCal_HGCalTriggerGeometryBase_h__
 
 #include <iostream>
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 // Pure virtual trigger geometry class
@@ -28,7 +28,16 @@ public:
   const std::string& name() const { return name_; }
 
   bool isV9Geometry() const { return !calo_geometry_; }
+  bool isWithNoseGeometry() const { return isNose_; }
+
   const CaloGeometry* caloGeometry() const { return calo_geometry_; }
+
+  const HGCalGeometry* noseGeometry() const {
+    return (hgc_nose_geometry_
+                ? hgc_nose_geometry_
+                : (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward, HFNose))));
+  }
+
   const HGCalGeometry* eeGeometry() const {
     return (hgc_ee_geometry_
                 ? hgc_ee_geometry_
@@ -52,15 +61,19 @@ public:
     }
     return hgc_hsc_geometry_;
   }
+  const HGCalTopology& noseTopology() const { return noseGeometry()->topology(); }
   const HGCalTopology& eeTopology() const { return eeGeometry()->topology(); }
   const HGCalTopology& fhTopology() const { return fhGeometry()->topology(); }
   const HcalTopology& bhTopology() const { return bhGeometry()->topology(); }
   const HGCalTopology& hsiTopology() const { return hsiGeometry()->topology(); }
   const HGCalTopology& hscTopology() const { return hscGeometry()->topology(); }
 
+  void setWithNoseGeometry(const bool isNose) { isNose_ = isNose; }
+
   // non-const access to the geometry class
   virtual void initialize(const CaloGeometry*) = 0;
   virtual void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) = 0;
+  virtual void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) = 0;
   virtual void reset();
 
   // const access to the geometry class
@@ -93,14 +106,17 @@ protected:
   void setEEGeometry(const HGCalGeometry* geom) { hgc_ee_geometry_ = geom; }
   void setHSiGeometry(const HGCalGeometry* geom) { hgc_hsi_geometry_ = geom; }
   void setHScGeometry(const HGCalGeometry* geom) { hgc_hsc_geometry_ = geom; }
+  void setNoseGeometry(const HGCalGeometry* geom) { hgc_nose_geometry_ = geom; }
 
 private:
   const std::string name_;
 
+  bool isNose_ = false;
   const CaloGeometry* calo_geometry_ = nullptr;
   const HGCalGeometry* hgc_ee_geometry_ = nullptr;
   const HGCalGeometry* hgc_hsi_geometry_ = nullptr;
   const HGCalGeometry* hgc_hsc_geometry_ = nullptr;
+  const HGCalGeometry* hgc_nose_geometry_ = nullptr;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"

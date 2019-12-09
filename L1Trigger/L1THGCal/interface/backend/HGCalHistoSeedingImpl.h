@@ -1,14 +1,14 @@
 #ifndef __L1Trigger_L1THGCal_HGCalHistoSeedingImpl_h__
 #define __L1Trigger_L1THGCal_HGCalHistoSeedingImpl_h__
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalTriggerClusterIdentificationBase.h"
 
 class HGCalHistoSeedingImpl {
@@ -159,8 +159,9 @@ private:
   Navigator navigator_;
 
   static constexpr unsigned neighbour_weights_size_ = 9;
-  static constexpr double kROverZMin_ = 0.076;
-  static constexpr double kROverZMax_ = 0.58;
+  const double kROverZMin_ = 0.076;
+  const double kROverZMax_ = 0.58;
+
   static constexpr double kXYMax_ = 0.6;
 };
 
