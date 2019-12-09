@@ -230,7 +230,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               if (infoV > 1)
                 LogTrace("CSCTriggerPrimitivesBuilder")
                     << "CSCTriggerPrimitivesBuilder::build in E:" << endc << " S:" << stat << " R:" << ring;
-              tmb11GEM->run(wiredc, compdc, gemPads);
+
+              if (useClusters_) {
+                tmb11GEM->run(wiredc, compdc, gemClusters);
+              } else {
+                tmb11GEM->run(wiredc, compdc, gemPads);
+              }
 
               // 0th layer means whole chamber.
               GEMDetId gemId(detid.zendcap(), 1, 1, 0, chid, 0);
@@ -287,7 +292,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               CSCGEMMotherboardME21* tmb21GEM = static_cast<CSCGEMMotherboardME21*>(tmb);
               tmb21GEM->setCSCGeometry(csc_g);
               tmb21GEM->setGEMGeometry(gem_g);
-              tmb21GEM->run(wiredc, compdc, gemPads);
+
+              if (useClusters_) {
+                tmb21GEM->run(wiredc, compdc, gemClusters);
+              } else {
+                tmb21GEM->run(wiredc, compdc, gemPads);
+              }
 
               // 0th layer means whole chamber.
               GEMDetId gemId(detid.zendcap(), 1, 2, 0, chid, 0);
