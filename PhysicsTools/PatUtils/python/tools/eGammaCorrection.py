@@ -1,7 +1,7 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from FWCore.Utilities.ConfigToolBase import *
 #import PhysicsTools.PatAlgos.tools.helpers as configtools
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
