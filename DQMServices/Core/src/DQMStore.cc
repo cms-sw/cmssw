@@ -77,7 +77,14 @@ namespace dqm::implementation {
       } else if (this->scope_ == MonitorElementData::Scope::RUN) {
         medata.key_.id_ = edm::LuminosityBlockID(this->runlumi_.run(), 0);
       } else if (this->scope_ == MonitorElementData::Scope::LUMI) {
-        medata.key_.id_ = this->runlumi_;
+        // In the messy case of legacy-booking a LUMI ME in beginRun (or
+        // similar), where we don't have a valid lumi number yet, make sure to
+        // book a prototype instead.
+        if (this->runlumi_.run() != 0 && this->runlumi_.luminosityBlock() != 0) {
+          medata.key_.id_ = this->runlumi_;
+        } else {
+          medata.key_.id_ = edm::LuminosityBlockID();
+        }
       } else {
         assert(!"Illegal scope");
       }
@@ -89,24 +96,28 @@ namespace dqm::implementation {
     // me now points to a global ME owned by the DQMStore.
     assert(me);
 
-    if (this->moduleID_ == 0) {
-      // this is a legacy/global/harvesting booking. In this case, we do not
-      // create a local ME and return the global directly. It is not advisable
-      // to hold this pointer, as we may delete the global ME later, but we
-      // promise to keep it valid for the entire job if there are no concurrent
-      // runs/lumis.
-      return me;
-    }
-
     // each booking call returns a unique "local" ME, which the DQMStore keeps
     // in a container associated with the module (and potentially run, for
     // DQMGlobalEDAnalyzer). This will later be update to point to different
     // MEData (kept in a global ME) as needed.
     // putME creates the local ME object as needed.
-    me = store_->putME(me, this->moduleID_);
+    auto localme = store_->putME(me, this->moduleID_);
     // me now points to a local ME owned by the DQMStore.
-    assert(me);
-    return me;
+    assert(localme);
+
+    if (this->moduleID_ == 0) {
+      // this is a legacy/global/harvesting booking. In this case, we return
+      // the global directly. It is not advisable to hold this pointer, as we
+      // may delete the global ME later, but we promise to keep it valid for
+      // the entire job if there are no concurrent runs/lumis. (see
+      // assertLegacySafe option).
+      // We still created a local ME, so we can drive the lumi-changing for
+      // legacy modules in watchPreGlobalBeginLumi.
+      return me;
+    } else {
+      // the normal case.
+      return localme;
+    }
   }
 
   MonitorElement* DQMStore::putME(MonitorElement* me) {
@@ -546,7 +557,7 @@ namespace dqm::implementation {
     for (auto dir : subdirs) {
       if (dir.length() == 0)
         continue;
-      out.push_back(dir);
+      out.push_back(this->cwd_ + dir);
     }
     return out;
   }
@@ -576,13 +587,30 @@ namespace dqm::implementation {
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be
     // correct for purely sequential legacy stuff.
-    ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) { this->setRunLumi(gc.luminosityBlockID()); });
-    ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) { this->setRunLumi(gc.luminosityBlockID()); });
+    // These transitions should only affect non-DQM*EDAnalyzer based code.
+    ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) {
+      this->setRunLumi(gc.luminosityBlockID());
+      this->enterLumi(gc.luminosityBlockID().run(), /* lumi */ 0, /* moduleID */ 0);
+    });
+    ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) {
+      this->setRunLumi(gc.luminosityBlockID());
+      this->enterLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock(), /* moduleID */ 0);
+    });
+    ar.watchPostGlobalEndRun([this](edm::GlobalContext const& gc) {
+      this->leaveLumi(gc.luminosityBlockID().run(), /* lumi */ 0, /* moduleID */ 0);
+    });
+    ar.watchPostGlobalEndLumi([this](edm::GlobalContext const& gc) {
+      this->leaveLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock(), /* moduleID */ 0);
+    });
+
+    // Trigger cleanup after writing. This is needed for all modules; we can
+    // only run the cleanup after all output modules have run.
     ar.watchPostGlobalWriteLumi([this](edm::GlobalContext const& gc) {
       this->cleanupLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
     });
     ar.watchPostGlobalWriteRun(
         [this](edm::GlobalContext const& gc) { this->cleanupLumi(gc.luminosityBlockID().run(), 0); });
+
     // no cleanup at end of job, we don't really need it.
   }
 
