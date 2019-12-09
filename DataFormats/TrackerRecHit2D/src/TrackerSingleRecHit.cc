@@ -114,14 +114,14 @@ bool TrackerSingleRecHit::sharesInput(const TrackingRecHit *other, SharedInputTy
 
   // move to switch?
   if (trackerHitRTTI::isSingleType(*other)) {
-    const TrackerSingleRecHit &otherCast = dynamic_cast<const TrackerSingleRecHit &>(*other);
+    const TrackerSingleRecHit &otherCast = static_cast<const TrackerSingleRecHit &>(*other);
     return sharesInput(otherCast);
   }
 
   if (trackerHitRTTI::isMatched(*other)) {
     if (what == all)
       return false;
-    return dynamic_cast<SiStripMatchedRecHit2D const &>(*other).sharesInput(*this);
+    return static_cast<SiStripMatchedRecHit2D const &>(*other).sharesInput(*this);
   }
 
   // last resort, recur to 'recHits()', even if it returns a vector by value
