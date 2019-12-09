@@ -55,9 +55,9 @@ public:
                    const GEMPadDigiCollection* gemPads) = 0;
 
   // run TMB with GEM pad clusters as input
-  void run(const CSCWireDigiCollection* wiredc,
-           const CSCComparatorDigiCollection* compdc,
-           const GEMPadDigiClusterCollection* gemPads);
+  virtual void run(const CSCWireDigiCollection* wiredc,
+                   const CSCComparatorDigiCollection* compdc,
+                   const GEMPadDigiClusterCollection* gemPads) = 0;
 
   /** additional processor for GEMs */
   std::unique_ptr<GEMCoPadProcessor> coPadProcessor;
