@@ -67,7 +67,7 @@ public:
   class CAValuesByInnerLayerIds {
   public:
     float at(int layerId) {
-      for (size_t thisLayer = 0; thisLayer < layerIds.size(); thisLayer++) {
+      for (size_t thisLayer : layerIds) {
         if (layerIds.at(thisLayer) == layerId)
           return cutValues.at(thisLayer);
       }
