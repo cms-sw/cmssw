@@ -510,7 +510,6 @@ namespace dqm::dqmstoreimpl {
               SaveReferenceTag ref = SaveWithReference,
               int minStatus = dqm::qstatus::STATUS_OK,
               std::string const& fileupdate = "RECREATE");
-    void savePB(std::string const& filename, std::string const& path = "", uint32_t run = 0, uint32_t lumi = 0);
     bool open(std::string const& filename,
               bool overwrite = false,
               std::string const& path = "",
@@ -630,24 +629,6 @@ namespace dqm::dqmstoreimpl {
     using MEMap = std::set<MonitorElement>;
 
     // ------------------------ private I/O helpers ------------------------------
-    void saveMonitorElementToPB(MonitorElement const& me, dqmstorepb::ROOTFilePB& file);
-    void saveMonitorElementRangeToPB(std::string const& dir,
-                                     unsigned int run,
-                                     MEMap::const_iterator begin,
-                                     MEMap::const_iterator end,
-                                     dqmstorepb::ROOTFilePB& file,
-                                     unsigned int& counter);
-    void saveMonitorElementToROOT(MonitorElement const& me, TFile& file);
-    void saveMonitorElementRangeToROOT(std::string const& dir,
-                                       std::string const& refpath,
-                                       SaveReferenceTag ref,
-                                       int minStatus,
-                                       unsigned int run,
-                                       MEMap::const_iterator begin,
-                                       MEMap::const_iterator end,
-                                       TFile& file,
-                                       unsigned int& counter);
-
     unsigned verbose_{1};
     unsigned verboseQT_{1};
     bool reset_{false};
