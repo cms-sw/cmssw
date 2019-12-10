@@ -178,7 +178,6 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
   // Adjust/Optimize binning (JR Dittmann, 16-JUL-2015)
 
   HistLim Ndigis(2600, 0., 2600.);
-  HistLim ndigis(520, -20., 1020.);
   HistLim sime(200, 0., 1.0);
 
   HistLim digiAmp(360, -100., 7100.);
