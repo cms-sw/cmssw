@@ -157,13 +157,12 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           }  // 0 is associated to PU vertex
           else if (tmpFromPV == 3) {
             pReco.id = 1;
-          }
-          else if (tmpFromPV == 1 || tmpFromPV == 2) {
+          } else if (tmpFromPV == 1 || tmpFromPV == 2) {
             pReco.id = 0;
             if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
               pReco.id = 1;
             else if (fUseDZ)
-              pReco.id = (std::abs(pDZ) < fDZCut)? 1 : 2;
+              pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && tmpFromPV == 1)
               pReco.id = 2;
             else if (fUseFromPVLooseTight && tmpFromPV == 2)
@@ -186,14 +185,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           }  // 0 is associated to PU vertex
           else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)) {
             pReco.id = 1;
-          }
-          else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) ||
-              lPack->fromPV() == (pat::PackedCandidate::PVLoose)) {
+          } else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) ||
+                     lPack->fromPV() == (pat::PackedCandidate::PVLoose)) {
             pReco.id = 0;
             if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
               pReco.id = 1;
             else if (fUseDZ)
-              pReco.id = (std::abs(pDZ) < fDZCut)? 1 : 2;
+              pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
               pReco.id = 2;
             else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVTight))
