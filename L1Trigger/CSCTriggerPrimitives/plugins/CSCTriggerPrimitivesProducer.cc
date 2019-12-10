@@ -43,24 +43,19 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
-  gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")
-                            ? conf.getParameter<edm::InputTag>("GEMPadDigiProducer")
-                            : edm::InputTag("");
-  gemPadDigiClusterProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiClusterProducer")
-                                   ? conf.getParameter<edm::InputTag>("GEMPadDigiClusterProducer")
-                                   : edm::InputTag("");
+  gemPadDigiProducer_ = conf.getParameter<edm::InputTag>("GEMPadDigiProducer");
+  gemPadDigiClusterProducer_ = conf.getParameter<edm::InputTag>("GEMPadDigiClusterProducer");
+
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
   writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
-
   writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
-
   savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
 
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
-  runME11ILT_ = commonParam.existsAs<bool>("runME11ILT") ? commonParam.getParameter<bool>("runME11ILT") : false;
-  runME21ILT_ = commonParam.existsAs<bool>("runME21ILT") ? commonParam.getParameter<bool>("runME21ILT") : false;
+  runME11ILT_ = commonParam.getParameter<bool>("runME11ILT");
+  runME21ILT_ = commonParam.getParameter<bool>("runME21ILT");
 
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
