@@ -46,7 +46,7 @@ public:
 
         // Get layer ID
         thisCACut.layerIds.emplace_back(caLayers.getLayerId(layerName));
-        if (thisCACut.layerIds.at(thisLayer) == -1) {
+        if (thisCACut.layerIds.back() == -1) {
           edm::LogWarning("Configuration")
               << "Layer name '" << layerName
               << "' not found in the CAGraph. Please enter a valid layer name in the CACuts parameter set";
