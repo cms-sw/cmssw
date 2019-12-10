@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 
-process = cms.Process("PAT")
+process = cms.Process("PAT", stage2L1Trigger)
 
 ## MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
