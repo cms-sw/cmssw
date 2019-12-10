@@ -366,7 +366,7 @@ void CaloTowersAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     // MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf(histo, "CaloTowersTask_energy_HCAL_HF");
-    meEnergyHcal_HF = ibooker.book1D(histo, histo, 5005, -20., 1000000.);
+    meEnergyHcal_HF = ibooker.book1D(histo, histo, 5001, -20., 1000000.);
 
     sprintf(histo, "CaloTowersTask_energy_ECAL_HF");
     meEnergyEcal_HF = ibooker.book1D(histo, histo, 3501, -20., 70000.);
