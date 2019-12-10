@@ -34,7 +34,7 @@ public:
   // at the momement nobody care of MultiHit!!!
   // used by trackMerger (to be improved)
   OmniClusterRef const& firstClusterRef() const override {
-    return dynamic_cast<BaseTrackerRecHit const&>(theHits.front()).firstClusterRef();
+    return static_cast<BaseTrackerRecHit const&>(theHits.front()).firstClusterRef();
   }
 
   /// Access to component RecHits (if any)

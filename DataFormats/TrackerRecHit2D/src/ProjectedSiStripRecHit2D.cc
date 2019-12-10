@@ -5,6 +5,6 @@
 
 void ProjectedSiStripRecHit2D::setDet(const GeomDet& idet) {
   TrackingRecHit::setDet(idet);
-  const GluedGeomDet& gdet = dynamic_cast<const GluedGeomDet&>(idet);
+  const GluedGeomDet& gdet = static_cast<const GluedGeomDet&>(idet);
   theOriginalDet = trackerHitRTTI::isProjMono(*this) ? gdet.monoDet() : gdet.stereoDet();
 }
