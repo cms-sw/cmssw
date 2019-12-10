@@ -1,4 +1,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -13,21 +15,20 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <cstdio>
+#include <cfloat>
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
 #include <utility>
-#include <TString.h>
-#include <TSystem.h>
 
+#include "TString.h"
+#include "TSystem.h"
 #include "TFile.h"
 
-#include <boost/format.hpp>
-
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
-#include <string>
+#include "boost/format.hpp"
 
 namespace saverDetails {
   struct NoCache {};
@@ -281,18 +282,40 @@ void DQMFileSaver::save(std::string const &filename, uint32_t const run /* = 0 *
       str.Write();
     } else if (me->kind() == MonitorElement::Kind::REAL) {
       double value = me->getFloatValue();
-      std::string content = "<" + objectName + ">f=" + std::to_string(value) + "</" + objectName + ">";
+      char buf[64];
+      // use printf here to preserve exactly the classic formatting.
+      std::snprintf(buf, sizeof(buf), "%.*g", DBL_DIG + 2, value);
+      std::string content = "<" + objectName + ">f=" + buf + "</" + objectName + ">";
       TObjString str(content.c_str());
       str.Write();
     } else if (me->kind() == MonitorElement::Kind::STRING) {
       const std::string &value = me->getStringValue();
-      std::string content = "<" + objectName + ">s=\"" + value + "\"</" + objectName + ">";
+      std::string content = "<" + objectName + ">s=" + value + "</" + objectName + ">";
       TObjString str(content.c_str());
       str.Write();
     } else {
       // Write a histogram
       TH1 *value = me->getTH1();
       value->Write();
+
+      if (me->getEfficiencyFlag()) {
+        std::string content = "<" + objectName + ">e=1</" + objectName + ">";
+        TObjString str(content.c_str());
+        str.Write();
+      }
+
+      for (QReport *qr : me->getQReports()) {
+        std::string result;
+        // TODO: 64 is likely too short; memory corruption in the old code?
+        char buf[64];
+        std::snprintf(buf, sizeof(buf), "qr=st:%d:%.*g:", qr->getStatus(), DBL_DIG + 2, qr->getQTresult());
+        result = '<' + objectName + '.' + qr->getQRName() + '>';
+        result += buf;
+        result += qr->getAlgorithm() + ':' + qr->getMessage();
+        result += "</" + objectName + '.' + qr->getQRName() + '>';
+        TObjString str(result.c_str());
+        str.Write();
+      }
     }
 
     // Go back to the root directory
