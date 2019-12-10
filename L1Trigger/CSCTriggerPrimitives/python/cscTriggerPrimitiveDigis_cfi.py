@@ -13,6 +13,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # Name of digi producer module(s)
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    GEMPadDigiProducer = cms.InputTag(""),
+    GEMPadDigiClusterProducer = cms.InputTag(""),
 
     # If True, output collections will only be built for good chambers
     checkBadChambers = cms.bool(True),
@@ -54,6 +56,10 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         runME21Up = cms.bool(False),
         runME31Up = cms.bool(False),
         runME41Up = cms.bool(False),
+
+        runME11ILT = cms.bool(False),
+        runME21ILT = cms.bool(False),
+        useClusters = cms.bool(False),
     ),
 
     # Parameters for ALCT processors: 2007 and later
