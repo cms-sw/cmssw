@@ -46,6 +46,9 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")
                             ? conf.getParameter<edm::InputTag>("GEMPadDigiProducer")
                             : edm::InputTag("");
+  gemPadDigiClusterProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiClusterProducer")
+                                   ? conf.getParameter<edm::InputTag>("GEMPadDigiClusterProducer")
+                                   : edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
   writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
