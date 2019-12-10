@@ -17,7 +17,7 @@ void TTStubAlgorithm_cbc3<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     int &anOffset,
     float &anHardBend,
     const TTStub<Ref_Phase2TrackerDigi_> &aTTStub) const
-// Removed real offset.  Ivan Reid 10/2019
+
 {
   /*
   /// Calculate average coordinates col/row for inner/outer Cluster

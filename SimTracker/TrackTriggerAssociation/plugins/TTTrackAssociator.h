@@ -79,11 +79,10 @@ TTTrackAssociator<T>::TTTrackAssociator(const edm::ParameterSet& iConfig) {
   TTClusterTruthToken = consumes<TTClusterAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTClusterTruth"));
   TTStubTruthToken = consumes<TTStubAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTStubTruth"));
   TTTrackAllowOneFalse2SStub = iConfig.getParameter<bool>("TTTrackAllowOneFalse2SStub");
-  std::cout << "TTTrackAssociator: ";
   if (TTTrackAllowOneFalse2SStub) {
-    std::cout << "Allow track if no more than one 2S stub doesn't match truth." << std::endl;
+    edm::LogInfo("TTTrackAssociator< ") << "Allow track if no more than one 2S stub doesn't match truth.";
   } else {
-    std::cout << "All 2S stubs must match truth." << std::endl;
+    edm::LogInfo("TTTrackAssociator< ") << "All 2S stubs must match truth.";
   }
 
   for (auto iTag = TTTracksInputTags.begin(); iTag != TTTracksInputTags.end(); iTag++) {
