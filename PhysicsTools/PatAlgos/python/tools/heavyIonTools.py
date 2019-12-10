@@ -1,4 +1,4 @@
-from FWCore.Utilities.ConfigToolBase import *
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 
 
