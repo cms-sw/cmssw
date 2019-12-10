@@ -33,7 +33,7 @@ Original Author:  Malte Mrowietz
 #include <memory>
 #include <vector>
 //User include files
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,13 +46,13 @@ Original Author:  Malte Mrowietz
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 //Class declaration
-class pMSSMFilter : public edm::EDFilter {
+class pMSSMFilter : public edm::global::EDFilter<> {
 public:
   explicit pMSSMFilter(const edm::ParameterSet&);
   ~pMSSMFilter() override;
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   //Member data
   edm::EDGetTokenT<reco::GenParticleCollection> token_;
@@ -84,7 +84,7 @@ pMSSMFilter::pMSSMFilter(const edm::ParameterSet& params)
 //Destructor
 pMSSMFilter::~pMSSMFilter() {}
 
-bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
+bool pMSSMFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& params) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -92,10 +92,10 @@ bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
   evt.getByToken(token_, gps);
   edm::Handle<reco::GenJetCollection> generatedJets;
   evt.getByToken(token2_, generatedJets);
-  int looseel_ = 0;
-  int loosemu_ = 0;
-  int loosegamma_ = 0;
-  int veryloosegamma_ = 0;
+  int looseel = 0;
+  int loosemu = 0;
+  int loosegamma = 0;
+  int veryloosegamma = 0;
   float decaylength;
   for (std::vector<reco::GenParticle>::const_iterator it = gps->begin(); it != gps->end(); ++it) {
     const reco::GenParticle& gp = *it;
@@ -110,7 +110,7 @@ bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
           return true;
         }
         if (gp.pt() > loosemuPtCut_ && fabs(gp.eta()) < muEtaCut_) {
-          loosemu_ += 1;
+          loosemu += 1;
         }
       }
       if (fabs(gp.pdgId()) == 11) {
@@ -118,7 +118,7 @@ bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
           return true;
         }
         if (gp.pt() > looseelPtCut_ && fabs(gp.eta()) < elEtaCut_) {
-          looseel_ += 1;
+          looseel += 1;
         }
       }
       if (fabs(gp.pdgId()) == 22) {
@@ -126,10 +126,10 @@ bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
           return true;
         }
         if (gp.pt() > loosegammaPtCut_ && fabs(gp.eta()) < gammaEtaCut_) {
-          loosegamma_ += 1;
+          loosegamma += 1;
         } else {
           if (gp.pt() > veryloosegammaPtCut_ && fabs(gp.eta()) < gammaEtaCut_) {
-            veryloosegamma_ += 1;
+            veryloosegamma += 1;
           }
         }
       }
@@ -145,10 +145,10 @@ bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
       }
     }
   }
-  if (looseel_ + loosemu_ + loosegamma_ > 1) {
+  if (looseel + loosemu + loosegamma > 1) {
     return true;
   }
-  if (loosegamma_ > 0 && veryloosegamma_ > 0) {
+  if (loosegamma > 0 && veryloosegamma > 0) {
     return true;
   }
   double genHT = 0.0;
