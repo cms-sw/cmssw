@@ -226,6 +226,7 @@ namespace dqm::impl {
     /// this ME is meant to be an efficiency plot that must not be
     /// normalized when drawn in the DQM GUI.
     void setEfficiencyFlag() { data_.flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
+    bool getEfficiencyFlag() { return data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
 
     // A static assert to check that T actually fits in
     // int64_t.
