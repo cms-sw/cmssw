@@ -42,6 +42,7 @@ public:
   GlobalPoint getTriggerCellPosition(const unsigned) const final;
   GlobalPoint getModulePosition(const unsigned) const final;
 
+  bool validCell(const unsigned) const final;
   bool validTriggerCell(const unsigned) const final;
   bool disconnectedModule(const unsigned) const final;
   unsigned lastTriggerLayer() const final { return last_trigger_layer_; }
@@ -706,6 +707,29 @@ unsigned HGCalTriggerGeometryV9Imp2::triggerLayer(const unsigned id) const {
   if (layer >= trigger_layers_.size())
     return 0;
   return trigger_layers_[layer];
+}
+
+bool HGCalTriggerGeometryV9Imp2::validCell(unsigned cell_id) const {
+  bool is_valid = false;
+  unsigned det = DetId(cell_id).det();
+  switch (det) {
+    case DetId::HGCalEE:
+      is_valid = eeTopology().valid(cell_id);
+      break;
+    case DetId::HGCalHSi:
+      is_valid = hsiTopology().valid(cell_id);
+      break;
+    case DetId::HGCalHSc:
+      is_valid = hscTopology().valid(cell_id);
+      break;
+    case DetId::Forward:
+      is_valid = noseTopology().valid(cell_id);
+      break;
+    default:
+      is_valid = false;
+      break;
+  }
+  return is_valid;
 }
 
 bool HGCalTriggerGeometryV9Imp2::validTriggerCellFromCells(const unsigned trigger_cell_id) const {
