@@ -151,13 +151,13 @@ void TTStubBuilder<T>::endRun(const edm::Run& run, const edm::EventSetup& iSetup
 template <typename T>
 bool TTStubBuilder<T>::SortStubBendPairs(const std::pair<unsigned int, double>& left,
                                          const std::pair<unsigned int, double>& right) {
-  return fabs(left.second) < fabs(right.second);
+  return std::abs(left.second) < std::abs(right.second);
 }
 
 /// Analogous sorting routine directly from stubs
 template <typename T>
 bool TTStubBuilder<T>::SortStubsBend(const TTStub<T>& left, const TTStub<T>& right) {
-  return fabs(left.BendFE()) < fabs(right.BendFE());
+  return std::abs(left.BendFE()) < std::abs(right.BendFE());
 }
 
 /// Implement the producer
