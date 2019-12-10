@@ -12,15 +12,15 @@ except KeyError:
 
 # 2016 is missing here
 lumiFiles = {
+    2016: "{base}/src/Alignment/APEEstimation/data/lumiperrun2016.txt",
     2017: "{base}/src/Alignment/APEEstimation/data/lumiperrun2017.txt",
     2018: "{base}/src/Alignment/APEEstimation/data/lumiperrun2018.txt",
 }
 pixelIOVs = {
-    2016: [],
+    2016: [271866, 276315, 278271, 280928],
     2017: [297281, 298653, 299443, 300389, 301046, 302131, 303790, 303998, 304911],
     2018: [316758, 317527, 317661, 317664, 318227, 320377],
 }
-
 
 lumis = {}
 intLumis = {}
@@ -33,6 +33,9 @@ for year in lumiFiles.keys():
     intLumis[year] = 0
     with open(lumiFiles[year].format(base=base), "r") as fi:
         for line in fi:
+            in len(line) == 0:
+                continue
+            line = line.strip()
             run, lumi = line.split(" ")
             run = int(run)
             lumi = float(lumi)*0.001 # convert to fb^-1
@@ -203,7 +206,7 @@ class TrendPlotter:
             else:
                 while True:
                     if useColor not in self.colors and useColor not in [0,10]:
-                        self.colors.add(useColor)
+                        self.colors.append(useColor)
                         graphLumi.SetLineColor(useColor)
                         graphLumi.SetMarkerColor(useColor)
                         break
