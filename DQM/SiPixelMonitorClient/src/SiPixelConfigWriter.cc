@@ -14,26 +14,20 @@ SiPixelConfigWriter::~SiPixelConfigWriter() {}
 //
 // -- Initialize XML
 //
-bool SiPixelConfigWriter::init() {
-  return true;
-}
+bool SiPixelConfigWriter::init() { return true; }
 //
 // -- Add an Element
 //
-void SiPixelConfigWriter::createLayout(string &name) {
-}
+void SiPixelConfigWriter::createLayout(string &name) {}
 //
 // -- Add an Element
 //
-void SiPixelConfigWriter::createRow() {
-}
+void SiPixelConfigWriter::createRow() {}
 //
 // -- Add an Element with Children
 //
-void SiPixelConfigWriter::createColumn(string &element, string &name) {
-}
+void SiPixelConfigWriter::createColumn(string &element, string &name) {}
 //
 // -- Write to File
 //
-void SiPixelConfigWriter::write(string &fname) {
-}
+void SiPixelConfigWriter::write(string &fname) {}
