@@ -12,6 +12,7 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
+#include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +45,7 @@ protected:
   uint16_t getDepth(const G4Step *) override;
 
 private:
-  void initMap(const G4String &, const edm::EventSetup &);
+  void initMap();
   uint16_t getRadiationLength(const G4StepPoint *hitPoint, const G4LogicalVolume *lv);
   uint16_t getLayerIDForTimeSim();
   double curve_LY(const G4LogicalVolume *);
@@ -52,10 +53,8 @@ private:
   void getBaseNumber(const G4Step *);
   double getBirkL3(const G4Step *);
 
-  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
-  std::vector<std::string> getStringArray(const std::string &, const DDsvalues_type &);
-
   // initialised before run
+  const EcalSimulationParameters *ecalSimParameters_;
   EcalNumberingScheme *numberingScheme_;
   bool useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool useBirk, useBirkL3;
