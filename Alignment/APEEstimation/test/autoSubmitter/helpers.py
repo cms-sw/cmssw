@@ -1,6 +1,7 @@
 from __future__ import print_function
 import re
 import os
+import subprocess
 import errno
 shortcuts = {}
 
@@ -32,6 +33,7 @@ STATE_LOCAL_WAITING=7
 STATE_LOCAL_DONE=8
 STATE_LOCAL_FAILED=18
 STATE_FINISHED=9
+STATE_INVALID_CONDITIONS = 101
 
 status_map = {}
 status_map[STATE_NONE] = "none"
@@ -49,6 +51,7 @@ status_map[STATE_LOCAL_WAITING] = "waiting for APE saving"
 status_map[STATE_LOCAL_DONE] = "APE saving done"
 status_map[STATE_LOCAL_FAILED] = "APE saving failed"
 status_map[STATE_FINISHED] = "finished"
+status_map[STATE_INVALID_CONDITIONS] = "invalid conditions defined"
 
 records = {}
 records["Alignments"] = "TrackerAlignmentRcd"
@@ -57,6 +60,15 @@ records["Deformations"] = "TrackerSurfaceDeformationRcd"
 records["TrackerSurfaceDeformations"] = "TrackerSurfaceDeformationRcd"
 records["SiPixelTemplateDBObject"] = "SiPixelTemplateDBObjectRcd"
 records["BeamSpotObjects"] = "BeamSpotObjectsRcd"
+
+
+def enableCAF(switch):
+    exec(open('/usr/share/Modules/init/python.py').read()) # enable running module command
+    if switch:
+        module('load', 'lxbatch/tzero')
+    else:
+        module('load', 'lxbatch/share')
+    
 
 
 def ensurePathExists(path):
@@ -103,20 +115,34 @@ def replaceShortcuts(toScan):
     # no match
     return toScan
 
+def hasValidSource(condition):
+    if condition["connect"].startswith("frontier://FrontierProd/"):
+        # No further checks are done in this case, even though it might
+        # still be invalid
+        return True
+    if condition["connect"].startswith("sqlite_file:"):
+        fileName = condition["connect"].split("sqlite_file:")[1]
+        if os.path.isfile(fileName) and fileName.endswith(".db"):
+            return True
+    return False
+
 def loadConditions(dictionary):
     hasAlignmentCondition = False
+    goodConditions = True
     conditions = []
     for key, value in dictionary.items():
+        key = key.strip()
+        value = value.strip()
         if key.startswith("condition"):
-            if len(value.split(" ")) > 1: # structure is "condition rcd:source tag"
+            if len(value.split(" ")) == 2 and len(key.split(" ")) == 2: 
+                # structure is "condition rcd:source tag"
                 record = key.split(" ")[1]
                 connect, tag = value.split(" ")
                 if record == "TrackerAlignmentRcd":
                     hasAlignmentCondition = True
                 conditions.append({"record":record, "connect":replaceShortcuts(connect), "tag":tag})
-            else:
+            elif len(value.split(" ")) == 1 and len(key.split(" ")) == 2:
                 # structure is "condition tag:source", so we have to guess rcd from the tag. might also be "condition tag1+tag2+...+tagN:source"
-                global records
                 connect = value.strip()
                 tags = key.split(" ")[1]
                 for tag in tags.split("+"):
@@ -129,7 +155,18 @@ def loadConditions(dictionary):
                             foundTag = True
                             break
                     if not foundTag:
-                        print("Did not find a record corresponding to {} tag".format(tag))
-                        exit()
-
-    return conditions, hasAlignmentCondition 
+                        print("Unable to infer a record corresponding to {} tag.".format(tag))
+                        goodConditions = False
+            else:
+                print("Unable to parse structure of {}:{}".format(key, value))
+                goodConditions = False
+    
+    # sanity checks
+    for condition in conditions:
+        if not hasValidSource(condition):
+            goodConditions = False
+            print("'{}' is not a valid source for loading conditions.".format(condition["connect"]))
+        if not condition["record"].endswith("Rcd"):
+            goodConditions = False
+            print("'{}' is not a valid record name.".format(condition["record"]))
+    return conditions, hasAlignmentCondition, goodConditions
