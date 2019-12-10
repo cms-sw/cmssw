@@ -39,7 +39,9 @@ namespace Rivet {
       double _lepConeSize, _lepMinPt, _lepMaxEta;
       double _jetConeSize, _jetMinPt, _jetMaxEta;
       double _fatJetConeSize, _fatJetMinPt, _fatJetMaxEta;
-      
+     
+      double _phoMinPt, _phoMaxEta ,_phoIsoConeSize, _phoMaxRelIso;
+ 
       ParticleVector _leptons, _photons, _neutrinos;
       Jets _jets, _fatjets;
       Vector3 _met;
@@ -63,7 +65,12 @@ namespace Rivet {
       
       _fatJetConeSize (pset.getParameter<double>("fatJetConeSize")),
       _fatJetMinPt    (pset.getParameter<double>("fatJetMinPt")),
-      _fatJetMaxEta   (pset.getParameter<double>("fatJetMaxEta"))
+      _fatJetMaxEta   (pset.getParameter<double>("fatJetMaxEta")),
+
+      _phoMinPt  (pset.getParameter<double>("phoMinPt")),
+      _phoMaxEta  (pset.getParameter<double>("phoMaxEta")),
+      _phoIsoConeSize  (pset.getParameter<double>("phoIsoConeSize")),
+      _phoMaxRelIso (pset.getParameter<double>("phoMaxRelIso"))
       {
       }
 
@@ -76,6 +83,8 @@ namespace Rivet {
         // Generic final state
         FinalState fs(particle_cut);
         
+        addProjection(fs, "FS");
+
         // Dressed leptons
         ChargedLeptons charged_leptons(fs);
         IdentifiedFinalState photons(fs);
@@ -101,14 +110,7 @@ namespace Rivet {
         addProjection(dressed_leptons, "DressedLeptons");
         
         // Photons
-        if (_usePromptFinalStates) {
-          // We remove the photons used up for lepton dressing in this case
-          VetoedFinalState vetoed_prompt_photons(prompt_photons);
-          vetoed_prompt_photons.addVetoOnThisFinalState(dressed_leptons);
-          addProjection(vetoed_prompt_photons, "Photons");
-        }
-        else
-          addProjection(photons, "Photons");
+        addProjection(photons, "Photons");
         
         // Jets
         VetoedFinalState fsForJets(fs);
@@ -169,9 +171,38 @@ namespace Rivet {
           }
         }
         
+        Particles fsparticles = applyProjection<FinalState>(event,"FS").particles();
+        
+        for ( auto & photon : applyProjection<FinalState>(event, "Photons").particlesByPt() ) {
+            
+            if (photon.pt() < _phoMinPt)
+                continue;
+            
+            if (abs(photon.eta()) > _phoMaxEta)
+                continue;
+            
+            double photonptsum = 0;
+            
+            for (auto &fsparticle : fsparticles) {
+                
+                if (deltaR(fsparticle, photon) == 0) 
+                    continue;
+                
+                if (deltaR(fsparticle, photon) > _phoIsoConeSize) 
+                    continue;
+                
+                photonptsum += fsparticle.pt();
+            }
+            
+            if (photonptsum/photon.pt() > _phoMaxRelIso)
+                continue;
+            
+            _photons.push_back(photon);
+
+        }
+
         _jets      = applyProjection<FastJets>(event, "Jets").jetsByPt(jet_cut);
         _fatjets   = applyProjection<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
-        _photons   = applyProjection<FinalState>(event, "Photons").particlesByPt();
         _neutrinos = applyProjection<FinalState>(event, "Neutrinos").particlesByPt();
         _met       = applyProjection<MissingMomentum>(event, "MET").missingMomentum().p3();
       };
