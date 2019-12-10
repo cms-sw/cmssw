@@ -151,14 +151,14 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         else if (tmpFromPV == 3){ pReco.id = 1; }
         else if (tmpFromPV == 1 || tmpFromPV == 2){ 
           pReco.id = 0;
-            if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
-              pReco.id = 1;
-            else if (fUseDZ)
-              pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
-            else if (fUseFromPVLooseTight && tmpFromPV == 1)
-              pReco.id = 2;
-            else if (fUseFromPVLooseTight && tmpFromPV == 2)
-              pReco.id = 1;
+          if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+            pReco.id = 1;
+          else if (fUseDZ)
+            pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
+          else if (fUseFromPVLooseTight && tmpFromPV == 1)
+            pReco.id = 2;
+          else if (fUseFromPVLooseTight && tmpFromPV == 2)
+            pReco.id = 1;
         }
       }
     } 
@@ -175,14 +175,14 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)){ pReco.id = 1; }
         else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) || lPack->fromPV() == (pat::PackedCandidate::PVLoose)){ 
           pReco.id = 0;
-            if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
-              pReco.id = 1;
-            else if (fUseDZ)
-              pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
-            else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
-              pReco.id = 2;
-            else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVTight))
-              pReco.id = 1;
+          if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+            pReco.id = 1;
+          else if (fUseDZ)
+            pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
+          else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
+            pReco.id = 2;
+          else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVTight))
+            pReco.id = 1;
         }
       }
     }

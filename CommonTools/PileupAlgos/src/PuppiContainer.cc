@@ -16,7 +16,7 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
     fUseExp          = iConfig.getParameter<bool>("useExp");
     fPuppiWeightCut  = iConfig.getParameter<double>("MinPuppiWeight");
     fPtMax           = iConfig.getParameter<double>("PtMaxNeutrals");
-  fPtMaxNeutralsStartSlope = iConfig.getParameter<double>("PtMaxNeutralsStartSlope");
+    fPtMaxNeutralsStartSlope = iConfig.getParameter<double>("PtMaxNeutralsStartSlope");
     std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
     fNAlgos = lAlgos.size();
     for(unsigned int i0 = 0; i0 < lAlgos.size(); i0++) {
@@ -271,8 +271,7 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         //Basic Cuts
         if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && rParticle.id == 0 ) pWeight = 0;  //threshold cut on the neutral Pt
         if((fPtMax>0) && (rParticle.id == 0))
-      pWeight =
-          std::clamp((fPFParticles[i0].pt() - fPtMaxNeutralsStartSlope) / (fPtMax - fPtMaxNeutralsStartSlope),
+          pWeight =  std::clamp((fPFParticles[i0].pt() - fPtMaxNeutralsStartSlope) / (fPtMax - fPtMaxNeutralsStartSlope),
                      pWeight,
                      1.);
         if(pWeight                         < fPuppiWeightCut) pWeight = 0;  //==> Elminate the low Weight stuff
