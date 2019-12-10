@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-cmsenv
+eval `scram run -csh`
 
 set PWDv    = `pwd`
 set SOURCE  = $CMSSW_BASE/src
