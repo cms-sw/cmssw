@@ -1,8 +1,8 @@
 /*
-Package:    GeneralInterface/GenFilters/pMSSMFilter
-Class:      pMSSMFilter
+Package:    GeneralInterface/GenFilters/ModelpMSSMFilter
+Class:      ModelpMSSMFilter
 
-class pMSSMFilter pMSSMFilter.cc GeneratorInterface/GenFilters/src/pMSSMFilter.cc
+class ModelpMSSMFilter ModelpMSSMFilter.cc GeneratorInterface/GenFilters/plugins/ModelpMSSMFilter.cc
 
 Description: EDFilter which checks the event passes a baseline selection for the run-II pMSSM effort.
 
@@ -46,10 +46,10 @@ Original Author:  Malte Mrowietz
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 //Class declaration
-class pMSSMFilter : public edm::global::EDFilter<> {
+class ModelpMSSMFilter : public edm::global::EDFilter<> {
 public:
-  explicit pMSSMFilter(const edm::ParameterSet&);
-  ~pMSSMFilter() override;
+  explicit ModelpMSSMFilter(const edm::ParameterSet&);
+  ~ModelpMSSMFilter() override;
 
 private:
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -62,7 +62,7 @@ private:
 };
 
 //Constructor
-pMSSMFilter::pMSSMFilter(const edm::ParameterSet& params)
+ModelpMSSMFilter::ModelpMSSMFilter(const edm::ParameterSet& params)
     : token_(consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("gpssrc"))),
       token2_(consumes<reco::GenJetCollection>(params.getParameter<edm::InputTag>("jetsrc"))),
       muPtCut_(params.getParameter<double>("muPtCut")),
@@ -82,9 +82,9 @@ pMSSMFilter::pMSSMFilter(const edm::ParameterSet& params)
       genHTcut_(params.getParameter<double>("genHTcut")) {}
 
 //Destructor
-pMSSMFilter::~pMSSMFilter() {}
+ModelpMSSMFilter::~ModelpMSSMFilter() {}
 
-bool pMSSMFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& params) const {
+bool ModelpMSSMFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& params) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -163,4 +163,4 @@ bool pMSSMFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& 
 }
 
 // Define module as a plug-in
-DEFINE_FWK_MODULE(pMSSMFilter);
+DEFINE_FWK_MODULE(ModelpMSSMFilter);
