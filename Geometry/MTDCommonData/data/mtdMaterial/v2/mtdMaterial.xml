@@ -182,6 +182,29 @@
         <rMaterial name="materials:Hydrogen"/>
       </MaterialFraction>
     </CompositeMaterial>
+    <!-- Definition of thermal screen material (approx.) -->
+    <CompositeMaterial name="CryogelZ" density="0.16*g/cm3" symbol="CryogelZ" method="mixture by weight">   
+      <MaterialFraction fraction="0.27">
+        <rMaterial name="materials:Silicon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.53">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.2">
+        <rMaterial name="materials:Polyethylene"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="ThermalScreenComposite" density="0.2*g/cm3" symbol="ThermalScreen" method="mixture by weight">  <!-- density wrong -->
+      <MaterialFraction fraction="0.8">
+        <rMaterial name="mtdMaterial:CryogelZ"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.1">
+        <rMaterial name="materials:Aluminium"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.1">
+        <rMaterial name="materials:Carbon fib.str."/>   
+      </MaterialFraction>
+    </CompositeMaterial> 
   </MaterialSection>
 
 </DDDefinition>
