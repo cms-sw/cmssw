@@ -134,7 +134,7 @@ float HGCalShowerShape::percentileLayer(const l1t::HGCalMulticluster& c3d,
   }
   std::partial_sum(layers.begin(), layers.end(), layers.begin());
   double pt_threshold = layers.back() * quantile;
-  int percentile = 0;
+  unsigned percentile = 0;
   for (double pt : layers) {
     if (pt > pt_threshold) {
       break;
@@ -143,7 +143,7 @@ float HGCalShowerShape::percentileLayer(const l1t::HGCalMulticluster& c3d,
   }
   // Linear interpolation of percentile value
   double pt0 = (percentile > 0 ? layers[percentile - 1] : 0.);
-  double pt1 = layers[percentile];
+  double pt1 = (percentile < layers.size() ? layers[percentile] : layers.back());
   return percentile + (pt1 - pt0 > 0. ? (pt_threshold - pt0) / (pt1 - pt0) : 0.);
 }
 
