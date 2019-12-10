@@ -278,7 +278,6 @@ namespace dqm::dqmstoreimpl {
 
     template <typename iFunc>
     void meBookerGetter(iFunc f) {
-      std::lock_guard<std::mutex> guard(book_mutex_);
       IBooker booker{this};
       IGetter getter{this};
       f(booker, getter);
