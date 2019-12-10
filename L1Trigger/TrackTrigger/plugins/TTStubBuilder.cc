@@ -31,7 +31,6 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
   static constexpr int CBCFailOffset = 500;
   static constexpr int CICFailOffset = 1000;
 
-
   /// Get the Clusters already stored away
   edm::Handle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> clusterHandle;
   iEvent.getByToken(clustersToken, clusterHandle);
@@ -232,7 +231,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
             continue;
           }
 
-	  maxStubs = isPS ? maxStubs_PS_CIC_5 : maxStubs_2S_CIC_5;
+          maxStubs = isPS ? maxStubs_PS_CIC_5 : maxStubs_2S_CIC_5;
 
           if (is10G_PS)
             maxStubs = maxStubs_PS_CIC_10;
@@ -429,8 +428,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
       if (!lowerOK || !upperOK)
         continue;
 
-      tempTTStub.setRawBend(2. *
-                            stubIter->RawBend());  /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setRawBend(2. * stubIter->RawBend());  /// getter is in FULL-strip units, setter is in HALF-strip units
       tempTTStub.setBendOffset(
           2. * stubIter->BendOffset());  /// getter is in FULL-strip units, setter is in HALF-strip units
       tempTTStub.setBendBE(stubIter->BendBE());
