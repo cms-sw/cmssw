@@ -1,10 +1,10 @@
-#Configuration file fragment used for pMSSMFilter module (GeneratorInterface/GenFilters/src/pMSSMFilter.cc) initalisation
-#pMSSMFilter_cfi GeneratorInterface/GenFilters/python/pMSSMFilter_cfi.py
+#Configuration file fragment used for ModelpMSSMFilter module (GeneratorInterface/GenFilters/plugins/ModelpMSSMFilter.cc) initalisation
+#ModelpMSSMFilter_cfi GeneratorInterface/GenFilters/python/ModelpMSSMFilter_cfi.py
 
 import FWCore.ParameterSet.Config as cms
 
 
-pMSSMFilter = cms.EDFilter("pMSSMFilter",
+ModelpMSSMFilter = cms.EDFilter("ModelpMSSMFilter",
 	gpssrc = cms.InputTag("genParticles"),    # input genParticle collection
  	jetsrc = cms.InputTag("ak4GenJets"),  # input genJets collection
   genHTcut = cms.double(140.0),                # genHT cut
