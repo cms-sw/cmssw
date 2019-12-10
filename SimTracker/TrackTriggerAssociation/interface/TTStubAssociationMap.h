@@ -165,8 +165,8 @@ bool TTStubAssociationMap<T>::isUnknown(edm::Ref<edmNew::DetSetVector<TTStub<T> 
     return true;
   }
 
-  if (theClusterAssociationMap->isUnknown(aStub->getClusterRef(0)) &&
-      theClusterAssociationMap->isUnknown(aStub->getClusterRef(1)))
+  if (theClusterAssociationMap->isUnknown(aStub->ClusterRef(0)) &&
+      theClusterAssociationMap->isUnknown(aStub->ClusterRef(1)))
     return true;
 
   return false;

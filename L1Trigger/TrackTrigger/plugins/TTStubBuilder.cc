@@ -28,6 +28,10 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
   auto ttStubDSVForOutputAccepted = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
   auto ttStubDSVForOutputRejected = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
 
+  static constexpr int CBCFailOffset = 500;
+  static constexpr int CICFailOffset = 1000;
+
+
   /// Get the Clusters already stored away
   edm::Handle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> clusterHandle;
   iEvent.getByToken(clustersToken, clusterHandle);
@@ -156,29 +160,29 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         // A temporary stub, for FE problems
         TTStub<Ref_Phase2TrackerDigi_> tempTTStub2(tempTTStub.getDetId());
 
-        tempTTStub2.addClusterRef((tempTTStub.getClusterRef(0)));
-        tempTTStub2.addClusterRef((tempTTStub.getClusterRef(1)));
-        tempTTStub2.setRawBend(2. * tempTTStub.getRawBend());
-        tempTTStub2.setBendOffset(2. * tempTTStub.getBendOffset());
-        tempTTStub2.setBendBE(tempTTStub.getBendBE());
-        tempTTStub2.setModuleType(tempTTStub.getModuleType());
+        tempTTStub2.addClusterRef((tempTTStub.ClusterRef(0)));
+        tempTTStub2.addClusterRef((tempTTStub.ClusterRef(1)));
+        tempTTStub2.setRawBend(2. * tempTTStub.RawBend());
+        tempTTStub2.setBendOffset(2. * tempTTStub.BendOffset());
+        tempTTStub2.setBendBE(tempTTStub.BendBE());
+        tempTTStub2.setModuleType(tempTTStub.ModuleType());
 
         /// Put in the output
         if (!applyFE)  // No dynamic inefficiencies (DEFAULT)
         {
           /// This means that ALL stubs go into the output
-          tempInner.push_back(*(tempTTStub.getClusterRef(0)));
-          tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+          tempInner.push_back(*(tempTTStub.ClusterRef(0)));
+          tempOuter.push_back(*(tempTTStub.ClusterRef(1)));
           tempAccepted.push_back(tempTTStub);
         } else {
           bool FEreject = false;
           /// This means that only some of them do
           /// Put in the temporary output
-          MeasurementPoint mp0 = tempTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+          MeasurementPoint mp0 = tempTTStub.ClusterRef(0)->findAverageLocalCoordinates();
           int seg = static_cast<int>(mp0.y());
           if (isPS)
             seg = seg / 16;
-          int chip = 1000 * nmod + 10 * int(tempTTStub.getInnerClusterPosition() / chipSize) +
+          int chip = 1000 * nmod + 10 * int(tempTTStub.InnerClusterPosition() / chipSize) +
                      seg;                  /// Find out which MPA/CBC ASIC
           int CIC_chip = 10 * nmod + seg;  /// Find out which CIC ASIC
 
@@ -219,16 +223,16 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
           // We keep is in the stub final container tough, but flagged as reject by FE
 
           if (FEreject) {
-            tempTTStub2.setRawBend(500 + 2. * tempTTStub.getRawBend());
-            tempTTStub2.setBendOffset(500 + 2. * tempTTStub.getBendOffset());
+            tempTTStub2.setRawBend(CBCFailOffset + 2. * tempTTStub.RawBend());
+            tempTTStub2.setBendOffset(CBCFailOffset + 2. * tempTTStub.BendOffset());
 
-            tempInner.push_back(*(tempTTStub2.getClusterRef(0)));
-            tempOuter.push_back(*(tempTTStub2.getClusterRef(1)));
+            tempInner.push_back(*(tempTTStub2.ClusterRef(0)));
+            tempOuter.push_back(*(tempTTStub2.ClusterRef(1)));
             tempAccepted.push_back(tempTTStub2);
             continue;
           }
 
-          (isPS) ? maxStubs = maxStubs_PS_CIC_5 : maxStubs = maxStubs_2S_CIC_5;
+	  maxStubs = isPS ? maxStubs_PS_CIC_5 : maxStubs_2S_CIC_5;
 
           if (is10G_PS)
             maxStubs = maxStubs_PS_CIC_10;
@@ -267,11 +271,11 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
           // We keep is in the stub final container tough, but flagged as reject by FE
 
           if (FEreject) {
-            tempTTStub2.setRawBend(500 + 2. * tempTTStub.getRawBend());
-            tempTTStub2.setBendOffset(500 + 2. * tempTTStub.getBendOffset());
+            tempTTStub2.setRawBend(CBCFailOffset + 2. * tempTTStub.RawBend());
+            tempTTStub2.setBendOffset(CBCFailOffset + 2. * tempTTStub.BendOffset());
 
-            tempInner.push_back(*(tempTTStub2.getClusterRef(0)));
-            tempOuter.push_back(*(tempTTStub2.getClusterRef(1)));
+            tempInner.push_back(*(tempTTStub2.ClusterRef(0)));
+            tempOuter.push_back(*(tempTTStub2.ClusterRef(1)));
             tempAccepted.push_back(tempTTStub2);
             continue;
           }
@@ -287,8 +291,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
             if (moduleStubs_CIC[CIC_chip].size() < maxStubs) {
               moduleStubs_CIC[CIC_chip].push_back(tempTTStub);  //We add the new stub
-              tempInner.push_back(*(tempTTStub.getClusterRef(0)));
-              tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+              tempInner.push_back(*(tempTTStub.ClusterRef(0)));
+              tempOuter.push_back(*(tempTTStub.ClusterRef(1)));
               tempAccepted.push_back(tempTTStub);  // The stub is added
             } else {
               moduleStubs_CIC[CIC_chip].push_back(tempTTStub);  //We add the new stub
@@ -298,7 +302,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
               bendMap.reserve(moduleStubs_CIC[CIC_chip].size());
 
               for (unsigned int i = 0; i < moduleStubs_CIC[CIC_chip].size(); ++i) {
-                bendMap.emplace_back(i, moduleStubs_CIC[CIC_chip].at(i).getBendFE());
+                bendMap.emplace_back(i, moduleStubs_CIC[CIC_chip].at(i).BendFE());
               }
 
               std::sort(bendMap.begin(), bendMap.end(), TTStubBuilder<Ref_Phase2TrackerDigi_>::SortStubBendPairs);
@@ -314,15 +318,15 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
               if (CIC_reject)  // The stub added does not pass the cut
               {
-                tempTTStub2.setRawBend(1000 + 2. * tempTTStub.getRawBend());
-                tempTTStub2.setBendOffset(1000 + 2. * tempTTStub.getBendOffset());
+                tempTTStub2.setRawBend(CICFailOffset + 2. * tempTTStub.RawBend());
+                tempTTStub2.setBendOffset(CICFailOffset + 2. * tempTTStub.BendOffset());
 
-                tempInner.push_back(*(tempTTStub2.getClusterRef(0)));
-                tempOuter.push_back(*(tempTTStub2.getClusterRef(1)));
+                tempInner.push_back(*(tempTTStub2.ClusterRef(0)));
+                tempOuter.push_back(*(tempTTStub2.ClusterRef(1)));
                 tempAccepted.push_back(tempTTStub2);
               } else {
-                tempInner.push_back(*(tempTTStub.getClusterRef(0)));
-                tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+                tempInner.push_back(*(tempTTStub.ClusterRef(0)));
+                tempOuter.push_back(*(tempTTStub.ClusterRef(1)));
                 tempAccepted.push_back(tempTTStub);  // The stub is added
               }
             }
@@ -400,9 +404,9 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
       /// Compare the clusters stored in the stub with the ones of this module
       const edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>&
-          lowerClusterToBeReplaced = stubIter->getClusterRef(0);
+          lowerClusterToBeReplaced = stubIter->ClusterRef(0);
       const edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>&
-          upperClusterToBeReplaced = stubIter->getClusterRef(1);
+          upperClusterToBeReplaced = stubIter->ClusterRef(1);
 
       bool lowerOK = false;
       bool upperOK = false;
@@ -426,11 +430,11 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         continue;
 
       tempTTStub.setRawBend(2. *
-                            stubIter->getRawBend());  /// getter is in FULL-strip units, setter is in HALF-strip units
+                            stubIter->RawBend());  /// getter is in FULL-strip units, setter is in HALF-strip units
       tempTTStub.setBendOffset(
-          2. * stubIter->getBendOffset());  /// getter is in FULL-strip units, setter is in HALF-strip units
-      tempTTStub.setBendBE(stubIter->getBendBE());
-      tempTTStub.setModuleType(stubIter->getModuleType());
+          2. * stubIter->BendOffset());  /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setBendBE(stubIter->BendBE());
+      tempTTStub.setModuleType(stubIter->ModuleType());
 
       acceptedOutputFiller.push_back(tempTTStub);
 
