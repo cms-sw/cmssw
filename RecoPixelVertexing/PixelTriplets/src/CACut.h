@@ -38,13 +38,10 @@ public:
       std::string layersToSet = thisTriplet.tripletName;
 
       // Layer names and id's
-      std::string layerName;
-      std::size_t layerPos = 0;
-
       for (int thisLayer = 0; thisLayer < 3; thisLayer++) {
         // Get layer name
-        layerPos = layersToSet.find("__");
-        layerName = layersToSet.substr(0, layerPos);
+        std::size_t layerPos = layersToSet.find("__");
+        std::string layerName = layersToSet.substr(0, layerPos);
         layersToSet = layersToSet.substr(layerPos + 2);
 
         // Get layer ID
