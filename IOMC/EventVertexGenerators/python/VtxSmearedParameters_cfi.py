@@ -638,6 +638,20 @@ Realistic5TeVppCollision2017VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.619)
 )
 
+# Fixed Emittance (X2) in Beam spot extracted from data for 2017 pp run @ 5 TeV
+Fixed_EmitRealistic5TeVppCollision2017VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(311),
+    Emittance = cms.double(7.6e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.82),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(-0.0228),
+    Y0 = cms.double(0.0795),
+    Z0 = cms.double(0.619)
+)
+
+
 # From 2018B 3.8T data
 # BS parameters extracted from run 316199, fill 6675 (from StreamExpressAlignment, HP BS):
 # X0         =  0.09676  [cm]
