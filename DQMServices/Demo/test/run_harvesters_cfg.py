@@ -15,6 +15,8 @@ args = parser
 
 process = cms.Process("HARVESTING")
 process.add_(cms.Service("DQMStore"))
+process.load("DQMServices.Demo.testharvester_cfi")
+process.load("DQMServices.Demo.testlegacyharvester_cfi")
 
 print args.inputFiles
 
@@ -40,6 +42,17 @@ if args.protobufinput:
 else:
   process.source = cms.Source("DQMRootSource",
                               fileNames = cms.untracked.vstring(*["file://" + f for f in args.inputFiles]))
+
+
+process.harvest = cms.Sequence(process.testharvester)
+process.harvestlegacy = cms.Sequence(process.testlegacyharvester)
+
+if args.nomodules:
+  pass
+elif args.nolegacy:
+  process.p = cms.Path(process.harvest)
+else:
+  process.p = cms.Path(process.harvest + process.harvestlegacy)
 
 # legacy output
 process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
