@@ -67,7 +67,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "TEST")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "Normal/test")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("test", desc);
@@ -100,7 +100,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "TEST")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "One/testone")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("testone", desc);
@@ -132,7 +132,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "TEST")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "One/testonefillrun")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("testonefillrun", desc);
@@ -165,7 +165,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "TEST")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "One/testonelumi")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("testonelumi", desc);
@@ -197,7 +197,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "TEST")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "One/testonelumifilllumi")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("testonelumifilllumi", desc);
@@ -235,7 +235,7 @@ class TestDQMGlobalEDAnalyzer : public DQMGlobalEDAnalyzer<TestHistograms> {
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "TEST")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "Global/testglobal")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("testglobal", desc);
@@ -274,7 +274,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "TEST")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "Legacy/testlegacy")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("testlegacy", desc);
@@ -295,3 +295,78 @@ private:
   double myvalue_;
 };
 DEFINE_FWK_MODULE(TestLegacyEDAnalyzer);
+
+class TestLegacyFillRunEDAnalyzer : public edm::EDAnalyzer {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
+  explicit TestLegacyFillRunEDAnalyzer(const edm::ParameterSet& iConfig)
+      : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")) 
+      , myvalue_(iConfig.getParameter<double>("value")) {
+  }
+
+  ~TestLegacyFillRunEDAnalyzer() override {};
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("folder", "Legacy/testlegacyfillrun")->setComment("Where to put all the histograms");
+    desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
+    desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
+    descriptions.add("testlegacyfillrun", desc);
+  }
+
+private:
+  void beginRun(edm::Run const& run, edm::EventSetup const&) override {
+    edm::Service<DQMStore> store;
+    mymes_.bookall(*store);
+    mymes_.fillall(0, run.run(), myvalue_);
+  }
+
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+  }
+
+
+  BookerFiller<DQMStore, MonitorElement> mymes_;
+  double myvalue_;
+};
+DEFINE_FWK_MODULE(TestLegacyFillRunEDAnalyzer);
+
+class TestLegacyFillLumiEDAnalyzer : public edm::EDAnalyzer {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
+  explicit TestLegacyFillLumiEDAnalyzer(const edm::ParameterSet& iConfig)
+      : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")) 
+      , myvalue_(iConfig.getParameter<double>("value")) {
+  }
+
+  ~TestLegacyFillLumiEDAnalyzer() override {};
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("folder", "Legacy/testlegacyfillrun")->setComment("Where to put all the histograms");
+    desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
+    desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
+    descriptions.add("testlegacyfilllumi", desc);
+  }
+
+private:
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {
+    edm::Service<DQMStore> store;
+    mymes_.bookall(*store);
+  }
+
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+    mymes_.fillall(lumi.luminosityBlock(), lumi.run(), myvalue_);
+  }
+
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+  }
+
+
+  BookerFiller<DQMStore, MonitorElement> mymes_;
+  double myvalue_;
+};
+DEFINE_FWK_MODULE(TestLegacyFillLumiEDAnalyzer);
