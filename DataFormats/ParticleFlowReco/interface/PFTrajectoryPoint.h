@@ -58,28 +58,8 @@ namespace reco {
       Unknown = -1
     };
 
-    static std::map<std::string, LayerType> create_map() {
-      std::map<std::string, LayerType> m;
-      m["ClosestApproach"] = LayerType::ClosestApproach;
-      m["BeamPipeOrEndVertex"] = LayerType::BeamPipeOrEndVertex;
-      m["PS1"] = LayerType::PS1;
-      m["PS2"] = LayerType::PS2;
-      m["ECALEntrance"] = LayerType::ECALEntrance;
-      m["ECALShowerMax"] = LayerType::ECALShowerMax;
-      m["HCALEntrance"] = LayerType::HCALEntrance;
-      m["HCALExit"] = LayerType::HCALExit;
-      m["HOLayer"] = LayerType::HOLayer;
-      m["VFcalEntrance"] = LayerType::VFcalEntrance;
-      return m;
-    }
-    static LayerType layerTypeFromString(std::string layerTypeString) {
-      std::map<std::string, LayerType> layerTypeMap = create_map();
-      std::map<std::string, LayerType>::iterator it = layerTypeMap.find(layerTypeString);
-      if (it != layerTypeMap.end())
-        return it->second;
-      else
-        return LayerType::Unknown;
-    }
+    static const std::string layerTypeNames[];
+    static LayerType layerTypeByName(const std::string& name);
 
     /// default constructor. Set variables at default dummy values
     PFTrajectoryPoint();

@@ -16,8 +16,8 @@ public:
         _trajectoryLayerExitString(conf.getParameter<std::string>("trajectoryLayerExit")),
         _debug(conf.getUntrackedParameter<bool>("debug", false)) {
     // convert TrajectoryLayers info from string to enum
-    _trajectoryLayerEntrance = reco::PFTrajectoryPoint::layerTypeFromString(_trajectoryLayerEntranceString);
-    _trajectoryLayerExit = reco::PFTrajectoryPoint::layerTypeFromString(_trajectoryLayerExitString);
+    _trajectoryLayerEntrance = reco::PFTrajectoryPoint::layerTypeByName(_trajectoryLayerEntranceString);
+    _trajectoryLayerExit = reco::PFTrajectoryPoint::layerTypeByName(_trajectoryLayerExitString);
     // make sure the requested setting is supported
     assert((_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
             _trajectoryLayerExit == reco::PFTrajectoryPoint::HCALExit) ||
