@@ -4,7 +4,6 @@
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/SiStripDigi"/>
-<use name="DataFormats/TrackerCommon"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <export>
