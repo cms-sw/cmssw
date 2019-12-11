@@ -56,8 +56,6 @@ namespace edm {
   StreamerInputSource::~StreamerInputSource() {}
 
   // ---------------------------------------
-  std::unique_ptr<FileBlock> StreamerInputSource::readFile_() { return std::make_unique<FileBlock>(); }
-
   void StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header,
                                               ProductRegistry& reg,
                                               BranchIDListHelper& branchIDListHelper,
