@@ -28,6 +28,8 @@ bool = VarParsing.VarParsing.varType.bool
 string = VarParsing.VarParsing.varType.string
 parser.register('nolegacy',             False, one, bool, "Don't run modules which block concurrent lumis.")
 parser.register('noone',                False, one, bool, "Don't run any one modules.")
+parser.register('legacyoutput',         False, one, bool, "Use DQMFileSaver for output instead of DQMIO.")
+parser.register('protobufoutput',       False, one, bool, "Use DQMFileSaverPB for output instead of DQMIO.")
 parser.register('firstLuminosityBlock', 1, one, int, "See EmptySource.")
 parser.register('firstEvent',           1, one, int, "See EmptySource.")
 parser.register('firstRun',             1, one, int, "See EmptySource.")
@@ -68,6 +70,7 @@ elif args.nolegacy:
 else:
   process.p = cms.Path(process.test_general + process.test_one + process.test_legacy)
 
+# DQMIO output
 process.out = cms.OutputModule(
   "DQMRootOutputModule",
   fileName = cms.untracked.string(args.outfile),
@@ -76,5 +79,31 @@ process.out = cms.OutputModule(
   )
 )
 
-process.o = cms.EndPath(process.out)
+# legacy output
+process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
+  convention = cms.untracked.string('Offline'),
+  fileFormat = cms.untracked.string('ROOT'),
+  producer = cms.untracked.string('DQM'),
+  workflow = cms.untracked.string('/EmptySource/DQMTests/DQMIO'),
+  dirName = cms.untracked.string('.'),
+  saveByRun = cms.untracked.int32(-1),
+  saveAtJobEnd = cms.untracked.bool(True),
+)
+
+# protobuf output
+process.pbSaver = cms.EDAnalyzer("DQMFileSaverPB",
+  producer = cms.untracked.string('DQM'),
+  path = cms.untracked.string('./'),
+  tag = cms.untracked.string('UNKNOWN'),
+  fakeFilterUnitMode = cms.untracked.bool(True),
+  streamLabel = cms.untracked.string("streamDQMHistograms"),
+)
+
+
+if args.legacyoutput:
+  process.o = cms.EndPath(process.dqmSaver)
+elif args.protobufoutput:
+  process.o = cms.EndPath(process.pbSaver)
+else:
+  process.o = cms.EndPath(process.out)
 
