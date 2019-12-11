@@ -47,11 +47,14 @@ private:
   std::string fPVName;
   bool fPuppiDiagnostics;
   bool fPuppiForLeptons;
+  bool fUseFromPVLooseTight;
   bool fUseDZ;
   float fDZCut;
+  double fPtMaxCharged;
   double fPtMaxPhotons;
   double fEtaMaxPhotons;
   double fPtMaxNeutrals;
+  double fPtMaxNeutralsStartSlope;
   bool fUseExistingWeights;
   bool fUseWeightsNoLep;
   bool fClonePackedCands;
