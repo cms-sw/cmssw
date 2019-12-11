@@ -22,6 +22,7 @@ namespace edm {
      Requires the Producer class to provide following functions
            const InitMsgView* getHeader();
            const EventMsgView* getNextEvent();
+           bool newHeader() const;
   */
   public:
     explicit StreamerInputModule(ParameterSet const& pset, InputSourceDescription const& desc);
@@ -33,7 +34,7 @@ namespace edm {
         pr_->closeFile();
     }
 
-    bool checkNextEvent() override;
+    Next checkNext() override;
 
     //ProductRegistry const* prod_reg_;
     edm::propagate_const<std::unique_ptr<Producer>> pr_;
@@ -53,7 +54,7 @@ namespace edm {
   }
 
   template <typename Producer>
-  bool StreamerInputModule<Producer>::checkNextEvent() {
+  StreamerInputSource::Next StreamerInputModule<Producer>::checkNext() {
     EventMsgView const* eview = pr_->getNextEvent();
 
     if (pr_->newHeader()) {
@@ -64,10 +65,10 @@ namespace edm {
       deserializeAndMergeWithRegistry(*header, true);
     }
     if (eview == nullptr) {
-      return false;
+      return Next::kStop;
     }
     deserializeEvent(*eview);
-    return true;
+    return Next::kEvent;
   }
 
 }  // namespace edm
