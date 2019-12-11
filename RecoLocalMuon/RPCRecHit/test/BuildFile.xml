@@ -3,7 +3,11 @@
 <use   name="CLHEP"/>
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/RPCRecHit"/>
+<use   name="DataFormats/DTRecHit"/>
+<use name="DataFormats/CSCRecHit"/>
 <use   name="Geometry/RPCGeometry"/>
+<use   name="Geometry/DTGeometry"/>
+<use name="Geometry/CSCGeometry"/>
 <use   name="Geometry/Records"/>
 <library   file="RPCRecHitReader.cc" name="RPCRecHitReader">
   <flags   EDM_PLUGIN="1"/>

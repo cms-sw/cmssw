@@ -9,8 +9,13 @@ process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = "START53_V27::All"
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "START53_V27::All"
+process.GlobalTag.globaltag = "106X_upgrade2018_realistic_v4"
+
+
+
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
@@ -24,8 +29,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #	'/store/data/Commissioning10/Cosmics/RECO/v3/000/127/155/005F9301-2E16-DF11-B60B-0030487CD6B4.root'
-        '/store/data/Run2012D/RPCMonitor/RAW/v1/000/207/900/1AFE2D3D-A836-E211-B86A-001D09F23D1D.root'
-        )                           
+#        '/store/data/Run2012D/RPCMonitor/RAW/v1/000/207/900/1AFE2D3D-A836-E211-B86A-001D09F23D1D.root'
+         'file:/eos/cms/store/group/dpg_dt/comm_dt/TriggerSimulation/SamplesReco/SingleMu_FlatPt-2to100/Version_10_5_0/SimRECO_1.root'
+       )                           
 )
 
 
