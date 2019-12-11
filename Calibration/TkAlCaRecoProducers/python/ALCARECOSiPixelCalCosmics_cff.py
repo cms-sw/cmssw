@@ -7,7 +7,7 @@ import copy
 # "BPIX","FPIX","ESp","ESm"
 import DPGAnalysis.Skims.skim_detstatus_cfi
 ALCARECOSiPixelCalCosmicsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
-    DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm','BPIX','FPIX'),
+    DetectorType = cms.vstring('BPIX','FPIX'),
     ApplyFilter  = cms.bool(True),
     AndOr        = cms.bool(True),
     DebugOn      = cms.untracked.bool(False)
@@ -31,12 +31,10 @@ ALCARECOSiPixelCalCosmics = ALCARECOSiPixelCalSingleMuon.clone(
     etaMax = 99., ## 2.4 ...both TEC with flat slope
     chi2nMax = 3.,
     applyMultiplicityFilter = False,
-    applyNHighestPt = True, ## select only highest pT track
-    nHighestPt = 1,
+    applyNHighestPt = False, ## select only highest pT track
     src = 'ctfWithMaterialTracksP5',
 )
 ALCARECOSiPixelCalCosmics.minHitsPerSubDet.inPIXEL = 1
 
 # Sequence #
-seqALCARECOSiPixelCalCosmics = cms.Sequence(ALCARECOSiPixelCalCosmicsHLTFilter*ALCARECOSiPixelCalCosmics)
-
+seqALCARECOSiPixelCalCosmics = cms.Sequence(ALCARECOSiPixelCalCosmicsDCSFilter+ALCARECOSiPixelCalCosmicsHLTFilter*ALCARECOSiPixelCalCosmics)
