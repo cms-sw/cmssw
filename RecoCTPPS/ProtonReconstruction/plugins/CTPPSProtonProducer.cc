@@ -45,6 +45,7 @@ private:
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
   std::string lhcInfoLabel_;
+  std::string opticsLabel_;
 
   unsigned int verbosity_;
 
@@ -108,6 +109,7 @@ private:
 CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
     : tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
       lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+      opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
       verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
       doSingleRPReconstruction_(iConfig.getParameter<bool>("doSingleRPReconstruction")),
       doMultiRPReconstruction_(iConfig.getParameter<bool>("doMultiRPReconstruction")),
@@ -145,6 +147,7 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
       ->setComment("specification of the input lite-track collection");
 
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
+  desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
 
   desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
 
@@ -202,7 +205,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
 
     edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
-    iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);
+    iSetup.get<CTPPSInterpolatedOpticsRcd>().get(opticsLabel_, hOpticalFunctions);
 
     edm::ESHandle<CTPPSGeometry> hGeometry;
     iSetup.get<VeryForwardRealGeometryRecord>().get(hGeometry);
@@ -388,11 +391,12 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               ssLog << std::endl
                     << "* reconstruction from tracking-RP tracks: " << i << ", " << j << " and timing-RP tracks: ";
 
-            // process tracking-RP data
+            // buffer contributing tracks
             CTPPSLocalTrackLiteRefVector sel_tracks;
             sel_tracks.push_back(CTPPSLocalTrackLiteRef(hTracks, i));
             sel_tracks.push_back(CTPPSLocalTrackLiteRef(hTracks, j));
-            reco::ForwardProton proton = algorithm_.reconstructFromMultiRP(sel_tracks, *hLHCInfo, ssLog);
+
+            CTPPSLocalTrackLiteRefVector sel_track_for_kin_reco = sel_tracks;
 
             // process timing-RP data
             double sw = 0., swt = 0.;
@@ -421,6 +425,9 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
             if (verbosity_)
               ssLog << std::endl << "    time = " << time << " +- " << time_unc << std::endl;
+
+            // process tracking-RP data
+            reco::ForwardProton proton = algorithm_.reconstructFromMultiRP(sel_track_for_kin_reco, *hLHCInfo, ssLog);
 
             // save combined output
             proton.setContributingLocalTracks(sel_tracks);
