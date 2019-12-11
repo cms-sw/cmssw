@@ -18,6 +18,7 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
   fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
+  fPtMaxNeutralsStartSlope = iConfig.getParameter<double>("PtMaxNeutralsStartSlope");
   std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
   fNAlgos = lAlgos.size();
   for (unsigned int i0 = 0; i0 < lAlgos.size(); i0++) {
@@ -311,7 +312,10 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
       pWeight = 1.;
     // Protect high pT neutrals
     else if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
-      pWeight = std::clamp(fPFParticles[i0].pt() / fPtMaxNeutrals, pWeight, 1.);
+      pWeight =
+          std::clamp((fPFParticles[i0].pt() - fPtMaxNeutralsStartSlope) / (fPtMaxNeutrals - fPtMaxNeutralsStartSlope),
+                     pWeight,
+                     1.);
     if (pWeight < fPuppiWeightCut)
       pWeight = 0;  //==> Elminate the low Weight stuff
     if (fInvert)
