@@ -262,7 +262,8 @@ namespace edm {
     processHistoryRegistryForUpdate().registerProcessHistory(sendEvent_->processHistory());
 
     FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
-    if (runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run()) {
+    if (runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run() ||
+        runAuxiliary()->processHistoryID() != sendEvent_->processHistory().id()) {
       RunAuxiliary* runAuxiliary =
           new RunAuxiliary(sendEvent_->aux().run(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
       runAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
