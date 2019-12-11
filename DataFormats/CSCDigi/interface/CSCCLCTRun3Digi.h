@@ -40,7 +40,7 @@ public:
   // 12-bit comparator code
   int getCompCode() const { return compCode_; }
 
-  void setCompCode(const int16_t code) { compCode_ = code; }
+  void setCompCode(const uint16_t code) { compCode_ = code; }
 
   // comparator hits in this CLCT
   ComparatorContainer getHits() const { return hits_; }
