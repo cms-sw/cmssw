@@ -76,6 +76,18 @@ cmsRun run_harvesters_cfg.py inputFiles=./run000001 outfile=pbdata.root nomodule
 cmsRun run_analyzers_cfg.py numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 onlineoutput=True
 
 
+# 10. Try running some harvesting modules and check if their output makes it out.
+# Note that we pass the files in order here. In the future, this should be independent of the order of input files.
+cmsRun run_harvesters_cfg.py inputFiles=part1.root inputFiles=part2.root inputFiles=part3.root legacyoutput=True
+rootlist ()
+{
+  python -c '
+  import uproot
+  for k in uproot.open("'"$1"'").allkeys(): print k'
+}
+[ 2 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | grep  -c '<harvestingsummary>s=beginRun(1) endLumi(1,1) endLumi(1,2) endLumi(1,3) endRun(1) endJob() </harvestingsummary>') ]
+
+
 
 
 
