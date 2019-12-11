@@ -21,9 +21,14 @@ dumproot nolegacy-mt.root
 dumproot nolegacy-cl.root
 
 # TODO: if out DQM was correct, this would succeed!
+# Hoever we are not setting up everything correctly for the current DQMStore.
 cmp nolegacy.root.sqldump nolegacy-mt.root.sqldump || true
 cmp nolegacy.root.sqldump nolegacy-cl.root.sqldump || true
 # You could use `git diff --no-index --color-words nolegacy.root.sqldump nolegacy-mt.root.sqldump` to understand what is going on.
+
+# the agree up to lumi histograms.
+cmp <(grep -v lumi nolegacy.root.sqldump) <(grep -v lumi nolegacy-mt.root.sqldump)
+cmp <(grep -v lumi nolegacy.root.sqldump) <(grep -v lumi nolegacy-cl.root.sqldump)
 
 # 4. Try crossing a run boundary.
 cmsRun run_analyzers_cfg.py outfile=multirun.root numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200
@@ -56,14 +61,19 @@ dumproot DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root
 dumproot DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root
 # These disagree due to the werid handling of per-lumi MEs in the current DQMStore.
 cmp DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root.sqldump DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root.sqldump || true
+cmp <(grep -v lumi DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root.sqldump) <(grep -v lumi DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root.sqldump)
 
 # 8. Try writing ProtoBuf files.
-cmsRun run_analyzers_cfg.py outfile=multirun.root numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 protobufoutput=True
+cmsRun run_analyzers_cfg.py numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 protobufoutput=True
 
 # This does not work, something in the file format seems to be not right.
 cmsRun run_harvesters_cfg.py inputFiles=./run000001 outfile=pbdata.root nomodules=True protobufinput=True || true
 
 # TODO: maybe also try fastHadd.
+
+# 9. Try writing online files. This is really TDirectory files, but written via a different module.
+# Note that this does not really need to support multiple runs, but it appears it does.
+cmsRun run_analyzers_cfg.py numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 onlineoutput=True
 
 
 

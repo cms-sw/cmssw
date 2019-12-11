@@ -30,6 +30,7 @@ parser.register('nolegacy',             False, one, bool, "Don't run modules whi
 parser.register('noone',                False, one, bool, "Don't run any one modules.")
 parser.register('legacyoutput',         False, one, bool, "Use DQMFileSaver for output instead of DQMIO.")
 parser.register('protobufoutput',       False, one, bool, "Use DQMFileSaverPB for output instead of DQMIO.")
+parser.register('onlineoutput',         False, one, bool, "Use DQMFileSaverOnline for output instead of DQMIO. This *does not* cover live mode.")
 parser.register('firstLuminosityBlock', 1, one, int, "See EmptySource.")
 parser.register('firstEvent',           1, one, int, "See EmptySource.")
 parser.register('firstRun',             1, one, int, "See EmptySource.")
@@ -98,12 +99,22 @@ process.pbSaver = cms.EDAnalyzer("DQMFileSaverPB",
   fakeFilterUnitMode = cms.untracked.bool(True),
   streamLabel = cms.untracked.string("streamDQMHistograms"),
 )
+# online output
+process.onlineSaver = cms.EDAnalyzer("DQMFileSaverOnline",
+  producer = cms.untracked.string('DQM'),
+  path = cms.untracked.string('./'),
+  tag = cms.untracked.string('UNKNOWN'),
+  backupLumiCount = cms.untracked.int32(2),
+  keepBackupLumi = cms.untracked.bool(False)
+)
 
 
 if args.legacyoutput:
   process.o = cms.EndPath(process.dqmSaver)
 elif args.protobufoutput:
   process.o = cms.EndPath(process.pbSaver)
+elif args.onlineoutput:
+  process.o = cms.EndPath(process.onlineSaver)
 else:
   process.o = cms.EndPath(process.out)
 
