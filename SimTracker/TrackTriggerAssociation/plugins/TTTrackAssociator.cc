@@ -62,7 +62,7 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
         //        std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > > theseClusters = theseStubs.at(is)->getClusterRefs();
         for (unsigned int ic = 0; ic < 2; ic++) {
           std::vector<edm::Ptr<TrackingParticle>> tempTPs =
-              TTClusterAssociationMapHandle->findTrackingParticlePtrs(theseStubs.at(is)->ClusterRef(ic));
+              TTClusterAssociationMapHandle->findTrackingParticlePtrs(theseStubs.at(is)->clusterRef(ic));
           for (unsigned int itp = 0; itp < tempTPs.size(); itp++)  // List of TPs linked to stub clusters
           {
             edm::Ptr<TrackingParticle> testTP = tempTPs.at(itp);
