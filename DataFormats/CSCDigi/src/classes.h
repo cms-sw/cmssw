@@ -8,6 +8,8 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTRun3Digi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTRun3DigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"

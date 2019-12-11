@@ -119,7 +119,7 @@ public:
   /// Print content of digi.
   void print() const;
 
-private:
+protected:
   uint16_t valid_;
   uint16_t quality_;
   uint16_t pattern_;
