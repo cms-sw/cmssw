@@ -19,17 +19,17 @@ ALCARECOSiPixelCalCosmicsHLTFilter = ALCARECOSiPixelCalSingleMuonHLTFilter.clone
     eventSetupPathsKey = ''
 )
 
-from ALCARECOSiPixelCalSingleMuon_cff import ALCARECOSiPixelCalSingleMuon 
+from ALCARECOSiPixelCalSingleMuon_cff import ALCARECOSiPixelCalSingleMuon
 ALCARECOSiPixelCalCosmics = ALCARECOSiPixelCalSingleMuon.clone(
     filter = True,
     applyBasicCuts = True,
-    ptMin = 0.,
+    ptMin = 3.,
     ptMax = 99999.,
     pMin = 0.,
     pMax = 99999.,
     etaMin = -99., ##-2.4 keep also what is going through...
     etaMax = 99., ## 2.4 ...both TEC with flat slope
-    chi2nMax = 999999.,
+    chi2nMax = 3.,
     applyMultiplicityFilter = False,
     applyNHighestPt = True, ## select only highest pT track
     nHighestPt = 1,
