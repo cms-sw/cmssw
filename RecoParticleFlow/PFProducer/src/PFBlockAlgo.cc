@@ -128,9 +128,9 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
                                                       : "");
       // convert TrajectoryLayers info from string to enum
       const reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance =
-          reco::PFTrajectoryPoint::layerTypeFromString(trajectoryLayerEntranceString);
+          reco::PFTrajectoryPoint::layerTypeByName(trajectoryLayerEntranceString);
       const reco::PFTrajectoryPoint::LayerType trajectoryLayerExit =
-          reco::PFTrajectoryPoint::layerTypeFromString(trajectoryLayerExitString);
+          reco::PFTrajectoryPoint::layerTypeByName(trajectoryLayerExitString);
       if (trajectoryLayerEntrance != reco::PFTrajectoryPoint::Unknown)
         kdtrees_.back()->setTrajectoryPoints(trajectoryLayerEntrance, trajectoryLayerExit);
     }  // useKDTree
