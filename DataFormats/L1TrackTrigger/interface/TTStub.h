@@ -35,7 +35,7 @@ public:
 
   /// Returns the permanent references of the cluster in the sensor stack identified by hitStackMember
   /// which should be either 0 or 1 for the innermost and outermost sensor, respectively
-  const edm::Ref<edmNew::DetSetVector<TTCluster<T> >, TTCluster<T> >& ClusterRef(unsigned int hitStackMember) const;
+  const edm::Ref<edmNew::DetSetVector<TTCluster<T> >, TTCluster<T> >& clusterRef(unsigned int hitStackMember) const;
 
   /// Add a cluster reference, depending on which stack member it is on (inner = 0, outer = 1)
   void addClusterRef(edm::Ref<edmNew::DetSetVector<TTCluster<T> >, TTCluster<T> > aTTCluster);
@@ -54,7 +54,7 @@ public:
   /// the difference between average row coordinates in inner and outer stack member,
   /// in terms of outer member pitch (if both pitches are the same, this is just the coordinate difference).
   /// Flag for rejected stubs: +500 if rejected by FE, +1000 if rejected by CIC chip.
-  double RawBend() const;
+  double rawBend() const;
 
   /// setRawBend [rename of setTriggerDisplacement()]: In HALF strip units!
   /// Sets relative displacement between the two cluster centroids, as above.
@@ -68,7 +68,7 @@ public:
   /// to the outermost stack member, again in terms of outer member pitch.  It is calculated
   /// taking the centre of the module at (NROWS/2)-0.5.
 
-  double BendOffset() const;
+  double bendOffset() const;
 
   /// setBendOffset() [rename of setTriggerOffset()]: In HALF strip units!
   /// Again restricted to builder code.
@@ -82,7 +82,7 @@ public:
   void setModuleType(bool isPSModule);
 
   /// check if a PS module
-  bool ModuleType() const;
+  bool moduleType() const;
 
   /// CBC3-style trigger information
   /// for sake of simplicity, these methods are
@@ -90,13 +90,13 @@ public:
 
   /// InnerClusterPosition() [rename of getTriggerPosition()]: In FULL strip units!
   /// Returns the average local x coordinate of hits in the inner stack member
-  double InnerClusterPosition() const;
+  double innerClusterPosition() const;
 
   /// BendFE(): In FULL-STRIP units from FE! Rename of getTriggerBend()
-  double BendFE() const;
+  double bendFE() const;
 
   /// BendBE(): In FULL-STRIP units! Reduced resolution from BE boards.  Rename of getHardwareBend()
-  double BendBE() const;
+  double bendBE() const;
 
   ///  setBendBE(): In HALF-STRIP units!  Reduced resolution in BE boards.  Rename of setHardwareBend()
   void setBendBE(float aBend);
@@ -151,7 +151,7 @@ template <typename T>
 TTStub<T>::~TTStub() {}
 
 template <typename T>
-const edm::Ref<edmNew::DetSetVector<TTCluster<T> >, TTCluster<T> >& TTStub<T>::ClusterRef(
+const edm::Ref<edmNew::DetSetVector<TTCluster<T> >, TTCluster<T> >& TTStub<T>::clusterRef(
     unsigned int hitStackMember) const {
   return (hitStackMember == 0) ? theClusterRef0 : theClusterRef1;
 }
@@ -166,7 +166,7 @@ void TTStub<T>::addClusterRef(edm::Ref<edmNew::DetSetVector<TTCluster<T> >, TTCl
 
 /// Trigger info
 template <typename T>
-double TTStub<T>::RawBend() const {
+double TTStub<T>::rawBend() const {
   return 0.5 * theDisplacement;
 }
 
@@ -176,7 +176,7 @@ void TTStub<T>::setRawBend(int aDisplacement) {
 }
 
 template <typename T>
-double TTStub<T>::BendOffset() const {
+double TTStub<T>::bendOffset() const {
   return 0.5 * theOffset;
 }
 
@@ -195,16 +195,16 @@ void TTStub<T>::setModuleType(bool isPSModule) {
   thePSModule = isPSModule;
 }  // set whether this is a PS module or not;
 template <typename T>
-bool TTStub<T>::ModuleType() const {
+bool TTStub<T>::moduleType() const {
   return thePSModule;
 }  // check if a PS module
 template <typename T>
-double TTStub<T>::InnerClusterPosition() const {
-  return this->ClusterRef(0)->findAverageLocalCoordinates().x();  //CBC3-style trigger info
+double TTStub<T>::innerClusterPosition() const {
+  return this->clusterRef(0)->findAverageLocalCoordinates().x();  //CBC3-style trigger info
 }
 
 template <typename T>
-double TTStub<T>::BendFE() const {
+double TTStub<T>::bendFE() const {
   if (theDisplacement == dummyBend)
     return theDisplacement;
 
@@ -212,9 +212,9 @@ double TTStub<T>::BendFE() const {
 }
 
 template <typename T>
-double TTStub<T>::BendBE() const {
+double TTStub<T>::bendBE() const {
   if (theBendBE == dummyBend)
-    return this->BendFE();  // If not set make it transparent
+    return this->bendFE();  // If not set make it transparent
 
   return theBendBE;
 }

@@ -12,10 +12,10 @@ namespace {
 TTTriggerPrimitive::TTTriggerPrimitive(const TTDetId& detid, const TTDigi& digi) : _id(detid), _subsystem(kTT) {
   calculateTTGlobalSector(detid, _globalsector, _subsector);
 
-  const MeasurementPoint& mp = digi.ClusterRef(0)->findAverageLocalCoordinatesCentered();
+  const MeasurementPoint& mp = digi.clusterRef(0)->findAverageLocalCoordinatesCentered();
   _data.row_f = mp.x();
   _data.col_f = mp.y();
-  _data.bend = digi.BendFE();
+  _data.bend = digi.bendFE();
   _data.bx = 0;
 }
 

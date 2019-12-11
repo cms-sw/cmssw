@@ -65,7 +65,7 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(edm::Ptr<TTTrack<R
     /// in this track we are evaluating right now
     /// Now modifying to allow one and only one false 2S stub in the track  idr 06/19
     if (std::find(TP_Stubs.begin(), TP_Stubs.end(), TRK_Stubs.at(js)) == TP_Stubs.end()) {
-      if (!AllowOneFalse2SStub || TRK_Stubs.at(js)->ModuleType() || one2SStub)  // Has to be first false 2S stub
+      if (!AllowOneFalse2SStub || TRK_Stubs.at(js)->moduleType() || one2SStub)  // Has to be first false 2S stub
       {
         return false;
       } else {
