@@ -1080,7 +1080,7 @@ namespace edm {
       return transient_.eventFinder_->getEventNumberOfEntry(entry);
     }
 
-    //This class is used only be one thread at a time within the source serialized code
+    //This class is used only by one thread at a time within the source serialized code
     CMS_SA_ALLOW mutable Transients transient_;
 
     std::vector<ProcessHistoryID> processHistoryIDs_;  // of reduced process histories
