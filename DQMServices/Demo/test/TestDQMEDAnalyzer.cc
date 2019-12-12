@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Histograms/interface/MonitorElementCollection.h"
 
 template <typename BOOKERLIKE, typename ME, bool DOLUMI = false>
 class BookerFiller {
@@ -37,34 +38,27 @@ public:
           "thprofile2d" + num, "2D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5, 3, -0.5, 2.5));
 
       if (DOLUMI) {
+        auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
         ibooker.setCurrentFolder(folder + "/lumi");
+
         mes_1D.push_back(ibooker.bookFloat("float" + num));
-        mes_1D.back()->setLumiFlag();
         mes_1D.push_back(ibooker.bookInt("int" + num));
-        mes_1D.back()->setLumiFlag();
         mes_1D.push_back(ibooker.book1D("th1f" + num, "1D Float Histogram " + num, 101, -0.5, 100.5));
-        mes_1D.back()->setLumiFlag();
         mes_1D.push_back(ibooker.book1S("th1s" + num, "1D Short Histogram " + num, 101, -0.5, 100.5));
-        mes_1D.back()->setLumiFlag();
         mes_1D.push_back(ibooker.book1DD("th1d" + num, "1D Double Histogram " + num, 101, -0.5, 100.5));
-        mes_1D.back()->setLumiFlag();
 
         mes_2D.push_back(ibooker.book2D("th2f" + num, "2D Float Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
-        mes_2D.back()->setLumiFlag();
         mes_2D.push_back(ibooker.book2S("th2s" + num, "2D Short Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
-        mes_2D.back()->setLumiFlag();
         mes_2D.push_back(ibooker.book2DD("th2d" + num, "2D Double Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
-        mes_2D.back()->setLumiFlag();
         mes_2D.push_back(
             ibooker.bookProfile("tprofile" + num, "1D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
-        mes_2D.back()->setLumiFlag();
 
         mes_3D.push_back(
             ibooker.book3D("th3f" + num, "3D Float Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5, 3, -0.5, 2.5));
-        mes_3D.back()->setLumiFlag();
         mes_3D.push_back(ibooker.bookProfile2D(
             "thprofile2d" + num, "2D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5, 3, -0.5, 2.5));
-        mes_3D.back()->setLumiFlag();
+
+        ibooker.setScope(scope);
       }
     }
   }
