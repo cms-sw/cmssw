@@ -79,11 +79,13 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookString(TString const& name, TString const& value, FUNC onbooking = NOOP()) {
-        // TODO: value unused!
-        return bookME(name, MonitorElementData::Kind::STRING, [=]() {
+        std::string initial_value(value);
+        auto me = bookME(name, MonitorElementData::Kind::STRING, [=]() {
           onbooking();
           return nullptr;
         });
+        me->Fill(initial_value);
+        return me;
       }
 
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
