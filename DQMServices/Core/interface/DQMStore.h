@@ -548,7 +548,7 @@ namespace dqm {
     public:
       // internal -- figure out better protection.
       template <typename iFunc>
-      void bookTransaction(iFunc f, uint32_t moduleId, bool canSaveByLumi) {
+      void bookTransaction(iFunc f, uint64_t moduleId, bool canSaveByLumi) {
         auto lock = std::scoped_lock(this->booking_mutex_);
         IBooker& booker = *this;
         // TODO: this may need to become more elaborate.
