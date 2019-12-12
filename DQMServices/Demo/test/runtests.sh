@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 if [[ -z ${LOCAL_TEST_DIR} ]]; then
   LOCAL_TEST_DIR=.
@@ -10,6 +11,7 @@ fi
 # 1. Run a very simple configuration with all module types.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=alltypes.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100
 [ 88 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
+[ 55 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
 
 # 2. Run multi-threaded. First we make a baseline file without legacy modules, since they might not work.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=nolegacy.root    numberEventsInRun=1000 numberEventsInLuminosityBlock=200 nEvents=1000 nolegacy=True
