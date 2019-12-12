@@ -303,7 +303,7 @@ namespace edm {
     resetEventFinder();
   }
 
-  void IndexIntoFile::doneFileInitialization()  { std::vector<EventNumber_t>().swap(unsortedEventNumbers()); }
+  void IndexIntoFile::doneFileInitialization() { std::vector<EventNumber_t>().swap(unsortedEventNumbers()); }
 
   void IndexIntoFile::reduceProcessHistoryIDs(ProcessHistoryRegistry const& processHistoryRegistry) {
     std::vector<ProcessHistoryID> reducedPHIDs;
