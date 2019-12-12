@@ -62,6 +62,9 @@ process.options = cms.untracked.PSet(
   numberOfConcurrentRuns = cms.untracked.uint32(1)
 )
 
+if args.nConcurrent > 1:
+  process.DQMStore.assertLegacySafe = cms.untracked.bool(False)
+
 for mod in [process.test, process.testglobal, process.testone, process.testonefillrun, process.testonelumi, process.testonelumifilllumi, process.testlegacy, process.testlegacyfillrun, process.testlegacyfilllumi]:
   mod.howmany = args.howmany
 
