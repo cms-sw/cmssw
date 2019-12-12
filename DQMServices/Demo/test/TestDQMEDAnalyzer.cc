@@ -172,7 +172,7 @@ private:
   }
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {}
-  void dqmBeginRun(edm::Run const& run, edm::EventSetup const&) { mymes_.fillall(0, run.run(), myvalue_); }
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const&) override { mymes_.fillall(0, run.run(), myvalue_); }
 
   BookerFiller<DQMStore::IBooker, MonitorElement> mymes_;
   double myvalue_;
@@ -231,7 +231,7 @@ private:
   }
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {}
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) override {
     mymes_.fillall(lumi.luminosityBlock(), lumi.run(), myvalue_);
   }
 

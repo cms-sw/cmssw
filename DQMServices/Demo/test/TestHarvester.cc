@@ -58,7 +58,8 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  explicit TestLegacyHarvester(const edm::ParameterSet &iConfig) : folder_(iConfig.getParameter<std::string>("folder")) {}
+  explicit TestLegacyHarvester(const edm::ParameterSet &iConfig)
+      : folder_(iConfig.getParameter<std::string>("folder")) {}
   ~TestLegacyHarvester() override {}
 
   void beginRun(const edm::Run &run, const edm::EventSetup &iSetup) override {
@@ -88,7 +89,7 @@ public:
     descriptions.add("testlegacyharvester", desc);
   }
 
-  void analyze(edm::Event const &, edm::EventSetup const &) {}
+  void analyze(edm::Event const &, edm::EventSetup const &) override {}
 };
 
 DEFINE_FWK_MODULE(TestLegacyHarvester);
