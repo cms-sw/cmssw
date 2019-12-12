@@ -43,9 +43,9 @@ public:
         },
         // The run number is part of the module ID here, since we want distinct
         // local MEs for each run cache.
-        (((uint64_t)run.run()) << 32) + this->moduleDescription().id(),
+        meId(run),
         /* canSaveByLumi */ false);
-    dqmstore_->enterLumi(run.run(), /* lumi */ 0, (((uint64_t)run.run()) << 32) + this->moduleDescription().id());
+    dqmstore_->enterLumi(run.run(), /* lumi */ 0, meId(run));
     return h;
   }
 
@@ -57,7 +57,7 @@ public:
   void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup) const final {
     auto const& h = *this->runCache(run.index());
     dqmEndRun(run, setup, h);
-    dqmstore_->leaveLumi(run.run(), /* lumi */ 0, (((uint64_t)run.run()) << 32) + this->moduleDescription().id());
+    dqmstore_->leaveLumi(run.run(), /* lumi */ 0, meId(run));
     run.emplace(runToken_);
   }
 
@@ -75,6 +75,7 @@ public:
 private:
   DQMStore* dqmstore_;
   edm::EDPutTokenT<DQMToken> runToken_;
+  uint64_t meId(edm::Run const& run) const { return (((uint64_t)run.run()) << 32) + this->moduleDescription().id(); }
 };
 
 #endif  // DQMServices_Core_DQMGlobalEDAnalyzer_h
