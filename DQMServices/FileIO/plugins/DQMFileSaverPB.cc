@@ -219,8 +219,7 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
       buffer.WriteObject(me->getRootObject());
     }
     dqmstorepb::ROOTFilePB::Histo& histo = *dqmstore_message.add_histo();
-    // TODO: getPathname returns a name with trailing slash?
-    histo.set_full_pathname(me->getPathname() + "/" + me->getName());
+    histo.set_full_pathname(me->getFullname());
     uint32_t flags = 0;
     flags |= (uint32_t)me->kind();
     if (me->getLumiFlag())
