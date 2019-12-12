@@ -208,11 +208,11 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
   dqmstorepb::ROOTFilePB dqmstore_message;
 
   // TODO: while we still have enableMultiThread, maybe this does the wrong thing.
-  auto mes = store->getAllContents("", run, lumi);
+  // We save all histograms, indifferent of the lumi flag: even tough we save per lumi, this is a *snapshot*.
+  auto mes = store->getAllContents("");
   for (auto const me : mes) {
     TBufferFile buffer(TBufferFile::kWrite);
     if (me->kind() < MonitorElement::Kind::TH1F) {
-      // TODO: this is almost 100% not what was supposed to be here.
       TObjString object(me->tagString().c_str());
       buffer.WriteObject(&object);
     } else {
