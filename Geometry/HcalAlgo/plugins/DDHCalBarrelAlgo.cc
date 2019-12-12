@@ -557,7 +557,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
   cpv.position(DDName(idName, idNameSpace), parentName, 1, r0, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << DDName(idName, idNameSpace) << " number 1 positioned in "
-                               << parentName << " at " << r0 << " with " << rot;
+                               << parentName << " at (0, 0, 0) with no rotation";
 #endif
   //Forward and backwards halfs
   name = idName + "Half";
@@ -580,7 +580,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
   cpv.position(genlogich, genlogic, 1, r0, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << genlogich.name() << " number 1 positioned in "
-                               << genlogic.name() << " at " << r0 << " with " << rot;
+                               << genlogic.name() << " at (0, 0, 0) with no rotation";
 #endif
   if (getNhalf() != 1) {
     rot = DDRotation(DDName(rotHalf, rotns));
