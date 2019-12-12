@@ -515,9 +515,6 @@ namespace dqm {
       bool load(std::string const& filename, OpenRunDirs stripdirs = StripRunDirs, bool fileMustExist = true);
 
       DQM_DEPRECATED
-      bool mtEnabled() { assert(!"NIY"); }
-
-      DQM_DEPRECATED
       void showDirStructure() const;
 
       // TODO: getting API not part of IGetter.
