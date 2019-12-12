@@ -83,7 +83,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
 
   if (fms ? fms->getEventsProcessedForLumi(fp.lumi_) : true) {
     // Save the file in the open directory.
-    this->savePB(&*store, openHistoFilePathName, store->mtEnabled() ? fp.run_ : 0, fp.lumi_);
+    this->savePB(&*store, openHistoFilePathName, fp.run_, fp.lumi_);
 
     // Now move the the data and json files into the output directory.
     ::rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
