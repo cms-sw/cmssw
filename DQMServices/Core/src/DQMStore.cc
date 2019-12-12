@@ -583,6 +583,7 @@ namespace dqm::implementation {
   DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar) : IGetter(this), IBooker(this) {
     verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
     assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", true);
+    doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
 
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be
