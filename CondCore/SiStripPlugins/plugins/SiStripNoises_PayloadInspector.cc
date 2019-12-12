@@ -95,6 +95,95 @@ namespace {
   };
 
   /************************************************
+    SiStrip Noise Profile of 1 IOV for one selected DetId
+  *************************************************/
+
+  class SiStripNoisePerDetId : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    SiStripNoisePerDetId() : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values") {
+      cond::payloadInspector::PlotBase::addInputParam("DetId");
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      auto iov = iovs.front();
+
+      unsigned int the_detid(0);
+
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("DetId");
+      if (ip != paramValues.end()) {
+        the_detid = boost::lexical_cast<int>(ip->second);
+      }
+
+      std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
+      if (payload.get()) {
+        //=========================
+        TCanvas canvas("ByDetId", "ByDetId", 1200, 1000);
+
+        edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+        SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+        unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
+
+        auto hnoise = std::unique_ptr<TH1F>(
+            new TH1F("Noise profile",
+                     Form("SiStrip Noise profile for DetId: %s;Strip number;SiStrip Noise [ADC counts]",
+                          std::to_string(the_detid).c_str()),
+                     128 * nAPVs,
+                     -0.5,
+                     (128 * nAPVs) - 0.5));
+        hnoise->SetStats(false);
+
+        std::vector<uint32_t> detid;
+        payload->getDetIds(detid);
+
+        int nstrip = 0;
+        SiStripNoises::Range range = payload->getRange(the_detid);
+        for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
+          auto noise = payload->getNoise(it, range);
+          nstrip++;
+          hnoise->SetBinContent(nstrip, noise);
+        }  // end of loop on strips
+
+        canvas.cd();
+        canvas.SetBottomMargin(0.11);
+        canvas.SetTopMargin(0.07);
+        canvas.SetLeftMargin(0.13);
+        canvas.SetRightMargin(0.05);
+        hnoise->Draw();
+        hnoise->GetYaxis()->SetRangeUser(0, hnoise->GetMaximum() * 1.2);
+        //hnoise->Draw("Psame");
+        canvas.Update();
+
+        std::vector<int> boundaries;
+        for (size_t b = 0; b < nAPVs; b++)
+          boundaries.push_back(b * 128);
+
+        TLine l[nAPVs];
+        unsigned int i = 0;
+        for (const auto& line : boundaries) {
+          l[i] = TLine(hnoise->GetBinLowEdge(line), canvas.GetUymin(), hnoise->GetBinLowEdge(line), canvas.GetUymax());
+          l[i].SetLineWidth(1);
+          l[i].SetLineStyle(9);
+          l[i].SetLineColor(2);
+          l[i].Draw("same");
+          i++;
+        }
+
+        TLegend legend = TLegend(0.52, 0.82, 0.95, 0.93);
+        legend.SetHeader((std::get<1>(iov)).c_str(), "C");  // option "C" allows to center the header
+        legend.AddEntry(hnoise.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
+        legend.SetTextSize(0.025);
+        legend.Draw("same");
+
+        std::string fileName(m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+      }  // payload
+      return true;
+    }  // fill
+  };
+
+  /************************************************
     1d histogram of SiStripNoises of 1 IOV 
   *************************************************/
 
@@ -201,7 +290,7 @@ namespace {
       }
 
       //=========================
-      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
       canvas.cd();
       canvas.SetBottomMargin(0.11);
       canvas.SetTopMargin(0.07);
@@ -399,7 +488,7 @@ namespace {
       h_last.SetLineColor(kBlue);
 
       //=========================
-      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
       canvas.cd();
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);
@@ -543,7 +632,7 @@ namespace {
       h_last->SetLineColor(kBlue);
 
       //=========================
-      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
       canvas.cd();
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);
@@ -900,7 +989,7 @@ namespace {
       std::map<unsigned int, SiStripDetSummary::Values> map = summaryNoise.getCounts();
       //=========================
 
-      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
       canvas.cd();
       auto h1 = std::unique_ptr<TH1F>(
           new TH1F("byRegion",
@@ -1039,7 +1128,7 @@ namespace {
       std::map<unsigned int, SiStripDetSummary::Values> l_map = l_summaryNoise.getCounts();
 
       //=========================
-      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
       canvas.cd();
 
       auto hfirst = std::unique_ptr<TH1F>(
@@ -1545,7 +1634,7 @@ namespace {
           }  //get
         }    //run on iov
       }
-      TCanvas canvas("Partion summary", "partition summary", 2000, 1000);
+      TCanvas canvas("Partition summary", "partition summary", 2000, 1000);
       canvas.cd();
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);
@@ -1644,6 +1733,7 @@ namespace {
 
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoisePerDetId);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValue);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerStrip);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerAPV);
