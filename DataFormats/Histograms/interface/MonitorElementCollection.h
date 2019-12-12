@@ -109,7 +109,7 @@ struct MonitorElementData {
     const std::string& getQRName() const { return qvalue_.qtname; }
 
     /// get quality test algorithm
-    const std::string& getAlgorithm() const { return qvalue_->algorithm; }
+    const std::string& getAlgorithm() const { return qvalue_.algorithm; }
 
     /// get vector of channels that failed test
     /// (not relevant for all quality tests!)
