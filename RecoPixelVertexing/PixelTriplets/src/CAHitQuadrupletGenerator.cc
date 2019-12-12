@@ -31,8 +31,8 @@ CAHitQuadrupletGenerator::CAHitQuadrupletGenerator(const edm::ParameterSet& cfg,
       fitFastCircle(cfg.getParameter<bool>("fitFastCircle")),
       fitFastCircleChi2Cut(cfg.getParameter<bool>("fitFastCircleChi2Cut")),
       useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
-      caThetaCut(cfg.getParameter<double>("CAThetaCut"), cfg.getParameter<edm::ParameterSet>("CAThetaCut_byLayers")),
-      caPhiCut(cfg.getParameter<double>("CAPhiCut"), cfg.getParameter<edm::ParameterSet>("CAPhiCut_byLayers")),
+      caThetaCut(cfg.getParameter<double>("CAThetaCut"), cfg.getParameter<std::vector<edm::ParameterSet>>("CAThetaCut_byTriplets")),
+      caPhiCut(cfg.getParameter<double>("CAPhiCut"), cfg.getParameter<std::vector<edm::ParameterSet>>("CAPhiCut_byTriplets")),
       caHardPtCut(cfg.getParameter<double>("CAHardPtCut")) {
   edm::ParameterSet comparitorPSet = cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
@@ -49,34 +49,16 @@ void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& de
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 10);
 
-  edm::ParameterSetDescription descCACut_byLayers;
-  descCACut_byLayers.add<double>("BPix1__BPix2__BPix3", -1.);
-  descCACut_byLayers.add<double>("BPix1__BPix2__FPix1_neg", -1.);
-  descCACut_byLayers.add<double>("BPix1__BPix2__FPix1_pos", -1.);
-  descCACut_byLayers.add<double>("BPix1__FPix1_neg__FPix2_neg", -1.);
-  descCACut_byLayers.add<double>("BPix1__FPix1_pos__FPix2_pos", -1.);
-  descCACut_byLayers.add<double>("BPix2__BPix3__BPix4", -1.);
-  descCACut_byLayers.add<double>("BPix2__BPix3__FPix1_neg", -1.);
-  descCACut_byLayers.add<double>("BPix2__BPix3__FPix1_pos", -1.);
-  descCACut_byLayers.add<double>("BPix2__FPix1_neg__FPix2_neg", -1.);
-  descCACut_byLayers.add<double>("BPix2__FPix1_pos__FPix2_pos", -1.);
-  descCACut_byLayers.add<double>("BPix3__FPix1_neg__FPix2_neg", -1.);
-  descCACut_byLayers.add<double>("BPix3__FPix1_pos__FPix2_pos", -1.);
-  descCACut_byLayers.add<double>("FPix1_neg__FPix2_neg__FPix3_neg", -1.);
-  descCACut_byLayers.add<double>("FPix1_pos__FPix2_pos__FPix3_pos", -1.);
-  descCACut_byLayers.add<double>("FPix2_neg__FPix3_neg__FPix4_neg", -1.);
-  descCACut_byLayers.add<double>("FPix2_pos__FPix3_pos__FPix4_pos", -1.);
-  descCACut_byLayers.add<double>("FPix3_neg__FPix4_neg__FPix5_neg", -1.);
-  descCACut_byLayers.add<double>("FPix3_pos__FPix4_pos__FPix5_pos", -1.);
-  descCACut_byLayers.add<double>("FPix4_neg__FPix5_neg__FPix6_neg", -1.);
-  descCACut_byLayers.add<double>("FPix4_pos__FPix5_pos__FPix6_pos", -1.);
-  descCACut_byLayers.add<double>("FPix5_neg__FPix6_neg__FPix7_neg", -1.);
-  descCACut_byLayers.add<double>("FPix5_pos__FPix6_pos__FPix7_pos", -1.);
-  descCACut_byLayers.add<double>("FPix6_neg__FPix7_neg__FPix8_neg", -1.);
-  descCACut_byLayers.add<double>("FPix6_pos__FPix7_pos__FPix8_pos", -1.);
-
-  desc.add<edm::ParameterSetDescription>("CAThetaCut_byLayers", descCACut_byLayers);
-  desc.add<edm::ParameterSetDescription>("CAPhiCut_byLayers", descCACut_byLayers);
+  edm::ParameterSetDescription validatorCACut;
+  validatorCACut.add<string>("seedingLayers","BPix1+BPix2+BPix3");
+  validatorCACut.add<double>("cut",0.00125);
+  std::vector<edm::ParameterSet> defaultCACutVector;
+  edm::ParameterSet defaultCACut;
+  defaultCACut.addParameter<string>("seedingLayers","");
+  defaultCACut.addParameter<double>("cut",-1.);
+  defaultCACutVector.push_back(defaultCACut);
+  desc.addVPSet("CAThetaCut_byTriplets",validatorCACut,defaultCACutVector);
+  desc.addVPSet("CAPhiCut_byTriplets",validatorCACut,defaultCACutVector);
 
   desc.add<double>("CAHardPtCut", 0);
   desc.addOptional<bool>("CAOnlyOneLastHitPerLayerFilter")
