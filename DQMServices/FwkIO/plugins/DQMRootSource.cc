@@ -614,8 +614,8 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     std::sort(m_fileMetadatas.begin(), m_fileMetadatas.end());
   }
 
-  for (auto& metadata : m_fileMetadatas)
-    metadata.describe();
+  //for (auto& metadata : m_fileMetadatas)
+  //  metadata.describe();
 
   // Stop if there's nothing to process. Otherwise start the run.
   if (m_fileMetadatas.empty())
