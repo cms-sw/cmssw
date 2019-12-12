@@ -14,7 +14,7 @@
 #include <cassert>
 
 template <typename T>
-class LayerTilesT {
+class HGCalLayerTilesT {
 public:
   void fill(const std::vector<float>& x,
             const std::vector<float>& y,
@@ -116,6 +116,6 @@ private:
   std::array<std::vector<int>, T::nTiles> tiles_;
 };
 
-using HGCalLayerTiles = LayerTilesT<hgcaltilesconstants::TileConstants>;
-using HFNoseLayerTiles = LayerTilesT<hfnosetilesconstants::TileConstants>;
+using HGCalLayerTiles = HGCalLayerTilesT<HGCalTilesConstants>;
+using HFNoseLayerTiles = HGCalLayerTilesT<HFNoseTilesConstants>;
 #endif
