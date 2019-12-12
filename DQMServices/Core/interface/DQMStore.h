@@ -550,9 +550,11 @@ namespace dqm {
       void bookTransaction(iFunc f, uint64_t moduleId, bool canSaveByLumi) {
         auto lock = std::scoped_lock(this->booking_mutex_);
         IBooker& booker = *this;
-        // TODO: this may need to become more elaborate.
-        auto oldscope =
-            booker.setScope(canSaveByLumi ? MonitorElementData::Scope::LUMI : MonitorElementData::Scope::RUN);
+        auto newscope = MonitorElementData::Scope::RUN;
+        if (canSaveByLumi && this->doSaveByLumi_) {
+          newscope = MonitorElementData::Scope::LUMI;
+        }
+        auto oldscope = booker.setScope(newscope);
         assert(moduleId != 0 || !"moduleID must be set for normal booking transaction");
         // Access via this-> to allow access to protected member
         auto oldmoduleid = this->setModuleID(moduleId);
@@ -642,6 +644,9 @@ namespace dqm {
       // If set to true, error out whenever things happen that are not safe for
       // legacy modules.
       bool assertLegacySafe_;
+
+      // Book MEs by lumi by default whenever possible.
+      bool doSaveByLumi_;
     };
   }  // namespace implementation
 
