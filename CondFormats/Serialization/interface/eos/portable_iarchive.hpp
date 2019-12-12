@@ -114,16 +114,21 @@
 #elif BOOST_VERSION < 104800
 #include <boost/spirit/home/support/detail/integer/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
-#else
+#elif BOOST_VERSION < 106700
 #include <boost/spirit/home/support/detail/endian/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
+#else
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/spirit/home/support/detail/endian/endian.hpp>
 #endif
 
 // namespace alias
 #if BOOST_VERSION < 103800
 namespace fp = boost::math;
-#else
+#elif BOOST_VERSION < 106700
 namespace fp = boost::spirit::math;
+#else
+namespace fp = boost::math;
 #endif
 
 // namespace alias endian
@@ -132,6 +137,7 @@ namespace endian = boost::detail;
 #else
 namespace endian = boost::spirit::detail;
 #endif
+
 
 #ifndef BOOST_NO_STD_WSTRING
 // used for wstring to utf8 conversion
