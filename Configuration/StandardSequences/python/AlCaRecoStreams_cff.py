@@ -35,6 +35,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
 ###############################################################
 # AlCaReco for pixel calibration using muons
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalCosmics_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAG_cff import *
@@ -170,6 +171,7 @@ pathALCARECOTkAlUpsilonMuMuPA = cms.Path(seqALCARECOTkAlUpsilonMuMuPA*ALCARECOTk
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOSiPixelCalSingleMuon = cms.Path(seqALCARECOSiPixelCalSingleMuon)
+pathALCARECOSiPixelCalCosmics = cms.Path(seqALCARECOSiPixelCalCosmics)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalCosmics = cms.Path(seqALCARECOSiStripCalCosmics)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
@@ -352,6 +354,15 @@ ALCARECOStreamSiPixelCalSingleMuon = cms.FilteredStream(
 	paths  = (pathALCARECOSiPixelCalSingleMuon),
 	content = OutALCARECOSiPixelCalSingleMuon.outputCommands,
 	selectEvents = OutALCARECOSiPixelCalSingleMuon.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamSiPixelCalCosmics = cms.FilteredStream(
+	responsible = 'Tamas Almos Vami',
+	name = 'SiPixelCalCosmics',
+	paths  = (pathALCARECOSiPixelCalCosmics),
+	content = OutALCARECOSiPixelCalCosmics.outputCommands,
+	selectEvents = OutALCARECOSiPixelCalCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
