@@ -17,7 +17,7 @@ from stat import *
 try:
   from Monitoring.DQM import visDQMUtils
 except:
-  import visDQMUtils
+  from DQMServices.FileIO import visDQMUtils
 
 HTTPS = httplib.HTTPS
 if sys.version_info[:3] >= (2, 4, 0):
