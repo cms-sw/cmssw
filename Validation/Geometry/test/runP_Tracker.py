@@ -1,11 +1,13 @@
 # In order to produce everything that you need in one go, use the command:
 #
-# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=XYZ label=$t >& /dev/null &; done
+# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do python runP_Tracker.py geom=XYZ label=$t >& /dev/null &; done
 
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 import sys, re
+
+from FWCore.PythonFramework.CmsRun import CmsRun
 
 process = cms.Process("PROD")
 
@@ -19,7 +21,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
  The default component to be monitored is the Tracker. If other
  components need to be studied, they must be supplied, one at a time,
- at the command line, e.g.: cmsRun runP_Tracker_cfg.py
+ at the command line, e.g.: python runP_Tracker.py
  label="XYZ"
 
 """
@@ -134,3 +136,6 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         TextFile = cms.string('None')
     )
 ))
+
+cmsRun = CmsRun(process)
+cmsRun.run()
