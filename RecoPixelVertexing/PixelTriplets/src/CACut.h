@@ -15,23 +15,27 @@ public:
       return;
     }
 
+    valuesByTripletNames_.reserve(tripletCuts.size());
+    valuesByLayerIds_.reserve(tripletCuts.size());
+
     setCutValuesByTripletNames(tripletCuts);
   }
 
   void setCutValuesByTripletNames(const std::vector<edm::ParameterSet> &tripletCuts) {
     for (const auto &thisTriplet : tripletCuts) {
-      CAValueByTripletName thisCACut;
+      valuesByTripletNames_.emplace_back();
+      auto &thisCACut =  valuesByTripletNames_.back();
+ 
       thisCACut.tripletName = thisTriplet.getParameter<std::string>("seedingLayers");
       thisCACut.cutValue = thisTriplet.getParameter<double>("cut");
-
-      valuesByTripletNames_.emplace_back(thisCACut);
     }
   }
 
   void setCutValuesByLayerIds(CAGraph &caLayers) {
     if ( !usingCACuts ) return;
     for (const auto &thisTriplet : valuesByTripletNames_) {
-      CAValueByLayerIds thisCACut;
+      valuesByLayerIds_.emplace_back();
+      auto &thisCACut = valuesByLayerIds_.back();
 
       // Triplet name, e.g. 'BPix1+BPix2+BPix3'
       std::string layersToSet = thisTriplet.tripletName;
@@ -59,8 +63,6 @@ public:
       // Cut
       thisCACut.cutValue = thisTriplet.cutValue;
 
-      // Add to vector
-      valuesByLayerIds_.emplace_back(thisCACut);
     }
   }
 
