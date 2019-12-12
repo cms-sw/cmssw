@@ -2,7 +2,7 @@
 #define DQMServices_Core_DQMGlobalEDAnalyzer_h
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Histograms/interface/DQMToken.h" 
+#include "DataFormats/Histograms/interface/DQMToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -36,12 +36,14 @@ public:
     // in case of concurrent runs, this will create clones of the already
     // booked MEs.
     dqmstore_->bookTransaction(
-      [&, this](DQMStore::IBooker& b) {
-        // this runs while holding the DQMStore lock
-        b.cd();
-        bookHistograms(b, run, setup, *h);
-      },
-      run.run(), /* moduleID */ 0, /* canSaveByLumi */ false);
+        [&, this](DQMStore::IBooker& b) {
+          // this runs while holding the DQMStore lock
+          b.cd();
+          bookHistograms(b, run, setup, *h);
+        },
+        run.run(),
+        /* moduleID */ 0,
+        /* canSaveByLumi */ false);
     // Populate run numbers, in case booking only books prototypes.
     // We will not call enterLumi per-lumi, since this is strictly run-based.
     return h;
