@@ -13,7 +13,7 @@
 <use name="Fireworks/Core"/>
 <use name="rootmath"/>
 <use name="rootphysics"/>
-<lib name="Eve"/>
+<use name="rooteve"/>
 <export>
   <lib name="1"/>
 </export>

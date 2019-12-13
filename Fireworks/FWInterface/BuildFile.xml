@@ -10,11 +10,11 @@
 <use name="Fireworks/Geometry"/>
 <use name="rootcore"/>
 <use name="rootinteractive"/>
-<lib name="Geom"/>
-<lib name="Eve"/>
-<lib name="RGL"/>
-<lib name="GuiHtml"/>
-<lib name="GX11"/>
+<use name="rootgeom"/>
+<use name="rooteve"/>
+<use name="rootrgl"/>
+<use name="rootguihtml"/>
+<use name="rootx11"/>
 <use name="boost_python"/>
 <use name="FWCore/PythonParameterSet"/>
 <export>
