@@ -4,6 +4,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/GsfTrackReco"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="clhep"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
