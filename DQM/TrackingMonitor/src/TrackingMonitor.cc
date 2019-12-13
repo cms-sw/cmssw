@@ -342,11 +342,13 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   if (doLumiAnalysis) {
     // add by Mia in order to deal with LS transitions
     ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+    auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
 
     histname = "NumberOfTracks_lumiFlag_" + CategoryName;
     NumberOfTracks_lumiFlag = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
     NumberOfTracks_lumiFlag->setAxisTitle("Number of Tracks per Event", 1);
     NumberOfTracks_lumiFlag->setAxisTitle("Number of Events", 2);
+    ibooker.setScope(scope);
   }
 
   // book profile plots vs LS :
@@ -577,7 +579,13 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks", 2);
   }
 
-  theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  if (doLumiAnalysis) {
+    auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+    ibooker.setScope(scope);
+  } else {
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  }
 
   // book the Seed Property histograms
   // ---------------------------------------------------------------------------------//
@@ -599,10 +607,12 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     if (doSeedLumiAnalysis_) {
       ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+      auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
       histname = "NumberOfSeeds_lumiFlag_" + seedProducer.label() + "_" + CategoryName;
       NumberOfSeeds_lumiFlag = ibooker.book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
       NumberOfSeeds_lumiFlag->setAxisTitle("Number of Seeds per Event", 1);
       NumberOfSeeds_lumiFlag->setAxisTitle("Number of Events", 2);
+      ibooker.setScope(scope);
     }
   }
 
@@ -665,17 +675,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   }
 
   theTrackBuildingAnalyzer->initHisto(ibooker, *conf);
-
-  if (doLumiAnalysis) {
-    if (NumberOfTracks_lumiFlag)
-      NumberOfTracks_lumiFlag->setLumiFlag();
-    theTrackAnalyzer->setLumiFlag();
-  }
-
-  if (doAllSeedPlots || doSeedNumberPlot) {
-    if (doSeedLumiAnalysis_)
-      NumberOfSeeds_lumiFlag->setLumiFlag();
-  }
 
   if (doTrackerSpecific_ || doAllPlots) {
     ClusterLabels = conf->getParameter<std::vector<std::string> >("ClusterLabels");

@@ -656,7 +656,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _cSumQ_depth.book(ib, _emap, _subsystem);
   _cSumQvsLS_SubdetPM.book(ib, _emap, _filter_QIE8, _subsystem);
   _cSumQvsLS_SubdetPM_QIE1011.book(ib, _emap, _filter_QIE1011, _subsystem);
-  _cDigiSize_Crate.book(ib, _emap, _subsystem);
   _cADCvsTS_SubdetPM.book(ib, _emap, _filter_QIE8, _subsystem);
   _cADCvsTS_SubdetPM_QIE1011.book(ib, _emap, _filter_QIE1011, _subsystem);
 
@@ -677,13 +676,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _cOccupancyCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
     _cDigiSize_FED.book(ib, _emap, _subsystem);
   }
+  if (_ptype != fOffline) {  // else book per-lumi later.
+    _cDigiSize_Crate.book(ib, _emap, _subsystem);
+    _cOccupancy_depth.book(ib, _emap, _subsystem);
+  }
 
   _cTimingCut_SubdetPM.book(ib, _emap, _subsystem);
   _cTimingCut_depth.book(ib, _emap, _subsystem);
   _cTimingCutvsLS_SubdetPM.book(ib, _emap, _subsystem);
 
   _cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
-  _cOccupancy_depth.book(ib, _emap, _subsystem);
   _cOccupancyCut_depth.book(ib, _emap, _subsystem);
 
   _cLETDCTimevsADC_SubdetPM.book(ib, _emap, _subsystem);
@@ -775,22 +777,22 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   //	MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
+  auto scope = ib.setScope(MonitorElementData::Scope::LUMI);
   if (_ptype == fOffline) {
-    _cDigiSize_Crate.setLumiFlag();
     //_cDigiSize_FED.setLumiFlag();
-    _cOccupancy_depth.setLumiFlag();
+    _cDigiSize_Crate.book(ib, _emap, _subsystem);
+    _cOccupancy_depth.book(ib, _emap, _subsystem);
   }
 
   //	book Number of Events vs LS histogram
   ib.setCurrentFolder(_subsystem + "/RunInfo");
   meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents", 1, 0, 1);
-  meNumEvents1LS->setLumiFlag();
 
   //	book the flag for unknown ids and the online guy as well
   ib.setCurrentFolder(_subsystem + "/" + _name);
   meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
-  meUnknownIds1LS->setLumiFlag();
+  ib.setScope(scope);
 }
 
 /* virtual */ void DigiTask::_resetMonitors(hcaldqm::UpdateFreq uf) {

@@ -247,8 +247,11 @@ namespace {
     }
   };
 
-  void maybeSetLumiFlag(MonitorElement *me, const edm::Run &) {}
-  void maybeSetLumiFlag(MonitorElement *me, const edm::LuminosityBlock &) { me->setLumiFlag(); }
+  // TODO: might need re-scoping to JOB here.
+  void adjustScope(DQMStore::IBooker &ibooker, const edm::Run &) { ibooker.setScope(MonitorElementData::Scope::RUN); }
+  void adjustScope(DQMStore::IBooker &ibooker, const edm::LuminosityBlock &) {
+    ibooker.setScope(MonitorElementData::Scope::LUMI);
+  }
 
 }  // namespace
 
@@ -350,9 +353,8 @@ void EDMtoMEConverter::getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iG
       }
 
       // define new monitor element
-      MonitorElement *me =
-          AddMonitorElement<METype>::call(iBooker, iGetter, &metoedmobject[i].object, dir, name, iGetFrom);
-      maybeSetLumiFlag(me, iGetFrom);
+      adjustScope(iBooker, iGetFrom);
+      AddMonitorElement<METype>::call(iBooker, iGetter, &metoedmobject[i].object, dir, name, iGetFrom);
 
     }  // end loop thorugh metoedmobject
   });

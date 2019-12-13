@@ -173,6 +173,7 @@ void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     }
   }
   ibooker.setCurrentFolder(monitorName_ + "Service");
+  auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
   theValuesContainer_ = ibooker.bookProfile("hHistoLumiValues",
                                             "Histo Lumi Values",
                                             3 * numberOfValuesToSave_,
@@ -182,7 +183,7 @@ void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
                                             -100.,
                                             9000.,
                                             " ");
-  theValuesContainer_->setLumiFlag();
+  ibooker.setScope(scope);
 
   // create and cd into new folder
   ibooker.setCurrentFolder(monitorName_ + "Validation");

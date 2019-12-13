@@ -269,10 +269,6 @@ namespace dqm::impl {
     /// true if ME is meant to be stored for each luminosity section
     bool getLumiFlag() const { return access().key.scope_ == MonitorElementData::Scope::LUMI; }
 
-    /// this ME is meant to be stored for each luminosity section
-    // we can't support this any more, but the ME might be safed by lumi anyways!
-    void setLumiFlag() { assert(getLumiFlag()); }
-
     /// this ME is meant to be an efficiency plot that must not be
     /// normalized when drawn in the DQM GUI.
     void setEfficiencyFlag() { data_.flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
