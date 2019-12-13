@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -17,10 +18,11 @@
 #include <memory>
 
 using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class DDMTDLinear : public DDAlgorithm {
 public:
-  DDMTDLinear() : m_n(1), m_startCopyNo(1), m_incrCopyNo(1), m_theta(0.), m_phi(0.), m_delta(0.) {}
+  DDMTDLinear() : m_n(1), m_startCopyNo(1), m_incrCopyNo(1), m_theta(0.), m_phi(0.), m_delta(0.), m_phi_obj(0.), m_theta_obj(0.) {}
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -37,6 +39,8 @@ private:
   double m_theta;              //Theta
   double m_phi;                //Phi dir[Theta,Phi] ... unit-std::vector in direction Theta, Phi
   double m_delta;              //Delta - distance between two subsequent positions along dir[Theta,Phi]
+  double m_phi_obj;            //Phi angle to rotate volumes (indipendent from m_phi traslation direction)
+  double m_theta_obj;          //Theta angle to rotate volumes
   std::vector<double> m_base;  //Base values - a 3d-point where the offset is calculated from
                                //base is optional, if omitted base=(0,0,0)
   std::pair<std::string, std::string> m_childNmNs;  //Child name
@@ -55,12 +59,15 @@ void DDMTDLinear::initialize(const DDNumericArguments& nArgs,
   m_phi = nArgs["Phi"];
   m_delta = nArgs["Delta"];
   m_base = vArgs["Base"];
+  m_phi_obj = nArgs["Phi_obj"];
+  m_theta_obj = nArgs["Theta_obj"];
 
   LogDebug("DDAlgorithm") << "DDMTDLinear: Parameters for position"
                           << "ing:: n " << m_n << " Direction Theta, Phi, Offset, Delta " << convertRadToDeg(m_theta)
                           << " " << convertRadToDeg(m_phi) << " "
                           << " " << convertRadToDeg(m_delta) << " Base " << m_base[0] << ", " << m_base[1] << ", "
-                          << m_base[2];
+                          << m_base[2] << "Objects placement Phi_obj, Theta_obj " << convertRadToDeg(m_phi_obj) 
+                          << " " << convertRadToDeg(m_theta_obj);
 
   m_childNmNs = DDSplit(sArgs["ChildName"]);
   if (m_childNmNs.second.empty())
@@ -80,15 +87,16 @@ void DDMTDLinear::execute(DDCompactView& cpv) {
 
   DDTranslation basetr(m_base[0], m_base[1], m_base[2]);
 
-  double thetaZ=0; //rotation is in xy plane
-  double phiZ=0;  //m_phi;  //double phiZ=0; 
-  double thetaX=1.57;
-  double thetaY=1.57;
-  double phiX=0;     //m_phi;
-  double phiY=0+1.57;  //m_phi+1.57; //phi+TMath::Pi()/2   Rad o Deg?????????????????????
+  //rotation is in xy plane
+  long double x_phi = 0.5;
+  double thetaZ = m_theta_obj - angle_units::operators::operator""_pi(x_phi);
+  double phiZ = m_phi_obj;  
+  double thetaX = m_theta_obj;  
+  double thetaY = m_theta_obj;  
+  double phiX = m_phi_obj;     
+  double phiY = m_phi_obj + angle_units::operators::operator""_pi(x_phi);  
 
-  //std::make_unique<DDRotationMatrix> rotationMatrix=DDcreateRotationMatrix(thetaX, phiX, thetaY, phiY, thetaZ, phiZ);
-  //DDRotation rotation = DDRotation("IdentityRotation");
+  //DDRotation rotation = DDRotation("IdentityRotation");  this is the default rotation matrix in DDLinear
   DDRotation rotation = DDRotation("Rotation");
 
 
@@ -100,8 +108,8 @@ void DDMTDLinear::execute(DDCompactView& cpv) {
   }
 
   for (int i = 0; i < m_n; ++i) {
-    DDTranslation tran = basetr + (i * m_delta) * direction;   //basetr + (double(copy) * m_delta) * direction; 
-    cpv.position(ddname, mother, copy, tran, rotation);  //cpv.position(ddname, mother, copy, tran, rotation);
+    DDTranslation tran = basetr + (double(i) * m_delta) * direction;   
+    cpv.position(ddname, mother, copy, tran, rotation);  
     LogDebug("DDAlgorithm") << "DDMTDLinear: " << m_childNmNs.second << ":" << m_childNmNs.first << " number " << copy
                             << " positioned in " << mother << " at " << tran << " with " << rotation;
     copy += m_incrCopyNo;
