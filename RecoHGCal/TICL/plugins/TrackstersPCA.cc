@@ -42,6 +42,11 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
     trackster.eigenvectors[2] = ticl::Trackster::Vector((*(pca.GetEigenVectors()))[0][2],
         (*(pca.GetEigenVectors()))[1][2],
         (*(pca.GetEigenVectors()))[2][2] );
+    if (trackster.eigenvectors[0].z() * trackster.barycenter.z() < 0.0) {
+      trackster.eigenvectors[0] = -ticl::Trackster::Vector((*(pca.GetEigenVectors()))[0][0],
+          (*(pca.GetEigenVectors()))[1][0],
+          (*(pca.GetEigenVectors()))[2][0] );
+    }
     trackster.sigmas[0] = (float)(*(pca.GetSigmas()))[0];
     trackster.sigmas[1] = (float)(*(pca.GetSigmas()))[1];
     trackster.sigmas[2] = (float)(*(pca.GetSigmas()))[2];
