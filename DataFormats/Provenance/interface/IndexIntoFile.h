@@ -200,6 +200,7 @@ The interface is too complex for general use.
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <memory>
 
@@ -941,14 +942,14 @@ namespace edm {
 
     /// The number of events needs to be set before filling the transient event vectors.
     /// It is used to resize them.
-    void setNumberOfEvents(EntryNumber_t nevents) const { transient_.numberOfEvents_ = nevents; }
+    void setNumberOfEvents(EntryNumber_t nevents) { transient_.numberOfEvents_ = nevents; }
 
     /// Calling this enables the functions that fill the event vectors to get the event numbers.
     /// It needs to be called before filling the events vectors
     /// This implies the client needs to define a class that inherits from
     /// EventFinder and then create one.  This function is used to pass in a
     /// pointer to its base class.
-    void setEventFinder(std::shared_ptr<EventFinder> ptr) const { transient_.eventFinder_ = ptr; }
+    void setEventFinder(std::shared_ptr<EventFinder> ptr) { transient_.eventFinder_ = ptr; }
 
     /// Fills a vector of event numbers.
     /// Not filling it reduces the memory used by IndexIntoFile.
@@ -990,14 +991,15 @@ namespace edm {
     /// If something external to IndexIntoFile is reading through the EventAuxiliary
     /// then it could use this to fill in the event numbers so that IndexIntoFile
     /// will not read through it again.
-    std::vector<EventNumber_t>& unsortedEventNumbers() const { return transient_.unsortedEventNumbers_; }
+    std::vector<EventNumber_t>& unsortedEventNumbers() { return transient_.unsortedEventNumbers_; }
+    std::vector<EventNumber_t> const& unsortedEventNumbers() const { return transient_.unsortedEventNumbers_; }
 
     /// Clear some vectors and eventFinder when an input file is closed.
     /// This reduces the memory used by IndexIntoFile
-    void inputFileClosed() const;
+    void inputFileClosed();
 
     /// Clears the temporary vector of event numbers to reduce memory usage
-    void doneFileInitialization() const;
+    void doneFileInitialization();
 
     /// Used for backward compatibility and tests.
     /// RootFile::fillIndexIntoFile uses this to deal with input files created
@@ -1023,7 +1025,7 @@ namespace edm {
     //*****************************************************************************
     //*****************************************************************************
 
-    void initializeTransients() const { transient_.reset(); }
+    void initializeTransients() { transient_.reset(); }
 
     struct Transients {
       Transients();
@@ -1057,6 +1059,7 @@ namespace edm {
     /// It depends only on the fact that the persistent data has been filled already.
     void fillRunOrLumiIndexes() const;
 
+    std::vector<EventNumber_t>& unsortedEventNumbersMutable() const { return transient_.unsortedEventNumbers_; }
     void fillUnsortedEventNumbers() const;
     void resetEventFinder() const { transient_.eventFinder_ = nullptr; }  // propagate_const<T> has no reset() function
     std::vector<EventEntry>& eventEntries() const { return transient_.eventEntries_; }
@@ -1077,7 +1080,8 @@ namespace edm {
       return transient_.eventFinder_->getEventNumberOfEntry(entry);
     }
 
-    mutable Transients transient_;
+    //This class is used only by one thread at a time within the source serialized code
+    CMS_SA_ALLOW mutable Transients transient_;
 
     std::vector<ProcessHistoryID> processHistoryIDs_;  // of reduced process histories
     std::vector<RunOrLumiEntry> runOrLumiEntries_;
