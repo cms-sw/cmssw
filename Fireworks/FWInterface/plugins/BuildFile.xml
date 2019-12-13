@@ -10,7 +10,7 @@
  <use name="SimDataFormats/TrackingAnalysis"/>
  <use name="SimGeneral/TrackingAnalysis"/>
 <use name="rootcore"/>
-<lib name="Geom"/>
-<lib name="Eve"/>
+<use name="rootgeom"/>
+<use name="rooteve"/>
 
 <library name="FireworksFWInterfacePlugin" file="*.cc"/>

@@ -26,20 +26,15 @@
 <use name="rootgraphics"/>
 <use name="sigcpp"/>
 <use name="rootged"/>
-<lib name="Thread"/>
-<lib name="Eve"/>
-<lib name="Geom"/>
-<lib name="GeomPainter"/>
-<lib name="GuiHtml"/>
-<architecture name="!osx10">
-<lib name="GX11"/>
-</architecture>
-<architecture name="osx10">
-<lib name="GCocoa"/>
-</architecture>
-<lib name="RGL"/>
-<lib name="GLEW"/>
-<lib name="Gui"/>
+<use name="rootthread"/>
+<use name="rooteve"/>
+<use name="rootgeom"/>
+<use name="rootgeompainter"/>
+<use name="rootguihtml"/>
+<use name="rootx11"/>
+<use name="rootrgl"/>
+<use name="rootglew"/>
+<use name="rootgui"/>
 <export>
   <lib name="1"/>
 </export>

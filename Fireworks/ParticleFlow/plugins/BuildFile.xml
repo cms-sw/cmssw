@@ -6,7 +6,7 @@
  <use name="DataFormats/PatCandidates"/>
  <use name="DataFormats/TrackReco"/>
  <use name="Fireworks/ParticleFlow"/>
- <lib name="Eve"/>
- <lib name="RGL"/>
+ <use name="rooteve"/>
+ <use name="rootrgl"/>
  <flags EDM_PLUGIN="1"/>
 </library>

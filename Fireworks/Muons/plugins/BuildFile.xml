@@ -16,8 +16,8 @@
  <use name="Fireworks/Muons"/>
  <use name="rootinteractive"/>
 
- <lib name="Eve"/>
- <lib name="Geom"/>
- <lib name="RGL"/>
+ <use name="rooteve"/>
+ <use name="rootgeom"/>
+ <use name="rootrgl"/>
  <flags EDM_PLUGIN="1"/>
 </library>

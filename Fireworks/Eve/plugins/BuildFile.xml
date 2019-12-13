@@ -1,8 +1,8 @@
 <library file="EveServicePlugin.cc"
          name="FireworksEveEveServicePlugin">
         <use name="Fireworks/Eve"/>
-        <lib name="Eve"/>
-        <lib name="Geom"/>
+        <use name="rooteve"/>
+        <use name="rootgeom"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 
@@ -12,7 +12,8 @@
   <use name="Fireworks/Geometry"/>
   <use name="Fireworks/Eve"/>
   <use name="Fireworks/Tracks"/>
-  <lib name="Eve"/>
-  <lib name="Geom"/>
+  <use name="rooteve"/>
+  <use name="rootgeom"/>
+  <use name="rootrgl"/>
   <flags EDM_PLUGIN="1"/>
 </library>
