@@ -93,7 +93,24 @@ for k in uproot.open("'"$1"'").allkeys(): print k'
 }
 [ 2 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | grep  -c '<harvestingsummary>s=beginRun(1) endLumi(1,1) endLumi(1,2) endLumi(1,3) endRun(1) endJob() </harvestingsummary>') ]
 
-# 11. Sanity checks.
+# 11. Try MEtoEDM and EDMtoME.
+cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=metoedm.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100 metoedmoutput=True
+cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py outfile=edmtome.root inputFiles=metoedm.root nomodules=True metoedminput=True
+[ 88 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
+[ 55 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]
+
+cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part1_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=50               # 1st half of 1st lumi
+cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part2_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=50 firstEvent=50 # 2nd half of 1st lumi
+cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part3_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=200 firstEvent=100 firstLuminosityBlock=2 # lumi 2 and 3
+cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part4_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=900 firstRun=2   # 3 more runs
+
+cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=part1_metoedm.root inputFiles=part2_metoedm.root inputFiles=part3_metoedm.root inputFiles=part4_metoedm.root outfile=metoedm_merged.root nomodules=True metoedminput=True
+dqmiodumpmetadata.py metoedm_merged.root | grep -q '4 runs, 12 lumisections'
+dumproot metoedm_merged.root
+#cmp multirun.root.sqldump metoedm_merged.root.sqldump
+
+
+# 12. Sanity checks.
 # this will mess up some of the files created earlier, disable for debugging.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root nEvents=0
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root howmany=0

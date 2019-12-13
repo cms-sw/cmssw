@@ -6,9 +6,10 @@ one = VarParsing.VarParsing.multiplicity.singleton
 bool = VarParsing.VarParsing.varType.bool
 string = VarParsing.VarParsing.varType.string
 parser.register('nolegacy',             False, one, bool, "Don't run legacy harvesters")
-parser.register('nomodules',             False, one, bool, "Don't run any harvesters")
+parser.register('nomodules',            False, one, bool, "Don't run any harvesters")
 parser.register('legacyoutput',         False, one, bool, "Use DQMFileSaver for output instead of DQMIO.")
-parser.register('protobufinput',         False, one, bool, "Use DQMProtobufReader for input instead of DQMIO.")
+parser.register('protobufinput',        False, one, bool, "Use DQMProtobufReader for input instead of DQMIO.")
+parser.register('metoedminput',         False, one, bool, "Use PoolInputSource and EDMtoMEConverter for input.")
 parser.register('outfile',              "dqm.root", one, string, "Output file name.")
 parser.parseArguments()
 args = parser
@@ -36,6 +37,20 @@ if args.protobufinput:
     deleteDatFiles = cms.untracked.bool(False),
     endOfRunKills  = cms.untracked.bool(False),
   )
+
+elif args.metoedminput:
+  process.EDMtoMEConverter = cms.EDProducer("EDMtoMEConverter",
+    Name = cms.untracked.string('EDMtoMEConverter'),
+    Verbosity = cms.untracked.int32(0), 
+    Frequency = cms.untracked.int32(50),
+    convertOnEndLumi = cms.untracked.bool(True),
+    convertOnEndRun = cms.untracked.bool(True),
+    runInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterRun'),
+    lumiInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterLumi')
+  )
+  process.convert = cms.Path(process.EDMtoMEConverter)
+  process.source = cms.Source("PoolSource",
+                              fileNames = cms.untracked.vstring(*["file://" + f for f in args.inputFiles]))
 
 else:
   process.source = cms.Source("DQMRootSource",
