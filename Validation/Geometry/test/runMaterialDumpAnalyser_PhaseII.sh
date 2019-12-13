@@ -136,7 +136,7 @@ fi
 
 for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=${geometry} label=$t >& /dev/null &
+    python runP_Tracker.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 
