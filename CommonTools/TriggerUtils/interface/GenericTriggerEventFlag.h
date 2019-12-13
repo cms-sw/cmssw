@@ -23,6 +23,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -42,6 +46,8 @@ class GenericTriggerEventFlag {
   std::unique_ptr<l1t::L1TGlobalUtil> l1uGt_;
   HLTConfigProvider hltConfig_;
   bool hltConfigInit_;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1GtTriggerMenuToken_;
+  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> alCaRecoTriggerBitsToken_;
   // Configuration parameters
   bool andOr_;
   std::string dbLabel_;
@@ -169,6 +175,7 @@ public:
   std::string l1DBKey() { return l1DBKey_; }    // can be empty
   std::string hltDBKey() { return hltDBKey_; }  // can be empty
 
+  // Must be called only during beginRun
   std::vector<std::string> expressionsFromDB(const std::string& key, const edm::EventSetup& setup);
 };
 
@@ -185,7 +192,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
                                                  T& module,
                                                  l1t::UseEventSetupIn use)
     : GenericTriggerEventFlag(config, iC, true) {
-  if (config.exists("andOrL1")) {
+  if (on_ && config.exists("andOrL1")) {
     if (stage2_) {
       l1uGt_ = std::make_unique<l1t::L1TGlobalUtil>(config, iC, use);
     } else {
