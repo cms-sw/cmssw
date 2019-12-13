@@ -1,6 +1,9 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/SiStripCluster"/>
 <use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/SiStripDigi"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <export>
