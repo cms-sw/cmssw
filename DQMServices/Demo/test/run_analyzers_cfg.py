@@ -31,6 +31,7 @@ parser.register('noone',                False, one, bool, "Don't run any one mod
 parser.register('legacyoutput',         False, one, bool, "Use DQMFileSaver for output instead of DQMIO.")
 parser.register('protobufoutput',       False, one, bool, "Use DQMFileSaverPB for output instead of DQMIO.")
 parser.register('onlineoutput',         False, one, bool, "Use DQMFileSaverOnline for output instead of DQMIO. This *does not* cover live mode.")
+parser.register('metoedmoutput',        False, one, bool, "Use MEtoEDMConverter and PoolOutputModule for output.")
 parser.register('firstLuminosityBlock', 1, one, int, "See EmptySource.")
 parser.register('firstEvent',           1, one, int, "See EmptySource.")
 parser.register('firstRun',             1, one, int, "See EmptySource.")
@@ -108,6 +109,23 @@ process.onlineSaver = cms.EDAnalyzer("DQMFileSaverOnline",
   keepBackupLumi = cms.untracked.bool(False)
 )
 
+# MEtoEDM
+process.MEtoEDMConverter = cms.EDProducer("MEtoEDMConverter",
+  Name = cms.untracked.string('MEtoEDMConverter'),
+  Verbosity = cms.untracked.int32(0),
+  Frequency = cms.untracked.int32(50),
+  MEPathToSave = cms.untracked.string('')
+)
+process.metoedmoutput = cms.OutputModule("PoolOutputModule",
+  dataset = cms.untracked.PSet(
+    dataTier = cms.untracked.string('ALCARECO'),
+  ),
+  fileName = cms.untracked.string(args.outfile),
+  outputCommands = cms.untracked.vstring(
+    'keep *'
+  )
+)
+
 
 if args.legacyoutput:
   process.o = cms.EndPath(process.dqmSaver)
@@ -115,6 +133,8 @@ elif args.protobufoutput:
   process.o = cms.EndPath(process.pbSaver)
 elif args.onlineoutput:
   process.o = cms.EndPath(process.onlineSaver)
+elif args.metoedmoutput:
+  process.o = cms.EndPath(process.MEtoEDMConverter + process.metoedmoutput)
 else:
   process.o = cms.EndPath(process.out)
 
