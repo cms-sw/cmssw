@@ -3,7 +3,7 @@
 <use name="boost_system"/>
 <use name="Fireworks/Core"/>
 <use name="Fireworks/Calo"/>
-<lib name="Eve"/>
+<use name="rooteve"/>
 <export>
   <lib name="1"/>
 </export>
