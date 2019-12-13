@@ -15,6 +15,8 @@ photon_id_modules_WorkingPoints_nanoAOD = cms.PSet(
         'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff',
+        'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
+        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
    ),
    WorkingPoints = cms.vstring(
     "egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V2-loose",
@@ -22,21 +24,8 @@ photon_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     "egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V2-tight",
    )
 )
-run2_miniAOD_80XLegacy.toModify(photon_id_modules_WorkingPoints_nanoAOD,
-    modules = cms.vstring(
-        'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
-        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
-   ),
-   WorkingPoints = cms.vstring(
-    "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose",
-    "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium",
-    "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight",
-   )
-)
-run2_nanoAOD_94X2016.toModify(photon_id_modules_WorkingPoints_nanoAOD,
-    modules = cms.vstring(
-        'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
-   ),
+photon_id_modules_WorkingPoints_nanoAOD_Spring16V2p2 = cms.PSet(
+    modules = photon_id_modules_WorkingPoints_nanoAOD.modules,
    WorkingPoints = cms.vstring(
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose",
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium",
@@ -44,19 +33,28 @@ run2_nanoAOD_94X2016.toModify(photon_id_modules_WorkingPoints_nanoAOD,
    )
 )
 
+def make_bitmapVID_docstring(id_modules_working_points_pset):
+    pset = id_modules_working_points_pset
 
-_bitmapVIDForPho_docstring = ''
-for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
-    ids= __import__(modname, globals(), locals(), ['idName','cutFlow'])
-    for name in dir(ids):
-        _id = getattr(ids,name)
-        if hasattr(_id,'idName') and hasattr(_id,'cutFlow'):
-            if (len(photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints)>0 and _id.idName==photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints[0].split(':')[-1]):
-                _bitmapVIDForPho_docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints)+1,2))))
+    for modname in pset.modules:
+        ids = __import__(modname, globals(), locals(), ['idName','cutFlow'])
+        for name in dir(ids):
+            _id = getattr(ids,name)
+            if hasattr(_id,'idName') and hasattr(_id,'cutFlow'):
+                if (len(pset.WorkingPoints)>0 and _id.idName == pset.WorkingPoints[0].split(':')[-1]):
+                    cut_names = ','.join([cut.cutName.value() for cut in _id.cutFlow])
+                    n_bits_per_cut = int(ceil(log(len(pset.WorkingPoints)+1,2)))
+                    return 'VID compressed bitmap (%s), %d bits per cut'%(cut_names, n_bits_per_cut)
+    raise ValueError("Something is wrong in the photon ID modules parameter set!")
 
 bitmapVIDForPho = cms.EDProducer("PhoVIDNestedWPBitmapProducer",
     src = cms.InputTag("slimmedPhotons"),
     WorkingPoints = photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints,
+)
+
+bitmapVIDForPhoSpring16V2p2 = cms.EDProducer("PhoVIDNestedWPBitmapProducer",
+    src = cms.InputTag("slimmedPhotons"),
+    WorkingPoints = photon_id_modules_WorkingPoints_nanoAOD_Spring16V2p2.WorkingPoints,
 )
 
 isoForPho = cms.EDProducer("PhoIsoValueMapProducer",
@@ -99,7 +97,8 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     src = cms.InputTag("slimmedPhotons"),
     userFloats = cms.PSet(
         mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Values"),
-        mvaIDV1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1p1Values"),
+        mvaID_Fall17V1p1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1p1Values"),
+        mvaID_Spring16nonTrigV1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values"),
         PFIsoChg = cms.InputTag("isoForPho:PFIsoChg"),
         PFIsoAll = cms.InputTag("isoForPho:PFIsoAll"),
     ),
@@ -112,45 +111,17 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
         cutbasedIDV1_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-loose"),
         cutbasedIDV1_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-medium"),
         cutbasedIDV1_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-tight"),
-        mvaIDV1_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-RunIIFall17-v1p1-wp90"),
-        mvaIDV1_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-RunIIFall17-v1p1-wp80"),
+        cutID_Spring16_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
+        cutID_Spring16_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
+        cutID_Spring16_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
+        mvaID_Sping16nonTrigV1_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
+        mvaID_Sping16nonTrigV1_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
+        VIDNestedWPBitmap_Spring16V2p2 = cms.InputTag("bitmapVIDForPhoSpring16V2p2"),
         seedGain = cms.InputTag("seedGainPho"),
     ),
-)
-run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
-    mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values"),
-    mvaIDV1 = None,
-)
-run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userIntFromBools,
-    cutbasedID_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
-    cutbasedID_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
-    cutbasedID_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
-    mvaID_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
-    mvaID_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),
-    cutbasedIDV1_loose = None,
-    cutbasedIDV1_medium = None,
-    cutbasedIDV1_tight = None,
-    mvaIDV1_WP90 = None,
-    mvaIDV1_WP80 = None,
-)
-run2_nanoAOD_94X2016.toModify(slimmedPhotonsWithUserData.userFloats,
-    mvaID = None,
-    mvaIDV1 = None,
-)
-run2_nanoAOD_94X2016.toModify(slimmedPhotonsWithUserData.userIntFromBools,
-    cutbasedID_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
-    cutbasedID_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
-    cutbasedID_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
-    mvaID_WP90 = None,
-    mvaID_WP80 = None,
-    cutbasedIDV1_loose = None,
-    cutbasedIDV1_medium = None,
-    cutbasedIDV1_tight = None,
-    mvaIDV1_WP90 = None,
-    mvaIDV1_WP80 = None,
 )
 
 run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
@@ -187,15 +158,27 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
         r9 = Var("full5x5_r9()",float,doc="R9 of the supercluster, calculated with full 5x5 region",precision=10),
         sieie = Var("full5x5_sigmaIetaIeta()",float,doc="sigma_IetaIeta of the supercluster, calculated with full 5x5 region",precision=10),
-        cutBasedBitmap = Var("userInt('cutbasedID_loose')+2*userInt('cutbasedID_medium')+4*userInt('cutbasedID_tight')",int,doc="cut-based ID bitmap, 2^(0:loose, 1:medium, 2:tight)"),
-        cutBasedV1Bitmap = Var("userInt('cutbasedIDV1_loose')+2*userInt('cutbasedIDV1_medium')+4*userInt('cutbasedIDV1_tight')",int,doc="cut-based ID bitmap, Fall17 V1, 2^(0:loose, 1:medium, 2:tight)"),
-        vidNestedWPBitmap = Var("userInt('VIDNestedWPBitmap')",int,doc=_bitmapVIDForPho_docstring),
+        cutBased = Var(
+            "userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",
+            int,
+            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)"
+        ),
+        cutBased_Fall17V1Bitmap = Var(
+            "userInt('cutbasedIDV1_loose')+2*userInt('cutbasedIDV1_medium')+4*userInt('cutbasedIDV1_tight')",
+            int,
+            doc="cut-based ID bitmap, Fall17V1, 2^(0:loose, 1:medium, 2:tight).",
+        ),
+        vidNestedWPBitmap = Var(
+            "userInt('VIDNestedWPBitmap')",
+            int,
+            doc="Fall17V2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD)
+        ),
         electronVeto = Var("passElectronVeto()",bool,doc="pass electron veto"),
         pixelSeed = Var("hasPixelSeed()",bool,doc="has pixel seed"),
-        mvaID = Var("userFloat('mvaID')",float,doc="MVA ID score",precision=10),
-        mvaIDV1 = Var("userFloat('mvaIDV1')",float,doc="MVA ID score, Fall17 V1p1",precision=10),
-        mvaID_WP90 = Var("userInt('mvaID_WP90')",bool,doc="MVA ID WP90"),
-        mvaID_WP80 = Var("userInt('mvaID_WP80')",bool,doc="MVA ID WP80"),
+        mvaID = Var("userFloat('mvaID')",float,doc="MVA ID score, Fall17V2",precision=10),
+        mvaID_Fall17V1p1 = Var("userFloat('mvaID_Fall17V1p1')",float,doc="MVA ID score, Fall17V1p1",precision=10),
+        mvaID_WP90 = Var("userInt('mvaID_WP90')",bool,doc="MVA ID WP90, Fall17V2"),
+        mvaID_WP80 = Var("userInt('mvaID_WP80')",bool,doc="MVA ID WP80, Fall17V2"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg')/pt",float,doc="PF relative isolation dR=0.3, charged component (with rho*EA PU corrections)"),
         pfRelIso03_all = Var("userFloat('PFIsoAll')/pt",float,doc="PF relative isolation dR=0.3, total (with rho*EA PU corrections)"),
         hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
@@ -221,25 +204,43 @@ for modifier in run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy, run2_nanoAOD_
         eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
     )
 
-
+# add the Spring16 IDs for 2016 nano
 run2_nanoAOD_94X2016.toModify(photonTable.variables,
-    cutBasedBitmap = None,
-    cutBasedV1Bitmap = None,
-    cutBased = Var("userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",int,doc="cut-based Spring16-V2p2 ID (0:fail, 1::loose, 2:medium, 3:tight)"),
-    cutBased17Bitmap = Var("photonID('cutBasedPhotonID-Fall17-94X-V1-loose')+2*photonID('cutBasedPhotonID-Fall17-94X-V1-medium')+4*photonID('cutBasedPhotonID-Fall17-94X-V1-tight')",int,doc="cut-based Fall17-94X-V1 ID bitmap, 2^(0:loose, 1:medium, 2:tight)"),
-    mvaID = Var("userFloat('PhotonMVAEstimatorRun2Spring16NonTrigV1Values')",float,doc="MVA Spring16NonTrigV1 ID score",precision=10),
-    mvaIDV1 = None,
-    mvaID17 = Var("userFloat('PhotonMVAEstimatorRunIIFall17v1p1Values')",float,doc="MVA Fall17v1p1 ID score",precision=10),
-    mvaID_WP90 = Var("photonID('mvaPhoID-Spring16-nonTrig-V1-wp80')",bool,doc="MVA Spring16NonTrigV1 ID WP90"),
-    mvaID_WP80 = Var("photonID('mvaPhoID-Spring16-nonTrig-V1-wp90')",bool,doc="MVA Spring16NonTrigV1 ID WP80"),
-    mvaID17_WP90 = Var("photonID('mvaPhoID-RunIIFall17-v1p1-wp90')",bool,doc="MVA Fall17v1p1 ID WP90"),
-    mvaID17_WP80 = Var("photonID('mvaPhoID-RunIIFall17-v1p1-wp80')",bool,doc="MVA Fall17v1p1 ID WP80"),
+    cutBased_Spring16V2p2 = Var(
+        "userInt('cutID_Spring16_loose')+userInt('cutID_Spring16_medium')+userInt('cutID_Spring16_tight')",
+        int,
+        doc="cut-based ID bitmap, Spring16V2p2, (0:fail, 1:loose, 2:medium, 3:tight)"
+    ),
+    mvaID_Spring16nonTrigV1 = Var(
+        "userFloat('mvaID_Spring16nonTrigV1')",
+        float,
+        doc="MVA ID score, Spring16nonTrigV1",
+        precision=10
+    ),
+    vidNestedWPBitmap_Spring16V2p2 = Var(
+        "userInt('VIDNestedWPBitmap_Spring16V2p2')",
+        int,
+        doc="Spring16V2p2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD_Spring16V2p2)
+    ),
 )
+
+# disable the Fall17V1 IDs for 80X Legacy mode and replace Fall17V2 with Spring16V2p2
 run2_miniAOD_80XLegacy.toModify(photonTable.variables,
-    cutBasedBitmap = None,
-    cutBasedV1Bitmap = None,
-    mvaIDV1 = None,
-    cutBased = Var("userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",int,doc="cut-based ID (0:fail, 1::loose, 2:medium, 3:tight)"),
+    cutBased_Fall17V1Bitmap = None,
+    mvaID_Fall17V1p1 = None,
+    cutBased = Var(
+        "userInt('cutID_Spring16_loose')+userInt('cutID_Spring16_medium')+userInt('cutID_Spring16_tight')",
+        int,
+        doc="cut-based ID bitmap, Spring16V2p2, (0:fail, 1:loose, 2:medium, 3:tight)"
+    ),
+    mvaID = Var("userFloat('mvaID_Spring16nonTrigV1')",float,doc="MVA ID score, Spring16nonTrigV1",precision=10),
+    mvaID_WP90 = Var("userInt('mvaID_Spring16nonTrigV1_WP90')",bool,doc="MVA ID WP90, Spring16nonTrigV1"),
+    mvaID_WP80 = Var("userInt('mvaID_Spring16nonTrigV1_WP80')",bool,doc="MVA ID WP80, Spring16nonTrigV1"),
+    vidNestedWPBitmap = Var(
+        "userInt('VIDNestedWPBitmap_Spring16V2p2')",
+        int,
+        doc="Spring16V2p2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD_Spring16V2p2)
+    ),
 )
 
 
@@ -275,6 +276,7 @@ run2_miniAOD_80XLegacy.toModify( slimmedPhotonsTo106X.modifierConfig.modificatio
 
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
     modifier.toModify(bitmapVIDForPho, src = "slimmedPhotonsTo106X")
+    modifier.toModify(bitmapVIDForPhoSpring16V2p2, src = "slimmedPhotonsTo106X")
     modifier.toModify(isoForPho, src = "slimmedPhotonsTo106X")
     modifier.toModify(calibratedPatPhotons102Xv1, src = "slimmedPhotonsTo106X")
     modifier.toModify(calibratedPatPhotons94Xv1, src = "slimmedPhotonsTo106X")
@@ -283,8 +285,14 @@ for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94
     modifier.toModify(seedGainPho, src = "slimmedPhotonsTo106X")
 
 
-
-photonSequence = cms.Sequence(bitmapVIDForPho + isoForPho + seedGainPho + slimmedPhotonsWithUserData + finalPhotons)
+photonSequence = cms.Sequence(
+        bitmapVIDForPho + \
+        bitmapVIDForPhoSpring16V2p2 + \
+        isoForPho + \
+        seedGainPho + \
+        slimmedPhotonsWithUserData + \
+        finalPhotons
+)
 
 photonTables = cms.Sequence ( photonTable)
 photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
