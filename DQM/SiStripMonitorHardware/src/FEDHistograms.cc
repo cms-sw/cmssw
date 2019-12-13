@@ -895,6 +895,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker& ibooker,
 
   ibooker.setCurrentFolder(lBaseDir + "/PerLumiSection");
 
+  auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
   bookHistogram(ibooker,
                 lumiErrorFraction_,
                 "lumiErrorFraction",
@@ -903,10 +904,10 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker& ibooker,
                 0.5,
                 6.5,
                 "SubDetId");
+  ibooker.setScope(scope);
 
   //Set special property for lumi ME
   if (lumiErrorFraction_.enabled && lumiErrorFraction_.monitorEle) {
-    lumiErrorFraction_.monitorEle->setLumiFlag();
     lumiErrorFraction_.monitorEle->setBinLabel(1, "TECB");
     lumiErrorFraction_.monitorEle->setBinLabel(2, "TECF");
     lumiErrorFraction_.monitorEle->setBinLabel(3, "TIB");

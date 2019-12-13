@@ -2437,16 +2437,6 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
   }
 }
 //
-// -- Set Lumi Flag
-//
-void TrackAnalyzer::setLumiFlag() {
-  TkParameterMEs tkmes;
-  if (Chi2oNDF_lumiFlag)
-    Chi2oNDF_lumiFlag->setLumiFlag();
-  if (NumberOfRecHitsPerTrack_lumiFlag)
-    NumberOfRecHitsPerTrack_lumiFlag->setLumiFlag();
-}
-//
 // -- Apply Reset
 //
 void TrackAnalyzer::doReset() {

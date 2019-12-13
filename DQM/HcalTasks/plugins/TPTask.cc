@@ -725,9 +725,10 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	book the flag for unknown ids and the online guy as well
   ib.setCurrentFolder(_subsystem + "/" + _name);
+  auto scope = ib.setScope(MonitorElementData::Scope::LUMI);
   meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
+  ib.setScope(scope);
   _unknownIdsPresent = false;
-  meUnknownIds1LS->setLumiFlag();
 }
 
 /* virtual */ void TPTask::_resetMonitors(hcaldqm::UpdateFreq uf) {

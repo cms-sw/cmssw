@@ -70,10 +70,9 @@ namespace ecaldqm {
   void MESetEcal::book(DQMStore::IBooker &_ibooker) {
     using namespace std;
 
-    _ibooker.setScope(MonitorElementData::Scope::RUN);
-    if (lumiFlag_) {
-      _ibooker.setScope(MonitorElementData::Scope::LUMI);
-    }
+    auto oldscope = MonitorElementData::Scope::RUN;
+    if (lumiFlag_)
+      oldscope = _ibooker.setScope(MonitorElementData::Scope::LUMI);
 
     clear();
 
@@ -271,6 +270,9 @@ namespace ecaldqm {
 
       mes_.push_back(me);
     }
+
+    if (lumiFlag_)
+      _ibooker.setScope(oldscope);
 
     active_ = true;
   }
