@@ -15,7 +15,7 @@
 class ETLDetId : public MTDDetId {
 public:
   static const uint32_t kETLmoduleOffset = 7;
-  static const uint32_t kETLmoduleMask = 0xFF;
+  static const uint32_t kETLmoduleMask = 0x1FF;
   static const uint32_t kETLmodTypeOffset = 5;
   static const uint32_t kETLmodTypeMask = 0x3;
 
