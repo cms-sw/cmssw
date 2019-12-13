@@ -16,6 +16,7 @@
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // Change Log
 //
@@ -114,8 +115,10 @@ namespace edm {
       std::string const* label_;
       const char* phasePtr_;
       unsigned int moduleID_;
-      mutable std::string cache_;
-      mutable std::map<unsigned int, std::string> idLabelMap_;
+
+      //This class is only used within a thread local object
+      CMS_SA_ALLOW mutable std::string cache_;
+      CMS_SA_ALLOW mutable std::map<unsigned int, std::string> idLabelMap_;
     };
 
     class StringProducerPath : public StringProducer {
