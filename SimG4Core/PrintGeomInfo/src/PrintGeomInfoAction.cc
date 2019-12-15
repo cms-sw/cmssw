@@ -173,7 +173,7 @@ void PrintGeomInfoAction::dumpG4LVLeaf(G4LogicalVolume *lv,
   //--- If a volume is placed n types as daughter of this LV, it should only be counted once
   std::map<G4LogicalVolume *, unsigned int> lvCount;
   std::map<G4LogicalVolume *, unsigned int>::const_iterator cite;
-  for (int ii = 0; ii < lv->GetNoDaughters(); ii++) {
+  for (size_t ii = 0; ii < lv->GetNoDaughters(); ii++) {
     cite = lvCount.find(lv->GetDaughter(ii)->GetLogicalVolume());
     if (cite != lvCount.end())
       lvCount[cite->first] = (cite->second) + 1;
@@ -192,8 +192,7 @@ int PrintGeomInfoAction::countNoTouchables() {
 }
 
 void PrintGeomInfoAction::add1touchable(G4LogicalVolume *lv, int &nTouch) {
-  int siz = lv->GetNoDaughters();
-  for (int ii = 0; ii < siz; ii++)
+  for (size_t ii = 0; ii < lv->GetNoDaughters(); ii++)
     add1touchable(lv->GetDaughter(ii)->GetLogicalVolume(), ++nTouch);
 }
 
@@ -222,7 +221,7 @@ void PrintGeomInfoAction::dumpHierarchyLeafPVLV(G4LogicalVolume *lv, unsigned in
   //----- Get LV daughters from list of PV daughters
   mmlvpv lvpvDaughters;
   std::set<G4LogicalVolume *> lvDaughters;
-  int NoDaughters = lv->GetNoDaughters();
+  size_t NoDaughters = lv->GetNoDaughters();
   while ((NoDaughters--) > 0) {
     G4VPhysicalVolume *pvD = lv->GetDaughter(NoDaughters);
     lvpvDaughters.insert(mmlvpv::value_type(pvD->GetLogicalVolume(), pvD));
@@ -359,7 +358,7 @@ void PrintGeomInfoAction::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDept
         << " global position of centre " << globalpoint << " (r = " << globalpoint.perp()
         << ", phi = " << globalpoint.phi() / deg << ")" << G4endl;
 
-  int NoDaughters = lv->GetNoDaughters();
+  size_t NoDaughters = lv->GetNoDaughters();
   while ((NoDaughters--) > 0) {
     G4VPhysicalVolume *pvD = lv->GetDaughter(NoDaughters);
     if (!pvD->IsReplicated())
