@@ -436,10 +436,9 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
                            const bool doEta,
                            const bool doEtaPhi,
                            const bool doVsLS) {
-
   std::string hName = h_Name;
   std::string hTitle = h_Title;
-  const std::string hSubN = h_subOptName.empty() ? "" : "_"+h_subOptName;
+  const std::string hSubN = h_subOptName.empty() ? "" : "_" + h_subOptName;
 
   int nbin_phi = jet_phi_binning_.nbins;
   double maxbin_phi = jet_phi_binning_.xmax;
