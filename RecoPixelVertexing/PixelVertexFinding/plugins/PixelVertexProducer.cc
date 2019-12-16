@@ -40,10 +40,10 @@
 
 class PixelVertexProducer : public edm::stream::EDProducer<> {
 public:
-  explicit PixelVertexProducer(const edm::ParameterSet &);
+  explicit PixelVertexProducer(const edm::ParameterSet&);
   ~PixelVertexProducer() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
@@ -56,7 +56,7 @@ private:
   const edm::EDGetTokenT<reco::TrackCollection> token_Tracks;
   const edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
 
-  DivisiveVertexFinder *dvf_;
+  DivisiveVertexFinder* dvf_;
 };
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
