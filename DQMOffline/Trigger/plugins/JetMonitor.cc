@@ -431,15 +431,15 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
                            const std::string& h_Name,
                            const std::string& h_Title,
                            const std::string& h_subOptName,
-                           const std::string& h_suOptTitle,
+                           const std::string& hSubT,
                            const bool doPhi,
                            const bool doEta,
                            const bool doEtaPhi,
                            const bool doVsLS) {
+
   std::string hName = h_Name;
   std::string hTitle = h_Title;
-  std::string hSubN = "";
-  const std::string hSubT = h_suOptTitle;
+  const std::string hSubN = h_subOptName.empty() ? "" : "_"+h_subOptName;
 
   int nbin_phi = jet_phi_binning_.nbins;
   double maxbin_phi = jet_phi_binning_.xmax;
@@ -448,10 +448,6 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
   int nbin_eta = jet_eta_binning_.nbins;
   double maxbin_eta = jet_eta_binning_.xmax;
   double minbin_eta = jet_eta_binning_.xmin;
-
-  if (!h_subOptName.empty()) {
-    hSubN = "_" + h_subOptName;
-  }
 
   if (h_subOptName == "HEP17") {
     nbin_phi = phi_binning_hep17_.nbins;
