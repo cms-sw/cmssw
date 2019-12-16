@@ -459,7 +459,8 @@ void HcalTB04Analysis::update(const EndOfEvent* evt) {
 
 void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
   std::vector<CaloHit> hhits, hhitl;
-  int idHC;size_t j;
+  int idHC;
+  size_t j;
   CaloG4HitCollection* theHC;
   std::map<int, float, std::less<int> > primaries;
   double etot1 = 0, etot2 = 0;

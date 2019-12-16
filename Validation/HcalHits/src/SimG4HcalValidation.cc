@@ -268,7 +268,8 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
   // access to the G4 hit collections
   G4HCofThisEvent *allHC = (*evt)()->GetHCofThisEvent();
 
-  int nhc = 0; size_t j = 0;
+  int nhc = 0;
+  size_t j = 0;
 
   // Hcal
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[0]);
