@@ -76,7 +76,7 @@ source = cms.Source("EmptySource",
 )
 
 # particle generator
-from Validation.CTPPS.randomXiThetaGunProducer_cfi import *
+from Configuration.Generator.randomXiThetaGunProducer_cfi import *
 generator.xi_max = 0.25
 generator.theta_x_sigma = 60E-6
 generator.theta_y_sigma = 60E-6
