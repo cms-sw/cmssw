@@ -485,8 +485,8 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
   } else {
     for (auto &sc : *(output_.pSimClusters)) {
       auto hitsAndEnergies = sc.hits_and_fractions();
-      for (auto& hAndE : hitsAndEnergies)
-        sc.addRecHitAndEnergy(hAndE.first, hAndE.second); 
+      for (auto &hAndE : hitsAndEnergies)
+        sc.addRecHitAndEnergy(hAndE.first, hAndE.second);
       sc.clearHitsAndFractions();
       for (auto &hAndE : hitsAndEnergies) {
         const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
