@@ -97,7 +97,7 @@ G4VParticleChange *GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track
 
   (const_cast<G4Track *>(&track))->SetTrackStatus(fPostponeToNextEvent);
 
-  for (G4int ipm = 0; ipm < fProcessVector->entries(); ipm++) {
+  for (size_t ipm = 0; ipm < fProcessVector->entries(); ipm++) {
     fProcess = (*fProcessVector)(ipm);
 
     if (fProcess->GetProcessType() == fParameterisation) {

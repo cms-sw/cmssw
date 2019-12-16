@@ -320,7 +320,7 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
       if (DeActivatePhysicsProcess) {
         G4ProcessManager* p_mgr = trk->GetDefinition()->GetProcessManager();
         G4ProcessVector* pvec = p_mgr->GetProcessList();
-        for (int i = 0; i < pvec->size(); i++) {
+        for (size_t i = 0; i < pvec->size(); i++) {
           G4VProcess* proc = (*pvec)(i);
           if (proc->GetProcessName() != "Transportation" && proc->GetProcessName() != "Decay") {
             std::cout << "DeActivating process: " << proc->GetProcessName() << std::endl;
@@ -358,7 +358,7 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
     if (trk->GetParentID() == 0 && DeActivatePhysicsProcess) {
       G4ProcessManager* p_mgr = trk->GetDefinition()->GetProcessManager();
       G4ProcessVector* pvec = p_mgr->GetProcessList();
-      for (int i = 0; i < pvec->size(); i++) {
+      for (size_t i = 0; i < pvec->size(); i++) {
         G4VProcess* proc = (*pvec)(i);
         if (proc->GetProcessName() != "Transportation" && proc->GetProcessName() != "Decay") {
           std::cout << "  Activating process: " << proc->GetProcessName() << std::endl;
@@ -442,7 +442,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
 
   // Loop over primaries
   int NEvtAccepted = 0;
-  int NHitInEvent = 0;
+  size_t NHitInEvent = 0;
   for (unsigned int i = 0; i < thePrims.size(); i++) {
     G4PrimaryParticle* thePrim = thePrims.at(i);
     if (!thePrim) {
@@ -1025,7 +1025,7 @@ void CastorShowerLibraryMaker::GetMissingEnergy(CaloG4HitCollection* theCAFI, do
   // Get the total deposited energy and the one from hit not associated to a primary
   miss_energy = 0;
   tot_energy = 0;
-  for (int ihit = 0; ihit < theCAFI->entries(); ihit++) {
+  for (unsigned ihit = 0; ihit < theCAFI->entries(); ihit++) {
     int id = (*theCAFI)[ihit]->getTrackID();
     tot_energy += (*theCAFI)[ihit]->getEnergyDeposit();
     int hit_prim = 0;

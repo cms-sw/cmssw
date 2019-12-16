@@ -117,7 +117,7 @@ void TotemSD::Initialize(G4HCofThisEvent* HCE) {
 
 void TotemSD::EndOfEvent(G4HCofThisEvent*) {
   // here we loop over transient hits and make them persistent
-  for (int j = 0; j < theHC->entries() && j < 15000; j++) {
+  for (size_t j = 0; j < theHC->entries() && j < 15000; j++) {
     TotemG4Hit* aHit = (*theHC)[j];
 #ifdef ddebug
     LogDebug("ForwardSim") << "HIT NUMERO " << j << "unit ID = " << aHit->getUnitID() << "\n"
@@ -224,7 +224,7 @@ bool TotemSD::hitExists() {
 
   bool found = false;
 
-  for (int j = 0; j < theHC->entries() && !found; j++) {
+  for (size_t j = 0; j < theHC->entries() && !found; j++) {
     TotemG4Hit* aPreviousHit = (*theHC)[j];
     if (aPreviousHit->getTrackID() == primaryID && aPreviousHit->getTimeSliceID() == tSliceID &&
         aPreviousHit->getUnitID() == unitID) {

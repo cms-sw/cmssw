@@ -317,7 +317,7 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
 
-  int nhc = 0, neb = 0, nef = 0, j = 0;
+  int nhc = 0, neb = 0, nef = 0; size_t j = 0;
   caloHitCache_.erase(caloHitCache_.begin(), caloHitCache_.end());
 
   // Hcal

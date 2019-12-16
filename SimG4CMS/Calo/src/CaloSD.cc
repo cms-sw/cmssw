@@ -321,7 +321,7 @@ bool CaloSD::checkHit() {
       found = true;
     }
   } else if (nCheckedHits > 0) {
-    int minhit = (theHC->entries() > nCheckedHits ? theHC->entries() - nCheckedHits : 0);
+    size_t minhit = (theHC->entries() > nCheckedHits ? theHC->entries() - nCheckedHits : 0);
     int maxhit = theHC->entries() - 1;
 
     for (int j = maxhit; j > minhit; --j) {
@@ -504,7 +504,7 @@ void CaloSD::update(const ::EndOfEvent*) {
   double zglob(0.0);
   double ee(0.0);
 
-  for (int i = 0; i < theHC->entries(); ++i) {
+  for (size_t i = 0; i < theHC->entries(); ++i) {
     if (!saveHit((*theHC)[i])) {
       ++wrong;
     }
