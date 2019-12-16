@@ -250,11 +250,11 @@ namespace dqm::impl {
     const std::string &getPathname() const { return this->data_.dirname; }
 
     /// get full name of ME including Pathname
-    const std::string getFullname() const { return access().key.path_.getFullname(); }
+    std::string getFullname() const { return access().key.path_.getFullname(); }
 
-    const edm::LuminosityBlockID getRunLumi() { return access().key.id_; }
+    edm::LuminosityBlockID getRunLumi() { return access().key.id_; }
 
-    const MonitorElementData::Scope getScope() { return access().key.scope_; }
+    MonitorElementData::Scope getScope() { return access().key.scope_; }
 
     /// true if ME was updated in last monitoring cycle
     bool wasUpdated() const { return data_.flags & DQMNet::DQM_PROP_NEW; }
