@@ -113,9 +113,11 @@ namespace dqm::implementation {
       // assertLegacySafe option).
       // We still created a local ME, so we can drive the lumi-changing for
       // legacy modules in watchPreGlobalBeginLumi.
+      store_->debugTrackME("bookME (legacy)", me);
       return me;
     } else {
       // the normal case.
+      store_->debugTrackME("bookME (legacy)", me);
       return localme;
     }
   }
@@ -126,6 +128,7 @@ namespace dqm::implementation {
     auto existing_new = globalMEs_[me->getRunLumi()].insert(me);
     if (existing_new.second == true) {
       // successfully inserted, return new object
+      debugTrackME("putME (global)", me);
       return me;
     } else {
       // already present, return old object
@@ -146,6 +149,7 @@ namespace dqm::implementation {
       auto existing_new = localmes.insert(local_me);
       // successfully inserted, return new object
       assert(existing_new.second == true);  // insert successful
+      debugTrackME("putME (local, new)", me);
       return local_me;
     } else {
       // already present, return old object
@@ -160,6 +164,7 @@ namespace dqm::implementation {
       if (!local_me->isValid()) {
         local_me->switchData(me);
       }
+      debugTrackME("putME (local, existing)", me);
       return local_me;
     }
   }
@@ -170,6 +175,7 @@ namespace dqm::implementation {
     for (auto& [runlumi, meset] : this->globalMEs_) {
       auto it = meset.find(path);
       if (it != meset.end()) {
+        debugTrackME("findME (found)", *it);
         // no guarantee on which ME we return here -- only that clone'ing this
         // would give a valid ME for that path.
         return *it;
@@ -247,6 +253,32 @@ namespace dqm::implementation {
     });
   }
 
+  void DQMStore::debugTrackME(const char* message, MonitorElement* me) const {
+    const char* scopename[] = {"INVALID", "JOB", "RUN", "LUMI"};
+    if (!this->trackME_.empty() && me) {
+      std::string name = me->getFullname();
+      if (name.find(this->trackME_) != std::string::npos) {
+        edm::LogWarning("DQMStoreTrackME").log([&](auto& logger) {
+          logger << message << " for " << name;
+          if (me->isValid()) {
+            logger << " " << me->getRunLumi() << " scope " << scopename[me->getScope()];
+            if (me->kind() >= MonitorElement::Kind::TH1F) {
+              logger << " entries " << me->getEntries();
+            } else if (me->kind() == MonitorElement::Kind::STRING) {
+              logger << " value " << me->getStringValue();
+            } else if (me->kind() == MonitorElement::Kind::REAL) {
+              logger << " value " << me->getFloatValue();
+            } else if (me->kind() == MonitorElement::Kind::INT) {
+              logger << " value " << me->getIntValue();
+            }
+          } else {
+            logger << " (invalid)";
+          }
+        });
+      }
+    }
+  }
+
   MonitorElement* DQMStore::findOrRecycle(MonitorElementData::Key const& key) {
     // This is specifically for DQMRootSource, or other input modules. These
     // are special in that they use the legacy interface (no moduleID, no local
@@ -257,6 +289,7 @@ namespace dqm::implementation {
     auto existing = this->get(key);
     if (existing) {
       // exactly matching ME found, needs merging with the new data.
+      debugTrackME("findOrRecycle (found)", existing);
       return existing;
     }  // else
 
@@ -282,6 +315,7 @@ namespace dqm::implementation {
       auto newme = *result.first;  // iterator to new ME
       assert(oldme == newme);      // recycling!
       // newme is reset and ready to accept data.
+      debugTrackME("findOrRecycle (recycled)", newme);
       return newme;
     }  // else
 
@@ -317,6 +351,7 @@ namespace dqm::implementation {
       auto target = targetset.find(me);  // lookup by path, thanks to MEComparison
       if (target != targetset.end()) {
         // we already have a ME, just use it!
+        debugTrackME("enterLumi (existing)", *target);
       } else {
         // look for a prototype to reuse.
         auto proto = prototypes.find(me);
@@ -340,6 +375,7 @@ namespace dqm::implementation {
           auto result = targetset.insert(oldme);
           assert(result.second);  // was new insertion
           target = result.first;  // iterator to new ME
+          debugTrackME("enterLumi (reused)", *target);
         } else {
           // no prototype available. That means we have concurrent Lumis/Runs,
           // and need to make a clone now.
@@ -359,6 +395,7 @@ namespace dqm::implementation {
           auto result = targetset.insert(newme);
           assert(result.second);  // was new insertion
           target = result.first;  // iterator to new ME
+          debugTrackME("enterLumi (allocated)", *target);
         }
       }
       // now we have the proper global ME in the right place, point the local there.
@@ -396,6 +433,7 @@ namespace dqm::implementation {
       // we have to be very careful with the ME here, it might not be backed by data at all.
       if (me->isValid() && checkScope(me->getScope()) == true) {
         // if we left the scope, simply release the data.
+        debugTrackME("leaveLumi (release)", me);
         me->release(/* expectOwned */ false);
       }
     }
@@ -441,10 +479,12 @@ namespace dqm::implementation {
       auto other = this->findME(me);
       if (other) {
         // we still have a global one, so we can just remove this.
+        debugTrackME("cleanupLumi (delete)", me);
         delete me;
       } else {
         // we will modify the ME, so it needs to be out of the set.
         // use a temporary vector to be save.
+        debugTrackME("cleanupLumi (recycle)", me);
         torecycle.push_back(me);
       }
     }
@@ -473,6 +513,7 @@ namespace dqm::implementation {
       auto it = meset.lower_bound(path);
       // rfind can be used as a prefix match.
       while (it != meset.end() && (*it)->getPathname() == path.getDirname()) {
+        store_->debugTrackME("getContents (match)", *it);
         out.push_back(*it);
         ++it;
       }
@@ -492,6 +533,7 @@ namespace dqm::implementation {
       auto it = meset.lower_bound(path);
       // rfind can be used as a prefix match.
       while (it != meset.end() && (*it)->getPathname().rfind(path_str, 0) == 0) {
+        store_->debugTrackME("getAllContents (match)", *it);
         out.push_back(*it);
         ++it;
       }
@@ -510,6 +552,7 @@ namespace dqm::implementation {
     auto it = meset.lower_bound(path);
     // rfind can be used as a prefix match.
     while (it != meset.end() && (*it)->getFullname().rfind(path_str, 0) == 0) {
+      store_->debugTrackME("getAllContents (run/lumi match)", *it);
       out.push_back(*it);
       ++it;
     }
@@ -529,6 +572,7 @@ namespace dqm::implementation {
     auto it = meset.find(key.path_);
     if (it != meset.end()) {
       assert((*it)->getScope() == key.scope_);
+      store_->debugTrackME("get (key found)", *it);
       return *it;
     }
     return nullptr;
@@ -584,6 +628,7 @@ namespace dqm::implementation {
     verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
     assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", true);
     doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
+    trackME_ = pset.getUntrackedParameter<std::string>("trackME", "");
 
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be
