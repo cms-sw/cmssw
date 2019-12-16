@@ -100,7 +100,7 @@ namespace {
 
   class SiStripNoisePerDetId : public cond::payloadInspector::PlotImage<SiStripNoises> {
   public:
-    SiStripNoisePerDetId() : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values") {
+    SiStripNoisePerDetId() : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values Per DetId") {
       cond::payloadInspector::PlotBase::addInputParam("DetId");
       setSingleIov(true);
     }
@@ -108,12 +108,12 @@ namespace {
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
 
-      unsigned int the_detid(0);
+      unsigned int the_detid(0xFFFFFFFF);
 
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
       auto ip = paramValues.find("DetId");
       if (ip != paramValues.end()) {
-        the_detid = boost::lexical_cast<int>(ip->second);
+        the_detid = boost::lexical_cast<unsigned int>(ip->second);
       }
 
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
@@ -213,6 +213,43 @@ namespace {
           }    // loop over detIds
         }      // payload
       }        // iovs
+      return true;
+    }  // fill
+  };
+
+  /************************************************
+    1d histogram of SiStripNoises of 1 IOV per Detid
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripNoiseValuePerDetId : public cond::payloadInspector::Histogram1D<SiStripNoises> {
+  public:
+    SiStripNoiseValuePerDetId()
+        : cond::payloadInspector::Histogram1D<SiStripNoises>(
+              "SiStrip Noise values per DetId", "SiStrip Noise values per DetId", 100, 0.0, 10.0) {
+      cond::payloadInspector::PlotBase::addInputParam("DetId");
+      Base::setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
+        std::shared_ptr<SiStripNoises> payload = Base::fetchPayload(std::get<1>(iov));
+        unsigned int the_detid(0xFFFFFFFF);
+        auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+        auto ip = paramValues.find("DetId");
+        if (ip != paramValues.end()) {
+          the_detid = boost::lexical_cast<unsigned int>(ip->second);
+        }
+
+        if (payload.get()) {
+          SiStripNoises::Range range = payload->getRange(the_detid);
+          for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
+            auto noise = payload->getNoise(it, range);
+            //to be used to fill the histogram
+            fillWithValue(noise);
+          }  // loop over APVs
+        }    // payload
+      }      // iovs
       return true;
     }  // fill
   };
@@ -1735,6 +1772,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisePerDetId);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerDetId);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerStrip);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerAPV);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerModule);
