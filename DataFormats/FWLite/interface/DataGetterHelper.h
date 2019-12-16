@@ -53,12 +53,13 @@ namespace fwlite {
   class DataGetterHelper {
   public:
     //            DataGetterHelper() {};
-    DataGetterHelper(TTree* tree,
-                     std::shared_ptr<HistoryGetterBase> historyGetter,
-                     std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
-                     std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
-                     bool useCache = false,
-                     std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
+    DataGetterHelper(
+        TTree* tree,
+        std::shared_ptr<HistoryGetterBase> historyGetter,
+        std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
+        std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
+        bool useCache = false,
+        std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
     virtual ~DataGetterHelper();
 
     // ---------- const member functions ---------------------
@@ -103,7 +104,8 @@ namespace fwlite {
     CMS_SA_ALLOW mutable std::vector<char const*> labels_;
     const edm::ProcessHistory& history() const;
 
-    CMS_SA_ALLOW mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>, std::shared_ptr<internal::Data>> idToData_;
+    CMS_SA_ALLOW mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>, std::shared_ptr<internal::Data>>
+        idToData_;
     CMS_SA_ALLOW mutable std::map<edm::BranchID, std::shared_ptr<internal::Data>> bidToData_;
     edm::propagate_const<std::shared_ptr<fwlite::HistoryGetterBase>> historyGetter_;
     std::shared_ptr<edm::EDProductGetter const> getter_;

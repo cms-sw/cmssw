@@ -78,7 +78,7 @@ namespace fwlite {
     long m_entry;
     IOVSyncValue m_start;
     IOVSyncValue m_end;
-    
+
     //This class is not inteded to be used across different threads
     CMS_SA_ALLOW mutable std::map<std::pair<edm::TypeID, std::string>, std::pair<TBranch*, void*>> m_branches;
   };
