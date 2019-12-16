@@ -13,11 +13,10 @@
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
 #include "CLHEP/Random/RandFlat.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/JamesRandom.h"
 
 #include "TFile.h"
 #include "TH1D.h"
-#include "TRandom3.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -42,6 +41,8 @@ private:
   double m_beamEnergy;
   double m_betaStar;
 
+  std::unique_ptr<CLHEP::HepRandomEngine> m_engine;
+
   struct BinData {
     double min, max, xangle;
   };
@@ -58,7 +59,9 @@ CTPPSLHCInfoRandomXangleESSource::CTPPSLHCInfoRandomXangleESSource(const edm::Pa
       m_generateEveryNEvents(conf.getParameter<unsigned int>("generateEveryNEvents")),
 
       m_beamEnergy(conf.getParameter<double>("beamEnergy")),
-      m_betaStar(conf.getParameter<double>("betaStar")) {
+      m_betaStar(conf.getParameter<double>("betaStar")),
+
+      m_engine(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed"))) {
   const auto &xangleHistogramFile = conf.getParameter<std::string>("xangleHistogramFile");
   const auto &xangleHistogramObject = conf.getParameter<std::string>("xangleHistogramObject");
 
@@ -92,6 +95,8 @@ void CTPPSLHCInfoRandomXangleESSource::fillDescriptions(edm::ConfigurationDescri
 
   desc.add<std::string>("label", "")->setComment("label of the LHCInfo record");
 
+  desc.add<unsigned int>("seed", 1)->setComment("random seed");
+
   desc.add<unsigned int>("generateEveryNEvents", 1)->setComment("how often to generate new xangle");
 
   desc.add<std::string>("xangleHistogramFile", "")->setComment("ROOT file with xangle distribution");
@@ -118,13 +123,8 @@ void CTPPSLHCInfoRandomXangleESSource::setIntervalFor(const edm::eventsetup::Eve
 edm::ESProducts<std::unique_ptr<LHCInfo>> CTPPSLHCInfoRandomXangleESSource::produce(const LHCInfoRcd &) {
   auto output = std::make_unique<LHCInfo>();
 
-  // TODO: this doesn't work, use temporarily ROOT code
-  /*
-  edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine *engine = &rng->getEngine(edm::StreamID(1));
-  const double u = CLHEP::RandFlat::shoot(engine, 0., 1.);
-  */
-  const double u = gRandom->Rndm();
+  const double u = CLHEP::RandFlat::shoot(m_engine.get(), 0., 1.);
+
   double xangle = 0.;
   for (const auto &d : binData) {
     if (d.min <= u && u <= d.max) {
