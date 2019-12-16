@@ -604,6 +604,8 @@ namespace dqm {
       MonitorElement* findME(MELIKE const& path);
       // Log a backtrace on booking.
       void printTrace(std::string const& message);
+      // print a log message if ME matches trackME_.
+      void debugTrackME(const char* message, MonitorElement* me) const;
 
     private:
       // MEComparison is a name-only comparison on MEs and Paths, allowing
@@ -647,6 +649,10 @@ namespace dqm {
 
       // Book MEs by lumi by default whenever possible.
       bool doSaveByLumi_;
+
+      // if non-empty, debugTrackME calls will log some information whenever a
+      // ME path contains this string.
+      std::string trackME_;
     };
   }  // namespace implementation
 
