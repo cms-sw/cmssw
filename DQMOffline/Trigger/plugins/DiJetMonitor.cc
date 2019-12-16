@@ -3,28 +3,37 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DiJetMonitor::DiJetMonitor(const edm::ParameterSet& iConfig)
-  : folderName_(iConfig.getParameter<std::string>("FolderName"))
-  , requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths"))
-  , hltPathsAreValid_(false)
-  , dijetSrc_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc")))
-  , dijetpt_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPSet")))
-  , dijetptThr_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPtThrPSet")))
-  , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this))
-  , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this))
-  , ptcut_(iConfig.getParameter<double>("ptcut"))
-{}
+    : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
+      dijetSrc_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"))),
+      dijetpt_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPSet"))),
+      dijetptThr_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPtThrPSet"))),
+      num_genTriggerEventFlag_(new GenericTriggerEventFlag(
+          iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
+      den_genTriggerEventFlag_(new GenericTriggerEventFlag(
+          iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)),
+      ptcut_(iConfig.getParameter<double>("ptcut")) {}
 
 DiJetMonitor::~DiJetMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void DiJetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if(den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -53,27 +62,37 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
 
   histname = "jetptAvgB";
   histtitle = "Pt average before offline selection";
-  bookME(ibooker, jetptAvgbME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  bookME(
+      ibooker, jetptAvgbME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
   setMETitle(jetptAvgbME_, "(pt_1 + pt_2)*0.5 [GeV]", "events");
 
   histname = "jetptAvgA";
   histtitle = "Pt average after offline selection";
-  bookME(ibooker, jetptAvgaME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  bookME(
+      ibooker, jetptAvgaME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
   setMETitle(jetptAvgaME_, "(pt_1 + pt_2)*0.5 [GeV]", "events");
 
   histname = "jetptAvgAThr";
   histtitle = "Pt average after offline selection";
-  bookME(ibooker, jetptAvgaThrME_, histname, histtitle, dijetptThr_binning_.nbins, dijetptThr_binning_.xmin, dijetptThr_binning_.xmax);
+  bookME(ibooker,
+         jetptAvgaThrME_,
+         histname,
+         histtitle,
+         dijetptThr_binning_.nbins,
+         dijetptThr_binning_.xmin,
+         dijetptThr_binning_.xmax);
   setMETitle(jetptAvgaThrME_, "(pt_1 + pt_2)*0.5 [GeV]", "events");
 
   histname = "jetptTag";
   histtitle = "Tag Jet Pt";
-  bookME(ibooker, jetptTagME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  bookME(
+      ibooker, jetptTagME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
   setMETitle(jetptTagME_, "Pt_tag [GeV]", "events ");
 
   histname = "jetptPrb";
   histtitle = "Probe Jet Pt";
-  bookME(ibooker, jetptPrbME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  bookME(
+      ibooker, jetptPrbME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
   setMETitle(jetptPrbME_, "Pt_prb [GeV]", "events");
 
   histname = "jetptAsym";
@@ -83,32 +102,67 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
 
   histname = "jetetaPrb";
   histtitle = "Probe Jet eta";
-  bookME(ibooker, jetetaPrbME_, histname, histtitle, dijet_eta_binning.nbins, dijet_eta_binning.xmin, dijet_eta_binning.xmax);
+  bookME(ibooker,
+         jetetaPrbME_,
+         histname,
+         histtitle,
+         dijet_eta_binning.nbins,
+         dijet_eta_binning.xmin,
+         dijet_eta_binning.xmax);
   setMETitle(jetetaPrbME_, "Eta_probe #eta", "events");
 
   histname = "jetetaTag";
   histtitle = "Tag Jet eta";
-  bookME(ibooker, jetetaTagME_, histname, histtitle, dijet_eta_binning.nbins, dijet_eta_binning.xmin, dijet_eta_binning.xmax);
+  bookME(ibooker,
+         jetetaTagME_,
+         histname,
+         histtitle,
+         dijet_eta_binning.nbins,
+         dijet_eta_binning.xmin,
+         dijet_eta_binning.xmax);
   setMETitle(jetetaTagME_, "Eta_tag #eta", "events");
 
   histname = "ptAsymVSetaPrb";
   histtitle = "Pt_Asym vs eta_prb";
-  bookME(ibooker, jetAsyEtaME_, histname, histtitle, asy_binning.nbins, asy_binning.xmin, asy_binning.xmax, dijet_eta_binning.nbins, dijet_eta_binning.xmin, dijet_eta_binning.xmax);
+  bookME(ibooker,
+         jetAsyEtaME_,
+         histname,
+         histtitle,
+         asy_binning.nbins,
+         asy_binning.xmin,
+         asy_binning.xmax,
+         dijet_eta_binning.nbins,
+         dijet_eta_binning.xmin,
+         dijet_eta_binning.xmax);
   setMETitle(jetAsyEtaME_, "(pt_prb - pt_tag)/(pt_prb + pt_tag)", "Eta_probe #eta");
 
   histname = "etaPrbVSphiPrb";
   histtitle = "eta_prb vs phi_prb";
-  bookME(ibooker, jetEtaPhiME_, histname, histtitle, dijet_eta_binning.nbins, dijet_eta_binning.xmin, dijet_eta_binning.xmax, dijet_phi_binning.nbins, dijet_phi_binning.xmin, dijet_phi_binning.xmax);
+  bookME(ibooker,
+         jetEtaPhiME_,
+         histname,
+         histtitle,
+         dijet_eta_binning.nbins,
+         dijet_eta_binning.xmin,
+         dijet_eta_binning.xmax,
+         dijet_phi_binning.nbins,
+         dijet_phi_binning.xmin,
+         dijet_phi_binning.xmax);
   setMETitle(jetEtaPhiME_, "Eta_probe #eta", "Phi_probe #phi");
 
   histname = "jetphiPrb";
   histtitle = "Probe Jet phi";
-  bookME(ibooker, jetphiPrbME_, histname, histtitle, dijet_phi_binning.nbins, dijet_phi_binning.xmin, dijet_phi_binning.xmax);
+  bookME(ibooker,
+         jetphiPrbME_,
+         histname,
+         histtitle,
+         dijet_phi_binning.nbins,
+         dijet_phi_binning.xmin,
+         dijet_phi_binning.xmax);
   setMETitle(jetphiPrbME_, "Phi_probe #phi", "events");
 }
 
 void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -228,8 +282,15 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
 }
 
 //---- Additional DiJet offline selection------
-bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int& tag_id, int& probe_id, int Event) {
-
+bool DiJetMonitor::dijet_selection(double eta_1,
+                                   double phi_1,
+                                   double eta_2,
+                                   double phi_2,
+                                   double pt_1,
+                                   double pt_2,
+                                   int& tag_id,
+                                   int& probe_id,
+                                   int Event) {
   double etacut = 1.7;
   double phicut = 2.7;
 
@@ -260,7 +321,6 @@ bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, dou
 }
 
 void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/JME/Jets/AK4/PF");
   desc.add<bool>("requireValidHLTPaths", false);

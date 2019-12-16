@@ -116,7 +116,7 @@ namespace {
 
     return true;
   }
-}
+}  // namespace
 
 LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps)
     : theElectronTag_(ps.getParameter<edm::InputTag>("electronCollection")),
@@ -192,23 +192,36 @@ LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps)
 }
 
 LepHTMonitor::~LepHTMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_lep_genTriggerEventFlag_){ den_lep_genTriggerEventFlag_.reset(); }
-  if(den_HT_genTriggerEventFlag_){ den_HT_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_lep_genTriggerEventFlag_) {
+    den_lep_genTriggerEventFlag_.reset();
+  }
+  if (den_HT_genTriggerEventFlag_) {
+    den_HT_genTriggerEventFlag_.reset();
+  }
 }
 
 void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun, const edm::EventSetup &iSetup) {
-
   // Initialize trigger flags
-  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if(den_lep_genTriggerEventFlag_ && den_lep_genTriggerEventFlag_->on()){ den_lep_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if(den_HT_genTriggerEventFlag_ && den_HT_genTriggerEventFlag_->on()){ den_HT_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_lep_genTriggerEventFlag_ && den_lep_genTriggerEventFlag_->on()) {
+    den_lep_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_HT_genTriggerEventFlag_ && den_HT_genTriggerEventFlag_->on()) {
+    den_HT_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
-  hltPathsAreValid_ = ((num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid()) &&
-                       ((den_lep_genTriggerEventFlag_ && den_lep_genTriggerEventFlag_->on() && den_lep_genTriggerEventFlag_->allHLTPathsAreValid()) ||
-                        (den_HT_genTriggerEventFlag_ && den_HT_genTriggerEventFlag_->on() && den_HT_genTriggerEventFlag_->allHLTPathsAreValid())));
+  hltPathsAreValid_ = ((num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                        num_genTriggerEventFlag_->allHLTPathsAreValid()) &&
+                       ((den_lep_genTriggerEventFlag_ && den_lep_genTriggerEventFlag_->on() &&
+                         den_lep_genTriggerEventFlag_->allHLTPathsAreValid()) ||
+                        (den_HT_genTriggerEventFlag_ && den_HT_genTriggerEventFlag_->on() &&
+                         den_HT_genTriggerEventFlag_->allHLTPathsAreValid())));
 
   // if valid HLT paths are required,
   // create DQM outputs only if all paths are valid
@@ -293,7 +306,6 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iR
 }
 
 void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {

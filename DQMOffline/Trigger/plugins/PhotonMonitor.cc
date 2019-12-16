@@ -28,20 +28,25 @@ PhotonMonitor::PhotonMonitor(const edm::ParameterSet& iConfig)
       photonSelection_(iConfig.getParameter<std::string>("photonSelection")),
       njets_(iConfig.getParameter<unsigned int>("njets")),
       nphotons_(iConfig.getParameter<unsigned int>("nphotons")),
-      nelectrons_(iConfig.getParameter<unsigned int>("nelectrons")) {
-}
+      nelectrons_(iConfig.getParameter<unsigned int>("nelectrons")) {}
 
 PhotonMonitor::~PhotonMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if(den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -71,7 +76,15 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
 
   histname = "photonVsLS";
   histtitle = "photon pt vs LS";
-  bookME(ibooker, photonVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, photon_binning_.xmin, photon_binning_.xmax);
+  bookME(ibooker,
+         photonVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         photon_binning_.xmin,
+         photon_binning_.xmax);
   setMETitle(photonVsLS_, "LS", "Photon pT [GeV]");
 
   histname = "photon_phi";
@@ -96,12 +109,20 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
 
   histname = "photon_etaphi";
   histtitle = "Photon eta-phi";
-  bookME(ibooker, photonEtaPhiME_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
+  bookME(ibooker,
+         photonEtaPhiME_,
+         histname,
+         histtitle,
+         eta_binning_.nbins,
+         eta_binning_.xmin,
+         eta_binning_.xmax,
+         phi_binning_1.nbins,
+         phi_binning_1.xmin,
+         phi_binning_1.xmax);
   setMETitle(photonEtaPhiME_, "#eta", "#phi");
 
   // for diphotons
   if (nphotons_ > 1) {
-
     histname = "diphoton_mass";
     histtitle = "Diphoton mass";
     bookME(ibooker, diphotonMassME_, histname, histtitle, diphoton_mass_binning_);
@@ -109,7 +130,8 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
 
     histname = "subphoton_pt";
     histtitle = "subphoton PT";
-    bookME(ibooker, subphotonME_, histname, histtitle, photon_binning_.nbins, photon_binning_.xmin, photon_binning_.xmax);
+    bookME(
+        ibooker, subphotonME_, histname, histtitle, photon_binning_.nbins, photon_binning_.xmin, photon_binning_.xmax);
     setMETitle(subphotonME_, "subPhoton pT [GeV]", "events / [GeV]");
 
     histname = "subphoton_eta";
@@ -134,13 +156,21 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
 
     histname = "subphoton_etaphi";
     histtitle = "subPhoton eta-phi";
-    bookME(ibooker, subphotonEtaPhiME_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
+    bookME(ibooker,
+           subphotonEtaPhiME_,
+           histname,
+           histtitle,
+           eta_binning_.nbins,
+           eta_binning_.xmin,
+           eta_binning_.xmax,
+           phi_binning_1.nbins,
+           phi_binning_1.xmin,
+           phi_binning_1.xmax);
     setMETitle(subphotonEtaPhiME_, "#eta", "#phi");
   }
 }
 
 void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -148,7 +178,7 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   }
 
   // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)){
+  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)) {
     return;
   }
 

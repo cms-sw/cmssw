@@ -31,8 +31,7 @@
 #include "DQMOffline/Trigger/plugins/HMesonGammaDQM.h"
 
 class ObjMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-
- public:
+public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
@@ -40,11 +39,11 @@ class ObjMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
   ~ObjMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
- private:
+private:
   bool looseJetId(const double& abseta,
                   const double& NHF,
                   const double& NEMF,

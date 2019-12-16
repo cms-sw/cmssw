@@ -30,19 +30,18 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class LepHTMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-
- public:
+public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
   LepHTMonitor(const edm::ParameterSet& ps);
   ~LepHTMonitor() throw() override;
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event& e, const edm::EventSetup& eSetup) override;
 
- private:
+private:
   edm::InputTag theElectronTag_;
   edm::EDGetTokenT<edm::View<reco::GsfElectron> > theElectronCollection_;
   edm::InputTag theElectronVIDTag_;

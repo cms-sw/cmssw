@@ -7,8 +7,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 class HTDQM : public TriggerDQMBase {
-
- public:
+public:
   HTDQM();
   ~HTDQM() override;
 
@@ -17,7 +16,7 @@ class HTDQM : public TriggerDQMBase {
   void fillHistograms(const std::vector<reco::PFJet>& htjets, const double& met, const int& ls, const bool passCond);
   static void fillHtDescription(edm::ParameterSetDescription& histoPSet);
 
- private:
+private:
   std::vector<double> ht_variable_binning_;
   std::vector<double> met_variable_binning_;
   MEbinning ht_binning_;

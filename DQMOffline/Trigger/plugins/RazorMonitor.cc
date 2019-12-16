@@ -19,7 +19,8 @@ RazorMonitor::RazorMonitor(const edm::ParameterSet& iConfig)
       hltPathsAreValid_(false),
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
-      theHemispheres_(consumes<std::vector<math::XYZTLorentzVector> >(iConfig.getParameter<edm::InputTag>("hemispheres"))),
+      theHemispheres_(
+          consumes<std::vector<math::XYZTLorentzVector> >(iConfig.getParameter<edm::InputTag>("hemispheres"))),
       rsq_binning_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("rsqBins")),
       mr_binning_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("mrBins")),
       dphiR_binning_(
@@ -32,18 +33,18 @@ RazorMonitor::RazorMonitor(const edm::ParameterSet& iConfig)
       jetSelection_(iConfig.getParameter<std::string>("jetSelection")),
       njets_(iConfig.getParameter<unsigned int>("njets")),
       rsqCut_(iConfig.getParameter<double>("rsqCut")),
-      mrCut_(iConfig.getParameter<double>("mrCut"))
-{
-}
+      mrCut_(iConfig.getParameter<double>("mrCut")) {}
 
 RazorMonitor::~RazorMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void RazorMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
   if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
     num_genTriggerEventFlag_->initRun(iRun, iSetup);
@@ -92,7 +93,6 @@ void RazorMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
 }
 
 void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {

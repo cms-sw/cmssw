@@ -4,10 +4,9 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::ParameterSet& iConfig)
-  : folderName_(iConfig.getParameter<std::string>("dirname")),
-    requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
-    hltPathsAreValid_(false) {
-
+    : folderName_(iConfig.getParameter<std::string>("dirname")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false) {
   processname_ = iConfig.getParameter<std::string>("processname");
   triggerobjbtag_ = iConfig.getParameter<std::string>("triggerobjbtag");
   jetPtmin_ = iConfig.getParameter<double>("jetPtMin");
@@ -18,7 +17,8 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::Paramete
   triggerSummaryToken_ = consumes<trigger::TriggerEvent>(triggerSummaryLabel_);
   offlineBtagToken_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineBtag"));
 
-  genTriggerEventFlag_.reset(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this));
+  genTriggerEventFlag_.reset(new GenericTriggerEventFlag(
+      iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this));
 
   jetPtbins_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPt");
   jetEtabins_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEta");
@@ -27,18 +27,21 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::Paramete
 }
 
 TagAndProbeBtagTriggerMonitor::~TagAndProbeBtagTriggerMonitor() throw() {
-
-  if (genTriggerEventFlag_){ genTriggerEventFlag_.reset(); }
+  if (genTriggerEventFlag_) {
+    genTriggerEventFlag_.reset();
+  }
 }
 
-void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
+void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker& ibooker,
+                                                   edm::Run const& iRun,
+                                                   edm::EventSetup const& iSetup) {
   // Initialize the GenericTriggerEventFlag
   if (genTriggerEventFlag_ && genTriggerEventFlag_->on())
     genTriggerEventFlag_->initRun(iRun, iSetup);
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
-  hltPathsAreValid_ = (genTriggerEventFlag_ && genTriggerEventFlag_->on() && genTriggerEventFlag_->allHLTPathsAreValid());
+  hltPathsAreValid_ =
+      (genTriggerEventFlag_ && genTriggerEventFlag_->on() && genTriggerEventFlag_->allHLTPathsAreValid());
 
   // if valid HLT paths are required,
   // create DQM outputs only if all paths are valid
@@ -87,7 +90,6 @@ void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker& ibooker, e
 }
 
 void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {

@@ -35,20 +35,25 @@ NoBPTXMonitor::NoBPTXMonitor(const edm::ParameterSet& iConfig)
       jetSelection_(iConfig.getParameter<std::string>("jetSelection")),
       muonSelection_(iConfig.getParameter<std::string>("muonSelection")),
       njets_(iConfig.getParameter<unsigned int>("njets")),
-      nmuons_(iConfig.getParameter<unsigned int>("nmuons")) {
-}
+      nmuons_(iConfig.getParameter<unsigned int>("nmuons")) {}
 
 NoBPTXMonitor::~NoBPTXMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -78,47 +83,98 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
 
   histname = "jetEVsLS";
   histtitle = "jetE vs LS";
-  bookME(ibooker, jetEVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, jetE_binning_.xmin, jetE_binning_.xmax);
+  bookME(ibooker,
+         jetEVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         jetE_binning_.xmin,
+         jetE_binning_.xmax);
   setMETitle(jetEVsLS_, "LS", "Jet E [GeV]");
 
   histname = "jetEVsBX";
   histtitle = "jetE vs BX";
-  bookME(ibooker, jetEVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, jetE_binning_.xmin, jetE_binning_.xmax);
+  bookME(ibooker,
+         jetEVsBX_,
+         histname,
+         histtitle,
+         bx_binning_.nbins,
+         bx_binning_.xmin,
+         bx_binning_.xmax,
+         jetE_binning_.xmin,
+         jetE_binning_.xmax);
   setMETitle(jetEVsBX_, "BX", "Jet E [GeV]");
 
   histname = "jetEta";
   histtitle = "jetEta";
-  bookME(ibooker, jetEtaNoBPTX_, histname, histtitle, jetEta_binning_.nbins, jetEta_binning_.xmin, jetEta_binning_.xmax);
+  bookME(
+      ibooker, jetEtaNoBPTX_, histname, histtitle, jetEta_binning_.nbins, jetEta_binning_.xmin, jetEta_binning_.xmax);
   setMETitle(jetEtaNoBPTX_, "Jet #eta", "Events");
 
   histname = "jetEtaVsLS";
   histtitle = "jetEta vs LS";
-  bookME(ibooker, jetEtaVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, jetEta_binning_.xmin, jetEta_binning_.xmax);
+  bookME(ibooker,
+         jetEtaVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         jetEta_binning_.xmin,
+         jetEta_binning_.xmax);
   setMETitle(jetEtaVsLS_, "LS", "Jet #eta");
 
   histname = "jetEtaVsBX";
   histtitle = "jetEta vs BX";
-  bookME(ibooker, jetEtaVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, jetEta_binning_.xmin, jetEta_binning_.xmax);
+  bookME(ibooker,
+         jetEtaVsBX_,
+         histname,
+         histtitle,
+         bx_binning_.nbins,
+         bx_binning_.xmin,
+         bx_binning_.xmax,
+         jetEta_binning_.xmin,
+         jetEta_binning_.xmax);
   setMETitle(jetEtaVsBX_, "BX", "Jet #eta");
 
   histname = "jetPhi";
   histtitle = "jetPhi";
-  bookME(ibooker, jetPhiNoBPTX_, histname, histtitle, jetPhi_binning_.nbins, jetPhi_binning_.xmin, jetPhi_binning_.xmax);
+  bookME(
+      ibooker, jetPhiNoBPTX_, histname, histtitle, jetPhi_binning_.nbins, jetPhi_binning_.xmin, jetPhi_binning_.xmax);
   setMETitle(jetPhiNoBPTX_, "Jet #phi", "Events");
 
   histname = "jetPhiVsLS";
   histtitle = "jetPhi vs LS";
-  bookME(ibooker, jetPhiVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, jetPhi_binning_.xmin, jetPhi_binning_.xmax);
+  bookME(ibooker,
+         jetPhiVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         jetPhi_binning_.xmin,
+         jetPhi_binning_.xmax);
   setMETitle(jetPhiVsLS_, "LS", "Jet #phi");
 
   histname = "jetPhiVsBX";
   histtitle = "jetPhi vs BX";
-  bookME(ibooker, jetPhiVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, jetPhi_binning_.xmin, jetPhi_binning_.xmax);
+  bookME(ibooker,
+         jetPhiVsBX_,
+         histname,
+         histtitle,
+         bx_binning_.nbins,
+         bx_binning_.xmin,
+         bx_binning_.xmax,
+         jetPhi_binning_.xmin,
+         jetPhi_binning_.xmax);
   setMETitle(jetPhiVsBX_, "BX", "Jet #phi");
 
   histname = "muonPt";
   histtitle = "muonPt";
-  bookME(ibooker, muonPtNoBPTX_, histname, histtitle, muonPt_binning_.nbins, muonPt_binning_.xmin, muonPt_binning_.xmax);
+  bookME(
+      ibooker, muonPtNoBPTX_, histname, histtitle, muonPt_binning_.nbins, muonPt_binning_.xmin, muonPt_binning_.xmax);
   setMETitle(muonPtNoBPTX_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]");
 
   histname = "muonPt_variable";
@@ -128,47 +184,106 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
 
   histname = "muonPtVsLS";
   histtitle = "muonPt vs LS";
-  bookME(ibooker, muonPtVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, muonPt_binning_.xmin, muonPt_binning_.xmax);
+  bookME(ibooker,
+         muonPtVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         muonPt_binning_.xmin,
+         muonPt_binning_.xmax);
   setMETitle(muonPtVsLS_, "LS", "DisplacedStandAlone Muon p_{T} [GeV]");
 
   histname = "muonPtVsBX";
   histtitle = "muonPt vs BX";
-  bookME(ibooker, muonPtVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, muonPt_binning_.xmin, muonPt_binning_.xmax);
+  bookME(ibooker,
+         muonPtVsBX_,
+         histname,
+         histtitle,
+         bx_binning_.nbins,
+         bx_binning_.xmin,
+         bx_binning_.xmax,
+         muonPt_binning_.xmin,
+         muonPt_binning_.xmax);
   setMETitle(muonPtVsBX_, "BX", "DisplacedStandAlone Muon p_{T} [GeV]");
 
   histname = "muonEta";
   histtitle = "muonEta";
-  bookME(ibooker, muonEtaNoBPTX_, histname, histtitle, muonEta_binning_.nbins, muonEta_binning_.xmin, muonEta_binning_.xmax);
+  bookME(ibooker,
+         muonEtaNoBPTX_,
+         histname,
+         histtitle,
+         muonEta_binning_.nbins,
+         muonEta_binning_.xmin,
+         muonEta_binning_.xmax);
   setMETitle(muonEtaNoBPTX_, "DisplacedStandAlone Muon #eta", "Events");
 
   histname = "muonEtaVsLS";
   histtitle = "muonEta vs LS";
-  bookME(ibooker, muonEtaVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, muonEta_binning_.xmin, muonEta_binning_.xmax);
+  bookME(ibooker,
+         muonEtaVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         muonEta_binning_.xmin,
+         muonEta_binning_.xmax);
   setMETitle(muonEtaVsLS_, "LS", "DisplacedStandAlone Muon #eta");
 
   histname = "muonEtaVsBX";
   histtitle = "muonEta vs BX";
-  bookME(ibooker, muonEtaVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, muonEta_binning_.xmin, muonEta_binning_.xmax);
+  bookME(ibooker,
+         muonEtaVsBX_,
+         histname,
+         histtitle,
+         bx_binning_.nbins,
+         bx_binning_.xmin,
+         bx_binning_.xmax,
+         muonEta_binning_.xmin,
+         muonEta_binning_.xmax);
   setMETitle(muonEtaVsBX_, "BX", "DisplacedStandAlone Muon #eta");
 
   histname = "muonPhi";
   histtitle = "muonPhi";
-  bookME(ibooker, muonPhiNoBPTX_, histname, histtitle, muonPhi_binning_.nbins, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
+  bookME(ibooker,
+         muonPhiNoBPTX_,
+         histname,
+         histtitle,
+         muonPhi_binning_.nbins,
+         muonPhi_binning_.xmin,
+         muonPhi_binning_.xmax);
   setMETitle(muonPhiNoBPTX_, "DisplacedStandAlone Muon #phi", "Events");
 
   histname = "muonPhiVsLS";
   histtitle = "muonPhi vs LS";
-  bookME(ibooker, muonPhiVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
+  bookME(ibooker,
+         muonPhiVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         muonPhi_binning_.xmin,
+         muonPhi_binning_.xmax);
   setMETitle(muonPhiVsLS_, "LS", "DisplacedStandAlone Muon #phi");
 
   histname = "muonPhiVsBX";
   histtitle = "muonPhi vs BX";
-  bookME(ibooker, muonPhiVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
+  bookME(ibooker,
+         muonPhiVsBX_,
+         histname,
+         histtitle,
+         bx_binning_.nbins,
+         bx_binning_.xmin,
+         bx_binning_.xmax,
+         muonPhi_binning_.xmin,
+         muonPhi_binning_.xmax);
   setMETitle(muonPhiVsBX_, "BX", "DisplacedStandAlone Muon #phi");
 }
 
 void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -176,7 +291,7 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   }
 
   // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)){
+  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)) {
     return;
   }
 
@@ -258,7 +373,6 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 }
 
 void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/NoBPTX");
   desc.add<bool>("requireValidHLTPaths", false);

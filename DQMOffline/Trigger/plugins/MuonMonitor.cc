@@ -3,41 +3,56 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 MuonMonitor::MuonMonitor(const edm::ParameterSet& iConfig)
-  : folderName_(iConfig.getParameter<std::string>("FolderName"))
-  , requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths"))
-  , hltPathsAreValid_(false)
-  , metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met")))
-  , muonToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons")))
-  , vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices")))
-  , eleToken_(mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons")))
-  , muon_variable_binning_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonBinning"))
-  , muoneta_variable_binning_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonetaBinning"))
-  , muon_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("muonPSet")))
-  , ls_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet")))
-  , muPt_variable_binning_2D_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning2D"))
-  , elePt_variable_binning_2D_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning2D"))
-  , muEta_variable_binning_2D_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning2D"))
-  , eleEta_variable_binning_2D_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning2D"))
-  , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this))
-  , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this))
-  , metSelection_(iConfig.getParameter<std::string>("metSelection"))
-  , muonSelection_(iConfig.getParameter<std::string>("muonSelection"))
-  , eleSelection_(iConfig.getParameter<std::string>("eleSelection"))
-  , nmuons_(iConfig.getParameter<unsigned int>("nmuons"))
-  , nelectrons_(iConfig.getParameter<unsigned int>("nelectrons")) {
-}
+    : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
+      metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
+      muonToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+      vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      eleToken_(mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons"))),
+      muon_variable_binning_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonBinning")),
+      muoneta_variable_binning_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonetaBinning")),
+      muon_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("muonPSet"))),
+      ls_binning_(
+          getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet"))),
+      muPt_variable_binning_2D_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning2D")),
+      elePt_variable_binning_2D_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning2D")),
+      muEta_variable_binning_2D_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning2D")),
+      eleEta_variable_binning_2D_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning2D")),
+      num_genTriggerEventFlag_(new GenericTriggerEventFlag(
+          iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
+      den_genTriggerEventFlag_(new GenericTriggerEventFlag(
+          iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)),
+      metSelection_(iConfig.getParameter<std::string>("metSelection")),
+      muonSelection_(iConfig.getParameter<std::string>("muonSelection")),
+      eleSelection_(iConfig.getParameter<std::string>("eleSelection")),
+      nmuons_(iConfig.getParameter<unsigned int>("nmuons")),
+      nelectrons_(iConfig.getParameter<unsigned int>("nelectrons")) {}
 
 MuonMonitor::~MuonMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void MuonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if(den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -66,7 +81,15 @@ void MuonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
 
   histname = "muonVsLS";
   histtitle = "muon pt vs LS";
-  bookME(ibooker, muonVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, muon_binning_.xmin, muon_binning_.xmax);
+  bookME(ibooker,
+         muonVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         muon_binning_.xmin,
+         muon_binning_.xmax);
   setMETitle(muonVsLS_, "LS", "Muon pT [GeV]");
 
   histname = "muon_phi";
@@ -96,7 +119,16 @@ void MuonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
 
   histname = "muon_etaphi";
   histtitle = "Muon eta-phi";
-  bookME(ibooker, muonEtaPhiME_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  bookME(ibooker,
+         muonEtaPhiME_,
+         histname,
+         histtitle,
+         eta_binning_.nbins,
+         eta_binning_.xmin,
+         eta_binning_.xmax,
+         phi_binning_.nbins,
+         phi_binning_.xmin,
+         phi_binning_.xmax);
   setMETitle(muonEtaPhiME_, "#eta", "#phi");
 
   histname = "electron_pt_variable";
@@ -121,7 +153,6 @@ void MuonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
 }
 
 void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -129,14 +160,14 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   }
 
   // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)){
+  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)) {
     return;
   }
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken(metToken_, metHandle);
   reco::PFMET pfmet = metHandle->front();
-  if (!metSelection_(pfmet)){
+  if (!metSelection_(pfmet)) {
     return;
   }
 
@@ -178,7 +209,7 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // filling histograms (denominator)
   const int ls = iEvent.id().luminosityBlock();
 
-  if (!muons.empty()){
+  if (!muons.empty()) {
     muonME_.denominator->Fill(muons[0].pt());
     muonME_variableBinning_.denominator->Fill(muons[0].pt());
     muonPhiME_.denominator->Fill(muons[0].phi());
@@ -219,7 +250,6 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 }
 
 void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/Muon");
   desc.add<bool>("requireValidHLTPaths", false);
@@ -268,7 +298,8 @@ void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
   std::vector<double> bins_2D = {0., 40., 80., 100., 120., 140., 160., 180., 200., 240., 280., 350., 450., 1000.};
   std::vector<double> eta_bins_2D = {-3., -2., -1., 0., 1., 2., 3.};
-  std::vector<double> phi_bins_2D = {-3.1415, -2.5132, -1.8849, -1.2566, -0.6283, 0, 0.6283, 1.2566, 1.8849, 2.5132, 3.1415};
+  std::vector<double> phi_bins_2D = {
+      -3.1415, -2.5132, -1.8849, -1.2566, -0.6283, 0, 0.6283, 1.2566, 1.8849, 2.5132, 3.1415};
   histoPSet.add<std::vector<double> >("elePtBinning2D", bins_2D);
   histoPSet.add<std::vector<double> >("muPtBinning2D", bins_2D);
   histoPSet.add<std::vector<double> >("eleEtaBinning2D", eta_bins_2D);
