@@ -47,10 +47,8 @@ NoBPTXMonitor::~NoBPTXMonitor() throw() {
 void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
   // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -178,23 +176,28 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   }
 
   // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
+  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)){
     return;
+  }
 
   const int ls = iEvent.id().luminosityBlock();
   const int bx = iEvent.bunchCrossing();
 
   edm::Handle<reco::CaloJetCollection> jetHandle;
   iEvent.getByToken(jetToken_, jetHandle);
-  std::vector<reco::CaloJet> jets;
+
   if ((unsigned int)(jetHandle->size()) < njets_)
     return;
+
+  std::vector<reco::CaloJet> jets;
   for (auto const& j : *jetHandle) {
     if (jetSelection_(j))
       jets.push_back(j);
   }
+
   if ((unsigned int)(jets.size()) < njets_)
     return;
+
   double jetE = -999;
   double jetEta = -999;
   double jetPhi = -999;
@@ -206,15 +209,19 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
   edm::Handle<reco::TrackCollection> DSAHandle;
   iEvent.getByToken(muonToken_, DSAHandle);
+
   if ((unsigned int)(DSAHandle->size()) < nmuons_)
     return;
+
   std::vector<reco::Track> muons;
   for (auto const& m : *DSAHandle) {
     if (muonSelection_(m))
       muons.push_back(m);
   }
+
   if ((unsigned int)(muons.size()) < nmuons_)
     return;
+
   double muonPt = -999;
   double muonEta = -999;
   double muonPhi = -999;
@@ -224,40 +231,30 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
     muonPhi = muons[0].phi();
   }
 
-  // filling histograms (denominator)
-  jetENoBPTX_.denominator->Fill(jetE);
-  jetENoBPTX_variableBinning_.denominator->Fill(jetE);
-  jetEVsLS_.denominator->Fill(ls, jetE);
-  jetEtaNoBPTX_.denominator->Fill(jetEta);
-  jetPhiNoBPTX_.denominator->Fill(jetPhi);
-  muonPtNoBPTX_.denominator->Fill(muonPt);
-  muonPtNoBPTX_variableBinning_.denominator->Fill(muonPt);
-  muonEtaNoBPTX_.denominator->Fill(muonEta);
-  muonPhiNoBPTX_.denominator->Fill(muonPhi);
+  // passes numerator-trigger (fill-numerator flag)
+  const bool trg_passed = (num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->accept(iEvent, iSetup));
 
-  // filling histograms (numerator)
-  if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
-    return;
-  jetENoBPTX_.numerator->Fill(jetE);
-  jetENoBPTX_variableBinning_.numerator->Fill(jetE);
-  jetEVsLS_.numerator->Fill(ls, jetE);
-  jetEVsBX_.numerator->Fill(bx, jetE);
-  jetEtaNoBPTX_.numerator->Fill(jetEta);
-  jetEtaVsLS_.numerator->Fill(ls, jetEta);
-  jetEtaVsBX_.numerator->Fill(bx, jetEta);
-  jetPhiNoBPTX_.numerator->Fill(jetPhi);
-  jetPhiVsLS_.numerator->Fill(ls, jetPhi);
-  jetPhiVsBX_.numerator->Fill(bx, jetPhi);
-  muonPtNoBPTX_.numerator->Fill(muonPt);
-  muonPtNoBPTX_variableBinning_.numerator->Fill(muonPt);
-  muonPtVsLS_.numerator->Fill(ls, muonPt);
-  muonPtVsBX_.numerator->Fill(bx, muonPt);
-  muonEtaNoBPTX_.numerator->Fill(muonEta);
-  muonEtaVsLS_.numerator->Fill(ls, muonEta);
-  muonEtaVsBX_.numerator->Fill(bx, muonEta);
-  muonPhiNoBPTX_.numerator->Fill(muonPhi);
-  muonPhiVsLS_.numerator->Fill(ls, muonPhi);
-  muonPhiVsBX_.numerator->Fill(bx, muonPhi);
+  // filling histograms
+  jetENoBPTX_.fill(trg_passed, jetE);
+  jetENoBPTX_variableBinning_.fill(trg_passed, jetE);
+  jetEVsLS_.fill(trg_passed, ls, jetE);
+  jetEVsBX_.fill(trg_passed, bx, jetE);
+  jetEtaNoBPTX_.fill(trg_passed, jetEta);
+  jetEtaVsLS_.fill(trg_passed, ls, jetEta);
+  jetEtaVsBX_.fill(trg_passed, bx, jetEta);
+  jetPhiNoBPTX_.fill(trg_passed, jetPhi);
+  jetPhiVsLS_.fill(trg_passed, ls, jetPhi);
+  jetPhiVsBX_.fill(trg_passed, bx, jetPhi);
+  muonPtNoBPTX_.fill(trg_passed, muonPt);
+  muonPtNoBPTX_variableBinning_.fill(trg_passed, muonPt);
+  muonPtVsLS_.fill(trg_passed, ls, muonPt);
+  muonPtVsBX_.fill(trg_passed, bx, muonPt);
+  muonEtaNoBPTX_.fill(trg_passed, muonEta);
+  muonEtaVsLS_.fill(trg_passed, ls, muonEta);
+  muonEtaVsBX_.fill(trg_passed, bx, muonEta);
+  muonPhiNoBPTX_.fill(trg_passed, muonPhi);
+  muonPhiVsLS_.fill(trg_passed, ls, muonPhi);
+  muonPhiVsBX_.fill(trg_passed, bx, muonPhi);
 }
 
 void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
