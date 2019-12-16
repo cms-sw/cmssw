@@ -16,8 +16,10 @@ ObjMonitor::ObjMonitor(const edm::ParameterSet& iConfig)
       do_jet_(iConfig.getParameter<bool>("doJetHistos")),
       do_ht_(iConfig.getParameter<bool>("doHTHistos")),
       do_hmg_(iConfig.getParameter<bool>("doHMesonGammaHistos")),
-      num_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
-      den_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)),
+      num_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(
+          iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
+      den_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(
+          iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)),
       metSelection_(iConfig.getParameter<std::string>("metSelection")),
       jetSelection_(iConfig.getParameter<std::string>("jetSelection")),
       jetId_(iConfig.getParameter<std::string>("jetId")),
@@ -31,7 +33,6 @@ ObjMonitor::ObjMonitor(const edm::ParameterSet& iConfig)
       nmuons_(iConfig.getParameter<int>("nmuons")),
       nphotons_(iConfig.getParameter<int>("nphotons")),
       nmesons_(iConfig.getParameter<int>("nmesons")) {
-
   if (do_met_) {
     metDQM_.initialise(iConfig);
   }
@@ -47,16 +48,20 @@ ObjMonitor::ObjMonitor(const edm::ParameterSet& iConfig)
 }
 
 ObjMonitor::~ObjMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void ObjMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if(den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -83,7 +88,6 @@ void ObjMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
 }
 
 void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {

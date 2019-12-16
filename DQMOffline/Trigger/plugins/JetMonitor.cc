@@ -3,32 +3,41 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 JetMonitor::JetMonitor(const edm::ParameterSet& iConfig)
-  : folderName_(iConfig.getParameter<std::string>("FolderName"))
-  , requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths"))
-  , hltPathsAreValid_(false)
-  , ptcut_(iConfig.getParameter<double>("ptcut"))
-  , isPFJetTrig(iConfig.getParameter<bool>("ispfjettrg"))
-  , isCaloJetTrig(iConfig.getParameter<bool>("iscalojettrg"))
-  , jetSrc_(mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetSrc")))
-  , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this))
-  , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this))
-  , jetpt_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPSet")))
-  , jetptThr_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPtThrPSet")))
-  , ls_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet")))
-{
-}
+    : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
+      ptcut_(iConfig.getParameter<double>("ptcut")),
+      isPFJetTrig(iConfig.getParameter<bool>("ispfjettrg")),
+      isCaloJetTrig(iConfig.getParameter<bool>("iscalojettrg")),
+      jetSrc_(mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetSrc"))),
+      num_genTriggerEventFlag_(new GenericTriggerEventFlag(
+          iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
+      den_genTriggerEventFlag_(new GenericTriggerEventFlag(
+          iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)),
+      jetpt_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPSet"))),
+      jetptThr_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPtThrPSet"))),
+      ls_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet"))) {}
 
 JetMonitor::~JetMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void JetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if(den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -184,7 +193,6 @@ void JetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
 }
 
 void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -374,8 +382,16 @@ bool JetMonitor::isHEP18(double eta, double phi) {
   return output;
 }
 
-void JetMonitor::FillME(ObjME* a_me, const double pt_, const double phi_, const double eta_, const int ls_, const std::string& DenoOrNume, const bool doPhi, const bool doEta, const bool doEtaPhi, const bool doVsLS){
-
+void JetMonitor::FillME(ObjME* a_me,
+                        const double pt_,
+                        const double phi_,
+                        const double eta_,
+                        const int ls_,
+                        const std::string& DenoOrNume,
+                        const bool doPhi,
+                        const bool doEta,
+                        const bool doEtaPhi,
+                        const bool doVsLS) {
   if (DenoOrNume == "denominator") {
     // index 0 = pt, 1 = ptThreshold , 2 = pt vs ls , 3 = phi, 4 = eta,
     // 5 = eta vs phi, 6 = eta vs pt , 7 = abs(eta) , 8 = abs(eta) vs phi
@@ -409,8 +425,17 @@ void JetMonitor::FillME(ObjME* a_me, const double pt_, const double phi_, const 
   }
 }
 
-void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker, ObjME* a_me, const int len_, const std::string& h_Name, const std::string& h_Title, const std::string& h_subOptName, const std::string& h_suOptTitle, const bool doPhi, const bool doEta, const bool doEtaPhi, const bool doVsLS) {
-
+void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
+                           ObjME* a_me,
+                           const int len_,
+                           const std::string& h_Name,
+                           const std::string& h_Title,
+                           const std::string& h_subOptName,
+                           const std::string& h_suOptTitle,
+                           const bool doPhi,
+                           const bool doEta,
+                           const bool doEtaPhi,
+                           const bool doVsLS) {
   std::string hName = h_Name;
   std::string hTitle = h_Title;
   std::string hSubN = "";
@@ -518,8 +543,7 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker, ObjME* a_me, const int le
   }
 }
 
-void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
-
+void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/Jet");
   desc.add<bool>("requireValidHLTPaths", false);
@@ -539,7 +563,7 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   genericTriggerEventPSet.add<bool>("andOrHlt", true);
   genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
   genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
-  genericTriggerEventPSet.add<std::string>("hltDBKey","");
+  genericTriggerEventPSet.add<std::string>("hltDBKey", "");
   genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
 
@@ -553,7 +577,9 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   fillHistoPSetDescription(jetPtThrPSet);
   histoPSet.add<edm::ParameterSetDescription>("jetPSet", jetPSet);
   histoPSet.add<edm::ParameterSetDescription>("jetPtThrPSet", jetPtThrPSet);
-  histoPSet.add<std::vector<double> >("jetptBinning", {0., 20., 40., 60., 80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.});
+  histoPSet.add<std::vector<double> >("jetptBinning",
+                                      {0.,   20.,  40.,  60.,  80.,  90.,  100., 110., 120., 130., 140., 150., 160.,
+                                       170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.});
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);

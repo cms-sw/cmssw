@@ -16,21 +16,23 @@ Tau3MuMonitor::Tau3MuMonitor(const edm::ParameterSet& iConfig)
       mass_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("massPSet"))),
       genTriggerEventFlag_(new GenericTriggerEventFlag(
-          iConfig.getParameter<edm::ParameterSet>("GenericTriggerEventPSet"), consumesCollector(), *this)) {
-}
+          iConfig.getParameter<edm::ParameterSet>("GenericTriggerEventPSet"), consumesCollector(), *this)) {}
 
 Tau3MuMonitor::~Tau3MuMonitor() throw() {
-
-  if(genTriggerEventFlag_){ genTriggerEventFlag_.reset(); }
+  if (genTriggerEventFlag_) {
+    genTriggerEventFlag_.reset();
+  }
 }
 
 void Tau3MuMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if(genTriggerEventFlag_ && genTriggerEventFlag_->on()){ genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (genTriggerEventFlag_ && genTriggerEventFlag_->on()) {
+    genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
-  hltPathsAreValid_ = (genTriggerEventFlag_ && genTriggerEventFlag_->on() && genTriggerEventFlag_->allHLTPathsAreValid());
+  hltPathsAreValid_ =
+      (genTriggerEventFlag_ && genTriggerEventFlag_->on() && genTriggerEventFlag_->allHLTPathsAreValid());
 
   // if valid HLT paths are required,
   // create DQM outputs only if all paths are valid
@@ -82,7 +84,6 @@ void Tau3MuMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
 }
 
 void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -104,7 +105,6 @@ void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
   // if the handle is not valid issue a warning (only for the forst occurrency)
   if (not tauHandle.isValid()) {
-
     edm::LogWarning("ProductNotValid") << "Tau3Mu trigger product not valid";
     validProduct_ = false;
     return;
@@ -112,7 +112,6 @@ void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
   // loop and fill
   for (auto const& itau : *tauHandle) {
-
     tau1DPt_->Fill(itau.pt());
     tau1DEta_->Fill(itau.eta());
     tau1DPhi_->Fill(itau.phi());

@@ -6,8 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class TriggerDQMBase {
-
- public:
+public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
 
@@ -21,8 +20,7 @@ class TriggerDQMBase {
   };
 
   class ObjME {
-
-   public:
+  public:
     ObjME() {}
     virtual ~ObjME() {}
 
@@ -35,11 +33,43 @@ class TriggerDQMBase {
 
   void setMETitle(ObjME& me, const std::string& titleX, const std::string& titleY);
 
-  void bookME(DQMStore::IBooker&, ObjME& me, const std::string& histname, const std::string& histtitle, const uint nbins, const double xmin, const double xmax);
-  void bookME(DQMStore::IBooker&, ObjME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker&, ObjME& me, const std::string& histname, const std::string& histtitle, const uint nbinsX, const double xmin, const double xmax, const double ymin, const double ymax);
-  void bookME(DQMStore::IBooker&, ObjME& me, const std::string& histname, const std::string& histtitle, const uint nbinsX, const double xmin, const double xmax, const uint nbinsY, const double ymin, const double ymax);
-  void bookME(DQMStore::IBooker&, ObjME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
+  void bookME(DQMStore::IBooker&,
+              ObjME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              const uint nbins,
+              const double xmin,
+              const double xmax);
+  void bookME(DQMStore::IBooker&,
+              ObjME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              const std::vector<double>& binningX);
+  void bookME(DQMStore::IBooker&,
+              ObjME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              const uint nbinsX,
+              const double xmin,
+              const double xmax,
+              const double ymin,
+              const double ymax);
+  void bookME(DQMStore::IBooker&,
+              ObjME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              const uint nbinsX,
+              const double xmin,
+              const double xmax,
+              const uint nbinsY,
+              const double ymin,
+              const double ymax);
+  void bookME(DQMStore::IBooker&,
+              ObjME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              const std::vector<double>& binningX,
+              const std::vector<double>& binningY);
 
   static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset);
@@ -49,8 +79,7 @@ class TriggerDQMBase {
 };
 
 template <typename... Args>
-void TriggerDQMBase::ObjME::fill(const bool fill_num, Args... args){
-
+void TriggerDQMBase::ObjME::fill(const bool fill_num, Args... args) {
   if (denominator) {
     denominator->Fill(args...);
   }
@@ -60,4 +89,4 @@ void TriggerDQMBase::ObjME::fill(const bool fill_num, Args... args){
   }
 }
 
-#endif // DQMOffline_Trigger_TriggerDQMBase_h
+#endif  // DQMOffline_Trigger_TriggerDQMBase_h

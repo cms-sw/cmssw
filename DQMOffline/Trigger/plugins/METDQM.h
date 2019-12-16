@@ -7,8 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class METDQM : public TriggerDQMBase {
-
- public:
+public:
   METDQM();
   ~METDQM() override;
 
@@ -17,7 +16,7 @@ class METDQM : public TriggerDQMBase {
   void fillHistograms(const double& met, const double& phi, const int& ls, const bool passCond);
   static void fillMetDescription(edm::ParameterSetDescription& histoPSet);
 
- private:
+private:
   std::vector<double> met_variable_binning_;
   MEbinning met_binning_;
   MEbinning phi_binning_;

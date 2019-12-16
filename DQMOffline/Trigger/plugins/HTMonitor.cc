@@ -37,7 +37,6 @@ HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
       nmuons_(iConfig.getParameter<unsigned>("nmuons")),
       dEtaCut_(iConfig.getParameter<double>("dEtaCut")),
       warningWasPrinted_(false) {
-
   /* mia: THIS CODE SHOULD BE DELETED !!!! */
   string quantity = iConfig.getParameter<std::string>("quantity");
   if (quantity == "HT") {
@@ -53,16 +52,22 @@ HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
 }
 
 HTMonitor::~HTMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void HTMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -131,7 +136,6 @@ void HTMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 }
 
 void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -200,11 +204,11 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
       return;
   } else {
     if (not warningWasPrinted_) {
-
       if (eleInputTag_.label().empty())
         edm::LogWarning("HTMonitor") << "GsfElectronCollection not set";
       else
-        edm::LogWarning("HTMonitor") << "skipping events because the collection " << eleInputTag_.label().c_str() << " is not available";
+        edm::LogWarning("HTMonitor") << "skipping events because the collection " << eleInputTag_.label().c_str()
+                                     << " is not available";
 
       warningWasPrinted_ = true;
     }
@@ -226,11 +230,11 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     }
   } else {
     if (not warningWasPrinted_) {
-
       if (vtxInputTag_.label().empty())
         edm::LogWarning("HTMonitor") << "VertexCollection not set";
       else
-        edm::LogWarning("HTMonitor") << "skipping events because the collection " << vtxInputTag_.label().c_str() << " is not available";
+        edm::LogWarning("HTMonitor") << "skipping events because the collection " << vtxInputTag_.label().c_str()
+                                     << " is not available";
 
       warningWasPrinted_ = true;
     }
@@ -256,11 +260,11 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
       return;
   } else {
     if (not warningWasPrinted_) {
-
       if (muoInputTag_.label().empty())
         edm::LogWarning("HTMonitor") << "MuonCollection not set";
       else
-        edm::LogWarning("HTMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str() << " is not available";
+        edm::LogWarning("HTMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str()
+                                     << " is not available";
 
       warningWasPrinted_ = true;
     }
@@ -341,7 +345,6 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 }
 
 void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/HT");
   desc.add<bool>("requireValidHLTPaths", false);

@@ -5,12 +5,15 @@ HMesonGammaDQM::HMesonGammaDQM() = default;
 
 HMesonGammaDQM::~HMesonGammaDQM() = default;
 
-void HMesonGammaDQM::initialise(const edm::ParameterSet& iConfig){
-
-  gammapt_variable_binning_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("gammaptBinning");
-  mesonpt_variable_binning_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("mesonptBinning");
-  eta_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("hmgetaPSet"));
-  ls_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("hmglsPSet"));
+void HMesonGammaDQM::initialise(const edm::ParameterSet& iConfig) {
+  gammapt_variable_binning_ =
+      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("gammaptBinning");
+  mesonpt_variable_binning_ =
+      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("mesonptBinning");
+  eta_binning_ =
+      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("hmgetaPSet"));
+  ls_binning_ =
+      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("hmglsPSet"));
 }
 
 void HMesonGammaDQM::bookHistograms(DQMStore::IBooker& ibooker) {
@@ -50,7 +53,10 @@ void HMesonGammaDQM::bookHistograms(DQMStore::IBooker& ibooker) {
   setMETitle(gammaetaVsLS_, "LS", "Gamma #eta");
 }
 
-void HMesonGammaDQM::fillHistograms(const reco::PhotonCollection& photons, const std::vector<TLorentzVector>& mesons, const int ls, const bool passCond) {
+void HMesonGammaDQM::fillHistograms(const reco::PhotonCollection& photons,
+                                    const std::vector<TLorentzVector>& mesons,
+                                    const int ls,
+                                    const bool passCond) {
   // filling histograms (denominator)
   if (!photons.empty()) {
     double eta1 = photons[0].eta();

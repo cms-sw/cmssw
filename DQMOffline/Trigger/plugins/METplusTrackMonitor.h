@@ -26,8 +26,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-
- public:
+public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
@@ -35,12 +34,14 @@ class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
   ~METplusTrackMonitor() noexcept(true) override {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
 
- private:
-  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary, const edm::InputTag &filterTag, trigger::TriggerObject &obj) const;
+private:
+  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary,
+                 const edm::InputTag &filterTag,
+                 trigger::TriggerObject &obj) const;
 
   const std::string folderName_;
 

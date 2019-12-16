@@ -15,8 +15,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class DiDispStaMuonMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-
- public:
+public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
@@ -24,11 +23,11 @@ class DiDispStaMuonMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
   ~DiDispStaMuonMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
- private:
+private:
   const std::string folderName_;
 
   const bool requireValidHLTPaths_;

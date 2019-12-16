@@ -39,8 +39,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 class DiJetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-
- public:
+public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
@@ -48,7 +47,7 @@ class DiJetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
   ~DiJetMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
   bool dijet_selection(double eta_1,
@@ -61,7 +60,7 @@ class DiJetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
                        int &probe_id,
                        int Event);
 
- private:
+private:
   const std::string folderName_;
 
   const bool requireValidHLTPaths_;
@@ -70,7 +69,7 @@ class DiJetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
   edm::EDGetTokenT<reco::PFMETCollection> metToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection> muoToken_;
-  edm::EDGetTokenT<reco::PFJetCollection> dijetSrc_; // test for Jet
+  edm::EDGetTokenT<reco::PFJetCollection> dijetSrc_;  // test for Jet
 
   MEbinning dijetpt_binning_;
   MEbinning dijetptThr_binning_;

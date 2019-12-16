@@ -24,16 +24,15 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 class TagAndProbeBtagTriggerMonitor : public DQMEDAnalyzer {
-
- public:
+public:
   TagAndProbeBtagTriggerMonitor(const edm::ParameterSet&);
   ~TagAndProbeBtagTriggerMonitor() throw() override;
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
- private:
+private:
   const std::string folderName_;
 
   const bool requireValidHLTPaths_;

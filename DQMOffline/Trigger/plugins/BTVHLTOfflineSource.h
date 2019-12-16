@@ -32,12 +32,11 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class BTVHLTOfflineSource : public DQMEDAnalyzer {
-
- public:
+public:
   explicit BTVHLTOfflineSource(const edm::ParameterSet&);
   ~BTVHLTOfflineSource() override;
 
- private:
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const& run, edm::EventSetup const& c) override;
   void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
@@ -79,8 +78,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   HLTConfigProvider hltConfig_;
 
   class PathInfo : public TriggerDQMBase {
-
-   public:
+  public:
     PathInfo()
         : prescaleUsed_(-1),
           pathName_("unset"),
@@ -136,7 +134,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
     // MonitorElement*  n_pixel_hits_;
     // MonitorElement*  n_total_hits_;
 
-   private:
+  private:
     int prescaleUsed_;
     std::string pathName_;
     std::string filterName_;
@@ -146,8 +144,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   };
 
   class PathInfoCollection : public std::vector<PathInfo> {
-
-   public:
+  public:
     PathInfoCollection() : std::vector<PathInfo>(){};
     std::vector<PathInfo>::iterator find(const std::string& pathName) { return std::find(begin(), end(), pathName); }
   };

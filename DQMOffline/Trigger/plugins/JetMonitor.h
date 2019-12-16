@@ -19,8 +19,7 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 class JetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-
- public:
+public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
@@ -29,7 +28,7 @@ class JetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
@@ -41,10 +40,29 @@ class JetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
   bool isHEM17(double eta, double phi);
   bool isHEP18(double eta, double phi);  // -0.87< Phi < -1.22
 
-  void bookMESub(DQMStore::IBooker&, ObjME* a_me, const int len_, const std::string& h_Name, const std::string& h_Title, const std::string& h_subOptName, const std::string& h_subOptTitle, const bool doPhi=true, const bool doEta=true, const bool doEtaPhi=true, const bool doVsLS=true);
-  void FillME(ObjME* a_me, const double pt_, const double phi_, const double eta_, const int ls_, const std::string& denu, const bool doPhi=true, const bool doEta=true, const bool doEtaPhi=true, const bool doVsLS=true);
+  void bookMESub(DQMStore::IBooker&,
+                 ObjME* a_me,
+                 const int len_,
+                 const std::string& h_Name,
+                 const std::string& h_Title,
+                 const std::string& h_subOptName,
+                 const std::string& h_subOptTitle,
+                 const bool doPhi = true,
+                 const bool doEta = true,
+                 const bool doEtaPhi = true,
+                 const bool doVsLS = true);
+  void FillME(ObjME* a_me,
+              const double pt_,
+              const double phi_,
+              const double eta_,
+              const int ls_,
+              const std::string& denu,
+              const bool doPhi = true,
+              const bool doEta = true,
+              const bool doEtaPhi = true,
+              const bool doVsLS = true);
 
- private:
+private:
   const std::string folderName_;
 
   const bool requireValidHLTPaths_;
@@ -86,7 +104,7 @@ class JetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
   MEbinning jet_phi_binning_{32, -3.2, 3.2};
   MEbinning jet_eta_binning_{20, -5, 5};
 
-  MEbinning eta_binning_hep17_{9,  1.3,  3.0};
+  MEbinning eta_binning_hep17_{9, 1.3, 3.0};
   MEbinning eta_binning_hem17_{9, -3.0, -1.3};
 
   MEbinning phi_binning_hep17_{7, -0.87, -0.52};

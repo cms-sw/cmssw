@@ -43,16 +43,22 @@ METMonitor::METMonitor(const edm::ParameterSet& iConfig)
 }
 
 METMonitor::~METMonitor() throw() {
-
-  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
-  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void METMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
@@ -92,7 +98,15 @@ void METMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
 
   histname = "metVsLS";
   histtitle = "PFMET vs LS";
-  bookME(ibooker, metVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, met_binning_.xmin, met_binning_.xmax);
+  bookME(ibooker,
+         metVsLS_,
+         histname,
+         histtitle,
+         ls_binning_.nbins,
+         ls_binning_.xmin,
+         ls_binning_.xmax,
+         met_binning_.xmin,
+         met_binning_.xmax);
   setMETitle(metVsLS_, "LS", "PF MET [GeV]");
 
   histname = "metPhi";
@@ -102,7 +116,6 @@ void METMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
 }
 
 void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
   // if valid HLT paths are required,
   // analyze event only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -266,7 +279,6 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 }
 
 void METMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/MET");
   desc.add<bool>("requireValidHLTPaths", false);

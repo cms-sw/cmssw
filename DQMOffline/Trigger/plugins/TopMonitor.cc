@@ -35,27 +35,26 @@
 #include <map>
 
 class TopMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-
- public:
+public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
-  TopMonitor(const edm::ParameterSet &);
+  TopMonitor(const edm::ParameterSet&);
   ~TopMonitor() throw() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
   struct JetRefCompare {
-    inline bool operator()(const edm::RefToBase<reco::Jet> &j1, const edm::RefToBase<reco::Jet> &j2) const {
+    inline bool operator()(const edm::RefToBase<reco::Jet>& j1, const edm::RefToBase<reco::Jet>& j2) const {
       return (j1.id() < j2.id()) || ((j1.id() == j2.id()) && (j1.key() < j2.key()));
     }
   };
   typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
 
- private:
+private:
   const std::string folderName_;
 
   const bool requireValidHLTPaths_;
