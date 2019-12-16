@@ -75,8 +75,8 @@ namespace {
       }
 
       for (int i = 1; i <= a1->GetNbins(); ++i) {
-        TString label1 = a1->GetBinLabel(i);
-        TString label2 = a2->GetBinLabel(i);
+        std::string_view label1 = a1->GetBinLabel(i);
+        std::string_view label2 = a2->GetBinLabel(i);
         if (label1 != label2) {
           return false;
         }
