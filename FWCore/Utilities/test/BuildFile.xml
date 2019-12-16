@@ -36,7 +36,6 @@
 </bin>
 <bin    file="test_catch2_*.cc" name="testFWCoreUtilitiesCatch2">
   <use name="catch2"/>
-  <use name="FWCore/Utilities"/>
 </bin>
 
 <bin   file="InputTag_t.cpp">
