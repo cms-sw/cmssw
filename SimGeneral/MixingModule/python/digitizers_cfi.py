@@ -101,7 +101,9 @@ premix_stage2.toModify(theDigitizers,
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
-theDigitizersValid.calotruth = cms.PSet( caloParticles )
+from Configuration.Eras.Modifier_run3_ecalclustering_cff import run3_ecalclustering
+run3_ecalclustering.toModify( theDigitizersValid,
+                       calotruth = cms.PSet( caloParticles ) )
 
 phase2_hgcal.toModify( theDigitizersValid,
                        calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?
