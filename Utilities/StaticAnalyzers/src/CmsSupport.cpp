@@ -32,7 +32,7 @@ using namespace clang;
 using namespace llvm;
 bool clangcms::support::isCmsLocalFile(const char *file) {
   static const char *LocalDir = std::getenv("LOCALRT");
-  CMS_THREAD_SAFE static int DirLen = -1;
+  CMS_SA_ALLOW static int DirLen = -1;
   if (DirLen == -1) {
     DirLen = 0;
     if (LocalDir != nullptr)
@@ -148,7 +148,7 @@ bool clangcms::support::isSafeClassName(const std::string &cname) {
 }
 
 bool clangcms::support::isDataClass(const std::string &name) {
-  CMS_THREAD_SAFE static std::string iname("");
+  CMS_SA_ALLOW static std::string iname("");
   if (iname.empty()) {
     clang::FileSystemOptions FSO;
     clang::FileManager FM(FSO);
@@ -174,7 +174,7 @@ bool clangcms::support::isDataClass(const std::string &name) {
       iname = fname2;
   }
 
-  CMS_THREAD_SAFE static scaling_bloom_t *blmflt = new_scaling_bloom_from_file(CAPACITY, ERROR_RATE, iname.c_str());
+  CMS_SA_ALLOW static scaling_bloom_t *blmflt = new_scaling_bloom_from_file(CAPACITY, ERROR_RATE, iname.c_str());
 
   if (scaling_bloom_check(blmflt, name.c_str(), name.length()) == 1)
     return true;
