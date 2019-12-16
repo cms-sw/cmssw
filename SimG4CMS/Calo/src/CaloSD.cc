@@ -323,7 +323,7 @@ bool CaloSD::checkHit() {
   } else if (nCheckedHits > 0) {
     int nhits = theHC->entries();
     int minhit = std::max(nhits - nCheckedHits, 0);
-    int maxhit =  - 1;
+    int maxhit = -1;
 
     for (int j = maxhit; j > minhit; --j) {
       if ((*theHC)[j]->getID() == currentID) {
