@@ -415,7 +415,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
           {"", MonitorElementData::Scope::LUMI},
           {"LUMI", MonitorElementData::Scope::LUMI},
           {"RUN", MonitorElementData::Scope::RUN},
-          {"JOB", MonitorElementData::Scope::JOB}}[iPSet.getUntrackedParameter<std::string>("reScope", "")]),
+          {"JOB", MonitorElementData::Scope::JOB}}[iPSet.getUntrackedParameter<std::string>("reScope", "JOB")]),
       m_nextItemType(edm::InputSource::IsFile),
       m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_currentIndex(0),
