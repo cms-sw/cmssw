@@ -1025,7 +1025,7 @@ void CastorShowerLibraryMaker::GetMissingEnergy(CaloG4HitCollection* theCAFI, do
   // Get the total deposited energy and the one from hit not associated to a primary
   miss_energy = 0;
   tot_energy = 0;
-  for (unsigned ihit = 0; ihit < theCAFI->entries(); ihit++) {
+  for (size_t ihit = 0; ihit < theCAFI->entries(); ihit++) {
     int id = (*theCAFI)[ihit]->getTrackID();
     tot_energy += (*theCAFI)[ihit]->getEnergyDeposit();
     int hit_prim = 0;

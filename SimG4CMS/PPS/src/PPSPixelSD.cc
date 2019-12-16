@@ -228,7 +228,7 @@ bool PPSPixelSD::hitExists() {
   //tSliceID_ already exists:
   bool found = false;
 
-  for (unsigned j = 0; j < theHC_->entries() && !found; j++) {
+  for (size_t j = 0; j < theHC_->entries() && !found; j++) {
     PPSPixelG4Hit* aPreviousHit = (*theHC_)[j];
     if (aPreviousHit->trackID() == primaryID_ && aPreviousHit->timeSliceID() == tSliceID_ &&
         aPreviousHit->unitID() == unitID_) {
