@@ -13,6 +13,8 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 int main(int argc, char** argv) {
+  Py_Initialize();
+
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
@@ -82,6 +84,13 @@ int main(int argc, char** argv) {
   histoCompareMeanByRegion.process(connectionString, tag, runTimeType, start, start);
   std::cout << histoCompareMeanByRegion.data() << std::endl;
 
+  SiStripNoisePerDetId histoNoiseForDetId;
+  boost::python::dict inputs;
+  inputs["DetId"] = "470148232";
+  histoNoiseForDetId.setInputParamValues(inputs);
+  histoNoiseForDetId.process(connectionString, tag, runTimeType, start, start);
+  std::cout << histoNoiseForDetId.data() << std::endl;
+
   // Pedestals
 
   tag = "SiStripPedestals_v2_prompt";
@@ -97,6 +106,11 @@ int main(int argc, char** argv) {
   SiStripPedestalValueComparisonPerModuleSingleTag histo11;
   histo11.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo11.data() << std::endl;
+
+  SiStripPedestalPerDetId histoPedestalForDetId;
+  histoPedestalForDetId.setInputParamValues(inputs);
+  histoPedestalForDetId.process(connectionString, tag, runTimeType, start, start);
+  std::cout << histoPedestalForDetId.data() << std::endl;
 
   //Latency
 

@@ -22,6 +22,19 @@ getPayloadData.py \
     --db Prod \
     --test;
 
+####################
+# Single DetId
+####################
+getPayloadData.py \
+    --plugin pluginSiStripPedestals_PayloadInspector \
+    --plot plot_SiStripPedestalsValuePerDetId \
+    --tag SiStripPedestals_v2_prompt \
+    --time_type Run \
+    --iovs '{"start_iov": "303420", "end_iov": "303420"}' \
+    --db Prod \
+    --input_params '{"DetId":"470065830"}' \
+    --test ;
+
 estimators=(Mean Min Max RMS)
 plotTypes=(Strip APV Module)
 
