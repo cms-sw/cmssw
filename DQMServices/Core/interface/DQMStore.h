@@ -526,22 +526,14 @@ namespace dqm {
 
       // ------------------------------------------------------------------------
       // ------------ IBooker/IGetter overrides to prevent ambiguity ------------
-      void cd() override {
-        this->IBooker::cd();
-        this->IGetter::cd();
-      }
-      void cd(std::string const& dir) override {
-        this->IBooker::cd(dir);
-        this->IGetter::cd(dir);
-      }
+      void cd() override { this->IBooker::cd(); }
+      void cd(std::string const& dir) override { this->IBooker::cd(dir); }
       void setCurrentFolder(std::string const& fullpath) override {
+        // only here we keep the two in sync -- all the others call this in the end!
         this->IBooker::setCurrentFolder(fullpath);
         this->IGetter::setCurrentFolder(fullpath);
       }
-      void goUp() override {
-        this->IBooker::goUp();
-        this->IGetter::goUp();
-      }
+      void goUp() override { this->IBooker::goUp(); }
       std::string const& pwd() override { return this->IBooker::pwd(); }
 
     public:
