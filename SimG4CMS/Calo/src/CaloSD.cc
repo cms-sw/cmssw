@@ -321,8 +321,9 @@ bool CaloSD::checkHit() {
       found = true;
     }
   } else if (nCheckedHits > 0) {
-    size_t minhit = (theHC->entries() > nCheckedHits ? theHC->entries() - nCheckedHits : 0);
-    int maxhit = theHC->entries() - 1;
+    int nhits = theHC->entries();
+    int minhit = std::max(nhits - nCheckedHits, 0);
+    int maxhit =  - 1;
 
     for (int j = maxhit; j > minhit; --j) {
       if ((*theHC)[j]->getID() == currentID) {
