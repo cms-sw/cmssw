@@ -92,7 +92,7 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
             mayGetConfigToken_,
             [](auto const& iGet, edm::ESTransientHandle<RunInfo> iHandle) {
               auto const label = closerNominalLabel(iHandle->m_avg_current);
-              edm::LogInfo("MagneticField|AutoMagneticField")
+              edm::LogInfo("MagneticFieldDB")
                   << "Current :" << iHandle->m_avg_current
                   << " (from RunInfo DB); using map configuration with label: " << label;
               return iGet("", label);
@@ -102,7 +102,7 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
   } else {
     //we know exactly what we are going to get
     auto const label = closerNominalLabel(current);
-    edm::LogInfo("MagneticField|AutoMagneticField")
+    edm::LogInfo("MagneticFieldDB")
         << "Current :" << current << " (from valueOverride card); using map configuration with label: " << label;
     setWhatProduced(
         this, &VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter, edm::es::Label(myConfigLabel))
@@ -150,7 +150,7 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
   std::unique_ptr<MagneticField> paramField =
       ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
 
-  edm::LogInfo("MagneticField|AutoMagneticField")
+  edm::LogInfo("MagneticFieldDB")
       << "Version: " << conf->version << " geometryVersion: " << conf->geometryVersion
       << " slaveFieldVersion: " << conf->slaveFieldVersion;
 

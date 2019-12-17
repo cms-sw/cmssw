@@ -53,12 +53,6 @@ process.magfield = cms.ESSource("XMLIdealGeometryESSource",
 process.es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource","magfield")
 
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml'),
-                                            appendToDataLabel = cms.string('magfield')
-                                            )
-
-
 process.MagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducer",
                                               DDDetector = cms.ESInputTag('', 'magfield'),
                                               appendToDataLabel = cms.string(''),
