@@ -25,7 +25,8 @@ namespace edm {
     RootInputFileSequence(pset, catalog),
     input_(input),
     orderedProcessHistoryIDs_(),
-    enablePrefetching_(false) {
+    enablePrefetching_(false),
+    enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
@@ -95,7 +96,8 @@ namespace edm {
           orderedProcessHistoryIDs_,
           input_.bypassVersionCheck(),
           input_.labelRawDataLikeMC(),
-          enablePrefetching_);
+          enablePrefetching_,
+          enforceGUIDInFileName_);
   }
 
   void
