@@ -39,12 +39,14 @@ public:
               const std::string& histtitle,
               const uint nbins,
               const double xmin,
-              const double xmax);
+              const double xmax,
+              const bool bookDen = true);
   void bookME(DQMStore::IBooker&,
               ObjME& me,
               const std::string& histname,
               const std::string& histtitle,
-              const std::vector<double>& binningX);
+              const std::vector<double>& binningX,
+              const bool bookDen = true);
   void bookME(DQMStore::IBooker&,
               ObjME& me,
               const std::string& histname,
@@ -53,7 +55,8 @@ public:
               const double xmin,
               const double xmax,
               const double ymin,
-              const double ymax);
+              const double ymax,
+              const bool bookDen = true);
   void bookME(DQMStore::IBooker&,
               ObjME& me,
               const std::string& histname,
@@ -63,13 +66,15 @@ public:
               const double xmax,
               const uint nbinsY,
               const double ymin,
-              const double ymax);
+              const double ymax,
+              const bool bookDen = true);
   void bookME(DQMStore::IBooker&,
               ObjME& me,
               const std::string& histname,
               const std::string& histtitle,
               const std::vector<double>& binningX,
-              const std::vector<double>& binningY);
+              const std::vector<double>& binningY,
+              const bool bookDen = true);
 
   static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset);

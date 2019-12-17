@@ -25,18 +25,18 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
-  METplusTrackMonitor(const edm::ParameterSet &);
+  METplusTrackMonitor(const edm::ParameterSet&);
   ~METplusTrackMonitor() noexcept(true) override {}
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary,
-                 const edm::InputTag &filterTag,
-                 trigger::TriggerObject &obj) const;
+  bool getHLTObj(const edm::Handle<trigger::TriggerEvent>& trigSummary,
+                 const edm::InputTag& filterTag,
+                 trigger::TriggerObject& obj) const;
 
   const std::string folderName_;
 

@@ -179,7 +179,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          bx_binning_.xmin,
          bx_binning_.xmax,
          jetE_binning_.xmin,
-         jetE_binning_.xmax);
+         jetE_binning_.xmax,
+         false);
   setMETitle(jetEVsBX_, "BX", "Jet E [GeV]");
 
   histname = "jetEta";
@@ -198,7 +199,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          ls_binning_.xmin,
          ls_binning_.xmax,
          jetEta_binning_.xmin,
-         jetEta_binning_.xmax);
+         jetEta_binning_.xmax,
+         false);
   setMETitle(jetEtaVsLS_, "LS", "Jet #eta");
 
   histname = "jetEtaVsBX";
@@ -211,7 +213,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          bx_binning_.xmin,
          bx_binning_.xmax,
          jetEta_binning_.xmin,
-         jetEta_binning_.xmax);
+         jetEta_binning_.xmax,
+         false);
   setMETitle(jetEtaVsBX_, "BX", "Jet #eta");
 
   histname = "jetPhi";
@@ -230,7 +233,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          ls_binning_.xmin,
          ls_binning_.xmax,
          jetPhi_binning_.xmin,
-         jetPhi_binning_.xmax);
+         jetPhi_binning_.xmax,
+         false);
   setMETitle(jetPhiVsLS_, "LS", "Jet #phi");
 
   histname = "jetPhiVsBX";
@@ -243,7 +247,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          bx_binning_.xmin,
          bx_binning_.xmax,
          jetPhi_binning_.xmin,
-         jetPhi_binning_.xmax);
+         jetPhi_binning_.xmax,
+         false);
   setMETitle(jetPhiVsBX_, "BX", "Jet #phi");
 
   histname = "muonPt";
@@ -267,7 +272,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          ls_binning_.xmin,
          ls_binning_.xmax,
          muonPt_binning_.xmin,
-         muonPt_binning_.xmax);
+         muonPt_binning_.xmax,
+         false);
   setMETitle(muonPtVsLS_, "LS", "DisplacedStandAlone Muon p_{T} [GeV]");
 
   histname = "muonPtVsBX";
@@ -280,7 +286,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          bx_binning_.xmin,
          bx_binning_.xmax,
          muonPt_binning_.xmin,
-         muonPt_binning_.xmax);
+         muonPt_binning_.xmax,
+         false);
   setMETitle(muonPtVsBX_, "BX", "DisplacedStandAlone Muon p_{T} [GeV]");
 
   histname = "muonEta";
@@ -304,7 +311,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          ls_binning_.xmin,
          ls_binning_.xmax,
          muonEta_binning_.xmin,
-         muonEta_binning_.xmax);
+         muonEta_binning_.xmax,
+         false);
   setMETitle(muonEtaVsLS_, "LS", "DisplacedStandAlone Muon #eta");
 
   histname = "muonEtaVsBX";
@@ -317,7 +325,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          bx_binning_.xmin,
          bx_binning_.xmax,
          muonEta_binning_.xmin,
-         muonEta_binning_.xmax);
+         muonEta_binning_.xmax,
+         false);
   setMETitle(muonEtaVsBX_, "BX", "DisplacedStandAlone Muon #eta");
 
   histname = "muonPhi";
@@ -341,7 +350,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          ls_binning_.xmin,
          ls_binning_.xmax,
          muonPhi_binning_.xmin,
-         muonPhi_binning_.xmax);
+         muonPhi_binning_.xmax,
+         false);
   setMETitle(muonPhiVsLS_, "LS", "DisplacedStandAlone Muon #phi");
 
   histname = "muonPhiVsBX";
@@ -354,7 +364,8 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          bx_binning_.xmin,
          bx_binning_.xmax,
          muonPhi_binning_.xmin,
-         muonPhi_binning_.xmax);
+         muonPhi_binning_.xmax,
+         false);
   setMETitle(muonPhiVsBX_, "BX", "DisplacedStandAlone Muon #phi");
 }
 
@@ -427,24 +438,28 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   // filling histograms
   jetENoBPTX_.fill(trg_passed, jetE);
   jetENoBPTX_variableBinning_.fill(trg_passed, jetE);
-  jetEVsLS_.fill(trg_passed, ls, jetE);
-  jetEVsBX_.fill(trg_passed, bx, jetE);
   jetEtaNoBPTX_.fill(trg_passed, jetEta);
-  jetEtaVsLS_.fill(trg_passed, ls, jetEta);
-  jetEtaVsBX_.fill(trg_passed, bx, jetEta);
   jetPhiNoBPTX_.fill(trg_passed, jetPhi);
-  jetPhiVsLS_.fill(trg_passed, ls, jetPhi);
-  jetPhiVsBX_.fill(trg_passed, bx, jetPhi);
   muonPtNoBPTX_.fill(trg_passed, muonPt);
   muonPtNoBPTX_variableBinning_.fill(trg_passed, muonPt);
-  muonPtVsLS_.fill(trg_passed, ls, muonPt);
-  muonPtVsBX_.fill(trg_passed, bx, muonPt);
   muonEtaNoBPTX_.fill(trg_passed, muonEta);
-  muonEtaVsLS_.fill(trg_passed, ls, muonEta);
-  muonEtaVsBX_.fill(trg_passed, bx, muonEta);
   muonPhiNoBPTX_.fill(trg_passed, muonPhi);
-  muonPhiVsLS_.fill(trg_passed, ls, muonPhi);
-  muonPhiVsBX_.fill(trg_passed, bx, muonPhi);
+
+  jetEVsLS_.fill(trg_passed, ls, jetE);
+
+  if (trg_passed) {
+    jetEVsBX_.numerator->Fill(bx, jetE);
+    jetEtaVsLS_.numerator->Fill(ls, jetEta);
+    jetEtaVsBX_.numerator->Fill(bx, jetEta);
+    jetPhiVsLS_.numerator->Fill(ls, jetPhi);
+    jetPhiVsBX_.numerator->Fill(bx, jetPhi);
+    muonPtVsLS_.numerator->Fill(ls, muonPt);
+    muonPtVsBX_.numerator->Fill(bx, muonPt);
+    muonEtaVsLS_.numerator->Fill(ls, muonEta);
+    muonEtaVsBX_.numerator->Fill(bx, muonEta);
+    muonPhiVsLS_.numerator->Fill(ls, muonPhi);
+    muonPhiVsBX_.numerator->Fill(bx, muonPhi);
+  }
 }
 
 void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

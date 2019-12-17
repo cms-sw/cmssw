@@ -99,23 +99,23 @@ MuonMonitor::MuonMonitor(const edm::ParameterSet& iConfig)
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       muonToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
-      eleToken_(mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons"))),
+      eleToken_(mayConsume<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
       muon_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muonBinning")),
       muoneta_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonetaBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muonetaBinning")),
       muon_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("muonPSet"))),
       ls_binning_(
           getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet"))),
       muPt_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muPtBinning2D")),
       elePt_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("elePtBinning2D")),
       muEta_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muEtaBinning2D")),
       eleEta_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("eleEtaBinning2D")),
       num_genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
       den_genTriggerEventFlag_(new GenericTriggerEventFlag(
@@ -284,7 +284,7 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   if (muons.size() < nmuons_)
     return;
 
-  edm::Handle<edm::View<reco::GsfElectron> > eleHandle;
+  edm::Handle<edm::View<reco::GsfElectron>> eleHandle;
   iEvent.getByToken(eleToken_, eleHandle);
   std::vector<reco::GsfElectron> electrons;
   if (eleHandle->size() < nelectrons_)
@@ -357,20 +357,20 @@ void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
   genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
-  genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions", {});
+  genericTriggerEventPSet.add<std::vector<int>>("dcsPartitions", {});
   genericTriggerEventPSet.add<bool>("andOrDcs", false);
   genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
   genericTriggerEventPSet.add<std::string>("dbLabel", "");
   genericTriggerEventPSet.add<bool>("andOrHlt", true);
   genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
-  genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
+  genericTriggerEventPSet.add<std::vector<std::string>>("hltPaths", {});
   genericTriggerEventPSet.add<std::string>("hltDBKey", "");
   genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
   genericTriggerEventPSet.add<bool>("errorReplyL1", false);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
   genericTriggerEventPSet.add<bool>("andOrL1", false);
   genericTriggerEventPSet.add<bool>("l1BeforeMask", false);
-  genericTriggerEventPSet.add<std::vector<std::string> >("l1Algorithms", {});
+  genericTriggerEventPSet.add<std::vector<std::string>>("l1Algorithms", {});
 
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
@@ -381,19 +381,19 @@ void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   histoPSet.add<edm::ParameterSetDescription>("muonPSet", metPSet);
   std::vector<double> bins = {0.,   20.,  40.,  60.,  80.,  90.,  100., 110., 120., 130., 140., 150., 160.,
                               170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.};
-  histoPSet.add<std::vector<double> >("muonBinning", bins);
+  histoPSet.add<std::vector<double>>("muonBinning", bins);
 
   std::vector<double> etabins = {-3., -2.5, -2., -1.5, -1., -.5, 0., .5, 1., 1.5, 2., 2.5, 3.};
-  histoPSet.add<std::vector<double> >("muonetaBinning", etabins);
+  histoPSet.add<std::vector<double>>("muonetaBinning", etabins);
 
   std::vector<double> bins_2D = {0., 40., 80., 100., 120., 140., 160., 180., 200., 240., 280., 350., 450., 1000.};
   std::vector<double> eta_bins_2D = {-3., -2., -1., 0., 1., 2., 3.};
   std::vector<double> phi_bins_2D = {
       -3.1415, -2.5132, -1.8849, -1.2566, -0.6283, 0, 0.6283, 1.2566, 1.8849, 2.5132, 3.1415};
-  histoPSet.add<std::vector<double> >("elePtBinning2D", bins_2D);
-  histoPSet.add<std::vector<double> >("muPtBinning2D", bins_2D);
-  histoPSet.add<std::vector<double> >("eleEtaBinning2D", eta_bins_2D);
-  histoPSet.add<std::vector<double> >("muEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double>>("elePtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double>>("muPtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double>>("eleEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double>>("muEtaBinning2D", eta_bins_2D);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
