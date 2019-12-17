@@ -18,9 +18,13 @@ struct TICLSeedingRegion {
   // zSide can be either 0(neg) or 1(pos)
   int zSide;
   // the index in the seeding collection
-  // with index = -1 indicating a global seeding region
+  // with index = -1 indicating a global seeding region.
+  // For track-based seeding, the index of the track inside the track
+  // collection identified by the next ProductID.
   int index;
   // collectionID = 0 used for global seeding collection
+  // For track-based seeding, the ProductID of the track-collection used to
+  // create the seeding region.
   edm::ProductID collectionID;
 
   TICLSeedingRegion() {}

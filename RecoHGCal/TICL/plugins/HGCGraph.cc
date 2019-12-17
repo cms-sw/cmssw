@@ -25,11 +25,8 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
   theRootDoublets_.clear();
-  auto rindex = -1;
   for (const auto &r : regions) {
     bool isGlobal = (r.index == -1);
-    if (!isGlobal)
-      rindex++;
     auto zSide = r.zSide;
     int startEtaBin, endEtaBin, startPhiBin, endPhiBin;
 
@@ -85,7 +82,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                     if (maxDeltaTime != -1 &&
                         !areTimeCompatible(innerClusterId, outerClusterId, layerClustersTime, maxDeltaTime))
                       continue;
-                    allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters, rindex);
+                    allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters, r.index);
                     if (verbosity_ > Advanced) {
                       LogDebug("HGCGraph")
                           << "Creating doubletsId: " << doubletId << " layerLink in-out: [" << currentInnerLayerId
