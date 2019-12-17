@@ -114,13 +114,15 @@ outputFileSize = 350000
 ## for UpsilonToMuMu or JPsiToMuMu, these have to be added first
 ##
 trackSelection = "SingleMu"
+globalTag = None
+outputPath = None # can also be specified. If that is done, files are copied to this path afterwards
 
 if isMultiIOV:
     ## Configure here for campaigns with many different datasets (such as multi-IOV)
     iovNo = int(options.sample.split("iov")[1])
     process.load("Alignment.APEEstimation.samples.")
     outputName = ".root"
-    outputPath = None # can also be specified. If that is done, files are copied to this path afterwards
+    outputPath = None
     trackSelection = "SingleMu"
 if isData1: 
     process.load("Alignment.APEEstimation.samples.Data_TkAlMinBias_Run2018C_PromptReco_v3_cff")
@@ -142,12 +144,14 @@ if isData4:
     trackSelection = "SingleMu"
 # The following options are used for MC samples
 if isQcd: 
-    process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_qcd_cff")
-    outputName = 'Mc_TkAlMuonIsolated_Summer12_qcd.root'
-    trackSelection = "MinBias"
+    process.load("Alignment.APEEstimation.samples.MC_UL16_ttbar_cff")
+    outputPath = '/eos/cms/store/caf/user/mteroerd/Skims/MC/UL16'    
+    outputName = 'MC_UL16_ttbar.root'
+    trackSelection = "GenSim"
 if isWlnu: 
-    process.load("Alignment.APEEstimation.samples.Mc_WJetsToLNu_74XTest_cff")
-    outputName = 'Mc_WJetsToLNu_74XTest.root'
+    process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_2016UL_cff")
+    outputPath = '/eos/cms/store/caf/user/jschulz/Skims/MC/UL2016ReRecoRealistic'
+    outputName = 'Mc_TkAlMuonIsolated_WJetsToLNu_2016.root'
     trackSelection = "SingleMu"
 if isZmumu: 
     process.load("")
@@ -178,13 +182,13 @@ if outputPath:
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-if isData:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-    #process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_Prompt_v11', '')
-elif isMc:
-    #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_design', '')
-
+if globalTag == None:
+    if isData:
+        process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+    elif isMc:
+        process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+else:   
+    process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
 print("Using global tag "+process.GlobalTag.globaltag._value)
 
 process.load("Configuration.StandardSequences.Services_cff")
@@ -211,6 +215,8 @@ import Alignment.APEEstimation.AlignmentTrackSelector_cff as AlignmentTrackSelec
 # Determination of which AlignmentTrackSelector to use
 if trackSelection == "SingleMu":
     trackSelector = AlignmentTrackSelector.MuSkimSelector
+elif trackSelection == "GenSim":
+    trackSelector = AlignmentTrackSelector.genSimSkimSelector    
 elif trackSelection == "DoubleMu":
     trackSelector = AlignmentTrackSelector.DoubleMuSkimSelector
 elif trackSelection == "MinBias":

@@ -1,6 +1,8 @@
 from __future__ import print_function
 import sys
 sys.path.append("../SkimProducer")
+# for switching to CAF queue (condor submit)
+sys.path.append("../autoSubmitter") 
 import os
 import subprocess
 import signal
@@ -35,7 +37,28 @@ def replaceAllRanges(string):
         return [string,]
 
 
-def doSkim(sample):
+def condorSubmitSkim(sample, caf=False):
+    from helpers import enableCAF
+    enableCAF(caf)
+    path = "{base}/src/Alignment/APEEstimation/test/SkimProducer".format(base=os.environ['CMSSW_BASE'])
+    
+    from skimTemplates import skimScript
+    scriptfile = "{path}/workingArea/skim_{name}.tcsh".format(path=path, name=sample)
+    with open(scriptfile, "w") as fi:
+        fi.write(skimScript.format(base=os.environ['CMSSW_BASE']))
+    
+    if caf:
+        from skimTemplates import condorSubTemplateCAF as condorSubScript
+    else:
+        from skimTemplates import condorSubTemplate as condorSubScript
+    subfile = "{path}/workingArea/skim_{name}.sub".format(path=path, name=sample)
+    with open(subfile, "w") as fi:
+        fi.write(condorSubScript.format(path=path, name=sample))
+    
+    print(subfile)
+    subprocess.call("condor_submit {subfile}".format(subfile=subfile), shell=True)
+    
+def localStartSkim(sample):
     base = os.environ['CMSSW_BASE']    
     
     execString = "cmsRun {base}/src/Alignment/APEEstimation/test/SkimProducer/skimProducer_cfg.py isTest=False useTrackList=False sample={sample}".format(sample=sample, base=base)
@@ -119,10 +142,12 @@ def main(argv):
     parser = argparse.ArgumentParser(description='Define which samples to skim')
     parser.add_argument("-s", "--sample", action="append", dest="samples", default=[],
                           help="Name of sample as defined in skimProducer_cfg.py. Multiple inputs possible")
-    parser.add_argument("-c", "--consecutive", action="store_true", dest="consecutive", default=False,
-                          help="Do consecutive instead of parallel skims")
+    parser.add_argument("-c", "--condor", action="store_true", dest="condor", default=False,
+                          help="Submit to condor, if False, the skim will be done locally on lxplus")
+    parser.add_argument("-C", "--caf", action="store_true", dest="caf", default=False,
+                          help="Submit to CAF queue for faster execution")
     parser.add_argument("-n", "--ncores", action="store", dest="ncores", default=-1, type=int,
-                          help="Set maximum number of parallel skims to run")
+                          help="Set maximum number of parallel skims to run if skimming is done locally")
     
     args = parser.parse_args()
     
@@ -140,18 +165,24 @@ def main(argv):
     if args.ncores<0 or args.ncores > len(args.samples):
         args.ncores = len(args.samples)
     
-    if len(args.samples) == 1 or args.consecutive:
+    if args.condor:
+        # Every skim gets its own condor job. One could also submit one
+        # job and add all jobs as arguments with small changes.
         for sample in args.samples:
-            doSkim(sample) 
+            condorSubmitSkim(sample, args.caf)
     else:
-        try:
-            # In a later PR, this should be migrated to condor to avoid 
-            # overloading lxplus and transfer load to lxbatch
-            pool = mp.Pool(args.ncores)
-            pool.map_async(doSkim, args.samples)
-            pool.close()
-            pool.join()
-        except KeyboardInterrupt:
-            pass # The keyboard interrupt will be forwarded to the subprocesses anyway, stopping them without terminating them immediately
+        if len(args.samples) == 1:
+            for sample in args.samples:
+                localStartSkim(sample) 
+        else:
+            try:
+                # Not recommended for a large number of jobs
+                # They will get killed by admins if they overload lxplus
+                pool = mp.Pool(args.ncores)
+                pool.map_async(localStartSkim, args.samples)
+                pool.close()
+                pool.join()
+            except KeyboardInterrupt:
+                pass # The keyboard interrupt will be forwarded to the subprocesses anyway, stopping them without terminating them immediately
 if __name__ == "__main__":
     main(sys.argv)
