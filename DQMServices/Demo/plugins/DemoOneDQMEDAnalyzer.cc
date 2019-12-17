@@ -83,10 +83,6 @@ void DemoOneDQMEDAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DemoOneDQMEDAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation
-  // Please change this to state exactly what you do use, even if it is no
-  // parameters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("folder", "MY_FOLDER");
   descriptions.add("demoone", desc);
