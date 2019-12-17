@@ -283,7 +283,8 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
 
   //   EB Hit collection start
   MapType ebmap;
-  for (int j = 0; j < theEBHC->entries(); j++) {
+  int theebhc_entries = theEBHC->entries();
+  for (int j = 0; j < theebhc_entries; j++) {
     CaloG4Hit *aHit = (*theEBHC)[j];
     totalEInEB += aHit->getEnergyDeposit();
     float he = aHit->getEnergyDeposit();
@@ -306,8 +307,8 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
 
   //   EE Hit collection start
   MapType eemap, eezpmap, eezmmap;
-
-  for (int j = 0; j < theEEHC->entries(); j++) {
+  int theeehc_entries = theEEHC->entries();
+  for (int j = 0; j < theeehc_entries; j++) {
     CaloG4Hit *aHit = (*theEEHC)[j];
     totalEInEE += aHit->getEnergyDeposit();
     float he = aHit->getEnergyDeposit();
@@ -342,7 +343,8 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
   nCrystalInEEzp = eezpmap.size();
 
   // Hits from ES
-  for (int j = 0; j < theSEHC->entries(); j++) {
+  int thesehc_entries = theSEHC->entries();
+  for (int j = 0; j < thesehc_entries; j++) {
     CaloG4Hit *aHit = (*theSEHC)[j];
     totalEInES += aHit->getEnergyDeposit();
     ESDetId esid = ESDetId(aHit->getUnitID());
