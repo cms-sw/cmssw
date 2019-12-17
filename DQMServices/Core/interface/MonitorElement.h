@@ -156,7 +156,7 @@ namespace dqm::impl {
         return Access{std::unique_lock<dqmmutex>(), frozen->key_, frozen->value_};
       }
       // else
-      throw cms::Exception("LogicError") << "MonitorElement not backed by any data!";
+      throw cms::Exception("LogicError") << "MonitorElement " << getName() << " not backed by any data!";
     }
 
     AccessMut accessMut() {
@@ -171,7 +171,7 @@ namespace dqm::impl {
       }  // else
       auto frozen = frozen_.load();
       if (!frozen) {
-        throw cms::Exception("LogicError") << "MonitorElement not backed by any data!";
+        throw cms::Exception("LogicError") << "MonitorElement " << getName() << " not backed by any data!";
       }
       // in case of an immutable object read from edm products, attempt to
       // make a clone.
