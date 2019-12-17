@@ -891,7 +891,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // fill the TrackCandidate info
     if (doTkCandPlots) {
       // magnetic field
-      MagneticField const& theMF = iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldToken_);
+      MagneticField const& theMF = iSetup.getData(magneticFieldToken_);
 
       // get the candidate collection
       edm::Handle<TrackCandidateCollection> theTCHandle;
@@ -913,8 +913,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         if (seedHandle.isValid() && !seedCollection.empty())
           FractionCandidatesOverSeeds->Fill(double(theTCCollection.size()) / double(seedCollection.size()));
 
-        TransientTrackingRecHitBuilder const& theTTRHBuilder =
-            iSetup.get<TransientRecHitRecord>().get(transientTrackingRecHitBuilderToken_);
+        TransientTrackingRecHitBuilder const& theTTRHBuilder = iSetup.getData(transientTrackingRecHitBuilderToken_);
         for (TrackCandidateCollection::const_iterator cand = theTCCollection.begin(); cand != theTCCollection.end();
              ++cand) {
           theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *cand, bs, theMF, theTTRHBuilder);
@@ -977,15 +976,14 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           if (seedStopInfo.size() == seedCollection.size()) {
             //here duplication of mag field and be informations is needed to allow seed and track cand histos to be independent
             // magnetic field
-            MagneticField const& theMF = iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldToken_);
+            MagneticField const& theMF = iSetup.getData(magneticFieldToken_);
 
             // get the beam spot
             edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
             iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle);
             const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
-            TransientTrackingRecHitBuilder const& theTTRHBuilder =
-                iSetup.get<TransientRecHitRecord>().get(transientTrackingRecHitBuilderToken_);
+            TransientTrackingRecHitBuilder const& theTTRHBuilder = iSetup.getData(transientTrackingRecHitBuilderToken_);
             for (size_t i = 0; i < seedCollection.size(); ++i) {
               theTrackBuildingAnalyzer->analyze(
                   iEvent, iSetup, seedCollection[i], seedStopInfo[i], bs, theMF, theTTRHBuilder);
