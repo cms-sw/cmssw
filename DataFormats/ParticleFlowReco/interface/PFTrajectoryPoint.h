@@ -58,7 +58,7 @@ namespace reco {
       Unknown = -1
     };
 
-    static const std::string layerTypeNames[];
+    static const std::array<std::string, NLayers> layerTypeNames;
     static LayerType layerTypeByName(const std::string& name);
 
     /// default constructor. Set variables at default dummy values

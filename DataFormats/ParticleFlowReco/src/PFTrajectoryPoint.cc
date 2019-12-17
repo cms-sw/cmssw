@@ -6,16 +6,16 @@ using namespace reco;
 
 // To be kept in synch with the enumerator definitions in PFTrajectoryPoint.h file
 // Don't consider "Unknown" and "NLayers"
-std::string const PFTrajectoryPoint::layerTypeNames[] = {"ClosestApproach",
-                                                         "BeamPipeOrEndVertex",
-                                                         "PS1",
-                                                         "PS2",
-                                                         "ECALEntrance",
-                                                         "ECALShowerMax",
-                                                         "HCALEntrance",
-                                                         "HCALExit",
-                                                         "HOLayer",
-                                                         "VFcalEntrance"};
+std::array<std::string, PFTrajectoryPoint::NLayers> const PFTrajectoryPoint::layerTypeNames{{"ClosestApproach",
+                                                                                             "BeamPipeOrEndVertex",
+                                                                                             "PS1",
+                                                                                             "PS2",
+                                                                                             "ECALEntrance",
+                                                                                             "ECALShowerMax",
+                                                                                             "HCALEntrance",
+                                                                                             "HCALExit",
+                                                                                             "HOLayer",
+                                                                                             "VFcalEntrance"}};
 
 PFTrajectoryPoint::PFTrajectoryPoint() : isTrackerLayer_(false), detId_(-1), layer_(-1) {}
 
@@ -40,11 +40,11 @@ PFTrajectoryPoint::PFTrajectoryPoint(const PFTrajectoryPoint& other)
 PFTrajectoryPoint::~PFTrajectoryPoint() {}
 
 PFTrajectoryPoint::LayerType PFTrajectoryPoint::layerTypeByName(const std::string& name) {
-  LayerType size = NLayers;
-  int index = std::find(layerTypeNames, layerTypeNames + size, name) - layerTypeNames;
-  if (index == size) {
-    return Unknown;  // better this or throw() ?
+  auto it = std::find(layerTypeNames.begin(), layerTypeNames.end(), name);
+  if (it == layerTypeNames.end()) {
+    return Unknown;  // better this or throw()?
   }
+  int index = std::distance(layerTypeNames.begin(), it);
   return LayerType(index);
 }
 
