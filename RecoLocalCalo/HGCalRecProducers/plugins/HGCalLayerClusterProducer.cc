@@ -217,11 +217,12 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
         //time is computed wrt  0-25ns + offset and set to -1 if no time
 	const HGCRecHit *rechit = finder->second;
-        float rhTime = rechit->time();
-        if (rhTime < 0.)
+        float rhTimeE = rechit->timeError();
+	//check on timeError to exclude scintillator
+        if (rhTimeE < 0.)
           continue;
-        timeClhits.push_back(rhTime - timeOffset);
-	timeErrorClhits.push_back(1./(rechit->timeError()*rechit->timeError()));
+        timeClhits.push_back(rechit->time() - timeOffset);
+	timeErrorClhits.push_back(1./(rhTimeE*rhTimeE));
       }
       if (timeClhits.size() >= 3){
 	hgcalsimclustertime::ComputeClusterTime timeEstimator;
