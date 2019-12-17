@@ -16,8 +16,7 @@ namespace edm {
   namespace errors {
 
     // If you add a new entry to the set of values, make sure to
-    // update the translation map in EDMException.cc, the actions
-    // table in FWCore/Framework/src/Actions.cc, and the configuration
+    // update the translation map in EDMException.cc, and the configuration
     // fragment FWCore/Framework/python/test/cmsExceptionsFatalOption_cff.py.
 
     enum ErrorCodes {
@@ -62,6 +61,8 @@ namespace edm {
        ExceededResourceVSize = 8030,
        ExceededResourceRSS = 8031,
        ExceededResourceTime = 8032,
+
+       FileNameInconsistentWithGUID = 8034,
       
        EventGenerationFailure = 8501,
 
