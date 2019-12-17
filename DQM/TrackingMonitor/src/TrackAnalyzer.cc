@@ -269,7 +269,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& iboo
     }
   }
 
-  TrackerGeometry const& trackerGeometry = iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryToken_);
+  TrackerGeometry const& trackerGeometry = iSetup.getData(trackerGeometryToken_);
 
   // Values are not ordered randomly, but the order is taken from
   // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
@@ -1126,7 +1126,7 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   iEvent.getByToken(pixelClustersToken_, pixelClusters);
   if (pixelClusters.isValid()) {
-    TrackerTopology const& tTopo = iSetup.get<TrackerTopologyRcd>().get(trackerTopologyToken_);
+    TrackerTopology const& tTopo = iSetup.getData(trackerTopologyToken_);
 
     // Count the number of clusters with at least a minimum
     // number of pixels per cluster and at least a minimum charge.
@@ -1351,7 +1351,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       yPointOfClosestApproachVsZ0wrtPV->Fill(track.dz(pv.position()), (track.vy() - pv.position().y()));
 
       if (doSIPPlots_) {
-        TransientTrackBuilder const& theB = iSetup.get<TransientTrackRecord>().get(transientTrackBuilderToken_);
+        TransientTrackBuilder const& theB = iSetup.getData(transientTrackBuilderToken_);
         reco::TransientTrack transTrack = theB.build(track);
 
         GlobalVector dir(track.px(), track.py(), track.pz());
@@ -1958,7 +1958,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     etaerror = track.etaError();
 
   } else {
-    TransientTrackBuilder const& theB = iSetup.get<TransientTrackRecord>().get(transientTrackBuilderToken_);
+    TransientTrackBuilder const& theB = iSetup.getData(transientTrackBuilderToken_);
     reco::TransientTrack TransTrack = theB.build(track);
 
     TrajectoryStateOnSurface TSOS;
