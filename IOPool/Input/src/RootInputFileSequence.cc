@@ -66,6 +66,7 @@ namespace edm {
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
     usingGoToEvent_(false),
     enablePrefetching_(false),
+    enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName", false)),
     usedFallback_(false) {
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
@@ -268,7 +269,8 @@ namespace edm {
           bypassVersionCheck_,
           labelRawDataLikeMC_,
           usingGoToEvent_,
-          enablePrefetching_));
+          enablePrefetching_,
+          enforceGUIDInFileName_));
 
       assert(rootFile_);
       fileIterLastOpened_ = fileIter_;
@@ -807,6 +809,10 @@ namespace edm {
                      "'permissive': Branches in each input file may be any subset of those in the first file.");
     desc.addUntracked<bool>("labelRawDataLikeMC", true)
         ->setComment("If True: replace module label for raw data to match MC. Also use 'LHC' as process.");
+    desc.addUntracked<bool>("enforceGUIDInFileName", false)
+      ->setComment(
+            "True:  file name part is required to be equal to the GUID of the file\n"
+            "False: file name can be anything");
 
     ProductSelectorRules::fillDescription(desc, "inputCommands");
     EventSkipperByID::fillDescription(desc);
