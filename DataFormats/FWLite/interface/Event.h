@@ -36,6 +36,7 @@
  }
  \endcode
 
+ NOTE: This class is not safe to use across threads.
 */
 //
 // Original Author:  Chris Jones
@@ -62,6 +63,7 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
@@ -92,7 +94,8 @@ namespace fwlite {
     // DataGetterHelper caching is enabled. When user sets useCache to
     // false no cache is created unless user attaches and controls it
     // himself.
-    Event(TFile* iFile, bool useCache = true, std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
+    Event(
+        TFile* iFile, bool useCache = true, std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
     ~Event() override;
 
     ///Advance to next event in the TFile
@@ -192,29 +195,30 @@ namespace fwlite {
     void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { return dataHelper_.setGetter(getter); }
 
     // ---------- member data --------------------------------
-    mutable TFile* file_;
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable TFile* file_;
     // TTree* eventTree_;
     TTree* eventHistoryTree_;
     // Long64_t eventIndex_;
-    mutable std::shared_ptr<fwlite::LuminosityBlock> lumi_;
-    mutable std::shared_ptr<fwlite::Run> run_;
-    mutable fwlite::BranchMapReader branchMap_;
+    CMS_SA_ALLOW mutable std::shared_ptr<fwlite::LuminosityBlock> lumi_;
+    CMS_SA_ALLOW mutable std::shared_ptr<fwlite::Run> run_;
+    CMS_SA_ALLOW mutable fwlite::BranchMapReader branchMap_;
 
     //takes ownership of the strings used by the DataKey keys in data_
-    mutable std::vector<char const*> labels_;
-    mutable edm::ProcessHistoryMap historyMap_;
-    mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
-    mutable std::vector<std::string> procHistoryNames_;
-    mutable edm::EventAuxiliary aux_;
-    mutable EntryFinder entryFinder_;
+    CMS_SA_ALLOW mutable std::vector<char const*> labels_;
+    CMS_SA_ALLOW mutable edm::ProcessHistoryMap historyMap_;
+    CMS_SA_ALLOW mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
+    CMS_SA_ALLOW mutable std::vector<std::string> procHistoryNames_;
+    CMS_SA_ALLOW mutable edm::EventAuxiliary aux_;
+    CMS_SA_ALLOW mutable EntryFinder entryFinder_;
     edm::EventAuxiliary const* pAux_;
     edm::EventAux const* pOldAux_;
     TBranch* auxBranch_;
     int fileVersion_;
-    mutable bool parameterSetRegistryFilled_;
+    CMS_SA_ALLOW mutable bool parameterSetRegistryFilled_;
 
     fwlite::DataGetterHelper dataHelper_;
-    mutable std::shared_ptr<RunFactory> runFactory_;
+    CMS_SA_ALLOW mutable std::shared_ptr<RunFactory> runFactory_;
   };
 
 }  // namespace fwlite
