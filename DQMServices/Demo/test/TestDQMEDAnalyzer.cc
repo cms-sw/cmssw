@@ -172,7 +172,7 @@ private:
   }
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {}
-  void dqmBeginRun(edm::Run const& run, edm::EventSetup const&) override { mymes_.fillall(0, run.run(), myvalue_); }
+  void dqmEndRun(edm::Run const& run, edm::EventSetup const&) override { mymes_.fillall(0, run.run(), myvalue_); }
 
   BookerFiller<DQMStore::IBooker, MonitorElement> mymes_;
   double myvalue_;
@@ -361,7 +361,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "Legacy/testlegacyfillrun")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "Legacy/testlegacyfilllumi")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("testlegacyfilllumi", desc);
@@ -373,7 +373,7 @@ private:
     mymes_.bookall(*store);
   }
 
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) override {
     mymes_.fillall(lumi.luminosityBlock(), lumi.run(), myvalue_);
   }
 
