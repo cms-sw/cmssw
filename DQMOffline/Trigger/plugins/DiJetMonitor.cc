@@ -34,21 +34,21 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
-  DiJetMonitor(const edm::ParameterSet &);
+  DiJetMonitor(const edm::ParameterSet&);
   ~DiJetMonitor() throw() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   bool dijet_selection(double eta_1,
                        double phi_1,
                        double eta_2,
                        double phi_2,
                        double pt_1,
                        double pt_2,
-                       int &tag_id,
-                       int &probe_id,
+                       int& tag_id,
+                       int& probe_id,
                        int Event);
 
 private:

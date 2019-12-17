@@ -1,10 +1,15 @@
 #include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
 
 void TriggerDQMBase::setMETitle(ObjME& me, const std::string& titleX, const std::string& titleY) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  me.denominator->setAxisTitle(titleX, 1);
-  me.denominator->setAxisTitle(titleY, 2);
+  if (me.numerator) {
+    me.numerator->setAxisTitle(titleX, 1);
+    me.numerator->setAxisTitle(titleY, 2);
+  }
+
+  if (me.denominator) {
+    me.denominator->setAxisTitle(titleX, 1);
+    me.denominator->setAxisTitle(titleY, 2);
+  }
 }
 
 void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
@@ -13,21 +18,30 @@ void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
                             const std::string& histtitle,
                             const uint nbins,
                             const double min,
-                            const double max) {
+                            const double max,
+                            const bool bookDen) {
   me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
+
+  if (bookDen) {
+    me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
+  }
 }
 
 void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
                             ObjME& me,
                             const std::string& histname,
                             const std::string& histtitle,
-                            const std::vector<double>& binning) {
+                            const std::vector<double>& binning,
+                            const bool bookDen) {
   uint nbins = binning.size() - 1;
   std::vector<float> fbinning(binning.begin(), binning.end());
   float* arr = &fbinning[0];
+
   me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
+
+  if (bookDen) {
+    me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
+  }
 }
 
 void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
@@ -38,11 +52,15 @@ void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
                             const double xmin,
                             const double xmax,
                             const double ymin,
-                            const double ymax) {
+                            const double ymax,
+                            const bool bookDen) {
   me.numerator =
       ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator =
-      ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
+
+  if (bookDen) {
+    me.denominator =
+        ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
+  }
 }
 
 void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
@@ -54,11 +72,15 @@ void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
                             const double xmax,
                             const uint nbinsY,
                             const double ymin,
-                            const double ymax) {
+                            const double ymax,
+                            const bool bookDen) {
   me.numerator =
       ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
+
+  if (bookDen) {
+    me.denominator =
+        ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
+  }
 }
 
 void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
@@ -66,7 +88,8 @@ void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
                             const std::string& histname,
                             const std::string& histtitle,
                             const std::vector<double>& binningX,
-                            const std::vector<double>& binningY) {
+                            const std::vector<double>& binningY,
+                            const bool bookDen) {
   uint nbinsX = binningX.size() - 1;
   std::vector<float> fbinningX(binningX.begin(), binningX.end());
   float* arrX = &fbinningX[0];
@@ -75,7 +98,11 @@ void TriggerDQMBase::bookME(DQMStore::IBooker& ibooker,
   float* arrY = &fbinningY[0];
 
   me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
+
+  if (bookDen) {
+    me.denominator =
+        ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
+  }
 }
 
 void TriggerDQMBase::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {

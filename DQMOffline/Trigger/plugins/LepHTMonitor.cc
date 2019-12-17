@@ -38,12 +38,12 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
-  LepHTMonitor(const edm::ParameterSet& ps);
+  LepHTMonitor(const edm::ParameterSet &ps);
   ~LepHTMonitor() throw() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event& e, const edm::EventSetup& eSetup) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &eSetup) override;
 
 private:
   edm::InputTag theElectronTag_;
@@ -104,18 +104,18 @@ private:
   float npvbins_max_;
 
   // Histograms
-  MonitorElement* h_pfHTTurnOn_num_;
-  MonitorElement* h_pfHTTurnOn_den_;
-  MonitorElement* h_lepPtTurnOn_num_;
-  MonitorElement* h_lepPtTurnOn_den_;
-  MonitorElement* h_lepEtaTurnOn_num_;
-  MonitorElement* h_lepEtaTurnOn_den_;
-  MonitorElement* h_lepPhiTurnOn_num_;
-  MonitorElement* h_lepPhiTurnOn_den_;
-  MonitorElement* h_lepEtaPhiTurnOn_num_;
-  MonitorElement* h_lepEtaPhiTurnOn_den_;
-  MonitorElement* h_NPVTurnOn_num_;
-  MonitorElement* h_NPVTurnOn_den_;
+  MonitorElement *h_pfHTTurnOn_num_;
+  MonitorElement *h_pfHTTurnOn_den_;
+  MonitorElement *h_lepPtTurnOn_num_;
+  MonitorElement *h_lepPtTurnOn_den_;
+  MonitorElement *h_lepEtaTurnOn_num_;
+  MonitorElement *h_lepEtaTurnOn_den_;
+  MonitorElement *h_lepPhiTurnOn_num_;
+  MonitorElement *h_lepPhiTurnOn_den_;
+  MonitorElement *h_lepEtaPhiTurnOn_num_;
+  MonitorElement *h_lepEtaPhiTurnOn_den_;
+  MonitorElement *h_NPVTurnOn_num_;
+  MonitorElement *h_NPVTurnOn_den_;
 };
 
 namespace {
