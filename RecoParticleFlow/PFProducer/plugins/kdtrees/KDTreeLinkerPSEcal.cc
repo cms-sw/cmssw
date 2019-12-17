@@ -9,7 +9,7 @@
 // It is used in PFBlockAlgo.cc in the function links().
 class KDTreeLinkerPSEcal : public KDTreeLinkerBase {
 public:
-  KDTreeLinkerPSEcal();
+  KDTreeLinkerPSEcal(const edm::ParameterSet &conf);
   ~KDTreeLinkerPSEcal() override;
 
   // With this method, we create the list of psCluster that we want to link.
@@ -70,8 +70,8 @@ private:
 // construct it when calling the factory
 DEFINE_EDM_PLUGIN(KDTreeLinkerFactory, KDTreeLinkerPSEcal, "KDTreePreshowerAndECALLinker");
 
-KDTreeLinkerPSEcal::KDTreeLinkerPSEcal()
-    : KDTreeLinkerBase(), resPSpitch_(0.19), resPSlength_(6.1), ps1ToEcal_(1.072), ps2ToEcal_(1.057) {}
+KDTreeLinkerPSEcal::KDTreeLinkerPSEcal(const edm::ParameterSet &conf)
+    : KDTreeLinkerBase(conf), resPSpitch_(0.19), resPSlength_(6.1), ps1ToEcal_(1.072), ps2ToEcal_(1.057) {}
 
 KDTreeLinkerPSEcal::~KDTreeLinkerPSEcal() { clear(); }
 

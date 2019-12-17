@@ -8,14 +8,14 @@ class TrackAndGSFLinker : public BlockElementLinkerBase {
 public:
   TrackAndGSFLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
         _useConvertedBrems(conf.getParameter<bool>("useConvertedBrems")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _useConvertedBrems, _debug;
+  bool useKDTree_, _useConvertedBrems, debug_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndGSFLinker, "TrackAndGSFLinker");

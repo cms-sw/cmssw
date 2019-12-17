@@ -116,23 +116,23 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     // setup KDtree if requested
     const bool useKDTree = conf.getParameter<bool>("useKDTree");
     if (useKDTree) {
-      kdtrees_.emplace_back(KDTreeLinkerFactory::get()->create(pfx_kdtree + linkerName));
+      kdtrees_.emplace_back(KDTreeLinkerFactory::get()->create(pfx_kdtree + linkerName, conf));
       kdtrees_.back()->setTargetType(std::min(type1, type2));
       kdtrees_.back()->setFieldType(std::max(type1, type2));
       // giving entrance and exit points - necessary for track-hcal links
-      const std::string trajectoryLayerEntranceString(conf.existsAs<std::string>("trajectoryLayerEntrance")
-                                                          ? conf.getParameter<std::string>("trajectoryLayerEntrance")
-                                                          : "");
-      const std::string trajectoryLayerExitString(conf.existsAs<std::string>("trajectoryLayerExit")
-                                                      ? conf.getParameter<std::string>("trajectoryLayerExit")
-                                                      : "");
-      // convert TrajectoryLayers info from string to enum
-      const reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance =
-          reco::PFTrajectoryPoint::layerTypeByName(trajectoryLayerEntranceString);
-      const reco::PFTrajectoryPoint::LayerType trajectoryLayerExit =
-          reco::PFTrajectoryPoint::layerTypeByName(trajectoryLayerExitString);
-      if (trajectoryLayerEntrance != reco::PFTrajectoryPoint::Unknown)
-        kdtrees_.back()->setTrajectoryPoints(trajectoryLayerEntrance, trajectoryLayerExit);
+      // const std::string trajectoryLayerEntranceString(conf.existsAs<std::string>("trajectoryLayerEntrance")
+      //                                                     ? conf.getParameter<std::string>("trajectoryLayerEntrance")
+      //                                                     : "");
+      // const std::string trajectoryLayerExitString(conf.existsAs<std::string>("trajectoryLayerExit")
+      //                                                 ? conf.getParameter<std::string>("trajectoryLayerExit")
+      //                                                 : "");
+      // // convert TrajectoryLayers info from string to enum
+      // const reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance =
+      //     reco::PFTrajectoryPoint::layerTypeByName(trajectoryLayerEntranceString);
+      // const reco::PFTrajectoryPoint::LayerType trajectoryLayerExit =
+      //     reco::PFTrajectoryPoint::layerTypeByName(trajectoryLayerExitString);
+      // if (trajectoryLayerEntrance != reco::PFTrajectoryPoint::Unknown)
+      //   kdtrees_.back()->setTrajectoryPoints(trajectoryLayerEntrance, trajectoryLayerExit);
     }  // useKDTree
   }    // loop over confs
 }
