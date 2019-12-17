@@ -90,6 +90,7 @@ void TICLCandidateFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
   desc_momentum.add<bool>("energyFromRegression", false);
   desc_momentum.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc_momentum.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalLayerClusters"));
+  desc_momentum.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::ParameterSetDescription>("momentumPlugin", desc_momentum);
 
   edm::ParameterSetDescription desc_track;
@@ -120,6 +121,9 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
       auto& ticl_cand = result->emplace_back(edm::Ptr<ticl::Trackster>(trackster_h, i_trackster));
       auto max_index = std::distance(id_prob_begin, max_id_prob_it);
       auto pdg_id = pdg_id_from_particle_type(static_cast<ticl::Trackster::ParticleType>(max_index));
+      if (pdg_id == 22 and max_id_prob == 0.) {
+        std::cout << "Promoting junk to gamma" << std::endl;
+      }
       ticl_cand.setPdgId(pdg_id);
     }
   }
