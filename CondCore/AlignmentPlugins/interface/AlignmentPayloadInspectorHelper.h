@@ -13,6 +13,7 @@
 #include "TList.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
 
 namespace AlignmentPI {
 
@@ -761,6 +762,107 @@ namespace AlignmentPI {
     return std::make_pair(_sx, _dx);
   }
 
+  // ancillary struct to manage the barycenters
+  // info in a more compact way
+
+  struct TkAlBarycenters {
+    std::array<double, 6> m_Xbarycenters;
+    std::array<double, 6> m_Ybarycenters;
+    std::array<double, 6> m_Zbarycenters;
+    std::array<double, 6> m_nmodules;
+
+  public:
+    void init();
+    void computeBarycenters(const std::vector<AlignTransform>& input,
+                            const std::map<AlignmentPI::coordinate, float>& GPR);
+    const std::array<double, 6> getX() { return m_Xbarycenters; };
+    const std::array<double, 6> getY() { return m_Ybarycenters; };
+    const std::array<double, 6> getZ() { return m_Zbarycenters; };
+    const std::array<double, 6> getNModules() { return m_nmodules; };
+    virtual ~TkAlBarycenters() {}
+  };
+
+  /*--------------------------------------------------------------------*/
+  void TkAlBarycenters::init()
+  /*--------------------------------------------------------------------*/
+  {
+    m_Xbarycenters = {{0., 0., 0., 0., 0., 0.}};
+    m_Ybarycenters = {{0., 0., 0., 0., 0., 0.}};
+    m_Zbarycenters = {{0., 0., 0., 0., 0., 0.}};
+    m_nmodules = {{0., 0., 0., 0., 0., 0.}};
+  }
+
+  /*--------------------------------------------------------------------*/
+  void TkAlBarycenters::computeBarycenters(const std::vector<AlignTransform>& input,
+                                           const std::map<AlignmentPI::coordinate, float>& GPR)
+  /*--------------------------------------------------------------------*/
+  {
+    for (const auto& ali : input) {
+      if (DetId(ali.rawId()).det() != DetId::Tracker) {
+        edm::LogWarning("TkAlBarycenters::computeBarycenters")
+            << "Encountered invalid Tracker DetId:" << ali.rawId() << " " << DetId(ali.rawId()).det()
+            << " is different from " << DetId::Tracker << "  - terminating ";
+        assert(DetId(ali.rawId()).det() != DetId::Tracker);
+      }
+
+      int subid = DetId(ali.rawId()).subdetId();
+      auto thePart = static_cast<AlignmentPI::partitions>(subid);
+
+      switch (thePart) {
+        case AlignmentPI::BPix:
+          m_Xbarycenters[0] += (ali.translation().x());
+          m_Ybarycenters[0] += (ali.translation().y());
+          m_Zbarycenters[0] += (ali.translation().z());
+          m_nmodules[0]++;
+          break;
+        case AlignmentPI::FPix:
+          m_Xbarycenters[1] += (ali.translation().x());
+          m_Ybarycenters[1] += (ali.translation().y());
+          m_Zbarycenters[1] += (ali.translation().z());
+          m_nmodules[1]++;
+          break;
+        case AlignmentPI::TIB:
+          m_Xbarycenters[2] += (ali.translation().x());
+          m_Ybarycenters[2] += (ali.translation().y());
+          m_Zbarycenters[2] += (ali.translation().z());
+          m_nmodules[2]++;
+          break;
+        case AlignmentPI::TID:
+          m_Xbarycenters[3] += (ali.translation().x());
+          m_Ybarycenters[3] += (ali.translation().y());
+          m_Zbarycenters[3] += (ali.translation().z());
+          m_nmodules[3]++;
+          break;
+        case AlignmentPI::TOB:
+          m_Xbarycenters[4] += (ali.translation().x());
+          m_Ybarycenters[4] += (ali.translation().y());
+          m_Zbarycenters[4] += (ali.translation().z());
+          m_nmodules[4]++;
+          break;
+        case AlignmentPI::TEC:
+          m_Xbarycenters[5] += (ali.translation().x());
+          m_Ybarycenters[5] += (ali.translation().y());
+          m_Zbarycenters[5] += (ali.translation().z());
+          m_nmodules[5]++;
+          break;
+        default:
+          edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized partition " << thePart << std::endl;
+          break;
+      }
+    }
+
+    for (unsigned int i = 0; i < 6; i++) {
+      m_Xbarycenters[i] /= m_nmodules[i];
+      m_Ybarycenters[i] /= m_nmodules[i];
+      m_Zbarycenters[i] /= m_nmodules[i];
+
+      // correct for GPR
+
+      m_Xbarycenters[i] += GPR.at(AlignmentPI::t_x);
+      m_Ybarycenters[i] += GPR.at(AlignmentPI::t_y);
+      m_Zbarycenters[i] += GPR.at(AlignmentPI::t_z);
+    }
+  }
 }  // namespace AlignmentPI
 
 #endif

@@ -575,84 +575,25 @@ namespace {
       h2_uncBarycenterParameters->SetTitle(nullptr);
 
       std::vector<AlignTransform> alignments = payload->m_align;
+      AlignmentPI::TkAlBarycenters barycenters;
+      barycenters.init();
+      // compute uncorrected barycenter
+      barycenters.computeBarycenters(alignments,
+				     {{AlignmentPI::t_x,0.0},
+				      {AlignmentPI::t_y,0.0},
+				      {AlignmentPI::t_z,0.0}});
 
-      std::array<double, 6> Xbarycenters = {{0., 0., 0., 0., 0., 0.}};
-      std::array<double, 6> Ybarycenters = {{0., 0., 0., 0., 0., 0.}};
-      std::array<double, 6> Zbarycenters = {{0., 0., 0., 0., 0., 0.}};
+      auto Xbarycenters   = barycenters.getX();
+      auto Ybarycenters   = barycenters.getY();
+      auto Zbarycenters   = barycenters.getZ();
 
-      std::array<double, 6> c_Xbarycenters = {{0., 0., 0., 0., 0., 0.}};
-      std::array<double, 6> c_Ybarycenters = {{0., 0., 0., 0., 0., 0.}};
-      std::array<double, 6> c_Zbarycenters = {{0., 0., 0., 0., 0., 0.}};
+      barycenters.init();
+      // compute barycenter corrected for the GPR
+      barycenters.computeBarycenters(alignments,hardcodeGPR);
 
-      std::array<double, 6> nmodules = {{0., 0., 0., 0., 0., 0.}};
-
-      for (const auto &ali : alignments) {
-        if (DetId(ali.rawId()).det() != DetId::Tracker) {
-          edm::LogWarning("TrackerAlignment_PayloadInspector")
-              << "Encountered invalid Tracker DetId:" << ali.rawId() << " " << DetId(ali.rawId()).det()
-              << " is different from " << DetId::Tracker << "  - terminating ";
-          return false;
-        }
-
-        int subid = DetId(ali.rawId()).subdetId();
-        auto thePart = static_cast<AlignmentPI::partitions>(subid);
-
-        switch (thePart) {
-          case AlignmentPI::BPix:
-            Xbarycenters[0] += (ali.translation().x());
-            Ybarycenters[0] += (ali.translation().y());
-            Zbarycenters[0] += (ali.translation().z());
-            nmodules[0]++;
-            break;
-          case AlignmentPI::FPix:
-            Xbarycenters[1] += (ali.translation().x());
-            Ybarycenters[1] += (ali.translation().y());
-            Zbarycenters[1] += (ali.translation().z());
-            nmodules[1]++;
-            break;
-          case AlignmentPI::TIB:
-            Xbarycenters[2] += (ali.translation().x());
-            Ybarycenters[2] += (ali.translation().y());
-            Zbarycenters[2] += (ali.translation().z());
-            nmodules[2]++;
-            break;
-          case AlignmentPI::TID:
-            Xbarycenters[3] += (ali.translation().x());
-            Ybarycenters[3] += (ali.translation().y());
-            Zbarycenters[3] += (ali.translation().z());
-            nmodules[3]++;
-            break;
-          case AlignmentPI::TOB:
-            Xbarycenters[4] += (ali.translation().x());
-            Ybarycenters[4] += (ali.translation().y());
-            Zbarycenters[4] += (ali.translation().z());
-            nmodules[4]++;
-            break;
-          case AlignmentPI::TEC:
-            Xbarycenters[5] += (ali.translation().x());
-            Ybarycenters[5] += (ali.translation().y());
-            Zbarycenters[5] += (ali.translation().z());
-            nmodules[5]++;
-            break;
-          default:
-            edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized partition " << thePart << std::endl;
-            break;
-        }
-      }
-
-      for (unsigned int i = 0; i < 6; i++) {
-        Xbarycenters[i] /= nmodules[i];
-        Ybarycenters[i] /= nmodules[i];
-        Zbarycenters[i] /= nmodules[i];
-
-        c_Xbarycenters[i] = Xbarycenters[i];
-        c_Ybarycenters[i] = Ybarycenters[i];
-        c_Zbarycenters[i] = Zbarycenters[i];
-
-        c_Xbarycenters[i] += hardcodeGPR.at(AlignmentPI::t_x);
-        c_Ybarycenters[i] += hardcodeGPR.at(AlignmentPI::t_y);
-        c_Zbarycenters[i] += hardcodeGPR.at(AlignmentPI::t_z);
-      }
+      auto c_Xbarycenters = barycenters.getX();
+      auto c_Ybarycenters = barycenters.getY();
+      auto c_Zbarycenters = barycenters.getZ();
 
       h2_BarycenterParameters->GetXaxis()->SetBinLabel(1, "X [cm]");
       h2_BarycenterParameters->GetXaxis()->SetBinLabel(2, "Y [cm]");
@@ -715,6 +656,104 @@ namespace {
     }
   };
 
+  /************************************************
+    Comparator of Tracker Detector barycenters
+  *************************************************/
+  class TrackerAlignmentBarycentersComparatorBase : public cond::payloadInspector::PlotImage<Alignments> {
+  public:
+    TrackerAlignmentBarycentersComparatorBase()
+        : cond::payloadInspector::PlotImage<Alignments>("Comparison of Tracker Alignment Barycenters") {}
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      unsigned int first_run = std::get<0>(firstiov);
+
+      auto lastiov = sorted_iovs.back();
+      unsigned int last_run = std::get<0>(lastiov);
+
+      std::shared_ptr<Alignments> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::vector<AlignTransform> last_alignments = last_payload->m_align;
+
+      std::shared_ptr<Alignments> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::vector<AlignTransform> first_alignments = first_payload->m_align;
+
+      TCanvas canvas("Tracker Alignment Barycenter Summary", "Tracker Alignment Barycenter summary", 1200, 800);
+      canvas.cd();
+
+      canvas.SetTopMargin(0.07);
+      canvas.SetBottomMargin(0.06);
+      canvas.SetLeftMargin(0.15);
+      canvas.SetRightMargin(0.03);
+      canvas.Modified();
+      canvas.SetGrid();
+
+      auto h2_BarycenterDiff = std::unique_ptr<TH2F>(
+          new TH2F("Parameters diff", "SubDetector Barycenter Difference", 3, 0.0, 3.0, 6, 0, 6.));
+
+      h2_BarycenterDiff->SetStats(false);
+      h2_BarycenterDiff->SetTitle(nullptr);
+      h2_BarycenterDiff->GetXaxis()->SetBinLabel(1, "X [#mum]");
+      h2_BarycenterDiff->GetXaxis()->SetBinLabel(2, "Y [#mum]");
+      h2_BarycenterDiff->GetXaxis()->SetBinLabel(3, "Z [#mum]");
+
+      AlignmentPI::TkAlBarycenters l_barycenters;
+      l_barycenters.init();
+      l_barycenters.computeBarycenters(last_alignments, hardcodeGPR);
+
+      AlignmentPI::TkAlBarycenters f_barycenters;
+      f_barycenters.init();
+      f_barycenters.computeBarycenters(first_alignments, hardcodeGPR);
+
+      unsigned int yBin = 6;
+      for (unsigned int i = 0; i < 6; i++) {
+        auto thePart = static_cast<AlignmentPI::partitions>(i + 1);
+        std::string theLabel = getStringFromPart(thePart);
+        h2_BarycenterDiff->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
+        h2_BarycenterDiff->SetBinContent(1, yBin, (l_barycenters.getX()[i] - f_barycenters.getX()[i])*AlignmentPI::cmToUm );
+	h2_BarycenterDiff->SetBinContent(2, yBin, (l_barycenters.getY()[i] - f_barycenters.getY()[i])*AlignmentPI::cmToUm );
+        h2_BarycenterDiff->SetBinContent(3, yBin, (l_barycenters.getZ()[i] - f_barycenters.getZ()[i])*AlignmentPI::cmToUm );
+        yBin--;
+      }
+
+      h2_BarycenterDiff->GetXaxis()->LabelsOption("h");
+      h2_BarycenterDiff->GetYaxis()->SetLabelSize(0.05);
+      h2_BarycenterDiff->GetXaxis()->SetLabelSize(0.05);
+      h2_BarycenterDiff->SetMarkerSize(1.5);
+      h2_BarycenterDiff->SetMarkerColor(kRed);
+      h2_BarycenterDiff->Draw("TEXT");
+
+      TLatex t1;
+      t1.SetNDC();
+      t1.SetTextAlign(26);
+      t1.SetTextSize(0.05);
+      t1.DrawLatex(0.5, 0.96, Form("Tracker Alignment Barycenters Diff, IOV %i - IOV %i", last_run, first_run));
+      t1.SetTextSize(0.025);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
+  class TrackerAlignmentBarycentersCompare : public TrackerAlignmentBarycentersComparatorBase {
+  public:
+    TrackerAlignmentBarycentersCompare() : TrackerAlignmentBarycentersComparatorBase() { this->setSingleIov(false); }
+  };
+
+  class TrackerAlignmentBarycentersCompareTwoTags : public TrackerAlignmentBarycentersComparatorBase {
+  public:
+    TrackerAlignmentBarycentersCompareTwoTags() : TrackerAlignmentBarycentersComparatorBase() {
+      this->setTwoTags(true);
+    }
+  };
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
@@ -733,5 +772,7 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
   PAYLOAD_INSPECTOR_CLASS(X_BPixBarycenterHistory);
   PAYLOAD_INSPECTOR_CLASS(Y_BPixBarycenterHistory);
   PAYLOAD_INSPECTOR_CLASS(Z_BPixBarycenterHistory);
-  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentBarycenters)
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentBarycenters);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentBarycentersCompare);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentBarycentersCompareTwoTags);
 }
