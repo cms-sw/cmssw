@@ -43,7 +43,6 @@ private:
   MonitorElement* example3D_;
   MonitorElement* exampleTProfile_;
   MonitorElement* exampleTProfile2D_;
-  int eventCount_ = 0;
 };
 
 DemoNormalDQMEDAnalyzer::DemoNormalDQMEDAnalyzer(const edm::ParameterSet& iConfig)
@@ -59,15 +58,11 @@ DemoNormalDQMEDAnalyzer::~DemoNormalDQMEDAnalyzer() {
 // ------------ method called for each event  ------------
 void DemoNormalDQMEDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-
-  // TODO: this is not edm::stream safe...
-  eventCount_++;
-
   example_->Fill(5);
-  example2D_->Fill(eventCount_ / 10, eventCount_ / 10);
-  example3D_->Fill(eventCount_ / 10, eventCount_ / 10, eventCount_ / 10.f);
-  exampleTProfile_->Fill(eventCount_ / 10, eventCount_ / 10.f);
-  exampleTProfile2D_->Fill(eventCount_ / 10, eventCount_ / 10, eventCount_ / 10.f);
+  example2D_->Fill(1.0, 2.0);
+  example3D_->Fill(1.0, 2.0, 3.0);
+  exampleTProfile_->Fill(1.0, 2.0);
+  exampleTProfile2D_->Fill(1.0, 2.0, 3.0);
 }
 
 void DemoNormalDQMEDAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
@@ -84,10 +79,6 @@ void DemoNormalDQMEDAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DemoNormalDQMEDAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation
-  // Please change this to state exactly what you do use, even if it is no
-  // parameters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("folder", "MY_FOLDER");
   descriptions.add("demo", desc);
