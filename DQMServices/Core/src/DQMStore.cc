@@ -117,7 +117,7 @@ namespace dqm::implementation {
       return me;
     } else {
       // the normal case.
-      store_->debugTrackME("bookME (legacy)", me);
+      store_->debugTrackME("bookME (normal)", me);
       return localme;
     }
   }
