@@ -117,7 +117,6 @@ void HcalForwardAnalysis::update(const EndOfEvent* evt) {
 
 void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   int idHC, j;
-  
   FiberG4HitsCollection* theHC;
   // Look for the Hit Collection of HCal
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
