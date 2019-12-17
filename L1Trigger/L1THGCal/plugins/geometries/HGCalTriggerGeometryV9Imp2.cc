@@ -496,8 +496,7 @@ unsigned HGCalTriggerGeometryV9Imp2::getLinksInModule(const unsigned module_id) 
   // Scintillator
   if (module_det_id.det() == DetId::HGCalHSc) {
     links = hSc_links_per_module_;
-  }
-  if (module_det_id.det() == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
+  } else if (module_det_id.det() == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
     links = 1;
   }
   // TO ADD HFNOSE : getLinksInModule
