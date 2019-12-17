@@ -41,6 +41,7 @@ namespace edm {
       FILLENTRY(ExceededResourceVSize),
       FILLENTRY(ExceededResourceRSS),
       FILLENTRY(ExceededResourceTime),
+      FILLENTRY(FileNameInconsistentWithGUID),
       FILLENTRY(CaughtSignal)
     };
     static const std::string kUnknownCode("unknownCode");

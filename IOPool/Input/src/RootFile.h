@@ -88,7 +88,8 @@ namespace edm {
              bool bypassVersionCheck,
              bool labelRawDataLikeMC,
              bool usingGoToEvent,
-             bool enablePrefetching);
+             bool enablePrefetching,
+             bool enforceGUIDInFileName);
 
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
@@ -110,7 +111,8 @@ namespace edm {
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
              bool bypassVersionCheck,
              bool labelRawDataLikeMC,
-             bool enablePrefetching) : RootFile(
+             bool enablePrefetching,
+             bool enforceGUIDInFileName) : RootFile(
                fileName, processConfiguration, logicalFileName, filePtr,
                nullptr, false, -1, -1, nStreams, 0U, treeMaxVirtualSize,
                processingMode, runHelper,
@@ -119,7 +121,7 @@ namespace edm {
                nullptr, dropDescendantsOfDroppedProducts, processHistoryRegistry,  
                indexesIntoFiles, currentIndexIntoFile, orderedProcessHistoryIDs,
                bypassVersionCheck, labelRawDataLikeMC,
-               false, enablePrefetching) {}
+               false, enablePrefetching, enforceGUIDInFileName) {}
                
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
@@ -135,7 +137,8 @@ namespace edm {
              std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
              bool bypassVersionCheck,
-             bool enablePrefetching) : RootFile(
+             bool enablePrefetching,
+             bool enforceGUIDInFileName) : RootFile(
                fileName, processConfiguration, logicalFileName, filePtr,
                nullptr, false, -1, -1, nStreams, 0U, treeMaxVirtualSize,
                InputSource::RunsLumisAndEvents, runHelper,
@@ -143,7 +146,7 @@ namespace edm {
                nullptr, nullptr, false, processHistoryRegistry,  
                indexesIntoFiles, currentIndexIntoFile, orderedProcessHistoryIDs,
                bypassVersionCheck, false,
-               false, enablePrefetching) {}
+               false, enablePrefetching, enforceGUIDInFileName) {}
                
     ~RootFile();
 
@@ -265,6 +268,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<RunAuxiliary>> savedRunAuxiliary_;
     bool skipAnyEvents_;
     bool noEventSort_;
+    bool enforceGUIDInFileName_;
     int whyNotFastClonable_;
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     bool branchListIndexesUnchanged_;

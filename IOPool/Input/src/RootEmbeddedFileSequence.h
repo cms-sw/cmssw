@@ -64,6 +64,7 @@ namespace edm {
     int eventsRemainingInFile_;
     int initialNumberOfEventsToSkip_;
     bool enablePrefetching_;
+    bool enforceGUIDInFileName_;
   }; // class RootEmbeddedFileSequence
 }
 #endif
