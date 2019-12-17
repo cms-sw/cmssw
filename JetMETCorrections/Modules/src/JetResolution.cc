@@ -61,24 +61,23 @@ namespace JME {
             return 1;
 
         const std::vector<float>& parameters_values = record->getParametersValues();
-    	const std::vector<std::string>& parameter_names = m_object->getDefinition().getParametersName();
-    	size_t parameter = static_cast<size_t>(variation);
-    	if (!uncertaintySource.empty()) {
-    	  if (variation == Variation::DOWN)
-    	    parameter =
-    		std::distance(parameter_names.begin(),
-    			      std::find(parameter_names.begin(), parameter_names.end(), uncertaintySource + "Down"));
-    	  else if (variation == Variation::UP)
-    	    parameter = std::distance(parameter_names.begin(),
-    				      std::find(parameter_names.begin(), parameter_names.end(), uncertaintySource + "Up"));
-    	  if (parameter >= parameter_names.size()) {
-    	    std::string s;
-    	    for (const auto& piece : parameter_names)
-    	      s += piece + " ";
-    	    throw cms::Exception("InvalidParameter") << "Invalid value for 'uncertaintySource' parameter. Only " + s + " are supported.\n";
-    	  }
-    	}
-    	return parameters_values[parameter];
+        const std::vector<std::string>& parameter_names = m_object->getDefinition().getParametersName();
+        size_t parameter = static_cast<size_t>(variation);
+        if (!uncertaintySource.empty()) {
+          if (variation == Variation::DOWN)
+            parameter = std::distance(parameter_names.begin(),
+                                      std::find(parameter_names.begin(), parameter_names.end(), uncertaintySource + "Down"));
+          else if (variation == Variation::UP)
+            parameter = std::distance(parameter_names.begin(),
+                                      std::find(parameter_names.begin(), parameter_names.end(), uncertaintySource + "Up"));
+          if (parameter >= parameter_names.size()) {
+            std::string s;
+            for (const auto& piece : parameter_names)
+              s += piece + " ";
+            throw cms::Exception("InvalidParameter") << "Invalid value for 'uncertaintySource' parameter. Only " + s + " are supported.\n";
+          }
+        }
+        return parameters_values[parameter];
     }
 
 }
