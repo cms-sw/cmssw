@@ -34,12 +34,13 @@
  *      }
  *   }
  *
- *
+ * NOTE: This class is not safe to use the same instance across threads, even if only call const methods.
  *
  */
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   class Event;
@@ -101,8 +102,9 @@ namespace edm {
     }
 
   private:
-    mutable Handle<View<element_type> > view_;
-    mutable ProductID id_;
+    //This class is not intended to be used across threads
+    CMS_SA_ALLOW mutable Handle<View<element_type> > view_;
+    CMS_SA_ALLOW mutable ProductID id_;
     const EventType &iEvent_;
   };
 
@@ -168,8 +170,9 @@ namespace edm {
 
     ItemGetter getter_;
 
-    mutable bool pairOk_;
-    mutable value_type pair_;
+    //This class is not intended to be used across threads
+    CMS_SA_ALLOW mutable bool pairOk_;
+    CMS_SA_ALLOW mutable value_type pair_;
 
     void chkPair() const;
   };
