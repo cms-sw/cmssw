@@ -201,7 +201,8 @@ bool TimingSD::hitExists(const G4Step* aStep) {
   //tSliceID already exists:
 
   bool found = false;
-  for (int j = 0; j < theHC->entries(); ++j) {
+  int thehc_entries = theHC->entries();
+  for (int j = 0; j < thehc_entries; ++j) {
     BscG4Hit* aHit = (*theHC)[j];
     if (aHit->getTimeSliceID() == tSliceID && aHit->getUnitID() == unitID) {
       if (checkHit(aStep, aHit)) {

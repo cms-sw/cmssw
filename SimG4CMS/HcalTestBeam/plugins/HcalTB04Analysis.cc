@@ -471,11 +471,11 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
   theHC = (CaloG4HitCollection*)allHC->GetHC(idHC);
   LogDebug("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName << " of ID " << idHC << " is obtained at "
                         << theHC;
-
+  int thehc_entries = theHC->entries();
   if (idHC >= 0 && theHC != nullptr) {
     hhits.reserve(theHC->entries());
     hhitl.reserve(theHC->entries());
-    for (j = 0; j < theHC->entries(); j++) {
+    for (j = 0; j < thehc_entries; j++) {
       CaloG4Hit* aHit = (*theHC)[j];
       double e = aHit->getEnergyDeposit() / GeV;
       double time = aHit->getTimeSlice();
@@ -589,7 +589,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
                         << theHC;
   if (idHC >= 0 && theHC != nullptr) {
     ehits.reserve(theHC->entries());
-    for (j = 0; j < theHC->entries(); j++) {
+    for (j = 0; j < thehc_entries; j++) {
       CaloG4Hit* aHit = (*theHC)[j];
       double e = aHit->getEnergyDeposit() / GeV;
       double time = aHit->getTimeSlice();
