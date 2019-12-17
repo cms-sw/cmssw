@@ -27,7 +27,6 @@ public:
             trajectoryLayerExit_ == reco::PFTrajectoryPoint::Unknown));
     // flag if exit layer should be checked or not
     checkExit_ = trajectoryLayerExit_ != reco::PFTrajectoryPoint::Unknown;
-    //_checkExit = (_trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ? false : true;
   }
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
