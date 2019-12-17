@@ -317,8 +317,7 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
 
-  int nhc = 0, neb = 0, nef = 0;
-  size_t j = 0;
+  int nhc = 0, neb = 0, nef = 0, j = 0;
   caloHitCache_.erase(caloHitCache_.begin(), caloHitCache_.end());
 
   // Hcal
@@ -326,8 +325,9 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
   CaloG4HitCollection* theHCHC = (CaloG4HitCollection*)allHC->GetHC(HCHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[0] << " of ID " << HCHCid
                               << " is obtained at " << theHCHC;
+  int hchc_entries = theHCHC->entries();
   if (HCHCid >= 0 && theHCHC != nullptr) {
-    for (j = 0; j < theHCHC->entries(); j++) {
+    for (j = 0; j < hchc_entries; j++) {
       CaloG4Hit* aHit = (*theHCHC)[j];
 
       double e = aHit->getEnergyDeposit() / GeV;
@@ -372,8 +372,9 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
   CaloG4HitCollection* theEBHC = (CaloG4HitCollection*)allHC->GetHC(EBHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[1] << " of ID " << EBHCid
                               << " is obtained at " << theEBHC;
+  int ebhc_entries = theEBHC->entries();
   if (EBHCid >= 0 && theEBHC != nullptr) {
-    for (j = 0; j < theEBHC->entries(); j++) {
+    for (j = 0; j < ebhc_entries; j++) {
       CaloG4Hit* aHit = (*theEBHC)[j];
 
       double e = aHit->getEnergyDeposit() / GeV;
@@ -408,8 +409,9 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
   CaloG4HitCollection* theEEHC = (CaloG4HitCollection*)allHC->GetHC(EEHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[2] << " of ID " << EEHCid
                               << " is obtained at " << theEEHC;
+  int eehc_entries = theEEHC->entries();
   if (EEHCid >= 0 && theEEHC != nullptr) {
-    for (j = 0; j < theEEHC->entries(); j++) {
+    for (j = 0; j < eehc_entries; j++) {
       CaloG4Hit* aHit = (*theEEHC)[j];
 
       double e = aHit->getEnergyDeposit() / GeV;

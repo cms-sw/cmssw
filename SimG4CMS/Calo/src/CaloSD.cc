@@ -323,7 +323,7 @@ bool CaloSD::checkHit() {
   } else if (nCheckedHits > 0) {
     int nhits = theHC->entries();
     int minhit = std::max(nhits - nCheckedHits, 0);
-    int maxhit = -1;
+    int maxhit = nhits - 1;
 
     for (int j = maxhit; j > minhit; --j) {
       if ((*theHC)[j]->getID() == currentID) {
@@ -504,8 +504,8 @@ void CaloSD::update(const ::EndOfEvent*) {
   double zloc(0.0);
   double zglob(0.0);
   double ee(0.0);
-
-  for (size_t i = 0; i < theHC->entries(); ++i) {
+  int hc_entries = theHC->entries();
+  for (int i = 0; i < hc_entries; ++i) {
     if (!saveHit((*theHC)[i])) {
       ++wrong;
     }
