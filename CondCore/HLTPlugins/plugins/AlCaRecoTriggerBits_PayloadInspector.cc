@@ -399,19 +399,13 @@ namespace {
 
   class AlCaRecoTriggerBits_Compare : public AlCaRecoTriggerBits_CompareBase {
   public:
-    AlCaRecoTriggerBits_Compare() : AlCaRecoTriggerBits_CompareBase() {
-      this->setSingleIov(false);
-    }
+    AlCaRecoTriggerBits_Compare() : AlCaRecoTriggerBits_CompareBase() { this->setSingleIov(false); }
   };
 
   class AlCaRecoTriggerBits_CompareTwoTags : public AlCaRecoTriggerBits_CompareBase {
   public:
-    AlCaRecoTriggerBits_CompareTwoTags() : AlCaRecoTriggerBits_CompareBase() {
-      this->setTwoTags(true);
-    }
+    AlCaRecoTriggerBits_CompareTwoTags() : AlCaRecoTriggerBits_CompareBase() { this->setTwoTags(true); }
   };
-
-
 
 }  // namespace
 
