@@ -321,7 +321,7 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
       if (DeActivatePhysicsProcess) {
         G4ProcessManager* p_mgr = trk->GetDefinition()->GetProcessManager();
         G4ProcessVector* pvec = p_mgr->GetProcessList();
-	pvec_size = pvec->size();
+        pvec_size = pvec->size();
         for (int i = 0; i < pvec_size; i++) {
           G4VProcess* proc = (*pvec)(i);
           if (proc->GetProcessName() != "Transportation" && proc->GetProcessName() != "Decay") {
