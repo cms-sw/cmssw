@@ -24,14 +24,12 @@ if args.protobufinput:
   infile = args.inputFiles[0]
   runnr = int(infile[-6:])
   indir = "/".join(infile.split("/")[:-1])
-  process.source = cms.Source("DQMStreamerReader",
-    SelectEvents = cms.untracked.vstring("*"),
+  process.source = cms.Source("DQMProtobufReader",
     runNumber = cms.untracked.uint32(runnr),
     runInputDir = cms.untracked.string(indir),
     streamLabel = cms.untracked.string("streamDQMHistograms"),
     scanOnce = cms.untracked.bool(True),
     datafnPosition = cms.untracked.uint32(4),
-    minEventsPerLumi = cms.untracked.int32(1),
     delayMillis = cms.untracked.uint32(500),
     nextLumiTimeoutMillis = cms.untracked.int32(-1),
     skipFirstLumis = cms.untracked.bool(False),
