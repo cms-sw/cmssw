@@ -72,6 +72,9 @@ pfJetAnalyzerDQM = cms.EDProducer("PFJetAnalyzerDQM",
                                   
 )
 
+pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone()
+pfPuppiJetAnalyzerDQM.recoJetCollection = cms.InputTag('slimmedJetsPuppi')
+
 pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 
     jetResponseDir = cms.string( jetResponseDir ),
@@ -85,10 +88,11 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 #----- ----- ----- ----- ----- ----- ----- -----
 #
 # Sequence
-#
+# if you add things here, you also have to fix DQMForPF_MiniAOD_cff.py
 
 pfDQM = cms.Sequence(
-    pfJetAnalyzerDQM
+    pfJetAnalyzerDQM *
+    pfPuppiJetAnalyzerDQM
 )
 
 #----- ----- ----- ----- ----- ----- ----- -----
