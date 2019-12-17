@@ -10,7 +10,7 @@ fi
 
 # 1. Run a very simple configuration with all module types.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=alltypes.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100
-[ 88 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
+[ 99 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
 [ 55 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
 
 # 2. Run multi-threaded. First we make a baseline file without legacy modules, since they might not work.
@@ -73,7 +73,8 @@ cmp <(grep -v lumi DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root.sqldu
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 protobufoutput=True
 
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=./run000001 outfile=pbdata.root nomodules=True protobufinput=True
-[ 88 = $(dqmiolistmes.py pbdata.root -r 1 | wc -l) ]
+[ 99 = $(dqmiolistmes.py pbdata.root -r 1 | wc -l) ]
+[ 55 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
 
 
 # TODO: maybe also try fastHadd.
@@ -96,7 +97,7 @@ for k in uproot.open("'"$1"'").allkeys(): print k'
 # 11. Try MEtoEDM and EDMtoME.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=metoedm.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100 metoedmoutput=True
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py outfile=edmtome.root inputFiles=metoedm.root nomodules=True metoedminput=True
-[ 88 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
+[ 99 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
 [ 55 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]
 
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part1_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=50               # 1st half of 1st lumi
