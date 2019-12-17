@@ -1,6 +1,7 @@
 #ifndef KDTreeLinkerBase_h
 #define KDTreeLinkerBase_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
@@ -17,15 +18,12 @@ using BlockElt2BlockEltMap = std::map<reco::PFBlockElement *, BlockEltSet>;
 
 class KDTreeLinkerBase {
 public:
+  KDTreeLinkerBase(const edm::ParameterSet &conf) {}
   virtual ~KDTreeLinkerBase() {}
 
   void setTargetType(const reco::PFBlockElement::Type &tgt) { _targetType = tgt; }
 
   void setFieldType(const reco::PFBlockElement::Type &fld) { _fieldType = fld; }
-
-  // set trajectory points, necessary for track-HCAL links
-  virtual void setTrajectoryPoints(const reco::PFTrajectoryPoint::LayerType trajectoryPointEntrance,
-                                   const reco::PFTrajectoryPoint::LayerType trajectoryPointExit){};
 
   const reco::PFBlockElement::Type &targetType() const { return _targetType; }
 
@@ -93,6 +91,6 @@ protected:
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<KDTreeLinkerBase *()> KDTreeLinkerFactory;
+typedef edmplugin::PluginFactory<KDTreeLinkerBase *(const edm::ParameterSet &)> KDTreeLinkerFactory;
 
 #endif /* !KDTreeLinkerBase_h */

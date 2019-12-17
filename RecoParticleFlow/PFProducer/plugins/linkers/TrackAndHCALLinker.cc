@@ -11,34 +11,35 @@ class TrackAndHCALLinker : public BlockElementLinkerBase {
 public:
   TrackAndHCALLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _trajectoryLayerEntranceString(conf.getParameter<std::string>("trajectoryLayerEntrance")),
-        _trajectoryLayerExitString(conf.getParameter<std::string>("trajectoryLayerExit")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        trajectoryLayerEntranceString_(conf.getParameter<std::string>("trajectoryLayerEntrance")),
+        trajectoryLayerExitString_(conf.getParameter<std::string>("trajectoryLayerExit")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {
     // convert TrajectoryLayers info from string to enum
-    _trajectoryLayerEntrance = reco::PFTrajectoryPoint::layerTypeByName(_trajectoryLayerEntranceString);
-    _trajectoryLayerExit = reco::PFTrajectoryPoint::layerTypeByName(_trajectoryLayerExitString);
+    trajectoryLayerEntrance_ = reco::PFTrajectoryPoint::layerTypeByName(trajectoryLayerEntranceString_);
+    trajectoryLayerExit_ = reco::PFTrajectoryPoint::layerTypeByName(trajectoryLayerExitString_);
     // make sure the requested setting is supported
-    assert((_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
-            _trajectoryLayerExit == reco::PFTrajectoryPoint::HCALExit) ||
-           (_trajectoryLayerEntrance == reco::PFTrajectoryPoint::HCALEntrance &&
-            _trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ||
-           (_trajectoryLayerEntrance == reco::PFTrajectoryPoint::VFcalEntrance &&
-            _trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown));
+    assert((trajectoryLayerEntrance_ == reco::PFTrajectoryPoint::HCALEntrance &&
+            trajectoryLayerExit_ == reco::PFTrajectoryPoint::HCALExit) ||
+           (trajectoryLayerEntrance_ == reco::PFTrajectoryPoint::HCALEntrance &&
+            trajectoryLayerExit_ == reco::PFTrajectoryPoint::Unknown) ||
+           (trajectoryLayerEntrance_ == reco::PFTrajectoryPoint::VFcalEntrance &&
+            trajectoryLayerExit_ == reco::PFTrajectoryPoint::Unknown));
     // flag if exit layer should be checked or not
-    _checkExit = (_trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ? false : true;
+    checkExit_ = trajectoryLayerExit_ != reco::PFTrajectoryPoint::Unknown;
+    //_checkExit = (_trajectoryLayerExit == reco::PFTrajectoryPoint::Unknown) ? false : true;
   }
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree;
-  std::string _trajectoryLayerEntranceString;
-  std::string _trajectoryLayerExitString;
-  reco::PFTrajectoryPoint::LayerType _trajectoryLayerEntrance;
-  reco::PFTrajectoryPoint::LayerType _trajectoryLayerExit;
-  bool _debug;
-  bool _checkExit;
+  bool useKDTree_;
+  std::string trajectoryLayerEntranceString_;
+  std::string trajectoryLayerExitString_;
+  reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance_;
+  reco::PFTrajectoryPoint::LayerType trajectoryLayerExit_;
+  bool debug_;
+  bool checkExit_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndHCALLinker, "TrackAndHCALLinker");
@@ -57,18 +58,18 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
   const reco::PFRecTrackRef& trackref = tkelem->trackRefPF();
   const reco::PFClusterRef& clusterref = hcalelem->clusterRef();
   const reco::PFCluster::REPPoint& hcalreppos = clusterref->positionREP();
-  const reco::PFTrajectoryPoint& tkAtHCALEnt = trackref->extrapolatedPoint(_trajectoryLayerEntrance);
+  const reco::PFTrajectoryPoint& tkAtHCALEnt = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
   // Check exit point
   double dHEta = 0.;
   double dHPhi = 0.;
   double dRHCALEx = 0.;
-  if (_checkExit) {
-    const reco::PFTrajectoryPoint& tkAtHCALEx = trackref->extrapolatedPoint(_trajectoryLayerExit);
+  if (checkExit_) {
+    const reco::PFTrajectoryPoint& tkAtHCALEx = trackref->extrapolatedPoint(trajectoryLayerExit_);
     dHEta = (tkAtHCALEx.positionREP().Eta() - tkAtHCALEnt.positionREP().Eta());
     dHPhi = reco::deltaPhi(tkAtHCALEx.positionREP().Phi(), tkAtHCALEnt.positionREP().Phi());
     dRHCALEx = tkAtHCALEx.position().R();
   }
-  if (_useKDTree && hcalelem->isMultilinksValide()) {  //KDTree Algo
+  if (useKDTree_ && hcalelem->isMultilinksValide()) {  //KDTree Algo
     const reco::PFMultilinksType& multilinks = hcalelem->getMultilinks();
     const double tracketa = tkAtHCALEnt.positionREP().Eta();
     const double trackphi = tkAtHCALEnt.positionREP().Phi();
@@ -82,11 +83,11 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
     // If the link exist, we fill dist and linktest.
 
     if (mlit != multilinks.end()) {
-      // when _checkExit is false
-      if (!_checkExit) {
+      // when checkExit_ is false
+      if (!checkExit_) {
         dist = LinkByRecHit::computeDist(hcalreppos.Eta(), hcalreppos.Phi(), tracketa, trackphi);
       }
-      // when _checkExit is true
+      // when checkExit_ is true
       else {
         //special case ! A looper  can exit the barrel inwards and hit the endcap
         //In this case calculate the distance based on the first crossing since
@@ -99,12 +100,12 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
           dist = LinkByRecHit::computeDist(
               hcalreppos.Eta(), hcalreppos.Phi(), tracketa + 0.1 * dHEta, trackphi + 0.1 * dHPhi);
         }
-      }  // _checkExit
+      }  // checkExit_
     }    // multilinks
 
   } else {  // Old algorithm
     if (tkAtHCALEnt.isValid())
-      dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, _debug);
+      dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, debug_);
   }
   return dist;
 }
