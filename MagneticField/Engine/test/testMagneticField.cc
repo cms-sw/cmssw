@@ -147,40 +147,39 @@ private:
 void testMagneticField::writeValidationTable(int npoints, string filename) {
   GlobalPointProvider p(InnerRadius, OuterRadius, -Geom::pi(), Geom::pi(), -HalfLength, HalfLength);
 
-  if (filename.substr(filename.rfind("."))==".txt") {
-      ofstream file(filename.c_str());
+  if (filename.substr(filename.rfind(".")) == ".txt") {
+    ofstream file(filename.c_str());
 
-      for (int i = 0; i < npoints; ++i) {
-	GlobalPoint gp = p.getPoint();
-	GlobalVector f = field->inTesla(gp);
-	file << setprecision(9)  //<< i << " "
-	     << gp.x() << " " << gp.y() << " " << gp.z() << " " << f.x() << " " << f.y() << " " << f.z() << endl;
-      }
-    } else {
-      ofstream file(filename.c_str(), ios::binary);
-      float px, py, pz, bx, by, bz;
+    for (int i = 0; i < npoints; ++i) {
+      GlobalPoint gp = p.getPoint();
+      GlobalVector f = field->inTesla(gp);
+      file << setprecision(9)  //<< i << " "
+           << gp.x() << " " << gp.y() << " " << gp.z() << " " << f.x() << " " << f.y() << " " << f.z() << endl;
+    }
+  } else {
+    ofstream file(filename.c_str(), ios::binary);
+    float px, py, pz, bx, by, bz;
 
-      for (int i = 0; i < npoints; ++i) {
-	GlobalPoint gp = p.getPoint();
-	GlobalVector f = field->inTesla(gp);
-	px=gp.x();
-	py=gp.y();
-	pz=gp.z();
-	bx=f.x();
-	by=f.y();
-	bz=f.z();
-	file.write((char*)&px,sizeof(float));
-	file.write((char*)&py,sizeof(float));
-	file.write((char*)&pz,sizeof(float));
-	file.write((char*)&bx,sizeof(float));
-	file.write((char*)&by,sizeof(float));
-	file.write((char*)&bz,sizeof(float));
-      }
+    for (int i = 0; i < npoints; ++i) {
+      GlobalPoint gp = p.getPoint();
+      GlobalVector f = field->inTesla(gp);
+      px = gp.x();
+      py = gp.y();
+      pz = gp.z();
+      bx = f.x();
+      by = f.y();
+      bz = f.z();
+      file.write((char*)&px, sizeof(float));
+      file.write((char*)&py, sizeof(float));
+      file.write((char*)&pz, sizeof(float));
+      file.write((char*)&bx, sizeof(float));
+      file.write((char*)&by, sizeof(float));
+      file.write((char*)&bz, sizeof(float));
     }
-    }
+  }
+}
 
 void testMagneticField::validate(string filename, string type) {
-
   ifstream file;
 
   bool binary = true;
@@ -189,8 +188,8 @@ void testMagneticField::validate(string filename, string type) {
   edm::FileInPath mydata(filename);
   fullPath = mydata.fullPath();
 
-  if (filename.substr(filename.rfind("."))==".txt") {
-    binary=false;
+  if (filename.substr(filename.rfind(".")) == ".txt") {
+    binary = false;
     file.open(fullPath.c_str());
   } else {
     file.open(fullPath.c_str(), ios::binary);
@@ -207,28 +206,27 @@ void testMagneticField::validate(string filename, string type) {
   float bx, by, bz;
   GlobalPoint gp;
 
-  do {    
+  do {
     if (binary) {
-      if (!(file.read((char*)&px,sizeof(float)) &&
-	    file.read((char*)&py,sizeof(float)) &&
-	    file.read((char*)&pz,sizeof(float)) &&
-	    file.read((char*)&bx,sizeof(float)) &&
-	    file.read((char*)&by,sizeof(float)) &&
-	    file.read((char*)&bz,sizeof(float)))) break;
+      if (!(file.read((char*)&px, sizeof(float)) && file.read((char*)&py, sizeof(float)) &&
+            file.read((char*)&pz, sizeof(float)) && file.read((char*)&bx, sizeof(float)) &&
+            file.read((char*)&by, sizeof(float)) && file.read((char*)&bz, sizeof(float))))
+        break;
       gp = GlobalPoint(px, py, pz);
     } else {
-      if (!(getline(file, line))) break;
+      if (!(getline(file, line)))
+        break;
       if (line == "" || line[0] == '#')
-	continue;
+        continue;
       stringstream linestr;
       linestr << line;
       linestr >> px >> py >> pz >> bx >> by >> bz;
       if (type == "rpz_m") {  // assume rpz file with units in m.
-	gp = GlobalPoint(GlobalPoint::Cylindrical(px * 100., py, pz * 100.));
+        gp = GlobalPoint(GlobalPoint::Cylindrical(px * 100., py, pz * 100.));
       } else if (type == "xyz_m") {  // assume xyz file with units in m.
-	gp = GlobalPoint(px * 100., py * 100., pz * 100.);
+        gp = GlobalPoint(px * 100., py * 100., pz * 100.);
       } else {  // assume x,y,z with units in cm
-	gp = GlobalPoint(px, py, pz);
+        gp = GlobalPoint(px, py, pz);
       }
     }
 
@@ -243,26 +241,26 @@ void testMagneticField::validate(string filename, string type) {
       if (delta > maxdelta)
         maxdelta = delta;
       if (fail < 10) {
-	  cout  << " Discrepancy at: # " << count + 1 << " " << gp << " R " << gp.perp() << " Phi " << gp.phi()
-           << " delta : " << newB - oldB << " " << delta << endl;
-	  const MagVolume6Faces* vol = findVolume(gp);
-	  if (vol)
-	    cout << " volume: " << vol->volumeNo << " " << (int)vol->copyno;
-	  cout << " Old: " << oldB << " New: " << newB << endl;
-      } else if (fail ==10) {
-	cout << "..." << endl;
+        cout << " Discrepancy at: # " << count + 1 << " " << gp << " R " << gp.perp() << " Phi " << gp.phi()
+             << " delta : " << newB - oldB << " " << delta << endl;
+        const MagVolume6Faces* vol = findVolume(gp);
+        if (vol)
+          cout << " volume: " << vol->volumeNo << " " << (int)vol->copyno;
+        cout << " Old: " << oldB << " New: " << newB << endl;
+      } else if (fail == 10) {
+        cout << "..." << endl;
       }
     }
     count++;
   } while (count < numberOfPoints);
 
-  if (count==0) {
+  if (count == 0) {
     edm::LogError("MagneticField") << "No input data" << endl;
-  } else { 
+  } else {
     cout << endl
-	 << " testMagneticField::validate: tested " << count << " points " << fail
-	 << " failures; max delta = " << maxdelta << endl
-	 << endl;
+         << " testMagneticField::validate: tested " << count << " points " << fail
+         << " failures; max delta = " << maxdelta << endl
+         << endl;
   }
 }
 
