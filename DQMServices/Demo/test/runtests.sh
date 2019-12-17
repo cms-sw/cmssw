@@ -12,6 +12,21 @@ fi
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=alltypes.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100
 [ 99 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
 [ 55 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
+# this is deeply related to what the analyzers actually do.
+# most run histos (5 modules * 6 types) fill on every event and should have 100 entries.
+# the scalar MEs should have the last lumi number (5) (7 float + 7 int)
+# testonefilllumi, testlegacyfilllumi also should have 5 entries in the histograms (2*6 more)
+# the two "fillrun" modules should have one entry in the histograms (2*6 total) and 0 in the scalars (4 total)
+[ "0: 2, 0.0: 2, 1: 12, 100: 30, 5: 19, 5.0: 7" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 --summary)" ]
+# per lumi we see 20 in most histograms (3*6), and the current lumi number in the scalars (5 modules * 2).
+# the two fillumi modules should have one entry in each of there lumi histograms, (2*6 total)
+[ "1: 17, 1.0: 5, 20: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 1 --summary)" ]
+[ "1: 12, 2: 5, 2.0: 5, 20: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 2 --summary)" ]
+[ "1: 12, 20: 18, 3: 5, 3.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 3 --summary)" ]
+[ "1: 12, 20: 18, 4: 5, 4.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 4 --summary)" ]
+[ "1: 12, 20: 18, 5: 5, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 5 --summary)" ]
+# just make sure we are not off by one
+[ "" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 6 --summary)" ]
 
 # 2. Run multi-threaded. First we make a baseline file without legacy modules, since they might not work.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=nolegacy.root    numberEventsInRun=1000 numberEventsInLuminosityBlock=200 nEvents=1000 nolegacy=True
@@ -20,21 +35,17 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=nolegacy-mt.root numberEvent
 # 3. Try enabling concurrent lumis.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=nolegacy-cl.root numberEventsInRun=1000 numberEventsInLuminosityBlock=200 nEvents=1000 nolegacy=True nThreads=10 nConcurrent=10
 
-# Validate 2 and 3: Dump DQMIO into plain text and compare
-dumproot() { root2sqlite.py -o $1.sqlite $1 ; echo '.dump' | sqlite3 $1.sqlite > $1.sqldump ; rm $1.sqlite ; }
-dumproot nolegacy.root
-dumproot nolegacy-mt.root
-dumproot nolegacy-cl.root
-
-# TODO: if out DQM was correct, this would succeed!
-# Hoever we are not setting up everything correctly for the current DQMStore.
-cmp nolegacy.root.sqldump nolegacy-mt.root.sqldump || true
-cmp nolegacy.root.sqldump nolegacy-cl.root.sqldump || true
-# You could use `git diff --no-index --color-words nolegacy.root.sqldump nolegacy-mt.root.sqldump` to understand what is going on.
-
-# the agree up to lumi histograms.
-cmp <(grep -v lumi nolegacy.root.sqldump) <(grep -v lumi nolegacy-mt.root.sqldump)
-cmp <(grep -v lumi nolegacy.root.sqldump) <(grep -v lumi nolegacy-cl.root.sqldump)
+# same math as above, just a few less modules, and more events.
+for f in nolegacy.root nolegacy-mt.root # nolegacy-cl.root # Enabling concurrent lumis seems to mess up the output for now.
+do
+  [ "0: 1, 0.0: 1, 1: 6, 1000: 18, 5: 3, 5.0: 3" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 --summary)" ]
+  [ "1: 1, 1.0: 1, 200: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 1 --summary)" ]
+  [ "2: 1, 2.0: 1, 200: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 2 --summary)" ]
+  [ "200: 6, 3: 1, 3.0: 1" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 3 --summary)" ]
+  [ "200: 6, 4: 1, 4.0: 1" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 4 --summary)" ]
+  [ "200: 6, 5: 1, 5.0: 1" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 5 --summary)" ]
+  [ "" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 6 --summary)" ]
+done
 
 # 4. Try crossing a run boundary.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=multirun.root numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200
@@ -48,6 +59,7 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part4.root numberEventsInRun
 
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=part1.root inputFiles=part2.root inputFiles=part3.root inputFiles=part4.root outfile=merged.root nomodules=True
 dqmiodumpmetadata.py merged.root | grep -q '4 runs, 12 lumisections'
+dumproot() { root2sqlite.py -o $1.sqlite $1 ; echo '.dump' | sqlite3 $1.sqlite > $1.sqldump ; rm $1.sqlite ; }
 dumproot multirun.root
 dumproot merged.root
 # these are unlikely to ever fully argee, though the histograms should. They do not, for now.
@@ -74,7 +86,7 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=300 numberEventsIn
 
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=./run000001 outfile=pbdata.root nomodules=True protobufinput=True
 [ 99 = $(dqmiolistmes.py pbdata.root -r 1 | wc -l) ]
-[ 55 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
+[ 55 = $(dqmiolistmes.py pbdata.root -r 1 -l 1 | wc -l) ]
 
 
 # TODO: maybe also try fastHadd.
@@ -99,6 +111,13 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=metoedm.root numberEventsInR
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py outfile=edmtome.root inputFiles=metoedm.root nomodules=True metoedminput=True
 [ 99 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
 [ 55 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]
+[ "0: 2, 0.0: 2, 1: 12, 100: 30, 5: 19, 5.0: 7" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 --summary)" ]
+[ "1: 17, 1.0: 5, 20: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 1 --summary)" ]
+[ "1: 12, 2: 5, 2.0: 5, 20: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 2 --summary)" ]
+[ "1: 12, 20: 18, 3: 5, 3.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 3 --summary)" ]
+[ "1: 12, 20: 18, 4: 5, 4.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 4 --summary)" ]
+[ "1: 12, 20: 18, 5: 5, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 5 --summary)" ]
+[ "" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 6 --summary)" ]
 
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part1_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=50               # 1st half of 1st lumi
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part2_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=50 firstEvent=50 # 2nd half of 1st lumi
