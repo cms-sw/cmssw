@@ -146,7 +146,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
       evt.getByToken(hits_hfnose_token, hfnose_hits);
       algo->populate(*hfnose_hits);
       for (auto const& it : *hfnose_hits)
-        hitmap[it.detid().rawId()] = it.time();
+        hitmap[it.detid().rawId()] = &(it);
       break;
     case reco::CaloCluster::hgcal_em:
       evt.getByToken(hits_ee_token, ee_hits);
@@ -221,7 +221,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
         if (rhTime < 0.)
           continue;
         timeClhits.push_back(rhTime - timeOffset);
-	timeErrorClhits.push_back(1./rechit->timeError()/rechit->timeError());
+	timeErrorClhits.push_back(1./(rechit->timeError()*rechit->timeError()));
       }
       if (timeClhits.size() >= 3){
 	hgcalsimclustertime::ComputeClusterTime timeEstimator;
