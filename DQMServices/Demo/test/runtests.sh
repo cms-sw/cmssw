@@ -70,8 +70,9 @@ cmp <(grep -v lumi DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root.sqldu
 # 8. Try writing ProtoBuf files.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 protobufoutput=True
 
-# This does not work, something in the file format seems to be not right.
-cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=./run000001 outfile=pbdata.root nomodules=True protobufinput=True || true
+cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=./run000001 outfile=pbdata.root nomodules=True protobufinput=True
+[ 88 = $(dqmiolistmes.py pbdata.root -r 1 | wc -l) ]
+
 
 # TODO: maybe also try fastHadd.
 
