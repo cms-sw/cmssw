@@ -33,6 +33,11 @@ public:
   std::string getCSCName() const { return theCSCName_; }
 
 protected:
+  void checkConfigParameters(unsigned int& var,
+                             const unsigned int var_max,
+                             const unsigned int var_def,
+                             const std::string& var_str);
+
   /** Chamber id (trigger-type labels). */
   const unsigned theEndcap;
   const unsigned theStation;
