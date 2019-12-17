@@ -61,13 +61,11 @@ namespace {
   //******************************************//
 
   template <AlignmentPI::coordinate coord>
-  class TrackerAlignmentCompare : public cond::payloadInspector::PlotImage<Alignments> {
+  class TrackerAlignmentComparatorBase : public cond::payloadInspector::PlotImage<Alignments> {
   public:
-    TrackerAlignmentCompare()
-        : cond::payloadInspector::PlotImage<Alignments>("comparison of " + AlignmentPI::getStringFromCoordinate(coord) +
-                                                        " coordinate between two geometries") {
-      setSingleIov(false);
-    }
+    TrackerAlignmentComparatorBase()
+      : cond::payloadInspector::PlotImage<Alignments>("comparison of " + AlignmentPI::getStringFromCoordinate(coord) +
+						      " coordinate between two geometries") {}
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
@@ -268,6 +266,20 @@ namespace {
     }
   };
 
+  template <AlignmentPI::coordinate coord>
+  class TrackerAlignmentCompare : public TrackerAlignmentComparatorBase<coord> {
+  public:
+    TrackerAlignmentCompare() : TrackerAlignmentComparatorBase<coord>() { this->setSingleIov(false); }
+  };
+
+  template <AlignmentPI::coordinate coord>
+  class TrackerAlignmentCompareTwoTags : public TrackerAlignmentComparatorBase<coord> {
+  public:
+    TrackerAlignmentCompareTwoTags() : TrackerAlignmentComparatorBase<coord>() {
+      this->setTwoTags(true);
+    }
+  };
+
   typedef TrackerAlignmentCompare<AlignmentPI::t_x> TrackerAlignmentCompareX;
   typedef TrackerAlignmentCompare<AlignmentPI::t_y> TrackerAlignmentCompareY;
   typedef TrackerAlignmentCompare<AlignmentPI::t_z> TrackerAlignmentCompareZ;
@@ -275,6 +287,14 @@ namespace {
   typedef TrackerAlignmentCompare<AlignmentPI::rot_alpha> TrackerAlignmentCompareAlpha;
   typedef TrackerAlignmentCompare<AlignmentPI::rot_beta> TrackerAlignmentCompareBeta;
   typedef TrackerAlignmentCompare<AlignmentPI::rot_gamma> TrackerAlignmentCompareGamma;
+
+  typedef TrackerAlignmentCompare<AlignmentPI::t_x> TrackerAlignmentCompareXTwoTags;
+  typedef TrackerAlignmentCompare<AlignmentPI::t_y> TrackerAlignmentCompareYTwoTags;
+  typedef TrackerAlignmentCompare<AlignmentPI::t_z> TrackerAlignmentCompareZTwoTags;
+
+  typedef TrackerAlignmentCompare<AlignmentPI::rot_alpha> TrackerAlignmentCompareAlphaTwoTags;
+  typedef TrackerAlignmentCompare<AlignmentPI::rot_beta> TrackerAlignmentCompareBetaTwoTags;
+  typedef TrackerAlignmentCompare<AlignmentPI::rot_gamma> TrackerAlignmentCompareGammaTwoTags;
 
   //*******************************************//
   // Summary canvas per subdetector
@@ -763,6 +783,12 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareAlpha);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareBeta);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareGamma);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareXTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareYTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareZTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareAlphaTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareBetaTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareGammaTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryBPix);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryFPix);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTIB);
