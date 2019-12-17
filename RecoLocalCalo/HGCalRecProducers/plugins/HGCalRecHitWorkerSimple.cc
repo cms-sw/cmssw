@@ -74,6 +74,14 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
   // don't produce rechit if detid is a ghost one
   rangeMatch_ = ps.getParameter<uint32_t>("rangeMatch");
   rangeMask_ = ps.getParameter<uint32_t>("rangeMask");
+
+  // error for recHit time
+  minValSiP_ = ps.getParameter<double>("minValSiPar");
+  maxValSiP_ = ps.getParameter<double>("maxValSiPar");
+  noiseSiP_ = ps.getParameter<double>("noiseSiPar");
+  constSiP_ = ps.getParameter<double>("constSiPar");
+
+  timeEstimatorSi_ = hgcalsimclustertime::ComputeClusterTime(minValSiP_, maxValSiP_, constSiP_, noiseSiP_); 
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
@@ -196,10 +204,18 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   float SoN = new_E / sigmaNoiseGeV;
   myrechit.setSignalOverSigmaNoise(SoN);
 
-  if(myrechit.time() > -1){
-    hgcalsimclustertime::ComputeClusterTime timeEstimator(10., 1.e4, 0.02, 5.41);
-    float timeError = timeEstimator.getTimeError("recHit", SoN);
-    //    std::cout << " SoN = " << SoN << " log10(SoN) = " << log10(SoN) << " timeError = " << timeError << " time = " << myrechit.time() << std::endl;
+
+  if(detid.det() == DetId::HGCalHSc || myrechit.time() < 0.){
+    myrechit.setTimeError(-1.);
+    std::cout << " err -1 time = " << myrechit.time() << " E = " << new_E
+	      << " SoN = " << SoN << std::endl;
+  }
+  else{
+    //hgcalsimclustertime::ComputeClusterTime timeEstimatorSi(minValSiP_, maxValSiP_, constSiP_, noiseSiP_);
+    float timeError = timeEstimatorSi_.getTimeError("recHit", SoN);
+    std::cout << " SoN = " << SoN << " timeError = " << timeError << " time = " << myrechit.time() 
+	      << " minValSiP_ = " <<  minValSiP_ << " maxValSiP_ = " << maxValSiP_ 
+	      << " constSiP_ = " << constSiP_ << " noiseSiP_ = " << noiseSiP_ << std::endl;
     myrechit.setTimeError(timeError);
   }
 

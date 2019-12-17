@@ -15,6 +15,7 @@
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
 public:
@@ -58,6 +59,13 @@ protected:
   std::vector<float> weights_, weightsNose_;
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
   std::unique_ptr<hgcal::RecHitTools> tools_;
+
+  double minValSiP_;
+  double maxValSiP_;
+  double noiseSiP_;
+  double constSiP_;
+  hgcalsimclustertime::ComputeClusterTime timeEstimatorSi_;
+
 };
 
 #endif
