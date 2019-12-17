@@ -119,6 +119,10 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
     me = iget_.get(stitle);
     h_genjet_pt = (TH1F*)me->getTH1F();
 
+
+    std::cout << "inPFJetDQM" << std::endl;
+
+
     stitle = "presponse_eta" + seta(etaBins[ieta]);
     sprintf(ctitle, "Jet pT response, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
     TH1F* h_presponse = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
