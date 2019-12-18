@@ -441,9 +441,6 @@ namespace dqm {
       // TODO: review and possibly rename the all methods below:
       // get MEs that are direct children of full path `path`
       virtual std::vector<dqm::harvesting::MonitorElement*> getContents(std::string const& path) const;
-      // not clear what this is good for.
-      DQM_DEPRECATED
-      virtual void getContents(std::vector<std::string>& into, bool showContents = true) const;
 
       // get all elements below full path `path`
       // we have to discuss semantics here -- are run/lumi ever used?
@@ -484,8 +481,6 @@ namespace dqm {
     public:
       // IGetter uses the globalMEs_ directly.
       friend IGetter;
-      // TODO: There are no references any more. we should gt rid of these.
-      enum SaveReferenceTag { SaveWithoutReference, SaveWithReference, SaveWithReferenceForQTest };
       enum OpenRunDirs { KeepRunDirs, StripRunDirs };
 
       DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&);
@@ -493,33 +488,15 @@ namespace dqm {
 
       // ------------------------------------------------------------------------
       // ---------------------- public I/O --------------------------------------
-      // TODO: these need some cleanup, though in general we want to keep the
-      // functionality. Maybe move it to a different class, and change the (rather
-      // few) usages.
-      void save(std::string const& filename,
-                std::string const& path = "",
-                std::string const& pattern = "",
-                std::string const& rewrite = "",
-                uint32_t run = 0,
-                uint32_t lumi = 0,
-                SaveReferenceTag ref = SaveWithReference,
-                int minStatus = dqm::qstatus::STATUS_OK,
-                std::string const& fileupdate = "RECREATE");
-      void savePB(std::string const& filename, std::string const& path = "", uint32_t run = 0, uint32_t lumi = 0);
+      DQM_DEPRECATED
+      void save(std::string const& filename, std::string const& path = "");
+      DQM_DEPRECATED
       bool open(std::string const& filename,
                 bool overwrite = false,
                 std::string const& path = "",
                 std::string const& prepend = "",
                 OpenRunDirs stripdirs = KeepRunDirs,
                 bool fileMustExist = true);
-      bool load(std::string const& filename, OpenRunDirs stripdirs = StripRunDirs, bool fileMustExist = true);
-
-      DQM_DEPRECATED
-      void showDirStructure() const;
-
-      // TODO: getting API not part of IGetter.
-      DQM_DEPRECATED
-      std::vector<MonitorElement*> getMatchingContents(std::string const& pattern) const;
 
       DQMStore(DQMStore const&) = delete;
       DQMStore& operator=(DQMStore const&) = delete;
