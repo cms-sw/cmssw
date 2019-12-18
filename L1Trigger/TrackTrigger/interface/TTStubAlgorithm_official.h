@@ -75,7 +75,6 @@ public:
                              int &anOffset,
                              float &anHardBend,
                              const TTStub<T> &aTTStub) const override;
-  // Removed real offset.  Ivan Reid 10.2019
 
   float degradeBend(bool psModule, int window, int bend) const;
 
