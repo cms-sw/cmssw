@@ -34,11 +34,6 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
   menESHits1zp_ = nullptr;
   menESHits2zp_ = nullptr;
   menESHits1zm_ = nullptr;

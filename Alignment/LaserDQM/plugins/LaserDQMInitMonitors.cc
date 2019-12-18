@@ -1500,8 +1500,4 @@ void LaserDQM::initMonitors() {
   theMEBeam7TIBPosition6AdcCounts =
       theDaqMonitorBEI->book1D("AdcCountsZ=-540mm", "Adc counts for Beam 7 at z = -540 mm", 512, 0, 511);
   theMEBeam7TIBPosition6AdcCounts->setResetMe(true);
-
-  // show directory structure
-  if (theDebugLevel > 3)
-    theDaqMonitorBEI->showDirStructure();
 }

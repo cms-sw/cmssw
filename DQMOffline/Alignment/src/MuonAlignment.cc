@@ -913,7 +913,6 @@ void MuonAlignment::endJob(void) {
   }      // doSummary
 
   if (outputMEsInRootFile) {
-    //    dbe->showDirStructure();
     dbe->save(outputFileName);
   }
 }

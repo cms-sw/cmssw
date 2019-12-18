@@ -45,11 +45,6 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet &ps)
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
   meGunEnergy_ = nullptr;
   meGunEta_ = nullptr;
   meGunPhi_ = nullptr;
