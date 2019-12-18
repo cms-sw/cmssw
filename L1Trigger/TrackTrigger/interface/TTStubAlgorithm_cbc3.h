@@ -51,7 +51,6 @@ public:
                              int &anOffset,
                              float &anHardBend,
                              const TTStub<T> &aTTStub) const override;
-  // Removed real offset.  Ivan Reid 10/2019
 
 };  /// Close class
 
