@@ -62,6 +62,19 @@ puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
+rawPuppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = puppiMetTable.src,
+    name = cms.string("RawPuppiMET"),
+    doc = cms.string("raw Puppi MET"),
+    singleton = cms.bool(True),  # there's always exactly one MET per event
+    extension = cms.bool(False), # this is the main table for the MET
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+       pt  = Var("uncorPt",  float, doc="pt", precision=10),
+       phi = Var("uncorPhi", float, doc="phi", precision=10),
+       sumEt = Var("uncorSumEt", float, doc="scalar sum of Et", precision=10),
+    ),)
+
+
 tkMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = metTable.src,
     name = cms.string("TkMET"),
@@ -108,7 +121,7 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 
-metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + tkMetTable + chsMetTable)
+metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + rawPuppiMetTable+ tkMetTable + chsMetTable)
 _withFixEE2017_sequence = cms.Sequence(metTables.copy() + metFixEE2017Table)
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
     modifier.toReplaceWith(metTables,_withFixEE2017_sequence) # only in old miniAOD, the new ones will come from the UL rereco
