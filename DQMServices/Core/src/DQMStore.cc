@@ -1,6 +1,7 @@
 // silence deprecation warnings for the DQMStore itself.
 #define DQM_DEPRECATED
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/LegacyIOHelper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include <string>
@@ -521,8 +522,6 @@ namespace dqm::implementation {
     return out;
   }
 
-  void IGetter::getContents(std::vector<std::string>& into, bool showContents) const { assert(!"NIY"); }
-
   std::vector<dqm::harvesting::MonitorElement*> IGetter::getAllContents(std::string const& pathname) const {
     std::vector<MonitorElement*> out;
     MonitorElementData::Path path;
@@ -666,41 +665,19 @@ namespace dqm::implementation {
 
   DQMStore::~DQMStore() {}
 
-  void DQMStore::save(std::string const& filename,
-                      std::string const& path,
-                      std::string const& pattern,
-                      std::string const& rewrite,
-                      uint32_t run,
-                      uint32_t lumi,
-                      SaveReferenceTag ref,
-                      int minStatus,
-                      std::string const& fileupdate) {
-    TRACE("filename " << filename << " path " << path << " pattern " << pattern << " rewrite " << rewrite << " run "
-                      << run << " lumi " << lumi << " minStatus " << minStatus << " fileupdate " << fileupdate);
-    //assert(!"NIY");
+  void DQMStore::save(std::string const& filename, std::string const& path) {
+    LegacyIOHelper h(this);
+    // no run number passed, will save a flat ROOT file (rather than 'Run xxxxxx/.../Run Summary/...')
+    h.save(filename, path);
   }
-  void DQMStore::savePB(std::string const& filename, std::string const& path, uint32_t run, uint32_t lumi) {
-    assert(!"NIY");
-  }
+
   bool DQMStore::open(std::string const& filename,
                       bool overwrite,
                       std::string const& path,
                       std::string const& prepend,
                       OpenRunDirs stripdirs,
                       bool fileMustExist) {
-    TRACE("filename " << filename << " overwrite " << overwrite << " path " << path << " prepend " << prepend
-                      << " fileMustExist " << fileMustExist);
-    //assert(!"NIY");
-    return false;
+    assert(!"NIY");
   }
-  bool DQMStore::load(std::string const& filename, OpenRunDirs stripdirs, bool fileMustExist) {
-    TRACE("filename " << filename << " fileMustExist " << fileMustExist);
-    //assert(!"NIY");
-    return false;
-  }
-
-  void DQMStore::showDirStructure() const { assert(!"NIY"); }
-
-  std::vector<MonitorElement*> DQMStore::getMatchingContents(std::string const& pattern) const { assert(!"NIY"); }
 
 }  // namespace dqm::implementation
