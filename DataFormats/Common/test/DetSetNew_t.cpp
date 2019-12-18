@@ -485,13 +485,13 @@ namespace {
   struct VerifyAlgos {
     VerifyAlgos(std::vector<DSTV::data_type const *> &iv) : n(0), v(iv) {}
 
-    void operator()(DSTV::data_type const &d) const {
+    void operator()(DSTV::data_type const &d) {
       CPPUNIT_ASSERT(d == *v[n]);
       CPPUNIT_ASSERT(&d == v[n]);
       ++n;
     }
 
-    mutable int n;
+    int n;
     std::vector<DSTV::data_type const *> const &v;
   };
 

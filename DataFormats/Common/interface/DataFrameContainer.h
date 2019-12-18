@@ -2,6 +2,7 @@
 #define DataFormats_Common_DataFrameContainer_h
 
 #include "DataFormats/Common/interface/DataFrame.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
@@ -27,6 +28,7 @@ namespace edm {
    * although it can be sorted internally it is strongly adviced to
    * fill it already sorted....
    *
+   *  NOTE: The iterator used by DataFrameContainer can not safely be used across threads, even if only call const methods
    */
   class DataFrameContainer {
   public:
@@ -53,7 +55,7 @@ namespace edm {
 
     private:
       DataFrameContainer const& v;
-      mutable DataFrame frame;
+      CMS_SA_ALLOW mutable DataFrame frame;
     };
 
     typedef boost::transform_iterator<IterHelp, boost::counting_iterator<int> > const_iterator;
@@ -134,7 +136,8 @@ namespace edm {
 
     DataFrame operator[](size_t i) const { return DataFrame(*this, i); }
 
-    // slow interface
+    /// slow interface
+    /// The iterator returned can not safely be used across threads
     const_iterator find(id_type i) const {
       const_IdIter p = std::lower_bound(m_ids.begin(), m_ids.end(), i);
       return (p == m_ids.end() || (*p) != i)
@@ -142,6 +145,7 @@ namespace edm {
                  : boost::make_transform_iterator(boost::counting_iterator<int>(p - m_ids.begin()), IterHelp(*this));
     }
 
+    /// The iterator returned can not safely be used across threads
     const_iterator begin() const {
       return boost::make_transform_iterator(boost::counting_iterator<int>(0), IterHelp(*this));
     }
