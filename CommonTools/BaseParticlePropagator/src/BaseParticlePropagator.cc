@@ -87,7 +87,6 @@ bool BaseParticlePropagator::propagate() {
       solution = tminus < 0 ? tplus : tminus;
       if (solution < 0.)
         return false;
-      zProp = particle_.Z() + particle_.Pz() * solution;
       success = 2;
     } else {
       success = 1;
@@ -390,7 +389,6 @@ bool BaseParticlePropagator::propagateToClosestApproach(double x0, double y0, bo
   if (dist2 > dist1) {
     particle_.setVertex(vertex1);
     particle_.setMomentum(momentum1.X(), momentum1.Y(), momentum1.Z(), momentum1.E());
-    dist2 = dist1;
   }
 
   // Done
@@ -506,11 +504,10 @@ bool BaseParticlePropagator::propagateToHcalEntrance(bool first) {
 
 bool BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   //
-  // Propagation to VFCAL entrance
-  // TODO: include proper geometry
-  // Geometry taken from DAQ TDR Chapter 13
+  // Propagation to VFCAL (HF) entrance
+  // Geometry taken from xml: Geometry/CMSCommonData/data/cms.xml
 
-  setPropagationConditions(400.0, 1110.0, first);
+  setPropagationConditions(400.0, 1114.95, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;

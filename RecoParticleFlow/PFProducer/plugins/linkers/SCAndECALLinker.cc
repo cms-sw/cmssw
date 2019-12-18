@@ -9,14 +9,14 @@ class SCAndECALLinker : public BlockElementLinkerBase {
 public:
   SCAndECALLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)),
-        _superClusterMatchByRef(conf.getParameter<bool>("SuperClusterMatchByRef")) {}
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)),
+        superClusterMatchByRef_(conf.getParameter<bool>("SuperClusterMatchByRef")) {}
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _debug, _superClusterMatchByRef;
+  bool useKDTree_, debug_, superClusterMatchByRef_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, SCAndECALLinker, "SCAndECALLinker");
@@ -38,7 +38,7 @@ double SCAndECALLinker::testLink(const reco::PFBlockElement* elem1, const reco::
     throw cms::Exception("BadRef") << "SuperClusterRef is invalid!";
   }
 
-  if (_superClusterMatchByRef) {
+  if (superClusterMatchByRef_) {
     if (sclus == ecalelem->superClusterRef())
       dist = 0.001;
   } else {
