@@ -29,11 +29,6 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
   meEEzpHits_ = nullptr;
   meEEzmHits_ = nullptr;
   meEEzpCrystals_ = nullptr;

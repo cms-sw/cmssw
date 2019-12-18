@@ -29,11 +29,6 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
   menEBHits_ = nullptr;
   menEBCrystals_ = nullptr;
   meEBOccupancy_ = nullptr;

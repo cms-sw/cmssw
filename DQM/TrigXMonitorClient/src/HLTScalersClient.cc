@@ -130,10 +130,6 @@ void HLTScalersClient::endRun(const edm::Run &run, const edm::EventSetup &c) {
 /// DQM Client Diagnostic should be performed here
 void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) {
   nLumi_ = lumiSeg.id().luminosityBlock();
-  // PWDEBUG
-  if (first_ && debug_)
-    dbe_->showDirStructure();
-  // PWDEBUG END
 
   // get raw data
   std::string scalHisto = folderName_ + "/raw/hltScalers";
