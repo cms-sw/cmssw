@@ -2,7 +2,6 @@
 #define _DQMOFFLINE_HCAL_CALOTOWERSANALYZER_H_
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -22,7 +22,9 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -41,11 +43,11 @@ public:
   CaloTowersAnalyzer(edm::ParameterSet const &conf);
   ~CaloTowersAnalyzer() override;
 
-  void analyze(edm::Event const &e, edm::EventSetup const &c) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
   void beginJob() override;
   void endJob() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c) override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
 
 private:
   double dR(double eta1, double phi1, double eta2, double phi2);
@@ -58,6 +60,7 @@ private:
   typedef math::RhoEtaPhiVector Vector;
 
   edm::EDGetTokenT<CaloTowerCollection> tok_towers_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> hcalDDDRecConstantsToken_;
 
   int isub;
   int nevent;
@@ -67,9 +70,6 @@ private:
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
   double etaMin[3];
-
-  // Geometry from DB
-  const HcalDDDRecConstants *hcons;
 
   int iphi_bins_;
   float iphi_min_, iphi_max_;
