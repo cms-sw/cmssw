@@ -9,8 +9,6 @@ DEFINE_FWK_MODULE(DQMStoreStats);
 DEFINE_FWK_MODULE(DQMMessageLogger);
 #include "DQMMessageLoggerClient.h"
 DEFINE_FWK_MODULE(DQMMessageLoggerClient);
-#include "DQMFileReader.h"
-DEFINE_FWK_MODULE(DQMFileReader);
 #include "DQMProvInfo.h"
 DEFINE_FWK_MODULE(DQMProvInfo);
 #include "DQMDcsInfo.h"
