@@ -424,7 +424,7 @@ bool DiJetMonitor::dijet_selection(double eta_1,
 void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/JME/Jets/AK4/PF");
-  desc.add<bool>("requireValidHLTPaths", false);
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("dijetSrc", edm::InputTag("ak4PFJets"));

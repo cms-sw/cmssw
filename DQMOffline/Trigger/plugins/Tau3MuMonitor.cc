@@ -168,7 +168,7 @@ void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 void Tau3MuMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/BPH/");
-  desc.add<bool>("requireValidHLTPaths", false);
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("taus", edm::InputTag("hltTauPt10MuPts511Mass1p2to2p3Iso", "Taus"));
 

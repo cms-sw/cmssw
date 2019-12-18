@@ -465,7 +465,7 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/NoBPTX");
-  desc.add<bool>("requireValidHLTPaths", false);
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4CaloJets"));
   desc.add<edm::InputTag>("muons", edm::InputTag("displacedStandAloneMuons"));
