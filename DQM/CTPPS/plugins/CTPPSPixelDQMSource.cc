@@ -49,10 +49,6 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelCluster>> tokenCluster;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> tokenTrack;
 
-  // Flags for disabling set of plots
-  bool offlinePlots = true;
-  bool onlinePlots = true;
-
   static constexpr int NArms = 2;
   static constexpr int NStationMAX = 3; // in an arm
   static constexpr int NRPotsMAX = 6;   // per station
@@ -112,6 +108,13 @@ private:
   int HitsMultROC[RPotsTotalNumber * NplaneMAX][NROCsMAX];
   int HitsMultPlane[RPotsTotalNumber][NplaneMAX];
   int ClusMultPlane[RPotsTotalNumber][NplaneMAX];
+
+  // Flags for disabling set of plots
+  bool offlinePlots = true;
+  bool onlinePlots = true;
+
+  // Flags for disabling plots of a plane
+  bool isPlanePlotsTurnedOff[NArms][NStationMAX][NRPotsMAX][NplaneMAX] = {};
 
   unsigned int rpStatusWord = 0x8008;     // 220_fr_hr(stn2rp3)+ 210_fr_hr
   int RPstatus[StationIDMAX][RPotsIDMAX]; // symmetric in both arms
@@ -175,6 +178,45 @@ CTPPSPixelDQMSource::CTPPSPixelDQMSource(const edm::ParameterSet &ps)
       ps.getParameter<edm::InputTag>("tagRPixLTrack"));
   offlinePlots = ps.getUntrackedParameter<bool>("offlinePlots", true);
   onlinePlots = ps.getUntrackedParameter<bool>("onlinePlots", true);
+
+  vector<string> disabledPlanePlotsVec =
+      ps.getUntrackedParameter<vector<string>>("turnOffPlanePlots",
+                                               vector<string>());
+
+  // Parse the strings in disabledPlanePlotsVec and set the flags in
+  // isPlanePlotsTurnedOff
+  for (auto s : disabledPlanePlotsVec) {
+    // Check that the format is <arm>_<station>_<RP>_<Plane>
+    if (count(s.begin(), s.end(), '_') != 3)
+      throw cms::Exception("RPixPlaneCombinatoryTracking")
+          << "Invalid string in turnOffPlanePlots: " << s;
+    else {
+      vector<string> armStationRpPlane;
+      size_t pos = 0;
+      while ((pos = s.find('_')) != string::npos) {
+        armStationRpPlane.push_back(s.substr(0, pos));
+        s.erase(0, pos + 1);
+      }
+      armStationRpPlane.push_back(s);
+
+      int arm = stoi(armStationRpPlane.at(0));
+      int station = stoi(armStationRpPlane.at(1));
+      int rp = stoi(armStationRpPlane.at(2));
+      int plane = stoi(armStationRpPlane.at(3));
+
+      if (arm < NArms && station < NStationMAX && rp < NRPotsMAX &&
+          plane < NplaneMAX) {
+        if (verbosity)
+          LogPrint("CTPPSPixelDQMSource")
+              << "Shutting off plots for: Arm " << arm << " Station " << station
+              << " Rp " << rp << " Plane " << plane;
+        isPlanePlotsTurnedOff[arm][station][rp][plane] = true;
+      } else {
+        throw cms::Exception("RPixPlaneCombinatoryTracking")
+            << "Invalid string in turnOffPlanePlots: " << s;
+      }
+    }
+  }
 }
 
 //----------------------------------------------------------------------------------
@@ -396,6 +438,8 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
         int nbins = pixRowMAX / pixBinW;
 
         for (int p = 0; p < NplaneMAX; p++) {
+          if (isPlanePlotsTurnedOff[arm][stn][rp][p])
+            continue;
           sprintf(s, "plane_%d", p);
           string pd = rpd + "/" + string(s);
           ibooker.setCurrentFolder(pd);
@@ -408,16 +452,16 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
                                 pixRowMAX, pixRowMAX, 0, pixRowMAX);
             h2xyHits[indexP][p]->getTH2D()->SetOption("colz");
 
+            st = "hits multiplicity";
+            hHitsMult[indexP][p] =
+                ibooker.book1DD(st, st1 + ";number of hits;N / 1 hit",
+                                hitMultMAX + 1, -0.5, hitMultMAX + 0.5);
+
             st = "adc average value";
             hp2xyADC[indexP][p] = ibooker.bookProfile2D(
                 st, st1 + ";pix col;pix row", nbins, 0, pixRowMAX, nbins, 0,
                 pixRowMAX, 0., 512., "");
             hp2xyADC[indexP][p]->getTProfile2D()->SetOption("colz");
-
-            st = "hits multiplicity";
-            hHitsMult[indexP][p] =
-                ibooker.book1DD(st, st1 + ";number of hits;N / 1 hit",
-                                hitMultMAX + 1, -0.5, hitMultMAX + 0.5);
           }
 
           if (offlinePlots) {
@@ -550,6 +594,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
 
           for (const auto &ds_frh : fittedHits) {
             int plane = getPixPlane(ds_frh.id);
+            if (isPlanePlotsTurnedOff[arm][station][rpot][plane])
+              continue;
             for (DetSet<CTPPSPixelFittedRecHit>::const_iterator frh_it =
                      ds_frh.begin();
                  frh_it != ds_frh.end(); ++frh_it) {
@@ -602,6 +648,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
 
           h2HitsMultipl[arm][station]->Fill(prIndex(rpot, plane),
                                             ds_digi.data.size());
+
           h2AllPlanesActive->Fill(plane, getRPglobalBin(arm, station));
 
           int index = getRPindex(arm, station, rpot);
@@ -610,7 +657,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
             int nh = ds_digi.data.size();
             if (nh > hitMultMAX)
               nh = hitMultMAX;
-            hHitsMult[index][plane]->Fill(nh);
+            if (isPlanePlotsTurnedOff[arm][station][rpot][plane])
+              hHitsMult[index][plane]->Fill(nh);
           }
           int rocHistIndex = getPlaneIndex(arm, station, rpot, plane);
 
@@ -621,8 +669,10 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
             int adc = dit->adc();
 
             if (RPindexValid[index]) {
-              h2xyHits[index][plane]->Fill(col, row);
-              hp2xyADC[index][plane]->Fill(col, row, adc);
+              if (isPlanePlotsTurnedOff[arm][station][rpot][plane]) {
+                h2xyHits[index][plane]->Fill(col, row);
+                hp2xyADC[index][plane]->Fill(col, row, adc);
+              }
               int colROC, rowROC;
               int trocId;
               if (!thePixIndices.transformToROC(col, row, trocId, colROC,
