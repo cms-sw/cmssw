@@ -35,23 +35,6 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
   fp.version_ = 1;
   fp.child_ = "";
 
-  fp.saveReference_ = DQMStore::SaveWithReference;
-  // Check how we should save the references.
-  std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "all");
-  if (refsave == "skip") {
-    fp.saveReference_ = DQMStore::SaveWithoutReference;
-  } else if (refsave == "all") {
-    fp.saveReference_ = DQMStore::SaveWithReference;
-  } else if (refsave == "qtests") {
-    fp.saveReference_ = DQMStore::SaveWithReferenceForQTest;
-  } else {
-    //edm::LogInfo("DQMFileSaverBase")
-    std::cerr << "Invalid 'referenceHandling' parameter '" << refsave << "'.  Expected 'skip', 'all' or 'qtests'.";
-  }
-
-  // Check minimum required quality test result for which reference is saved.
-  fp.saveReferenceQMin_ = ps.getUntrackedParameter<int>("referenceRequireStatus", dqm::qstatus::STATUS_OK);
-
   std::unique_lock<std::mutex> lck(initial_fp_lock_);
   initial_fp_ = fp;
 }

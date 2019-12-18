@@ -56,7 +56,7 @@ DQMStoreStats::DQMStoreStats(const edm::ParameterSet& ps)
       maxbinsmeglobal_(""),
       maxbinsmesubsys_(""),
       statsdepth_(1),
-      pathnamematch_("*"),
+      pathnamematch_(""),
       verbose_(0) {
   parameters_ = ps;
   pathnamematch_ = ps.getUntrackedParameter<std::string>("pathNameMatch", pathnamematch_);
@@ -168,7 +168,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
   size_t subsysStringEnd = 0, subfolderStringBegin = 0, subfolderStringEnd = 0;
 
   std::vector<MonitorElement*> melist;
-  melist = dbe_->getMatchingContents(pathnamematch_);
+  melist = dbe_->getAllContents(pathnamematch_);
 
   Folder dbeFolder("root");
   DQMStoreStatsTopLevel dqmStoreStatsTopLevel;
