@@ -16,7 +16,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '110X_mcRun2_design_v5',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, prior to VFP change
-    'run2_mc_pre_vfp'   :   '110X_mcRun2_asymptotic_preVFP_v2',
+    'run2_mc_pre_vfp'   :   '110X_mcRun2_asymptotic_preVFP_v3',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, after VFP change
     'run2_mc'           :   '110X_mcRun2_asymptotic_v6',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
