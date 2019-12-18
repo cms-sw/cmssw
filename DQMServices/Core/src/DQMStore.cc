@@ -281,7 +281,7 @@ namespace dqm::implementation {
       std::string name = me->getFullname();
       if (name.find(this->trackME_) != std::string::npos) {
         edm::LogWarning("DQMStoreTrackME").log([&](auto& logger) {
-          logger << message << " for " << name;
+          logger << message << " for " << name << "(" << me << ")";
           if (me->isValid()) {
             logger << " " << me->getRunLumi() << " scope " << scopename[me->getScope()];
             if (me->kind() >= MonitorElement::Kind::TH1F) {
@@ -524,6 +524,7 @@ namespace dqm::implementation {
       me->Reset();
       auto result = prototypes.insert(me);
       assert(result.second);  // was new insertion, else findME should succeed
+      debugTrackME("cleanupLumi (reset)", me);
     }
   }
 
