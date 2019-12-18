@@ -164,7 +164,7 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
   if (clientHistos_) {
     std::set<std::string> temp;
     for (auto me : allmes) {
-      auto name = me->getPathname();
+      const auto& name = me->getPathname();
       if (name.find(sistrip::collate_) != std::string::npos) {
         temp.insert(name);
       }

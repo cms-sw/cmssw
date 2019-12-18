@@ -228,7 +228,7 @@ int EgHLTOfflineSummaryClient::getQTestResults_(const std::string& filterName,
     std::vector<MonitorElement*> monElems = dbe_->getAllContents(dirName_);
     // std::cout <<"mon elem "<<dirName_+"/"+filterName+patterns[patternNr]<<"nr monElems "<<monElems.size()<<std::endl;
     for (auto& monElem : monElems) {
-      auto name = monElem->getName();
+      const auto& name = monElem->getName();
       int match = fnmatch(filterpattern.c_str(), name.c_str(), 0);
       if (match == FNM_NOMATCH)
         continue;
