@@ -178,9 +178,7 @@ public:
   }
 
   /** @brief add rechit energy */
-  void addHitEnergy(float energy) {
-    energies_.emplace_back(energy);
-  }
+  void addHitEnergy(float energy) { energies_.emplace_back(energy); }
 
   /** @brief Returns list of rechit IDs and fractions for this SimCluster */
   std::vector<std::pair<uint32_t, float>> hits_and_fractions() const {
@@ -207,9 +205,7 @@ public:
   }
 
   /** @brief clear the energies list */
-  void clearHitsEnergy() {
-    std::vector<float>().swap(energies_);
-  }
+  void clearHitsEnergy() { std::vector<float>().swap(energies_); }
 
   /** @brief returns the accumulated sim energy in the cluster */
   float simEnergy() const { return simhit_energy_; }
