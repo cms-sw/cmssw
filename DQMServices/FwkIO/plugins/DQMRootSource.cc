@@ -385,10 +385,11 @@ void DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<std::string>>("fileNames")->setComment("Names of files to be processed.");
   desc.addUntracked<unsigned int>("filterOnRun", 0)->setComment("Just limit the process to the selected run.");
-  desc.addUntracked<std::string>("reScope", "")
+  desc.addUntracked<std::string>("reScope", "JOB")
       ->setComment(
           "Accumulate histograms more coarsely."
-          " Options: \"RUN\": turn LUMI histograms into RUN histograms, \"JOB\": turn everything into JOB histograms.");
+          " Options: \"\": keep unchanged, \"RUN\": turn LUMI histograms into RUN histograms, \"JOB\": turn everything "
+          "into JOB histograms.");
   desc.addUntracked<bool>("skipBadFiles", false)->setComment("Skip the file if it is not valid");
   desc.addUntracked<std::string>("overrideCatalog", std::string())
       ->setComment("An alternate file catalog to use instead of the standard site one.");
