@@ -1,0 +1,101 @@
+##################################################
+# Example generator based on LHC parameters
+# usage: Herwig read LHE.in
+##################################################
+read snippets/PPCollider.in
+##################################################
+# Technical parameters for this run
+##################################################
+cd /Herwig/Generators
+set EventGenerator:NumberOfEvents 10000000
+set EventGenerator:RandomNumberGenerator:Seed 31122001
+set EventGenerator:DebugLevel 0
+set EventGenerator:PrintEvent 10
+set EventGenerator:MaxErrors 10000
+##################################################
+#   Create the Les Houches file handler and reader
+##################################################
+cd /Herwig/EventHandlers
+library LesHouches.so
+# create the event handler
+create ThePEG::LesHouchesEventHandler LesHouchesHandler
+# set the various step handlers
+set LesHouchesHandler:PartonExtractor /Herwig/Partons/PPExtractor
+set LesHouchesHandler:CascadeHandler /Herwig/Shower/ShowerHandler
+set LesHouchesHandler:DecayHandler /Herwig/Decays/DecayHandler
+set LesHouchesHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler
+# set the weight option (e.g. for MC@NLO)
+set LesHouchesHandler:WeightOption VarNegWeight
+# set event hander as one to be used
+set /Herwig/Generators/EventGenerator:EventHandler /Herwig/EventHandlers/LesHouchesHandler
+# Set up an EMPTY CUTS object
+# Normally you will have imposed any cuts you want
+# when generating the event file and don't want any more
+# in particular for POWHEG and MC@NLO you must not apply cuts on the
+# the extra jet
+create ThePEG::Cuts /Herwig/Cuts/NoCuts
+# You may wish to use the same PDF as the events were generated with
+create ThePEG::LHAPDF /Herwig/Partons/LHAPDF ThePEGLHAPDF.so
+set /Herwig/Partons/LHAPDF:PDFName NNPDF30_nlo_as_0118
+set /Herwig/Partons/LHAPDF:RemnantHandler /Herwig/Partons/HadronRemnants
+set /Herwig/Particles/p+:PDF /Herwig/Partons/LHAPDF
+set /Herwig/Particles/pbar-:PDF /Herwig/Partons/LHAPDF
+set /Herwig/Partons/PPExtractor:FirstPDF  /Herwig/Partons/LHAPDF
+set /Herwig/Partons/PPExtractor:SecondPDF /Herwig/Partons/LHAPDF
+# We would recommend the shower uses the default PDFs with which it was tuned.
+# However it can be argued that the same set as for the sample should be used for
+# matched samples, i.e. MC@NLO (and less so POWHEG)
+#set /Herwig/Shower/ShowerHandler:PDFA /Herwig/Partons/LHAPDF
+#set /Herwig/Shower/ShowerHandler:PDFB /Herwig/Partons/LHAPDF
+# You can in principle also change the PDFs for the remnant extraction and
+# multiple scattering. As the generator was tuned with the default values
+# this is STRONGLY DISCOURAGED without retuning the MPI parameters
+# create the reader and set cuts
+create ThePEG::LesHouchesFileReader LesHouchesReader
+# the file can be compressed (gziped,bziped)
+set LesHouchesReader:FileName cmsgrid_final.lhe
+set LesHouchesReader:AllowedToReOpen No
+set LesHouchesReader:InitPDFs 0
+set LesHouchesReader:Cuts /Herwig/Cuts/NoCuts
+# option to ensure momentum conservation is O.K. due rounding errors (recommended)
+set LesHouchesReader:MomentumTreatment RescaleEnergy
+# set the pdfs
+set LesHouchesReader:PDFA /Herwig/Partons/LHAPDF
+set LesHouchesReader:PDFB /Herwig/Partons/LHAPDF
+# if using BSM models with QNUMBER info
+#set LesHouchesReader:QNumbers Yes
+#set LesHouchesReader:Decayer /Herwig/Decays/Mambo
+# and add to handler
+insert LesHouchesHandler:LesHouchesReaders 0 LesHouchesReader
+##################################################
+#  Shower parameters
+##################################################
+# normally, especially for POWHEG, you want
+# the scale supplied in the event files (SCALUP)
+# to be used as a pT veto scale in the parton shower
+set /Herwig/Shower/ShowerHandler:MaxPtIsMuF Yes
+set /Herwig/Shower/ShowerHandler:RestrictPhasespace Yes
+# Shower parameters
+# treatment of wide angle radiation
+set /Herwig/Shower/PartnerFinder:PartnerMethod Random
+set /Herwig/Shower/PartnerFinder:ScaleChoice Partner
+# fix issue before 7.0.5 (not needed after this)
+set /Herwig/Shower/GtoQQbarSplitFn:AngularOrdered Yes
+set /Herwig/Shower/GammatoQQbarSplitFn:AngularOrdered Yes
+# with MC@NLO these parameters are required for consistency of the subtraction terms
+# suggested parameters (give worse physics results with POWHEG)
+#set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost
+#set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General
+#set /Herwig/Shower/KinematicsReconstructor:FinalStateReconOption Default
+#set /Herwig/Shower/KinematicsReconstructor:InitialStateReconOption Rapidity
+#set /Herwig/Shower/ShowerHandler:SpinCorrelations No
+##################################################
+# LHC physics parameters (override defaults here) 
+##################################################
+# e.g if different top mass used
+#set /Herwig/Particles/t:NominalMass 173.0
+##################################################
+# Save run for later usage with 'Herwig run'
+##################################################
+cd /Herwig/Generators
+saverun LHE EventGenerator
