@@ -310,7 +310,8 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
             it->getNbinsX() * it->getNbinsY() * it->getNbinsZ() * sizeof(float));
         break;
 
-      default: {}
+      default: {
+      }
         // here we have a DQM_KIND_INVALID, DQM_KIND_INT, DQM_KIND_REAL or DQM_KIND_STRING
         // which we don't care much about. Alternatively:
 

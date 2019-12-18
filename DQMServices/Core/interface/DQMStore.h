@@ -112,11 +112,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1D(TString const& name, TH1F* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH1F, [=]() {
-          auto th1 = static_cast<TH1F*>(object->Clone(name));
-          onbooking(th1);
-          return th1;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH1F,
+            [=]() {
+              auto th1 = static_cast<TH1F*>(object->Clone(name));
+              onbooking(th1);
+              return th1;
+            },
+            /* forceReplace */ true);
       }
 
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
@@ -130,11 +134,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1S(TString const& name, TH1S* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH1S, [=]() {
-          auto th1 = static_cast<TH1S*>(object->Clone(name));
-          onbooking(th1);
-          return th1;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH1S,
+            [=]() {
+              auto th1 = static_cast<TH1S*>(object->Clone(name));
+              onbooking(th1);
+              return th1;
+            },
+            /* forceReplace */ true);
       }
 
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
@@ -148,11 +156,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1DD(TString const& name, TH1D* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH1D, [=]() {
-          auto th1 = static_cast<TH1D*>(object->Clone(name));
-          onbooking(th1);
-          return th1;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH1D,
+            [=]() {
+              auto th1 = static_cast<TH1D*>(object->Clone(name));
+              onbooking(th1);
+              return th1;
+            },
+            /* forceReplace */ true);
       }
 
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
@@ -187,11 +199,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2D(TString const& name, TH2F* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH2F, [=]() {
-          auto th2 = static_cast<TH2F*>(object->Clone(name));
-          onbooking(th2);
-          return th2;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH2F,
+            [=]() {
+              auto th2 = static_cast<TH2F*>(object->Clone(name));
+              onbooking(th2);
+              return th2;
+            },
+            /* forceReplace */ true);
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2S(TString const& name,
@@ -225,11 +241,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2S(TString const& name, TH2S* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH2S, [=]() {
-          auto th2 = static_cast<TH2S*>(object->Clone(name));
-          onbooking(th2);
-          return th2;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH2S,
+            [=]() {
+              auto th2 = static_cast<TH2S*>(object->Clone(name));
+              onbooking(th2);
+              return th2;
+            },
+            /* forceReplace */ true);
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2DD(TString const& name,
@@ -249,11 +269,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2DD(TString const& name, TH2D* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH2D, [=]() {
-          auto th2 = static_cast<TH2D*>(object->Clone(name));
-          onbooking(th2);
-          return th2;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH2D,
+            [=]() {
+              auto th2 = static_cast<TH2D*>(object->Clone(name));
+              onbooking(th2);
+              return th2;
+            },
+            /* forceReplace */ true);
       }
 
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
@@ -277,11 +301,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book3D(TString const& name, TH3F* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH3F, [=]() {
-          auto th3 = static_cast<TH3F*>(object->Clone(name));
-          onbooking(th3);
-          return th3;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH3F,
+            [=]() {
+              auto th3 = static_cast<TH3F*>(object->Clone(name));
+              onbooking(th3);
+              return th3;
+            },
+            /* forceReplace */ true);
       }
 
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
@@ -350,11 +378,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile(TString const& name, TProfile* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TPROFILE, [=]() {
-          auto tprofile = static_cast<TProfile*>(object->Clone(name));
-          onbooking(tprofile);
-          return tprofile;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TPROFILE,
+            [=]() {
+              auto tprofile = static_cast<TProfile*>(object->Clone(name));
+              onbooking(tprofile);
+              return tprofile;
+            },
+            /* forceReplace */ true);
       }
 
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
@@ -398,11 +430,15 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile2D(TString const& name, TProfile2D* object, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TPROFILE2D, [=]() {
-          auto tprofile = static_cast<TProfile2D*>(object->Clone(name));
-          onbooking(tprofile);
-          return tprofile;
-        });
+        return bookME(
+            name,
+            MonitorElementData::Kind::TPROFILE2D,
+            [=]() {
+              auto tprofile = static_cast<TProfile2D*>(object->Clone(name));
+              onbooking(tprofile);
+              return tprofile;
+            },
+            /* forceReplace */ true);
       }
 
       //
@@ -418,7 +454,8 @@ namespace dqm {
       virtual edm::LuminosityBlockID setRunLumi(edm::LuminosityBlockID runlumi);
       virtual MonitorElement* bookME(TString const& name,
                                      MonitorElementData::Kind kind,
-                                     std::function<TH1*()> makeobject);
+                                     std::function<TH1*()> makeobject,
+                                     bool forceReplace = false);
 
       DQMStore* store_ = nullptr;
       MonitorElementData::Scope scope_ = MonitorElementData::Scope::JOB;

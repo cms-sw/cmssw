@@ -38,7 +38,6 @@ namespace dqm {
       long run_;
       long lumi_;
       std::string child_;  // child of a fork
-
     };
 
   protected:
