@@ -275,7 +275,7 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
 void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/SUSY/Razor");
-  desc.add<bool>("requireValidHLTPaths", false);
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));

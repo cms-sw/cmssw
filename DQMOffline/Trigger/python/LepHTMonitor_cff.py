@@ -19,7 +19,7 @@ DQMOffline_Ele15_HT600 = DQMEDAnalyzer('LepHTMonitor',
                                               beamSpot = cms.InputTag('offlineBeamSpot'),
 
                                               folderName = cms.string('HLT_Ele15_IsoVVVL_PFHT600'),
-                                              requireValidHLTPaths = cms.bool(False),
+                                              requireValidHLTPaths = cms.bool(True),
 
                                               jetPtCut = cms.untracked.double(30.0),
                                               jetEtaCut = cms.untracked.double(2.5),

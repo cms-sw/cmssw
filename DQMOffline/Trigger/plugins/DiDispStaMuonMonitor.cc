@@ -346,7 +346,7 @@ void DiDispStaMuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup con
 void DiDispStaMuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/EXO/DiDispStaMuon");
-  desc.add<bool>("requireValidHLTPaths", false);
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("muons", edm::InputTag("displacedStandAloneMuons"));
   desc.add<unsigned int>("nmuons", 2);

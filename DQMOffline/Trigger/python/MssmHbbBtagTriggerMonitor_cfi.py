@@ -18,7 +18,7 @@ triggerFlagPSet = cms.PSet(
 
 mssmHbbBtagTriggerMonitor = DQMEDAnalyzer("TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/HIG/MssmHbb/"),
-    requireValidHLTPaths = cms.bool(False),
+    requireValidHLTPaths = cms.bool(True),
     processname = cms.string("HLT"),
     jetPtMin = cms.double(40),
     jetEtaMax = cms.double(2.2),

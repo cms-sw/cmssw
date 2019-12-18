@@ -648,7 +648,7 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
 void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/Jet");
-  desc.add<bool>("requireValidHLTPaths", false);
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJetsCHS"));
   desc.add<double>("ptcut", 20);

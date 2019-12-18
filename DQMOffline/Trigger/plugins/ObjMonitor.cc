@@ -374,7 +374,7 @@ bool ObjMonitor::tightJetId(const double& abseta,
 void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/OBJ");
-  desc.add<bool>("requireValidHLTPaths", false);
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
