@@ -1,4 +1,4 @@
-#include "DQMOffline/Trigger/interface/METDQM.h"
+#include "DQMOffline/Trigger/plugins/METDQM.h"
 
 METDQM::METDQM() = default;
 

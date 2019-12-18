@@ -1,4 +1,4 @@
-#include "DQMOffline/Trigger/interface/HTDQM.h"
+#include "DQMOffline/Trigger/plugins/HTDQM.h"
 
 HTDQM::HTDQM() = default;
 
