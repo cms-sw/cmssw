@@ -50,7 +50,8 @@ namespace dqm::implementation {
 
   MonitorElement* IBooker::bookME(TString const& name,
                                   MonitorElementData::Kind kind,
-                                  std::function<TH1*()> makeobject) {
+                                  std::function<TH1*()> makeobject,
+                                  bool forceReplace /* = false */) {
     MonitorElementData::Path path;
     std::string fullpath = pwd() + std::string(name.View());
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
@@ -93,7 +94,27 @@ namespace dqm::implementation {
       medata.value_.object_ = std::unique_ptr<TH1>(th1);
       MonitorElement* me_ptr = new MonitorElement(std::move(medata));
       me = store_->putME(me_ptr);
+    } else {
+      if (forceReplace) {
+        TH1* th1 = makeobject();
+        assert(th1);
+        store_->debugTrackME("bookME (forceReplace)", me);
+        // surgically replace Histogram
+        // This is rather dangerous because the ME is in a global set and may
+        // be in use. We are protected by the booking lock here, but code
+        // filling in parallel might observe `isValid() == false`.
+        // Maybe replace this with a proper API to atomically replace the TH1.
+        auto medata = me->release(/* expectOwned */ true);
+        // Assume kind etc. matches.
+        // This should free the old object.
+        {
+          auto access = medata->accessMut();
+          access.value.object_ = std::unique_ptr<TH1>(th1);
+        }
+        me->switchData(medata);
+      }
     }
+
     // me now points to a global ME owned by the DQMStore.
     assert(me);
 
