@@ -27,6 +27,7 @@
 // needed for mapping
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <memory>
 #include <sstream>
@@ -40,6 +41,7 @@
 #include "TStyle.h"
 #include "TLatex.h"
 #include "TPave.h"
+#include "TMarker.h"
 #include "TPaveStats.h"
 
 namespace {
@@ -64,8 +66,8 @@ namespace {
   class TrackerAlignmentComparatorBase : public cond::payloadInspector::PlotImage<Alignments> {
   public:
     TrackerAlignmentComparatorBase()
-      : cond::payloadInspector::PlotImage<Alignments>("comparison of " + AlignmentPI::getStringFromCoordinate(coord) +
-						      " coordinate between two geometries") {}
+        : cond::payloadInspector::PlotImage<Alignments>("comparison of " + AlignmentPI::getStringFromCoordinate(coord) +
+                                                        " coordinate between two geometries") {}
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
@@ -275,9 +277,7 @@ namespace {
   template <AlignmentPI::coordinate coord>
   class TrackerAlignmentCompareTwoTags : public TrackerAlignmentComparatorBase<coord> {
   public:
-    TrackerAlignmentCompareTwoTags() : TrackerAlignmentComparatorBase<coord>() {
-      this->setTwoTags(true);
-    }
+    TrackerAlignmentCompareTwoTags() : TrackerAlignmentComparatorBase<coord>() { this->setTwoTags(true); }
   };
 
   typedef TrackerAlignmentCompare<AlignmentPI::t_x> TrackerAlignmentCompareX;
@@ -288,13 +288,13 @@ namespace {
   typedef TrackerAlignmentCompare<AlignmentPI::rot_beta> TrackerAlignmentCompareBeta;
   typedef TrackerAlignmentCompare<AlignmentPI::rot_gamma> TrackerAlignmentCompareGamma;
 
-  typedef TrackerAlignmentCompare<AlignmentPI::t_x> TrackerAlignmentCompareXTwoTags;
-  typedef TrackerAlignmentCompare<AlignmentPI::t_y> TrackerAlignmentCompareYTwoTags;
-  typedef TrackerAlignmentCompare<AlignmentPI::t_z> TrackerAlignmentCompareZTwoTags;
+  typedef TrackerAlignmentCompareTwoTags<AlignmentPI::t_x> TrackerAlignmentCompareXTwoTags;
+  typedef TrackerAlignmentCompareTwoTags<AlignmentPI::t_y> TrackerAlignmentCompareYTwoTags;
+  typedef TrackerAlignmentCompareTwoTags<AlignmentPI::t_z> TrackerAlignmentCompareZTwoTags;
 
-  typedef TrackerAlignmentCompare<AlignmentPI::rot_alpha> TrackerAlignmentCompareAlphaTwoTags;
-  typedef TrackerAlignmentCompare<AlignmentPI::rot_beta> TrackerAlignmentCompareBetaTwoTags;
-  typedef TrackerAlignmentCompare<AlignmentPI::rot_gamma> TrackerAlignmentCompareGammaTwoTags;
+  typedef TrackerAlignmentCompareTwoTags<AlignmentPI::rot_alpha> TrackerAlignmentCompareAlphaTwoTags;
+  typedef TrackerAlignmentCompareTwoTags<AlignmentPI::rot_beta> TrackerAlignmentCompareBetaTwoTags;
+  typedef TrackerAlignmentCompareTwoTags<AlignmentPI::rot_gamma> TrackerAlignmentCompareGammaTwoTags;
 
   //*******************************************//
   // Summary canvas per subdetector
@@ -599,17 +599,15 @@ namespace {
       barycenters.init();
       // compute uncorrected barycenter
       barycenters.computeBarycenters(alignments,
-				     {{AlignmentPI::t_x,0.0},
-				      {AlignmentPI::t_y,0.0},
-				      {AlignmentPI::t_z,0.0}});
+                                     {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
 
-      auto Xbarycenters   = barycenters.getX();
-      auto Ybarycenters   = barycenters.getY();
-      auto Zbarycenters   = barycenters.getZ();
+      auto Xbarycenters = barycenters.getX();
+      auto Ybarycenters = barycenters.getY();
+      auto Zbarycenters = barycenters.getZ();
 
       barycenters.init();
       // compute barycenter corrected for the GPR
-      barycenters.computeBarycenters(alignments,hardcodeGPR);
+      barycenters.computeBarycenters(alignments, hardcodeGPR);
 
       auto c_Xbarycenters = barycenters.getX();
       auto c_Ybarycenters = barycenters.getY();
@@ -736,9 +734,12 @@ namespace {
         auto thePart = static_cast<AlignmentPI::partitions>(i + 1);
         std::string theLabel = getStringFromPart(thePart);
         h2_BarycenterDiff->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
-        h2_BarycenterDiff->SetBinContent(1, yBin, (l_barycenters.getX()[i] - f_barycenters.getX()[i])*AlignmentPI::cmToUm );
-	h2_BarycenterDiff->SetBinContent(2, yBin, (l_barycenters.getY()[i] - f_barycenters.getY()[i])*AlignmentPI::cmToUm );
-        h2_BarycenterDiff->SetBinContent(3, yBin, (l_barycenters.getZ()[i] - f_barycenters.getZ()[i])*AlignmentPI::cmToUm );
+        h2_BarycenterDiff->SetBinContent(
+            1, yBin, (l_barycenters.getX()[i] - f_barycenters.getX()[i]) * AlignmentPI::cmToUm);
+        h2_BarycenterDiff->SetBinContent(
+            2, yBin, (l_barycenters.getY()[i] - f_barycenters.getY()[i]) * AlignmentPI::cmToUm);
+        h2_BarycenterDiff->SetBinContent(
+            3, yBin, (l_barycenters.getZ()[i] - f_barycenters.getZ()[i]) * AlignmentPI::cmToUm);
         yBin--;
       }
 
@@ -774,6 +775,266 @@ namespace {
       this->setTwoTags(true);
     }
   };
+
+  /************************************************
+    Comparator of Pixel Tracker Detector barycenters
+  *************************************************/
+  class PixelBarycentersComparatorBase : public cond::payloadInspector::PlotImage<Alignments> {
+  public:
+    PixelBarycentersComparatorBase()
+        : cond::payloadInspector::PlotImage<Alignments>("Comparison of Pixel Barycenters") {}
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      unsigned int first_run = std::get<0>(firstiov);
+
+      auto lastiov = sorted_iovs.back();
+      unsigned int last_run = std::get<0>(lastiov);
+
+      std::shared_ptr<Alignments> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::vector<AlignTransform> last_alignments = last_payload->m_align;
+
+      std::shared_ptr<Alignments> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::vector<AlignTransform> first_alignments = first_payload->m_align;
+
+      TCanvas canvas("Pixel Barycenter Summary", "Pixel Barycenter summary", 1200, 1200);
+      canvas.Divide(2, 2);
+      canvas.cd();
+
+      TLatex t1;
+      t1.SetNDC();
+      t1.SetTextAlign(26);
+      t1.SetTextSize(0.03);
+      t1.DrawLatex(0.5, 0.97, Form("Pixel Barycenters comparison, IOV %i - IOV %i", last_run, first_run));
+      t1.SetTextSize(0.025);
+
+      for (unsigned int c = 1; c <= 4; c++) {
+        canvas.cd(c)->SetTopMargin(0.07);
+        canvas.cd(c)->SetBottomMargin(0.12);
+        canvas.cd(c)->SetLeftMargin(0.15);
+        canvas.cd(c)->SetRightMargin(0.03);
+        canvas.cd(c)->Modified();
+        canvas.cd(c)->SetGrid();
+      }
+
+      std::array<std::string, 3> structures = {{"FPix-", "BPix", "FPIx+"}};
+      std::array<std::unique_ptr<TH2F>, 3> histos;
+
+      // check that the geomtery is a tracker one
+      const char *path_toTopologyXML = (first_alignments.size() == AlignmentPI::phase0size)
+                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      PixBarycenters myInitialBarycenters;
+      myInitialBarycenters.init();
+      //myInitialBarycenters.computeBarycenters(first_alignments,tTopo,hardcodeGPR);
+      myInitialBarycenters.computeBarycenters(
+          first_alignments, tTopo, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
+
+      PixBarycenters myFinalBarycenters;
+      myFinalBarycenters.init();
+      //myFinalBarycenters.computeBarycenters(last_alignments,tTopo,hardcodeGPR);
+      myFinalBarycenters.computeBarycenters(
+          last_alignments, tTopo, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
+
+      unsigned int index(0);
+      for (const auto &piece : structures) {
+        const char *name = piece.c_str();
+        histos[index] = std::unique_ptr<TH2F>(
+            new TH2F(name,
+                     Form("%s x-y Barycenter Difference;x_{%s} [mm];y_{%s} [mm]", name, name, name),
+                     100,
+                     -2,
+                     2,
+                     100,
+                     -2,
+                     2));
+        histos[index]->SetStats(false);
+        histos[index]->SetTitle(nullptr);
+        //histos[index]->GetXaxis()->LabelsOption("h");
+        histos[index]->GetYaxis()->SetLabelSize(0.04);
+        histos[index]->GetXaxis()->SetLabelSize(0.04);
+        histos[index]->GetYaxis()->SetTitleSize(0.05);
+        histos[index]->GetXaxis()->SetTitleSize(0.05);
+        histos[index]->GetYaxis()->CenterTitle();
+        histos[index]->GetXaxis()->CenterTitle();
+        histos[index]->GetXaxis()->SetTitleOffset(1.2);
+        index++;
+      }
+
+      auto h2_ZBarycenterDiff = std::unique_ptr<TH2F>(
+          new TH2F("Pixel_z_diff", "Pixel z-Barycenter Difference;; z_{Pixel} [mm]", 3, 0, 3., 100, -10., 10.));
+      h2_ZBarycenterDiff->SetStats(false);
+      h2_ZBarycenterDiff->SetTitle(nullptr);
+      h2_ZBarycenterDiff->GetXaxis()->SetBinLabel(1, "FPIX -");
+      h2_ZBarycenterDiff->GetXaxis()->SetBinLabel(2, "BPIX");
+      h2_ZBarycenterDiff->GetXaxis()->SetBinLabel(3, "FPIX +");
+      //h2_ZBarycenterDiff->GetXaxis()->LabelsOption("h");
+      h2_ZBarycenterDiff->GetYaxis()->SetLabelSize(0.04);
+      h2_ZBarycenterDiff->GetXaxis()->SetLabelSize(0.04);
+      h2_ZBarycenterDiff->GetYaxis()->SetTitleSize(0.05);
+      h2_ZBarycenterDiff->GetXaxis()->SetTitleSize(0.05);
+      h2_ZBarycenterDiff->GetYaxis()->CenterTitle();
+      h2_ZBarycenterDiff->GetXaxis()->CenterTitle();
+      h2_ZBarycenterDiff->GetXaxis()->SetTitleOffset(1.2);
+
+      std::function<GlobalPoint(int)> cutFunctorInitial = [&myInitialBarycenters](int index) {
+        switch (index) {
+          case 1:
+            return myInitialBarycenters.getFPixMinusAvg();
+          case 2:
+            return myInitialBarycenters.getBPixAvg();
+          case 3:
+            return myInitialBarycenters.getFPixPlusAvg();
+          default:
+            return GlobalPoint(0, 0, 0);
+        }
+      };
+
+      std::function<GlobalPoint(int)> cutFunctorFinal = [&myFinalBarycenters](int index) {
+        switch (index) {
+          case 1:
+            return myFinalBarycenters.getFPixMinusAvg();
+          case 2:
+            return myFinalBarycenters.getBPixAvg();
+          case 3:
+            return myFinalBarycenters.getFPixPlusAvg();
+          default:
+            return GlobalPoint(0, 0, 0);
+        }
+      };
+
+      for (unsigned int c = 1; c <= 3; c++) {
+        canvas.cd(c);
+        histos[c - 1]->Draw();
+
+        std::cout << "initial :" << c << " " << cutFunctorInitial(c).x() * 10 << "," << cutFunctorInitial(c).y() * 10
+                  << std::endl;
+        std::cout << "final   :" << c << " " << cutFunctorFinal(c).x() * 10 << "," << cutFunctorFinal(c).y() * 10
+                  << std::endl;
+
+        TMarker *initial = new TMarker(cutFunctorInitial(c).x() * 10, cutFunctorInitial(c).y() * 10, 20);
+        TMarker *final = new TMarker(cutFunctorFinal(c).x() * 10, cutFunctorFinal(c).y() * 10, 22);
+
+        initial->SetMarkerColor(kBlue);
+        final->SetMarkerColor(kRed);
+        initial->SetMarkerSize(2);
+        final->SetMarkerSize(2);
+        initial->Draw();
+        final->Draw("same");
+      }
+
+      // fourth pad is a special case
+      canvas.cd(4);
+      h2_ZBarycenterDiff->Draw();
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  private:
+    struct PixBarycenters {
+      std::array<double, 3> m_Xbarycenters;
+      std::array<double, 3> m_Ybarycenters;
+      std::array<double, 3> m_Zbarycenters;
+      std::array<double, 3> m_nmodules;
+
+      /*--------------------------------------------------------------------*/
+      void init()
+      /*--------------------------------------------------------------------*/
+      {
+        // partitions      Fpix-  BPix  FPix+
+        m_Xbarycenters = {{0., 0., 0.}};
+        m_Ybarycenters = {{0., 0., 0.}};
+        m_Zbarycenters = {{0., 0., 0.}};
+        m_nmodules = {{0., 0., 0.}};
+      }
+
+      GlobalPoint getFPixMinusAvg() { return GlobalPoint(m_Xbarycenters[0], m_Ybarycenters[0], m_Zbarycenters[0]); }
+      GlobalPoint getBPixAvg() { return GlobalPoint(m_Xbarycenters[1], m_Ybarycenters[1], m_Zbarycenters[1]); }
+      GlobalPoint getFPixPlusAvg() { return GlobalPoint(m_Xbarycenters[2], m_Ybarycenters[2], m_Zbarycenters[2]); }
+
+      /*--------------------------------------------------------------------*/
+      void computeBarycenters(const std::vector<AlignTransform> &input,
+                              const TrackerTopology &tTopo,
+                              const std::map<AlignmentPI::coordinate, float> &GPR)
+      /*--------------------------------------------------------------------*/
+      {
+        for (const auto &ali : input) {
+          if (DetId(ali.rawId()).det() != DetId::Tracker) {
+            edm::LogWarning("PixBarycenters::computeBarycenters")
+                << "Encountered invalid Tracker DetId:" << ali.rawId() << " " << DetId(ali.rawId()).det()
+                << " is different from " << DetId::Tracker << "  - terminating ";
+            assert(DetId(ali.rawId()).det() != DetId::Tracker);
+          }
+
+          int subid = DetId(ali.rawId()).subdetId();
+
+          switch (subid) {
+            case 1:
+              m_Xbarycenters[1] += (ali.translation().x());
+              m_Ybarycenters[1] += (ali.translation().y());
+              m_Zbarycenters[1] += (ali.translation().z());
+              m_nmodules[1]++;
+              break;
+            case 2:
+
+              // minus side (details on topology https://github.com/cms-sw/cmssw/blob/master/Geometry/TrackerNumberingBuilder/README.md)
+              if (tTopo.pxfSide(DetId(ali.rawId())) == 1) {
+                m_Xbarycenters[0] += (ali.translation().x());
+                m_Ybarycenters[0] += (ali.translation().y());
+                m_Zbarycenters[0] += (ali.translation().z());
+                m_nmodules[0]++;
+              }
+              // plus side (details on topology https://github.com/cms-sw/cmssw/blob/master/Geometry/TrackerNumberingBuilder/README.md)
+              else {
+                m_Xbarycenters[2] += (ali.translation().x());
+                m_Ybarycenters[2] += (ali.translation().y());
+                m_Zbarycenters[2] += (ali.translation().z());
+                m_nmodules[2]++;
+              }
+              break;
+            default:
+              break;
+          }
+        }
+
+        for (unsigned int i = 0; i < m_nmodules.size(); i++) {
+          m_Xbarycenters[i] /= m_nmodules[i];
+          m_Ybarycenters[i] /= m_nmodules[i];
+          m_Zbarycenters[i] /= m_nmodules[i];
+
+          // correct for GPR
+
+          m_Xbarycenters[i] += GPR.at(AlignmentPI::t_x);
+          m_Ybarycenters[i] += GPR.at(AlignmentPI::t_y);
+          m_Zbarycenters[i] += GPR.at(AlignmentPI::t_z);
+        }
+      }
+    };  // end of the struct
+  };
+
+  class PixelBarycentersCompare : public PixelBarycentersComparatorBase {
+  public:
+    PixelBarycentersCompare() : PixelBarycentersComparatorBase() { this->setSingleIov(false); }
+  };
+
+  class PixelBarycentersCompareTwoTags : public PixelBarycentersComparatorBase {
+  public:
+    PixelBarycentersCompareTwoTags() : PixelBarycentersComparatorBase() { this->setTwoTags(true); }
+  };
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
@@ -801,4 +1062,6 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentBarycenters);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentBarycentersCompare);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentBarycentersCompareTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(PixelBarycentersCompare);
+  PAYLOAD_INSPECTOR_CLASS(PixelBarycentersCompareTwoTags);
 }

@@ -42,10 +42,12 @@ int main(int argc, char** argv) {
   std::cout << "## Testing Two Tag Histos" << std::endl;
 
   TrackerAlignmentBarycentersCompareTwoTags histo4;
-  histo4.processTwoTags(connectionString,"TrackerAlignment_2017_ultralegacymc_v2","TrackerAlignment_Upgrade2017_realistic_v2",1,1);
+  histo4.processTwoTags(
+      connectionString, "TrackerAlignment_2017_ultralegacymc_v2", "TrackerAlignment_Upgrade2017_realistic_v2", 1, 1);
   std::cout << histo4.data() << std::endl;
 
   TrackerAlignmentCompareXTwoTags histo5;
-  histo5.processTwoTags(connectionString,"TrackerAlignment_2017_ultralegacymc_v2","TrackerAlignment_Upgrade2017_realistic_v2",1,1);
+  histo5.processTwoTags(
+      connectionString, "TrackerAlignment_2017_ultralegacymc_v2", "TrackerAlignment_Upgrade2017_realistic_v2", 1, 1);
   std::cout << histo5.data() << std::endl;
 }
