@@ -17,15 +17,13 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     int& aDisplacement,
     int& anOffset,
     float& anHardBend,
-    const TTStub<Ref_Phase2TrackerDigi_>& aTTStub) const
-// Removed real offset.  Ivan Reid 10/2019
-{
+    const TTStub<Ref_Phase2TrackerDigi_>& aTTStub) const {
   /// Calculate average coordinates col/row for inner/outer Cluster
   // These are already corrected for being at the center of each pixel
   MeasurementPoint mp0 = aTTStub.clusterRef(0)->findAverageLocalCoordinates();
   MeasurementPoint mp1 = aTTStub.clusterRef(1)->findAverageLocalCoordinates();
 
-  bool isPS = aTTStub.moduleType();  // get it from the stub now
+  bool isPS = aTTStub.moduleTypePS();  // get it from the stub now
 
   /// Get the module position in global coordinates
   // TODO temporary: should use a method from the topology

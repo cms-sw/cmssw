@@ -111,7 +111,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         TTStub<Ref_Phase2TrackerDigi_> tempTTStub(stackDetid);
         tempTTStub.addClusterRef(edmNew::makeRefTo(clusterHandle, lowerClusterIter));
         tempTTStub.addClusterRef(edmNew::makeRefTo(clusterHandle, upperClusterIter));
-        tempTTStub.setModuleType(isPS);
+        tempTTStub.setModuleTypePS(isPS);
 
         /// Check for compatibility
         bool thisConfirmation = false;
@@ -164,7 +164,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         tempTTStub2.setRawBend(2. * tempTTStub.rawBend());
         tempTTStub2.setBendOffset(2. * tempTTStub.bendOffset());
         tempTTStub2.setBendBE(tempTTStub.bendBE());
-        tempTTStub2.setModuleType(tempTTStub.moduleType());
+        tempTTStub2.setModuleTypePS(tempTTStub.moduleTypePS());
 
         /// Put in the output
         if (!applyFE)  // No dynamic inefficiencies (DEFAULT)
@@ -432,7 +432,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
       tempTTStub.setBendOffset(
           2. * stubIter->bendOffset());  /// getter is in FULL-strip units, setter is in HALF-strip units
       tempTTStub.setBendBE(stubIter->bendBE());
-      tempTTStub.setModuleType(stubIter->moduleType());
+      tempTTStub.setModuleTypePS(stubIter->moduleTypePS());
 
       acceptedOutputFiller.push_back(tempTTStub);
 
