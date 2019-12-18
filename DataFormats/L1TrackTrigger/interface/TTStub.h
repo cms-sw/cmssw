@@ -28,8 +28,8 @@ public:
   /// Destructor
   ~TTStub();
 
-  /// Data members:   ABC( ... )
-  /// Helper methods: findABC( ... )
+  /// Data members:   aBc( ... )
+  /// Helper methods: findAbc( ... )
 
   /// Clusters composing the Stub -- see https://twiki.cern.ch/twiki/bin/viewauth/CMS/SLHCTrackerTriggerSWTools#TTCluster
 
@@ -74,15 +74,11 @@ public:
   /// Again restricted to builder code.
   void setBendOffset(int anOffset);
 
-  /// getRealTriggerOffset(): In FULL strip  units!
-  /// setRealTriggerOffset(): In HALF strip units!
-  /// Removed as obsolete.  Ivan Reid 10/2019
-
   /// set whether this is a PS module or not;
-  void setModuleType(bool isPSModule);
+  void setModuleTypePS(bool isPSModule);
 
   /// check if a PS module
-  bool moduleType() const;
+  bool moduleTypePS() const;
 
   /// CBC3-style trigger information
   /// for sake of simplicity, these methods are
@@ -191,11 +187,11 @@ void TTStub<T>::setBendBE(float aBend) {
 }
 
 template <typename T>
-void TTStub<T>::setModuleType(bool isPSModule) {
+void TTStub<T>::setModuleTypePS(bool isPSModule) {
   thePSModule = isPSModule;
 }  // set whether this is a PS module or not;
 template <typename T>
-bool TTStub<T>::moduleType() const {
+bool TTStub<T>::moduleTypePS() const {
   return thePSModule;
 }  // check if a PS module
 template <typename T>
