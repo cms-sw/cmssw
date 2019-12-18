@@ -46,31 +46,16 @@ phase2_hfnose.toModify(
     simHitCollections = dict(hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')])
 )
 
-from Configuration.Eras.Modifier_run3_ecalclustering_cff import run3_ecalclustering
-run3_ecalclustering.toReplaceWith(caloParticles, cms.PSet(
-        accumulatorType = cms.string('CaloTruthAccumulator'),
-#	createUnmergedCollection = cms.bool(True),
-#	createMergedBremsstrahlung = cms.bool(True),
-#	createInitialVertexCollection = cms.bool(False),
-#	alwaysAddAncestors = cms.bool(True),
-        MinEnergy = cms.double(0.5),
-        MaxPseudoRapidity = cms.double(5.0),
-        premixStage1 = cms.bool(False),
-	maximumPreviousBunchCrossing = cms.uint32(0),
-	maximumSubsequentBunchCrossing = cms.uint32(0),
+from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
+run3_ecalclustering.toModify(
+        caloParticles,
 	simHitCollections = cms.PSet(
             ecal = cms.VInputTag(
                 cms.InputTag('g4SimHits','EcalHitsEE'),
                 cms.InputTag('g4SimHits','EcalHitsEB'),
                 cms.InputTag('g4SimHits','EcalHitsES')
             )
-	),
-	simTrackCollection = cms.InputTag('g4SimHits'),
-	simVertexCollection = cms.InputTag('g4SimHits'),
-	genParticleCollection = cms.InputTag('genParticles'),
-	allowDifferentSimHitProcesses = cms.bool(False), # should be True for FastSim, False for FullSim
-	HepMCProductLabel = cms.InputTag('generatorSmeared'),
-    )
+	)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

@@ -177,9 +177,8 @@ public:
     fractions_.emplace_back(fraction);
   }
 
-  /** @brief add rechit with energy */
-  void addRecHitAndEnergy(uint32_t hit, float energy) {
-    hits_.emplace_back(hit);
+  /** @brief add rechit energy */
+  void addHitEnergy(float energy) {
     energies_.emplace_back(energy);
   }
 
@@ -207,9 +206,8 @@ public:
     std::vector<float>().swap(fractions_);
   }
 
-  /** @brief clear the hits and energies list */
-  void clearHitsAndEnergies() {
-    std::vector<uint32_t>().swap(hits_);
+  /** @brief clear the energies list */
+  void clearHitsEnergy() {
     std::vector<float>().swap(energies_);
   }
 
