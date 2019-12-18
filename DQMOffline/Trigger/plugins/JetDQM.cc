@@ -1,4 +1,4 @@
-#include "DQMOffline/Trigger/interface/JetDQM.h"
+#include "DQMOffline/Trigger/plugins/JetDQM.h"
 //#include "DataFormats/Math/interface/deltaR.h"
 
 JetDQM::JetDQM() = default;

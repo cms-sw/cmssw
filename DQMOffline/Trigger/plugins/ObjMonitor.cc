@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -22,10 +22,10 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DQMOffline/Trigger/interface/METDQM.h"
-#include "DQMOffline/Trigger/interface/JetDQM.h"
-#include "DQMOffline/Trigger/interface/HTDQM.h"
-#include "DQMOffline/Trigger/interface/HMesonGammaDQM.h"
+#include "DQMOffline/Trigger/plugins/METDQM.h"
+#include "DQMOffline/Trigger/plugins/JetDQM.h"
+#include "DQMOffline/Trigger/plugins/HTDQM.h"
+#include "DQMOffline/Trigger/plugins/HMesonGammaDQM.h"
 
 class ObjMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:

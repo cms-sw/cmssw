@@ -1,4 +1,4 @@
-#include "DQMOffline/Trigger/interface/HMesonGammaDQM.h"
+#include "DQMOffline/Trigger/plugins/HMesonGammaDQM.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 HMesonGammaDQM::HMesonGammaDQM() = default;

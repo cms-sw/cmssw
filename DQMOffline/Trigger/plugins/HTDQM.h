@@ -1,7 +1,7 @@
 #ifndef DQMOffline_Trigger_HTDQM_h
 #define DQMOffline_Trigger_HTDQM_h
 
-#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/JetReco/interface/PFJet.h"

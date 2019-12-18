@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DQMServices/Core/interface/DQMStore.h"

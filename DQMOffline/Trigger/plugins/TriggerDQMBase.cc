@@ -1,4 +1,4 @@
-#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 
 void TriggerDQMBase::setMETitle(ObjME& me, const std::string& titleX, const std::string& titleY) {
   if (me.numerator) {
