@@ -16,6 +16,10 @@ public:
   BookerFiller(){};
 
   void bookall(BOOKERLIKE& ibooker) {
+    mes_1D.clear();
+    mes_2D.clear();
+    mes_3D.clear();
+
     for (int i = 0; i < howmany; i++) {
       ibooker.setCurrentFolder(folder);
       auto num = std::to_string(i);
