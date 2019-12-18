@@ -1,6 +1,7 @@
 #ifndef KDTreeLinkerBase_h
 #define KDTreeLinkerBase_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
@@ -17,6 +18,7 @@ using BlockElt2BlockEltMap = std::map<reco::PFBlockElement *, BlockEltSet>;
 
 class KDTreeLinkerBase {
 public:
+  KDTreeLinkerBase(const edm::ParameterSet &conf) {}
   virtual ~KDTreeLinkerBase() {}
 
   void setTargetType(const reco::PFBlockElement::Type &tgt) { _targetType = tgt; }
@@ -81,11 +83,14 @@ protected:
   // substracting (adding) 2Pi. This field define the threshold of this operation.
   float phiOffset_ = 0.25;
 
+  // rechit with fraction this value will be ignored in KDTreeLinker
+  const float cutOffFrac = 1E-4;
+
   // Debug boolean. Not used until now.
   bool debug_ = false;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<KDTreeLinkerBase *()> KDTreeLinkerFactory;
+typedef edmplugin::PluginFactory<KDTreeLinkerBase *(const edm::ParameterSet &)> KDTreeLinkerFactory;
 
 #endif /* !KDTreeLinkerBase_h */
