@@ -533,8 +533,12 @@ namespace dqm::implementation {
       auto it = meset.lower_bound(path);
       // rfind can be used as a prefix match.
       while (it != meset.end() && (*it)->getPathname().rfind(path_str, 0) == 0) {
-        store_->debugTrackME("getAllContents (match)", *it);
-        out.push_back(*it);
+        if (runlumi == edm::LuminosityBlockID() && (*it)->getScope() != MonitorElementData::Scope::JOB) {
+          // skip prototypes
+        } else {
+          store_->debugTrackME("getAllContents (match)", *it);
+          out.push_back(*it);
+        }
         ++it;
       }
     }
