@@ -42,7 +42,6 @@ namespace dqm::impl {
 
   MonitorElement::MonitorElement(MonitorElementData &&data) {
     this->mutable_ = new MutableMonitorElementData();
-    this->frozen_ = nullptr;
     this->mutable_.load()->data_ = std::move(data);
     this->is_owned_ = true;
     syncCoreObject();
@@ -65,7 +64,6 @@ namespace dqm::impl {
     assert(this->is_owned_ == expectOwned);
     MutableMonitorElementData *data = this->mutable_.load();
     this->mutable_ = nullptr;
-    this->frozen_ = nullptr;
     this->is_owned_ = false;
     assert(!expectOwned || data);
     return data;
@@ -74,14 +72,12 @@ namespace dqm::impl {
   void MonitorElement::switchData(MonitorElement *other) {
     assert(other);
     this->mutable_ = other->mutable_.load();
-    this->frozen_ = other->frozen_.load();
     this->is_owned_ = false;
     syncCoreObject();
   }
 
   void MonitorElement::switchData(MutableMonitorElementData *data) {
     this->mutable_ = data;
-    this->frozen_ = nullptr;
     this->is_owned_ = true;
     syncCoreObject();
   }

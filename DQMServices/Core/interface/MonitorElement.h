@@ -123,11 +123,8 @@ namespace dqm::impl {
 
   protected:
     DQMNet::CoreObject data_;  //< Core object information.
-    // TODO: we only use the ::Value part so far.
-    // Still using the full thing to remain compatible with the new ME implementation.
 
-    std::atomic<MonitorElementData const *> frozen_;    // only set if this ME is in a product already
-    std::atomic<MutableMonitorElementData *> mutable_;  // only set if there is a mutable copy of this ME
+    std::atomic<MutableMonitorElementData *> mutable_;  // only set if this is a mutable copy of this ME
     bool is_owned_;                                     // true if we are responsible for deleting the mutable object.
     /** 
      * To do anything to the MEs data, one needs to obtain an access object.
@@ -151,13 +148,6 @@ namespace dqm::impl {
         // if there is a mutable object, that is the truth, and we take a lock.
         return mut->access();
       }  // else
-      auto frozen = frozen_.load();
-      if (frozen) {
-        // in case of an immutable object read from edm products, create an
-        // access object without lock.
-        return Access{std::unique_lock<dqmmutex>(), frozen->key_, frozen->value_};
-      }
-      // else
       throw cms::Exception("LogicError") << "MonitorElement " << getName() << " not backed by any data!";
     }
 
@@ -171,37 +161,7 @@ namespace dqm::impl {
         // if there is a mutable object, that is the truth, and we take a lock.
         return mut->accessMut();
       }  // else
-      auto frozen = frozen_.load();
-      if (!frozen) {
-        throw cms::Exception("LogicError") << "MonitorElement " << getName() << " not backed by any data!";
-      }
-      // in case of an immutable object read from edm products, attempt to
-      // make a clone.
-      MutableMonitorElementData *clone = new MutableMonitorElementData();
-      clone->data_.key_ = frozen->key_;
-      clone->data_.value_.scalar_ = frozen->value_.scalar_;
-      if (frozen->value_.object_) {
-        // Clone() the TH1
-        clone->data_.value_.object_ = std::unique_ptr<TH1>(static_cast<TH1 *>(frozen->value_.object_->Clone()));
-      }
-
-      // now try to set our clone, and see if it was still needed (sb. else
-      // might have made a clone already!)
-      MutableMonitorElementData *existing = nullptr;
-      bool ok = mutable_.compare_exchange_strong(existing, clone);
-      if (!ok) {
-        // somebody else made a clone already, it is now in existing
-        delete clone;
-        return existing->accessMut();
-      } else {
-        // we won the race, and our clone is the real one now.
-        this->is_owned_ = true;
-        return clone->accessMut();
-      }
-      // in either case, if somebody destroyed the mutable object between us
-      // getting the pointer and us locking it, we are screwed. We have to rely
-      // on edm and the DQM code to make sure we only turn mutable objects into
-      // products once all processing is done (logically, this is safe).
+      throw cms::Exception("LogicError") << "MonitorElement " << getName() << " not backed by any data!";
     }
 
   public:
@@ -231,7 +191,7 @@ namespace dqm::impl {
 
     // check if the ME is currently backed by MEData; if false (almost) any
     // access will throw.
-    bool isValid() const { return mutable_.load() || frozen_.load(); }
+    bool isValid() const { return mutable_.load() != nullptr; }
 
     /// Compare monitor elements, for ordering in sets.
     bool operator<(const MonitorElement &x) const { return DQMNet::setOrder(data_, x.data_); }
