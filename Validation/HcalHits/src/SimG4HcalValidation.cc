@@ -276,7 +276,8 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
   LogDebug("ValidHcal") << "SimG4HcalValidation :: Hit Collection for " << names[0] << " of ID " << HCHCid
                         << " is obtained at " << theHCHC;
   if (HCHCid >= 0 && theHCHC != nullptr) {
-    for (j = 0; j < theHCHC->entries(); j++) {
+    int nhits = theHCHC->entries();
+    for (j = 0; j < nhits; j++) {
       CaloG4Hit *aHit = (*theHCHC)[j];
 
       double e = aHit->getEnergyDeposit() / GeV;
@@ -353,8 +354,9 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
       CaloG4HitCollection *theECHC = (CaloG4HitCollection *)allHC->GetHC(ECHCid);
       LogDebug("ValidHcal") << "SimG4HcalValidation:: Hit Collection for " << names[idty] << " of ID " << ECHCid
                             << " is obtained at " << theECHC;
+      int theechc_entries = theECHC->entries();
       if (ECHCid >= 0 && theECHC != nullptr) {
-        for (j = 0; j < theECHC->entries(); j++) {
+        for (j = 0; j < theechc_entries; j++) {
           CaloG4Hit *aHit = (*theECHC)[j];
 
           double e = aHit->getEnergyDeposit() / GeV;
