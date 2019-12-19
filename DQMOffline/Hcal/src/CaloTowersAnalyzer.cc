@@ -2,8 +2,10 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
-CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const &conf) {
+CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const &conf)
+    : hcalDDDRecConstantsToken_{esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()} {
   tok_towers_ = consumes<CaloTowerCollection>(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"));
   // DQM ROOT output
 
@@ -15,18 +17,16 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const &conf) {
 }
 
 void CaloTowersAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup &es) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
+  HcalDDDRecConstants const &hcons = es.getData(hcalDDDRecConstantsToken_);
 
   // Get Phi segmentation from geometry, use the max phi number so that all iphi
   // values are included.
 
-  int NphiMax = hcons->getNPhi(0);
+  int NphiMax = hcons.getNPhi(0);
 
-  NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
-  NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
-  NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+  NphiMax = (hcons.getNPhi(1) > NphiMax ? hcons.getNPhi(1) : NphiMax);
+  NphiMax = (hcons.getNPhi(2) > NphiMax ? hcons.getNPhi(2) : NphiMax);
+  NphiMax = (hcons.getNPhi(3) > NphiMax ? hcons.getNPhi(3) : NphiMax);
 
   // Center the iphi bins on the integers
   iphi_min_ = 0.5;
@@ -35,10 +35,10 @@ void CaloTowersAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup 
 
   // Retain classic behavior, all plots have same ieta range.
 
-  int iEtaMax = (hcons->getEtaRange(0).second > hcons->getEtaRange(1).second ? hcons->getEtaRange(0).second
-                                                                             : hcons->getEtaRange(1).second);
-  iEtaMax = (iEtaMax > hcons->getEtaRange(2).second ? iEtaMax : hcons->getEtaRange(2).second);
-  iEtaMax = (iEtaMax > hcons->getEtaRange(3).second ? iEtaMax : hcons->getEtaRange(3).second);
+  int iEtaMax = (hcons.getEtaRange(0).second > hcons.getEtaRange(1).second ? hcons.getEtaRange(0).second
+                                                                           : hcons.getEtaRange(1).second);
+  iEtaMax = (iEtaMax > hcons.getEtaRange(2).second ? iEtaMax : hcons.getEtaRange(2).second);
+  iEtaMax = (iEtaMax > hcons.getEtaRange(3).second ? iEtaMax : hcons.getEtaRange(3).second);
 
   // Give an empty bin around the subdet ieta range to make it clear that all
   // ieta rings have been included
@@ -455,7 +455,7 @@ void CaloTowersAnalyzer::endJob() {}
 
 void CaloTowersAnalyzer::beginJob() { nevent = 0; }
 
-void CaloTowersAnalyzer::analyze(edm::Event const &event, edm::EventSetup const &c) {
+void CaloTowersAnalyzer::analyze(edm::Event const &event, edm::EventSetup const &) {
   nevent++;
 
   edm::Handle<CaloTowerCollection> towers;

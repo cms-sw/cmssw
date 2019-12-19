@@ -92,6 +92,9 @@ BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
       trSelection_(iConfig.getParameter<std::string>("muoSelection")),
       trSelection_ref(iConfig.getParameter<std::string>("trSelection_ref")),
       DMSelection_ref(iConfig.getParameter<std::string>("DMSelection_ref")) {
+  if (!tnp_) {
+    magneticFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  }
   muPhi_.numerator = nullptr;
   muPhi_.denominator = nullptr;
   muEta_.numerator = nullptr;
@@ -472,8 +475,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<edm::TriggerResults> handleTriggerTrigRes;
 
-  edm::ESHandle<MagneticField> bFieldHandle;
-
   const std::string& hltpath = getTriggerName(hltpaths_den[0]);
   const std::string& hltpath1 = getTriggerName(hltpaths_num[0]);
 
@@ -552,11 +553,11 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         }
 
         // dimuon vertex reconstruction
-        iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+        MagneticField const& magneticField = iSetup.getData(magneticFieldToken_);
         const reco::BeamSpot& vertexBeamSpot = *beamSpot;
         std::vector<reco::TransientTrack> j_tks;
-        reco::TransientTrack mu1TT(m.track(), &(*bFieldHandle));
-        reco::TransientTrack mu2TT(m1.track(), &(*bFieldHandle));
+        reco::TransientTrack mu1TT(m.track(), &magneticField);
+        reco::TransientTrack mu2TT(m1.track(), &magneticField);
         j_tks.push_back(mu1TT);
         j_tks.push_back(mu2TT);
         KalmanVertexFitter jkvf;
@@ -928,7 +929,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                 pB = p1 + p2 + p3;
                 if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
                   continue;
-                reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+                reco::TransientTrack trTT(itrk1, &magneticField);
                 std::vector<reco::TransientTrack> t_tks;
                 t_tks.push_back(mu1TT);
                 t_tks.push_back(mu2TT);
@@ -1005,7 +1006,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                 pB = p2 + p3;
                 if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
                   continue;
-                reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+                reco::TransientTrack trTT(itrk1, &magneticField);
                 std::vector<reco::TransientTrack> t_tks;
                 t_tks.push_back(mu2TT);
                 t_tks.push_back(trTT);
@@ -1103,10 +1104,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                   pB = p1 + p2 + p3 + p4;
                   if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
                     continue;
-                  reco::TransientTrack mu1TT(m.track(), &(*bFieldHandle));
-                  reco::TransientTrack mu2TT(m1.track(), &(*bFieldHandle));
-                  reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
-                  reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
+                  reco::TransientTrack mu1TT(m.track(), &magneticField);
+                  reco::TransientTrack mu2TT(m1.track(), &magneticField);
+                  reco::TransientTrack trTT(itrk1, &magneticField);
+                  reco::TransientTrack tr1TT(itrk2, &magneticField);
                   std::vector<reco::TransientTrack> t_tks;
                   t_tks.push_back(mu1TT);
                   t_tks.push_back(mu2TT);

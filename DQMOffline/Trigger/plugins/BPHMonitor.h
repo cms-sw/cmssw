@@ -6,6 +6,7 @@
 #include <map>
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -13,7 +14,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -80,24 +80,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset);
-
-  void case11_selection(const float& dimuonCL,
-                        const float& jpsi_cos,
-                        const GlobalPoint& displacementFromBeamspotJpsi,
-                        const GlobalError& jerr,
-                        const edm::Handle<reco::TrackCollection>& trHandle,
-                        const std::string& hltpath,
-                        const edm::Handle<trigger::TriggerEvent>& handleTriggerEvent,
-                        const reco::Muon& m,
-                        const reco::Muon& m1,
-                        const edm::ESHandle<MagneticField>& bFieldHandle,
-                        const reco::BeamSpot& vertexBeamSpot,
-                        MonitorElement* phi1,
-                        MonitorElement* eta1,
-                        MonitorElement* pT1,
-                        MonitorElement* phi2,
-                        MonitorElement* eta2,
-                        MonitorElement* pT2);
 
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -169,6 +151,9 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> trToken_;
   edm::EDGetTokenT<reco::PhotonCollection> phToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+
   MEbinning phi_binning_;
   MEbinning pt_binning_;
   MEbinning dMu_pt_binning_;
