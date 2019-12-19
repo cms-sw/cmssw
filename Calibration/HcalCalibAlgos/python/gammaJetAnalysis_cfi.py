@@ -37,5 +37,8 @@ GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
                                   doGenJets           = cms.bool(True),
                                   debug               = cms.untracked.int32(0),
                                   debugHLTTrigNames   = cms.untracked.int32(2),
-                                  workOnAOD           = cms.int32(0)
+                                  workOnAOD           = cms.int32(0),
+                                  stageL1Trigger = cms.uint32(1)
                                   )
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(GammaJetAnalysis, stageL1Trigger = 2)
