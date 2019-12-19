@@ -24,11 +24,11 @@ namespace cond {
 
     constexpr const char* const ModuleVersion::label;
 
-    PlotBase::PlotBase() : m_plotAnnotations(), m_inputParams(), m_data(""), m_inputParamValues(){}
+    PlotBase::PlotBase() : m_plotAnnotations(), m_inputParams(), m_data(""), m_inputParamValues() {}
 
-    void PlotBase::addInputParam( const std::string& paramName ){
+    void PlotBase::addInputParam(const std::string& paramName){
       // maybe add a check for existing params - returning an Exception when found...
-      m_inputParams.insert( paramName );
+      m_inputParams.insert(paramName);
     }
 
     std::string PlotBase::payloadType() const { return m_plotAnnotations.get(PlotAnnotations::PAYLOAD_TYPE_K); }
@@ -43,17 +43,17 @@ namespace cond {
 
     boost::python::list PlotBase::inputParams() const {
       boost::python::list tmp;
-      for ( auto ip: m_inputParams ){
-	tmp.append( ip );
+      for (auto ip: m_inputParams){
+	tmp.append(ip);
       }
       return tmp;
     }
 
     void PlotBase::setInputParamValues( const boost::python::dict& values ){
       for( auto ip : m_inputParams ){
-	if( values.has_key( ip ) ){
-	  std::string val = boost::python::extract<std::string>( values.get( ip ) ); 
-	  m_inputParamValues.insert( std::make_pair( ip, val ) );
+	if (values.has_key(ip)){
+	  std::string val = boost::python::extract<std::string>(values.get(ip)); 
+	  m_inputParamValues.insert(std::make_pair(ip, val));
 	}
       }
     }
@@ -133,9 +133,7 @@ namespace cond {
       return info;
     }
 
-    const std::map<std::string,std::string>& PlotBase::inputParamValues() const {
-      return m_inputParamValues;
-    }
+    const std::map<std::string, std::string>& PlotBase::inputParamValues() const { return m_inputParamValues; }
 
     cond::persistency::Session PlotBase::dbSession() { return m_dbSession; }
 
