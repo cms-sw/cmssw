@@ -28,6 +28,9 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
   auto ttStubDSVForOutputAccepted = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
   auto ttStubDSVForOutputRejected = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
 
+  static constexpr int CBCFailOffset = 500;
+  static constexpr int CICFailOffset = 1000;
+
   /// Get the Clusters already stored away
   edm::Handle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> clusterHandle;
   iEvent.getByToken(clustersToken, clusterHandle);
@@ -108,23 +111,23 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         TTStub<Ref_Phase2TrackerDigi_> tempTTStub(stackDetid);
         tempTTStub.addClusterRef(edmNew::makeRefTo(clusterHandle, lowerClusterIter));
         tempTTStub.addClusterRef(edmNew::makeRefTo(clusterHandle, upperClusterIter));
+        tempTTStub.setModuleTypePS(isPS);
 
         /// Check for compatibility
         bool thisConfirmation = false;
         int thisDisplacement = 999999;
         int thisOffset = 0;
-        float thisROffset = 0;
         float thisHardBend = 0;
 
         theStubFindingAlgoHandle->PatternHitCorrelation(
-            thisConfirmation, thisDisplacement, thisOffset, thisROffset, thisHardBend, tempTTStub);
+            thisConfirmation, thisDisplacement, thisOffset, thisHardBend, tempTTStub);
+        // Removed real offset.  Ivan Reid 10/2019
 
         /// If the Stub is above threshold
         if (thisConfirmation) {
-          tempTTStub.setTriggerDisplacement(thisDisplacement);
-          tempTTStub.setTriggerOffset(thisOffset);
-          tempTTStub.setRealTriggerOffset(thisROffset);
-          tempTTStub.setHardwareBend(thisHardBend);
+          tempTTStub.setRawBend(thisDisplacement);
+          tempTTStub.setBendOffset(thisOffset);
+          tempTTStub.setBendBE(thisHardBend);
           tempOutput.push_back(tempTTStub);
         }  /// Stub accepted
       }    /// End of loop over outer clusters
@@ -156,30 +159,30 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         // A temporary stub, for FE problems
         TTStub<Ref_Phase2TrackerDigi_> tempTTStub2(tempTTStub.getDetId());
 
-        tempTTStub2.addClusterRef((tempTTStub.getClusterRef(0)));
-        tempTTStub2.addClusterRef((tempTTStub.getClusterRef(1)));
-        tempTTStub2.setTriggerDisplacement(2. * tempTTStub.getTriggerDisplacement());
-        tempTTStub2.setTriggerOffset(2. * tempTTStub.getTriggerOffset());
-        tempTTStub2.setRealTriggerOffset(2. * tempTTStub.getRealTriggerOffset());
-        tempTTStub2.setHardwareBend(tempTTStub.getHardwareBend());
+        tempTTStub2.addClusterRef((tempTTStub.clusterRef(0)));
+        tempTTStub2.addClusterRef((tempTTStub.clusterRef(1)));
+        tempTTStub2.setRawBend(2. * tempTTStub.rawBend());
+        tempTTStub2.setBendOffset(2. * tempTTStub.bendOffset());
+        tempTTStub2.setBendBE(tempTTStub.bendBE());
+        tempTTStub2.setModuleTypePS(tempTTStub.moduleTypePS());
 
         /// Put in the output
         if (!applyFE)  // No dynamic inefficiencies (DEFAULT)
         {
           /// This means that ALL stubs go into the output
-          tempInner.push_back(*(tempTTStub.getClusterRef(0)));
-          tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+          tempInner.push_back(*(tempTTStub.clusterRef(0)));
+          tempOuter.push_back(*(tempTTStub.clusterRef(1)));
           tempAccepted.push_back(tempTTStub);
         } else {
           bool FEreject = false;
           /// This means that only some of them do
           /// Put in the temporary output
-          MeasurementPoint mp0 = tempTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+          MeasurementPoint mp0 = tempTTStub.clusterRef(0)->findAverageLocalCoordinates();
           int seg = static_cast<int>(mp0.y());
           if (isPS)
             seg = seg / 16;
-          /// Find out which MPA/CBC ASIC
-          int chip = 1000 * nmod + 10 * int(tempTTStub.getTriggerPosition() / chipSize) + seg;
+          int chip = 1000 * nmod + 10 * int(tempTTStub.innerClusterPosition() / chipSize) +
+                     seg;                  /// Find out which MPA/CBC ASIC
           int CIC_chip = 10 * nmod + seg;  /// Find out which CIC ASIC
 
           // First look is the stub is passing trough the very front end (CBC/MPA)
@@ -219,12 +222,59 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
           // We keep is in the stub final container tough, but flagged as reject by FE
 
           if (FEreject) {
-            tempTTStub2.setTriggerDisplacement(500 + 2. * tempTTStub.getTriggerDisplacement());
-            tempTTStub2.setTriggerOffset(500 + 2. * tempTTStub.getTriggerOffset());
-            tempTTStub2.setRealTriggerOffset(500 + 2. * tempTTStub.getRealTriggerOffset());
+            tempTTStub2.setRawBend(CBCFailOffset + 2. * tempTTStub.rawBend());
+            tempTTStub2.setBendOffset(CBCFailOffset + 2. * tempTTStub.bendOffset());
 
-            tempInner.push_back(*(tempTTStub2.getClusterRef(0)));
-            tempOuter.push_back(*(tempTTStub2.getClusterRef(1)));
+            tempInner.push_back(*(tempTTStub2.clusterRef(0)));
+            tempOuter.push_back(*(tempTTStub2.clusterRef(1)));
+            tempAccepted.push_back(tempTTStub2);
+            continue;
+          }
+
+          maxStubs = isPS ? maxStubs_PS_CIC_5 : maxStubs_2S_CIC_5;
+
+          if (is10G_PS)
+            maxStubs = maxStubs_PS_CIC_10;
+
+          if (moduleStubs_CIC.find(CIC_chip) == moduleStubs_CIC.end())  /// Already a stub for this ASIC?
+          {
+            if (moduleStubs_MPA.find(chip) == moduleStubs_MPA.end())  /// Already a stub for this ASIC?
+            {
+              /// No, so new entry
+              moduleStubs_MPA.emplace(chip, 1);
+            } else {
+              if (moduleStubs_MPA[chip] < int(maxStubs)) {
+                ++moduleStubs_MPA[chip];
+              } else {
+                FEreject = true;
+              }
+            }
+          } else  // CBC
+          {
+            if (moduleStubs_CBC.find(chip) == moduleStubs_CBC.end())  /// Already a stub for this ASIC?
+            {
+              /// No, so new entry
+              moduleStubs_CBC.emplace(chip, 1);
+            } else {
+              if (moduleStubs_CBC[chip] < int(maxStubs)) {
+                ++moduleStubs_CBC[chip];
+              } else {
+                FEreject = true;
+              }
+            }
+          }
+
+          // End of the MPA/CBC loop
+
+          // If the stub has been already thrown out, there is no reason to include it into the CIC stream
+          // We keep is in the stub final container tough, but flagged as reject by FE
+
+          if (FEreject) {
+            tempTTStub2.setRawBend(CBCFailOffset + 2. * tempTTStub.rawBend());
+            tempTTStub2.setBendOffset(CBCFailOffset + 2. * tempTTStub.bendOffset());
+
+            tempInner.push_back(*(tempTTStub2.clusterRef(0)));
+            tempOuter.push_back(*(tempTTStub2.clusterRef(1)));
             tempAccepted.push_back(tempTTStub2);
             continue;
           }
@@ -236,19 +286,12 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
           if (moduleStubs_CIC.find(CIC_chip) == moduleStubs_CIC.end())  /// Already a stub for this ASIC?
           {
-            /// No, so new entry
-            std::vector<TTStub<Ref_Phase2TrackerDigi_>> tempStubs(1, tempTTStub);
-            moduleStubs_CIC.emplace(CIC_chip, tempStubs);
-            tempInner.push_back(*(tempTTStub.getClusterRef(0)));
-            tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
-            tempAccepted.push_back(tempTTStub);  // The stub is added
-          } else {
             bool CIC_reject = true;
 
             if (moduleStubs_CIC[CIC_chip].size() < maxStubs) {
               moduleStubs_CIC[CIC_chip].push_back(tempTTStub);  //We add the new stub
-              tempInner.push_back(*(tempTTStub.getClusterRef(0)));
-              tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+              tempInner.push_back(*(tempTTStub.clusterRef(0)));
+              tempOuter.push_back(*(tempTTStub.clusterRef(1)));
               tempAccepted.push_back(tempTTStub);  // The stub is added
             } else {
               moduleStubs_CIC[CIC_chip].push_back(tempTTStub);  //We add the new stub
@@ -258,7 +301,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
               bendMap.reserve(moduleStubs_CIC[CIC_chip].size());
 
               for (unsigned int i = 0; i < moduleStubs_CIC[CIC_chip].size(); ++i) {
-                bendMap.emplace_back(i, moduleStubs_CIC[CIC_chip].at(i).getTriggerBend());
+                bendMap.emplace_back(i, moduleStubs_CIC[CIC_chip].at(i).bendFE());
               }
 
               std::sort(bendMap.begin(), bendMap.end(), TTStubBuilder<Ref_Phase2TrackerDigi_>::SortStubBendPairs);
@@ -274,16 +317,15 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
               if (CIC_reject)  // The stub added does not pass the cut
               {
-                tempTTStub2.setTriggerDisplacement(1000 + 2. * tempTTStub.getTriggerDisplacement());
-                tempTTStub2.setTriggerOffset(1000 + 2. * tempTTStub.getTriggerOffset());
-                tempTTStub2.setRealTriggerOffset(1000 + 2. * tempTTStub.getRealTriggerOffset());
+                tempTTStub2.setRawBend(CICFailOffset + 2. * tempTTStub.rawBend());
+                tempTTStub2.setBendOffset(CICFailOffset + 2. * tempTTStub.bendOffset());
 
-                tempInner.push_back(*(tempTTStub2.getClusterRef(0)));
-                tempOuter.push_back(*(tempTTStub2.getClusterRef(1)));
+                tempInner.push_back(*(tempTTStub2.clusterRef(0)));
+                tempOuter.push_back(*(tempTTStub2.clusterRef(1)));
                 tempAccepted.push_back(tempTTStub2);
               } else {
-                tempInner.push_back(*(tempTTStub.getClusterRef(0)));
-                tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+                tempInner.push_back(*(tempTTStub.clusterRef(0)));
+                tempOuter.push_back(*(tempTTStub.clusterRef(1)));
                 tempAccepted.push_back(tempTTStub);  // The stub is added
               }
             }
@@ -361,9 +403,9 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
       /// Compare the clusters stored in the stub with the ones of this module
       const edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>&
-          lowerClusterToBeReplaced = stubIter->getClusterRef(0);
+          lowerClusterToBeReplaced = stubIter->clusterRef(0);
       const edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>&
-          upperClusterToBeReplaced = stubIter->getClusterRef(1);
+          upperClusterToBeReplaced = stubIter->clusterRef(1);
 
       bool lowerOK = false;
       bool upperOK = false;
@@ -386,12 +428,11 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
       if (!lowerOK || !upperOK)
         continue;
 
-      /// getter is in FULL-strip units, setter is in HALF-strip units
-      tempTTStub.setTriggerDisplacement(2. * stubIter->getTriggerDisplacement());
-      /// getter is in FULL-strip units, setter is in HALF-strip units
-      tempTTStub.setTriggerOffset(2. * stubIter->getTriggerOffset());
-      tempTTStub.setRealTriggerOffset(2. * stubIter->getRealTriggerOffset());
-      tempTTStub.setHardwareBend(stubIter->getHardwareBend());
+      tempTTStub.setRawBend(2. * stubIter->rawBend());  /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setBendOffset(
+          2. * stubIter->bendOffset());  /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setBendBE(stubIter->bendBE());
+      tempTTStub.setModuleTypePS(stubIter->moduleTypePS());
 
       acceptedOutputFiller.push_back(tempTTStub);
 

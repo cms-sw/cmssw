@@ -73,7 +73,6 @@ public:
   void PatternHitCorrelation(bool &aConfirmation,
                              int &aDisplacement,
                              int &anOffset,
-                             float &anROffset,
                              float &anHardBend,
                              const TTStub<T> &aTTStub) const override;
 
@@ -94,7 +93,6 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     bool &aConfirmation,
     int &aDisplacement,
     int &anOffset,
-    float &anROffset,
     float &anHardBend,
     const TTStub<Ref_Phase2TrackerDigi_> &aTTStub) const;
 
