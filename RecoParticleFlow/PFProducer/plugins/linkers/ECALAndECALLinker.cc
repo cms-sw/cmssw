@@ -7,15 +7,15 @@ class ECALAndECALLinker : public BlockElementLinkerBase {
 public:
   ECALAndECALLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   bool linkPrefilter(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _debug;
+  bool useKDTree_, debug_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, ECALAndECALLinker, "ECALAndECALLinker");

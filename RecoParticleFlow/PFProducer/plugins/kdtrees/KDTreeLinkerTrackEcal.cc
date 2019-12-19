@@ -9,7 +9,7 @@
 // It is used in PFBlockAlgo.cc in the function links().
 class KDTreeLinkerTrackEcal : public KDTreeLinkerBase {
 public:
-  KDTreeLinkerTrackEcal();
+  KDTreeLinkerTrackEcal(const edm::ParameterSet &conf);
   ~KDTreeLinkerTrackEcal() override;
 
   // With this method, we create the list of psCluster that we want to link.
@@ -58,7 +58,7 @@ private:
 // construct it when calling the factory
 DEFINE_EDM_PLUGIN(KDTreeLinkerFactory, KDTreeLinkerTrackEcal, "KDTreeTrackAndECALLinker");
 
-KDTreeLinkerTrackEcal::KDTreeLinkerTrackEcal() : KDTreeLinkerBase() {}
+KDTreeLinkerTrackEcal::KDTreeLinkerTrackEcal(const edm::ParameterSet &conf) : KDTreeLinkerBase(conf) {}
 
 KDTreeLinkerTrackEcal::~KDTreeLinkerTrackEcal() { clear(); }
 
@@ -84,7 +84,7 @@ void KDTreeLinkerTrackEcal::insertFieldClusterElt(reco::PFBlockElement *ecalClus
     const reco::PFRecHitRef &rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
 
-    if ((rh.isNull()) || (fract < 1E-4))
+    if ((rh.isNull()) || (fract < cutOffFrac))
       continue;
 
     const reco::PFRecHit &rechit = *rh;
