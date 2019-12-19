@@ -45,7 +45,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/FTSFromVertexToPointFactory.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"

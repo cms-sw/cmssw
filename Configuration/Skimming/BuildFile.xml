@@ -13,7 +13,6 @@
 <use   name="HLTrigger/HLTcore"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="RecoEgamma/EgammaTools" />
-<use name="RecoEgamma/ElectronIdentification" />
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/Luminosity"/>

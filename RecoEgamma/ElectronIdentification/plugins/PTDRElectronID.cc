@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/interface/PTDRElectronID.h"
+#include "PTDRElectronID.h"
 
 void PTDRElectronID::setup(const edm::ParameterSet& conf) {
   // Get all the parameters

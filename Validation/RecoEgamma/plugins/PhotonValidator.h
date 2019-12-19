@@ -24,7 +24,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-//#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"

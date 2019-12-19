@@ -22,7 +22,6 @@
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/MuonReco"/>
-<use name="RecoEgamma/EgammaTools"/>
 <use name="DataFormats/TrackReco"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="Geometry/DTGeometry"/>

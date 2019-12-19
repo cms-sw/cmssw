@@ -10,6 +10,7 @@
 <use   name="root"/>
 <use   name="rootcore"/>
 <use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="RecoEgamma/ElectronIdentification"/>
 
 <library   file="*.cc" name="RecoEgammaElectronIdentificationPlugins">
