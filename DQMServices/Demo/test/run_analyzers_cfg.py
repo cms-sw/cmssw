@@ -141,3 +141,5 @@ elif args.metoedmoutput:
 else:
   process.o = cms.EndPath(process.out)
 
+
+process.DQMStore.trackME = cms.untracked.string("Legacy/testlegacy/th2d0")
