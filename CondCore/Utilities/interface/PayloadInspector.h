@@ -165,7 +165,7 @@ namespace cond {
       boost::python::list inputParams() const;
 
       // required in the browser
-      void setInputParamValues( const boost::python::dict& values );
+      void setInputParamValues(const boost::python::dict& values);
 
       // returns the json file with the plot data
       std::string data() const;
@@ -197,7 +197,7 @@ namespace cond {
 
       void setTwoTags(bool flag);
 
-      void addInputParam( const std::string& paramName );
+      void addInputParam(const std::string& paramName);
 
       // access to the fetch function of the configured reader, to be used in the processData implementations
       template <typename PayloadType>
@@ -207,7 +207,7 @@ namespace cond {
 
       cond::Tag_t getTagInfo(const std::string& tag);
 
-      const std::map<std::string,std::string>& inputParamValues() const;
+      const std::map<std::string, std::string>& inputParamValues() const;
 
       // access to the underlying db session
       cond::persistency::Session dbSession();
@@ -223,7 +223,7 @@ namespace cond {
       //cond::TimeType m_tagTimeType;
 
       std::string m_data = "";
-      std::map<std::string,std::string> m_inputParamValues;
+      std::map<std::string, std::string> m_inputParamValues;
     };
 
     // Concrete plot-types implementations
