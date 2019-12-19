@@ -580,6 +580,33 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
     APV->FitNorm = FitResults[5];
     APV->NEntries = Proj->GetEntries();
 
+    // fall back to legacy fit in case of  very low chi2 probability 
+    if(APV->FitChi2 <= 0.1){ 
+      
+      edm::LogInfo("SiStripGainsPCLHarvester")<<"fit failed on this APV:" << APV->DetId <<":"<<APV->APVId << " !" << std::endl;
+      
+      std::fill(FitResults, FitResults+6, 0);
+      fitRange = std::make_pair(50., 5400.);
+      
+      APV->FitGrade = fitgrade::B;
+
+      getPeakOfLandau(Proj,
+		      FitResults,
+		      fitRange.first,
+		      fitRange.second,
+		      false);
+
+      APV->FitMPV = FitResults[0];
+      APV->FitMPVErr = FitResults[1];
+      APV->FitWidth = FitResults[2];
+      APV->FitWidthErr = FitResults[3];
+      APV->FitChi2 = FitResults[4];
+      APV->FitNorm = FitResults[5];
+      APV->NEntries = Proj->GetEntries();
+    } else {
+      APV->FitGrade = fitgrade::A;
+    }
+    
     if (IsGoodLandauFit(FitResults)) {
       APV->Gain = APV->FitMPV / MPVmean;
       if (APV->SubDet > 2)
@@ -686,6 +713,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
           APV->FitWidthErr = -1;
           APV->FitChi2 = -1;
           APV->FitNorm = -1;
+	  APV->FitGrade = fitgrade::NONE;
           APV->Gain = -1;
           APV->PreviousGain = 1;
           APV->PreviousGainTick = 1;
@@ -733,6 +761,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
             APV->FitWidth = -1;
             APV->FitWidthErr = -1;
             APV->FitChi2 = -1;
+	    APV->FitGrade = fitgrade::NONE;
             APV->Gain = -1;
             APV->PreviousGain = 1;
             APV->PreviousGainTick = 1;
@@ -837,7 +866,7 @@ void SiStripGainsPCLHarvester::storeGainsTree(const TAxis* chVsIdxXaxis) const {
   unsigned int t_Index, t_Bin, t_DetId;
   unsigned char t_APVId, t_SubDet;
   float t_x, t_y, t_z, t_Eta, t_R, t_Phi, t_Thickness;
-  float t_FitMPV, t_FitMPVErr, t_FitWidth, t_FitWidthErr, t_FitChi2NDF, t_FitNorm;
+  float t_FitMPV, t_FitMPVErr, t_FitWidth, t_FitWidthErr, t_FitChi2NDF, t_FitNorm, t_FitGrade;
   double t_Gain, t_PrevGain, t_PrevGainTick, t_NEntries;
   bool t_isMasked;
   auto tree = edm::Service<TFileService>()->make<TTree>("APVGain", "APVGain");
@@ -859,6 +888,7 @@ void SiStripGainsPCLHarvester::storeGainsTree(const TAxis* chVsIdxXaxis) const {
   tree->Branch("FitWidthErr", &t_FitWidthErr, "FitWidthErr/F");
   tree->Branch("FitChi2NDF", &t_FitChi2NDF, "FitChi2NDF/F");
   tree->Branch("FitNorm", &t_FitNorm, "FitNorm/F");
+  tree->Branch("FitGrade",&t_FitGrade, "FitGrade/F");
   tree->Branch("Gain", &t_Gain, "Gain/D");
   tree->Branch("PrevGain", &t_PrevGain, "PrevGain/D");
   tree->Branch("PrevGainTick", &t_PrevGainTick, "PrevGainTick/D");
@@ -885,6 +915,7 @@ void SiStripGainsPCLHarvester::storeGainsTree(const TAxis* chVsIdxXaxis) const {
       t_FitWidthErr = iAPV->FitWidthErr;
       t_FitChi2NDF = iAPV->FitChi2;
       t_FitNorm = iAPV->FitNorm;
+      t_FitGrade = iAPV->FitGrade;
       t_Gain = iAPV->Gain;
       t_PrevGain = iAPV->PreviousGain;
       t_PrevGainTick = iAPV->PreviousGainTick;
