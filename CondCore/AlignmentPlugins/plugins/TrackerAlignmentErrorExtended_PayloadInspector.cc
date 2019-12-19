@@ -194,7 +194,7 @@ namespace {
             }
             break;
           default:
-            std::cout << "will do nothing" << std::endl;
+            COUT << "will do nothing" << std::endl;
             break;
         }
       }
@@ -375,7 +375,7 @@ namespace {
             0,
             range);
 
-        //std::cout<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
+        //COUT<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
 
         for (int j = begin; j <= end; j++) {
           AlignmentPI::regions part = (AlignmentPI::regions)j;
