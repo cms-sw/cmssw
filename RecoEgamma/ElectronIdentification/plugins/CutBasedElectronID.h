@@ -1,7 +1,8 @@
 #ifndef CutBasedElectronID_H
 #define CutBasedElectronID_H
 
-#include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
+#include "ElectronIDAlgo.h"
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"

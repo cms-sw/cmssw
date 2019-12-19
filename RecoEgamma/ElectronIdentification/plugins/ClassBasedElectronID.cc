@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/interface/ClassBasedElectronID.h"
+#include "ClassBasedElectronID.h"
 
 // ===========================================================================================================
 void ClassBasedElectronID::setup(const edm::ParameterSet& conf)

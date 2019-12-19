@@ -24,6 +24,7 @@
 <use   name="JetMETCorrections/Objects"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="RecoJets/JetAssociationAlgorithms"/>
 <use   name="RecoJets/JetProducers"/>

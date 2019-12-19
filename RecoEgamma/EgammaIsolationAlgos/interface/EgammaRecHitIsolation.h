@@ -20,8 +20,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -79,12 +77,7 @@ private:
   bool useNumCrystals_;
   bool vetoClustered_;
   const EcalRecHitCollection* ecalBarHits_;
-  //const EcalChannelStatus *chStatus_;
   std::vector<int> severitiesexcl_;
-  //int severityLevelCut_;
-  //float severityRecHitThreshold_;
-  //EcalSeverityLevelAlgo::SpikeId spId_;
-  //float spIdThreshold_;
   std::vector<int> flags_;
 
   const CaloSubdetectorGeometry* subdet_[2];  // barrel+endcap

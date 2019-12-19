@@ -13,7 +13,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 using namespace edm;
 using namespace std;
@@ -388,12 +387,30 @@ unique_ptr<ConversionCollection> PF_PU_AssoMapAlgos::GetCleanedConversions(
 /* function to find out if the track comes from a gamma conversion                   */
 /*************************************************************************************/
 
+namespace {
+
+  inline bool matchesConversion(const reco::TrackRef& trk, const reco::Conversion& conv) {
+    //check if given track matches given conversion (matching by ref)
+
+    if (trk.isNull())
+      return false;
+
+    for (auto const& it : conv.tracks()) {
+      if (trk.id() == it.id() && trk.key() == it.key())
+        return true;
+    }
+
+    return false;
+  }
+
+}  // namespace
+
 bool PF_PU_AssoMapAlgos::ComesFromConversion(const TrackRef trackref,
                                              const ConversionCollection& cleanedConvColl,
                                              Conversion* gamma) {
-  for (unsigned int convcoll_ite = 0; convcoll_ite < cleanedConvColl.size(); convcoll_ite++) {
-    if (ConversionTools::matchesConversion(trackref, cleanedConvColl.at(convcoll_ite))) {
-      *gamma = cleanedConvColl.at(convcoll_ite);
+  for (auto const& convcoll_ite : cleanedConvColl) {
+    if (matchesConversion(trackref, convcoll_ite)) {
+      *gamma = convcoll_ite;
       return true;
     }
   }

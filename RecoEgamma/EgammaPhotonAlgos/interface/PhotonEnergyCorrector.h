@@ -21,8 +21,6 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 #include <iostream>
 
-#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
-
 class PhotonEnergyCorrector {
 public:
   PhotonEnergyCorrector(const edm::ParameterSet& config, edm::ConsumesCollector&& iC);

@@ -53,7 +53,6 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
 //
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"

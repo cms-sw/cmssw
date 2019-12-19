@@ -15,7 +15,7 @@
 
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/FTSFromVertexToPointFactory.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
 constexpr float TrajSeedMatcher::kElectronMass_;
