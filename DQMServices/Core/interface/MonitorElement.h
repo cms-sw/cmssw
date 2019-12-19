@@ -101,7 +101,9 @@ namespace dqm::impl {
     struct MEComparison {
       using is_transparent = int;  // magic marker to allow C++14 heterogeneous set lookup.
 
-      auto make_tuple(MonitorElement *me) const { return std::make_tuple(me->getPathname(), me->getName()); }
+      auto make_tuple(MonitorElement *me) const {
+        return std::make_tuple(std::reference_wrapper(me->getPathname()), std::reference_wrapper(me->getName()));
+      }
       auto make_tuple(MonitorElementData::Path const &path) const {
         return std::make_tuple(path.getDirname(), path.getObjectname());
       }
