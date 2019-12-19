@@ -257,26 +257,25 @@ namespace cms {
       mType = pDD_->getDetectorType(detId);
       moduleTypeCache_.emplace(detId_raw, mType);
     }
-    
-    // Helper var to switch between InnerPixel or InnerPixel3D digitizers
-    bool is_inner = false;
 
     switch (mType) {
       case TrackerGeometry::ModuleType::Ph1PXB:
-        is_inner = true;
-        //algotype = AlgorithmType::InnerPixel;
+        algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph1PXF:
-        is_inner = true;
-        //algotype = AlgorithmType::InnerPixel;
+        algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph2PXB:
-        is_inner = true;
-        //algotype = AlgorithmType::InnerPixel;
+        algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph2PXF:
-        is_inner = true;
-        //algotype = AlgorithmType::InnerPixel;
+        algotype = AlgorithmType::InnerPixel;
+        break;
+      case TrackerGeometry::ModuleType::Ph2PXB3D:
+        algotype = AlgorithmType::InnerPixel3D;
+        break;
+      case TrackerGeometry::ModuleType::Ph2PXF3D:
+        algotype = AlgorithmType::InnerPixel3D;
         break;
       case TrackerGeometry::ModuleType::Ph2PSP:
         algotype = AlgorithmType::PixelinPS;
@@ -291,18 +290,6 @@ namespace cms {
         edm::LogError("Phase2TrackerDigitizer") << "ERROR - Wrong Detector Type, No Algorithm available ";
     }
 
-    if(is_inner)
-    {
-        const TrackerTopology* tTopo = tTopoHand.product();
-        if(tTopo->getITPixelLayerNumber(detId) <= 2)
-        {
-            algotype = AlgorithmType::InnerPixel3D;
-        }
-        else
-        {
-            algotype = AlgorithmType::InnerPixel;
-        }
-    }
 
     return algotype;
   }
