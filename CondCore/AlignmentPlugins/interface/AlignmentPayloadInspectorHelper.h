@@ -15,6 +15,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 
+//#define MMDEBUG
+#ifdef MMDEBUG
+#include <iostream>
+#define COUT std::cout << "MM "
+#else
+#define COUT edm::LogVerbatim("")
+#endif
+
 namespace AlignmentPI {
 
   // size of the phase-I Tracker APE payload (including both SS + DS modules)

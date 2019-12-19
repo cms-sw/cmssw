@@ -32,6 +32,7 @@
 #include <memory>
 #include <sstream>
 #include <iostream>
+#include <iomanip>  // std::setprecision
 
 // include ROOT
 #include "TH2F.h"
@@ -812,7 +813,7 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.03);
-      t1.DrawLatex(0.5, 0.97, Form("Pixel Barycenters comparison, IOV %i - IOV %i", last_run, first_run));
+      t1.DrawLatex(0.5, 0.97, Form("Pixel Barycenters comparison, IOV: %i / IOV: %i", last_run, first_run));
       t1.SetTextSize(0.025);
 
       for (unsigned int c = 1; c <= 4; c++) {
@@ -824,68 +825,83 @@ namespace {
         canvas.cd(c)->SetGrid();
       }
 
-      std::array<std::string, 3> structures = {{"FPix-", "BPix", "FPIx+"}};
+      std::array<std::string, 3> structures = {{"FPIX-", "BPIX", "FPIX+"}};
       std::array<std::unique_ptr<TH2F>, 3> histos;
 
+      bool isInitialPhase0 = (first_alignments.size() == AlignmentPI::phase0size) ? true : false;
+      bool isFinalPhase0 = (last_alignments.size() == AlignmentPI::phase0size) ? true : false;
+
       // check that the geomtery is a tracker one
-      const char *path_toTopologyXML = (first_alignments.size() == AlignmentPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology tTopo =
+      const char *path_toTopologyXML = isInitialPhase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+
+      TrackerTopology tTopo_f =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       PixBarycenters myInitialBarycenters;
       myInitialBarycenters.init();
-      //myInitialBarycenters.computeBarycenters(first_alignments,tTopo,hardcodeGPR);
+      //myInitialBarycenters.computeBarycenters(first_alignments,tTopo_f,hardcodeGPR);
       myInitialBarycenters.computeBarycenters(
-          first_alignments, tTopo, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
+          first_alignments, tTopo_f, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
+
+      path_toTopologyXML = isFinalPhase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                         : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+
+      TrackerTopology tTopo_l =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       PixBarycenters myFinalBarycenters;
       myFinalBarycenters.init();
-      //myFinalBarycenters.computeBarycenters(last_alignments,tTopo,hardcodeGPR);
+      //myFinalBarycenters.computeBarycenters(last_alignments,tTopo_l,hardcodeGPR);
       myFinalBarycenters.computeBarycenters(
-          last_alignments, tTopo, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
+          last_alignments, tTopo_l, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
+
+      if (isFinalPhase0 != isInitialPhase0) {
+        edm::LogWarning("TrackerAlignment_PayloadInspector")
+            << "the size of the reference alignment (" << first_alignments.size()
+            << ") is different from the one of the target (" << last_alignments.size()
+            << ")! You are probably trying to compare different underlying geometries.";
+      }
 
       unsigned int index(0);
       for (const auto &piece : structures) {
         const char *name = piece.c_str();
         histos[index] = std::unique_ptr<TH2F>(
             new TH2F(name,
-                     Form("%s x-y Barycenter Difference;x_{%s} [mm];y_{%s} [mm]", name, name, name),
+                     Form("%s x-y Barycenter Difference;x_{%s}-x_{TOB} [mm];y_{%s}-y_{TOB} [mm]", name, name, name),
                      100,
-                     -2,
-                     2,
+                     -3.,
+                     3.,
                      100,
-                     -2,
-                     2));
+                     -3.,
+                     3.));
+
         histos[index]->SetStats(false);
         histos[index]->SetTitle(nullptr);
-        //histos[index]->GetXaxis()->LabelsOption("h");
-        histos[index]->GetYaxis()->SetLabelSize(0.04);
-        histos[index]->GetXaxis()->SetLabelSize(0.04);
-        histos[index]->GetYaxis()->SetTitleSize(0.05);
-        histos[index]->GetXaxis()->SetTitleSize(0.05);
+        histos[index]->GetYaxis()->SetLabelSize(0.05);
+        histos[index]->GetXaxis()->SetLabelSize(0.05);
+        histos[index]->GetYaxis()->SetTitleSize(0.06);
+        histos[index]->GetXaxis()->SetTitleSize(0.06);
         histos[index]->GetYaxis()->CenterTitle();
         histos[index]->GetXaxis()->CenterTitle();
-        histos[index]->GetXaxis()->SetTitleOffset(1.2);
+        histos[index]->GetXaxis()->SetTitleOffset(0.9);
         index++;
       }
 
-      auto h2_ZBarycenterDiff = std::unique_ptr<TH2F>(
-          new TH2F("Pixel_z_diff", "Pixel z-Barycenter Difference;; z_{Pixel} [mm]", 3, 0, 3., 100, -10., 10.));
+      auto h2_ZBarycenterDiff = std::unique_ptr<TH2F>(new TH2F(
+          "Pixel_z_diff", "Pixel z-Barycenter Difference;; z_{Pixel-Ideal} -z_{TOB} [mm]", 3, -0.5, 2.5, 100, -10., 10.));
       h2_ZBarycenterDiff->SetStats(false);
       h2_ZBarycenterDiff->SetTitle(nullptr);
       h2_ZBarycenterDiff->GetXaxis()->SetBinLabel(1, "FPIX -");
       h2_ZBarycenterDiff->GetXaxis()->SetBinLabel(2, "BPIX");
       h2_ZBarycenterDiff->GetXaxis()->SetBinLabel(3, "FPIX +");
-      //h2_ZBarycenterDiff->GetXaxis()->LabelsOption("h");
-      h2_ZBarycenterDiff->GetYaxis()->SetLabelSize(0.04);
-      h2_ZBarycenterDiff->GetXaxis()->SetLabelSize(0.04);
-      h2_ZBarycenterDiff->GetYaxis()->SetTitleSize(0.05);
-      h2_ZBarycenterDiff->GetXaxis()->SetTitleSize(0.05);
+      h2_ZBarycenterDiff->GetYaxis()->SetLabelSize(0.05);
+      h2_ZBarycenterDiff->GetXaxis()->SetLabelSize(0.07);
+      h2_ZBarycenterDiff->GetYaxis()->SetTitleSize(0.06);
+      h2_ZBarycenterDiff->GetXaxis()->SetTitleSize(0.06);
       h2_ZBarycenterDiff->GetYaxis()->CenterTitle();
       h2_ZBarycenterDiff->GetXaxis()->CenterTitle();
-      h2_ZBarycenterDiff->GetXaxis()->SetTitleOffset(1.2);
+      h2_ZBarycenterDiff->GetYaxis()->SetTitleOffset(1.1);
 
       std::function<GlobalPoint(int)> cutFunctorInitial = [&myInitialBarycenters](int index) {
         switch (index) {
@@ -913,29 +929,75 @@ namespace {
         }
       };
 
+      float x0i, x0f, y0i, y0f;
+
+      t1.SetNDC(kFALSE);
+      t1.SetTextSize(0.047);
       for (unsigned int c = 1; c <= 3; c++) {
+        x0i = cutFunctorInitial(c).x() * 10;  // transform cm to mm (x10)
+        x0f = cutFunctorFinal(c).x() * 10;
+        y0i = cutFunctorInitial(c).y() * 10;
+        y0f = cutFunctorFinal(c).y() * 10;
+
         canvas.cd(c);
         histos[c - 1]->Draw();
 
-        std::cout << "initial :" << c << " " << cutFunctorInitial(c).x() * 10 << "," << cutFunctorInitial(c).y() * 10
-                  << std::endl;
-        std::cout << "final   :" << c << " " << cutFunctorFinal(c).x() * 10 << "," << cutFunctorFinal(c).y() * 10
-                  << std::endl;
+        COUT << "initial x,y " << std::left << std::setw(7) << structures[c - 1] << " (" << x0i << "," << y0i << ") mm"
+             << std::endl;
+        COUT << "final   x,y " << std::left << std::setw(7) << structures[c - 1] << " (" << x0f << "," << y0f << ") mm"
+             << std::endl;
 
-        TMarker *initial = new TMarker(cutFunctorInitial(c).x() * 10, cutFunctorInitial(c).y() * 10, 20);
-        TMarker *final = new TMarker(cutFunctorFinal(c).x() * 10, cutFunctorFinal(c).y() * 10, 22);
+        TMarker *initial = new TMarker(x0i, y0i, 20);
+        TMarker *final = new TMarker(x0f, y0f, 21);
 
         initial->SetMarkerColor(kBlue);
         final->SetMarkerColor(kRed);
-        initial->SetMarkerSize(2);
-        final->SetMarkerSize(2);
+        initial->SetMarkerSize(2.5);
+        final->SetMarkerSize(2.5);
         initial->Draw();
+        t1.SetTextColor(kBlue);
+        t1.DrawLatex(x0i, y0i + 0.3, Form("(%.2f,%.2f)", x0i, y0i));
         final->Draw("same");
+        t1.SetTextColor(kRed);
+        t1.DrawLatex(x0f, y0f + 0.3, Form("(%.2f,%.2f)", x0f, y0f));
       }
 
-      // fourth pad is a special case
+      // fourth pad is a special case for the z coordinate
       canvas.cd(4);
       h2_ZBarycenterDiff->Draw();
+      float z0i, z0f;
+
+      // numbers do agree with:
+
+      std::array<double, 3> hardcodeIdealZPhase0 = {{-41.94909, 0., 41.94909}};  // units are cm
+      std::array<double, 3> hardcodeIdealZPhase1 = {{-39.82911, 0., 39.82911}};  // units are cm
+
+      for (unsigned int c = 1; c <= 3; c++) {
+        // less than pretty but needed to remove the z position of the FPix barycenters != 0
+
+        z0i =
+            (cutFunctorInitial(c).z() - (isInitialPhase0 ? hardcodeIdealZPhase0[c - 1] : hardcodeIdealZPhase1[c - 1])) *
+            10;  // convert to mm
+        z0f =
+            (cutFunctorFinal(c).z() - (isFinalPhase0 ? hardcodeIdealZPhase0[c - 1] : hardcodeIdealZPhase1[c - 1])) * 10;
+
+        TMarker *initial = new TMarker(c - 1, z0i, 20);
+        TMarker *final = new TMarker(c - 1, z0f, 21);
+
+        COUT << "initial   z " << std::left << std::setw(7) << structures[c - 1] << " " << z0i << " mm" << std::endl;
+        COUT << "final     z " << std::left << std::setw(7) << structures[c - 1] << " " << z0f << " mm" << std::endl;
+
+        initial->SetMarkerColor(kBlue);
+        final->SetMarkerColor(kRed);
+        initial->SetMarkerSize(2.5);
+        final->SetMarkerSize(2.5);
+        initial->Draw();
+        t1.SetTextColor(kBlue);
+        t1.DrawLatex(c - 1, z0i - 1.1, Form("(%.2f)", z0i));
+        final->Draw("same");
+        t1.SetTextColor(kRed);
+        t1.DrawLatex(c - 1, z0f + 1., Form("(%.2f)", z0f));
+      }
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
