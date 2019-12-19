@@ -24,6 +24,8 @@ namespace dqm {
     class NavigatorBase {
     public:
       virtual void cd();
+      // cd is identical to setCurrentFolder!
+      DQM_DEPRECATED
       virtual void cd(std::string const& dir);
       // This is the only method that is allowed to change cwd_ value
       virtual void setCurrentFolder(std::string const& fullpath);
