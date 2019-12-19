@@ -195,8 +195,8 @@ G4bool FP420SD::HitExists() {
   G4bool found = false;
 
   //    LogDebug("FP420Sim") << "FP420SD: HCollection=  " << theHC->entries()    <<std::endl;
-
-  for (int j = 0; j < theHC->entries() && !found; j++) {
+  int nhits = theHC->entries();
+  for (int j = 0; j < nhits && !found; j++) {
     FP420G4Hit* aPreviousHit = (*theHC)[j];
     if (aPreviousHit->getTrackID() == primaryID && aPreviousHit->getTimeSliceID() == tSliceID &&
         aPreviousHit->getUnitID() == unitID) {
@@ -333,7 +333,8 @@ void FP420SD::EndOfEvent(G4HCofThisEvent*) {
   //  for (int j=0; j<theHC->entries() && j<100; j++) {
   int nhitsHPS240 = 0;
   int nhitsFP420 = 0;
-  for (int j = 0; j < theHC->entries(); j++) {
+  int nhits = theHC->entries();
+  for (int j = 0; j < nhits; j++) {
     FP420G4Hit* aHit = (*theHC)[j];
     if ((fabs(aHit->getTof()) > 780. && fabs(aHit->getTof()) < 840.))
       ++nhitsHPS240;

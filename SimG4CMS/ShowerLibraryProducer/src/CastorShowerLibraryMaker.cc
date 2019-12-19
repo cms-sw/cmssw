@@ -310,6 +310,7 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent* evt) {
 void CastorShowerLibraryMaker::update(const G4Step* aStep) {
   static thread_local int CurrentPrimary = 0;
   G4Track* trk = aStep->GetTrack();
+  int pvec_size;
   if (trk->GetCurrentStepNumber() == 1) {
     if (trk->GetParentID() == 0) {
       CurrentPrimary = (int)trk->GetDynamicParticle()->GetPDGcode();
@@ -320,7 +321,8 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
       if (DeActivatePhysicsProcess) {
         G4ProcessManager* p_mgr = trk->GetDefinition()->GetProcessManager();
         G4ProcessVector* pvec = p_mgr->GetProcessList();
-        for (int i = 0; i < pvec->size(); i++) {
+        pvec_size = pvec->size();
+        for (int i = 0; i < pvec_size; i++) {
           G4VProcess* proc = (*pvec)(i);
           if (proc->GetProcessName() != "Transportation" && proc->GetProcessName() != "Decay") {
             std::cout << "DeActivating process: " << proc->GetProcessName() << std::endl;
@@ -358,7 +360,8 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
     if (trk->GetParentID() == 0 && DeActivatePhysicsProcess) {
       G4ProcessManager* p_mgr = trk->GetDefinition()->GetProcessManager();
       G4ProcessVector* pvec = p_mgr->GetProcessList();
-      for (int i = 0; i < pvec->size(); i++) {
+      pvec_size = pvec->size();
+      for (int i = 0; i < pvec_size; i++) {
         G4VProcess* proc = (*pvec)(i);
         if (proc->GetProcessName() != "Transportation" && proc->GetProcessName() != "Decay") {
           std::cout << "  Activating process: " << proc->GetProcessName() << std::endl;
@@ -524,8 +527,8 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     }
   }
   // Check for unassociated energy
-
-  if (NEvtAccepted == int(thePrims.size()) && theCAFI->entries() != NHitInEvent) {
+  int thecafi_entries = theCAFI->entries();
+  if (NEvtAccepted == int(thePrims.size()) && thecafi_entries != NHitInEvent) {
     std::cout << "WARNING: Inconsistent Number of Hits -> Hits in collection: " << theCAFI->entries()
               << "   Hits in the showers: " << NHitInEvent << std::endl;
     double miss_energy = 0;
@@ -1025,7 +1028,8 @@ void CastorShowerLibraryMaker::GetMissingEnergy(CaloG4HitCollection* theCAFI, do
   // Get the total deposited energy and the one from hit not associated to a primary
   miss_energy = 0;
   tot_energy = 0;
-  for (int ihit = 0; ihit < theCAFI->entries(); ihit++) {
+  int nhits = theCAFI->entries();
+  for (int ihit = 0; ihit < nhits; ihit++) {
     int id = (*theCAFI)[ihit]->getTrackID();
     tot_energy += (*theCAFI)[ihit]->getEnergyDeposit();
     int hit_prim = 0;

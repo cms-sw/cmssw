@@ -173,7 +173,8 @@ void PrintGeomInfoAction::dumpG4LVLeaf(G4LogicalVolume *lv,
   //--- If a volume is placed n types as daughter of this LV, it should only be counted once
   std::map<G4LogicalVolume *, unsigned int> lvCount;
   std::map<G4LogicalVolume *, unsigned int>::const_iterator cite;
-  for (int ii = 0; ii < lv->GetNoDaughters(); ii++) {
+  int siz = lv->GetNoDaughters();
+  for (int ii = 0; ii < siz; ii++) {
     cite = lvCount.find(lv->GetDaughter(ii)->GetLogicalVolume());
     if (cite != lvCount.end())
       lvCount[cite->first] = (cite->second) + 1;
