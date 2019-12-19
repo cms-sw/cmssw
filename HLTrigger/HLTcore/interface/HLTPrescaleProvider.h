@@ -21,6 +21,7 @@
 #include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -44,11 +45,12 @@ public:
   /// Run-dependent initialisation (non-const method)
   ///   "init" return value indicates whether intitialisation has succeeded
   ///   "changed" parameter indicates whether the config has actually changed
+  ///   This must be called at beginRun for most of the other functions in this class to succeed
   bool init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
   HLTConfigProvider const& hltConfigProvider() const { return hltConfigProvider_; }
-  L1GtUtils const& l1GtUtils() const { return l1GtUtils_; }
-  l1t::L1TGlobalUtil const& l1tGlobalUtil() const { return l1tGlobalUtil_; }
+  L1GtUtils const& l1GtUtils() const;
+  l1t::L1TGlobalUtil const& l1tGlobalUtil() const;
 
   /// HLT prescale values via (L1) EventSetup
   /// current (default) prescale set index - to be taken from L1GtUtil via Event
@@ -72,10 +74,14 @@ public:
   bool rejectedByHLTPrescaler(const edm::TriggerResults& triggerResults, unsigned int i) const;
 
 private:
+  void checkL1GtUtils() const;
+  void checkL1TGlobalUtil() const;
+
   HLTConfigProvider hltConfigProvider_;
-  L1GtUtils l1GtUtils_;
-  l1t::L1TGlobalUtil l1tGlobalUtil_;
+  std::unique_ptr<L1GtUtils> l1GtUtils_;
+  std::unique_ptr<l1t::L1TGlobalUtil> l1tGlobalUtil_;
   unsigned char count_[5] = {0, 0, 0, 0, 0};
+  bool inited_ = false;
 };
 
 template <typename T>
@@ -83,6 +89,12 @@ HLTPrescaleProvider::HLTPrescaleProvider(edm::ParameterSet const& pset, edm::Con
     : HLTPrescaleProvider(pset, iC, module) {}
 
 template <typename T>
-HLTPrescaleProvider::HLTPrescaleProvider(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, T& module)
-    : l1GtUtils_(pset, iC, false, module), l1tGlobalUtil_(pset, iC, module) {}
+HLTPrescaleProvider::HLTPrescaleProvider(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, T& module) {
+  unsigned int stageL1Trigger = pset.getParameter<unsigned int>("stageL1Trigger");
+  if (stageL1Trigger <= 1) {
+    l1GtUtils_ = std::make_unique<L1GtUtils>(pset, iC, false, module, L1GtUtils::UseEventSetupIn::Run);
+  } else {
+    l1tGlobalUtil_ = std::make_unique<l1t::L1TGlobalUtil>(pset, iC, module, l1t::UseEventSetupIn::Run);
+  }
+}
 #endif

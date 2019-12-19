@@ -23,6 +23,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -42,6 +46,8 @@ class GenericTriggerEventFlag {
   std::unique_ptr<l1t::L1TGlobalUtil> l1uGt_;
   HLTConfigProvider hltConfig_;
   bool hltConfigInit_;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1GtTriggerMenuToken_;
+  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> alCaRecoTriggerBitsToken_;
   // Configuration parameters
   bool andOr_;
   std::string dbLabel_;
@@ -91,16 +97,39 @@ public:
   //however I set things up such that its an error to try and configure the stage-1 L1 here
   //hence the extra private constructor
   //tldr: use these constructors, not the other two if unsure, if you get it wrong, there'll be an error
-  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
-      : GenericTriggerEventFlag(config, iC) {}
-  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC);
+  //
+  //The last constructor argument declares whether EventSetup
+  //information is retrieved during beginRun, during the Event,
+  //or during both. This is needed to declare which EventSetup
+  //products are consumed. In the future, this will affect
+  //when prefetching is done. Declare both and it will always
+  //work, but there is some performance advantage to only
+  //declaring the necessary one. With only a few exceptions,
+  //existing clients call both initRun and accept (the two main
+  //functions in this class getting EventSetup data), so EventSetup
+  //objects might be retrieved in both periods. The argument defaults
+  //to this. The function expressionsFromDB also gets data from
+  //the EventSetup and is called by a few clients.
+  GenericTriggerEventFlag(const edm::ParameterSet& config,
+                          edm::ConsumesCollector&& iC,
+                          l1t::UseEventSetupIn use = l1t::UseEventSetupIn::RunAndEvent)
+      : GenericTriggerEventFlag(config, iC, use) {}
+  GenericTriggerEventFlag(const edm::ParameterSet& config,
+                          edm::ConsumesCollector& iC,
+                          l1t::UseEventSetupIn use = l1t::UseEventSetupIn::RunAndEvent);
 
   // Constructors must be called from the ED module's c'tor
   template <typename T>
-  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector&& iC, T& module);
+  GenericTriggerEventFlag(const edm::ParameterSet& config,
+                          edm::ConsumesCollector&& iC,
+                          T& module,
+                          l1t::UseEventSetupIn use = l1t::UseEventSetupIn::RunAndEvent);
 
   template <typename T>
-  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, T& module);
+  GenericTriggerEventFlag(const edm::ParameterSet& config,
+                          edm::ConsumesCollector& iC,
+                          T& module,
+                          l1t::UseEventSetupIn use = l1t::UseEventSetupIn::RunAndEvent);
 
   // Public methods
   bool on() { return on_; }
@@ -146,23 +175,34 @@ public:
   std::string l1DBKey() { return l1DBKey_; }    // can be empty
   std::string hltDBKey() { return hltDBKey_; }  // can be empty
 
+  // Must be called only during beginRun
   std::vector<std::string> expressionsFromDB(const std::string& key, const edm::EventSetup& setup);
 };
 
 template <typename T>
 GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config,
                                                  edm::ConsumesCollector&& iC,
-                                                 T& module)
-    : GenericTriggerEventFlag(config, iC, module) {}
+                                                 T& module,
+                                                 l1t::UseEventSetupIn use)
+    : GenericTriggerEventFlag(config, iC, module, use) {}
 
 template <typename T>
-GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, T& module)
+GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config,
+                                                 edm::ConsumesCollector& iC,
+                                                 T& module,
+                                                 l1t::UseEventSetupIn use)
     : GenericTriggerEventFlag(config, iC, true) {
-  if (config.exists("andOrL1")) {
+  if (on_ && config.exists("andOrL1")) {
     if (stage2_) {
-      l1uGt_ = std::make_unique<l1t::L1TGlobalUtil>(config, iC);
+      l1uGt_ = std::make_unique<l1t::L1TGlobalUtil>(config, iC, use);
     } else {
-      l1Gt_ = std::make_unique<L1GtUtils>(config, iC, false, module);
+      L1GtUtils::UseEventSetupIn useL1GtUtilsIn = L1GtUtils::UseEventSetupIn::Run;
+      if (use == l1t::UseEventSetupIn::RunAndEvent) {
+        useL1GtUtilsIn = L1GtUtils::UseEventSetupIn::RunAndEvent;
+      } else if (use == l1t::UseEventSetupIn::Event) {
+        useL1GtUtilsIn = L1GtUtils::UseEventSetupIn::Event;
+      }
+      l1Gt_ = std::make_unique<L1GtUtils>(config, iC, false, module, useL1GtUtilsIn);
     }
   }
   //these pointers are already null so no need to reset them to a nullptr

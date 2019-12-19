@@ -1,14 +1,14 @@
 /**
  * \class L1GtUtils
- * 
- * 
+ *
+ *
  * Description: various methods for L1 GT, to be called in an EDM analyzer, producer or filter.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  *
  */
 
@@ -23,29 +23,10 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoTechTrigRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // constructor(s)
-L1GtUtils::L1GtUtils()
+L1GtUtils::L1GtUtils(edm::ConsumesCollector& iC, UseEventSetupIn useEventSetupIn)
     :
 
       m_l1GtStableParCacheID(0ULL),
@@ -79,14 +60,46 @@ L1GtUtils::L1GtUtils()
       m_retrieveL1GtTriggerMenuLite(false)
 
 {
-  // empty
+  if (useEventSetupIn == UseEventSetupIn::Run || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
+    m_L1GtStableParametersRunToken =
+        iC.esConsumes<L1GtStableParameters, L1GtStableParametersRcd, edm::Transition::BeginRun>();
+    m_L1GtPrescaleFactorsAlgoTrigRunToken =
+        iC.esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd, edm::Transition::BeginRun>();
+    m_L1GtPrescaleFactorsTechTrigRunToken =
+        iC.esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd, edm::Transition::BeginRun>();
+    m_L1GtTriggerMaskAlgoTrigRunToken =
+        iC.esConsumes<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd, edm::Transition::BeginRun>();
+    m_L1GtTriggerMaskTechTrigRunToken =
+        iC.esConsumes<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd, edm::Transition::BeginRun>();
+    m_L1GtTriggerMaskVetoAlgoTrigRunToken =
+        iC.esConsumes<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd, edm::Transition::BeginRun>();
+    m_L1GtTriggerMaskVetoTechTrigRunToken =
+        iC.esConsumes<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd, edm::Transition::BeginRun>();
+    m_L1GtTriggerMenuRunToken = iC.esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd, edm::Transition::BeginRun>();
+  }
+  if (useEventSetupIn == UseEventSetupIn::Event || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
+    m_L1GtStableParametersEventToken = iC.esConsumes<L1GtStableParameters, L1GtStableParametersRcd>();
+    m_L1GtPrescaleFactorsAlgoTrigEventToken = iC.esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd>();
+    m_L1GtPrescaleFactorsTechTrigEventToken = iC.esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd>();
+    m_L1GtTriggerMaskAlgoTrigEventToken = iC.esConsumes<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd>();
+    m_L1GtTriggerMaskTechTrigEventToken = iC.esConsumes<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd>();
+    m_L1GtTriggerMaskVetoAlgoTrigEventToken = iC.esConsumes<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd>();
+    m_L1GtTriggerMaskVetoTechTrigEventToken = iC.esConsumes<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd>();
+    m_L1GtTriggerMenuEventToken = iC.esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd>();
+  }
 }
 
-L1GtUtils::L1GtUtils(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC, bool useL1GtTriggerMenuLite)
-    : L1GtUtils(pset, iC, useL1GtTriggerMenuLite) {}
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector&& iC,
+                     bool useL1GtTriggerMenuLite,
+                     UseEventSetupIn useEventSetupIn)
+    : L1GtUtils(pset, iC, useL1GtTriggerMenuLite, useEventSetupIn) {}
 
-L1GtUtils::L1GtUtils(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, bool useL1GtTriggerMenuLite)
-    : L1GtUtils() {
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector& iC,
+                     bool useL1GtTriggerMenuLite,
+                     UseEventSetupIn useEventSetupIn)
+    : L1GtUtils(iC, useEventSetupIn) {
   m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset, iC, useL1GtTriggerMenuLite));
 }
 
@@ -105,11 +118,13 @@ const std::string L1GtUtils::triggerCategory(const TriggerCategory& trigCategory
     }
 
     break;
-    default: { return EmptyString; } break;
+    default: {
+      return EmptyString;
+    } break;
   }
 }
 
-void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
+void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup, bool isRun) {
   //
   m_retrieveL1EventSetup = true;
 
@@ -119,12 +134,15 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
   // get / update the stable parameters from the EventSetup
   // local cache & check on cacheIdentifier
 
-  unsigned long long l1GtStableParCacheID = evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
+  auto l1GtStableParametersRcd = evSetup.get<L1GtStableParametersRcd>();
+  unsigned long long l1GtStableParCacheID = l1GtStableParametersRcd.cacheIdentifier();
 
   if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
-    edm::ESHandle<L1GtStableParameters> l1GtStablePar;
-    evSetup.get<L1GtStableParametersRcd>().get(l1GtStablePar);
-    m_l1GtStablePar = l1GtStablePar.product();
+    if (isRun) {
+      m_l1GtStablePar = &l1GtStableParametersRcd.get(m_L1GtStableParametersRunToken);
+    } else {
+      m_l1GtStablePar = &l1GtStableParametersRcd.get(m_L1GtStableParametersEventToken);
+    }
 
     // number of algorithm triggers
     m_numberAlgorithmTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
@@ -144,24 +162,30 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
   // get / update the prescale factors from the EventSetup
   // local cache & check on cacheIdentifier
 
-  unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().cacheIdentifier();
+  auto l1GtPrescaleFactorsAlgoTrigRcd = evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>();
+  unsigned long long l1GtPfAlgoCacheID = l1GtPrescaleFactorsAlgoTrigRcd.cacheIdentifier();
 
   if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-    evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-    m_l1GtPfAlgo = l1GtPfAlgo.product();
+    if (isRun) {
+      m_l1GtPfAlgo = &l1GtPrescaleFactorsAlgoTrigRcd.get(m_L1GtPrescaleFactorsAlgoTrigRunToken);
+    } else {
+      m_l1GtPfAlgo = &l1GtPrescaleFactorsAlgoTrigRcd.get(m_L1GtPrescaleFactorsAlgoTrigEventToken);
+    }
 
     m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
 
     m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
   }
 
-  unsigned long long l1GtPfTechCacheID = evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().cacheIdentifier();
+  auto l1GtPrescaleFactorsTechTrigRcd = evSetup.get<L1GtPrescaleFactorsTechTrigRcd>();
+  unsigned long long l1GtPfTechCacheID = l1GtPrescaleFactorsTechTrigRcd.cacheIdentifier();
 
   if (m_l1GtPfTechCacheID != l1GtPfTechCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
-    evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
-    m_l1GtPfTech = l1GtPfTech.product();
+    if (isRun) {
+      m_l1GtPfTech = &l1GtPrescaleFactorsTechTrigRcd.get(m_L1GtPrescaleFactorsTechTrigRunToken);
+    } else {
+      m_l1GtPfTech = &l1GtPrescaleFactorsTechTrigRcd.get(m_L1GtPrescaleFactorsTechTrigEventToken);
+    }
 
     m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
 
@@ -171,48 +195,63 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
   // get / update the trigger mask from the EventSetup
   // local cache & check on cacheIdentifier
 
-  unsigned long long l1GtTmAlgoCacheID = evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
+  auto l1GtTriggerMaskAlgoTrigRcd = evSetup.get<L1GtTriggerMaskAlgoTrigRcd>();
+  unsigned long long l1GtTmAlgoCacheID = l1GtTriggerMaskAlgoTrigRcd.cacheIdentifier();
 
   if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-    evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-    m_l1GtTmAlgo = l1GtTmAlgo.product();
+    if (isRun) {
+      m_l1GtTmAlgo = &l1GtTriggerMaskAlgoTrigRcd.get(m_L1GtTriggerMaskAlgoTrigRunToken);
+    } else {
+      m_l1GtTmAlgo = &l1GtTriggerMaskAlgoTrigRcd.get(m_L1GtTriggerMaskAlgoTrigEventToken);
+    }
 
     m_triggerMaskAlgoTrig = &(m_l1GtTmAlgo->gtTriggerMask());
 
     m_l1GtTmAlgoCacheID = l1GtTmAlgoCacheID;
   }
 
-  unsigned long long l1GtTmTechCacheID = evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
+  auto l1GtTriggerMaskTechTrigRcd = evSetup.get<L1GtTriggerMaskTechTrigRcd>();
+  unsigned long long l1GtTmTechCacheID = l1GtTriggerMaskTechTrigRcd.cacheIdentifier();
 
   if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-    evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
-    m_l1GtTmTech = l1GtTmTech.product();
+    if (isRun) {
+      m_l1GtTmTech = &l1GtTriggerMaskTechTrigRcd.get(m_L1GtTriggerMaskTechTrigRunToken);
+    } else {
+      m_l1GtTmTech = &l1GtTriggerMaskTechTrigRcd.get(m_L1GtTriggerMaskTechTrigEventToken);
+    }
 
     m_triggerMaskTechTrig = &(m_l1GtTmTech->gtTriggerMask());
 
     m_l1GtTmTechCacheID = l1GtTmTechCacheID;
   }
 
-  unsigned long long l1GtTmVetoAlgoCacheID = evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().cacheIdentifier();
+  auto l1GtTriggerMaskVetoAlgoTrigRcd = evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>();
+  unsigned long long l1GtTmVetoAlgoCacheID = l1GtTriggerMaskVetoAlgoTrigRcd.cacheIdentifier();
 
   if (m_l1GtTmVetoAlgoCacheID != l1GtTmVetoAlgoCacheID) {
     edm::ESHandle<L1GtTriggerMask> l1GtTmVetoAlgo;
     evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().get(l1GtTmVetoAlgo);
     m_l1GtTmVetoAlgo = l1GtTmVetoAlgo.product();
+    if (isRun) {
+      m_l1GtTmVetoAlgo = &l1GtTriggerMaskVetoAlgoTrigRcd.get(m_L1GtTriggerMaskVetoAlgoTrigRunToken);
+    } else {
+      m_l1GtTmVetoAlgo = &l1GtTriggerMaskVetoAlgoTrigRcd.get(m_L1GtTriggerMaskVetoAlgoTrigEventToken);
+    }
 
     m_triggerMaskVetoAlgoTrig = &(m_l1GtTmVetoAlgo->gtTriggerMask());
 
     m_l1GtTmVetoAlgoCacheID = l1GtTmVetoAlgoCacheID;
   }
 
-  unsigned long long l1GtTmVetoTechCacheID = evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().cacheIdentifier();
+  auto l1GtTriggerMaskVetoTechTrigRcd = evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>();
+  unsigned long long l1GtTmVetoTechCacheID = l1GtTriggerMaskVetoTechTrigRcd.cacheIdentifier();
 
   if (m_l1GtTmVetoTechCacheID != l1GtTmVetoTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoTech;
-    evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().get(l1GtTmVetoTech);
-    m_l1GtTmVetoTech = l1GtTmVetoTech.product();
+    if (isRun) {
+      m_l1GtTmVetoTech = &l1GtTriggerMaskVetoTechTrigRcd.get(m_L1GtTriggerMaskVetoTechTrigRunToken);
+    } else {
+      m_l1GtTmVetoTech = &l1GtTriggerMaskVetoTechTrigRcd.get(m_L1GtTriggerMaskVetoTechTrigEventToken);
+    }
 
     m_triggerMaskVetoTechTrig = &(m_l1GtTmVetoTech->gtTriggerMask());
 
@@ -222,12 +261,18 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
   // get / update the trigger menu from the EventSetup
   // local cache & check on cacheIdentifier
 
-  unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
+  auto l1GtTriggerMenuRcd = evSetup.get<L1GtTriggerMenuRcd>();
+  unsigned long long l1GtMenuCacheID = l1GtTriggerMenuRcd.cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
     edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
     evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
     m_l1GtMenu = l1GtMenu.product();
+    if (isRun) {
+      m_l1GtMenu = &l1GtTriggerMenuRcd.get(m_L1GtTriggerMenuRunToken);
+    } else {
+      m_l1GtMenu = &l1GtTriggerMenuRcd.get(m_L1GtTriggerMenuEventToken);
+    }
 
     m_algorithmMap = &(m_l1GtMenu->gtAlgorithmMap());
     m_algorithmAliasMap = &(m_l1GtMenu->gtAlgorithmAliasMap());
@@ -282,7 +327,8 @@ void L1GtUtils::getL1GtRunCache(const edm::Run& iRun,
   // if requested, retrieve and cache L1 event setup
   // keep the caching based on cacheIdentifier() for each record
   if (useL1EventSetup) {
-    retrieveL1EventSetup(evSetup);
+    bool isRun = true;
+    retrieveL1EventSetup(evSetup, isRun);
   }
 
   // cached per run
@@ -304,7 +350,8 @@ void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
     // if requested, retrieve and cache L1 event setup
     // keep the caching based on cacheIdentifier() for each record
     if (useL1EventSetup) {
-      retrieveL1EventSetup(evSetup);
+      bool isRun = false;
+      retrieveL1EventSetup(evSetup, isRun);
     }
   }
 
