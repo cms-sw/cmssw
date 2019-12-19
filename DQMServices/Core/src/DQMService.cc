@@ -5,7 +5,6 @@
 #include "DQMServices/Core/interface/DQMScope.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "classlib/utils/Regexp.h"
 #include "classlib/utils/Error.h"
 #include <mutex>
 #include <iostream>
@@ -25,7 +24,7 @@ DQMScope::~DQMScope() { s_mutex.unlock(); }
 
 // -------------------------------------------------------------------
 DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
-    : store_(&*edm::Service<DQMStore>()), net_(nullptr), filter_(nullptr), lastFlush_(0), publishFrequency_(5.0) {
+    : store_(&*edm::Service<DQMStore>()), net_(nullptr), lastFlush_(0), publishFrequency_(5.0) {
   ar.watchPostEvent(this, &DQMService::flush);
   ar.watchPostStreamEndLumi(this, &DQMService::flush);
 
@@ -33,27 +32,12 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   int port = pset.getUntrackedParameter<int>("collectorPort", 9090);
   bool verbose = pset.getUntrackedParameter<bool>("verbose", false);
   publishFrequency_ = pset.getUntrackedParameter<double>("publishFrequency", publishFrequency_);
-  std::string filter = pset.getUntrackedParameter<std::string>("filter", "");
 
   if (!host.empty() && port > 0) {
     net_ = new DQMBasicNet;
     net_->debug(verbose);
     net_->updateToCollector(host, port);
     net_->start();
-  }
-
-  if (!filter.empty()) {
-    try {
-      filter_ = new lat::Regexp(filter);
-      if (!filter_->valid())
-        throw cms::Exception("DQMService") << "Invalid 'filter' parameter value '" << filter << "':"
-                                           << " bad regular expression syntax at character " << filter_->errorOffset()
-                                           << ": " << filter_->errorMessage();
-      filter_->study();
-    } catch (lat::Error &e) {
-      throw cms::Exception("DQMService") << "Invalid regular expression 'filter' parameter value '" << filter
-                                         << "': " << e.explain();
-    }
   }
 }
 
@@ -79,7 +63,49 @@ void DQMService::flushStandalone() {
     net_->lock();
     bool updated = false;
 
-    // TODO: re-implement sending MEs.
+    auto mes = store_->getAllContents("");
+    for (MonitorElement *me : mes) {
+      auto fullpath = me->getFullname();
+      seen.insert(fullpath);
+      if (!me->wasUpdated())
+        continue;
+
+      o.lastreq = 0;
+      o.hash = DQMNet::dqmhash(fullpath.c_str(), fullpath.size());
+      o.flags = me->data_.flags;
+      o.version = version;
+      o.dirname = me->data_.dirname;
+      o.objname = me->data_.objname;
+      assert(o.rawdata.empty());
+      assert(o.scalar.empty());
+      assert(o.qdata.empty());
+
+      // Pack object and reference, scalar and quality data.
+
+      switch (me->kind()) {
+        case MonitorElement::Kind::INT:
+        case MonitorElement::Kind::REAL:
+        case MonitorElement::Kind::STRING:
+          me->packScalarData(o.scalar, "");
+          break;
+        default: {
+          TBufferFile buffer(TBufferFile::kWrite);
+          buffer.WriteObject(me->getTH1());
+          // placeholder for (no longer supported) reference
+          buffer.WriteObjectAny(nullptr, nullptr);
+          o.rawdata.resize(buffer.Length());
+          memcpy(&o.rawdata[0], buffer.Buffer(), buffer.Length());
+          DQMNet::packQualityData(o.qdata, me->data_.qreports);
+          break;
+        }
+      }
+
+      net_->updateLocalObject(o);
+      DQMNet::DataBlob().swap(o.rawdata);
+      std::string().swap(o.scalar);
+      std::string().swap(o.qdata);
+      updated = true;
+    }
 
     // Find removed contents and clear the network cache.
     if (net_->removeLocalExcept(seen))
