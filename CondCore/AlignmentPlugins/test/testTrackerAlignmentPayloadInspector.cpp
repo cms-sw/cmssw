@@ -50,4 +50,14 @@ int main(int argc, char** argv) {
   histo5.processTwoTags(
       connectionString, "TrackerAlignment_2017_ultralegacymc_v2", "TrackerAlignment_Upgrade2017_realistic_v2", 1, 1);
   std::cout << histo5.data() << std::endl;
+
+  std::cout << "## Testing Barycenter Histos" << std::endl;
+
+  TrackerAlignmentBarycentersCompare histo6;
+  histo6.process(connectionString, tag, runTimeType, start, end);
+  std::cout << histo6.data() << std::endl;
+
+  PixelBarycentersCompare histo7;
+  histo7.process(connectionString, tag, runTimeType, start, end);
+  std::cout << histo7.data() << std::endl;
 }
