@@ -659,9 +659,11 @@ namespace dqm::implementation {
     // This is no more than a guess with concurrent runs/lumis, but should be
     // correct for purely sequential legacy stuff.
     // These transitions should only affect non-DQM*EDAnalyzer based code.
+    // Also reset Scope, such that legacy modules can expect it to be JOB.
     ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) {
       this->setRunLumi(gc.luminosityBlockID());
       this->enterLumi(gc.luminosityBlockID().run(), /* lumi */ 0, /* moduleID */ 0);
+      this->setScope(MonitorElementData::Scope::JOB);
     });
     ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) {
       this->setRunLumi(gc.luminosityBlockID());
