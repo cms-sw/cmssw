@@ -6,5 +6,6 @@ TTTrackAssociatorFromPixelDigis = cms.EDProducer("TTTrackAssociator_Phase2Tracke
     ),
     TTClusterTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
     TTStubTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
+    TTTrackAllowOneFalse2SStub = cms.bool(False),
 )
 
