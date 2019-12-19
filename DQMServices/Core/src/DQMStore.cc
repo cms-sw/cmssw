@@ -15,8 +15,8 @@ namespace dqm::implementation {
 
   std::string const& NavigatorBase::pwd() { return cwd_; }
   void NavigatorBase::cd() { setCurrentFolder(""); }
-  void NavigatorBase::cd(std::string const& dir) { setCurrentFolder(cwd_ + dir); }
-  void NavigatorBase::goUp() { cd(".."); }
+  void NavigatorBase::cd(std::string const& dir) { setCurrentFolder(dir); }
+  void NavigatorBase::goUp() { cd(cwd_ + ".."); }
   void NavigatorBase::setCurrentFolder(std::string const& fullpath) {
     MonitorElementData::Path path;
     path.set(fullpath, MonitorElementData::Path::Type::DIR);
