@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+import numpy as np
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-Nx=40
-Ny=40
+
+Nx=60
+Ny=60
 
 # PSet for the histos
 ClusterSize1D = cms.PSet(
@@ -23,13 +25,13 @@ DigiCharge1D = cms.PSet(
     )
 TrackAngleDxdz = cms.PSet(
     Nxbins = cms.int32(300),
-    xmin = cms.double(-1.58),
-    xmax = cms.double(1.58)
+    xmin = cms.double(-np.radians(3.0)),
+    xmax = cms.double(np.radians(3.0))
     )
 TrackAngleDydz = cms.PSet(
     Nxbins = cms.int32(300),
-    xmin = cms.double(-1.58),
-    xmax = cms.double(1.58)
+    xmin = cms.double(-np.radians(3.0)),
+    xmax = cms.double(np.radians(3.0))
     )
 Dx1D = cms.PSet(
     Nxbins = cms.int32(300),
@@ -93,8 +95,8 @@ Dy = cms.PSet(
     )
 
 dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
-    TracksEntryAngleX = cms.untracked.vdouble(0.0),
-    TracksEntryAngleY = cms.untracked.vdouble(0.0),
+    TracksEntryAngleX = cms.untracked.vdouble(-np.radians(2.0),np.radians(2.0)),
+    TracksEntryAngleY = cms.untracked.vdouble(-np.radians(2.0),np.radians(2.0)),
     TopFolderName = cms.string("PixelCell"),
     PixelDigiSource = cms.InputTag("simSiPixelDigis","Pixel"),
     PixelDigiSimSource = cms.InputTag("simSiPixelDigis", "Pixel"),

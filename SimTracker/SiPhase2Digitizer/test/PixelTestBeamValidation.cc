@@ -107,6 +107,11 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
     {
         // The algorithm is defined in the implementation of _check_input_angles_
         use_this_track_= std::bind(&PixelTestBeamValidation::_check_input_angles_,this, std::placeholders::_1);
+        //edm::LogInfo("Configuration") << "Considering hits from tracks entering the detectors between\n " 
+        std::cout << "Configuration " << "Considering hits from tracks entering the detectors between\n " 
+            << "\tX-plane: (" << active_entry_angles_[0].first << "," << active_entry_angles_[0].second << ") rad. "
+            << "\tY-plane: (" << active_entry_angles_[1].first << "," << active_entry_angles_[1].second << ") rad. "
+            << std::endl;
     }
     else
     {
@@ -291,6 +296,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
                     // Accepting +-2 pixel -- XXX: Actually the entryPoint-exitPoint 
                     // could provide the extension of the cluster
                     //if( ! channel_iluminated_by_(psh_pos,ch,2.0) )
+                    // XXX FIXME: CHANGE the loop in order to use get_illuminated_pixels_ XXX
                     if( ! channel_iluminated_by_(*ps,ch,tkDetUnit) )
                     {
                         continue;
@@ -344,7 +350,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
                     vME_dy1D_[me_unit]->Fill(dy_um);
                 }
                 // Histograms per cell
-                for(unsigned int i =1; i < vME_position_cell_[me_unit].size(); ++i)
+                for(unsigned int i =0; i < vME_position_cell_[me_unit].size(); ++i)
                 {
                     // Convert the PSimHit center position to the IxI-cell 
                     const std::pair<double,double> icell_psh = pixel_cell_transformation_(psh_pos,i,pitch);
@@ -475,11 +481,11 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
             // The histos per cell
             // Prepare the ranges: 0- whole sensor, 1- cell 1x1, 2-cell 2x2,
             const std::vector<std::pair<double,double>> xranges = {
-                std::make_pair<double,double>(0,nrows-1),
+                std::make_pair<double,double>(0,(nrows-1)*pitch.first/unit_um),
                 std::make_pair<double,double>(0,pitch.first/unit_um),
                 std::make_pair<double,double>(0,2.0*pitch.first/unit_um) };
             const std::vector<std::pair<double,double>> yranges = {
-                std::make_pair<double,double>(0,ncols-1),
+                std::make_pair<double,double>(0,(ncols-1)*pitch.second/unit_um),
                 std::make_pair<double,double>(0,pitch.second/unit_um),
                 std::make_pair<double,double>(0,2.0*pitch.second/unit_um) };
             for(unsigned int i = 0; i < xranges.size(); ++i)
@@ -507,7 +513,7 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
                             yranges[i]));
                 vME_charge_cell_[me_unit].push_back(setupProf2D_(ibooker,
                             "Charge_"+std::to_string(i),
-                            cell+"MC-truth charge;x [#mum];y [#mum];<Cluster size>",
+                            cell+"MC-truth charge;x [#mum];y [#mum];<ToT>",
                             xranges[i],
                             yranges[i]));
                 vME_dx_cell_[me_unit].push_back(setupProf2D_(ibooker,
@@ -686,9 +692,20 @@ const std::pair<double,double> PixelTestBeamValidation::pixel_cell_transformatio
         unsigned int icell,
         const std::pair<double,double> & pitch)
 {
-    // XXX - If icell == 0 -> get the nrow and ncol ?
-    const double xcell = std::fmod(pos.first,icell)*pitch.first;
-    const double ycell = std::fmod(pos.second,icell)*pitch.second;
+    // Get the position modulo icell
+    // Case the whole detector (icell==0)
+    double xmod = pos.first;
+    double ymod = pos.second;
+
+    // Actual pixel cells
+    if(icell != 0)
+    {
+        xmod = std::fmod(pos.first,icell);
+        ymod = std::fmod(pos.second,icell);
+    }
+
+    const double xcell = xmod*pitch.first;
+    const double ycell = ymod*pitch.second;
 
     return std::pair<double,double>({xcell,ycell});
 }
