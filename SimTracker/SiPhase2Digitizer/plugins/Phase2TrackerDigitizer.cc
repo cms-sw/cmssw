@@ -22,6 +22,7 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/PSSDigitizerAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/PSPDigitizerAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/PixelDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Pixel3DDigitizerAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/DigitizerUtility.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -109,6 +110,7 @@ namespace cms {
     }
     // creating algorithm objects and pushing them into the map
     algomap_[AlgorithmType::InnerPixel] = std::make_unique<PixelDigitizerAlgorithm>(iConfig);
+    algomap_[AlgorithmType::InnerPixel3D] = std::make_unique<Pixel3DDigitizerAlgorithm>(iConfig);
     algomap_[AlgorithmType::PixelinPS] = std::make_unique<PSPDigitizerAlgorithm>(iConfig);
     algomap_[AlgorithmType::StripinPS] = std::make_unique<PSSDigitizerAlgorithm>(iConfig);
     algomap_[AlgorithmType::TwoStrip] = std::make_unique<SSDigitizerAlgorithm>(iConfig);
@@ -255,19 +257,26 @@ namespace cms {
       mType = pDD_->getDetectorType(detId);
       moduleTypeCache_.emplace(detId_raw, mType);
     }
+    
+    // Helper var to switch between InnerPixel or InnerPixel3D digitizers
+    bool is_inner = false;
 
     switch (mType) {
       case TrackerGeometry::ModuleType::Ph1PXB:
-        algotype = AlgorithmType::InnerPixel;
+        is_inner = true;
+        //algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph1PXF:
-        algotype = AlgorithmType::InnerPixel;
+        is_inner = true;
+        //algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph2PXB:
-        algotype = AlgorithmType::InnerPixel;
+        is_inner = true;
+        //algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph2PXF:
-        algotype = AlgorithmType::InnerPixel;
+        is_inner = true;
+        //algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph2PSP:
         algotype = AlgorithmType::PixelinPS;
@@ -280,6 +289,19 @@ namespace cms {
         break;
       default:
         edm::LogError("Phase2TrackerDigitizer") << "ERROR - Wrong Detector Type, No Algorithm available ";
+    }
+
+    if(is_inner)
+    {
+        const TrackerTopology* tTopo = tTopoHand.product();
+        if(tTopo->getITPixelLayerNumber(detId) <= 2)
+        {
+            algotype = AlgorithmType::InnerPixel3D;
+        }
+        else
+        {
+            algotype = AlgorithmType::InnerPixel;
+        }
     }
 
     return algotype;
@@ -297,8 +319,11 @@ namespace cms {
         continue;
 
       //Decide if we want analog readout for Outer Tracker.
-      if (!ot_analog && algotype != AlgorithmType::InnerPixel)
-        continue;
+      if (!ot_analog 
+              && (algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D) )
+      {
+          continue;
+      }
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
       algomap_[algotype]->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo);
       edm::DetSet<PixelDigi> collector(det_u->geographicalId().rawId());
@@ -360,8 +385,12 @@ namespace cms {
       DetId detId_raw = DetId(det_u->geographicalId().rawId());
       AlgorithmType algotype = getAlgoType(detId_raw);
 
-      if (algomap_.find(algotype) == algomap_.end() || algotype == AlgorithmType::InnerPixel)
-        continue;
+      if (algomap_.find(algotype) == algomap_.end() 
+              || algotype == AlgorithmType::InnerPixel 
+              || algotype == AlgorithmType::InnerPixel3D )
+      {
+          continue;
+      }
 
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
       algomap_[algotype]->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo);
