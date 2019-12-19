@@ -35,7 +35,6 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
 MuonTrackProducer::~MuonTrackProducer() {}
 
 void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-
   iEvent.getByToken(muonsToken, muonCollectionH);
   iEvent.getByToken(inputDTRecSegment4DToken_, dtSegmentCollectionH_);
   iEvent.getByToken(inputCSCSegmentToken_, cscSegmentCollectionH_);
@@ -163,8 +162,8 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       } else if (trackType == "innerTrackPlusSegments") {
         if (muon->innerTrack().isNonnull()) {
           trackref = muon->innerTrack();
-	  addMatchedMuonSegments = true;}
-        else
+          addMatchedMuonSegments = true;
+        } else
           continue;
       } else if (trackType == "rpcMuonTrack") {
         if (muon->innerTrack().isNonnull() && muon->isRPCMuon()) {
@@ -182,99 +181,97 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         } else
           continue;
       } else if (trackType == "tunepTrack") {
-	if (muon->isGlobalMuon() && muon->tunePMuonBestTrack().isNonnull())
-	  trackref = muon->tunePMuonBestTrack();
-	else
-	  continue;
+        if (muon->isGlobalMuon() && muon->tunePMuonBestTrack().isNonnull())
+          trackref = muon->tunePMuonBestTrack();
+        else
+          continue;
       } else if (trackType == "pfTrack") {
-	if (muon->isPFMuon() && muon->muonBestTrack().isNonnull())
-	  trackref = muon->muonBestTrack();
-	else
-	  continue;
+        if (muon->isPFMuon() && muon->muonBestTrack().isNonnull())
+          trackref = muon->muonBestTrack();
+        else
+          continue;
       } else if (trackType == "recomuonTrack") {
+        if (muon->isGlobalMuon())
+          trackref = muon->globalTrack();
+        else if (muon->isTrackerMuon()) {
+          trackref = muon->innerTrack();
+          addMatchedMuonSegments = true;
+        } else if (muon->isStandAloneMuon())
+          trackref = muon->outerTrack();
+        else if (muon->isRPCMuon())
+          trackref = muon->innerTrack();
+        else if (muon->isGEMMuon())
+          trackref = muon->innerTrack();
+        else if (muon->isME0Muon())
+          trackref = muon->innerTrack();
+        else
+          trackref = muon->muonBestTrack();
 
-	if (muon->isGlobalMuon()) trackref = muon->globalTrack();
-	else if (muon->isTrackerMuon()) {trackref = muon->innerTrack(); addMatchedMuonSegments = true;}
-	else if (muon->isStandAloneMuon()) trackref = muon->outerTrack();
-	else if (muon->isRPCMuon()) trackref = muon->innerTrack();
-	else if (muon->isGEMMuon()) trackref = muon->innerTrack();
-	else if (muon->isME0Muon()) trackref = muon->innerTrack();
-	else trackref = muon->muonBestTrack();
+        if (muon->muonBestTrackType() != muon->tunePMuonBestTrackType())
+          edm::LogVerbatim("MuonTrackProducer") << "\n *** PF != TuneP *** \n" << std::endl;
 
-	if (muon->muonBestTrackType() != muon->tunePMuonBestTrackType())
-	  edm::LogVerbatim("MuonTrackProducer") << "\n *** PF != TuneP *** \n"<<std::endl;
+        edm::LogVerbatim("MuonTrackProducer") << "isGlobal     ? " << muon->isGlobalMuon() << std::endl;
+        edm::LogVerbatim("MuonTrackProducer")
+            << "isTracker    ? " << muon->isTrackerMuon() << ", isRPC ? " << muon->isRPCMuon() << ", isGEM ? "
+            << muon->isGEMMuon() << ", isME0 ? " << muon->isME0Muon() << std::endl;
+        edm::LogVerbatim("MuonTrackProducer") << "isStandAlone ? " << muon->isStandAloneMuon() << std::endl;
+        edm::LogVerbatim("MuonTrackProducer") << "isCalo ? " << muon->isCaloMuon() << std::endl;
+        edm::LogVerbatim("MuonTrackProducer") << "isPF         ? " << muon->isPFMuon() << std::endl << std::endl;
 
-	edm::LogVerbatim("MuonTrackProducer")
-	  <<"isGlobal     ? "<< muon->isGlobalMuon() <<std::endl;
-	edm::LogVerbatim("MuonTrackProducer")
-	  <<"isTracker    ? "<< muon->isTrackerMuon()<<", isRPC ? "<< muon->isRPCMuon()
-	  <<", isGEM ? "<< muon->isGEMMuon()<<", isME0 ? "<< muon->isME0Muon()  <<std::endl;
-	edm::LogVerbatim("MuonTrackProducer") <<"isStandAlone ? "<< muon->isStandAloneMuon() <<std::endl;
-	edm::LogVerbatim("MuonTrackProducer") <<"isCalo ? "<< muon->isCaloMuon() <<std::endl;
-	edm::LogVerbatim("MuonTrackProducer") <<"isPF         ? "<< muon->isPFMuon() <<std::endl<<std::endl;
+        edm::LogVerbatim("MuonTrackProducer")
+            << " enum MuonTrackType {None, InnerTrack, OuterTrack, CombinedTrack, TPFMS, Picky, DYT }" << std::endl;
 
-	edm::LogVerbatim("MuonTrackProducer")
-	  << " enum MuonTrackType {None, InnerTrack, OuterTrack, CombinedTrack, TPFMS, Picky, DYT }" << std::endl;
+        edm::LogVerbatim("MuonTrackProducer")
+            << "(muon) pt =   " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << std::endl;
 
-	edm::LogVerbatim("MuonTrackProducer") <<"(muon) pt =   "<<muon->pt()
-					      <<", eta = "<<muon->eta()<<", phi = "<<muon->phi() <<std::endl;
-
-	if (muon->muonBestTrack().isNonnull())
-	  edm::LogVerbatim("MuonTrackProducer") <<"(best) pt =   "<<muon->muonBestTrack()->pt()
-						<<", eta = "<<muon->muonBestTrack()->eta()
-						<<", phi = "<<muon->muonBestTrack()->phi()
-						<<", N mu hits = "<<muon->muonBestTrack()->hitPattern().numberOfValidMuonHits()
-						<<", N trk hits = "<<muon->muonBestTrack()->hitPattern().numberOfValidTrackerHits()
-						<<", MuonTrackType = "<<muon->muonBestTrackType()
-						<<std::endl;
-	if (muon->tunePMuonBestTrack().isNonnull())
-	  edm::LogVerbatim("MuonTrackProducer") <<"(tuneP) pt =  "<<muon->tunePMuonBestTrack()->pt()
-						<<", eta = "<<muon->tunePMuonBestTrack()->eta()
-						<<", phi = "<<muon->tunePMuonBestTrack()->phi()
-						<<", N mu hits = "<<muon->tunePMuonBestTrack()->hitPattern().numberOfValidMuonHits()
-						<<", N trk hits = "<<muon->tunePMuonBestTrack()->hitPattern().numberOfValidTrackerHits()
-						<<", MuonTrackType = "<<muon->tunePMuonBestTrackType()
-						<<std::endl;
-	if (muon->innerTrack().isNonnull())
-	  edm::LogVerbatim("MuonTrackProducer") <<"(inner) pt =  "<<muon->innerTrack()->pt()
-						<<", eta = "<<muon->innerTrack()->eta()
-						<<", phi = "<<muon->innerTrack()->phi()
-						<<", N trk hits = "<<muon->innerTrack()->hitPattern().numberOfValidTrackerHits()
-						<<std::endl;
-	if (muon->globalTrack().isNonnull())
-	  edm::LogVerbatim("MuonTrackProducer") <<"(global) pt = "<<muon->globalTrack()->pt()
-						<<", eta = "<<muon->globalTrack()->eta()
-						<<", phi = "<<muon->globalTrack()->phi()
-						<<", N mu hits = "<<muon->globalTrack()->hitPattern().numberOfValidMuonHits()
-						<<", N trk hits = "<<muon->globalTrack()->hitPattern().numberOfValidTrackerHits()
-						<<std::endl;
-	if (muon->outerTrack().isNonnull())
-	  edm::LogVerbatim("MuonTrackProducer") <<"(outer) pt =  "<<muon->outerTrack()->pt()
-						<<", eta = "<<muon->outerTrack()->eta()
-						<<", phi = "<<muon->outerTrack()->phi()
-						<<", N mu hits = "<<muon->outerTrack()->hitPattern().numberOfValidMuonHits()
-						<<std::endl;
-	if (muon->tpfmsTrack().isNonnull())
-	  edm::LogVerbatim("MuonTrackProducer") <<"(tpfms) pt =  "<<muon->tpfmsTrack()->pt()
-						<<", eta = "<<muon->tpfmsTrack()->eta()
-						<<", phi = "<<muon->tpfmsTrack()->phi()
-						<<", N mu hits = "<<muon->tpfmsTrack()->hitPattern().numberOfValidMuonHits()
-						<<", N trk hits = "<<muon->tpfmsTrack()->hitPattern().numberOfValidTrackerHits()
-						<<std::endl;
-	if (muon->pickyTrack().isNonnull())
-	  edm::LogVerbatim("MuonTrackProducer") <<"(picky) pt =  "<<muon->pickyTrack()->pt()
-						<<", eta = "<<muon->pickyTrack()->eta()
-						<<", phi = "<<muon->pickyTrack()->phi()
-						<<", N mu hits = "<<muon->pickyTrack()->hitPattern().numberOfValidMuonHits()
-						<<", N trk hits = "<<muon->pickyTrack()->hitPattern().numberOfValidTrackerHits()
-						<<std::endl;
-	if (muon->dytTrack().isNonnull())
-	  edm::LogVerbatim("MuonTrackProducer") <<"(dyt) pt =    "<<muon->dytTrack()->pt()
-						<<", eta = "<<muon->dytTrack()->eta()
-						<<", phi = "<<muon->dytTrack()->phi()
-						<<", N mu hits = "<<muon->dytTrack()->hitPattern().numberOfValidMuonHits()
-						<<", N trk hits = "<<muon->dytTrack()->hitPattern().numberOfValidTrackerHits()
-						<<std::endl;
+        if (muon->muonBestTrack().isNonnull())
+          edm::LogVerbatim("MuonTrackProducer")
+              << "(best) pt =   " << muon->muonBestTrack()->pt() << ", eta = " << muon->muonBestTrack()->eta()
+              << ", phi = " << muon->muonBestTrack()->phi()
+              << ", N mu hits = " << muon->muonBestTrack()->hitPattern().numberOfValidMuonHits()
+              << ", N trk hits = " << muon->muonBestTrack()->hitPattern().numberOfValidTrackerHits()
+              << ", MuonTrackType = " << muon->muonBestTrackType() << std::endl;
+        if (muon->tunePMuonBestTrack().isNonnull())
+          edm::LogVerbatim("MuonTrackProducer")
+              << "(tuneP) pt =  " << muon->tunePMuonBestTrack()->pt() << ", eta = " << muon->tunePMuonBestTrack()->eta()
+              << ", phi = " << muon->tunePMuonBestTrack()->phi()
+              << ", N mu hits = " << muon->tunePMuonBestTrack()->hitPattern().numberOfValidMuonHits()
+              << ", N trk hits = " << muon->tunePMuonBestTrack()->hitPattern().numberOfValidTrackerHits()
+              << ", MuonTrackType = " << muon->tunePMuonBestTrackType() << std::endl;
+        if (muon->innerTrack().isNonnull())
+          edm::LogVerbatim("MuonTrackProducer")
+              << "(inner) pt =  " << muon->innerTrack()->pt() << ", eta = " << muon->innerTrack()->eta()
+              << ", phi = " << muon->innerTrack()->phi()
+              << ", N trk hits = " << muon->innerTrack()->hitPattern().numberOfValidTrackerHits() << std::endl;
+        if (muon->globalTrack().isNonnull())
+          edm::LogVerbatim("MuonTrackProducer")
+              << "(global) pt = " << muon->globalTrack()->pt() << ", eta = " << muon->globalTrack()->eta()
+              << ", phi = " << muon->globalTrack()->phi()
+              << ", N mu hits = " << muon->globalTrack()->hitPattern().numberOfValidMuonHits()
+              << ", N trk hits = " << muon->globalTrack()->hitPattern().numberOfValidTrackerHits() << std::endl;
+        if (muon->outerTrack().isNonnull())
+          edm::LogVerbatim("MuonTrackProducer")
+              << "(outer) pt =  " << muon->outerTrack()->pt() << ", eta = " << muon->outerTrack()->eta()
+              << ", phi = " << muon->outerTrack()->phi()
+              << ", N mu hits = " << muon->outerTrack()->hitPattern().numberOfValidMuonHits() << std::endl;
+        if (muon->tpfmsTrack().isNonnull())
+          edm::LogVerbatim("MuonTrackProducer")
+              << "(tpfms) pt =  " << muon->tpfmsTrack()->pt() << ", eta = " << muon->tpfmsTrack()->eta()
+              << ", phi = " << muon->tpfmsTrack()->phi()
+              << ", N mu hits = " << muon->tpfmsTrack()->hitPattern().numberOfValidMuonHits()
+              << ", N trk hits = " << muon->tpfmsTrack()->hitPattern().numberOfValidTrackerHits() << std::endl;
+        if (muon->pickyTrack().isNonnull())
+          edm::LogVerbatim("MuonTrackProducer")
+              << "(picky) pt =  " << muon->pickyTrack()->pt() << ", eta = " << muon->pickyTrack()->eta()
+              << ", phi = " << muon->pickyTrack()->phi()
+              << ", N mu hits = " << muon->pickyTrack()->hitPattern().numberOfValidMuonHits()
+              << ", N trk hits = " << muon->pickyTrack()->hitPattern().numberOfValidTrackerHits() << std::endl;
+        if (muon->dytTrack().isNonnull())
+          edm::LogVerbatim("MuonTrackProducer")
+              << "(dyt) pt =    " << muon->dytTrack()->pt() << ", eta = " << muon->dytTrack()->eta()
+              << ", phi = " << muon->dytTrack()->phi()
+              << ", N mu hits = " << muon->dytTrack()->hitPattern().numberOfValidMuonHits()
+              << ", N trk hits = " << muon->dytTrack()->hitPattern().numberOfValidTrackerHits() << std::endl;
       }
 
       edm::LogVerbatim("MuonTrackProducer") << "\t *** Selected *** ";
@@ -400,7 +397,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
                     selectedTrackHits->push_back(seghit);
                     ++nHitsToAdd;
                   }
-		}
+                }
 
                 if (segment->hasZed()) {
                   const DTSLRecSegment2D *zSeg = (*segment).zSegment();
