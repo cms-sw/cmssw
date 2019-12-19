@@ -271,8 +271,15 @@ namespace dqm::impl {
 
     /// this ME is meant to be an efficiency plot that must not be
     /// normalized when drawn in the DQM GUI.
-    void setEfficiencyFlag() { data_.flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
-    bool getEfficiencyFlag() { return data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
+    void setEfficiencyFlag() {
+      auto access = this->accessMut();
+      if (access.value.object_)
+        access.value.object_->SetBit(TH1::kIsAverage);
+    }
+    bool getEfficiencyFlag() {
+      auto access = this->access();
+      return access.value.object_ && access.value.object_->TestBit(TH1::kIsAverage);
+    }
 
     // A static assert to check that T actually fits in
     // int64_t.
