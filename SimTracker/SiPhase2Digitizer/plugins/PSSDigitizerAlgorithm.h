@@ -3,10 +3,7 @@
 
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 
-// forward declarations
-class TrackerTopology;
-
-class PSSDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm {
+class PSSDigitizerAlgorithm: public Phase2TrackerDigitizerAlgorithm {
 public:
   PSSDigitizerAlgorithm(const edm::ParameterSet& conf);
   ~PSSDigitizerAlgorithm() override;
@@ -19,7 +16,7 @@ public:
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
                          const std::vector<PSimHit>::const_iterator inputEnd,
                          const size_t inputBeginGlobalIndex,
-                         const unsigned int tofBin,
+                         const uint32_t tofBin,
                          const Phase2TrackerGeomDetUnit* pixdet,
                          const GlobalVector& bfield) override;
 };
