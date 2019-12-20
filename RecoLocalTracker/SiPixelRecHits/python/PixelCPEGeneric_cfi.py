@@ -8,3 +8,12 @@ PixelCPEGenericESProducer = _generic_default.clone()
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(PixelCPEGenericESProducer, IrradiationBiasCorrection = True)
 
+from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
+run4_PixelCPEGeneric.toModify(PixelCPEGenericESProducer,
+  UseErrorsFromTemplates = False,
+  LoadTemplatesFromDB = False,
+  TruncatePixelCharge = False,
+  IrradiationBiasCorrection = False,
+  DoCosmics = False,
+  Upgrade = cms.bool(True)
+)

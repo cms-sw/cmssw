@@ -55,3 +55,5 @@ displacedTracksTask = cms.Task(
     )
 displacedTracksSequence = cms.Sequence(displacedTracksTask)
 
+from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
+run4_PixelCPEGeneric.toModify(duplicateDisplacedTrackCandidates, ttrhBuilderName = "WithTrackAngle")
