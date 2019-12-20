@@ -34,10 +34,20 @@ namespace edm {
         pr_->closeFile();
     }
 
+    void genuineReadFile() override {
+      if (isFirstFile_) {
+        isFirstFile_ = false;
+        return;
+      }
+
+      InitMsgView const* header = pr_->getHeader();
+      deserializeAndMergeWithRegistry(*header);
+    }
+
     Next checkNext() override;
 
-    //ProductRegistry const* prod_reg_;
     edm::propagate_const<std::unique_ptr<Producer>> pr_;
+    bool isFirstFile_ = true;
   };  //end-of-class-def
 
   template <typename Producer>
@@ -59,10 +69,7 @@ namespace edm {
 
     if (pr_->newHeader()) {
       FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
-      // A new file has been opened and we must compare Headers here !!
-      //Get header/init from Producer
-      InitMsgView const* header = pr_->getHeader();
-      deserializeAndMergeWithRegistry(*header, true);
+      return Next::kFile;
     }
     if (eview == nullptr) {
       return Next::kStop;
