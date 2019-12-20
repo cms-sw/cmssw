@@ -20,3 +20,5 @@ ecal_dqm_source_offline = cms.Sequence(
     ecalzmasstask +
     ecalPileUpDepMonitor
 )
+
+ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = False
