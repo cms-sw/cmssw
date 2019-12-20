@@ -168,7 +168,7 @@ namespace cms {
     md5_append(&state_, const_cast<md5_byte_t*>(data), size);
   }
 
-  MD5Result Digest::digest() const {
+  MD5Result Digest::digest() {
     MD5Result aDigest;
     md5_finish(&state_, aDigest.bytes);
     return aDigest;
