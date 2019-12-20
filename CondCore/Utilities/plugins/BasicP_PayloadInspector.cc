@@ -29,12 +29,12 @@ namespace {
       cond::payloadInspector::PlotBase::addInputParam("Scale");
     }
     ~BasicPayload_data0_withInput() override = default;
-    float getFromPayload(cond::BasicPayload& payload) override { 
+    float getFromPayload(cond::BasicPayload& payload) override {
       float v = payload.m_data0;
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
       auto ip = paramValues.find("Factor");
       if (ip != paramValues.end()){
-	v = v * boost::lexical_cast<float>(ip->second);
+    	v = v * boost::lexical_cast<float>(ip->second);
       }
       ip = paramValues.find("Offset");
       if (ip != paramValues.end()){

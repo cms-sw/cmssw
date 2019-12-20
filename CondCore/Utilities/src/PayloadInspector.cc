@@ -26,7 +26,7 @@ namespace cond {
 
     PlotBase::PlotBase() : m_plotAnnotations(), m_inputParams(), m_data(""), m_inputParamValues() {}
 
-    void PlotBase::addInputParam(const std::string& paramName){
+    void PlotBase::addInputParam(const std::string& paramName) {
       // maybe add a check for existing params - returning an Exception when found...
       m_inputParams.insert(paramName);
     }
@@ -43,15 +43,15 @@ namespace cond {
 
     boost::python::list PlotBase::inputParams() const {
       boost::python::list tmp;
-      for (auto ip: m_inputParams){
+      for (auto ip: m_inputParams) {
 	tmp.append(ip);
       }
       return tmp;
     }
 
-    void PlotBase::setInputParamValues( const boost::python::dict& values ){
-      for( auto ip : m_inputParams ){
-	if (values.has_key(ip)){
+    void PlotBase::setInputParamValues( const boost::python::dict& values ) {
+      for( auto ip : m_inputParams ) {
+	if (values.has_key(ip)) {
 	  std::string val = boost::python::extract<std::string>(values.get(ip)); 
 	  m_inputParamValues.insert(std::make_pair(ip, val));
 	}
