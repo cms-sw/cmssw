@@ -96,9 +96,18 @@ namespace edm {
 
       bool operator<(OutputItem const& rh) const { return *branchDescription_ < *rh.branchDescription_; }
 
+      BranchDescription const* branchDescription() const { return branchDescription_; }
+      EDGetToken token() const { return token_; }
+      void const* const product() const { return product_; }
+      void const*& product() { return product_; }
+      void setProduct(void const* iProduct) { product_ = iProduct; }
+      int splitLevel() const { return splitLevel_; }
+      int basketSize() const { return basketSize_; }
+
+    private:
       BranchDescription const* branchDescription_;
       EDGetToken token_;
-      mutable void const* product_;
+      void const* product_;
       int splitLevel_;
       int basketSize_;
     };
@@ -120,6 +129,8 @@ namespace edm {
     };
 
     OutputItemListArray const& selectedOutputItemList() const { return selectedOutputItemList_; }
+
+    OutputItemListArray& selectedOutputItemList() { return selectedOutputItemList_; }
 
     BranchChildren const& branchChildren() const { return branchChildren_; }
 
