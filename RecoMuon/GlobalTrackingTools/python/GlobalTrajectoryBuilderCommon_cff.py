@@ -79,3 +79,9 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         ),
 )
 
+from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
+run4_PixelCPEGeneric.toModify(GlobalTrajectoryBuilderCommon,
+    TrackerRecHitBuilder = 'WithTrackAngle',
+    TrackTransformer = dict(TrackerRecHitBuilder = 'WithTrackAngle'),
+    GlbRefitterParameters = dict(TrackerRecHitBuilder = 'WithTrackAngle'),
+)
