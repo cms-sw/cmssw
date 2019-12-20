@@ -41,14 +41,16 @@ void CatchAll::checkASTCodeBody(const clang::Decl* D,
 
 const clang::Stmt* CatchAll::process(const clang::Stmt* S) const {
   if (clang::AttributedStmt::classof(S)) {
-      const clang::Stmt* np = nullptr;
-      auto const * Node = static_cast<const clang::AttributedStmt*>(S);
-      auto * SS = Node -> getSubStmt();
-      for (const auto *A : Node->getAttrs()){
-          if (clang::CXXTryStmt::classof(SS) && clang::CMSSaAllowAttr::classof(A)) { return np;}
+    const clang::Stmt* np = nullptr;
+    auto const* Node = static_cast<const clang::AttributedStmt*>(S);
+    auto* SS = Node->getSubStmt();
+    for (const auto* A : Node->getAttrs()) {
+      if (clang::CXXTryStmt::classof(SS) && clang::CMSSaAllowAttr::classof(A)) {
+        return np;
       }
+    }
   }
-     
+
   if (clang::CXXCatchStmt::classof(S) && checkCatchAll(static_cast<const clang::CXXCatchStmt*>(S)))
     return S;
   clang::Stmt::const_child_iterator b = S->child_begin();
