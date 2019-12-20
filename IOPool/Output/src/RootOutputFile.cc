@@ -152,15 +152,15 @@ namespace edm {
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       RootOutputTree* theTree = treePointers_[branchType];
-      for (auto const& item : om_->selectedOutputItemList()[branchType]) {
-        item.product_ = nullptr;
-        BranchDescription const& desc = *item.branchDescription_;
+      for (auto& item : om_->selectedOutputItemList()[branchType]) {
+        item.setProduct(nullptr);
+        BranchDescription const& desc = *item.branchDescription();
         theTree->addBranch(desc.branchName(),
                            desc.wrappedName(),
-                           item.product_,
-                           item.splitLevel_,
-                           item.basketSize_,
-                           item.branchDescription_->produced());
+                           item.product(),
+                           item.splitLevel(),
+                           item.basketSize(),
+                           item.branchDescription()->produced());
         //make sure we always store product registry info for all branches we create
         branchesWithStoredHistory_.insert(item.branchID());
       }
@@ -182,8 +182,8 @@ namespace edm {
     branchNames.reserve(om_->selectedOutputItemList()[InEvent].size());
     branches.reserve(om->selectedOutputItemList()[InEvent].size());
     for (auto const& item : om_->selectedOutputItemList()[InEvent]) {
-      branchNames.push_back(item.branchDescription_->branchName());
-      branches.push_back(item.branchDescription_);
+      branchNames.push_back(item.branchDescription()->branchName());
+      branches.push_back(item.branchDescription());
     }
     // Now sort the branches for the hash.
     sort_all(branches, sorterForJobReportHash);
@@ -690,7 +690,7 @@ namespace edm {
                                     ProductProvenanceRetriever const* provRetriever) {
     std::vector<std::unique_ptr<WrapperBase> > dummies;
 
-    OutputItemList const& items = om_->selectedOutputItemList()[branchType];
+    OutputItemList& items = om_->selectedOutputItemList()[branchType];
 
     bool const doProvenance =
         (productProvenanceVecPtr != nullptr) && (om_->dropMetaData() != PoolOutputModule::DropAll);
@@ -714,19 +714,19 @@ namespace edm {
     }
 
     // Loop over EDProduct branches, possibly fill the provenance, and write the branch.
-    for (auto const& item : items) {
-      BranchID const& id = item.branchDescription_->branchID();
+    for (auto& item : items) {
+      BranchID const& id = item.branchDescription()->branchID();
       branchesWithStoredHistory_.insert(id);
 
-      bool produced = item.branchDescription_->produced();
+      bool produced = item.branchDescription()->produced();
       bool getProd =
-          (produced || !fastCloning || treePointers_[branchType]->uncloned(item.branchDescription_->branchName()));
+          (produced || !fastCloning || treePointers_[branchType]->uncloned(item.branchDescription()->branchName()));
       bool keepProvenance = doProvenance && (produced || keepProvenanceForPrior);
 
       WrapperBase const* product = nullptr;
       ProductProvenance const* productProvenance = nullptr;
       if (getProd) {
-        BasicHandle result = occurrence.getByToken(item.token_, item.branchDescription_->unwrappedTypeID());
+        BasicHandle result = occurrence.getByToken(item.token(), item.branchDescription()->unwrappedTypeID());
         product = result.wrapper();
         if (result.isValid() && keepProvenance) {
           productProvenance = result.provenance()->productProvenance();
@@ -734,7 +734,7 @@ namespace edm {
         if (product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass* cp = item.branchDescription_->wrappedType().getClass();
+          TClass* cp = item.branchDescription()->wrappedType().getClass();
           assert(cp != nullptr);
           int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
           void* p = cp->New();
@@ -742,10 +742,10 @@ namespace edm {
           product = dummy.get();
           dummies.emplace_back(std::move(dummy));
         }
-        item.product_ = product;
+        item.setProduct(product);
       }
       if (keepProvenance && productProvenance == nullptr) {
-        productProvenance = provRetriever->branchIDToProvenance(item.branchDescription_->originalBranchID());
+        productProvenance = provRetriever->branchIDToProvenance(item.branchDescription()->originalBranchID());
       }
       if (productProvenance) {
         insertProductProvenance(*productProvenance, provenanceToKeep);
