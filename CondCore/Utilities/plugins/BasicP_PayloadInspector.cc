@@ -33,15 +33,15 @@ namespace {
       float v = payload.m_data0;
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
       auto ip = paramValues.find("Factor");
-      if (ip != paramValues.end()){
+      if (ip != paramValues.end()) {
     	v = v * boost::lexical_cast<float>(ip->second);
       }
       ip = paramValues.find("Offset");
-      if (ip != paramValues.end()){
+      if (ip != paramValues.end()) {
 	v = v + boost::lexical_cast<float>(ip->second);
       }
       ip = paramValues.find("Scale");
-      if (ip != paramValues.end()){
+      if (ip != paramValues.end()) {
 	v = v * boost::lexical_cast<float>(ip->second);
       }
       return v; 
