@@ -953,8 +953,8 @@ void FP420Test::update(const EndOfEvent* evt) {
       //UserNtuples->fillg67(theCAFI->entries(),1.);
       varia = 2;
     }  // no MI end:
-
-    for (int j = 0; j < theCAFI->entries(); j++) {
+    int nhits = theCAFI->entries();
+    for (int j = 0; j < nhits; j++) {
       FP420G4Hit* aHit = (*theCAFI)[j];
       G4ThreeVector hitPoint = aHit->getEntry();
       double zz = hitPoint.z();
@@ -973,7 +973,7 @@ void FP420Test::update(const EndOfEvent* evt) {
       // .............
       int nhit11 = 0, nhit12 = 0, nhit13 = 0;
       double totallosenergy = 0.;
-      for (int j = 0; j < theCAFI->entries(); j++) {
+      for (int j = 0; j < nhits; j++) {
         FP420G4Hit* aHit = (*theCAFI)[j];
 
         G4ThreeVector hitEntryLocalPoint = aHit->getEntryLocalP();
@@ -1297,7 +1297,7 @@ void FP420Test::update(const EndOfEvent* evt) {
       //======================================================================================================CHECK
       if (totallosenergy == 0.0) {
         std::cout << "FP420Test:     number of hits = " << theCAFI->entries() << std::endl;
-        for (int j = 0; j < theCAFI->entries(); j++) {
+        for (int j = 0; j < nhits; j++) {
           FP420G4Hit* aHit = (*theCAFI)[j];
           double losenergy = aHit->getEnergyLoss();
           std::cout << " j hits = " << j << "losenergy = " << losenergy << std::endl;

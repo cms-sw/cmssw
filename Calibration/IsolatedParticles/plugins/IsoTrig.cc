@@ -550,7 +550,8 @@ void IsoTrig::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   desc.addUntracked<double>("vertexCutIsol", 101.0);
   desc.addUntracked<double>("tauUnbiasCone", 1.2);
   desc.addUntracked<double>("prelimCone", 1.0);
-  descriptions.add("isoTrigHB", desc);
+  desc.add<unsigned int>("stageL1Trigger", 1);
+  descriptions.add("isoTrigDefault", desc);
 }
 
 void IsoTrig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {

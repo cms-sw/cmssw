@@ -67,6 +67,9 @@ private:
     bool th_y_cut_apply;
     double th_y_cut_value;
 
+    double ti_tr_min;
+    double ti_tr_max;
+
     void load(const edm::ParameterSet &ps) {
       x_cut_apply = ps.getParameter<bool>("x_cut_apply");
       x_cut_value = ps.getParameter<double>("x_cut_value");
@@ -76,6 +79,9 @@ private:
       xi_cut_value = ps.getParameter<double>("xi_cut_value");
       th_y_cut_apply = ps.getParameter<bool>("th_y_cut_apply");
       th_y_cut_value = ps.getParameter<double>("th_y_cut_value");
+
+      ti_tr_min = ps.getParameter<double>("ti_tr_min");
+      ti_tr_max = ps.getParameter<double>("ti_tr_max");
     }
 
     static edm::ParameterSetDescription getDefaultParameters() {
@@ -89,6 +95,9 @@ private:
       desc.add<double>("xi_cut_value", 0.013)->setComment("threshold of track-association cut in xi");
       desc.add<bool>("th_y_cut_apply", true)->setComment("whether to apply track-association cut in th_y");
       desc.add<double>("th_y_cut_value", 20E-6)->setComment("threshold of track-association cut in th_y, rad");
+
+      desc.add<double>("ti_tr_min", -1.)->setComment("minimum value for timing-tracking association cut");
+      desc.add<double>("ti_tr_max", +1.)->setComment("maximum value for timing-tracking association cut");
 
       return desc;
     }
@@ -362,8 +371,9 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
               const double de_x = tr_ti.x() - x_inter;
               const double de_x_unc = sqrt(tr_ti.xUnc() * tr_ti.xUnc() + x_inter_unc_sq);
+              const double r = (de_x_unc > 0.) ? de_x / de_x_unc : 1E100;
 
-              const bool matching = (std::abs(de_x) <= de_x_unc);
+              const bool matching = (ac.ti_tr_min < r && r < ac.ti_tr_max);
 
               if (verbosity_)
                 ssLog << "ti=" << ti << ", i=" << i << ", j=" << j << " | z_ti=" << z_ti << ", z_i=" << z_i

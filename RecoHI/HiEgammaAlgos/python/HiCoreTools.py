@@ -1,5 +1,5 @@
 from __future__ import print_function
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from FWCore.Utilities.ConfigToolBase import *
 
 from RecoHI.HiEgammaAlgos.HiHelperTools import *
 
