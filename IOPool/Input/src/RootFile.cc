@@ -44,6 +44,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
 #include "FWCore/Utilities/interface/stemFromPath.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 
@@ -2008,7 +2009,8 @@ namespace edm {
 
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;
-    mutable ProductProvenanceVector* pInfoVector_;
+    //All access to a ROOT file is serialized
+    CMS_SA_ALLOW mutable ProductProvenanceVector* pInfoVector_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
     std::shared_ptr<std::recursive_mutex> mutex_;
     SharedResourcesAcquirer acquirer_;
@@ -2073,7 +2075,8 @@ namespace edm {
 
     edm::propagate_const<RootTree*> rootTree_;
     std::vector<EventEntryInfo> infoVector_;
-    mutable std::vector<EventEntryInfo>* pInfoVector_;
+    //All access to ROOT file are serialized
+    CMS_SA_ALLOW mutable std::vector<EventEntryInfo>* pInfoVector_;
     EntryDescriptionMap const& entryDescriptionMap_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
     std::shared_ptr<std::recursive_mutex> mutex_;
