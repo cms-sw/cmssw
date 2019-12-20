@@ -53,8 +53,8 @@ private:
 };
 
 DDCompactViewMFESProducer::DDCompactViewMFESProducer(const edm::ParameterSet &iConfig)
-  : m_detToken(setWhatProduced(this).consumes<DDDetector>(edm::ESInputTag("", iConfig.getParameter<std::string>("appendToDataLabel")))) 
-{
+    : m_detToken(setWhatProduced(this).consumes<DDDetector>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("appendToDataLabel")))) {
   findingRecord<IdealMagneticFieldRecord>();
 }
 
