@@ -66,7 +66,7 @@
  *       in binary floating point serialization as desired by some boost users.
  *       Instead we support only the most widely used IEEE 754 format and try to
  *       detect when requirements are not met and hence our approach must fail.
- *       Contributions we made by Johan Rade and ¡kos MarÛy.
+ *       Contributions we made by Johan Rade and √Åkos Mar√≥y.
  *
  * \note Version 2.0 fixes a serious bug that effectively transformed most
  *       of negative integral values into positive values! For example the two
@@ -126,8 +126,8 @@
 #include <boost/spirit/home/support/detail/endian/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
 #else
+#include <boost/predef/other/endian.h>
 #include <boost/math/special_functions/fpclassify.hpp>
-#include <boost/spirit/home/support/detail/endian/endian.hpp>
 #endif
 
 // namespace alias fp_classify
@@ -396,7 +396,7 @@ namespace eos {
           break;
         case FP_SUBNORMAL:
           assert(std::numeric_limits<T>::has_denorm);  // pass
-        case FP_ZERO:                                  // note that floats can be ±0.0
+        case FP_ZERO:                                  // note that floats can be ¬±0.0
         case FP_NORMAL:
           traits::get_bits(t, bits);
           break;
