@@ -4,25 +4,24 @@
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 // Constants' definitions
 static const bool useL1EventSetup(true);
 static const bool useL1GtTriggerMenuLite(false);
 
-GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC)
+GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config,
+                                                 edm::ConsumesCollector& iC,
+                                                 l1t::UseEventSetupIn use)
     : GenericTriggerEventFlag(config, iC, false) {
   if (config.exists("andOrL1")) {
     if (stage2_) {
-      l1uGt_.reset(new l1t::L1TGlobalUtil(config, iC));
+      l1uGt_.reset(new l1t::L1TGlobalUtil(config, iC, use));
     }
   }
 }
@@ -130,6 +129,15 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
       watchDB_ = std::make_unique<edm::ESWatcher<AlCaRecoTriggerBitsRcd> >();
     }
   }
+
+  if (onL1_ && !stage2_) {
+    l1GtTriggerMenuToken_ = iC.esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd, edm::Transition::BeginRun>();
+  }
+  if ((onGt_ && !gtDBKey_.empty()) || (onL1_ && !l1DBKey_.empty()) || (onHlt_ && !hltDBKey_.empty())) {
+    alCaRecoTriggerBitsToken_ = iC.esConsumes<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd, edm::Transition::BeginRun>(
+        edm::ESInputTag{"", dbLabel_});
+  }
+
   //check to see we arent trying to setup legacy / stage-1 from a constructor call
   //that does not support it
   if (config.exists("andOrL1") && stage2_ == false) {  //stage-1 setup
@@ -198,14 +206,13 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
         algoNames.push_back(ip.first);
     } else {
       l1Gt_->getL1GtRunCache(run, setup, useL1EventSetup, useL1GtTriggerMenuLite);
-      edm::ESHandle<L1GtTriggerMenu> handleL1GtTriggerMenu;
-      setup.get<L1GtTriggerMenuRcd>().get(handleL1GtTriggerMenu);
+      L1GtTriggerMenu const& l1GtTriggerMenu = setup.get<L1GtTriggerMenuRcd>().get(l1GtTriggerMenuToken_);
 
-      const AlgorithmMap l1GtPhys(handleL1GtTriggerMenu->gtAlgorithmMap());
+      const AlgorithmMap& l1GtPhys(l1GtTriggerMenu.gtAlgorithmMap());
       for (CItAlgo iAlgo = l1GtPhys.begin(); iAlgo != l1GtPhys.end(); ++iAlgo) {
         algoNames.push_back(iAlgo->second.algoName());
       }
-      const AlgorithmMap l1GtTech(handleL1GtTriggerMenu->gtTechnicalTriggerMap());
+      const AlgorithmMap& l1GtTech(l1GtTriggerMenu.gtTechnicalTriggerMap());
       for (CItAlgo iAlgo = l1GtTech.begin(); iAlgo != l1GtTech.end(); ++iAlgo) {
         algoNames.push_back(iAlgo->second.algoName());
       }
@@ -697,7 +704,6 @@ std::vector<std::string> GenericTriggerEventFlag::expressionsFromDB(const std::s
                                                                     const edm::EventSetup& setup) {
   if (key.empty())
     return std::vector<std::string>(1, emptyKeyError_);
-  edm::ESHandle<AlCaRecoTriggerBits> logicalExpressions;
   std::vector<edm::eventsetup::DataKey> labels;
   setup.get<AlCaRecoTriggerBitsRcd>().fillRegisteredDataKeys(labels);
   std::vector<edm::eventsetup::DataKey>::const_iterator iKey = labels.begin();
@@ -709,8 +715,8 @@ std::vector<std::string> GenericTriggerEventFlag::expressionsFromDB(const std::s
           << "Label " << dbLabel_ << " not found in DB for 'AlCaRecoTriggerBitsRcd'";
     return std::vector<std::string>(1, configError_);
   }
-  setup.get<AlCaRecoTriggerBitsRcd>().get(dbLabel_, logicalExpressions);
-  const std::map<std::string, std::string>& expressionMap = logicalExpressions->m_alcarecoToTrig;
+  AlCaRecoTriggerBits const& alCaRecoTriggerBits = setup.get<AlCaRecoTriggerBitsRcd>().get(alCaRecoTriggerBitsToken_);
+  const std::map<std::string, std::string>& expressionMap = alCaRecoTriggerBits.m_alcarecoToTrig;
   std::map<std::string, std::string>::const_iterator listIter = expressionMap.find(key);
   if (listIter == expressionMap.end()) {
     if (verbose_ > 0)
@@ -718,7 +724,7 @@ std::vector<std::string> GenericTriggerEventFlag::expressionsFromDB(const std::s
           << "No logical expressions found under key " << key << " in 'AlCaRecoTriggerBitsRcd'";
     return std::vector<std::string>(1, configError_);
   }
-  return logicalExpressions->decompose(listIter->second);
+  return alCaRecoTriggerBits.decompose(listIter->second);
 }
 
 bool GenericTriggerEventFlag::allHLTPathsAreValid() const {

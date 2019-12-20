@@ -57,13 +57,20 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(edm::Ptr<TTTrack<R
   std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
       TRK_Stubs = aTrack->getStubRefs();
 
+  bool one2SStub = false;
   for (unsigned int js = 0; js < TRK_Stubs.size(); js++) {
     /// We want that all the stubs of the track are included in the container of
     /// all the stubs produced by this particular TrackingParticle which we
     /// already know is one of the TrackingParticles that released hits
     /// in this track we are evaluating right now
+    /// Now modifying to allow one and only one false 2S stub in the track  idr 06/19
     if (std::find(TP_Stubs.begin(), TP_Stubs.end(), TRK_Stubs.at(js)) == TP_Stubs.end()) {
-      return false;
+      if (!AllowOneFalse2SStub || TRK_Stubs.at(js)->moduleTypePS() || one2SStub)  // Has to be first false 2S stub
+      {
+        return false;
+      } else {
+        one2SStub = true;
+      }
     }
   }
 
@@ -99,4 +106,14 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isUnknown(edm::Ptr<TTTrack<R
   }
 
   return true;
+}
+
+template <>
+void TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::setAllowOneFalse2SStub(bool allowFalse2SStub) {
+  AllowOneFalse2SStub = allowFalse2SStub;
+}
+
+template <>
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::getAllowOneFalse2SStub() {
+  return AllowOneFalse2SStub;
 }

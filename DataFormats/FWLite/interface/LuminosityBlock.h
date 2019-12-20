@@ -10,7 +10,7 @@
    Description: <one line class summary>
 
    Usage:
-   <usage>
+   This class is not safe to use across threads
 
 */
 //
@@ -33,6 +33,7 @@
 #include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
@@ -111,23 +112,24 @@ namespace fwlite {
     void updateAux(Long_t lumiIndex) const;
 
     // ---------- member data --------------------------------
-    mutable std::shared_ptr<BranchMapReader> branchMap_;
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable std::shared_ptr<BranchMapReader> branchMap_;
 
-    mutable std::shared_ptr<fwlite::Run> run_;
+    CMS_SA_ALLOW mutable std::shared_ptr<fwlite::Run> run_;
 
     //takes ownership of the strings used by the DataKey keys in data_
-    mutable std::vector<char const*> labels_;
-    mutable edm::ProcessHistoryMap historyMap_;
-    mutable std::vector<std::string> procHistoryNames_;
-    mutable edm::LuminosityBlockAuxiliary aux_;
-    mutable EntryFinder entryFinder_;
+    CMS_SA_ALLOW mutable std::vector<char const*> labels_;
+    CMS_SA_ALLOW mutable edm::ProcessHistoryMap historyMap_;
+    CMS_SA_ALLOW mutable std::vector<std::string> procHistoryNames_;
+    CMS_SA_ALLOW mutable edm::LuminosityBlockAuxiliary aux_;
+    CMS_SA_ALLOW mutable EntryFinder entryFinder_;
     edm::LuminosityBlockAuxiliary const* pAux_;
     edm::LuminosityBlockAux const* pOldAux_;
     TBranch* auxBranch_;
     int fileVersion_;
 
     DataGetterHelper dataHelper_;
-    mutable std::shared_ptr<RunFactory> runFactory_;
+    CMS_SA_ALLOW mutable std::shared_ptr<RunFactory> runFactory_;
   };
 
 }  // namespace fwlite

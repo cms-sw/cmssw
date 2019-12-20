@@ -1,0 +1,24 @@
+<use name="CommonTools/Clustering1D"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use name="RecoLocalTracker/Records"/>
+<use name="RecoPixelVertexing/PixelVertexFinding"/>
+<use name="SimDataFormats/PileupSummaryInfo"/>
+<library file="*.cc" name="RecoPixelVertexingPixelVertexFindingPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

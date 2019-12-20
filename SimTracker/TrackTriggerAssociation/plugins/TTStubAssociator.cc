@@ -81,7 +81,7 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
           /// Fill the inclusive map which is careless of the stub classification
           for (unsigned int ic = 0; ic < 2; ic++) {
             std::vector<edm::Ptr<TrackingParticle>> tempTPs =
-                TTClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->getClusterRef(ic));
+                TTClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->clusterRef(ic));
 
             for (unsigned int itp = 0; itp < tempTPs.size(); itp++) {
               edm::Ptr<TrackingParticle> testTP = tempTPs.at(itp);
@@ -104,8 +104,8 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
           /// GENUINE for clusters means not combinatoric and
           /// not unknown: same MC truth content MUST be found
           /// in both clusters composing the stub
-          if (TTClusterAssociationMapHandle->isUnknown(tempStubRef->getClusterRef(0)) ||
-              TTClusterAssociationMapHandle->isUnknown(tempStubRef->getClusterRef(1))) {
+          if (TTClusterAssociationMapHandle->isUnknown(tempStubRef->clusterRef(0)) ||
+              TTClusterAssociationMapHandle->isUnknown(tempStubRef->clusterRef(1))) {
             /// If at least one cluster is unknown, it means
             /// either unknown, either combinatoric
             /// Do nothing, and go to the next Stub
@@ -114,16 +114,16 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
             /// Here both are clusters are genuine/combinatoric
             /// If both clusters have some known SimTrack content
             /// they must be compared to each other
-            if (TTClusterAssociationMapHandle->isGenuine(tempStubRef->getClusterRef(0)) &&
-                TTClusterAssociationMapHandle->isGenuine(tempStubRef->getClusterRef(1))) {
+            if (TTClusterAssociationMapHandle->isGenuine(tempStubRef->clusterRef(0)) &&
+                TTClusterAssociationMapHandle->isGenuine(tempStubRef->clusterRef(1))) {
               /// If both clusters are genuine, they must be associated to the same TrackingParticle
               /// in order to return a genuine stub. Period. Note we can perform safely
               /// this comparison because, if both clusters are genuine, their TrackingParticle shall NEVER be NULL
-              if (TTClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->getClusterRef(0)).get() ==
-                  TTClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->getClusterRef(1)).get()) {
+              if (TTClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->clusterRef(0)).get() ==
+                  TTClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->clusterRef(1)).get()) {
                 /// Two genuine clusters with same SimTrack content mean genuine
                 edm::Ptr<TrackingParticle> testTP =
-                    TTClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->getClusterRef(0));
+                    TTClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->clusterRef(0));
 
                 /// Fill the map: by construction, this will always be the first time the
                 /// stub is inserted into the map: no need for "find"
@@ -142,9 +142,9 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
               unsigned int whichTP = 0;
 
               std::vector<edm::Ptr<TrackingParticle>> trackingParticles0 =
-                  TTClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->getClusterRef(0));
+                  TTClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->clusterRef(0));
               std::vector<edm::Ptr<TrackingParticle>> trackingParticles1 =
-                  TTClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->getClusterRef(1));
+                  TTClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->clusterRef(1));
 
               bool escape = false;
 

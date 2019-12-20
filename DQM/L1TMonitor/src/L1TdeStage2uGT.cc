@@ -14,13 +14,15 @@ L1TdeStage2uGT::L1TdeStage2uGT(const edm::ParameterSet& ps)
       triggerBlackList_(ps.getParameter<std::vector<std::string> >("triggerBlackList")),
       numBx_(ps.getParameter<int>("numBxToMonitor")),
       histFolder_(ps.getParameter<std::string>("histFolder")),
-      gtUtil_(new l1t::L1TGlobalUtil(ps,
-                                     consumesCollector(),
-                                     *this,
-                                     ps.getParameter<edm::InputTag>("dataSource"),
-                                     ps.getParameter<edm::InputTag>("dataSource"))),
+      gtUtil_(ps,
+              consumesCollector(),
+              *this,
+              ps.getParameter<edm::InputTag>("dataSource"),
+              ps.getParameter<edm::InputTag>("dataSource"),
+              l1t::UseEventSetupIn::RunAndEvent),
       numLS_(2000),
-      m_currentLumi(0) {
+      m_currentLumi(0),
+      m_currentRun(0) {
   if (numBx_ > 5)
     numBx_ = 5;
   if ((numBx_ > 0) && ((numBx_ % 2) == 0)) {
@@ -58,9 +60,10 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
   }
 
   // Only using gtUtil to find prescale factors and mapping of bits to names, so only call gtUtil_ at lumi boundaries.
-  if (m_currentLumi != event.luminosityBlock()) {
+  if (m_currentLumi != event.luminosityBlock() || m_currentRun != event.run()) {
     m_currentLumi = event.luminosityBlock();
-    gtUtil_->retrieveL1(event, es, dataSource_);
+    m_currentRun = event.run();
+    gtUtil_.retrieveL1(event, es, dataSource_);
   }
 
   // Get standard event parameters
@@ -106,7 +109,7 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
       int numAlgs = it_data->getAlgoDecisionInitial().size();
       for (int algoBit = 0; algoBit < numAlgs; ++algoBit) {
         string algoName = "xxx";
-        bool found = gtUtil_->getAlgNameFromBit(algoBit, algoName);
+        bool found = gtUtil_.getAlgNameFromBit(algoBit, algoName);
         if (not found)
           continue;
 
@@ -146,7 +149,7 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
           bool unprescaled = true;
           // check the prescale factor
           int prescale = -999;
-          bool dummy = gtUtil_->getPrescaleByBit(algoBit, prescale);
+          bool dummy = gtUtil_.getPrescaleByBit(algoBit, prescale);
           if (not dummy)
             edm::LogWarning("L1TdeStage2uGT") << "Could not find prescale value for algobit: " << algoBit << std::endl;
 
@@ -174,9 +177,9 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
 }
 
 void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
-  gtUtil_->retrieveL1Setup(es);
+  gtUtil_.retrieveL1Setup(es);
 
-  auto const& prescales = gtUtil_->prescales();
+  auto const& prescales = gtUtil_.prescales();
   int nbins = prescales.size();  // dummy values for now; update later when gtutils function is called
   double xmin = -0.5;
   double xmax = nbins - 0.5;

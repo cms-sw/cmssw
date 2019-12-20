@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
