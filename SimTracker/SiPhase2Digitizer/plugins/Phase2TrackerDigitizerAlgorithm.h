@@ -22,12 +22,12 @@ namespace CLHEP {
   class HepRandomEngine;
   class RandGaussQ;
   class RandFlat;
-}
+}  // namespace CLHEP
 
 namespace edm {
   class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 class DetId;
 class GaussianTailNoiseGenerator;
@@ -128,8 +128,8 @@ protected:
   const double theHIPThresholdInE_Endcap_;
   const double theHIPThresholdInE_Barrel_;
 
-  const float theTofLowerCut_;                   // Cut on the particle TOF
-  const float theTofUpperCut_;                   // Cut on the particle TOF
+  const float theTofLowerCut_;                  // Cut on the particle TOF
+  const float theTofUpperCut_;                  // Cut on the particle TOF
   const float tanLorentzAnglePerTesla_Endcap_;  //FPix Lorentz angle tangent per Tesla
   const float tanLorentzAnglePerTesla_Barrel_;  //BPix Lorentz angle tangent per Tesla
 
