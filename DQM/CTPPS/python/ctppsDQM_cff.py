@@ -16,10 +16,12 @@ from DQM.CTPPS.elasticPlotDQMSource_cfi import *
 from DQM.CTPPS.ctppsCommonDQMSource_cfi import *
 
 ctppsDQM = cms.Sequence()
+ctppsDQMOffline = cms.Sequence()
 ctppsDQMElastic = cms.Sequence()
 ctppsDQMHarvest = cms.Sequence()
 
 _ctppsDQM = ctppsDQM.copy()
+_ctppsDQMOffline = ctppsDQMOffline.copy()
 _ctppsDQMElastic = ctppsDQMElastic.copy()
 _ctppsDQMHarvest = ctppsDQMHarvest.copy()
 
@@ -29,6 +31,16 @@ _ctppsDQM = cms.Sequence(
     + ctppsDiamondDQMSource
     + totemTimingDQMSource
     + ctppsPixelDQMSource
+    + ctppsCommonDQMSource
+)
+
+
+_ctppsDQMOffline = cms.Sequence(
+    totemDAQTriggerDQMSource
+    + totemRPDQMSource
+    + ctppsDiamondDQMSource
+    + totemTimingDQMSource
+    + ctppsPixelDQMOfflineSource
     + ctppsCommonDQMSource
 )
 
@@ -46,5 +58,6 @@ _ctppsDQMHarvest = cms.Sequence(totemRPDQMHarvester)
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toReplaceWith(ctppsDQM, _ctppsDQM)
+ctpps_2016.toReplaceWith(ctppsDQMOffline, _ctppsDQMOffline)
 ctpps_2016.toReplaceWith(ctppsDQMElastic, _ctppsDQMElastic)
 ctpps_2016.toReplaceWith(ctppsDQMHarvest, _ctppsDQMHarvest)
