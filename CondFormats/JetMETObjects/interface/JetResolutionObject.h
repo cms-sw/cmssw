@@ -186,6 +186,10 @@ namespace JME {
                         return m_variables.size();
                     }
 
+                    const std::vector<std::string>& getParametersName() const { return m_parameters_name; }
+
+                    size_t nParameters() const { return m_parameters_name.size(); }
+
                     std::string getFormulaString() const {
                         return m_formula_str;
                     }
@@ -213,6 +217,7 @@ namespace JME {
 #endif
                     std::vector<Binning> m_bins COND_TRANSIENT;
                     std::vector<Binning> m_variables COND_TRANSIENT;
+                    std::vector<std::string> m_parameters_name COND_TRANSIENT;
 
                     COND_SERIALIZABLE;
             };
