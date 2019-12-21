@@ -46,10 +46,10 @@ namespace ecaldqm {
         break;
       case kEBReducedRecHit:
       case kEEReducedRecHit:
-	if(_p && fillRecoFlagReduced_)
-	  runOnReducedRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
-	return fillRecoFlagReduced_;
-	break;
+        if (_p && fillRecoFlagReduced_)
+          runOnReducedRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+        return fillRecoFlagReduced_;
+        break;
       case kEBBasicCluster:
       case kEEBasicCluster:
         if (_p)
