@@ -356,11 +356,50 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
 
         ibooker.setCurrentFolder(rpd);
 
+        const float x0Maximum = 70.;
+        const float y0Maximum = 15.;
+        string st = "track intercept point";
         string st2 = ": " + stnTitle;
+        h2trackXY0[indexP] = ibooker.book2D(
+            st, st + st2 + ";x0;y0", int(x0Maximum) * 2, 0., x0Maximum,
+            int(y0Maximum) * 4, -y0Maximum, y0Maximum);
+        h2trackXY0[indexP]->getTH2F()->SetOption("colz");
 
-        string st = "hit multiplicity in planes";
-        string st3 = ";PlaneIndex(=pixelPot*PlaneMAX + plane)";
+        st = "number of tracks per event";
+        htrackMult[indexP] = ibooker.bookProfile(
+            st, rpTitle + ";number of tracks", NLocalTracksMAX + 1, -0.5,
+            NLocalTracksMAX + 0.5, -0.5, NLocalTracksMAX + 0.5, "");
+        htrackMult[indexP]->getTProfile()->SetOption("hist");
+
+        hRPotActivPlanes[indexP] = ibooker.bookProfile(
+            "number of fired planes per event",
+            rpTitle + ";nPlanes;Probability", NplaneMAX + 1, -0.5,
+            NplaneMAX + 0.5, -0.5, NplaneMAX + 0.5, "");
+        hRPotActivPlanes[indexP]->getTProfile()->SetOption("hist");
+
+        hp2HitsMultROC_LS[indexP] = ibooker.bookProfile2D(
+            "ROCs hits multiplicity per event vs LS",
+            rpTitle + ";LumiSection;Plane#___ROC#", 1000, 0., 1000.,
+            NplaneMAX * NROCsMAX, 0., double(NplaneMAX * NROCsMAX), 0.,
+            ROCSizeInX *ROCSizeInY, "");
+        hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetOption("colz");
+        hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetMinimum(1.0e-10);
+        hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetCanExtend(
+            TProfile2D::kXaxis);
+        TAxis *yahp2 = hp2HitsMultROC_LS[indexP]->getTProfile2D()->GetYaxis();
+        for (int p = 0; p < NplaneMAX; p++) {
+          sprintf(s, "plane%d_0", p);
+          yahp2->SetBinLabel(p * NplaneMAX + 1, s);
+          for (int r = 1; r < NROCsMAX; r++) {
+            sprintf(s, "   %d_%d", p, r);
+            yahp2->SetBinLabel(p * NplaneMAX + r + 1, s);
+          }
+        }
+
         if (onlinePlots) {
+          string st3 = ";PlaneIndex(=pixelPot*PlaneMAX + plane)";
+
+          st = "hit multiplicity in planes";
           h2HitsMultipl[arm][stn] =
               ibooker.book2DD(st, st + st2 + st3 + ";multiplicity", NPlaneBins,
                               0, NPlaneBins, hitMultMAX, 0, hitMultMAX);
@@ -372,30 +411,10 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
               ClusterSizeMax + 1, 0, ClusterSizeMax + 1);
           h2CluSize[arm][stn]->getTH2F()->SetOption("colz");
 
-          const float x0Maximum = 70.;
-          const float y0Maximum = 15.;
-          st = "track intercept point";
-          h2trackXY0[indexP] = ibooker.book2D(
-              st, st + st2 + ";x0;y0", int(x0Maximum) * 2, 0., x0Maximum,
-              int(y0Maximum) * 4, -y0Maximum, y0Maximum);
-          h2trackXY0[indexP]->getTH2F()->SetOption("colz");
-
-          st = "number of tracks per event";
-          htrackMult[indexP] = ibooker.bookProfile(
-              st, rpTitle + ";number of tracks", NLocalTracksMAX + 1, -0.5,
-              NLocalTracksMAX + 0.5, -0.5, NLocalTracksMAX + 0.5, "");
-          htrackMult[indexP]->getTProfile()->SetOption("hist");
-
           st = "number of hits per track";
           htrackHits[indexP] = ibooker.bookProfile(
               st, rpTitle + ";number of hits", 5, 1.5, 6.5, -0.1, 1.1, "");
           htrackHits[indexP]->getTProfile()->SetOption("hist");
-
-          hRPotActivPlanes[indexP] = ibooker.bookProfile(
-              "number of fired planes per event",
-              rpTitle + ";nPlanes;Probability", NplaneMAX + 1, -0.5,
-              NplaneMAX + 0.5, -0.5, NplaneMAX + 0.5, "");
-          hRPotActivPlanes[indexP]->getTProfile()->SetOption("hist");
 
           h2HitsMultROC[indexP] = ibooker.bookProfile2D(
               "ROCs hits multiplicity per event", rpTitle + ";plane # ;ROC #",
@@ -403,25 +422,6 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
               0., ROCSizeInX * ROCSizeInY, "");
           h2HitsMultROC[indexP]->getTProfile2D()->SetOption("colztext");
           h2HitsMultROC[indexP]->getTProfile2D()->SetMinimum(1.e-10);
-
-          hp2HitsMultROC_LS[indexP] = ibooker.bookProfile2D(
-              "ROCs_hits_multiplicity_per_event vs LS",
-              rpTitle + ";LumiSection;Plane#___ROC#", 1000, 0., 1000.,
-              NplaneMAX * NROCsMAX, 0., double(NplaneMAX * NROCsMAX), 0.,
-              ROCSizeInX *ROCSizeInY, "");
-          hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetOption("colz");
-          hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetMinimum(1.0e-10);
-          hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetCanExtend(
-              TProfile2D::kXaxis);
-          TAxis *yahp2 = hp2HitsMultROC_LS[indexP]->getTProfile2D()->GetYaxis();
-          for (int p = 0; p < NplaneMAX; p++) {
-            sprintf(s, "plane%d_0", p);
-            yahp2->SetBinLabel(p * NplaneMAX + 1, s);
-            for (int r = 1; r < NROCsMAX; r++) {
-              sprintf(s, "   %d_%d", p, r);
-              yahp2->SetBinLabel(p * NplaneMAX + r + 1, s);
-            }
-          }
 
           ibooker.setCurrentFolder(rpd + "/latency");
           hRPotActivBX[indexP] =
@@ -445,6 +445,12 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
           ibooker.setCurrentFolder(pd);
           string st1 = ": " + rpTitle + "_" + string(s);
 
+          st = "adc average value";
+          hp2xyADC[indexP][p] = ibooker.bookProfile2D(
+              st, st1 + ";pix col;pix row", nbins, 0, pixRowMAX, nbins, 0,
+              pixRowMAX, 0., 512., "");
+          hp2xyADC[indexP][p]->getTProfile2D()->SetOption("colz");
+
           if (onlinePlots) {
             st = "hits position";
             h2xyHits[indexP][p] =
@@ -456,12 +462,6 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
             hHitsMult[indexP][p] =
                 ibooker.book1DD(st, st1 + ";number of hits;N / 1 hit",
                                 hitMultMAX + 1, -0.5, hitMultMAX + 0.5);
-
-            st = "adc average value";
-            hp2xyADC[indexP][p] = ibooker.bookProfile2D(
-                st, st1 + ";pix col;pix row", nbins, 0, pixRowMAX, nbins, 0,
-                pixRowMAX, 0., 512., "");
-            hp2xyADC[indexP][p]->getTProfile2D()->SetOption("colz");
           }
 
           if (offlinePlots) {
@@ -549,8 +549,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
         }
         float x0 = dit->getX0();
         float y0 = dit->getY0();
-        if (onlinePlots)
-          h2trackXY0[rpInd]->Fill(x0, y0);
+        h2trackXY0[rpInd]->Fill(x0, y0);
 
         if (x0_MAX < x0)
           x0_MAX = x0;
@@ -622,172 +621,182 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
 
   if (!valid && verbosity)
     LogPrint("CTPPSPixelDQMSource") << "No valid data in Event " << nEvents;
-  if (onlinePlots) {
-    if (pixDigi.isValid()) {
-      for (const auto &ds_digi : *pixDigi) {
-        int idet = getDet(ds_digi.id);
-        if (idet != DetId::VeryForward) {
-          if (verbosity > 1)
-            LogPrint("CTPPSPixelDQMSource")
-                << "not CTPPS: ds_digi.id" << ds_digi.id;
-          continue;
-        }
-        //   int subdet = getSubdet(ds_digi.id);
 
-        int plane = getPixPlane(ds_digi.id);
+  if (pixDigi.isValid()) {
+    for (const auto &ds_digi : *pixDigi) {
+      int idet = getDet(ds_digi.id);
+      if (idet != DetId::VeryForward) {
+        if (verbosity > 1)
+          LogPrint("CTPPSPixelDQMSource")
+              << "not CTPPS: ds_digi.id" << ds_digi.id;
+        continue;
+      }
+      //   int subdet = getSubdet(ds_digi.id);
 
-        CTPPSDetId theId(ds_digi.id);
-        int arm = theId.arm() & 0x1;
-        int station = theId.station() & 0x3;
-        int rpot = theId.rp() & 0x7;
-        int rpInd = getRPindex(arm, station, rpot);
-        RPactivity[rpInd] = 1;
-        ++RPdigiSize[rpInd];
+      int plane = getPixPlane(ds_digi.id);
 
-        if (StationStatus[station] && RPstatus[station][rpot]) {
+      CTPPSDetId theId(ds_digi.id);
+      int arm = theId.arm() & 0x1;
+      int station = theId.station() & 0x3;
+      int rpot = theId.rp() & 0x7;
+      int rpInd = getRPindex(arm, station, rpot);
+      RPactivity[rpInd] = 1;
+      ++RPdigiSize[rpInd];
 
+      if (StationStatus[station] && RPstatus[station][rpot]) {
+
+        if (onlinePlots)
           h2HitsMultipl[arm][station]->Fill(prIndex(rpot, plane),
                                             ds_digi.data.size());
 
+        if (onlinePlots)
           h2AllPlanesActive->Fill(plane, getRPglobalBin(arm, station));
 
-          int index = getRPindex(arm, station, rpot);
-          HitsMultPlane[index][plane] += ds_digi.data.size();
-          if (RPindexValid[index]) {
-            int nh = ds_digi.data.size();
-            if (nh > hitMultMAX)
-              nh = hitMultMAX;
-            if (isPlanePlotsTurnedOff[arm][station][rpot][plane])
-              hHitsMult[index][plane]->Fill(nh);
-          }
-          int rocHistIndex = getPlaneIndex(arm, station, rpot, plane);
-
-          for (DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin();
-               dit != ds_digi.end(); ++dit) {
-            int row = dit->row();
-            int col = dit->column();
-            int adc = dit->adc();
-
-            if (RPindexValid[index]) {
-              if (isPlanePlotsTurnedOff[arm][station][rpot][plane]) {
-                h2xyHits[index][plane]->Fill(col, row);
-                hp2xyADC[index][plane]->Fill(col, row, adc);
-              }
-              int colROC, rowROC;
-              int trocId;
-              if (!thePixIndices.transformToROC(col, row, trocId, colROC,
-                                                rowROC)) {
-                if (trocId >= 0 && trocId < NROCsMAX) {
-                  ++HitsMultROC[rocHistIndex][trocId];
-                }
-              }
-            } // end if(RPindexValid[index]) {
-          }
-          if (int(ds_digi.data.size()) > multHitsMax)
-            multHitsMax = ds_digi.data.size();
-
-        } // end  if(StationStatus[station]) {
-      }   // end for(const auto &ds_digi : *pixDigi)
-    }     // if(pixDigi.isValid()) {
-
-    if (pixClus.isValid())
-      for (const auto &ds : *pixClus) {
-        int idet = getDet(ds.id);
-        if (idet != DetId::VeryForward) {
-          if (verbosity > 1)
-            LogPrint("CTPPSPixelDQMSource") << "not CTPPS: cluster.id" << ds.id;
-          continue;
-        }
-        //   int subdet = getSubdet(ds.id);
-
-        int plane = getPixPlane(ds.id);
-
-        CTPPSDetId theId(ds.id);
-        int arm = theId.arm() & 0x1;
-        int station = theId.station() & 0x3;
-        int rpot = theId.rp() & 0x7;
-
-        if ((StationStatus[station] == 0) || (RPstatus[station][rpot] == 0))
-          continue;
-
         int index = getRPindex(arm, station, rpot);
-        ++ClusMultPlane[index][plane];
-
-        for (const auto &p : ds) {
-          int clusize = p.size();
-          h2CluSize[arm][station]->Fill(prIndex(rpot, plane), clusize);
-          if (cluSizeMax < clusize)
-            cluSizeMax = clusize;
-          if (clusize > ClusterSizeMax)
-            clusize = ClusterSizeMax;
+        HitsMultPlane[index][plane] += ds_digi.data.size();
+        if (RPindexValid[index]) {
+          int nh = ds_digi.data.size();
+          if (nh > hitMultMAX)
+            nh = hitMultMAX;
+          if (isPlanePlotsTurnedOff[arm][station][rpot][plane])
+            if (onlinePlots)
+              hHitsMult[index][plane]->Fill(nh);
         }
-      } // end if(pixClus.isValid()) for(const auto &ds : *pixClus)
+        int rocHistIndex = getPlaneIndex(arm, station, rpot, plane);
 
-    bool allRPactivity = false;
-    for (int rp = 0; rp < RPotsTotalNumber; rp++)
-      if (RPactivity[rp] > 0)
-        allRPactivity = true;
-    for (int arm = 0; arm < 2; arm++) {
-      for (int stn = 0; stn < NStationMAX; stn++) {
-        for (int rp = 0; rp < NRPotsMAX; rp++) {
-          int index = getRPindex(arm, stn, rp);
-          if (RPindexValid[index] == 0)
-            continue;
+        for (DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin();
+             dit != ds_digi.end(); ++dit) {
+          int row = dit->row();
+          int col = dit->column();
+          int adc = dit->adc();
+
+          if (RPindexValid[index]) {
+            if (isPlanePlotsTurnedOff[arm][station][rpot][plane]) {
+              if (onlinePlots)
+                h2xyHits[index][plane]->Fill(col, row);
+
+              hp2xyADC[index][plane]->Fill(col, row, adc);
+            }
+            int colROC, rowROC;
+            int trocId;
+            if (!thePixIndices.transformToROC(col, row, trocId, colROC,
+                                              rowROC)) {
+              if (trocId >= 0 && trocId < NROCsMAX) {
+                ++HitsMultROC[rocHistIndex][trocId];
+              }
+            }
+          } // end if(RPindexValid[index]) {
+        }
+        if (int(ds_digi.data.size()) > multHitsMax)
+          multHitsMax = ds_digi.data.size();
+
+      } // end  if(StationStatus[station]) {
+    }   // end for(const auto &ds_digi : *pixDigi)
+  }     // if(pixDigi.isValid()) {
+
+  if (pixClus.isValid())
+    for (const auto &ds : *pixClus) {
+      int idet = getDet(ds.id);
+      if (idet != DetId::VeryForward) {
+        if (verbosity > 1)
+          LogPrint("CTPPSPixelDQMSource") << "not CTPPS: cluster.id" << ds.id;
+        continue;
+      }
+      //   int subdet = getSubdet(ds.id);
+
+      int plane = getPixPlane(ds.id);
+
+      CTPPSDetId theId(ds.id);
+      int arm = theId.arm() & 0x1;
+      int station = theId.station() & 0x3;
+      int rpot = theId.rp() & 0x7;
+
+      if ((StationStatus[station] == 0) || (RPstatus[station][rpot] == 0))
+        continue;
+
+      int index = getRPindex(arm, station, rpot);
+      ++ClusMultPlane[index][plane];
+
+      for (const auto &p : ds) {
+        int clusize = p.size();
+        if (onlinePlots)
+          h2CluSize[arm][station]->Fill(prIndex(rpot, plane), clusize);
+        if (cluSizeMax < clusize)
+          cluSizeMax = clusize;
+        if (clusize > ClusterSizeMax)
+          clusize = ClusterSizeMax;
+      }
+    } // end if(pixClus.isValid()) for(const auto &ds : *pixClus)
+
+  bool allRPactivity = false;
+  for (int rp = 0; rp < RPotsTotalNumber; rp++)
+    if (RPactivity[rp] > 0)
+      allRPactivity = true;
+  for (int arm = 0; arm < 2; arm++) {
+    for (int stn = 0; stn < NStationMAX; stn++) {
+      for (int rp = 0; rp < NRPotsMAX; rp++) {
+        int index = getRPindex(arm, stn, rp);
+        if (RPindexValid[index] == 0)
+          continue;
+        if (onlinePlots)
           hpRPactive->Fill(getRPglobalBin(arm, stn), RPactivity[index]);
-          //        if(RPactivity[index]==0) continue;
-          if (!allRPactivity)
-            continue;
+        //        if(RPactivity[index]==0) continue;
+        if (!allRPactivity)
+          continue;
+        if (onlinePlots)
           hpixLTrack->Fill(getRPglobalBin(arm, stn), pixRPTracks[index]);
-          int ntr = pixRPTracks[index];
-          if (ntr > NLocalTracksMAX)
-            ntr = NLocalTracksMAX;
-          for (int i = 0; i <= NLocalTracksMAX; i++) {
-            if (i == ntr)
-              htrackMult[index]->Fill(ntr, 1.);
-            else
-              htrackMult[index]->Fill(i, 0.);
-          }
+        int ntr = pixRPTracks[index];
+        if (ntr > NLocalTracksMAX)
+          ntr = NLocalTracksMAX;
+        for (int i = 0; i <= NLocalTracksMAX; i++) {
+          if (i == ntr)
+            htrackMult[index]->Fill(ntr, 1.);
+          else
+            htrackMult[index]->Fill(i, 0.);
+        }
 
-          int np = 0;
-          for (int p = 0; p < NplaneMAX; p++)
-            if (HitsMultPlane[index][p] > 0)
-              np++;
-          for (int p = 0; p <= NplaneMAX; p++) {
-            if (p == np)
-              hRPotActivPlanes[index]->Fill(p, 1.);
-            else
-              hRPotActivPlanes[index]->Fill(p, 0.);
-          }
+        int np = 0;
+        for (int p = 0; p < NplaneMAX; p++)
+          if (HitsMultPlane[index][p] > 0)
+            np++;
+        for (int p = 0; p <= NplaneMAX; p++) {
+          if (p == np)
+            hRPotActivPlanes[index]->Fill(p, 1.);
+          else
+            hRPotActivPlanes[index]->Fill(p, 0.);
+        }
+        if (onlinePlots) {
           if (np >= 5)
             hRPotActivBX[index]->Fill(event.bunchCrossing());
           hRPotActivBXall[index]->Fill(event.bunchCrossing(),
                                        float(RPdigiSize[index]));
-
-          int rocf[NplaneMAX];
+        }
+        int rocf[NplaneMAX];
+        for (int r = 0; r < NROCsMAX; r++)
+          rocf[r] = 0;
+        for (int p = 0; p < NplaneMAX; p++) {
+          int indp = getPlaneIndex(arm, stn, rp, p);
           for (int r = 0; r < NROCsMAX; r++)
-            rocf[r] = 0;
-          for (int p = 0; p < NplaneMAX; p++) {
-            int indp = getPlaneIndex(arm, stn, rp, p);
-            for (int r = 0; r < NROCsMAX; r++)
-              if (HitsMultROC[indp][r] > 0)
-                ++rocf[r];
-            for (int r = 0; r < NROCsMAX; r++) {
+            if (HitsMultROC[indp][r] > 0)
+              ++rocf[r];
+          for (int r = 0; r < NROCsMAX; r++) {
+            if (onlinePlots)
               h2HitsMultROC[index]->Fill(p, r, HitsMultROC[indp][r]);
-              hp2HitsMultROC_LS[index]->Fill(lumiId, p * NROCsMAX + r,
-                                             HitsMultROC[indp][r]);
-            }
+            hp2HitsMultROC_LS[index]->Fill(lumiId, p * NROCsMAX + r,
+                                           HitsMultROC[indp][r]);
           }
-          int max = 0;
-          for (int r = 0; r < NROCsMAX; r++)
-            if (max < rocf[r]) {
-              max = rocf[r];
-            }
-          if (max >= 4)
-            hRPotActivBXroc[index]->Fill(event.bunchCrossing());
-        } // end for(int rp=0; rp<NRPotsMAX; rp++) {
-      }
-    } // end for(int arm=0; arm<2; arm++) {
-  }
+        }
+        int max = 0;
+        for (int r = 0; r < NROCsMAX; r++)
+          if (max < rocf[r]) {
+            max = rocf[r];
+          }
+        if (max >= 4 && onlinePlots)
+          hRPotActivBXroc[index]->Fill(event.bunchCrossing());
+      } // end for(int rp=0; rp<NRPotsMAX; rp++) {
+    }
+  } // end for(int arm=0; arm<2; arm++) {
+
   if ((nEvents % 100))
     return;
   if (verbosity)

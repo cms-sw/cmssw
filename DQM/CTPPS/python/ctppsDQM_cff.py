@@ -24,6 +24,15 @@ ctppsDQM = cms.Sequence(
     + ctppsCommonDQMSource
 )
 
+ctppsDQMOffline = cms.Sequence(
+    totemDAQTriggerDQMSource
+    + (totemRPDQMSource * totemRPDQMHarvester)
+    + ctppsDiamondDQMSource
+    + totemTimingDQMSource
+    + ctppsPixelDQMOfflineSource
+    + ctppsCommonDQMSource
+)
+
 ctppsDQMElastic = cms.Sequence(
     totemDAQTriggerDQMSource
     + (totemRPDQMSource * totemRPDQMHarvester)
