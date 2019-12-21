@@ -3,7 +3,7 @@
 
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 
-class PSSDigitizerAlgorithm: public Phase2TrackerDigitizerAlgorithm {
+class PSSDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm {
 public:
   PSSDigitizerAlgorithm(const edm::ParameterSet& conf);
   ~PSSDigitizerAlgorithm() override;

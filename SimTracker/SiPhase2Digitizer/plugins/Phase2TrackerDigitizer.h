@@ -37,7 +37,7 @@ namespace edm {
   template <typename T>
   class Handle;
   class ConsumesCollector;
-}
+}  // namespace edm
 
 class MagneticField;
 class PileUpEventPrincipal;
@@ -46,7 +46,7 @@ class Phase2TrackerDigitizerAlgorithm;
 class TrackerDigiGeometryRecord;
 
 namespace cms {
-  class Phase2TrackerDigitizer: public DigiAccumulatorMixMod {
+  class Phase2TrackerDigitizer : public DigiAccumulatorMixMod {
   public:
     using ModuleTypeCache = std::unordered_map<uint32_t, TrackerGeometry::ModuleType>;
 
