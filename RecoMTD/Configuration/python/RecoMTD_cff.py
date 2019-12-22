@@ -2,4 +2,5 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMTD.TrackExtender.trackExtenderWithMTD_cfi import *
 
-fastTimingGlobalReco = cms.Sequence(trackExtenderWithMTD)
+fastTimingGlobalRecoTask = cms.Task(trackExtenderWithMTD)
+fastTimingGlobalReco = cms.Sequence(fastTimingGlobalRecoTask)
