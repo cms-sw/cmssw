@@ -78,3 +78,7 @@ DQMOfflineHeavyIons_SecondStep = cms.Sequence(
                                                DQMOfflineHeavyIons_SecondStep_PreDPG *
                                                DQMOfflineHeavyIons_SecondStep_PrePOG *
                                                DQMMessageLoggerClientSeq )
+
+DQMOfflineHeavyIons_SecondStep_FakeHLT = cms.Sequence( DQMOfflineHeavyIons_SecondStep )
+DQMOffline_SecondStep_FakeHLT.remove( DQMOfflineHeavyIons_SecondStepTrigger )
+
