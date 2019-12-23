@@ -164,51 +164,10 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-# for PFBlockProducer/Algo change to enable both track-HCAL and track-HF links
-hltPFBlockLinkDefPrePhase2 = cms.VPSet(
-    cms.PSet(  linkType = cms.string( "PS1:ECAL" ),
-               useKDTree = cms.bool( True ),
-               linkerName = cms.string( "PreshowerAndECALLinker" )
-    ),
-    cms.PSet(  linkType = cms.string( "PS2:ECAL" ),
-               useKDTree = cms.bool( True ),
-               linkerName = cms.string( "PreshowerAndECALLinker" )
-    ),
-    cms.PSet(  linkType = cms.string( "TRACK:ECAL" ),
-               useKDTree = cms.bool( True ),
-               linkerName = cms.string( "TrackAndECALLinker" )
-    ),
-    cms.PSet(  linkType = cms.string( "TRACK:HCAL" ),
-               useKDTree = cms.bool( True ),
-               linkerName = cms.string( "TrackAndHCALLinker" ),
-               trajectoryLayerEntrance = cms.string("HCALEntrance"), # added
-               trajectoryLayerExit = cms.string("HCALExit") # added
-    ),
-    cms.PSet(  linkType = cms.string( "ECAL:HCAL" ),
-               useKDTree = cms.bool( False ),
-               linkerName = cms.string( "ECALAndHCALLinker" )
-    ),
-    cms.PSet(  linkType = cms.string( "HFEM:HFHAD" ),
-               useKDTree = cms.bool( False ),
-               linkerName = cms.string( "HFEMAndHFHADLinker" )
-    )
-)
-def customiseFor28442(process):
-    if hasattr(process,'hltParticleFlowBlock'):
-        process.hltParticleFlowBlock.linkDefinitions = hltPFBlockLinkDefPrePhase2
-    if hasattr(process,'hltParticleFlowBlockForTaus'):
-        process.hltParticleFlowBlockForTaus.linkDefinitions = hltPFBlockLinkDefPrePhase2
-    if hasattr(process,'hltParticleFlowBlockReg'):
-        process.hltParticleFlowBlockReg.linkDefinitions = hltPFBlockLinkDefPrePhase2
-    if hasattr(process,'hltParticleFlowBlockPPOnAA'):
-        process.hltParticleFlowBlockPPOnAA.linkDefinitions = hltPFBlockLinkDefPrePhase2
-    return process
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor28442(process)
 
     return process
