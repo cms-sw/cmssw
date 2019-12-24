@@ -69,8 +69,8 @@ private:
   const float mapXmax = 30. * TMath::Cos(18.4 / 180. * TMath::Pi());
 
   CTPPSPixelIndices thePixIndices;
-  int pixRowMAX = 160;            // defaultDetSizeInX, CMS Y-axis
-  int pixColMAX = 156;            // defaultDetSizeInY, CMS X-axis
+  int pixRowMAX = thePixIndices.getDefaultRowDetSize(); // defaultDetSizeInX, CMS Y-axis
+  int pixColMAX = thePixIndices.getDefaultColDetSize(); // defaultDetSizeInY, CMS X-axis
   int ROCSizeInX = pixRowMAX / 2; // ROC row size in pixels = 80
   int ROCSizeInY = pixColMAX / 3; // ROC col size in pixels = 52
 
@@ -204,8 +204,7 @@ CTPPSPixelDQMSource::CTPPSPixelDQMSource(const edm::ParameterSet &ps)
       int rp = stoi(armStationRpPlane.at(2));
       int plane = stoi(armStationRpPlane.at(3));
 
-      if (arm < NArms && station < NStationMAX && rp < NRPotsMAX &&
-          plane < NplaneMAX) {
+      if (arm < NArms && station < NStationMAX && rp < NRPotsMAX && plane < NplaneMAX) {
         if (verbosity)
           LogPrint("CTPPSPixelDQMSource")
               << "Shutting off plots for: Arm " << arm << " Station " << station
@@ -330,14 +329,12 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
 
       CTPPSDetId(ID.stationId()).stationName(stnd, CTPPSDetId::nPath);
       CTPPSDetId(ID.stationId()).stationName(stnTitle, CTPPSDetId::nFull);
-      CTPPSDetId(ID.stationId())
-          .stationName(stnTitleShort, CTPPSDetId::nShort);
+      CTPPSDetId(ID.stationId()).stationName(stnTitleShort, CTPPSDetId::nShort);
 
       ibooker.setCurrentFolder(stnd);
       //--------- RPots ---
       int pixBinW = 4;
-      for (int rp = RPn_first; rp < RPn_last;
-           rp++) { // only installed pixel pots
+      for (int rp = RPn_first; rp < RPn_last;rp++) { // only installed pixel pots
         ID.setRP(rp);
         string rpd, rpTitle;
         CTPPSDetId(ID.rpId()).rpName(rpTitle, CTPPSDetId::nShort);
@@ -385,8 +382,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
             ROCSizeInX *ROCSizeInY, "");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetOption("colz");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetMinimum(1.0e-10);
-        hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetCanExtend(
-            TProfile2D::kXaxis);
+        hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetCanExtend(TProfile2D::kXaxis);
         TAxis *yahp2 = hp2HitsMultROC_LS[indexP]->getTProfile2D()->GetYaxis();
         for (int p = 0; p < NplaneMAX; p++) {
           sprintf(s, "plane%d_0", p);
@@ -454,8 +450,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
 
           if (onlinePlots) {
             st = "hits position";
-            h2xyHits[indexP][p] =
-                ibooker.book2DD(st, st1 + ";pix col;pix row", pixRowMAX, 0,
+            h2xyHits[indexP][p] = ibooker.book2DD(st, st1 + ";pix col;pix row", pixRowMAX, 0,
                                 pixRowMAX, pixRowMAX, 0, pixRowMAX);
             h2xyHits[indexP][p]->getTH2D()->SetOption("colz");
 
@@ -574,9 +569,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
                  ++frh_it) { // there should always be only one hit in each
                              // vector
               if (frh_it != ds_frh.begin())
-                if (verbosity > 1)
-                  LogPrint("CTPPSPixelDQMSource")
-                      << "More than one FittedRecHit found in plane " << plane;
+                if (verbosity > 1) LogPrint("CTPPSPixelDQMSource") << "More than one FittedRecHit found in plane " << plane;
               if (frh_it->isRealHit())
                 for (int p = 0; p < NplaneMAX; p++) {
                   if (p != plane)
@@ -597,18 +590,12 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
             int plane = getPixPlane(ds_frh.id);
             if (isPlanePlotsTurnedOff[arm][station][rpot][plane])
               continue;
-            for (DetSet<CTPPSPixelFittedRecHit>::const_iterator frh_it =
-                     ds_frh.begin();
-                 frh_it != ds_frh.end(); ++frh_it) {
-              float frhX0 =
-                  frh_it->globalCoordinates().x() + frh_it->xResidual();
-              float frhY0 =
-                  frh_it->globalCoordinates().y() + frh_it->yResidual();
+            for (DetSet<CTPPSPixelFittedRecHit>::const_iterator frh_it = ds_frh.begin(); frh_it != ds_frh.end(); ++frh_it) {
+              float frhX0 = frh_it->globalCoordinates().x() + frh_it->xResidual();
+              float frhY0 = frh_it->globalCoordinates().y() + frh_it->yResidual();
               if (numberOfPointPerPlaneEff[plane] >= 3) {
-                if (frh_it->isRealHit())
-                  h2Efficiency[rpInd][plane]->Fill(frhX0, frhY0, 1);
-                else
-                  h2Efficiency[rpInd][plane]->Fill(frhX0, frhY0, 0);
+                if (frh_it->isRealHit()) h2Efficiency[rpInd][plane]->Fill(frhX0, frhY0, 1);
+                else h2Efficiency[rpInd][plane]->Fill(frhX0, frhY0, 0);
               }
             }
           }
@@ -646,54 +633,42 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
       ++RPdigiSize[rpInd];
 
       if (StationStatus[station] && RPstatus[station][rpot]) {
-
-        if (onlinePlots)
-          h2HitsMultipl[arm][station]->Fill(prIndex(rpot, plane),
-                                            ds_digi.data.size());
-
-        if (onlinePlots)
+        if (onlinePlots) {
+          h2HitsMultipl[arm][station]->Fill(prIndex(rpot, plane), ds_digi.data.size());
           h2AllPlanesActive->Fill(plane, getRPglobalBin(arm, station));
-
+        }
         int index = getRPindex(arm, station, rpot);
         HitsMultPlane[index][plane] += ds_digi.data.size();
         if (RPindexValid[index]) {
           int nh = ds_digi.data.size();
           if (nh > hitMultMAX)
             nh = hitMultMAX;
-          if (isPlanePlotsTurnedOff[arm][station][rpot][plane])
+          if (!isPlanePlotsTurnedOff[arm][station][rpot][plane])
             if (onlinePlots)
               hHitsMult[index][plane]->Fill(nh);
         }
         int rocHistIndex = getPlaneIndex(arm, station, rpot, plane);
 
-        for (DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin();
-             dit != ds_digi.end(); ++dit) {
+        for (DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin(); dit != ds_digi.end(); ++dit) {
           int row = dit->row();
           int col = dit->column();
           int adc = dit->adc();
 
           if (RPindexValid[index]) {
-            if (isPlanePlotsTurnedOff[arm][station][rpot][plane]) {
-              if (onlinePlots)
-                h2xyHits[index][plane]->Fill(col, row);
-
+            if (!isPlanePlotsTurnedOff[arm][station][rpot][plane]) {
+              if (onlinePlots) h2xyHits[index][plane]->Fill(col, row);
               hp2xyADC[index][plane]->Fill(col, row, adc);
             }
             int colROC, rowROC;
             int trocId;
-            if (!thePixIndices.transformToROC(col, row, trocId, colROC,
-                                              rowROC)) {
+            if (!thePixIndices.transformToROC(col, row, trocId, colROC, rowROC)) {
               if (trocId >= 0 && trocId < NROCsMAX) {
                 ++HitsMultROC[rocHistIndex][trocId];
               }
             }
-
           } // end if(RPindexValid[index]) {
         }
-        if (int(ds_digi.data.size()) > multHitsMax)
-          multHitsMax = ds_digi.data.size();
-
-
+        if (int(ds_digi.data.size()) > multHitsMax) multHitsMax = ds_digi.data.size();
       } // end  if(StationStatus[station]) {
     }   // end for(const auto &ds_digi : *pixDigi)
   }     // if(pixDigi.isValid()) {
@@ -702,8 +677,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
     for (const auto &ds : *pixClus) {
       int idet = getDet(ds.id);
       if (idet != DetId::VeryForward) {
-        if (verbosity > 1)
-          LogPrint("CTPPSPixelDQMSource") << "not CTPPS: cluster.id" << ds.id;
+        if (verbosity > 1) LogPrint("CTPPSPixelDQMSource") << "not CTPPS: cluster.id" << ds.id;
         continue;
       }
       //   int subdet = getSubdet(ds.id);
@@ -795,11 +769,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
         }
         int max = 0;
         for (int r = 0; r < NROCsMAX; r++)
-          if (max < rocf[r]) {
-            max = rocf[r];
-          }
-        if (max >= 4 && onlinePlots)
-          hRPotActivBXroc[index]->Fill(event.bunchCrossing());
+          if (max < rocf[r]) max = rocf[r];
+        if (max >= 4 && onlinePlots) hRPotActivBXroc[index]->Fill(event.bunchCrossing());
       } // end for(int rp=0; rp<NRPotsMAX; rp++) {
     }
   } // end for(int arm=0; arm<2; arm++) {
@@ -812,8 +783,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event,
 
 //-----------------------------------------------------------------------------
 void CTPPSPixelDQMSource::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  if (!verbosity)
-    return;
+  if (!verbosity) return;
   LogPrint("CTPPSPixelDQMSource") << "end of Run " << run.run() << ": " << nEvents << " events\n"
                                   << "multHitsMax= " << multHitsMax << "   cluSizeMax= " << cluSizeMax
                                   << "\nx0: " << x0_MIN << "/" << x0_MAX << "y0: " << y0_MIN << "/" << y0_MAX << "\n";
