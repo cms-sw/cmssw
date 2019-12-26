@@ -6,7 +6,7 @@
  *  according to InnerRadius, OuterRadius, HalfLength
  *
  *  inputTable: file with input values to be checked against, format depends on inputFileType:
- *  xyz = cartesian coordinates in cm
+ *  xyz = cartesian coordinates in cm (default)
  *  rpz_m = r, phi, Z in m
  *  xyz_m = cartesian in m 
  *  TOSCA = input test tables, searches for the corresponding volume/sector determined from the file name and path.
@@ -37,6 +37,9 @@
 #include "MagneticField/GeomBuilder/test/stubs/GlobalPointProvider.h"
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
+
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <string>
@@ -143,18 +146,55 @@ private:
 
 void testMagneticField::writeValidationTable(int npoints, string filename) {
   GlobalPointProvider p(InnerRadius, OuterRadius, -Geom::pi(), Geom::pi(), -HalfLength, HalfLength);
-  ofstream file(filename.c_str());
 
-  for (int i = 0; i < npoints; ++i) {
-    GlobalPoint gp = p.getPoint();
-    GlobalVector f = field->inTesla(gp);
-    file << setprecision(9)  //<< i << " "
-         << gp.x() << " " << gp.y() << " " << gp.z() << " " << f.x() << " " << f.y() << " " << f.z() << endl;
+  if (filename.substr(filename.rfind(".")) == ".txt") {
+    ofstream file(filename.c_str());
+
+    for (int i = 0; i < npoints; ++i) {
+      GlobalPoint gp = p.getPoint();
+      GlobalVector f = field->inTesla(gp);
+      file << setprecision(9)  //<< i << " "
+           << gp.x() << " " << gp.y() << " " << gp.z() << " " << f.x() << " " << f.y() << " " << f.z() << endl;
+    }
+  } else {
+    ofstream file(filename.c_str(), ios::binary);
+    float px, py, pz, bx, by, bz;
+
+    for (int i = 0; i < npoints; ++i) {
+      GlobalPoint gp = p.getPoint();
+      GlobalVector f = field->inTesla(gp);
+      px = gp.x();
+      py = gp.y();
+      pz = gp.z();
+      bx = f.x();
+      by = f.y();
+      bz = f.z();
+      file.write((char*)&px, sizeof(float));
+      file.write((char*)&py, sizeof(float));
+      file.write((char*)&pz, sizeof(float));
+      file.write((char*)&bx, sizeof(float));
+      file.write((char*)&by, sizeof(float));
+      file.write((char*)&bz, sizeof(float));
+    }
   }
 }
 
 void testMagneticField::validate(string filename, string type) {
-  ifstream file(filename.c_str());
+  ifstream file;
+
+  bool binary = true;
+
+  string fullPath;
+  edm::FileInPath mydata(filename);
+  fullPath = mydata.fullPath();
+
+  if (filename.substr(filename.rfind(".")) == ".txt") {
+    binary = false;
+    file.open(fullPath.c_str());
+  } else {
+    file.open(fullPath.c_str(), ios::binary);
+  }
+
   string line;
 
   int fail = 0;
@@ -162,21 +202,32 @@ void testMagneticField::validate(string filename, string type) {
 
   float maxdelta = 0.;
 
-  while (getline(file, line) && count < numberOfPoints) {
-    if (line == "" || line[0] == '#')
-      continue;
-    stringstream linestr;
-    linestr << line;
-    float px, py, pz;
-    float bx, by, bz;
-    linestr >> px >> py >> pz >> bx >> by >> bz;
-    GlobalPoint gp;
-    if (type == "rpz_m") {  // assume rpz file with units in m.
-      gp = GlobalPoint(GlobalPoint::Cylindrical(px * 100., py, pz * 100.));
-    } else if (type == "xyz_m") {  // assume xyz file with units in m.
-      gp = GlobalPoint(px * 100., py * 100., pz * 100.);
-    } else {  // assume x,y,z with units in cm
+  float px, py, pz;
+  float bx, by, bz;
+  GlobalPoint gp;
+
+  do {
+    if (binary) {
+      if (!(file.read((char*)&px, sizeof(float)) && file.read((char*)&py, sizeof(float)) &&
+            file.read((char*)&pz, sizeof(float)) && file.read((char*)&bx, sizeof(float)) &&
+            file.read((char*)&by, sizeof(float)) && file.read((char*)&bz, sizeof(float))))
+        break;
       gp = GlobalPoint(px, py, pz);
+    } else {
+      if (!(getline(file, line)))
+        break;
+      if (line == "" || line[0] == '#')
+        continue;
+      stringstream linestr;
+      linestr << line;
+      linestr >> px >> py >> pz >> bx >> by >> bz;
+      if (type == "rpz_m") {  // assume rpz file with units in m.
+        gp = GlobalPoint(GlobalPoint::Cylindrical(px * 100., py, pz * 100.));
+      } else if (type == "xyz_m") {  // assume xyz file with units in m.
+        gp = GlobalPoint(px * 100., py * 100., pz * 100.);
+      } else {  // assume x,y,z with units in cm
+        gp = GlobalPoint(px, py, pz);
+      }
     }
 
     if (gp.perp() < InnerRadius || gp.perp() > OuterRadius || fabs(gp.z()) > HalfLength)
@@ -189,20 +240,28 @@ void testMagneticField::validate(string filename, string type) {
       float delta = (newB - oldB).mag();
       if (delta > maxdelta)
         maxdelta = delta;
-      cout << " Discrepancy at: # " << count + 1 << " " << gp << " R " << gp.perp() << " Phi " << gp.phi()
-           << " delta : " << newB - oldB << " " << delta << endl;
-
-      const MagVolume6Faces* vol = findVolume(gp);
-      if (vol)
-        cout << " volume: " << vol->volumeNo << " " << (int)vol->copyno;
-      cout << " Old: " << oldB << " New: " << newB << endl;
+      if (fail < 10) {
+        cout << " Discrepancy at: # " << count + 1 << " " << gp << " R " << gp.perp() << " Phi " << gp.phi()
+             << " delta : " << newB - oldB << " " << delta << endl;
+        const MagVolume6Faces* vol = findVolume(gp);
+        if (vol)
+          cout << " volume: " << vol->volumeNo << " " << (int)vol->copyno;
+        cout << " Old: " << oldB << " New: " << newB << endl;
+      } else if (fail == 10) {
+        cout << "..." << endl;
+      }
     }
     count++;
+  } while (count < numberOfPoints);
+
+  if (count == 0) {
+    edm::LogError("MagneticField") << "No input data" << endl;
+  } else {
+    cout << endl
+         << " testMagneticField::validate: tested " << count << " points " << fail
+         << " failures; max delta = " << maxdelta << endl
+         << endl;
   }
-  cout << endl
-       << " testMagneticField::validate: tested " << count << " points " << fail
-       << " failures; max delta = " << maxdelta << endl
-       << endl;
 }
 
 void testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& sector, string& type) {
