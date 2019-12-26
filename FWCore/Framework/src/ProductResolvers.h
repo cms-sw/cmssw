@@ -40,6 +40,7 @@ namespace edm {
 
     // Give AliasProductResolver and SwitchBaseProductResolver access by moving this method to public
     void resetProductData_(bool deleteEarly) override = 0;
+    virtual ProductData const& getProductData() const = 0;
   };
 
   class DataManagingProductResolver : public DataManagingOrAliasProductResolver {
@@ -66,12 +67,12 @@ namespace edm {
     //Handle the boilerplate code needed for resolveProduct_
     template <bool callResolver, typename FUNC>
     Resolution resolveProductImpl(FUNC resolver) const;
+    ProductData const& getProductData() const final { return productData_; }
     void setMergeableRunProductMetadataInProductData(MergeableRunProductMetadata const*);
 
   private:
     void throwProductDeletedException() const;
     void checkType(WrapperBase const& prod) const;
-    ProductData const& getProductData() const { return productData_; }
     virtual bool isFromCurrentProcess() const = 0;
     // merges the product with the pre-existing product
     void mergeProduct(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
@@ -252,6 +253,7 @@ namespace edm {
     void setProductID_(ProductID const& pid) override;
     ProductProvenance const* productProvenancePtr_() const override;
     void resetProductData_(bool deleteEarly) override;
+    ProductData const& getProductData() const final { return realProduct_.getProductData(); }
     bool singleProduct_() const override;
 
     DataManagingOrAliasProductResolver& realProduct_;
@@ -275,6 +277,7 @@ namespace edm {
     DataManagingOrAliasProductResolver const& realProduct() const { return realProduct_; }
     std::atomic<bool>& prefetchRequested() const { return prefetchRequested_; }
     void updateProvenance() const;
+    void unsafe_setWrapper() const;
     void resetProductData_(bool deleteEarly) override;
 
   private:
@@ -297,6 +300,7 @@ namespace edm {
     void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) final;
     void setProductID_(ProductID const& pid) final;
     ProductProvenance const* productProvenancePtr_() const final { return provenance()->productProvenance(); }
+    ProductData const& getProductData() const final { return productData_; }
     bool singleProduct_() const final { return true; }
 
     // for "alias" view
