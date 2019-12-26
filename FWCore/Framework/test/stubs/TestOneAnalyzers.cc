@@ -141,7 +141,7 @@ namespace edmtest {
     public:
       explicit RunCacheAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {
         ++m_count;
@@ -185,7 +185,7 @@ namespace edmtest {
     public:
       explicit LumiBlockCacheAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {
         ++m_count;

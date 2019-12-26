@@ -144,7 +144,8 @@ namespace edm {
     private:
       const char* typePtr_;
       std::string path_;
-      mutable std::string cache_;
+      //This class is only used within a thread local object
+      CMS_SA_ALLOW mutable std::string cache_;
     };
 
     class StringProducerSinglet : public StringProducer {
