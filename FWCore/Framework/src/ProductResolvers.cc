@@ -596,7 +596,7 @@ namespace edm {
 
   SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd,
                                                        DataManagingOrAliasProductResolver& realProduct)
-      : realProduct_(realProduct), productData_(std::move(bd)), prefetchRequested_(false), status_(defaultStatus_) {
+      : realProduct_(realProduct), productData_(std::move(bd)), prefetchRequested_(false) {
     // Parentage of this branch is always the same by construction, so we can compute the ID just "once" here.
     Parentage p;
     p.setParents(std::vector<BranchID>{realProduct.branchDescription().originalBranchID()});
@@ -630,21 +630,6 @@ namespace edm {
     return false;
   }
 
-  void SwitchBaseProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
-    if (status_ != defaultStatus_) {
-      throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product for a branch " << branchDescription().branchName()
-          << "This makes no sense for SwitchBaseProductResolver.\nContact a Framework developer";
-    }
-    // Let's use ResolveFailed to signal that produce() was called, as
-    // there is no real product in this resolver
-    status_ = ProductStatus::ResolveFailed;
-    bool expected = false;
-    if (prefetchRequested_.compare_exchange_strong(expected, true)) {
-      waitingTasks_.doneWaiting(std::exception_ptr());
-    }
-  }
-
   void SwitchBaseProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
                                                      MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
@@ -666,21 +651,21 @@ namespace edm {
     productData_.resetProductData();
     realProduct_.resetProductData_(deleteEarly);
     prefetchRequested_ = false;
-    if (not deleteEarly) {
-      status_ = defaultStatus_;
-    }
   }
 
   void SwitchBaseProductResolver::updateProvenance() const {
-    return productData_.provenance().store()->insertIntoSet(
-        ProductProvenance(branchDescription().branchID(), parentageID_));
+    productData_.provenance().store()->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
   }
+
+  SwitchProducerProductResolver::SwitchProducerProductResolver(std::shared_ptr<BranchDescription const> bd,
+                                                               DataManagingOrAliasProductResolver& realProduct)
+      : SwitchBaseProductResolver(std::move(bd), realProduct), status_(defaultStatus_) {}
 
   ProductResolverBase::Resolution SwitchProducerProductResolver::resolveProduct_(Principal const& principal,
                                                                                  bool skipCurrentProcess,
                                                                                  SharedResourcesAcquirer* sra,
                                                                                  ModuleCallingContext const* mcc) const {
-    if (status() == ProductStatus::ResolveFailed) {
+    if (status_ == ProductStatus::ResolveFailed) {
       return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
     }
     return Resolution(nullptr);
@@ -718,12 +703,34 @@ namespace edm {
     }
   }
 
+  void SwitchProducerProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    if (status_ != defaultStatus_) {
+      throw Exception(errors::InsertFailure)
+          << "Attempt to insert more than one product for a branch " << branchDescription().branchName()
+          << "This makes no sense for SwitchProducerProductResolver.\nContact a Framework developer";
+    }
+    // Let's use ResolveFailed to signal that produce() was called, as
+    // there is no real product in this resolver
+    status_ = ProductStatus::ResolveFailed;
+    bool expected = false;
+    if (prefetchRequested().compare_exchange_strong(expected, true)) {
+      waitingTasks().doneWaiting(std::exception_ptr());
+    }
+  }
+
   bool SwitchProducerProductResolver::productUnavailable_() const {
     // if produce() was run (ResolveFailed), ask from the real resolver
-    if (status() == ProductStatus::ResolveFailed) {
+    if (status_ == ProductStatus::ResolveFailed) {
       return realProduct().productUnavailable();
     }
     return true;
+  }
+
+  void SwitchProducerProductResolver::resetProductData_(bool deleteEarly) {
+    SwitchBaseProductResolver::resetProductData_(deleteEarly);
+    if (not deleteEarly) {
+      status_ = defaultStatus_;
+    }
   }
 
   ProductResolverBase::Resolution SwitchAliasProductResolver::resolveProduct_(Principal const& principal,
@@ -744,6 +751,12 @@ namespace edm {
     }
     updateProvenance();
     realProduct().prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
+  }
+
+  void SwitchAliasProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    throw Exception(errors::LogicError)
+        << "SwitchAliasProductResolver::putProduct() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   void ParentProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
