@@ -15,17 +15,13 @@
 // edm stuff
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 // Tracker Geometry/Topology  stuff
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 
 // Pixel names
@@ -41,13 +37,36 @@
 
 const GeometryInterface::Value GeometryInterface::UNDEFINED = 999999999.9f;
 
+GeometryInterface::GeometryInterface(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+    : iConfig(conf),
+      trackerGeometryToken_{iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()},
+      trackerTopologyToken_{iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()},
+      siPixelFedCablingMapToken_{
+          iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>()},
+      cablingMapLabel_{conf.getParameter<std::string>("CablingMapLabel")} {
+  if (!cablingMapLabel_.empty()) {
+    labeledSiPixelFedCablingMapToken_ =
+        iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>(
+            edm::ESInputTag("", cablingMapLabel_));
+  }
+}
+
 void GeometryInterface::load(edm::EventSetup const& iSetup) {
+  const TrackerGeometry& trackerGeometry = iSetup.getData(trackerGeometryToken_);
+  const TrackerTopology& trackerTopology = iSetup.getData(trackerTopologyToken_);
+  const SiPixelFedCablingMap& siPixelFedCablingMap = iSetup.getData(siPixelFedCablingMapToken_);
+
+  const SiPixelFedCablingMap* labeledSiPixelFedCablingMap = &siPixelFedCablingMap;
+  if (!cablingMapLabel_.empty()) {
+    labeledSiPixelFedCablingMap = &iSetup.getData(labeledSiPixelFedCablingMapToken_);
+  }
+
   //loadFromAlignment(iSetup, iConfig);
-  loadFromTopology(iSetup, iConfig);
-  loadTimebased(iSetup, iConfig);
-  loadModuleLevel(iSetup, iConfig);
-  loadFEDCabling(iSetup, iConfig);
-  loadFromSiPixelCoordinates(iSetup, iConfig);
+  loadFromTopology(trackerGeometry, trackerTopology, iConfig);
+  loadTimebased(iConfig);
+  loadModuleLevel(iConfig);
+  loadFEDCabling(labeledSiPixelFedCablingMap);
+  loadFromSiPixelCoordinates(trackerGeometry, trackerTopology, siPixelFedCablingMap, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
   for (auto e : ids)
@@ -56,12 +75,9 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   is_loaded = true;
 }
 
-void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
-  // Get a Topology
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-  assert(trackerTopologyHandle.isValid());
-
+void GeometryInterface::loadFromTopology(const TrackerGeometry& trackerGeometry,
+                                         const TrackerTopology& trackerTopology,
+                                         const edm::ParameterSet& iConfig) {
   std::vector<ID> geomquantities;
 
   struct TTField {
@@ -75,7 +91,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     };
   };
 
-  const TrackerTopology* tt = trackerTopologyHandle.operator->();
+  const TrackerTopology* tt = &trackerTopology;
 
   std::vector<std::pair<std::string, TTField>> namedPartitions{
       {"PXEndcap", {tt, TrackerTopology::PFSide}},
@@ -132,13 +148,8 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   int phase = iConfig.getParameter<int>("upgradePhase");
   bool isUpgrade = phase == 1;
 
-  // Get a Geometry
-  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-  assert(trackerGeometryHandle.isValid());
-
   // Now traverse the detector and collect whatever we need.
-  auto detids = trackerGeometryHandle->detIds();
+  auto detids = trackerGeometry.detIds();
   for (DetId id : detids) {
     if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap)
       continue;
@@ -157,7 +168,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
-    const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometryHandle->idToDetUnit(id));
+    const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry.idToDetUnit(id));
     assert(detUnit);
     const PixelTopology* topo = &detUnit->specificTopology();
     iq.row = 0;
@@ -175,7 +186,10 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   }
 }
 
-void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+void GeometryInterface::loadFromSiPixelCoordinates(const TrackerGeometry& trackerGeometry,
+                                                   const TrackerTopology& trackerTopology,
+                                                   const SiPixelFedCablingMap& siPixelFedCablingMap,
+                                                   const edm::ParameterSet& iConfig) {
   // TODO: SiPixelCoordinates has a large overlap with theis GeometryInterface
   // in general.
   // Rough convention is to use own code for things that are easy and fast to
@@ -191,7 +205,7 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   // note that we should reeinit for each event. But this probably won't explode
   // thanks to the massive memoization in SiPixelCoordinates which is completely
   // initialized while booking.
-  coord->init(iSetup);
+  coord->init(&trackerTopology, &trackerGeometry, &siPixelFedCablingMap);
 
   // SiPixelCoordinates uses a different convention for UNDEFINED:
   auto from_coord = [](double in) { return (in == -9999.0) ? UNDEFINED : Value(in); };
@@ -363,7 +377,7 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   });
 }
 
-void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+void GeometryInterface::loadTimebased(const edm::ParameterSet& iConfig) {
   // extractors for quantities that are roughly time-based. We cannot book plots based on these; they have to
   // be grouped away in step1.
   addExtractor(
@@ -414,7 +428,7 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
       iConfig.getParameter<int>("max_bunchcrossing"));
 }
 
-void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+void GeometryInterface::loadModuleLevel(const edm::ParameterSet& iConfig) {
   // stuff that is within modules. Might require some phase0/phase1/strip switching later
   addExtractor(
       intern("row"),
@@ -428,14 +442,10 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       iConfig.getParameter<int>("module_cols") - 1);
 }
 
-void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
-  auto cablingMapLabel = iConfig.getParameter<std::string>("CablingMapLabel");
-  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel, theCablingMap);
-
+void GeometryInterface::loadFEDCabling(const SiPixelFedCablingMap* labeledSiPixelFedCablingMap) {
   std::shared_ptr<SiPixelFrameReverter> siPixelFrameReverter =
       // I think passing the bare pointer here is safe, but who knows...
-      std::make_shared<SiPixelFrameReverter>(iSetup, theCablingMap.operator->());
+      std::make_shared<SiPixelFrameReverter>(labeledSiPixelFedCablingMap);
 
   addExtractor(intern("FED"), [siPixelFrameReverter](InterestingQuantities const& iq) {
     if (iq.sourceModule == 0xFFFFFFFF)

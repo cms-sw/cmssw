@@ -22,10 +22,6 @@
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 
-namespace edm {
-  class EventSetup;
-}
-
 class TrackerGeometry;
 
 class SiPixelQuality {
@@ -93,11 +89,7 @@ public:
   bool IsModuleBad(const uint32_t& detid) const;                   //returns True if module disabled
   bool IsModuleUsable(const uint32_t& detid) const;                //returns True if module NOT disabled
   bool IsRocBad(const uint32_t& detid, const short& rocNb) const;  //returns True if ROC is disabled
-  bool IsAreaBad(uint32_t detid,
-                 sipixelobjects::GlobalPixel global,
-                 const edm::EventSetup& es,
-                 const SiPixelFedCabling* map) const;
-  short getBadRocs(const uint32_t& detid) const;  //returns bad Rocs for given DetId
+  short getBadRocs(const uint32_t& detid) const;                   //returns bad Rocs for given DetId
   //each bad roc correspond to a bit to 1: num=
   //0 <-> all good rocs
   //1 <-> only roc 0 bad
