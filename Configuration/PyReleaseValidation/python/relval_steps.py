@@ -3309,6 +3309,7 @@ for step in upgradeStepDict.keys():
                         if not 'SingleNu' in frag:
                             continue
                         stepKey = 'PREMIX_'+key+'_'+step
+                        howMuch = Kby(100,100)
                         steps[stepKey]=merge([ {'--evt_type':frag},howMuch,upgradeStepDict[step][key]])
                     else:
                         steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
