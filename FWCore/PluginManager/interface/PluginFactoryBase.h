@@ -28,6 +28,7 @@
 #include "tbb/concurrent_vector.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 // user include files
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 
@@ -69,8 +70,9 @@ namespace edmplugin {
     ///returns the name of the category to which this plugin factory belongs
     virtual const std::string& category() const = 0;
 
+    //The signal is only modified during a shared library load which is protected by a mutex by the operating system
     ///signal containing plugin category, and  plugin info for newly added plugin
-    mutable edm::signalslot::Signal<void(const std::string&, const PluginInfo&)> newPluginAdded_;
+    CMS_THREAD_SAFE mutable edm::signalslot::Signal<void(const std::string&, const PluginInfo&)> newPluginAdded_;
 
     // ---------- static member functions --------------------
 
