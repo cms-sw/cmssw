@@ -665,6 +665,7 @@ namespace edm {
   void SwitchBaseProductResolver::resetProductData_(bool deleteEarly) {
     productData_.resetProductData();
     realProduct_.resetProductData_(deleteEarly);
+    prefetchRequested_ = false;
     if (not deleteEarly) {
       status_ = defaultStatus_;
     }
