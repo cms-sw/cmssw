@@ -11,6 +11,7 @@
 #include <memory>
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   typedef edmplugin::PluginFactory<Maker*()> MakerPluginFactory;
@@ -23,6 +24,7 @@ namespace edm {
 
     static Factory const* get();
 
+    //This function is not const-thread safe
     std::shared_ptr<maker::ModuleHolder> makeModule(const MakeModuleParams&,
                                                     signalslot::Signal<void(const ModuleDescription&)>& pre,
                                                     signalslot::Signal<void(const ModuleDescription&)>& post) const;
@@ -33,7 +35,8 @@ namespace edm {
     Factory();
     Maker* findMaker(const MakeModuleParams& p) const;
     static Factory const singleInstance_;
-    mutable MakerMap makers_;
+    //It is not safe to create modules across threads
+    CMS_SA_ALLOW mutable MakerMap makers_;
   };
 
 }  // namespace edm

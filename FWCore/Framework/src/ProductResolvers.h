@@ -15,6 +15,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 #include <memory>
@@ -131,7 +132,7 @@ namespace edm {
     void resetProductData_(bool deleteEarly) override;
 
     mutable std::atomic<bool> m_prefetchRequested;
-    mutable WaitingTaskList m_waitingTasks;
+    CMS_THREAD_SAFE mutable WaitingTaskList m_waitingTasks;
     UnscheduledAuxiliary const* aux_;  //provides access to the delayedGet signals
   };
 
@@ -172,7 +173,7 @@ namespace edm {
     void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
     void resetProductData_(bool deleteEarly) override;
 
-    mutable WaitingTaskList m_waitingTasks;
+    CMS_THREAD_SAFE mutable WaitingTaskList m_waitingTasks;
     Worker* worker_;
     mutable std::atomic<bool> prefetchRequested_;
   };
@@ -199,7 +200,7 @@ namespace edm {
 
     void resetProductData_(bool deleteEarly) override;
 
-    mutable WaitingTaskList waitingTasks_;
+    CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
     UnscheduledAuxiliary const* aux_;
     Worker* worker_;
     mutable std::atomic<bool> prefetchRequested_;
@@ -307,12 +308,14 @@ namespace edm {
     // for "product" view
     ProductData productData_;
     Worker* worker_ = nullptr;
-    mutable WaitingTaskList waitingTasks_;
+    CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
     mutable std::atomic<bool> prefetchRequested_;
     // for provenance
     ParentageID parentageID_;
     // for filter in a Path
-    mutable ProductStatus status_;
+    // The variable is only modified or read at times where the
+    //  framework has guaranteed synchronization between write and read
+    CMS_THREAD_SAFE mutable ProductStatus status_;
   };
 
   // For the case when SwitchProducer is on a Path
@@ -488,8 +491,8 @@ namespace edm {
 
     std::vector<ProductResolverIndex> matchingHolders_;
     std::vector<bool> ambiguous_;
-    mutable WaitingTaskList waitingTasks_;
-    mutable WaitingTaskList skippingWaitingTasks_;
+    CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
+    CMS_THREAD_SAFE mutable WaitingTaskList skippingWaitingTasks_;
     mutable std::atomic<unsigned int> lastCheckIndex_;
     mutable std::atomic<unsigned int> lastSkipCurrentCheckIndex_;
     mutable std::atomic<bool> prefetchRequested_;

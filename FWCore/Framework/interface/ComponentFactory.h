@@ -10,7 +10,7 @@
  Description: Factory for building the Factories for the various 'plug-in' components needed for the EventSetup
 
  Usage:
-    <usage>
+    NOTE: it is not safe to call this class across threads, even if only calling const member functions.
 
 */
 //
@@ -31,6 +31,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
@@ -110,7 +111,8 @@ namespace edm {
       const ComponentFactory& operator=(const ComponentFactory&);  // stop default
 
       // ---------- member data --------------------------------
-      mutable MakerMap makers_;
+      //Creating a new component is not done across threads
+      CMS_SA_ALLOW mutable MakerMap makers_;
     };
 
   }  // namespace eventsetup
