@@ -617,8 +617,6 @@ namespace edm {
   ProductResolverBase::Resolution SwitchBaseProductResolver::resolveProductImpl(Resolution res) const {
     if (res.data() == nullptr)
       return res;
-    // Use the Wrapper of the pointed-to resolver, but the provenance of this resolver
-    productData_.unsafe_setWrapper(res.data()->sharedConstWrapper());
     return Resolution(&productData_);
   }
 
@@ -655,6 +653,11 @@ namespace edm {
 
   void SwitchBaseProductResolver::updateProvenance() const {
     productData_.provenance().store()->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
+  }
+
+  void SwitchBaseProductResolver::unsafe_setWrapper() const {
+    // Use the Wrapper of the pointed-to resolver, but the provenance of this resolver
+    productData_.unsafe_setWrapper(realProduct().getProductData().sharedConstWrapper());
   }
 
   SwitchProducerProductResolver::SwitchProducerProductResolver(std::shared_ptr<BranchDescription const> bd,
@@ -696,6 +699,7 @@ namespace edm {
           updateProvenance();
           waitingTasks().doneWaiting(*iException);
         } else {
+          unsafe_setWrapper();
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
@@ -714,6 +718,7 @@ namespace edm {
     status_ = ProductStatus::ResolveFailed;
     bool expected = false;
     if (prefetchRequested().compare_exchange_strong(expected, true)) {
+      unsafe_setWrapper();
       waitingTasks().doneWaiting(std::exception_ptr());
     }
   }
@@ -749,8 +754,26 @@ namespace edm {
     if (skipCurrentProcess) {
       return;
     }
-    updateProvenance();
-    realProduct().prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
+    waitingTasks().add(waitTask);
+
+    bool expected = false;
+    if (prefetchRequested().compare_exchange_strong(expected, true)) {
+      updateProvenance();
+
+      //using a waiting task to do a callback guarantees that
+      // the waitingTasks() list will be released from waiting even
+      // if the module does not put this data product or the
+      // module has an exception while running
+      auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+        if (nullptr != iException) {
+          waitingTasks().doneWaiting(*iException);
+        } else {
+          unsafe_setWrapper();
+          waitingTasks().doneWaiting(std::exception_ptr());
+        }
+      });
+      realProduct().prefetchAsync(waiting, principal, skipCurrentProcess, token, sra, mcc);
+    }
   }
 
   void SwitchAliasProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
