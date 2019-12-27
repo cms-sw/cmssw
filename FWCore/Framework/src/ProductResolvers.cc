@@ -697,9 +697,9 @@ namespace edm {
       // module has an exception while running
       auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
         if (nullptr != iException) {
-          updateProvenance();
           waitingTasks().doneWaiting(*iException);
         } else {
+          updateProvenance();
           unsafe_setWrapper();
           waitingTasks().doneWaiting(std::exception_ptr());
         }
@@ -759,8 +759,6 @@ namespace edm {
 
     bool expected = false;
     if (prefetchRequested().compare_exchange_strong(expected, true)) {
-      updateProvenance();
-
       //using a waiting task to do a callback guarantees that
       // the waitingTasks() list will be released from waiting even
       // if the module does not put this data product or the
@@ -769,6 +767,7 @@ namespace edm {
         if (nullptr != iException) {
           waitingTasks().doneWaiting(*iException);
         } else {
+          updateProvenance();
           unsafe_setWrapper();
           waitingTasks().doneWaiting(std::exception_ptr());
         }
