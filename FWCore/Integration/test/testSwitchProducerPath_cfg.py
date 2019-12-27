@@ -29,7 +29,10 @@ process.maxEvents = cms.untracked.PSet(
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testSwitchProducerPathFilter%d.root' % (1 if enableTest2 else 2,)),
     outputCommands = cms.untracked.vstring(
-        'keep *_intProducer_*_*'
+        'keep *_intProducer_*_*',
+        'keep *_intProducerDep1_*_*',
+        'keep *_intProducerDep2_*_*',
+        'keep *_intProducerDep3_*_*',
     )
 )
 
@@ -53,7 +56,14 @@ process.intProducerAlias = SwitchProducerTest(
                                                  cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
-process.t = cms.Task(process.intProducer1, process.intProducer2, process.intProducer3)
+# Test multiple consumers of a SwitchProducer
+process.intProducerDep1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+process.intProducerDep2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+process.intProducerDep3 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+
+
+process.t = cms.Task(process.intProducer1, process.intProducer2, process.intProducer3,
+                     process.intProducerDep1, process.intProducerDep2, process.intProducerDep3)
 process.p = cms.Path(process.intProducer + process.intProducerAlias, process.t)
 
 process.e = cms.EndPath(process.out)
