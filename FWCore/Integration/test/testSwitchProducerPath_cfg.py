@@ -27,9 +27,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSwitchProducerPathFilter%d.root' % (1 if enableTest2 else 2,)),
+    fileName = cms.untracked.string('testSwitchProducerPath%d.root' % (1 if enableTest2 else 2,)),
     outputCommands = cms.untracked.vstring(
         'keep *_intProducer_*_*',
+        'keep *_intProducerAlias_*_*',
         'keep *_intProducerDep1_*_*',
         'keep *_intProducerDep2_*_*',
         'keep *_intProducerDep3_*_*',
@@ -38,7 +39,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.intProducer1 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(1))
 process.intProducer2 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2))
-process.intProducer3 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(3), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(31))))
+process.intProducer3 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(2))))
 if enableTest2:
     process.intProducer1.throw = cms.untracked.bool(True)
 else:
