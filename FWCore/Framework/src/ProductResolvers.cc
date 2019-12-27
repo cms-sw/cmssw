@@ -652,11 +652,9 @@ namespace edm {
     waitingTasks_.reset();
   }
 
-  void SwitchBaseProductResolver::updateProvenance() const {
+  void SwitchBaseProductResolver::unsafe_setWrapperAndProvenance() const {
+    // update provenance
     productData_.provenance().store()->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
-  }
-
-  void SwitchBaseProductResolver::unsafe_setWrapper() const {
     // Use the Wrapper of the pointed-to resolver, but the provenance of this resolver
     productData_.unsafe_setWrapper(realProduct().getProductData().sharedConstWrapper());
   }
@@ -699,8 +697,7 @@ namespace edm {
         if (nullptr != iException) {
           waitingTasks().doneWaiting(*iException);
         } else {
-          updateProvenance();
-          unsafe_setWrapper();
+          unsafe_setWrapperAndProvenance();
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
@@ -719,7 +716,7 @@ namespace edm {
     status_ = ProductStatus::ResolveFailed;
     bool expected = false;
     if (prefetchRequested().compare_exchange_strong(expected, true)) {
-      unsafe_setWrapper();
+      unsafe_setWrapperAndProvenance();
       waitingTasks().doneWaiting(std::exception_ptr());
     }
   }
@@ -767,8 +764,7 @@ namespace edm {
         if (nullptr != iException) {
           waitingTasks().doneWaiting(*iException);
         } else {
-          updateProvenance();
-          unsafe_setWrapper();
+          unsafe_setWrapperAndProvenance();
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });

@@ -276,8 +276,7 @@ namespace edm {
     Worker* worker() const { return worker_; }
     DataManagingOrAliasProductResolver const& realProduct() const { return realProduct_; }
     std::atomic<bool>& prefetchRequested() const { return prefetchRequested_; }
-    void updateProvenance() const;
-    void unsafe_setWrapper() const;
+    void unsafe_setWrapperAndProvenance() const;
     void resetProductData_(bool deleteEarly) override;
 
   private:
