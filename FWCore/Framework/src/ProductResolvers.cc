@@ -649,6 +649,7 @@ namespace edm {
     productData_.resetProductData();
     realProduct_.resetProductData_(deleteEarly);
     prefetchRequested_ = false;
+    waitingTasks_.reset();
   }
 
   void SwitchBaseProductResolver::updateProvenance() const {
