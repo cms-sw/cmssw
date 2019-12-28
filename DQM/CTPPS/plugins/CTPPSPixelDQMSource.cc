@@ -69,10 +69,6 @@ private:
   const float mapXmax = 30. * TMath::Cos(18.4 / 180. * TMath::Pi());
 
   CTPPSPixelIndices thePixIndices;
-  int pixRowMAX = thePixIndices.getDefaultRowDetSize(); // defaultDetSizeInX, CMS Y-axis
-  int pixColMAX = thePixIndices.getDefaultColDetSize(); // defaultDetSizeInY, CMS X-axis
-  int ROCSizeInX = pixRowMAX / 2; // ROC row size in pixels = 80
-  int ROCSizeInY = pixColMAX / 3; // ROC col size in pixels = 52
 
   int TrackFitDimension = 4;
 
@@ -234,11 +230,6 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run,
   CTPPSPixelLocalTrack thePixelLocalTrack;
   TrackFitDimension = thePixelLocalTrack.dimension;
 
-  pixRowMAX = thePixIndices.getDefaultRowDetSize();
-  pixColMAX = thePixIndices.getDefaultColDetSize();
-  ROCSizeInX = pixRowMAX / 2; // ROC row size in pixels = 80
-  ROCSizeInY = pixColMAX / 3;
-
   for (int stn = 0; stn < StationIDMAX; stn++) {
     StationStatus[stn] = 0;
     for (int rp = 0; rp < RPotsIDMAX; rp++)
@@ -275,9 +266,9 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
   char s[50];
   string armTitleShort, stnTitleShort;
 
-  TAxis *yah1st = NULL;
-  TAxis *xaRPact = NULL;
-  TAxis *xah1trk = NULL;
+  TAxis *yah1st = nullptr;
+  TAxis *xaRPact = nullptr;
+  TAxis *xah1trk = nullptr;
   if (onlinePlots) {
     hBX = ibooker.book1D("events per BX", "ctpps_pixel;Event.BX", 4002, -1.5,
                          4000. + 0.5);
@@ -432,7 +423,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
           hRPotActivBXall[indexP] = ibooker.book1D(
               "hits per BX", rpTitle + ";Event.BX", 4002, -1.5, 4000. + 0.5);
         }
-        int nbins = pixRowMAX / pixBinW;
+        int nbins = defaultDetSizeInX / pixBinW;
 
         for (int p = 0; p < NplaneMAX; p++) {
           if (isPlanePlotsTurnedOff[arm][stn][rp][p])
@@ -444,14 +435,14 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
 
           st = "adc average value";
           hp2xyADC[indexP][p] = ibooker.bookProfile2D(
-              st, st1 + ";pix col;pix row", nbins, 0, pixRowMAX, nbins, 0,
-              pixRowMAX, 0., 512., "");
+              st, st1 + ";pix col;pix row", nbins, 0, defaultDetSizeInX, nbins, 0,
+              defaultDetSizeInX, 0., 512., "");
           hp2xyADC[indexP][p]->getTProfile2D()->SetOption("colz");
 
           if (onlinePlots) {
             st = "hits position";
-            h2xyHits[indexP][p] = ibooker.book2DD(st, st1 + ";pix col;pix row", pixRowMAX, 0,
-                                pixRowMAX, pixRowMAX, 0, pixRowMAX);
+            h2xyHits[indexP][p] = ibooker.book2DD(st, st1 + ";pix col;pix row", defaultDetSizeInX, 0,
+                                defaultDetSizeInX, defaultDetSizeInX, 0, defaultDetSizeInX);
             h2xyHits[indexP][p]->getTH2D()->SetOption("colz");
 
             st = "hits multiplicity";
