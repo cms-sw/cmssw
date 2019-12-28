@@ -33,6 +33,7 @@ private:
 
   std::vector<std::string> selectionTags;
   std::string trackType;
+  bool ignoreMissingMuonCollection;
   const edm::ParameterSet parset_;
 };
 

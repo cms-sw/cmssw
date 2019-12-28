@@ -25,6 +25,7 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
           consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))),
       selectionTags(parset.getParameter<std::vector<std::string>>("selectionTags")),
       trackType(parset.getParameter<std::string>("trackType")),
+      ignoreMissingMuonCollection(parset.getUntrackedParameter<bool>("ignoreMissingMuonCollection", false)),
       parset_(parset) {
   edm::LogVerbatim("MuonTrackProducer") << "constructing  MuonTrackProducer" << parset_.dump();
   produces<reco::TrackCollection>();
@@ -35,7 +36,12 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
 MuonTrackProducer::~MuonTrackProducer() {}
 
 void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  iEvent.getByToken(muonsToken, muonCollectionH);
+  bool muonAvailable = iEvent.getByToken(muonsToken, muonCollectionH);
+  if (ignoreMissingMuonCollection && !muonAvailable)
+    edm::LogVerbatim("MuonTrackProducer") << "\n ignoring missing muon collection.";
+
+  else {
+
   iEvent.getByToken(inputDTRecSegment4DToken_, dtSegmentCollectionH_);
   iEvent.getByToken(inputCSCSegmentToken_, cscSegmentCollectionH_);
 
@@ -470,4 +476,6 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   iEvent.put(std::move(selectedTracks));
   iEvent.put(std::move(selectedTrackExtras));
   iEvent.put(std::move(selectedTrackHits));
+
+  }
 }

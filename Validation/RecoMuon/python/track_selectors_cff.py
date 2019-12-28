@@ -47,12 +47,14 @@ hltIterL3MuonsNoIDTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProduc
 hltIterL3MuonsNoIDTracks.muonsTag = cms.InputTag("hltIterL3MuonsNoID")
 hltIterL3MuonsNoIDTracks.selectionTags = ('All',)
 hltIterL3MuonsNoIDTracks.trackType = "recomuonTrack"
+hltIterL3MuonsNoIDTracks.ignoreMissingMuonCollection = True
 hltIterL3MuonsNoIDTracks_seq = cms.Sequence( hltIterL3MuonsNoIDTracks )
 
 hltIterL3MuonsTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
 hltIterL3MuonsTracks.muonsTag = cms.InputTag("hltIterL3Muons")
 hltIterL3MuonsTracks.selectionTags = ('All',)
 hltIterL3MuonsTracks.trackType = "recomuonTrack"
+hltIterL3MuonsTracks.ignoreMissingMuonCollection = True
 hltIterL3MuonsTracks_seq = cms.Sequence( hltIterL3MuonsTracks )
 
 #
