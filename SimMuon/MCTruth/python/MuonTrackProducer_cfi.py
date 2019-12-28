@@ -5,5 +5,6 @@ muonTrackProducer = cms.EDProducer("MuonTrackProducer",
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    selectionTags = cms.vstring('TrackerMuonArbitrated'),
-   trackType = cms.string('innerTrackPlusSegments')
+   trackType = cms.string('innerTrackPlusSegments'),
+   ignoreMissingMuonCollection = cms.untracked.bool(False)
 )
