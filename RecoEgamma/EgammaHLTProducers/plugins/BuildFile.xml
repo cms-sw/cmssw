@@ -3,7 +3,6 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="RecoEgamma/EgammaElectronAlgos"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
@@ -13,6 +12,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/L1Trigger"/>
+<use   name="TrackingTools/GsfTools"/>
 <library   file="*.cc" name="RecoEgammaEgammaHLTProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
