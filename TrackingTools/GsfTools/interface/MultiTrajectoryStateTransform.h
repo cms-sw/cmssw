@@ -46,23 +46,23 @@ public:
 
   /** TrajectoryStateOnSurface from the innermost state of a reco::GsfTrack 
    *  passing geometry and magnetic field (deprecated: use field from constructor) */
-  TrajectoryStateOnSurface innerStateOnSurface(const reco::GsfTrack& tk,
-                                               const TrackingGeometry& geom,
-                                               const MagneticField* field) const;
+  static TrajectoryStateOnSurface innerStateOnSurface(const reco::GsfTrack& tk,
+                                                      const TrackingGeometry& geom,
+                                                      const MagneticField* field);
   /** TrajectoryStateOnSurface from the outermost state of a reco::GsfTrack 
    *  passing geometry and magnetic field (deprecated: use field from constructor) */
-  TrajectoryStateOnSurface outerStateOnSurface(const reco::GsfTrack& tk,
-                                               const TrackingGeometry& geom,
-                                               const MagneticField* field) const;
+  static TrajectoryStateOnSurface outerStateOnSurface(const reco::GsfTrack& tk,
+                                                      const TrackingGeometry& geom,
+                                                      const MagneticField* field);
 
 private:
   /** TSOS from a mixture in local parameters */
-  TrajectoryStateOnSurface stateOnSurface(const std::vector<double>& weights,
-                                          const std::vector<ParameterVector>& parameters,
-                                          const std::vector<CovarianceMatrix>& covariances,
-                                          const double& pzSign,
-                                          const Surface& surface,
-                                          const MagneticField* field) const;
+  static TrajectoryStateOnSurface stateOnSurface(const std::vector<double>& weights,
+                                                 const std::vector<ParameterVector>& parameters,
+                                                 const std::vector<CovarianceMatrix>& covariances,
+                                                 const double& pzSign,
+                                                 const Surface& surface,
+                                                 const MagneticField* field);
   /** On-demand creation of a TransverseImpactPointExtrapolator */
   bool checkExtrapolator() const;
   /** Verification of the presence of geometry and field */
