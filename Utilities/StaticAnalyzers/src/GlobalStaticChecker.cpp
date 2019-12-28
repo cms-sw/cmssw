@@ -17,7 +17,7 @@ namespace clangcms {
   void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
                                          clang::ento::AnalysisManager &Mgr,
                                          clang::ento::BugReporter &BR) const {
-    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (D->getTSCSpec() == clang::ThreadStorageClassSpecifier::TSCS_thread_local)
       return;

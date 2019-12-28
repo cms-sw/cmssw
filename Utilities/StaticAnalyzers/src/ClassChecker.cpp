@@ -341,7 +341,7 @@ namespace clangcms {
           clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(), AC);
       if (support::isSafeClassName(t.getCanonicalType().getAsString()))
         return;
-      if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+      if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
         return;
       if (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local &&
           !support::isConst(t)) {
@@ -411,7 +411,7 @@ namespace clangcms {
     if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL))
       return;
     const ValueDecl *D = ME->getMemberDecl();
-    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (!(ME->isImplicitAccess()))
       return;
@@ -479,7 +479,7 @@ namespace clangcms {
 
   void WalkAST::ReportMember(const clang::MemberExpr *ME) {
     const ValueDecl *D = ME->getMemberDecl();
-    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (visitingCallExpr) {
       clang::Expr *IOA = visitingCallExpr->getImplicitObjectArgument();
@@ -663,7 +663,7 @@ namespace clangcms {
       return;
     for (auto I = RD->field_begin(), E = RD->field_end(); I != E; ++I) {
       const FieldDecl *D = (*I);
-      if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+      if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
         return;
       if (D->isMutable()) {
         clang::QualType t = D->getType();
@@ -694,7 +694,7 @@ namespace clangcms {
       if (!(*I)->isConst())
         continue;
       clang::CXXMethodDecl *MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
-      if (MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>())
+      if (MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>() || MD->hasAttr<CMSSaAllowAttr>())
         continue;
       if (MD->hasBody()) {
         clang::Stmt *Body = MD->getBody();

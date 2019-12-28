@@ -19,7 +19,7 @@ namespace clangcms {
                                         clang::ento::AnalysisManager &Mgr,
                                         clang::ento::BugReporter &BR) const {
     clang::QualType t = D->getType();
-    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (((D->isStaticLocal() || D->isStaticDataMember()) &&
          D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local) &&
