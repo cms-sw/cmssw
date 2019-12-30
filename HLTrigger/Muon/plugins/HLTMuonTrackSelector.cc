@@ -15,6 +15,9 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+using namespace std;
+using namespace reco;
+
 HLTMuonTrackSelector::HLTMuonTrackSelector(const edm::ParameterSet& iConfig)
     : collectionCloner(producesCollector(), iConfig, true),
       collectionClonerTokens(iConfig.getParameter<edm::InputTag>("track"), consumesCollector()),
