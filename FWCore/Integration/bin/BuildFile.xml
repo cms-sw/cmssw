@@ -1,0 +1,4 @@
+<bin   name="cmsInterProcess" file="interprocess.cc">
+  <use   name="boost"/>
+  <use   name="boost_program_options"/>
+</bin>
