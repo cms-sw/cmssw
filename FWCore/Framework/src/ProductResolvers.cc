@@ -30,7 +30,7 @@ namespace edm {
 
   void DataManagingProductResolver::throwProductDeletedException() const {
     ProductDeletedException exception;
-    exception << "ProductResolverBase::resolveProduct_: The product matching all criteria was already deleted\n"
+    exception << "DataManagingProductResolver::resolveProduct_: The product matching all criteria was already deleted\n"
               << "Looking for type: " << branchDescription().unwrappedTypeID() << "\n"
               << "Looking for module label: " << moduleLabel() << "\n"
               << "Looking for productInstanceName: " << productInstanceName() << "\n"
@@ -293,8 +293,10 @@ namespace edm {
   }
 
   void InputProductResolver::resetProductData_(bool deleteEarly) {
-    m_prefetchRequested = false;
-    m_waitingTasks.reset();
+    if (not deleteEarly) {
+      m_prefetchRequested = false;
+      m_waitingTasks.reset();
+    }
     DataManagingProductResolver::resetProductData_(deleteEarly);
   }
 
@@ -357,9 +359,11 @@ namespace edm {
   }
 
   void PuttableProductResolver::resetProductData_(bool deleteEarly) {
-    m_waitingTasks.reset();
+    if (not deleteEarly) {
+      prefetchRequested_ = false;
+      m_waitingTasks.reset();
+    }
     DataManagingProductResolver::resetProductData_(deleteEarly);
-    prefetchRequested_ = false;
   }
 
   void PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
@@ -448,8 +452,10 @@ namespace edm {
   }
 
   void UnscheduledProductResolver::resetProductData_(bool deleteEarly) {
-    prefetchRequested_ = false;
-    waitingTasks_.reset();
+    if (not deleteEarly) {
+      prefetchRequested_ = false;
+      waitingTasks_.reset();
+    }
     DataManagingProductResolver::resetProductData_(deleteEarly);
   }
 
@@ -648,8 +654,10 @@ namespace edm {
   void SwitchBaseProductResolver::resetProductData_(bool deleteEarly) {
     productData_.resetProductData();
     realProduct_.resetProductData_(deleteEarly);
-    prefetchRequested_ = false;
-    waitingTasks_.reset();
+    if (not deleteEarly) {
+      prefetchRequested_ = false;
+      waitingTasks_.reset();
+    }
   }
 
   void SwitchBaseProductResolver::unsafe_setWrapperAndProvenance() const {
@@ -1057,6 +1065,9 @@ namespace edm {
   inline unsigned int NoProcessProductResolver::unsetIndexValue() const { return ambiguous_.size() + kUnsetOffset; }
 
   void NoProcessProductResolver::resetProductData_(bool) {
+    // This function should never receive 'true'. On the other hand,
+    // nothing should break if a 'true' is passed, because
+    // NoProcessProductResolver just forwards the resolve
     const auto resetValue = unsetIndexValue();
     lastCheckIndex_ = resetValue;
     lastSkipCurrentCheckIndex_ = resetValue;
