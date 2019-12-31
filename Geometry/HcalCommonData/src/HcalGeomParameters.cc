@@ -244,7 +244,13 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
   loadfinal(php);
 }
 
-void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& php) {
+void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParameters& php) {
+  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
+  std::string attribute = "OnlyForHcalSimNumbering";
+  cms::DDSpecParRefs ref;
+  const cms::DDSpecParRegistry& mypar = cpv->specpars();
+  mypar.filter(ref, attribute, "HCAL");
+  fv.mergedSpecifics(ref);
   clear(php);
   bool dodet = fv.firstChild();
   bool hf(false);
@@ -254,6 +260,11 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
     std::vector<int> copy = fv.history().copyNos;
     int idet = 0, lay = -1;
     int nsiz = static_cast<int>(copy.size());
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "Parameters: " << paras.size() << " Copy " << copy.size();
+    for (unsigned int n=0; n<copy.size(); ++n) edm::LogVerbatim("HCalGeom") << "[" << n << "] " << copy[n];
+    for (unsigned int n=0; n<paras.size(); ++n) edm::LogVerbatim("HCalGeom") << "[" << n << "] " << paras[n];
+#endif
     if (nsiz > 0)
       lay = copy[nsiz - 1] / 10;
     if (nsiz > 1)

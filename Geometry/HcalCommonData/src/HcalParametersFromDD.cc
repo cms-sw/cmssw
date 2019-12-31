@@ -161,7 +161,7 @@ bool HcalParametersFromDD::build(const cms::DDCompactView* cpv, HcalParameters& 
 
   if (fv1.firstChild()) {
     std::unique_ptr<HcalGeomParameters> geom = std::make_unique<HcalGeomParameters>();
-    geom->loadGeometry(fv1, php);
+    geom->loadGeometry(cpv, php);
     php.modHB = geom->getModHalfHBHE(0);
     php.modHE = geom->getModHalfHBHE(1);
     php.dzVcal = geom->getConstDzHF();
