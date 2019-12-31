@@ -40,6 +40,7 @@ namespace edm {
 
     // Give AliasProductResolver and SwitchBaseProductResolver access by moving this method to public
     void resetProductData_(bool deleteEarly) override = 0;
+    virtual ProductData const& getProductData() const = 0;
   };
 
   class DataManagingProductResolver : public DataManagingOrAliasProductResolver {
@@ -66,12 +67,12 @@ namespace edm {
     //Handle the boilerplate code needed for resolveProduct_
     template <bool callResolver, typename FUNC>
     Resolution resolveProductImpl(FUNC resolver) const;
+    ProductData const& getProductData() const final { return productData_; }
     void setMergeableRunProductMetadataInProductData(MergeableRunProductMetadata const*);
 
   private:
     void throwProductDeletedException() const;
     void checkType(WrapperBase const& prod) const;
-    ProductData const& getProductData() const { return productData_; }
     virtual bool isFromCurrentProcess() const = 0;
     // merges the product with the pre-existing product
     void mergeProduct(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
@@ -252,6 +253,7 @@ namespace edm {
     void setProductID_(ProductID const& pid) override;
     ProductProvenance const* productProvenancePtr_() const override;
     void resetProductData_(bool deleteEarly) override;
+    ProductData const& getProductData() const final { return realProduct_.getProductData(); }
     bool singleProduct_() const override;
 
     DataManagingOrAliasProductResolver& realProduct_;
@@ -272,10 +274,10 @@ namespace edm {
     Resolution resolveProductImpl(Resolution) const;
     WaitingTaskList& waitingTasks() const { return waitingTasks_; }
     Worker* worker() const { return worker_; }
-    ProductStatus status() const { return status_; }
     DataManagingOrAliasProductResolver const& realProduct() const { return realProduct_; }
     std::atomic<bool>& prefetchRequested() const { return prefetchRequested_; }
-    void updateProvenance() const;
+    void unsafe_setWrapperAndProvenance() const;
+    void resetProductData_(bool deleteEarly) override;
 
   private:
     bool productResolved_() const final;
@@ -283,7 +285,6 @@ namespace edm {
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final {
       return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
     }
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const final;
     void putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
                             MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     BranchDescription const& branchDescription_() const final {
@@ -298,10 +299,8 @@ namespace edm {
     void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) final;
     void setProductID_(ProductID const& pid) final;
     ProductProvenance const* productProvenancePtr_() const final { return provenance()->productProvenance(); }
-    void resetProductData_(bool deleteEarly) final;
+    ProductData const& getProductData() const final { return productData_; }
     bool singleProduct_() const final { return true; }
-
-    constexpr static const ProductStatus defaultStatus_ = ProductStatus::NotPut;
 
     // for "alias" view
     DataManagingOrAliasProductResolver& realProduct_;
@@ -312,18 +311,13 @@ namespace edm {
     mutable std::atomic<bool> prefetchRequested_;
     // for provenance
     ParentageID parentageID_;
-    // for filter in a Path
-    // The variable is only modified or read at times where the
-    //  framework has guaranteed synchronization between write and read
-    CMS_THREAD_SAFE mutable ProductStatus status_;
   };
 
   // For the case when SwitchProducer is on a Path
   class SwitchProducerProductResolver : public SwitchBaseProductResolver {
   public:
     SwitchProducerProductResolver(std::shared_ptr<BranchDescription const> bd,
-                                  DataManagingOrAliasProductResolver& realProduct)
-        : SwitchBaseProductResolver(std::move(bd), realProduct) {}
+                                  DataManagingOrAliasProductResolver& realProduct);
 
   private:
     Resolution resolveProduct_(Principal const& principal,
@@ -336,8 +330,17 @@ namespace edm {
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const final;
+    void putProduct_(std::unique_ptr<WrapperBase> edp) const final;
     bool unscheduledWasNotRun_() const final { return false; }
     bool productUnavailable_() const final;
+    void resetProductData_(bool deleteEarly) final;
+
+    constexpr static const ProductStatus defaultStatus_ = ProductStatus::NotPut;
+
+    // for filter in a Path
+    // The variable is only modified or read at times where the
+    //  framework has guaranteed synchronization between write and read
+    CMS_THREAD_SAFE mutable ProductStatus status_;
   };
 
   // For the case when SwitchProducer is not on any Path
@@ -358,6 +361,7 @@ namespace edm {
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const final;
+    void putProduct_(std::unique_ptr<WrapperBase> edp) const final;
     bool unscheduledWasNotRun_() const final { return realProduct().unscheduledWasNotRun(); }
     bool productUnavailable_() const final { return realProduct().productUnavailable(); }
   };
