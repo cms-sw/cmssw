@@ -54,7 +54,7 @@ L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
                                                  const MuonServiceProxy* service,
                                                  edm::ConsumesCollector& iC)
     : GlobalTrajectoryBuilderBase(par, service, iC) {
-  theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();
+  theTrajectoryCleaner = std::make_unique<TrajectoryCleanerBySharedHits>();
   theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
   theBeamSpotInputTag = par.getParameter<edm::InputTag>("tkTrajBeamSpot");
   theMaxChi2 = par.getParameter<double>("tkTrajMaxChi2");
@@ -67,10 +67,7 @@ L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
 //--------------
 // Destructor --
 //--------------
-L3MuonTrajectoryBuilder::~L3MuonTrajectoryBuilder() {
-  if (theTrajectoryCleaner)
-    delete theTrajectoryCleaner;
-}
+L3MuonTrajectoryBuilder::~L3MuonTrajectoryBuilder() {}
 
 void L3MuonTrajectoryBuilder::fillDescriptions(edm::ParameterSetDescription& desc) {
   edm::ParameterSetDescription descTRB;
@@ -123,13 +120,11 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
 
-  std::vector<TrackCand> trackerTracks;
-
   std::vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
   LogDebug(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";
 
   // match tracker tracks to muon track
-  trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
+  std::vector<TrackCand> trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
 
   LogDebug(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
   if (trackerTracks.empty())
@@ -139,14 +134,13 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   // turn tkMatchedTracks into MuonCandidates
   LogDebug(category) << "turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
+  tkTrajs.reserve(trackerTracks.size());
   for (std::vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != nullptr && (*tkt).first->isValid()) {
-      MuonCandidate* muonCand =
-          new MuonCandidate(nullptr, staCand.second, (*tkt).second, new Trajectory(*(*tkt).first));
-      tkTrajs.push_back(muonCand);
+      tkTrajs.emplace_back(std::make_unique<MuonCandidate>(
+          nullptr, staCand.second, (*tkt).second, std::make_unique<Trajectory>(*(*tkt).first)));
     } else {
-      MuonCandidate* muonCand = new MuonCandidate(nullptr, staCand.second, (*tkt).second, nullptr);
-      tkTrajs.push_back(muonCand);
+      tkTrajs.emplace_back(std::make_unique<MuonCandidate>(nullptr, staCand.second, (*tkt).second, nullptr));
     }
   }
 
@@ -161,16 +155,6 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   // free memory
   if (staCandIn.first == nullptr)
     delete staCand.first;
-
-  for (CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
-    if ((*it)->trajectory())
-      delete (*it)->trajectory();
-    if ((*it)->trackerTrajectory())
-      delete (*it)->trackerTrajectory();
-    if (*it)
-      delete (*it);
-  }
-  tkTrajs.clear();
 
   for (std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
     delete (*is).first;

@@ -227,12 +227,12 @@ MuonTrajectoryBuilder::TrajectoryContainer StandAloneMuonTrajectoryBuilder::traj
                       << ")." << endl
                       << "A trajectory with only invalid RecHits will be loaded!" << endl;
     if (!foundValidRh) {
-      trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+      trajectoryContainer.push_back(std::make_unique<Trajectory>(trajectoryFW));
       return trajectoryContainer;
     }
     Trajectory defaultTraj(seed, fwDirection);
     filter()->createDefaultTrajectory(trajectoryFW, defaultTraj);
-    trajectoryContainer.push_back(new Trajectory(defaultTraj));
+    trajectoryContainer.push_back(std::make_unique<Trajectory>(defaultTraj));
     return trajectoryContainer;
   } else {
     LogTrace(metname) << "Compatibility NOT satisfied after Forward filter! No trajectory will be loaded!" << endl;
@@ -259,13 +259,13 @@ MuonTrajectoryBuilder::TrajectoryContainer StandAloneMuonTrajectoryBuilder::traj
     if (doRefit) {
       pair<bool, Trajectory> refitResult = refitter()->refit(trajectoryFW);
       if (refitResult.first) {
-        trajectoryContainer.push_back(new Trajectory(refitResult.second));
+        trajectoryContainer.push_back(std::make_unique<Trajectory>(refitResult.second));
         LogTrace(metname) << "StandAloneMuonTrajectoryBuilder refit output " << endl;
         LogTrace(metname) << debug.dumpTSOS(refitResult.second.lastMeasurement().updatedState());
       } else
-        trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+        trajectoryContainer.push_back(std::make_unique<Trajectory>(trajectoryFW));
     } else
-      trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+      trajectoryContainer.push_back(std::make_unique<Trajectory>(trajectoryFW));
 
     LogTrace(metname) << "Trajectory saved" << endl;
     return trajectoryContainer;
@@ -361,14 +361,14 @@ MuonTrajectoryBuilder::TrajectoryContainer StandAloneMuonTrajectoryBuilder::traj
     LogTrace(metname) << "Compatibility satisfied after Backward filter, but too few valid RecHits ("
                       << trajectoryBW.foundHits() << ")." << endl
                       << "The (good) result of FW filter will be loaded!" << endl;
-    trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+    trajectoryContainer.push_back(std::make_unique<Trajectory>(trajectoryFW));
     return trajectoryContainer;
   } else {
     LogTrace(metname) << "Compatibility NOT satisfied after Backward filter!" << endl
                       << "The Forward trajectory will be invalidated and then loaded!" << endl;
     Trajectory defaultTraj(seed, fwDirection);
     filter()->createDefaultTrajectory(trajectoryFW, defaultTraj);
-    trajectoryContainer.push_back(new Trajectory(defaultTraj));
+    trajectoryContainer.push_back(std::make_unique<Trajectory>(defaultTraj));
     return trajectoryContainer;
   }
   // end 2nd attempt
@@ -376,13 +376,13 @@ MuonTrajectoryBuilder::TrajectoryContainer StandAloneMuonTrajectoryBuilder::traj
   if (doRefit) {
     pair<bool, Trajectory> refitResult = refitter()->refit(trajectoryBW);
     if (refitResult.first) {
-      trajectoryContainer.push_back(new Trajectory(refitResult.second));
+      trajectoryContainer.push_back(std::make_unique<Trajectory>(refitResult.second));
       LogTrace(metname) << "StandAloneMuonTrajectoryBuilder Refit output " << endl;
       LogTrace(metname) << debug.dumpTSOS(refitResult.second.lastMeasurement().updatedState());
     } else
-      trajectoryContainer.push_back(new Trajectory(trajectoryBW));
+      trajectoryContainer.push_back(std::make_unique<Trajectory>(trajectoryBW));
   } else
-    trajectoryContainer.push_back(new Trajectory(trajectoryBW));
+    trajectoryContainer.push_back(std::make_unique<Trajectory>(trajectoryBW));
 
   LogTrace(metname) << "Trajectory saved" << endl;
 
