@@ -30,7 +30,7 @@ namespace edm {
 
   void DataManagingProductResolver::throwProductDeletedException() const {
     ProductDeletedException exception;
-    exception << "ProductResolverBase::resolveProduct_: The product matching all criteria was already deleted\n"
+    exception << "DataManagingProductResolver::resolveProduct_: The product matching all criteria was already deleted\n"
               << "Looking for type: " << branchDescription().unwrappedTypeID() << "\n"
               << "Looking for module label: " << moduleLabel() << "\n"
               << "Looking for productInstanceName: " << productInstanceName() << "\n"
@@ -293,8 +293,10 @@ namespace edm {
   }
 
   void InputProductResolver::resetProductData_(bool deleteEarly) {
-    m_prefetchRequested = false;
-    m_waitingTasks.reset();
+    if (not deleteEarly) {
+      m_prefetchRequested = false;
+      m_waitingTasks.reset();
+    }
     DataManagingProductResolver::resetProductData_(deleteEarly);
   }
 
@@ -357,9 +359,11 @@ namespace edm {
   }
 
   void PuttableProductResolver::resetProductData_(bool deleteEarly) {
-    m_waitingTasks.reset();
+    if (not deleteEarly) {
+      prefetchRequested_ = false;
+      m_waitingTasks.reset();
+    }
     DataManagingProductResolver::resetProductData_(deleteEarly);
-    prefetchRequested_ = false;
   }
 
   void PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
@@ -448,8 +452,10 @@ namespace edm {
   }
 
   void UnscheduledProductResolver::resetProductData_(bool deleteEarly) {
-    prefetchRequested_ = false;
-    waitingTasks_.reset();
+    if (not deleteEarly) {
+      prefetchRequested_ = false;
+      waitingTasks_.reset();
+    }
     DataManagingProductResolver::resetProductData_(deleteEarly);
   }
 
@@ -596,7 +602,7 @@ namespace edm {
 
   SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd,
                                                        DataManagingOrAliasProductResolver& realProduct)
-      : realProduct_(realProduct), productData_(std::move(bd)), prefetchRequested_(false), status_(defaultStatus_) {
+      : realProduct_(realProduct), productData_(std::move(bd)), prefetchRequested_(false) {
     // Parentage of this branch is always the same by construction, so we can compute the ID just "once" here.
     Parentage p;
     p.setParents(std::vector<BranchID>{realProduct.branchDescription().originalBranchID()});
@@ -617,8 +623,6 @@ namespace edm {
   ProductResolverBase::Resolution SwitchBaseProductResolver::resolveProductImpl(Resolution res) const {
     if (res.data() == nullptr)
       return res;
-    // Use the Wrapper of the pointed-to resolver, but the provenance of this resolver
-    productData_.unsafe_setWrapper(res.data()->sharedConstWrapper());
     return Resolution(&productData_);
   }
 
@@ -628,21 +632,6 @@ namespace edm {
     // null unique_ptr<WrapperBase> to signal that the produce() was
     // run.
     return false;
-  }
-
-  void SwitchBaseProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
-    if (status_ != defaultStatus_) {
-      throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product for a branch " << branchDescription().branchName()
-          << "This makes no sense for SwitchBaseProductResolver.\nContact a Framework developer";
-    }
-    // Let's use ResolveFailed to signal that produce() was called, as
-    // there is no real product in this resolver
-    status_ = ProductStatus::ResolveFailed;
-    bool expected = false;
-    if (prefetchRequested_.compare_exchange_strong(expected, true)) {
-      waitingTasks_.doneWaiting(std::exception_ptr());
-    }
   }
 
   void SwitchBaseProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
@@ -666,20 +655,27 @@ namespace edm {
     productData_.resetProductData();
     realProduct_.resetProductData_(deleteEarly);
     if (not deleteEarly) {
-      status_ = defaultStatus_;
+      prefetchRequested_ = false;
+      waitingTasks_.reset();
     }
   }
 
-  void SwitchBaseProductResolver::updateProvenance() const {
-    return productData_.provenance().store()->insertIntoSet(
-        ProductProvenance(branchDescription().branchID(), parentageID_));
+  void SwitchBaseProductResolver::unsafe_setWrapperAndProvenance() const {
+    // update provenance
+    productData_.provenance().store()->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
+    // Use the Wrapper of the pointed-to resolver, but the provenance of this resolver
+    productData_.unsafe_setWrapper(realProduct().getProductData().sharedConstWrapper());
   }
+
+  SwitchProducerProductResolver::SwitchProducerProductResolver(std::shared_ptr<BranchDescription const> bd,
+                                                               DataManagingOrAliasProductResolver& realProduct)
+      : SwitchBaseProductResolver(std::move(bd), realProduct), status_(defaultStatus_) {}
 
   ProductResolverBase::Resolution SwitchProducerProductResolver::resolveProduct_(Principal const& principal,
                                                                                  bool skipCurrentProcess,
                                                                                  SharedResourcesAcquirer* sra,
                                                                                  ModuleCallingContext const* mcc) const {
-    if (status() == ProductStatus::ResolveFailed) {
+    if (status_ == ProductStatus::ResolveFailed) {
       return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
     }
     return Resolution(nullptr);
@@ -707,9 +703,9 @@ namespace edm {
       // module has an exception while running
       auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
         if (nullptr != iException) {
-          updateProvenance();
           waitingTasks().doneWaiting(*iException);
         } else {
+          unsafe_setWrapperAndProvenance();
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
@@ -717,12 +713,35 @@ namespace edm {
     }
   }
 
+  void SwitchProducerProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    if (status_ != defaultStatus_) {
+      throw Exception(errors::InsertFailure)
+          << "Attempt to insert more than one product for a branch " << branchDescription().branchName()
+          << "This makes no sense for SwitchProducerProductResolver.\nContact a Framework developer";
+    }
+    // Let's use ResolveFailed to signal that produce() was called, as
+    // there is no real product in this resolver
+    status_ = ProductStatus::ResolveFailed;
+    bool expected = false;
+    if (prefetchRequested().compare_exchange_strong(expected, true)) {
+      unsafe_setWrapperAndProvenance();
+      waitingTasks().doneWaiting(std::exception_ptr());
+    }
+  }
+
   bool SwitchProducerProductResolver::productUnavailable_() const {
     // if produce() was run (ResolveFailed), ask from the real resolver
-    if (status() == ProductStatus::ResolveFailed) {
+    if (status_ == ProductStatus::ResolveFailed) {
       return realProduct().productUnavailable();
     }
     return true;
+  }
+
+  void SwitchProducerProductResolver::resetProductData_(bool deleteEarly) {
+    SwitchBaseProductResolver::resetProductData_(deleteEarly);
+    if (not deleteEarly) {
+      status_ = defaultStatus_;
+    }
   }
 
   ProductResolverBase::Resolution SwitchAliasProductResolver::resolveProduct_(Principal const& principal,
@@ -741,8 +760,30 @@ namespace edm {
     if (skipCurrentProcess) {
       return;
     }
-    updateProvenance();
-    realProduct().prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
+    waitingTasks().add(waitTask);
+
+    bool expected = false;
+    if (prefetchRequested().compare_exchange_strong(expected, true)) {
+      //using a waiting task to do a callback guarantees that
+      // the waitingTasks() list will be released from waiting even
+      // if the module does not put this data product or the
+      // module has an exception while running
+      auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+        if (nullptr != iException) {
+          waitingTasks().doneWaiting(*iException);
+        } else {
+          unsafe_setWrapperAndProvenance();
+          waitingTasks().doneWaiting(std::exception_ptr());
+        }
+      });
+      realProduct().prefetchAsync(waiting, principal, skipCurrentProcess, token, sra, mcc);
+    }
+  }
+
+  void SwitchAliasProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    throw Exception(errors::LogicError)
+        << "SwitchAliasProductResolver::putProduct() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   void ParentProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
@@ -1024,6 +1065,9 @@ namespace edm {
   inline unsigned int NoProcessProductResolver::unsetIndexValue() const { return ambiguous_.size() + kUnsetOffset; }
 
   void NoProcessProductResolver::resetProductData_(bool) {
+    // This function should never receive 'true'. On the other hand,
+    // nothing should break if a 'true' is passed, because
+    // NoProcessProductResolver just forwards the resolve
     const auto resetValue = unsetIndexValue();
     lastCheckIndex_ = resetValue;
     lastSkipCurrentCheckIndex_ = resetValue;

@@ -18,6 +18,7 @@
 #include "DataFormats/TestObjects/interface/DeleteEarly.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,19 +38,26 @@ namespace edmtest {
     virtual void produce(edm::Event& e, edm::EventSetup const&) { e.put(std::make_unique<DeleteEarly>()); }
   };
 
-  class DeleteEarlyReader : public edm::EDAnalyzer {
+  class DeleteEarlyReader : public edm::global::EDAnalyzer<> {
   public:
-    DeleteEarlyReader(edm::ParameterSet const& pset) : m_tag(pset.getUntrackedParameter<edm::InputTag>("tag")) {
-      consumes<DeleteEarly>(m_tag);
-    }
+    DeleteEarlyReader(edm::ParameterSet const& pset)
+        : getToken_(consumes<DeleteEarly>(pset.getUntrackedParameter<edm::InputTag>("tag"))) {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&) {
-      edm::Handle<DeleteEarly> h;
-      e.getByLabel(m_tag, h);
-    }
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const override { e.get(getToken_); }
 
   private:
-    edm::InputTag m_tag;
+    edm::EDGetTokenT<DeleteEarly> getToken_;
+  };
+
+  class DeleteEarlyConsumer : public edm::global::EDAnalyzer<> {
+  public:
+    DeleteEarlyConsumer(edm::ParameterSet const& pset) {
+      consumes<DeleteEarly>(pset.getUntrackedParameter<edm::InputTag>("tag"));
+    }
+
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {}
+
+  private:
   };
 
   class DeleteEarlyCheckDeleteAnalyzer : public edm::EDAnalyzer {
@@ -74,4 +82,5 @@ namespace edmtest {
 using namespace edmtest;
 DEFINE_FWK_MODULE(DeleteEarlyProducer);
 DEFINE_FWK_MODULE(DeleteEarlyReader);
+DEFINE_FWK_MODULE(DeleteEarlyConsumer);
 DEFINE_FWK_MODULE(DeleteEarlyCheckDeleteAnalyzer);
