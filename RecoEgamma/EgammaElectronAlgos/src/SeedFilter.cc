@@ -143,7 +143,7 @@ void SeedFilter::seeds(edm::Event& e,
   //===============================================
 
   TrackCharge aCharge = -1;
-  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, clusterPos, vtxPos, energy, aCharge);
+  auto fts = trackingTools::ftsFromVertexToPoint(*theMagField, clusterPos, vtxPos, energy, aCharge);
 
   RectangularEtaPhiTrackingRegion etaphiRegionMinus(
       fts.momentum(),
@@ -170,7 +170,7 @@ void SeedFilter::seeds(edm::Event& e,
   //===============================================
 
   TrackCharge aChargep = 1;
-  fts = FTSFromVertexToPointFactory::get(*theMagField, clusterPos, vtxPos, energy, aChargep);
+  fts = trackingTools::ftsFromVertexToPoint(*theMagField, clusterPos, vtxPos, energy, aChargep);
 
   RectangularEtaPhiTrackingRegion etaphiRegionPlus(
       fts.momentum(),

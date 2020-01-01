@@ -45,7 +45,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
-#include "TrackingTools/TrajectoryState/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
@@ -288,9 +288,8 @@ std::unique_ptr<TrackingRegion> TrackingRegionsFromSuperClustersProducer::create
   const GlobalPoint clusterPos(superCluster.position().x(), superCluster.position().y(), superCluster.position().z());
   const double energy = superCluster.energy();
 
-  FreeTrajectoryState freeTrajState =
-      FTSFromVertexToPointFactory::get(magField, clusterPos, vtxPos, energy, static_cast<int>(charge));
-  return std::make_unique<RectangularEtaPhiTrackingRegion>(freeTrajState.momentum(),
+  auto fts = trackingTools::ftsFromVertexToPoint(magField, clusterPos, vtxPos, energy, static_cast<int>(charge));
+  return std::make_unique<RectangularEtaPhiTrackingRegion>(fts.momentum(),
                                                            vtxPos,
                                                            ptMin_,
                                                            originRadius_,
