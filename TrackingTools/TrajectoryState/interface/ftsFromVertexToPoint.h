@@ -1,9 +1,7 @@
-#ifndef FTSFROMVERTEXTOPOINTFACTORY_H
-#define FTSFROMVERTEXTOPOINTFACTORY_H
+#ifndef TrackingTools_TrajectoryState_ftsFromVertexToPoint_h
+#define TrackingTools_TrajectoryState_ftsFromVertexToPoint_h
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
-// Class:      FTSFromVertexToPointFactory
 //
 /**
  *  Generates a FreeTrajectoryState from a given measured point, vertex
@@ -13,8 +11,6 @@
  *  The curvature of myFTS is computed taken into account the bend in 
  *  the magnetic field.       
 
- Implementation:
-     should go somewhere else in the future
 */
 //
 // Original Author:  Ursula Berthon, Claude Charlot
@@ -26,13 +22,12 @@
 
 class MagneticField;
 
-class FTSFromVertexToPointFactory {
-public:
-  static FreeTrajectoryState get(MagneticField const& magField,
-                                 GlobalPoint const& xmeas,
-                                 GlobalPoint const& xvert,
-                                 float momentum,
-                                 TrackCharge charge);
-};
+namespace trackingTools {
+  FreeTrajectoryState ftsFromVertexToPoint(MagneticField const& magField,
+                                           GlobalPoint const& xmeas,
+                                           GlobalPoint const& xvert,
+                                           float momentum,
+                                           TrackCharge charge);
+}
 
 #endif
