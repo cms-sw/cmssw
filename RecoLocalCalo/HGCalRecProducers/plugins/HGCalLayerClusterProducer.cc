@@ -108,7 +108,8 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "CLUE", true));
 
   desc.add<edm::ParameterSetDescription>("plugin", pluginDesc);
-  desc.add<std::string>("detector", "all")->setComment("all (does not include HFNose); other options: EE, FH, HFNose; other value defaults to BH");
+  desc.add<std::string>("detector", "all")
+      ->setComment("all (does not include HFNose); other options: EE, FH, HFNose; other value defaults to BH");
   desc.add<bool>("doSharing", false);
   desc.add<edm::InputTag>("HFNoseInput", edm::InputTag("HGCalRecHit", "HGCHFNoseRecHits"));
   desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
