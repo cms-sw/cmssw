@@ -143,8 +143,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   }
 }
 
-PixelCPEBase::ClusterParam* PixelCPEGeneric::createClusterParam(const SiPixelCluster& cl) const {
-  return new ClusterParamGeneric(cl);
+std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEGeneric::createClusterParam(const SiPixelCluster& cl) const {
+  return std::make_unique<ClusterParamGeneric>(cl);
 }
 
 //-----------------------------------------------------------------------------
