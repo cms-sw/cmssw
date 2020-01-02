@@ -4,16 +4,15 @@
 //
 //
 /**
- *  Generates a FreeTrajectoryState from a given measured point, vertex
- *  momentum and charge.
- *  FTSFromVertexToPointFactory myFTS; myFTS(xmeas, xvert, momentum, charge);
+ *  Generates a FreeTrajectoryState from a given measured point, vertex momentum and charge.
+ *  auto fts = trackingTools::ftsFromVertexToPoint(magField, xmeas, xvert, momentum, charge);
  *  gives a FreeTrajectoryState of a track which comes from xvert to xmeas. 
- *  The curvature of myFTS is computed taken into account the bend in 
- *  the magnetic field.       
+ *  The curvature of fts is computed taken into account the bend in the magnetic field.       
 
 */
 //
 // Original Author:  Ursula Berthon, Claude Charlot
+//     Modified by:  Jonas Rembser
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
 //
 //
