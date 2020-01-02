@@ -1,8 +1,8 @@
 // Authors: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 03/2019
 
-#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalLayerTiles
-#define RecoLocalCalo_HGCalRecAlgos_HGCalLayerTiles
+#ifndef RecoLocalCalo_HGCalRecProducers_HGCalLayerTiles_h
+#define RecoLocalCalo_HGCalRecProducers_HGCalLayerTiles_h
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HFNoseTilesConstants.h"

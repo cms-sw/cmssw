@@ -20,14 +20,14 @@ hgcalLayerClusters.plugin.noiseMip = hgchebackDigitizer.digiCfg.noise
 
 
 hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
-    detector = cms.string('HFNose'),
+    detector = 'HFNose',
     timeOffset = hfnoseDigitizer.tofDelay,
-    plugin = cms.PSet(
-        dEdXweights = cms.vdouble(dEdX.weightsNose),
-        fcPerMip = cms.vdouble(HGCalUncalibRecHit.HGCHFNoseConfig.fCPerMIP),
-        thicknessCorrection = cms.vdouble(HGCalRecHit.thicknessNoseCorrection),
-        fcPerEle = cms.double(fC_per_ele),
-        noises = cms.PSet(refToPSet_ = cms.string('HGCAL_noises')),
+    plugin = dict(
+        dEdXweights = dEdX.weightsNose,
+        fcPerMip = HGCalUncalibRecHit.HGCHFNoseConfig.fCPerMIP,
+        thicknessCorrection = HGCalRecHit.thicknessNoseCorrection,
+        fcPerEle = fC_per_ele,
+        noises = dict(refToPSet_ = cms.string('HGCAL_noises')),
         noiseMip = hgchebackDigitizer.digiCfg.noise
     )
 )

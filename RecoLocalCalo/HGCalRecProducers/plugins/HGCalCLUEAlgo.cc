@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalCLUEAlgo.h"
+#include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgoT.h"
 
 // Geometry
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -295,10 +295,10 @@ void HGCalCLUEAlgoT<T>::calculateLocalDensity(const T& lt, const unsigned int la
                              : dIPhi < 0 ? scintMaxIphi_
                                          : -scintMaxIphi_;  // cells with iPhi=288 and iPhi=1 should be neiboring cells
                 int dIEta = otherIEta - iEta;
-                LogDebug("HGCalCLUEAlgoT<T>") << "  Debugging calculateLocalDensity for Scintillator: \n"
-                                              << "    cell: " << otherId << " energy: " << cellsOnLayer.weight[otherId]
-                                              << " otherIPhi: " << otherIPhi << " iPhi: " << iPhi
-                                              << " otherIEta: " << otherIEta << " iEta: " << iEta << "\n";
+                LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
+                                          << "    cell: " << otherId << " energy: " << cellsOnLayer.weight[otherId]
+                                          << " otherIPhi: " << otherIPhi << " iPhi: " << iPhi
+                                          << " otherIEta: " << otherIEta << " iEta: " << iEta << "\n";
 
                 if (otherId != i) {
                   auto neighborCellContribution = 0.5f * cellsOnLayer.weight[otherId];
