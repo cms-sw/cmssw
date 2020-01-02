@@ -1,7 +1,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerClusterAlgoFactory.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalImagingAlgo.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalCLUEAlgo.h"
+#include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgoT.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginFactoryMacros.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
 

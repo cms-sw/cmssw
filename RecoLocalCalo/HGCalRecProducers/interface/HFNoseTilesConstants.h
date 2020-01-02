@@ -1,5 +1,5 @@
-#ifndef __RecoLocalCalo_HGCalRecAlgos_HFNoseTilesConstants_h__
-#define __RecoLocalCalo_HGCalRecAlgos_HFNoseTilesConstants_h__
+#ifndef RecoLocalCalo_HGCalRecProducer_HFNoseTilesConstants_h
+#define RecoLocalCalo_HGCalRecProducer_HFNoseTilesConstants_h
 
 #include "DataFormats/Math/interface/constexpr_cmath.h"
 
@@ -18,7 +18,8 @@ struct HFNoseTilesConstants {
   static constexpr float tileSizeEtaPhi = 0.15f;
   static constexpr float minEta = -4.2f;
   static constexpr float maxEta = 4.2f;
-  //To properly construct search box for cells in phi=[-3.15,-3.] and [3.,3.15], cells in phi=[3.,3.15] are copied to the first bin and cells in phi=[-3.15,-3.] are copied to the last bin
+  //To properly construct search box for cells in phi=[-3.15,-3.] and [3.,3.15], cells in phi=[3.,3.15]
+  //are copied to the first bin and cells in phi=[-3.15,-3.] are copied to the last bin
   static constexpr float minPhi = -3.3f;
   static constexpr float maxPhi = 3.3f;
   static constexpr int nColumnsEta = reco::ceil((maxEta - minEta) / tileSizeEtaPhi);

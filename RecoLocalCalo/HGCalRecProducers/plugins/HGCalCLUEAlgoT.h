@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgo_h
-#define RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgo_h
+#ifndef RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgoT_h
+#define RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgoT_h
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
