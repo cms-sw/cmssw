@@ -15,6 +15,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DQM/SiPixelPhase1Common/interface/HistogramManager.h"
@@ -25,8 +26,10 @@
 // used as a mixin for Analyzer and Harvester.
 class HistogramManagerHolder {
 public:
-  HistogramManagerHolder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
-      : geometryInterface(iConfig.getParameter<edm::ParameterSet>("geometry"), std::move(iC)) {
+  HistogramManagerHolder(const edm::ParameterSet& iConfig,
+                         edm::ConsumesCollector&& iC,
+                         edm::Transition transition = edm::Transition::BeginRun)
+      : geometryInterface(iConfig.getParameter<edm::ParameterSet>("geometry"), std::move(iC), transition) {
     auto histograms = iConfig.getParameter<edm::VParameterSet>("histograms");
     for (auto histoconf : histograms) {
       histo.emplace_back(HistogramManager(histoconf, geometryInterface));
@@ -73,7 +76,7 @@ private:
 class SiPixelPhase1Harvester : public DQMEDHarvester, public HistogramManagerHolder {
 public:
   SiPixelPhase1Harvester(const edm::ParameterSet& iConfig)
-      : DQMEDHarvester(), HistogramManagerHolder(iConfig, consumesCollector()){};
+      : DQMEDHarvester(), HistogramManagerHolder(iConfig, consumesCollector(), edm::Transition::EndLuminosityBlock){};
 
   void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker,
                              DQMStore::IGetter& iGetter,

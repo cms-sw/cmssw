@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
-#include "FWCore/Utilities/interface/Transition.h"
 
 // Tracker Geometry/Topology  stuff
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -37,17 +36,31 @@
 
 const GeometryInterface::Value GeometryInterface::UNDEFINED = 999999999.9f;
 
-GeometryInterface::GeometryInterface(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
-    : iConfig(conf),
-      trackerGeometryToken_{iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()},
-      trackerTopologyToken_{iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()},
-      siPixelFedCablingMapToken_{
-          iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>()},
-      cablingMapLabel_{conf.getParameter<std::string>("CablingMapLabel")} {
-  if (!cablingMapLabel_.empty()) {
-    labeledSiPixelFedCablingMapToken_ =
-        iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>(
-            edm::ESInputTag("", cablingMapLabel_));
+GeometryInterface::GeometryInterface(const edm::ParameterSet& conf,
+                                     edm::ConsumesCollector&& iC,
+                                     edm::Transition transition)
+    : iConfig(conf), cablingMapLabel_{conf.getParameter<std::string>("CablingMapLabel")} {
+  if (transition == edm::Transition::BeginRun) {
+    trackerGeometryToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
+    trackerTopologyToken_ = iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+    siPixelFedCablingMapToken_ =
+        iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>();
+    if (!cablingMapLabel_.empty()) {
+      labeledSiPixelFedCablingMapToken_ =
+          iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>(
+              edm::ESInputTag("", cablingMapLabel_));
+    }
+  } else {
+    trackerGeometryToken_ =
+        iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::EndLuminosityBlock>();
+    trackerTopologyToken_ = iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::EndLuminosityBlock>();
+    siPixelFedCablingMapToken_ =
+        iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::EndLuminosityBlock>();
+    if (!cablingMapLabel_.empty()) {
+      labeledSiPixelFedCablingMapToken_ =
+          iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::EndLuminosityBlock>(
+              edm::ESInputTag("", cablingMapLabel_));
+    }
   }
 }
 
