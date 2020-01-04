@@ -18,6 +18,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -44,7 +45,9 @@ public:
   // this should always be faster). Most ops turned out to be not needed.
   typedef std::vector<std::pair<Column, Value>> Values;
 
-  GeometryInterface(const edm::ParameterSet&, edm::ConsumesCollector&&);
+  GeometryInterface(const edm::ParameterSet&,
+                    edm::ConsumesCollector&&,
+                    edm::Transition transition = edm::Transition::BeginRun);
 
   bool loaded() { return is_loaded; };
 
