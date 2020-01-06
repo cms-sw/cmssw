@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
   std::string runTimeType = cond::time::timeTypeName(cond::runnumber);
   cond::Time_t start = boost::lexical_cast<unsigned long long>(132440);
   cond::Time_t end = boost::lexical_cast<unsigned long long>(285368);
+  boost::python::dict inputs;
 
   std::cout << "## Exercising Gains plots " << std::endl;
 
@@ -40,11 +41,15 @@ int main(int argc, char** argv) {
   histo1.process(connectionString, tag, runTimeType, start, start);
   std::cout << histo1.data() << std::endl;
 
-  SiStripApvGainsAvgDeviationRatio1sigmaTrackerMapSingleTag histo2;
+  SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap histo2;
+  inputs["nsigma"] = "1";
+  histo2.setInputParamValues(inputs);
   histo2.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo2.data() << std::endl;
 
-  SiStripApvGainsMaxDeviationRatio1sigmaTrackerMapSingleTag histo3;
+  SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap histo3;
+  inputs["nsigma"] = "1";
+  histo3.setInputParamValues(inputs);
   histo3.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo3.data() << std::endl;
 
@@ -85,7 +90,6 @@ int main(int argc, char** argv) {
   std::cout << histoCompareMeanByRegion.data() << std::endl;
 
   SiStripNoisePerDetId histoNoiseForDetId;
-  boost::python::dict inputs;
   inputs["DetId"] = "470148232";
   histoNoiseForDetId.setInputParamValues(inputs);
   histoNoiseForDetId.process(connectionString, tag, runTimeType, start, start);
