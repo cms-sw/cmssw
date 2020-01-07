@@ -1,8 +1,10 @@
 #ifndef CastorMonitorModule_H
 #define CastorMonitorModule_H
 
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,6 +34,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -75,12 +78,12 @@ public:
   ~CastorMonitorModule() override;
 
 protected:
-  void analyze(const edm::Event &iEvent, const edm::EventSetup &eventSetup) override;
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &) override;
 
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, const edm::EventSetup &) override;
 
-  void dqmEndRun(const edm::Run &run, const edm::EventSetup &eventSetup) override;
+  void dqmEndRun(const edm::Run &run, const edm::EventSetup &) override;
 
 private:
   int fVerbosity;
@@ -100,6 +103,8 @@ private:
   edm::EDGetTokenT<CastorTowerCollection> inputTokenCastorTowers_;
   typedef std::vector<reco::BasicJet> BasicJetCollection;
   edm::EDGetTokenT<BasicJetCollection> JetAlgorithm;
+
+  edm::ESGetToken<CastorDbService, CastorDbRecord> castorDbServiceToken_;
 
   //  std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
 

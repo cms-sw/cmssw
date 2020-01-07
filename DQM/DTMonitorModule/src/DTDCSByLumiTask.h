@@ -25,10 +25,13 @@
 
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include <vector>
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/DataRecord/interface/DTHVStatusRcd.h"
+#include "CondFormats/DTObjects/interface/DTHVStatus.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-class DTGeometry;
-class DTHVStatus;
+#include <vector>
 
 class DTDCSByLumiTask : public DQMOneLumiEDAnalyzer<> {
 public:
@@ -46,13 +49,13 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// By Lumi DCS DB Operation
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const&) override;
 
   /// By Lumi DCS DB Operation
-  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup&) override;
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup&) override;
 
 private:
   std::string topFolder() const;
@@ -63,8 +66,9 @@ private:
   bool DTHVRecordFound;
 
   edm::ESHandle<DTGeometry> theDTGeom;
-  // CB Get HV DB and loop on half layers
-  edm::ESHandle<DTHVStatus> hvStatus;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryToken_;
+  edm::ESGetToken<DTHVStatus, DTHVStatusRcd> dtHVStatusToken_;
 
   std::vector<MonitorElement*> hActiveUnits;
 };
