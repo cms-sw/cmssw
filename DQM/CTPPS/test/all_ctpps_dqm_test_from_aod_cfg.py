@@ -26,17 +26,14 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 # raw data source
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
     # run 314255, alignment run April 2018
     '/store/data/Commissioning2018/ZeroBias1/AOD/PromptReco-v1/000/314/255/00000/0098845D-D642-E811-8E30-FA163EE31D2A.root'
-  ),
-  skipBadFiles = cms.untracked.bool(True),
-
+  )
 )
 
 process.maxEvents = cms.untracked.PSet(
