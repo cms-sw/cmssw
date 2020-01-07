@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 using namespace tfwliteselectortest;
 
@@ -27,7 +28,8 @@ void ThingsWorker::process(const edm::Event& iEvent) {
   //  chain->GetEntry( entry );
   using namespace edmtest;
   edm::Handle<OtherThingCollection> hOThings;
-  try {
+  // In case of an exception prints the message and aborts the process
+  CMS_SA_ALLOW try {
     iEvent.getByLabel("OtherThing", "testUserTag", hOThings);
 
     std::cout << ">> other things found:" << hOThings->size() << std::endl;

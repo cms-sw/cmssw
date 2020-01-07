@@ -25,6 +25,7 @@
 
 // user include files
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
@@ -105,9 +106,8 @@ namespace edm {
       //must wait until exception ptr would be set
       auto dec = [](tbb::task* iTask) { iTask->decrement_ref_count(); };
       std::unique_ptr<tbb::task, decltype(dec)> sentry(waitTaskPtr, dec);
-      try {
-        iAction();
-      } catch (...) {
+      // Caught exception is rethrown further below.
+      CMS_SA_ALLOW try { iAction(); } catch (...) {
         ptr = std::current_exception();
       }
     });

@@ -85,6 +85,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <map>
 #include <memory>
@@ -126,7 +127,8 @@ namespace edm {
           T::preScheduleSignal(a_, context_);
       }
       ~StreamScheduleSignalSentry() noexcept(false) {
-        try {
+        // Caught exception is rethrown (when allowed)
+        CMS_SA_ALLOW try {
           if (a_) {
             T::postScheduleSignal(a_, context_);
           }
@@ -408,8 +410,8 @@ namespace edm {
             ServiceRegistry::Operate op(token);
             actReg_->preStreamEarlyTerminationSignal_(streamContext_, TerminationOrigin::ExceptionFromThisContext);
           }
-
-          try {
+          // Caught exception is propagated via WaitingTaskHolder
+          CMS_SA_ALLOW try {
             ServiceRegistry::Operate op(token);
             T::postScheduleSignal(actReg_.get(), &streamContext_);
           } catch (...) {
@@ -423,7 +425,8 @@ namespace edm {
     auto task = make_functor_task(tbb::task::allocate_root(),
                                   [this, doneTask, h = WaitingTaskHolder(doneTask), &ep, &es, token]() mutable {
                                     ServiceRegistry::Operate op(token);
-                                    try {
+                                    // Caught exception is propagated via WaitingTaskHolder
+                                    CMS_SA_ALLOW try {
                                       T::preScheduleSignal(actReg_.get(), &streamContext_);
 
                                       workerManager_.resetAll();

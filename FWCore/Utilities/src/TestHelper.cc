@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace bf = boost::filesystem;
 
@@ -182,9 +183,8 @@ int do_work(int argc, char* argv[], char** env) {
 
 int ptomaine(int argc, char* argv[], char** env) {
   int rc = 1;
-  try {
-    rc = do_work(argc, argv, env);
-  } catch (edm::Exception& x) {
+  // Standalone executable, prints exception message
+  CMS_SA_ALLOW try { rc = do_work(argc, argv, env); } catch (edm::Exception& x) {
     std::cerr << "Caught an edm::Exception in " << argv[0] << '\n' << x;
   } catch (cms::Exception& x) {
     std::cerr << "Caught a cms::Exception in " << argv[0] << '\n' << x;
