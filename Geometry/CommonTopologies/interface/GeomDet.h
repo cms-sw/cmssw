@@ -103,9 +103,12 @@ private:
   DetId m_detId;
   int m_index = -1;
   int m_gdetIndex = -1;
+  AlignmentPositionError* theAlignmentPositionError = nullptr;
 
 protected:
-  AlignmentPositionError* theAlignmentPositionError = nullptr;
+  /// set the LocalAlignmentError properly trasforming the ape
+  /// Does not affect the AlignmentPositionError of components (if any).
+  virtual bool setAlignmentPositionError(const AlignmentPositionError& ape);
 
 private:
   /// Alignment part of interface, available only to friend
@@ -124,11 +127,6 @@ private:
   /// Does not move components (if any).
 
   void setPosition(const Surface::PositionType& position, const Surface::RotationType& rotation);
-
-  /// set the LocalAlignmentError properly trasforming the ape
-  /// Does not affect the AlignmentPositionError of components (if any).
-
-  virtual bool setAlignmentPositionError(const AlignmentPositionError& ape);
 
 private:
   /// set the SurfaceDeformation for this GeomDetUnit.

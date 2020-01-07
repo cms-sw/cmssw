@@ -26,7 +26,8 @@ public:
 
   BaseTrackerRecHit(const LocalPoint& p, const LocalError& e, GeomDet const& idet, trackerHitRTTI::RTTI rt)
       : TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e), qualWord_(0) {
-    LocalError lape = static_cast<TrackerGeomDet const*>(det())->localAlignmentError();
+    auto trackerDet = static_cast<TrackerGeomDet const*>(det());
+    LocalError lape = trackerDet->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx() + lape.xx(), err_.xy() + lape.xy(), err_.yy() + lape.yy());
   }
