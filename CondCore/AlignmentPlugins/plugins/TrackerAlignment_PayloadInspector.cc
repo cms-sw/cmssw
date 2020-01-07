@@ -813,7 +813,11 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.03);
-      t1.DrawLatex(0.5, 0.97, Form("Pixel Barycenters comparison, IOV: %i / IOV: %i", last_run, first_run));
+      t1.DrawLatex(0.5,
+                   0.97,
+                   ("Pixel Barycenters comparison, IOV: #color[2]{" + std::to_string(first_run) +
+                    "} vs IOV: #color[4]{" + std::to_string(last_run) + "}")
+                       .c_str());
       t1.SetTextSize(0.025);
 
       for (unsigned int c = 1; c <= 4; c++) {
@@ -947,18 +951,18 @@ namespace {
         COUT << "final   x,y " << std::left << std::setw(7) << structures[c - 1] << " (" << x0f << "," << y0f << ") mm"
              << std::endl;
 
-        TMarker *initial = new TMarker(x0i, y0i, 20);
-        TMarker *final = new TMarker(x0f, y0f, 21);
+        TMarker *initial = new TMarker(x0i, y0i, 21);
+        TMarker *final = new TMarker(x0f, y0f, 20);
 
-        initial->SetMarkerColor(kBlue);
-        final->SetMarkerColor(kRed);
+        initial->SetMarkerColor(kRed);
+        final->SetMarkerColor(kBlue);
         initial->SetMarkerSize(2.5);
         final->SetMarkerSize(2.5);
-        initial->Draw();
-        t1.SetTextColor(kBlue);
-        t1.DrawLatex(x0i, y0i + 0.3, Form("(%.2f,%.2f)", x0i, y0i));
-        final->Draw("same");
         t1.SetTextColor(kRed);
+        initial->Draw();
+        t1.DrawLatex(x0i, y0i - 0.5, Form("(%.2f,%.2f)", x0i, y0i));
+        final->Draw("same");
+        t1.SetTextColor(kBlue);
         t1.DrawLatex(x0f, y0f + 0.3, Form("(%.2f,%.2f)", x0f, y0f));
       }
 
@@ -981,21 +985,21 @@ namespace {
         z0f =
             (cutFunctorFinal(c).z() - (isFinalPhase0 ? hardcodeIdealZPhase0[c - 1] : hardcodeIdealZPhase1[c - 1])) * 10;
 
-        TMarker *initial = new TMarker(c - 1, z0i, 20);
-        TMarker *final = new TMarker(c - 1, z0f, 21);
+        TMarker *initial = new TMarker(c - 1, z0i, 21);
+        TMarker *final = new TMarker(c - 1, z0f, 20);
 
         COUT << "initial   z " << std::left << std::setw(7) << structures[c - 1] << " " << z0i << " mm" << std::endl;
         COUT << "final     z " << std::left << std::setw(7) << structures[c - 1] << " " << z0f << " mm" << std::endl;
 
-        initial->SetMarkerColor(kBlue);
-        final->SetMarkerColor(kRed);
+        initial->SetMarkerColor(kRed);
+        final->SetMarkerColor(kBlue);
         initial->SetMarkerSize(2.5);
         final->SetMarkerSize(2.5);
         initial->Draw();
-        t1.SetTextColor(kBlue);
-        t1.DrawLatex(c - 1, z0i - 1.1, Form("(%.2f)", z0i));
-        final->Draw("same");
         t1.SetTextColor(kRed);
+        t1.DrawLatex(c - 1, z0i - 1.5, Form("(%.2f)", z0i));
+        final->Draw("same");
+        t1.SetTextColor(kBlue);
         t1.DrawLatex(c - 1, z0f + 1., Form("(%.2f)", z0f));
       }
 
