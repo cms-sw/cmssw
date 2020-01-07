@@ -470,7 +470,7 @@ namespace tensorflow {
 
     // pass taskArena and taskGroup to SchedClosure
     // consequently, disable TF's own thread logic inside the loop
-    Executor::Args::Runner default_runner = [this, &taskArena, &taskGroup](Executor::Args::Closure c) {
+    Executor::Args::Runner default_runner = [&taskArena, &taskGroup](Executor::Args::Closure c) {
       taskArena.execute([&taskGroup, &c] { taskGroup.run(c); });
     };
     for (const auto& item : executors_and_keys->items) {
