@@ -8,6 +8,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include <memory>
 
 class MuonTrackFinder;
 class MuonServiceProxy;
@@ -21,10 +22,10 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  MuonTrackFinder* theTrackFinder;
+  std::unique_ptr<MuonTrackFinder> theTrackFinder;
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy* theService;
+  std::unique_ptr<MuonServiceProxy> theService;
   edm::EDGetTokenT<edm::View<TrajectorySeed> > theSeedCollectionToken;
 };
 

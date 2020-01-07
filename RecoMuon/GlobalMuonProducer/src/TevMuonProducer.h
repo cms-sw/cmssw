@@ -58,11 +58,11 @@ private:
   edm::EDGetTokenT<std::vector<Trajectory> > glbMuonsTrajToken;
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy* theService;
+  std::unique_ptr<MuonServiceProxy> theService;
 
-  GlobalMuonRefitter* theRefitter;
+  std::unique_ptr<GlobalMuonRefitter> theRefitter;
 
-  MuonTrackLoader* theTrackLoader;
+  std::unique_ptr<MuonTrackLoader> theTrackLoader;
 
   std::string theAlias;
   std::vector<std::string> theRefits;

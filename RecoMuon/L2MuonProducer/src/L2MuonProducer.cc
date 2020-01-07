@@ -62,9 +62,9 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet) {
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
 
-  MuonTrajectoryBuilder* trajectoryBuilder = nullptr;
+  std::unique_ptr<MuonTrajectoryBuilder> trajectoryBuilder = nullptr;
   // instantiate the concrete trajectory builder in the Track Finder
 
   edm::ConsumesCollector iC = consumesCollector();
@@ -72,17 +72,22 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet) {
                              ? parameterSet.getParameter<string>("MuonTrajectoryBuilder")
                              : "StandAloneMuonTrajectoryBuilder";
   if (typeOfBuilder == "StandAloneMuonTrajectoryBuilder" || typeOfBuilder.empty())
-    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, iC);
+    trajectoryBuilder =
+        std::make_unique<StandAloneMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   else if (typeOfBuilder == "Exhaustive")
-    trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, iC);
+    trajectoryBuilder =
+        std::make_unique<ExhaustiveMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   else {
     LogWarning("Muon|RecoMuon|StandAloneMuonProducer")
         << "No Trajectory builder associated with " << typeOfBuilder
         << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
-    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, iC);
+    trajectoryBuilder =
+        std::make_unique<StandAloneMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   }
-  theTrackFinder = new MuonTrackFinder(
-      trajectoryBuilder, new MuonTrackLoader(trackLoaderParameters, iC, theService), new MuonTrajectoryCleaner(true));
+  theTrackFinder =
+      std::make_unique<MuonTrackFinder>(std::move(trajectoryBuilder),
+                                        std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get()),
+                                        std::make_unique<MuonTrajectoryCleaner>(true));
 
   produces<reco::TrackCollection>();
   produces<reco::TrackCollection>("UpdatedAtVtx");
@@ -99,8 +104,6 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet) {
 /// destructor
 L2MuonProducer::~L2MuonProducer() {
   LogTrace("Muon|RecoMuon|L2eMuonProducer") << "L2MuonProducer destructor called" << endl;
-  delete theService;
-  delete theTrackFinder;
 }
 
 /// reconstruct muons
