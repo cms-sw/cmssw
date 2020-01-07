@@ -68,10 +68,10 @@ void RectangularEtaPhiTrackingRegion::initEtaRange(const GlobalVector& dir, cons
   theMeanLambda = std::sinh(theEtaRange.mean());
 }
 
-HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* layer,
-                                                                const Hit& outerHit,
-                                                                const edm::EventSetup& iSetup,
-                                                                const DetLayer* outerlayer) const {
+std::unique_ptr<HitRZCompatibility> RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* layer,
+                                                                                const Hit& outerHit,
+                                                                                const edm::EventSetup& iSetup,
+                                                                                const DetLayer* outerlayer) const {
   bool isBarrel = (layer->location() == GeomDetEnumerators::barrel);
   GlobalPoint ohit = outerHit->globalPosition();
   float outerred_r = std::sqrt(sqr(ohit.x() - origin().x()) + sqr(ohit.y() - origin().y()));
@@ -87,7 +87,7 @@ HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* 
                                              : (outer.z() - zMinOrigin) / (outer.r() + originRBound());
     float cotRight = std::max(vcotMin, theLambdaRange.min());
     float cotLeft = std::min(vcotMax, theLambdaRange.max());
-    return new HitEtaCheck(isBarrel, outer, cotLeft, cotRight);
+    return std::make_unique<HitEtaCheck>(isBarrel, outer, cotLeft, cotRight);
   }
 
   float outerZscatt = 0;
@@ -129,11 +129,11 @@ HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* 
   if (isBarrel) {
     auto sinThetaInv = std::sqrt(1.f + sqr(cotTheta));
     auto corr = innerScatt * sinThetaInv;
-    return new HitZCheck(rzConstraint, HitZCheck::Margin(corr, corr));
+    return std::make_unique<HitZCheck>(rzConstraint, HitZCheck::Margin(corr, corr));
   } else {
     auto cosThetaInv = std::sqrt(1.f + sqr(1.f / cotTheta));
     auto corr = innerScatt * cosThetaInv;
-    return new HitRCheck(rzConstraint, HitRCheck::Margin(corr, corr));
+    return std::make_unique<HitRCheck>(rzConstraint, HitRCheck::Margin(corr, corr));
   }
 }
 
