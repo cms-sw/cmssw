@@ -300,8 +300,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pfCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       if (fPuppiForLeptons) {
         pfCandWeighted->setPuppiWeight(1.0, lWeights[iCand]);
+        pfCand->setPuppiWeight(1.0, lWeights[iCand]);
       } else {
         pfCandWeighted->setPuppiWeight(lWeights[iCand]);
+        pfCand->setPuppiWeight(lWeights[iCand]);
       }
       fPuppiCandidates->push_back(*pfCand);
       fPuppiCandidatesWeighted->push_back(*pfCandWeighted);
