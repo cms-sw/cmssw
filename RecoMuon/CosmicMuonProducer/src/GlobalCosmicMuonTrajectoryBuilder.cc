@@ -186,7 +186,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
     return result;
   }
 
-  Trajectory* myTraj = new Trajectory(refitted.front());
+  auto myTraj = std::make_unique<Trajectory>(refitted.front());
 
   const std::vector<TrajectoryMeasurement>& mytms = myTraj->measurements();
   LogTrace(category_) << "measurements in final trajectory " << mytms.size();
@@ -197,8 +197,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
     return result;
   }
 
-  MuonCandidate* myCand = new MuonCandidate(myTraj, muTrack, tkTrack);
-  result.push_back(myCand);
+  result.push_back(std::make_unique<MuonCandidate>(std::move(myTraj), muTrack, tkTrack));
   LogTrace(category_) << "final global cosmic muon: ";
   for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin(); itm != mytms.end(); ++itm) {
     LogTrace(category_) << "updated pos " << itm->updatedState().globalPosition() << "mom "
