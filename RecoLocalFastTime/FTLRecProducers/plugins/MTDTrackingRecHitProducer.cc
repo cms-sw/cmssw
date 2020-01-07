@@ -97,7 +97,7 @@ void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandl
   for (; DSViter != input.end(); DSViter++) {
     unsigned int detid = DSViter->detId();
     DetId detIdObject(detid);
-    const auto& genericDet = geom_->idToDetUnit(detIdObject);
+    const auto genericDet = geom_->idToDetUnit(detIdObject);
     if (genericDet == nullptr) {
       throw cms::Exception("MTDTrackingRecHitProducer")
           << "GeographicalID: " << std::hex << detid << " is invalid!" << std::dec << std::endl;
