@@ -672,7 +672,7 @@ namespace tensorflow {
     // because RunOptions is not passed in so we can't know whether
     // their use is intended.
     args.collective_executor = nullptr;
-    args.runner = [this](Executor::Args::Closure c) { c(); };
+    args.runner = [](Executor::Args::Closure c) { c(); };
     args.session_state = &session_state_;
     args.session_handle = session_handle_;
     args.tensor_store = &run_state->tensor_store;
