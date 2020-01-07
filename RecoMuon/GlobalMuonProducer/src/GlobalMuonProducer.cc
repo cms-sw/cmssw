@@ -60,10 +60,10 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
 
   // instantiate the concrete trajectory builder in the Track Finder
   edm::ConsumesCollector iC = consumesCollector();
-  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters, iC, theService);
-  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, iC);
+  auto mtl = std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService);
+  auto gmtb = std::make_unique<GlobalMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService, iC);
 
-  theTrackFinder = new MuonTrackFinder(gmtb, mtl);
+  theTrackFinder = new MuonTrackFinder(std::move(gmtb), std::move(mtl));
 
   setAlias(parameterSet.getParameter<std::string>("@module_label"));
   produces<reco::TrackCollection>().setBranchAlias(theAlias + "Tracks");

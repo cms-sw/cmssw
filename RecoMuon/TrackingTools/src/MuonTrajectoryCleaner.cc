@@ -216,18 +216,18 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC,
   }  // end if(reportGhosts_)
 
   i = 0;
+  auto c = std::count(mask.begin(), mask.end(), true);
+  result.reserve(c);
   for (iter = trajC.begin(); iter != trajC.end(); iter++) {
     if (mask[i]) {
-      result.push_back(*iter);
       LogTrace(metname) << "Keep trajectory with pT = "
                         << (*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV";
-    } else
-      delete *iter;
+      result.push_back(std::move(*iter));
+    }
     i++;
   }
 
-  trajC.clear();
-  trajC = result;
+  trajC = std::move(result);
 }
 
 //
@@ -364,18 +364,15 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC) {
       continue;
   }
 
+  auto c = std::count(mask.begin(), mask.end(), true);
   i = 0;
+  result.reserve(c);
   for (iter = candC.begin(); iter != candC.end(); iter++) {
     if (mask[i]) {
-      result.push_back(*iter);
-    } else {
-      delete (*iter)->trajectory();
-      delete (*iter)->trackerTrajectory();
-      delete *iter;
+      result.push_back(std::move(*iter));
     }
     i++;
   }
 
-  candC.clear();
-  candC = result;
+  candC = std::move(result);
 }

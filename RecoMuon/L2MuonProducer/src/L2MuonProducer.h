@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include <memory>
 namespace edm {
   class ParameterSet;
   class Event;
@@ -51,10 +52,10 @@ private:
   edm::InputTag theSeedCollectionLabel;
 
   /// the track finder
-  MuonTrackFinder* theTrackFinder;  //It isn't the same as in ORCA
+  std::unique_ptr<MuonTrackFinder> theTrackFinder;  //It isn't the same as in ORCA
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy* theService;
+  std::unique_ptr<MuonServiceProxy> theService;
 
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedsToken;
 };
