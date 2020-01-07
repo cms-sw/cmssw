@@ -439,7 +439,8 @@ namespace edm {
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
         if (T::isEvent_ && !m_worker->hasAcquire()) {
-          try {
+          // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskList
+          CMS_SA_ALLOW try {
             //pre was called in prefetchAsync
             m_worker->emitPostModuleEventPrefetchingSignal();
           } catch (...) {
@@ -539,7 +540,8 @@ namespace edm {
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
-        try {
+        // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskWithArenaHolder
+        CMS_SA_ALLOW try {
           //pre was called in prefetchAsync
           m_worker->emitPostModuleEventPrefetchingSignal();
         } catch (...) {
@@ -912,9 +914,8 @@ namespace edm {
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     } else {
-      try {
-        runModule<T>(ep, es, streamID, parentContext, context);
-      } catch (...) {
+      // Caught exception is propagated via WaitingTaskList
+      CMS_SA_ALLOW try { runModule<T>(ep, es, streamID, parentContext, context); } catch (...) {
         exceptionPtr = std::current_exception();
       }
     }
@@ -938,7 +939,8 @@ namespace edm {
     if (workStarted_.compare_exchange_strong(expected, true)) {
       auto toDo = [this, &principal, &es, streamID, parentContext, context, serviceToken]() {
         std::exception_ptr exceptionPtr;
-        try {
+        // Caught exception is propagated via WaitingTaskList
+        CMS_SA_ALLOW try {
           //Need to make the services available
           ServiceRegistry::Operate guard(serviceToken);
 
@@ -1061,15 +1063,13 @@ namespace edm {
       queue.pushAndWait([&]() {
         //Need to make the services available
         ServiceRegistry::Operate guard(serviceToken);
-        try {
-          rc = runModule<T>(ep, es, streamID, parentContext, context);
-        } catch (...) {
+        // This try-catch is primarily for paranoia: runModule() deals internally with exceptions, except for those coming from Service signal actions, which are not supposed to throw exceptions
+        CMS_SA_ALLOW try { rc = runModule<T>(ep, es, streamID, parentContext, context); } catch (...) {
         }
       });
     } else {
-      try {
-        rc = runModule<T>(ep, es, streamID, parentContext, context);
-      } catch (...) {
+      // This try-catch is primarily for paranoia: runModule() deals internally with exceptions, except for those coming from Service signal actions, which are not supposed to throw exceptions
+      CMS_SA_ALLOW try { rc = runModule<T>(ep, es, streamID, parentContext, context); } catch (...) {
       }
     }
     if (state_ == Exception) {

@@ -238,7 +238,8 @@ namespace edm {
     auto choiceTask = edm::make_waiting_task(
         tbb::task::allocate_root(), [id, successTask, iPrincipal, this, token](std::exception_ptr const*) {
           ServiceRegistry::Operate guard(token);
-          try {
+          // There is no reasonable place to rethrow, and implDoPrePrefetchSelection() should not throw in the first place.
+          CMS_SA_ALLOW try {
             if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
               timesRun_.fetch_add(1, std::memory_order_relaxed);
               setPassed<true>();
@@ -403,7 +404,8 @@ namespace edm {
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     } else {
-      try {
+      // Caught exception is propagated via WaitingTaskWithArenaHolder
+      CMS_SA_ALLOW try {
         runAcquire(ep, es, parentContext, holder);
         ranAcquireWithoutException_ = true;
       } catch (...) {

@@ -32,6 +32,7 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <algorithm>
 #include <cassert>
@@ -79,7 +80,8 @@ namespace edm {
       areg->preModuleConstructionSignal_(md);
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
-      try {
+      // Caught exception is rethrown
+      CMS_SA_ALLOW try {
         maker::ModuleHolderT<TriggerResultInserter> holder(
             make_shared_noexcept_false<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),
             static_cast<Maker const*>(nullptr));
@@ -91,9 +93,7 @@ namespace edm {
         areg->postModuleConstructionSignal_(md);
       } catch (...) {
         if (!postCalled) {
-          try {
-            areg->postModuleConstructionSignal_(md);
-          } catch (...) {
+          CMS_SA_ALLOW try { areg->postModuleConstructionSignal_(md); } catch (...) {
             // If post throws an exception ignore it because we are already handling another exception
           }
         }
@@ -123,8 +123,8 @@ namespace edm {
 
         areg->preModuleConstructionSignal_(md);
         bool postCalled = false;
-
-        try {
+        // Caught exception is rethrown
+        CMS_SA_ALLOW try {
           maker::ModuleHolderT<T> holder(make_shared_noexcept_false<T>(iPrealloc.numberOfStreams()),
                                          static_cast<Maker const*>(nullptr));
           holder.setModuleDescription(md);
@@ -135,9 +135,7 @@ namespace edm {
           areg->postModuleConstructionSignal_(md);
         } catch (...) {
           if (!postCalled) {
-            try {
-              areg->postModuleConstructionSignal_(md);
-            } catch (...) {
+            CMS_SA_ALLOW try { areg->postModuleConstructionSignal_(md); } catch (...) {
               // If post throws an exception ignore it because we are already handling another exception
             }
           }
@@ -1146,7 +1144,8 @@ namespace edm {
     auto t =
         make_waiting_task(tbb::task::allocate_root(),
                           [task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-                            try {
+                            // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+                            CMS_SA_ALLOW try {
                               //services can depend on other services
                               ServiceRegistry::Operate op(token);
 
@@ -1159,9 +1158,8 @@ namespace edm {
                             }
                             task.doneWaiting(ptr);
                           });
-    try {
-      activityRegistry->preGlobalWriteRunSignal_(globalContext);
-    } catch (...) {
+    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+    CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_(globalContext); } catch (...) {
     }
     WaitingTaskHolder tHolder(t);
 
@@ -1185,7 +1183,8 @@ namespace edm {
     auto t =
         make_waiting_task(tbb::task::allocate_root(),
                           [task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-                            try {
+                            // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+                            CMS_SA_ALLOW try {
                               //services can depend on other services
                               ServiceRegistry::Operate op(token);
 
@@ -1198,9 +1197,8 @@ namespace edm {
                             }
                             task.doneWaiting(ptr);
                           });
-    try {
-      activityRegistry->preGlobalWriteLumiSignal_(globalContext);
-    } catch (...) {
+    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+    CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_(globalContext); } catch (...) {
     }
     WaitingTaskHolder tHolder(t);
     for (auto& c : all_output_communicators_) {
