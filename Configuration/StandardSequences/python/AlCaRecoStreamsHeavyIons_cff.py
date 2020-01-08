@@ -28,7 +28,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_cff import *
 # Tracker Calibration
 ###############################################################
 # AlCaReco for pixel calibration using muons 
-from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasHI_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAGHI_cff import *
@@ -125,7 +125,7 @@ pathALCARECOTkAlMuonIsolatedHI = cms.Path(seqALCARECOTkAlMuonIsolatedHI*ALCARECO
 pathALCARECOTkAlJpsiMuMuHI = cms.Path(seqALCARECOTkAlJpsiMuMuHI*ALCARECOTkAlJpsiMuMuHIDQM)
 pathALCARECOTkAlUpsilonMuMuHI = cms.Path(seqALCARECOTkAlUpsilonMuMuHI*ALCARECOTkAlUpsilonMuMuHIDQM)
 pathALCARECOTkAlMinBiasHI = cms.Path(seqALCARECOTkAlMinBiasHI*ALCARECOTkAlMinBiasHIDQM)
-pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
+pathALCARECOSiPixelCalSingleMuon = cms.Path(seqALCARECOSiPixelCalSingleMuon)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
 pathALCARECOSiStripCalCosmics = cms.Path(seqALCARECOSiStripCalCosmics)
@@ -228,12 +228,12 @@ ALCARECOStreamTkAlUpsilonMuMuHI = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamSiPixelLorentzAngle = cms.FilteredStream(
-	responsible = 'Lotte Wilke',
-	name = 'SiPixelLorentzAngle',
-	paths  = (pathALCARECOSiPixelLorentzAngle),
-	content = OutALCARECOSiPixelLorentzAngle.outputCommands,
-	selectEvents = OutALCARECOSiPixelLorentzAngle.SelectEvents,
+ALCARECOStreamSiPixelCalSingleMuon = cms.FilteredStream(
+	responsible = 'Tamas Almos Vami',
+	name = 'SiPixelCalSingleMuon',
+	paths  = (pathALCARECOSiPixelCalSingleMuon),
+	content = OutALCARECOSiPixelCalSingleMuon.outputCommands,
+	selectEvents = OutALCARECOSiPixelCalSingleMuon.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

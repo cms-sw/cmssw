@@ -66,7 +66,8 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
     };
 
     // book MonitorElement's for this run
-    edm::Service<DQMStore>()->bookConcurrentTransaction(bookTransactionCallback, gc.luminosityBlockID().run());
+    edm::Service<DQMStore>()->bookTransaction(
+        bookTransactionCallback, gc.luminosityBlockID().run(), /* moduleID */ 0, /* canSaveByLumi */ false);
   } else {
     std::cerr << "No DQMStore service, aborting." << std::endl;
     abort();

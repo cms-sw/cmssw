@@ -71,29 +71,6 @@ namespace dqm::dqmstoreimpl {
   // change the ME subtype here
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  /** Implements RegEx patterns which occur often in a high-performant
-    mattern. For all other expressions, the full RegEx engine is used.
-    Note: this class can only be used for lat::Regexp::Wildcard-like
-    patterns.  */
-  class fastmatch {
-    enum MatchingHeuristicEnum { UseFull, OneStarStart, OneStarEnd, TwoStar };
-
-  public:
-    fastmatch(std::string fastString);
-
-    bool match(std::string const& s) const;
-
-  private:
-    // checks if two strings are equal, starting at the back of the strings
-    bool compare_strings_reverse(std::string const& pattern, std::string const& input) const;
-    // checks if two strings are equal, starting at the front of the strings
-    bool compare_strings(std::string const& pattern, std::string const& input) const;
-
-    std::unique_ptr<lat::Regexp> regexp_{nullptr};
-    std::string fastString_;
-    MatchingHeuristicEnum matching_;
-  };
-
   class DQMStore {
   public:
     // legacy exposes the biggest API and implicitly converts to reco and
@@ -299,33 +276,6 @@ namespace dqm::dqmstoreimpl {
       }
     }
 
-    // Similar function used to book "global" histograms via the
-    // dqm::reco::MonitorElement* interface.
-    template <typename iFunc>
-    void bookConcurrentTransaction(iFunc f, uint32_t run) {
-      std::lock_guard<std::mutex> guard(book_mutex_);
-      /* Set the run_ member only if enableMultiThread is enabled */
-      if (enableMultiThread_) {
-        run_ = run;
-        moduleId_ = 0;
-        canSaveByLumi_ = false;
-      }
-      IBooker booker(this);
-      f(booker);
-
-      /* Reset the run_ member only if enableMultiThread is enabled */
-      if (enableMultiThread_) {
-        run_ = 0;
-        moduleId_ = 0;
-        canSaveByLumi_ = false;
-      }
-    }
-
-    // Signature needed in the harvesting where the booking is done in
-    // the endJob. No handles to the run there. Two arguments ensure the
-    // capability of booking and getting. The method relies on the
-    // initialization of run, stream and module ID to 0. The mutex is
-    // not needed.
     template <typename iFunc>
     void meBookerGetter(iFunc f) {
       IBooker booker{this};
