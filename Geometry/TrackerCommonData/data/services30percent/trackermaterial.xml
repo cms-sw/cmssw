@@ -506,7 +506,7 @@
       </MaterialFraction>
     </CompositeMaterial>
     <!-- Phase1 BPIX micro-twisted pairs power cables material as defined by W. Bertl -->
-    <CompositeMaterial name="micro_twisted_power_cable" density="3.42*g/cm3" symbol=" " method="mixture by weight">
+    <CompositeMaterial name="micro_twisted_power_cable" density="0.67*3.42*g/cm3" symbol=" " method="mixture by weight">
       <MaterialFraction fraction="0.751011">
         <rMaterial name="trackermaterial:T_Aluminium"/>
       </MaterialFraction>
