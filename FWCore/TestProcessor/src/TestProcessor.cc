@@ -115,17 +115,18 @@ namespace edm {
       // intialize the event setup provider
       esp_ = espController_->makeProvider(*psetPtr, items.actReg_.get());
 
-      if (not iConfig.esProduceEntries().empty()) {
-        esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
-        esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
-        esp_->add(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
-      }
-
       auto nThreads = 1U;
       auto nStreams = 1U;
       auto nConcurrentLumis = 1U;
       auto nConcurrentRuns = 1U;
       preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
+
+      espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
+      if (not iConfig.esProduceEntries().empty()) {
+        esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
+        esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
+        esp_->add(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
+      }
 
       preg_ = items.preg();
       processConfiguration_ = items.processConfiguration();
@@ -265,6 +266,8 @@ namespace edm {
       //NOTE: this may throw
       //checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, false);
       actReg_->preBeginJobSignal_(pathsAndConsumesOfModules, processContext_);
+
+      espController_->finishConfiguration();
 
       schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
       actReg_->postBeginJobSignal_();
