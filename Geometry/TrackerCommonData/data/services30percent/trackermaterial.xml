@@ -490,10 +490,10 @@
     <!-- Phase1 BPIX micro-twisted pairs signal cables material as defined by W. Bertl -->
     <CompositeMaterial name="micro_twisted_signal_cable" density="4.09*g/cm3" symbol=" " method="mixture by weight">
       <MaterialFraction fraction="0.476683">
-        <rMaterial name="materials:Aluminium"/>
+        <rMaterial name="trackermaterial:T_Aluminium"/>
       </MaterialFraction>
       <MaterialFraction fraction="0.274139">
-        <rMaterial name="materials:Copper"/>
+        <rMaterial name="trackermaterial:T_Copper"/>
       </MaterialFraction>
       <MaterialFraction fraction="0.1494102">
         <rMaterial name="materials:Carbon"/>
@@ -508,10 +508,10 @@
     <!-- Phase1 BPIX micro-twisted pairs power cables material as defined by W. Bertl -->
     <CompositeMaterial name="micro_twisted_power_cable" density="3.42*g/cm3" symbol=" " method="mixture by weight">
       <MaterialFraction fraction="0.751011">
-        <rMaterial name="materials:Aluminium"/>
+        <rMaterial name="trackermaterial:T_Aluminium"/>
       </MaterialFraction>
       <MaterialFraction fraction="0.138483">
-        <rMaterial name="materials:Copper"/>
+        <rMaterial name="trackermaterial:T_Copper"/>
       </MaterialFraction>
       <MaterialFraction fraction="0.066287">
         <rMaterial name="materials:Carbon"/>
