@@ -7,5 +7,3 @@
 <library   file="DQMTestMultiThread.cc" name="DQMTestMultiThread">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<bin   file="DQMFastMatchTest.cc">
-</bin>
