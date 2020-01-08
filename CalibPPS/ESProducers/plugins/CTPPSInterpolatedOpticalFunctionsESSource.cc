@@ -45,7 +45,7 @@ CTPPSInterpolatedOpticalFunctionsESSource::CTPPSInterpolatedOpticalFunctionsESSo
   currentCrossingAngle_(-1.),
   currentDataValid_(false)
 {
-  setWhatProduced(this, &CTPPSInterpolatedOpticalFunctionsESSource::produce);
+  setWhatProduced(this, opticsLabel_);
 }
 
 //----------------------------------------------------------------------------------------------------
