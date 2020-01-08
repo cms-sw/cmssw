@@ -221,29 +221,10 @@ for modifier in run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy, run2_nanoAOD_
     )
 
 # only add the Spring16 IDs for 2016 nano
-(~run2_nanoAOD_94X2016).toModify(photonTable.variables,
+(~(run2_nanoAOD_94X2016 | run2_miniAOD_80XLegacy)).toModify(photonTable.variables,
     cutBased_Spring16V2p2 = None,
     mvaID_Spring16nonTrigV1 = None,
     vidNestedWPBitmap_Spring16V2p2 = None,
-)
-
-# disable the Fall17V1 IDs for 80X Legacy mode and replace Fall17V2 with Spring16V2p2
-run2_miniAOD_80XLegacy.toModify(photonTable.variables,
-    cutBased_Fall17V1Bitmap = None,
-    mvaID_Fall17V1p1 = None,
-    cutBased = Var(
-        "userInt('cutID_Spring16_loose')+userInt('cutID_Spring16_medium')+userInt('cutID_Spring16_tight')",
-        int,
-        doc="cut-based ID bitmap, Spring16V2p2, (0:fail, 1:loose, 2:medium, 3:tight)"
-    ),
-    mvaID = Var("userFloat('mvaID_Spring16nonTrigV1')",float,doc="MVA ID score, Spring16nonTrigV1",precision=10),
-    mvaID_WP90 = Var("userInt('mvaID_Spring16nonTrigV1_WP90')",bool,doc="MVA ID WP90, Spring16nonTrigV1"),
-    mvaID_WP80 = Var("userInt('mvaID_Spring16nonTrigV1_WP80')",bool,doc="MVA ID WP80, Spring16nonTrigV1"),
-    vidNestedWPBitmap = Var(
-        "userInt('VIDNestedWPBitmap_Spring16V2p2')",
-        int,
-        doc="Spring16V2p2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD_Spring16V2p2)
-    ),
 )
 
 
