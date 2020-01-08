@@ -50,7 +50,8 @@ std::vector<int> HcalGeomParameters::getModHalfHBHE(const int type) const {
 
 void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters& php) {
   DDFilteredView fv = _fv;
-  bool dodet = true, hf = false;
+  bool dodet = true;
+  bool hf = false;
   clear(php);
 
   while (dodet) {
@@ -292,7 +293,7 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParamet
     if (idet == 3) {
       // HB
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "HB " << fv.name() << " Shape "  //<< fv.shape()
+      edm::LogVerbatim("HCalGeom") << "HB " << fv.name() << " Shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape())
                                    << " Layer " << lay << " R " << t.Rho();
 #endif
       if (lay >= 0 && lay < maxLayer_) {
@@ -378,7 +379,7 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParamet
     } else if (idet == 4) {
       // HE
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "HE " << fv.name() << " Shape "  //<< fv.shape()
+      edm::LogVerbatim("HCalGeom") << "HE " << fv.name() << " Shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape())
                                    << " Layer " << lay << " Z " << t.z();
 #endif
       if (lay >= 0 && lay < maxLayer_) {
@@ -422,7 +423,7 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParamet
       // HF
       if (!hf) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "HF " << fv.name() << " Shape "  //<< fv.shape()
+        edm::LogVerbatim("HCalGeom") << "HF " << fv.name() << " Shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape())
                                      << " Z " << t.z() << " with " << paras.size() << " Parameters";
         for (unsigned j = 0; j < paras.size(); j++)
           edm::LogVerbatim("HCalGeom") << "HF Parameter[" << j << "] = " << paras[j];
@@ -438,7 +439,7 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParamet
       }
 #ifdef EDM_ML_DEBUG
     } else {
-      edm::LogVerbatim("HCalGeom") << "Unknown Detector " << idet << " for " << fv.name() << " Shape "  //<< fv.shape()
+      edm::LogVerbatim("HCalGeom") << "Unknown Detector " << idet << " for " << fv.name() << " Shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape())
                                    << " R " << t.Rho() << " Z " << t.z();
 #endif
     }
