@@ -493,6 +493,14 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('sumEt', 'sumEt', 20, 400, 4000, 'scalar sum of Et'),
             )
         ),
+        RawPuppiMET = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
+                Plot1D('sumEt', 'sumEt', 20, 400, 4000, 'scalar sum of Et'),
+            )
+        ),
         SV = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
