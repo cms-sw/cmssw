@@ -477,15 +477,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
              ((simHitIt->second).hit_info[1][itime] == 0 || orderChanged == true)) {
       float fireTDC = hitRefs_bx0[id].back().second;
       if (hitRefs_bx0[id].size() > 1) {
-        float chargeBeforeThr = 0.f;
-        float tofchargeBeforeThr = 0.f;
-        for (const auto& step : hitRefs_bx0[id]) {
-          if (step.first + chargeBeforeThr <= tdcForToAOnset[waferThickness - 1]) {
-            chargeBeforeThr += step.first;
-            tofchargeBeforeThr = step.second;
-          } else
-            break;
-        }
+        std::vector<std::pair<float, float>>::const_iterator charge_timeBeforeThr = (hitRefs_bx0[id].end() - 1);
+        float chargeBeforeThr = charge_timeBeforeThr->first;
+        float tofchargeBeforeThr = charge_timeBeforeThr->second;
         float deltaQ = accChargeForToA - chargeBeforeThr;
         float deltaTOF = fireTDC - tofchargeBeforeThr;
         fireTDC = (tdcForToAOnset[waferThickness - 1] - chargeBeforeThr) * deltaTOF / deltaQ + tofchargeBeforeThr;
