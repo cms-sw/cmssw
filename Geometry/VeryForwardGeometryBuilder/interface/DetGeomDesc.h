@@ -67,6 +67,7 @@ class DetGeomDesc
   const std::string&	name() const { return m_name; }
   std::vector<double>	params() const { return m_params; }
   int copyno() const { return m_copy; }
+  const std::string& sensorType() const { return m_sensorType; }
   
   /// alignment
   void applyAlignment( const CTPPSRPAlignmentCorrectionData& );
@@ -85,6 +86,7 @@ class DetGeomDesc
   DetId m_geographicalID;
   int m_copy;
   float m_z;
+  std::string m_sensorType;
 };
 
 #endif
