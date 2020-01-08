@@ -820,7 +820,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       cell = hid.icol();
       idx = ((hid.irowAbs() * 100) + (hid.icolAbs()));
       if (debug)
-        edm::LogVerbatim("HGCSim") << "depth, cell " << depth << " " << cell;
+        edm::LogVerbatim("HGCSim") << "depth, sector, cell " << depth << ":" << sector << ":" << cell;
     } else if (type == 3) {
       HcalTestBeamNumbering::unpackIndex(id, subdet, layer, sector, cell);
       depth = layer;
@@ -831,6 +831,12 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector, subsector, cell);
       depth = hgcons_[type]->simToReco(cell, layer, sector, true).second;
       idx = sector * 1000 + cell;
+#ifdef EDM_ML_DEBUG
+      std::pair<float, float> xy = hgcons_[type]->locateCell(cell, layer, sector, false);
+      edm::LogVerbatim("HGCSim") << "detId " << std::hex << id << std::dec << " Layer:Wafer:Cell " << layer << ":"
+                                 << sector << ":" << cell << " Position " << xy.first << ":" << xy.second << ":"
+                                 << hgcons_[type]->waferZ(layer, false);
+#endif
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "SimHit:Hit[" << i << "] Id " << subdet << ":" << zside << ":" << layer << ":"

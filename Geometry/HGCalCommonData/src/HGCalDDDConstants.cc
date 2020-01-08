@@ -558,6 +558,9 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
   if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
     x = hgpar_->waferPosX_[type];
     y = hgpar_->waferPosY_[type];
+#ifdef EDM_ML_DEBUG
+    float x0(x), y0(y);
+#endif
     if (hgpar_->waferTypeT_[type] - 1 == HGCSiliconDetId::HGCalFine) {
       x += hgpar_->cellFineX_[cell];
       y += hgpar_->cellFineY_[cell];
@@ -565,6 +568,9 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
       x += hgpar_->cellCoarseX_[cell];
       y += hgpar_->cellCoarseY_[cell];
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "LocateCell (Wafer) " << x0 << ":" << y0 << " Final " << x << ":" << y;
+#endif
     if (!reco) {
       x *= HGCalParameters::k_ScaleToDDD;
       y *= HGCalParameters::k_ScaleToDDD;
@@ -1062,6 +1068,9 @@ int HGCalDDDConstants::waferFromCopy(int copy) const {
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << hgpar_->waferCopy_[k];
 #endif
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "WaferFromCopy " << copy << ":" << wafer << ":" << result;
+#endif
   return wafer;
 }
 
