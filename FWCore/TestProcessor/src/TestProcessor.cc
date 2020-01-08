@@ -221,6 +221,85 @@ namespace edm {
           principalCache_.eventPrincipal(0), labelOfTestModule_, processConfiguration_->processName(), result);
     }
 
+    edm::test::LuminosityBlock TestProcessor::testBeginLuminosityBlockImpl(edm::LuminosityBlockNumber_t iNum) {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+      if (not beginRunCalled_) {
+        beginRun();
+      }
+      if (beginLumiCalled_) {
+        endLuminosityBlock();
+        assert(lumiNumber_ != iNum);
+      }
+      lumiNumber_ = iNum;
+      beginLuminosityBlock();
+
+      if (esHelper_) {
+        //We want each test to have its own ES data products
+        esHelper_->resetAllProxies();
+      }
+
+      return edm::test::LuminosityBlock(lumiPrincipal_, labelOfTestModule_, processConfiguration_->processName());
+    }
+
+    edm::test::LuminosityBlock TestProcessor::testEndLuminosityBlockImpl() {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+      if (not beginRunCalled_) {
+        beginRun();
+      }
+      if (not beginLumiCalled_) {
+        beginLuminosityBlock();
+      }
+      auto lumi = endLuminosityBlock();
+
+      if (esHelper_) {
+        //We want each test to have its own ES data products
+        esHelper_->resetAllProxies();
+      }
+
+      return edm::test::LuminosityBlock(std::move(lumi), labelOfTestModule_, processConfiguration_->processName());
+    }
+
+    edm::test::Run TestProcessor::testBeginRunImpl(edm::RunNumber_t iNum) {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+
+      if (beginRunCalled_) {
+        assert(runNumber_ != iNum);
+        endRun();
+      }
+      runNumber_ = iNum;
+      beginRun();
+
+      if (esHelper_) {
+        //We want each test to have its own ES data products
+        esHelper_->resetAllProxies();
+      }
+
+      return edm::test::Run(
+          principalCache_.runPrincipalPtr(), labelOfTestModule_, processConfiguration_->processName());
+    }
+    edm::test::Run TestProcessor::testEndRunImpl() {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+      if (not beginRunCalled_) {
+        beginRun();
+      }
+      auto rp = endRun();
+
+      if (esHelper_) {
+        //We want each test to have its own ES data products
+        esHelper_->resetAllProxies();
+      }
+
+      return edm::test::Run(rp, labelOfTestModule_, processConfiguration_->processName());
+    }
+
     void TestProcessor::setupProcessing() {
       if (not beginJobCalled_) {
         beginJob();
@@ -327,6 +406,7 @@ namespace edm {
     void TestProcessor::beginLuminosityBlock() {
       LuminosityBlockAuxiliary aux(runNumber_, lumiNumber_, Timestamp(), Timestamp());
       lumiPrincipal_ = principalCache_.getAvailableLumiPrincipalPtr();
+      lumiPrincipal_->clearPrincipal();
       assert(lumiPrincipal_);
       lumiPrincipal_->setAux(aux);
 
@@ -411,10 +491,10 @@ namespace edm {
       ++eventNumber_;
     }
 
-    void TestProcessor::endLuminosityBlock() {
+    std::shared_ptr<LuminosityBlockPrincipal> TestProcessor::endLuminosityBlock() {
+      auto lumiPrincipal = lumiPrincipal_;
       if (beginLumiCalled_) {
         beginLumiCalled_ = false;
-        auto lumiPrincipal = lumiPrincipal_;
         lumiPrincipal_.reset();
 
         IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal->endTime());
@@ -465,14 +545,16 @@ namespace edm {
           }
         }
       }
+      return lumiPrincipal;
     }
 
-    void TestProcessor::endRun() {
+    std::shared_ptr<edm::RunPrincipal> TestProcessor::endRun() {
+      std::shared_ptr<RunPrincipal> rp;
       if (beginRunCalled_) {
         beginRunCalled_ = false;
         ProcessHistoryID phid;
-
-        RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, runNumber_);
+        rp = principalCache_.runPrincipalPtr(phid, runNumber_);
+        RunPrincipal& runPrincipal = *rp;
 
         IOVSyncValue ts(
             EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
@@ -526,6 +608,7 @@ namespace edm {
 
         principalCache_.deleteRun(phid, runNumber_);
       }
+      return rp;
     }
 
     void TestProcessor::endJob() {
