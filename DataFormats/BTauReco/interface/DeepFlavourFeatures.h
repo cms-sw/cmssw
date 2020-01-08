@@ -1,7 +1,6 @@
 #ifndef DataFormats_BTauReco_DeepFlavourFeatures_h
 #define DataFormats_BTauReco_DeepFlavourFeatures_h
 
-
 #include "DataFormats/BTauReco/interface/JetFeatures.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexFeatures.h"
 #include "DataFormats/BTauReco/interface/ShallowTagInfoFeatures.h"
