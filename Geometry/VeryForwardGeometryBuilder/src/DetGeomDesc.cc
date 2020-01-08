@@ -54,6 +54,7 @@ DetGeomDesc& DetGeomDesc::operator= ( const DetGeomDesc &ref )
   m_copy = ref.m_copy;
   m_geographicalID = ref.m_geographicalID;
   m_z = ref.m_z;
+  m_sensorType = ref.m_sensorType;
   return (*this);
 }
 
