@@ -1254,7 +1254,7 @@ namespace sistrip {
 
   FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
       : channels_(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0)), originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
-    init(fedBuffer, fedBufferSize, allowUnrecognizedFormat);
+    init(allowUnrecognizedFormat);
   }
 
   FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer,
@@ -1262,12 +1262,12 @@ namespace sistrip {
                                const bool allowUnrecognizedFormat,
                                const bool fillChannelVector)
       : originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
-    init(fedBuffer, fedBufferSize, allowUnrecognizedFormat);
+    init(allowUnrecognizedFormat);
     if (fillChannelVector)
       channels_.assign(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0));
   }
 
-  void FEDBufferBase::init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat) {
+  void FEDBufferBase::init(const bool allowUnrecognizedFormat) {
     //min buffer length. DAQ header, DAQ trailer, tracker special header.
     static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
     //check size is non zero and data pointer is not NULL
