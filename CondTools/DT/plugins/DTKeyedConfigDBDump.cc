@@ -59,21 +59,15 @@ void DTKeyedConfigDBDump::analyze(const edm::Event& e, const edm::EventSetup& c)
   c.get<DTKeyedConfigListRcd>().get(klh);
   std::cout << "got context" << std::endl;
   cond::persistency::KeyList const& kl = *klh.product();
-  cond::persistency::KeyList* kp = const_cast<cond::persistency::KeyList*>(&kl);
-  std::vector<unsigned long long> nkeys;
-  nkeys.push_back(999999999);
-  std::cout << "now load" << std::endl;
-  kp->load(nkeys);
-  std::cout << "now get" << std::endl;
-  std::shared_ptr<DTKeyedConfig> pkc = kp->get<DTKeyedConfig>(0);
+  cond::persistency::KeyList const* kp = &kl;
+  std::cout << "now load and get" << std::endl;
+  auto pkc = kp->getUsingKey<DTKeyedConfig>(999999999);
   std::cout << "now check" << std::endl;
   if (pkc.get())
     std::cout << pkc->getId() << " " << *(pkc->dataBegin()) << std::endl;
   else
     std::cout << "not found" << std::endl;
   std::cout << std::endl;
-  std::vector<unsigned long long> nvoid;
-  kp->load(nvoid);
   return;
 }
 

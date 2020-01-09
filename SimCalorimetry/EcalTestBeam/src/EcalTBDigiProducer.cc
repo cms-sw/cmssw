@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
@@ -13,15 +12,15 @@
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 
 EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet &params,
-                                       edm::ProducerBase &mixMod,
+                                       edm::ProducesCollector producesCollector,
                                        edm::ConsumesCollector &iC)
-    : EcalDigiProducer(params, mixMod, iC) {
+    : EcalDigiProducer(params, producesCollector, iC) {
   std::string const instance("simEcalUnsuppressedDigis");
   m_EBdigiFinalTag = params.getParameter<std::string>("EBdigiFinalCollection");
   m_EBdigiTempTag = params.getParameter<std::string>("EBdigiCollection");
 
-  mixMod.produces<EBDigiCollection>(instance + m_EBdigiFinalTag);  // after selective readout
-  mixMod.produces<EcalTBTDCRawInfo>(instance);
+  producesCollector.produces<EBDigiCollection>(instance + m_EBdigiFinalTag);  // after selective readout
+  producesCollector.produces<EcalTBTDCRawInfo>(instance);
 
   const bool syncPhase(params.getParameter<bool>("syncPhase"));
 

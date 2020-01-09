@@ -53,7 +53,6 @@ struct MahiNnlsWorkspace {
   PulseVector aTbVec;  // A-transpose b (vector)
 
   SampleDecompLLT covDecomp;
-  PulseDecompLDLT pulseDecomp;
 };
 
 struct MahiDebugInfo {
@@ -77,17 +76,14 @@ struct MahiDebugInfo {
   float mahiEnergy;
   float chiSq;
   float arrivalTime;
-
-  float pEnergy;
-  float nEnergy;
   float pedEnergy;
+  float ootEnergy[7];
 
   float count[MaxSVSize];
   float inputTS[MaxSVSize];
   int inputTDC[MaxSVSize];
   float itPulse[MaxSVSize];
-  float pPulse[MaxSVSize];
-  float nPulse[MaxSVSize];
+  float ootPulse[7][MaxSVSize];
 };
 
 class MahiFit {
@@ -131,16 +127,16 @@ public:
   const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
 
 private:
-  double minimize() const;
+  const float minimize() const;
   void onePulseMinimize() const;
-  void updateCov() const;
-  void updatePulseShape(double itQ,
+  void updateCov(const SampleMatrix& invCovMat) const;
+  void updatePulseShape(const float itQ,
                         FullSampleVector& pulseShape,
                         FullSampleVector& pulseDeriv,
                         FullSampleMatrix& pulseCov) const;
 
-  float calculateArrivalTime() const;
-  double calculateChiSq() const;
+  float calculateArrivalTime(unsigned int iBX) const;
+  float calculateChiSq() const;
   void nnls() const;
   void resetWorkspace() const;
 
@@ -156,7 +152,7 @@ private:
 
   // used to restrict returned time value to a 25 ns window centered
   // on the nominal arrival time
-  static constexpr float timeLimit_ = 12.5;
+  static constexpr float timeLimit_ = 12.5f;
 
   // Python-configurables
   bool dynamicPed_;
@@ -166,6 +162,7 @@ private:
   bool applyTimeSlew_;
   HcalTimeSlew::BiasSetting slewFlavor_;
   float tsDelay1GeV_ = 0.f;
+  float norm_ = (1.f / std::sqrt(12));
 
   bool calculateArrivalTime_;
   float meanTime_;

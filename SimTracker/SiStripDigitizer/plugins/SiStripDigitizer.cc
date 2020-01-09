@@ -21,7 +21,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,7 +56,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandFlat.h"
 
-SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC)
+SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf,
+                                   edm::ProducesCollector producesCollector,
+                                   edm::ConsumesCollector& iC)
     : gainLabel(conf.getParameter<std::string>("Gain")),
       hitsProducer(conf.getParameter<std::string>("hitsProducer")),
       trackerContainers(conf.getParameter<std::vector<std::string>>("ROUList")),
@@ -73,17 +74,20 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerB
       fracOfEventsToSimAPV_(conf.getParameter<double>("fracOfEventsToSimAPV")) {
   const std::string alias("simSiStripDigis");
 
-  mixMod.produces<edm::DetSetVector<SiStripDigi>>(ZSDigi).setBranchAlias(ZSDigi);
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>(SCDigi).setBranchAlias(alias + SCDigi);
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>(VRDigi).setBranchAlias(alias + VRDigi);
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>("StripAmplitudes").setBranchAlias(alias + "StripAmplitudes");
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>("StripAmplitudesPostAPV")
+  producesCollector.produces<edm::DetSetVector<SiStripDigi>>(ZSDigi).setBranchAlias(ZSDigi);
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>(SCDigi).setBranchAlias(alias + SCDigi);
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>(VRDigi).setBranchAlias(alias + VRDigi);
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>("StripAmplitudes")
+      .setBranchAlias(alias + "StripAmplitudes");
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>("StripAmplitudesPostAPV")
       .setBranchAlias(alias + "StripAmplitudesPostAPV");
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>("StripAPVBaselines").setBranchAlias(alias + "StripAPVBaselines");
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>(PRDigi).setBranchAlias(alias + PRDigi);
-  mixMod.produces<edm::DetSetVector<StripDigiSimLink>>().setBranchAlias(alias + "siStripDigiSimLink");
-  mixMod.produces<bool>("SimulatedAPVDynamicGain").setBranchAlias(alias + "SimulatedAPVDynamicGain");
-  mixMod.produces<std::vector<std::pair<int, std::bitset<6>>>>("AffectedAPVList").setBranchAlias(alias + "AffectedAPV");
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>("StripAPVBaselines")
+      .setBranchAlias(alias + "StripAPVBaselines");
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>(PRDigi).setBranchAlias(alias + PRDigi);
+  producesCollector.produces<edm::DetSetVector<StripDigiSimLink>>().setBranchAlias(alias + "siStripDigiSimLink");
+  producesCollector.produces<bool>("SimulatedAPVDynamicGain").setBranchAlias(alias + "SimulatedAPVDynamicGain");
+  producesCollector.produces<std::vector<std::pair<int, std::bitset<6>>>>("AffectedAPVList")
+      .setBranchAlias(alias + "AffectedAPV");
   for (auto const& trackerContainer : trackerContainers) {
     edm::InputTag tag(hitsProducer, trackerContainer);
     iC.consumes<std::vector<PSimHit>>(edm::InputTag(hitsProducer, trackerContainer));

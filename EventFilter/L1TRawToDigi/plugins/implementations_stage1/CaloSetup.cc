@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
@@ -43,7 +42,7 @@ PackerMap CaloSetup::getPackers(int fed, unsigned int fw) {
   return res;
 }
 
-void CaloSetup::registerProducts(edm::stream::EDProducerBase& prod) {
+void CaloSetup::registerProducts(edm::ProducesCollector prod) {
   prod.produces<L1CaloEmCollection>();
   prod.produces<CaloSpareBxCollection>("HFBitCounts");
   prod.produces<CaloSpareBxCollection>("HFRingSums");

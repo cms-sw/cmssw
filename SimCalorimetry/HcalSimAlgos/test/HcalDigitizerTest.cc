@@ -230,7 +230,7 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
   bool PM2 = false;
   HcalAmplifier amplifier(&parameterMap, addNoise, PM1, PM2);
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
-  HcalElectronicsSim electronicsSim(&amplifier, &coderFactory, PM1);
+  HcalElectronicsSim electronicsSim(&parameterMap, &amplifier, &coderFactory, PM1);
   amplifier.setDbService(&calibratorHandle);
   amplifier.setTimeSlew(hcalTimeSlew_delay_);
   parameterMap.setDbService(&calibratorHandle);

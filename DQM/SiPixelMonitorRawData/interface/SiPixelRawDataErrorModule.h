@@ -28,8 +28,8 @@
 
 class SiPixelRawDataErrorModule {
 public:
-  typedef dqm::reco::DQMStore DQMStore;
   typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
 
   /// Default constructor
   SiPixelRawDataErrorModule();

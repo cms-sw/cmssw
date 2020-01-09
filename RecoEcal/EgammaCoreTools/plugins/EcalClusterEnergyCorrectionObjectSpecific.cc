@@ -1,7 +1,57 @@
+/** \class EcalClusterEnergyCorrectionObjectSpecific
+  *  Function that provides supercluster energy correction due to Bremsstrahlung loss
+  *
+  *  $Id: EcalClusterEnergyCorrectionObjectSpecific.h
+  *  $Date:
+  *  $Revision:
+  *  \author Nicolas Chanon, October 2011
+  */
 
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyCorrectionObjectSpecific.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "TMath.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
+
+class EcalClusterEnergyCorrectionObjectSpecific : public EcalClusterFunctionBaseClass {
+public:
+  EcalClusterEnergyCorrectionObjectSpecific(const edm::ParameterSet &){};
+
+  // get/set explicit methods for parameters
+  const EcalClusterEnergyCorrectionObjectSpecificParameters *getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
+
+  // compute the correction
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 0.; };
+
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+
+private:
+  float fEta(float energy, float eta, int algorithm) const;
+  float fBremEta(float sigmaPhiSigmaEta, float eta, int algorithm) const;
+  float fEt(float et, int algorithm) const;
+  float fEnergy(float e, int algorithm) const;
+
+  edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> esParams_;
+  const EcalClusterEnergyCorrectionObjectSpecificParameters *params_;
+};
+
+void EcalClusterEnergyCorrectionObjectSpecific::init(const edm::EventSetup &es) {
+  es.get<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>().get(esParams_);
+  params_ = esParams_.product();
+}
+
+void EcalClusterEnergyCorrectionObjectSpecific::checkInit() const {
+  if (!params_) {
+    // non-initialized function parameters: throw exception
+    throw cms::Exception("EcalClusterEnergyCorrectionObjectSpecific::checkInit()")
+        << "Trying to access an uninitialized correction function.\n"
+           "Please call `init( edm::EventSetup &)' before any use of the function.\n";
+  }
+}
 
 // Shower leakage corrections developed by Jungzhie et al. using TB data
 // Developed for EB only!
@@ -57,17 +107,17 @@ float EcalClusterEnergyCorrectionObjectSpecific::fBremEta(float sigmaPhiSigmaEta
     sigmaPhiSigmaEta = sigmaPhiSigmaEtaMax;
 
   // eta = 0
-  if (TMath::Abs(eta) < leftEta[0]) {
+  if (std::abs(eta) < leftEta[0]) {
     eta = 0.02;
   }
   // outside acceptance
-  if (TMath::Abs(eta) >= rightEta[nBinsEta - 1]) {
+  if (std::abs(eta) >= rightEta[nBinsEta - 1]) {
     eta = 2.49;
-  }  //if (DBG) std::cout << " WARNING [applyScCorrections]: TMath::Abs(eta)  >=  rightEta[nBinsEta-1] " << std::endl;}
+  }  //if (DBG) std::cout << " WARNING [applyScCorrections]: std::abs(eta)  >=  rightEta[nBinsEta-1] " << std::endl;}
 
   int tmpEta = -1;
   for (int iEta = 0; iEta < nBinsEta; ++iEta) {
-    if (leftEta[iEta] <= TMath::Abs(eta) && TMath::Abs(eta) < rightEta[iEta]) {
+    if (leftEta[iEta] <= std::abs(eta) && std::abs(eta) < rightEta[iEta]) {
       tmpEta = iEta;
     }
   }
@@ -285,7 +335,7 @@ float EcalClusterEnergyCorrectionObjectSpecific::fBremEta(float sigmaPhiSigmaEta
   // In eta cracks/gaps
   if (tmpEta == -1) {  // need to interpolate
     for (int iEta = 0; iEta < nBinsEta - 1; ++iEta) {
-      if (rightEta[iEta] <= TMath::Abs(eta) && TMath::Abs(eta) < leftEta[iEta + 1]) {
+      if (rightEta[iEta] <= std::abs(eta) && std::abs(eta) < leftEta[iEta + 1]) {
         if (sigmaPhiSigmaEta >= sigmaPhiSigmaEtaFit) {
           if (algorithm == 0) {  //electron
             tmpInter = (par0[iEta] + sigmaPhiSigmaEta * par1[iEta] + sigmaPhiSigmaEta * sigmaPhiSigmaEta * par2[iEta] +
@@ -466,7 +516,7 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEnergy(float E, int algorithm)
   return 1.;
 }
 
-float EcalClusterEnergyCorrectionObjectSpecific::getValue(const reco::SuperCluster& superCluster,
+float EcalClusterEnergyCorrectionObjectSpecific::getValue(const reco::SuperCluster &superCluster,
                                                           const int mode) const {
   float corr = 1.;
   float corr2 = 1.;
@@ -493,7 +543,7 @@ float EcalClusterEnergyCorrectionObjectSpecific::getValue(const reco::SuperClust
 
     corr = fBremEta(superCluster.phiWidth() / superCluster.etaWidth(), superCluster.eta(), 0);
 
-    float et = energy * TMath::Sin(2 * TMath::ATan(TMath::Exp(-superCluster.eta()))) / corr;
+    float et = energy * std::sin(2 * std::atan(std::exp(-superCluster.eta()))) / corr;
 
     if (subdet == EcalBarrel)
       corr2 = corr * fEt(et, 0);
@@ -507,7 +557,7 @@ float EcalClusterEnergyCorrectionObjectSpecific::getValue(const reco::SuperClust
 
     corr = fBremEta(superCluster.phiWidth() / superCluster.etaWidth(), superCluster.eta(), 1);
 
-    float et = energy * TMath::Sin(2 * TMath::ATan(TMath::Exp(-superCluster.eta()))) / corr;
+    float et = energy * std::sin(2 * std::atan(std::exp(-superCluster.eta()))) / corr;
 
     if (subdet == EcalBarrel)
       corr2 = corr * fEt(et, 2);
@@ -519,74 +569,6 @@ float EcalClusterEnergyCorrectionObjectSpecific::getValue(const reco::SuperClust
 
   return newEnergy;
 }
-
-/*
-float EcalClusterEnergyCorrectionObjectSpecific::getValue( const reco::GsfElectron & electron, const int mode) const
-{
-
-  return getValue(*(electron.superCluster()), 0);
-}
-*/
-/*
-float EcalClusterEnergyCorrectionObjectSpecific::getValue( const reco::Photon & photon, const int mode) const
-{
-
-  float corr = 1.;
-  float corr2 = 1.;
-  float energy = 0;
-
-  int subdet = photon.superCluster()->seed()->hitsAndFractions()[0].first.subdetId();
-
-  float cetacorr = fEta(photon.superCluster()->rawEnergy(), photon.superCluster()->eta(), 0)/photon.superCluster()->rawEnergy();
-
-  if (subdet==EcalBarrel){
-    energy = photon.superCluster()->rawEnergy()*cetacorr; //previously in CMSSW
-    //energy = superCluster.rawEnergy()*fEta(e5x5, superCluster.seed()->eta(), 0)/e5x5;
-  }
-  else if (subdet==EcalEndcap){
-    energy = photon.superCluster()->rawEnergy()+photon.superCluster()->preshowerEnergy();
-  }
-
-  float r9 = photon.r9();
-  float e5x5 = photon.e5x5();
-
-    //float e3x3    =   EcalClusterTools::e3x3(  *(superCluster.seed()), &(*hits), &(*topology)); 
-    //float e5x5    =   EcalClusterTools::e5x5( *(superCluster.seed()), &(*hits), &(*topology)); 
-    //float r9 = e3x3/(superCluster.rawEnergy());
-
-  float R9min;
-  if (subdet==EcalBarrel) R9min=0.94;
-  if (subdet==EcalEndcap) R9min=0.95;
-    
-  float newEnergy = energy;
-
-  if (r9<R9min){
-
-    corr = fBremEta(photon.superCluster()->phiWidth()/photon.superCluster()->etaWidth(), photon.superCluster()->eta(), 1);
-
-    float et = energy*TMath::Sin(2*TMath::ATan(TMath::Exp(-photon.superCluster()->eta())))/corr;
-    
-    if (subdet==EcalBarrel) corr2 = corr * fEt(et, 2);
-    if (subdet==EcalEndcap) corr2 = corr * fEnergy(et, 3);
-    
-    newEnergy = energy/corr2;
-    
-  }
-  if (r9>R9min){
-    
-    //if uncorrected
-    //if (subdet==EcalBarrel) newEnergy = e5x5*cetacorr;
-    //if (subdet==EcalEndcap) newEnergy = e5x5 + superCluster.preshowerEnergy();
-    
-    //already corrected
-    newEnergy = e5x5;
-    
-  }
-
-  return newEnergy;
-
-}
- */
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 DEFINE_EDM_PLUGIN(EcalClusterFunctionFactory,

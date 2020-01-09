@@ -10,20 +10,18 @@ namespace dqmoffline {
  * @param
  */
     void fillWithinLimits(MonitorElement* mon, double value, double weight) {
-      TH1* hist = mon->getTH1F();
-      double min(hist->GetXaxis()->GetXmin());
-      double max(hist->GetXaxis()->GetXmax());
+      double min(mon->getAxisMin(1));
+      double max(mon->getAxisMax(1));
 
       double fillValue = getFillValueWithinLimits(value, min, max);
       mon->Fill(fillValue, weight);
     }
     void fill2DWithinLimits(MonitorElement* mon, double valueX, double valueY, double weight) {
-      TH1* hist = mon->getTH2F();
-      double minX(hist->GetXaxis()->GetXmin());
-      double minY(hist->GetYaxis()->GetXmin());
+      double minX(mon->getAxisMin(1));
+      double minY(mon->getAxisMin(2));
 
-      double maxX(hist->GetXaxis()->GetXmax());
-      double maxY(hist->GetYaxis()->GetXmax());
+      double maxX(mon->getAxisMax(1));
+      double maxY(mon->getAxisMax(2));
 
       double fillValueX = getFillValueWithinLimits(valueX, minX, maxX);
       double fillValueY = getFillValueWithinLimits(valueY, minY, maxY);

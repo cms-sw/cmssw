@@ -20,14 +20,11 @@ protected:
   void endJob(void) override;
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
   void reset(void);
-  void cleanup(void);
 
 private:
   DQMStore* dqmStore_;
 
   std::string prefixME_;
-
-  bool enableCleanup_;
 
   bool mergeRuns_;
 

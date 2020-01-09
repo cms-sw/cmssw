@@ -22,8 +22,6 @@
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ICursor.h"

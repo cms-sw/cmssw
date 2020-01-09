@@ -1,6 +1,7 @@
 #ifndef SimCalorimetry_EcalTestBeam_EcalTBDigiProducer_h
 #define SimCalorimetry_EcalTestBeam_EcalTBDigiProducer_h
 
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "RecoTBCalo/EcalTBTDCReconstructor/interface/EcalTBTDCRecInfoAlgo.h"
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
@@ -9,7 +10,6 @@
 
 namespace edm {
   class ConsumesCollector;
-  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -19,7 +19,7 @@ class PileUpEventPrincipal;
 
 class EcalTBDigiProducer : public EcalDigiProducer {
 public:
-  EcalTBDigiProducer(const edm::ParameterSet &params, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
+  EcalTBDigiProducer(const edm::ParameterSet &params, edm::ProducesCollector, edm::ConsumesCollector &iC);
   ~EcalTBDigiProducer() override;
 
   void initializeEvent(edm::Event const &, edm::EventSetup const &) override;

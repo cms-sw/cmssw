@@ -20,44 +20,15 @@
 //
 //
 
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
-#include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
-
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-
-#include "CLHEP/Vector/ThreeVector.h"
-#include <vector>
-#include <unordered_map>
-#include <limits>
 
 /** Class to match an ECAL cluster to the pixel hits.
  *  Two compatible hits in the pixel layers are required.
  */
 
-class MeasurementTracker;
 class TrackerGeometry;
-
-namespace std {
-  template <>
-  struct hash<std::pair<const GeomDet*, GlobalPoint> > {
-    std::size_t operator()(const std::pair<const GeomDet*, GlobalPoint>& g) const {
-      auto h1 = std::hash<unsigned long long>()((unsigned long long)g.first);
-      unsigned long long k;
-      memcpy(&k, &g.second, sizeof(k));
-      auto h2 = std::hash<unsigned long long>()(k);
-      return h1 ^ (h2 << 1);
-    }
-  };
-}  // namespace std
+class MagneticField;
 
 struct SeedWithInfo {
   const TrajectorySeed seed;
@@ -99,6 +70,26 @@ public:
   void set2ndLayer(float dummyphi2minB, float dummyphi2maxB, float dummyphi2minF, float dummyphi2maxF);
 
 private:
+  struct BarrelMeasurementEstimator {
+    bool operator()(const GlobalPoint& vprim, const TrajectoryStateOnSurface& ts, const GlobalPoint& gp) const;
+
+    float thePhiMin;
+    float thePhiMax;
+    float theZMin;
+    float theZMax;
+  };
+
+  struct ForwardMeasurementEstimator {
+    bool operator()(const GlobalPoint& vprim, const TrajectoryStateOnSurface& ts, const GlobalPoint& gp) const;
+
+    float thePhiMin;
+    float thePhiMax;
+    float theRMin;
+    float theRMax;
+    const float theRMinI;
+    const float theRMaxI;
+  };
+
   BarrelMeasurementEstimator meas1stBLayer;
   BarrelMeasurementEstimator meas2ndBLayer;
   ForwardMeasurementEstimator meas1stFLayer;

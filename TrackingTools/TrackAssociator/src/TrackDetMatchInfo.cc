@@ -329,7 +329,8 @@ DetId TrackDetMatchInfo::findMaxDeposition(EnergyType type) {
     } break;
     case TowerTotal:
     case TowerEcal:
-    case TowerHcal: {
+    case TowerHcal:
+    case TowerHO: {
       for (std::vector<const CaloTower*>::const_iterator hit = towers.begin(); hit != towers.end(); hit++) {
         double energy = 0;
         switch (type) {
@@ -353,7 +354,7 @@ DetId TrackDetMatchInfo::findMaxDeposition(EnergyType type) {
           id = (*hit)->id();
         }
       }
-    }
+    } break;
     default:
       throw cms::Exception("FatalError")
           << "Maximal energy deposition: unkown or not implemented energy type requested, type:" << type;

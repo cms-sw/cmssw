@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import sys
 
 from builtins import range
 from .Mixins import _ConfigureComponent, PrintOptions
@@ -160,6 +161,7 @@ class _SequenceCollection(_Sequenceable):
         return returnValue
     def _appendToCollection(self,collection):
         collection.extend(self._collection)
+
     def dumpSequencePython(self, options=PrintOptions()):
         returnValue = ''
         separator = ''
@@ -169,19 +171,27 @@ class _SequenceCollection(_Sequenceable):
                 returnValue += (separator + itemDump)
                 separator = '+'
         return returnValue
+
     def dumpSequenceConfig(self):
         returnValue = self._collection[0].dumpSequenceConfig()
         for m in self._collection[1:]:
             returnValue += '&'+m.dumpSequenceConfig()        
         return returnValue
+
+    def directDependencies(self):
+        return findDirectDependencies(self, self._collection)
+
     def visitNode(self,visitor):
         for m in self._collection:
             m.visitNode(visitor)
+
     def resolve(self, processDict,keepIfCannotResolve=False):
         self._collection = [x.resolve(processDict,keepIfCannotResolve) for x in self._collection]
         return self
+
     def index(self,item):
         return self._collection.index(item)
+
     def insert(self,index,item):
         self._collection.insert(index,item)
     def _replaceIfHeldDirectly(self,original,replacement):
@@ -199,6 +209,48 @@ class _SequenceCollection(_Sequenceable):
             self._collection = [ i for i in self._collection if i is not None]
         return didReplace
 
+
+def findDirectDependencies(element, collection):
+    dependencies = []
+    for item in collection:
+        # skip null items
+        if item is None:
+            continue
+        # EDFilter, EDProducer, EDAnalyzer, OutputModule
+        # should check for Modules._Module, but that doesn't seem to work
+        elif isinstance(item, _SequenceLeaf):
+            t = 'modules'
+        # cms.ignore(module), ~(module)
+        elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
+            if isinstance(item._operand, _SequenceCollection):
+                dependencies += item.directDependencies()
+                continue
+            t = 'modules'
+        # _SequenceCollection
+        elif isinstance(item, _SequenceCollection):
+            dependencies += item.directDependencies()
+            continue
+        # cms.Sequence
+        elif isinstance(item, Sequence):
+            if not item.hasLabel_():
+                dependencies += item.directDependencies()
+                continue
+            t = 'sequences'
+        # cms.Task
+        elif isinstance(item, Task):
+            if not item.hasLabel_():
+                dependencies += item.directDependencies()
+                continue
+            t = 'tasks'
+        # SequencePlaceholder and TaskPlaceholder do not add an explicit dependency
+        elif isinstance(item, (SequencePlaceholder, TaskPlaceholder)):
+            continue
+        # unsupported elements
+        else:
+            sys.stderr.write("Warning: unsupported element '%s' in %s '%s'\n" % (str(item), type(element).__name__, element.label_()))
+            continue
+        dependencies.append((t, item.label_()))
+    return dependencies
 
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
@@ -256,15 +308,18 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         v = ExpandVisitor(type(self))
         self.visit(v)
         return v.resultString()
+
     def dumpConfig(self, options):
         s = ''
         if self._seq is not None:
             s = self._seq.dumpSequenceConfig()
         return '{'+s+'}\n'
+
     def dumpPython(self, options=PrintOptions()):
         """Returns a string which is the python representation of the object"""
         s = self.dumpPythonNoNewline(options)
         return s + "\n"
+
     def dumpPythonNoNewline(self, options=PrintOptions()):
         s=''
         if self._seq is not None:
@@ -282,6 +337,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if len(associationContents) > 254:
             return 'cms.'+type(self).__name__+'(*['+s+'])'
         return 'cms.'+type(self).__name__+'('+s+')'
+
     def dumpSequencePython(self, options=PrintOptions()):
         """Returns a string which contains the python representation of just the internal sequence"""
         # only dump the label, if possible
@@ -295,6 +351,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
               return '('+s+')'
             return ''
         return self.dumpPythonNoNewline(options)
+
     def dumpSequenceConfig(self):
         """Returns a string which contains the old config language representation of just the internal sequence"""
         # only dump the label, if possible
@@ -305,21 +362,34 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             if self._seq is None:
                 return ''
             return '('+self._seq.dumpSequenceConfig()+')'
+
     def __repr__(self):
         s = ''
         if self._seq is not None:
            s = str(self._seq)
         return "cms."+type(self).__name__+'('+s+')\n'
+
+    def directDependencies(self):
+        """Returns the list of modules and other entities that are directly used"""
+        result = []
+        if self._seq:
+          result += self._seq.directDependencies()
+        if self._tasks:
+          result += findDirectDependencies(self, self._tasks)
+        return result
+
     def moduleNames(self):
         """Returns a set containing the names of all modules being used"""
         result = set()
         visitor = NodeNameVisitor(result)
         self.visit(visitor)
         return result
+
     def contains(self, mod):
         visitor = ContainsModuleVisitor(mod)
         self.visit(visitor)
         return visitor.result()
+
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
         if self._seq is not None:
@@ -328,6 +398,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             returnValue.__init__()
         returnValue._tasks = OrderedSet(self._tasks)
         return returnValue
+
     def copyAndExclude(self,listOfModulesToExclude):
         """Returns a copy of the sequence which excludes those module in 'listOfModulesToExclude'"""
         # You can exclude instances of these types EDProducer, EDFilter, OutputModule,
@@ -497,6 +568,10 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
         self._operand.visitNode(visitor)
     def decoration(self):
         self._operand.decoration()
+    def directDependencies(self):
+        return self._operand.directDependencies()
+    def label_(self):
+        return self._operand.label_()
 
 
 class _SequenceNegation(_UnarySequenceOperator):
@@ -1363,6 +1438,9 @@ class Task(_ConfigureComponent, _Labelable) :
         if len(taskContents) > 255:
             return "cms.Task(*[" + s + "])"
         return "cms.Task(" + s + ")"
+
+    def directDependencies(self):
+        return findDirectDependencies(self, self._collection)
 
     def _isTaskComponent(self):
         return True

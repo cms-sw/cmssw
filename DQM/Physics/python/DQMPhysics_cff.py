@@ -20,8 +20,9 @@ from DQM.Physics.topJetCorrectionHelper_cfi import *
 from DQM.Physics.FSQDQM_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
-                           *ewkMuDQM	   # errors in logs due HLTPrescaleProvider
-                           *ewkElecDQM    # Error in determining HLT prescale set index from L1 data using L1GtUtils 
+#                          Empty Histograms from EWK and Error log messages
+#                           *ewkMuDQM	   # errors in logs due HLTPrescaleProvider
+#                           *ewkElecDQM    # Error in determining HLT prescale set index from L1 data using L1GtUtils 
                            *qcdPhotonsDQM
 			   *topSingleMuonMediumDQM
                            *topSingleElectronMediumDQM	

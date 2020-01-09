@@ -1,5 +1,7 @@
 <use   name="DataFormats/EcalDetId"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="DetectorDescription/DDCMS"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -163,11 +163,6 @@ void FourVectorHLT::beginJob() {
 
   if (dbe) {
     dbe->setCurrentFolder(dirname_);
-    dbe->rmdir(dirname_);
-  }
-
-  if (dbe) {
-    dbe->setCurrentFolder(dirname_);
 
     if (!plotAll_) {
       for (PathInfoCollection::iterator v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {

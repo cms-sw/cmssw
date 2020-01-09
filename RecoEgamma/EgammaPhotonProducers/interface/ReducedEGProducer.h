@@ -32,8 +32,6 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EGHcalRecHitSelector.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"

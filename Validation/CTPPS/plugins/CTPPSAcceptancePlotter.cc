@@ -220,7 +220,7 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event &iEvent, const edm::EventS
   // process tracks
   map<unsigned int, bool> trackPresent;
   for (const auto &trk : *hTracks) {
-    CTPPSDetId rpId(trk.getRPId());
+    CTPPSDetId rpId(trk.rpId());
     unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
     trackPresent[rpDecId] = true;
   }

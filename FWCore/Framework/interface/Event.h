@@ -33,6 +33,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
@@ -94,7 +95,12 @@ namespace edm {
     ///\return The id for the particular Stream processing the Event
     StreamID streamID() const { return streamID_; }
 
-    LuminosityBlock const& getLuminosityBlock() const { return *luminosityBlock_; }
+    LuminosityBlock const& getLuminosityBlock() const {
+      if (not luminosityBlock_) {
+        fillLuminosityBlock();
+      }
+      return *luminosityBlock_;
+    }
 
     Run const& getRun() const;
 
@@ -255,6 +261,8 @@ namespace edm {
 
     EventPrincipal const& eventPrincipal() const;
 
+    void fillLuminosityBlock() const;
+
     ProductID makeProductID(BranchDescription const& desc) const;
 
     //override used by EventBase class
@@ -298,7 +306,7 @@ namespace edm {
     ProductPtrVec putProducts_;
 
     EventAuxiliary const& aux_;
-    std::shared_ptr<LuminosityBlock const> const luminosityBlock_;
+    mutable std::optional<LuminosityBlock> luminosityBlock_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the PrincipalGetAdapter. gotBranchIDs_ is
@@ -382,7 +390,7 @@ namespace edm {
 
   template <typename PROD>
   OrphanHandle<PROD> Event::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }

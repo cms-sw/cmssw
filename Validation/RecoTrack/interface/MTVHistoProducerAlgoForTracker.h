@@ -24,135 +24,120 @@
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
 
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 struct MTVHistoProducerAlgoForTrackerHistograms {
   //sim
-  ConcurrentMonitorElement h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM, h_bunchxSIM;
+  using METype = dqm::reco::MonitorElement*;
+  METype h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM, h_bunchxSIM;
 
   //1D
-  std::vector<ConcurrentMonitorElement> h_tracks, h_fakes, h_hits, h_charge, h_algo, h_seedsFitFailed,
-      h_seedsFitFailedFraction;
-  std::vector<ConcurrentMonitorElement> h_recoeta, h_reco2eta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta,
-      h_misideta, h_pileupeta;
-  std::vector<ConcurrentMonitorElement> h_recopT, h_reco2pT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT,
-      h_pileuppT;
-  std::vector<ConcurrentMonitorElement> h_recopTvseta, h_reco2pTvseta, h_assocpTvseta, h_assoc2pTvseta, h_simulpTvseta,
-      h_looperpTvseta, h_misidpTvseta, h_pileuppTvseta;
-  std::vector<ConcurrentMonitorElement> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit,
-      h_pileuphit;
-  std::vector<ConcurrentMonitorElement> h_recolayer, h_assoclayer, h_assoc2layer, h_simullayer, h_looperlayer,
-      h_misidlayer, h_pileuplayer;
-  std::vector<ConcurrentMonitorElement> h_recopixellayer, h_assocpixellayer, h_assoc2pixellayer, h_simulpixellayer,
-      h_looperpixellayer, h_misidpixellayer, h_pileuppixellayer;
-  std::vector<ConcurrentMonitorElement> h_reco3Dlayer, h_assoc3Dlayer, h_assoc23Dlayer, h_simul3Dlayer, h_looper3Dlayer,
-      h_misid3Dlayer, h_pileup3Dlayer;
-  std::vector<ConcurrentMonitorElement> h_recopu, h_reco2pu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu,
-      h_pileuppu;
-  std::vector<ConcurrentMonitorElement> h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi,
-      h_pileupphi;
-  std::vector<ConcurrentMonitorElement> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy,
-      h_pileupdxy;
-  std::vector<ConcurrentMonitorElement> h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_pileupdz;
-  std::vector<ConcurrentMonitorElement> h_recodxypv, h_assocdxypv, h_assoc2dxypv, h_simuldxypv, h_looperdxypv,
-      h_misiddxypv, h_pileupdxypv;
-  std::vector<ConcurrentMonitorElement> h_recodzpv, h_assocdzpv, h_assoc2dzpv, h_simuldzpv, h_looperdzpv, h_misiddzpv,
-      h_pileupdzpv;
-  std::vector<ConcurrentMonitorElement> h_recodxypvzoomed, h_assocdxypvzoomed, h_assoc2dxypvzoomed, h_simuldxypvzoomed,
+  std::vector<METype> h_tracks, h_fakes, h_hits, h_charge, h_algo, h_seedsFitFailed, h_seedsFitFailedFraction;
+  std::vector<METype> h_recoeta, h_reco2eta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_pileupeta;
+  std::vector<METype> h_recopT, h_reco2pT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_pileuppT;
+  std::vector<METype> h_recopTvseta, h_reco2pTvseta, h_assocpTvseta, h_assoc2pTvseta, h_simulpTvseta, h_looperpTvseta,
+      h_misidpTvseta, h_pileuppTvseta;
+  std::vector<METype> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_pileuphit;
+  std::vector<METype> h_recolayer, h_assoclayer, h_assoc2layer, h_simullayer, h_looperlayer, h_misidlayer,
+      h_pileuplayer;
+  std::vector<METype> h_recopixellayer, h_assocpixellayer, h_assoc2pixellayer, h_simulpixellayer, h_looperpixellayer,
+      h_misidpixellayer, h_pileuppixellayer;
+  std::vector<METype> h_reco3Dlayer, h_assoc3Dlayer, h_assoc23Dlayer, h_simul3Dlayer, h_looper3Dlayer, h_misid3Dlayer,
+      h_pileup3Dlayer;
+  std::vector<METype> h_recopu, h_reco2pu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu, h_pileuppu;
+  std::vector<METype> h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi, h_pileupphi;
+  std::vector<METype> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_pileupdxy;
+  std::vector<METype> h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_pileupdz;
+  std::vector<METype> h_recodxypv, h_assocdxypv, h_assoc2dxypv, h_simuldxypv, h_looperdxypv, h_misiddxypv,
+      h_pileupdxypv;
+  std::vector<METype> h_recodzpv, h_assocdzpv, h_assoc2dzpv, h_simuldzpv, h_looperdzpv, h_misiddzpv, h_pileupdzpv;
+  std::vector<METype> h_recodxypvzoomed, h_assocdxypvzoomed, h_assoc2dxypvzoomed, h_simuldxypvzoomed,
       h_looperdxypvzoomed, h_misiddxypvzoomed, h_pileupdxypvzoomed;
-  std::vector<ConcurrentMonitorElement> h_recodzpvzoomed, h_assocdzpvzoomed, h_assoc2dzpvzoomed, h_simuldzpvzoomed,
-      h_looperdzpvzoomed, h_misiddzpvzoomed, h_pileupdzpvzoomed;
+  std::vector<METype> h_recodzpvzoomed, h_assocdzpvzoomed, h_assoc2dzpvzoomed, h_simuldzpvzoomed, h_looperdzpvzoomed,
+      h_misiddzpvzoomed, h_pileupdzpvzoomed;
 
-  std::vector<ConcurrentMonitorElement> h_recovertpos, h_assocvertpos, h_assoc2vertpos, h_simulvertpos, h_loopervertpos,
-      h_pileupvertpos;
-  std::vector<ConcurrentMonitorElement> h_recozpos, h_assoczpos, h_assoc2zpos, h_simulzpos, h_looperzpos, h_pileupzpos;
-  std::vector<ConcurrentMonitorElement> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_looperdr, h_pileupdr;
-  std::vector<ConcurrentMonitorElement> h_assocdrj, h_assoc2drj, h_simuldrj, h_recodrj, h_looperdrj, h_pileupdrj;
-  std::vector<ConcurrentMonitorElement> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
-  std::vector<ConcurrentMonitorElement> h_recochi2prob, h_assoc2chi2prob, h_looperchi2prob, h_misidchi2prob,
-      h_pileupchi2prob;
-  std::vector<ConcurrentMonitorElement> h_pt, h_eta, h_pullTheta, h_pullPhi, h_pullDxy, h_pullDz, h_pullQoverp;
-  std::vector<ConcurrentMonitorElement> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
-  std::vector<ConcurrentMonitorElement> h_assoc2_itpu_vertcount, h_assoc2_itpu_sig_vertcount;
-  std::vector<ConcurrentMonitorElement> h_assoc2_ootpu_eta, h_assoc2_ootpu_vertcount;
-  std::vector<ConcurrentMonitorElement> h_reco_ootpu_eta, h_reco_ootpu_vertcount;
-  std::vector<ConcurrentMonitorElement> h_con_eta, h_con_vertcount, h_con_zpos;
+  std::vector<METype> h_recovertpos, h_assocvertpos, h_assoc2vertpos, h_simulvertpos, h_loopervertpos, h_pileupvertpos;
+  std::vector<METype> h_recozpos, h_assoczpos, h_assoc2zpos, h_simulzpos, h_looperzpos, h_pileupzpos;
+  std::vector<METype> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_looperdr, h_pileupdr;
+  std::vector<METype> h_assocdrj, h_assoc2drj, h_simuldrj, h_recodrj, h_looperdrj, h_pileupdrj;
+  std::vector<METype> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
+  std::vector<METype> h_recochi2prob, h_assoc2chi2prob, h_looperchi2prob, h_misidchi2prob, h_pileupchi2prob;
+  std::vector<METype> h_pt, h_eta, h_pullTheta, h_pullPhi, h_pullDxy, h_pullDz, h_pullQoverp;
+  std::vector<METype> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
+  std::vector<METype> h_assoc2_itpu_vertcount, h_assoc2_itpu_sig_vertcount;
+  std::vector<METype> h_assoc2_ootpu_eta, h_assoc2_ootpu_vertcount;
+  std::vector<METype> h_reco_ootpu_eta, h_reco_ootpu_vertcount;
+  std::vector<METype> h_con_eta, h_con_vertcount, h_con_zpos;
 
-  std::vector<ConcurrentMonitorElement> h_reco_dzpvcut, h_assoc_dzpvcut, h_assoc2_dzpvcut, h_simul_dzpvcut,
-      h_simul2_dzpvcut, h_pileup_dzpvcut;
-  std::vector<ConcurrentMonitorElement> h_reco_dzpvsigcut, h_assoc_dzpvsigcut, h_assoc2_dzpvsigcut, h_simul_dzpvsigcut,
+  std::vector<METype> h_reco_dzpvcut, h_assoc_dzpvcut, h_assoc2_dzpvcut, h_simul_dzpvcut, h_simul2_dzpvcut,
+      h_pileup_dzpvcut;
+  std::vector<METype> h_reco_dzpvsigcut, h_assoc_dzpvsigcut, h_assoc2_dzpvsigcut, h_simul_dzpvsigcut,
       h_simul2_dzpvsigcut, h_pileup_dzpvsigcut;
 
-  std::vector<ConcurrentMonitorElement> h_reco_dzpvcut_pt, h_assoc_dzpvcut_pt, h_assoc2_dzpvcut_pt, h_simul_dzpvcut_pt,
+  std::vector<METype> h_reco_dzpvcut_pt, h_assoc_dzpvcut_pt, h_assoc2_dzpvcut_pt, h_simul_dzpvcut_pt,
       h_simul2_dzpvcut_pt, h_pileup_dzpvcut_pt;
-  std::vector<ConcurrentMonitorElement> h_reco_dzpvsigcut_pt, h_assoc_dzpvsigcut_pt, h_assoc2_dzpvsigcut_pt,
-      h_simul_dzpvsigcut_pt, h_simul2_dzpvsigcut_pt, h_pileup_dzpvsigcut_pt;
-  std::vector<ConcurrentMonitorElement> h_reco_simpvz, h_assoc_simpvz, h_assoc2_simpvz, h_simul_simpvz, h_looper_simpvz,
-      h_pileup_simpvz;
+  std::vector<METype> h_reco_dzpvsigcut_pt, h_assoc_dzpvsigcut_pt, h_assoc2_dzpvsigcut_pt, h_simul_dzpvsigcut_pt,
+      h_simul2_dzpvsigcut_pt, h_pileup_dzpvsigcut_pt;
+  std::vector<METype> h_reco_simpvz, h_assoc_simpvz, h_assoc2_simpvz, h_simul_simpvz, h_looper_simpvz, h_pileup_simpvz;
 
-  std::vector<ConcurrentMonitorElement> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet,
+  std::vector<METype> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet,
       h_pileup_seedingLayerSet;
 
-  std::vector<std::vector<ConcurrentMonitorElement>> h_reco_mva, h_assoc2_mva;
-  std::vector<std::vector<ConcurrentMonitorElement>> h_reco_mvacut, h_assoc_mvacut, h_assoc2_mvacut, h_simul2_mvacut;
-  std::vector<std::vector<ConcurrentMonitorElement>> h_reco_mva_hp, h_assoc2_mva_hp;
-  std::vector<std::vector<ConcurrentMonitorElement>> h_reco_mvacut_hp, h_assoc_mvacut_hp, h_assoc2_mvacut_hp,
-      h_simul2_mvacut_hp;
+  std::vector<std::vector<METype>> h_reco_mva, h_assoc2_mva;
+  std::vector<std::vector<METype>> h_reco_mvacut, h_assoc_mvacut, h_assoc2_mvacut, h_simul2_mvacut;
+  std::vector<std::vector<METype>> h_reco_mva_hp, h_assoc2_mva_hp;
+  std::vector<std::vector<METype>> h_reco_mvacut_hp, h_assoc_mvacut_hp, h_assoc2_mvacut_hp, h_simul2_mvacut_hp;
 
-  std::vector<std::vector<ConcurrentMonitorElement>> h_assoc2_mva_vs_pt, h_fake_mva_vs_pt, h_assoc2_mva_vs_pt_hp,
-      h_fake_mva_vs_pt_hp;
-  std::vector<std::vector<ConcurrentMonitorElement>> h_assoc2_mva_vs_eta, h_fake_mva_vs_eta, h_assoc2_mva_vs_eta_hp,
-      h_fake_mva_vs_eta_hp;
+  std::vector<std::vector<METype>> h_assoc2_mva_vs_pt, h_fake_mva_vs_pt, h_assoc2_mva_vs_pt_hp, h_fake_mva_vs_pt_hp;
+  std::vector<std::vector<METype>> h_assoc2_mva_vs_eta, h_fake_mva_vs_eta, h_assoc2_mva_vs_eta_hp, h_fake_mva_vs_eta_hp;
 
   // dE/dx
   // in the future these might become an array
-  std::vector<std::vector<ConcurrentMonitorElement>> h_dedx_estim;
-  std::vector<std::vector<ConcurrentMonitorElement>> h_dedx_nom;
-  std::vector<std::vector<ConcurrentMonitorElement>> h_dedx_sat;
+  std::vector<std::vector<METype>> h_dedx_estim;
+  std::vector<std::vector<METype>> h_dedx_nom;
+  std::vector<std::vector<METype>> h_dedx_sat;
 
   //2D
-  std::vector<ConcurrentMonitorElement> nrec_vs_nsim;
-  std::vector<ConcurrentMonitorElement> nrecHit_vs_nsimHit_sim2rec;
-  std::vector<ConcurrentMonitorElement> nrecHit_vs_nsimHit_rec2sim;
-  std::vector<ConcurrentMonitorElement> h_duplicates_oriAlgo_vs_oriAlgo;
+  std::vector<METype> nrec_vs_nsim;
+  std::vector<METype> nrecHit_vs_nsimHit_sim2rec;
+  std::vector<METype> nrecHit_vs_nsimHit_rec2sim;
+  std::vector<METype> h_duplicates_oriAlgo_vs_oriAlgo;
 
   //assoc hits
-  std::vector<ConcurrentMonitorElement> h_assocFraction, h_assocSharedHit;
+  std::vector<METype> h_assocFraction, h_assocSharedHit;
 
   //#hit vs eta: to be used with doProfileX
-  std::vector<ConcurrentMonitorElement> nhits_vs_eta, nPXBhits_vs_eta, nPXFhits_vs_eta, nPXLhits_vs_eta,
-      nTIBhits_vs_eta, nTIDhits_vs_eta, nTOBhits_vs_eta, nTEChits_vs_eta, nSTRIPhits_vs_eta, nLayersWithMeas_vs_eta,
-      nPXLlayersWithMeas_vs_eta, nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta,
-      nSTRIPlayersWith2dMeas_vs_eta, nMTDhits_vs_eta, nBTLhits_vs_eta, nETLhits_vs_eta;
+  std::vector<METype> nhits_vs_eta, nPXBhits_vs_eta, nPXFhits_vs_eta, nPXLhits_vs_eta, nTIBhits_vs_eta, nTIDhits_vs_eta,
+      nTOBhits_vs_eta, nTEChits_vs_eta, nSTRIPhits_vs_eta, nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta,
+      nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta, nMTDhits_vs_eta,
+      nBTLhits_vs_eta, nETLhits_vs_eta;
 
   //---- second set of histograms (originally not used by the SeedGenerator)
   //1D
-  std::vector<ConcurrentMonitorElement> h_nchi2, h_nchi2_prob, h_losthits, h_nmisslayers_inner, h_nmisslayers_outer;
+  std::vector<METype> h_nchi2, h_nchi2_prob, h_losthits, h_nmisslayers_inner, h_nmisslayers_outer;
 
   //2D
-  std::vector<ConcurrentMonitorElement> chi2_vs_nhits, etares_vs_eta;
-  std::vector<ConcurrentMonitorElement> h_ptshifteta;
-  std::vector<ConcurrentMonitorElement> ptres_vs_phi, chi2_vs_phi, nhits_vs_phi, phires_vs_phi;
+  std::vector<METype> chi2_vs_nhits, etares_vs_eta;
+  std::vector<METype> h_ptshifteta;
+  std::vector<METype> ptres_vs_phi, chi2_vs_phi, nhits_vs_phi, phires_vs_phi;
 
   //Profile2D
-  std::vector<ConcurrentMonitorElement> ptmean_vs_eta_phi, phimean_vs_eta_phi;
+  std::vector<METype> ptmean_vs_eta_phi, phimean_vs_eta_phi;
 
   //assoc chi2
-  std::vector<ConcurrentMonitorElement> h_assochi2, h_assochi2_prob;
+  std::vector<METype> h_assochi2, h_assochi2_prob;
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
-  std::vector<ConcurrentMonitorElement> chi2_vs_eta, chi2_vs_pt, nlosthits_vs_eta;
-  std::vector<ConcurrentMonitorElement> assoc_chi2_vs_eta, assoc_chi2_vs_pt, assoc_chi2prob_vs_eta,
-      assoc_chi2prob_vs_pt;
+  std::vector<METype> chi2_vs_eta, chi2_vs_pt, nlosthits_vs_eta;
+  std::vector<METype> assoc_chi2_vs_eta, assoc_chi2_vs_pt, assoc_chi2prob_vs_eta, assoc_chi2prob_vs_pt;
 
   //resolution of track params: to be used with fitslicesytool
-  std::vector<ConcurrentMonitorElement> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
-  std::vector<ConcurrentMonitorElement> dxyres_vs_pt, ptres_vs_pt, dzres_vs_pt, phires_vs_pt, cotThetares_vs_pt;
+  std::vector<METype> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
+  std::vector<METype> dxyres_vs_pt, ptres_vs_pt, dzres_vs_pt, phires_vs_pt, cotThetares_vs_pt;
 
   //pulls of track params vs eta: to be used with fitslicesytool
-  std::vector<ConcurrentMonitorElement> dxypull_vs_eta, ptpull_vs_eta, dzpull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
-  std::vector<ConcurrentMonitorElement> ptpull_vs_phi, phipull_vs_phi, thetapull_vs_phi;
+  std::vector<METype> dxypull_vs_eta, ptpull_vs_eta, dzpull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
+  std::vector<METype> ptpull_vs_phi, phipull_vs_phi, thetapull_vs_phi;
 };
 
 class MTVHistoProducerAlgoForTracker {
@@ -166,14 +151,14 @@ public:
       const edm::ParameterSet& pset);
 
   using Histograms = MTVHistoProducerAlgoForTrackerHistograms;
-  void bookSimHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
-  void bookSimTrackHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms, bool doResolutionPlots);
-  void bookSimTrackPVAssociationHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
-  void bookRecoHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms, bool doResolutionPlots);
-  void bookRecoPVAssociationHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
-  void bookRecodEdxHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
-  void bookSeedHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
-  void bookMVAHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms, size_t nMVAs);
+  void bookSimHistos(DQMStore::IBooker& ibook, Histograms& histograms);
+  void bookSimTrackHistos(DQMStore::IBooker& ibook, Histograms& histograms, bool doResolutionPlots);
+  void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook, Histograms& histograms);
+  void bookRecoHistos(DQMStore::IBooker& ibook, Histograms& histograms, bool doResolutionPlots);
+  void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook, Histograms& histograms);
+  void bookRecodEdxHistos(DQMStore::IBooker& ibook, Histograms& histograms);
+  void bookSeedHistos(DQMStore::IBooker& ibook, Histograms& histograms);
+  void bookMVAHistos(DQMStore::IBooker& ibook, Histograms& histograms, size_t nMVAs);
 
   void fill_generic_simTrack_histos(const Histograms& histograms,
                                     const TrackingParticle::Vector&,

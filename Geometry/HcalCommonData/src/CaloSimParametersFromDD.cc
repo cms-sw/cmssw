@@ -1,23 +1,30 @@
 #include "Geometry/HcalCommonData/interface/CaloSimParametersFromDD.h"
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include <iostream>
 #include <iomanip>
 
 //#define EDM_ML_DEBUG
 
-CaloSimParametersFromDD::CaloSimParametersFromDD(bool fromDD4Hep) : fromDD4Hep_(fromDD4Hep) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: initialized with fromDD4Hep = " << fromDD4Hep_;
-#endif
+template <typename T>
+void myPrint(std::string value, const std::vector<T>& vec) {
+  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << vec.size() << " entries for " << value << ":";
+  unsigned int i(0);
+  for (const auto& e : vec) {
+    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << e;
+    ++i;
+  }
 }
 
 bool CaloSimParametersFromDD::build(const DDCompactView* cpv, CaloSimulationParameters& php) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom")
+      << "Inside CaloSimParametersFromDD::build(const DDCompactView*, CaloSimulationParameters&)";
+#endif
   // Get the names
   std::string attribute = "ReadOutName";
   std::string name = "CaloHitsTk";
@@ -26,65 +33,44 @@ bool CaloSimParametersFromDD::build(const DDCompactView* cpv, CaloSimulationPara
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
 
-  std::string value = "Calorimeter";
-  php.caloNames_ = getNames(value, sv, false);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << php.caloNames_.size() << " entries for " << value
-                               << ":";
-  for (unsigned int i = 0; i < php.caloNames_.size(); i++)
-    edm::LogVerbatim("HCaloGeom") << " (" << i << ") " << php.caloNames_[i];
-#endif
+  php.caloNames_ = getNames("Calorimeter", sv, false);
+  php.levels_ = getNumbers("Levels", sv, false);
+  php.neighbours_ = getNumbers("Neighbours", sv, false);
+  php.insideNames_ = getNames("Inside", sv, false);
+  php.insideLevel_ = getNumbers("InsideLevel", sv, false);
+  php.fCaloNames_ = getNames("FineCalorimeter", sv, true);
+  php.fLevels_ = getNumbers("FineLevels", sv, true);
 
-  value = "Levels";
-  php.levels_ = getNumbers(value, sv, false);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << php.levels_.size() << " entries for " << value << ":";
-  for (unsigned int i = 0; i < php.levels_.size(); i++)
-    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << php.levels_[i];
-#endif
+  return this->buildParameters(php);
+}
 
-  value = "Neighbours";
-  php.neighbours_ = getNumbers(value, sv, false);
+bool CaloSimParametersFromDD::build(const cms::DDCompactView* cpv, CaloSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << php.neighbours_.size() << " entries for " << value
-                               << ":";
-  for (unsigned int i = 0; i < php.neighbours_.size(); i++)
-    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << php.neighbours_[i];
+  edm::LogVerbatim("HCalGeom")
+      << "Inside CaloSimParametersFromDD::build(const cms::DDCompactView*, CaloSimulationParameters&)";
 #endif
+  // Get the names
+  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
+  php.caloNames_ = fv.get<std::vector<std::string> >("calo", "Calorimeter");
+  php.levels_ = dbl_to_int(fv.get<std::vector<double> >("calo", "Levels"));
+  php.neighbours_ = dbl_to_int(fv.get<std::vector<double> >("calo", "Neighbours"));
+  php.insideNames_ = fv.get<std::vector<std::string> >("calo", "Inside");
+  php.insideLevel_ = dbl_to_int(fv.get<std::vector<double> >("calo", "InsideLevel"));
+  php.fCaloNames_ = fv.get<std::vector<std::string> >("calo", "FineCalorimeter");
+  php.fLevels_ = dbl_to_int(fv.get<std::vector<double> >("calo", "FineLevels"));
 
-  value = "Inside";
-  php.insideNames_ = getNames(value, sv, false);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << php.insideNames_.size() << " entries for " << value
-                               << ":";
-  for (unsigned int i = 0; i < php.insideNames_.size(); i++)
-    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << php.insideNames_[i];
-#endif
+  return this->buildParameters(php);
+}
 
-  value = "InsideLevel";
-  php.insideLevel_ = getNumbers(value, sv, false);
+bool CaloSimParametersFromDD::buildParameters(const CaloSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << php.insideLevel_.size() << " ebtries for " << value
-                               << ":";
-  for (unsigned int i = 0; i < php.insideLevel_.size(); i++)
-    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << php.insideLevel_[i];
-#endif
-
-  value = "FineCalorimeter";
-  php.fCaloNames_ = getNames(value, sv, true);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << php.fCaloNames_.size() << " entries for " << value
-                               << ":";
-  for (unsigned int i = 0; i < php.fCaloNames_.size(); i++)
-    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << php.fCaloNames_[i];
-#endif
-
-  value = "FineLevels";
-  php.fLevels_ = getNumbers(value, sv, true);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << php.fLevels_.size() << " entries for " << value << ":";
-  for (unsigned int i = 0; i < php.fLevels_.size(); i++)
-    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << php.fLevels_[i];
+  myPrint("Calorimeter", php.caloNames_);
+  myPrint("Levels", php.levels_);
+  myPrint("Neighbours", php.neighbours_);
+  myPrint("Inside", php.insideNames_);
+  myPrint("InsideLevel", php.insideLevel_);
+  myPrint("FineCalorimeter", php.fCaloNames_);
+  myPrint("FineLevels", php.fLevels_);
 #endif
 
   if (php.caloNames_.size() < php.neighbours_.size()) {

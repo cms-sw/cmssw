@@ -386,13 +386,13 @@ void ValidationHcalIsoTrackAlCaReco::beginJob() {
       dbe_->book2D("hOccupancyFull", "number of tracks per tower, full energy range", 48, -25, 25, 73, 0, 73);
   hOccupancyFull->setAxisTitle("ieta", 1);
   hOccupancyFull->setAxisTitle("iphi", 2);
-  hOccupancyFull->getTH2F()->SetOption("colz");
+  hOccupancyFull->setOption("colz");
   hOccupancyFull->getTH2F()->SetStats(kFALSE);
   hOccupancyHighEn =
       dbe_->book2D("hOccupancyHighEn", "number of tracks per tower, high energy tracks", 48, -25, 25, 73, 0, 73);
   hOccupancyHighEn->setAxisTitle("ieta", 1);
   hOccupancyHighEn->setAxisTitle("iphi", 2);
-  hOccupancyHighEn->getTH2F()->SetOption("colz");
+  hOccupancyHighEn->setOption("colz");
   hOccupancyHighEn->getTH2F()->SetStats(kFALSE);
 
   hOffL3TrackMatch = dbe_->book1D("hOffL3TrackMatch", "Distance from L3 object to offline track", 200, 0, 0.5);

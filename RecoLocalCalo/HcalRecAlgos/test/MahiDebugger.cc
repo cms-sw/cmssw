@@ -140,7 +140,7 @@ private:
   int nSamples;
   int soi;
 
-  bool use3;
+  bool use8;
 
   float inTimeConst;
   float inDarkCurrent;
@@ -158,16 +158,14 @@ private:
   float chiSq;
   float arrivalTime;
 
-  float pEnergy;    //SOI-1 charge
-  float nEnergy;    //SOI+1 charge
-  float pedEnergy;  //pedestal charge
+  float ootEnergy[7];  //OOT charge
+  float pedEnergy;     //pedestal charge
 
-  float count[10];    //TS value 0-9
-  float inputTS[10];  //input TS samples
-  int inputTDC[10];   //input TS samples
-  float itPulse[10];  //SOI pulse shape
-  float pPulse[10];   //SOI-1 pulse shape
-  float nPulse[10];   //SOI+1 pulse shape
+  float count[10];        //TS value 0-9
+  float inputTS[10];      //input TS samples
+  int inputTDC[10];       //input TS samples
+  float itPulse[10];      //SOI pulse shape
+  float ootPulse[7][10];  //OOT pulse shape
 };
 
 MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
@@ -244,6 +242,10 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     mahi_->setPulseShapeTemplate(
         theHcalPulseShapes_.getShape(hci.recoShape()), hci.hasTimeInfo(), hcalTimeSlewDelay, hci.nSamples());
     MahiDebugInfo mdi;
+    // initialize energies so that the values in the previous iteration are not stored
+    mdi.mahiEnergy = 0;
+    for (unsigned int ioot = 0; ioot < 7; ioot++)
+      mdi.ootEnergy[ioot] = 0;
     mahi->phase1Debug(hci, mdi);
 
     nSamples = mdi.nSamples;
@@ -254,17 +256,16 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     inPedAvg = mdi.inPedAvg;
     inGain = mdi.inGain;
 
-    use3 = mdi.use3;
-    mahiEnergy = mdi.mahiEnergy;
+    use8 = mdi.use3;
     chiSq = mdi.chiSq;
     arrivalTime = mdi.arrivalTime;
-    pEnergy = mdi.pEnergy;
-    nEnergy = mdi.nEnergy;
-    pedEnergy = mdi.pedEnergy;
-
+    mahiEnergy = mdi.mahiEnergy;
     mahiEnergy *= hbminusCorrectionFactor(detid, run, mahiEnergy, isRealData);
-    pEnergy *= hbminusCorrectionFactor(detid, run, pEnergy, isRealData);
-    nEnergy *= hbminusCorrectionFactor(detid, run, nEnergy, isRealData);
+    for (unsigned int ioot = 0; ioot < 7; ioot++) {
+      ootEnergy[ioot] = mdi.ootEnergy[ioot];
+      ootEnergy[ioot] *= hbminusCorrectionFactor(detid, run, ootEnergy[ioot], isRealData);
+    }
+    pedEnergy = mdi.pedEnergy;
     pedEnergy *= hbminusCorrectionFactor(detid, run, pedEnergy, isRealData);
 
     for (int i = 0; i < nSamples; i++) {
@@ -272,8 +273,8 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       inputTS[i] = mdi.inputTS[i];
       inputTDC[i] = mdi.inputTDC[i];
       itPulse[i] = mdi.itPulse[i];
-      pPulse[i] = mdi.pPulse[i];
-      nPulse[i] = mdi.nPulse[i];
+      for (unsigned int ioot = 0; ioot < 7; ioot++)
+        ootPulse[ioot][i] = mdi.ootPulse[ioot][i];
 
       inNoiseADC[i] = mdi.inNoiseADC[i];
       inNoiseDC[i] = mdi.inNoiseDC[i];
@@ -286,8 +287,7 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       count[9] = 9;
     }
 
-    if (chiSq > -1)
-      outTree->Fill();
+    outTree->Fill();
   }
 }
 
@@ -325,18 +325,17 @@ void MahiDebugger::beginJob() {
   outTree->Branch("inPedAvg", &inPedAvg, "inPedAvg/F");
   outTree->Branch("inGain", &inGain, "inGain/F");
 
+  outTree->Branch("use8", &use8, "use8/B");
   outTree->Branch("mahiEnergy", &mahiEnergy, "mahiEnergy/F");
   outTree->Branch("chiSq", &chiSq, "chiSq/F");
   outTree->Branch("arrivalTime", &arrivalTime, "arrivalTime/F");
-  outTree->Branch("pEnergy", &pEnergy, "pEnergy/F");
-  outTree->Branch("nEnergy", &nEnergy, "nEnergy/F");
+  outTree->Branch("ootEnergy", &ootEnergy, "ootEnergy[7]/F");
   outTree->Branch("pedEnergy", &pedEnergy, "pedEnergy/F");
   outTree->Branch("count", &count, "count[10]/F");
   outTree->Branch("inputTS", &inputTS, "inputTS[10]/F");
   outTree->Branch("inputTDC", &inputTDC, "inputTDC[10]/I");
   outTree->Branch("itPulse", &itPulse, "itPulse[10]/F");
-  outTree->Branch("pPulse", &pPulse, "pPulse[10]/F");
-  outTree->Branch("nPulse", &nPulse, "nPulse[10]/F");
+  outTree->Branch("ootPulse", &ootPulse, "ootPulse[7][10]/F");
 
   outTree->Branch("inNoiseADC", &inNoiseADC, "inNoiseADC[10]/F");
   outTree->Branch("inNoiseDC", &inNoiseDC, "inNoiseDC[10]/F");
@@ -358,6 +357,7 @@ void MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("dynamicPed");
+  desc.add<bool>("calculateArrivalTime");
   desc.add<double>("ts4Thresh");
   desc.add<double>("chiSqSwitch");
   desc.add<bool>("applyTimeSlew");

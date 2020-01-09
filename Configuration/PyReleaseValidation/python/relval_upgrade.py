@@ -1,4 +1,4 @@
-
+import six
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
 
@@ -15,18 +15,19 @@ def makeStepNameSim(key,frag,step,suffix):
 def makeStepName(key,frag,step,suffix):
    return step+suffix+'_'+key
 
-neutronKeys = [x for x in upgradeKeys[2026] if 'PU' not in x]
-neutronFrags = ['ZMM_14','MinBias_14TeV']
-
 #just define all of them
 
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
-        for frag in upgradeFragments:
+        for frag,info in six.iteritems(upgradeFragments):
+            # phase2-specific fragments are skipped in phase1
+            if ("CE_E" in frag or "CE_H" in frag) and year==2017:
+                numWF += 1
+                continue
             stepList={}
-            for stepType in upgradeSteps.keys():
-                stepList[stepType] = []
+            for specialType in upgradeWFs.keys():
+                stepList[specialType] = []
             hasHarvest = False
             for step in upgradeProperties[year][key]['ScenToRun']:                    
                 stepMaker = makeStepName
@@ -37,9 +38,9 @@ for year in upgradeKeys:
                 
                 if 'HARVEST' in step: hasHarvest = True
 
-                for stepType in upgradeSteps.keys():
+                for specialType,specialWF in six.iteritems(upgradeWFs):
                     # use variation only when available
-                    if stepType == 'Premix':
+                    if specialType == 'Premix':
                         # Premixing stage1
                         #
                         # This is a hack which should be placed somewhere else, but likely requires more massive changes for "proper" PUPRMX treatment
@@ -50,62 +51,22 @@ for year in upgradeKeys:
                         # dictionary, which would further mean that we would get full set of additional workflows for
                         # premixing, while the preferred solution would be to define the premixing workflows as variations of the PU workflows.
                         s = step.replace('GenSim', 'Premix')
-                        if not s in upgradeSteps[stepType]['PU']:
+                        if not s in specialWF.PU:
                             continue
                         s = s + 'PU' # later processing requires to have PU here
                         # Hardcode nu gun fragment below in order to use it for combined stage1+stage2
                         # Anyway all other fragments are irrelevant for premixing stage1
-                        stepList[stepType].append(stepMaker(key,"SingleNuE10_cf",s,upgradeSteps[stepType]['suffix']))
-                    elif (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
-                        stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps[stepType]['suffix']))
+                        stepList[specialType].append(stepMaker(key,"SingleNuE10_cf",s,specialWF.suffix))
+                    elif (specialType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
+                        stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
-                        if stepType == 'ProdLike' and 'RecoFullGlobal' in step:
-                            stepList[stepType].append(stepMaker(key,frag[:-4],step.replace('RecoFullGlobal','MiniAODFullGlobal'),upgradeSteps[stepType]['suffix']))
+                        if specialType == 'ProdLike' and 'RecoFullGlobal' in step:
+                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoFullGlobal','MiniAODFullGlobal'),specialWF.suffix))
                     else:
-                        stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps['baseline']['suffix']))
+                        stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
 
-            workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList['baseline']]
-
-            # special workflows for neutron bkg sim
-            if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in neutronFrags) and any(nkey in key for nkey in neutronKeys):
-                workflows[numWF+upgradeSteps['Neutron']['offset']] = [ upgradeDatasetFromFragment[frag]+"_Neutron", stepList['Neutron']]
-
-            # special workflows for tracker
-            if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
-                # skip ALCA and Nano
-                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly','trackingMkFit']
-                for tv in trackingVariations:
-                    stepList[tv] = [s for s in stepList[tv] if (("ALCA" not in s) and ("Nano" not in s))]
-                workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
-                if '2017' in key:
-                    for tv in trackingVariations[1:]:
-                        workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
-                elif '2018' in key:
-                    workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
-                elif '2021' in key:
-                    workflows[numWF+upgradeSteps['trackingMkFit']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingMkFit']]
-
-            # special workflows for HGCAL/TICL
-            if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun") and ('2026' in key):
-                TICLVariations = ['TICLOnly', 'TICLFullReco']
-                # Skip Hharvesting for TICLOnly
-                for tv in TICLVariations:
-                    if 'TICLOnly' in tv:
-                        stepList[tv] = [s for s in stepList[tv] if ("HARVEST" not in s)]
-                for tv in TICLVariations:
-                    workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
-
-            # special workflows for HE
-            if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
-                workflows[numWF+upgradeSteps['heCollapse']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['heCollapse']]
-
-            # workflow for profiling
-            if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2026' in key:
-                workflows[numWF+upgradeSteps['ProdLike']['offset']] = [ upgradeDatasetFromFragment[frag]+"_ProdLike", stepList['ProdLike']]
-
-            # special workflows for ParkingBPH
-            if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
-                workflows[numWF+upgradeSteps['ParkingBPH']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['ParkingBPH']]
+            for specialType,specialWF in six.iteritems(upgradeWFs):
+                specialWF.workflow(workflows, numWF, info.dataset, stepList[specialType], key, hasHarvest)
 
             inclPremix = 'PU' in key
             if inclPremix:
@@ -116,8 +77,8 @@ for year in upgradeKeys:
                         continue
             if inclPremix:
                 # premixing stage1, only for NuGun
-                if upgradeDatasetFromFragment[frag]=="NuGun":
-                    workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
+                if info.dataset=="NuGun":
+                    workflows[numWF+upgradeWFs['Premix'].offset] = [info.dataset, stepList['Premix']]
 
                 # premixing stage2
                 slist = []
@@ -126,7 +87,7 @@ for year in upgradeKeys:
                     if "Digi" in step or "Reco" in step:
                         s = s.replace("PU", "PUPRMX", 1)
                     slist.append(s)
-                workflows[numWF+premixS2_offset] = [upgradeDatasetFromFragment[frag], slist]
+                workflows[numWF+upgradeWFs['premixS2'].offset] = [info.dataset, slist]
 
                 # Combined stage1+stage2
                 def nano(s):
@@ -135,7 +96,7 @@ for year in upgradeKeys:
                             return s.replace("_", "PUPRMXCombined_")
                         return s+"PUPRMXCombined"
                     return s
-                workflows[numWF+premixS1S2_offset] = [upgradeDatasetFromFragment[frag], # Signal fragment
+                workflows[numWF+upgradeWFs['premixS1S2'].offset] = [info.dataset, # Signal fragment
                                                       [slist[0]] +                      # Start with signal generation
                                                       stepList['Premix'] +              # Premixing stage1
                                                       [slist[1].replace("PUPRMX", "PUPRMXCombined")] + # Premixing stage2, customized for the combined (defined in relval_steps.py)

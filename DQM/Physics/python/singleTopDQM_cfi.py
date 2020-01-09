@@ -185,7 +185,7 @@ singleTopMuonMediumDQM = DQMEDAnalyzer('SingleTopTChannelLeptonDQM',
       isolation = cms.string(looseIsoCut)
     ),
     jetExtras = cms.PSet(
-      jetCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),  #Use pak4PFCHSL1FastL2L3Residual for data!!!                                            
+      jetCorrector = cms.InputTag("dqmAk4PFCHSL1FastL2L3Corrector"),  #Use pak4PFCHSL1FastL2L3Residual for data!!!                                            
       select = cms.string("pt>30 & abs(eta)< 2.4"),
       jetBTaggers  = cms.PSet(
       	cvsVertex = cms.PSet(
@@ -266,7 +266,7 @@ singleTopElectronMediumDQM = DQMEDAnalyzer('SingleTopTChannelLeptonDQM',
       isolation = cms.string(looseIsoCut)
     ),
     jetExtras = cms.PSet(
-      jetCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),  #Use pak4PFCHSL1FastL2L3Residual for data!!!                                            
+      jetCorrector = cms.InputTag("dqmAk4PFCHSL1FastL2L3Corrector"),  #Use pak4PFCHSL1FastL2L3Residual for data!!!                                            
       select = cms.string("pt>30 & abs(eta)< 2.4"),
       jetBTaggers  = cms.PSet(
       	cvsVertex = cms.PSet(

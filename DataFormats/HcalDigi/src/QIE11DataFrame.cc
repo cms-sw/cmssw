@@ -3,7 +3,7 @@
 
 std::ostream& operator<<(std::ostream& s, const QIE11DataFrame& digi) {
   if (digi.detid().det() == DetId::Hcal) {
-    s << HcalGenericDetId(digi.detid());
+    s << "DetID=" << HcalGenericDetId(digi.detid()) << " flavor=" << digi.flavor();
   } else {
     s << "DetId(" << digi.detid().rawId() << ")";
   }

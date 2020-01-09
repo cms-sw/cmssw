@@ -105,7 +105,7 @@ namespace edm {
   PreMixingModule::PreMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf)
       : BMixingModule(ps, globalConf),
         puWorker_(ps.getParameter<edm::ParameterSet>("workers").getParameter<edm::ParameterSet>("pileup"),
-                  *this,
+                  producesCollector(),
                   consumesCollector()),
         pileupAdjusters_(
             edm::vector_transform(ps.getParameter<std::vector<edm::ParameterSet>>("adjustPileupDistribution"),
@@ -143,7 +143,8 @@ namespace edm {
       }
       const auto& pset = workers.getParameter<edm::ParameterSet>(name);
       std::string type = pset.getParameter<std::string>("workerType");
-      workers_.emplace_back(PreMixingWorkerFactory::get()->create(type, pset, *this, consumesCollector()));
+      workers_.emplace_back(
+          PreMixingWorkerFactory::get()->create(type, pset, producesCollector(), consumesCollector()));
     }
   }
 

@@ -44,57 +44,61 @@ from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
 from RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff import *
 from RecoEcal.EgammaCoreTools.EcalNextToDeadChannelESProducer_cff import *
 from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
-reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHits )
-reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
+reducedHcalRecHitsTask = cms.Task( reducedHcalRecHits )
+reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHitsTask )
+reducedRecHitsTask = cms.Task ( reducedEcalRecHitsTask , reducedHcalRecHitsTask )
+reducedRecHits = cms.Sequence ( reducedRecHitsTask )
 interestingTrackEcalDetIds.TrackCollection = "hiGeneralTracks"
 
 
 # Global + High-Level Reco Sequence
-globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
-                              * hcalGlobalRecoSequence
-                              * hiParticleFlowLocalReco
-                              * hiEcalClusters
-                              * hiRecoJets
-                              * muonRecoPbPb
-                              * hiElectronSequence 
-                              * hiEgammaSequence
-                              * hiParticleFlowReco
-                              * egammaHighLevelRecoPostPF
-                              * hiCentrality
-                              #* centralityBin  # temporarily removed
-                              * hiClusterCompatibility
-                              * hiEvtPlane
-                              * hcalnoise
-                              * muonRecoHighLevelPbPb
-                              * particleFlowLinks
-                              * hiRecoPFJets
-                              * reducedRecHits
+globalRecoPbPbTask = cms.Task(hiTracking_wSplittingTask
+                              , hcalGlobalRecoTask
+                              , hiParticleFlowLocalRecoTask
+                              , hiEcalClustersTask
+                              , hiRecoJetsTask
+                              , muonRecoPbPbTask
+                              , hiElectronTask 
+                              , hiEgammaTask
+                              , hiParticleFlowRecoTask
+                              , egammaHighLevelRecoPostPFTask
+                              , hiCentrality
+                              #, centralityBin  # temporarily removed
+                              , hiClusterCompatibility
+                              , hiEvtPlane
+                              , hcalnoise
+                              , muonRecoHighLevelPbPbTask
+                              , particleFlowLinksTask
+                              , hiRecoPFJetsTask
+                              , reducedRecHitsTask
                               )
-globalRecoPbPb_wPhase1 = globalRecoPbPb.copy()
-globalRecoPbPb_wPhase1.replace(hiTracking_wSplitting, hiTracking_wSplitting_Phase1)
+globalRecoPbPb = cms.Sequence(globalRecoPbPbTask)
+
+globalRecoPbPb_wPhase1Task = globalRecoPbPbTask.copy()
+globalRecoPbPb_wPhase1Task.replace(hiTracking_wSplittingTask, hiTracking_wSplitting_Phase1Task)
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toReplaceWith(globalRecoPbPb, globalRecoPbPb_wPhase1)
+trackingPhase1.toReplaceWith(globalRecoPbPbTask, globalRecoPbPb_wPhase1Task)
 
 
-globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
-                                              * hiParticleFlowLocalReco
-                                              * hiEcalClusters
-                                              * hiRecoJets
-                                              * muonRecoPbPb
-                                              * hiElectronSequence
-                                              * hiEgammaSequence
-                                              * hiParticleFlowReco
-                                              * egammaHighLevelRecoPostPF
-                                              * hiCentrality
-                                              #* centralityBin  # temporarily removed 
-                                              * hiClusterCompatibility
-                                              * hiEvtPlane
-                                              * hcalnoise
-                                              * muonRecoHighLevelPbPb
-                                              * particleFlowLinks
-                                              * hiRecoPFJets
-                                              * reducedRecHits
+globalRecoPbPb_wConformalPixelTask = cms.Task(hiTracking_wConformalPixelTask
+                                              , hiParticleFlowLocalRecoTask
+                                              , hiEcalClustersTask
+                                              , hiRecoJetsTask
+                                              , muonRecoPbPbTask
+                                              , hiElectronTask
+                                              , hiEgammaTask
+                                              , hiParticleFlowRecoTask
+                                              , egammaHighLevelRecoPostPFTask
+                                              , hiCentrality
+                                              , hiClusterCompatibility
+                                              , hiEvtPlane
+                                              , hcalnoise
+                                              , muonRecoHighLevelPbPbTask
+                                              , particleFlowLinksTask
+                                              , hiRecoPFJetsTask
+                                              , reducedRecHitsTask
                                               )
+globalRecoPbPb_wConformalPixel = cms.Sequence(globalRecoPbPb_wConformalPixelTask)
 
 #--------------------------------------------------------------------------
 # Full sequence (LOCAL RECO + HIGH LEVEL RECO) 

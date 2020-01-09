@@ -162,8 +162,6 @@ void PFClient::createResolutionPlots(DQMStore::IBooker &ibooker,
       me_mean->setBinContent(ix, mean);
       me_sigma->setBinContent(ix, sigma);
     }
-    if (me_slice)
-      igetter.removeElement(me_slice->getName());  //?
     delete[] xbins;
   }
 }
@@ -355,7 +353,7 @@ void PFClient::createEfficiencyPlots(DQMStore::IBooker &ibooker,
     }
     */
     // Binomial errors "B" asked by Florian
-    /*me1_forEff->Sumw2(); me2_forEff->Sumw2();*/ me_eff->getTH1F()->Sumw2();
+    /*me1_forEff->Sumw2(); me2_forEff->Sumw2();*/ me_eff->enableSumw2();
     me_eff->getTH1F()->Divide(me1_forEff, me2_forEff, 1, 1, "B");
   }
 }

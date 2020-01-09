@@ -2,11 +2,11 @@
 
 HGCalConcentratorSuperTriggerCellImpl::HGCalConcentratorSuperTriggerCellImpl(const edm::ParameterSet& conf)
     : fixedDataSizePerHGCROC_(conf.getParameter<bool>("fixedDataSizePerHGCROC")),
-      coarseTCmapping_(std::vector<unsigned>{HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_}),
-      superTCmapping_(conf.getParameter<std::vector<unsigned>>("stcSize")) {
+      coarsenTriggerCells_(conf.getParameter<bool>("coarsenTriggerCells")),
+      coarseTCmapping_(conf.getParameter<std::vector<unsigned>>("ctcSize")),
+      superTCmapping_(conf.getParameter<std::vector<unsigned>>("stcSize")),
+      calibration_(conf.getParameterSet("superTCCalibration")),
+      vfeCompression_(conf.getParameterSet("superTCCompression")) {
   std::string energyType(conf.getParameter<string>("type_energy_division"));
 
   if (energyType == "superTriggerCell") {
@@ -26,21 +26,23 @@ HGCalConcentratorSuperTriggerCellImpl::HGCalConcentratorSuperTriggerCellImpl(con
   }
 }
 
+uint32_t HGCalConcentratorSuperTriggerCellImpl::getCompressedSTCEnergy(const SuperTriggerCell& stc) const {
+  uint32_t code(0);
+  uint32_t compressed_value(0);
+  vfeCompression_.compressSingle(stc.getSumHwPt(), code, compressed_value);
+  return compressed_value;
+}
+
 void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
     std::unordered_map<unsigned, SuperTriggerCell>& STCs, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput) const {
   for (auto& s : STCs) {
-    int thickness = 0;
     std::vector<uint32_t> output_ids = superTCmapping_.getConstituentTriggerCells(s.second.getSTCId());
 
-    if (triggerTools_.isSilicon(output_ids.at(0))) {
-      thickness = triggerTools_.thicknessIndex(output_ids.at(0), true);
-    } else if (triggerTools_.isScintillator(output_ids.at(0))) {
-      thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-    }
+    int thickness = (!output_ids.empty() ? triggerTools_.thicknessIndex(output_ids.at(0), true) : 0);
 
     for (const auto& id : output_ids) {
       if (fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_ &&
-          id != superTCmapping_.getRepresentativeDetId(id)) {
+          id != coarseTCmapping_.getRepresentativeDetId(id)) {
         continue;
       }
 
@@ -90,24 +92,46 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
 
 void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosition(l1t::HGCalTriggerCell& c,
                                                                                     const SuperTriggerCell& stc) const {
+  //Compress and recalibrate STC energy
+  uint32_t compressed_value = getCompressedSTCEnergy(stc);
+
+  int thickness = triggerTools_.thicknessIndex(c.detId(), true);
+
+  GlobalPoint point;
+  if ((fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) || coarsenTriggerCells_) {
+    point = coarseTCmapping_.getCoarseTriggerCellPosition(coarseTCmapping_.getCoarseTriggerCellId(c.detId()));
+  } else {
+    point = triggerTools_.getTCPosition(c.detId());
+  }
+  c.setPosition(point);
+
+  math::PtEtaPhiMLorentzVector p4(c.pt(), point.eta(), point.phi(), 0.);
+  c.setP4(p4);
+
   if (energyDivisionType_ == superTriggerCell) {
     if (c.detId() == stc.getMaxId()) {
-      c.setHwPt(stc.getSumHwPt());
-      c.setMipPt(stc.getSumMipPt());
-      c.setPt(stc.getSumPt());
+      c.setHwPt(compressed_value);
+      calibration_.calibrateInGeV(c);
     } else {
       throw cms::Exception("NonMaxIdSuperTriggerCell")
           << "Trigger Cell with detId not equal to the maximum of the superTriggerCell found";
     }
   } else if (energyDivisionType_ == equalShare) {
-    double denominator = fixedDataSizePerHGCROC_
-                             ? double(kTriggerCellsForDivision_)
-                             : double(superTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size());
+    double coarseTriggerCellSize =
+        coarsenTriggerCells_
+            ? double(
+                  coarseTCmapping_.getConstituentTriggerCells(coarseTCmapping_.getCoarseTriggerCellId(stc.getMaxId()))
+                      .size())
+            : 1.;
 
-    double denominatorInv = 1. / denominator;
-    c.setHwPt(stc.getSumHwPt() * denominatorInv);
-    c.setMipPt(stc.getSumMipPt() * denominatorInv);
-    c.setPt(stc.getSumPt() * denominatorInv);
+    double denominator =
+        fixedDataSizePerHGCROC_
+            ? double(kTriggerCellsForDivision_)
+            : double(superTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size()) / coarseTriggerCellSize;
+
+    c.setHwPt(std::round(compressed_value / denominator));
+    calibration_.calibrateInGeV(c);
+
   } else if (energyDivisionType_ == oneBitFraction) {
     double frac = 0;
 
@@ -116,27 +140,10 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
     } else {
       frac = 1 - stc.getFractionSum();
     }
-    c.setHwPt(stc.getSumHwPt() * frac);
-    c.setMipPt(stc.getSumMipPt() * frac);
-    c.setPt(stc.getSumPt() * frac);
-  }
 
-  int thickness = 0;
-  if (triggerTools_.isSilicon(c.detId())) {
-    thickness = triggerTools_.thicknessIndex(c.detId(), true);
-  } else if (triggerTools_.isScintillator(c.detId())) {
-    thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
+    c.setHwPt(std::round(compressed_value * frac));
+    calibration_.calibrateInGeV(c);
   }
-
-  GlobalPoint point;
-  if (fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) {
-    point = coarseTCmapping_.getCoarseTriggerCellPosition(coarseTCmapping_.getCoarseTriggerCellId(c.detId()));
-  } else {
-    point = triggerTools_.getTCPosition(c.detId());
-  }
-  math::PtEtaPhiMLorentzVector p4(c.pt(), point.eta(), point.phi(), 0.);
-  c.setPosition(point);
-  c.setP4(p4);
 }
 
 float HGCalConcentratorSuperTriggerCellImpl::getTriggerCellOneBitFraction(float tcPt, float sumPt) const {

@@ -139,7 +139,7 @@ private:
 
       unsigned int n_tracking_RPs = 0, n_timing_RPs = 0;
       for (const auto &tr : p.contributingLocalTracks()) {
-        CTPPSDetId detId(tr->getRPId());
+        CTPPSDetId detId(tr->rpId());
         if (detId.subdetId() == CTPPSDetId::sdTrackingStrip || detId.subdetId() == CTPPSDetId::sdTrackingPixel)
           n_tracking_RPs++;
         if (detId.subdetId() == CTPPSDetId::sdTimingDiamond || detId.subdetId() == CTPPSDetId::sdTimingFastSilicon)
@@ -376,7 +376,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   const CTPPSLocalTrackLite *tr_R_F = nullptr;
 
   for (const auto &tr : *hTracks) {
-    CTPPSDetId rpId(tr.getRPId());
+    CTPPSDetId rpId(tr.rpId());
     unsigned int decRPId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
 
     if (decRPId == rpId_45_N_)
@@ -390,25 +390,25 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   }
 
   if (tr_L_N && tr_L_F) {
-    p_x_L_diffNF_vs_x_L_N_->Fill(tr_L_N->getX(), tr_L_F->getX() - tr_L_N->getX());
-    p_y_L_diffNF_vs_y_L_N_->Fill(tr_L_N->getY(), tr_L_F->getY() - tr_L_N->getY());
+    p_x_L_diffNF_vs_x_L_N_->Fill(tr_L_N->x(), tr_L_F->x() - tr_L_N->x());
+    p_y_L_diffNF_vs_y_L_N_->Fill(tr_L_N->y(), tr_L_F->y() - tr_L_N->y());
   }
 
   if (tr_R_N && tr_R_F) {
-    p_x_R_diffNF_vs_x_R_N_->Fill(tr_R_N->getX(), tr_R_F->getX() - tr_R_N->getX());
-    p_y_R_diffNF_vs_y_R_N_->Fill(tr_R_N->getY(), tr_R_F->getY() - tr_R_N->getY());
+    p_x_R_diffNF_vs_x_R_N_->Fill(tr_R_N->x(), tr_R_F->x() - tr_R_N->x());
+    p_y_R_diffNF_vs_y_R_N_->Fill(tr_R_N->y(), tr_R_F->y() - tr_R_N->y());
   }
 
   // make single-RP-reco plots
   for (const auto &proton : *hRecoProtonsSingleRP) {
-    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
+    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->rpId());
     unsigned int decRPId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
     singleRPPlots_[decRPId].fill(proton);
   }
 
   // make multi-RP-reco plots
   for (const auto &proton : *hRecoProtonsMultiRP) {
-    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
+    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->rpId());
     unsigned int armId = rpId.arm();
     multiRPPlots_[armId].fill(proton);
   }
@@ -417,8 +417,8 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   for (const auto &proton_s : *hRecoProtonsSingleRP) {
     for (const auto &proton_m : *hRecoProtonsMultiRP) {
       // only compare object from the same arm
-      CTPPSDetId rpId_s((*proton_s.contributingLocalTracks().begin())->getRPId());
-      CTPPSDetId rpId_m((*proton_m.contributingLocalTracks().begin())->getRPId());
+      CTPPSDetId rpId_s((*proton_s.contributingLocalTracks().begin())->rpId());
+      CTPPSDetId rpId_m((*proton_m.contributingLocalTracks().begin())->rpId());
 
       if (rpId_s.arm() != rpId_m.arm())
         continue;
@@ -436,7 +436,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   const reco::ForwardProton *p_arm1_s_N = nullptr, *p_arm1_s_F = nullptr, *p_arm1_m = nullptr;
 
   for (const auto &proton : *hRecoProtonsSingleRP) {
-    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
+    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->rpId());
     const unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
 
     if (rpDecId == rpId_45_N_)
@@ -451,7 +451,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   }
 
   for (const auto &proton : *hRecoProtonsMultiRP) {
-    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
+    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->rpId());
     const unsigned int arm = rpId.arm();
 
     if (arm == 0)

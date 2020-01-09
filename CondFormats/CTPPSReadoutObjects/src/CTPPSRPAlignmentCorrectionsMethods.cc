@@ -357,7 +357,7 @@ void CTPPSRPAlignmentCorrectionsMethods::writeXMLBlock(const CTPPSRPAlignmentCor
 
   for (auto it = sensors.begin(); it != sensors.end(); ++it) {
     CTPPSDetId sensorId(it->first);
-    unsigned int rpId = sensorId.getRPId();
+    unsigned int rpId = sensorId.rpId();
     unsigned int decRPId = sensorId.arm() * 100 + sensorId.station() * 10 + sensorId.rp();
 
     // start a RP block

@@ -79,6 +79,13 @@ namespace {
 
     std::vector<EDGetTokenT<edmtest::IntProduct>> m_tokens;
   };
+
+  template <typename T>
+  class TestProducer : public edm::ProducerBase {
+  public:
+    TestProducer(std::string const& productInstanceName) { token_ = produces<T>(productInstanceName); }
+    EDPutTokenT<T> token_;
+  };
 }  // namespace
 
 class testEvent : public CppUnit::TestFixture {
@@ -235,8 +242,7 @@ ProductID testEvent::addProduct(std::unique_ptr<T> product, std::string const& t
 
   ModuleCallingContext mcc(&description->second);
   Event temporaryEvent(*principal_, description->second, &mcc);
-  ProducerBase prod;
-  prod.produces<T>(productLabel);
+  TestProducer<T> prod(productLabel);
   const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex())
       .push_back(principal_->productLookup().index(PRODUCT_TYPE,
                                                    edm::TypeID(typeid(T)),
@@ -255,8 +261,7 @@ template <class T>
 std::unique_ptr<ProducerBase> testEvent::putProduct(std::unique_ptr<T> product,
                                                     std::string const& productInstanceLabel,
                                                     bool doCommit) {
-  auto prod = std::make_unique<ProducerBase>();
-  prod->produces<edmtest::IntProduct>(productInstanceLabel);
+  auto prod = std::make_unique<TestProducer<edmtest::IntProduct>>(productInstanceLabel);
   auto index = principal_->productLookup().index(PRODUCT_TYPE,
                                                  edm::TypeID(typeid(T)),
                                                  currentModuleDescription_->moduleLabel().c_str(),
@@ -276,8 +281,8 @@ template <class T>
 std::unique_ptr<ProducerBase> testEvent::putProductUsingToken(std::unique_ptr<T> product,
                                                               std::string const& productInstanceLabel,
                                                               bool doCommit) {
-  auto prod = std::make_unique<ProducerBase>();
-  EDPutTokenT<edmtest::IntProduct> token = prod->produces<edmtest::IntProduct>(productInstanceLabel);
+  auto prod = std::make_unique<TestProducer<edmtest::IntProduct>>(productInstanceLabel);
+  EDPutTokenT<edmtest::IntProduct> token = prod->token_;
   auto index = principal_->productLookup().index(PRODUCT_TYPE,
                                                  edm::TypeID(typeid(T)),
                                                  currentModuleDescription_->moduleLabel().c_str(),
@@ -297,8 +302,8 @@ template <class T>
 std::unique_ptr<ProducerBase> testEvent::emplaceProduct(T product,
                                                         std::string const& productInstanceLabel,
                                                         bool doCommit) {
-  auto prod = std::make_unique<ProducerBase>();
-  EDPutTokenT<edmtest::IntProduct> token = prod->produces<edmtest::IntProduct>(productInstanceLabel);
+  auto prod = std::make_unique<TestProducer<edmtest::IntProduct>>(productInstanceLabel);
+  EDPutTokenT<edmtest::IntProduct> token = prod->token_;
   auto index = principal_->productLookup().index(PRODUCT_TYPE,
                                                  edm::TypeID(typeid(T)),
                                                  currentModuleDescription_->moduleLabel().c_str(),

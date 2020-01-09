@@ -1,3 +1,4 @@
+
 #ifndef CondCore_CondDB_KeyList_h
 #define CondCore_CondDB_KeyList_h
 
@@ -31,34 +32,43 @@ namespace cond {
 
     class KeyList {
     public:
+      ///Called by PoolDBESSource
       void init(IOVProxy iovProxy);
+      void init(KeyList const&);
 
-      void load(const std::vector<unsigned long long>& keys);
+      /// determines which keys to use to read from the DB. Should only be used by PoolDBESSource
+      void setKeys(const std::vector<unsigned long long>& keys);
 
+      ///Retrieves the pre-fetched data. The index is the same order as the keys used in setKeys.
       template <typename T>
-      std::shared_ptr<T> get(size_t n) const {
+      std::shared_ptr<T> getUsingIndex(size_t n) const {
         if (n >= size())
-          throwException("Index outside the bounds of the key array.", "KeyList::get");
-        if (!m_objects[n]) {
-          auto i = m_data.find(n);
-          if (i != m_data.end()) {
-            m_objects[n] = deserialize<T>(i->second.first, i->second.second.first, i->second.second.second);
-            m_data.erase(n);
-          } else {
-            throwException("Payload for index " + std::to_string(n) + " has not been found.", "KeyList::get");
-          }
+          throwException("Index outside the bounds of the key array.", "KeyList::getUsingIndex");
+        if (m_keys[n] == 0 or m_data[n].first.empty()) {
+          throwException("Payload for index " + std::to_string(n) + " has not been found.", "KeyList::getUsingIndex");
         }
-        return std::static_pointer_cast<T>(m_objects[n]);
+        auto const& i = m_data[n];
+        return deserialize<T>(i.first, i.second.first, i.second.second);
       }
 
-      size_t size() const { return m_objects.size(); }
+      /** Retrieve the item associated with the key directly from the DB.
+          The function is non-const since it is not thread-safe. */
+      template <typename T>
+      std::shared_ptr<T> getUsingKey(unsigned long long key) const {
+        auto item = loadFromDB(key);
+        return deserialize<T>(item.first, item.second.first, item.second.second);
+      }
+
+      ///Number of keys based on container passed to setKeys.
+      size_t size() const { return m_data.size(); }
 
     private:
-      // the db session
-      IOVProxy m_proxy;
+      std::pair<std::string, std::pair<cond::Binary, cond::Binary>> loadFromDB(unsigned long long key) const;
+      // the db session, protected by a mutex
+      mutable IOVProxy m_proxy;
       // the key selection:
-      mutable std::map<size_t, std::pair<std::string, std::pair<cond::Binary, cond::Binary> > > m_data;
-      mutable std::vector<std::shared_ptr<void> > m_objects;
+      std::vector<unsigned long long> m_keys;
+      std::vector<std::pair<std::string, std::pair<cond::Binary, cond::Binary>>> m_data;
     };
 
   }  // namespace persistency

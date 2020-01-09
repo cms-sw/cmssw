@@ -36,7 +36,8 @@ process.dqmSaver.dirName = '/tmp/merkelp/'
 process.dqmSaver.saveByLumiSection = 1
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),

@@ -94,12 +94,13 @@ void FWGeometryTableViewManager::setGeoManagerFromFile() {
   TFile* file = FWGeometry::findFile(m_fileName.c_str());
   fwLog(fwlog::kInfo) << "Geometry table file: " << m_fileName.c_str() << std::endl;
   try {
-    if (!file)
-      throw std::runtime_error("No root file.");
-
-    file->ls();
-
-    s_geoManager = (TGeoManager*)file->Get(m_TGeoName.c_str());
+    if (!file) {
+      // Try it as a GDML file
+      s_geoManager = TGeoManager::Import(m_fileName.c_str(), m_TGeoName.c_str());
+    } else {
+      file->ls();
+      s_geoManager = (TGeoManager*)file->Get(m_TGeoName.c_str());
+    }
     if (!s_geoManager)
       throw std::runtime_error("Can't find TGeoManager object in selected file.");
 

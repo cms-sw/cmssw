@@ -1,5 +1,3 @@
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
-
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
@@ -61,7 +59,7 @@ namespace l1t {
       return res;
     }  //getPackers
 
-    void BMTFSetup::registerProducts(edm::stream::EDProducerBase& prod) {
+    void BMTFSetup::registerProducts(edm::ProducesCollector prod) {
       prod.produces<RegionalMuonCandBxCollection>("BMTF");
       prod.produces<RegionalMuonCandBxCollection>("BMTF2");
       prod.produces<L1MuDTChambPhContainer>();

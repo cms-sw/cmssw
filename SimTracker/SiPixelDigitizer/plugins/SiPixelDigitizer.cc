@@ -28,7 +28,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -84,7 +83,7 @@
 
 namespace cms {
   SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig,
-                                     edm::ProducerBase& mixMod,
+                                     edm::ProducesCollector producesCollector,
                                      edm::ConsumesCollector& iC)
       : firstInitializeEvent_(true),
         firstFinalizeEvent_(true),
@@ -98,8 +97,8 @@ namespace cms {
 
     const std::string alias("simSiPixelDigis");
 
-    mixMod.produces<edm::DetSetVector<PixelDigi> >().setBranchAlias(alias);
-    mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias(alias + "siPixelDigiSimLink");
+    producesCollector.produces<edm::DetSetVector<PixelDigi> >().setBranchAlias(alias);
+    producesCollector.produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias(alias + "siPixelDigiSimLink");
 
     for (auto const& trackerContainer : trackerContainers) {
       edm::InputTag tag(hitsProducer, trackerContainer);
@@ -115,7 +114,7 @@ namespace cms {
 
     _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
     if (NumberOfEndcapDisks != 2)
-      mixMod.produces<PixelFEDChannelCollection>();
+      producesCollector.produces<PixelFEDChannelCollection>();
   }
 
   SiPixelDigitizer::~SiPixelDigitizer() { edm::LogInfo("PixelDigitizer ") << "Destruct the Pixel Digitizer"; }

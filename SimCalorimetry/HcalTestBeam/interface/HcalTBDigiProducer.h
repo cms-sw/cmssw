@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
@@ -17,6 +17,7 @@
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBSimParameterMap.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 
 #include <string>
 #include <vector>
@@ -34,7 +35,7 @@ namespace CLHEP {
 
 class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
-  explicit HcalTBDigiProducer(const edm::ParameterSet &ps, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
+  explicit HcalTBDigiProducer(const edm::ParameterSet &ps, edm::ProducesCollector, edm::ConsumesCollector &iC);
   ~HcalTBDigiProducer() override;
 
   void initializeEvent(edm::Event const &e, edm::EventSetup const &c) override;
@@ -62,6 +63,7 @@ private:
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
 
   HcalTBSimParameterMap *theParameterMap;
+  HcalSimParameterMap *paraMap;
   CaloVShape *theHcalShape;
   CaloVShape *theHcalIntegratedShape;
 

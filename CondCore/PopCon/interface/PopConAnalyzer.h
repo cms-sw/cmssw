@@ -23,6 +23,9 @@ namespace popcon {
 
     ~PopConAnalyzer() override {}
 
+  protected:
+    SourceHandler& source() { return m_source; }
+
   private:
     void beginJob() override {}
     void endJob() override { write(); }

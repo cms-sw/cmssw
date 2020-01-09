@@ -19,6 +19,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -57,6 +58,13 @@ private:
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
+
+namespace {
+  class TestProducer : public edm::ProducerBase {
+  public:
+    TestProducer(std::string const& productInstanceName) { produces<edmtest::IntProduct>(productInstanceName); }
+  };
+}  // namespace
 
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   auto preg = std::make_unique<edm::ProductRegistry>();
@@ -182,8 +190,7 @@ void testEventGetRefBeforePut::getRefTest() {
     edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
     edm::Event event(ep, modDesc, nullptr);
-    edm::ProducerBase prod;
-    prod.produces<edmtest::IntProduct>(productInstanceName);
+    TestProducer prod(productInstanceName);
     const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex()).push_back(0);
     event.setProducer(&prod, nullptr);
     auto pr = std::make_unique<edmtest::IntProduct>();

@@ -7,7 +7,7 @@
  * Test case for the fastmatch implementation used in DQMStore class
  *
  */
-using namespace dqm::impl;
+using namespace dqm::dqmstoreimpl;
 
 int main(int argc, char** argv) {
   std::vector<std::string> input = {"MyText", "Text"};

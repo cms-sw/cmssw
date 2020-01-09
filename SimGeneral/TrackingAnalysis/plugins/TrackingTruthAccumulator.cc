@@ -35,7 +35,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -257,7 +256,7 @@ namespace {
 //---------------------------------------------------------------------------------
 
 TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &config,
-                                                   edm::ProducerBase &mixMod,
+                                                   edm::ProducesCollector producesCollector,
                                                    edm::ConsumesCollector &iC)
     : messageCategory_("TrackingTruthAccumulator"),
       volumeRadius_(config.getParameter<double>("volumeRadius")),
@@ -321,17 +320,17 @@ TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &conf
   // configured to be created.
   //
   if (createUnmergedCollection_) {
-    mixMod.produces<TrackingVertexCollection>();
-    mixMod.produces<TrackingParticleCollection>();
+    producesCollector.produces<TrackingVertexCollection>();
+    producesCollector.produces<TrackingParticleCollection>();
   }
 
   if (createMergedCollection_) {
-    mixMod.produces<TrackingParticleCollection>("MergedTrackTruth");
-    mixMod.produces<TrackingVertexCollection>("MergedTrackTruth");
+    producesCollector.produces<TrackingParticleCollection>("MergedTrackTruth");
+    producesCollector.produces<TrackingVertexCollection>("MergedTrackTruth");
   }
 
   if (createInitialVertexCollection_) {
-    mixMod.produces<TrackingVertexCollection>("InitialVertices");
+    producesCollector.produces<TrackingVertexCollection>("InitialVertices");
   }
 
   iC.consumes<std::vector<SimTrack>>(simTrackLabel_);

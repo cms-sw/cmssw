@@ -18,25 +18,25 @@ public:
       : x_(x), xWidth_(xWidth), y_(y), yWidth_(yWidth), z_(z), zWidth_(zWidth), t_(t) {}
 
   inline void setX(float x) { x_ = x; }
-  inline float getX() const { return x_; }
+  inline float x() const { return x_; }
 
   inline void setY(float y) { y_ = y; }
-  inline float getY() const { return y_; }
+  inline float y() const { return y_; }
 
   inline void setZ(float z) { z_ = z; }
-  inline float getZ() const { return z_; }
+  inline float z() const { return z_; }
 
   inline void setXWidth(float xWidth) { xWidth_ = xWidth; }
-  inline float getXWidth() const { return xWidth_; }
+  inline float xWidth() const { return xWidth_; }
 
   inline void setYWidth(float yWidth) { yWidth_ = yWidth; }
-  inline float getYWidth() const { return yWidth_; }
+  inline float yWidth() const { return yWidth_; }
 
   inline void setZWidth(float zWidth) { zWidth_ = zWidth; }
-  inline float getZWidth() const { return zWidth_; }
+  inline float zWidth() const { return zWidth_; }
 
-  inline void setT(float t) { t_ = t; }
-  inline float getT() const { return t_; }
+  inline void setTime(float t) { t_ = t; }
+  inline float time() const { return t_; }
 
 protected:
   float x_, xWidth_;
@@ -49,7 +49,7 @@ protected:
 
 inline bool operator<(const CTPPSTimingRecHit &l, const CTPPSTimingRecHit &r) {
   // only sort by leading edge time
-  return (l.getT() < r.getT());
+  return (l.time() < r.time());
 }
 
 #endif

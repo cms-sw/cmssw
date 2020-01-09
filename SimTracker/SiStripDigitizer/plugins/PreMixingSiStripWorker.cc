@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -44,7 +44,7 @@
 
 class PreMixingSiStripWorker : public PreMixingWorker {
 public:
-  PreMixingSiStripWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+  PreMixingSiStripWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
   ~PreMixingSiStripWorker() override = default;
 
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -144,7 +144,7 @@ private:
 };
 
 PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
-                                               edm::ProducerBase& producer,
+                                               edm::ProducesCollector producesCollector,
                                                edm::ConsumesCollector&& iC)
     : gainLabel(ps.getParameter<std::string>("Gain")),
       SingleStripNoise(ps.getParameter<bool>("SingleStripNoise")),
@@ -172,8 +172,8 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
   SiStripDigiCollectionDM_ = ps.getParameter<std::string>("SiStripDigiCollectionDM");
   SistripAPVListDM_ = ps.getParameter<std::string>("SiStripAPVListDM");
 
-  producer.produces<edm::DetSetVector<SiStripDigi>>(SiStripDigiCollectionDM_);
-  producer.produces<bool>(SiStripDigiCollectionDM_ + "SimulatedAPVDynamicGain");
+  producesCollector.produces<edm::DetSetVector<SiStripDigi>>(SiStripDigiCollectionDM_);
+  producesCollector.produces<bool>(SiStripDigiCollectionDM_ + "SimulatedAPVDynamicGain");
 
   if (APVSaturationFromHIP_) {
     SistripAPVLabelSig_ = ps.getParameter<edm::InputTag>("SistripAPVLabelSig");

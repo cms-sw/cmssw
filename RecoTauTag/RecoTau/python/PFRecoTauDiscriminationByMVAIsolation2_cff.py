@@ -90,14 +90,15 @@ discriminationByIsolationMVA2Tight.mapping[0].cut = cms.string("newDMwLTEff50")
 discriminationByIsolationMVA2VTight = discriminationByIsolationMVA2VLoose.clone()
 discriminationByIsolationMVA2VTight.mapping[0].cut = cms.string("newDMwLTEff40")
 
-mvaIsolation2Seq = cms.Sequence(
+mvaIsolation2Task = cms.Task(
     chargedIsoPtSum
-   + neutralIsoPtSum
-   + puCorrPtSum
-   + discriminationByIsolationMVA2raw
-   + discriminationByIsolationMVA2VLoose
-   + discriminationByIsolationMVA2Loose
-   + discriminationByIsolationMVA2Medium
-   + discriminationByIsolationMVA2Tight
-   + discriminationByIsolationMVA2VTight
+   , neutralIsoPtSum
+   , puCorrPtSum
+   , discriminationByIsolationMVA2raw
+   , discriminationByIsolationMVA2VLoose
+   , discriminationByIsolationMVA2Loose
+   , discriminationByIsolationMVA2Medium
+   , discriminationByIsolationMVA2Tight
+   , discriminationByIsolationMVA2VTight
 )
+mvaIsolation2Seq = cms.Sequence(mvaIsolation2Task)

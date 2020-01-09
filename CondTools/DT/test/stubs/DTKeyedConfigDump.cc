@@ -12,21 +12,18 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CondTools/DT/test/stubs/DTKeyedConfigDump.h"
-#include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
-#include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
-#include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 
 namespace edmtest {
 
-  DTKeyedConfigDump::DTKeyedConfigDump(edm::ParameterSet const& p) {
-    dumpCCBKeys = p.getParameter<bool>("dumpCCBKeys");
-    dumpAllData = p.getParameter<bool>("dumpAllData");
+  DTKeyedConfigDump::DTKeyedConfigDump(edm::ParameterSet const& p)
+      : dumpCCBKeys{p.getParameter<bool>("dumpCCBKeys")},
+        dumpAllData{p.getParameter<bool>("dumpAllData")},
+        configToken_{esConsumes<DTCCBConfig, DTCCBConfigRcd>()} {
+    if (dumpCCBKeys) {
+      keyListToken_ = esConsumes<cond::persistency::KeyList, DTKeyedConfigListRcd>();
+    }
   }
-
-  DTKeyedConfigDump::DTKeyedConfigDump(int i) {}
-
-  DTKeyedConfigDump::~DTKeyedConfigDump() {}
 
   void DTKeyedConfigDump::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
@@ -35,10 +32,10 @@ namespace edmtest {
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
 
     // get configuration for current run
-    edm::ESHandle<DTCCBConfig> conf;
-    context.get<DTCCBConfigRcd>().get(conf);
-    std::cout << conf->version() << std::endl;
-    std::cout << std::distance(conf->begin(), conf->end()) << " data in the container" << std::endl;
+    auto const& conf = context.getData(configToken_);
+
+    std::cout << conf.version() << std::endl;
+    std::cout << std::distance(conf.begin(), conf.end()) << " data in the container" << std::endl;
     edm::ValidityInterval iov(context.get<DTCCBConfigRcd>().validityInterval());
     unsigned int currValidityStart = iov.first().eventID().run();
     unsigned int currValidityEnd = iov.last().eventID().run();
@@ -50,8 +47,9 @@ namespace edmtest {
     const DTKeyedConfig** allBricks = new const DTKeyedConfig*[100000];
     int nBricks = 0;
 
+    auto const& keyList = context.getData(keyListToken_);
     // loop over chambers
-    DTCCBConfig::ccb_config_map configKeys(conf->configKeyMap());
+    DTCCBConfig::ccb_config_map configKeys(conf.configKeyMap());
     DTCCBConfig::ccb_config_iterator iter = configKeys.begin();
     DTCCBConfig::ccb_config_iterator iend = configKeys.end();
     while (iter != iend) {
@@ -73,7 +71,7 @@ namespace edmtest {
         if (!dumpAllData)
           continue;
         const DTKeyedConfig* kBrick = 0;
-        cfgCache.get(context.get<DTKeyedConfigListRcd>(), id, kBrick);
+        cfgCache.get(keyList, id, kBrick);
         allBricks[nBricks++] = kBrick;
         if (kBrick == 0) {
           std::cout << "brick missing" << std::endl;

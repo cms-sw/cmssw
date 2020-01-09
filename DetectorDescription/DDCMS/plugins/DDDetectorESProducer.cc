@@ -58,6 +58,8 @@ private:
   const string confGeomXMLFiles_;
   const string rootDDName_;
   const string label_;
+  edm::ESGetToken<FileBlob, MFGeometryFileRcd> mfToken_;
+  edm::ESGetToken<FileBlob, GeometryFileRcd> geomToken_;
 };
 
 DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
@@ -67,13 +69,19 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
       label_(iConfig.getParameter<string>("label")) {
   if (rootDDName_ == "MagneticFieldVolumes:MAGF" || rootDDName_ == "cmsMagneticField:MAGF") {
-    setWhatProduced(this,
-                    &DDDetectorESProducer::produceMagField,
-                    edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+    auto c = setWhatProduced(this,
+                             &DDDetectorESProducer::produceMagField,
+                             edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+    if (fromDB_) {
+      c.setConsumes(mfToken_, edm::ESInputTag("", label_));
+    }
     findingRecord<IdealMagneticFieldRecord>();
   } else {
-    setWhatProduced(
+    auto c = setWhatProduced(
         this, &DDDetectorESProducer::produceGeom, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+    if (fromDB_) {
+      c.setConsumes(geomToken_, edm::ESInputTag("", label_));
+    }
     findingRecord<IdealGeometryRecord>();
   }
 }
@@ -105,8 +113,7 @@ void DDDetectorESProducer::setIntervalFor(const eventsetup::EventSetupRecordKey&
 DDDetectorESProducer::ReturnType DDDetectorESProducer::produceMagField(const IdealMagneticFieldRecord& iRecord) {
   LogVerbatim("Geometry") << "DDDetectorESProducer::Produce MF " << appendToDataLabel_;
   if (fromDB_) {
-    edm::ESTransientHandle<FileBlob> gdd;
-    iRecord.getRecord<MFGeometryFileRcd>().get(label_, gdd);
+    edm::ESTransientHandle<FileBlob> gdd = iRecord.getTransientHandle(mfToken_);
     unique_ptr<vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
 
     return make_unique<cms::DDDetector>(label_, string(tb->begin(), tb->end()), true);
@@ -118,8 +125,7 @@ DDDetectorESProducer::ReturnType DDDetectorESProducer::produceMagField(const Ide
 DDDetectorESProducer::ReturnType DDDetectorESProducer::produceGeom(const IdealGeometryRecord& iRecord) {
   LogVerbatim("Geometry") << "DDDetectorESProducer::Produce " << appendToDataLabel_;
   if (fromDB_) {
-    edm::ESTransientHandle<FileBlob> gdd;
-    iRecord.getRecord<GeometryFileRcd>().get(label_, gdd);
+    edm::ESTransientHandle<FileBlob> gdd = iRecord.getTransientHandle(geomToken_);
     unique_ptr<vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
 
     return make_unique<cms::DDDetector>(label_, string(tb->begin(), tb->end()), true);

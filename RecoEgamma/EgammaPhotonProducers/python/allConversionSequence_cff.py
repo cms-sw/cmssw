@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 #
 # Tracker only conversion producer
 from RecoEgamma.EgammaPhotonProducers.allConversions_cfi import *
-allConversionSequence = cms.Sequence(allConversions)
+allConversionTask = cms.Task(allConversions)
+allConversionSequence = cms.Sequence(allConversionTask)
 
 allConversionsOldEG = allConversions.clone()
 allConversionsOldEG.scBarrelProducer = cms.InputTag("correctedHybridSuperClusters")

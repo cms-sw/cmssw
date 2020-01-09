@@ -149,6 +149,12 @@ namespace l1t {
     float sigmaRRTot() const { return sigmaRRTot_; }
     float sigmaRRMax() const { return sigmaRRMax_; }
     float sigmaRRMean() const { return sigmaRRMean_; }
+    float zBarycenter() const { return zBarycenter_; }
+    float layer10percent() const { return layer10percent_; }
+    float layer50percent() const { return layer50percent_; }
+    float layer90percent() const { return layer90percent_; }
+    float triggerCells67percent() const { return triggerCells67percent_; }
+    float triggerCells90percent() const { return triggerCells90percent_; }
 
     void showerLength(int showerLength) { showerLength_ = showerLength; }
     void coreShowerLength(int coreShowerLength) { coreShowerLength_ = coreShowerLength; }
@@ -163,6 +169,12 @@ namespace l1t {
     void sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot; }
     void sigmaRRMean(float sigmaRRMean) { sigmaRRMean_ = sigmaRRMean; }
     void sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ; }
+    void zBarycenter(float zBarycenter) { zBarycenter_ = zBarycenter; }
+    void layer10percent(float layer10percent) { layer10percent_ = layer10percent; }
+    void layer50percent(float layer50percent) { layer50percent_ = layer50percent; }
+    void layer90percent(float layer90percent) { layer90percent_ = layer90percent; }
+    void triggerCells67percent(float triggerCells67percent) { triggerCells67percent_ = triggerCells67percent; }
+    void triggerCells90percent(float triggerCells90percent) { triggerCells90percent_ = triggerCells90percent; }
 
     /* operators */
     bool operator<(const HGCalClusterT<C>& cl) const { return mipPt() < cl.mipPt(); }
@@ -186,19 +198,25 @@ namespace l1t {
 
     //shower shape
 
-    int showerLength_;
-    int coreShowerLength_;
-    int firstLayer_;
-    int maxLayer_;
-    float eMax_;
-    float sigmaEtaEtaMax_;
-    float sigmaPhiPhiMax_;
-    float sigmaRRMax_;
-    float sigmaEtaEtaTot_;
-    float sigmaPhiPhiTot_;
-    float sigmaRRTot_;
-    float sigmaRRMean_;
-    float sigmaZZ_;
+    int showerLength_ = 0;
+    int coreShowerLength_ = 0;
+    int firstLayer_ = 0;
+    int maxLayer_ = 0;
+    float eMax_ = 0.;
+    float sigmaEtaEtaMax_ = 0.;
+    float sigmaPhiPhiMax_ = 0.;
+    float sigmaRRMax_ = 0.;
+    float sigmaEtaEtaTot_ = 0.;
+    float sigmaPhiPhiTot_ = 0.;
+    float sigmaRRTot_ = 0.;
+    float sigmaRRMean_ = 0.;
+    float sigmaZZ_ = 0.;
+    float zBarycenter_ = 0.;
+    float layer10percent_ = 0.;
+    float layer50percent_ = 0.;
+    float layer90percent_ = 0.;
+    float triggerCells67percent_ = 0.;
+    float triggerCells90percent_ = 0.;
 
     ClusterShapes shapes_;
 

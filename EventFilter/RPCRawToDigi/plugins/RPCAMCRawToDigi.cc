@@ -22,8 +22,8 @@ RPCAMCRawToDigi::RPCAMCRawToDigi(edm::ParameterSet const &config)
       fill_counters_(config.getParameter<bool>("fillCounters")),
       rpc_unpacker_(
           RPCAMCUnpackerFactory::get()->create(config.getParameter<std::string>("RPCAMCUnpacker"),
-                                               *this,
-                                               config.getParameter<edm::ParameterSet>("RPCAMCUnpackerSettings"))) {
+                                               config.getParameter<edm::ParameterSet>("RPCAMCUnpackerSettings"),
+                                               producesCollector())) {
   if (fill_counters_) {
     produces<RPCAMCLinkCounters>();
   }

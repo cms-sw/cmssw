@@ -20,7 +20,7 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalrotations.xml"/>
     <Include ref="Geometry/HcalTestBeamData/data/TBHcal.xml"/>
     <Include ref="Geometry/HcalAlgo/data/world.xml"/>

@@ -20,9 +20,10 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
-                                       edm::ProducerBase &mixMod,
+                                       edm::ProducesCollector producesCollector,
                                        edm::ConsumesCollector &iC)
     : theParameterMap(new HcalTBSimParameterMap(ps)),
+      paraMap(new HcalSimParameterMap(ps)),
       theHcalShape(new HcalShape()),
       theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
       theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
@@ -37,8 +38,8 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
       theHOHits(),
       thisPhaseShift(0) {
   std::string const instance("simHcalDigis");
-  mixMod.produces<HBHEDigiCollection>(instance);
-  mixMod.produces<HODigiCollection>(instance);
+  producesCollector.produces<HBHEDigiCollection>(instance);
+  producesCollector.produces<HODigiCollection>(instance);
   iC.consumes<std::vector<PCaloHit>>(edm::InputTag("g4SimHits", "HcalHits"));
 
   DetId detId(DetId::Hcal, 1);
@@ -53,7 +54,7 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
   bool dummy2 = false;  // extra arguments for premixing
   theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
-  theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory, dummy1);
+  theElectronicsSim = new HcalElectronicsSim(paraMap, theAmplifier, theCoderFactory, dummy1);
 
   double minFCToDelay = ps.getParameter<double>("minFCToDelay");
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hltExoticaQualityTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+hltExoticaQualityTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath(
         'HLTriggerOffline/Exotica/data/HLTExoticaQualityTest.xml'
     ),

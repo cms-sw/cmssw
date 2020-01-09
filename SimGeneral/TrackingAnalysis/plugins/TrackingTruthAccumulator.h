@@ -1,6 +1,7 @@
 #ifndef TrackingAnalysis_TrackingTruthAccumulator_h
 #define TrackingAnalysis_TrackingTruthAccumulator_h
 
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
@@ -11,7 +12,6 @@
 namespace edm {
   class ParameterSet;
   class ConsumesCollector;
-  class ProducerBase;
   class Event;
   class EventSetup;
   class StreamID;
@@ -89,7 +89,7 @@ class PSimHit;
 class TrackingTruthAccumulator : public DigiAccumulatorMixMod {
 public:
   explicit TrackingTruthAccumulator(const edm::ParameterSet &config,
-                                    edm::ProducerBase &mixMod,
+                                    edm::ProducesCollector,
                                     edm::ConsumesCollector &iC);
 
 private:

@@ -64,7 +64,7 @@ class QCriterion {
   /// (class should be created by DQMStore class)
 
 public:
-  typedef dqm::impl::MonitorElement MonitorElement;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   /// get test status (see Core/interface/DQMDefinitions.h)
   int getStatus() const { return status_; }
   /// get message attached to test
@@ -143,8 +143,9 @@ private:
   static const float ERROR_PROB_THRESHOLD;
 
   /// for creating and deleting class instances
-  friend class dqm::impl::DQMStore;
+  friend class dqm::dqmstoreimpl::DQMStore;
   /// for running the test
+  friend class dqm::legacy::MonitorElement;
   friend class dqm::impl::MonitorElement;
 };
 

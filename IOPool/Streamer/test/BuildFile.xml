@@ -11,6 +11,7 @@
     <use   name="FWCore/Services"/>
     <use   name="FWCore/ParameterSetReader"/>
     <flags   TEST_RUNNER_ARGS="all"/>
+    <flags   PRE_TEST="WriteStreamerFile"/>
   </bin>
   <bin   file="WriteStreamerFile.cpp">
     <use   name="IOPool/Streamer"/>

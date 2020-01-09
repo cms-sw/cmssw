@@ -67,13 +67,12 @@ process.FastMonitoringService = cms.Service("FastMonitoringService",
 )
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    useFileBroker = cms.bool(False),
-    fileServiceHost = cms.untracked.string("htcp40.cern.ch"),
-    runNumber = cms.uint32(options.runNumber),
-    baseDir = cms.string(options.fffBaseDir+"/"+options.fuBaseDir),
-    buBaseDir = cms.string(options.fffBaseDir+"/"+options.buBaseDir),
-    directorIsBu = cms.untracked.bool(False),
-    fileBrokerHost_ = cms.string("")
+    useFileBroker = cms.untracked.bool(False),
+    fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
+    runNumber = cms.untracked.uint32(options.runNumber),
+    baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
+    buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
+    directorIsBU = cms.untracked.bool(False)
 )
 
 try:

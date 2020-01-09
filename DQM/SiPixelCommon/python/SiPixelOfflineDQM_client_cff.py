@@ -20,7 +20,8 @@ sipixelEDAClient = DQMEDHarvester("SiPixelEDAClient",
 )
 
 #QualityTester
-sipixelQTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+sipixelQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest.xml'),
     prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),

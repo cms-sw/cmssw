@@ -45,6 +45,7 @@ private:
   bool m_printDebug;
   bool m_doByAPVs;
   SiStripDetInfoFileReader m_detInfoFileReader;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackTopoToken_;
 
   std::vector<uint32_t> selectDetectors(const TrackerTopology* tTopo, const std::vector<uint32_t>& detIds) const;
   std::vector<std::pair<uint32_t, std::vector<uint32_t>>> selectAPVs() const;
@@ -55,7 +56,7 @@ private:
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 SiStripBadModuleConfigurableFakeESSource::SiStripBadModuleConfigurableFakeESSource(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(trackTopoToken_);
   findingRecord<SiStripBadModuleRcd>();
 
   m_badComponentList = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
@@ -79,13 +80,12 @@ SiStripBadModuleConfigurableFakeESSource::ReturnType SiStripBadModuleConfigurabl
     const SiStripBadModuleRcd& iRecord) {
   using namespace edm::es;
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
+  TrackerTopology const& tTopo = iRecord.get(trackTopoToken_);
 
   auto quality = std::make_unique<SiStripQuality>();
 
   if (!m_doByAPVs) {
-    std::vector<uint32_t> selDetIds{selectDetectors(tTopo.product(), m_detInfoFileReader.getAllDetIds())};
+    std::vector<uint32_t> selDetIds{selectDetectors(&tTopo, m_detInfoFileReader.getAllDetIds())};
     edm::LogInfo("SiStripQualityConfigurableFakeESSource")
         << "[produce] number of selected dets to be removed " << selDetIds.size() << std::endl;
 

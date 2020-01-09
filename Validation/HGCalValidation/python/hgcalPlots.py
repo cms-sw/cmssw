@@ -66,7 +66,7 @@ print(layerscheme)
 #For V10:
 '''
 layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 50, 'lastLayerEEzp': 78, 'lastLayerFHzp': 90, 'maxlayerzp': 100 }
-print(layerscheme)
+#print(layerscheme)
 
 lastLayerEEzm = layerscheme['lastLayerEEzm']  # last layer of EE -z
 lastLayerFHzm = layerscheme['lastLayerFHzm']  # last layer of FH -z
@@ -76,7 +76,7 @@ lastLayerFHzp = layerscheme['lastLayerFHzp']  # last layer of FH +z
 maxlayerzp = layerscheme['maxlayerzp'] # last layer of BH +z
 
 hitlayerscheme = { 'EE_min': 1,'EE_max': 28, 'HESilicon_min': 1, 'HESilicon_max': 22, 'HEScintillator_min': 9 , 'HEScintillator_max': 22 }
-print(hitlayerscheme)
+#print(hitlayerscheme)
 
 EE_min = hitlayerscheme['EE_min']
 EE_max = hitlayerscheme['EE_max']
@@ -141,7 +141,7 @@ _totclusternum_thick = PlotGroup("totclusternum_thick", [
 ])
 
 #We will plot the density in logy scale.
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ylog": True}
 
 _cellsenedens_thick =  PlotGroup("cellsenedens_thick", [
   Plot("cellsenedens_thick_120", xtitle="", **_common),
@@ -1285,10 +1285,8 @@ _common_score = {#"title": "Score CaloParticle to MultiClusters",
                 }
 _common_score.update(_legend_common)
 _score_caloparticle_to_multiclusters = PlotGroup("score_caloparticle_to_multicluster", [
-        Plot("Score_caloparticle2multicl", **_common_score),
-        Plot("Score_caloparticle2contimulticl", **_common_score),
-        Plot("Score_caloparticle2noncontimulticl", **_common_score)
-        ], ncols=3)
+        Plot("Score_caloparticle2multicl", **_common_score)
+        ], ncols=1)
 
 _common_score = {#"title": "Score MultiCluster to CaloParticles",
                  "stat": False,
@@ -1302,27 +1300,33 @@ _common_score = {#"title": "Score MultiCluster to CaloParticles",
                 }
 _common_score.update(_legend_common)
 _score_multicluster_to_caloparticles = PlotGroup("score_multicluster_to_caloparticle", [
-        Plot("Score_multicl2caloparticle", **_common_score),
-        Plot("Score_contimulticl2caloparticle", **_common_score),
-        Plot("Score_noncontimulticl2caloparticle", **_common_score)
+        Plot("Score_multicl2caloparticle", **_common_score)
         ])
 
 _common_shared= {"title": "Shared Energy CaloParticle To Multi Cluster ",
                  "stat": False,
-                 "legend": False,
-                }
+                 "legend": True,
+                 "xmin": 0,
+                 "xmax": 2.0,
+               }
 _common_shared.update(_legend_common)
 _shared_plots = [ Plot("SharedEnergy_caloparticle2multicl", **_common_shared) ]
+_common_shared["xmin"] = -4.0
+_common_shared["xmax"] = 4.0
 _shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", **_common_shared)])
 _shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", **_common_shared)])
 _sharedEnergy_caloparticle_to_multicluster = PlotGroup("sharedEnergy_caloparticle_to_multicluster", _shared_plots, ncols=3)
 
 _common_shared= {"title": "Shared Energy Multi Cluster To CaloParticle ",
                  "stat": False,
-                 "legend": False,
+                 "legend": True,
+                 "xmin": 0,
+                 "xmax": 2.0,
                 }
 _common_shared.update(_legend_common)
 _shared_plots2 = [Plot("SharedEnergy_multicluster2caloparticle", **_common_shared)]
+_common_shared["xmin"] = -4.0
+_common_shared["xmax"] = 4.0
 _shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", **_common_shared)])
 _shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", **_common_shared)])
 _sharedEnergy_multicluster_to_caloparticle = PlotGroup("sharedEnergy_multicluster_to_caloparticle", _shared_plots2, ncols=3)
@@ -1341,8 +1345,6 @@ _common_assoc.update(_legend_common)
 _cell_association_table = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
         ], ncols=8 )
-
-_cell_association_multi = PlotGroup("cellAssociation_multi", [ Plot("cellAssociation", xtitle="", **_common_assoc) ] )
 
 _common_eff = {"stat": False, "legend": False}
 _effplots = [Plot("effic_eta", xtitle="", **_common_eff)]
@@ -1373,29 +1375,15 @@ _common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabelopt
 _common_energy_score["ymax"] = 1.
 _common_energy_score["xmax"] = 1.0
 _energyscore_cp2mcl = PlotOnSideGroup("_energyscore_cp2mcl", Plot("Energy_vs_Score_caloparticle2multi", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_cp2contimcl = PlotOnSideGroup("_energyscore_cp2contimcl", Plot("Energy_vs_Score_caloparticle2contimulti", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_cp2noncontimcl = PlotOnSideGroup("_energyscore_cp2noncontimcl", Plot("Energy_vs_Score_caloparticle2noncontimulti", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_common_energy_score["ymax"] = 8.
+_common_energy_score["ymax"] = 1.
 _common_energy_score["xmax"] = 1.0
 _energyscore_mcl2cp = PlotOnSideGroup("_energyscore_mcl2cp", Plot("Energy_vs_Score_multi2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_contimcl2cp = PlotOnSideGroup("_energyscore_contimcl2cp", Plot("Energy_vs_Score_contimulti2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_noncontimcl2cp = PlotOnSideGroup("_energyscore_noncontimcl2cp", Plot("Energy_vs_Score_noncontimulti2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-
-#_energyclustered =
 
 #Coming back to the usual box definition
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
 _totmulticlusternum = PlotGroup("totmulticlusternum", [
   Plot("totmulticlusternum", xtitle="", **_common)
-],ncols=1)
-
-_contmulticlusternum = PlotGroup("contmulticlusternum", [
-  Plot("contmulticlusternum", xtitle="", **_common)
-],ncols=1)
-
-_noncontmulticlusternum = PlotGroup("noncontmulticlusternum", [
-  Plot("noncontmulticlusternum", xtitle="", **_common)
 ],ncols=1)
 
 _multicluster_firstlayer = PlotGroup("multicluster_firstlayer", [
@@ -1424,9 +1412,9 @@ _clusternum_in_multicluster_vs_layer = PlotGroup("clusternum_in_multicluster_vs_
 
 _common["scale"] = 100.
 #, ztitle = "% of clusters" normalizeToUnitArea=True
-_multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_numberOfEventsHistogram"
-_multiplicity_zminus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_zminus_numberOfEventsHistogram"
-_multiplicity_zplus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_zplus_numberOfEventsHistogram"
+_multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA/multiplicity_numberOfEventsHistogram"
+_multiplicity_zminus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA/multiplicity_zminus_numberOfEventsHistogram"
+_multiplicity_zplus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA/multiplicity_zplus_numberOfEventsHistogram"
 _multiplicityOfLCinMCL = PlotGroup("multiplicityOfLCinMCL",[
   Plot("multiplicityOfLCinMCL", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster size (n_{hit})         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
 ],ncols=1)
@@ -1749,6 +1737,37 @@ _DigiHits_TOT_HE_Silicon = PlotGroup("DigiHits_TOT_HE_Silicon", [
 _DigiHits_TOT_HE_Scintillator = PlotGroup("DigiHits_TOT_HE_Scintillator", [
                                                                            Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                            ], ncols=4)
+
+#===================================================================================================================
+#Plot definition for HitCalibration
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": False}
+
+_LayerOccupancy = PlotGroup("LayerOccupancy", [
+                                               Plot("LayerOccupancy", title="LayerOccupancy", **_common)], ncols=1)
+
+_ReconstructableEnergyOverCPenergy = PlotGroup("ReconstructableEnergyOverCPenergy", [
+  Plot("h_EoP_CPene_100_calib_fraction", title="EoP_CPene_100_calib_fraction", **_common),
+  Plot("h_EoP_CPene_200_calib_fraction", title="EoP_CPene_200_calib_fraction", **_common),
+  Plot("h_EoP_CPene_300_calib_fraction", title="EoP_CPene_300_calib_fraction", **_common),
+])
+
+_ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy = PlotGroup("ParticleFlowClusterHGCalFromMultiCl", [
+  Plot("hgcal_EoP_CPene_100_calib_fraction", title="hgcal_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_EoP_CPene_200_calib_fraction", title="hgcal_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_EoP_CPene_300_calib_fraction", title="hgcal_EoP_CPene_300_calib_fraction", **_common),
+])
+
+_EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy = PlotGroup("EcalDrivenGsfElectronsFromMultiCl", [
+  Plot("hgcal_ele_EoP_CPene_100_calib_fraction", title="hgcal_ele_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_ele_EoP_CPene_200_calib_fraction", title="hgcal_ele_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_ele_EoP_CPene_300_calib_fraction", title="hgcal_ele_EoP_CPene_300_calib_fraction", **_common),
+])
+
+_PhotonsFromMultiCl_Closest_EoverCPenergy = PlotGroup("PhotonsFromMultiCl", [
+  Plot("hgcal_photon_EoP_CPene_100_calib_fraction", title="hgcal_photon_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_photon_EoP_CPene_200_calib_fraction", title="hgcal_photon_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_photon_EoP_CPene_300_calib_fraction", title="hgcal_photon_EoP_CPene_300_calib_fraction", **_common),
+])
 
 #=================================================================================================
 hgcalLayerClustersPlotter = Plotter()
@@ -2247,6 +2266,10 @@ for i,item in enumerate(_energyscore_lc2cp_zplus, start=1):
 hgcalMultiClustersPlotter = Plotter()
 # [A] Score of CaloParticles wrt Multi Clusters
 hgcalMultiClustersPlotter.append("ScoreCaloParticlesToMultiClusters", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
             ], PlotFolder(
             _score_caloparticle_to_multiclusters,
@@ -2255,118 +2278,132 @@ hgcalMultiClustersPlotter.append("ScoreCaloParticlesToMultiClusters", [
 
 # [B] Score of MultiClusters wrt CaloParticles
 hgcalMultiClustersPlotter.append("ScoreMultiClustersToCaloParticles", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             _score_multicluster_to_caloparticles,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="ScoreMultiClustersToCaloParticles"))
 
 # [C] Shared Energy between CaloParticle and MultiClusters
-hgcalMultiClustersPlotter.append("SharedEnergy", [
+hgcalMultiClustersPlotter.append("SharedEnergy_CP2MCL", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             _sharedEnergy_caloparticle_to_multicluster,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToMultiCluster"))
 
 # [C2] Shared Energy between MultiClusters and CaloParticle
-hgcalMultiClustersPlotter.append("SharedEnergy", [
+hgcalMultiClustersPlotter.append("SharedEnergy_MCL2CP", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             _sharedEnergy_multicluster_to_caloparticle,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="SharedEnergyMultiClusterToCaloParticle"))
 
-# [D] Cell Association per Multi
-hgcalMultiClustersPlotter.append("CellAssociation_per_multicluster", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _cell_association_multi,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_per_multicluster"))
-
-# z-
-hgcalMultiClustersPlotter.append("CellAssociation_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _cell_association_table_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_zminus"))
-
-# z+
-hgcalMultiClustersPlotter.append("CellAssociation_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _cell_association_table_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_zplus"))
-
 # [E] Efficiency Plots
 hgcalMultiClustersPlotter.append("Efficiencies", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             _efficiencies,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Efficiencies"))
 
 # [F] Duplicate Plots
 hgcalMultiClustersPlotter.append("Duplicates", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             _duplicates,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Duplicates"))
 
 # [G] Fake Rate Plots
 hgcalMultiClustersPlotter.append("FakeRate", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             _fakes,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Fakes"))
 
 # [H] Merge Rate Plots
 hgcalMultiClustersPlotter.append("MergeRate", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             _merges,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Merges"))
 
 # [I] Energy vs Score 2D plots CP to MCL and MCL to CP
 hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL_MCL2CP", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             #_energyscore_cp2mcl_mcl2cp,
             _energyscore_cp2mcl,
-            _energyscore_cp2contimcl,
-            _energyscore_cp2noncontimcl,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2MCL"))
 
 # [J] Energy vs Score 2D plots MCL to CP
 hgcalMultiClustersPlotter.append("Energy_vs_Score_MCL2CP", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
+             ], PlotFolder(
             _energyscore_mcl2cp,
-            _energyscore_contimcl2cp,
-            _energyscore_noncontimcl2cp,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Energy_vs_Score_MCL2CP"))
 
 #[K] Number of multiclusters per event.
-hgcalMultiClustersPlotter.append("NumberofMultiClusters_All_Contiguous_NonContiguous", [
+hgcalMultiClustersPlotter.append("NumberofMultiClusters", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _totmulticlusternum,
-        _contmulticlusternum,
-        _noncontmulticlusternum,
         loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="NumberofMultiClusters_All_Contiguous_NonContiguous"
+        purpose=PlotPurpose.Timing, page="NumberofMultiClusters"
         ))
 
 #[L] total number of layer clusters in multicluster per event and per layer
 hgcalMultiClustersPlotter.append("NumberofLayerClustersinMultiClusterPerEventAndPerLayer", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _clusternum_in_multicluster,
@@ -2383,6 +2420,10 @@ hgcalMultiClustersPlotter.append("NumberofLayerClustersinMultiClusterPerEventAnd
 
 #[M] For each multicluster: pt, eta, phi, energy, x, y, z.
 hgcalMultiClustersPlotter.append("MultiClustersPtEtaPhiEneXYZ", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _multicluster_pt,
@@ -2398,6 +2439,10 @@ hgcalMultiClustersPlotter.append("MultiClustersPtEtaPhiEneXYZ", [
 
 #[N] Multicluster first, last, total number of layers
 hgcalMultiClustersPlotter.append("NumberofMultiClusters_First_Last_NLayers", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _multicluster_firstlayer,
@@ -2409,8 +2454,12 @@ hgcalMultiClustersPlotter.append("NumberofMultiClusters_First_Last_NLayers", [
 
 #[O] Multiplicity of layer clusters in multicluster
 hgcalMultiClustersPlotter.append("Multiplicity", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-        ], PlotFolder(
+       ], PlotFolder(
         _multiplicityOfLCinMCL,
         _multiplicityOfLCinMCL_vs_layerclusterenergy,
         loopSubFolders=False,
@@ -2421,6 +2470,10 @@ hgcalMultiClustersPlotter.append("Multiplicity", [
 #We append here two PlotFolder because we want the text to be in percent
 #and the number of events are different in zplus and zminus
 hgcalMultiClustersPlotter.append("Multiplicity", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _multiplicityOfLCinMCL_vs_layercluster_zminus,
@@ -2430,6 +2483,10 @@ hgcalMultiClustersPlotter.append("Multiplicity", [
         ))
 
 hgcalMultiClustersPlotter.append("Multiplicity", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _multiplicityOfLCinMCL_vs_layercluster_zplus,
@@ -2895,3 +2952,45 @@ hgcalHitPlotter.append("DigiHits_TOT", [
                                                       loopSubFolders=False,
                                                       purpose=PlotPurpose.Timing, page="DigiHits_TOT"
                                                       ))
+#=================================================================================================
+# hitCalibration
+hgcalHitCalibPlotter = Plotter()
+
+hgcalHitCalibPlotter.append("Layer_Occupancy", [
+                                                "DQMData/Run 1/HGCalHitCalibration/Run summary",
+                                                ], PlotFolder(
+                                                              _LayerOccupancy,
+                                                              loopSubFolders=False,
+                                                              purpose=PlotPurpose.Timing, page="Layer_Occupancy"
+                                                              ))
+hgcalHitCalibPlotter.append("ReconstructableEnergyOverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _ReconstructableEnergyOverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="ReconstructableEnergyOverCPenergy"
+        ))
+
+hgcalHitCalibPlotter.append("ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy"
+        ))
+
+hgcalHitCalibPlotter.append("PhotonsFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _PhotonsFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="PhotonsFromMultiCl_Closest_EoverCPenergy"
+        ))
+
+hgcalHitCalibPlotter.append("EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy"
+        ))

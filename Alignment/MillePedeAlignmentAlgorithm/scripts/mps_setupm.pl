@@ -22,7 +22,7 @@ my $ignoredisabledjobs = -1;
 ## parse the arguments
 my $i = 0;
 while (@ARGV) {
-  $arg = shift(ARGV);
+  $arg = shift(@ARGV);
   if ($arg =~ /\A-/) {  # check for option 
     if ($arg =~ "h") {
       $helpwanted = 1;

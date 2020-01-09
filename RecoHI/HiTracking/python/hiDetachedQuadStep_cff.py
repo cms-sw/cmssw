@@ -227,18 +227,18 @@ hiDetachedQuadStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.tra
     )
 
 
-hiDetachedQuadStep = cms.Sequence(hiDetachedQuadStepClusters*
-                                     hiDetachedQuadStepSeedLayers*
-                                     hiDetachedQuadStepTrackingRegions*
-                                     hiDetachedQuadStepTracksHitDoubletsCA* 
-                                     hiDetachedQuadStepTracksHitQuadrupletsCA* 
-				     pixelFitterByHelixProjections*
-                                     hiDetachedQuadStepPixelTracksFilter*
-                                     hiDetachedQuadStepPixelTracks*
-                                     hiDetachedQuadStepSeeds*
-                                     hiDetachedQuadStepTrackCandidates*
-                                     hiDetachedQuadStepTracks*
-                                     hiDetachedQuadStepSelector*
+hiDetachedQuadStepTask = cms.Task(hiDetachedQuadStepClusters,
+                                     hiDetachedQuadStepSeedLayers,
+                                     hiDetachedQuadStepTrackingRegions,
+                                     hiDetachedQuadStepTracksHitDoubletsCA, 
+                                     hiDetachedQuadStepTracksHitQuadrupletsCA, 
+				     pixelFitterByHelixProjections,
+                                     hiDetachedQuadStepPixelTracksFilter,
+                                     hiDetachedQuadStepPixelTracks,
+                                     hiDetachedQuadStepSeeds,
+                                     hiDetachedQuadStepTrackCandidates,
+                                     hiDetachedQuadStepTracks,
+                                     hiDetachedQuadStepSelector,
                                      hiDetachedQuadStepQual)
-
+hiDetachedQuadStep = cms.Sequence(hiDetachedQuadStepTask)
 

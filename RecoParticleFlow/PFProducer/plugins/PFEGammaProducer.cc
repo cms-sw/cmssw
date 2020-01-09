@@ -184,8 +184,6 @@ void PFEGammaProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::list<reco::PFBlockRef> otherBlockRefs;
 
   for (unsigned i = 0; i < blocks->size(); ++i) {
-    // reco::PFBlockRef blockref( blockh,i );
-    //reco::PFBlockRef blockref = createBlockRef( *blocks, i);
     reco::PFBlockRef blockref(blocks, i);
 
     const edm::OwnVector<reco::PFBlockElement>& elements = blockref->elements();
@@ -197,6 +195,7 @@ void PFEGammaProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       switch (elements[0].type()) {
         case reco::PFBlockElement::SC:
           edm::LogError("PFEGammaProducer") << "PFBLOCKALGO BUG!!!! Found a SuperCluster in a block by itself!";
+          break;
         case reco::PFBlockElement::PS1:
         case reco::PFBlockElement::PS2:
         case reco::PFBlockElement::ECAL:

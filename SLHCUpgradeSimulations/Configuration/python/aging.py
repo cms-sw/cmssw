@@ -59,9 +59,14 @@ def ageHF(process,turnon):
         process.es_hardcode.HFRecalibration = cms.bool(turnon)
     return process
 
-def agedHGCal(process):
+def agedHGCal(process,algo=0):
     from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setEndOfLifeNoise
-    process = HGCal_setEndOfLifeNoise(process)
+    process = HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=algo)
+    return process
+
+def realisticHGCalStartup(process):
+    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setRealisticStartupNoise
+    process = HGCal_setRealisticStartupNoise(process)
     return process
 
 # needs lumi to set proper ZS thresholds (tbd)

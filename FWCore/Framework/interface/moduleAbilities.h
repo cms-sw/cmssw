@@ -157,10 +157,31 @@ namespace edm {
   };
 
   template <typename... VArgs>
+  struct HasAbilityToProduceInBeginRuns {
+    static constexpr bool value = CheckAbility<module::Abilities::kBeginRunProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInEndRuns {
+    static constexpr bool value = CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
   struct HasAbilityToProduceInLumis {
     static constexpr bool value = CheckAbility<module::Abilities::kBeginLuminosityBlockProducer, VArgs...>::kHasIt or
                                   CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
   };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInBeginLumis {
+    static constexpr bool value = CheckAbility<module::Abilities::kBeginLuminosityBlockProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInEndLumis {
+    static constexpr bool value = CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
+  };
+
 }  // namespace edm
 
 #endif

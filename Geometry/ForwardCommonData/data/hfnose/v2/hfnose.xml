@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hfnose.xml" eval="true">
+  <Constant name="FixShldZ1"             value="10.910*m"/>
+  <Constant name="FixShldZ2"             value="11.110*m"/>
+  <Constant name="FixShldR1"             value="1.1130*m"/>
+  <Constant name="FixShldR2"             value="[cms:ForwdVcalR1]"/>
+  <Constant name="FixShldR5"             value="1.7000*m"/>
+  <Constant name="FixShldR7"             value="2.1000*m"/>
+  <Constant name="FixShldR8"             value="2.1500*m"/>
+  <Constant name="WaferSize"             value="166.4408*mm"/>
+  <Constant name="WaferThickness"        value="0.30*mm"/>
+  <Constant name="SensorSeparation"      value="1.00*mm"/>
+  <Constant name="MouseBite"             value="5.00*mm"/>
+  <Constant name="CellThicknessFine"     value="0.12*mm"/>
+  <Constant name="NumberOfCellsFine"     value="12"/>
+  <Constant name="NumberOfCellsCoarse"   value="12"/>
+  <Constant name="HFNoseAngle1"          value="1.644*deg"/>
+  <Constant name="HFNoseAngle2"          value="5.70*deg"/>
+  <Constant name="HFNoseSlope1"          value="tan([HFNoseAngle1])"/>
+  <Constant name="HFNoseSlope2"          value="tan([HFNoseAngle2])"/>
+  <Constant name="HFNoseDz1"             value="50.0*mm"/>
+  <Constant name="HFNoseDz2"             value="23.0*mm"/>
+  <Constant name="HFNoseDz3"             value="70.0*mm"/>
+  <Constant name="HFNoseDz0"             value="16.0*mm"/>
+  <Constant name="NumberAbs1"            value="1"/>
+  <Constant name="NumberAbs2"            value="6"/>
+  <Constant name="NumberAbs3"            value="2"/>
+  <Constant name="NumberDetP"            value="8"/>
+  <Constant name="HFNoseDz"              value="([HFNoseDz1]*[NumberAbs1]
+				         	+[HFNoseDz2]*[NumberAbs2]
+				         	+[HFNoseDz3]*[NumberAbs3]
+				         	+[HFNoseDz0]*[NumberDetP])"/>
+  <Constant name="HFNoseZ3"              value="[cms:MuonBeamZ2]+30.0*mm"/>
+  <Constant name="HFNoseZ1"              value="[HFNoseZ3]-[HFNoseDz]"/>
+  <Constant name="HFNoseZ2"              value="[cms:MuonBeamZ2]"/>
+  <Constant name="HFNoseZ4"              value="[cms:ForwdVcalZ1]"/>
+  <Constant name="HFNoseRMin1"           value="[HFNoseZ1]*[HFNoseSlope1]"/>
+  <Constant name="HFNoseRMin2"           value="[HFNoseZ2]*[HFNoseSlope1]"/>
+  <Constant name="HFNoseRMin3"           value="[HFNoseZ3]*[HFNoseSlope1]"/>
+  <Constant name="HFNoseRMin4"           value="[HFNoseZ4]*[HFNoseSlope1]"/>
+  <Constant name="HFNoseRMax1"           value="[HFNoseZ1]*[HFNoseSlope2]"/>
+  <Constant name="HFNoseRMax2"           value="[HFNoseZ2]*[HFNoseSlope2]"/>
+  <Constant name="HFNoseRMax3"           value="[HFNoseZ3]*[HFNoseSlope2]"/>
+  <Constant name="HFNoseRMax4"           value="[HFNoseZ4]*[HFNoseSlope2]"/>
+  <Constant name="ChoiceType"            value="0"/>
+  <Constant name="NCornerCut"            value="2"/>
+  <Constant name="FracAreaMin"           value="0.2"/>
+</ConstantsSection>
+
+<SolidSection label="hfnose.xml">
+  <Polycone name="HFNoseVol" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[HFNoseZ1]" rMin="[HFNoseRMin1]" rMax="[HFNoseRMax1]"/>
+    <ZSection z="[HFNoseZ2]" rMin="[HFNoseRMin2]" rMax="[HFNoseRMax2]"/>
+    <ZSection z="[HFNoseZ2]" rMin="[HFNoseRMin2]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[HFNoseZ4]" rMin="[HFNoseRMin4]" rMax="[cms:CMSR3]"/>
+  </Polycone>
+  <Polycone name="HFNose" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[HFNoseZ1]" rMin="[HFNoseRMin1]" rMax="[HFNoseRMax1]"/>
+    <ZSection z="[HFNoseZ3]" rMin="[HFNoseRMin3]" rMax="[HFNoseRMax3]"/>
+  </Polycone>
+  <Tubs name="HFNoseShield01" rMin="[cms:ForwdBeamR2]" rMax="[FixShldR1]" 
+	dz="([FixShldZ2]-[FixShldZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="HFNoseShield02" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[HFNoseZ2]"  rMin="[FixShldR1]" rMax="[FixShldR5]"/>
+    <ZSection z="[FixShldZ2]" rMin="[FixShldR1]" rMax="[FixShldR5]"/>
+    <ZSection z="[FixShldZ2]" rMin="[FixShldR2]" rMax="[FixShldR5]"/>
+    <ZSection z="[HFNoseZ4]"  rMin="[FixShldR2]" rMax="[FixShldR5]"/>
+  </Polycone>
+  <Tubs name="HFNoseShield03" rMin="[FixShldR5]" rMax="[FixShldR7]" 
+	dz="([HFNoseZ4]-[HFNoseZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HFNoseShield04" rMin="[FixShldR7]" rMax="[FixShldR8]" 
+	dz="([HFNoseZ4]-[HFNoseZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="hfnose.xml">
+  <LogicalPart name="HFNoseVol" category="unspecified">
+    <rSolid name="HFNoseVol"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HFNose" category="unspecified">
+    <rSolid name="HFNose"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HFNoseShield01" category="unspecified">
+    <rSolid name="HFNoseShield01"/>
+    <rMaterial name="materials:Polyethylene"/>
+  </LogicalPart>
+  <LogicalPart name="HFNoseShield02" category="unspecified">
+    <rSolid name="HFNoseShield02"/>
+    <rMaterial name="materials:Steel-008"/>
+  </LogicalPart>
+  <LogicalPart name="HFNoseShield03" category="unspecified">
+    <rSolid name="HFNoseShield03"/>
+    <rMaterial name="materials:MagnetiteConc"/>
+  </LogicalPart>
+  <LogicalPart name="HFNoseShield04" category="unspecified">
+    <rSolid name="HFNoseShield04"/>
+    <rMaterial name="materials:Borated Polyethyl."/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hfnose.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hfnose:HFNoseVol"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hfnose:HFNoseVol"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hfnose:HFNoseVol"/>
+    <rChild name="hfnose:HFNose"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hfnose:HFNoseVol"/>
+    <rChild name="hfnose:HFNoseShield01"/>
+    <Translation x="0*fm" y="0*fm" z="([FixShldZ2]+[FixShldZ1])/2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hfnose:HFNoseVol"/>
+    <rChild name="hfnose:HFNoseShield02"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hfnose:HFNoseVol"/>
+    <rChild name="hfnose:HFNoseShield03"/>
+    <Translation x="0*fm" y="0*fm" z="([HFNoseZ4]+[HFNoseZ2])/2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hfnose:HFNoseVol"/>
+    <rChild name="hfnose:HFNoseShield04"/>
+    <Translation x="0*fm" y="0*fm" z="([HFNoseZ4]+[HFNoseZ2])/2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+
+
+  <Algorithm name="hgcal:DDHGCalEEAlgo">
+    <rParent name="hfnose:HFNose"/>
+    <Vector name="WaferNames" type="string" nEntries="6">
+      hfnoseWafer:HFNoseWafer0Fine, hfnoseWafer:HFNoseWafer0Fine,
+      hfnoseWafer:HFNoseWafer0Fine, hfnoseWafer:HFNoseWafer1Fine,
+      hfnoseWafer:HFNoseWafer1Fine, hfnoseWafer:HFNoseWafer1Fine</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="9">
+      materials:Polyethylene, materials:StainlessSteel, materials:Lead, 
+      materials:Copper,  hgcalMaterial:HGC_G10-FR4, materials:Silicon,
+      materials:StainlessSteel, hgcalMaterial:WCu, materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="9">
+      HFNoseModerator, HFNoseAbsorberCover, HFNoseAbsorber1, HFNoseHeatShield,
+      HFNosePCB, HGCalHFNoseSensitive, HFNoseAbsorber2, HFNoseBasePlate,
+      HFNoseAirGap</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="9">
+      [HFNoseDz1], 1.0*mm, 21.0*mm,  6.0*mm,  1.6*mm,  0.3*mm, [HFNoseDz3],
+      1.4*mm, 3.35*mm</Vector>
+    <Vector name="Layers" type="numeric" nEntries="8"> 
+      10, 9, 9, 9, 9, 9, 7, 7</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="8"> 
+      89.0*mm, 39.0*mm, 39.0*mm, 39.0*mm, 39.0*mm, 39.0*mm, 86.0*mm,
+      86.0*mm </Vector>
+    <Vector name="LayerType" type="numeric" nEntries="69"> 
+      0, 1, 2, 1, 8, 4, 5, 7, 3, 8, 1, 2, 1, 8, 3, 7, 5, 4, 8,
+      1, 2, 1, 8, 4, 5, 7, 3, 8, 1, 2, 1, 8, 3, 7, 5, 4, 8,
+      1, 2, 1, 8, 4, 5, 7, 3, 8, 1, 2, 1, 8, 3, 7, 5, 4, 8,
+      6, 8, 4, 5, 7, 3, 8, 6, 8, 3, 7, 5, 4, 8</Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="69">
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
+      0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0</Vector>
+    <Vector name="LayerCenter" type="numeric" nEntries="8">
+      0, 0, 0, 0, 0, 0, 0, 0</Vector>
+    <Numeric name="FirstLayer"       value="1"/>
+    <Numeric name="AbsorberMode"     value="0"/>
+    <Numeric name="WaferCentering"   value="0"/>
+    <Numeric name="zMinBlock"        value="[HFNoseZ1]"/>
+    <Vector name="rad100to200" type="numeric" nEntries="5">
+      [HFNoseRMax3], 0, 0, 0, 0</Vector>
+    <Vector name="rad200to300" type="numeric" nEntries="5">
+      [HFNoseRMax4], 0, 0, 0, 0</Vector>
+    <Numeric name="zMinForRadPar"    value="[HFNoseZ1]"/>
+    <Numeric name="choiceType"       value="[ChoiceType]"/>
+    <Numeric name="nCornerCut"       value="[NCornerCut]"/>
+    <Numeric name="fracAreaMin"      value="[FracAreaMin]"/>
+    <Numeric name="waferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="Sectors"          value="36"/>
+    <Vector name="SlopeBottom" type="numeric" nEntries="2">
+      [HFNoseSlope1], [HFNoseSlope1]</Vector>
+    <Vector name="ZFrontBottom" type="numeric" nEntries="2">
+      [HFNoseZ1], [HFNoseZ3]</Vector>
+    <Vector name="RMinFront" type="numeric" nEntries="2">
+      [HFNoseRMin1], [HFNoseRMin3]</Vector>
+    <Vector name="SlopeTop" type="numeric" nEntries="2">
+      [HFNoseSlope2], [HFNoseSlope2]</Vector>
+    <Vector name="ZFrontTop" type="numeric" nEntries="2">
+      [HFNoseZ1], [HFNoseZ3]</Vector>
+    <Vector name="RMaxFront" type="numeric" nEntries="2">
+      [HFNoseRMax1], [HFNoseRMax3]</Vector>
+    <String name="RotNameSpace" value="hfnose"/>
+  </Algorithm>
+</PosPartSection> 
+
+</DDDefinition>

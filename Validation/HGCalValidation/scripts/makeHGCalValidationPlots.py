@@ -29,12 +29,15 @@ def main(opts):
     if opts.collection=="hgcalLayerClusters":
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-    elif opts.collection=="hgcalMultiClusters":
+    elif opts.collection in ["hgcalMultiClusters", "multiClustersFromTrackstersMIP", "multiClustersFromTrackstersTrk", "multiClustersFromTrackstersEM", "multiClustersFromTrackstersHAD"]:    
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection=="hitValidation":
     	hgchit = [hgcalPlots.hgcalHitPlotter]
     	val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
+    elif opts.collection=="hitCalibration":
+        hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
+        val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
     else :
         #In case of all you have to keep a specific order in one to one 
         #correspondance between subdirprefix and collections and validation names
@@ -53,6 +56,12 @@ def main(opts):
 	htmlReport_3 = val.createHtmlReport(validationName=opts.html_validation_name[2])
 	hgchit = [hgcalPlots.hgcalHitPlotter]
         val.doPlots(hgchit, plotterDrawArgs=drawArgs)
+        #calib
+        sample = SimpleSample(opts.subdirprefix[3], opts.html_sample, filenames)
+        val = SimpleValidation([sample], opts.outputDir[3])
+        htmlReport_4 = val.createHtmlReport(validationName=opts.html_validation_name[3])
+        hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
+        val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
 
     if opts.no_html:
         print("Plots created into directory '%s'." % opts.outputDir)
@@ -61,33 +70,35 @@ def main(opts):
 	if(opts.collection=="all"):
 		htmlReport_2.write()
                 htmlReport_3.write()
+		htmlReport_4.write()
 
         print("Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % (','.join(opts.outputDir)))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create set of HGCal validation plots from one or more DQM files.")
-    parser.add_argument("files", metavar="file", type=str, nargs="+",
+    parser.add_argument("files", metavar="file", type=str, nargs="+", 
+                        default = "DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root",
                         help="DQM file to plot the validation plots from")
     parser.add_argument("-o", "--outputDir", type=str, default=["plots1","plots2"], nargs="+",
                         help="Plot output directories (default: 'plots1'")
     parser.add_argument("--subdirprefix", type=str, default=["plots1","plots2"], nargs="+",
                         help="Prefix for subdirectories inside outputDir (default: 'plots1')")
-    parser.add_argument("--no-ratio", action="store_true",
+    parser.add_argument("--no-ratio", action="store_true", default = False,
                         help="Disable ratio pads")
-    parser.add_argument("--separate", action="store_true",
+    parser.add_argument("--separate", action="store_true", default = False,
                         help="Save all plots separately instead of grouping them")
     parser.add_argument("--png", action="store_true",
                         help="Save plots in PNG instead of PDF")
-    parser.add_argument("--no-html", action="store_true",
+    parser.add_argument("--no-html", action="store_true", default = False,
                         help="Disable HTML page generation")
     parser.add_argument("--html-sample", default="Sample",
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", type=str, default=["",""], nargs="+",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
-    parser.add_argument("--verbose", action="store_true",
+    parser.add_argument("--verbose", action="store_true", default = False,
                         help="Be verbose")
-    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "hitValidation", "all"], default="all",
-                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, hitValidation, all")    
+    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "multiClustersFromTrackstersMIP", "multiClustersFromTrackstersTrk", "multiClustersFromTrackstersEM", "multiClustersFromTrackstersHAD", "hitValidation", "hitCalibration", "all"], default="hgcalLayerClusters",
+                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, multiClustersFromTrackstersMIP, multiClustersFromTrackstersTrk, multiClustersFromTrackstersEM, multiClustersFromTrackstersHAD, hitValidation, hitCalibration, all")    
 
     opts = parser.parse_args()
 

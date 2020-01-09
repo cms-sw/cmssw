@@ -18,6 +18,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCLayerInfo.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
 typedef CSCLayerInfo<CSCComparatorDigi> CSCCathodeLayerInfo;
 

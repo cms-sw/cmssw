@@ -37,7 +37,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
 <!-- example tests -->
 
 
-   <LINK name="HLT/Top/Eff*">
+   <LINK name="HLT/PAG/Eff*">
         <TestName activate="true">chi2QTexample</TestName>
    </LINK>
 

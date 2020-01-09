@@ -108,7 +108,7 @@ mtdDigitizer = cms.PSet(
     makeDigiSimLinks  = cms.bool(False),
     verbosity         = cms.untracked.uint32(0),
 
-    barrelDigitizer = _barrel_tile_MTDDigitizer,
+    barrelDigitizer = _barrel_bar_MTDDigitizer,
     endcapDigitizer = _endcap_MTDDigitizer
 )
 

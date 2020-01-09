@@ -95,11 +95,13 @@ namespace edm {
       void setImpl(EventSetupRecordImpl const* iImpl,
                    unsigned int transitionID,
                    ESProxyIndex const* getTokenIndices,
-                   EventSetupImpl const* iEventSetupImpl) {
+                   EventSetupImpl const* iEventSetupImpl,
+                   bool requireTokens) {
         impl_ = iImpl;
         transitionID_ = transitionID;
         getTokenIndices_ = getTokenIndices;
         eventSetupImpl_ = iEventSetupImpl;
+        requireTokens_ = requireTokens;
       }
 
       template <typename HolderT>
@@ -109,6 +111,10 @@ namespace edm {
 
       template <typename HolderT>
       bool get(char const* iName, HolderT& iHolder) const {
+        if
+          UNLIKELY(requireTokens_) {
+            throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iName);
+          }
         typename HolderT::value_type const* value = nullptr;
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
@@ -130,6 +136,10 @@ namespace edm {
 
       template <typename HolderT>
       bool get(ESInputTag const& iTag, HolderT& iHolder) const {
+        if
+          UNLIKELY(requireTokens_) {
+            throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iTag.data().c_str());
+          }
         typename HolderT::value_type const* value = nullptr;
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
@@ -235,6 +245,8 @@ namespace edm {
 
       unsigned int transitionID() const { return transitionID_; }
 
+      bool requireTokens() const { return requireTokens_; }
+
     private:
       template <template <typename> typename H, typename T, typename R>
       H<T> invalidTokenHandle(ESGetToken<T, R> const& iToken) const {
@@ -259,12 +271,13 @@ namespace edm {
 
       static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&);
       void throwWrongTransitionID() const;
-
+      static void throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel);
       // ---------- member data --------------------------------
       EventSetupRecordImpl const* impl_ = nullptr;
       EventSetupImpl const* eventSetupImpl_ = nullptr;
       ESProxyIndex const* getTokenIndices_ = nullptr;
       unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
+      bool requireTokens_ = false;
     };
 
     class EventSetupRecordGeneric : public EventSetupRecord {
@@ -272,8 +285,9 @@ namespace edm {
       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl,
                               unsigned int iTransitionID,
                               ESProxyIndex const* getTokenIndices,
-                              EventSetupImpl const* eventSetupImpl) {
-        setImpl(iImpl, iTransitionID, getTokenIndices, eventSetupImpl);
+                              EventSetupImpl const* eventSetupImpl,
+                              bool requireTokens = false) {
+        setImpl(iImpl, iTransitionID, getTokenIndices, eventSetupImpl, requireTokens);
       }
 
       EventSetupRecordKey key() const final { return impl()->key(); }

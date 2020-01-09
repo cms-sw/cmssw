@@ -4,7 +4,7 @@
 /** \class GEMDigi
  *
  * Digi for GEM
- *  
+ *
  * \author Vadim Khotilovich
  *
  */
@@ -20,6 +20,7 @@ public:
   bool operator==(const GEMDigi& digi) const;
   bool operator!=(const GEMDigi& digi) const;
   bool operator<(const GEMDigi& digi) const;
+  bool isValid() const;
 
   // return the strip number. counts from 0.
   int strip() const { return strip_; }

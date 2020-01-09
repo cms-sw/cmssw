@@ -12,7 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -37,7 +36,7 @@ public:
 
 private:
   /// Book the DQM plots
-  void bookHistograms(DQMStore::ConcurrentBooker &,
+  void bookHistograms(DQMStore::IBooker &,
                       edm::Run const &,
                       edm::EventSetup const &,
                       dtsegment2d::Histograms &) const override;

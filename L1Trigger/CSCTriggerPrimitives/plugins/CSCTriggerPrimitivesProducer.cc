@@ -26,6 +26,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
@@ -47,6 +48,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
                             : edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
+  savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
+
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
   runME11ILT_ = commonParam.existsAs<bool>("runME11ILT") ? commonParam.getParameter<bool>("runME11ILT") : false;
@@ -62,6 +65,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCLCTDigiCollection>();
   produces<CSCCLCTPreTriggerDigiCollection>();
   produces<CSCCLCTPreTriggerCollection>();
+  produces<CSCALCTPreTriggerDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
   if (runME11ILT_ or runME21ILT_)
@@ -134,6 +138,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   std::unique_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
   std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerDigiCollection> oc_clctpretrigger(new CSCCLCTPreTriggerDigiCollection);
+  std::unique_ptr<CSCALCTPreTriggerDigiCollection> oc_alctpretrigger(new CSCALCTPreTriggerDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
@@ -161,6 +166,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
                             gemPadClusters,
                             *oc_alct,
                             *oc_clct,
+                            *oc_alctpretrigger,
                             *oc_clctpretrigger,
                             *oc_pretrig,
                             *oc_lct,
@@ -173,7 +179,10 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // Put collections in event.
   ev.put(std::move(oc_alct));
   ev.put(std::move(oc_clct));
-  ev.put(std::move(oc_clctpretrigger));
+  if (savePreTriggers_) {
+    ev.put(std::move(oc_alctpretrigger));
+    ev.put(std::move(oc_clctpretrigger));
+  }
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct), "MPCSORTED");

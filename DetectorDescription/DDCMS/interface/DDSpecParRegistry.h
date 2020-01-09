@@ -12,12 +12,12 @@ namespace cms {
   using DDVectorsMap = tbb::concurrent_unordered_map<std::string, tbb::concurrent_vector<double>>;
 
   struct DDSpecPar {
-    std::string_view strValue(const char*) const;
-    bool hasValue(const char* key) const;
-    double dblValue(const char*) const;
+    std::string_view strValue(const std::string&) const;
+    bool hasValue(const std::string& key) const;
+    double dblValue(const std::string&) const;
 
     template <typename T>
-    T value(const char*) const;
+    T value(const std::string&) const;
 
     DDPaths paths;
     DDPartSelectionMap spars;

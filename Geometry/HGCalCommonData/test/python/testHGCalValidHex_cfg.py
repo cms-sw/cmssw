@@ -9,6 +9,7 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.HGCalCommonData.testHGCV11XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

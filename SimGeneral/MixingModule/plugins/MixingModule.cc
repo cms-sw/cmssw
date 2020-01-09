@@ -274,7 +274,7 @@ namespace edm {
         consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCProductLabel"));
       }
       std::unique_ptr<DigiAccumulatorMixMod> accumulator = std::unique_ptr<DigiAccumulatorMixMod>(
-          DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
+          DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, producesCollector(), iC));
       // Create appropriate DigiAccumulator
       if (accumulator.get() != nullptr) {
         digiAccumulators_.push_back(accumulator.release());
