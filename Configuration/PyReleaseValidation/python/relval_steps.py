@@ -1526,6 +1526,8 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016'
                   }
 step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step2Upg2015Defaults])
 
+step2Upg2015DefaultsAPVSimu = merge([{'--era': 'Run2_2016_HIPM'},step2Upg2015Defaults])
+
 #for 2017
 step2Upg2017Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017',
                  '--conditions'  :'auto:phase1_2017_realistic',
@@ -1548,8 +1550,12 @@ step2Upg2018Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018'
 
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
+steps['DIGIUP15APVSimu']=merge([{'--era': 'Run2_2016_HIPM'},step2Upg2015Defaults])
+
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
+steps['DIGIUP15APVSimu_PU25']=merge([PU25,step2Upg2015DefaultsAPVSimu])
+
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
 steps['DIGIUP18']=merge([step2Upg2018Defaults])
@@ -1608,6 +1614,7 @@ premixUp2015Defaults = {
     '--procModifiers':'premix_stage1',
     '--era'         : 'Run2_2016' # temporary replacement for premix; to be brought back to customisePostLS1 *EDIT - This comment possibly no longer relevant with switch to eras
 }
+
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns'},
                                   {'--era':'Run2_50ns'},
                                   premixUp2015Defaults])
@@ -1680,9 +1687,11 @@ digiPremixUp2018Defaults25ns = {
 digiPremixLocalPileupUp2018Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2018Defaults25ns])
 
-
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15APVSimu_PU25']=merge([{'--era': 'Run2_2016_HIPM'},digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
+steps['DIGIPRMXLOCALUP15APVSimu_PU25']=merge([{'--era': 'Run2_2016_HIPM'},digiPremixLocalPileupUp2015Defaults25ns])
+
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
 steps['DIGIPRMXLOCALUP17_PU25']=merge([digiPremixLocalPileupUp2017Defaults25ns])
@@ -2238,8 +2247,10 @@ steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+
 steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOPU2']=merge([PU2,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
+steps['RECOUP15_PU25_HIPM']=merge([step3_HIPM,steps['RECOUP15_PU25']])
 steps['RECOUP15_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TEgamma'},steps['RECOUP15_PU25']])
 steps['RECOUP15_PU25_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TMuon'},steps['RECOUP15_PU25']])
+
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 steps['RECOUP15_PU50_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'},steps['RECOUP15_PU50']])
 steps['RECOUP15_PU50_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECOUP15_PU50']])
@@ -2257,6 +2268,8 @@ steps['RECOUP15_PU25HS']=merge([PU25HS,step3Up2015Defaults])
 steps['RECOPRMXUP15_PU25']=merge([
         {'--era':'Run2_2016','--procModifiers':'premix_stage2'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
         step3Up2015Defaults])
+steps['RECOPRMXUP15_HIPM_PU25']=merge([step3_HIPM,steps['RECOPRMXUP15_PU25']])
+
 steps['RECOPRMXUP15_PU50']=merge([
         {'--era':'Run2_50ns','--procModifiers':'premix_stage2'},
         step3Up2015Defaults50ns])
@@ -2803,14 +2816,12 @@ steps['REMINIAOD_data2016'] = merge([{'-s' : 'PAT,DQM:@miniAODDQM',
                                       '--data' : '',
                                       '--scenario' : 'pp',
                                       '--eventcontent' : 'MINIAOD,DQM',
-                                      '--datatier' : 'MINIAOD,DQMIO',
-                                      '--customise_unsch' : 'PhysicsTools/PatAlgos/slimming/customizeMiniAOD_HcalFixLegacy2016.customizeAll'
+                                      '--datatier' : 'MINIAOD,DQMIO'
                                       },stepMiniAODDefaults])
 
 steps['REMINIAOD_data2016_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['REMINIAOD_data2016']])
 
 stepReMiniAODData17 = merge([{'--era' : 'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_data2016']])
-stepReMiniAODData17 = remove(stepReMiniAODData17,'--customise_unsch')
 steps['REMINIAOD_data2017'] = stepReMiniAODData17
 
 # Not sure whether the customisations are in the dict as "--customise" or "--era" so try to

@@ -26,6 +26,8 @@ TYPELOOKUP_DATA_REG(SiStripSummary);
 TYPELOOKUP_DATA_REG(SiStripThreshold);
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 TYPELOOKUP_DATA_REG(SiStripConfObject);
+#include "CondFormats/SiStripObjects/interface/SiStripApvSimulationParameters.h"
+TYPELOOKUP_DATA_REG(SiStripApvSimulationParameters);
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerModule.h"
 TYPELOOKUP_DATA_REG(Phase2TrackerModule);
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
