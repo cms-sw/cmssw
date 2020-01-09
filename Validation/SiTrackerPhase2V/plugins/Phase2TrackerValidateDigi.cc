@@ -87,10 +87,6 @@ Phase2TrackerValidateDigi::~Phase2TrackerValidateDigi() {
 //
 // -- DQM Begin Run
 //
-void Phase2TrackerValidateDigi::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::LogInfo("Phase2TrackerValidateDigi") << "Initialize Phase2TrackerValidateDigi ";
-}
-//
 // -- Analyze
 //
 void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

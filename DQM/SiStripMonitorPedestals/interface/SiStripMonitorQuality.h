@@ -31,7 +31,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
@@ -43,7 +43,7 @@ class SiStripDetCabling;
 class SiStripQuality;
 class TrackerTopology;
 
-class SiStripMonitorQuality : public DQMEDAnalyzer {
+class SiStripMonitorQuality : public DQMOneEDAnalyzer<> {
 public:
   explicit SiStripMonitorQuality(const edm::ParameterSet &);
   ~SiStripMonitorQuality() override;

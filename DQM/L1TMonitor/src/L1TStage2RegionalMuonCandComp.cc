@@ -45,8 +45,6 @@ void L1TStage2RegionalMuonCandComp::fillDescriptions(edm::ConfigurationDescripti
   descriptions.add("l1tStage2RegionalMuonCandComp", desc);
 }
 
-void L1TStage2RegionalMuonCandComp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker,
                                                    const edm::Run&,
                                                    const edm::EventSetup&) {

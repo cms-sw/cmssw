@@ -36,7 +36,6 @@ public:
   ~BxTiming() override;
 
 protected:
-  void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 

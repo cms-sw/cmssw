@@ -38,7 +38,6 @@ protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
-  void dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
 
 private:
   unsigned int verbosity;
@@ -637,15 +636,6 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
     return;
   if (verbosity)
     LogPrint("CTPPSPixelDQMSource") << "analyze event " << nEvents;
-}
-
-//-----------------------------------------------------------------------------
-void CTPPSPixelDQMSource::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  if (!verbosity)
-    return;
-  LogPrint("CTPPSPixelDQMSource") << "end of Run " << run.run() << ": " << nEvents << " events\n"
-                                  << "multHitsMax= " << multHitsMax << "   cluSizeMax= " << cluSizeMax
-                                  << "\nx0: " << x0_MIN << "/" << x0_MAX << "y0: " << y0_MIN << "/" << y0_MAX << "\n";
 }
 
 //---------------------------------------------------------------------------

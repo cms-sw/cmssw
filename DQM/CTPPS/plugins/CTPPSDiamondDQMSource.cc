@@ -75,7 +75,6 @@ protected:
   std::shared_ptr<dds::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock&,
                                                          const edm::EventSetup&) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   // Constants
@@ -1191,10 +1190,6 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
     hitHistoTmp->Divide(&(plot.second.pixelTracksMapWithDiamonds), &(potPlots_[detId_pot].pixelTracksMap));
   }
 }
-
-//----------------------------------------------------------------------------------------------------
-
-void CTPPSDiamondDQMSource::dqmEndRun(const edm::Run&, const edm::EventSetup&) {}
 
 //----------------------------------------------------------------------------------------------------
 

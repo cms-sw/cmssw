@@ -34,8 +34,6 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
 
 L1TdeGCT::~L1TdeGCT() {}
 
-void L1TdeGCT::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evSetup) {}
-
 void L1TdeGCT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   int rnkNBins = 63;
   double rnkMinim = 0.5;
