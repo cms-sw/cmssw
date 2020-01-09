@@ -1,19 +1,94 @@
-#include "DQMOffline/Trigger/plugins/METMonitor.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+class METMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
+  METMonitor(const edm::ParameterSet&);
+  ~METMonitor() throw() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  edm::InputTag metInputTag_;
+  edm::InputTag jetInputTag_;
+  edm::InputTag eleInputTag_;
+  edm::InputTag muoInputTag_;
+  edm::InputTag vtxInputTag_;
+
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+
+  std::vector<double> met_variable_binning_;
+  MEbinning met_binning_;
+  MEbinning ls_binning_;
+
+  ObjME metME_;
+  ObjME metME_variableBinning_;
+  ObjME metVsLS_;
+  ObjME metPhiME_;
+  ObjME deltaphimetj1ME_;
+  ObjME deltaphij1j2ME_;
+
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  StringCutObjectSelector<reco::MET, true> metSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
+  StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_;
+
+  unsigned njets_;
+  unsigned nelectrons_;
+  unsigned nmuons_;
+
+  static constexpr double MAX_PHI = 3.2;
+  static constexpr int N_PHI = 64;
+  static constexpr MEbinning phi_binning_{N_PHI, -MAX_PHI, MAX_PHI};
+
+  std::vector<bool> warningPrinted4token_;
+};
 
 METMonitor::METMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       metInputTag_(iConfig.getParameter<edm::InputTag>("met")),
       jetInputTag_(iConfig.getParameter<edm::InputTag>("jets")),
       eleInputTag_(iConfig.getParameter<edm::InputTag>("electrons")),
@@ -49,95 +124,35 @@ METMonitor::METMonitor(const edm::ParameterSet& iConfig)
   warningPrinted4token_.push_back(false);  // VertexCollection
 }
 
-METMonitor::~METMonitor() = default;
-
-METMonitor::MEbinning METMonitor::getHistoPSet(const edm::ParameterSet& pset) {
-  return METMonitor::MEbinning{
-      pset.getParameter<unsigned>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-  };
-}
-
-METMonitor::MEbinning METMonitor::getHistoLSPSet(const edm::ParameterSet& pset) {
-  return METMonitor::MEbinning{pset.getParameter<unsigned>("nbins"), 0., double(pset.getParameter<unsigned>("nbins"))};
-}
-
-void METMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  me.denominator->setAxisTitle(titleX, 1);
-  me.denominator->setAxisTitle(titleY, 2);
-}
-
-void METMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        const std::string& histname,
-                        const std::string& histtitle,
-                        int nbins,
-                        double min,
-                        double max) {
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-void METMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        const std::string& histname,
-                        const std::string& histtitle,
-                        const std::vector<double>& binning) {
-  int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  float* arr = &fbinning[0];
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-void METMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        const std::string& histname,
-                        const std::string& histtitle,
-                        int nbinsX,
-                        double xmin,
-                        double xmax,
-                        double ymin,
-                        double ymax) {
-  me.numerator =
-      ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator =
-      ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void METMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        const std::string& histname,
-                        const std::string& histtitle,
-                        int nbinsX,
-                        double xmin,
-                        double xmax,
-                        int nbinsY,
-                        double ymin,
-                        double ymax) {
-  me.numerator =
-      ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void METMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        const std::string& histname,
-                        const std::string& histtitle,
-                        const std::vector<double>& binningX,
-                        const std::vector<double>& binningY) {
-  int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
+METMonitor::~METMonitor() throw() {
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void METMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_;
@@ -180,22 +195,19 @@ void METMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   histtitle = "PFMET phi";
   bookME(ibooker, metPhiME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
   setMETitle(metPhiME_, "PF MET #phi", "events / 0.1 rad");
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
+
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken(metToken_, metHandle);
   if (!metHandle.isValid()) {
@@ -333,7 +345,7 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   deltaphimetj1ME_.denominator->Fill(deltaPhi_met_j1);
   deltaphij1j2ME_.denominator->Fill(deltaPhi_j1_j2);
 
-  int ls = iEvent.id().luminosityBlock();
+  const int ls = iEvent.id().luminosityBlock();
   metVsLS_.denominator->Fill(ls, met);
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
@@ -348,21 +360,10 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   deltaphij1j2ME_.numerator->Fill(deltaPhi_j1_j2);
 }
 
-void METMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned>("nbins");
-  pset.add<double>("xmin");
-  pset.add<double>("xmax");
-}
-
-void METMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins", 2500);
-  pset.add<double>("xmin", 0.);
-  pset.add<double>("xmax", 2500.);
-}
-
 void METMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/MET");
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
@@ -411,6 +412,4 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   descriptions.add("metMonitoring", desc);
 }
 
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(METMonitor);
