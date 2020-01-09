@@ -52,6 +52,7 @@ private:
 	bool            fUseDZ;
 	float           fDZCut;
         double fPtMaxCharged;
+	double fEtaMaxCharged;
 	float           fPtMax;
         double fPtMaxNeutralsStartSlope;
 	bool fUseExistingWeights;
