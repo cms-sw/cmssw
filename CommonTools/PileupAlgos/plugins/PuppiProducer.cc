@@ -50,7 +50,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
     produces<pat::PackedCandidateCollection>();
   else {
     produces<reco::PFCandidateCollection>();
-    produces<reco::PFCandidateCollection>("weighted");
+    produces<reco::PFCandidateCollection>("p4scaled");
   }
 
   if (fPuppiDiagnostics) {
@@ -277,6 +277,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pfCandWeighted.reset(new reco::PFCandidate(*pfCand));
     }
 
+    // Here, we are using new weights computed and putting them in the packed candidates. 
     if (fClonePackedCands && (!fUseExistingWeights)) {
       if (fPuppiForLeptons)
         pCand->setPuppiWeight(pCand->puppiWeight(), lWeights[iCand]);
@@ -289,11 +290,22 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
                           lWeights[iCand] * aCand.pz(),
                           lWeights[iCand] * aCand.energy());
 
+    // Here, we are using existing weights, or we're using packed candidates.
+    // That is, whether or not we recomputed the weights, we store the
+    // source candidate appropriately, and set the p4 of the packed candidate. 
     if (fUseExistingWeights || fClonePackedCands) {
       pCand->setP4(puppiP4s.back());
       pCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       fPackedPuppiCandidates->push_back(*pCand);
     } else {
+      // Here, we are not using packed candidates. That is, this is MINIAOD
+      // and we are computing puppi for the PFCandidates themselves. 
+      // We have TWO collections to write here. The first is the "weighted"
+      // version that weights the p4 by the puppi weight. The second
+      // is the standard version, where we just set the internal weight
+      // and do not adjust the p4. Only the second is persistified in
+      // AOD. The other can be used by user modules to have their own
+      // PFCandidate collection, and as a check for the weighting procedure. 
       pfCandWeighted->setP4(puppiP4s.back());
       pfCandWeighted->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       pfCand->setP4(aCand.p4());
@@ -324,7 +336,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       values[ic] = pkref;
     }
   } else {
-    iEvent.put(std::move(fPuppiCandidatesWeighted), "weighted");
+    iEvent.put(std::move(fPuppiCandidatesWeighted), "p4scaled");
     edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put(std::move(fPuppiCandidates));
     for (unsigned int ic = 0, nc = oh->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref(oh, ic);
