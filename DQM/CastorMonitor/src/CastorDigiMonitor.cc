@@ -10,7 +10,6 @@
 //     add rms check, DB   15.04.2015 (Vladimir Popov)
 //==================================================================//
 
-#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
 #include "DQM/CastorMonitor/interface/CastorDigiMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -18,6 +17,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Transition.h"
+
 #include <string>
 
 using namespace std;
@@ -32,7 +33,9 @@ namespace {
   int TrigIndexMax = 0;
 }  // namespace
 
-CastorDigiMonitor::CastorDigiMonitor(const edm::ParameterSet &ps) {
+CastorDigiMonitor::CastorDigiMonitor(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC)
+    : castorChannelQualityToken_{
+          iC.esConsumes<CastorChannelQuality, CastorChannelQualityRcd, edm::Transition::BeginRun>()} {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
   subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
   EtowerLastModule = ps.getUntrackedParameter<int>("towerLastModule", 6);
@@ -396,8 +399,7 @@ void CastorDigiMonitor::fillTrigRes(edm::Event const &event, const edm::TriggerR
 }
 
 void CastorDigiMonitor::getDbData(const edm::EventSetup &iSetup) {
-  edm::ESHandle<CastorChannelQuality> dbChQuality;
-  iSetup.get<CastorChannelQualityRcd>().get(dbChQuality);
+  edm::ESHandle<CastorChannelQuality> dbChQuality = iSetup.getHandle(castorChannelQualityToken_);
   if (fVerbosity > 0) {
     LogPrint("CastorDigiMonitor") << " CastorChQuality in CondDB=" << dbChQuality.isValid() << endl;
   }
