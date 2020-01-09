@@ -64,7 +64,13 @@ void SiStripFEDDumpPlugin::analyze(const edm::Event& iEvent, const edm::EventSet
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
 
   const FEDRawData& rawData = rawDataCollection.FEDData(fedIdToDump_);
-  const sistrip::FEDBufferBase buffer(rawData.data(), rawData.size(), true);
+  if ( ! rawData.data() )
+    throw cms::Exception("FEDBuffer") << "Buffer pointer is NULL.";
+  if ( ! sistrip::FEDBufferBase::hasMinimumLength(rawData.size()) )
+    throw cms::Exception("FEDBuffer")
+       << "Buffer is too small. Min size is 24. "
+       << "Buffer size is " << rawData.size() << ". ";
+  const sistrip::FEDBufferBase buffer(rawData.data(), rawData.size());
   std::ostringstream os;
   os << buffer << std::endl;
   buffer.dump(os);
