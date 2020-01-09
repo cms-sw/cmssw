@@ -45,7 +45,7 @@ public:
   std::pair<bool, unsigned int> getEventReport(unsigned int lumi, bool erase);
 
 protected:
-  bool checkNextEvent() override;
+  Next checkNext() override;
   void read(edm::EventPrincipal& eventPrincipal) override;
 
 private:

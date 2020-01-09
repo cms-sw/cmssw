@@ -18,6 +18,7 @@
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 
 #include <cmath>
+#include <array>
 
 namespace {
   template <typename T>
@@ -25,7 +26,7 @@ namespace {
     return (T(0) < val) - (val < T(0));
   }
 
-  std::vector<float> bounds = {1.24, 1.14353, 1.09844, 1.05168, 1.00313, 0.952728, 0.90037, 0.8};
+  constexpr std::array<float, 8> bounds = {{1.24, 1.14353, 1.09844, 1.05168, 1.00313, 0.952728, 0.90037, 0.8}};
   //   0.8       -> 73
   //   0.85      -> 78
   //   0.9265    -> 85
