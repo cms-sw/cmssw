@@ -74,15 +74,22 @@ namespace sistrip {
     for (uint16_t fedId = sistrip::FED_ID_MIN; fedId <= sistrip::FED_ID_MAX; ++fedId) {
       const FEDRawData& fedData = rawData.FEDData(fedId);
       if (fedData.size() && fedData.data()) {
-        std::unique_ptr<sistrip::FEDBufferBase> pBuffer;
-        try {
-          pBuffer.reset(new sistrip::FEDBufferBase(fedData.data(), fedData.size()));
-        } catch (const cms::Exception& e) {
-          LogInfo(messageLabel_) << "Skipping FED " << fedId << " because of exception: " << e.what();
+        if ( ! sistrip::FEDBufferBase::hasMinimumLength(fedData.size()) ) {
+          LogInfo(messageLabel_) << "Skipping FED " << fedId << " because of exception: "
+            << "An exception of category 'FEDBuffer' occurred.\n"
+            << "Buffer is too small. Min size is 24. Buffer size is " << fedData.size() << ". ";
           continue;
         }
-        fedEventNumber = pBuffer->daqLvl1ID();
-        fedBxNumber = pBuffer->daqBXID();
+        const sistrip::FEDBufferBase buffer{fedData.data(), fedData.size()};
+        if ( buffer.hasUnrecognizedFormat() ) {
+          LogInfo(messageLabel_) << "Skipping FED " << fedId << " because of exception: "
+            << "An exception of category 'FEDBuffer' occurred.\n"
+            << "Buffer format not recognized. "
+            << "Tracker special header: " << buffer.trackerSpecialHeader();
+          continue;
+        }
+        fedEventNumber = buffer.daqLvl1ID();
+        fedBxNumber = buffer.daqBXID();
         fedFound = true;
         break;
       }

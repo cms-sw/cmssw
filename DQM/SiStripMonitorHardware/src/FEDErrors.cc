@@ -206,10 +206,15 @@ bool FEDErrors::checkDataPresent(const FEDRawData& aFedData) {
 bool FEDErrors::failUnpackerFEDCheck() { return failUnpackerFEDCheck_; }
 
 bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned int aPrintDebug) {
-  std::unique_ptr<const sistrip::FEDBufferBase> bufferBase;
-  try {
-    bufferBase.reset(new sistrip::FEDBufferBase(aFedData.data(), aFedData.size()));
-  } catch (const cms::Exception& e) {
+
+  if ( ! ( aFedData.data() && sistrip::FEDBufferBase::hasMinimumLength(aFedData.size()) ) ) {
+    fedErrors_.InvalidBuffers = true;
+    failUnpackerFEDCheck_ = true;
+    //don't check anything else if the buffer is invalid
+    return false;
+  }
+  const sistrip::FEDBufferBase buffer{aFedData.data(), aFedData.size()};
+  if ( buffer.hasUnrecognizedFormat() ) {
     fedErrors_.InvalidBuffers = true;
     failUnpackerFEDCheck_ = true;
     //don't check anything else if the buffer is invalid
@@ -218,23 +223,23 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned in
 
   //CRC checks
   //if CRC fails then don't continue as if the buffer has been corrupted in DAQ then anything else could be invalid
-  if (!bufferBase->checkNoSlinkCRCError()) {
+  if (!buffer.checkNoSlinkCRCError()) {
     fedErrors_.BadFEDCRCs = true;
     return false;
-  } else if (!bufferBase->checkCRC()) {
+  } else if (!buffer.checkCRC()) {
     failUnpackerFEDCheck_ = true;
     fedErrors_.BadDAQCRCs = true;
     return false;
   }
   //next check that it is a SiStrip buffer
   //if not then stop checks
-  if (!bufferBase->checkSourceIDs() || !bufferBase->checkNoUnexpectedSourceID()) {
+  if (!buffer.checkSourceIDs() || !buffer.checkNoUnexpectedSourceID()) {
     fedErrors_.BadIDs = true;
     return false;
   }
   //if so then do DAQ header/trailer checks
   //if these fail then buffer may be incomplete and checking contents doesn't make sense
-  else if (!bufferBase->doDAQHeaderAndTrailerChecks()) {
+  else if (!buffer.doDAQHeaderAndTrailerChecks()) {
     failUnpackerFEDCheck_ = true;
     fedErrors_.BadDAQPacket = true;
     return false;
@@ -242,7 +247,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned in
 
   //now do checks on header
   //check that tracker special header is consistent
-  if (!(bufferBase->checkBufferFormat() && bufferBase->checkHeaderType() && bufferBase->checkReadoutMode())) {
+  if (!(buffer.checkBufferFormat() && buffer.checkHeaderType() && buffer.checkReadoutMode())) {
     failUnpackerFEDCheck_ = true;
     fedErrors_.InvalidBuffers = true;
     //do not return false if debug printout of the buffer done below...
@@ -251,7 +256,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned in
   }
 
   //FE unit overflows
-  if (!bufferBase->checkNoFEOverflows()) {
+  if (!buffer.checkNoFEOverflows()) {
     failUnpackerFEDCheck_ = true;
     fedErrors_.FEsOverflow = true;
     //do not return false if debug printout of the buffer done below...
