@@ -13,14 +13,17 @@ ALCARECOSiPixelCalCosmicsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcssta
     DebugOn      = cms.untracked.bool(False)
 )
 
-from ALCARECOSiPixelCalSingleMuon_cff import ALCARECOSiPixelCalSingleMuonHLTFilter 
-ALCARECOSiPixelCalCosmicsHLTFilter = ALCARECOSiPixelCalSingleMuonHLTFilter.clone(
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOSiPixelCalCosmicsHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
     HLTPaths = ["HLT_*"],
-    eventSetupPathsKey = ''
+    # eventually this needs to sterred via Global Tag in AlCaRecoTriggerBits
+    eventSetupPathsKey = '',
+    throw = False # tolerate triggers stated above, but not available
 )
 
-from ALCARECOSiPixelCalSingleMuon_cff import ALCARECOSiPixelCalSingleMuon
-ALCARECOSiPixelCalCosmics = ALCARECOSiPixelCalSingleMuon.clone(
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+ALCARECOSiPixelCalCosmics =  Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     filter = True,
     applyBasicCuts = True,
     ptMin = 3.,
