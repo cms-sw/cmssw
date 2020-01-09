@@ -37,7 +37,7 @@ private:
     TBranch *branch;
     uint8_t buffer;
     NamedBranchPtr(const std::string &aname, const std::string &atitle, TBranch *branchptr = nullptr)
-        : name(aname), title(atitle), branch(branchptr), buffer(-1) {}
+        : name(aname), title(atitle), branch(branchptr), buffer(0) {}
   };
   std::vector<NamedBranchPtr> m_triggerBranches;
   long m_lastRun;
@@ -45,8 +45,7 @@ private:
 
   template <typename T>
   void fillColumn(NamedBranchPtr &nb, const edm::TriggerResults &triggers) {
-    if (nb.idx >= 0)
-      nb.buffer = triggers.accept(nb.idx);
+    nb.buffer = (nb.idx >= 0) ? triggers.accept(nb.idx) : 0;
     nb.branch->SetAddress(&(nb.buffer));  // Can be improved: this is not reallt needed at each event
         //but we should be sure that resize of vectors of TriggerOutputBranches do not mess up things
   }

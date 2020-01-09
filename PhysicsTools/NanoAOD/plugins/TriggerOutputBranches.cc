@@ -15,7 +15,8 @@ void TriggerOutputBranches::updateTriggerNames(TTree& tree,
   }
 
   for (auto& existing : m_triggerBranches) {
-    existing.idx = -1;  // reset all triggers as not found
+    existing.idx = -1;    // reset all triggers as not found and zero buffer
+    existing.buffer = 0;  // reset all triggers as not found and zero buffer
     for (unsigned int j = 0; j < newNames.size(); j++) {
       std::string name = newNames[j];  // no const & as it will be modified below!
       std::size_t vfound = name.rfind("_v");
