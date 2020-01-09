@@ -1297,40 +1297,6 @@ namespace sistrip {
     ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
        << " End of FED buffer";
   }
-
-  void RawToDigiUnpacker::handleException(std::string method_name, std::string extra_info) {
-    method_name = "sistrip::RawToDigiUnpacker::" + method_name;
-    try {
-      throw;  // rethrow caught exception to be dealt with below
-    } catch (const cms::Exception& e) {
-      //throw e; // rethrow cms::Exception to be caught by framework
-    } catch (const std::exception& e) {
-      if (edm::isDebugEnabled()) {
-        std::stringstream ss;
-        ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
-           << " Caught std::exception!" << std::endl;
-        if (!extra_info.empty()) {
-          ss << " Information: " << extra_info << std::endl;
-        }
-        ss << " Caught std::exception in [" << method_name << "] with message:" << std::endl << e.what();
-        edm::LogWarning(sistrip::mlRawToDigi_) << ss.str();
-      }
-      //throw cms::Exception(sistrip::mlRawToDigi_) << ss.str();
-    } catch (...) {
-      if (edm::isDebugEnabled()) {
-        std::stringstream ss;
-        ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
-           << " Caught unknown exception!" << std::endl;
-        if (!extra_info.empty()) {
-          ss << " Information: " << extra_info << std::endl;
-        }
-        ss << "Caught unknown exception in [" << method_name << "]" << std::endl;
-        edm::LogWarning(sistrip::mlRawToDigi_) << ss.str();
-      }
-      //throw cms::Exception(sistrip::mlRawToDigi_) << ss.str();
-    }
-  }
-
 }  // namespace sistrip
 
 /*
