@@ -7,7 +7,7 @@
  *
  */
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -31,7 +31,7 @@ class EEDetId;
 class EcalElectronicsMapping;
 class EcalTrigTowerConstituentsMap;
 
-class EcalSelectiveReadoutValidation : public DQMEDAnalyzer {
+class EcalSelectiveReadoutValidation : public DQMOneEDAnalyzer<> {
   typedef EcalRecHitCollection RecHitCollection;
   typedef EcalRecHit RecHit;
 

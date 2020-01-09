@@ -61,9 +61,6 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  //      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
-
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------

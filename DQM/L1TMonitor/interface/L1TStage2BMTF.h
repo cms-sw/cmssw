@@ -60,7 +60,6 @@ public:
   // member functions
 protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
 
   // data members

@@ -15,7 +15,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
@@ -24,7 +24,7 @@ namespace reco {
   class BeamSpot;
 }  // namespace reco
 
-class EwkElecDQM : public DQMEDAnalyzer {
+class EwkElecDQM : public DQMOneEDAnalyzer<> {
 public:
   EwkElecDQM(const edm::ParameterSet&);
 
