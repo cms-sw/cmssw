@@ -606,7 +606,6 @@ namespace {
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       AlignmentPI::TkAlBarycenters barycenters;
-      barycenters.init();
       // compute uncorrected barycenter
       barycenters.computeBarycenters(
           alignments, tTopo, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
@@ -615,7 +614,6 @@ namespace {
       auto Ybarycenters = barycenters.getY();
       auto Zbarycenters = barycenters.getZ();
 
-      barycenters.init();
       // compute barycenter corrected for the GPR
       barycenters.computeBarycenters(alignments, tTopo, hardcodeGPR);
 
@@ -751,11 +749,9 @@ namespace {
       h2_BarycenterDiff->GetXaxis()->SetBinLabel(3, "Z [#mum]");
 
       AlignmentPI::TkAlBarycenters l_barycenters;
-      l_barycenters.init();
       l_barycenters.computeBarycenters(last_alignments, tTopo_l, hardcodeGPR);
 
       AlignmentPI::TkAlBarycenters f_barycenters;
-      f_barycenters.init();
       f_barycenters.computeBarycenters(first_alignments, tTopo_f, hardcodeGPR);
 
       unsigned int yBin = 6;
@@ -875,7 +871,6 @@ namespace {
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       AlignmentPI::TkAlBarycenters myInitialBarycenters;
-      myInitialBarycenters.init();
       //myInitialBarycenters.computeBarycenters(first_alignments,tTopo_f,hardcodeGPR);
       myInitialBarycenters.computeBarycenters(
           first_alignments, tTopo_f, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
@@ -887,7 +882,6 @@ namespace {
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       AlignmentPI::TkAlBarycenters myFinalBarycenters;
-      myFinalBarycenters.init();
       //myFinalBarycenters.computeBarycenters(last_alignments,tTopo_l,hardcodeGPR);
       myFinalBarycenters.computeBarycenters(
           last_alignments, tTopo_l, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
