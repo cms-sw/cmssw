@@ -553,21 +553,3 @@ template <typename T>
 Density HGCalCLUEAlgoT<T>::getDensity() {
   return density_;
 }
-
-template void HGCalCLUEAlgo::makeClusters();
-template void HGCalCLUEAlgo::setDensity(const unsigned int);
-template void HGCalCLUEAlgo::prepareDataStructures(unsigned int);
-template int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int, float, float);
-template void HGCalCLUEAlgo::populate(const HGCRecHitCollection&);
-template std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool);
-template Density HGCalCLUEAlgo::getDensity();
-template void HGCalCLUEAlgo::getEventSetupPerAlgorithm(const edm::EventSetup&);
-
-template void HFNoseCLUEAlgo::makeClusters();
-template void HFNoseCLUEAlgo::setDensity(const unsigned int);
-template void HFNoseCLUEAlgo::prepareDataStructures(unsigned int);
-template int HFNoseCLUEAlgo::findAndAssignClusters(const unsigned int, float, float);
-template void HFNoseCLUEAlgo::populate(const HGCRecHitCollection&);
-template std::vector<reco::BasicCluster> HFNoseCLUEAlgo::getClusters(bool);
-template Density HFNoseCLUEAlgo::getDensity();
-template void HFNoseCLUEAlgo::getEventSetupPerAlgorithm(const edm::EventSetup&);

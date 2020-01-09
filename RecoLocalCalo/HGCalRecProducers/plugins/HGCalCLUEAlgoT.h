@@ -207,6 +207,8 @@ private:
   void setDensity(const unsigned int layerId);
 };
 
+#include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgo.icc"
+
 using HGCalCLUEAlgo = HGCalCLUEAlgoT<HGCalLayerTiles>;
 using HFNoseCLUEAlgo = HGCalCLUEAlgoT<HFNoseLayerTiles>;
 
