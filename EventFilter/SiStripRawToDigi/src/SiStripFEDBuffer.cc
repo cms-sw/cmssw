@@ -10,7 +10,7 @@
 namespace sistrip {
 
   FEDBuffer::FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer)
-      : FEDBufferBase(fedBuffer, fedBufferSize, allowBadBuffer, false) {
+      : FEDBufferBase(fedBuffer, fedBufferSize, false) {
     channels_.reserve(FEDCH_PER_FED);
     //build the correct type of FE header object
     if ((headerType() != HEADER_TYPE_INVALID) && (headerType() != HEADER_TYPE_NONE)) {
@@ -19,18 +19,6 @@ namespace sistrip {
     } else {
       feHeader_ = std::unique_ptr<FEDFEHeader>();
       payloadPointer_ = getPointerToDataAfterTrackerSpecialHeader();
-      if (!allowBadBuffer) {
-        std::ostringstream ss;
-        ss << "Header type is invalid. "
-           << "Header type nibble is ";
-        uint8_t headerNibble = trackerSpecialHeader().headerTypeNibble();
-        printHex(&headerNibble, 1, ss);
-        ss << ". ";
-        throw cms::Exception("FEDBuffer") << ss.str();
-      }
-    }
-    if (readoutMode() == READOUT_MODE_SPY) {
-      throw cms::Exception("FEDBuffer") << "Unpacking of spy channel data with FEDBuffer is not supported" << std::endl;
     }
     payloadLength_ = getPointerToByteAfterEndOfPayload() - payloadPointer_;
     //check if FE units are present in data
