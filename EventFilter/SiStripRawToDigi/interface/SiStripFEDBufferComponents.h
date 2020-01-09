@@ -339,6 +339,21 @@ namespace sistrip {
                          const uint8_t feOverflowRegister = 0x00,
                          const FEDStatusRegister fedStatusRegister = FEDStatusRegister());
 
+    // helper method: detect the buffer format without constructing the full header
+    static FEDBufferFormat bufferFormat(const uint8_t* headerPointer)
+    {
+      if ( headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_NEW ) {
+        return BUFFER_FORMAT_NEW;
+      } else if ( headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_OLD ) {
+        return BUFFER_FORMAT_OLD_SLINK;
+      } else if ( headerPointer[BUFFERFORMAT^4] == BUFFER_FORMAT_CODE_OLD ) {
+        // same case as used to detect "wordSwapped_" in the constructor
+        return BUFFER_FORMAT_OLD_VME;
+      } else {
+        return BUFFER_FORMAT_INVALID;
+      }
+    }
+
   private:
     void setBufferFormatByte(const FEDBufferFormat newBufferFormat);
     void setHeaderTypeNibble(const uint8_t value);
@@ -685,7 +700,7 @@ namespace sistrip {
     std::vector<FEDChannel> channels_;
 
   private:
-    void init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat);
+    void init(const bool allowUnrecognizedFormat);
     const uint8_t* originalBuffer_;
     const uint8_t* orderedBuffer_;
     const size_t bufferSize_;
