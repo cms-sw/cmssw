@@ -10,9 +10,6 @@ namespace sistrip {
         payloadPointer_(getPointerToDataAfterTrackerSpecialHeader() + 16),
         payloadLength_(getPointerToByteAfterEndOfPayload() - payloadPointer_),
         versionId_(*(getPointerToDataAfterTrackerSpecialHeader() + 3)) {
-    //Check it is spy data
-    if (!(readoutMode() == READOUT_MODE_SPY))
-      throw cms::Exception("FEDSpyBuffer") << "Buffer is not from spy channel";
     //Check the buffer format version ID and take action for any exceptions
     if (versionId_ == 0x00) {
       payloadPointer_ = payloadPointer_ - 8;
