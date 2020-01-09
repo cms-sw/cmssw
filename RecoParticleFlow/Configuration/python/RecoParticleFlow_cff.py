@@ -48,9 +48,6 @@ particleFlow = puppi.clone(candName='particleFlowTmp2')
 particleFlowLinksTask = cms.Task( particleFlowTmp2, particleFlow, particleFlowPtrs, chargedHadronPFTrackIsolation, particleBasedIsolationTask)
 particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
-
-
-
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
