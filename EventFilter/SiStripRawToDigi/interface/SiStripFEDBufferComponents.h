@@ -301,9 +301,9 @@ namespace sistrip {
     uint8_t bufferFormatByte() const;
     FEDBufferFormat bufferFormat() const;
     uint8_t headerTypeNibble() const;
-    FEDHeaderType headerType() const;
+    FEDHeaderType headerType() const { return headerTypeFromNibble(headerTypeNibble()); }
     uint8_t trackerEventTypeNibble() const;
-    FEDReadoutMode readoutMode() const;
+    FEDReadoutMode readoutMode() const { return readoutModeFromNibble(trackerEventTypeNibble()); }
     FEDLegacyReadoutMode legacyReadoutMode() const;
     uint8_t apveAddress() const;
     uint8_t apvAddressErrorRegister() const;
@@ -339,7 +339,7 @@ namespace sistrip {
                          const uint8_t feOverflowRegister = 0x00,
                          const FEDStatusRegister fedStatusRegister = FEDStatusRegister());
 
-    // helper method: detect the buffer format without constructing the full header
+    // detect the buffer format without constructing the full header
     static FEDBufferFormat bufferFormat(const uint8_t* headerPointer)
     {
       if ( headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_NEW ) {
@@ -352,6 +352,24 @@ namespace sistrip {
       } else {
         return BUFFER_FORMAT_INVALID;
       }
+    }
+    // detect the header type without constructing the full header
+    static FEDHeaderType headerType(const uint8_t* headerPointer)
+    {
+      const auto nibble = (
+          ( ( BUFFER_FORMAT_OLD_VME == bufferFormat(headerPointer) ) ?
+              headerPointer[BUFFERTYPE^4] // swapped case
+            : headerPointer[BUFFERTYPE]   ) & 0xF0 ) >> 4;
+      return headerTypeFromNibble(nibble);
+    }
+    // detect the readout mode without constructing the full header
+    static FEDReadoutMode readoutMode(const uint8_t* headerPointer)
+    {
+      const auto nibble = (
+          ( BUFFER_FORMAT_OLD_VME == bufferFormat(headerPointer) ) ?
+            headerPointer[BUFFERTYPE^4] // swapped case
+          : headerPointer[BUFFERTYPE]   ) & 0x0F;
+      return readoutModeFromNibble(nibble);
     }
 
   private:
@@ -371,6 +389,46 @@ namespace sistrip {
     uint8_t specialHeader_[8];
     //was the header word swapped wrt order in buffer?
     bool wordSwapped_;
+    // conversion methods, shared between member and static method
+    static FEDHeaderType headerTypeFromNibble(const uint8_t headerTypeNibble) {
+      switch (headerTypeNibble) {
+        case HEADER_TYPE_FULL_DEBUG:
+        case HEADER_TYPE_APV_ERROR:
+        case HEADER_TYPE_NONE:
+          return FEDHeaderType(headerTypeNibble);
+        default:
+          return HEADER_TYPE_INVALID;
+      }
+    }
+    static FEDReadoutMode readoutModeFromNibble(const uint8_t eventTypeNibble) {
+      //if it is scope mode then return as is (it cannot be fake data)
+      //if it is premix then return as is: stripping last bit would make it spy data !
+      if ( (eventTypeNibble == READOUT_MODE_SCOPE) || (eventTypeNibble == READOUT_MODE_PREMIX_RAW) )
+        return FEDReadoutMode(eventTypeNibble);
+      //if not then ignore the last bit which indicates if it is real or fake
+      else {
+        const uint8_t mode = (eventTypeNibble & 0xF);
+        switch (mode) {
+          case READOUT_MODE_VIRGIN_RAW:
+          case READOUT_MODE_PROC_RAW:
+          case READOUT_MODE_ZERO_SUPPRESSED:
+          case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+          //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+          case READOUT_MODE_SPY:
+            return FEDReadoutMode(mode);
+          default:
+            return READOUT_MODE_INVALID;
+        }
+      }
+    }
   };
 
   class FEDBackendStatusRegister {
@@ -617,7 +675,7 @@ namespace sistrip {
   //base class for sistrip FED buffers which have a DAQ header/trailer and tracker special header
   class FEDBufferBase {
   public:
-    FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat = false);
+    FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize);
     virtual ~FEDBufferBase();
     //dump buffer to stream
     void dump(std::ostream& os) const;
@@ -663,6 +721,28 @@ namespace sistrip {
     const FEDChannel& channel(const uint8_t internalFEDChannelNum) const;
     const FEDChannel& channel(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
 
+    bool hasUnrecognizedFormat() const {
+      return BUFFER_FORMAT_INVALID == specialHeader_.bufferFormat();
+    }
+
+    // check on buffer length (requirement for construction)
+    static bool hasMinimumLength(const size_t fedBufferSize) {
+      //min buffer length. DAQ header, DAQ trailer, tracker special header.
+      static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
+      //check size is non zero
+      return fedBufferSize >= MIN_BUFFER_SIZE;
+    }
+    // same as hasUnrecognizedFormat and readoutMode, respectively,
+    // but without the need to construct the full FEDBufferBase.
+    // the caller must ensure the pointer is valid, and the corresponding buffer long enough
+    // to hold the relevant byte of the TrackerSpecialHeader
+    static bool hasUnrecognizedFormat(const uint8_t* fedBuffer) {
+      return BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer+8);
+    }
+    static FEDReadoutMode readoutMode(const uint8_t* fedBuffer) {
+      return TrackerSpecialHeader::readoutMode(fedBuffer+8);
+    }
+
     //summary checks
     //check that tracker special header is valid (does not check for FE unit errors indicated in special header)
     bool doTrackerSpecialHeaderChecks() const;
@@ -695,12 +775,11 @@ namespace sistrip {
     const uint8_t* getPointerToByteAfterEndOfPayload() const;
     FEDBufferBase(const uint8_t* fedBuffer,
                   const size_t fedBufferSize,
-                  const bool allowUnrecognizedFormat,
                   const bool fillChannelVector);
     std::vector<FEDChannel> channels_;
 
   private:
-    void init(const bool allowUnrecognizedFormat);
+    void init();
     const uint8_t* originalBuffer_;
     const uint8_t* orderedBuffer_;
     const size_t bufferSize_;
