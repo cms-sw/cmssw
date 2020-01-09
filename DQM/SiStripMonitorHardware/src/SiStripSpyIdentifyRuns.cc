@@ -105,20 +105,20 @@ namespace sistrip {
       if (!input.data() || !input.size())
         continue;
       //construct FEDBuffer
-      if ( ! sistrip::FEDBufferBase::hasMinimumLength(fedData.size()) ) {
-        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
+      if ( ! sistrip::FEDBufferBase::hasMinimumLength(input.size()) ) {
+        edm::LogWarning("SiStripSpyIdentifyRuns") << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
           << "An exception of category 'FEDBuffer' occurred.\n"
-          << "Buffer is too small. Min size is 24. Buffer size is " << fedData.size() << ". ";
+          << "Buffer is too small. Min size is 24. Buffer size is " << input.size() << ". ";
       }
-      if ( READOUT_MODE_SPY != sistrip::FEDBufferBase::readoutMode(fedData.data()) ) {
-        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
+      if ( READOUT_MODE_SPY != sistrip::FEDBufferBase::readoutMode(input.data()) ) {
+        edm::LogWarning("SiStripSpyIdentifyRuns") << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
           << "An exception of category 'FEDSpyBuffer' occurred.\n"
           << "Buffer is not from spy channel";
         break;
       }
       const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
       if ( buffer.hasUnrecognizedFormat() ) {
-        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
+        edm::LogWarning("SiStripSpyIdentifyRuns") << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
           << "An exception of category 'FEDBuffer' occurred.\n"
           << "Buffer format not recognized. Tracker special header: " << buffer.trackerSpecialHeader();
       }

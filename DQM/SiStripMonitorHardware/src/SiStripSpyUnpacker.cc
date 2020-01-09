@@ -112,26 +112,26 @@ namespace sistrip {
 
       //construct FEDBuffer
       if ( ! sistrip::FEDBufferBase::hasMinimumLength(input.size()) ) {
-        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+        edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
           << "An exception of category 'FEDBuffer' occurred.\n"
           << "Buffer is too small. Min size is 24. Buffer size is " << input.size() << ". ";
         continue;
       }
-      if ( READOUT_MODE_SPY != sistrip::FEDBufferBase::readoutMode(fedData.data()) ) {
-        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+      if ( READOUT_MODE_SPY != sistrip::FEDBufferBase::readoutMode(input.data()) ) {
+        edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
           << "An exception of category 'FEDSpyBuffer' occurred.\n"
           << "Buffer is not from spy channel";
         continue;
       }
       const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
       if ( buffer.hasUnrecognizedFormat() ) {
-        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+        edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
           << "An exception of category 'FEDBuffer' occurred.\n"
           << "Buffer format not recognized. Tracker special header: " << buffer.trackerSpecialHeader();
         continue;
       }
       if (!buffer.doChecks() && !allowIncompleteEvents_) {
-        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+        edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
           << "An exception of category 'FEDSpyBuffer' occurred.\n"
           << "FED Buffer check fails for FED ID " << lFedId << ".";
         continue;
