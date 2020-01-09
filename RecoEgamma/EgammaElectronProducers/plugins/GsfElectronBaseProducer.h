@@ -51,7 +51,7 @@ protected:
   const edm::OrphanHandle<reco::GsfElectronCollection>& orphanHandle() const { return orphanHandle_; }
 
   // configurables
-  GsfElectronAlgo::InputTagsConfiguration inputCfg_;
+  GsfElectronAlgo::Tokens inputCfg_;
   GsfElectronAlgo::StrategyConfiguration strategyCfg_;
   const GsfElectronAlgo::CutsConfiguration cutsCfg_;
   const GsfElectronAlgo::CutsConfiguration cutsCfgPflow_;
@@ -60,6 +60,10 @@ protected:
 
   // used to make some provenance checks
   edm::EDGetTokenT<edm::ValueMap<float>> pfMVA_;
+
+  //IsoVals (PF and EcalDriven)
+  edm::ParameterSet pfIsoVals_;
+  edm::ParameterSet edIsoVals_;
 
 private:
   bool isPreselected(reco::GsfElectron const& ele) const;

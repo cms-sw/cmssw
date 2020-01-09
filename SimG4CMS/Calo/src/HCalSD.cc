@@ -96,6 +96,7 @@ HCalSD::HCalSD(const std::string& name,
   agingFlagHE = m_HC.getParameter<bool>("HEDarkening");
   bool agingFlagHF = m_HC.getParameter<bool>("HFDarkening");
   useHF = m_HC.getUntrackedParameter<bool>("UseHF", true);
+  bool forTBHC = m_HC.getUntrackedParameter<bool>("ForTBHCAL", false);
   bool forTBH2 = m_HC.getUntrackedParameter<bool>("ForTBH2", false);
   useLayerWt = m_HC.getUntrackedParameter<bool>("UseLayerWt", false);
   std::string file = m_HC.getUntrackedParameter<std::string>("WtFile", "None");
@@ -136,13 +137,19 @@ HCalSD::HCalSD(const std::string& name,
     edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
     throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant\n";
   }
-  edm::ESHandle<HcalDDDSimulationConstants> hdsc;
-  es.get<HcalSimNumberingRecord>().get(hdsc);
-  if (hdsc.isValid()) {
-    hcalSimConstants_ = hdsc.product();
+  if (forTBHC) {
+    useHF = false;
+    matNames.emplace_back("Scintillator");
   } else {
-    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimulationConstant";
-    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimulationConstant\n";
+    edm::ESHandle<HcalDDDSimulationConstants> hdsc;
+    es.get<HcalSimNumberingRecord>().get(hdsc);
+    if (hdsc.isValid()) {
+      hcalSimConstants_ = hdsc.product();
+      matNames = hcalSimConstants_->hcalsimpar()->hcalMaterialNames_;
+    } else {
+      edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimulationConstant";
+      throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimulationConstant\n";
+    }
   }
 
   HcalNumberingScheme* scheme;
@@ -170,47 +177,46 @@ HCalSD::HCalSD(const std::string& name,
       }
       hfshower = std::make_unique<HFShower>(name, hcalConstants_, hcalSimConstants_->hcalsimpar(), p, 0);
     }
-  }
 
-  // HF volume names
-  hfNames = hcalSimConstants_->hcalsimpar()->hfNames_;
-  const std::vector<int>& temp = hcalSimConstants_->hcalsimpar()->hfLevels_;
+    // HF volume names
+    hfNames = hcalSimConstants_->hcalsimpar()->hfNames_;
+    const std::vector<int>& temp = hcalSimConstants_->hcalsimpar()->hfLevels_;
 #ifdef EDM_ML_DEBUG
-  std::stringstream ss0;
-  ss0 << "HCalSD: Names to be tested for Volume = HF has " << hfNames.size() << " elements";
+    std::stringstream ss0;
+    ss0 << "HCalSD: Names to be tested for Volume = HF has " << hfNames.size() << " elements";
 #endif
-  for (unsigned int i = 0; i < hfNames.size(); ++i) {
-    G4String namv = static_cast<G4String>(hfNames[i]);
-    lv = nullptr;
-    for (auto lvol : *lvs) {
-      if (lvol->GetName() == namv) {
-        lv = lvol;
-        break;
+    for (unsigned int i = 0; i < hfNames.size(); ++i) {
+      G4String namv = static_cast<G4String>(hfNames[i]);
+      lv = nullptr;
+      for (auto lvol : *lvs) {
+        if (lvol->GetName() == namv) {
+          lv = lvol;
+          break;
+        }
       }
+      hfLV.emplace_back(lv);
+      hfLevels.emplace_back(temp[i]);
+#ifdef EDM_ML_DEBUG
+      ss0 << "\n        HF[" << i << "] = " << namv << " LV " << lv << " at level " << temp[i];
+#endif
     }
-    hfLV.push_back(lv);
-    hfLevels.push_back(temp[i]);
 #ifdef EDM_ML_DEBUG
-    ss0 << "\n        HF[" << i << "] = " << namv << " LV " << lv << " at level " << temp[i];
+    edm::LogVerbatim("HcalSim") << ss0.str();
 #endif
+    // HF Fibre volume names
+    fibreNames = hcalSimConstants_->hcalsimpar()->hfFibreNames_;
+    fillLogVolumeVector("HFFibre", fibreNames, fibreLV);
+    const std::vector<std::string>& pmtNames = hcalSimConstants_->hcalsimpar()->hfPMTNames_;
+    fillLogVolumeVector("HFPMT", pmtNames, pmtLV);
+    const std::vector<std::string>& straightNames = hcalSimConstants_->hcalsimpar()->hfFibreStraightNames_;
+    fillLogVolumeVector("HFFibreBundleStraight", straightNames, fibre1LV);
+    const std::vector<std::string>& conicalNames = hcalSimConstants_->hcalsimpar()->hfFibreConicalNames_;
+    fillLogVolumeVector("HFFibreBundleConical", conicalNames, fibre2LV);
   }
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalSim") << ss0.str();
-#endif
-  // HF Fibre volume names
-  fibreNames = hcalSimConstants_->hcalsimpar()->hfFibreNames_;
-  fillLogVolumeVector("HFFibre", fibreNames, fibreLV);
-  const std::vector<std::string>& pmtNames = hcalSimConstants_->hcalsimpar()->hfPMTNames_;
-  fillLogVolumeVector("HFPMT", pmtNames, pmtLV);
-  const std::vector<std::string>& straightNames = hcalSimConstants_->hcalsimpar()->hfFibreStraightNames_;
-  fillLogVolumeVector("HFFibreBundleStraight", straightNames, fibre1LV);
-  const std::vector<std::string>& conicalNames = hcalSimConstants_->hcalsimpar()->hfFibreConicalNames_;
-  fillLogVolumeVector("HFFibreBundleConical", conicalNames, fibre2LV);
 
   //Material list for HB/HE/HO sensitive detectors
   const G4MaterialTable* matTab = G4Material::GetMaterialTable();
   std::vector<G4Material*>::const_iterator matite;
-  matNames = hcalSimConstants_->hcalsimpar()->hcalMaterialNames_;
   for (auto const& namx : matNames) {
     const G4Material* mat = nullptr;
     for (matite = matTab->begin(); matite != matTab->end(); ++matite) {
@@ -219,7 +225,7 @@ HCalSD::HCalSD(const std::string& name,
         break;
       }
     }
-    materials.push_back(mat);
+    materials.emplace_back(mat);
   }
 #ifdef EDM_ML_DEBUG
   std::stringstream ss1;
@@ -331,7 +337,7 @@ void HCalSD::fillLogVolumeVector(const std::string& value,
         break;
       }
     }
-    lvvec.push_back(lv);
+    lvvec.emplace_back(lv);
     if (i / 10 * 10 == i) {
       ss3 << "\n";
     }

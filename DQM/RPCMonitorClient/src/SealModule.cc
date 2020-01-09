@@ -23,17 +23,8 @@ DEFINE_FWK_MODULE(RPCChamberQuality);
 #include <DQM/RPCMonitorClient/interface/RPCDcsInfoClient.h>
 DEFINE_FWK_MODULE(RPCDcsInfoClient);
 
-#include <DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h>
-DEFINE_FWK_MODULE(RPCEfficiencySecond);
-
 #include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
 DEFINE_FWK_MODULE(RPCEventSummary);
-
-#include <DQM/RPCMonitorClient/interface/RPCEfficiencyShiftHisto.h>
-DEFINE_FWK_MODULE(RPCEfficiencyShiftHisto);
-
-#include <DQM/RPCMonitorClient/interface/RPCEfficiencyPerRingLayer.h>
-DEFINE_FWK_MODULE(RPCEfficiencyPerRingLayer);
 
 #include <DQM/RPCMonitorClient/interface/RPCDaqInfo.h>
 DEFINE_FWK_MODULE(RPCDaqInfo);

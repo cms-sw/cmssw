@@ -101,12 +101,12 @@ process.source = cms.Source("EmptySource",
 )
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    runNumber = cms.uint32(options.runNumber),
-    baseDir = cms.string(options.fffBaseDir+"/"+options.buBaseDir),
-    buBaseDir = cms.string(options.fffBaseDir+"/"+options.buBaseDir),
-    directorIsBu = cms.untracked.bool(True),
-    useFileBroker = cms.bool(False),
-    fileBrokerHost = cms.string("")
+    runNumber = cms.untracked.uint32(options.runNumber),
+    baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
+    buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
+    directorIsBU = cms.untracked.bool(True),
+    useFileBroker = cms.untracked.bool(False),
+    fileBrokerHost = cms.untracked.string("")
 )
 
 #throttle when running with no limit

@@ -132,11 +132,7 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::get(DQMStore
 }
 
 void ElectronDqmHarvesterBase::remove(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, const std::string &name) {
-  const std::string *fullName = find(iGetter, name);
-  if (fullName) {
-    iBooker.setCurrentFolder(inputInternalPath_);
-    iGetter.removeElement(*fullName);
-  }
+  // TODO: remove no longer supported in DQMStore.
 }
 
 ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBooker,
@@ -203,13 +199,13 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1(DQMSt
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (!titleX.empty()) {
-    me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
   }
   if (TString(option) != "") {
-    me->getTH1F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
     me->getTH1F()->StatOverflows(kTRUE);
@@ -228,15 +224,15 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1withSu
                                                                                     Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
-  me->getTH1F()->Sumw2();
+  me->enableSumw2();
   if (!titleX.empty()) {
-    me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
   }
   if (TString(option) != "") {
-    me->getTH1F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
     me->getTH1F()->StatOverflows(kTRUE);
@@ -259,13 +255,13 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2(DQMSt
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (!titleX.empty()) {
-    me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
   }
   if (TString(option) != "") {
-    me->getTH2F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
     me->getTH1F()->StatOverflows(kTRUE);
@@ -287,15 +283,15 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2withSu
                                                                                     Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
-  me->getTH2F()->Sumw2();
+  me->enableSumw2();
   if (!titleX.empty()) {
-    me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
   }
   if (TString(option) != "") {
-    me->getTH2F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
     me->getTH1F()->StatOverflows(kTRUE);

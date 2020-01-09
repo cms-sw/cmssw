@@ -344,7 +344,7 @@ static long algorithm(Detector& /* description */,
   double dohmCarrierZ = 0.5 * layerL - 2. * MFRingDz - dohmCarrierDz;
 
   solid = ns.addSolidNS(
-      name, Tube(dohmCarrierRin, dohmCarrierRout, dohmCarrierPhiOff, dohmCarrierDz, 180._deg - 2. * dohmCarrierPhiOff));
+      name, Tube(dohmCarrierRin, dohmCarrierRout, dohmCarrierDz, dohmCarrierPhiOff, 180._deg - dohmCarrierPhiOff));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " << dohmCarrierMaterial << " from " << dohmCarrierPhiOff
                       << " to " << 180._deg - dohmCarrierPhiOff << " with Rin " << dohmCarrierRin << " Rout "
                       << MFRingOutR << " ZHalf " << dohmCarrierDz;

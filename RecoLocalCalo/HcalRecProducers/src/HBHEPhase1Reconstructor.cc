@@ -418,8 +418,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     // in the database but can still come in the QIE11DataFrame
     // in the laser calibs, etc.
     const HcalSubdetector subdet = cell.subdet();
-    if (!(subdet == HcalSubdetector::HcalBarrel || subdet == HcalSubdetector::HcalEndcap ||
-          subdet == HcalSubdetector::HcalOuter))
+    if (!(subdet == HcalSubdetector::HcalBarrel || subdet == HcalSubdetector::HcalEndcap))
       continue;
 
     // Check if the database tells us to drop this channel
@@ -444,18 +443,22 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     const HcalQIEShape* shape = cond.getHcalShape(channelCoder);
     const HcalCoderDb coder(*channelCoder, *shape);
 
-    // needed for the dark current in the M2
+    const bool saveEffectivePeds = channelInfo->hasEffectivePedestals();
     const HcalSiPMParameter& siPMParameter(*cond.getHcalSiPMParameter(cell));
-    const double darkCurrent = siPMParameter.getDarkCurrent();
     const double fcByPE = siPMParameter.getFCByPE();
-    const double lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(siPMParameter.getType());
+    double darkCurrent = 0.;
+    double lambda = 0.;
+    if (!saveEffectivePeds || saveInfos_) {
+      // needed for the dark current in the M2 in alternative of the effectivePed
+      darkCurrent = siPMParameter.getDarkCurrent();
+      lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(siPMParameter.getType());
+    }
 
     // ADC to fC conversion
     CaloSamples cs;
     coder.adc2fC(frame, cs);
 
     // Prepare to iterate over time slices
-    const bool saveEffectivePeds = channelInfo->hasEffectivePedestals();
     const int nRead = cs.size();
     const int maxTS = std::min(nRead, static_cast<int>(HBHEChannelInfo::MAXSAMPLES));
     const int soi = tsFromDB_ ? param_ts->firstSample() : frame.presamples();

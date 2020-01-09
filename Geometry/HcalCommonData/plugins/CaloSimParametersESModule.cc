@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "Geometry/HcalCommonData/interface/CaloSimParametersFromDD.h"
@@ -26,15 +27,20 @@ public:
   ReturnType produce(const HcalParametersRcd&);
 
 private:
-  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
   bool fromDD4Hep_;
 };
 
-CaloSimParametersESModule::CaloSimParametersESModule(const edm::ParameterSet& ps)
-    : cpvToken_{setWhatProduced(this).consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})} {
+CaloSimParametersESModule::CaloSimParametersESModule(const edm::ParameterSet& ps) {
   fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
+  auto cc = setWhatProduced(this);
+  cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "CaloSimParametersESModule::CaloSimParametersESModule";
+  edm::LogVerbatim("HCalGeom") << "CaloSimParametersESModule::CaloSimParametersESModule called with dd4hep: "
+                               << fromDD4Hep_;
 #endif
 }
 
@@ -50,12 +56,22 @@ CaloSimParametersESModule::ReturnType CaloSimParametersESModule::produce(const H
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "CaloSimParametersESModule::produce(const HcalParametersRcd& iRecord)";
 #endif
-  edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvToken_);
 
   auto ptp = std::make_unique<CaloSimulationParameters>();
-  CaloSimParametersFromDD builder(fromDD4Hep_);
-  builder.build(&(*cpv), *ptp);
-
+  CaloSimParametersFromDD builder;
+  if (fromDD4Hep_) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "CaloSimParametersESModule::Try to access cms::DDCompactView";
+#endif
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    builder.build(&(*cpv), *ptp);
+  } else {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "CaloSimParametersESModule::Try to access DDCompactView";
+#endif
+    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
+    builder.build(&(*cpv), *ptp);
+  }
   return ptp;
 }
 

@@ -45,6 +45,7 @@ namespace cond {
     bool SessionImpl::isActive() const { return coralSession.get(); }
 
     void SessionImpl::startTransaction(bool readOnly) {
+      std::unique_lock<std::recursive_mutex> lock(transactionMutex);
       if (!transaction.get()) {
         coralSession->transaction().start(readOnly);
         iovSchemaHandle.reset(new IOVSchema(coralSession->nominalSchema()));
@@ -56,9 +57,12 @@ namespace cond {
           throwException("An update transaction is already active.", "SessionImpl::startTransaction");
       }
       transaction->clients++;
+      transactionLock.swap(lock);
     }
 
     void SessionImpl::commitTransaction() {
+      std::unique_lock<std::recursive_mutex> lock;
+      lock.swap(transactionLock);
       if (transaction) {
         transaction->clients--;
         if (!transaction->clients) {
@@ -72,6 +76,8 @@ namespace cond {
     }
 
     void SessionImpl::rollbackTransaction() {
+      std::unique_lock<std::recursive_mutex> lock;
+      lock.swap(transactionLock);
       if (transaction) {
         transaction->rollback();
         transaction.reset();

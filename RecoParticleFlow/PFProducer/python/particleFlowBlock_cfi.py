@@ -41,9 +41,9 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( importerName = cms.string("GeneralTracksImporter"),
                   source = cms.InputTag("pfTrack"),
                   muonSrc = cms.InputTag("muons1stStep"),
+		  trackQuality = cms.string("highPurity"),
                   cleanBadConvertedBrems = cms.bool(True),
                   useIterativeTracking = cms.bool(True),
-                  maxDPtOPt      = cms.double(1.),                                 
                   DPtOverPtCuts_byTrackAlgo = cms.vdouble(10.0,10.0,10.0,
                                                            10.0,10.0,5.0),
                   NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3,3)
@@ -196,8 +196,7 @@ _addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              ) 
                    )
 
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 _addTimingLayer = particleFlowBlock.elementImporters.copy()
 _addTimingLayer.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              timeValueMap = cms.InputTag("tofPID:t0"),
@@ -215,7 +214,7 @@ phase2_timing.toModify(
     elementImporters = _addTiming
 )
 
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(
+phase2_timing_layer.toModify(
     particleFlowBlock,
     elementImporters = _addTimingLayer
 )

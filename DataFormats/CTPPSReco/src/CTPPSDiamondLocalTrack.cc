@@ -24,6 +24,6 @@ bool CTPPSDiamondLocalTrack::containsHit(const CTPPSDiamondRecHit& recHit, float
   if (!CTPPSTimingLocalTrack::containsHit(recHit, tolerance))
     return false;
 
-  return (recHit.getOOTIndex() == ts_index_ ||
-          recHit.getOOTIndex() == ts_index_ + CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING);
+  return (recHit.ootIndex() == ts_index_ ||
+          recHit.ootIndex() == ts_index_ + CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING);
 }

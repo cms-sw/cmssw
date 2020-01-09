@@ -98,12 +98,12 @@ hiRegitLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiM
     ) #end of clone  
 
 
-hiRegitLowPtTripletStep = cms.Sequence(hiRegitLowPtTripletStepClusters*
-                                       hiRegitLowPtTripletStepSeedLayers*
-                                       hiRegitLowPtTripletStepSeeds*
-                                       hiRegitLowPtTripletStepTrackCandidates*
-                                       hiRegitLowPtTripletStepTracks*
+hiRegitLowPtTripletStepTask = cms.Task(hiRegitLowPtTripletStepClusters,
+                                       hiRegitLowPtTripletStepSeedLayers,
+                                       hiRegitLowPtTripletStepSeeds,
+                                       hiRegitLowPtTripletStepTrackCandidates,
+                                       hiRegitLowPtTripletStepTracks,
                                        hiRegitLowPtTripletStepSelector)
-
+hiRegitLowPtTripletStep = cms.Sequence(hiRegitLowPtTripletStepTask)
 
 

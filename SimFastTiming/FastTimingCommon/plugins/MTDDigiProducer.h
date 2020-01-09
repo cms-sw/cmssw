@@ -1,6 +1,7 @@
 #ifndef SimFastTiming_FastTimingCommon_MTDDigiProducer_h
 #define SimFastTiming_FastTimingCommon_MTDDigiProducer_h
 
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerBase.h"
 
@@ -9,7 +10,6 @@
 
 namespace edm {
   class ConsumesCollector;
-  class ProducerBase;
   class ParameterSet;
   class StreamID;
 }  // namespace edm
@@ -20,7 +20,7 @@ namespace CLHEP {
 
 class MTDDigiProducer : public DigiAccumulatorMixMod {
 public:
-  MTDDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+  MTDDigiProducer(edm::ParameterSet const& pset, edm::ProducesCollector, edm::ConsumesCollector& iC);
   MTDDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) {
     throw cms::Exception("DeprecatedConstructor")
         << "Please make sure you're calling this with the threaded mixing module...";

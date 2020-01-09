@@ -4,10 +4,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4NavigationHistory.hh"

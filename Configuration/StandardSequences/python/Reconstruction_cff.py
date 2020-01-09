@@ -122,9 +122,7 @@ fastSim.toReplaceWith(globalreco_tracking,_fastSim_globalreco_tracking)
 
 _phase2_timing_layer_globalreco_tracking = globalreco_tracking.copy()
 _phase2_timing_layer_globalreco_tracking += fastTimingGlobalReco
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco_tracking,_phase2_timing_layer_globalreco_tracking)
+phase2_timing_layer.toReplaceWith(globalreco_tracking,_phase2_timing_layer_globalreco_tracking)
 
 globalreco = cms.Sequence(globalreco_tracking*
                           particleFlowCluster*

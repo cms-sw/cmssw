@@ -25,62 +25,66 @@ siPixelClusters.deltaRmax = cms.double(0.1)
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
 trackExtrapolator.trackSrc = cms.InputTag("hiGeneralTracks")
 
-hiTracking_noRegitMu = cms.Sequence(
-    hiBasicTracking
-    *hiDetachedTripletStep
-    *hiLowPtTripletStep
-    *hiPixelPairStep
+hiTracking_noRegitMuTask = cms.Task(
+    hiBasicTrackingTask
+    ,hiDetachedTripletStepTask
+    ,hiLowPtTripletStepTask
+    ,hiPixelPairStepTask
     )
 
-hiTracking_noRegitMu_wSplitting = cms.Sequence(
-    hiInitialJetCoreClusterSplitting
-    *hiBasicTracking
-    *hiDetachedTripletStep
-    *hiLowPtTripletStep
-    *hiPixelPairStep
+hiTracking_noRegitMu_wSplittingTask = cms.Task(
+    hiInitialJetCoreClusterSplittingTask
+    ,hiBasicTrackingTask
+    ,hiDetachedTripletStepTask
+    ,hiLowPtTripletStepTask
+    ,hiPixelPairStepTask
     )
 
-hiTracking_noRegitMu_wSplitting_Phase1 = cms.Sequence(
-    hiInitialJetCoreClusterSplitting
-    *hiBasicTracking
-    *hiLowPtQuadStep#New iteration
-    *hiHighPtTripletStep#New iteration
-    *hiDetachedQuadStep#New iteration
-    *hiDetachedTripletStep
-    *hiLowPtTripletStep
-    *hiPixelPairStep #no CA seeding implemented
-    *hiMixedTripletStep # large impact parameter tracks
-    *hiPixelLessStep    # large impact parameter tracks
-    *hiTobTecStep       # large impact parameter tracks
+hiTracking_noRegitMu_wSplitting_Phase1Task = cms.Task(
+    hiInitialJetCoreClusterSplittingTask
+    ,hiBasicTrackingTask
+    ,hiLowPtQuadStepTask#New iteration
+    ,hiHighPtTripletStepTask#New iteration
+    ,hiDetachedQuadStepTask#New iteration
+    ,hiDetachedTripletStepTask
+    ,hiLowPtTripletStepTask
+    ,hiPixelPairStepTask #no CA seeding implemented
+    ,hiMixedTripletStepTask # large impact parameter tracks
+    ,hiPixelLessStepTask    # large impact parameter tracks
+    ,hiTobTecStepTask       # large impact parameter tracks
     )
 
-hiTracking = cms.Sequence(
-    hiTracking_noRegitMu
-    *hiRegitMuTrackingAndSta
-    *hiGeneralTracks
-    *bestFinalHiVertex
-    *trackExtrapolator
+hiTrackingTask = cms.Task(
+    hiTracking_noRegitMuTask
+    ,hiRegitMuTrackingAndStaTask
+    ,hiGeneralTracks
+    ,bestFinalHiVertexTask
+    ,trackExtrapolator
     )
+hiTracking = cms.Sequence(hiTrackingTask)
 
-hiTracking_wSplitting = cms.Sequence(
-    hiTracking_noRegitMu_wSplitting
-    *hiJetCoreRegionalStep 
-    *hiRegitMuTrackingAndSta
-    *hiGeneralTracks
-    *bestFinalHiVertex
-    *trackExtrapolator
+hiTracking_wSplittingTask = cms.Task(
+    hiTracking_noRegitMu_wSplittingTask
+    ,hiJetCoreRegionalStepTask 
+    ,hiRegitMuTrackingAndStaTask
+    ,hiGeneralTracks
+    ,bestFinalHiVertexTask
+    ,trackExtrapolator
     )
+hiTracking_wSplitting = cms.Sequence(hiTracking_wSplittingTask)
 
-hiTracking_wSplitting_Phase1 = cms.Sequence(
-    hiTracking_noRegitMu_wSplitting_Phase1
-    *hiJetCoreRegionalStep 
-    *hiRegitMuTrackingAndSta
-    *hiGeneralTracks
-    *bestFinalHiVertex
-    *trackExtrapolator
+hiTracking_wSplitting_Phase1Task = cms.Task(
+    hiTracking_noRegitMu_wSplitting_Phase1Task
+    ,hiJetCoreRegionalStepTask 
+    ,hiRegitMuTrackingAndStaTask
+    ,hiGeneralTracks
+    ,bestFinalHiVertexTask
+    ,trackExtrapolator
     )
+hiTracking_wSplitting_Phase1 = cms.Sequence(hiTracking_wSplitting_Phase1Task)
 
-hiTracking_wConformalPixel = cms.Sequence(
-    hiTracking
-    *hiMergedConformalPixelTracking 
+hiTracking_wConformalPixelTask = cms.Task(
+    hiTrackingTask
+    ,hiMergedConformalPixelTrackingTask 
     )
+hiTracking_wConformalPixel = cms.Sequence(hiTracking_wConformalPixelTask)

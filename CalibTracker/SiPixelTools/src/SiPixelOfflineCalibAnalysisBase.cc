@@ -300,5 +300,3 @@ void SiPixelOfflineCalibAnalysisBase::addTF1ToDQMMonitoringElement(MonitorElemen
   }
   return;
 }
-//define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelOfflineCalibAnalysisBase);

@@ -371,7 +371,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_Pi0F->setAxisTitle("Eta", 1);
     genpart_Pi0F->setAxisTitle("Phi (radians)", 2);
     genpart_Pi0F->setAxisTitle("Energy (GeV)", 3);
-    genpart_Pi0F->getTH2F()->SetOption("lego2z,prof");
+    genpart_Pi0F->setOption("lego2z,prof");
     genpart_Pi0F->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_Pi0F->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -380,7 +380,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_Pi0F_counts->setAxisTitle("#eta", 1);
     genpart_Pi0F_counts->setAxisTitle("#phi (radians)", 2);
     genpart_Pi0F_counts->setAxisTitle("Energy (GeV)", 3);
-    genpart_Pi0F_counts->getTH2F()->SetOption("lego2z,prof");
+    genpart_Pi0F_counts->setOption("lego2z,prof");
     genpart_Pi0F_counts->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_Pi0F_counts->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -390,7 +390,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_NeutF->setAxisTitle("Eta", 1);
     genpart_NeutF->setAxisTitle("Phi (radians)", 2);
     genpart_NeutF->setAxisTitle("Energy (GeV)", 3);
-    genpart_NeutF->getTH2F()->SetOption("lego2z,prof");
+    genpart_NeutF->setOption("lego2z,prof");
     genpart_NeutF->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_NeutF->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -399,7 +399,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_NeutF_counts->setAxisTitle("#eta", 1);
     genpart_NeutF_counts->setAxisTitle("#phi (radians)", 2);
     genpart_NeutF_counts->setAxisTitle("Energy (GeV)", 3);
-    genpart_NeutF_counts->getTH2F()->SetOption("lego2z,prof");
+    genpart_NeutF_counts->setOption("lego2z,prof");
     genpart_NeutF_counts->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_NeutF_counts->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -409,7 +409,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_GammaF->setAxisTitle("Eta", 1);
     genpart_GammaF->setAxisTitle("Phi (radians)", 2);
     genpart_GammaF->setAxisTitle("Energy (GeV)", 3);
-    genpart_GammaF->getTH2F()->SetOption("lego2z,prof");
+    genpart_GammaF->setOption("lego2z,prof");
     genpart_GammaF->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_GammaF->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -418,7 +418,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_GammaF_counts->setAxisTitle("#eta", 1);
     genpart_GammaF_counts->setAxisTitle("#phi (radians)", 2);
     genpart_GammaF_counts->setAxisTitle("Energy (GeV)", 3);
-    genpart_GammaF_counts->getTH2F()->SetOption("lego2z,prof");
+    genpart_GammaF_counts->setOption("lego2z,prof");
     genpart_GammaF_counts->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_GammaF_counts->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -446,7 +446,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_Pi0B->setAxisTitle("Eta", 1);
     genpart_Pi0B->setAxisTitle("Phi (radians)", 2);
     genpart_Pi0B->setAxisTitle("Energy (GeV)", 3);
-    genpart_Pi0B->getTH2F()->SetOption("lego2z,prof");
+    genpart_Pi0B->setOption("lego2z,prof");
     genpart_Pi0B->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_Pi0B->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -455,7 +455,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_Pi0B_counts->setAxisTitle("#eta", 1);
     genpart_Pi0B_counts->setAxisTitle("#phi (radians)", 2);
     genpart_Pi0B_counts->setAxisTitle("Energy (GeV)", 3);
-    genpart_Pi0B_counts->getTH2F()->SetOption("lego2z,prof");
+    genpart_Pi0B_counts->setOption("lego2z,prof");
     genpart_Pi0B_counts->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_Pi0B_counts->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -465,7 +465,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_NeutB->setAxisTitle("Eta", 1);
     genpart_NeutB->setAxisTitle("Phi (radians)", 2);
     genpart_NeutB->setAxisTitle("Energy (GeV)", 3);
-    genpart_NeutB->getTH2F()->SetOption("lego2z,prof");
+    genpart_NeutB->setOption("lego2z,prof");
     genpart_NeutB->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_NeutB->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -474,7 +474,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_NeutB_counts->setAxisTitle("#eta", 1);
     genpart_NeutB_counts->setAxisTitle("#phi (radians)", 2);
     genpart_NeutB_counts->setAxisTitle("Energy (GeV)", 3);
-    genpart_NeutB_counts->getTH2F()->SetOption("lego2z,prof");
+    genpart_NeutB_counts->setOption("lego2z,prof");
     genpart_NeutB_counts->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_NeutB_counts->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -483,7 +483,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_GammaB->setAxisTitle("Eta", 1);
     genpart_GammaB->setAxisTitle("Phi (radians)", 2);
     genpart_GammaB->setAxisTitle("Energy (GeV)", 3);
-    genpart_GammaB->getTH2F()->SetOption("lego2z,prof");
+    genpart_GammaB->setOption("lego2z,prof");
     genpart_GammaB->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_GammaB->getTH2F()->SetTitleOffset(1.4, "y");
 
@@ -492,7 +492,7 @@ void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, 
     genpart_GammaB_counts->setAxisTitle("#eta", 1);
     genpart_GammaB_counts->setAxisTitle("#phi (radians)", 2);
     genpart_GammaB_counts->setAxisTitle("Energy (GeV)", 3);
-    genpart_GammaB_counts->getTH2F()->SetOption("lego2z,prof");
+    genpart_GammaB_counts->setOption("lego2z,prof");
     genpart_GammaB_counts->getTH2F()->SetTitleOffset(1.4, "x");
     genpart_GammaB_counts->getTH2F()->SetTitleOffset(1.4, "y");
 

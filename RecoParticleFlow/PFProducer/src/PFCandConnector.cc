@@ -551,3 +551,12 @@ double PFCandConnector::rescaleFactor(const double pt, const double cFrac) const
 
   return factor;
 }
+
+void PFCandConnector::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  iDesc.add<bool>("bCorrect", true);
+  iDesc.add<bool>("bCalibPrimary", true);
+  iDesc.add<double>("dptRel_PrimaryTrack", 10.0);
+  iDesc.add<double>("dptRel_MergedTrack", 5.0);
+  iDesc.add<double>("ptErrorSecondary", 1.0);
+  iDesc.add<std::vector<double>>("nuclCalibFactors", {0.8, 0.15, 0.5, 0.5, 0.05});
+}

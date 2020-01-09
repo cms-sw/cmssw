@@ -167,11 +167,12 @@ hiJetCoreRegionalStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMul
     ) #end of clone
 
 # Final sequence
-hiJetCoreRegionalStep = cms.Sequence(
-                                   hiCaloJetsForTrk*hiJetsForCoreTracking*
-                                   hiFirstStepGoodPrimaryVertices*
-                                   hiJetCoreRegionalStepSeedLayers*
-                                   hiJetCoreRegionalStepSeeds*
-                                   hiJetCoreRegionalStepTrackCandidates*
-                                   hiJetCoreRegionalStepTracks*
+hiJetCoreRegionalStepTask = cms.Task(
+                                   hiCaloJetsForTrkTask,hiJetsForCoreTracking,
+                                   hiFirstStepGoodPrimaryVertices,
+                                   hiJetCoreRegionalStepSeedLayers,
+                                   hiJetCoreRegionalStepSeeds,
+                                   hiJetCoreRegionalStepTrackCandidates,
+                                   hiJetCoreRegionalStepTracks,
                                    hiJetCoreRegionalStepSelector)
+hiJetCoreRegionalStep = cms.Sequence(hiJetCoreRegionalStepTask)

@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimGeneral/PreMixingModule/interface/PreMixingMuonWorker.h"
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
 
@@ -101,10 +102,10 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
 // CSC has three digi collections
 class PreMixingCSCWorker : public PreMixingWorker {
 public:
-  PreMixingCSCWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC)
-      : stripWorker_(ps.getParameter<edm::ParameterSet>("strip"), producer, iC),
-        wireWorker_(ps.getParameter<edm::ParameterSet>("wire"), producer, iC),
-        comparatorWorker_(ps.getParameter<edm::ParameterSet>("comparator"), producer, iC) {}
+  PreMixingCSCWorker(const edm::ParameterSet &ps, edm::ProducesCollector producesCollector, edm::ConsumesCollector &&iC)
+      : stripWorker_(ps.getParameter<edm::ParameterSet>("strip"), producesCollector, iC),
+        wireWorker_(ps.getParameter<edm::ParameterSet>("wire"), producesCollector, iC),
+        comparatorWorker_(ps.getParameter<edm::ParameterSet>("comparator"), producesCollector, iC) {}
   ~PreMixingCSCWorker() override = default;
 
   void initializeEvent(edm::Event const &iEvent, edm::EventSetup const &iSetup) override {}

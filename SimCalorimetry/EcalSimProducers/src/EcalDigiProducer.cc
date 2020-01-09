@@ -29,7 +29,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -54,15 +53,15 @@
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params,
-                                   edm::ProducerBase &mixMod,
+                                   edm::ProducesCollector producesCollector,
                                    edm::ConsumesCollector &iC)
     : EcalDigiProducer(params, iC) {
   if (m_apdSeparateDigi)
-    mixMod.produces<EBDigiCollection>(m_apdDigiTag);
+    producesCollector.produces<EBDigiCollection>(m_apdDigiTag);
 
-  mixMod.produces<EBDigiCollection>(m_EBdigiCollection);
-  mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
-  mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
+  producesCollector.produces<EBDigiCollection>(m_EBdigiCollection);
+  producesCollector.produces<EEDigiCollection>(m_EEdigiCollection);
+  producesCollector.produces<ESDigiCollection>(m_ESdigiCollection);
 }
 
 // version for Pre-Mixing, for use outside of MixingModule

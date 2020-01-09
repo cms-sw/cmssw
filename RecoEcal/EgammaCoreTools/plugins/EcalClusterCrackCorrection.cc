@@ -1,44 +1,64 @@
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
-#include "TVector2.h"
-#include "TMath.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+/** \class EcalClusterCrackCorrection
+  *  Function to correct cluster for cracks in the calorimeter
+  *
+  *  $Id: EcalClusterCrackCorrection.h
+  *  $Date:
+  *  $Revision:
+  *  \author Federico Ferri, CEA Saclay, November 2008
+  */
+
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-//////From DummyHepMCAnalyzer.cc:
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include <iostream>
+#include "TVector2.h"
 
-float EcalClusterCrackCorrection::getValue(const reco::BasicCluster& basicCluster,
-                                           const EcalRecHitCollection& recHit) const {
-  //this is a dummy function, could be deleted in mother classes and here
-  checkInit();
+class EcalClusterCrackCorrection : public EcalClusterFunctionBaseClass {
+public:
+  EcalClusterCrackCorrection(const edm::ParameterSet &){};
 
-  // private member params_ = EcalClusterCrackCorrectionParameters
-  // (see in CondFormats/EcalObjects/interface)
-  EcalFunctionParameters::const_iterator it;
-  std::cout << "[[EcalClusterCrackCorrectionBaseClass::getValue]] " << params_->params().size() << " parameters:";
-  for (it = params_->params().begin(); it != params_->params().end(); ++it) {
-    std::cout << " " << *it;
-  }
-  std::cout << "\n";
-  return 1;
+  // get/set explicit methods for parameters
+  const EcalClusterCrackCorrParameters *getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
+
+  // compute the correction
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 1.f; }
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+
+  float getValue(const reco::CaloCluster &) const override;
+
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+
+private:
+  edm::ESHandle<EcalClusterCrackCorrParameters> esParams_;
+  const EcalClusterCrackCorrParameters *params_;
+  const edm::EventSetup *es_;  //needed to access the ECAL geometry
+};
+
+void EcalClusterCrackCorrection::init(const edm::EventSetup &es) {
+  es.get<EcalClusterCrackCorrParametersRcd>().get(esParams_);
+  params_ = esParams_.product();
+  es_ = &es;  //needed to access the ECAL geometry
 }
 
-float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) const {
+void EcalClusterCrackCorrection::checkInit() const {
+  if (!params_) {
+    // non initialized function parameters: throw exception
+    throw cms::Exception("EcalClusterCrackCorrection::checkInit()")
+        << "Trying to access an uninitialized crack correction function.\n"
+           "Please call `init( edm::EventSetup &)' before any use of the function.\n";
+  }
+}
+
+float EcalClusterCrackCorrection::getValue(const reco::CaloCluster &seedbclus) const {
   checkInit();
 
   //correction factor to be returned, and to be calculated in this present function:
@@ -54,16 +74,16 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) c
   //const reco::CaloClusterPtr & seedbclus =  superCluster.seed();
 
   //If not barrel, return 1:
-  if (TMath::Abs(seedbclus.eta()) > 1.4442)
+  if (std::abs(seedbclus.eta()) > 1.4442)
     return 1.;
 
   edm::ESHandle<CaloGeometry> pG;
   es_->get<CaloGeometryRecord>().get(pG);
 
-  const CaloSubdetectorGeometry* geom = pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
+  const CaloSubdetectorGeometry *geom = pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
 
-  const math::XYZPoint& position_ = seedbclus.position();
-  double Theta = -position_.theta() + 0.5 * TMath::Pi();
+  const math::XYZPoint &position_ = seedbclus.position();
+  double Theta = -position_.theta() + 0.5 * M_PI;
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());
 
@@ -86,12 +106,12 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) c
     GlobalPoint center_pos = cell->getPosition(depth);
     double EtaCentr = center_pos.eta();
     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
-    if (TMath::Abs(EtaCentr - Eta) < detamin) {
-      detamin = TMath::Abs(EtaCentr - Eta);
+    if (std::abs(EtaCentr - Eta) < detamin) {
+      detamin = std::abs(EtaCentr - Eta);
       ietaclosest = crystal.ieta();
     }
-    if (TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr - Phi)) < dphimin) {
-      dphimin = TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr - Phi));
+    if (std::abs(TVector2::Phi_mpi_pi(PhiCentr - Phi)) < dphimin) {
+      dphimin = std::abs(TVector2::Phi_mpi_pi(PhiCentr - Phi));
       iphiclosest = crystal.iphi();
     }
   }
@@ -110,7 +130,7 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) c
 
   else {
     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
-    double PhiWidth = (TMath::Pi() / 180.);
+    double PhiWidth = (M_PI / 180.);
     double PhiCry = (TVector2::Phi_mpi_pi(Phi - PhiCentr)) / PhiWidth;
     if (PhiCry > 0.5)
       PhiCry = 0.5;
@@ -134,12 +154,12 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) c
 
   //if the seed crystal isn't neighbourgh of a module border, don't apply the eta dependent crack corrections, but use the smaller eta dependent local containment correction instead.
   int ietamod20 = ietaclosest % 20;
-  if (TMath::Abs(ietaclosest) < 25 || (TMath::Abs(ietamod20) != 5 && TMath::Abs(ietamod20) != 6))
+  if (std::abs(ietaclosest) < 25 || (std::abs(ietamod20) != 5 && std::abs(ietamod20) != 6))
     fetacor = 1.;
 
   else {
-    double ThetaCentr = -center_pos.theta() + 0.5 * TMath::Pi();
-    double ThetaWidth = (TMath::Pi() / 180.) * TMath::Cos(ThetaCentr);
+    double ThetaCentr = -center_pos.theta() + 0.5 * M_PI;
+    double ThetaWidth = (M_PI / 180.) * std::cos(ThetaCentr);
     double EtaCry = (Theta - ThetaCentr) / ThetaWidth;
     if (EtaCry > 0.5)
       EtaCry = 0.5;
@@ -151,7 +171,7 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) c
 
     //Fetching parameters of the polynomial (see  CMS IN-2009/013)
     double f[5];
-    int offset = TMath::Abs(ietamod20) == 5
+    int offset = std::abs(ietamod20) == 5
                      ? 0   //coefficients for eta side of an intermodule gap closer to the interaction point
                      : 5;  //coefficients for the other eta side
     for (int k = 0; k != 5; ++k)
@@ -169,7 +189,7 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) c
   return correction_factor;
 }
 
-float EcalClusterCrackCorrection::getValue(const reco::SuperCluster& superCluster, const int mode) const {
+float EcalClusterCrackCorrection::getValue(const reco::SuperCluster &superCluster, const int mode) const {
   checkInit();
 
   //********************************************************************************************************************//

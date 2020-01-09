@@ -30,7 +30,8 @@
 
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerSums>" />
-  <class name="l1t::HGCalCluster" ClassVersion="16">
+  <class name="l1t::HGCalCluster" ClassVersion="17">
+   <version ClassVersion="17" checksum="2841504063"/>
    <version ClassVersion="16" checksum="1572558185"/>
   <version ClassVersion="15" checksum="2522149132"/>
   <version ClassVersion="14" checksum="3289642235"/>
@@ -45,7 +46,8 @@
 
   <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
 
-  <class name="l1t::HGCalMulticluster" ClassVersion="17">
+  <class name="l1t::HGCalMulticluster" ClassVersion="18">
+   <version ClassVersion="18" checksum="3914904215"/>
    <version ClassVersion="17" checksum="460658789"/>
   <version ClassVersion="16" checksum="1276395758"/>
   <version ClassVersion="15" checksum="777879934"/>
@@ -69,7 +71,7 @@
   <class name="std::vector<l1t::HGCalTriggerCell>" />
   <class name="l1t::HGCalTriggerCellBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTriggerCellBxCollection>"/>
-  
+
   <class name="l1t::HGCalTriggerSums" ClassVersion="12">
    <version ClassVersion="12" checksum="1802885417"/>
     <version ClassVersion="11" checksum="4058188392"/>
@@ -102,5 +104,6 @@
   <class name="edm::Wrapper<edm::PtrVector<l1t::HGCalTowerMap>>"/>
 
   <class name="l1t::ClusterShapes"/>
+  <class name="std::map<l1t::HGCalMulticluster::EnergyInterpretation, double>"/>
 
 </lcgdict>

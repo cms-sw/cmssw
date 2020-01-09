@@ -241,21 +241,22 @@ hiDetachedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
     )
 
 
-hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepClusters*
-                                     hiDetachedTripletStepSeedLayers*
-                                     hiDetachedTripletStepTrackingRegions*
-                                     hiDetachedTripletStepTracksHitDoublets*  
-                                     hiDetachedTripletStepTracksHitTriplets* 
-                                     pixelFitterByHelixProjections*
-                                     hiDetachedTripletStepPixelTracksFilter*
-                                     hiDetachedTripletStepPixelTracks*
-                                     hiDetachedTripletStepSeeds*
-                                     hiDetachedTripletStepTrackCandidates*
-                                     hiDetachedTripletStepTracks*
-                                     hiDetachedTripletStepSelector*
+hiDetachedTripletStepTask = cms.Task(hiDetachedTripletStepClusters,
+                                     hiDetachedTripletStepSeedLayers,
+                                     hiDetachedTripletStepTrackingRegions,
+                                     hiDetachedTripletStepTracksHitDoublets,  
+                                     hiDetachedTripletStepTracksHitTriplets, 
+                                     pixelFitterByHelixProjections,
+                                     hiDetachedTripletStepPixelTracksFilter,
+                                     hiDetachedTripletStepPixelTracks,
+                                     hiDetachedTripletStepSeeds,
+                                     hiDetachedTripletStepTrackCandidates,
+                                     hiDetachedTripletStepTracks,
+                                     hiDetachedTripletStepSelector,
                                      hiDetachedTripletStepQual)
-hiDetachedTripletStep_Phase1 = hiDetachedTripletStep.copy()
-hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitDoublets, hiDetachedTripletStepTracksHitDoubletsCA)
-hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitTriplets, hiDetachedTripletStepTracksHitTripletsCA)
-trackingPhase1.toReplaceWith(hiDetachedTripletStep, hiDetachedTripletStep_Phase1)
+hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepTask)
+hiDetachedTripletStepTask_Phase1 = hiDetachedTripletStepTask.copy()
+hiDetachedTripletStepTask_Phase1.replace(hiDetachedTripletStepTracksHitDoublets, hiDetachedTripletStepTracksHitDoubletsCA)
+hiDetachedTripletStepTask_Phase1.replace(hiDetachedTripletStepTracksHitTriplets, hiDetachedTripletStepTracksHitTripletsCA)
+trackingPhase1.toReplaceWith(hiDetachedTripletStepTask, hiDetachedTripletStepTask_Phase1)
 

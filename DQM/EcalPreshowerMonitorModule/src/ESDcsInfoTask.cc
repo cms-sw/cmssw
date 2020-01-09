@@ -21,8 +21,6 @@ ESDcsInfoTask::ESDcsInfoTask(const ParameterSet& ps) {
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   dcsStatustoken_ = consumes<DcsStatusCollection>(ps.getParameter<InputTag>("DcsStatusLabel"));
@@ -49,10 +47,7 @@ void ESDcsInfoTask::beginJob(void) {
   }
 }
 
-void ESDcsInfoTask::endJob(void) {
-  if (enableCleanup_)
-    this->cleanup();
-}
+void ESDcsInfoTask::endJob(void) {}
 
 void ESDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) {
   this->reset();
@@ -68,18 +63,6 @@ void ESDcsInfoTask::reset(void) {
 
   if (meESDcsActiveMap_)
     meESDcsActiveMap_->Reset();
-}
-
-void ESDcsInfoTask::cleanup(void) {
-  if (dqmStore_) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-
-    if (meESDcsFraction_)
-      dqmStore_->removeElement(meESDcsFraction_->getName());
-
-    if (meESDcsActiveMap_)
-      dqmStore_->removeElement(meESDcsActiveMap_->getName());
-  }
 }
 
 void ESDcsInfoTask::analyze(const Event& e, const EventSetup& c) {

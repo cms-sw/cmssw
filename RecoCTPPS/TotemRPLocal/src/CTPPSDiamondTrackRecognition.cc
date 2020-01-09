@@ -26,10 +26,10 @@ void CTPPSDiamondTrackRecognition::clear() {
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSDiamondTrackRecognition::addHit(const CTPPSDiamondRecHit& recHit) {
-  if (excludeSingleEdgeHits_ && recHit.getToT() <= 0.)
+  if (excludeSingleEdgeHits_ && recHit.toT() <= 0.)
     return;
   // store hit parameters
-  hitVectorMap_[recHit.getOOTIndex()].emplace_back(recHit);
+  hitVectorMap_[recHit.ootIndex()].emplace_back(recHit);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -38,8 +38,8 @@ int CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTra
   int numberOfTracks = 0;
   DimensionParameters param;
 
-  auto getX = [](const CTPPSDiamondRecHit& hit) { return hit.getX(); };
-  auto getXWidth = [](const CTPPSDiamondRecHit& hit) { return hit.getXWidth(); };
+  auto getX = [](const CTPPSDiamondRecHit& hit) { return hit.x(); };
+  auto getXWidth = [](const CTPPSDiamondRecHit& hit) { return hit.xWidth(); };
   auto setX = [](CTPPSDiamondLocalTrack& track, float x) { track.setPosition(math::XYZPoint(x, 0., 0.)); };
   auto setXSigma = [](CTPPSDiamondLocalTrack& track, float sigma) {
     track.setPositionSigma(math::XYZPoint(sigma, 0., 0.));
@@ -68,8 +68,8 @@ int CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTra
     const float zSigma = 0.5f * (hitRange.zEnd - hitRange.zBegin);
 
     for (const auto& xTrack : xPartTracks) {
-      math::XYZPoint position(xTrack.getX0(), yRangeCenter, zRangeCenter);
-      math::XYZPoint positionSigma(xTrack.getX0Sigma(), ySigma, zSigma);
+      math::XYZPoint position(xTrack.x0(), yRangeCenter, zRangeCenter);
+      math::XYZPoint positionSigma(xTrack.x0Sigma(), ySigma, zSigma);
 
       const int multipleHits = (mhMap_.find(oot) != mhMap_.end()) ? mhMap_[oot] : 0;
       CTPPSDiamondLocalTrack newTrack(position, positionSigma, 0.f, 0.f, oot, multipleHits);
@@ -77,14 +77,14 @@ int CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTra
       // find contributing hits
       HitVector componentHits;
       for (const auto& hit : hits)
-        if (newTrack.containsHit(hit, tolerance_) && (!excludeSingleEdgeHits_ || hit.getToT() > 0.))
+        if (newTrack.containsHit(hit, tolerance_) && (!excludeSingleEdgeHits_ || hit.toT() > 0.))
           componentHits.emplace_back(hit);
       // compute timing information
       float mean_time = 0.f, time_sigma = 0.f;
       bool valid_hits = timeEval(componentHits, mean_time, time_sigma);
       newTrack.setValid(valid_hits);
-      newTrack.setT(mean_time);
-      newTrack.setTSigma(time_sigma);
+      newTrack.setTime(mean_time);
+      newTrack.setTimeSigma(time_sigma);
 
       tracks.push_back(newTrack);
     }

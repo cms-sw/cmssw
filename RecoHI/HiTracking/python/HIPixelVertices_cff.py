@@ -18,10 +18,11 @@ from RecoHI.HiTracking.HIPixelAdaptiveVertex_cfi import *
 # selection of best primary vertex
 from RecoHI.HiTracking.HIBestVertexSequences_cff import *
 
-hiPixelVertices = cms.Sequence(hiPixelClusterVertex
-                                * PixelLayerTriplets
-                                * hiPixel3ProtoTracksSequence
-                                * hiPixelMedianVertex 
-                                * hiSelectedProtoTracks 
-                                * hiPixelAdaptiveVertex
-                                * bestHiVertex )
+hiPixelVerticesTask = cms.Task(hiPixelClusterVertex
+                                , PixelLayerTriplets
+                                , hiPixel3ProtoTracksTask
+                                , hiPixelMedianVertex 
+                                , hiSelectedProtoTracks 
+                                , hiPixelAdaptiveVertex
+                                , bestHiVertexTask )
+hiPixelVertices = cms.Sequence(hiPixelVerticesTask)

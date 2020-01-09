@@ -2180,15 +2180,4 @@ namespace edm {
           << "The required ParameterSetVector '" << name << "' was not specified.\n";
     return result->vpset();
   }
-
-  //----------------------------------------------------------------------------------
-  ParameterSet::Bool operator&&(ParameterSet::Bool a, ParameterSet::Bool b) {
-    if (a == ParameterSet::False || b == ParameterSet::False) {
-      return ParameterSet::False;
-    } else if (a == ParameterSet::Unknown || b == ParameterSet::Unknown) {
-      return ParameterSet::Unknown;
-    }
-    return ParameterSet::True;
-  }
-
 }  // namespace edm

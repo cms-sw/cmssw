@@ -10,6 +10,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 
@@ -27,6 +28,8 @@ public:
                                bool &lockTracks) const;
 
   bool isPhotonSafeForJetMET(const reco::Photon &, const reco::PFCandidate &) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &iDesc);
 
 private:
   bool passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron &) const;

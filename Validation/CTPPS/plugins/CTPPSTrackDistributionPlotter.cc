@@ -103,22 +103,22 @@ void CTPPSTrackDistributionPlotter::analyze(const edm::Event& iEvent, const edm:
 
   // process tracks
   for (const auto& trk : *tracks) {
-    CTPPSDetId rpId(trk.getRPId());
+    CTPPSDetId rpId(trk.rpId());
     unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
-    rpPlots[rpDecId].fill(trk.getX(), trk.getY());
+    rpPlots[rpDecId].fill(trk.x(), trk.y());
   }
 
   for (const auto& t1 : *tracks) {
-    CTPPSDetId rpId1(t1.getRPId());
+    CTPPSDetId rpId1(t1.rpId());
 
     for (const auto& t2 : *tracks) {
-      CTPPSDetId rpId2(t2.getRPId());
+      CTPPSDetId rpId2(t2.rpId());
 
       if (rpId1.arm() != rpId2.arm())
         continue;
 
       if (rpId1.station() == 0 && rpId2.station() == 2)
-        armPlots[rpId1.arm()].fill(t1.getX(), t1.getY(), t2.getX(), t2.getY());
+        armPlots[rpId1.arm()].fill(t1.x(), t1.y(), t2.x(), t2.y());
     }
   }
 }

@@ -19,6 +19,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   scaleBySipmArea_ = cfg.getParameter<bool>("scaleBySipmArea");
   sipmMapFile_ = cfg.getParameter<std::string>("sipmMap");
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
+  unsigned int scaleByDoseAlgo = cfg.getParameter<edm::ParameterSet>("noise").getParameter<uint32_t>("scaleByDoseAlgo");
   doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
   thresholdFollowsMIP_ = cfg.getParameter<bool>("thresholdFollowsMIP");
@@ -29,7 +30,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   xTalk_ = cfg.getParameter<double>("xTalk");
   sdPixels_ = cfg.getParameter<double>("sdPixels");
 
-  scal_.setDoseMap(doseMapFile_);
+  scal_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
   scal_.setSipmMap(sipmMapFile_);
 }
 
@@ -173,8 +174,13 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
         LogDebug("HGCHEbackDigitizer") << "totalIniMIPs: " << totalIniMIPs << " totalMIPs: " << totalMIPs << std::endl;
       }
 
-      //store
+      //store charge
       chargeColl[i] = totalMIPs;
+
+      //update time of arrival
+      toa[i] = cell.hit_info[1][i];
+      if (myFEelectronics_->toaMode() == HGCFEElectronics<HGCalDataFrame>::WEIGHTEDBYE && totalIniMIPs > 0)
+        toa[i] = cell.hit_info[1][i] / totalIniMIPs;
     }
 
     //init a new data frame and run shaper

@@ -347,7 +347,7 @@ namespace edmtest {
                                                                      edm::EventSetup const&) const override {
         ++m_count;
         auto gCache = std::make_shared<UnsafeCache>();
-        ++(gCache->lumi);
+        gCache->lumi = iLB.luminosityBlockAuxiliary().luminosityBlock();
         return gCache;
       }
 
@@ -357,34 +357,107 @@ namespace edmtest {
       }
 
       void streamEndLuminosityBlockSummary(edm::StreamID iID,
-                                           edm::LuminosityBlock const&,
+                                           edm::LuminosityBlock const& iLB,
                                            edm::EventSetup const&,
                                            UnsafeCache* gCache) const override {
         ++m_count;
-        if (gCache->lumi == 0) {
-          throw cms::Exception("out of sequence")
-              << "streamEndLuminosityBlockSummary after globalEndLuminosityBlockSummary in Stream " << iID.value();
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+          throw cms::Exception("UnexpectedValue")
+              << "streamEndLuminosityBlockSummary unexpected lumi number in Stream " << iID.value();
         }
         auto sCache = streamCache(iID);
         gCache->value += sCache->value;
         sCache->value = 0;
       }
 
-      void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
+      void globalEndLuminosityBlockSummary(edm::LuminosityBlock const& iLB,
                                            edm::EventSetup const&,
                                            UnsafeCache* gCache) const override {
         ++m_count;
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+          throw cms::Exception("UnexpectedValue") << "globalEndLuminosityBlockSummary unexpected lumi number";
+        }
         if (gCache->value != cvalue_) {
           throw cms::Exception("cache value")
               << "LumiSummaryIntProducer cache value " << gCache->value << " but it was supposed to be " << cvalue_;
         }
-        --(gCache->lumi);
       }
 
       ~LumiSummaryIntProducer() {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "LumiSummaryIntProducer transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class LumiSummaryLumiProducer : public edm::global::EDProducer<edm::StreamCache<UnsafeCache>,
+                                                                   edm::LuminosityBlockSummaryCache<UnsafeCache>,
+                                                                   edm::EndLuminosityBlockProducer> {
+    public:
+      explicit LumiSummaryLumiProducer(edm::ParameterSet const& p)
+          : trans_(p.getParameter<int>("transitions")), cvalue_(p.getParameter<int>("cachevalue")) {
+        produces<unsigned int>();
+      }
+      const unsigned int trans_;
+      const unsigned int cvalue_;
+      mutable std::atomic<unsigned int> m_count{0};
+
+      std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override { return std::make_unique<UnsafeCache>(); }
+
+      std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const& iLB,
+                                                                     edm::EventSetup const&) const override {
+        ++m_count;
+        auto gCache = std::make_shared<UnsafeCache>();
+        gCache->lumi = iLB.luminosityBlockAuxiliary().luminosityBlock();
+        return gCache;
+      }
+
+      void produce(edm::StreamID iID, edm::Event&, edm::EventSetup const&) const override {
+        auto sCache = streamCache(iID);
+        ++(sCache->value);
+      }
+
+      void streamEndLuminosityBlockSummary(edm::StreamID iID,
+                                           edm::LuminosityBlock const& iLB,
+                                           edm::EventSetup const&,
+                                           UnsafeCache* gCache) const override {
+        ++m_count;
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+          throw cms::Exception("UnexpectedValue")
+              << "streamEndLuminosityBlockSummary unexpected lumi number in Stream " << iID.value();
+        }
+        auto sCache = streamCache(iID);
+        gCache->value += sCache->value;
+        sCache->value = 0;
+      }
+
+      void globalEndLuminosityBlockSummary(edm::LuminosityBlock const& iLB,
+                                           edm::EventSetup const&,
+                                           UnsafeCache* gCache) const override {
+        ++m_count;
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+          throw cms::Exception("UnexpectedValue") << "globalEndLuminosityBlockSummary unexpected lumi number";
+        }
+        if (gCache->value != cvalue_) {
+          throw cms::Exception("cache value")
+              << "LumiSummaryLumiProducer cache value " << gCache->value << " but it was supposed to be " << cvalue_;
+        }
+      }
+
+      void globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLB,
+                                           edm::EventSetup const&,
+                                           UnsafeCache const* gCache) const override {
+        ++m_count;
+        if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+          throw cms::Exception("UnexpectedValue") << "globalEndLuminosityBlockProduce unexpected lumi number";
+        }
+      }
+
+      ~LumiSummaryLumiProducer() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "LumiSummaryLumiProducer transitions " << m_count << " but it was supposed to be " << trans_;
         }
       }
     };
@@ -560,6 +633,7 @@ DEFINE_FWK_MODULE(edmtest::global::RunIntProducer);
 DEFINE_FWK_MODULE(edmtest::global::LumiIntProducer);
 DEFINE_FWK_MODULE(edmtest::global::RunSummaryIntProducer);
 DEFINE_FWK_MODULE(edmtest::global::LumiSummaryIntProducer);
+DEFINE_FWK_MODULE(edmtest::global::LumiSummaryLumiProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestEndRunProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestBeginLumiBlockProducer);

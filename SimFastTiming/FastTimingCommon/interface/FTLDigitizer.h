@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -48,8 +49,8 @@ namespace ftl_digitizer {
   template <class SensorPhysics, class ElectronicsSim>
   class FTLDigitizer : public FTLDigitizerBase {
   public:
-    FTLDigitizer(const edm::ParameterSet& config, edm::ConsumesCollector& iC, edm::ProducerBase& parent)
-        : FTLDigitizerBase(config, iC, parent),
+    FTLDigitizer(const edm::ParameterSet& config, edm::ProducesCollector producesCollector, edm::ConsumesCollector& iC)
+        : FTLDigitizerBase(config, producesCollector, iC),
           deviceSim_(config.getParameterSet("DeviceSimulation")),
           electronicsSim_(config.getParameterSet("ElectronicsSimulation")),
           maxSimHitsAccTime_(config.getParameter<uint32_t>("maxSimHitsAccTime")),

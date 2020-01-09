@@ -1,5 +1,3 @@
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
-
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
@@ -47,7 +45,7 @@ namespace l1t {
       return res;
     }
 
-    void GTSetup::registerProducts(edm::stream::EDProducerBase& prod) {
+    void GTSetup::registerProducts(edm::ProducesCollector prod) {
       prod.produces<MuonBxCollection>("Muon");
       prod.produces<EGammaBxCollection>("EGamma");
       prod.produces<EtSumBxCollection>("EtSum");

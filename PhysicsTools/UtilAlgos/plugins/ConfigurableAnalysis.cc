@@ -108,7 +108,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) {
 
   //ntupler needs to register its products
   if (ntupler_)
-    ntupler_->registerleaves(this);
+    ntupler_->registerleaves(producesCollector());
 }
 
 //

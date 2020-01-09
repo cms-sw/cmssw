@@ -118,7 +118,7 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator()(const doub
   double s2 = 0.;
 
   for (const auto &track : *tracks) {
-    const CTPPSDetId rpId(track->getRPId());
+    const CTPPSDetId rpId(track->rpId());
 
     // transport proton to the RP
     auto oit = m_rp_optics->find(rpId);
@@ -130,8 +130,8 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator()(const doub
     const double y = k_out.y - oit->second.y0;
 
     // calculate chi^2 contributions, convert track data mm --> cm
-    const double x_diff_norm = (x - track->getX() * 1E-1) / (track->getXUnc() * 1E-1);
-    const double y_diff_norm = (y - track->getY() * 1E-1) / (track->getYUnc() * 1E-1);
+    const double x_diff_norm = (x - track->x() * 1E-1) / (track->xUnc() * 1E-1);
+    const double y_diff_norm = (y - track->y() * 1E-1) / (track->yUnc() * 1E-1);
 
     // increase chi^2
     s2 += x_diff_norm * x_diff_norm + y_diff_norm * y_diff_norm;
@@ -147,21 +147,21 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
                                                                           std::ostream &os) const {
   // make sure optics is available for all tracks
   for (const auto &it : tracks) {
-    auto oit = m_rp_optics_.find(it->getRPId());
+    auto oit = m_rp_optics_.find(it->rpId());
     if (oit == m_rp_optics_.end())
       throw cms::Exception("ProtonReconstructionAlgorithm")
-          << "Optics data not available for RP " << it->getRPId() << ", i.e. " << CTPPSDetId(it->getRPId()) << ".";
+          << "Optics data not available for RP " << it->rpId() << ", i.e. " << CTPPSDetId(it->rpId()) << ".";
   }
 
   // initial estimate of xi and th_x
   double xi_init = 0., th_x_init = 0.;
 
   if (useImprovedInitialEstimate_) {
-    double x_N = tracks[0]->getX() * 1E-1,  // conversion: mm --> cm
-        x_F = tracks[1]->getX() * 1E-1;
+    double x_N = tracks[0]->x() * 1E-1,  // conversion: mm --> cm
+        x_F = tracks[1]->x() * 1E-1;
 
-    const RPOpticsData &i_N = m_rp_optics_.find(tracks[0]->getRPId())->second,
-                       &i_F = m_rp_optics_.find(tracks[1]->getRPId())->second;
+    const RPOpticsData &i_N = m_rp_optics_.find(tracks[0]->rpId())->second,
+                       &i_F = m_rp_optics_.find(tracks[1]->rpId())->second;
 
     const double a = i_F.ch1 * i_N.la1 - i_N.ch1 * i_F.la1;
     const double b =
@@ -175,8 +175,8 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
   } else {
     double s_xi0 = 0., s_1 = 0.;
     for (const auto &track : tracks) {
-      auto oit = m_rp_optics_.find(track->getRPId());
-      double xi = oit->second.s_xi_vs_x_d->Eval(track->getX() * 1E-1 + oit->second.x0);  // conversion: mm --> cm
+      auto oit = m_rp_optics_.find(track->rpId());
+      double xi = oit->second.s_xi_vs_x_d->Eval(track->x() * 1E-1 + oit->second.x0);  // conversion: mm --> cm
 
       s_1 += 1.;
       s_xi0 += xi;
@@ -197,9 +197,9 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
     if (y_idx >= 2)
       break;
 
-    auto oit = m_rp_optics_.find(track->getRPId());
+    auto oit = m_rp_optics_.find(track->rpId());
 
-    y[y_idx] = track->getY() * 1E-1 - oit->second.s_y_d_vs_xi->Eval(xi_init);  // track y: mm --> cm
+    y[y_idx] = track->y() * 1E-1 - oit->second.s_y_d_vs_xi->Eval(xi_init);  // track y: mm --> cm
     v_y[y_idx] = oit->second.s_v_y_vs_xi->Eval(xi_init);
     L_y[y_idx] = oit->second.s_L_y_vs_xi->Eval(xi_init);
 
@@ -223,7 +223,7 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
   if (!std::isfinite(th_y_init))
     th_y_init = 0.;
 
-  unsigned int armId = CTPPSDetId((*tracks.begin())->getRPId()).arm();
+  unsigned int armId = CTPPSDetId((*tracks.begin())->rpId()).arm();
 
   if (verbosity_)
     os << "ProtonReconstructionAlgorithm::reconstructFromMultiRP(" << armId << ")" << std::endl
@@ -297,30 +297,30 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
 reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromSingleRP(const CTPPSLocalTrackLiteRef &track,
                                                                            const LHCInfo &lhcInfo,
                                                                            std::ostream &os) const {
-  CTPPSDetId rpId(track->getRPId());
+  CTPPSDetId rpId(track->rpId());
 
   if (verbosity_)
     os << "reconstructFromSingleRP(" << rpId.arm() * 100 + rpId.station() * 10 + rpId.rp() << ")" << std::endl;
 
   // make sure optics is available for the track
-  auto oit = m_rp_optics_.find(track->getRPId());
+  auto oit = m_rp_optics_.find(track->rpId());
   if (oit == m_rp_optics_.end())
     throw cms::Exception("ProtonReconstructionAlgorithm")
-        << "Optics data not available for RP " << track->getRPId() << ", i.e. " << rpId << ".";
+        << "Optics data not available for RP " << track->rpId() << ", i.e. " << rpId << ".";
 
   // rough estimate of xi and th_y from each track
-  const double x_full = track->getX() * 1E-1 + oit->second.x0;  // conversion mm --> cm
+  const double x_full = track->x() * 1E-1 + oit->second.x0;  // conversion mm --> cm
   const double xi = oit->second.s_xi_vs_x_d->Eval(x_full);
   const double L_y = oit->second.s_L_y_vs_xi->Eval(xi);
-  const double th_y = track->getY() * 1E-1 / L_y;  // conversion mm --> cm
+  const double th_y = track->y() * 1E-1 / L_y;  // conversion mm --> cm
 
   const double ep_x = 1E-6;
   const double dxi_dx = (oit->second.s_xi_vs_x_d->Eval(x_full + ep_x) - xi) / ep_x;
-  const double xi_unc = abs(dxi_dx) * track->getXUnc() * 1E-1;  // conversion mm --> cm
+  const double xi_unc = abs(dxi_dx) * track->xUnc() * 1E-1;  // conversion mm --> cm
 
   const double ep_xi = 1E-4;
   const double dL_y_dxi = (oit->second.s_L_y_vs_xi->Eval(xi + ep_xi) - L_y) / ep_xi;
-  const double th_y_unc = th_y * sqrt(pow(track->getYUnc() / track->getY(), 2.) + pow(dL_y_dxi * xi_unc / L_y, 2.));
+  const double th_y_unc = th_y * sqrt(pow(track->yUnc() / track->y(), 2.) + pow(dL_y_dxi * xi_unc / L_y, 2.));
 
   if (verbosity_)
     os << "    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << "." << std::endl;
@@ -328,7 +328,7 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromSingleRP(const
   using FP = reco::ForwardProton;
 
   // save proton candidate
-  const double sign_z = (CTPPSDetId(track->getRPId()).arm() == 0) ? +1. : -1.;  // CMS convention
+  const double sign_z = (CTPPSDetId(track->rpId()).arm() == 0) ? +1. : -1.;  // CMS convention
   const FP::Point vertex(0., 0., 0.);
   const double cos_th = sqrt(1. - th_y * th_y);
   const double p = lhcInfo.energy() * (1. - xi);

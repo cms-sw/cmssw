@@ -1,14 +1,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimFastTiming/FastTimingCommon/plugins/FTLDigiProducer.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 //
-FTLDigiProducer::FTLDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC)
+FTLDigiProducer::FTLDigiProducer(edm::ParameterSet const& pset,
+                                 edm::ProducesCollector producesCollector,
+                                 edm::ConsumesCollector& iC)
     : DigiAccumulatorMixMod() {
   std::vector<std::string> psetNames;
 
@@ -17,7 +19,7 @@ FTLDigiProducer::FTLDigiProducer(edm::ParameterSet const& pset, edm::ProducerBas
   for (const auto& psname : psetNames) {
     const auto& ps = pset.getParameterSet(psname);
     const std::string& digitizerName = ps.getParameter<std::string>("digitizerName");
-    theDigitizers_.emplace_back(FTLDigitizerFactory::get()->create(digitizerName, ps, iC, mixMod));
+    theDigitizers_.emplace_back(FTLDigitizerFactory::get()->create(digitizerName, ps, producesCollector, iC));
   }
 }
 

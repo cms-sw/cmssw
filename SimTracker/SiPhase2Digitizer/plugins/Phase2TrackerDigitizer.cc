@@ -77,7 +77,7 @@
 namespace cms {
 
   Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig,
-                                                 edm::ProducerBase& mixMod,
+                                                 edm::ProducesCollector producesCollector,
                                                  edm::ConsumesCollector& iC)
       : first_(true),
         hitsProducer_(iConfig.getParameter<std::string>("hitsProducer")),
@@ -89,9 +89,9 @@ namespace cms {
             iConfig.getParameter<edm::ParameterSet>("AlgorithmCommon").getUntrackedParameter<bool>("makeDigiSimLinks")) {
     //edm::LogInfo("Phase2TrackerDigitizer") << "Initialize Digitizer Algorithms";
     const std::string alias1("simSiPixelDigis");
-    mixMod.produces<edm::DetSetVector<PixelDigi> >("Pixel").setBranchAlias(alias1);
+    producesCollector.produces<edm::DetSetVector<PixelDigi> >("Pixel").setBranchAlias(alias1);
     if (makeDigiSimLinks_) {
-      mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Pixel").setBranchAlias(alias1);
+      producesCollector.produces<edm::DetSetVector<PixelDigiSimLink> >("Pixel").setBranchAlias(alias1);
     }
 
     if (!iConfig.getParameter<bool>("isOTreadoutAnalog")) {
@@ -99,12 +99,12 @@ namespace cms {
       if (premixStage1_) {
         // Premixing exploits the ADC field of PixelDigi to store the collected charge
         // But we still want everything else to be treated like for Phase2TrackerDigi
-        mixMod.produces<edm::DetSetVector<PixelDigi> >("Tracker").setBranchAlias(alias2);
+        producesCollector.produces<edm::DetSetVector<PixelDigi> >("Tracker").setBranchAlias(alias2);
       } else {
-        mixMod.produces<edm::DetSetVector<Phase2TrackerDigi> >("Tracker").setBranchAlias(alias2);
+        producesCollector.produces<edm::DetSetVector<Phase2TrackerDigi> >("Tracker").setBranchAlias(alias2);
       }
       if (makeDigiSimLinks_) {
-        mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Tracker").setBranchAlias(alias2);
+        producesCollector.produces<edm::DetSetVector<PixelDigiSimLink> >("Tracker").setBranchAlias(alias2);
       }
     }
     // creating algorithm objects and pushing them into the map

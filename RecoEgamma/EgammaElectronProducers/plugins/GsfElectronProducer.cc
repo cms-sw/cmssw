@@ -108,10 +108,10 @@ void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection& electrons, e
 
   //Fill in the Isolation Value Maps for PF and EcalDriven electrons
   std::vector<edm::InputTag> inputTagIsoVals;
-  if (!inputCfg_.pfIsoVals.empty()) {
-    inputTagIsoVals.push_back(inputCfg_.pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt"));
-    inputTagIsoVals.push_back(inputCfg_.pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt"));
-    inputTagIsoVals.push_back(inputCfg_.pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt"));
+  if (!pfIsoVals_.empty()) {
+    inputTagIsoVals.push_back(pfIsoVals_.getParameter<edm::InputTag>("pfSumChargedHadronPt"));
+    inputTagIsoVals.push_back(pfIsoVals_.getParameter<edm::InputTag>("pfSumPhotonEt"));
+    inputTagIsoVals.push_back(pfIsoVals_.getParameter<edm::InputTag>("pfSumNeutralHadronEt"));
 
     pfIsolationValues.resize(inputTagIsoVals.size());
 
@@ -120,11 +120,11 @@ void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection& electrons, e
     }
   }
 
-  if (!inputCfg_.edIsoVals.empty()) {
+  if (!edIsoVals_.empty()) {
     inputTagIsoVals.clear();
-    inputTagIsoVals.push_back(inputCfg_.edIsoVals.getParameter<edm::InputTag>("edSumChargedHadronPt"));
-    inputTagIsoVals.push_back(inputCfg_.edIsoVals.getParameter<edm::InputTag>("edSumPhotonEt"));
-    inputTagIsoVals.push_back(inputCfg_.edIsoVals.getParameter<edm::InputTag>("edSumNeutralHadronEt"));
+    inputTagIsoVals.push_back(edIsoVals_.getParameter<edm::InputTag>("edSumChargedHadronPt"));
+    inputTagIsoVals.push_back(edIsoVals_.getParameter<edm::InputTag>("edSumPhotonEt"));
+    inputTagIsoVals.push_back(edIsoVals_.getParameter<edm::InputTag>("edSumNeutralHadronEt"));
 
     edIsolationValues.resize(inputTagIsoVals.size());
 

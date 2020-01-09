@@ -531,20 +531,22 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
   TGeoMaterial* mat = mgr.GetMaterial(nam.c_str());
   if (nullptr == mat) {
     const char* matname = nam.c_str();
-    double density = xmat.density();
+    double density = xmat.attr<double>(DD_CMU(density)) / (dd4hep::g / dd4hep::cm3);
     int atomicNumber = xmat.attr<int>(DD_CMU(atomicNumber));
-    double atomicWeight = xmat.attr<double>(DD_CMU(atomicWeight));
+    double atomicWeight = xmat.attr<double>(DD_CMU(atomicWeight)) / (dd4hep::g / dd4hep::mole);
     TGeoElementTable* tab = mgr.GetElementTable();
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), 1, density);
     TGeoElement* elt = tab->FindElement(xmat.nameStr().c_str());
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
              "DD4CMS",
-             "+++ Converting material %-48s  Atomic weight %.3f, Atomic number %u, Density: %.3f.",
+             "+++ Converting material %-48s  Atomic weight %8.3f   [g/mol], Atomic number %u, Density: %8.3f [g/cm3] "
+             "ROOT: %8.3f [g/cm3]",
              ('"' + nam + '"').c_str(),
              atomicWeight,
              atomicNumber,
-             density);
+             density,
+             mix->GetDensity());
 
     bool newMatDef = false;
 
@@ -554,10 +556,10 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
                "DD4CMS",
                "    ROOT definition of %-50s Atomic weight %.3f, Atomic number %u, Number of nucleons %u",
                elt->GetName(),
-               (elt->A()) * g / mole,
+               (elt->A()),
                elt->Z(),
                elt->N());
-      if (atomicNumber != elt->Z() || atomicWeight != (elt->A()) * g / mole)
+      if (atomicNumber != elt->Z() || atomicWeight != elt->A())
         newMatDef = true;
     }
 
@@ -595,19 +597,21 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   xml_dim_t xmat(element);
   string nam = ns.prepend(xmat.nameStr());
+
   TGeoManager& mgr = description.manager();
   TGeoMaterial* mat = mgr.GetMaterial(nam.c_str());
   if (nullptr == mat) {
     const char* matname = nam.c_str();
-    double density = xmat.density();
+    double density = xmat.attr<double>(DD_CMU(density)) / (dd4hep::g / dd4hep::cm3);
     xml_coll_t composites(xmat, DD_CMU(MaterialFraction));
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), composites.size(), density);
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
              "DD4CMS",
-             "++ Converting material %-48s  Density: %.3f.",
+             "++ Converting material %-48s  Density: %8.3f [g/cm3] ROOT: %8.3f [g/cm3]",
              ('"' + nam + '"').c_str(),
-             density);
+             density,
+             mix->GetDensity());
 
     for (composites.reset(); composites; ++composites) {
       xml_dim_t xfrac(composites);
@@ -1674,6 +1678,10 @@ namespace {
 
     for_each_token(cbegin(str), cend(str), cbegin(delims), cend(delims), [&output](auto first, auto second) {
       if (first != second) {
+        if (string(first, second).front() == '[' && string(first, second).back() == ']') {
+          first++;
+          second--;
+        }
         output.emplace_back(dd4hep::_toDouble(string(first, second)));
       }
     });
@@ -1858,9 +1866,10 @@ static long load_dddefinition(Detector& det, xml_h element) {
       // Resolve referenced materials (if any)
 
       while (!context.unresolvedMaterials.empty()) {
-        for (auto& it : context.unresolvedMaterials) {
-          auto const& name = it.first;
+        for (auto it = context.unresolvedMaterials.begin(); it != context.unresolvedMaterials.end();) {
+          auto const& name = it->first;
           std::vector<bool> valid;
+
           printout(context.debug_materials ? ALWAYS : DEBUG,
                    "DD4CMS",
                    "+++ [%06ld] ----------  %s",
@@ -1868,7 +1877,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
                    name.c_str());
 
           auto mat = ns.material(name);
-          for (auto& mit : it.second) {
+          for (auto& mit : it->second) {
             printout(context.debug_materials ? ALWAYS : DEBUG,
                      "DD4CMS",
                      "+++           component  %-48s Fraction: %.6f",
@@ -1883,8 +1892,10 @@ static long load_dddefinition(Detector& det, xml_h element) {
             }
           }
           // All components are resolved
-          if (valid.size() == it.second.size())
-            context.unresolvedMaterials.erase(name);
+          if (valid.size() == it->second.size())
+            it = context.unresolvedMaterials.erase(it);
+          else
+            ++it;
         }
         // Do it again if there are unresolved
         // materials left after this pass
@@ -1934,21 +1945,23 @@ static long load_dddefinition(Detector& det, xml_h element) {
       // component shapes
 
       while (!context.unresolvedShapes.empty()) {
-        for (auto& it : context.unresolvedShapes) {
-          auto const& name = it.first;
-          auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName; }, it.second);
-          auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName; }, it.second);
+        for (auto it = context.unresolvedShapes.begin(); it != context.unresolvedShapes.end();) {
+          auto const& name = it->first;
+          auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName; }, it->second);
+          auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName; }, it->second);
 
           auto const& ait = context.shapes.find(aname);
           if (ait->second.isValid()) {
             auto const& bit = context.shapes.find(bname);
             if (bit->second.isValid()) {
               dd4hep::Solid shape = std::visit(
-                  [&ait, &bit](auto&& arg) -> dd4hep::Solid { return arg.make(ait->second, bit->second); }, it.second);
+                  [&ait, &bit](auto&& arg) -> dd4hep::Solid { return arg.make(ait->second, bit->second); }, it->second);
               context.shapes[name] = shape;
-              context.unresolvedShapes.erase(name);
-            }
-          }
+              it = context.unresolvedShapes.erase(it);
+            } else
+              ++it;
+          } else
+            ++it;
         }
       }
     }

@@ -1,19 +1,18 @@
 #include "FastSimulation/Tracking/plugins/RecoTrackAccumulator.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf,
-                                           edm::ProducerBase& mixMod,
+                                           edm::ProducesCollector producesCollector,
                                            edm::ConsumesCollector& iC)
     : signalTracksTag(conf.getParameter<edm::InputTag>("signalTracks")),
       pileUpTracksTag(conf.getParameter<edm::InputTag>("pileUpTracks")),
       outputLabel(conf.getParameter<std::string>("outputLabel")) {
-  mixMod.produces<reco::TrackCollection>(outputLabel);
-  mixMod.produces<TrackingRecHitCollection>(outputLabel);
-  mixMod.produces<reco::TrackExtraCollection>(outputLabel);
+  producesCollector.produces<reco::TrackCollection>(outputLabel);
+  producesCollector.produces<TrackingRecHitCollection>(outputLabel);
+  producesCollector.produces<reco::TrackExtraCollection>(outputLabel);
 
   iC.consumes<reco::TrackCollection>(signalTracksTag);
   iC.consumes<TrackingRecHitCollection>(signalTracksTag);

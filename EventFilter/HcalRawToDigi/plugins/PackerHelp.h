@@ -114,7 +114,9 @@ namespace QIE10HeaderSpec {
   static const int MASK_HEADER_BIT = 0x1;
 }  // namespace QIE10HeaderSpec
 
-namespace QIE11HeaderSpec {
+// QIE11 specifications for various flavors
+
+namespace QIE11HeaderSpec0 {
   static const int OFFSET_FIBERCHAN = 0;
   static const int MASK_FIBERCHAN = 0x7;
   static const int OFFSET_FIBER = 3;
@@ -127,7 +129,22 @@ namespace QIE11HeaderSpec {
   static const int MASK_FLAVOR = 0x7;
   static const int OFFSET_HEADER_BIT = 15;
   static const int MASK_HEADER_BIT = 0x1;
-}  // namespace QIE11HeaderSpec
+}  // namespace QIE11HeaderSpec0
+
+namespace QIE11HeaderSpec3 {
+  static const int OFFSET_FIBERCHAN = 0;
+  static const int MASK_FIBERCHAN = 0x7;
+  static const int OFFSET_FIBER = 3;
+  static const int MASK_FIBER = 0x1F;
+  static const int OFFSET_MP = 8;
+  static const int MASK_MP = 0x1;
+  static const int OFFSET_LINKERROR = 11;
+  static const int MASK_LINKERROR = 0x1;
+  static const int OFFSET_FLAVOR = 12;
+  static const int MASK_FLAVOR = 0x7;
+  static const int OFFSET_HEADER_BIT = 15;
+  static const int MASK_HEADER_BIT = 0x1;
+}  // namespace QIE11HeaderSpec3
 
 namespace TPHeaderSpec {
   static const int OFFSET_TOWER = 0;
@@ -334,14 +351,14 @@ public:
 
     int fiber = eid.fiberIndex() + 1;
     int fiberchan = eid.fiberChanId();
-    int fiberErr = qieSample.er();
-    int capid0 = qieSample.capid();
 
     header |= (fiberchan & QIE8HeaderSpec::MASK_FIBERCHAN) << QIE8HeaderSpec::OFFSET_FIBERCHAN;
     header |= ((fiber - 1) & QIE8HeaderSpec::MASK_FIBER) << QIE8HeaderSpec::OFFSET_FIBER;
     if (flavor == 7) {
       header |= (15 & QIE8HeaderSpec::MASK_TECHNICAL_DATA_TYPE) << QIE8HeaderSpec::OFFSET_TECHNICAL_DATA_TYPE;
     } else {
+      int fiberErr = qieSample.er();
+      int capid0 = qieSample.capid();
       header |= (capid0 & QIE8HeaderSpec::MASK_CAPID) << QIE8HeaderSpec::OFFSET_CAPID;
       header |= (fiberErr & QIE8HeaderSpec::MASK_FIBERERR) << QIE8HeaderSpec::OFFSET_FIBERERR;
     }
@@ -401,14 +418,24 @@ public:
 
     int fiber = eid.fiberIndex();
     int fiberchan = eid.fiberChanId();
-    int capid0 = qiedf.samples() == 0 ? 0 : qiedf[0].capid();  // capacitor id for the first sample
+    int flavor = qiedf[0].flavor();
 
-    header |= (fiberchan & QIE11HeaderSpec::MASK_FIBERCHAN) << QIE11HeaderSpec::OFFSET_FIBERCHAN;
-    header |= (fiber & QIE11HeaderSpec::MASK_FIBER) << QIE11HeaderSpec::OFFSET_FIBER;
-    header |= (capid0 & QIE11HeaderSpec::MASK_CAPID) << QIE11HeaderSpec::OFFSET_CAPID;
-    header |= (0x0 & QIE11HeaderSpec::MASK_FIBERERR) << QIE11HeaderSpec::OFFSET_FIBERERR;
-    header |= (0x0 & QIE11HeaderSpec::MASK_FLAVOR) << QIE11HeaderSpec::OFFSET_FLAVOR;  //flavor
-    header |= (0x1 & QIE11HeaderSpec::MASK_HEADER_BIT) << QIE11HeaderSpec::OFFSET_HEADER_BIT;
+    if (flavor == 3) {
+      header |= (fiberchan & QIE11HeaderSpec3::MASK_FIBERCHAN) << QIE11HeaderSpec3::OFFSET_FIBERCHAN;
+      header |= (fiber & QIE11HeaderSpec3::MASK_FIBER) << QIE11HeaderSpec3::OFFSET_FIBER;
+      header |= (0x0 & QIE11HeaderSpec3::MASK_MP) << QIE11HeaderSpec3::OFFSET_MP;
+      header |= (0x0 & QIE11HeaderSpec3::MASK_LINKERROR) << QIE11HeaderSpec3::OFFSET_LINKERROR;
+      header |= (flavor & QIE11HeaderSpec3::MASK_FLAVOR) << QIE11HeaderSpec3::OFFSET_FLAVOR;  //flavor
+      header |= (0x1 & QIE11HeaderSpec3::MASK_HEADER_BIT) << QIE11HeaderSpec3::OFFSET_HEADER_BIT;
+    } else {
+      int capid0 = qiedf[0].capid();
+      header |= (fiberchan & QIE11HeaderSpec0::MASK_FIBERCHAN) << QIE11HeaderSpec0::OFFSET_FIBERCHAN;
+      header |= (fiber & QIE11HeaderSpec0::MASK_FIBER) << QIE11HeaderSpec0::OFFSET_FIBER;
+      header |= (capid0 & QIE11HeaderSpec0::MASK_CAPID) << QIE11HeaderSpec0::OFFSET_CAPID;
+      header |= (0x0 & QIE11HeaderSpec0::MASK_FIBERERR) << QIE11HeaderSpec0::OFFSET_FIBERERR;
+      header |= (flavor & QIE11HeaderSpec0::MASK_FLAVOR) << QIE11HeaderSpec0::OFFSET_FLAVOR;  //flavor
+      header |= (0x1 & QIE11HeaderSpec0::MASK_HEADER_BIT) << QIE11HeaderSpec0::OFFSET_HEADER_BIT;
+    }
 
     return header;
   }
@@ -586,5 +613,45 @@ public:
     }  // end loop over dataframe words
   };
 };
+
+// converts HE QIE digies to HB data format
+
+QIE11DataFrame convertHB(QIE11DataFrame qiehe) {
+  QIE11DataFrame qiehb = qiehe;
+  int adc, tdc;
+  bool soi;
+  int is = 0;
+
+  //  flavor for HB digies is hardcoded here
+  static const int hbflavor = 3;
+
+  //  iterator over samples
+  for (edm::DataFrame::const_iterator it = qiehe.begin(); it != qiehe.end(); ++it) {
+    if (it == qiehe.begin())
+      continue;
+    adc = qiehe[is].adc();
+    tdc = qiehe[is].tdc();
+    soi = qiehe[is].soi();
+
+    if (tdc >= 0 && tdc <= 24)
+      tdc = 0;
+    else if (tdc >= 25 && tdc <= 49)
+      tdc = 1;
+    else if (tdc == 63)
+      tdc = 2;
+    else if (tdc == 62)
+      tdc = 3;
+
+    qiehb.setSample(is, adc, tdc, soi);
+    is++;
+  };
+
+  // puting flavor is safe here because flavor is stored in the same bits for all flavors
+  qiehb.setFlavor(hbflavor);
+  int capid = qiehe[0].capid();
+  qiehb.setCapid0(capid);
+
+  return qiehb;
+}
 
 #endif

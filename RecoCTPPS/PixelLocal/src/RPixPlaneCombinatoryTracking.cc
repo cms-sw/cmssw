@@ -188,7 +188,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
           << "Number of combinations of trackMinNumberOfPoints_ planes " << mapOfAllMinRequiredPoint.size();
     for (const auto &pointsAndRef : mapOfAllMinRequiredPoint) {
       CTPPSPixelLocalTrack tmpTrack = fitTrack(pointsAndRef.second);
-      double tmpChiSquaredOverNDF = tmpTrack.getChiSquaredOverNDF();
+      double tmpChiSquaredOverNDF = tmpTrack.chiSquaredOverNDF();
       if (verbosity_ >= 2)
         edm::LogInfo("RPixPlaneCombinatoryTracking") << "ChiSquare of the present track " << tmpChiSquaredOverNDF;
       if (!tmpTrack.isValid() || tmpChiSquaredOverNDF > maximumChi2OverNDF_ || tmpChiSquaredOverNDF == 0.)
@@ -259,7 +259,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
       if (foundTrackWithCurrentNumberOfPlanes && tmpNumberOfPlanes < currentNumberOfPlanes)
         break;
       CTPPSPixelLocalTrack tmpTrack = fitTrack(pointsAndRef.second);
-      double tmpChiSquaredOverNDF = tmpTrack.getChiSquaredOverNDF();
+      double tmpChiSquaredOverNDF = tmpTrack.chiSquaredOverNDF();
       if (!tmpTrack.isValid() || tmpChiSquaredOverNDF > maximumChi2OverNDF_ || tmpChiSquaredOverNDF == 0.)
         continue;  //validity check
       if (tmpChiSquaredOverNDF < theMinChiSquaredOverNDF) {
@@ -272,7 +272,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     }
 
     if (verbosity_ >= 1)
-      edm::LogInfo("RPixPlaneCombinatoryTracking") << "The best track has " << bestTrack.getNDF() / 2 + 2;
+      edm::LogInfo("RPixPlaneCombinatoryTracking") << "The best track has " << bestTrack.ndf() / 2 + 2;
 
     std::vector<uint32_t> listOfPlaneNotUsedForFit = listOfAllPlanes_;
     //remove the hits belonging to the tracks from the full list of hits
@@ -310,7 +310,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
         math::Vector<3>::type maxGlobalPointDistance(
             maximumXLocalDistanceFromTrack_, maximumYLocalDistanceFromTrack_, 0.);
 
-        DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(tmpPlaneId)->rotation();
+        DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->sensor(tmpPlaneId)->rotation();
         AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
         theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0),
                                         tmpPlaneRotationMatrixMap(0, 1),
@@ -358,11 +358,11 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     int pointOnTrack = 0;
 
     if (verbosity_ >= 1) {
-      for (const auto &planeHits : bestTrack.getHits()) {
+      for (const auto &planeHits : bestTrack.hits()) {
         for (const auto &fittedhit : planeHits) {
-          if (fittedhit.getIsUsedForFit())
+          if (fittedhit.isUsedForFit())
             ++pointForTracking;
-          if (fittedhit.getIsRealHit())
+          if (fittedhit.isRealHit())
             ++pointOnTrack;
         }
       }
@@ -441,13 +441,13 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     unsigned short bxNonShiftedPlanesUsed = 0;
     unsigned short hitInShiftedROC = 0;
 
-    auto const &fittedHits = track.getHits();
+    auto const &fittedHits = track.hits();
     auto const &planeFlags = (shiftStatusInitialRun->second).at(romanPotId_);
 
     for (const auto &planeHits : fittedHits) {
       unsigned short plane = CTPPSPixelDetId(planeHits.detId()).plane();
       for (const auto &hit : planeHits) {
-        if (hit.getIsUsedForFit()) {
+        if (hit.isUsedForFit()) {
           if (pixelIndices.getROCId(hit.minPixelCol(), hit.minPixelRow()) == shiftedROC)
             hitInShiftedROC++;  // Count how many hits are in the shifted ROC
           if (planeFlags.at(plane))
@@ -482,7 +482,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
                                                            << "More than six points found for a track, skipping.";
       continue;
     }
-    if (track.getRecoInfo() == CTPPSpixelLocalTrackReconstructionInfo::invalid) {
+    if (track.recoInfo() == CTPPSpixelLocalTrackReconstructionInfo::invalid) {
       throw cms::Exception("RPixPlaneCombinatoryTracking") << "Error in RPixPlaneCombinatoryTracking::findTracks -> "
                                                            << "recoInfo has not been set properly.";
     }
@@ -493,7 +493,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
           << "\nFirst run with this bx-shift configuration: " << shiftStatusInitialRun->first
           << "\nTrack reconstructed with: " << bxShiftedPlanesUsed << " bx-shifted planes, " << bxNonShiftedPlanesUsed
           << " non-bx-shifted planes, " << hitInShiftedROC << " hits in the bx-shifted ROC"
-          << "\nrecoInfo = " << (unsigned short)track.getRecoInfo();
+          << "\nrecoInfo = " << (unsigned short)track.recoInfo();
       if (planeFlags != std::vector<bool>(6, false))
         edm::LogInfo("RPixPlaneCombinatoryTracking") << "The shifted ROC is ROC" << shiftedROC;
     }
@@ -594,11 +594,11 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack *track,
                                                             CTPPSPixelDetId planeId,
                                                             GlobalPoint &planeLineIntercept) {
-  double z0 = track->getZ0();
-  CTPPSPixelLocalTrack::ParameterVector parameters = track->getParameterVector();
+  double z0 = track->z0();
+  CTPPSPixelLocalTrack::ParameterVector parameters = track->parameterVector();
 
   math::Vector<3>::type pointOnLine(parameters[0], parameters[1], z0);
-  GlobalVector tmpLineUnitVector = track->getDirectionVector();
+  GlobalVector tmpLineUnitVector = track->directionVector();
   math::Vector<3>::type lineUnitVector(tmpLineUnitVector.x(), tmpLineUnitVector.y(), tmpLineUnitVector.z());
 
   CLHEP::Hep3Vector tmpPointLocal(0., 0., 0.);
@@ -607,7 +607,7 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   math::Vector<3>::type pointOnPlane(tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z());
   math::Vector<3>::type planeUnitVector(0., 0., 1.);
 
-  DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
+  DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->sensor(planeId)->rotation();
   AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
   theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0),
                                   tmpPlaneRotationMatrixMap(0, 1),

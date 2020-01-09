@@ -3,72 +3,6 @@
 #include <iomanip>
 #include <iostream>
 
-//-----------------
-// Static variables
-//-----------------
-
-const int CSCCathodeLCTProcessor::pattern2007_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN] = {
-    -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5,  -2, -1, 0,  1,  2, 0, -2, -1, 0, 1,
-    2,  -4, -3, -2, -1, 0, 1, 2, 3, 4, -5, -4, -3, -2, -1, 0, 1, 2,  3,  4, 5};
-
-const int CSCCathodeLCTProcessor::pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN +
-                                                                               2] = {
-    {999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999,
-     999,  // pid=0: no pattern found
-     999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999,
-     999, 999, 999, 999, 999, 999, 999, 999, 999, -1,  0},
-    //-------------------------------------------------------------
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
-     2,  // pid=1: layer-OR trigger
-     3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, -1, 11},
-    //-------------------------------------------------------------
-    {999, 999, 999, 999, 999, 999, 999, 999, 0,   0,   0,   999, 999, 999, 1, 1,
-     2,  // pid=2: right-bending (large)
-     3,   3,   3,   999, 999, 4,   4,   4,   999, 999, 999, 999, 999, 999, 5, 5,
-     5,   999, 999, 999, 999, 999, 999, 999, 999, 0,   11},
-    //-------------------------------------------------------------
-    {0,   0,   0,   999, 999, 999, 999, 999, 999, 999, 999, 1, 1, 999, 999, 999,
-     2,  // pid=3: left-bending (large)
-     999, 999, 3,   3,   3,   999, 999, 999, 999, 999, 999, 4, 4, 4,   999, 999,
-     999, 999, 999, 999, 999, 999, 5,   5,   5,   1,   11},
-    //-------------------------------------------------------------
-    {999, 999, 999, 999, 999, 999, 999, 0,   0,   0,   999, 999, 999, 999, 1,   1,
-     2,  // pid=4: right-bending (medium)
-     3,   3,   999, 999, 999, 4,   4,   4,   999, 999, 999, 999, 999, 999, 999, 5,
-     5,   5,   999, 999, 999, 999, 999, 999, 999, 0,   9},
-    //-------------------------------------------------------------
-    {999, 0,   0,   0,   999, 999, 999, 999, 999, 999, 999, 1, 1, 999, 999, 999,
-     2,  // pid=5: left-bending (medium)
-     999, 999, 999, 3,   3,   999, 999, 999, 999, 999, 999, 4, 4, 4,   999, 999,
-     999, 999, 999, 999, 999, 5,   5,   5,   999, 1,   9},
-    //-------------------------------------------------------------
-    {999, 999, 999, 999, 999, 999, 0,   0,   0,   999, 999, 999, 999, 1,   1,   999,
-     2,  // pid=6: right-bending (medium)
-     999, 3,   3,   999, 999, 999, 999, 4,   4,   999, 999, 999, 999, 999, 999, 999,
-     5,   5,   5,   999, 999, 999, 999, 999, 999, 0,   7},
-    //-------------------------------------------------------------
-    {999, 999, 0,   0,   0,   999, 999, 999, 999, 999, 999, 999, 1,   1,   999, 999,
-     2,  // pid=7: left-bending (medium)
-     999, 999, 3,   3,   999, 999, 999, 999, 999, 999, 4,   4,   999, 999, 999, 999,
-     999, 999, 999, 999, 5,   5,   5,   999, 999, 1,   7},
-    //-------------------------------------------------------------
-    {999, 999, 999, 999, 999, 0,   0,   0,   999, 999, 999, 999, 999, 1,   1,   999,
-     2,  // pid=8: right-bending (small)
-     999, 3,   3,   999, 999, 999, 999, 4,   4,   4,   999, 999, 999, 999, 999, 999,
-     999, 5,   5,   5,   999, 999, 999, 999, 999, 0,   5},
-    //-------------------------------------------------------------
-    {999, 999, 999, 0, 0,   0,   999, 999, 999, 999, 999, 999, 1,   1,   999, 999,
-     2,  // pid=9: left-bending (small)
-     999, 999, 3,   3, 999, 999, 999, 999, 999, 4,   4,   4,   999, 999, 999, 999,
-     999, 999, 999, 5, 5,   5,   999, 999, 999, 1,   5},
-    //-------------------------------------------------------------
-    {999, 999, 999, 999, 0,   0,   0,   999, 999, 999, 999, 999, 999, 1,   999, 999,
-     2,  // pid=A: straight-through
-     999, 999, 3,   999, 999, 999, 999, 999, 4,   4,   4,   999, 999, 999, 999, 999,
-     999, 999, 5,   5,   5,   999, 999, 999, 999, 0,   3}
-    // pid's=B-F are not yet defined
-};
-
 // Default values of configuration parameters.
 const unsigned int CSCCathodeLCTProcessor::def_fifo_tbins = 12;
 const unsigned int CSCCathodeLCTProcessor::def_fifo_pretrig = 7;
@@ -743,7 +677,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
             //ptn_trig = true;
             keystrip_data[ilct][CLCT_PATTERN] = best_pid[best_hs];
-            keystrip_data[ilct][CLCT_BEND] = pattern2007[best_pid[best_hs]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
+            keystrip_data[ilct][CLCT_BEND] =
+                CSCPatternBank::clct_pattern[best_pid[best_hs]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
             // Remove stagger if any.
             keystrip_data[ilct][CLCT_STRIP] = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
             keystrip_data[ilct][CLCT_BX] = first_bx;
@@ -899,7 +834,7 @@ bool CSCCathodeLCTProcessor::preTrigger(
 
           // write each pre-trigger to output
           nPreTriggers++;
-          const int bend = pattern2007[best_pid[hstrip]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
+          const int bend = CSCPatternBank::clct_pattern[best_pid[hstrip]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
           const int halfstrip = hstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
           const int cfeb = hstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
           thePreTriggerDigis.push_back(CSCCLCTPreTriggerDigi(
@@ -965,9 +900,9 @@ bool CSCCathodeLCTProcessor::patternFinding(
       // Loop over halfstrips in trigger pattern mask and calculate the
       // "absolute" halfstrip number for each.
       for (int strip_num = 0; strip_num < CSCConstants::MAX_HALFSTRIPS_IN_PATTERN; strip_num++) {
-        int this_layer = pattern2007[pid][strip_num];
+        int this_layer = CSCPatternBank::clct_pattern[pid][strip_num];
         if (this_layer >= 0 && this_layer < CSCConstants::NUM_LAYERS) {
-          int this_strip = pattern2007_offset[strip_num] + key_hstrip;
+          int this_strip = CSCPatternBank::clct_pattern_offset[strip_num] + key_hstrip;
           if (this_strip >= 0 && this_strip < nStrips) {
             if (infoV > 3)
               LogTrace("CSCCathodeLCTProcessor")

@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -14,9 +14,11 @@
 template <typename DigiCollection>
 class PreMixingMuonWorker : public PreMixingWorker {
 public:
-  PreMixingMuonWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC)
-      : PreMixingMuonWorker(ps, producer, iC) {}
-  PreMixingMuonWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector& iC);
+  PreMixingMuonWorker(const edm::ParameterSet& ps,
+                      edm::ProducesCollector producesCollector,
+                      edm::ConsumesCollector&& iC)
+      : PreMixingMuonWorker(ps, producesCollector, iC) {}
+  PreMixingMuonWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector& iC);
   ~PreMixingMuonWorker() override = default;
 
   void initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) override {}
@@ -41,12 +43,12 @@ private:
 
 template <typename DigiCollection>
 PreMixingMuonWorker<DigiCollection>::PreMixingMuonWorker(const edm::ParameterSet& ps,
-                                                         edm::ProducerBase& producer,
+                                                         edm::ProducesCollector producesCollector,
                                                          edm::ConsumesCollector& iC)
     : signalToken_(iC.consumes<DigiCollection>(ps.getParameter<edm::InputTag>("digiTagSig"))),
       pileupTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
       collectionDM_(ps.getParameter<std::string>("collectionDM")) {
-  producer.produces<DigiCollection>(collectionDM_);
+  producesCollector.produces<DigiCollection>(collectionDM_);
 }
 
 template <typename DigiCollection>

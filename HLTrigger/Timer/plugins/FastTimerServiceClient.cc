@@ -192,27 +192,27 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
     static const boost::regex prefix(current_path + "/path ");
     std::string path = boost::regex_replace(subsubdir, prefix, "");
 
-    paths_time->getTH1F()->GetXaxis()->SetBinLabel(ibin, path.c_str());
-    paths_thread->getTH1F()->GetXaxis()->SetBinLabel(ibin, path.c_str());
-    paths_allocated->getTH1F()->GetXaxis()->SetBinLabel(ibin, path.c_str());
-    paths_deallocated->getTH1F()->GetXaxis()->SetBinLabel(ibin, path.c_str());
+    paths_time->setBinLabel(ibin, path);
+    paths_thread->setBinLabel(ibin, path);
+    paths_allocated->setBinLabel(ibin, path);
+    paths_deallocated->setBinLabel(ibin, path);
 
     if ((me = getter.get(subsubdir + "/path time_real"))) {
       mean = me->getMean();
-      paths_time->getTH1F()->SetBinContent(ibin, mean);
+      paths_time->setBinContent(ibin, mean);
     }
     if ((me = getter.get(subsubdir + "/path time_thread"))) {
       mean = me->getMean();
-      paths_thread->getTH1F()->SetBinContent(ibin, mean);
+      paths_thread->setBinContent(ibin, mean);
     }
     if ((me = getter.get(subsubdir + "/path allocated"))) {
       mean = me->getMean();
-      paths_allocated->getTH1F()->SetBinContent(ibin, mean);
+      paths_allocated->setBinContent(ibin, mean);
     }
 
     if ((me = getter.get(subsubdir + "/path deallocated"))) {
       mean = me->getMean();
-      paths_deallocated->getTH1F()->SetBinContent(ibin, mean);
+      paths_deallocated->setBinContent(ibin, mean);
     }
 
     ibin++;

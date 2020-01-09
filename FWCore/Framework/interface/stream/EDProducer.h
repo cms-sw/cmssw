@@ -52,9 +52,11 @@ namespace edm {
 
       typedef AbilityChecker<T...> HasAbility;
 
-      bool hasAbilityToProduceInRuns() const final { return HasAbilityToProduceInRuns<T...>::value; }
+      bool hasAbilityToProduceInBeginRuns() const final { return HasAbilityToProduceInBeginRuns<T...>::value; }
+      bool hasAbilityToProduceInEndRuns() const final { return HasAbilityToProduceInEndRuns<T...>::value; }
 
-      bool hasAbilityToProduceInLumis() const final { return HasAbilityToProduceInLumis<T...>::value; }
+      bool hasAbilityToProduceInBeginLumis() const final { return HasAbilityToProduceInBeginLumis<T...>::value; }
+      bool hasAbilityToProduceInEndLumis() const final { return HasAbilityToProduceInEndLumis<T...>::value; }
 
       EDProducer() = default;
       //virtual ~EDProducer();
@@ -70,7 +72,7 @@ namespace edm {
 
       const EDProducer& operator=(const EDProducer&) = delete;  // stop default
 
-      void doAcquire_(Event const& ev, EventSetup const& es, WaitingTaskWithArenaHolder& holder) override final {
+      void doAcquire_(Event const& ev, EventSetup const& es, WaitingTaskWithArenaHolder& holder) final {
         doAcquireIfNeeded(this, ev, es, holder);
       }
 
