@@ -375,12 +375,6 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
   }
 }
 
-// ------------ Method called when ending the processing of a run.  ------------
-void PixelLumiDQM::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {}
-
-// ------------ Method called when ending the processing of a run.  ------------
-void PixelLumiDQM::dqmEndRun(edm::Run const &, edm::EventSetup const &) {}
-
 // ------------ Method called when starting to process a luminosity block.
 // ------------
 void PixelLumiDQM::beginLuminosityBlock(edm::LuminosityBlock const &lumiBlock, edm::EventSetup const &) {

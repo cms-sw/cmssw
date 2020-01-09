@@ -35,7 +35,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
@@ -45,7 +45,7 @@
 
 class SiStripDetCabling;
 
-class SiStripMonitorRawData : public DQMEDAnalyzer {
+class SiStripMonitorRawData : public DQMOneEDAnalyzer<> {
 public:
   explicit SiStripMonitorRawData(const edm::ParameterSet &);
   ~SiStripMonitorRawData() override;

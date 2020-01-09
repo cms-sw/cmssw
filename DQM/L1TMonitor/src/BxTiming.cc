@@ -259,8 +259,6 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
   }
 }
 
-void BxTiming::dqmBeginRun(edm::Run const &r, edm::EventSetup const &iSetup) {}
-
 // ------------ method called to for each event  ------------
 void BxTiming::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   if (verbose())

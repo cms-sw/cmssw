@@ -45,8 +45,6 @@ void L1TCSCTPG::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   csctpgbx = ibooker.book1D("CSC TPG bx", "CSC TPG bx", 20, -0.5, 19.5);
 }
 
-void L1TCSCTPG::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TCSCTPG::analyze(const Event& e, const EventSetup& c) {
   nev_++;
   if (verbose_)
