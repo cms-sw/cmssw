@@ -109,7 +109,7 @@ void readfile(std::string filename, std::string outfile) {
     EventMsgView const* eview(nullptr);
     seenEventMap.clear();
 
-    while (stream_reader.next()) {
+    while (edm::StreamerInputFile::Next::kEvent == stream_reader.next()) {
       eview = stream_reader.currentRecord();
       ++num_events;
       bool good_event(true);
