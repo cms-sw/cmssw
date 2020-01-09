@@ -112,7 +112,6 @@ globalreco_trackingTask = cms.Task(offlineBeamSpot,
                           trackingGlobalRecoTask,
                           hcalGlobalRecoTask,
                           vertexrecoTask)
-globalreco_tracking = cms.Sequence(globalreco_trackingTask)
 _globalreco_tracking_LowPUTask = globalreco_trackingTask.copy()
 _globalreco_tracking_LowPUTask.replace(trackingGlobalRecoTask, cms.Task(recopixelvertexingTask,trackingGlobalRecoTask))
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
@@ -142,10 +141,10 @@ globalreco = cms.Sequence(globalrecoTask)
 _run3_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask])
 run3_common.toReplaceWith(globalrecoTask, _run3_globalrecoTask)
 
-_fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco,muoncosmicreco])
+_fastSim_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask,muoncosmicrecoTask])
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
-_fastSim_globalreco.insert(0,newCombinedSeeds+trackExtrapolator+caloTowerForTrk+firstStepPrimaryVerticesUnsorted+ak4CaloJetsForTrk+initialStepTrackRefsForJets+firstStepPrimaryVertices)
-fastSim.toReplaceWith(globalreco,_fastSim_globalreco)
+_fastSim_globalrecoTask.add(newCombinedSeeds,trackExtrapolator,caloTowerForTrk,firstStepPrimaryVerticesUnsorted,ak4CaloJetsForTrk,initialStepTrackRefsForJets,firstStepPrimaryVertices)
+fastSim.toReplaceWith(globalrecoTask,_fastSim_globalrecoTask)
 
 globalreco_plusPLTask= cms.Task(globalrecoTask,ctfTracksPixelLessTask)
 globalreco_plusPL= cms.Sequence(globalreco_plusPLTask)
