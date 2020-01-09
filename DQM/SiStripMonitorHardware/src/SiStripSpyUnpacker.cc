@@ -111,25 +111,38 @@ namespace sistrip {
       auto conns = cabling.fedConnections(lFedId);
 
       //construct FEDBuffer
-      std::unique_ptr<sistrip::FEDSpyBuffer> buffer;
-      try {
-        buffer.reset(new sistrip::FEDSpyBuffer(input.data(), input.size()));
-        if (!buffer->doChecks() && !allowIncompleteEvents_) {
-          throw cms::Exception("FEDSpyBuffer") << "FED Buffer check fails for FED ID " << lFedId << ".";
-        }
-      } catch (const cms::Exception& e) {
-        if (edm::isDebugEnabled()) {
-          edm::LogWarning("SiStripSpyUnpacker")
-              << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": " << e.what();
-        }
+      if ( ! sistrip::FEDBufferBase::hasMinimumLength(input.size()) ) {
+        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+          << "An exception of category 'FEDBuffer' occurred.\n"
+          << "Buffer is too small. Min size is 24. Buffer size is " << input.size() << ". ";
         continue;
-      }  // end of buffer reset try.
+      }
+      if ( READOUT_MODE_SPY != sistrip::FEDBufferBase::readoutMode(fedData.data()) ) {
+        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+          << "An exception of category 'FEDSpyBuffer' occurred.\n"
+          << "Buffer is not from spy channel";
+        continue;
+      }
+      const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
+      if ( buffer.hasUnrecognizedFormat() ) {
+        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+          << "An exception of category 'FEDBuffer' occurred.\n"
+          << "Buffer format not recognized. Tracker special header: " << buffer.trackerSpecialHeader();
+        continue;
+      }
+      if (!buffer.doChecks() && !allowIncompleteEvents_) {
+        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+          << "An exception of category 'FEDSpyBuffer' occurred.\n"
+          << "FED Buffer check fails for FED ID " << lFedId << ".";
+        continue;
+      }
+      // end of buffer reset try.
 
       // Get the event counter values
-      uint32_t totalEvCount = buffer->spyHeaderTotalEventCount();
-      uint32_t l1ID = buffer->spyHeaderL1ID();
+      uint32_t totalEvCount = buffer.spyHeaderTotalEventCount();
+      uint32_t l1ID = buffer.spyHeaderL1ID();
 
-      uint32_t lGRun = buffer->globalRunNumber();
+      uint32_t lGRun = buffer.globalRunNumber();
 
       //for the first fed, put it as reference value for others
       if (lRef == 0)
@@ -167,7 +180,7 @@ namespace sistrip {
         }
 
         //check FED channel
-        if (!buffer->channelGood(chan)) {
+        if (!buffer.channelGood(chan)) {
           if (edm::isDebugEnabled()) {
             std::ostringstream ss;
             ss << "Channel check failed for FED " << lFedId << " channel " << chan << std::endl;
@@ -182,7 +195,7 @@ namespace sistrip {
         // Start a new channel in the filler
         dsvFiller.newChannel(key);
         // Create the unpacker object
-        sistrip::FEDSpyChannelUnpacker unpacker = sistrip::FEDSpyChannelUnpacker(buffer->channel(chan));
+        sistrip::FEDSpyChannelUnpacker unpacker = sistrip::FEDSpyChannelUnpacker(buffer.channel(chan));
 
         // Unpack the data into dsv filler
         while (unpacker.hasData()) {

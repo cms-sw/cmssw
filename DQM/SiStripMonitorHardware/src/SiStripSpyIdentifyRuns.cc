@@ -104,23 +104,24 @@ namespace sistrip {
       //check on FEDRawData pointer and size
       if (!input.data() || !input.size())
         continue;
-
       //construct FEDBuffer
-      std::unique_ptr<sistrip::FEDSpyBuffer> buffer;
-      try {
-        buffer.reset(new sistrip::FEDSpyBuffer(input.data(), input.size()));
-      } catch (const cms::Exception& e) {
-        edm::LogWarning("SiStripSpyIdentifyRuns")
-            << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": " << e.what();
-        //if (!(buffer->readoutMode() == READOUT_MODE_SPY)) break;
-        std::string lErrStr = e.what();
-        if (lErrStr.find("Buffer is not from spy channel") != lErrStr.npos)
-          break;
-        else {
-          writeRunInFile(lRunNum);
-          break;
-        }
-      }  // end of buffer reset try.
+      if ( ! sistrip::FEDBufferBase::hasMinimumLength(fedData.size()) ) {
+        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
+          << "An exception of category 'FEDBuffer' occurred.\n"
+          << "Buffer is too small. Min size is 24. Buffer size is " << fedData.size() << ". ";
+      }
+      if ( READOUT_MODE_SPY != sistrip::FEDBufferBase::readoutMode(fedData.data()) ) {
+        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
+          << "An exception of category 'FEDSpyBuffer' occurred.\n"
+          << "Buffer is not from spy channel";
+        break;
+      }
+      const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
+      if ( buffer.hasUnrecognizedFormat() ) {
+        LogInfo(messageLabel_) << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
+          << "An exception of category 'FEDBuffer' occurred.\n"
+          << "Buffer format not recognized. Tracker special header: " << buffer.trackerSpecialHeader();
+      }
       edm::LogWarning("SiStripSpyIdentifyRuns") << " -- this is a spy file, run " << lRunNum << std::endl;
       writeRunInFile(lRunNum);
       break;
