@@ -27,7 +27,6 @@
 // needed for mapping
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <memory>
 #include <sstream>
@@ -596,11 +595,21 @@ namespace {
       h2_uncBarycenterParameters->SetTitle(nullptr);
 
       std::vector<AlignTransform> alignments = payload->m_align;
+
+      isPhase0 = (alignments.size() == AlignmentPI::phase0size) ? true : false;
+
+      // check that the geomtery is a tracker one
+      const char *path_toTopologyXML = isPhase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                                : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+
+      TrackerTopology tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
       AlignmentPI::TkAlBarycenters barycenters;
       barycenters.init();
       // compute uncorrected barycenter
-      barycenters.computeBarycenters(alignments,
-                                     {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
+      barycenters.computeBarycenters(
+          alignments, tTopo, {{AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}});
 
       auto Xbarycenters = barycenters.getX();
       auto Ybarycenters = barycenters.getY();
@@ -608,7 +617,7 @@ namespace {
 
       barycenters.init();
       // compute barycenter corrected for the GPR
-      barycenters.computeBarycenters(alignments, hardcodeGPR);
+      barycenters.computeBarycenters(alignments, tTopo, hardcodeGPR);
 
       auto c_Xbarycenters = barycenters.getX();
       auto c_Ybarycenters = barycenters.getY();
@@ -673,6 +682,9 @@ namespace {
 
       return true;
     }
+
+  private:
+    bool isPhase0;
   };
 
   /************************************************
@@ -703,6 +715,22 @@ namespace {
       std::shared_ptr<Alignments> first_payload = fetchPayload(std::get<1>(firstiov));
       std::vector<AlignTransform> first_alignments = first_payload->m_align;
 
+      isInitialPhase0 = (first_alignments.size() == AlignmentPI::phase0size) ? true : false;
+      isFinalPhase0 = (last_alignments.size() == AlignmentPI::phase0size) ? true : false;
+
+      // check that the geomtery is a tracker one
+      const char *path_toTopologyXML = isInitialPhase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+
+      TrackerTopology tTopo_f =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      path_toTopologyXML = isFinalPhase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                         : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+
+      TrackerTopology tTopo_l =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
       TCanvas canvas("Tracker Alignment Barycenter Summary", "Tracker Alignment Barycenter summary", 1200, 800);
       canvas.cd();
 
@@ -724,11 +752,11 @@ namespace {
 
       AlignmentPI::TkAlBarycenters l_barycenters;
       l_barycenters.init();
-      l_barycenters.computeBarycenters(last_alignments, hardcodeGPR);
+      l_barycenters.computeBarycenters(last_alignments, tTopo_l, hardcodeGPR);
 
       AlignmentPI::TkAlBarycenters f_barycenters;
       f_barycenters.init();
-      f_barycenters.computeBarycenters(first_alignments, hardcodeGPR);
+      f_barycenters.computeBarycenters(first_alignments, tTopo_f, hardcodeGPR);
 
       unsigned int yBin = 6;
       for (unsigned int i = 0; i < 6; i++) {
@@ -763,6 +791,10 @@ namespace {
 
       return true;
     }
+
+  private:
+    bool isInitialPhase0;
+    bool isFinalPhase0;
   };
 
   class TrackerAlignmentBarycentersCompare : public TrackerAlignmentBarycentersComparatorBase {
@@ -832,8 +864,8 @@ namespace {
       std::array<std::string, 3> structures = {{"FPIX-", "BPIX", "FPIX+"}};
       std::array<std::unique_ptr<TH2F>, 3> histos;
 
-      bool isInitialPhase0 = (first_alignments.size() == AlignmentPI::phase0size) ? true : false;
-      bool isFinalPhase0 = (last_alignments.size() == AlignmentPI::phase0size) ? true : false;
+      isInitialPhase0 = (first_alignments.size() == AlignmentPI::phase0size) ? true : false;
+      isFinalPhase0 = (last_alignments.size() == AlignmentPI::phase0size) ? true : false;
 
       // check that the geomtery is a tracker one
       const char *path_toTopologyXML = isInitialPhase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
@@ -842,7 +874,7 @@ namespace {
       TrackerTopology tTopo_f =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      PixBarycenters myInitialBarycenters;
+      AlignmentPI::TkAlBarycenters myInitialBarycenters;
       myInitialBarycenters.init();
       //myInitialBarycenters.computeBarycenters(first_alignments,tTopo_f,hardcodeGPR);
       myInitialBarycenters.computeBarycenters(
@@ -854,7 +886,7 @@ namespace {
       TrackerTopology tTopo_l =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      PixBarycenters myFinalBarycenters;
+      AlignmentPI::TkAlBarycenters myFinalBarycenters;
       myFinalBarycenters.init();
       //myFinalBarycenters.computeBarycenters(last_alignments,tTopo_l,hardcodeGPR);
       myFinalBarycenters.computeBarycenters(
@@ -910,11 +942,11 @@ namespace {
       std::function<GlobalPoint(int)> cutFunctorInitial = [&myInitialBarycenters](int index) {
         switch (index) {
           case 1:
-            return myInitialBarycenters.getFPixMinusAvg();
+            return myInitialBarycenters.getPartitionAvg(AlignmentPI::PARTITION::FPIXm);
           case 2:
-            return myInitialBarycenters.getBPixAvg();
+            return myInitialBarycenters.getPartitionAvg(AlignmentPI::PARTITION::BPIX);
           case 3:
-            return myInitialBarycenters.getFPixPlusAvg();
+            return myInitialBarycenters.getPartitionAvg(AlignmentPI::PARTITION::FPIXp);
           default:
             return GlobalPoint(0, 0, 0);
         }
@@ -923,11 +955,11 @@ namespace {
       std::function<GlobalPoint(int)> cutFunctorFinal = [&myFinalBarycenters](int index) {
         switch (index) {
           case 1:
-            return myFinalBarycenters.getFPixMinusAvg();
+            return myFinalBarycenters.getPartitionAvg(AlignmentPI::PARTITION::FPIXm);
           case 2:
-            return myFinalBarycenters.getBPixAvg();
+            return myFinalBarycenters.getPartitionAvg(AlignmentPI::PARTITION::BPIX);
           case 3:
-            return myFinalBarycenters.getFPixPlusAvg();
+            return myFinalBarycenters.getPartitionAvg(AlignmentPI::PARTITION::FPIXp);
           default:
             return GlobalPoint(0, 0, 0);
         }
@@ -971,7 +1003,7 @@ namespace {
       h2_ZBarycenterDiff->Draw();
       float z0i, z0f;
 
-      // numbers do agree with:
+      // numbers do agree with https://twiki.cern.ch/twiki/bin/view/CMSPublic/TkAlignmentPerformancePhaseIStartUp17#Pixel_Barycentre_Positions
 
       std::array<double, 3> hardcodeIdealZPhase0 = {{-41.94909, 0., 41.94909}};  // units are cm
       std::array<double, 3> hardcodeIdealZPhase1 = {{-39.82911, 0., 39.82911}};  // units are cm
@@ -1010,85 +1042,8 @@ namespace {
     }
 
   private:
-    struct PixBarycenters {
-      std::array<double, 3> m_Xbarycenters;
-      std::array<double, 3> m_Ybarycenters;
-      std::array<double, 3> m_Zbarycenters;
-      std::array<double, 3> m_nmodules;
-
-      /*--------------------------------------------------------------------*/
-      void init()
-      /*--------------------------------------------------------------------*/
-      {
-        // partitions      Fpix-  BPix  FPix+
-        m_Xbarycenters = {{0., 0., 0.}};
-        m_Ybarycenters = {{0., 0., 0.}};
-        m_Zbarycenters = {{0., 0., 0.}};
-        m_nmodules = {{0., 0., 0.}};
-      }
-
-      GlobalPoint getFPixMinusAvg() { return GlobalPoint(m_Xbarycenters[0], m_Ybarycenters[0], m_Zbarycenters[0]); }
-      GlobalPoint getBPixAvg() { return GlobalPoint(m_Xbarycenters[1], m_Ybarycenters[1], m_Zbarycenters[1]); }
-      GlobalPoint getFPixPlusAvg() { return GlobalPoint(m_Xbarycenters[2], m_Ybarycenters[2], m_Zbarycenters[2]); }
-
-      /*--------------------------------------------------------------------*/
-      void computeBarycenters(const std::vector<AlignTransform> &input,
-                              const TrackerTopology &tTopo,
-                              const std::map<AlignmentPI::coordinate, float> &GPR)
-      /*--------------------------------------------------------------------*/
-      {
-        for (const auto &ali : input) {
-          if (DetId(ali.rawId()).det() != DetId::Tracker) {
-            edm::LogWarning("PixBarycenters::computeBarycenters")
-                << "Encountered invalid Tracker DetId:" << ali.rawId() << " " << DetId(ali.rawId()).det()
-                << " is different from " << DetId::Tracker << "  - terminating ";
-            assert(DetId(ali.rawId()).det() != DetId::Tracker);
-          }
-
-          int subid = DetId(ali.rawId()).subdetId();
-
-          switch (subid) {
-            case 1:
-              m_Xbarycenters[1] += (ali.translation().x());
-              m_Ybarycenters[1] += (ali.translation().y());
-              m_Zbarycenters[1] += (ali.translation().z());
-              m_nmodules[1]++;
-              break;
-            case 2:
-
-              // minus side (details on topology https://github.com/cms-sw/cmssw/blob/master/Geometry/TrackerNumberingBuilder/README.md)
-              if (tTopo.pxfSide(DetId(ali.rawId())) == 1) {
-                m_Xbarycenters[0] += (ali.translation().x());
-                m_Ybarycenters[0] += (ali.translation().y());
-                m_Zbarycenters[0] += (ali.translation().z());
-                m_nmodules[0]++;
-              }
-              // plus side (details on topology https://github.com/cms-sw/cmssw/blob/master/Geometry/TrackerNumberingBuilder/README.md)
-              else {
-                m_Xbarycenters[2] += (ali.translation().x());
-                m_Ybarycenters[2] += (ali.translation().y());
-                m_Zbarycenters[2] += (ali.translation().z());
-                m_nmodules[2]++;
-              }
-              break;
-            default:
-              break;
-          }
-        }
-
-        for (unsigned int i = 0; i < m_nmodules.size(); i++) {
-          m_Xbarycenters[i] /= m_nmodules[i];
-          m_Ybarycenters[i] /= m_nmodules[i];
-          m_Zbarycenters[i] /= m_nmodules[i];
-
-          // correct for GPR
-
-          m_Xbarycenters[i] += GPR.at(AlignmentPI::t_x);
-          m_Ybarycenters[i] += GPR.at(AlignmentPI::t_y);
-          m_Zbarycenters[i] += GPR.at(AlignmentPI::t_z);
-        }
-      }
-    };  // end of the struct
+    bool isInitialPhase0;
+    bool isFinalPhase0;
   };
 
   class PixelBarycentersCompare : public PixelBarycentersComparatorBase {
