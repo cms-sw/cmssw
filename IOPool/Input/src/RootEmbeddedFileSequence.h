@@ -65,6 +65,7 @@ namespace edm {
     int initialNumberOfEventsToSkip_;
     unsigned int treeCacheSize_;
     bool enablePrefetching_;
+    bool enforceGUIDInFileName_;
   }; // class RootEmbeddedFileSequence
 }
 #endif
