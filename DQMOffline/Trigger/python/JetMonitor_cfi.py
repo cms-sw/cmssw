@@ -1,31 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.jetMonitoring_cfi import jetMonitoring
+
 hltJetMETmonitoring = jetMonitoring.clone()
 hltJetMETmonitoring.FolderName = cms.string('HLT/JME/Jets/AK4/PFJet/HLT_PFJet450/')
 hltJetMETmonitoring.histoPSet.lsPSet = cms.PSet(
-  nbins = cms.uint32 ( 250 ),
-  xmin  = cms.double(    0.),
-  xmax  = cms.double( 2500.),
+  nbins = cms.uint32(250),
+  xmin  = cms.double(0.),
+  xmax  = cms.double(2500.),
 )
 hltJetMETmonitoring.histoPSet.jetPSet = cms.PSet(
-  nbins = cms.uint32 (  200  ),
-  xmin  = cms.double(   -0.5),
+  nbins = cms.uint32(200),
+  xmin  = cms.double(-0.5),
   xmax  = cms.double(999.5),
 )
 hltJetMETmonitoring.histoPSet.jetPtThrPSet = cms.PSet(
-  nbins = cms.uint32 (  180 ),
-  xmin  = cms.double(   0.),
+  nbins = cms.uint32(180),
+  xmin  = cms.double(0.),
   xmax  = cms.double(900),
 )
-hltJetMETmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-#hltJetMETmonitoring.pfjets    = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
-hltJetMETmonitoring.jetSrc    = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
-hltJetMETmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
-hltJetMETmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
-hltJetMETmonitoring.ptcut     = cms.double(20) # while pfIsolatedMuonsEI are reco::PFCandidate !
-hltJetMETmonitoring.ispfjettrg = cms.bool(True) # is PFJet Trigge  ?
-hltJetMETmonitoring.iscalojettrg = cms.bool(False) # is CaloJet Trigge  ?
+hltJetMETmonitoring.jetSrc = 'ak4PFJets' # ak4PFJets, ak4PFJetsCHS
+hltJetMETmonitoring.ptcut = 20.
+hltJetMETmonitoring.ispfjettrg = True # is PFJet Trigger ?
+hltJetMETmonitoring.iscalojettrg = False # is CaloJet Trigger ?
 
 hltJetMETmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltJetMETmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("JetMETDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
