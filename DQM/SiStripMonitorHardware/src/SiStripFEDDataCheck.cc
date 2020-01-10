@@ -233,11 +233,11 @@ void SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSe
     } else {
       //need to construct full object to go any further
       if (doPayloadChecks_ || checkChannelStatusBits_) {
-        const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData.data(), fedData.size(), true);
+        const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData, true);
         if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
           throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
         }
-        auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData.data(), fedData.size(), true);
+        auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData, true);
         tmp_buffer->findChannels();
         buffer = std::move(tmp_buffer);  // const now
         if (doPayloadChecks_) {
@@ -257,11 +257,11 @@ void SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSe
       fillFatalError(fedId, true);
       if (printDebug_) {
         if (!buffer.get()) {
-          const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData.data(), fedData.size(), true);
+          const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData, true);
           if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
             throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
           }
-          auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData.data(), fedData.size(), true);
+          auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData, true);
           tmp_buffer->findChannels();
           buffer = std::move(tmp_buffer);  // const now
         }
@@ -277,11 +277,11 @@ void SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSe
       fillNonFatalError(fedId, rateNonFatal);
       if (printDebug_ && rateNonFatal > 0) {
         if (!buffer.get()) {
-          const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData.data(), fedData.size(), true);
+          const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData, true);
           if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
             throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
           }
-          auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData.data(), fedData.size(), true);
+          auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData, true);
           tmp_buffer->findChannels();
           buffer = std::move(tmp_buffer);  // const now
         }

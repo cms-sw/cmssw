@@ -148,7 +148,7 @@ namespace sistrip {
       // get the cabling connections for this FED
       auto conns = cabling.fedConnections(*ifed);
       // check FEDRawData pointer, size, and more
-      const auto st_buffer = preconstructCheckFEDBuffer(input.data(), input.size());
+      const auto st_buffer = preconstructCheckFEDBuffer(input);
       // construct FEDBuffer
       if (FEDBufferStatusCode::SUCCESS != st_buffer) {
         if (FEDBufferStatusCode::BUFFER_NULL == st_buffer) {
@@ -163,7 +163,7 @@ namespace sistrip {
         maskFED(detids, conns);
         continue;
       }
-      FEDBuffer buffer(input.data(), input.size());
+      FEDBuffer buffer{input};
       const auto st_chan = buffer.findChannels();
       if (FEDBufferStatusCode::SUCCESS != st_chan) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",

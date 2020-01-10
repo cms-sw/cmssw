@@ -135,13 +135,13 @@ namespace sistrip {
           //need to construct full object to copy full header
           if (rawfedData.size() == 0)
             warnings_.add("Invalid raw data for FED, skipping", (boost::format("id %1%") % *ifed).str());
-          const auto st_buffer = preconstructCheckFEDBuffer(rawfedData.data(), rawfedData.size(), true);
+          const auto st_buffer = preconstructCheckFEDBuffer(rawfedData, true);
           if (FEDBufferStatusCode::SUCCESS != st_buffer) {
             edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"
                                          << " Could not construct FEDBuffer for FED " << *ifed << std::endl;
             continue;
           }
-          sistrip::FEDBuffer fedbuffer(rawfedData.data(), rawfedData.size(), true);
+          sistrip::FEDBuffer fedbuffer{rawfedData, true};
           const auto st_chan = fedbuffer.findChannels();
           if (FEDBufferStatusCode::SUCCESS != st_chan) {
             edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"

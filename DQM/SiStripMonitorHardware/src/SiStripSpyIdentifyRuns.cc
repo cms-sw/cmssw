@@ -105,7 +105,7 @@ namespace sistrip {
       if (!input.data() || !input.size())
         continue;
       //construct FEDBuffer
-      const auto st_buffer = preconstructCheckFEDSpyBuffer(input.data(), input.size());
+      const auto st_buffer = preconstructCheckFEDSpyBuffer(input);
       if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
         edm::LogWarning("SiStripSpyIdentifyRuns")
             << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
@@ -114,7 +114,7 @@ namespace sistrip {
         if (sistrip::FEDBufferStatusCode::EXPECT_SPY == st_buffer)
           break;
       }
-      const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
+      const sistrip::FEDSpyBuffer buffer{input};
       edm::LogWarning("SiStripSpyIdentifyRuns") << " -- this is a spy file, run " << lRunNum << std::endl;
       writeRunInFile(lRunNum);
       break;

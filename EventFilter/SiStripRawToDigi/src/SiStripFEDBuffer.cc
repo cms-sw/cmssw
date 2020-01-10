@@ -9,8 +9,7 @@
 
 namespace sistrip {
 
-  FEDBuffer::FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer)
-      : FEDBufferBase(fedBuffer, fedBufferSize, false) {
+  FEDBuffer::FEDBuffer(const FEDRawData& fedBuffer, const bool allowBadBuffer) : FEDBufferBase(fedBuffer, false) {
     validChannels_ = 0;
     channels_.reserve(FEDCH_PER_FED);
     //build the correct type of FE header object
