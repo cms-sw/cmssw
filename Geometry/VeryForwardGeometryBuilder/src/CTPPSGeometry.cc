@@ -144,51 +144,50 @@ const std::set<unsigned int>& CTPPSGeometry::sensorsInRP(unsigned int id) const 
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::localToGlobal(const DetGeomDesc* gd, const CLHEP::Hep3Vector& r) const {
-  return gd->rotation() * r + CLHEP::Hep3Vector(gd->translation().x(), gd->translation().y(), gd->translation().z());
+CTPPSGeometry::Vector CTPPSGeometry::localToGlobal(const DetGeomDesc* gd, const CTPPSGeometry::Vector& r) const {
+  return gd->rotation() * r + gd->translation();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::localToGlobal(unsigned int id, const CLHEP::Hep3Vector& r) const {
+CTPPSGeometry::Vector CTPPSGeometry::localToGlobal(unsigned int id, const CTPPSGeometry::Vector& r) const {
   return localToGlobal(sensor(id), r);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::globalToLocal(const DetGeomDesc* gd, const CLHEP::Hep3Vector& r) const {
-  return gd->rotation().Inverse() *
-         (r - CLHEP::Hep3Vector(gd->translation().x(), gd->translation().y(), gd->translation().z()));
+CTPPSGeometry::Vector CTPPSGeometry::globalToLocal(const DetGeomDesc* gd, const CTPPSGeometry::Vector& r) const {
+  return gd->rotation().Inverse() * (r - gd->translation());
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::globalToLocal(unsigned int id, const CLHEP::Hep3Vector& r) const {
+CTPPSGeometry::Vector CTPPSGeometry::globalToLocal(unsigned int id, const CTPPSGeometry::Vector& r) const {
   return globalToLocal(sensor(id), r);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::localToGlobalDirection(unsigned int id, const CLHEP::Hep3Vector& dir) const {
+CTPPSGeometry::Vector CTPPSGeometry::localToGlobalDirection(unsigned int id, const CTPPSGeometry::Vector& dir) const {
   return sensor(id)->rotation() * dir;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::globalToLocalDirection(unsigned int id, const CLHEP::Hep3Vector& dir) const {
+CTPPSGeometry::Vector CTPPSGeometry::globalToLocalDirection(unsigned int id, const CTPPSGeometry::Vector& dir) const {
   return sensor(id)->rotation().Inverse() * dir;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::sensorTranslation(unsigned int id) const {
+CTPPSGeometry::Vector CTPPSGeometry::sensorTranslation(unsigned int id) const {
   auto gd = sensor(id);
-  return CLHEP::Hep3Vector(gd->translation().x(), gd->translation().y(), gd->translation().z());
+  return gd->translation();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::rpTranslation(unsigned int id) const {
+CTPPSGeometry::Vector CTPPSGeometry::rpTranslation(unsigned int id) const {
   auto gd = rp(id);
-  return CLHEP::Hep3Vector(gd->translation().x(), gd->translation().y(), gd->translation().z());
+  return gd->translation();
 }
