@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgoT_h
-#define RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgoT_h
+#ifndef RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgo_h
+#define RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgo_h
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
@@ -207,7 +207,9 @@ private:
   void setDensity(const unsigned int layerId);
 };
 
-#include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgo.icc"
+// explicit template instantiation
+extern template class HGCalCLUEAlgoT<HGCalLayerTiles>;
+extern template class HGCalCLUEAlgoT<HFNoseLayerTiles>;
 
 using HGCalCLUEAlgo = HGCalCLUEAlgoT<HGCalLayerTiles>;
 using HFNoseCLUEAlgo = HGCalCLUEAlgoT<HFNoseLayerTiles>;
