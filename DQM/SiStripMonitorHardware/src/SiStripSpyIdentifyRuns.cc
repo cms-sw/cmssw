@@ -105,23 +105,14 @@ namespace sistrip {
       if (!input.data() || !input.size())
         continue;
       //construct FEDBuffer
-      if ( ! sistrip::FEDBufferBase::hasMinimumLength(input.size()) ) {
+      const auto st_buffer = preconstructCheckFEDSpyBuffer(input.data(), input.size());
+      if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
         edm::LogWarning("SiStripSpyIdentifyRuns") << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
-          << "An exception of category 'FEDBuffer' occurred.\n"
-          << "Buffer is too small. Min size is 24. Buffer size is " << input.size() << ". ";
-      }
-      if ( READOUT_MODE_SPY != sistrip::FEDBufferBase::readoutMode(input.data()) ) {
-        edm::LogWarning("SiStripSpyIdentifyRuns") << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
-          << "An exception of category 'FEDSpyBuffer' occurred.\n"
-          << "Buffer is not from spy channel";
-        break;
+          << "An exception of category 'FEDBuffer' occurred.\n" << st_buffer;
+        if ( sistrip::FEDBufferStatusCode::EXPECT_SPY == st_buffer )
+          break;
       }
       const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
-      if ( buffer.hasUnrecognizedFormat() ) {
-        edm::LogWarning("SiStripSpyIdentifyRuns") << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
-          << "An exception of category 'FEDBuffer' occurred.\n"
-          << "Buffer format not recognized. Tracker special header: " << buffer.trackerSpecialHeader();
-      }
       edm::LogWarning("SiStripSpyIdentifyRuns") << " -- this is a spy file, run " << lRunNum << std::endl;
       writeRunInFile(lRunNum);
       break;

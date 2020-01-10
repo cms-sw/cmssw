@@ -206,20 +206,14 @@ bool FEDErrors::checkDataPresent(const FEDRawData& aFedData) {
 bool FEDErrors::failUnpackerFEDCheck() { return failUnpackerFEDCheck_; }
 
 bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned int aPrintDebug) {
-
-  if ( ! ( aFedData.data() && sistrip::FEDBufferBase::hasMinimumLength(aFedData.size()) ) ) {
+  const auto st_buffer = preconstructCheckFEDBufferBase(aFedData.data(), aFedData.size());
+  if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
     fedErrors_.InvalidBuffers = true;
     failUnpackerFEDCheck_ = true;
     //don't check anything else if the buffer is invalid
     return false;
   }
   const sistrip::FEDBufferBase buffer{aFedData.data(), aFedData.size()};
-  if ( buffer.hasUnrecognizedFormat() ) {
-    fedErrors_.InvalidBuffers = true;
-    failUnpackerFEDCheck_ = true;
-    //don't check anything else if the buffer is invalid
-    return false;
-  }
 
   //CRC checks
   //if CRC fails then don't continue as if the buffer has been corrupted in DAQ then anything else could be invalid
