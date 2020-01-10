@@ -3048,6 +3048,10 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
     label.ReplaceAll("seedTracks", "");
     label.ReplaceAll("Seeds", "");
     label.ReplaceAll("muonSeeded", "muonSeededStep");
+    //for HLT seeds
+    label.ReplaceAll("FromPixelTracks", "");
+    label.ReplaceAll("PFLowPixel", "");
+    label.ReplaceAll("hltDoubletRecovery", "pixelPairStep");//random choice
     int algo = reco::TrackBase::algoByName(label.Data());
 
     edm::ProductID id = seedTracks[0].seedRef().id();
