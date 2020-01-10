@@ -21,6 +21,7 @@ public:
 
   void updateTriggerNames(TTree &tree, const edm::TriggerNames &names, const edm::TriggerResults &ta);
   void fill(const edm::EventForOutput &iEvent, TTree &tree);
+  std::string processName() { return m_processName; }
 
 private:
   edm::TriggerNames triggerNames(
@@ -43,7 +44,7 @@ private:
   long m_lastRun;
   unsigned long m_fills;
   std::string m_processName;
-  void verifyBranchUniqueName(TTree &, std::string) const;
+  bool verifyBranchUniqueName(TTree &, std::string) const;
 
   template <typename T>
   void fillColumn(NamedBranchPtr &nb, const edm::TriggerResults &triggers) {
