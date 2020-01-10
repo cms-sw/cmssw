@@ -619,7 +619,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 	    for (auto x : runCounterMap->countermap) {
 
 	      auto runCounter = &(x.second);
-	      std::string label = std::string("_") + x.first;
+	      std::string label = (!x.first.empty()) ? (std::string("_") + x.first) : "";
 	      std::string doclabel = (!x.first.empty()) ? (std::string(", for model label ") + x.first) : "";
 
             out->addInt("genEventCount"+label, "event count"+doclabel, runCounter->num);
