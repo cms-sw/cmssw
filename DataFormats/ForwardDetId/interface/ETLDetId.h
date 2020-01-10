@@ -20,9 +20,9 @@ public:
   static const uint32_t kETLmodTypeMask = 0x3;
 
   /// constants for the TDR ETL model 
-  static constexpr uint32_t kETLnDiscOffset = 3;
+  static const uint32_t kETLnDiscOffset = 3;
   static const uint32_t kETLnDiscMask = 0x1;
-  static constexpr uint32_t kETLdiscSideOffset = 2;
+  static const uint32_t kETLdiscSideOffset = 2;
   static const uint32_t kETLdiscSideMask = 0x1;
   static const uint32_t kETLquarterMask = 0x3;
 
