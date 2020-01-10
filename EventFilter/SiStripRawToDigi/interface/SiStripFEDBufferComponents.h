@@ -315,9 +315,9 @@ namespace sistrip {
     uint8_t bufferFormatByte() const;
     FEDBufferFormat bufferFormat() const;
     uint8_t headerTypeNibble() const;
-    FEDHeaderType headerType() const { return headerTypeFromNibble(headerTypeNibble()); }
+    FEDHeaderType headerType() const;
     uint8_t trackerEventTypeNibble() const;
-    FEDReadoutMode readoutMode() const { return readoutModeFromNibble(trackerEventTypeNibble()); }
+    FEDReadoutMode readoutMode() const;
     FEDLegacyReadoutMode legacyReadoutMode() const;
     uint8_t apveAddress() const;
     uint8_t apvAddressErrorRegister() const;
@@ -385,46 +385,6 @@ namespace sistrip {
     uint8_t specialHeader_[8];
     //was the header word swapped wrt order in buffer?
     bool wordSwapped_;
-    // conversion methods, shared between member and static method
-    static FEDHeaderType headerTypeFromNibble(const uint8_t headerTypeNibble) {
-      switch (headerTypeNibble) {
-        case HEADER_TYPE_FULL_DEBUG:
-        case HEADER_TYPE_APV_ERROR:
-        case HEADER_TYPE_NONE:
-          return FEDHeaderType(headerTypeNibble);
-        default:
-          return HEADER_TYPE_INVALID;
-      }
-    }
-    static FEDReadoutMode readoutModeFromNibble(const uint8_t eventTypeNibble) {
-      //if it is scope mode then return as is (it cannot be fake data)
-      //if it is premix then return as is: stripping last bit would make it spy data !
-      if ( (eventTypeNibble == READOUT_MODE_SCOPE) || (eventTypeNibble == READOUT_MODE_PREMIX_RAW) )
-        return FEDReadoutMode(eventTypeNibble);
-      //if not then ignore the last bit which indicates if it is real or fake
-      else {
-        const uint8_t mode = (eventTypeNibble & 0xF);
-        switch (mode) {
-          case READOUT_MODE_VIRGIN_RAW:
-          case READOUT_MODE_PROC_RAW:
-          case READOUT_MODE_ZERO_SUPPRESSED:
-          case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-          //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-          case READOUT_MODE_SPY:
-            return FEDReadoutMode(mode);
-          default:
-            return READOUT_MODE_INVALID;
-        }
-      }
-    }
   };
 
   class FEDBackendStatusRegister {
@@ -827,7 +787,50 @@ namespace sistrip {
 
   inline uint8_t TrackerSpecialHeader::headerTypeNibble() const { return ((specialHeader_[BUFFERTYPE] & 0xF0) >> 4); }
 
+  inline FEDHeaderType TrackerSpecialHeader::headerType() const {
+    const auto nibble = headerTypeNibble();
+    switch (nibble) {
+      case HEADER_TYPE_FULL_DEBUG:
+      case HEADER_TYPE_APV_ERROR:
+      case HEADER_TYPE_NONE:
+        return FEDHeaderType(nibble);
+      default:
+        return HEADER_TYPE_INVALID;
+    }
+  }
+
   inline uint8_t TrackerSpecialHeader::trackerEventTypeNibble() const { return (specialHeader_[BUFFERTYPE] & 0x0F); }
+
+  inline FEDReadoutMode TrackerSpecialHeader::readoutMode() const {
+    const auto nibble = trackerEventTypeNibble();
+    //if it is scope mode then return as is (it cannot be fake data)
+    //if it is premix then return as is: stripping last bit would make it spy data !
+    if ( (nibble == READOUT_MODE_SCOPE) || (nibble == READOUT_MODE_PREMIX_RAW) )
+      return FEDReadoutMode(nibble);
+    //if not then ignore the last bit which indicates if it is real or fake
+    else {
+      const uint8_t mode = (nibble & 0xF);
+      switch (mode) {
+        case READOUT_MODE_VIRGIN_RAW:
+        case READOUT_MODE_PROC_RAW:
+        case READOUT_MODE_ZERO_SUPPRESSED:
+        case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        case READOUT_MODE_SPY:
+          return FEDReadoutMode(mode);
+        default:
+          return READOUT_MODE_INVALID;
+      }
+    }
+  }
 
   inline uint8_t TrackerSpecialHeader::apveAddress() const { return specialHeader_[APVEADDRESS]; }
 
@@ -1517,7 +1520,7 @@ namespace sistrip {
 
   // new methods for checks, replacing exceptions
 
-  FEDBufferStatusCode preconstructCheckFEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, bool checkRecognizedFormat=true)
+  inline FEDBufferStatusCode preconstructCheckFEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, bool checkRecognizedFormat=true)
   {
     if ( ! fedBuffer )
       return FEDBufferStatusCode::BUFFER_NULL;
@@ -1534,7 +1537,7 @@ namespace sistrip {
     return FEDBufferStatusCode::SUCCESS;
   }
 
-  FEDBufferStatusCode preconstructCheckFEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize, bool allowBadBuffer=false)
+  inline FEDBufferStatusCode preconstructCheckFEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize, bool allowBadBuffer=false)
   {
     const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, ! allowBadBuffer);
     if ( FEDBufferStatusCode::SUCCESS != st_base )
@@ -1549,7 +1552,7 @@ namespace sistrip {
     return FEDBufferStatusCode::SUCCESS;
   }
 
-  FEDBufferStatusCode preconstructCheckFEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize)
+  inline FEDBufferStatusCode preconstructCheckFEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize)
   {
     const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, true);
     if ( FEDBufferStatusCode::SUCCESS != st_base )
