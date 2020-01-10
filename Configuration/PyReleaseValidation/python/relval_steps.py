@@ -2861,16 +2861,6 @@ steps['RECOFROMRECO']=merge([{'-s':'RECO,EI',
 
 steps['RECOFROMRECOSt2']=steps['RECOFROMRECO']
 
-steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reconstruction_noTracking,EI',
-                                  '--filtername':'RECOfromRAWRECO',
-                                  '--process':'rereRECO',
-                                  '--datatier':'AOD',
-                                  '--eventcontent':'AOD',
-                                  '--secondfilein':'filelist:step1_dasquery.log',
-                                  },
-                                 steps['RECOD']])
-
-
 steps['COPYPASTE']={'-s':'NONE',
                     '--conditions':'auto:run1_mc',
                     '--output':'\'[{"t":"RAW","e":"ALL"}]\'',
