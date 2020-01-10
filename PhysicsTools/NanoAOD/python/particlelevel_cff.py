@@ -75,6 +75,17 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
+rivetPhotonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("particleLevel:photons"),
+    cut = cms.string(""),
+    name= cms.string("GenIsolatedPhoton"),
+    doc = cms.string("Isolated photons from Rivet-based ParticleLevelProducer"),
+    singleton = cms.bool(False), # the number of entries is variable
+    extension = cms.bool(False), # this is the main table
+    variables = cms.PSet(
+        P4Vars
+    )
+)
 
 tautagger = cms.EDProducer("GenJetTauTaggerProducer",
     src = rivetLeptonTable.src,
@@ -160,4 +171,4 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
 
 
 particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel + tautagger + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
-particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable + HTXSCategoryTable)
+particleLevelTables = cms.Sequence(rivetLeptonTable + rivetPhotonTable + rivetMetTable + HTXSCategoryTable)
