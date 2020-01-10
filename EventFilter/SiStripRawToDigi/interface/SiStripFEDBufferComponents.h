@@ -135,6 +135,19 @@ namespace sistrip {
                                  CHANNEL_STATUS_APV1_NO_ERROR_BIT
   };
 
+  enum class FEDBufferStatusCode {
+    // for FEDBufferBase
+    SUCCESS = 0,
+    BUFFER_NULL,
+    BUFFER_TOO_SHORT,
+    UNRECOGNIZED_FORMAT,
+    // for FEDBuffer and FEDSpyBuffer
+    EXPECT_NOT_SPY,
+    EXPECT_SPY,
+    // for FEDBuffer
+    WRONG_HEADERTYPE,
+  };
+
   //
   // Global function declarations
   //
@@ -153,6 +166,7 @@ namespace sistrip {
   std::ostream& operator<<(std::ostream& os, const FEDTTSBits& value);
   std::ostream& operator<<(std::ostream& os, const FEDBufferState& value);
   std::ostream& operator<<(std::ostream& os, const FEDChannelStatus& value);
+  std::ostream& operator<<(std::ostream& os, const FEDBufferStatusCode& value);
   //convert name of an element of enum to enum value (useful for getting values from config)
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString);
   FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString);
@@ -352,24 +366,6 @@ namespace sistrip {
       } else {
         return BUFFER_FORMAT_INVALID;
       }
-    }
-    // detect the header type without constructing the full header
-    static FEDHeaderType headerType(const uint8_t* headerPointer)
-    {
-      const auto nibble = (
-          ( ( BUFFER_FORMAT_OLD_VME == bufferFormat(headerPointer) ) ?
-              headerPointer[BUFFERTYPE^4] // swapped case
-            : headerPointer[BUFFERTYPE]   ) & 0xF0 ) >> 4;
-      return headerTypeFromNibble(nibble);
-    }
-    // detect the readout mode without constructing the full header
-    static FEDReadoutMode readoutMode(const uint8_t* headerPointer)
-    {
-      const auto nibble = (
-          ( BUFFER_FORMAT_OLD_VME == bufferFormat(headerPointer) ) ?
-            headerPointer[BUFFERTYPE^4] // swapped case
-          : headerPointer[BUFFERTYPE]   ) & 0x0F;
-      return readoutModeFromNibble(nibble);
     }
 
   private:
@@ -720,28 +716,6 @@ namespace sistrip {
     //return channel object for channel
     const FEDChannel& channel(const uint8_t internalFEDChannelNum) const;
     const FEDChannel& channel(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
-
-    bool hasUnrecognizedFormat() const {
-      return BUFFER_FORMAT_INVALID == specialHeader_.bufferFormat();
-    }
-
-    // check on buffer length (requirement for construction)
-    static bool hasMinimumLength(const size_t fedBufferSize) {
-      //min buffer length. DAQ header, DAQ trailer, tracker special header.
-      static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
-      //check size is non zero
-      return fedBufferSize >= MIN_BUFFER_SIZE;
-    }
-    // same as hasUnrecognizedFormat and readoutMode, respectively,
-    // but without the need to construct the full FEDBufferBase.
-    // the caller must ensure the pointer is valid, and the corresponding buffer long enough
-    // to hold the relevant byte of the TrackerSpecialHeader
-    static bool hasUnrecognizedFormat(const uint8_t* fedBuffer) {
-      return BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer+8);
-    }
-    static FEDReadoutMode readoutMode(const uint8_t* fedBuffer) {
-      return TrackerSpecialHeader::readoutMode(fedBuffer+8);
-    }
 
     //summary checks
     //check that tracker special header is valid (does not check for FE unit errors indicated in special header)
@@ -1541,6 +1515,51 @@ namespace sistrip {
 
   inline size_t FEDChannel::offset() const { return offset_; }
 
+  // new methods for checks, replacing exceptions
+
+  FEDBufferStatusCode preconstructCheckFEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, bool checkRecognizedFormat=true)
+  {
+    if ( ! fedBuffer )
+      return FEDBufferStatusCode::BUFFER_NULL;
+    //min buffer length. DAQ header, DAQ trailer, tracker special header.
+    static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
+    //check size is non zero
+    if ( fedBufferSize < MIN_BUFFER_SIZE )
+      return FEDBufferStatusCode::BUFFER_TOO_SHORT;
+    if ( checkRecognizedFormat ) {
+      if ( BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer+8) ) {
+        return FEDBufferStatusCode::UNRECOGNIZED_FORMAT;
+      }
+    }
+    return FEDBufferStatusCode::SUCCESS;
+  }
+
+  FEDBufferStatusCode preconstructCheckFEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize, bool allowBadBuffer=false)
+  {
+    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, ! allowBadBuffer);
+    if ( FEDBufferStatusCode::SUCCESS != st_base )
+      return st_base;
+    const TrackerSpecialHeader hdr{fedBuffer+8};
+    const auto hdr_type = hdr.headerType();
+    if ( ( ! allowBadBuffer ) && ( ( hdr_type == sistrip::HEADER_TYPE_INVALID ) || ( hdr_type == sistrip::HEADER_TYPE_NONE ) ) )
+      return FEDBufferStatusCode::WRONG_HEADERTYPE;
+    if ( READOUT_MODE_SPY == hdr.readoutMode() )
+      return FEDBufferStatusCode::EXPECT_NOT_SPY;
+    // TODO add more (?)
+    return FEDBufferStatusCode::SUCCESS;
+  }
+
+  FEDBufferStatusCode preconstructCheckFEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize)
+  {
+    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, true);
+    if ( FEDBufferStatusCode::SUCCESS != st_base )
+      return st_base;
+    const TrackerSpecialHeader hdr{fedBuffer+8};
+    if ( READOUT_MODE_SPY != hdr.readoutMode() )
+      return FEDBufferStatusCode::EXPECT_SPY;
+    // TODO add more (?)
+    return FEDBufferStatusCode::SUCCESS;
+  }
 }  // namespace sistrip
 
 #endif  //ndef EventFilter_SiStripRawToDigi_FEDBufferComponents_H

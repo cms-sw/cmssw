@@ -111,25 +111,13 @@ namespace sistrip {
       auto conns = cabling.fedConnections(lFedId);
 
       //construct FEDBuffer
-      if ( ! sistrip::FEDBufferBase::hasMinimumLength(input.size()) ) {
+      const auto st_buffer = preconstructCheckFEDSpyBuffer(input.data(), input.size());
+      if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
         edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
-          << "An exception of category 'FEDBuffer' occurred.\n"
-          << "Buffer is too small. Min size is 24. Buffer size is " << input.size() << ". ";
-        continue;
-      }
-      if ( READOUT_MODE_SPY != sistrip::FEDBufferBase::readoutMode(input.data()) ) {
-        edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
-          << "An exception of category 'FEDSpyBuffer' occurred.\n"
-          << "Buffer is not from spy channel";
+          << "An exception of category 'FEDBuffer' occurred.\n" << st_buffer;
         continue;
       }
       const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
-      if ( buffer.hasUnrecognizedFormat() ) {
-        edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
-          << "An exception of category 'FEDBuffer' occurred.\n"
-          << "Buffer format not recognized. Tracker special header: " << buffer.trackerSpecialHeader();
-        continue;
-      }
       if (!buffer.doChecks() && !allowIncompleteEvents_) {
         edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
           << "An exception of category 'FEDSpyBuffer' occurred.\n"

@@ -349,6 +349,33 @@ namespace sistrip {
     return os;
   }
 
+  std::ostream& operator<<(std::ostream& os, const FEDBufferStatusCode& value) {
+    switch (value) {
+      case FEDBufferStatusCode::SUCCESS:
+        os << "SUCCESS";
+        break;
+      case FEDBufferStatusCode::BUFFER_NULL:
+        os << "Buffer pointer is NULL.";
+        break;
+      case FEDBufferStatusCode::BUFFER_TOO_SHORT:
+        os << "Buffer is too small. Min size is 24.";
+        break;
+      case FEDBufferStatusCode::UNRECOGNIZED_FORMAT:
+        os << "Buffer format not recognized. ";
+        break;
+      case FEDBufferStatusCode::EXPECT_NOT_SPY:
+        os << "Unpacking of spy channel data with FEDBuffer is not supported";
+        break;
+      case FEDBufferStatusCode::EXPECT_SPY:
+        os << "Buffer is not from spy channel";
+        break;
+      case FEDBufferStatusCode::WRONG_HEADERTYPE:
+        os << "No or invalid header type";
+        break;
+    }
+    return os;
+  }
+
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString) {
     if ((bufferFormatString == "OLD_VME") || (bufferFormatString == "BUFFER_FORMAT_OLD_VME") ||
         (bufferFormatString == "Old VME")) {
