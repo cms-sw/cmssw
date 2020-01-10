@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgoT.h"
+#include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgo.h"
 
 // Geometry
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -553,3 +553,7 @@ template <typename T>
 Density HGCalCLUEAlgoT<T>::getDensity() {
   return density_;
 }
+
+// explicit template instantiation
+template class HGCalCLUEAlgoT<HGCalLayerTiles>;
+template class HGCalCLUEAlgoT<HFNoseLayerTiles>;
