@@ -17,7 +17,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DQM/TrackingMonitorSource/interface/StandaloneTrackMonitor.h"
 // -----------------------------
@@ -39,6 +38,7 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
       puSummaryToken_(consumes<std::vector<PileupSummaryInfo> >(puSummaryTag_)),
       clusterToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(clusterTag_)),
       trackQuality_(parameters_.getUntrackedParameter<std::string>("trackQuality", "highPurity")),
+      siStripClusterInfo_(consumesCollector()),
       doPUCorrection_(parameters_.getUntrackedParameter<bool>("doPUCorrection", false)),
       isMC_(parameters_.getUntrackedParameter<bool>("isMC", false)),
       haveAllHistograms_(parameters_.getUntrackedParameter<bool>("haveAllHistograms", false)),
@@ -323,6 +323,8 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   iSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
   const TrackerGeometry& tkGeom = (*geomHandle);
 
+  siStripClusterInfo_.initEvent(iSetup);
+
   // Primary vertex collection
   edm::Handle<reco::VertexCollection> vertexColl;
   iEvent.getByToken(vertexToken_, vertexColl);
@@ -540,9 +542,9 @@ void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
             continue;
         }
 
-        SiStripClusterInfo info(*clusit, iSetup, detId);
-        float charge = info.charge();
-        float width = info.width();
+        siStripClusterInfo_.setCluster(*clusit, detId);
+        float charge = siStripClusterInfo_.charge();
+        float width = siStripClusterInfo_.width();
 
         const GeomDetUnit* detUnit = tkGeom.idToDetUnit(detId);
         float thickness = detUnit->surface().bounds().thickness();  // unit cm
@@ -581,35 +583,35 @@ void StandaloneTrackMonitor::processHit(const TrackingRecHit& recHit,
     const SiStripMatchedRecHit2D& matchedHit = dynamic_cast<const SiStripMatchedRecHit2D&>(recHit);
 
     auto& clusterM = matchedHit.monoCluster();
-    SiStripClusterInfo infoM(clusterM, iSetup, detid);
+    siStripClusterInfo_.setCluster(clusterM, detid);
     if (thickness > 0.035) {
-      hOnTrkClusChargeThickH_->Fill(infoM.charge(), wfac);
-      hOnTrkClusWidthThickH_->Fill(infoM.width(), wfac);
+      hOnTrkClusChargeThickH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThickH_->Fill(siStripClusterInfo_.width(), wfac);
     } else {
-      hOnTrkClusChargeThinH_->Fill(infoM.charge(), wfac);
-      hOnTrkClusWidthThinH_->Fill(infoM.width(), wfac);
+      hOnTrkClusChargeThinH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThinH_->Fill(siStripClusterInfo_.width(), wfac);
     }
     addClusterToMap(detid, &clusterM);
 
     auto& clusterS = matchedHit.stereoCluster();
-    SiStripClusterInfo infoS(clusterS, iSetup, detid);
+    siStripClusterInfo_.setCluster(clusterS, detid);
     if (thickness > 0.035) {
-      hOnTrkClusChargeThickH_->Fill(infoS.charge(), wfac);
-      hOnTrkClusWidthThickH_->Fill(infoS.width(), wfac);
+      hOnTrkClusChargeThickH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThickH_->Fill(siStripClusterInfo_.width(), wfac);
     } else {
-      hOnTrkClusChargeThinH_->Fill(infoS.charge(), wfac);
-      hOnTrkClusWidthThinH_->Fill(infoS.width(), wfac);
+      hOnTrkClusChargeThinH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThinH_->Fill(siStripClusterInfo_.width(), wfac);
     }
     addClusterToMap(detid, &clusterS);
   } else {
     auto& cluster = clus.stripCluster();
-    SiStripClusterInfo info(cluster, iSetup, detid);
+    siStripClusterInfo_.setCluster(cluster, detid);
     if (thickness > 0.035) {
-      hOnTrkClusChargeThickH_->Fill(info.charge(), wfac);
-      hOnTrkClusWidthThickH_->Fill(info.width(), wfac);
+      hOnTrkClusChargeThickH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThickH_->Fill(siStripClusterInfo_.width(), wfac);
     } else {
-      hOnTrkClusChargeThinH_->Fill(info.charge(), wfac);
-      hOnTrkClusWidthThinH_->Fill(info.width(), wfac);
+      hOnTrkClusChargeThinH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThinH_->Fill(siStripClusterInfo_.width(), wfac);
     }
     addClusterToMap(detid, &cluster);
   }

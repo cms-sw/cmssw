@@ -1,22 +1,29 @@
 #ifndef SISTRIPCLUSTERIZER_SISTRIPCLUSTERINFO_H
 #define SISTRIPCLUSTERIZER_SISTRIPCLUSTERINFO_H
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include <algorithm>
-#include <numeric>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
-class SiStripNoises;
-class SiStripGain;
-class SiStripQuality;
+#include <algorithm>
+#include <cstdint>
+#include <numeric>
+#include <utility>
+#include <vector>
 
 class SiStripClusterInfo {
 public:
-  SiStripClusterInfo(const SiStripCluster& cluster,
-                     const edm::EventSetup& es,
-                     const int detid,
-                     const std::string& qualityLabel = "");
+  SiStripClusterInfo(edm::ConsumesCollector&&, const std::string& qualityLabel = "");
+
+  void initEvent(const edm::EventSetup& iSetup);
+  void setCluster(const SiStripCluster& cluster, int detId);
 
   const SiStripCluster* cluster() const { return cluster_ptr; }
 
@@ -51,18 +58,23 @@ public:
   bool IsModuleBad() const;
   bool IsModuleUsable() const;
 
-  std::vector<SiStripCluster> reclusterize(const edm::ParameterSet&) const;
+  const SiStripGain* siStripGain() const { return siStripGain_; }
+  const SiStripQuality* siStripQuality() const { return siStripQuality_; }
 
 private:
   float calculate_noise(const std::vector<float>&) const;
 
-  const SiStripCluster* cluster_ptr;
-  const edm::EventSetup& es;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripGain> gainHandle;
-  edm::ESHandle<SiStripQuality> qualityHandle;
-  std::string qualityLabel;
-  uint32_t detId_;
+  const SiStripCluster* cluster_ptr = nullptr;
+
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> siStripNoisesToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> siStripGainToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> siStripQualityToken_;
+
+  const SiStripNoises* siStripNoises_ = nullptr;
+  const SiStripGain* siStripGain_ = nullptr;
+  const SiStripQuality* siStripQuality_ = nullptr;
+
+  uint32_t detId_ = 0;
 };
 
 #endif

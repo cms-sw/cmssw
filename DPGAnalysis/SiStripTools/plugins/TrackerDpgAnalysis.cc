@@ -96,7 +96,7 @@
 #include <TrackingTools/PatternTools/interface/Trajectory.h>
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include <RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h>
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 
 // topology
 #include "DPGAnalysis/SiStripTools/interface/EventShape.h"
@@ -143,6 +143,7 @@ private:
 
   // ----------member data ---------------------------
   static const int nMaxPVs_ = 50;
+  SiStripClusterInfo siStripClusterInfo_;
   edm::EDGetTokenT<SiStripEventSummary> summaryToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelclusterToken_;
@@ -221,7 +222,8 @@ private:
 //
 // constructors and destructor
 //
-TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig) : hltConfig_() {
+TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
+    : siStripClusterInfo_(consumesCollector(), std::string("")), hltConfig_() {
   // members
   moduleName_ = new char[256];
   moduleId_ = new char[256];
@@ -550,6 +552,8 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
   iSetup.get<IdealMagneticFieldRecord>().get(MF);
   const MagneticField* theMagneticField = MF.product();
   fBz_ = fabs(theMagneticField->inTesla(GlobalPoint(0, 0, 0)).z());
+
+  siStripClusterInfo_.initEvent(iSetup);
 
   // load trigger info
   edm::Handle<L1GlobalTriggerReadoutRecord> gtrr_handle;
@@ -909,15 +913,14 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (functionality_offtrackClusters_ || functionality_ontrackClusters_) {
       for (edmNew::DetSet<SiStripCluster>::const_iterator iter = begin; iter != end;
            ++iter, ++angleIt, ++localCounter) {
-        SiStripClusterInfo* siStripClusterInfo =
-            new SiStripClusterInfo(*iter, iSetup, detid, std::string(""));  //string = quality label
+        siStripClusterInfo_.setCluster(*iter, detid);
         // general quantities
         for (size_t i = 0; i < trackSize; ++i) {
           trackid_[i] = stripClusterOntrackIndices[i][localCounter];
         }
         onTrack_ = (trackid_[0] != (uint32_t)-1);
-        clWidth_ = siStripClusterInfo->width();
-        clPosition_ = siStripClusterInfo->baryStrip();
+        clWidth_ = siStripClusterInfo_.width();
+        clPosition_ = siStripClusterInfo_.baryStrip();
         angle_ = *angleIt;
         thickness_ = ((((DSViter->id() >> 25) & 0x7f) == 0xd) ||
                       ((((DSViter->id() >> 25) & 0x7f) == 0xe) && (((DSViter->id() >> 5) & 0x7) > 4)))
@@ -925,16 +928,16 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
                          : 300;
         stripLength_ = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid))->specificTopology().stripLength();
         int nstrips = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid))->specificTopology().nstrips();
-        maxCharge_ = siStripClusterInfo->maxCharge();
+        maxCharge_ = siStripClusterInfo_.maxCharge();
         // signal and noise with gain corrections
-        clNormalizedCharge_ = siStripClusterInfo->charge();
-        clNormalizedNoise_ = siStripClusterInfo->noiseRescaledByGain();
-        clSignalOverNoise_ = siStripClusterInfo->signalOverNoise();
+        clNormalizedCharge_ = siStripClusterInfo_.charge();
+        clNormalizedNoise_ = siStripClusterInfo_.noiseRescaledByGain();
+        clSignalOverNoise_ = siStripClusterInfo_.signalOverNoise();
         // signal and noise with gain corrections and angle corrections
         clCorrectedCharge_ = clNormalizedCharge_ * fabs(cos(angle_));          // corrected for track angle
         clCorrectedSignalOverNoise_ = clSignalOverNoise_ * fabs(cos(angle_));  // corrected for track angle
         // signal and noise without gain corrections
-        clBareNoise_ = siStripClusterInfo->noise();
+        clBareNoise_ = siStripClusterInfo_.noise();
         clBareCharge_ = clSignalOverNoise_ * clBareNoise_;
         // global position
         const StripGeomDetUnit* sgdu = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid));
@@ -950,7 +953,6 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
           lldChannel_ = 3;
         if ((functionality_offtrackClusters_ && !onTrack_) || (functionality_ontrackClusters_ && onTrack_))
           clusters_->Fill();
-        delete siStripClusterInfo;
       }
     }
   }

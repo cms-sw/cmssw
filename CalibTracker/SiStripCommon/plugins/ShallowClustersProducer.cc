@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -11,7 +10,7 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 ShallowClustersProducer::ShallowClustersProducer(const edm::ParameterSet& iConfig)
-    : Prefix(iConfig.getParameter<std::string>("Prefix")) {
+    : Prefix(iConfig.getParameter<std::string>("Prefix")), siStripClusterInfo_(consumesCollector()) {
   produces<std::vector<unsigned>>(Prefix + "number");
   produces<std::vector<unsigned>>(Prefix + "width");
   produces<std::vector<float>>(Prefix + "variance");
@@ -58,6 +57,8 @@ void ShallowClustersProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  siStripClusterInfo_.initEvent(iSetup);
 
   auto number = std::make_unique<std::vector<unsigned>>(7, 0);
   auto width = std::make_unique<std::vector<unsigned>>();
@@ -110,7 +111,8 @@ void ShallowClustersProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     const moduleVars moduleV(id, tTopo);
     for (edmNew::DetSet<SiStripCluster>::const_iterator cluster = itClusters->begin(); cluster != itClusters->end();
          ++cluster) {
-      const SiStripClusterInfo info(*cluster, iSetup, id);
+      siStripClusterInfo_.setCluster(*cluster, id);
+      const SiStripClusterInfo& info = siStripClusterInfo_;
       const NearDigis digis = rawProcessedDigis.isValid() ? NearDigis(info, *rawProcessedDigis) : NearDigis(info);
 
       (number->at(0))++;

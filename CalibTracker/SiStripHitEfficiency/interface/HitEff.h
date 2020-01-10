@@ -30,6 +30,7 @@
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -63,6 +64,8 @@ private:
 
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
   const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > commonModeToken_;
+
+  SiStripClusterInfo siStripClusterInfo_;
 
   bool addLumi_;
   bool addCommonMode_;
