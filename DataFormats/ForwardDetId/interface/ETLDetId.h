@@ -19,6 +19,13 @@ public:
   static const uint32_t kETLmodTypeOffset = 5;
   static const uint32_t kETLmodTypeMask = 0x3;
 
+  /// constants for the TDR ETL model 
+  static constexpr uint32_t kETLnDiscOffset = 3;
+  static const uint32_t kETLnDiscMask = 0x1;
+  static constexpr uint32_t kETLdiscSideOffset = 2;
+  static const uint32_t kETLdiscSideMask = 0x1;
+  static const uint32_t kETLquarterMask = 0x3;
+
   // ---------- Constructors, enumerated types ----------
 
   /** Construct a null id */
@@ -45,10 +52,23 @@ public:
   /** Returns ETL module number. */
   inline int module() const { return (id_ >> kETLmoduleOffset) & kETLmoduleMask; }
 
-  /** Returns ETL crystal type number. */
+  /** Returns ETL module type number. */
   inline int modType() const { return (id_ >> kETLmodTypeOffset) & kETLmodTypeMask; }
 
   ETLDetId geographicalId() const;
+
+  // --------- Methods for the TDR ETL model only -----------
+  // meaningless for TP model
+
+  // starting from 1
+  inline int quarter() const { return ((((id_ >> kRodRingOffset) & kRodRingMask)-1)  & kETLquarterMask)+1; }
+
+  // 0 = front, 1 = back
+  inline int discSide() const { return ((((id_ >> kRodRingOffset) & kRodRingMask)-1) >> kETLdiscSideOffset) & kETLdiscSideMask; }
+
+  // starting from 1
+  inline int nDisc() const { return (((((id_ >> kRodRingOffset) & kRodRingMask)-1) >> kETLnDiscOffset) & kETLnDiscMask)+1; }
+
 };
 
 std::ostream& operator<<(std::ostream&, const ETLDetId&);
