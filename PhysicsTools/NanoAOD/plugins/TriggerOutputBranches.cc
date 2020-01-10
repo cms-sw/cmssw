@@ -21,7 +21,7 @@ void TriggerOutputBranches::updateTriggerNames(TTree& tree,
     for (unsigned int j = 0; j < newNames.size(); j++) {
       std::string name = newNames[j];  // no const & as it will be modified below!
       std::size_t vfound = name.rfind("_v");
-      if (vfound != std::string::npos) {
+      if (vfound != std::string::npos && (name.compare(0, 3, "HLT") == 0 || name.compare(0, 2, "L1") == 0)) {
         name.replace(vfound, name.size() - vfound, "");
       }
       if (name == existing.name)
@@ -32,7 +32,7 @@ void TriggerOutputBranches::updateTriggerNames(TTree& tree,
   for (unsigned int j = 0; j < newNames.size(); j++) {
     std::string name = newNames[j];  // no const & as it will be modified below!
     std::size_t vfound = name.rfind("_v");
-    if (vfound != std::string::npos) {
+    if (vfound != std::string::npos && (name.compare(0, 3, "HLT") == 0 || name.compare(0, 2, "L1") == 0)) {
       name.replace(vfound, name.size() - vfound, "");
     }
     bool found = false;
