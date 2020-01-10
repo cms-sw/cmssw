@@ -346,17 +346,22 @@ namespace sistrip {
 
           // Common mode values
           if (extractCm_) {
-            try {
+            const auto& fedChannel = buffer.channel(iconn->fedCh());
+            const auto pCode = fedChannel.packetCode();
+            if ((pCode == PACKET_CODE_ZERO_SUPPRESSED) || (pCode == PACKET_CODE_ZERO_SUPPRESSED10) ||
+                (pCode == PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT) || (pCode == PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT)) {
               Registry regItem2(key, 2 * ipair, cm_work_digis_.size(), 2);
-              cm_work_digis_.push_back(SiStripRawDigi(buffer.channel(iconn->fedCh()).cmMedian(0)));
-              cm_work_digis_.push_back(SiStripRawDigi(buffer.channel(iconn->fedCh()).cmMedian(1)));
+              cm_work_digis_.push_back(SiStripRawDigi(fedChannel.cmMedian(0)));
+              cm_work_digis_.push_back(SiStripRawDigi(fedChannel.cmMedian(1)));
               cm_work_registry_.push_back(regItem2);
-            } catch (const cms::Exception& e) {
+            } else {
               warnings_.add("Problem extracting common modes",
-                            (boost::format("FED %1% channel %2%:\n %3%") % *ifed % iconn->fedCh() % e.what()).str());
+                            (boost::format("FED %1% channel %2%:\n Request for CM median from channel with non-ZS "
+                                           "packet code. Packet code is %3%.") %
+                             *ifed % iconn->fedCh() % pCode)
+                                .str());
             }
           }
-
         }
 
         else if (!legacy_ && (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 ||
