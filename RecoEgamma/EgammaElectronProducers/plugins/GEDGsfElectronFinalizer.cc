@@ -1,43 +1,49 @@
-#include "RecoEgamma/EgammaElectronProducers/plugins/GEDGsfElectronFinalizer.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+class GEDGsfElectronFinalizer : public edm::global::EDProducer<> {
+public:
+  explicit GEDGsfElectronFinalizer(const edm::ParameterSet&);
 
-#include <iostream>
-#include <string>
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-using namespace reco;
+private:
+  edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  std::string outputCollectionLabel_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > tokenElectronIsoVals_;
+  std::unique_ptr<ModifyObjectValueBase> gedRegression_;
+};
 
-GEDGsfElectronFinalizer::GEDGsfElectronFinalizer(const edm::ParameterSet& cfg) {
-  previousGsfElectrons_ =
-      consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGsfElectronsTag"));
-  pfCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("pfCandidatesTag"));
-  outputCollectionLabel_ = cfg.getParameter<std::string>("outputCollectionLabel");
+using edm::InputTag;
+using edm::ValueMap;
+
+using reco::GsfElectronCollection;
+
+GEDGsfElectronFinalizer::GEDGsfElectronFinalizer(const edm::ParameterSet& cfg)
+    : previousGsfElectrons_(consumes<GsfElectronCollection>(cfg.getParameter<InputTag>("previousGsfElectronsTag"))),
+      pfCandidates_(consumes<reco::PFCandidateCollection>(cfg.getParameter<InputTag>("pfCandidatesTag"))),
+      outputCollectionLabel_(cfg.getParameter<std::string>("outputCollectionLabel")) {
   edm::ParameterSet pfIsoVals(cfg.getParameter<edm::ParameterSet>("pfIsolationValues"));
 
-  tokenElectronIsoVals_.push_back(
-      consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
-  tokenElectronIsoVals_.push_back(
-      consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt")));
-  tokenElectronIsoVals_.push_back(
-      consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
-  tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPUPt")));
-  tokenElectronIsoVals_.push_back(
-      consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumEcalClusterEt")));
-  tokenElectronIsoVals_.push_back(
-      consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumHcalClusterEt")));
-
-  nDeps_ = tokenElectronIsoVals_.size();
+  tokenElectronIsoVals_ = {consumes<ValueMap<float> >(pfIsoVals.getParameter<InputTag>("pfSumChargedHadronPt")),
+                           consumes<ValueMap<float> >(pfIsoVals.getParameter<InputTag>("pfSumPhotonEt")),
+                           consumes<ValueMap<float> >(pfIsoVals.getParameter<InputTag>("pfSumNeutralHadronEt")),
+                           consumes<ValueMap<float> >(pfIsoVals.getParameter<InputTag>("pfSumPUPt")),
+                           consumes<ValueMap<float> >(pfIsoVals.getParameter<InputTag>("pfSumEcalClusterEt")),
+                           consumes<ValueMap<float> >(pfIsoVals.getParameter<InputTag>("pfSumHcalClusterEt"))};
 
   if (cfg.existsAs<edm::ParameterSet>("regressionConfig")) {
-    const edm::ParameterSet& iconf = cfg.getParameterSet("regressionConfig");
-    const std::string& mname = iconf.getParameter<std::string>("modifierName");
+    auto const& iconf = cfg.getParameterSet("regressionConfig");
+    auto const& mname = iconf.getParameter<std::string>("modifierName");
     auto cc = consumesCollector();
     gedRegression_ = ModifyObjectValueFactory::get()->create(mname, iconf, cc);
   }
@@ -45,10 +51,7 @@ GEDGsfElectronFinalizer::GEDGsfElectronFinalizer(const edm::ParameterSet& cfg) {
   produces<reco::GsfElectronCollection>(outputCollectionLabel_);
 }
 
-GEDGsfElectronFinalizer::~GEDGsfElectronFinalizer() {}
-
-// ------------ method called to produce the data  ------------
-void GEDGsfElectronFinalizer::produce(edm::Event& event, const edm::EventSetup& setup) {
+void GEDGsfElectronFinalizer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   // Output collection
   auto outputElectrons_p = std::make_unique<reco::GsfElectronCollection>();
 
@@ -59,28 +62,24 @@ void GEDGsfElectronFinalizer::produce(edm::Event& event, const edm::EventSetup& 
 
   // read input collections
   // electrons
-  edm::Handle<reco::GsfElectronCollection> gedElectronHandle;
-  event.getByToken(previousGsfElectrons_, gedElectronHandle);
+  auto gedElectronHandle = event.getHandle(previousGsfElectrons_);
 
   // PFCandidates
-  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle;
-  event.getByToken(pfCandidates_, pfCandidateHandle);
+  auto pfCandidateHandle = event.getHandle(pfCandidates_);
   // value maps
-  std::vector<edm::Handle<edm::ValueMap<float> > > isolationValueMaps(nDeps_);
+  std::vector<edm::ValueMap<float> const*> isolationValueMaps(tokenElectronIsoVals_.size());
 
-  for (unsigned i = 0; i < nDeps_; ++i) {
-    event.getByToken(tokenElectronIsoVals_[i], isolationValueMaps[i]);
+  for (unsigned i = 0; i < tokenElectronIsoVals_.size(); ++i) {
+    isolationValueMaps[i] = &event.get(tokenElectronIsoVals_[i]);
   }
 
   // prepare a map of PFCandidates having a valid GsfTrackRef to save time
   std::map<reco::GsfTrackRef, const reco::PFCandidate*> gsfPFMap;
-  reco::PFCandidateCollection::const_iterator it = pfCandidateHandle->begin();
-  reco::PFCandidateCollection::const_iterator itend = pfCandidateHandle->end();
-  for (; it != itend; ++it) {
+  for (auto const& pfCand : *pfCandidateHandle) {
     // First check that the GsfTrack is non null
-    if (it->gsfTrackRef().isNonnull()) {
-      if (abs(it->pdgId()) == 11)  // consider only the electrons
-        gsfPFMap[it->gsfTrackRef()] = &(*it);
+    if (pfCand.gsfTrackRef().isNonnull()) {
+      if (abs(pfCand.pdgId()) == 11)  // consider only the electrons
+        gsfPFMap[pfCand.gsfTrackRef()] = &pfCand;
     }
   }
 
@@ -103,10 +102,8 @@ void GEDGsfElectronFinalizer::produce(edm::Event& event, const edm::EventSetup& 
     // now set a status if not already done (in GEDGsfElectronProducer.cc)
     //     std::cout << " previous status " << newElectron.mvaOutput().status << std::endl;
     if (newElectron.mvaOutput().status <= 0) {
-      std::map<reco::GsfTrackRef, const reco::PFCandidate*>::const_iterator itcheck =
-          gsfPFMap.find(newElectron.gsfTrack());
       reco::GsfElectron::MvaOutput myMvaOutput(newElectron.mvaOutput());
-      if (itcheck != gsfPFMap.end()) {
+      if (gsfPFMap.find(newElectron.gsfTrack()) != gsfPFMap.end()) {
         // it means that there is a PFCandidate with the same GsfTrack
         myMvaOutput.status = 3;  //as defined in PFCandidateEGammaExtra.h
         //this is currently fully redundant with mvaOutput.stats so candidate for removal
@@ -127,3 +124,6 @@ void GEDGsfElectronFinalizer::produce(edm::Event& event, const edm::EventSetup& 
 
   event.put(std::move(outputElectrons_p), outputCollectionLabel_);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GEDGsfElectronFinalizer);
