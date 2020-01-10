@@ -188,6 +188,28 @@ namespace sistrip {
   // Inline function definitions
   //
 
+  inline FEDBufferStatusCode preconstructCheckFEDBuffer(const uint8_t* fedBuffer,
+                                                        const size_t fedBufferSize,
+                                                        bool allowBadBuffer = false) {
+    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, !allowBadBuffer);
+    if (FEDBufferStatusCode::SUCCESS != st_base)
+      return st_base;
+    const TrackerSpecialHeader hdr{fedBuffer + 8};
+    const auto hdr_type = hdr.headerType();
+    if ((!allowBadBuffer) && ((hdr_type == sistrip::HEADER_TYPE_INVALID) || (hdr_type == sistrip::HEADER_TYPE_NONE))) {
+#ifdef EDM_ML_DEBUG
+      std::ostringstream msg;
+      msg << "Header type is invalid. Header type nibble is ";
+      printHex(&hdr.headerTypeNibble(), 1, msg);
+      LogDebug("FEDBuffer") << msg.str();
+#endif
+      return FEDBufferStatusCode::WRONG_HEADERTYPE;
+    }
+    if (READOUT_MODE_SPY == hdr.readoutMode())
+      return FEDBufferStatusCode::EXPECT_NOT_SPY;
+    return FEDBufferStatusCode::SUCCESS;
+  }
+
   //FEDBuffer
 
   inline const FEDFEHeader* FEDBuffer::feHeader() const { return feHeader_.get(); }
