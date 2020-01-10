@@ -8,20 +8,6 @@ from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol0
 
 gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 
-    # input collections
-    previousGsfElectronsTag = cms.InputTag(""),
-    pflowGsfElectronsTag = cms.InputTag(""),
-    gsfElectronCoresTag = cms.InputTag("gedGsfElectronCores"),
-    pfMvaTag = cms.InputTag(""),
-
-    # steering
-    applyPreselection = cms.bool(True),
-    ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(False),
-    ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(False),
-    applyAmbResolution = cms.bool(False),
-    useEcalRegression = cms.bool(True),
-    useCombinationRegression = cms.bool(True),
-
     # preselection parameters (ecal driven electrons)
     preselection = cms.PSet(
         minSCEtBarrel = cms.double(4.0),
@@ -54,9 +40,6 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
                                                     "gedelectron_EBUncertainty_offline_v1",
                                                     "gedelectron_EEUncertainty_offline_v1"),
     combinationRegressionWeightLabels = cms.vstring("gedelectron_p4combination_offline"),
-
-    # Iso values
-    useIsolationValues = cms.bool(False),
 )
 
 

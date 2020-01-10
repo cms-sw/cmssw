@@ -14,14 +14,7 @@ electronGsfTrackingHiTask = cms.Task(ecalDrivenElectronSeeds ,
                                      electronGsfTracks)
 electronGsfTrackingHi = cms.Sequence(electronGsfTrackingHiTask)
 
-# run the supercluster(EE+EB)-GSF track association ==> output: recoGsfElectrons_gsfElectrons__RECO
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
-from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
-gsfElectrons.ctfTracks     = cms.InputTag("hiGeneralTracks")
-gsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
-pfElectronTranslator.emptyIsOk = cms.bool(True)
-
-gsfElectrons.fillConvVtxFitProb = cms.bool(False)
 
 ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGeneralTracks")
 ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
