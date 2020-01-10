@@ -138,3 +138,6 @@ void GEDGsfElectronProducer::setMVAOutputs(reco::GsfElectronCollection& electron
     el->setMvaOutput(mvaOutput);
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GEDGsfElectronProducer);

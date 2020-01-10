@@ -18,7 +18,7 @@ public:
 
 private:
   void produceElectronCore(const reco::PFCandidate &pfCandidate,
-                           reco::GsfElectronCoreCollection *electrons,
+                           reco::GsfElectronCoreCollection &electrons,
                            edm::Handle<reco::TrackCollection> const &ctfTracksHandle) const;
 
   const edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
@@ -47,14 +47,14 @@ void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &even
   reco::GsfElectronCoreCollection electrons;
 
   for (auto const &pfCand : event.get(gedEMUnbiasedToken_)) {
-    produceElectronCore(pfCand, &electrons, ctfTracksHandle);
+    produceElectronCore(pfCand, electrons, ctfTracksHandle);
   }
 
   event.emplace(putToken_, electrons);
 }
 
 void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pfCandidate,
-                                                     reco::GsfElectronCoreCollection *electrons,
+                                                     reco::GsfElectronCoreCollection &electrons,
                                                      edm::Handle<reco::TrackCollection> const &ctfTracksHandle) const {
   const GsfTrackRef gsfTrackRef = pfCandidate.gsfTrackRef();
   if (gsfTrackRef.isNull())
@@ -64,32 +64,31 @@ void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pf
   if (extraRef.isNull())
     return;
 
-  GsfElectronCore *eleCore = new GsfElectronCore(gsfTrackRef);
+  electrons.emplace_back(gsfTrackRef);
+  auto &eleCore = electrons.back();
 
-  auto ctfpair = egamma::getClosestCtfToGsf(eleCore->gsfTrack(), ctfTracksHandle);
-  eleCore->setCtfTrack(ctfpair.first, ctfpair.second);
+  auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle);
+  eleCore.setCtfTrack(ctfpair.first, ctfpair.second);
 
   SuperClusterRef scRef = extraRef->superClusterRef();
   SuperClusterRef scBoxRef = extraRef->superClusterPFECALRef();
 
   for (const auto &convref : extraRef->conversionRef()) {
-    eleCore->addConversion(convref);
+    eleCore.addConversion(convref);
   }
 
   for (const auto &convref : extraRef->singleLegConversionRef()) {
-    eleCore->addOneLegConversion(convref);
+    eleCore.addOneLegConversion(convref);
   }
 
   if (!scRef.isNull() || !scBoxRef.isNull()) {
-    eleCore->setSuperCluster(scRef);
-    eleCore->setParentSuperCluster(scBoxRef);
-    electrons->push_back(*eleCore);
+    eleCore.setSuperCluster(scRef);
+    eleCore.setParentSuperCluster(scBoxRef);
   } else {
+    electrons.pop_back();
     edm::LogWarning("GEDGsfElectronCoreProducer")
         << "Both superClusterRef and superClusterBoxRef of pfCandidate.egammaExtraRef() are Null";
   }
-
-  delete eleCore;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

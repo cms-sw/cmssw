@@ -19,7 +19,7 @@ public:
 
 private:
   void produceEcalDrivenCore(const reco::GsfTrackRef& gsfTrackRef,
-                             reco::GsfElectronCoreCollection* electrons,
+                             reco::GsfElectronCoreCollection& electrons,
                              edm::Handle<reco::TrackCollection> const& ctfTracksHandle) const;
 
   const bool useGsfPfRecTracks_;
@@ -57,11 +57,11 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
   // loop on ecal driven tracks
   if (useGsfPfRecTracks_) {
     for (auto const& gsfPfRecTrack : event.get(gsfPfRecTracksToken_)) {
-      produceEcalDrivenCore(gsfPfRecTrack.gsfTrackRef(), &electrons, ctfTracksHandle);
+      produceEcalDrivenCore(gsfPfRecTrack.gsfTrackRef(), electrons, ctfTracksHandle);
     }
   } else {
     for (unsigned int i = 0; i < gsfTracksHandle->size(); ++i) {
-      produceEcalDrivenCore(edm::Ref<GsfTrackCollection>(gsfTracksHandle, i), &electrons, ctfTracksHandle);
+      produceEcalDrivenCore(edm::Ref<GsfTrackCollection>(gsfTracksHandle, i), electrons, ctfTracksHandle);
     }
   }
 
@@ -70,22 +70,24 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
 
 void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore(
     const GsfTrackRef& gsfTrackRef,
-    GsfElectronCoreCollection* electrons,
+    GsfElectronCoreCollection& electrons,
     edm::Handle<TrackCollection> const& ctfTracksHandle) const {
-  auto eleCore = std::make_unique<GsfElectronCore>(gsfTrackRef);
+  electrons.emplace_back(gsfTrackRef);
+  auto& eleCore = electrons.back();
 
-  if (!eleCore->ecalDrivenSeed()) {
+  if (!eleCore.ecalDrivenSeed()) {
+    electrons.pop_back();
     return;
   }
 
-  auto ctfpair = egamma::getClosestCtfToGsf(eleCore->gsfTrack(), ctfTracksHandle);
-  eleCore->setCtfTrack(ctfpair.first, ctfpair.second);
+  auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle);
+  eleCore.setCtfTrack(ctfpair.first, ctfpair.second);
 
   auto scRef = gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>()->caloCluster().castTo<SuperClusterRef>();
   if (!scRef.isNull()) {
-    eleCore->setSuperCluster(scRef);
-    electrons->push_back(*eleCore);
+    eleCore.setSuperCluster(scRef);
   } else {
+    electrons.pop_back();
     edm::LogWarning("GsfElectronCoreEcalDrivenProducer") << "Seed CaloCluster is not a SuperCluster, unexpected...";
   }
 }
