@@ -26,6 +26,12 @@ namespace sistrip {
     //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
     FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer = false);
     ~FEDBuffer() override;
+
+    // retrieve the channel information (everything beyond the headers)
+    // must be called after the constructor before using any channel-level information
+    // and FEDBufferStatusCode compared with FEDBufferStatusCode::SUCCESS, unless bad buffers are allowed
+    FEDBufferStatusCode findChannels();
+
     void print(std::ostream& os) const override;
     const FEDFEHeader* feHeader() const;
     //check that a FE unit is enabled, has a good majority address and, if in full debug mode, that it is present
@@ -74,7 +80,6 @@ namespace sistrip {
 
   private:
     uint8_t nFEUnitsPresent() const;
-    void findChannels();
     inline uint8_t getCorrectPacketCode() const { return packetCode(legacyUnpacker_); }
     uint16_t calculateFEUnitLength(const uint8_t internalFEUnitNumber) const;
     std::unique_ptr<FEDFEHeader> feHeader_;

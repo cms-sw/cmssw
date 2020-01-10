@@ -193,11 +193,14 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
     const FEDRawData& fed = buffers->FEDData(static_cast<int>(ifed));
 
     // construct buffer
-    sistrip::FEDBuffer* buffer = 0;
-    try {
-      buffer = new sistrip::FEDBuffer(fed.data(), fed.size());
-    } catch (const cms::Exception& e) {
+    std::unique_ptr<FEDBuffer> buffer;
+    if ( FEDBufferStatusCode::SUCCESS != preconstructCheckFEDBuffer(fed.data(), fed.size()) ) {
       construct[ifed].push_back(0);
+    } else {
+      buffer = std::make_unique<FEDBuffer>(fed.data(), fed.size());
+      if ( FEDBufferStatusCode::SUCCESS != buffer->findChannels() ) {
+        construct[ifed].push_back(0);
+      }
     }
 
     // readout mode
@@ -255,8 +258,6 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
       }
       chan++;
     }
-    if (buffer)
-      delete buffer;
   }  // fed loop
 
   // constructing SiStripFEDBuffers

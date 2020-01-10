@@ -372,6 +372,13 @@ namespace sistrip {
       case FEDBufferStatusCode::WRONG_HEADERTYPE:
         os << "No or invalid header type";
         break;
+      case FEDBufferStatusCode::CHANNEL_BEGIN_BEYOND_PAYLOAD:
+      case FEDBufferStatusCode::CHANNEL_END_BEYOND_PAYLOAD:
+        os << "Channel does not fit into buffer";
+        break;
+      case FEDBufferStatusCode::CHANNEL_TOO_SHORT:
+        os << "Channel is too short";
+        break;
     }
     return os;
   }
