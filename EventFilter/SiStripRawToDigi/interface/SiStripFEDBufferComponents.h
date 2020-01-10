@@ -621,6 +621,13 @@ namespace sistrip {
     uint16_t length() const;
     const uint8_t* data() const;
     size_t offset() const;
+    /**
+     * Retrieve the APV CM median for a non-lite zero-suppressed channel
+     *
+     * apvIndex should be either 0 or 1 (there are, by construction, two APVs on every channel)
+     * No additional checks are done here, so the caller should check
+     * the readout mode and/or packet code.
+     */
     uint16_t cmMedian(const uint8_t apvIndex) const;
     //third byte of channel data for normal FED channels
     uint8_t packetCode() const;
@@ -1556,6 +1563,14 @@ namespace sistrip {
   inline uint16_t FEDChannel::length() const { return length_; }
 
   inline uint8_t FEDChannel::packetCode() const { return data_[(offset_ + 2) ^ 7]; }
+
+  inline uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const {
+    uint16_t result = 0;
+    //CM median is 10 bits with lowest order byte first. First APV CM median starts in 4th byte of channel data
+    result |= data_[(offset_ + 3 + 2 * apvIndex) ^ 7];
+    result |= (((data_[(offset_ + 4 + 2 * apvIndex) ^ 7]) << 8) & 0x300);
+    return result;
+  }
 
   inline const uint8_t* FEDChannel::data() const { return data_; }
 

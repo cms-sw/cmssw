@@ -1401,27 +1401,4 @@ namespace sistrip {
     summary << "Check length from trailer: " << (checkLengthFromTrailer() ? "passed" : "FAILED") << std::endl;
     return summary.str();
   }
-
-  uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const {
-    const auto pCode = packetCode();
-    if ((pCode != PACKET_CODE_ZERO_SUPPRESSED) && (pCode != PACKET_CODE_ZERO_SUPPRESSED10) &&
-        (pCode != PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT) && (pCode != PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT)) {
-      std::ostringstream ss;
-      ss << "Request for CM median from channel with non-ZS packet code. "
-         << "Packet code is " << uint16_t(packetCode()) << "." << std::endl;
-      throw cms::Exception("FEDBuffer") << ss.str();
-    }
-    if (apvIndex > 1) {
-      std::ostringstream ss;
-      ss << "Channel APV index out of range when requesting CM median for APV. "
-         << "Channel APV index is " << uint16_t(apvIndex) << "." << std::endl;
-      throw cms::Exception("FEDBuffer") << ss.str();
-    }
-    uint16_t result = 0;
-    //CM median is 10 bits with lowest order byte first. First APV CM median starts in 4th byte of channel data
-    result |= data_[(offset_ + 3 + 2 * apvIndex) ^ 7];
-    result |= (((data_[(offset_ + 4 + 2 * apvIndex) ^ 7]) << 8) & 0x300);
-    return result;
-  }
-
 }  // namespace sistrip
