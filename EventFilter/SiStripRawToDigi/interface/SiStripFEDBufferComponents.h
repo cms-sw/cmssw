@@ -7,6 +7,7 @@
 #include <vector>
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cstdint>
 
 namespace sistrip {
@@ -725,6 +726,29 @@ namespace sistrip {
   //
   // Inline function definitions
   //
+
+  inline FEDBufferStatusCode preconstructCheckFEDBufferBase(const uint8_t* fedBuffer,
+                                                            const size_t fedBufferSize,
+                                                            bool checkRecognizedFormat = true) {
+    if (!fedBuffer)
+      return FEDBufferStatusCode::BUFFER_NULL;
+    //min buffer length. DAQ header, DAQ trailer, tracker special header.
+    static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
+    //check size is non zero
+    if (fedBufferSize < MIN_BUFFER_SIZE) {
+      LogDebug("FEDBuffer") << "Buffer is too small. Min size is " << MIN_BUFFER_SIZE << ". Buffer size is "
+                            << fedBufferSize << ". ";
+      return FEDBufferStatusCode::BUFFER_TOO_SHORT;
+    }
+    if (checkRecognizedFormat) {
+      if (BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer + 8)) {
+        LogDebug("FEDBuffer") << "Buffer format not recognized. Tracker special header: "
+                              << TrackerSpecialHeader(fedBuffer + 8);
+        return FEDBufferStatusCode::UNRECOGNIZED_FORMAT;
+      }
+    }
+    return FEDBufferStatusCode::SUCCESS;
+  }
 
   inline std::ostream& operator<<(std::ostream& os, const FEDBufferBase& obj) {
     obj.print(os);
@@ -1517,53 +1541,6 @@ namespace sistrip {
   inline const uint8_t* FEDChannel::data() const { return data_; }
 
   inline size_t FEDChannel::offset() const { return offset_; }
-
-  // new methods for checks, replacing exceptions
-
-  inline FEDBufferStatusCode preconstructCheckFEDBufferBase(const uint8_t* fedBuffer,
-                                                            const size_t fedBufferSize,
-                                                            bool checkRecognizedFormat = true) {
-    if (!fedBuffer)
-      return FEDBufferStatusCode::BUFFER_NULL;
-    //min buffer length. DAQ header, DAQ trailer, tracker special header.
-    static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
-    //check size is non zero
-    if (fedBufferSize < MIN_BUFFER_SIZE)
-      return FEDBufferStatusCode::BUFFER_TOO_SHORT;
-    if (checkRecognizedFormat) {
-      if (BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer + 8)) {
-        return FEDBufferStatusCode::UNRECOGNIZED_FORMAT;
-      }
-    }
-    return FEDBufferStatusCode::SUCCESS;
-  }
-
-  inline FEDBufferStatusCode preconstructCheckFEDBuffer(const uint8_t* fedBuffer,
-                                                        const size_t fedBufferSize,
-                                                        bool allowBadBuffer = false) {
-    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, !allowBadBuffer);
-    if (FEDBufferStatusCode::SUCCESS != st_base)
-      return st_base;
-    const TrackerSpecialHeader hdr{fedBuffer + 8};
-    const auto hdr_type = hdr.headerType();
-    if ((!allowBadBuffer) && ((hdr_type == sistrip::HEADER_TYPE_INVALID) || (hdr_type == sistrip::HEADER_TYPE_NONE)))
-      return FEDBufferStatusCode::WRONG_HEADERTYPE;
-    if (READOUT_MODE_SPY == hdr.readoutMode())
-      return FEDBufferStatusCode::EXPECT_NOT_SPY;
-    // TODO add more (?)
-    return FEDBufferStatusCode::SUCCESS;
-  }
-
-  inline FEDBufferStatusCode preconstructCheckFEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize) {
-    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, true);
-    if (FEDBufferStatusCode::SUCCESS != st_base)
-      return st_base;
-    const TrackerSpecialHeader hdr{fedBuffer + 8};
-    if (READOUT_MODE_SPY != hdr.readoutMode())
-      return FEDBufferStatusCode::EXPECT_SPY;
-    // TODO add more (?)
-    return FEDBufferStatusCode::SUCCESS;
-  }
 }  // namespace sistrip
 
 #endif  //ndef EventFilter_SiStripRawToDigi_FEDBufferComponents_H

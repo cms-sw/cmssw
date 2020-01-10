@@ -85,6 +85,16 @@ namespace sistrip {
   // Inline function definitions
   //
 
+  inline FEDBufferStatusCode preconstructCheckFEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize) {
+    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, true);
+    if (FEDBufferStatusCode::SUCCESS != st_base)
+      return st_base;
+    const TrackerSpecialHeader hdr{fedBuffer + 8};
+    if (READOUT_MODE_SPY != hdr.readoutMode())
+      return FEDBufferStatusCode::EXPECT_SPY;
+    return FEDBufferStatusCode::SUCCESS;
+  }
+
   //FEDSpyChannelUnpacker
 
   inline FEDSpyChannelUnpacker::FEDSpyChannelUnpacker(const FEDChannel& channel)
