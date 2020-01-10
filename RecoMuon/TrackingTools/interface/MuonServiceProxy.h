@@ -15,22 +15,41 @@
  */
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
+// EventSetup data types
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
+// EventSetup record types
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
 
-namespace edm {
-  class ParameterSet;
-  class EventSetup;
-}  // namespace edm
+#include <map>
+#include <string>
+#include <utility>
 
 class MuonServiceProxy {
 public:
+  /// Deprecated Constructor
+  /// This constructor should be deleted as soon as all clients are migrated
+  /// to use the other constructor. At that time, the code in this class that
+  /// supports this constructor should also be deleted.
+  /// This constructor does not make calls to esConsumes.
+  /// Eventually clients using this will fail at runtime when
+  /// the Framework enforces the requirement that EventSetup clients
+  /// must call esConsumes.
+  MuonServiceProxy(const edm::ParameterSet&);
+
   /// Constructor
-  MuonServiceProxy(const edm::ParameterSet& par);
+  MuonServiceProxy(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
   /// Destructor
   virtual ~MuonServiceProxy();
@@ -53,6 +72,14 @@ public:
   edm::ESHandle<Propagator> propagator(std::string propagatorName) const;
 
   /// get the whole EventSetup
+  /// (Note: this is a dangerous function. I would delete it if modules were
+  /// not using it. If this function is called for an event where the function
+  /// 'update' was not called, then the pointer stored in 'theEventSetup' will point to
+  /// an object that no longer exists even if all the ESHandles are still valid!
+  /// Be careful. As long as 'update' is called every event and this is only
+  /// used while processing that single corresponding event, it will work OK...
+  /// This function also makes it difficult to examine code in a module and
+  /// understand which parts of a module use the EventSetup to get data.)
   const edm::EventSetup& eventSetup() const { return *theEventSetup; }
 
   /// check if the MuonReco Geometry has been changed
@@ -60,13 +87,18 @@ public:
 
   const MuonNavigationSchool* muonNavigationSchool() const { return theSchool; }
 
-protected:
 private:
-  typedef std::map<std::string, edm::ESHandle<Propagator> > propagators;
+  using PropagatorMap =
+      std::map<std::string, std::pair<edm::ESHandle<Propagator>, edm::ESGetToken<Propagator, TrackingComponentsRecord>>>;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
   edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
+
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalTrackingGeometryToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonDetLayerGeometryToken_;
+
   const edm::EventSetup* theEventSetup;
   bool theMuonNavigationFlag;
   bool theRPCLayer;
@@ -75,7 +107,7 @@ private:
   bool theME0Layer;
   const MuonNavigationSchool* theSchool;
 
-  propagators thePropagators;
+  PropagatorMap thePropagators;
 
   unsigned long long theCacheId_GTG;
   unsigned long long theCacheId_MG;
