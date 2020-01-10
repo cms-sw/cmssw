@@ -46,37 +46,34 @@ namespace {
     const FEDRawData& rawData = rawColl.FEDData(fedId);
 
     // Check on FEDRawData pointer
+    const auto st_buffer = sistrip::preconstructCheckFEDBuffer(rawData.data(), rawData.size());
     if
-      UNLIKELY(!rawData.data()) {
+      UNLIKELY(sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
         if (edm::isDebugEnabled()) {
           edm::LogWarning(sistrip::mlRawToCluster_) << "[ClustersFromRawProducer::" << __func__ << "]"
-                                                    << " NULL pointer to FEDRawData for FED id " << fedId;
+                                                    << st_buffer << " for FED ID " << fedId;
         }
         return buffer;
       }
-
-    // Check on FEDRawData size
+    buffer = std::make_unique<sistrip::FEDBuffer>(rawData.data(), rawData.size());
+    const auto st_chan = buffer->findChannels();
     if
-      UNLIKELY(!rawData.size()) {
+      UNLIKELY( sistrip::FEDBufferStatusCode::SUCCESS != st_chan ) {
         if (edm::isDebugEnabled()) {
-          edm::LogWarning(sistrip::mlRawToCluster_) << "[ClustersFromRawProducer::" << __func__ << "]"
-                                                    << " FEDRawData has zero size for FED id " << fedId;
+          edm::LogWarning(sistrip::mlRawToCluster_)
+              << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << st_chan;
         }
+        buffer.reset();
         return buffer;
-      }
-
-    // construct FEDBuffer
-    try {
-      buffer.reset(new sistrip::FEDBuffer(rawData.data(), rawData.size()));
-      if
-        UNLIKELY(!buffer->doChecks(false))
-      throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
-    } catch (const cms::Exception& e) {
-      if (edm::isDebugEnabled()) {
-        edm::LogWarning(sistrip::mlRawToCluster_)
-            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << e.what();
-      }
-      return std::unique_ptr<sistrip::FEDBuffer>();
+    }
+    if
+      UNLIKELY( !buffer->doChecks(false) ) {
+        if (edm::isDebugEnabled()) {
+          edm::LogWarning(sistrip::mlRawToCluster_)
+              << "Exception caught when creating FEDBuffer object for FED " << fedId << ": FED Buffer check fails";
+        }
+        buffer.reset();
+        return buffer;
     }
 
     /*

@@ -146,6 +146,9 @@ namespace sistrip {
     EXPECT_SPY,
     // for FEDBuffer
     WRONG_HEADERTYPE,
+    CHANNEL_BEGIN_BEYOND_PAYLOAD,
+    CHANNEL_TOO_SHORT,
+    CHANNEL_END_BEYOND_PAYLOAD,
   };
 
   //
