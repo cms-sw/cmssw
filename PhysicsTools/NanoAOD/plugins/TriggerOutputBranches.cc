@@ -38,8 +38,11 @@ TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames 
        if(name.compare(0,3,"HLT")==0 || name.compare(0,4,"Flag")==0 || name.compare(0,2,"L1")==0 ){
            for(auto & existing : m_triggerBranches) {if(name==existing.name) found=true;}
            if(!found){
-                NamedBranchPtr nb(name,"Trigger/flag bit"); //FIXME: If the title can be updated we can use it to list the versions _v* that were seen in this file
+	        NamedBranchPtr nb(name,
+				  std::string("Trigger/flag bit from ") +
+				  m_processName);  //FIXME: If the title can be updated we can use it to list the versions _v* that were seen in this file
                 uint8_t backFillValue=0;
+		verifyBranchUniqueName(tree, nb.name);
                 nb.branch= tree.Branch(nb.name.c_str(), &backFillValue, (name + "/O").c_str()); 
                 nb.branch->SetTitle(nb.title.c_str());
                 nb.idx=j;
@@ -88,5 +91,11 @@ void TriggerOutputBranches::fill(const edm::EventForOutput &iEvent,TTree & tree)
     m_fills++; 
 }
 
-
-
+void TriggerOutputBranches::verifyBranchUniqueName(TTree& tree, std::string name) const {
+  auto const branches = tree.GetListOfBranches();
+  for (int i = 0; i < branches->GetEntries(); i++)
+    if (name == std::string(branches->At(i)->GetName()))
+      throw cms::Exception("LogicError")
+          << "TriggerOutputBranches found a branch already in the output file when trying to write " << name << " ("
+          << m_processName << "): " << branches->At(i)->GetName() << " (" << branches->At(i)->GetTitle() << ")\n";
+}
