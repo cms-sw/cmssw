@@ -56,26 +56,39 @@ namespace gen {
       if (!((fMasterGen->particleData).isParticle(particleID))) {
         particleID = std::fabs(particleID);
       }
-      (fMasterGen->event).append(particleID, 1, 0, 0, px, py, pz, ee, mass);
-      int eventSize = (fMasterGen->event).size() - 1;
-      // -log(flat) = exponential distribution
-      double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
-      (fMasterGen->event)[eventSize].tau(tauTmp);
+      if (1 <= std::abs(particleID) && std::abs(particleID) <= 6)  // quarks
+        (fMasterGen->event).append(particleID, 23, 101, 0, px, py, pz, ee, mass);
+      else if (std::abs(particleID) == 21)  // gluons
+        (fMasterGen->event).append(21, 23, 101, 102, px, py, pz, ee, mass);
+      // other
+      else {
+        (fMasterGen->event).append(particleID, 1, 0, 0, px, py, pz, ee, mass);
+        int eventSize = (fMasterGen->event).size() - 1;
+        // -log(flat) = exponential distribution
+        double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+        (fMasterGen->event)[eventSize].tau(tauTmp);
+      }
 
       // Here also need to add anti-particle (if any)
       // otherwise just add a 2nd particle of the same type
       // (for example, gamma)
       //
       if (fAddAntiParticle) {
-        if ((fMasterGen->particleData).isParticle(-particleID)) {
-          (fMasterGen->event).append(-particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+        if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
+          (fMasterGen->event).append(-particleID, 23, 0, 101, -px, -py, -pz, ee, mass);
+        } else if (std::abs(particleID) == 21) {  // gluons
+          (fMasterGen->event).append(21, 23, 102, 101, -px, -py, -pz, ee, mass);
         } else {
-          (fMasterGen->event).append(particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+          if ((fMasterGen->particleData).isParticle(-particleID)) {
+            (fMasterGen->event).append(-particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+          } else {
+            (fMasterGen->event).append(particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+          }
+          int eventSize = (fMasterGen->event).size() - 1;
+          // -log(flat) = exponential distribution
+          double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+          (fMasterGen->event)[eventSize].tau(tauTmp);
         }
-        eventSize = (fMasterGen->event).size() - 1;
-        // -log(flat) = exponential distribution
-        tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
-        (fMasterGen->event)[eventSize].tau(tauTmp);
       }
     }
 
