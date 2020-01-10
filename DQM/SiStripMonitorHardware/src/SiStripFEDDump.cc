@@ -65,7 +65,7 @@ void SiStripFEDDumpPlugin::analyze(const edm::Event& iEvent, const edm::EventSet
 
   const FEDRawData& rawData = rawDataCollection.FEDData(fedIdToDump_);
   const auto st_buffer = sistrip::preconstructCheckFEDBufferBase(rawData.data(), rawData.size(), false);
-  if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
+  if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
     throw cms::Exception("FEDBuffer") << st_buffer;
   }
   const sistrip::FEDBufferBase buffer(rawData.data(), rawData.size());

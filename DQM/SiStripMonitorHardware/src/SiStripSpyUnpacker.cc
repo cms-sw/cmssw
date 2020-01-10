@@ -112,16 +112,19 @@ namespace sistrip {
 
       //construct FEDBuffer
       const auto st_buffer = preconstructCheckFEDSpyBuffer(input.data(), input.size());
-      if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
-        edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
-          << "An exception of category 'FEDBuffer' occurred.\n" << st_buffer;
+      if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+        edm::LogWarning("SiStripSpyUnpacker")
+            << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+            << "An exception of category 'FEDBuffer' occurred.\n"
+            << st_buffer;
         continue;
       }
       const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
       if (!buffer.doChecks() && !allowIncompleteEvents_) {
-        edm::LogWarning("SiStripSpyUnpacker") << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
-          << "An exception of category 'FEDSpyBuffer' occurred.\n"
-          << "FED Buffer check fails for FED ID " << lFedId << ".";
+        edm::LogWarning("SiStripSpyUnpacker")
+            << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
+            << "An exception of category 'FEDSpyBuffer' occurred.\n"
+            << "FED Buffer check fails for FED ID " << lFedId << ".";
         continue;
       }
       // end of buffer reset try.

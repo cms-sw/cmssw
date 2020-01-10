@@ -75,9 +75,10 @@ namespace sistrip {
       const FEDRawData& fedData = rawData.FEDData(fedId);
       if (fedData.size() && fedData.data()) {
         const auto st_buffer = preconstructCheckFEDBufferBase(fedData.data(), fedData.size());
-        if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
+        if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
           LogInfo(messageLabel_) << "Skipping FED " << fedId << " because of exception: "
-            << "An exception of category 'FEDBuffer' occurred.\n" << st_buffer;
+                                 << "An exception of category 'FEDBuffer' occurred.\n"
+                                 << st_buffer;
           continue;
         }
         const sistrip::FEDBufferBase buffer{fedData.data(), fedData.size()};

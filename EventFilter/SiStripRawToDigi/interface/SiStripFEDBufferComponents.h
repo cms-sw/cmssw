@@ -357,13 +357,12 @@ namespace sistrip {
                          const FEDStatusRegister fedStatusRegister = FEDStatusRegister());
 
     // detect the buffer format without constructing the full header
-    static FEDBufferFormat bufferFormat(const uint8_t* headerPointer)
-    {
-      if ( headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_NEW ) {
+    static FEDBufferFormat bufferFormat(const uint8_t* headerPointer) {
+      if (headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_NEW) {
         return BUFFER_FORMAT_NEW;
-      } else if ( headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_OLD ) {
+      } else if (headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_OLD) {
         return BUFFER_FORMAT_OLD_SLINK;
-      } else if ( headerPointer[BUFFERFORMAT^4] == BUFFER_FORMAT_CODE_OLD ) {
+      } else if (headerPointer[BUFFERFORMAT ^ 4] == BUFFER_FORMAT_CODE_OLD) {
         // same case as used to detect "wordSwapped_" in the constructor
         return BUFFER_FORMAT_OLD_VME;
       } else {
@@ -710,9 +709,7 @@ namespace sistrip {
   protected:
     const uint8_t* getPointerToDataAfterTrackerSpecialHeader() const;
     const uint8_t* getPointerToByteAfterEndOfPayload() const;
-    FEDBufferBase(const uint8_t* fedBuffer,
-                  const size_t fedBufferSize,
-                  const bool fillChannelVector);
+    FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool fillChannelVector);
     std::vector<FEDChannel> channels_;
 
   private:
@@ -808,7 +805,7 @@ namespace sistrip {
     const auto nibble = trackerEventTypeNibble();
     //if it is scope mode then return as is (it cannot be fake data)
     //if it is premix then return as is: stripping last bit would make it spy data !
-    if ( (nibble == READOUT_MODE_SCOPE) || (nibble == READOUT_MODE_PREMIX_RAW) )
+    if ((nibble == READOUT_MODE_SCOPE) || (nibble == READOUT_MODE_PREMIX_RAW))
       return FEDReadoutMode(nibble);
     //if not then ignore the last bit which indicates if it is real or fake
     else {
@@ -1523,45 +1520,46 @@ namespace sistrip {
 
   // new methods for checks, replacing exceptions
 
-  inline FEDBufferStatusCode preconstructCheckFEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, bool checkRecognizedFormat=true)
-  {
-    if ( ! fedBuffer )
+  inline FEDBufferStatusCode preconstructCheckFEDBufferBase(const uint8_t* fedBuffer,
+                                                            const size_t fedBufferSize,
+                                                            bool checkRecognizedFormat = true) {
+    if (!fedBuffer)
       return FEDBufferStatusCode::BUFFER_NULL;
     //min buffer length. DAQ header, DAQ trailer, tracker special header.
     static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
     //check size is non zero
-    if ( fedBufferSize < MIN_BUFFER_SIZE )
+    if (fedBufferSize < MIN_BUFFER_SIZE)
       return FEDBufferStatusCode::BUFFER_TOO_SHORT;
-    if ( checkRecognizedFormat ) {
-      if ( BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer+8) ) {
+    if (checkRecognizedFormat) {
+      if (BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer + 8)) {
         return FEDBufferStatusCode::UNRECOGNIZED_FORMAT;
       }
     }
     return FEDBufferStatusCode::SUCCESS;
   }
 
-  inline FEDBufferStatusCode preconstructCheckFEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize, bool allowBadBuffer=false)
-  {
-    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, ! allowBadBuffer);
-    if ( FEDBufferStatusCode::SUCCESS != st_base )
+  inline FEDBufferStatusCode preconstructCheckFEDBuffer(const uint8_t* fedBuffer,
+                                                        const size_t fedBufferSize,
+                                                        bool allowBadBuffer = false) {
+    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, !allowBadBuffer);
+    if (FEDBufferStatusCode::SUCCESS != st_base)
       return st_base;
-    const TrackerSpecialHeader hdr{fedBuffer+8};
+    const TrackerSpecialHeader hdr{fedBuffer + 8};
     const auto hdr_type = hdr.headerType();
-    if ( ( ! allowBadBuffer ) && ( ( hdr_type == sistrip::HEADER_TYPE_INVALID ) || ( hdr_type == sistrip::HEADER_TYPE_NONE ) ) )
+    if ((!allowBadBuffer) && ((hdr_type == sistrip::HEADER_TYPE_INVALID) || (hdr_type == sistrip::HEADER_TYPE_NONE)))
       return FEDBufferStatusCode::WRONG_HEADERTYPE;
-    if ( READOUT_MODE_SPY == hdr.readoutMode() )
+    if (READOUT_MODE_SPY == hdr.readoutMode())
       return FEDBufferStatusCode::EXPECT_NOT_SPY;
     // TODO add more (?)
     return FEDBufferStatusCode::SUCCESS;
   }
 
-  inline FEDBufferStatusCode preconstructCheckFEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize)
-  {
+  inline FEDBufferStatusCode preconstructCheckFEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize) {
     const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, true);
-    if ( FEDBufferStatusCode::SUCCESS != st_base )
+    if (FEDBufferStatusCode::SUCCESS != st_base)
       return st_base;
-    const TrackerSpecialHeader hdr{fedBuffer+8};
-    if ( READOUT_MODE_SPY != hdr.readoutMode() )
+    const TrackerSpecialHeader hdr{fedBuffer + 8};
+    if (READOUT_MODE_SPY != hdr.readoutMode())
       return FEDBufferStatusCode::EXPECT_SPY;
     // TODO add more (?)
     return FEDBufferStatusCode::SUCCESS;

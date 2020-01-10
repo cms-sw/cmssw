@@ -207,7 +207,7 @@ bool FEDErrors::failUnpackerFEDCheck() { return failUnpackerFEDCheck_; }
 
 bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned int aPrintDebug) {
   const auto st_buffer = sistrip::preconstructCheckFEDBufferBase(aFedData.data(), aFedData.size());
-  if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
+  if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
     fedErrors_.InvalidBuffers = true;
     failUnpackerFEDCheck_ = true;
     //don't check anything else if the buffer is invalid
@@ -312,11 +312,11 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 
   //need to construct full object to go any further
   const auto st_buffer = sistrip::preconstructCheckFEDBuffer(aFedData.data(), aFedData.size(), true);
-  if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
+  if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
     throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
   }
   sistrip::FEDBuffer buffer(aFedData.data(), aFedData.size(), true);
-  buffer.findChannels(); // no need to check the status, also bad buffers are allowed
+  buffer.findChannels();  // no need to check the status, also bad buffers are allowed
 
   //fill remaining unpackerFEDcheck
   if (!buffer.checkChannelLengths())
@@ -341,14 +341,8 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
     fillFEErrors(buffer, aDoFEMaj, aFeMajFrac);
 
     //channel checks
-    fillChannelErrors(buffer,
-                      aFullDebug,
-                      aPrintDebug,
-                      aCounterMonitoring,
-                      aCounterUnpacker,
-                      aDoMeds,
-                      aMedianHist0,
-                      aMedianHist1);
+    fillChannelErrors(
+        buffer, aFullDebug, aPrintDebug, aCounterMonitoring, aCounterUnpacker, aDoMeds, aMedianHist0, aMedianHist1);
   }
 
   if (printDebug() && aPrintDebug > 2) {

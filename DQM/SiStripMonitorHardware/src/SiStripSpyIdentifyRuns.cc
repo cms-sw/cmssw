@@ -106,10 +106,12 @@ namespace sistrip {
         continue;
       //construct FEDBuffer
       const auto st_buffer = preconstructCheckFEDSpyBuffer(input.data(), input.size());
-      if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
-        edm::LogWarning("SiStripSpyIdentifyRuns") << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
-          << "An exception of category 'FEDBuffer' occurred.\n" << st_buffer;
-        if ( sistrip::FEDBufferStatusCode::EXPECT_SPY == st_buffer )
+      if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+        edm::LogWarning("SiStripSpyIdentifyRuns")
+            << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
+            << "An exception of category 'FEDBuffer' occurred.\n"
+            << st_buffer;
+        if (sistrip::FEDBufferStatusCode::EXPECT_SPY == st_buffer)
           break;
       }
       const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};

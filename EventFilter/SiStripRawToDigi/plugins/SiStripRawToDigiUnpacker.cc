@@ -69,14 +69,14 @@ namespace sistrip {
     edm::RunningAverage localRA(10000);
 
     void maskFED(DetIdCollection& maskedModules, SiStripFedCabling::ConnsConstIterRange fedConnections) {
-      maskedModules.reserve(maskedModules.size()+fedConnections.size());
-      for ( const auto& conn : fedConnections ) {
-        if ( conn.detId() && ( conn.detId() != sistrip::invalid32_ ) ) {
+      maskedModules.reserve(maskedModules.size() + fedConnections.size());
+      for (const auto& conn : fedConnections) {
+        if (conn.detId() && (conn.detId() != sistrip::invalid32_)) {
           maskedModules.push_back(conn.detId());  //@@ Possible multiple entries (ok for Giovanni)
         }
       }
     }
-  }
+  }  // namespace
 
   void RawToDigiUnpacker::createDigis(const SiStripFedCabling& cabling,
                                       const FEDRawDataCollection& buffers,
@@ -150,8 +150,8 @@ namespace sistrip {
       // check FEDRawData pointer, size, and more
       const auto st_buffer = preconstructCheckFEDBuffer(input.data(), input.size());
       // construct FEDBuffer
-      if ( FEDBufferStatusCode::SUCCESS != st_buffer ) {
-        if ( FEDBufferStatusCode::BUFFER_NULL == st_buffer ) {
+      if (FEDBufferStatusCode::SUCCESS != st_buffer) {
+        if (FEDBufferStatusCode::BUFFER_NULL == st_buffer) {
           warnings_.add("NULL pointer to FEDRawData for FED", (boost::format("id %1%") % *ifed).str());
         } else if (!input.size()) {
           warnings_.add("FEDRawData has zero size for FED", (boost::format("id %1%") % *ifed).str());
@@ -165,14 +165,14 @@ namespace sistrip {
       }
       FEDBuffer buffer(input.data(), input.size());
       const auto st_chan = buffer.findChannels();
-      if ( FEDBufferStatusCode::SUCCESS != st_chan ) {
+      if (FEDBufferStatusCode::SUCCESS != st_chan) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
                       (boost::format("id %1%: %2%") % *ifed % st_chan).str());
         maskFED(detids, conns);
         continue;
       }
       buffer.setLegacyMode(legacy_);
-      if ( ( ! buffer.doChecks(true) ) && (!unpackBadChannels_ || !buffer.checkNoFEOverflows()) ) {
+      if ((!buffer.doChecks(true)) && (!unpackBadChannels_ || !buffer.checkNoFEOverflows())) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
                       (boost::format("id %1%: FED Buffer check fails for FED ID %1%.") % *ifed).str());
         maskFED(detids, conns);
