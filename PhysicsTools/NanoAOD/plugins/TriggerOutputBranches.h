@@ -20,6 +20,7 @@ class TriggerOutputBranches {
 
     void updateTriggerNames(TTree &tree,const edm::TriggerNames & names, const edm::TriggerResults & ta);
     void fill(const edm::EventForOutput &iEvent,TTree & tree) ;
+    std::string processName() { return m_processName; }
 
  private:
     edm::TriggerNames triggerNames(const edm::TriggerResults triggerResults); //FIXME: if we have to keep it local we may use PsetID check per event instead of run boundary
@@ -40,7 +41,7 @@ class TriggerOutputBranches {
     long m_lastRun;
     unsigned long m_fills;
     std::string m_processName;
-    void verifyBranchUniqueName(TTree &, std::string) const;
+    bool verifyBranchUniqueName(TTree &, std::string) const;
 
     template<typename T>
     void fillColumn(NamedBranchPtr & nb, const edm::TriggerResults & triggers) {

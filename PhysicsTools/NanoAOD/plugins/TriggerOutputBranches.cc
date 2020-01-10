@@ -1,4 +1,5 @@
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputBranches.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -39,11 +40,13 @@ TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames 
            for(auto & existing : m_triggerBranches) {if(name==existing.name) found=true;}
            if(!found){
 	        NamedBranchPtr nb(name,
-				  std::string("Trigger/flag bit from ") +
-				  m_processName);  //FIXME: If the title can be updated we can use it to list the versions _v* that were seen in this file
+				  std::string("Trigger/flag bit (process: ") + m_processName +
+				  ")");  //FIXME: If the title can be updated we can use it to list the versions _v* that were seen in this file
                 uint8_t backFillValue=0;
-		verifyBranchUniqueName(tree, nb.name);
-                nb.branch= tree.Branch(nb.name.c_str(), &backFillValue, (name + "/O").c_str()); 
+		bool found_duplicate = verifyBranchUniqueName(tree, nb.name);
+		nb.branch = tree.Branch((nb.name + (found_duplicate ? (std::string("_p") + m_processName) : "")).c_str(),
+					&backFillValue,
+					(name + "/O").c_str());
                 nb.branch->SetTitle(nb.title.c_str());
                 nb.idx=j;
                 m_triggerBranches.push_back(nb);
@@ -91,11 +94,16 @@ void TriggerOutputBranches::fill(const edm::EventForOutput &iEvent,TTree & tree)
     m_fills++; 
 }
 
-void TriggerOutputBranches::verifyBranchUniqueName(TTree& tree, std::string name) const {
+bool TriggerOutputBranches::verifyBranchUniqueName(TTree& tree, std::string name) const {
   auto const branches = tree.GetListOfBranches();
-  for (int i = 0; i < branches->GetEntries(); i++)
-    if (name == std::string(branches->At(i)->GetName()))
-      throw cms::Exception("LogicError")
-          << "TriggerOutputBranches found a branch already in the output file when trying to write " << name << " ("
-          << m_processName << "): " << branches->At(i)->GetName() << " (" << branches->At(i)->GetTitle() << ")\n";
+  for (int i = 0; i < branches->GetEntries(); i++) {
+    if (name == std::string(branches->At(i)->GetName())) {
+      edm::LogWarning("TriggerOutputBranches")
+          << "Found a branch with name " << std::string(branches->At(i)->GetName()) << " already present with title "
+          << std::string(branches->At(i)->GetTitle()) << ": will add suffix _p" << m_processName
+          << " to the new branch.\n";
+      return true;
+    }
+  }
+  return false;
 }
