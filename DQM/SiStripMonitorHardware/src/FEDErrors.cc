@@ -206,14 +206,14 @@ bool FEDErrors::checkDataPresent(const FEDRawData& aFedData) {
 bool FEDErrors::failUnpackerFEDCheck() { return failUnpackerFEDCheck_; }
 
 bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned int aPrintDebug) {
-  const auto st_buffer = sistrip::preconstructCheckFEDBufferBase(aFedData.data(), aFedData.size());
+  const auto st_buffer = sistrip::preconstructCheckFEDBufferBase(aFedData);
   if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
     fedErrors_.InvalidBuffers = true;
     failUnpackerFEDCheck_ = true;
     //don't check anything else if the buffer is invalid
     return false;
   }
-  const sistrip::FEDBufferBase buffer{aFedData.data(), aFedData.size()};
+  const sistrip::FEDBufferBase buffer{aFedData};
 
   //CRC checks
   //if CRC fails then don't continue as if the buffer has been corrupted in DAQ then anything else could be invalid
@@ -311,11 +311,11 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
     return false;
 
   //need to construct full object to go any further
-  const auto st_buffer = sistrip::preconstructCheckFEDBuffer(aFedData.data(), aFedData.size(), true);
+  const auto st_buffer = sistrip::preconstructCheckFEDBuffer(aFedData, true);
   if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
     throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
   }
-  sistrip::FEDBuffer buffer(aFedData.data(), aFedData.size(), true);
+  sistrip::FEDBuffer buffer{aFedData, true};
   buffer.findChannels();  // no need to check the status, also bad buffers are allowed
 
   //fill remaining unpackerFEDcheck

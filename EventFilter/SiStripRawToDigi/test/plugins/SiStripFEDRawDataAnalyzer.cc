@@ -194,10 +194,10 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
 
     // construct buffer
     std::unique_ptr<FEDBuffer> buffer;
-    if (FEDBufferStatusCode::SUCCESS != preconstructCheckFEDBuffer(fed.data(), fed.size())) {
+    if (FEDBufferStatusCode::SUCCESS != preconstructCheckFEDBuffer(fed)) {
       construct[ifed].push_back(0);
     } else {
-      buffer = std::make_unique<FEDBuffer>(fed.data(), fed.size());
+      buffer = std::make_unique<FEDBuffer>(fed);
       if (FEDBufferStatusCode::SUCCESS != buffer->findChannels()) {
         construct[ifed].push_back(0);
       }

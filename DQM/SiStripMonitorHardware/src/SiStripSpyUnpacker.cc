@@ -111,7 +111,7 @@ namespace sistrip {
       auto conns = cabling.fedConnections(lFedId);
 
       //construct FEDBuffer
-      const auto st_buffer = preconstructCheckFEDSpyBuffer(input.data(), input.size());
+      const auto st_buffer = preconstructCheckFEDSpyBuffer(input);
       if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
         edm::LogWarning("SiStripSpyUnpacker")
             << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "
@@ -119,7 +119,7 @@ namespace sistrip {
             << st_buffer;
         continue;
       }
-      const sistrip::FEDSpyBuffer buffer{input.data(), input.size()};
+      const sistrip::FEDSpyBuffer buffer{input};
       if (!buffer.doChecks() && !allowIncompleteEvents_) {
         edm::LogWarning("SiStripSpyUnpacker")
             << "Exception caught when creating FEDSpyBuffer object for FED " << lFedId << ": "

@@ -1245,13 +1245,15 @@ namespace sistrip {
 
   FEDFEHeader::~FEDFEHeader() {}
 
-  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize)
-      : channels_(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0)), originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
+  FEDBufferBase::FEDBufferBase(const FEDRawData& fedBuffer)
+      : channels_(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0)),
+        originalBuffer_(fedBuffer.data()),
+        bufferSize_(fedBuffer.size()) {
     init();
   }
 
-  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool fillChannelVector)
-      : originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
+  FEDBufferBase::FEDBufferBase(const FEDRawData& fedBuffer, const bool fillChannelVector)
+      : originalBuffer_(fedBuffer.data()), bufferSize_(fedBuffer.size()) {
     init();
     if (fillChannelVector)
       channels_.assign(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0));

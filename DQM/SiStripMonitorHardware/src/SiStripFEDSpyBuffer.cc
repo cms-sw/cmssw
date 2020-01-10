@@ -5,8 +5,8 @@ namespace sistrip {
 
   const uint8_t FEDSpyBuffer::channelPositionsInData_[FEDCH_PER_DELAY_CHIP] = {0, 3, 2, 1};
 
-  FEDSpyBuffer::FEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize)
-      : FEDBufferBase(fedBuffer, fedBufferSize),
+  FEDSpyBuffer::FEDSpyBuffer(const FEDRawData& fedBuffer)
+      : FEDBufferBase(fedBuffer),
         payloadPointer_(getPointerToDataAfterTrackerSpecialHeader() + 16),
         payloadLength_(getPointerToByteAfterEndOfPayload() - payloadPointer_),
         versionId_(*(getPointerToDataAfterTrackerSpecialHeader() + 3)) {

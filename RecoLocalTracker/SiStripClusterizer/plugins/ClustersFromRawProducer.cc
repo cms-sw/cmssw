@@ -46,7 +46,7 @@ namespace {
     const FEDRawData& rawData = rawColl.FEDData(fedId);
 
     // Check on FEDRawData pointer
-    const auto st_buffer = sistrip::preconstructCheckFEDBuffer(rawData.data(), rawData.size());
+    const auto st_buffer = sistrip::preconstructCheckFEDBuffer(rawData);
     if
       UNLIKELY(sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
         if (edm::isDebugEnabled()) {
@@ -55,7 +55,7 @@ namespace {
         }
         return buffer;
       }
-    buffer = std::make_unique<sistrip::FEDBuffer>(rawData.data(), rawData.size());
+    buffer = std::make_unique<sistrip::FEDBuffer>(rawData);
     const auto st_chan = buffer->findChannels();
     if
       UNLIKELY(sistrip::FEDBufferStatusCode::SUCCESS != st_chan) {

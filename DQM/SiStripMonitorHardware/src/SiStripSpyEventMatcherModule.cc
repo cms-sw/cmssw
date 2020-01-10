@@ -112,14 +112,14 @@ namespace sistrip {
     const FEDRawDataCollection& fedRawData = *fedRawDataHandle;
     for (auto iFedId = cabling.fedIds().begin(); iFedId != cabling.fedIds().end(); ++iFedId) {
       const FEDRawData& data = fedRawData.FEDData(*iFedId);
-      const auto st_buffer = preconstructCheckFEDBuffer(data.data(), data.size());
+      const auto st_buffer = preconstructCheckFEDBuffer(data);
       if (FEDBufferStatusCode::SUCCESS != st_buffer) {
         LogInfo(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId
                                << ". Exception was: An exception of category 'FEDBuffer' occurred.\n"
                                << st_buffer << " (see debug output for details)";
         continue;
       }
-      FEDBuffer buffer(data.data(), data.size());
+      FEDBuffer buffer{data};
       const auto st_chan = buffer.findChannels();
       if (FEDBufferStatusCode::SUCCESS != st_chan) {
         LogDebug(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId << ". Exception was " << st_chan

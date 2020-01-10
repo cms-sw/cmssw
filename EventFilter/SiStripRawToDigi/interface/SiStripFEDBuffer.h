@@ -22,14 +22,34 @@ namespace sistrip {
   //class representing standard (non-spy channel) FED buffers
   class FEDBuffer final : public FEDBufferBase {
   public:
-    //construct from buffer
-    //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
-    FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer = false);
+    /**
+     * constructor from a FEDRawData buffer
+     *
+     * The sistrip::preconstructCheckFEDBuffer() method should be used
+     * (with the same value of allowBadBuffer) to check the validity of
+     * fedBuffer before constructing a sistrip::FEDBuffer.
+     * If allowBadBuffer is set to true, the initialization proceeds
+     * even if the event format is not recognized.
+     * To initialize also the channel information, the FEDBuffer::findChannels()
+     * method should be called as well, and its return status checked
+     * (unless bad buffers, with an unrecognized event format or channel lengths
+     * that do not make sense, should also be included).
+     *
+     * @see sistrip::preconstructCheckFEDBuffer() sistrip::FEDBuffer::findChannels()
+     */
+    explicit FEDBuffer(const FEDRawData& fedBuffer, const bool allowBadBuffer = false);
     ~FEDBuffer() override;
 
-    // retrieve the channel information (everything beyond the headers)
-    // must be called after the constructor before using any channel-level information
-    // and FEDBufferStatusCode compared with FEDBufferStatusCode::SUCCESS, unless bad buffers are allowed
+    /**
+     * Read the channel lengths from the payload
+     *
+     * This method should be called to after the constructor
+     * (and should not be called more than once for the same sistrip::FEDBuffer).
+     * In case any check fails, a value different from sistrip::FEDBufferStatusCode::SUCCESS
+     * is returned, and detailed information printed to LogDebug("FEDBuffer"), if relevant.
+     *
+     * @see sistrip::FEDBuffer::FEDBuffer()
+     */
     FEDBufferStatusCode findChannels();
 
     void print(std::ostream& os) const override;
@@ -188,13 +208,24 @@ namespace sistrip {
   // Inline function definitions
   //
 
-  inline FEDBufferStatusCode preconstructCheckFEDBuffer(const uint8_t* fedBuffer,
-                                                        const size_t fedBufferSize,
-                                                        bool allowBadBuffer = false) {
-    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, fedBufferSize, !allowBadBuffer);
+  /**
+   * Check if a FEDRawData object satisfies the requirements for constructing a sistrip::FEDBuffer
+   *
+   * These are:
+   *   - those from sistrip::preconstructCheckFEDBufferBase()
+   *   - the readout mode should not be sistrip::READOUT_MODE_SPY
+   *   - (unless allowBadBuffers is true) the header type should not be sistrip::HEADER_TYPE_INVALID or HEADER_TYPE_NONE
+   *
+   * In case any check fails, a value different from sistrip::FEDBufferStatusCode::SUCCESS
+   * is returned, and detailed information printed to LogDebug("FEDBuffer"), if relevant.
+   *
+   * @see sistrip::preconstructCheckFEDBufferBase()
+   */
+  inline FEDBufferStatusCode preconstructCheckFEDBuffer(const FEDRawData& fedBuffer, bool allowBadBuffer = false) {
+    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, !allowBadBuffer);
     if (FEDBufferStatusCode::SUCCESS != st_base)
       return st_base;
-    const TrackerSpecialHeader hdr{fedBuffer + 8};
+    const TrackerSpecialHeader hdr{fedBuffer.data() + 8};
     const auto hdr_type = hdr.headerType();
     if ((!allowBadBuffer) && ((hdr_type == sistrip::HEADER_TYPE_INVALID) || (hdr_type == sistrip::HEADER_TYPE_NONE))) {
 #ifdef EDM_ML_DEBUG

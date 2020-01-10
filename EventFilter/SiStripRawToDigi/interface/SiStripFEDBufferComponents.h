@@ -5,6 +5,7 @@
 #include <memory>
 #include <cstring>
 #include <vector>
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -634,7 +635,15 @@ namespace sistrip {
   //base class for sistrip FED buffers which have a DAQ header/trailer and tracker special header
   class FEDBufferBase {
   public:
-    FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize);
+    /**
+     * constructor from a FEDRawData buffer
+     *
+     * The sistrip::preconstructCheckFEDBufferBase() method should be used to check
+     * the validity of the fedBuffer before constructing a sistrip::FEDBufferBase.
+     *
+     * @see sistrip::preconstructCheckFEDBufferBase()
+     */
+    explicit FEDBufferBase(const FEDRawData& fedBuffer);
     virtual ~FEDBufferBase();
     //dump buffer to stream
     void dump(std::ostream& os) const;
@@ -710,7 +719,7 @@ namespace sistrip {
   protected:
     const uint8_t* getPointerToDataAfterTrackerSpecialHeader() const;
     const uint8_t* getPointerToByteAfterEndOfPayload() const;
-    FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool fillChannelVector);
+    FEDBufferBase(const FEDRawData& fedBuffer, const bool fillChannelVector);
     std::vector<FEDChannel> channels_;
 
   private:
@@ -727,23 +736,33 @@ namespace sistrip {
   // Inline function definitions
   //
 
-  inline FEDBufferStatusCode preconstructCheckFEDBufferBase(const uint8_t* fedBuffer,
-                                                            const size_t fedBufferSize,
+  /**
+   * Check if a FEDRawData object satisfies the requirements for constructing a sistrip::FEDBufferBase
+   *
+   * These are:
+   *   - FEDRawData::data() is non-null
+   *   - FEDRawData::size() is large enough (at least big enough to hold a sistrip::TrackerSpecialHeader)
+   *   - (unless checkRecognizedFormat is false) the buffer format (inside the sistrip::TrackerSpecialHeader) is recognized
+   *
+   * In case any check fails, a value different from sistrip::FEDBufferStatusCode::SUCCESS
+   * is returned, and detailed information printed to LogDebug("FEDBuffer"), if relevant.
+   */
+  inline FEDBufferStatusCode preconstructCheckFEDBufferBase(const FEDRawData& fedBuffer,
                                                             bool checkRecognizedFormat = true) {
-    if (!fedBuffer)
+    if (!fedBuffer.data())
       return FEDBufferStatusCode::BUFFER_NULL;
     //min buffer length. DAQ header, DAQ trailer, tracker special header.
     static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
     //check size is non zero
-    if (fedBufferSize < MIN_BUFFER_SIZE) {
+    if (fedBuffer.size() < MIN_BUFFER_SIZE) {
       LogDebug("FEDBuffer") << "Buffer is too small. Min size is " << MIN_BUFFER_SIZE << ". Buffer size is "
-                            << fedBufferSize << ". ";
+                            << fedBuffer.size() << ". ";
       return FEDBufferStatusCode::BUFFER_TOO_SHORT;
     }
     if (checkRecognizedFormat) {
-      if (BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer + 8)) {
+      if (BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer.data() + 8)) {
         LogDebug("FEDBuffer") << "Buffer format not recognized. Tracker special header: "
-                              << TrackerSpecialHeader(fedBuffer + 8);
+                              << TrackerSpecialHeader(fedBuffer.data() + 8);
         return FEDBufferStatusCode::UNRECOGNIZED_FORMAT;
       }
     }

@@ -67,11 +67,11 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
       continue;
 
     // construct FEDBuffer
-    const auto st_buffer = sistrip::preconstructCheckFEDBuffer(input.data(), input.size());
+    const auto st_buffer = sistrip::preconstructCheckFEDBuffer(input);
     if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
       throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
     }
-    sistrip::FEDBuffer buffer(input.data(), input.size());
+    sistrip::FEDBuffer buffer{input};
     const auto st_chan = buffer.findChannels();
     if (sistrip::FEDBufferStatusCode::SUCCESS != st_chan) {
       throw cms::Exception("FEDBuffer") << st_chan << " (check debug output for more details)";
