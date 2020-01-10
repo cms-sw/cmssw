@@ -206,7 +206,7 @@ bool FEDErrors::checkDataPresent(const FEDRawData& aFedData) {
 bool FEDErrors::failUnpackerFEDCheck() { return failUnpackerFEDCheck_; }
 
 bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned int aPrintDebug) {
-  const auto st_buffer = preconstructCheckFEDBufferBase(aFedData.data(), aFedData.size());
+  const auto st_buffer = sistrip::preconstructCheckFEDBufferBase(aFedData.data(), aFedData.size());
   if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
     fedErrors_.InvalidBuffers = true;
     failUnpackerFEDCheck_ = true;
