@@ -1250,9 +1250,7 @@ namespace sistrip {
     init();
   }
 
-  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer,
-                               const size_t fedBufferSize,
-                               const bool fillChannelVector)
+  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool fillChannelVector)
       : originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
     init();
     if (fillChannelVector)

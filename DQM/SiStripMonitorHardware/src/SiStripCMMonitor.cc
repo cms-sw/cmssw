@@ -225,12 +225,12 @@ void SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventS
     } else {
       //need to construct full object to go any further
       const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData.data(), fedData.size(), true);
-      if ( sistrip::FEDBufferStatusCode::SUCCESS != st_buffer ) {
+      if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
         throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
       }
       auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData.data(), fedData.size(), true);
       tmp_buffer->findChannels();
-      buffer = std::move(tmp_buffer); // const now
+      buffer = std::move(tmp_buffer);  // const now
       bool channelLengthsOK = buffer->checkChannelLengthsMatchBufferLength();
       bool channelPacketCodesOK = buffer->checkChannelPacketCodes();
       bool feLengthsOK = buffer->checkFEUnitLengths();

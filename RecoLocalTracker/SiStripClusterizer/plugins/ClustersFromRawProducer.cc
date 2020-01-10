@@ -50,31 +50,31 @@ namespace {
     if
       UNLIKELY(sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
         if (edm::isDebugEnabled()) {
-          edm::LogWarning(sistrip::mlRawToCluster_) << "[ClustersFromRawProducer::" << __func__ << "]"
-                                                    << st_buffer << " for FED ID " << fedId;
+          edm::LogWarning(sistrip::mlRawToCluster_)
+              << "[ClustersFromRawProducer::" << __func__ << "]" << st_buffer << " for FED ID " << fedId;
         }
         return buffer;
       }
     buffer = std::make_unique<sistrip::FEDBuffer>(rawData.data(), rawData.size());
     const auto st_chan = buffer->findChannels();
     if
-      UNLIKELY( sistrip::FEDBufferStatusCode::SUCCESS != st_chan ) {
+      UNLIKELY(sistrip::FEDBufferStatusCode::SUCCESS != st_chan) {
         if (edm::isDebugEnabled()) {
           edm::LogWarning(sistrip::mlRawToCluster_)
               << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << st_chan;
         }
         buffer.reset();
         return buffer;
-    }
+      }
     if
-      UNLIKELY( !buffer->doChecks(false) ) {
+      UNLIKELY(!buffer->doChecks(false)) {
         if (edm::isDebugEnabled()) {
           edm::LogWarning(sistrip::mlRawToCluster_)
               << "Exception caught when creating FEDBuffer object for FED " << fedId << ": FED Buffer check fails";
         }
         buffer.reset();
         return buffer;
-    }
+      }
 
     /*
     // dump of FEDRawData to stdout

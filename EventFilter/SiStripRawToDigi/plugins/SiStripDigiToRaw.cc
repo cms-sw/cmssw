@@ -136,14 +136,14 @@ namespace sistrip {
           if (rawfedData.size() == 0)
             warnings_.add("Invalid raw data for FED, skipping", (boost::format("id %1%") % *ifed).str());
           const auto st_buffer = preconstructCheckFEDBuffer(rawfedData.data(), rawfedData.size(), true);
-          if ( FEDBufferStatusCode::SUCCESS != st_buffer ) {
+          if (FEDBufferStatusCode::SUCCESS != st_buffer) {
             edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"
                                          << " Could not construct FEDBuffer for FED " << *ifed << std::endl;
             continue;
           }
           sistrip::FEDBuffer fedbuffer(rawfedData.data(), rawfedData.size(), true);
           const auto st_chan = fedbuffer.findChannels();
-          if ( FEDBufferStatusCode::SUCCESS != st_chan ) {
+          if (FEDBufferStatusCode::SUCCESS != st_chan) {
             edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"
                                          << " Could not construct FEDBuffer for FED " << *ifed << std::endl;
           }
@@ -233,10 +233,10 @@ namespace sistrip {
               std::cout << std::endl;
             }
             bufferGenerator_.feHeader().print(debugStream);
-            edm::LogWarning("DigiToRaw")
-                << "[sistrip::DigiToRaw::createFedBuffers_]"
-                << " length of feHeader: " << bufferGenerator_.feHeader().lengthInBytes() << "\n"
-                << debugStream.str();
+            edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"
+                                         << " length of feHeader: " << bufferGenerator_.feHeader().lengthInBytes()
+                                         << "\n"
+                                         << debugStream.str();
           }
           auto conns = cabling->fedConnections(*ifed);
 
@@ -320,10 +320,10 @@ namespace sistrip {
           if (edm::isDebugEnabled()) {
             std::ostringstream debugStream;
             bufferGenerator_.feHeader().print(debugStream);
-            edm::LogWarning("DigiToRaw")
-                << "[sistrip::DigiToRaw::createFedBuffers_]"
-                << " length of final feHeader: " << bufferGenerator_.feHeader().lengthInBytes() << "\n"
-                << debugStream.str();
+            edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"
+                                         << " length of final feHeader: " << bufferGenerator_.feHeader().lengthInBytes()
+                                         << "\n"
+                                         << debugStream.str();
           }
         }  //loop on fedids
         if (edm::isDebugEnabled()) {
