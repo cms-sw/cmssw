@@ -196,7 +196,7 @@ public:
       result.emplace_back(hits_[i], energies_[i]);
     }
     assert(hits_.size() == energies_.size());
-    result.reserve(hits_.size()); 
+    result.reserve(hits_.size());
     return result;
   }
 
