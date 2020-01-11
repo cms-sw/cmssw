@@ -191,12 +191,12 @@ public:
 
   /** @brief Returns list of rechit IDs and energies for this SimCluster */
   std::vector<std::pair<uint32_t, float>> hits_and_energies() const {
+    assert(hits_.size() == energies_.size());
     std::vector<std::pair<uint32_t, float>> result;
+    result.reserve(hits_.size());
     for (size_t i = 0; i < hits_.size(); ++i) {
       result.emplace_back(hits_[i], energies_[i]);
     }
-    assert(hits_.size() == energies_.size());
-    result.reserve(hits_.size());
     return result;
   }
 
