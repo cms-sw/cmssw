@@ -26,9 +26,10 @@
 
 using Density = hgcal_clustering::Density;
 
-class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
+template <typename TILE>
+class HGCalCLUEAlgoT : public HGCalClusteringAlgoBase {
 public:
-  HGCalCLUEAlgo(const edm::ParameterSet& ps)
+  HGCalCLUEAlgoT(const edm::ParameterSet& ps)
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
             reco::CaloCluster::undefined),
@@ -46,7 +47,7 @@ public:
         use2x2_(ps.getParameter<bool>("use2x2")),
         initialized_(false) {}
 
-  ~HGCalCLUEAlgo() override {}
+  ~HGCalCLUEAlgoT() override {}
 
   void getEventSetupPerAlgorithm(const edm::EventSetup& es) override;
 
@@ -196,14 +197,21 @@ private:
   }
 
   void prepareDataStructures(const unsigned int layerId);
-  void calculateLocalDensity(const HGCalLayerTiles& lt,
+  void calculateLocalDensity(const TILE& lt,
                              const unsigned int layerId,
                              float delta_c,
                              float delta_r);  // return max density
-  void calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c, float delta_r);
+  void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta_c, float delta_r);
   int findAndAssignClusters(const unsigned int layerId, float delta_c, float delta_r);
   math::XYZPoint calculatePosition(const std::vector<int>& v, const unsigned int layerId) const;
   void setDensity(const unsigned int layerId);
 };
+
+// explicit template instantiation
+extern template class HGCalCLUEAlgoT<HGCalLayerTiles>;
+extern template class HGCalCLUEAlgoT<HFNoseLayerTiles>;
+
+using HGCalCLUEAlgo = HGCalCLUEAlgoT<HGCalLayerTiles>;
+using HFNoseCLUEAlgo = HGCalCLUEAlgoT<HFNoseLayerTiles>;
 
 #endif
