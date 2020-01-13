@@ -15,4 +15,5 @@ particleFlowTrackWithNuclear = cms.Sequence(particleFlowTrackWithNuclearTask)
 particleFlowTrackWithV0Task = cms.Task(pfTrack, pfTrackElec, pfV0)
 particleFlowTrackWithV0 = cms.Sequence(particleFlowTrackWithV0Task)
 
-pfTrackingGlobalReco = cms.Sequence(particleFlowTrackWithDisplacedVertexTask)
+pfTrackingGlobalRecoTask = cms.Task(particleFlowTrackWithDisplacedVertexTask)
+pfTrackingGlobalReco = cms.Sequence(pfTrackingGlobalRecoTask)
