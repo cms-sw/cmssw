@@ -113,7 +113,7 @@ def customiseTrackingNtupleHLT(process):
         #make sure that all iter tracking is done before running the ntuple-related modules
         process.trackingNtupleSequence.insert(0,process.hltMergedTracks)
 
-    process.trackingNtuple.tracks = "hltIter0PFlowCtfWithMaterialTracks"
+    process.trackingNtuple.tracks = "hltMergedTracks"
     process.trackingNtuple.seedTracks = _seedSelectors
     process.trackingNtuple.trackCandidates = _candidatesProducers
     process.trackingNtuple.clusterTPMap = "hltTPClusterProducer"
@@ -127,8 +127,15 @@ def customiseTrackingNtupleHLT(process):
     process.trackingNtuple.TTRHBuilder = "hltESPTTRHBWithTrackAngle"
     process.trackingNtuple.parametersDefiner = "hltLhcParametersDefinerForTP"
     process.trackingNtuple.includeMVA = False
+
+    return process
+
+def extendedContent(process):
+    process.trackingParticlesIntime.intimeOnly = False
+    process.trackingNtuple.includeOOT = True
+    process.trackingNtuple.keepEleSimHits = True
+
     process.trackingNtuple.saveSimHitsP3 = True
     process.trackingNtuple.addSeedCartesianCov = True
 
-    process.trackingNtupleSequence
     return process
