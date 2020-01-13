@@ -170,10 +170,10 @@ void CTPPSGeometryInfo::printGeometry(const CTPPSGeometry& geometry, const edm::
     for (auto it = geometry.beginSensor(); it != geometry.endSensor(); ++it) {
       CTPPSDetId detId(it->first);
 
-      const CLHEP::Hep3Vector gl_o = geometry.localToGlobal(detId, CLHEP::Hep3Vector(0, 0, 0));
-      const CLHEP::Hep3Vector gl_a1 = geometry.localToGlobal(detId, CLHEP::Hep3Vector(1, 0, 0)) - gl_o;
-      const CLHEP::Hep3Vector gl_a2 = geometry.localToGlobal(detId, CLHEP::Hep3Vector(0, 1, 0)) - gl_o;
-      const CLHEP::Hep3Vector gl_a3 = geometry.localToGlobal(detId, CLHEP::Hep3Vector(0, 0, 1)) - gl_o;
+      const auto gl_o = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 0, 0));
+      const auto gl_a1 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(1, 0, 0)) - gl_o;
+      const auto gl_a2 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 1, 0)) - gl_o;
+      const auto gl_a3 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 0, 1)) - gl_o;
 
       oss << formatDetId(detId) << std::fixed << std::setprecision(3) << std::showpos << " | ce=(" << gl_o.x() << ", "
           << gl_o.y() << ", " << gl_o.z() << ")"

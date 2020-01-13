@@ -65,7 +65,7 @@ private:
   /// A matrix multiplication shorthand.
   void multiplyByDiagonalInPlace(TMatrixD &mt, const TVectorD &diag);
 
-  static TVector3 convert3vector(const CLHEP::Hep3Vector &v) { return TVector3(v.x(), v.y(), v.z()); }
+  static TVector3 convert3vector(const CTPPSGeometry::Vector &v) { return TVector3(v.x(), v.y(), v.z()); }
 };
 
 #endif

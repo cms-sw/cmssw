@@ -71,7 +71,7 @@ FastLineRecognition::GeomData FastLineRecognition::getGeomData(unsigned int id) 
     return it->second;
 
   // calculate it
-  CLHEP::Hep3Vector d = geometry->localToGlobalDirection(id, CLHEP::Hep3Vector(0., 1., 0.));
+  const auto &d = geometry->localToGlobalDirection(id, CTPPSGeometry::Vector(0., 1., 0.));
   DetGeomDesc::Translation c = geometry->sensor(TotemRPDetId(id))->translation();
   GeomData gd;
   gd.z = c.z();
