@@ -43,9 +43,9 @@ particleFlowRecoTask = cms.Task( particleFlowTrackWithDisplacedVertexTask,
 particleFlowReco = cms.Sequence(particleFlowRecoTask)
 
 # SRR 17-Dec-2019: Add puppi weights by default to PF
-particleFlow = puppi.clone(candName='particleFlowTmp2')
+particleFlow = puppi.clone(candName='particleFlowPrePuppi')
 
-particleFlowLinksTask = cms.Task( particleFlowTmp2, particleFlow, particleFlowPtrs, chargedHadronPFTrackIsolation, particleBasedIsolationTask)
+particleFlowLinksTask = cms.Task( particleFlowPrePuppi, particleFlow, particleFlowPtrs, chargedHadronPFTrackIsolation, particleBasedIsolationTask)
 particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
