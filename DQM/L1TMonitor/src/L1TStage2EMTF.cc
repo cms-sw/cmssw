@@ -15,8 +15,6 @@ L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps)
 
 L1TStage2EMTF::~L1TStage2EMTF() {}
 
-void L1TStage2EMTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   // Monitor Dir
   ibooker.setCurrentFolder(monitorDir);

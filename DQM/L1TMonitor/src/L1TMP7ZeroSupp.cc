@@ -71,8 +71,6 @@ void L1TMP7ZeroSupp::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.add("l1tMP7ZeroSupp", desc);
 }
 
-void L1TMP7ZeroSupp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   // overall summary
   ibooker.setCurrentFolder(monitorDir_);

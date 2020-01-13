@@ -29,9 +29,6 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //  GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
-  _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vVME;
   std::vector<uint32_t> vuTCA;
   vVME.push_back(

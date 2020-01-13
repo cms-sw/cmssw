@@ -82,8 +82,6 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset) {
 	*/
   my_dtrc = std::make_unique<CSCTFDTReceiver>();
 }
-void L1TdeCSCTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TdeCSCTF::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   //Histograms booking
 

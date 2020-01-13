@@ -33,7 +33,7 @@ public:
       : Base(p, e, idet, rt), cluster_(clus) {}
 
   // a single hit is on a detunit
-  const GeomDetUnit* detUnit() const override { return static_cast<const GeomDetUnit*>(det()); }
+  const GeomDetUnit* detUnit() const override { return det(); }
 
   // used by trackMerger (to be improved)
   OmniClusterRef const& firstClusterRef() const final { return cluster_; }

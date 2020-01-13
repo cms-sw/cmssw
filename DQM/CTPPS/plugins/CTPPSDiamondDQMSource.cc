@@ -13,7 +13,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Framework/interface/Run.h"
 
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
@@ -75,7 +77,6 @@ protected:
   std::shared_ptr<dds::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock&,
                                                          const edm::EventSetup&) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   // Constants
@@ -101,6 +102,9 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> tokenDiamondHit_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondLocalTrack>> tokenDiamondTrack_;
   edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo_;
+
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryRunToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
 
   bool excludeMultipleHits_;
   double horizontalShiftBwDiamondPixels_;
@@ -479,6 +483,8 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       tokenDiamondTrack_(
           consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(ps.getParameter<edm::InputTag>("tagDiamondLocalTracks"))),
       tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
+      ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
+      ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
       centralOOT_(-999),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
@@ -506,17 +512,15 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
   }
 
   // Get detector shifts from the geometry
-  edm::ESHandle<CTPPSGeometry> geometry_;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
-  const CTPPSGeometry* geom = geometry_.product();
+  const CTPPSGeometry& geom = iSetup.getData(ctppsGeometryRunToken_);
   const CTPPSDiamondDetId detid(0, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, 0, 0);
-  const DetGeomDesc* det = geom->sensor(detid);
+  const DetGeomDesc* det = geom.sensor(detid);
   horizontalShiftOfDiamond_ = det->translation().x() - det->params().at(0);
 
   // Rough alignement of pixel detector for diamond thomography
   const CTPPSPixelDetId pixid(0, CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID, 0);
   if (iRun.run() > 300000) {  //Pixel installed
-    det = geom->sensor(pixid);
+    det = geom.sensor(pixid);
     horizontalShiftBwDiamondPixels_ = det->translation().x() - det->params().at(0) - horizontalShiftOfDiamond_ - 1;
   }
 }
@@ -577,8 +581,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   edm::Handle<edm::DetSetVector<CTPPSDiamondLocalTrack>> diamondLocalTracks;
   event.getByToken(tokenDiamondTrack_, diamondLocalTracks);
 
-  edm::ESHandle<CTPPSGeometry> geometry_;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
+  const CTPPSGeometry* ctppsGeometry = &iSetup.getData(ctppsGeometryEventToken_);
 
   // check validity
   bool valid = true;
@@ -858,7 +861,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
               potPlots_[detId_pot].effDoublecountingChMap[map_index] = 0;
             }
             CTPPSDiamondDetId detId(detId_pot.arm(), CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, plane, channel);
-            if (channelAlignedWithTrack(geometry_.product(), detId, track, 0.2)) {
+            if (channelAlignedWithTrack(ctppsGeometry, detId, track, 0.2)) {
               // Channel should fire
               ++(potPlots_[detId_pot].effDoublecountingChMap[map_index]);
               for (const auto& rechits : *diamondRecHits) {
@@ -1191,10 +1194,6 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
     hitHistoTmp->Divide(&(plot.second.pixelTracksMapWithDiamonds), &(potPlots_[detId_pot].pixelTracksMap));
   }
 }
-
-//----------------------------------------------------------------------------------------------------
-
-void CTPPSDiamondDQMSource::dqmEndRun(const edm::Run&, const edm::EventSetup&) {}
 
 //----------------------------------------------------------------------------------------------------
 

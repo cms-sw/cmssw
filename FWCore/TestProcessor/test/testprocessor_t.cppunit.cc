@@ -10,6 +10,7 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 
 #include "FWCore/Integration/interface/ESTestData.h"
 #include "FWCore/Integration/interface/ESTestRecords.h"
@@ -35,9 +36,12 @@ class testTestProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(extraProcessTest);
   CPPUNIT_TEST(eventSetupTest);
   CPPUNIT_TEST(eventSetupPutTest);
+  CPPUNIT_TEST(lumiTest);
   CPPUNIT_TEST(taskTest);
   CPPUNIT_TEST(emptyRunTest);
   CPPUNIT_TEST(emptyLumiTest);
+  CPPUNIT_TEST(runProductTest);
+  CPPUNIT_TEST(lumiProductTest);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -51,9 +55,12 @@ public:
   void extraProcessTest();
   void eventSetupTest();
   void eventSetupPutTest();
+  void lumiTest();
   void taskTest();
   void emptyRunTest();
   void emptyLumiTest();
+  void runProductTest();
+  void lumiProductTest();
 
 private:
 };
@@ -200,6 +207,20 @@ void testTestProcessor::eventSetupPutTest() {
   CPPUNIT_ASSERT_THROW(tester.test(), cms::Exception);
 }
 
+void testTestProcessor::lumiTest() {
+  auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer('ThingProducer')
+process.moduleToTest(process.toTest)
+)_";
+  edm::test::TestProcessor::Config config(kTest);
+
+  edm::test::TestProcessor tester(config);
+  (void)tester.test();
+  tester.setLuminosityBlockNumber(2);
+  (void)tester.test();
+}
+
 void testTestProcessor::taskTest() {
   char const* kTest =
       "from FWCore.TestProcessor.TestProcess import *\n"
@@ -247,6 +268,57 @@ process.moduleToTest(process.toTest)
   edm::test::TestProcessor tester(config);
 
   tester.testLuminosityBlockWithNoEvents();
+}
+
+void testTestProcessor::runProductTest() {
+  auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer('ThingProducer')
+process.moduleToTest(process.toTest)
+)_";
+  edm::test::TestProcessor::Config config(kTest);
+
+  edm::test::TestProcessor tester(config);
+  {
+    auto run = tester.testBeginRun(1);
+    CPPUNIT_ASSERT(run.get<edmtest::ThingCollection>("beginRun")->size() == 20);
+  }
+
+  {
+    auto run = tester.testEndRun();
+    CPPUNIT_ASSERT(run.get<edmtest::ThingCollection>("beginRun")->size() == 20);
+    CPPUNIT_ASSERT(run.get<edmtest::ThingCollection>("endRun")->size() == 20);
+  }
+
+  {
+    auto run = tester.testBeginRun(2);
+    CPPUNIT_ASSERT(run.get<edmtest::ThingCollection>("beginRun")->size() == 20);
+  }
+}
+void testTestProcessor::lumiProductTest() {
+  auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer('ThingProducer')
+process.moduleToTest(process.toTest)
+)_";
+  edm::test::TestProcessor::Config config(kTest);
+
+  edm::test::TestProcessor tester(config);
+  {
+    auto lumi = tester.testBeginLuminosityBlock(1);
+    CPPUNIT_ASSERT(lumi.get<edmtest::ThingCollection>("beginLumi")->size() == 20);
+  }
+
+  {
+    auto lumi = tester.testEndLuminosityBlock();
+    CPPUNIT_ASSERT(lumi.get<edmtest::ThingCollection>("beginLumi")->size() == 20);
+    CPPUNIT_ASSERT(lumi.get<edmtest::ThingCollection>("endLumi")->size() == 20);
+  }
+
+  {
+    auto lumi = tester.testBeginLuminosityBlock(2);
+    CPPUNIT_ASSERT(lumi.get<edmtest::ThingCollection>("beginLumi")->size() == 20);
+  }
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

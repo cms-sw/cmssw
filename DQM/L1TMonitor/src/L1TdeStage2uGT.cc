@@ -42,8 +42,6 @@ L1TdeStage2uGT::L1TdeStage2uGT(const edm::ParameterSet& ps)
 
 L1TdeStage2uGT::~L1TdeStage2uGT() {}
 
-void L1TdeStage2uGT::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& evtSetup) {}
-
 void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es) {
   edm::Handle<GlobalAlgBlkBxCollection> dataCollection;
   event.getByToken(dataSource_, dataCollection);

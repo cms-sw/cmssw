@@ -20,7 +20,7 @@ CastorLEDMonitor::CastorLEDMonitor(const edm::ParameterSet &ps) {
 
 CastorLEDMonitor::~CastorLEDMonitor() {}
 
-void CastorLEDMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun, const edm::EventSetup &iSetup) {
+void CastorLEDMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun) {
   char s[60];
 
   ibooker.setCurrentFolder(subsystemname + "/CastorLEDMonitor");

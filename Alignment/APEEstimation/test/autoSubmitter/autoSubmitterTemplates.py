@@ -3,10 +3,8 @@ condorJobTemplate="""#!/bin/tcsh
 set curDir=$PWD
 echo $curDir
 cd {base}/../..
-
 eval `scramv1 runtime -csh`
 
-#~ source /afs/cern.ch/cms/caf/setup.csh
 cd $curDir
 
 xrdcp {inputFile} reco.root

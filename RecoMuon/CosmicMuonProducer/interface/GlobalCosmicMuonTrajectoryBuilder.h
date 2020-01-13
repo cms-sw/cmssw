@@ -55,7 +55,7 @@ public:
   ~GlobalCosmicMuonTrajectoryBuilder() override;
 
   /// dummy implementation, unused in this class
-  std::vector<Trajectory*> trajectories(const TrajectorySeed&) override { return std::vector<Trajectory*>(); }
+  TrajectoryContainer trajectories(const TrajectorySeed&) override { return TrajectoryContainer{}; }
 
   const Propagator* propagator() const { return &*theService->propagator(thePropagatorName); }
 

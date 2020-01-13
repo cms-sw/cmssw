@@ -111,8 +111,6 @@ namespace edm {
 
     void setRun(RunNumber_t r) override;
 
-    std::unique_ptr<FileBlock> readFile_() override;
-
     edm::propagate_const<TClass*> tc_;
     std::vector<unsigned char> dest_;
     TBufferFile xbuf_;

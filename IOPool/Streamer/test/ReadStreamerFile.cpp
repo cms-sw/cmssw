@@ -54,7 +54,7 @@ int readSingleStream(bool verbose) {
 
     // ------- event
 
-    while (stream_reader.next()) {
+    while (edm::StreamerInputFile::Next::kEvent == stream_reader.next()) {
       EventMsgView const* eview = stream_reader.currentRecord();
       if (verbose) {
         std::cout << "----------EVENT-----------" << std::endl;
@@ -96,11 +96,13 @@ int readMultipleStreams(bool verbose) {
       dumpInitView(init);
     }
 
-    while (stream_reader.next()) {
+    while (edm::StreamerInputFile::Next::kStop != stream_reader.next()) {
       if (stream_reader.newHeader()) {
         std::cout << "File Boundary has just been crossed, a new file is read" << std::endl;
         std::cout << "A new INIT Message is available" << std::endl;
         std::cout << "Event from next file is also avialble" << std::endl;
+        stream_reader.openNextFile();
+        continue;
       }
       EventMsgView const* eview = stream_reader.currentRecord();
       if (verbose) {
@@ -144,11 +146,13 @@ int readInvalidLFN(bool verbose) {
       dumpInitView(init);
     }
 
-    while (stream_reader.next()) {
+    while (edm::StreamerInputFile::Next::kStop != stream_reader.next()) {
       if (stream_reader.newHeader()) {
         std::cout << "File Boundary has just been crossed, a new file is read" << std::endl;
         std::cout << "A new INIT Message is available" << std::endl;
         std::cout << "Event from next file is also avialble" << std::endl;
+        stream_reader.openNextFile();
+        continue;
       }
       EventMsgView const* eview = stream_reader.currentRecord();
       if (verbose) {

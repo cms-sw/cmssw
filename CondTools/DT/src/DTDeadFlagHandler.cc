@@ -77,7 +77,7 @@ void DTDeadFlagHandler::getNewObjects() {
     mp.find( dataTag );
 */
 
-  DTDeadFlag* dFlag = new DTDeadFlag(dataTag);
+  auto dFlag = std::make_unique<DTDeadFlag>(dataTag);
 
   int status = 0;
   std::ifstream ifile(fileName.c_str());
@@ -110,7 +110,7 @@ void DTDeadFlagHandler::getNewObjects() {
   //for each payload provide IOV information (say in this case we use since)
   cond::Time_t snc = runNumber;
   if (runNumber > last)
-    m_to_transfer.push_back(std::make_pair(dFlag, snc));
+    m_to_transfer.push_back(std::make_pair(dFlag.release(), snc));
   else
     std::cout << "More recent data already present - skipped" << std::endl;
 

@@ -215,7 +215,7 @@ const EventMsgView* WatcherStreamFileReader::getNextEvent() {
   edm::StreamerInputFile* inputFile;
 
   //go to next input file, till no new event is found
-  while ((inputFile = getInputFile()) != nullptr && inputFile->next() == 0) {
+  while ((inputFile = getInputFile()) != nullptr && inputFile->next() != edm::StreamerInputFile::Next::kEvent) {
     closeFile();
   }
 

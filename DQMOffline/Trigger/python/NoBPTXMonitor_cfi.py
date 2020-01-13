@@ -5,45 +5,45 @@ from DQMOffline.Trigger.NoBPTXMonitoring_cfi import NoBPTXMonitoring
 hltNoBPTXmonitoring = NoBPTXMonitoring.clone()
 hltNoBPTXmonitoring.FolderName = cms.string('HLT/EXO/NoBPTX/JetE60/')
 hltNoBPTXmonitoring.histoPSet.lsPSet = cms.PSet(
-  nbins = cms.uint32 ( 250 ),
-  xmin  = cms.double(    0.),
-  xmax  = cms.double( 2500.),
+  nbins = cms.uint32(250),
+  xmin  = cms.double(0.),
+  xmax  = cms.double(2500.),
 )
 hltNoBPTXmonitoring.histoPSet.jetEPSet = cms.PSet(
     nbins = cms.uint32(100),
     xmin  = cms.double(-0.5),
     xmax  = cms.double(999.5),
-    )
+)
 hltNoBPTXmonitoring.histoPSet.jetEtaPSet = cms.PSet(
     nbins = cms.uint32(100),
     xmin  = cms.double(-5.),
     xmax  = cms.double(5.),
-    )
+)
 hltNoBPTXmonitoring.histoPSet.jetPhiPSet = cms.PSet(
     nbins = cms.uint32(64),
     xmin  = cms.double(-3.2),
     xmax  = cms.double(3.2),
-    )
+)
 hltNoBPTXmonitoring.histoPSet.muonPtPSet = cms.PSet(
     nbins = cms.uint32(100),
     xmin  = cms.double(-0.5),
     xmax  = cms.double(999.5),
-    )
+)
 hltNoBPTXmonitoring.histoPSet.muonEtaPSet = cms.PSet(
     nbins = cms.uint32(100),
     xmin  = cms.double(-5.),
     xmax  = cms.double(5.),
-    )
+)
 hltNoBPTXmonitoring.histoPSet.muonPhiPSet = cms.PSet(
     nbins = cms.uint32(64),
     xmin  = cms.double(-3.2),
     xmax  = cms.double(3.2),
-    )
+)
 hltNoBPTXmonitoring.histoPSet.bxPSet = cms.PSet(
     nbins = cms.uint32(1800),
 )
-hltNoBPTXmonitoring.jets      = cms.InputTag("ak4CaloJets")
-hltNoBPTXmonitoring.muons     = cms.InputTag("displacedStandAloneMuons")
+hltNoBPTXmonitoring.jets = cms.InputTag("ak4CaloJets")
+hltNoBPTXmonitoring.muons = cms.InputTag("displacedStandAloneMuons")
 
 hltNoBPTXmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltNoBPTXmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !                                                                                                           

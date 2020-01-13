@@ -1,5 +1,8 @@
 #include "DQM/HcalCommon/interface/DQTask.h"
 
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/Transition.h"
+
 namespace hcaldqm {
   using namespace constants;
   DQTask::DQTask(edm::ParameterSet const &ps)
@@ -9,7 +12,12 @@ namespace hcaldqm {
         _cRunKeyVal(_name, "RunKeyValue"),
         _cRunKeyName(_name, "RunKeyName"),
         _cProcessingTypeName(_name, "ProcessingType"),
-        _procLSs(0) {
+        _procLSs(0),
+        hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),
+        runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
+        hcalChannelQualityToken_(
+            esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginLuminosityBlock>(
+                edm::ESInputTag("", "withTopo"))) {
     //	tags and Tokens
     _tagRaw = ps.getUntrackedParameter<edm::InputTag>("tagRaw", edm::InputTag("rawDataCollector"));
     _tokRaw = consumes<FEDRawDataCollection>(_tagRaw);
@@ -40,9 +48,8 @@ namespace hcaldqm {
     //	and determine if there are any HCAL FEDs in.
     //	push them as ElectronicsIds into the vector
     if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
-      edm::ESHandle<RunInfo> ri;
-      runInfoRec->get(ri);
-      std::vector<int> vfeds = ri->m_fed_in;
+      const RunInfo &runInfo = es.getData(runInfoToken_);
+      std::vector<int> vfeds = runInfo.m_fed_in;
       for (std::vector<int>::const_iterator it = vfeds.begin(); it != vfeds.end(); ++it) {
         if (*it >= constants::FED_VME_MIN && *it <= FED_VME_MAX)
           _vcdaqEids.push_back(
@@ -69,11 +76,11 @@ namespace hcaldqm {
     _cProcessingTypeName.fill(pTypeNames[_ptype]);
 
     // Load conditions and emap
-    es.get<HcalDbRecord>().get(_dbService);
+    _dbService = es.getHandle(hcalDbServiceToken_);
     _emap = _dbService->getHcalMapping();
   }
 
-  void DQTask::dqmBeginRun(edm::Run const &r, edm::EventSetup const &es) {
+  void DQTask::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {
     this->_resetMonitors(fEvent);
     this->_resetMonitors(f1LS);
     this->_resetMonitors(f10LS);
@@ -94,10 +101,8 @@ namespace hcaldqm {
 
     //	get the Channel Quality Status for all the channels
     _xQuality.reset();
-    edm::ESHandle<HcalChannelQuality> hcq;
-    es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
-    const HcalChannelQuality *cq = hcq.product();
-    std::vector<DetId> detids = cq->getAllChannels();
+    const HcalChannelQuality &cq = es.getData(hcalChannelQualityToken_);
+    std::vector<DetId> detids = cq.getAllChannels();
     for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
       //	if unknown skip
       if (HcalGenericDetId(*it).genericSubdet() == HcalGenericDetId::HcalGenUnknown)
@@ -105,7 +110,7 @@ namespace hcaldqm {
 
       if (HcalGenericDetId(*it).isHcalDetId()) {
         HcalDetId did(*it);
-        uint32_t mask = (cq->getValues(did))->getValue();
+        uint32_t mask = (cq.getValues(did))->getValue();
         if (mask != 0) {
           _xQuality.push(did, mask);
         }
@@ -113,7 +118,7 @@ namespace hcaldqm {
     }
   }
 
-  void DQTask::dqmEndLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &es) { _procLSs++; }
+  void DQTask::dqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) { _procLSs++; }
 
   void DQTask::_resetMonitors(UpdateFreq uf) {
     //	reset per event

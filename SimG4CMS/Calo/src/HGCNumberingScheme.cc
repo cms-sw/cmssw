@@ -56,8 +56,12 @@ uint32_t HGCNumberingScheme::getUnitID(
     }
   }
 #ifdef EDM_ML_DEBUG
+  int subd, zside, lay, sector, subsector, cellx;
+  HGCalTestNumbering::unpackHexagonIndex(index, subd, zside, lay, sector, subsector, cellx);
   edm::LogVerbatim("HGCSim") << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" << module << ":" << iz
-                             << ":" << wafer << ":" << celltyp << ":" << icell << ":" << std::hex << index << std::dec;
+                             << ":" << wafer << ":" << celltyp << ":" << icell << ":" << std::hex << index << std::dec
+                             << " Output " << subd << ":" << lay << ":" << zside << ":" << sector << ":" << subsector
+                             << ":" << cellx;
 #endif
   return index;
 }
