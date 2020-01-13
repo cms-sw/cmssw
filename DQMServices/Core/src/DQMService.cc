@@ -74,7 +74,7 @@ void DQMService::flushStandalone() {
       o.hash = DQMNet::dqmhash(fullpath.c_str(), fullpath.size());
       o.flags = me->data_.flags;
       o.version = version;
-      o.dirname = me->data_.dirname.substr(0, me->data_.dirname.size()-1);
+      o.dirname = me->data_.dirname.substr(0, me->data_.dirname.size() - 1);
       o.objname = me->data_.objname;
       assert(o.rawdata.empty());
       assert(o.scalar.empty());
