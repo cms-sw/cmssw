@@ -39,22 +39,22 @@ siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
     src = 'siPixelClustersPreSplitting'
     )
 
-caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
-muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEventPreSplitting+siPixelClusterShapeCachePreSplitting+muonlocalreco)
-localReco = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloReco*castorreco)
+caloRecoTask = cms.Task(ecalLocalRecoTask,hcalLocalRecoTask)
+muonRecoTask = cms.Task(trackerlocalrecoTask,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting,muonlocalrecoTask)
+localRecoTask = cms.Task(bunchSpacingProducer,offlineBeamSpot,muonRecoTask,caloRecoTask,castorreco)
 
 #hbherecoMB = hbheprerecoMB.clone()
 #hcalLocalRecoSequenceNZS.replace(hbheprerecoMB,hbherecoMB)
 
-caloRecoNZS = cms.Sequence(caloReco+hcalLocalRecoSequenceNZS)
-localReco_HcalNZS = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloRecoNZS)
+caloRecoNZSTask = cms.Task(caloRecoTask,hcalLocalRecoTaskNZS)
+localReco_HcalNZSTask = cms.Task(bunchSpacingProducer,offlineBeamSpot,muonRecoTask,caloRecoNZSTask)
 
 #--------------------------------------------------------------------------
 # Main Sequence
-reconstruct_PbPb = cms.Sequence(localReco*CastorFullReco*globalRecoPbPb)
-reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
+reconstruct_PbPbTask = cms.Task(localRecoTask,CastorFullRecoTask,globalRecoPbPbTask)
+reconstructionHeavyIons = cms.Sequence(reconstruct_PbPbTask)
 
-reconstructionHeavyIons_HcalNZS = cms.Sequence(localReco_HcalNZS*globalRecoPbPb)
+reconstructionHeavyIons_HcalNZSTask = cms.Task(localReco_HcalNZSTask,globalRecoPbPbTask)
 
 reconstructionHeavyIons_withRegitMu = cms.Sequence(reconstructionHeavyIons*regionalMuonRecoPbPb)
 #--------------------------------------------------------------------------

@@ -13,6 +13,6 @@ gsfTracksOpenConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversi
 )
 
 
-conversionOpenTrackSequence = cms.Sequence(gsfTracksOpenConversionTrackProducer)
+conversionOpenTrackTask = cms.Task(gsfTracksOpenConversionTrackProducer)
 
 

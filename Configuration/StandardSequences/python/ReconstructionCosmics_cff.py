@@ -44,51 +44,60 @@ from RecoMET.Configuration.RecoMET_Cosmics_cff import *
 from RecoEgamma.Configuration.RecoEgammaCosmics_cff import *
 
 # local reco
-trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*MeasurementTrackerEvent*tracksP5)
-caloCosmics = cms.Sequence(calolocalrecoCosmics*ecalClustersCosmics)
-caloCosmics_HcalNZS = cms.Sequence(calolocalrecoCosmicsNZS*ecalClustersCosmics)
-muonsLocalRecoCosmics = cms.Sequence(muonlocalreco+muonlocalrecoT0Seg)
+trackerCosmicsTask = cms.Task(offlineBeamSpot,trackerlocalrecoTask,MeasurementTrackerEvent,tracksP5Task)
+trackerCosmics = cms.Sequence(trackerCosmicsTask)
+caloCosmicsTask = cms.Task(calolocalrecoTaskCosmics,ecalClustersCosmicsTask)
+caloCosmics = cms.Sequence(caloCosmicsTask)
+caloCosmics_HcalNZSTask = cms.Task(calolocalrecoTaskCosmicsNZS,ecalClustersCosmicsTask)
+caloCosmics_HcalNZS = cms.Sequence(caloCosmics_HcalNZSTask)
+muonsLocalRecoCosmicsTask = cms.Task(muonlocalrecoTask,muonlocalrecoT0SegTask)
+muonsLocalRecoCosmics = cms.Sequence(muonsLocalRecoCosmicsTask)
 
-localReconstructionCosmics         = cms.Sequence(bunchSpacingProducer*trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics+lumiProducer)
-localReconstructionCosmics_HcalNZS = cms.Sequence(bunchSpacingProducer*trackerCosmics*caloCosmics_HcalNZS*muonsLocalRecoCosmics*vertexrecoCosmics +lumiProducer)
+localReconstructionCosmicsTask         = cms.Task(bunchSpacingProducer,trackerCosmicsTask,caloCosmicsTask,muonsLocalRecoCosmicsTask,vertexrecoCosmicsTask,lumiProducer)
+localReconstructionCosmics         = cms.Sequence(localReconstructionCosmicsTask)
+localReconstructionCosmics_HcalNZSTask = cms.Task(bunchSpacingProducer,trackerCosmicsTask,caloCosmics_HcalNZSTask,muonsLocalRecoCosmicsTask,vertexrecoCosmicsTask,lumiProducer)
+localReconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZSTask)
 
 
 # global reco
-muonsCosmics = cms.Sequence(muonRecoGR)
-jetsCosmics = cms.Sequence(recoCaloTowersGR*recoJetsGR)
-egammaCosmics = cms.Sequence(egammarecoGlobal_cosmics*egammarecoCosmics_woElectrons)
+muonsCosmicsTask = cms.Task(muonRecoGRTask)
+jetsCosmicsTask = cms.Task(recoCaloTowersGRTask,recoJetsGRTask)
+egammaCosmicsTask = cms.Task(egammarecoGlobal_cosmicsTask,egammarecoCosmics_woElectronsTask)
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 
-reconstructionCosmics         = cms.Sequence(localReconstructionCosmics*
-                                             beamhaloTracksSeq*
-                                             jetsCosmics*
-                                             muonsCosmics*
-                                             regionalCosmicTracksSeq*
-                                             cosmicDCTracksSeq*
-                                             metrecoCosmics*
-                                             egammaCosmics*
+reconstructionCosmicsTask         = cms.Task(localReconstructionCosmicsTask,
+                                             beamhaloTracksTask,
+                                             jetsCosmicsTask,
+                                             muonsCosmicsTask,
+                                             regionalCosmicTracksTask,
+                                             cosmicDCTracksSeqTask,
+                                             metrecoCosmicsTask,
+                                             egammaCosmicsTask,
                                              logErrorHarvester)
+reconstructionCosmics         = cms.Sequence(reconstructionCosmicsTask)
 #logErrorHarvester should only wait for items produced in the reconstructionCosmics sequence
 _modulesInReconstruction = list()
 reconstructionCosmics.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
 logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
 
-reconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZS*
-                                             beamhaloTracksSeq*
-                                             jetsCosmics*
-                                             muonsCosmics*
-                                             regionalCosmicTracksSeq*
-                                             cosmicDCTracksSeq*
-                                             metrecoCosmics*
-                                             egammaCosmics*
+reconstructionCosmics_HcalNZSTask = cms.Task(localReconstructionCosmics_HcalNZSTask,
+                                             beamhaloTracksTask,
+                                             jetsCosmicsTask,
+                                             muonsCosmicsTask,
+                                             regionalCosmicTracksTask,
+                                             cosmicDCTracksSeqTask,
+                                             metrecoCosmicsTask,
+                                             egammaCosmicsTask,
                                              logErrorHarvester)
-reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*
-                                             jetsCosmics*
-                                             muonsCosmics*
-                                             regionalCosmicTracksSeq*
-                                             cosmicDCTracksSeq*
-                                             metrecoCosmics*
-                                             egammaCosmics)
+reconstructionCosmics_HcalNZS = cms.Sequence(reconstructionCosmics_HcalNZSTask)
+reconstructionCosmics_woTkBHMTask = cms.Task(localReconstructionCosmicsTask,
+                                             jetsCosmicsTask,
+                                             muonsCosmicsTask,
+                                             regionalCosmicTracksTask,
+                                             cosmicDCTracksSeqTask,
+                                             metrecoCosmicsTask,
+                                             egammaCosmicsTask)
+reconstructionCosmics_woTkBHM = cms.Sequence(reconstructionCosmics_woTkBHMTask)
