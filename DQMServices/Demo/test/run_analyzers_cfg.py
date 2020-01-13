@@ -142,4 +142,5 @@ else:
   process.o = cms.EndPath(process.out)
 
 
-process.DQMStore.trackME = cms.untracked.string("Legacy/testlegacy/th2d0")
+#process.Tracer = cms.Service("Tracer")
+#process.DQMStore.trackME = cms.untracked.string("th2d0")

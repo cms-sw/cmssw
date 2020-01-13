@@ -10,16 +10,18 @@ fi
 
 # 1. Run a very simple configuration with all module types.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=alltypes.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100
-[ 99 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
+# actually we'd expect 99, but the MEs by legacy modules are booked with JOB scope and cannot be saved to DQMIO.
+[ 66 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
 [ 55 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
 # this is deeply related to what the analyzers actually do.
-# most run histos (5 modules * 6 types) fill on every event and should have 100 entries.
-# the scalar MEs should have the last lumi number (5) (7 float + 7 int)
-# testonefilllumi, testlegacyfilllumi also should have 5 entries in the histograms (2*6 more)
-# the two "fillrun" modules should have one entry in the histograms (2*6 total) and 0 in the scalars (4 total)
-[ "0: 2, 0.0: 2, 1: 12, 100: 30, 5: 19, 5.0: 7" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 --summary)" ]
+# again, the legacy modules output is not saved.
+# most run histos (4 modules * 6 types) fill on every event and should have 100 entries.
+# the scalar MEs should have the last lumi number (5) (5 float + 5 int)
+# testonefilllumi also should have 5 entries in the histograms (6 more)
+# the "fillrun" module should have one entry in the histograms (6 total) and 0 in the scalars (2 total)
+[ "0: 1, 0.0: 1, 1: 6, 100: 24, 5: 11, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 --summary)" ]
 # per lumi we see 20 in most histograms (3*6), and the current lumi number in the scalars (5 modules * 2).
-# the two fillumi modules should have one entry in each of there lumi histograms, (2*6 total)
+# the two fillumi modules should have one entry in each of the lumi histograms, (2*6 total)
 [ "1: 17, 1.0: 5, 20: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 1 --summary)" ]
 [ "1: 12, 2: 5, 2.0: 5, 20: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 2 --summary)" ]
 [ "1: 12, 20: 18, 3: 5, 3.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 3 --summary)" ]
