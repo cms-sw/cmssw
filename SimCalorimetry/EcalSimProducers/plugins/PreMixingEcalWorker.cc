@@ -49,6 +49,7 @@ private:
   const double m_EEs25notCont;
   const double m_peToABarrel;
   const double m_peToAEndcap;
+  const bool m_timeDependent;
 
   EBSignalGenerator theEBSignalGenerator;
   EESignalGenerator theEESignalGenerator;
@@ -70,8 +71,11 @@ PreMixingEcalWorker::PreMixingEcalWorker(const edm::ParameterSet &ps,
       m_EEs25notCont(ps.getParameter<double>("EEs25notContainment")),
       m_peToABarrel(ps.getParameter<double>("photoelectronsToAnalogBarrel")),
       m_peToAEndcap(ps.getParameter<double>("photoelectronsToAnalogEndcap")),
-      theEBSignalGenerator(EBPileInputTag_, tok_eb_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
-      theEESignalGenerator(EEPileInputTag_, tok_ee_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
+      m_timeDependent(ps.getParameter<bool>("timeDependent")),
+      theEBSignalGenerator(
+          EBPileInputTag_, tok_eb_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap, m_timeDependent),
+      theEESignalGenerator(
+          EEPileInputTag_, tok_ee_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap, m_timeDependent),
       theESSignalGenerator(ESPileInputTag_, tok_es_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
       myEcalDigitizer_(ps, iC) {
   EBDigiCollectionDM_ = ps.getParameter<std::string>("EBDigiCollectionDM");

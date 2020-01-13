@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
@@ -31,12 +33,19 @@
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+// needed for LC'/LC correction for time dependent MC
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecordMC.h"
+
 /** Converts digis back into analog signals, to be used
  *  as noise 
  */
 
 #include <iostream>
 #include <memory>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edm {
   class ModuleCallingContext;
@@ -48,6 +57,8 @@ public:
   typedef typename ECALDIGITIZERTRAITS::Digi DIGI;
   typedef typename ECALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
+  typedef std::unordered_map<uint32_t, double> CalibCache;
+
   EcalSignalGenerator() : EcalBaseSignalGenerator() {}
 
   EcalSignalGenerator(const edm::InputTag& inputTag,
@@ -55,7 +66,8 @@ public:
                       const double EBs25notCont,
                       const double EEs25notCont,
                       const double peToABarrel,
-                      const double peToAEndcap)
+                      const double peToAEndcap,
+                      const bool timeDependent = false)
       : EcalBaseSignalGenerator(), theEvent(nullptr), theEventPrincipal(nullptr), theInputTag(inputTag), tok_(t) {
     EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
     theDefaultGains[2] = defaultRatios->gain6Over1();
@@ -64,6 +76,7 @@ public:
     m_EEs25notCont = EEs25notCont;
     m_peToABarrel = peToABarrel;
     m_peToAEndcap = peToAEndcap;
+    m_timeDependent = timeDependent;
   }
 
   ~EcalSignalGenerator() override {}
@@ -80,6 +93,39 @@ public:
 
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
+
+    if (m_timeDependent) {
+      //----
+      // Ecal LaserCorrection Constants for laser correction ratio
+      edm::ESHandle<EcalLaserDbService> laser;
+      eventSetup->get<EcalLaserDbRecord>().get(laser);
+
+      //
+      const edm::TimeValue_t eventTimeValue = theEvent->getRun().runAuxiliary().beginTime().value();
+      //
+      //         The "time" will have to match in the generation of the tag
+      //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
+      //
+      m_iTime = eventTimeValue;
+
+      m_lasercals = laser.product();
+
+      //
+      // the "prime" is exactly the same as the usual laser service, BUT
+      // it has only 1 IOV, so that effectively you are dividing IOV_n / IOV_0
+      // NB: in the creation of the tag make sure the "prime" (MC) tag is prepared properly!
+      // NB again: if many IOVs also in "MC" tag, then fancy things could be perfomed ... left for the future
+      //
+      edm::ESHandle<EcalLaserDbService> laser_prime;
+      eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
+      m_lasercals_prime = laser_prime.product();
+
+      //clear the laser cache for each event time
+      CalibCache().swap(m_valueLCCache_LC);
+      CalibCache().swap(m_valueLCCache_LC_prime);  //--- also the "prime" ... yes
+
+      //----
+    }
 
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
@@ -111,6 +157,35 @@ public:
     agc = pAgc.product();
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
+
+    if (m_timeDependent) {
+      //----
+      // Ecal LaserCorrection Constants for laser correction ratio
+      edm::ESHandle<EcalLaserDbService> laser;
+      eventSetup->get<EcalLaserDbRecord>().get(laser);
+      edm::TimeValue_t eventTimeValue = 0;
+      if (theEventPrincipal) {
+        //
+        eventTimeValue = theEventPrincipal->runPrincipal().beginTime().value();
+        //
+        //         The "time" will have to match in the generation of the tag
+        //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
+        //
+      } else {
+        edm::LogError("EcalSignalGenerator") << " theEventPrincipal not defined??? " << std::endl;
+      }
+      m_iTime = eventTimeValue;
+      m_lasercals = laser.product();
+
+      edm::ESHandle<EcalLaserDbService> laser_prime;
+      eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
+      m_lasercals_prime = laser_prime.product();
+
+      //clear the laser cache for each event time
+      CalibCache().swap(m_valueLCCache_LC);
+      CalibCache().swap(m_valueLCCache_LC_prime);  //--- also the "prime" ... yes
+      //----
+    }
 
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
@@ -187,6 +262,19 @@ private:
 
   CaloSamples samplesInPE(const DIGI& digi);  // have to define this separately for ES
 
+  //---- LC that depends with time
+  double findLaserConstant_LC(const DetId& detId) const {
+    const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+    return (m_lasercals->getLaserCorrection(detId, evtTimeStamp));
+  }
+
+  //---- LC at the beginning of the time (first IOV of the GT == first time)
+  //---- Using the different "tag", the one with "MC": exactly the same function as findLaserConstant_LC but with a different object
+  double findLaserConstant_LC_prime(const DetId& detId) const {
+    const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+    return (m_lasercals_prime->getLaserCorrection(detId, evtTimeStamp));
+  }
+
   const std::vector<float> GetGainRatios(const DetId& detid) {
     std::vector<float> gainRatios(4);
     // get gain ratios
@@ -239,6 +327,13 @@ private:
 
   const EcalADCToGeVConstant* agc;
   const EcalIntercalibConstantsMC* ical;
+
+  bool m_timeDependent;
+  edm::TimeValue_t m_iTime;
+  CalibCache m_valueLCCache_LC;
+  CalibCache m_valueLCCache_LC_prime;
+  const EcalLaserDbService* m_lasercals;
+  const EcalLaserDbService* m_lasercals_prime;
 
   double theDefaultGains[NGAINS];
 };
