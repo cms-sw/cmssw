@@ -462,15 +462,15 @@ void VirtualJetProducer::inputTowers() {
         fjInputs_.emplace_back(input.px(), input.py(), input.pz(), input.energy());
         fjInputs_.back().set_user_index(i - inBegin);
       } else {
-	// To apply puppi weight, first check if this is a PFCandidate.
-	// If not, then check if it is a PackedCandidate
+        // To apply puppi weight, first check if this is a PFCandidate.
+        // If not, then check if it is a PackedCandidate
         reco::PFCandidate const* pPF = dynamic_cast<reco::PFCandidate const*>(i->get());
         auto w = pPF ? pPF->puppiWeight() : 0.0;
 
-	if ( !pPF ) {
-	  pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(i->get());
-	  w = pPC ? pPC->puppiWeight() : 0.0;
-	}
+        if (!pPF) {
+          pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(i->get());
+          w = pPC ? pPC->puppiWeight() : 0.0;
+        }
 
         if (w > 0) {
           fjInputs_.emplace_back(input.px() * w, input.py() * w, input.pz() * w, input.energy() * w);

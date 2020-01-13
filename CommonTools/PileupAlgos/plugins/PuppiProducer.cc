@@ -45,7 +45,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   ptokenPupOut_ = produces<edm::ValueMap<float>>();
   ptokenP4PupOut_ = produces<edm::ValueMap<LorentzVector>>();
   ptokenValues_ = produces<edm::ValueMap<reco::CandidatePtr>>();
-  
+
   if (fUseExistingWeights || fClonePackedCands)
     ptokenPackedPuppiCandidates_ = produces<pat::PackedCandidateCollection>();
   else {
@@ -277,7 +277,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pfCandWeighted.reset(new reco::PFCandidate(*pfCand));
     }
 
-    // Here, we are using new weights computed and putting them in the packed candidates. 
+    // Here, we are using new weights computed and putting them in the packed candidates.
     if (fClonePackedCands && (!fUseExistingWeights)) {
       if (fPuppiForLeptons)
         pCand->setPuppiWeight(pCand->puppiWeight(), lWeights[iCand]);
@@ -292,20 +292,20 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Here, we are using existing weights, or we're using packed candidates.
     // That is, whether or not we recomputed the weights, we store the
-    // source candidate appropriately, and set the p4 of the packed candidate. 
+    // source candidate appropriately, and set the p4 of the packed candidate.
     if (fUseExistingWeights || fClonePackedCands) {
       pCand->setP4(puppiP4s.back());
       pCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       fPackedPuppiCandidates.push_back(*pCand);
     } else {
       // Here, we are not using packed candidates. That is, this is MINIAOD
-      // and we are computing puppi for the PFCandidates themselves. 
+      // and we are computing puppi for the PFCandidates themselves.
       // We have TWO collections to write here. The first is the "weighted"
       // version that weights the p4 by the puppi weight. The second
       // is the standard version, where we just set the internal weight
       // and do not adjust the p4. Only the second is persistified in
       // AOD. The other can be used by user modules to have their own
-      // PFCandidate collection, and as a check for the weighting procedure. 
+      // PFCandidate collection, and as a check for the weighting procedure.
       pfCandWeighted->setP4(puppiP4s.back());
       pfCandWeighted->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       pfCand->setP4(aCand.p4());
@@ -330,14 +330,15 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.emplace(ptokenPupOut_, lPupOut);
   iEvent.emplace(ptokenP4PupOut_, p4PupOut);
   if (fUseExistingWeights || fClonePackedCands) {
-    edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.emplace( ptokenPackedPuppiCandidates_, fPackedPuppiCandidates );
+    edm::OrphanHandle<pat::PackedCandidateCollection> oh =
+        iEvent.emplace(ptokenPackedPuppiCandidates_, fPackedPuppiCandidates);
     for (unsigned int ic = 0, nc = oh->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref(oh, ic);
       values[ic] = pkref;
     }
   } else {
-    iEvent.emplace( ptokenPuppiCandidatesWeighted_, fPuppiCandidatesWeighted );
-    edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.emplace( ptokenPuppiCandidates_, fPuppiCandidates );
+    iEvent.emplace(ptokenPuppiCandidatesWeighted_, fPuppiCandidatesWeighted);
+    edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.emplace(ptokenPuppiCandidates_, fPuppiCandidates);
     for (unsigned int ic = 0, nc = oh->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref(oh, ic);
       values[ic] = pkref;
@@ -359,11 +360,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::vector<double> alphas(fPuppiContainer->puppiRawAlphas());
     double nalgos(fPuppiContainer->puppiNAlgos());
 
-    iEvent.emplace(ptokenRawAlphas_, alphas );
-    iEvent.emplace(ptokenNalgos_, nalgos );
-    iEvent.emplace(ptokenAlphas_, theAlphas );
-    iEvent.emplace(ptokenAlphasMed_, theAlphasMed );
-    iEvent.emplace(ptokenAlphasRms_, theAlphasRms );
+    iEvent.emplace(ptokenRawAlphas_, alphas);
+    iEvent.emplace(ptokenNalgos_, nalgos);
+    iEvent.emplace(ptokenAlphas_, theAlphas);
+    iEvent.emplace(ptokenAlphasMed_, theAlphasMed);
+    iEvent.emplace(ptokenAlphasRms_, theAlphasRms);
   }
 }
 
