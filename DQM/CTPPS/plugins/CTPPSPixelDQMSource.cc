@@ -150,7 +150,6 @@ private:
   int getPixPlane(int id) { return ((id >> 16) & 0x7); }
   //  int getSubdet(int id) { return ((id>>kSubdetOffset)&0x7); }
 
-  int multHitsMax, cluSizeMax;  // for tuning
   float x0_MIN, x0_MAX, y0_MIN, y0_MAX;
 };
 
@@ -240,7 +239,6 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const
   for (int ind = 0; ind < 2 * 3 * NRPotsMAX; ind++)
     RPindexValid[ind] = 0;
 
-  multHitsMax = cluSizeMax = -1;
   x0_MIN = y0_MIN = 1.0e06;
   x0_MAX = y0_MAX = -1.0e06;
 }
@@ -662,8 +660,6 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
             }
           }  // end if(RPindexValid[index]) {
         }
-        if (int(ds_digi.data.size()) > multHitsMax)
-          multHitsMax = ds_digi.data.size();
       }  // end  if(StationStatus[station]) {
     }    // end for(const auto &ds_digi : *pixDigi)
   }      // if(pixDigi.isValid()) {
@@ -694,12 +690,10 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
       for (const auto &p : ds) {
         int clusize = p.size();
 
-        if (onlinePlots)
-          h2CluSize[arm][station]->Fill(prIndex(rpot, plane), clusize);
-        if (cluSizeMax < clusize)
-          cluSizeMax = clusize;
         if (clusize > ClusterSizeMax)
           clusize = ClusterSizeMax;
+        if (onlinePlots)
+          h2CluSize[arm][station]->Fill(prIndex(rpot, plane), clusize);
       }
 
     }  // end if(pixClus.isValid()) for(const auto &ds : *pixClus)
