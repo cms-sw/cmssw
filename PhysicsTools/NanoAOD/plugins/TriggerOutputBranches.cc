@@ -44,9 +44,8 @@ TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames 
 				  ")");  //FIXME: If the title can be updated we can use it to list the versions _v* that were seen in this file
                 uint8_t backFillValue=0;
 		bool found_duplicate = verifyBranchUniqueName(tree, nb.name);
-		nb.branch = tree.Branch((nb.name + (found_duplicate ? (std::string("_p") + m_processName) : "")).c_str(),
-					&backFillValue,
-					(name + "/O").c_str());
+		std::string brname = nb.name + (found_duplicate ? (std::string("_p") + m_processName) : "");
+		nb.branch = tree.Branch(brname.c_str(), &backFillValue, (brname + "/O").c_str());
                 nb.branch->SetTitle(nb.title.c_str());
                 nb.idx=j;
                 m_triggerBranches.push_back(nb);
