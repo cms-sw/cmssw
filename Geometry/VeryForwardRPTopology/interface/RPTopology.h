@@ -19,7 +19,6 @@
 class RPTopology {
 public:
   using Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
-  ;
 
   RPTopology();
   inline const Vector& GetStripReadoutAxisDir() const { return strip_readout_direction_; }
