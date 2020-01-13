@@ -44,6 +44,7 @@ private:
   edm::EDGetTokenT<HGCRecHitCollection> hits_ee_token;
   edm::EDGetTokenT<HGCRecHitCollection> hits_fh_token;
   edm::EDGetTokenT<HGCRecHitCollection> hits_bh_token;
+  edm::EDGetTokenT<HGCRecHitCollection> hits_hfnose_token;
 
   reco::CaloCluster::AlgoId algoId;
 
@@ -63,7 +64,10 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       detector(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH or "all"
       timeClname(ps.getParameter<std::string>("timeClname")),
       timeOffset(ps.getParameter<double>("timeOffset")) {
-  if (detector == "all") {
+  if (detector == "HFNose") {
+    hits_hfnose_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HFNoseInput"));
+    algoId = reco::CaloCluster::hfnose;
+  } else if (detector == "all") {
     hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
     hits_fh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCFHInput"));
     hits_bh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCBHInput"));
@@ -80,7 +84,12 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
   }
 
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
-  algo = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
+  if (detector == "HFNose") {
+    algo = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet);
+  } else {
+    algo = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
+  }
+
   algo->setAlgoId(algoId);
 
   produces<std::vector<float>>("InitialLayerClustersMask");
@@ -99,8 +108,10 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "CLUE", true));
 
   desc.add<edm::ParameterSetDescription>("plugin", pluginDesc);
-  desc.add<std::string>("detector", "all");
+  desc.add<std::string>("detector", "all")
+      ->setComment("all (does not include HFNose); other options: EE, FH, HFNose; other value defaults to BH");
   desc.add<bool>("doSharing", false);
+  desc.add<edm::InputTag>("HFNoseInput", edm::InputTag("HGCalRecHit", "HGCHFNoseRecHits"));
   desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
   desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
@@ -110,6 +121,7 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+  edm::Handle<HGCRecHitCollection> hfnose_hits;
   edm::Handle<HGCRecHitCollection> ee_hits;
   edm::Handle<HGCRecHitCollection> fh_hits;
   edm::Handle<HGCRecHitCollection> bh_hits;
@@ -128,6 +140,12 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   std::unordered_map<uint32_t, float> hitmap;
 
   switch (algoId) {
+    case reco::CaloCluster::hfnose:
+      evt.getByToken(hits_hfnose_token, hfnose_hits);
+      algo->populate(*hfnose_hits);
+      for (auto const& it : *hfnose_hits)
+        hitmap[it.detid().rawId()] = it.time();
+      break;
     case reco::CaloCluster::hgcal_em:
       evt.getByToken(hits_ee_token, ee_hits);
       algo->populate(*ee_hits);
