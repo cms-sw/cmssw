@@ -15,12 +15,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include <vector>
 
@@ -29,7 +29,18 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class SiStripDetCabling;
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
 class SiStripCluster;
 class SiPixelCluster;
 class EventWithHistory;
@@ -124,7 +135,7 @@ public:
 private:
   void createMEs(const edm::EventSetup& es, DQMStore::IBooker& ibooker);
   void createLayerMEs(std::string label, int ndets, DQMStore::IBooker& ibooker);
-  void createModuleMEs(ModMEs& mod_single, uint32_t detid, DQMStore::IBooker& ibooker);
+  void createModuleMEs(ModMEs& mod_single, uint32_t detid, DQMStore::IBooker& ibooker, const SiStripDetCabling&);
   void createSubDetMEs(std::string label, DQMStore::IBooker& ibooker);
   int FindRegion(int nstrip, int npixel);
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
@@ -163,7 +174,6 @@ private:
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, reset_each_run;
   unsigned long long m_cacheID_;
 
-  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   std::vector<uint32_t> ModulesToBeExcluded_;
 
   edm::ParameterSet Parameters;
@@ -242,6 +252,15 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clusterProducerPixToken_;
   edm::EDGetTokenT<EventWithHistory> historyProducerToken_;
   edm::EDGetTokenT<APVCyclePhaseCollection> apvPhaseProducerToken_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyRunToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> siStripDetCablingRunToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyEventToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> siStripNoisesToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> siStripGainToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> siStripQualityToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> siStripDetCablingEventToken_;
 
   bool applyClusterQuality_;
   double sToNLowerLimit_;

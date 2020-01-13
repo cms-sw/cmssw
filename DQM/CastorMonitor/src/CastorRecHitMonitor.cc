@@ -23,9 +23,7 @@ CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet &ps) {
 
 CastorRecHitMonitor::~CastorRecHitMonitor() {}
 
-void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
-                                         const edm::Run &iRun,
-                                         const edm::EventSetup &iSetup) {
+void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun) {
   char s[60];
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor::bookHistograms" << std::endl;

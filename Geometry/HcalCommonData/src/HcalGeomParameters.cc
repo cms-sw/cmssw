@@ -50,7 +50,8 @@ std::vector<int> HcalGeomParameters::getModHalfHBHE(const int type) const {
 
 void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters& php) {
   DDFilteredView fv = _fv;
-  bool dodet = true, hf = false;
+  bool dodet = true;
+  bool hf = false;
   clear(php);
 
   while (dodet) {
@@ -244,7 +245,13 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
   loadfinal(php);
 }
 
-void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& php) {
+void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParameters& php) {
+  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
+  std::string attribute = "OnlyForHcalSimNumbering";
+  cms::DDSpecParRefs ref;
+  const cms::DDSpecParRegistry& mypar = cpv->specpars();
+  mypar.filter(ref, attribute, "HCAL");
+  fv.mergedSpecifics(ref);
   clear(php);
   bool dodet = fv.firstChild();
   bool hf(false);
@@ -254,6 +261,13 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
     std::vector<int> copy = fv.history().copyNos;
     int idet = 0, lay = -1;
     int nsiz = static_cast<int>(copy.size());
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "Parameters: " << paras.size() << " Copy " << copy.size();
+    for (unsigned int n = 0; n < copy.size(); ++n)
+      edm::LogVerbatim("HCalGeom") << "[" << n << "] " << copy[n];
+    for (unsigned int n = 0; n < paras.size(); ++n)
+      edm::LogVerbatim("HCalGeom") << "[" << n << "] " << paras[n];
+#endif
     if (nsiz > 0)
       lay = copy[nsiz - 1] / 10;
     if (nsiz > 1)
@@ -279,7 +293,7 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
     if (idet == 3) {
       // HB
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "HB " << fv.name() << " Shape "  //<< fv.shape()
+      edm::LogVerbatim("HCalGeom") << "HB " << fv.name() << " Shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape())
                                    << " Layer " << lay << " R " << t.Rho();
 #endif
       if (lay >= 0 && lay < maxLayer_) {
@@ -365,7 +379,7 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
     } else if (idet == 4) {
       // HE
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "HE " << fv.name() << " Shape "  //<< fv.shape()
+      edm::LogVerbatim("HCalGeom") << "HE " << fv.name() << " Shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape())
                                    << " Layer " << lay << " Z " << t.z();
 #endif
       if (lay >= 0 && lay < maxLayer_) {
@@ -409,8 +423,9 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
       // HF
       if (!hf) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "HF " << fv.name() << " Shape "  //<< fv.shape()
-                                     << " Z " << t.z() << " with " << paras.size() << " Parameters";
+        edm::LogVerbatim("HCalGeom") << "HF " << fv.name() << " Shape "
+                                     << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Z " << t.z() << " with "
+                                     << paras.size() << " Parameters";
         for (unsigned j = 0; j < paras.size(); j++)
           edm::LogVerbatim("HCalGeom") << "HF Parameter[" << j << "] = " << paras[j];
 #endif
@@ -425,8 +440,9 @@ void HcalGeomParameters::loadGeometry(cms::DDFilteredView& fv, HcalParameters& p
       }
 #ifdef EDM_ML_DEBUG
     } else {
-      edm::LogVerbatim("HCalGeom") << "Unknown Detector " << idet << " for " << fv.name() << " Shape "  //<< fv.shape()
-                                   << " R " << t.Rho() << " Z " << t.z();
+      edm::LogVerbatim("HCalGeom") << "Unknown Detector " << idet << " for " << fv.name() << " Shape "
+                                   << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " R " << t.Rho() << " Z "
+                                   << t.z();
 #endif
     }
     dodet = fv.nextSibling();

@@ -269,17 +269,6 @@ void LogMessageMonitor::endJob() {
   }
 }
 
-/*
-// ------------ method called when starting to processes a run  ------------
-void 
-LogMessageMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-
-}
-*/
-// ------------ method called when ending the processing of a run  ------------
-void LogMessageMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void LogMessageMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

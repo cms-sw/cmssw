@@ -30,7 +30,6 @@ public:
   explicit Phase2TrackerValidateDigi(const edm::ParameterSet&);
   ~Phase2TrackerValidateDigi() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   struct DigiMEs {

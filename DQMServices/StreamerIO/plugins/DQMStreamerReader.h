@@ -32,8 +32,10 @@ namespace dqmservices {
     typedef std::vector<std::string> Strings;
 
   protected:
-    bool checkNextEvent() override; /* from raw input source */
+    Next checkNext() override;      /* from raw input source */
     void skip(int toSkip) override; /* from raw input source */
+    void genuineReadFile() override;
+    void genuineCloseFile() override;
 
   private:
     // our own, but we do inherit reset(),
@@ -56,6 +58,7 @@ namespace dqmservices {
     bool matchTriggerSel(Strings const& tnames);
     bool acceptAllEvt_;
     bool matchTriggerSel_;
+    bool isFirstFile_ = true;
 
     unsigned int runNumber_;
     std::string runInputDir_;

@@ -2242,9 +2242,6 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 }
 
 // ***********************************************************
-void JetAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
-
-// ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //set general folders first --> change later on for different folders
   if (jetCleaningFlag_) {

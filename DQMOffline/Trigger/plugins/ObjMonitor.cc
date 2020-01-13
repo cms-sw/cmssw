@@ -1,23 +1,108 @@
-#include "DQMOffline/Trigger/plugins/ObjMonitor.h"
+#include <string>
+#include <vector>
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DQMOffline/Trigger/plugins/METDQM.h"
+#include "DQMOffline/Trigger/plugins/JetDQM.h"
+#include "DQMOffline/Trigger/plugins/HTDQM.h"
+#include "DQMOffline/Trigger/plugins/HMesonGammaDQM.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+class ObjMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
+  ObjMonitor(const edm::ParameterSet&);
+  ~ObjMonitor() throw() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+private:
+  bool looseJetId(const double& abseta,
+                  const double& NHF,
+                  const double& NEMF,
+                  const double& CHF,
+                  const double& CEMF,
+                  const unsigned& NumNeutralParticles,
+                  const unsigned& CHM);
+
+  bool tightJetId(const double& abseta,
+                  const double& NHF,
+                  const double& NEMF,
+                  const double& CHF,
+                  const double& CEMF,
+                  const unsigned& NumNeutralParticles,
+                  const unsigned& CHM);
+
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> phoToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trkToken_;
+
+  //objects to plot
+  //add your own with corresponding switch
+  bool do_met_;
+  METDQM metDQM_;
+  bool do_jet_;
+  JetDQM jetDQM_;
+  bool do_ht_;
+  HTDQM htDQM_;
+  bool do_hmg_;
+  HMesonGammaDQM hmgDQM_;
+
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  StringCutObjectSelector<reco::MET, true> metSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
+  std::string jetId_;
+  StringCutObjectSelector<reco::PFJet, true> htjetSelection_;
+  StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_;
+  StringCutObjectSelector<reco::Photon, true> phoSelection_;
+  StringCutObjectSelector<reco::Track, true> trkSelection_;
+
+  unsigned njets_;
+  unsigned nelectrons_;
+  unsigned nmuons_;
+  unsigned nphotons_;
+  unsigned nmesons_;
+};
 
 ObjMonitor::ObjMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
       eleToken_(mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
@@ -59,9 +144,33 @@ ObjMonitor::ObjMonitor(const edm::ParameterSet& iConfig)
   }
 }
 
-ObjMonitor::~ObjMonitor() = default;
+ObjMonitor::~ObjMonitor() throw() {
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
+}
 
 void ObjMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
@@ -73,15 +182,15 @@ void ObjMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     htDQM_.bookHistograms(ibooker);
   if (do_hmg_)
     hmgDQM_.bookHistograms(ibooker);
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
 void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
@@ -265,6 +374,7 @@ bool ObjMonitor::tightJetId(const double& abseta,
 void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/OBJ");
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));

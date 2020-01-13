@@ -34,7 +34,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
 # Tracker Calibration
 ###############################################################
 # AlCaReco for pixel calibration using muons
-from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalCosmics_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAG_cff import *
@@ -169,7 +170,8 @@ pathALCARECOTkAlUpsilonMuMu = cms.Path(seqALCARECOTkAlUpsilonMuMu*ALCARECOTkAlUp
 pathALCARECOTkAlUpsilonMuMuPA = cms.Path(seqALCARECOTkAlUpsilonMuMuPA*ALCARECOTkAlUpsilonMuMuPADQM)
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
-pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
+pathALCARECOSiPixelCalSingleMuon = cms.Path(seqALCARECOSiPixelCalSingleMuon)
+pathALCARECOSiPixelCalCosmics = cms.Path(seqALCARECOSiPixelCalCosmics)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalCosmics = cms.Path(seqALCARECOSiStripCalCosmics)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
@@ -346,12 +348,21 @@ ALCARECOStreamTkAlUpsilonMuMuPA = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
-ALCARECOStreamSiPixelLorentzAngle = cms.FilteredStream(
-	responsible = 'Lotte Wilke',
-	name = 'SiPixelLorentzAngle',
-	paths  = (pathALCARECOSiPixelLorentzAngle),
-	content = OutALCARECOSiPixelLorentzAngle.outputCommands,
-	selectEvents = OutALCARECOSiPixelLorentzAngle.SelectEvents,
+ALCARECOStreamSiPixelCalSingleMuon = cms.FilteredStream(
+	responsible = 'Tamas Almos Vami',
+	name = 'SiPixelCalSingleMuon',
+	paths  = (pathALCARECOSiPixelCalSingleMuon),
+	content = OutALCARECOSiPixelCalSingleMuon.outputCommands,
+	selectEvents = OutALCARECOSiPixelCalSingleMuon.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamSiPixelCalCosmics = cms.FilteredStream(
+	responsible = 'Tamas Almos Vami',
+	name = 'SiPixelCalCosmics',
+	paths  = (pathALCARECOSiPixelCalCosmics),
+	content = OutALCARECOSiPixelCalCosmics.outputCommands,
+	selectEvents = OutALCARECOSiPixelCalCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

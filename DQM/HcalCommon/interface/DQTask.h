@@ -7,10 +7,19 @@
  *	Date:		13.10.2015
  */
 
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+
 #include "DQM/HcalCommon/interface/ContainerI.h"
 #include "DQM/HcalCommon/interface/ContainerS.h"
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
 #include "DQM/HcalCommon/interface/DQModule.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 namespace hcaldqm {
   enum UpdateFreq { fEvent = 0, f1LS = 1, f10LS = 2, f50LS = 3, f100LS = 4, nUpdateFreq = 5 };
@@ -55,8 +64,12 @@ namespace hcaldqm {
     edm::EDGetTokenT<FEDRawDataCollection> _tokRaw;
 
     // Conditions and emap
+    edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
+    edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+    edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
+
     edm::ESHandle<HcalDbService> _dbService;
-    HcalElectronicsMap const *_emap;
+    HcalElectronicsMap const *_emap = nullptr;
   };
 }  // namespace hcaldqm
 

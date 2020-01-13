@@ -22,8 +22,6 @@ BPhysicsSpectrum::BPhysicsSpectrum(const edm::ParameterSet& iPSet)
 
 BPhysicsSpectrum::~BPhysicsSpectrum() {}
 
-void BPhysicsSpectrum::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void BPhysicsSpectrum::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) {
   DQMHelper dqm(&i);
   i.setCurrentFolder("Generator/BPhysics");

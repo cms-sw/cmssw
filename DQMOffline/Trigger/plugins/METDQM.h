@@ -26,7 +26,6 @@ private:
   ObjME metME_variableBinning_;
   ObjME metVsLS_;
   ObjME metPhiME_;
+};
 
-};  //class
-
-#endif  //DQMOffline_Trigger_METDQM_H
+#endif

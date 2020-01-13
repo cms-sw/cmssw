@@ -1,12 +1,14 @@
 #ifndef DataFormats_NanoAOD_FlatTable_h
 #define DataFormats_NanoAOD_FlatTable_h
 
+#include "DataFormats/Math/interface/libminifloat.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include <boost/range/sub_range.hpp>
+
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <boost/range/sub_range.hpp>
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/Math/interface/libminifloat.h"
 
 namespace nanoaod {
 
