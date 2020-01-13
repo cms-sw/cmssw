@@ -4,8 +4,6 @@
 // The module providing event information
 #include "DQMEventInfo.h"
 DEFINE_FWK_MODULE(DQMEventInfo);
-#include "DQMFileSaver.h"
-DEFINE_FWK_MODULE(DQMFileSaver);
 #include "DQMFEDIntegrityClient.h"
 DEFINE_FWK_MODULE(DQMFEDIntegrityClient);
 #include "DQMStoreStats.h"
