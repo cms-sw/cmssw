@@ -107,6 +107,8 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
     if (globalTrackingGeometryToken_.isInitialized()) {
       theTrackingGeometry = setup.getHandle(globalTrackingGeometryToken_);
     } else {
+      // FIXME, when the deprecated constructor is deleted, then the following
+      // line can be deleted. Also the if-else conditional can be deleted.
       setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
     }
   }
@@ -119,6 +121,8 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
     if (magneticFieldToken_.isInitialized()) {
       theMGField = setup.getHandle(magneticFieldToken_);
     } else {
+      // FIXME, when the deprecated constructor is deleted, then the following
+      // line can be deleted. Also the if-else conditional can be deleted.
       setup.get<IdealMagneticFieldRecord>().get(theMGField);
     }
   }
@@ -131,6 +135,8 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
     if (muonDetLayerGeometryToken_.isInitialized()) {
       theDetLayerGeometry = setup.getHandle(muonDetLayerGeometryToken_);
     } else {
+      // FIXME, when the deprecated constructor is deleted, then the following
+      // line can be deleted. Also the if-else conditional can be deleted.
       setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
     }
     // MuonNavigationSchool should live until its validity expires, and then DELETE
@@ -153,6 +159,8 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
         // element.second.first is the ESHandle, element.second.second is the ESGetToken
         element.second.first = setup.getHandle(element.second.second);
       } else {
+        // FIXME, when the deprecated constructor is deleted, then the following
+        // line can be deleted. Also the if-else conditional can be deleted.
         setup.get<TrackingComponentsRecord>().get(element.first, element.second.first);
       }
     }
