@@ -7,16 +7,16 @@ supported by DQM and has them interact in a dependency-driven way.
 
 These modules should illustrate how the DQM module types are supposed to work.
 
-In the `test/` folder,  there are instnaces of all supported module types and
+In the `test/` folder,  there are instances of all supported module types and
 a configuraiton to run them in many different setups. This covers
 
 - Jobs which cover the dataflow at Tier0/ReReco:
   - `DQMEDAnalyzer`s in a (potentially multi-threaded) RECO job with DQMIO output.
   - A merge job with DQMIO input and DQMIO output, like in the production DQMIO MERGE jobs.
   - `DQMEDHarvester`s with DQMIO input and TDriectory output, like in a production HARVESTING job.
+  - Similar jobs reading/writing `MEtoEDM` format data.
 
-- Less common offline jobs are not fully covered yet: there is no `MEtoEDM` 
-  based workflows (like used by ALCA), and also no multi-run harvesting. 
+- Less common offline jobs are not fully covered yet: no multi-run harvesting. 
   Multi-run harvesting is very similar to normal HARVESTING though.
 
 - More exotic configurations:
