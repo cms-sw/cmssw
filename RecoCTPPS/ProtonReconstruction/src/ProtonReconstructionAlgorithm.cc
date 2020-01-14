@@ -347,8 +347,6 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
         xi = (L_x_N * x_F - L_x_F * x_N) / (L_x_N * D_x_eff_F - L_x_F * D_x_eff_N);
       }
 
-      os << "    it = " << it << ": xi_prev = " << xi_prev << ", xi = " << xi << std::endl;
-
       if (abs(xi - xi_prev) < maxXiDiff) {
         valid = true;
         break;
