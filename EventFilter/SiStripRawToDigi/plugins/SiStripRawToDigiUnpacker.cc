@@ -207,12 +207,12 @@ namespace sistrip {
       }
 
       /// extract readout mode
-      sistrip::FEDReadoutMode mode = buffer.readoutMode();
-      sistrip::FEDLegacyReadoutMode lmode =
+      const sistrip::FEDReadoutMode mode = buffer.readoutMode();
+      const sistrip::FEDLegacyReadoutMode lmode =
           (legacy_) ? buffer.legacyReadoutMode() : sistrip::READOUT_MODE_LEGACY_INVALID;
 
       // Retrive run type
-      sistrip::RunType runType_ = summary.runType();
+      const sistrip::RunType runType_ = summary.runType();
       if (runType_ == sistrip::APV_LATENCY || runType_ == sistrip::FINE_DELAY) {
         useFedKey_ = false;
       }
@@ -252,102 +252,47 @@ namespace sistrip {
         }
 
         // Determine whether FED key is inferred from cabling or channel loop
-        uint32_t fed_key = (summary.runType() == sistrip::FED_CABLING)
-                               ? ((*ifed & sistrip::invalid_) << 16) | (chan & sistrip::invalid_)
-                               : ((iconn->fedId() & sistrip::invalid_) << 16) | (iconn->fedCh() & sistrip::invalid_);
+        const uint32_t fed_key = (summary.runType() == sistrip::FED_CABLING)
+                ? ((*ifed & sistrip::invalid_) << 16) | (chan & sistrip::invalid_)
+                : ((iconn->fedId() & sistrip::invalid_) << 16) | (iconn->fedCh() & sistrip::invalid_);
 
         // Determine whether DetId or FED key should be used to index digi containers
-        uint32_t key = (useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) ||
-                        (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE))
-                           ? fed_key
-                           : iconn->detId();
+        const uint32_t key = (useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) ||
+                              (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE))
+                                 ? fed_key
+                                 : iconn->detId();
 
         // Determine APV std::pair number (needed only when using DetId)
-        uint16_t ipair = (useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) ||
-                          (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE))
-                             ? 0
-                             : iconn->apvPairNumber();
+        const uint16_t ipair = (useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) ||
+                                (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE))
+                                   ? 0
+                                   : iconn->apvPairNumber();
 
-        if ((!legacy_ &&
-             (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_FAKE)) ||
-            (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL ||
-                         lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE))) {
+        const auto& fedChannel = buffer.channel(iconn->fedCh());
+
+        if (FEDChannelUnpacker::isZeroSuppressed(mode, legacy_, lmode)) {
           Registry regItem(key, 0, zs_work_digis_.size(), 0);
-
-          try {
-            /// create unpacker
-            /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-            const uint8_t packet_code = buffer.packetCode(legacy_, iconn->fedCh());
-            switch (packet_code) {
-              case PACKET_CODE_ZERO_SUPPRESSED: {
-                sistrip::FEDZSChannelUnpacker unpacker =
-                    sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer.channel(iconn->fedCh()));
-                while (unpacker.hasData()) {
-                  zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber() + ipair * 256, unpacker.adc()));
-                  unpacker++;
-                }
-                break;
-              }
-              case PACKET_CODE_ZERO_SUPPRESSED10: {
-                sistrip::FEDBSChannelUnpacker unpacker =
-                    sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer.channel(iconn->fedCh()), 10);
-                while (unpacker.hasData()) {
-                  zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber() + ipair * 256, unpacker.adc()));
-                  unpacker++;
-                }
-                break;
-              }
-              case PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT: {
-                sistrip::FEDBSChannelUnpacker unpacker =
-                    sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer.channel(iconn->fedCh()), 8);
-                while (unpacker.hasData()) {
-                  zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber() + ipair * 256, unpacker.adc() << 2));
-                  unpacker++;
-                }
-                break;
-              }
-              case PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT: {
-                sistrip::FEDBSChannelUnpacker unpacker =
-                    sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer.channel(iconn->fedCh()), 8);
-                while (unpacker.hasData()) {
-                  zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber() + ipair * 256, unpacker.adc() << 1));
-                  unpacker++;
-                }
-                break;
-              }
-              default: {
-                warnings_.add((boost::format("Invalid packet code %1$#x for zero-suppressed data") %
-                               uint16_t(buffer.packetCode(legacy_, iconn->fedCh())))
-                                  .str(),
-                              (boost::format("FED %1% channel %2%") % *ifed % iconn->fedCh()).str());
-                if (packet_code == 0) {
-                  // workaround for a pre-2015 bug in the packer: assume default ZS packing
-                  sistrip::FEDZSChannelUnpacker unpacker =
-                      sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer.channel(iconn->fedCh()));
-                  while (unpacker.hasData()) {
-                    zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber() + ipair * 256, unpacker.adc()));
-                    unpacker++;
-                  }
-                }
-              }
-            }
-          } catch (const cms::Exception& e) {
+          const auto isNonLite = FEDChannelUnpacker::isNonLiteZS(mode, legacy_, lmode);
+          const uint8_t pCode = (isNonLite ? buffer.packetCode(legacy_, iconn->fedCh()) : 0);
+          const auto st_ch = FEDChannelUnpacker::unpackZeroSuppressed(
+              fedChannel, std::back_inserter(zs_work_digis_), ipair * 256,
+              isNonLite, mode, legacy_, lmode, pCode);
+          if (FEDChannelUnpacker::StatusCode::ZERO_PACKET_CODE == st_ch || FEDChannelUnpacker::StatusCode::BAD_PACKET_CODE == st_ch) {
+            warnings_.add((boost::format("Invalid packet code %1$#x for zero-suppressed data") % uint16_t(pCode)).str(),
+                          (boost::format("FED %1% channel %2%") % *ifed % iconn->fedCh()).str());
+          } else if (FEDChannelUnpacker::StatusCode::SUCCESS != st_ch) {
             warnings_.add("Clusters are not ordered",
-                          (boost::format("FED %1% channel %2% : %3%") % *ifed % iconn->fedCh() % e.what()).str());
+                          (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % toString(st_ch)).str());
             detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
             continue;
           }
-
-          regItem.length = zs_work_digis_.size() - regItem.index;
-          if (regItem.length > 0) {
+          if (regItem.index != scope_work_digis_.size()) {
+            regItem.length = zs_work_digis_.size() - regItem.index;
             regItem.first = zs_work_digis_[regItem.index].strip();
             zs_work_registry_.push_back(regItem);
           }
-
           // Common mode values
-          if (extractCm_) {
-            const auto& fedChannel = buffer.channel(iconn->fedCh());
-            const auto pCode = fedChannel.packetCode();
+          if (isNonLite && extractCm_) {
             if ((pCode == PACKET_CODE_ZERO_SUPPRESSED) || (pCode == PACKET_CODE_ZERO_SUPPRESSED10) ||
                 (pCode == PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT) || (pCode == PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT)) {
               Registry regItem2(key, 2 * ipair, cm_work_digis_.size(), 2);
@@ -355,6 +300,7 @@ namespace sistrip {
               cm_work_digis_.push_back(SiStripRawDigi(fedChannel.cmMedian(1)));
               cm_work_registry_.push_back(regItem2);
             } else {
+              detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
               warnings_.add("Problem extracting common modes",
                             (boost::format("FED %1% channel %2%:\n Request for CM median from channel with non-ZS "
                                            "packet code. Packet code is %3%.") %
@@ -362,243 +308,50 @@ namespace sistrip {
                                 .str());
             }
           }
-        }
-
-        else if (!legacy_ && (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 ||
-                              mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE)) {
-          Registry regItem(key, 0, zs_work_digis_.size(), 0);
-
-          try {
-            /// create unpacker
-            sistrip::FEDBSChannelUnpacker unpacker =
-                sistrip::FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer.channel(iconn->fedCh()), 10);
-
-            /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-            while (unpacker.hasData()) {
-              zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber() + ipair * 256, unpacker.adc()));
-              unpacker++;
+        } else {
+          auto st_ch = FEDChannelUnpacker::StatusCode::SUCCESS;
+          if (FEDChannelUnpacker::isVirginRaw(mode, legacy_, lmode)) {
+            Registry regItem(key, 256 * ipair, virgin_work_digis_.size(), 0);
+            st_ch = FEDChannelUnpacker::unpackVirginRaw(
+                fedChannel, std::back_inserter(virgin_work_digis_), buffer.packetCode(legacy_));
+            // TODO check if this is the channel's packet code
+            if (regItem.index != virgin_work_digis_.size()) {
+              regItem.length = virgin_work_digis_.size() - regItem.index;
+              virgin_work_registry_.push_back(regItem);
             }
-          } catch (const cms::Exception& e) {
-            warnings_.add("Clusters are not ordered",
-                          (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
-            detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
-            continue;
-          }
-
-          regItem.length = zs_work_digis_.size() - regItem.index;
-          if (regItem.length > 0) {
-            regItem.first = zs_work_digis_[regItem.index].strip();
-            zs_work_registry_.push_back(regItem);
-          }
-
-        }
-
-        else if ((!legacy_ && (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8 ||
-                               mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
-                               mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT ||
-                               mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
-                               mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT ||
-                               mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE)) ||
-                 (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL ||
-                              lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE))) {
-          Registry regItem(key, 0, zs_work_digis_.size(), 0);
-
-          size_t bits_shift = 0;
-          if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT ||
-              mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE)
-            bits_shift = 1;
-          if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT ||
-              mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE)
-            bits_shift = 2;
-
-          try {
-            /// create unpacker
-            sistrip::FEDZSChannelUnpacker unpacker =
-                sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer.channel(iconn->fedCh()));
-
-            /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-            while (unpacker.hasData()) {
-              zs_work_digis_.push_back(
-                  SiStripDigi(unpacker.sampleNumber() + ipair * 256, unpacker.adc() << bits_shift));
-              unpacker++;
+          } else if (FEDChannelUnpacker::isProcessedRaw(mode, legacy_, lmode)) {
+            Registry regItem(key, 256 * ipair, proc_work_digis_.size(), 0);
+            st_ch = FEDChannelUnpacker::unpackProcessedRaw(fedChannel, std::back_inserter(proc_work_digis_));
+            if (regItem.index != proc_work_digis_.size()) {
+              regItem.length = proc_work_digis_.size() - regItem.index;
+              proc_work_registry_.push_back(regItem);
             }
-          } catch (const cms::Exception& e) {
-            warnings_.add("Clusters are not ordered",
-                          (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
-            detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
-            continue;
-          }
-
-          regItem.length = zs_work_digis_.size() - regItem.index;
-          if (regItem.length > 0) {
-            regItem.first = zs_work_digis_[regItem.index].strip();
-            zs_work_registry_.push_back(regItem);
-          }
-
-        }
-
-        else if ((!legacy_ && mode == sistrip::READOUT_MODE_PREMIX_RAW) ||
-                 (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_PREMIX_RAW)) {
-          Registry regItem(key, 0, zs_work_digis_.size(), 0);
-
-          try {
-            /// create unpacker
-            sistrip::FEDZSChannelUnpacker unpacker =
-                sistrip::FEDZSChannelUnpacker::preMixRawModeUnpacker(buffer.channel(iconn->fedCh()));
-
-            /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-            while (unpacker.hasData()) {
-              zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber() + ipair * 256, unpacker.adcPreMix()));
-              unpacker++;
+          } else if (FEDChannelUnpacker::isScopeMode(mode, legacy_, lmode)) {
+            Registry regItem(key, 0, scope_work_digis_.size(), 0);
+            st_ch = FEDChannelUnpacker::unpackScope(fedChannel, std::back_inserter(scope_work_digis_));
+            if (regItem.index != scope_work_digis_.size()) {
+              regItem.length = scope_work_digis_.size() - regItem.index;
+              scope_work_registry_.push_back(regItem);
             }
-          } catch (const cms::Exception& e) {
-            warnings_.add("Clusters are not ordered",
-                          (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
-            detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
-            continue;
-          }
-
-          regItem.length = zs_work_digis_.size() - regItem.index;
-          if (regItem.length > 0) {
-            regItem.first = zs_work_digis_[regItem.index].strip();
-            zs_work_registry_.push_back(regItem);
-          }
-
-        }
-
-        else if ((!legacy_ && mode == sistrip::READOUT_MODE_VIRGIN_RAW) ||
-                 (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_VIRGIN_RAW_REAL ||
-                              lmode == sistrip::READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE))) {
-          std::vector<uint16_t> samples;
-
-          /// create unpacker
-          /// and unpack -> add check to make sure strip < nstrips && strip > last strip......
-
-          uint8_t packet_code = buffer.packetCode(legacy_);
-          if (packet_code == PACKET_CODE_VIRGIN_RAW) {
-            sistrip::FEDRawChannelUnpacker unpacker =
-                sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer.channel(iconn->fedCh()));
-            while (unpacker.hasData()) {
-              samples.push_back(unpacker.adc());
-              unpacker++;
-            }
-          } else {
-            if (packet_code == PACKET_CODE_VIRGIN_RAW10) {
-              sistrip::FEDBSChannelUnpacker unpacker =
-                  sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer.channel(iconn->fedCh()), 10);
-              while (unpacker.hasData()) {
-                samples.push_back(unpacker.adc());
-                unpacker.sampleNumber();
-                unpacker++;
+          } else {  // Unknown readout mode! => assume scope mode
+            warnings_.add((boost::format("Unknown FED readout mode (%1%)! Assuming SCOPE MODE...") % mode).str());
+            Registry regItem(key, 0, scope_work_digis_.size(), 0);
+            st_ch = FEDChannelUnpacker::unpackScope(fedChannel, std::back_inserter(scope_work_digis_));
+            if (regItem.index != scope_work_digis_.size()) {
+              regItem.length = scope_work_digis_.size() - regItem.index;
+              scope_work_registry_.push_back(regItem);
+              if (edm::isDebugEnabled()) {
+                std::stringstream ss;
+                ss << "Extracted " << regItem.length << " SCOPE MODE digis (samples[0] = " << scope_work_digis_[regItem.index]
+                   << ") from FED id/ch " << iconn->fedId() << "/" << iconn->fedCh();
+                LogTrace("SiStripRawToDigi") << ss.str();
               }
-            } else if (packet_code == PACKET_CODE_VIRGIN_RAW8_BOTBOT) {
-              sistrip::FEDBSChannelUnpacker unpacker =
-                  sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer.channel(iconn->fedCh()), 8);
-              while (unpacker.hasData()) {
-                samples.push_back((unpacker.adc() << 2));
-                unpacker++;
-              }
-            } else if (packet_code == PACKET_CODE_VIRGIN_RAW8_TOPBOT) {
-              sistrip::FEDBSChannelUnpacker unpacker =
-                  sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer.channel(iconn->fedCh()), 8);
-              while (unpacker.hasData()) {
-                samples.push_back((unpacker.adc() << 1));
-                unpacker++;
-              }
+            } else {
+              warnings_.add("No SM digis found!");
             }
           }
-          if (!samples.empty()) {
-            Registry regItem(key, 256 * ipair, virgin_work_digis_.size(), samples.size());
-            uint16_t physical;
-            uint16_t readout;
-            for (uint16_t i = 0, n = samples.size(); i < n; i++) {
-              physical = i % 128;
-              readoutOrder(physical, readout);  // convert index from physical to readout order
-              (i / 128) ? readout = readout* 2 + 1 : readout = readout * 2;  // un-multiplex data
-              virgin_work_digis_.push_back(SiStripRawDigi(samples[readout]));
-            }
-            virgin_work_registry_.push_back(regItem);
-          }
-        }
-
-        else if ((!legacy_ && mode == sistrip::READOUT_MODE_PROC_RAW) ||
-                 (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_PROC_RAW_REAL ||
-                              lmode == sistrip::READOUT_MODE_LEGACY_PROC_RAW_FAKE))) {
-          std::vector<uint16_t> samples;
-
-          /// create unpacker
-          sistrip::FEDRawChannelUnpacker unpacker =
-              sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer.channel(iconn->fedCh()));
-
-          /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-          while (unpacker.hasData()) {
-            samples.push_back(unpacker.adc());
-            unpacker++;
-          }
-
-          if (!samples.empty()) {
-            Registry regItem(key, 256 * ipair, proc_work_digis_.size(), samples.size());
-            for (uint16_t i = 0, n = samples.size(); i < n; i++) {
-              proc_work_digis_.push_back(SiStripRawDigi(samples[i]));
-            }
-            proc_work_registry_.push_back(regItem);
-          }
-        }
-
-        else if ((!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) ||
-                 (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE)) {
-          std::vector<uint16_t> samples;
-
-          /// create unpacker
-          sistrip::FEDRawChannelUnpacker unpacker =
-              sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer.channel(iconn->fedCh()));
-
-          /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-          while (unpacker.hasData()) {
-            samples.push_back(unpacker.adc());
-            unpacker++;
-          }
-
-          if (!samples.empty()) {
-            Registry regItem(key, 0, scope_work_digis_.size(), samples.size());
-            for (uint16_t i = 0, n = samples.size(); i < n; i++) {
-              scope_work_digis_.push_back(SiStripRawDigi(samples[i]));
-            }
-            scope_work_registry_.push_back(regItem);
-          }
-        }
-
-        else {  // Unknown readout mode! => assume scope mode
-
-          warnings_.add((boost::format("Unknown FED readout mode (%1%)! Assuming SCOPE MODE...") % mode).str());
-
-          std::vector<uint16_t> samples;
-
-          /// create unpacker
-          sistrip::FEDRawChannelUnpacker unpacker =
-              sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer.channel(iconn->fedCh()));
-
-          /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-          while (unpacker.hasData()) {
-            samples.push_back(unpacker.adc());
-            unpacker++;
-          }
-
-          if (!samples.empty()) {
-            Registry regItem(key, 0, scope_work_digis_.size(), samples.size());
-            for (uint16_t i = 0, n = samples.size(); i < n; i++) {
-              scope_work_digis_.push_back(SiStripRawDigi(samples[i]));
-            }
-            scope_work_registry_.push_back(regItem);
-
-            if (edm::isDebugEnabled()) {
-              std::stringstream ss;
-              ss << "Extracted " << samples.size() << " SCOPE MODE digis (samples[0] = " << samples[0]
-                 << ") from FED id/ch " << iconn->fedId() << "/" << iconn->fedCh();
-              LogTrace("SiStripRawToDigi") << ss.str();
-            }
-          } else {
-            warnings_.add("No SM digis found!");
+          if ( FEDChannelUnpacker::StatusCode::SUCCESS != st_ch ) {
+            warnings_.add(toString(st_ch), (boost::format("FED %1% channel %2%:") % *ifed % iconn->fedCh()).str());
           }
         }
       }  // channel loop
