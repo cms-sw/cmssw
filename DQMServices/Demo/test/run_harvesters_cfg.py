@@ -89,5 +89,5 @@ else:
   process.e = cms.EndPath(process.out)
 
 # useful for debugging
-#process.DQMStore.trackME = cms.untracked.string("Legacy/testlegacy/lumi/th2s0")
+#process.DQMStore.trackME = cms.untracked.string("testlegacyfillrun")
 #process.Tracer = cms.Service("Tracer")
