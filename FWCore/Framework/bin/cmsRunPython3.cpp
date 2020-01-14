@@ -26,6 +26,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/Utilities/interface/TimingServiceBase.h"
 #include "FWCore/PyDevParameterSet/interface/MakePyBind11ParameterSets.h"
 #include "TError.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "boost/program_options.hpp"
 #include "tbb/task_scheduler_init.h"
@@ -67,9 +68,8 @@ namespace {
         : ep_(std::move(ep)), callEndJob_(false) {}
     ~EventProcessorWithSentry() {
       if (callEndJob_ && ep_.get()) {
-        try {
-          ep_->endJob();
-        } catch (...) {
+        // See the message below
+        CMS_SA_ALLOW try { ep_->endJob(); } catch (...) {
           edm::LogSystem("MoreExceptions")
               << "After a fatal primary exception was caught, there was an attempt to run\n"
               << "endJob methods. Another exception was caught while endJob was running\n"
