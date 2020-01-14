@@ -13,6 +13,16 @@
 #include "TList.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+//#define MMDEBUG // uncomment for debugging at compile time
+#ifdef MMDEBUG
+#include <iostream>
+#define COUT std::cout << "MM "
+#else
+#define COUT edm::LogVerbatim("")
+#endif
 
 namespace AlignmentPI {
 
@@ -35,14 +45,33 @@ namespace AlignmentPI {
 
   enum index { XX = 1, XY = 2, XZ = 3, YZ = 4, YY = 5, ZZ = 6 };
 
-  enum partitions {
-    BPix = 1,  // Barrel Pixel
-    FPix = 2,  // Forward Pixel
-    TIB = 3,   // Tracker Inner Barrel
-    TID = 4,   // Tracker Inner Disks
-    TOB = 5,   // Tracker Outer Barrel
-    TEC = 6    // Tracker Endcaps
+  enum partitions { BPix = 1, FPix = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
+
+  enum class PARTITION {
+    BPIX,   // 0 Barrel Pixel
+    FPIXp,  // 1 Forward Pixel Plus
+    FPIXm,  // 2 Forward Pixel Minus
+    TIB,    // 3 Tracker Inner Barrel
+    TIDp,   // 4 Tracker Inner Disks Plus
+    TIDm,   // 5 Tracker Inner Disks Minus
+    TOB,    // 6 Tracker Outer Barrel
+    TECp,   // 7 Tracker Endcaps Plus
+    TECm,   // 8 Tracker Endcaps Minus
+    LAST = TECm
   };
+
+  extern const PARTITION PARTITIONS[(int)PARTITION::LAST + 1];
+  const PARTITION PARTITIONS[] = {PARTITION::BPIX,
+                                  PARTITION::FPIXp,
+                                  PARTITION::FPIXm,
+                                  PARTITION::TIB,
+                                  PARTITION::TIDp,
+                                  PARTITION::TIDm,
+                                  PARTITION::TOB,
+                                  PARTITION::TECp,
+                                  PARTITION::TECm};
+
+  std::ostream& operator<<(std::ostream& o, PARTITION x) { return o << std::underlying_type<PARTITION>::type(x); }
 
   enum regions {
     BPixL1o,          //0  Barrel Pixel Layer 1 outer
@@ -761,6 +790,172 @@ namespace AlignmentPI {
     return std::make_pair(_sx, _dx);
   }
 
+  // ancillary struct to manage the barycenters
+  // info in a more compact way
+
+  struct TkAlBarycenters {
+    std::map<AlignmentPI::PARTITION, double> Xbarycenters;
+    std::map<AlignmentPI::PARTITION, double> Ybarycenters;
+    std::map<AlignmentPI::PARTITION, double> Zbarycenters;
+    std::map<AlignmentPI::PARTITION, double> nmodules;
+
+  public:
+    void init();
+    GlobalPoint getPartitionAvg(AlignmentPI::PARTITION p);
+    void computeBarycenters(const std::vector<AlignTransform>& input,
+                            const TrackerTopology& tTopo,
+                            const std::map<AlignmentPI::coordinate, float>& GPR);
+    const double getNModules(AlignmentPI::PARTITION p) { return nmodules[p]; };
+
+    // M.M. 2020/01/09
+    // introduce methods for entire partitions, summing up the two sides of the
+    // endcap detectors
+
+    /*--------------------------------------------------------------------*/
+    const std::array<double, 6> getX()
+    /*--------------------------------------------------------------------*/
+    {
+      return {{Xbarycenters[PARTITION::BPIX],
+               (Xbarycenters[PARTITION::FPIXm] + Xbarycenters[PARTITION::FPIXp]) / 2.,
+               Xbarycenters[PARTITION::TIB],
+               (Xbarycenters[PARTITION::TIDm] + Xbarycenters[PARTITION::TIDp]) / 2,
+               Xbarycenters[PARTITION::TOB],
+               (Xbarycenters[PARTITION::TECm] + Xbarycenters[PARTITION::TECp]) / 2}};
+    };
+
+    /*--------------------------------------------------------------------*/
+    const std::array<double, 6> getY()
+    /*--------------------------------------------------------------------*/
+    {
+      return {{Ybarycenters[PARTITION::BPIX],
+               (Ybarycenters[PARTITION::FPIXm] + Ybarycenters[PARTITION::FPIXp]) / 2.,
+               Ybarycenters[PARTITION::TIB],
+               (Ybarycenters[PARTITION::TIDm] + Ybarycenters[PARTITION::TIDp]) / 2,
+               Ybarycenters[PARTITION::TOB],
+               (Ybarycenters[PARTITION::TECm] + Ybarycenters[PARTITION::TECp]) / 2}};
+    };
+
+    /*--------------------------------------------------------------------*/
+    const std::array<double, 6> getZ()
+    /*--------------------------------------------------------------------*/
+    {
+      return {{Zbarycenters[PARTITION::BPIX],
+               (Zbarycenters[PARTITION::FPIXm] + Zbarycenters[PARTITION::FPIXp]) / 2.,
+               Zbarycenters[PARTITION::TIB],
+               (Zbarycenters[PARTITION::TIDm] + Zbarycenters[PARTITION::TIDp]) / 2,
+               Zbarycenters[PARTITION::TOB],
+               (Zbarycenters[PARTITION::TECm] + Zbarycenters[PARTITION::TECp]) / 2}};
+    };
+    virtual ~TkAlBarycenters() {}
+  };
+
+  /*--------------------------------------------------------------------*/
+  GlobalPoint TkAlBarycenters::getPartitionAvg(AlignmentPI::PARTITION p)
+  /*--------------------------------------------------------------------*/
+  {
+    return GlobalPoint(Xbarycenters[p], Ybarycenters[p], Zbarycenters[p]);
+  }
+
+  /*--------------------------------------------------------------------*/
+  void TkAlBarycenters::computeBarycenters(const std::vector<AlignTransform>& input,
+                                           const TrackerTopology& tTopo,
+                                           const std::map<AlignmentPI::coordinate, float>& GPR)
+  /*--------------------------------------------------------------------*/
+  {
+    for (const auto& ali : input) {
+      if (DetId(ali.rawId()).det() != DetId::Tracker) {
+        edm::LogWarning("TkAlBarycenters::computeBarycenters")
+            << "Encountered invalid Tracker DetId:" << ali.rawId() << " " << DetId(ali.rawId()).det()
+            << " is different from " << DetId::Tracker << "  - terminating ";
+        assert(DetId(ali.rawId()).det() != DetId::Tracker);
+      }
+
+      int subid = DetId(ali.rawId()).subdetId();
+      switch (subid) {
+        case PixelSubdetector::PixelBarrel:
+          Xbarycenters[PARTITION::BPIX] += (ali.translation().x());
+          Ybarycenters[PARTITION::BPIX] += (ali.translation().y());
+          Zbarycenters[PARTITION::BPIX] += (ali.translation().z());
+          nmodules[PARTITION::BPIX]++;
+          break;
+        case PixelSubdetector::PixelEndcap:
+
+          // minus side
+          if (tTopo.pxfSide(DetId(ali.rawId())) == 1) {
+            Xbarycenters[PARTITION::FPIXm] += (ali.translation().x());
+            Ybarycenters[PARTITION::FPIXm] += (ali.translation().y());
+            Zbarycenters[PARTITION::FPIXm] += (ali.translation().z());
+            nmodules[PARTITION::FPIXm]++;
+          }  // plus side
+          else {
+            Xbarycenters[PARTITION::FPIXp] += (ali.translation().x());
+            Ybarycenters[PARTITION::FPIXp] += (ali.translation().y());
+            Zbarycenters[PARTITION::FPIXp] += (ali.translation().z());
+            nmodules[PARTITION::FPIXp]++;
+          }
+          break;
+        case StripSubdetector::TIB:
+          Xbarycenters[PARTITION::TIB] += (ali.translation().x());
+          Ybarycenters[PARTITION::TIB] += (ali.translation().y());
+          Zbarycenters[PARTITION::TIB] += (ali.translation().z());
+          nmodules[PARTITION::TIB]++;
+          break;
+        case StripSubdetector::TID:
+          // minus side
+          if (tTopo.tidSide(DetId(ali.rawId())) == 1) {
+            Xbarycenters[PARTITION::TIDm] += (ali.translation().x());
+            Ybarycenters[PARTITION::TIDm] += (ali.translation().y());
+            Zbarycenters[PARTITION::TIDm] += (ali.translation().z());
+            nmodules[PARTITION::TIDm]++;
+          }  // plus side
+          else {
+            Xbarycenters[PARTITION::TIDp] += (ali.translation().x());
+            Ybarycenters[PARTITION::TIDp] += (ali.translation().y());
+            Zbarycenters[PARTITION::TIDp] += (ali.translation().z());
+            nmodules[PARTITION::TIDp]++;
+          }
+          break;
+        case StripSubdetector::TOB:
+          Xbarycenters[PARTITION::TOB] += (ali.translation().x());
+          Ybarycenters[PARTITION::TOB] += (ali.translation().y());
+          Zbarycenters[PARTITION::TOB] += (ali.translation().z());
+          nmodules[PARTITION::TOB]++;
+          break;
+        case StripSubdetector::TEC:
+          // minus side
+          if (tTopo.tecSide(DetId(ali.rawId())) == 1) {
+            Xbarycenters[PARTITION::TECm] += (ali.translation().x());
+            Ybarycenters[PARTITION::TECm] += (ali.translation().y());
+            Zbarycenters[PARTITION::TECm] += (ali.translation().z());
+            nmodules[PARTITION::TECm]++;
+          }  // plus side
+          else {
+            Xbarycenters[PARTITION::TECp] += (ali.translation().x());
+            Ybarycenters[PARTITION::TECp] += (ali.translation().y());
+            Zbarycenters[PARTITION::TECp] += (ali.translation().z());
+            nmodules[PARTITION::TECp]++;
+          }
+          break;
+        default:
+          edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized partition " << subid << std::endl;
+          break;
+      }
+    }
+
+    for (const auto& p : PARTITIONS) {
+      Xbarycenters[p] /= nmodules[p];
+      Ybarycenters[p] /= nmodules[p];
+      Zbarycenters[p] /= nmodules[p];
+
+      Xbarycenters[p] += GPR.at(AlignmentPI::t_x);
+      Ybarycenters[p] += GPR.at(AlignmentPI::t_y);
+      Zbarycenters[p] += GPR.at(AlignmentPI::t_z);
+
+      COUT << p << "|"
+           << " X: " << std::right << std::setw(12) << Xbarycenters[p] << " Y: " << std::right << std::setw(12)
+           << Ybarycenters[p] << " Z: " << std::right << std::setw(12) << Zbarycenters[p] << std::endl;
+    }
+  }
 }  // namespace AlignmentPI
 
 #endif
