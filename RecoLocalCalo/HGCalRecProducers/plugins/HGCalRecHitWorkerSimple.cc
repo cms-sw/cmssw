@@ -6,7 +6,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-//#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : HGCalRecHitWorkerBaseClass(ps) {
@@ -81,7 +80,7 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
   noiseSiP_ = ps.getParameter<double>("noiseSiPar");
   constSiP_ = ps.getParameter<double>("constSiPar");
 
-  timeEstimatorSi_ = hgcalsimclustertime::ComputeClusterTime(minValSiP_, maxValSiP_, constSiP_, noiseSiP_); 
+  timeEstimatorSi_ = hgcalsimclustertime::ComputeClusterTime(minValSiP_, maxValSiP_, constSiP_, noiseSiP_);
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
@@ -204,18 +203,15 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   float SoN = new_E / sigmaNoiseGeV;
   myrechit.setSignalOverSigmaNoise(SoN);
 
-
-  if(detid.det() == DetId::HGCalHSc || myrechit.time() < 0.){
+  if (detid.det() == DetId::HGCalHSc || myrechit.time() < 0.) {
     myrechit.setTimeError(-1.);
-    std::cout << " err -1 time = " << myrechit.time() << " E = " << new_E
-	      << " SoN = " << SoN << std::endl;
-  }
-  else{
+    std::cout << " err -1 time = " << myrechit.time() << " E = " << new_E << " SoN = " << SoN << std::endl;
+  } else {
     //hgcalsimclustertime::ComputeClusterTime timeEstimatorSi(minValSiP_, maxValSiP_, constSiP_, noiseSiP_);
     float timeError = timeEstimatorSi_.getTimeError("recHit", SoN);
-    std::cout << " SoN = " << SoN << " timeError = " << timeError << " time = " << myrechit.time() 
-	      << " minValSiP_ = " <<  minValSiP_ << " maxValSiP_ = " << maxValSiP_ 
-	      << " constSiP_ = " << constSiP_ << " noiseSiP_ = " << noiseSiP_ << std::endl;
+    std::cout << " SoN = " << SoN << " timeError = " << timeError << " time = " << myrechit.time()
+              << " minValSiP_ = " << minValSiP_ << " maxValSiP_ = " << maxValSiP_ << " constSiP_ = " << constSiP_
+              << " noiseSiP_ = " << noiseSiP_ << std::endl;
     myrechit.setTimeError(timeError);
   }
 

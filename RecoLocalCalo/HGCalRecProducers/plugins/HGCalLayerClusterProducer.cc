@@ -19,9 +19,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
-//#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
-
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerClusterAlgoFactory.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
@@ -203,7 +201,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
     edm::Ptr<reco::BasicCluster> ptr(clusterHandle, i);
     clusterPtrs.push_back(ptr);
 
-    std::pair<float,float> timeCl (-99., -1.);
+    std::pair<float, float> timeCl(-99., -1.);
 
     const reco::CaloCluster& sCl = (*clusterHandle)[i];
     if (sCl.size() >= 3) {
@@ -216,17 +214,17 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
           continue;
 
         //time is computed wrt  0-25ns + offset and set to -1 if no time
-	const HGCRecHit *rechit = finder->second;
+        const HGCRecHit* rechit = finder->second;
         float rhTimeE = rechit->timeError();
-	//check on timeError to exclude scintillator
+        //check on timeError to exclude scintillator
         if (rhTimeE < 0.)
           continue;
         timeClhits.push_back(rechit->time() - timeOffset);
-	timeErrorClhits.push_back(1./(rhTimeE*rhTimeE));
+        timeErrorClhits.push_back(1. / (rhTimeE * rhTimeE));
       }
-      if (timeClhits.size() >= 3){
-	hgcalsimclustertime::ComputeClusterTime timeEstimator;
-	timeCl = timeEstimator.fixSizeHighestDensity(timeClhits, timeErrorClhits);
+      if (timeClhits.size() >= 3) {
+        hgcalsimclustertime::ComputeClusterTime timeEstimator;
+        timeCl = timeEstimator.fixSizeHighestDensity(timeClhits, timeErrorClhits);
       }
     }
     times.push_back(timeCl);
