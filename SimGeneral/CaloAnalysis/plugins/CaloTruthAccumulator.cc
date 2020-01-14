@@ -486,6 +486,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     for (auto &sc : *(output_.pSimClusters)) {
       auto hitsAndEnergies = sc.hits_and_fractions();
       sc.clearHitsAndFractions();
+      sc.clearHitsEnergy();
       for (auto &hAndE : hitsAndEnergies) {
         const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
         float fraction = 0.;
@@ -495,6 +496,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
           edm::LogWarning(messageCategory_)
               << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
         sc.addRecHitAndFraction(hAndE.first, fraction);
+        sc.addHitEnergy(hAndE.second);
       }
     }
   }
