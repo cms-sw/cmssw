@@ -127,12 +127,10 @@ namespace {
   /************************************************
     Compare AlCaRecoTriggerBits mapping
   *************************************************/
-  class AlCaRecoTriggerBits_Compare : public cond::payloadInspector::PlotImage<AlCaRecoTriggerBits> {
+  class AlCaRecoTriggerBits_CompareBase : public cond::payloadInspector::PlotImage<AlCaRecoTriggerBits> {
   public:
-    AlCaRecoTriggerBits_Compare()
-        : cond::payloadInspector::PlotImage<AlCaRecoTriggerBits>("Table of AlCaRecoTriggerBits comparison") {
-      setSingleIov(false);
-    }
+    AlCaRecoTriggerBits_CompareBase()
+        : cond::payloadInspector::PlotImage<AlCaRecoTriggerBits>("Table of AlCaRecoTriggerBits comparison") {}
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
@@ -399,9 +397,20 @@ namespace {
     }
   };
 
+  class AlCaRecoTriggerBits_Compare : public AlCaRecoTriggerBits_CompareBase {
+  public:
+    AlCaRecoTriggerBits_Compare() : AlCaRecoTriggerBits_CompareBase() { this->setSingleIov(false); }
+  };
+
+  class AlCaRecoTriggerBits_CompareTwoTags : public AlCaRecoTriggerBits_CompareBase {
+  public:
+    AlCaRecoTriggerBits_CompareTwoTags() : AlCaRecoTriggerBits_CompareBase() { this->setTwoTags(true); }
+  };
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(AlCaRecoTriggerBits) {
   PAYLOAD_INSPECTOR_CLASS(AlCaRecoTriggerBits_Display);
   PAYLOAD_INSPECTOR_CLASS(AlCaRecoTriggerBits_Compare);
+  PAYLOAD_INSPECTOR_CLASS(AlCaRecoTriggerBits_CompareTwoTags);
 }

@@ -80,3 +80,26 @@ getPayloadData.py \
     --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test ;
+
+
+# add examples of Pixel barycenter comparison
+#*************************************************************************#
+getPayloadData.py \
+    --plugin pluginTrackerAlignment_PayloadInspector \
+    --plot plot_PixelBarycentersCompare \
+    --tag TrackerAlignment_v28_offline \
+    --time_type Run \
+    --iovs '{"start_iov": "250000", "end_iov": "300000"}' \
+    --db Prod \
+    --test ;
+
+getPayloadData.py \
+    --plugin pluginTrackerAlignment_PayloadInspector \
+    --plot plot_PixelBarycentersCompareTwoTags \
+    --tag TrackerAlignment_Ideal62X_mc \
+    --tagtwo TrackerAlignment_Upgrade2017_design_v4 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
