@@ -205,13 +205,8 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
 
   if (detid.det() == DetId::HGCalHSc || myrechit.time() < 0.) {
     myrechit.setTimeError(-1.);
-    std::cout << " err -1 time = " << myrechit.time() << " E = " << new_E << " SoN = " << SoN << std::endl;
   } else {
-    //hgcalsimclustertime::ComputeClusterTime timeEstimatorSi(minValSiP_, maxValSiP_, constSiP_, noiseSiP_);
     float timeError = timeEstimatorSi_.getTimeError("recHit", SoN);
-    std::cout << " SoN = " << SoN << " timeError = " << timeError << " time = " << myrechit.time()
-              << " minValSiP_ = " << minValSiP_ << " maxValSiP_ = " << maxValSiP_ << " constSiP_ = " << constSiP_
-              << " noiseSiP_ = " << noiseSiP_ << std::endl;
     myrechit.setTimeError(timeError);
   }
 
