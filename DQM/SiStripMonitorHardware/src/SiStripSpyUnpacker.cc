@@ -190,7 +190,7 @@ namespace sistrip {
 
         // Unpack the data into dsv filler
         while (unpacker.hasData()) {
-          dsvFiller.addItem(unpacker.adc());
+          dsvFiller.addItem(SiStripRawDigi{unpacker.adc()});
           unpacker++;
         }
       }  // end of channel loop
