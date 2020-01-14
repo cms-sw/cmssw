@@ -13,7 +13,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                                       int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
                                       const std::vector<float> &mask,
-                                      const edm::ValueMap<std::pair<float,float>> &layerClustersTime,
+                                      const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                                       int deltaIEta,
                                       int deltaIPhi,
                                       float minCosTheta,
@@ -125,14 +125,15 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
 
 bool HGCGraph::areTimeCompatible(int innerIdx,
                                  int outerIdx,
-                                 const edm::ValueMap<std::pair<float,float>> &layerClustersTime,
+                                 const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                                  float maxDeltaTime) {
   float timeIn = layerClustersTime.get(innerIdx).first;
   float timeInE = layerClustersTime.get(innerIdx).second;
   float timeOut = layerClustersTime.get(outerIdx).first;
   float timeOutE = layerClustersTime.get(outerIdx).second;
 
-  return (timeIn == -99 || timeOut == -99 || std::abs(timeIn - timeOut) < maxDeltaTime * sqrt(timeInE*timeInE + timeOutE*timeOutE));
+  return (timeIn == -99 || timeOut == -99 ||
+          std::abs(timeIn - timeOut) < maxDeltaTime * sqrt(timeInE * timeInE + timeOutE * timeOutE));
 }
 
 //also return a vector of seedIndex for the reconstructed tracksters
@@ -143,7 +144,7 @@ void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
                             unsigned int maxOutInHops) {
   HGCDoublet::HGCntuplet tmpNtuplet;
   tmpNtuplet.reserve(minClustersPerNtuplet);
-  std::vector<std::pair<unsigned int, unsigned int> > outInToVisit;
+  std::vector<std::pair<unsigned int, unsigned int>> outInToVisit;
   for (auto rootDoublet : theRootDoublets_) {
     tmpNtuplet.clear();
     outInToVisit.clear();

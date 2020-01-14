@@ -65,7 +65,6 @@ protected:
   double noiseSiP_;
   double constSiP_;
   hgcalsimclustertime::ComputeClusterTime timeEstimatorSi_;
-
 };
 
 #endif

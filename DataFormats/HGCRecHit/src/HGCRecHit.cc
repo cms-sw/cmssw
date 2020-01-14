@@ -75,9 +75,7 @@ void HGCRecHit::setTimeError(float timeErr) {
   timeError_ = timeErr;
 }
 
-float HGCRecHit::timeError() const {
-  return timeError_;
-}
+float HGCRecHit::timeError() const { return timeError_; }
 
 bool HGCRecHit::isTimeValid() const {
   if (timeError() <= 0)

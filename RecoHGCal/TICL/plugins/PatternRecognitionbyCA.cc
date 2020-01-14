@@ -8,7 +8,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PatternRecognitionbyCA.h"
 #include "HGCGraph.h"
-//#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 using namespace ticl;
@@ -85,21 +84,21 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       auto outerCluster = doublets[doublet].outerClusterId();
 
       retVal = effective_cluster_idx.insert(innerCluster);
-      if(retVal.second){
-	float time = input.layerClustersTime.get(innerCluster).first;
-	if(time > -99){
-	  times.push_back(time);
-	  timeErrors.push_back(1./pow(input.layerClustersTime.get(innerCluster).second, 2));
-	}
+      if (retVal.second) {
+        float time = input.layerClustersTime.get(innerCluster).first;
+        if (time > -99) {
+          times.push_back(time);
+          timeErrors.push_back(1. / pow(input.layerClustersTime.get(innerCluster).second, 2));
+        }
       }
 
       retVal = effective_cluster_idx.insert(outerCluster);
-      if(retVal.second){
-	float time = input.layerClustersTime.get(outerCluster).first;
-	if(time > -99){
-	  times.push_back(input.layerClustersTime.get(outerCluster).first);
-	  timeErrors.push_back(1./pow(input.layerClustersTime.get(outerCluster).second, 2));
-	}
+      if (retVal.second) {
+        float time = input.layerClustersTime.get(outerCluster).first;
+        if (time > -99) {
+          times.push_back(input.layerClustersTime.get(outerCluster).first);
+          timeErrors.push_back(1. / pow(input.layerClustersTime.get(outerCluster).second, 2));
+        }
       }
 
       if (algo_verbosity_ > Advanced) {
@@ -125,8 +124,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     tmp.seedID = input.regions[0].collectionID;
     tmp.seedIndex = seedIndices[tracksterId];
 
-    std::pair<float,float> timeTrackster (-99., -1.);
-    if (times.size() >= 3){
+    std::pair<float, float> timeTrackster(-99., -1.);
+    if (times.size() >= 3) {
       hgcalsimclustertime::ComputeClusterTime timeEstimator;
       timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
     }
@@ -136,7 +135,6 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     result.push_back(tmp);
     tracksterId++;
   }
-
 
   for (auto &trackster : result) {
     assert(trackster.vertices.size() <= trackster.vertex_multiplicity.size());
