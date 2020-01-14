@@ -97,7 +97,7 @@ std::shared_ptr<pr::Cache> SiPixelDigiToRaw::globalBeginLuminosityBlock(edm::Lum
     es.get<SiPixelFedCablingMapRcd>().get(cablingMap);
     previousCache_ = std::make_shared<pr::Cache>();
     previousCache_->cablingTree_ = cablingMap->cablingTree();
-    previousCache_->frameReverter_ = std::make_unique<SiPixelFrameReverter>(es, cablingMap.product());
+    previousCache_->frameReverter_ = std::make_unique<SiPixelFrameReverter>(cablingMap.product());
   }
   return previousCache_;
 }
