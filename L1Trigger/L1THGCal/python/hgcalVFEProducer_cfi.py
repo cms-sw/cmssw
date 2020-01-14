@@ -93,7 +93,14 @@ hgcalVFEProducer = cms.EDProducer(
         eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
         fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
         bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
+        ProcessorParameters = vfe_proc.clone()
+       )
+
+hfnoseVFEProducer = cms.EDProducer(
+        "HFNoseVFEProducer",
         noseDigis = cms.InputTag('simHFNoseUnsuppressedDigis:HFNose'),
         ProcessorParameters = vfe_proc.clone()
        )
+
+
 
