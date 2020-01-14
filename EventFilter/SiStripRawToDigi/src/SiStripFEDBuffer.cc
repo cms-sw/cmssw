@@ -408,55 +408,20 @@ namespace sistrip {
     }
   }
 
-  void FEDRawChannelUnpacker::throwBadChannelLength(const uint16_t length) {
-    std::ostringstream ss;
-    ss << "Channel length is invalid. Raw channels have 3 header bytes and 2 bytes per sample. "
-       << "Channel length is " << uint16_t(length) << "." << std::endl;
-    throw cms::Exception("FEDBuffer") << ss.str();
+  std::string toString(FEDChannelUnpacker::StatusCode status) {
+    using namespace sistrip::FEDChannelUnpacker;
+    switch (status) {
+      case StatusCode::SUCCESS:
+        return "SUCCESS";
+      case StatusCode::BAD_CHANNEL_LENGTH:
+        return "Channel length is invalid.";
+      case StatusCode::UNORDERED_DATA:
+        return "First strip of new cluster is not greater than last strip of previous cluster.";
+      case StatusCode::BAD_PACKET_CODE:
+        return "Invalid packet code.";
+      case StatusCode::ZERO_PACKET_CODE:
+        return "Invalid packet code 0 for zero-suppressed data.";
+    }
+    return "";
   }
-
-  void FEDBSChannelUnpacker::throwBadChannelLength(const uint16_t length) {
-    std::ostringstream ss;
-    ss << "Channel length is invalid. "
-       << "Channel length is " << uint16_t(length) << "." << std::endl;
-    throw cms::Exception("FEDBuffer") << ss.str();
-  }
-
-  void FEDBSChannelUnpacker::throwBadWordLength(const uint16_t word_length) {
-    std::ostringstream ss;
-    ss << "Word length is invalid. "
-       << "Word length is " << word_length << "." << std::endl;
-    throw cms::Exception("FEDBuffer") << ss.str();
-  }
-
-  void FEDBSChannelUnpacker::throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster) {
-    std::ostringstream ss;
-    ss << "First strip of new cluster is not greater than last strip of previous cluster. "
-       << "Last strip of previous cluster is " << uint16_t(currentStrip) << ". "
-       << "First strip of new cluster is " << uint16_t(firstStripOfNewCluster) << "." << std::endl;
-    throw cms::Exception("FEDBuffer") << ss.str();
-  }
-
-  void FEDZSChannelUnpacker::throwBadChannelLength(const uint16_t length) {
-    std::ostringstream ss;
-    ss << "Channel length is longer than max allowed value. "
-       << "Channel length is " << uint16_t(length) << "." << std::endl;
-    throw cms::Exception("FEDBuffer") << ss.str();
-  }
-
-  void FEDZSChannelUnpacker::throwBadClusterLength() {
-    std::ostringstream ss;
-    ss << "Cluster does not fit into channel. "
-       << "Cluster length is " << uint16_t(valuesLeftInCluster_) << "." << std::endl;
-    throw cms::Exception("FEDBuffer") << ss.str();
-  }
-
-  void FEDZSChannelUnpacker::throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster) {
-    std::ostringstream ss;
-    ss << "First strip of new cluster is not greater than last strip of previous cluster. "
-       << "Last strip of previous cluster is " << uint16_t(currentStrip) << ". "
-       << "First strip of new cluster is " << uint16_t(firstStripOfNewCluster) << "." << std::endl;
-    throw cms::Exception("FEDBuffer") << ss.str();
-  }
-
 }  // namespace sistrip

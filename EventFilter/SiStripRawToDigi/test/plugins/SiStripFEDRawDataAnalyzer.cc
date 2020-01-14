@@ -217,24 +217,19 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
 
       // find channel data
 
-      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED &&
-          sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(ichan)).hasData())
+      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED && buffer->channel(ichan).length() > 7)
         channels_with_data[ifed].push_back(ichan);
 
-      else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 &&
-               sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(ichan)).hasData())
+      else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 && buffer->channel(ichan).length() > 2)
         channels_with_data[ifed].push_back(ichan);
 
-      else if (mode == sistrip::READOUT_MODE_VIRGIN_RAW &&
-               sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(ichan)).hasData())
+      else if (mode == sistrip::READOUT_MODE_VIRGIN_RAW && buffer->channel(ichan).length() > 3)
         channels_with_data[ifed].push_back(ichan);
 
-      else if (mode == sistrip::READOUT_MODE_PROC_RAW &&
-               sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer->channel(ichan)).hasData())
+      else if (mode == sistrip::READOUT_MODE_PROC_RAW && buffer->channel(ichan).length() > 3)
         channels_with_data[ifed].push_back(ichan);
 
-      else if (mode == sistrip::READOUT_MODE_SCOPE &&
-               sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer->channel(ichan)).hasData())
+      else if (mode == sistrip::READOUT_MODE_SCOPE && buffer->channel(ichan).length() > 3)
         channels_with_data[ifed].push_back(ichan);
 
       else
