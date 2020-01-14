@@ -161,3 +161,9 @@ hgcalConcentratorProducer = cms.EDProducer(
     InputTriggerSums = cms.InputTag('hgcalVFEProducer:HGCalVFEProcessorSums'),
     ProcessorParameters = threshold_conc_proc.clone()
     )
+
+
+hgcalConcentratorProducerHFNose = hgcalConcentratorProducer.clone()
+hgcalConcentratorProducerHFNose.InputTriggerCells = cms.InputTag('hfnoseVFEProducer:HGCalVFEProcessorSums')
+hgcalConcentratorProducerHFNose.InputTriggerSums = cms.InputTag('hfnoseVFEProducer:HGCalVFEProcessorSums')
+
