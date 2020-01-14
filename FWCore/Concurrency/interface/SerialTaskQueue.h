@@ -58,6 +58,7 @@
 
 #include "tbb/task.h"
 #include "tbb/concurrent_queue.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // user include files
 
@@ -209,9 +210,8 @@ namespace edm {
 
   template <typename T>
   tbb::task* SerialTaskQueue::QueuedTask<T>::execute() {
-    try {
-      this->m_action();
-    } catch (...) {
+    // Exception has to swallowed in order to avoid throwing from execute(). The user of SerialTaskQueue should handle exceptions within m_action().
+    CMS_SA_ALLOW try { this->m_action(); } catch (...) {
     }
     return this->finishedTask();
   }

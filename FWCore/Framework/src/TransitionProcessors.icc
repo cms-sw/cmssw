@@ -11,12 +11,14 @@
 //Transition processing helpers
 
 #include <cassert>
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 struct FileResources {
   FileResources(EventProcessor& iEP) : ep_(iEP) {}
 
   ~FileResources() {
-    try {
+    // See the message in catch clause
+    CMS_SA_ALLOW try {
       ep_.respondToCloseInputFile();
       ep_.closeInputFile(cleaningUpAfterException_);
       ep_.closeOutputFiles();
@@ -40,7 +42,8 @@ struct RunResources {
       : ep_(iEP), history_(iHist), run_(iRun) {}
 
   ~RunResources() noexcept {
-    try {
+    // Caught exception is propagated via EventProcessor::setDeferredException()
+    CMS_SA_ALLOW try {
       //If we skip empty runs, this would be called conditionally
       ep_.endUnfinishedRun(processHistoryID(),
                            run(),
@@ -84,7 +87,8 @@ public:
   }
 
   void normalEnd() noexcept {
-    try {
+    // Caught exception is propagated via EventProcessor::setDeferredException()
+    CMS_SA_ALLOW try {
       if (makeSureLumiEnds_) {
         makeSureLumiEnds_ = false;
         currentRun_->ep_.endUnfinishedLumi();

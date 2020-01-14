@@ -551,7 +551,8 @@ namespace edm {
       EventSetupImpl const& es,
       ServiceToken const& serviceToken,
       std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters) {
-    try {
+    // Caught exception is propagated via WaitingTaskHolder
+    CMS_SA_ALLOW try {
       this->resetAll();
 
       using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
@@ -651,9 +652,8 @@ namespace edm {
                                      EventPrincipal& ep,
                                      EventSetupImpl const& es) {
     if (iExcept) {
-      try {
-        std::rethrow_exception(*(iExcept.load()));
-      } catch (cms::Exception& e) {
+      // Caught exception is propagated via WaitingTaskHolder
+      CMS_SA_ALLOW try { std::rethrow_exception(*(iExcept.load())); } catch (cms::Exception& e) {
         exception_actions::ActionCodes action = actionTable().find(e.category());
         assert(action != exception_actions::IgnoreCompletely);
         assert(action != exception_actions::FailPath);
@@ -673,7 +673,8 @@ namespace edm {
     }
 
     if (nullptr != results_inserter_.get()) {
-      try {
+      // Caught exception is propagated to the caller
+      CMS_SA_ALLOW try {
         //Even if there was an exception, we need to allow results inserter
         // to run since some module may be waiting on its results.
         ParentContext parentContext(&streamContext_);
@@ -721,10 +722,8 @@ namespace edm {
 
       actReg_->preStreamEarlyTerminationSignal_(streamContext_, TerminationOrigin::ExceptionFromThisContext);
     }
-
-    try {
-      Traits::postScheduleSignal(actReg_.get(), &streamContext_);
-    } catch (...) {
+    // Caught exception is propagated to the caller
+    CMS_SA_ALLOW try { Traits::postScheduleSignal(actReg_.get(), &streamContext_); } catch (...) {
       if (not iExcept) {
         iExcept = std::current_exception();
       }
