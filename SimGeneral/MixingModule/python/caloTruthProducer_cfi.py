@@ -46,6 +46,18 @@ phase2_hfnose.toModify(
     simHitCollections = dict(hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')])
 )
 
+from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
+run3_ecalclustering.toModify(
+        caloParticles,
+	simHitCollections = cms.PSet(
+            ecal = cms.VInputTag(
+                cms.InputTag('g4SimHits','EcalHitsEE'),
+                cms.InputTag('g4SimHits','EcalHitsEB'),
+                cms.InputTag('g4SimHits','EcalHitsES')
+            )
+	)
+)
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(caloParticles, cms.PSet()) # don't allow this to run in fastsim
 
