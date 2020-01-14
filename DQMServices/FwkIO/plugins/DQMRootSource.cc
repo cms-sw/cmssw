@@ -592,7 +592,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   }
 
   // Sort to make sure runs and lumis appear in sequential order
-  std::sort(m_fileMetadatas.begin(), m_fileMetadatas.end());
+  std::stable_sort(m_fileMetadatas.begin(), m_fileMetadatas.end());
 
   // If we have lumisections without matching runs, insert dummy runs here.
   unsigned int run = 0;
@@ -612,7 +612,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   if (!toadd.empty()) {
     // rather than trying to insert at the right places, just append and sort again.
     m_fileMetadatas.insert(m_fileMetadatas.end(), toadd.begin(), toadd.end());
-    std::sort(m_fileMetadatas.begin(), m_fileMetadatas.end());
+    std::stable_sort(m_fileMetadatas.begin(), m_fileMetadatas.end());
   }
 
   //for (auto& metadata : m_fileMetadatas)
