@@ -14,6 +14,7 @@
 
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 
 static char const* const kMemoryNameOpt = "memory-name";
 static char const* const kMemoryNameCommandOpt = "memory-name,m";
@@ -56,9 +57,10 @@ namespace {
 
       if (static_cast<unsigned long>(bufferFile_.Length()) > buffer_.second) {
         managed_shm_->destroy<char>(name_.c_str());
-        auto diff = bufferFile_.Length() - buffer_.second;
-        auto success = managed_shm_->grow(smName_.c_str(), diff);
-        assert(success);
+        //auto diff = bufferFile_.Length() - buffer_.second;
+        // can not grow an existing shared memory segment that is already mapped
+        //auto success = managed_shm_->grow(smName_.c_str(), diff);
+        //assert(success);
 
         buffer_.first = managed_shm_->construct<char>(name_.c_str())[bufferFile_.Length()](0);
         buffer_.second = bufferFile_.Length();
@@ -82,9 +84,29 @@ class Harness {
 public:
   Harness(std::string const& iConfig) : tester_(edm::test::TestProcessor::Config{iConfig}) {}
 
-  edmtest::IntProduct getNextValue() {
+  edmtest::ThingCollection getBeginRunValue(unsigned int iRun) {
+    auto run = tester_.testBeginRun(iRun);
+    return *run.get<edmtest::ThingCollection>("beginRun");
+  }
+
+  edmtest::ThingCollection getBeginLumiValue(unsigned int iLumi) {
+    auto lumi = tester_.testBeginLuminosityBlock(iLumi);
+    return *lumi.get<edmtest::ThingCollection>("beginLumi");
+  }
+
+  edmtest::ThingCollection getEventValue() {
     auto event = tester_.test();
-    return *event.get<edmtest::IntProduct>();
+    return *event.get<edmtest::ThingCollection>();
+  }
+
+  edmtest::ThingCollection getEndLumiValue() {
+    auto lumi = tester_.testEndLuminosityBlock();
+    return *lumi.get<edmtest::ThingCollection>("endLumi");
+  }
+
+  edmtest::ThingCollection getEndRunValue() {
+    auto run = tester_.testEndRun();
+    return *run.get<edmtest::ThingCollection>("endRun");
   }
 
 private:
@@ -144,6 +166,11 @@ int main(int argc, char* argv[]) {
     named_mutex named_mtx{open_or_create, unique_name("mtx", uniqueID).c_str()};
     named_condition named_cndFromMain{open_or_create, unique_name("cndFromMain", uniqueID).c_str()};
     std::pair<bool*, std::size_t> sm_stop = managed_shm.find<bool>(unique_name("stop", uniqueID).c_str());
+    std::pair<edm::Transition*, std::size_t> sm_transitionType =
+        managed_shm.find<edm::Transition>(unique_name("transitionType", uniqueID).c_str());
+    assert(sm_transitionType.first);
+    std::pair<unsigned long long*, std::size_t> sm_transitionID =
+        managed_shm.find<unsigned long long>(unique_name("transitionID", uniqueID).c_str());
 
     named_condition named_cndToMain{open_or_create, unique_name("cndToMain", uniqueID).c_str()};
 
@@ -164,7 +191,11 @@ int main(int argc, char* argv[]) {
 
     Harness harness(configuration);
 
-    Serializer<edmtest::IntProduct> serializer(managed_shm, memoryNameUnique, "buffer", uniqueID);
+    Serializer<edmtest::ThingCollection> serializer(managed_shm, memoryNameUnique, "buffer", uniqueID);
+    Serializer<edmtest::ThingCollection> br_serializer(managed_shm, memoryNameUnique, "brbuffer", uniqueID);
+    Serializer<edmtest::ThingCollection> bl_serializer(managed_shm, memoryNameUnique, "blbuffer", uniqueID);
+    Serializer<edmtest::ThingCollection> el_serializer(managed_shm, memoryNameUnique, "elbuffer", uniqueID);
+    Serializer<edmtest::ThingCollection> er_serializer(managed_shm, memoryNameUnique, "erbuffer", uniqueID);
 
     std::cerr << uniqueID << " process: done initializing" << std::endl;
     named_cndToMain.notify_all();
@@ -178,18 +209,59 @@ int main(int argc, char* argv[]) {
         }
       }
 
-      std::cerr << uniqueID << " process: integrating " << counter << std::endl;
-      auto value = harness.getNextValue();
+      switch (*sm_transitionType.first) {
+        case edm::Transition::BeginRun: {
+          std::cerr << uniqueID << " process: start beginRun " << std::endl;
+          auto value = harness.getBeginRunValue(*sm_transitionID.first);
 
-      std::cerr << uniqueID << " process: integrated " << counter << std::endl;
+          br_serializer.serialize(value);
+          std::cerr << uniqueID << " process: end beginRun " << value.size() << std::endl;
 
-      {
-        serializer.serialize(value);
-        std::cerr << uniqueID << " process: notifying " << counter << std::endl;
-        named_cndToMain.notify_all();
+          break;
+        }
+        case edm::Transition::BeginLuminosityBlock: {
+          std::cerr << uniqueID << " process: start beginLumi " << std::endl;
+          auto value = harness.getBeginLumiValue(*sm_transitionID.first);
+
+          bl_serializer.serialize(value);
+          std::cerr << uniqueID << " process: end beginLumi " << value.size() << std::endl;
+
+          break;
+        }
+        case edm::Transition::Event: {
+          std::cerr << uniqueID << " process: integrating " << counter << std::endl;
+          auto value = harness.getEventValue();
+
+          std::cerr << uniqueID << " process: integrated " << counter << std::endl;
+
+          serializer.serialize(value);
+          std::cerr << uniqueID << " process: " << value.size() << " " << counter << std::endl;
+          break;
+        }
+        case edm::Transition::EndLuminosityBlock: {
+          std::cerr << uniqueID << " process: start endLumi " << std::endl;
+          auto value = harness.getEndLumiValue();
+
+          el_serializer.serialize(value);
+          std::cerr << uniqueID << " process: end endLumi " << value.size() << std::endl;
+
+          break;
+        }
+        case edm::Transition::EndRun: {
+          std::cerr << uniqueID << " process: start endRun " << std::endl;
+          auto value = harness.getEndRunValue();
+
+          er_serializer.serialize(value);
+          std::cerr << uniqueID << " process: end endRun " << value.size() << std::endl;
+
+          break;
+        }
+        default: {
+          assert(false);
+        }
       }
-      std::cerr << uniqueID << " process: " << value.value << " "
-                << " " << counter << std::endl;
+      std::cerr << uniqueID << " process: notifying " << counter << std::endl;
+      named_cndToMain.notify_all();
     }
   }
   return 0;
