@@ -14,9 +14,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -46,9 +43,8 @@
 
 #include <string>
 
-TrackerValidationVariables::TrackerValidationVariables() {}
-
-TrackerValidationVariables::TrackerValidationVariables(const edm::ParameterSet& config, edm::ConsumesCollector&& iC) {
+TrackerValidationVariables::TrackerValidationVariables(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
+    : magneticFieldToken_{iC.esConsumes<MagneticField, IdealMagneticFieldRecord>()} {
   trajCollectionToken_ =
       iC.consumes<std::vector<Trajectory>>(edm::InputTag(config.getParameter<std::string>("trajectoryInput")));
   tracksToken_ = iC.consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("Tracks"));
@@ -427,15 +423,15 @@ void TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory,
 void TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
                                                      const edm::EventSetup& eventSetup,
                                                      std::vector<AVTrackStruct>& v_avtrackout) {
-  fillTrackQuantities(event, eventSetup, [](const reco::Track&) -> bool { return true; }, v_avtrackout);
+  fillTrackQuantities(
+      event, eventSetup, [](const reco::Track&) -> bool { return true; }, v_avtrackout);
 }
 
 void TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
                                                      const edm::EventSetup& eventSetup,
                                                      std::function<bool(const reco::Track&)> trackFilter,
                                                      std::vector<AVTrackStruct>& v_avtrackout) {
-  edm::ESHandle<MagneticField> magneticField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const MagneticField& magneticField = eventSetup.getData(magneticFieldToken_);
 
   edm::Handle<reco::TrackCollection> tracksH;
   event.getByToken(tracksToken_, tracksH);
@@ -477,7 +473,7 @@ void TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
     trackStruct.chi2Prob = TMath::Prob(track.chi2(), track.ndof());
     trackStruct.normchi2 = track.normalizedChi2();
     GlobalPoint gPoint(track.vx(), track.vy(), track.vz());
-    double theLocalMagFieldInInverseGeV = magneticField->inInverseGeV(gPoint).z();
+    double theLocalMagFieldInInverseGeV = magneticField.inInverseGeV(gPoint).z();
     trackStruct.kappa = -track.charge() * theLocalMagFieldInInverseGeV / track.pt();
     trackStruct.charge = track.charge();
     trackStruct.d0 = track.d0();
