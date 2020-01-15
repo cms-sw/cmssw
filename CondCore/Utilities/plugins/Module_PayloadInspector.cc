@@ -1,5 +1,6 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 BOOST_PYTHON_MODULE(pluginModule_PayloadInspector) {
   boost::python::class_<cond::payloadInspector::ModuleVersion>("ModuleVersion")
@@ -12,5 +13,7 @@ BOOST_PYTHON_MODULE(pluginModule_PayloadInspector) {
       .def("title", &cond::payloadInspector::PlotBase::title)
       .def("isSingleIov", &cond::payloadInspector::PlotBase::isSingleIov)
       .def("isTwoTags", &cond::payloadInspector::PlotBase::isTwoTags)
+      .def("inputParams", &cond::payloadInspector::PlotBase::inputParams)
+      .def("setInputParamValues", &cond::payloadInspector::PlotBase::setInputParamValues)
       .def("data", &cond::payloadInspector::PlotBase::data);
 }

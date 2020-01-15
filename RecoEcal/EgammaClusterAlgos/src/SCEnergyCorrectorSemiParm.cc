@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaTools/interface/SCEnergyCorrectorSemiParm.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"

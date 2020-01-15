@@ -17,12 +17,9 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"

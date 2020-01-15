@@ -15,7 +15,6 @@
   <use   name="FWCore/Utilities"/>
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
-  <use   name="RecoEgamma/EgammaTools"/>
   <use   name="RecoParticleFlow/PFTracking"/>
   <use   name="RecoTracker/TkSeedGenerator"/>
   <use   name="Geometry/HGCalGeometry"/>

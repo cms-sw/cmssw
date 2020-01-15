@@ -39,13 +39,9 @@ void ElectronHcalHelper::readEvent(const edm::Event& evt) {
     delete towerIso2_;
     towerIso2_ = nullptr;
 
-    edm::Handle<CaloTowerCollection> towersH_;
-    if (!evt.getByToken(cfg_.hcalTowers, towersH_)) {
-      edm::LogError("ElectronHcalHelper::readEvent") << "failed to get the hcal towers";
-    }
-    hadTower_->setTowerCollection(towersH_.product());
-    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 1, towersH_.product());
-    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 2, towersH_.product());
+    towersFromCollection_ = &evt.get(cfg_.hcalTowers);
+    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 1, towersFromCollection_);
+    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 2, towersFromCollection_);
   } else {
     delete hcalIso_;
     hcalIso_ = nullptr;
@@ -65,11 +61,11 @@ std::vector<CaloTowerDetId> ElectronHcalHelper::hcalTowersBehindClusters(const r
 }
 
 double ElectronHcalHelper::hcalESumDepth1BehindClusters(const std::vector<CaloTowerDetId>& towers) const {
-  return hadTower_->getDepth1HcalESum(towers);
+  return hadTower_->getDepth1HcalESum(towers, *towersFromCollection_);
 }
 
 double ElectronHcalHelper::hcalESumDepth2BehindClusters(const std::vector<CaloTowerDetId>& towers) const {
-  return hadTower_->getDepth2HcalESum(towers);
+  return hadTower_->getDepth2HcalESum(towers, *towersFromCollection_);
 }
 
 double ElectronHcalHelper::hcalESum(const SuperCluster& sc, const std::vector<CaloTowerDetId>* excludeTowers) const {
@@ -109,7 +105,7 @@ double ElectronHcalHelper::hcalESumDepth2(const SuperCluster& sc,
 
 bool ElectronHcalHelper::hasActiveHcal(const reco::SuperCluster& sc) const {
   if (cfg_.checkHcalStatus && cfg_.hOverEConeSize != 0 && cfg_.useTowers) {
-    return hadTower_->hasActiveHcal(sc);
+    return hadTower_->hasActiveHcal(hadTower_->towersOf(sc));
   } else {
     return true;
   }
