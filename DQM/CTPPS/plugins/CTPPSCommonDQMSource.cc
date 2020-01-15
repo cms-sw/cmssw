@@ -252,7 +252,7 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id, bo
   if (makeProtonRecoPlots) {
     h_proton_xi = ibooker.book1D("proton xi", title + ";xi", 100, 0., 0.3);
     h_proton_t = ibooker.book1D("proton t", title + ";|t|   GeV^{2}", 100, 0., 5.);
-    h_proton_time = ibooker.book1D("proton time", title + ";time   (ns)", 100, -25., 50.);
+    h_proton_time = ibooker.book1D("proton time", title + ";time   (ns)", 100, -1., 1.);
   }
 
   for (const unsigned int &rpDecId : {2, 3, 16, 23}) {
