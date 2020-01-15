@@ -5,6 +5,10 @@ function die { echo $1: status $2 ; exit $2; }
 echo "TESTING Alignment/OfflineValidation ..."
 cmsRun ${LOCAL_TEST_DIR}/test_all_cfg.py || die "Failure running test_OfflineValidation_cfg.py" $?
 
+if test -f "validation_config.ini"; then
+    rm -f validation_config.ini
+fi
+
 cat <<EOF >> validation_config.ini
 [general]
 jobmode = interactive
@@ -89,4 +93,4 @@ split some_split_validation : prompt
 split some_split_validation : express
 EOF
 
-validateAlignments.py -c validation_config.ini -N testing --dryRun || die "Failure running all-in-one test" $?
+validateAlignments.py -c validation_config.ini -N testingAllInOneTool --dryRun || die "Failure running all-in-one test" $?
