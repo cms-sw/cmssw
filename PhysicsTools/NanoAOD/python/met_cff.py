@@ -59,10 +59,10 @@ puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(PTVars,
        sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
-       ptJERUp = Var("shiftedPt('JetResUp')", float, doc="",precision=10),
-       phiJERUp = Var("shiftedPhi('JetResUp')", float, doc="",precision=10),
-       ptJESUp = Var("shiftedPt('JetEnUp')", float, doc="",precision=10),
-       phiJESUp = Var("shiftedPhi('JetEnUp')", float, doc="",precision=10),
+       ptJERUp = Var("shiftedPt('JetResUp')", float, doc="JER up pt",precision=10),
+       phiJERUp = Var("shiftedPhi('JetResUp')", float, doc="JER up phi",precision=10),
+       ptJESUp = Var("shiftedPt('JetEnUp')", float, doc="JES up pt",precision=10),
+       phiJESUp = Var("shiftedPhi('JetEnUp')", float, doc="JES up phi",precision=10),
     ),
 )
 
