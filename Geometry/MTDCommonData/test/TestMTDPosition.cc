@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -32,12 +31,7 @@ public:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
-  void theBaseNumber(const DDGeoHistory& gh);
-
-  void checkMTD(const DDCompactView& cpv,
-                std::string fname = "GeoHistory",
-                int nVols = 0,
-                std::string ddtop_ = "mtd:BarrelTimingLayer");
+  std::string noNSgeoHistory(const DDGeoHistory& gh);
 
 private:
   std::string label_;
@@ -66,10 +60,16 @@ void TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   using namespace edm;
 
   edm::ESTransientHandle<DDCompactView> pDD;
-  if (!isMagField_) {
-    iSetup.get<IdealGeometryRecord>().get(label_, pDD);
-  } else {
-    iSetup.get<IdealMagneticFieldRecord>().get(label_, pDD);
+  iSetup.get<IdealGeometryRecord>().get(label_, pDD);
+
+  if (ddTopNodeName_ != "BarrelTimingLayer" && ddTopNodeName_ != "EndcapTimingLayer") {
+    edm::LogWarning("TestMTDPosition") << ddTopNodeName_ << "Not valid top MTD volume";
+    return;
+  }
+
+  if (!pDD.isValid()) {
+    edm::LogError("TestMTDPosition") << "ESTransientHandle<DDCompactView> pDD is not valid!";
+    return;
   }
   if (pDD.description()) {
     edm::LogInfo("TestMTDPosition") << pDD.description()->type_ << " label: " << pDD.description()->label_;
@@ -80,19 +80,10 @@ void TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     edm::LogError("TestMTDPosition") << "ESTransientHandle<DDCompactView> pDD is not valid!";
   }
 
-  if (ddTopNodeName_ != "btl:BarrelTimingLayer" && ddTopNodeName_ != "etl:EndcapTimingLayer") {
-    edm::LogWarning("TestMTDPosition") << ddTopNodeName_ << "Not valid top MTD volume";
-    return;
-  }
-
-  checkMTD(*pDD, fname_, nNodes_, ddTopNodeName_);
-}
-
-void TestMTDPosition::checkMTD(const DDCompactView& cpv, std::string fname, int nVols, std::string ddtop_) {
-  fname = "dump" + fname;
+  std::string fname = "dump" + fname_;
 
   DDPassAllFilter filter;
-  DDFilteredView fv(cpv, filter);
+  DDFilteredView fv(*pDD, filter);
 
   edm::LogInfo("TestMTDPosition") << "Top Most LogicalPart = " << fv.logicalPart();
 
@@ -101,7 +92,6 @@ void TestMTDPosition::checkMTD(const DDCompactView& cpv, std::string fname, int 
   id_type idMap;
   int id = 0;
   std::ofstream dump(fname.c_str());
-  bool notReachedDepth(true);
 
   bool write = false;
   size_t limit = 0;
@@ -129,8 +119,8 @@ void TestMTDPosition::checkMTD(const DDCompactView& cpv, std::string fname, int 
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
-    if (write && fv.geoHistory()[limit - 1].logicalPart().name() == ddtop_) {
-      dump << " - " << fv.geoHistory();
+    if (write && fv.geoHistory()[limit - 1].logicalPart().name().name() == ddTopNodeName_) {
+      dump << " - " << noNSgeoHistory(fv.geoHistory());
       dump << "\n";
 
       bool isSens = false;
@@ -207,11 +197,27 @@ void TestMTDPosition::checkMTD(const DDCompactView& cpv, std::string fname, int 
       }
     }
     ++id;
-    if (nVols != 0 && id > nVols)
-      notReachedDepth = false;
-  } while (fv.next() && notReachedDepth);
+  } while (fv.next());
   dump << std::flush;
   dump.close();
+}
+
+std::string TestMTDPosition::noNSgeoHistory(const DDGeoHistory& gh) {
+
+  std::string output;
+  for (uint i = 0; i < gh.size(); i++ ) {
+    output += gh[i].logicalPart().name().name();
+    output += "[";
+    output += std::to_string(gh[i].copyno());
+    output += "]/";
+  }
+
+#ifdef EDM_ML_DEBUG
+    edm::LogInfo("TestMTDNumbering") << output;
+#endif
+
+  return output;
+
 }
 
 DEFINE_FWK_MODULE(TestMTDPosition);
