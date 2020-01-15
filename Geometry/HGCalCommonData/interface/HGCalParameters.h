@@ -156,6 +156,7 @@ public:
   wafer_map wafersInLayers_;
   wafer_map typesInLayers_;
   waferT_map waferTypes_;
+  int waferMaskMode_;
 
   COND_SERIALIZABLE;
 
