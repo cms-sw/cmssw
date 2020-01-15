@@ -521,7 +521,7 @@ def UpdatePuppiTuneV13(process):
   process.puppi.PtMaxCharged = 20.
   process.puppi.EtaMaxCharged = 2.5
   process.puppi.PtMaxNeutralsStartSlope = 20.
-  process.puppi.UseFromPVLooseTight = False
+  process.puppiNoLep.UseFromPVLooseTight = False
   process.puppiNoLep.UseDeltaZCut = False
   process.puppiNoLep.PtMaxCharged = 20.
   process.puppiNoLep.EtaMaxCharged = 2.5
