@@ -705,10 +705,10 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
                                     << wl << ":" << (itr != hgpar_->waferTypes_.end());
 #endif
       if (itr != hgpar_->waferTypes_.end()) {
-	if ((itr->second).second <= 10)
-	  mask = HGCalWaferMask::maskCell(u, v, N, (itr->second).first, (itr->second).second, corners);
-	else
-	  mask = !(HGCalWaferMask::goodCell(u, v, N, (itr->second).first, ((itr->second).second - 10)));
+        if ((itr->second).second <= 10)
+          mask = HGCalWaferMask::maskCell(u, v, N, (itr->second).first, (itr->second).second, corners);
+        else
+          mask = !(HGCalWaferMask::goodCell(u, v, N, (itr->second).first, ((itr->second).second - 10)));
       }
     }
   }

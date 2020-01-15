@@ -19,10 +19,14 @@ public:
 
   static bool maskCell(int u, int v, int N, int ncor, int fcor, int corners);
   static bool goodCell(int u, int v, int N, int type, int rotn);
-  static std::pair<int, int> getTypeMode(const double& xpos, const double& ypos, 
-					 const double& r1, const double& R1, 
-					 const double& rin, const double& rout,
-					 const int& NW, const int& mode);
+  static std::pair<int, int> getTypeMode(const double& xpos,
+                                         const double& ypos,
+                                         const double& r1,
+                                         const double& R1,
+                                         const double& rin,
+                                         const double& rout,
+                                         const int& NW,
+                                         const int& mode);
 };
 
 #endif
