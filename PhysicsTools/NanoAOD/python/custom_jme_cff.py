@@ -309,8 +309,14 @@ class TableRecoJetAdder(object):
           area      = jetTable.variables.area,
           rawFactor = jetTable.variables.rawFactor,
         )
+    elif "puppi" in recoJetInfo.jet:
+      tableContents = JETVARS.clone(
+        puppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:puppiMultiplicity')",float,doc="Sum of PUPPI weights of particles in the jet"),
+        neutralPuppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:neutralPuppiMultiplicity')",float,doc="Sum of PUPPI weights of neutral particles in the jet")
+      )
     else:
       tableContents = JETVARS.clone()
+
     
     updatedJets = "updatedJets{}".format(recoJetInfo.jetTagName)
     setattr(proc, table, cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -392,7 +398,7 @@ def AddPileUpJetIDVars(proc):
   proc.jetTable.variables.pull     = Var("userFloat('pull')",    float, doc="magnitude of pull vector", precision= 6) 
   proc.jetTable.variables.jetR     = Var("userFloat('jetR')",    float, doc="fraction of jet pT carried by the leading constituent", precision= 6) 
   proc.jetTable.variables.jetRchg  = Var("userFloat('jetRchg')", float, doc="fraction of jet pT carried by the leading charged constituent", precision= 6) 
-  proc.jetTable.variables.nCharged = Var("userInt('nCharged')",  float, doc="number of charged constituents", precision= 6) 
+  proc.jetTable.variables.nCharged = Var("userInt('nCharged')",  int, doc="number of charged constituents", precision= 6)
 
 def PrepJMECustomNanoAOD(process):
   #
@@ -492,21 +498,21 @@ def UpdatePuppiTuneV13(process):
   process.puppi.useExistingWeights = False
   process.puppiNoLep.useExistingWeights = False
   from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-  runMetCorAndUncFromMiniAOD(process,isData=False,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
+  runMetCorAndUncFromMiniAOD(process,isData=False,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi",recoMetFromPFCs=True,pfCandColl=cms.InputTag("puppiForMET"))
   process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
   from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
   process.patPuppiJetSpecificProducer = patPuppiJetSpecificProducer.clone(
-    src=cms.InputTag("slimmedJetsPuppiNoMultiplicities"),
+    src=cms.InputTag("patJetsPuppi"),
   )
   from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
   updateJetCollection(
      process,
      labelName = 'PuppiJetSpecific',
-     jetSource = cms.InputTag('patJetsAK4PFPUPPI'),
+     jetSource = cms.InputTag('patJetsPuppi'),
   )
   process.updatedPatJetsPuppiJetSpecific.userData.userFloats.src = ['patPuppiJetSpecificProducer:puppiMultiplicity', 'patPuppiJetSpecificProducer:neutralPuppiMultiplicity', 'patPuppiJetSpecificProducer:neutralHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:photonPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFEMPuppiMultiplicity' ]
   process.slimmedJetsPuppi = process.updatedPatJetsPuppiJetSpecific.clone()
-  process.jetSequence.insert(process.jetSequence.index(process.updatedJets), cms.Sequence(process.patPuppiJetSpecificProducer+process.slimmedJetsPuppi))
+  process.jetSequence.insert(0, cms.Sequence(process.patPuppiJetSpecificProducer+process.slimmedJetsPuppi))
   #
   # Adapt for PUPPI tune V13
   #
