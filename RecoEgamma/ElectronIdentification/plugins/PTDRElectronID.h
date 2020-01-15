@@ -1,7 +1,7 @@
 #ifndef PTDRElectronID_H
 #define PTDRElectronID_H
 
-#include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
+#include "ElectronIDAlgo.h"
 
 class PTDRElectronID : public ElectronIDAlgo {
 public:

@@ -70,6 +70,7 @@ private:
   EgammaTowerIsolation *towerIso1_;
   EgammaTowerIsolation *towerIso2_;
   EgammaHadTower *hadTower_;
+  CaloTowerCollection const *towersFromCollection_ = nullptr;
 };
 
 #endif

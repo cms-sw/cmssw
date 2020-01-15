@@ -1,4 +1,5 @@
-#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
+#include "CutBasedElectronID.h"
+
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"

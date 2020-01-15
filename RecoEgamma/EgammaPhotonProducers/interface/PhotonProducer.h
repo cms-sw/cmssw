@@ -45,7 +45,7 @@ private:
                             const CaloTopology* topology,
                             const EcalRecHitCollection* ecalBarrelHits,
                             const EcalRecHitCollection* ecalEndcapHits,
-                            const edm::Handle<CaloTowerCollection>& hcalTowersHandle,
+                            CaloTowerCollection const& hcalTowers,
                             reco::VertexCollection& pvVertices,
                             reco::PhotonCollection& outputCollection,
                             int& iSC,

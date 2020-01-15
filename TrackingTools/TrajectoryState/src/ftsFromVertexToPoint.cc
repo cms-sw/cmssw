@@ -1,28 +1,24 @@
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
-// Class:      FTSFromVertexToPointFactory
 //
-/**\class FTSFromVertexToPointFactory EgammaElectronAlgos/FTSFromVertexToPointFactory
+/**
 
  Description: Utility class to create FTS from supercluster
 
- Implementation:
-     should go somewhere else in the future
 */
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
 //
 //
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-FreeTrajectoryState FTSFromVertexToPointFactory::get(MagneticField const& magField,
-                                                     GlobalPoint const& xmeas,
-                                                     GlobalPoint const& xvert,
-                                                     float momentum,
-                                                     TrackCharge charge) {
+FreeTrajectoryState trackingTools::ftsFromVertexToPoint(MagneticField const& magField,
+                                                        GlobalPoint const& xmeas,
+                                                        GlobalPoint const& xvert,
+                                                        float momentum,
+                                                        TrackCharge charge) {
   auto magFieldAtPoint = magField.inTesla(xmeas);
   auto BInTesla = magFieldAtPoint.z();
   GlobalVector xdiff = xmeas - xvert;
