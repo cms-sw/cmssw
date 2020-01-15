@@ -24,7 +24,7 @@ public:
 
   SiTrackerMultiRecHit* clone() const override { return new SiTrackerMultiRecHit(*this); }
 #ifdef NO_DICT
-  virtual RecHitPointer cloneSH() const { return std::make_shared<SiTrackerMultiRecHit>(*this); }
+  RecHitPointer cloneSH() const override { return std::make_shared<SiTrackerMultiRecHit>(*this); }
 #endif
 
   //  virtual int dimension() const {return 2;}
