@@ -479,7 +479,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
         UpperBound = 1. - calcQ((xUB - CloudCenterX) / SigmaX);
       }
       float TotalIntegrationRange = UpperBound - LowerBound;  // get strip
-      x.emplace(ix, TotalIntegrationRange);                  // save strip integral
+      x.emplace(ix, TotalIntegrationRange);                   // save strip integral
     }
 
     // Now integrate strips in y
@@ -814,11 +814,12 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
   }
 }
 // ==========================================================================
-void Phase2TrackerDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet){
+void Phase2TrackerDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) {
   bool isbad = false;
   uint32_t detID = pixdet->geographicalId().rawId();
   int ncol = pixdet->specificTopology().ncolumns();
-  if (ncol < 0) return;
+  if (ncol < 0)
+    return;
   std::vector<SiPixelQuality::disabledModuleType> disabledModules = SiPixelBadModule_->getBadComponentList();
 
   SiPixelQuality::disabledModuleType badmodule;
