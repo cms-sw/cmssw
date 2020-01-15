@@ -64,7 +64,7 @@ std::pair<float, float> ComputeClusterTime::fixSizeHighestDensity(std::vector<fl
                                                                   std::vector<float> weight,
                                                                   float deltaT,
                                                                   float timeWidthBy) {
-  if (weight.size() == 0)
+  if (weight.empty())
     weight.resize(time.size(), 1.);
 
   std::vector<float> t(time.size(), 0.);
