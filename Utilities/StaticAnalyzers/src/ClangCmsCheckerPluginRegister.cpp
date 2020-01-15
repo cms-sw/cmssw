@@ -22,7 +22,6 @@
 #include "FunctionDumper.h"
 #include "EDMPluginDumper.h"
 #include "ThrUnsafeFCallChecker.h"
-#include "getParamDumper.h"
 
 #include <clang/StaticAnalyzer/Frontend/CheckerRegistry.h>
 
@@ -86,10 +85,6 @@ extern "C" void clang_registerCheckers(clang::ento::CheckerRegistry &registry) {
       "optional.EDMPluginDumper", "Dumps macro DEFINE_EDM_PLUGIN types", "no docs");
   registry.addChecker<clangcms::ThrUnsafeFCallChecker>(
       "cms.ThrUnsafeFCallChecker", "Reports calls of known thread unsafe functions", "no docs");
-  registry.addChecker<clangcms::getParamDumper>(
-      "optional.getParamDumper",
-      "Dumps out calls to edm::ParamaterSet:: getParameter and getUntrackedParameter",
-      "no docs");
 }
 
 extern "C" const char clang_analyzerAPIVersionString[] = CLANG_ANALYZER_API_VERSION_STRING;
