@@ -13,8 +13,9 @@ else:
   # for testing in lxplus
   process.load("DQM.Integration.config.fileinputsource_cfi")
   process.source.fileNames = cms.untracked.vstring(
-    #'root://eostotem.cern.ch//eos/totem/user/j/jkaspar/04C8034A-9626-E611-9B6E-02163E011F93.root'
-    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
+    #"root://eoscms.cern.ch//eos/cms/store/group/phys_pps/sw_test_input/001D08EE-C4B1-E711-B92D-02163E013864.root"
+    #"/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root"
+    "/store/data/Run2017B/SingleMuon/RAW/v1/000/297/050/00000/30346DF0-0153-E711-BBC7-02163E01437C.root"
   )
   process.source.inputCommands = cms.untracked.vstring(
     'drop *',
@@ -62,15 +63,24 @@ process.recoStep = cms.Sequence(
 )
 
 process.dqmModules = cms.Sequence(
-  process.ctppsDQM +
-  process.ctppsDQMHarvest +
-  process.dqmEnv +
-  process.dqmSaver
+  process.ctppsDQMOnlineSource +
+  process.ctppsDQMOnlineHarvest
+)
+
+process.dqmModulesCalibration = cms.Sequence(
+  process.ctppsDQMCalibrationSource +
+  process.ctppsDQMCalibrationHarvest
 )
 
 process.path = cms.Path(
   process.recoStep *
-  process.dqmModules
+
+  # here: (un)comment to switch between normal and calibration mode
+  process.dqmModules *
+  #process.dqmModulesCalibration *
+
+  process.dqmEnv *
+  process.dqmSaver
 )
 
 process.schedule = cms.Schedule(process.path)
