@@ -270,10 +270,21 @@ namespace sistrip {
 
         const auto& fedChannel = buffer.channel(iconn->fedCh());
 
+#ifdef EDM_ML_DEBUG
+        std::stringstream smode;
+        if (!legacy_)
+          smode << mode;
+        else
+          smode << lmode;
+        LogDebug("SiStripRawToDigi")
+          << "Unpacking " << ( (!legacy_)? "" : "legacy ") << "data in mode " << smode.str();
+#endif
         if (FEDChannelUnpacker::isZeroSuppressed(mode, legacy_, lmode)) {
           Registry regItem(key, 0, zs_work_digis_.size(), 0);
           const auto isNonLite = FEDChannelUnpacker::isNonLiteZS(mode, legacy_, lmode);
           const uint8_t pCode = (isNonLite ? buffer.packetCode(legacy_, iconn->fedCh()) : 0);
+          if (isNonLite)
+            LogDebug("SiStripRawToDigi") << "Non-lite zero-suppressed mode. Packet code=" << std::hex << uint16_t(pCode) << std::dec;
           const auto st_ch = FEDChannelUnpacker::unpackZeroSuppressed(
               fedChannel, std::back_inserter(zs_work_digis_), ipair * 256,
               isNonLite, mode, legacy_, lmode, pCode);

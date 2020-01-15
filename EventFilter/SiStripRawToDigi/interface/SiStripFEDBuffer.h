@@ -139,7 +139,8 @@ namespace sistrip {
 #ifdef EDM_ML_DEBUG
       std::ostringstream msg;
       msg << "Header type is invalid. Header type nibble is ";
-      printHex(&hdr.headerTypeNibble(), 1, msg);
+      const auto headerTypeNibble = hdr.headerTypeNibble();
+      printHex(&headerTypeNibble, 1, msg);
       LogDebug("FEDBuffer") << msg.str();
 #endif
       return FEDBufferStatusCode::WRONG_HEADERTYPE;
@@ -240,28 +241,30 @@ namespace sistrip {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
         }
-        uint_fast8_t strip = data[(offset++) ^ 7];
-        uint_fast8_t endStrip = strip + data[(offset++) ^ 7];
+        uint_fast8_t firstStrip = data[(offset++) ^ 7];
+        uint_fast8_t nInCluster = data[(offset++) ^ 7];
+        uint_fast8_t inCluster = 0;
         const uint_fast16_t end = channel.offset() + channel.length();
         while (offset != end) {
-          if (strip == endStrip) {
+          if (inCluster == nInCluster) {
             if (offset + 2 >= end) {
               // offset should already be at end then (empty cluster)
               break;
             }
-            const uint_fast8_t newStrip = data[(offset++) ^ 7];
-            if (!(newStrip > strip)) {
+            const uint_fast8_t newFirstStrip = data[(offset++) ^ 7];
+            if (newFirstStrip < (firstStrip+inCluster)) {
               LogDebug("FEDBuffer") << "First strip of new cluster is not greater than last strip of previous cluster. "
-                                    << "Last strip of previous cluster is " << uint16_t(strip) << ". "
-                                    << "First strip of new cluster is " << uint16_t(newStrip) << ".";
+                                    << "Last strip of previous cluster is " << uint16_t(firstStrip+inCluster) << ". "
+                                    << "First strip of new cluster is " << uint16_t(newFirstStrip) << ".";
               return StatusCode::UNORDERED_DATA;
             }
-            strip = newStrip;
-            endStrip = strip + data[(offset++) ^ 7];
+            firstStrip = newFirstStrip;
+            nInCluster = data[(offset++) ^ 7];
+            inCluster = 0;
           }
-          *out++ = SiStripDigi(stripStart + strip, (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0)) << bits_shift);
+          *out++ = SiStripDigi(stripStart + firstStrip + inCluster, (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0)) << bits_shift);
           offset += num_words;
-          ++strip;
+          ++inCluster;
         }
         return StatusCode::SUCCESS;
       }
@@ -277,37 +280,41 @@ namespace sistrip {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
         }
-        uint_fast8_t strip = data[(wOffset++) ^ 7];
-        uint_fast8_t endStrip = strip + data[(wOffset++) ^ 7];
+        uint_fast8_t firstStrip = data[(wOffset++) ^ 7];
+        uint_fast8_t nInCluster = data[(wOffset++) ^ 7];
+        uint_fast8_t inCluster = 0;
         const uint_fast16_t chEnd = channel.offset() + channel.length();
-        while (((wOffset + 1) < chEnd) || ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits)) {
-          if (strip == endStrip) {
+        while (((wOffset + 1) < chEnd) || ( (inCluster != nInCluster) && ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits) )) {
+          if (inCluster == nInCluster) {
             if (wOffset + 2 >= chEnd) {
               // offset should already be at end then (empty cluster)
               break;
             }
-            const uint_fast8_t newStrip = data[(wOffset++) ^ 7];
-            if (!(newStrip > strip)) {
+            if (bOffset) {
+              ++wOffset;
+              bOffset = 0;
+            }
+            const uint_fast8_t newFirstStrip = data[(wOffset++) ^ 7];
+            if (newFirstStrip < (firstStrip+inCluster)) {
               LogDebug("FEDBuffer") << "First strip of new cluster is not greater than last strip of previous cluster. "
-                                    << "Last strip of previous cluster is " << uint16_t(strip) << ". "
-                                    << "First strip of new cluster is " << uint16_t(newStrip) << ".";
+                                    << "Last strip of previous cluster is " << uint16_t(firstStrip+inCluster) << ". "
+                                    << "First strip of new cluster is " << uint16_t(newFirstStrip) << ".";
               return StatusCode::UNORDERED_DATA;
             }
-            strip = newStrip;
-            endStrip = strip + data[(wOffset++) ^ 7];
+            firstStrip = newFirstStrip;
+            nInCluster = data[(wOffset++) ^ 7];
+            inCluster = 0;
             bOffset = 0;
           }
           bOffset += num_bits;
-          uint16_t adc;
           if (bOffset > BITS_PER_BYTE) {
             bOffset -= BITS_PER_BYTE;
-            adc = ((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset));
+            *out++ = SiStripDigi(stripStart + firstStrip + inCluster, (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask);
             ++wOffset;
           } else {
-            adc = (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset));
+            *out++ = SiStripDigi(stripStart + firstStrip + inCluster, (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask);
           }
-          *out++ = SiStripDigi(stripStart + strip, adc & mask);  // TODO move back up
-          ++strip;
+          ++inCluster;
           if (bOffset == BITS_PER_BYTE) {
             bOffset = 0;
             ++wOffset;
@@ -427,9 +434,9 @@ namespace sistrip {
       if ((isNonLite && packetCode == PACKET_CODE_ZERO_SUPPRESSED10) ||
           ((!legacy) &&
            (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE))) {
-        return detail::unpackZSB<10>(channel, out, stripStart, (isNonLite ? 7 : 2));
+        return detail::unpackZSB<10>(channel, out, (isNonLite ? 7 : 2), stripStart);
       } else if ((!legacy) ? mode == READOUT_MODE_PREMIX_RAW : lmode == READOUT_MODE_LEGACY_PREMIX_RAW) {
-        return detail::unpackZSW<16>(channel, out, stripStart, 7);
+        return detail::unpackZSW<16>(channel, out, 7, stripStart);
       } else {  // 8bit
         uint8_t bits_shift = 0;
         if (isNonLite) {
@@ -445,7 +452,7 @@ namespace sistrip {
                    mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE)
             bits_shift = 2;
         }
-        auto st = detail::unpackZSW<8>(channel, out, stripStart, (isNonLite ? 7 : 2), bits_shift);
+        auto st = detail::unpackZSW<8>(channel, out, (isNonLite ? 7 : 2), stripStart, bits_shift);
         if (isNonLite && packetCode == 0 && StatusCode::SUCCESS == st) {
           // workaround for a pre-2015 bug in the packer: assume default ZS packing
           return StatusCode::ZERO_PACKET_CODE;
