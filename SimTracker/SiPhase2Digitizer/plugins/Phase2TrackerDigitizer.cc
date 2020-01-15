@@ -110,7 +110,7 @@ namespace cms {
         if (DetId(rawId).det() == DetId::Detector::Tracker) {
           const Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
           assert(pixdet);
-          detectorUnits_.insert({rawId, pixdet});
+          detectorUnits_.emplace(rawId, pixdet);
         }
       }
     }
@@ -288,7 +288,7 @@ namespace cms {
       edm::DetSet<PixelDigiSimLink> linkcollector(rawId);
       for (auto const& digi_p : digi_map) {
         DigitizerUtility::DigiSimInfo info = digi_p.second;
-        auto ip = PixelDigi::channelToPixel(digi_p.first);
+        const auto& ip = PixelDigi::channelToPixel(digi_p.first);
         collector.data.emplace_back(ip.first, ip.second, info.sig_tot);
         for (auto const& sim_p : info.simInfoList) {
           linkcollector.data.emplace_back(digi_p.first,
@@ -306,9 +306,8 @@ namespace cms {
     }
 
     // Step C: create collection with the cache vector of DetSet
-    std::unique_ptr<edm::DetSetVector<PixelDigi> > output = std::make_unique<edm::DetSetVector<PixelDigi> >(digiVector);
-    std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> > outputlink =
-        std::make_unique<edm::DetSetVector<PixelDigiSimLink> >(digiLinkVector);
+    auto output = std::make_unique<edm::DetSetVector<PixelDigi> >(digiVector);
+    auto outputlink = std::make_unique<edm::DetSetVector<PixelDigiSimLink> >(digiLinkVector);
 
     // Step D: write output to file
     iEvent.put(std::move(output), "Pixel");
@@ -322,13 +321,13 @@ namespace {
     // so that when the row and column are inserted to PixelDigi the
     // coded channel stays the same (so that it can then be decoded
     // with Phase2TrackerDigi in stage2).
-    auto ip = PixelDigi::channelToPixel(channel);
+    const auto& ip = PixelDigi::channelToPixel(channel);
     collector.data.emplace_back(ip.first, ip.second, info.sig_tot);
   }
   void addToCollector(edm::DetSet<Phase2TrackerDigi>& collector,
                       const int channel,
                       const DigitizerUtility::DigiSimInfo& info) {
-    auto ip = Phase2TrackerDigi::channelToPixel(channel);
+    const auto& ip = Phase2TrackerDigi::channelToPixel(channel);
     collector.data.emplace_back(ip.first, ip.second, info.ot_bit);
   }
 }  // namespace
@@ -372,9 +371,8 @@ namespace cms {
     }
 
     // Step C: create collection with the cache vector of DetSet
-    std::unique_ptr<edm::DetSetVector<DigiType> > output = std::make_unique<edm::DetSetVector<DigiType> >(digiVector);
-    std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> > outputlink =
-        std::make_unique<edm::DetSetVector<PixelDigiSimLink> >(digiLinkVector);
+    auto output = std::make_unique<edm::DetSetVector<DigiType> >(digiVector);
+    auto outputlink = std::make_unique<edm::DetSetVector<PixelDigiSimLink> >(digiLinkVector);
 
     // Step D: write output to file
     iEvent.put(std::move(output), "Tracker");

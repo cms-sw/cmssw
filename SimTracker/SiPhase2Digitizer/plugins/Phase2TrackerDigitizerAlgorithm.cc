@@ -321,8 +321,6 @@ void Phase2TrackerDigitizerAlgorithm::drift(const PSimHit& hit,
       << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY << " " << CosLorenzAngleX << " "
       << CosLorenzAngleY << " " << moduleThickness * TanLorenzAngleX << " " << driftDir;
 
-  //float Sigma_x = 1.;  // Charge spread
-  //float Sigma_y = 1.;
   for (auto const& val : ionization_points) {
     // position
     float SegX = val.x(), SegY = val.y(), SegZ = val.z();
@@ -368,7 +366,7 @@ void Phase2TrackerDigitizerAlgorithm::drift(const PSimHit& hit,
     float energyOnCollector = val.energy();  // The energy that reaches the collector
 
     // pseudoRadDamage
-    if (pseudoRadDamage_ >= 0.001) {
+    if (pseudoRadDamage_) {
       float moduleRadius = pixdet->surface().position().perp();
       if (moduleRadius <= pseudoRadDamageRadius_) {
         float kValue = pseudoRadDamage_ / std::pow(moduleRadius, 2);
@@ -481,7 +479,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
         UpperBound = 1. - calcQ((xUB - CloudCenterX) / SigmaX);
       }
       float TotalIntegrationRange = UpperBound - LowerBound;  // get strip
-      x.insert({ix, TotalIntegrationRange});                  // save strip integral
+      x.emplace(ix, TotalIntegrationRange);                  // save strip integral
     }
 
     // Now integrate strips in y
@@ -506,7 +504,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       }
 
       float TotalIntegrationRange = UpperBound - LowerBound;
-      y.insert({iy, TotalIntegrationRange});  // save strip integral
+      y.emplace(iy, TotalIntegrationRange);  // save strip integral
     }
 
     // Get the 2D charge integrals by folding x and y strips
@@ -816,8 +814,11 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
   }
 }
 // ==========================================================================
-void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
+void Phase2TrackerDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet){
   bool isbad = false;
+  uint32_t detID = pixdet->geographicalId().rawId();
+  int ncol = pixdet->specificTopology().ncolumns();
+  if (ncol < 0) return;
   std::vector<SiPixelQuality::disabledModuleType> disabledModules = SiPixelBadModule_->getBadComponentList();
 
   SiPixelQuality::disabledModuleType badmodule;
@@ -840,7 +841,7 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
     // Get Bad ROC position:
     // follow the example of getBadRocPositions in CondFormats/SiPixelObjects/src/SiPixelQuality.cc
     std::vector<GlobalPixel> badrocpositions;
-    for (size_t j = 0; j < 16; j++) {
+    for (size_t j = 0; j < static_cast<size_t>(ncol); j++) {
       if (SiPixelBadModule_->IsRocBad(detID, j)) {
         std::vector<CablingPathToDetUnit> path = fedCablingMap_.product()->pathToDetUnit(detID);
         for (auto const& p : path) {
@@ -929,7 +930,7 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   }
   if (use_module_killing_) {
     if (use_deadmodule_DB_)  // remove dead modules using DB
-      module_killing_DB(detID);
+      module_killing_DB(pixdet);
     else  // remove dead modules using the list in cfg file
       module_killing_conf(detID);
   }
