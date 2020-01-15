@@ -9,10 +9,13 @@ single job. This restriction will be removed in the future.
 Also note that at the moment the mkFit works only with the CMS phase1
 tracker detector. Support for the phase2 tracker will be added later.
 
+## Modifier for runTheMatrix workflows (offline reconstruction)
+
+* `Configuration.ProcessModifiers.trackingMkFit_cff.trackingMkFit`
+  * Replaces initialStep track building module with `mkFit`.
+
 ## Customize functions for runTheMatrix workflows (offline reconstruction)
 
-* `RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepToMkFit`
-  * Replaces initialStep track building module with `mkFit`.
 * `RecoTracker/MkFit/customizeInitialStepOnly.customizeInitialStepOnly`
   * Run only the initialStep tracking. In practice this configuration
     runs the initialStepPreSplitting iteration, but named as
@@ -26,5 +29,5 @@ tracker detector. Support for the phase2 tracker will be added later.
 
 These can be used with e.g.
 ```bash
-$ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--customise RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepToMkFit"
+$ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers trackingMkFit --customise RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepOnly"
 ```

@@ -273,7 +273,7 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     offset = 0.7,
 )
 upgradeWFs['trackingMkFit'].step3 = {
-    '--customise': 'RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepToMkFit'
+    '--procModifiers': 'trackingMkFit'
 }
 
 # Patatrack workflows
