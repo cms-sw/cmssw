@@ -5,7 +5,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -118,7 +118,7 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
 
   const float phicut = std::cos(2.5);
 
-  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, xmeas, vprim, energy, charge);
+  auto fts = trackingTools::ftsFromVertexToPoint(*theMagField, xmeas, vprim, energy, charge);
   PerpendicularBoundPlaneBuilder bpb;
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
 
@@ -209,7 +209,7 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
           zVertex = vprim.z();
         }
         GlobalPoint vertex(vprim.x(), vprim.y(), zVertex);
-        FreeTrajectoryState fts2 = FTSFromVertexToPointFactory::get(*theMagField, hit1Pos, vertex, energy, charge);
+        auto fts2 = trackingTools::ftsFromVertexToPoint(*theMagField, hit1Pos, vertex, energy, charge);
         // now find the matching hit
         for (auto it2 = it1 + 1; it2 != hits.second; ++it2) {
           if (!it2->isValid())

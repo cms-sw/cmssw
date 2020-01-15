@@ -8,8 +8,8 @@
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef EGAMMATOOLS_SCEnergyCorrectorSemiParm_H
-#define EGAMMATOOLS_SCEnergyCorrectorSemiParm_H
+#ifndef RecoEcal_EgammaClusterAlgos_SCEnergyCorrectorSemiParm_h
+#define RecoEcal_EgammaClusterAlgos_SCEnergyCorrectorSemiParm_h
 
 #include "FWCore/Framework/interface/EventSetup.h"
 

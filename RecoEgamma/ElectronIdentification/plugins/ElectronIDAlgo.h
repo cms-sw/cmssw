@@ -11,11 +11,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 class ElectronIDAlgo {
 public:
@@ -28,8 +23,6 @@ public:
   virtual double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) { return 0.; };
 
 protected:
-  //EcalClusterLazyTools getClusterShape(const edm::Event&, const edm::EventSetup&);
-
   edm::InputTag reducedBarrelRecHitCollection_;
   edm::InputTag reducedEndcapRecHitCollection_;
 };
