@@ -286,7 +286,7 @@ namespace sistrip {
           const auto isNonLite = FEDChannelUnpacker::isNonLiteZS(mode, legacy_, lmode);
           const uint8_t pCode = (isNonLite ? buffer.packetCode(legacy_, iconn->fedCh()) : 0);
           if (isNonLite)
-            LogDebug("SiStripRawToDigi") << "Non-lite zero-suppressed mode. Packet code=" << std::hex << uint16_t(pCode) << std::dec;
+            LogDebug("SiStripRawToDigi") << "Non-lite zero-suppressed mode. Packet code=0x" << std::hex << uint16_t(pCode) << std::dec;
           const auto st_ch = FEDChannelUnpacker::unpackZeroSuppressed(
               fedChannel, std::back_inserter(zs_work_digis_), ipair * 256,
               isNonLite, mode, legacy_, lmode, pCode);
@@ -299,7 +299,7 @@ namespace sistrip {
             detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
             continue;
           }
-          if (regItem.index != scope_work_digis_.size()) {
+          if (regItem.index != zs_work_digis_.size()) {
             regItem.length = zs_work_digis_.size() - regItem.index;
             regItem.first = zs_work_digis_[regItem.index].strip();
             zs_work_registry_.push_back(regItem);
