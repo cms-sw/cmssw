@@ -53,8 +53,6 @@ private:
 	float           fDZCut;
         double fPtMaxCharged;
 	double fEtaMaxCharged;
-	float           fPtMax;
-        double fPtMaxNeutralsStartSlope;
 	bool fUseExistingWeights;
 	bool fUseWeightsNoLep;
 	bool fClonePackedCands;
