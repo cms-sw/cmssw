@@ -708,7 +708,8 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
         if ((itr->second).second <= HGCalWaferMask::k_OffsetRotation)
           mask = HGCalWaferMask::maskCell(u, v, N, (itr->second).first, (itr->second).second, corners);
         else
-          mask = !(HGCalWaferMask::goodCell(u, v, N, (itr->second).first, ((itr->second).second - HGCalWaferMask::k_OffsetRotation)));
+          mask = !(HGCalWaferMask::goodCell(
+              u, v, N, (itr->second).first, ((itr->second).second - HGCalWaferMask::k_OffsetRotation)));
       }
     }
   }
