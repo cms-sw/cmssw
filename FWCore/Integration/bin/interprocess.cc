@@ -11,6 +11,9 @@
 
 #include <string>
 #include <iostream>
+#include <atomic>
+#include <thread>
+#include <signal.h>
 
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -113,6 +116,56 @@ private:
   edm::test::TestProcessor tester_;
 };
 
+namespace {
+  std::atomic<bool> s_stopRequested = false;
+  std::atomic<bool> s_signal_happened = false;
+  std::atomic<bool> s_helperReady = false;
+  std::atomic<boost::interprocess::scoped_lock<boost::interprocess::named_mutex>*> s_lock = nullptr;
+  std::atomic<bool> s_helperThreadDone = false;
+  int s_sig = 0;
+
+  void sig_handler(int sig, siginfo_t*, void*) {
+    s_sig = sig;
+    s_signal_happened = true;
+    while (not s_helperThreadDone) {
+    };
+    signal(sig, SIG_DFL);
+    raise(sig);
+  }
+
+  void cleanupThread() {
+    std::cerr << "Started cleanup thread\n";
+    sigset_t ensemble;
+
+    sigemptyset(&ensemble);
+    sigaddset(&ensemble, SIGABRT);
+    sigaddset(&ensemble, SIGILL);
+    sigaddset(&ensemble, SIGBUS);
+    sigaddset(&ensemble, SIGSEGV);
+    sigaddset(&ensemble, SIGTERM);
+    pthread_sigmask(SIG_BLOCK, &ensemble, NULL);
+
+    std::cerr << "Start loop\n";
+    s_helperReady = true;
+    while (not s_stopRequested.load()) {
+      sleep(30);
+      if (s_signal_happened) {
+        auto v = s_lock.load();
+        if (v) {
+          std::cerr << "SIGNAL CAUGHT: unlock\n";
+          v->unlock();
+        }
+        s_helperThreadDone = true;
+        std::cerr << "SIGNAL CAUGHT\n";
+        break;
+      } else {
+        std::cerr << "SIGNAL woke\n";
+      }
+    }
+    std::cerr << "Ending cleanup thread\n";
+  }
+}  // namespace
+
 int main(int argc, char* argv[]) {
   std::string descString(argv[0]);
   descString += " [--";
@@ -156,113 +209,158 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::string const memoryName(vm[kMemoryNameOpt].as<std::string>());
-  std::string const uniqueID(vm[kUniqueIDOpt].as<std::string>());
+  std::thread helperThread;
   {
-    using namespace boost::interprocess;
-    auto memoryNameUnique = unique_name(memoryName, uniqueID);
-    managed_shared_memory managed_shm{open_only, memoryNameUnique.c_str()};
+    //Setup watchdog thread for crashing signals
 
-    named_mutex named_mtx{open_or_create, unique_name("mtx", uniqueID).c_str()};
-    named_condition named_cndFromMain{open_or_create, unique_name("cndFromMain", uniqueID).c_str()};
-    std::pair<bool*, std::size_t> sm_stop = managed_shm.find<bool>(unique_name("stop", uniqueID).c_str());
-    std::pair<edm::Transition*, std::size_t> sm_transitionType =
-        managed_shm.find<edm::Transition>(unique_name("transitionType", uniqueID).c_str());
-    assert(sm_transitionType.first);
-    std::pair<unsigned long long*, std::size_t> sm_transitionID =
-        managed_shm.find<unsigned long long>(unique_name("transitionID", uniqueID).c_str());
+    struct sigaction act;
+    act.sa_sigaction = sig_handler;
+    act.sa_flags = 0;
+    sigemptyset(&act.sa_mask);
+    sigaction(SIGABRT, &act, nullptr);
+    sigaction(SIGILL, &act, nullptr);
+    sigaction(SIGBUS, &act, nullptr);
+    sigaction(SIGSEGV, &act, nullptr);
+    sigaction(SIGTERM, &act, nullptr);
 
-    named_condition named_cndToMain{open_or_create, unique_name("cndToMain", uniqueID).c_str()};
-
-    int counter = 0;
-
-    scoped_lock<named_mutex> lock(named_mtx);
-    std::cerr << uniqueID << " process: initializing " << std::endl;
-    int nlines;
-    std::cin >> nlines;
-
-    std::string configuration;
-    for (int i = 0; i < nlines; ++i) {
-      std::string c;
-      std::getline(std::cin, c);
-      std::cerr << c << "\n";
-      configuration += c + "\n";
-    }
-
-    Harness harness(configuration);
-
-    Serializer<edmtest::ThingCollection> serializer(managed_shm, memoryNameUnique, "buffer", uniqueID);
-    Serializer<edmtest::ThingCollection> br_serializer(managed_shm, memoryNameUnique, "brbuffer", uniqueID);
-    Serializer<edmtest::ThingCollection> bl_serializer(managed_shm, memoryNameUnique, "blbuffer", uniqueID);
-    Serializer<edmtest::ThingCollection> el_serializer(managed_shm, memoryNameUnique, "elbuffer", uniqueID);
-    Serializer<edmtest::ThingCollection> er_serializer(managed_shm, memoryNameUnique, "erbuffer", uniqueID);
-
-    std::cerr << uniqueID << " process: done initializing" << std::endl;
-    named_cndToMain.notify_all();
-    while (true) {
-      {
-        ++counter;
-        std::cerr << uniqueID << " process: waiting " << counter << std::endl;
-        named_cndFromMain.wait(lock);
-        if (*sm_stop.first) {
-          break;
-        }
-      }
-
-      switch (*sm_transitionType.first) {
-        case edm::Transition::BeginRun: {
-          std::cerr << uniqueID << " process: start beginRun " << std::endl;
-          auto value = harness.getBeginRunValue(*sm_transitionID.first);
-
-          br_serializer.serialize(value);
-          std::cerr << uniqueID << " process: end beginRun " << value.size() << std::endl;
-
-          break;
-        }
-        case edm::Transition::BeginLuminosityBlock: {
-          std::cerr << uniqueID << " process: start beginLumi " << std::endl;
-          auto value = harness.getBeginLumiValue(*sm_transitionID.first);
-
-          bl_serializer.serialize(value);
-          std::cerr << uniqueID << " process: end beginLumi " << value.size() << std::endl;
-
-          break;
-        }
-        case edm::Transition::Event: {
-          std::cerr << uniqueID << " process: integrating " << counter << std::endl;
-          auto value = harness.getEventValue();
-
-          std::cerr << uniqueID << " process: integrated " << counter << std::endl;
-
-          serializer.serialize(value);
-          std::cerr << uniqueID << " process: " << value.size() << " " << counter << std::endl;
-          break;
-        }
-        case edm::Transition::EndLuminosityBlock: {
-          std::cerr << uniqueID << " process: start endLumi " << std::endl;
-          auto value = harness.getEndLumiValue();
-
-          el_serializer.serialize(value);
-          std::cerr << uniqueID << " process: end endLumi " << value.size() << std::endl;
-
-          break;
-        }
-        case edm::Transition::EndRun: {
-          std::cerr << uniqueID << " process: start endRun " << std::endl;
-          auto value = harness.getEndRunValue();
-
-          er_serializer.serialize(value);
-          std::cerr << uniqueID << " process: end endRun " << value.size() << std::endl;
-
-          break;
-        }
-        default: {
-          assert(false);
-        }
-      }
-      std::cerr << uniqueID << " process: notifying " << counter << std::endl;
-      named_cndToMain.notify_all();
-    }
+    std::thread t(cleanupThread);
+    t.detach();
+    helperThread = std::move(t);
   }
+  while (s_helperReady.load() == false) {
+  }
+  try {
+    std::string const memoryName(vm[kMemoryNameOpt].as<std::string>());
+    std::string const uniqueID(vm[kUniqueIDOpt].as<std::string>());
+    {
+      using namespace boost::interprocess;
+      auto memoryNameUnique = unique_name(memoryName, uniqueID);
+      managed_shared_memory managed_shm{open_only, memoryNameUnique.c_str()};
+
+      named_mutex named_mtx{open_or_create, unique_name("mtx", uniqueID).c_str()};
+      named_condition named_cndFromMain{open_or_create, unique_name("cndFromMain", uniqueID).c_str()};
+      std::pair<bool*, std::size_t> sm_stop = managed_shm.find<bool>(unique_name("stop", uniqueID).c_str());
+      std::pair<edm::Transition*, std::size_t> sm_transitionType =
+          managed_shm.find<edm::Transition>(unique_name("transitionType", uniqueID).c_str());
+      assert(sm_transitionType.first);
+      std::pair<unsigned long long*, std::size_t> sm_transitionID =
+          managed_shm.find<unsigned long long>(unique_name("transitionID", uniqueID).c_str());
+
+      named_condition named_cndToMain{open_or_create, unique_name("cndToMain", uniqueID).c_str()};
+
+      int counter = 0;
+
+      scoped_lock<named_mutex> lock(named_mtx);
+      s_lock.store(&lock);
+      std::cerr << uniqueID << " process: initializing " << std::endl;
+      int nlines;
+      std::cin >> nlines;
+
+      std::string configuration;
+      for (int i = 0; i < nlines; ++i) {
+        std::string c;
+        std::getline(std::cin, c);
+        std::cerr << c << "\n";
+        configuration += c + "\n";
+      }
+
+      Harness harness(configuration);
+
+      {
+        //Make sure TestProcessor did not reset the signal handlers
+        sigset_t ensemble;
+        sigemptyset(&ensemble);
+        sigaddset(&ensemble, SIGABRT);
+        sigaddset(&ensemble, SIGILL);
+        sigaddset(&ensemble, SIGBUS);
+        sigaddset(&ensemble, SIGSEGV);
+        sigaddset(&ensemble, SIGTERM);
+        sigprocmask(SIG_BLOCK, &ensemble, NULL);
+      }
+
+      Serializer<edmtest::ThingCollection> serializer(managed_shm, memoryNameUnique, "buffer", uniqueID);
+      Serializer<edmtest::ThingCollection> br_serializer(managed_shm, memoryNameUnique, "brbuffer", uniqueID);
+      Serializer<edmtest::ThingCollection> bl_serializer(managed_shm, memoryNameUnique, "blbuffer", uniqueID);
+      Serializer<edmtest::ThingCollection> el_serializer(managed_shm, memoryNameUnique, "elbuffer", uniqueID);
+      Serializer<edmtest::ThingCollection> er_serializer(managed_shm, memoryNameUnique, "erbuffer", uniqueID);
+
+      std::cerr << uniqueID << " process: done initializing" << std::endl;
+      named_cndToMain.notify_all();
+      while (true) {
+        {
+          ++counter;
+          std::cerr << uniqueID << " process: waiting " << counter << std::endl;
+          named_cndFromMain.wait(lock);
+          if (*sm_stop.first) {
+            break;
+          }
+        }
+
+        switch (*sm_transitionType.first) {
+          case edm::Transition::BeginRun: {
+            std::cerr << uniqueID << " process: start beginRun " << std::endl;
+            auto value = harness.getBeginRunValue(*sm_transitionID.first);
+
+            br_serializer.serialize(value);
+            std::cerr << uniqueID << " process: end beginRun " << value.size() << std::endl;
+
+            break;
+          }
+          case edm::Transition::BeginLuminosityBlock: {
+            std::cerr << uniqueID << " process: start beginLumi " << std::endl;
+            auto value = harness.getBeginLumiValue(*sm_transitionID.first);
+
+            bl_serializer.serialize(value);
+            std::cerr << uniqueID << " process: end beginLumi " << value.size() << std::endl;
+
+            break;
+          }
+          case edm::Transition::Event: {
+            std::cerr << uniqueID << " process: integrating " << counter << std::endl;
+            auto value = harness.getEventValue();
+
+            std::cerr << uniqueID << " process: integrated " << counter << std::endl;
+
+            serializer.serialize(value);
+            std::cerr << uniqueID << " process: " << value.size() << " " << counter << std::endl;
+            //usleep(10000000);
+            break;
+          }
+          case edm::Transition::EndLuminosityBlock: {
+            std::cerr << uniqueID << " process: start endLumi " << std::endl;
+            auto value = harness.getEndLumiValue();
+
+            el_serializer.serialize(value);
+            std::cerr << uniqueID << " process: end endLumi " << value.size() << std::endl;
+
+            break;
+          }
+          case edm::Transition::EndRun: {
+            std::cerr << uniqueID << " process: start endRun " << std::endl;
+            auto value = harness.getEndRunValue();
+
+            er_serializer.serialize(value);
+            std::cerr << uniqueID << " process: end endRun " << value.size() << std::endl;
+
+            break;
+          }
+          default: {
+            assert(false);
+          }
+        }
+        std::cerr << uniqueID << " process: notifying " << counter << std::endl;
+        named_cndToMain.notify_all();
+      }
+    }
+  } catch (std::exception const& iExcept) {
+    std::cerr << iExcept.what();
+    s_stopRequested = true;
+    return 1;
+  } catch (...) {
+    std::cerr << "caught unknown exception";
+    s_stopRequested = true;
+    return 1;
+  }
+  s_stopRequested = true;
   return 0;
 }
