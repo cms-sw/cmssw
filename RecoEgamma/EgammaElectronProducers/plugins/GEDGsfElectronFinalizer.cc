@@ -16,11 +16,12 @@ public:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons_;
-  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
-  std::string outputCollectionLabel_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
   std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > tokenElectronIsoVals_;
   std::unique_ptr<ModifyObjectValueBase> gedRegression_;
+
+  const edm::EDPutTokenT<reco::GsfElectronCollection> putToken_;
 };
 
 using edm::InputTag;
@@ -31,7 +32,7 @@ using reco::GsfElectronCollection;
 GEDGsfElectronFinalizer::GEDGsfElectronFinalizer(const edm::ParameterSet& cfg)
     : previousGsfElectrons_(consumes<GsfElectronCollection>(cfg.getParameter<InputTag>("previousGsfElectronsTag"))),
       pfCandidates_(consumes<reco::PFCandidateCollection>(cfg.getParameter<InputTag>("pfCandidatesTag"))),
-      outputCollectionLabel_(cfg.getParameter<std::string>("outputCollectionLabel")) {
+      putToken_{produces<reco::GsfElectronCollection>()} {
   edm::ParameterSet pfIsoVals(cfg.getParameter<edm::ParameterSet>("pfIsolationValues"));
 
   tokenElectronIsoVals_ = {consumes<ValueMap<float> >(pfIsoVals.getParameter<InputTag>("pfSumChargedHadronPt")),
@@ -47,13 +48,11 @@ GEDGsfElectronFinalizer::GEDGsfElectronFinalizer(const edm::ParameterSet& cfg)
     auto cc = consumesCollector();
     gedRegression_ = ModifyObjectValueFactory::get()->create(mname, iconf, cc);
   }
-
-  produces<reco::GsfElectronCollection>(outputCollectionLabel_);
 }
 
 void GEDGsfElectronFinalizer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   // Output collection
-  auto outputElectrons_p = std::make_unique<reco::GsfElectronCollection>();
+  reco::GsfElectronCollection outputElectrons;
 
   if (gedRegression_) {
     gedRegression_->setEvent(event);
@@ -119,10 +118,10 @@ void GEDGsfElectronFinalizer::produce(edm::StreamID, edm::Event& event, const ed
     if (gedRegression_) {
       gedRegression_->modifyObject(newElectron);
     }
-    outputElectrons_p->push_back(newElectron);
+    outputElectrons.push_back(newElectron);
   }
 
-  event.put(std::move(outputElectrons_p), outputCollectionLabel_);
+  event.emplace(putToken_, std::move(outputElectrons));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

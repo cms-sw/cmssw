@@ -65,7 +65,7 @@ void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, con
     electrons.back().setSuperCluster(superClusterRefs[pfgsf]);
   }
 
-  event.emplace(putToken_, electrons);
+  event.emplace(putToken_, std::move(electrons));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
