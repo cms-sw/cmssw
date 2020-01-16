@@ -38,7 +38,7 @@ namespace dqm::implementation {
 
   IBooker::IBooker(DQMStore* store) {
     store_ = store;
-    scope_ = MonitorElementData::Scope::RUN;
+    scope_ = MonitorElementData::Scope::JOB;
   }
 
   IBooker::~IBooker() {}
