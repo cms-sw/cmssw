@@ -58,8 +58,7 @@ TestMTDNumbering::TestMTDNumbering(const edm::ParameterSet& iConfig)
       theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
       thisN_(),
       btlNS_(),
-      etlNS_() {
-}
+      etlNS_() {}
 
 TestMTDNumbering::~TestMTDNumbering() {}
 
@@ -203,9 +202,8 @@ void TestMTDNumbering::theBaseNumber(const DDGeoHistory& gh) {
 }
 
 std::string TestMTDNumbering::noNSgeoHistory(const DDGeoHistory& gh) {
-
   std::string output;
-  for (uint i = 0; i < gh.size(); i++ ) {
+  for (uint i = 0; i < gh.size(); i++) {
     output += gh[i].logicalPart().name().name();
     output += "[";
     output += std::to_string(gh[i].copyno());
@@ -213,11 +211,10 @@ std::string TestMTDNumbering::noNSgeoHistory(const DDGeoHistory& gh) {
   }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("TestMTDNumbering") << output;
+  edm::LogInfo("TestMTDNumbering") << output;
 #endif
 
   return output;
-
 }
 
 DEFINE_FWK_MODULE(TestMTDNumbering);

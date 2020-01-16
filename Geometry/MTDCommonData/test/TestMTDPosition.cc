@@ -145,27 +145,18 @@ void TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
         dump << "Box dimensions: " << mySens.halfX() << " " << mySens.halfY() << " " << mySens.halfZ() << "\n";
 
-        char buf[256];
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
-        size_t s = snprintf(buf,
-                            256,
-                            ",%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f",
-                            fv.translation().x(),
-                            fv.translation().y(),
-                            fv.translation().z(),
-                            x.X(),
-                            y.X(),
-                            z.X(),
-                            x.Y(),
-                            y.Y(),
-                            z.Y(),
-                            x.Z(),
-                            y.Z(),
-                            z.Z());
-        assert(s < 256);
-        dump << "Translation vector and Rotation components: " << buf;
-        dump << "\n";
+        dump << "Translation vector components: " << std::setw(14) << std::fixed << fv.translation().x() << " "
+             << std::setw(14) << std::fixed << fv.translation().y() << " " << std::setw(14) << std::fixed
+             << fv.translation().z() << " "
+             << "\n";
+        dump << "Rotation matrix components: " << std::setw(14) << std::fixed << x.X() << " " << std::setw(14)
+             << std::fixed << y.X() << " " << std::setw(14) << std::fixed << z.X() << " " << std::setw(14) << std::fixed
+             << x.Y() << " " << std::setw(14) << std::fixed << y.Y() << " " << std::setw(14) << std::fixed << z.Y()
+             << " " << std::setw(14) << std::fixed << x.Z() << " " << std::setw(14) << std::fixed << y.Z() << " "
+             << std::setw(14) << std::fixed << z.Z() << " "
+             << "\n";
 
         DD3Vector zeroLocal(0., 0., 0.);
         DD3Vector cn1Local(mySens.halfX(), mySens.halfY(), mySens.halfZ());
@@ -203,9 +194,8 @@ void TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 }
 
 std::string TestMTDPosition::noNSgeoHistory(const DDGeoHistory& gh) {
-
   std::string output;
-  for (uint i = 0; i < gh.size(); i++ ) {
+  for (uint i = 0; i < gh.size(); i++) {
     output += gh[i].logicalPart().name().name();
     output += "[";
     output += std::to_string(gh[i].copyno());
@@ -213,11 +203,10 @@ std::string TestMTDPosition::noNSgeoHistory(const DDGeoHistory& gh) {
   }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("TestMTDNumbering") << output;
+  edm::LogInfo("TestMTDNumbering") << output;
 #endif
 
   return output;
-
 }
 
 DEFINE_FWK_MODULE(TestMTDPosition);
