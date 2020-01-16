@@ -332,8 +332,8 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
 
 std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const double& ypos,
-                                                const double& r1,
-                                                const double& R1,
+                                                const double& delX,
+                                                const double& delY,
                                                 const double& rin,
                                                 const double& rout,
                                                 const int& NW,
@@ -341,23 +341,23 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   int ncor(0), fcor(0), iok(0);
   int type(HGCalGeomTools::WaferFull), rotn(HGCalGeomTools::WaferCorner0);
   static const double sqrt3 = std::sqrt(3.0);
-  double dxw = r1 / (NW * sqrt3);
-  double dyw = 0.5 * r1 / NW;
+  double dxw = delX / (NW * sqrt3);
+  double dyw = 0.5 * delX / NW;
 
   static const int corners = 6;
   double xc[corners], yc[corners];
   xc[0] = xpos;
-  yc[0] = ypos + R1;
-  xc[1] = xpos - r1;
-  yc[1] = ypos + 0.5 * R1;
-  xc[2] = xpos - r1;
-  yc[2] = ypos - 0.5 * R1;
+  yc[0] = ypos + delY;
+  xc[1] = xpos - delX;
+  yc[1] = ypos + 0.5 * delY;
+  xc[2] = xpos - delX;
+  yc[2] = ypos - 0.5 * delY;
   xc[3] = xpos;
-  yc[3] = ypos - R1;
-  xc[4] = xpos + r1;
-  yc[4] = ypos - 0.5 * R1;
-  xc[5] = xpos + r1;
-  yc[5] = ypos + 0.5 * R1;
+  yc[3] = ypos - delY;
+  xc[4] = xpos + delX;
+  yc[4] = ypos - 0.5 * delY;
+  xc[5] = xpos + delX;
+  yc[5] = ypos + 0.5 * delY;
   for (int k = 0; k < corners; ++k) {
     double rpos = sqrt(xc[k] * xc[k] + yc[k] * yc[k]);
     if (rpos <= rout && rpos >= rin) {
@@ -370,18 +370,18 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   static const int ipat5[corners] = {111110, 11111, 101111, 110111, 111011, 111101};
   static const int ipat4[corners] = {111100, 11110, 1111, 100111, 110011, 111001};
   static const int ipat3[corners] = {111000, 11100, 1110, 111, 100011, 110001};
-  double dx1[corners] = {(0.5 * r1 + dxw), -0.5 * r1, -r1, -0.5 * r1, (0.5 * r1 - dxw), r1};
-  double dy1[corners] = {(0.75 * R1 - dyw), 0.75 * R1, dyw, -0.75 * R1, -(0.75 * R1 + dyw), 0.0};
-  double dx2[corners] = {(0.5 * r1 + dxw), r1, (0.5 * r1 - dxw), -0.5 * r1, -r1, -0.5 * r1};
-  double dy2[corners] = {-(0.75 * R1 - dyw), 0.0, (0.75 * R1 + dyw), 0.75 * R1, -dyw, -0.75 * R1};
-  double dx3[corners] = {(0.5 * r1 - dxw), -0.5 * r1, -r1, -0.5 * r1, (0.5 * r1 + dxw), r1};
-  double dy3[corners] = {(0.75 * R1 + dyw), 0.75 * R1, -dyw, -0.75 * R1, -(0.75 * R1 - dyw), 0.0};
-  double dx4[corners] = {(0.5 * r1 - dxw), r1, (0.5 * r1 + dxw), 0.5 * r1, -r1, -0.5 * r1};
-  double dy4[corners] = {-(0.75 * R1 + dyw), 0.0, (0.75 * R1 - dyw), 0.75 * R1, dyw, -0.75 * R1};
-  double dx5[corners] = {0.5 * r1, -0.5 * r1, -r1, -0.5 * r1, 0.5 * r1, r1};
-  double dy5[corners] = {0.75 * R1, 0.75 * R1, 0.0, -0.75 * R1, -0.75 * R1, 0.0};
-  double dx6[corners] = {-0.5 * r1, 0.5 * r1, r1, 0.5 * r1, -0.5 * r1, -r1};
-  double dy6[corners] = {-0.75 * R1, -0.75 * R1, 0.0, 0.75 * R1, 0.75 * R1, 0.0};
+  double dx1[corners] = {(0.5 * delX + dxw), -0.5 * delX, -delX, -0.5 * delX, (0.5 * delX - dxw), delX};
+  double dy1[corners] = {(0.75 * delY - dyw), 0.75 * delY, dyw, -0.75 * delY, -(0.75 * delY + dyw), 0.0};
+  double dx2[corners] = {(0.5 * delX + dxw), delX, (0.5 * delX - dxw), -0.5 * delX, -delX, -0.5 * delX};
+  double dy2[corners] = {-(0.75 * delY - dyw), 0.0, (0.75 * delY + dyw), 0.75 * delY, -dyw, -0.75 * delY};
+  double dx3[corners] = {(0.5 * delX - dxw), -0.5 * delX, -delX, -0.5 * delX, (0.5 * delX + dxw), delX};
+  double dy3[corners] = {(0.75 * delY + dyw), 0.75 * delY, -dyw, -0.75 * delY, -(0.75 * delY - dyw), 0.0};
+  double dx4[corners] = {(0.5 * delX - dxw), delX, (0.5 * delX + dxw), 0.5 * delX, -delX, -0.5 * delX};
+  double dy4[corners] = {-(0.75 * delY + dyw), 0.0, (0.75 * delY - dyw), 0.75 * delY, dyw, -0.75 * delY};
+  double dx5[corners] = {0.5 * delX, -0.5 * delX, -delX, -0.5 * delX, 0.5 * delX, delX};
+  double dy5[corners] = {0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY, -0.75 * delY, 0.0};
+  double dx6[corners] = {-0.5 * delX, 0.5 * delX, delX, 0.5 * delX, -0.5 * delX, -delX};
+  double dy6[corners] = {-0.75 * delY, -0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0};
 
   if (ncor == 6) {
   } else if (ncor == 5) {
@@ -427,5 +427,5 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Corners " << ncor << ":" << fcor << " Type " << type << ":" << rotn;
 #endif
-  return ((mode == 0) ? std::make_pair(ncor, fcor) : std::make_pair(type, 10 + rotn));
+  return ((mode == 0) ? std::make_pair(ncor, fcor) : std::make_pair(type, k_OffsetRotation + rotn));
 }
