@@ -30,7 +30,8 @@ namespace dqm {
       // This is the only method that is allowed to change cwd_ value
       virtual void setCurrentFolder(std::string const& fullpath);
       virtual void goUp();
-      virtual std::string const& pwd();
+      // returns the current directory without (!) trailing slash or empty string.
+      virtual std::string pwd();
 
       virtual ~NavigatorBase() {}
 
@@ -550,7 +551,7 @@ namespace dqm {
         this->IGetter::setCurrentFolder(fullpath);
       }
       void goUp() override { this->IBooker::goUp(); }
-      std::string const& pwd() override { return this->IBooker::pwd(); }
+      std::string pwd() override { return this->IBooker::pwd(); }
 
     public:
       // internal -- figure out better protection.
