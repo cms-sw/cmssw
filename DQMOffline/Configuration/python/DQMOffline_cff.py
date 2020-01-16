@@ -49,7 +49,7 @@ DQMOfflineMuonDPG = cms.Sequence( dtSources *
 
 DQMOfflineCASTOR = cms.Sequence( castorSources )
 
-DQMOfflineCTPPS = cms.Sequence( ctppsDQMOffline )
+DQMOfflineCTPPS = cms.Sequence( ctppsDQMOfflineSource )
 
 DQMOfflinePreDPG = cms.Sequence( DQMOfflineDCS *
 				 DQMOfflineL1T *

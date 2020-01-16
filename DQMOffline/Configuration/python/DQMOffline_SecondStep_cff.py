@@ -187,7 +187,7 @@ DQMHarvestOuterTracker = cms.Sequence(
 DQMHarvestTrackerPhase2 = cms.Sequence(trackerphase2DQMHarvesting)
 
 
-DQMHarvestCTPPS = cms.Sequence(ctppsDQMHarvest)
+DQMHarvestCTPPS = cms.Sequence( ctppsDQMOfflineHarvest )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
