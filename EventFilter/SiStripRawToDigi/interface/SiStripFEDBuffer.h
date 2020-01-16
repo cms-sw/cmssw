@@ -230,7 +230,7 @@ namespace sistrip {
 
       template <uint8_t num_bits, typename OUT>
       StatusCode unpackZSW(
-          const FEDChannel& channel, OUT& out, uint8_t headerLength, uint16_t stripStart, uint8_t bits_shift = 0) {
+          const FEDChannel& channel, OUT&& out, uint8_t headerLength, uint16_t stripStart, uint8_t bits_shift = 0) {
         constexpr auto num_words = num_bits / 8;
         static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
         const uint8_t* data = channel.data();
@@ -238,6 +238,9 @@ namespace sistrip {
         if (channel.length() & 0xF000) {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
+        }
+        if ( channel.length() <= headerLength ) {
+          return StatusCode::SUCCESS;
         }
         uint_fast8_t firstStrip = data[(offset++) ^ 7];
         uint_fast8_t nInCluster = data[(offset++) ^ 7];
@@ -269,7 +272,7 @@ namespace sistrip {
 
       // Generic implementation (for 10bit, essentially)
       template <uint_fast8_t num_bits, typename OUT>
-      StatusCode unpackZSB(const FEDChannel& channel, OUT& out, uint8_t headerLength, uint16_t stripStart) {
+      StatusCode unpackZSB(const FEDChannel& channel, OUT&& out, uint8_t headerLength, uint16_t stripStart) {
         constexpr uint16_t mask = (1 << num_bits) - 1;
         const uint8_t* data = channel.data();
         uint_fast16_t wOffset = channel.offset() + headerLength;  // header is 2 (lite) or 7
@@ -277,6 +280,9 @@ namespace sistrip {
         if (channel.length() & 0xF000) {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
+        }
+        if ( channel.length() <= headerLength ) {
+          return StatusCode::SUCCESS;
         }
         uint_fast8_t firstStrip = data[(wOffset++) ^ 7];
         uint_fast8_t nInCluster = data[(wOffset++) ^ 7];
