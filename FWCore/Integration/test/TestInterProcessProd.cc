@@ -16,6 +16,7 @@
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/named_condition.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 using namespace boost::interprocess;
 
@@ -122,9 +123,14 @@ namespace testinter {
         assert(result == strlen(iConfig));
         fflush(pipe_);
       }
+      using namespace boost::posix_time;
       std::cout << id_ << " waiting for external process" << std::endl;
-      named_cndToMain_.wait(lock);
-      std::cout << id_ << " done waiting for external process" << std::endl;
+      if (not named_cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
+        std::cout << id_ << " FAILED waiting for external process" << std::endl;
+        throw cms::Exception("ExternalFailed");
+      } else {
+        std::cout << id_ << " done waiting for external process" << std::endl;
+      }
     }
 
     edmtest::ThingCollection produce(unsigned long long iTransitionID) {
@@ -217,7 +223,13 @@ namespace testinter {
       }
 
       std::cout << id_ << " waiting" << std::endl;
-      named_cndToMain_.wait(lock);
+      using namespace boost::posix_time;
+      if (not named_cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
+        std::cout << id_ << " FAILED waiting for external process" << std::endl;
+        throw cms::Exception("ExternalFailed");
+      }
+      //named_cndToMain_.timed_wait(lock);
+      //named_cndToMain_.wait(lock);
     }
 
     int id_;
@@ -300,6 +312,7 @@ std::unique_ptr<testinter::StreamCache> TestInterProcessProd::beginStream(edm::S
 process = TestProcess()
 process.gen = cms.EDProducer("ThingProducer", nThings = cms.int32(100))
 process.moduleToTest(process.gen)
+process.add_(cms.Service("InitRootHandlers", UnloadRootSigHandler=cms.untracked.bool(True)))
 )_";
 
   auto cache = std::make_unique<testinter::StreamCache>(v, iID.value());
