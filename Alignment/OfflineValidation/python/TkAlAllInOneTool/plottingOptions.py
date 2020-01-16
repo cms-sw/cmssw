@@ -243,7 +243,7 @@ def PlottingOptions(config, valType):
                               "split": PlottingOptionsTrackSplitting,
                               "zmumu": PlottingOptionsZMuMu,
                               "primaryvertex": PlottingOptionsPrimaryVertex,
-                              "overlap": PlottingOptionsOverlap
+                              "overlap": PlottingOptionsOverlap,
                               "pvresolution": PlottingOptionsPVResolution,
                              }
     if isinstance(valType, type):
