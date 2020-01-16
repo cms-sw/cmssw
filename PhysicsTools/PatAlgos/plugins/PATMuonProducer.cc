@@ -1102,7 +1102,7 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
   double d0_corr = result.second.value();
   double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
   // Now correct the sign using information from the track
-  d0_corr = (track->dxy() > 0 ? 1 : -1)*fabs(d0_corr);
+  d0_corr = (track->dxy(primaryVertex.position()) > 0 ? 1 : -1)*fabs(d0_corr);
   aMuon.setDB(d0_corr, d0_err, pat::Muon::PV2D);
 
   // PV3D
