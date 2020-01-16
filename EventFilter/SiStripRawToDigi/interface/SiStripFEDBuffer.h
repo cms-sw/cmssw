@@ -200,7 +200,7 @@ namespace sistrip {
 
       // Generic implementation for non-whole words (10bit, essentially)
       template <uint_fast8_t num_bits, typename OUT>
-      StatusCode unpackRawB(const FEDChannel& channel, OUT& out) {
+      StatusCode unpackRawB(const FEDChannel& channel, OUT&& out) {
         if (channel.length() & 0xF000) {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
@@ -210,18 +210,16 @@ namespace sistrip {
         const uint8_t* data = channel.data();
         const uint_fast16_t chEnd = channel.offset() + channel.length();
         uint_fast16_t wOffset = channel.offset() + 3;
-        uint_fast16_t bOffset = 0;
+        uint_fast8_t bOffset = 0;
         while (((wOffset + 1) < chEnd) || ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits)) {
           bOffset += num_bits;
-          uint16_t adc;
           if (bOffset > BITS_PER_BYTE) {
             bOffset -= BITS_PER_BYTE;
-            adc = ((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset));
+            **out++ = SiStripRawDigi((((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask);
             ++wOffset;
           } else {
-            adc = data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset);
+            **out++ = SiStripRawDigi((data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask);
           }
-          **out++ = SiStripRawDigi((adc & mask));  // TODO move back up
           if (bOffset == BITS_PER_BYTE) {
             bOffset = 0;
             ++wOffset;
@@ -275,7 +273,7 @@ namespace sistrip {
         constexpr uint16_t mask = (1 << num_bits) - 1;
         const uint8_t* data = channel.data();
         uint_fast16_t wOffset = channel.offset() + headerLength;  // header is 2 (lite) or 7
-        uint_fast16_t bOffset = 0;
+        uint_fast8_t bOffset = 0;
         if (channel.length() & 0xF000) {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
@@ -403,16 +401,15 @@ namespace sistrip {
       auto st = StatusCode::SUCCESS;
       if (PACKET_CODE_VIRGIN_RAW == packetCode) {
         samples.reserve((channel.length() - 3) / 2);
-        st = detail::unpackRawW<16>(channel, out);
+        st = detail::unpackRawW<16>(channel, std::back_inserter(samples));
       } else if (PACKET_CODE_VIRGIN_RAW10 == packetCode) {
         samples.reserve((channel.length() - 3) * 10 / 8);
-        st = detail::unpackRawB<10>(channel, out);
+        st = detail::unpackRawB<10>(channel, std::back_inserter(samples));
       } else if (PACKET_CODE_VIRGIN_RAW8_BOTBOT == packetCode || PACKET_CODE_VIRGIN_RAW8_TOPBOT == packetCode) {
         samples.reserve(channel.length() - 3);
-        st = detail::unpackRawW<8>(channel, out, (PACKET_CODE_VIRGIN_RAW8_BOTBOT == packetCode ? 2 : 1));
+        st = detail::unpackRawW<8>(channel, std::back_inserter(samples), (PACKET_CODE_VIRGIN_RAW8_BOTBOT == packetCode ? 2 : 1));
       }
-      if (!samples.empty()) {
-        // reorder
+      if (!samples.empty()) { // reorder
         for (uint_fast16_t i{0}; i != samples.size(); ++i) {
           const auto physical = i % 128;
           uint16_t readout = detail::readoutOrder(physical);             // convert index from physical to readout order
