@@ -277,7 +277,9 @@ namespace sistrip {
         else
           smode << lmode;
         LogDebug("SiStripRawToDigi")
-          << "Unpacking " << ( (!legacy_)? "" : "legacy ") << "data in mode " << smode.str();
+          << "Unpacking FED " << *ifed << " channel " << iconn->fedCh()
+          << ( (!legacy_)? " " : " legacy ") << "data in mode " << smode.str()
+          << " for module " << iconn->detId() << " pair " << ipair;
 #endif
         if (FEDChannelUnpacker::isZeroSuppressed(mode, legacy_, lmode)) {
           Registry regItem(key, 0, zs_work_digis_.size(), 0);
@@ -323,9 +325,10 @@ namespace sistrip {
           auto st_ch = FEDChannelUnpacker::StatusCode::SUCCESS;
           if (FEDChannelUnpacker::isVirginRaw(mode, legacy_, lmode)) {
             Registry regItem(key, 256 * ipair, virgin_work_digis_.size(), 0);
+            LogDebug("SiStripRawToDigi")
+              << "Virgin raw packet code: 0x" << std::hex << uint16_t(buffer.packetCode(legacy_)) << "  0x" << uint16_t(fedChannel.packetCode()) << std::dec;
             st_ch = FEDChannelUnpacker::unpackVirginRaw(
                 fedChannel, std::back_inserter(virgin_work_digis_), buffer.packetCode(legacy_));
-            // TODO check if this is the channel's packet code
             if (regItem.index != virgin_work_digis_.size()) {
               regItem.length = virgin_work_digis_.size() - regItem.index;
               virgin_work_registry_.push_back(regItem);
