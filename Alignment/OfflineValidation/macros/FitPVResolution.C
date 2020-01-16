@@ -20,7 +20,7 @@
 #include <map>
 #include <regex>
 #include <unordered_map>
-
+#define PLOTTING_MACRO  // to remove message logger
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 #include "Alignment/OfflineValidation/macros/CMS_lumi.C"
 
