@@ -130,7 +130,7 @@ namespace sistrip {
           ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
              << " Found FED id " << std::setw(4) << std::setfill(' ') << *ifed << " in FEDRawDataCollection"
              << " with non-zero pointer 0x" << std::hex << std::setw(8) << std::setfill('0')
-             << reinterpret_cast<uint32_t*>(const_cast<uint8_t*>(input.data())) << std::dec << " and size "
+             << reinterpret_cast<const uint32_t*>(input.data()) << std::dec << " and size "
              << std::setw(5) << std::setfill(' ') << input.size() << " chars";
           LogTrace("SiStripRawToDigi") << ss.str();
         }
@@ -721,7 +721,7 @@ namespace sistrip {
                                      SiStripEventSummary& summary,
                                      const uint32_t& event) {
     // Pointer to data (recast as 32-bit words) and number of 32-bit words
-    uint32_t* data_u32 = nullptr;
+    const uint32_t* data_u32 = nullptr;
     uint32_t size_u32 = 0;
 
     // Search mode
@@ -730,8 +730,8 @@ namespace sistrip {
       while (triggerFedId_ < 0 && ifed < 1 + FEDNumbering::lastFEDId()) {
         const FEDRawData& trigger_fed = buffers.FEDData(ifed);
         if (trigger_fed.data() && trigger_fed.size()) {
-          uint8_t* temp = const_cast<uint8_t*>(trigger_fed.data());
-          data_u32 = reinterpret_cast<uint32_t*>(temp) + FEDHeader::length / sizeof(uint32_t) + 1;
+          const uint8_t* temp = trigger_fed.data();
+          data_u32 = reinterpret_cast<const uint32_t*>(temp) + FEDHeader::length / sizeof(uint32_t) + 1;
           size_u32 = trigger_fed.size() / sizeof(uint32_t) - FEDHeader::length / sizeof(uint32_t) - 1;
           const FEDTrailer fedTrailer(temp + trigger_fed.size() - FEDTrailer::length);
           if (fedTrailer.conscheck() == 0xDEADFACE) {
@@ -763,8 +763,8 @@ namespace sistrip {
     else if (triggerFedId_ > 0) {
       const FEDRawData& trigger_fed = buffers.FEDData(triggerFedId_);
       if (trigger_fed.data() && trigger_fed.size()) {
-        uint8_t* temp = const_cast<uint8_t*>(trigger_fed.data());
-        data_u32 = reinterpret_cast<uint32_t*>(temp) + FEDHeader::length / sizeof(uint32_t) + 1;
+        const uint8_t* temp = trigger_fed.data();
+        data_u32 = reinterpret_cast<const uint32_t*>(temp) + FEDHeader::length / sizeof(uint32_t) + 1;
         size_u32 = trigger_fed.size() / sizeof(uint32_t) - FEDHeader::length / sizeof(uint32_t) - 1;
         const FEDTrailer fedTrailer(temp + trigger_fed.size() - FEDTrailer::length);
         if (fedTrailer.conscheck() != 0xDEADFACE) {
@@ -812,7 +812,7 @@ namespace sistrip {
 
       // Write commissioning information to event
       uint32_t hsize = sizeof(TFHeaderDescription) / sizeof(uint32_t);
-      uint32_t* head = &data_u32[hsize];
+      const uint32_t* head = &data_u32[hsize];
       summary.commissioningInfo(head, event);
       summary.triggerFed(triggerFedId_);
     }
@@ -850,8 +850,8 @@ namespace sistrip {
     while (ichar < input.size() - 16 && !found) {
       uint16_t offset =
           headerBytes_ < 0 ? ichar : headerBytes_;  // Negative value means use "search mode" to find DAQ header
-      uint32_t* input_u32 = reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(input.data()) + offset);
-      uint32_t* fed_trailer = reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(input.data()) + input.size() - 8);
+      const uint32_t* input_u32 = reinterpret_cast<const uint32_t*>(input.data() + offset);
+      const uint32_t* fed_trailer = reinterpret_cast<const uint32_t*>(input.data() + input.size() - 8);
 
       // see info on FED 32-bit swapping at end-of-file
 
@@ -889,7 +889,7 @@ namespace sistrip {
           // Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset'
           found = true;
           output.resize(input.size() - offset);
-          uint32_t* output_u32 = reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(output.data()));
+          uint32_t* output_u32 = reinterpret_cast<uint32_t*>(output.data());
           uint16_t iter = offset;
           while (iter < output.size() / sizeof(uint32_t)) {
             output_u32[iter] = input_u32[iter + 1];
@@ -945,7 +945,7 @@ namespace sistrip {
           ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
              << " DAQ header not found within buffer for FED id: " << fed_id;
         } else {
-          uint32_t* input_u32 = reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(input.data()));
+          const uint32_t* input_u32 = reinterpret_cast<const uint32_t*>(input.data());
           ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
              << " DAQ header not found at expected location for FED id: " << fed_id << std::endl
              << " First 64-bit word of buffer is 0x" << std::hex << std::setfill('0') << std::setw(8) << input_u32[0]
@@ -1008,7 +1008,7 @@ namespace sistrip {
        << " Buffer contains " << buffer.size() << " bytes (NB: payload is byte-swapped)" << std::endl;
 
     if (false) {
-      uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(buffer.data()));
+      const uint32_t* buffer_u32 = reinterpret_cast<const uint32_t*>(buffer.data());
       unsigned int empty = 0;
 
       ss << "Byte->   4 5 6 7 0 1 2 3\n";
