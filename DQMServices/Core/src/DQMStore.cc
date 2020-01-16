@@ -13,7 +13,19 @@
 
 namespace dqm::implementation {
 
-  std::string const& NavigatorBase::pwd() { return cwd_; }
+  std::string NavigatorBase::pwd() {
+    if (cwd_.empty()) {
+      return "";
+    } else {
+      // strip trailing slash.
+      // This is inefficient and error prone (callers need to do the same
+      // branching to re-add the "/"!) but some legacy code expects it like
+      // that and is to complicated to change.
+      assert(cwd_[cwd_.size()-1] == '/');
+      auto pwd = cwd_.substr(0, cwd_.size() - 1);
+      return pwd;
+    }
+  }
   void NavigatorBase::cd() { setCurrentFolder(""); }
   void NavigatorBase::cd(std::string const& dir) { setCurrentFolder(dir); }
   void NavigatorBase::goUp() { cd(cwd_ + ".."); }
@@ -53,7 +65,7 @@ namespace dqm::implementation {
                                   std::function<TH1*()> makeobject,
                                   bool forceReplace /* = false */) {
     MonitorElementData::Path path;
-    std::string fullpath = pwd() + std::string(name.View());
+    std::string fullpath = cwd_ + std::string(name.View());
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
 
     // We should check if there is a local ME for this module and name already.
