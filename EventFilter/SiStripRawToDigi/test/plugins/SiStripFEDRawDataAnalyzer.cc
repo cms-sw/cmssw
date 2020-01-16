@@ -67,8 +67,7 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
 
   for (uint16_t ifed = 0; ifed <= sistrip::CMS_FED_ID_MAX; ++ifed) {
     const FEDRawData& fed = buffers->FEDData(static_cast<int>(ifed));
-    uint8_t* data = const_cast<uint8_t*>(fed.data());  // look for trigger fed
-    FEDTrailer* fed_trailer = reinterpret_cast<FEDTrailer*>(data + fed.size() - sizeof(FEDTrailer));
+    const FEDTrailer* fed_trailer = reinterpret_cast<const FEDTrailer*>(fed.data() + fed.size() - sizeof(FEDTrailer));
     if (fed.size() && fed_trailer->check()) {
       trg_feds.push_back(Fed(ifed, fed.size()));
     } else {
