@@ -4,14 +4,11 @@
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
 #include "CommonTools/PileupAlgos/interface/RecoObj.h"
 #include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class PuppiContainer {
 public:
   PuppiContainer(const edm::ParameterSet &iConfig);
   ~PuppiContainer();
-  static void fillDescriptionsPuppiContainer(edm::ParameterSetDescription &desc);
   void initialize(const std::vector<RecoObj> &iRecoObjects);
   void setNPV(int iNPV) { fNPV = iNPV; }
 
