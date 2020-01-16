@@ -64,7 +64,7 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
         #    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
     ))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50000) )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
@@ -75,11 +75,13 @@ process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/express/Run2017E/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/303/832/00000/02800A3F-31A1-E711-8DD1-02163E011E71.root',
-        '/store/express/Run2017E/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/303/832/00000/04F52DB5-E3A1-E711-A96E-02163E01390D.root',
-        '/store/express/Run2017E/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/303/832/00000/062DACC5-E3A1-E711-A664-02163E01A36F.root',
-        '/store/express/Run2017E/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/303/832/00000/06A8A611-41A1-E711-B399-02163E019B55.root',
-        '/store/express/Run2017E/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/303/832/00000/083C9E2E-E1A1-E711-80A0-02163E01A31D.root',
+        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/A8A78033-B18D-E811-9477-02163E019F55.root',
+        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/B09C5228-B18D-E811-9271-FA163E573834.root',
+        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/C28F8F68-B18D-E811-BC8A-FA163EE8669D.root',
+        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/12BDA2F4-BC8D-E811-BEF2-02163E00C3F8.root',
+        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/788386DF-BC8D-E811-AE14-FA163EC41EB1.root',
+        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/608E8A35-B18D-E811-93ED-FA163E8674D5.root',
+        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/E03C67DD-BC8D-E811-BBF6-FA163EF274DA.root',
     )
 )
 
