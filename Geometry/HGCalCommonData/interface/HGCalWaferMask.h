@@ -24,7 +24,7 @@ public:
                                          const double& delX,
                                          const double& delY,
                                          const double& rin,
-                                          const double& rout,
+                                         const double& rout,
                                          const int& NW,
                                          const int& mode);
   static const int k_OffsetRotation = 10;
