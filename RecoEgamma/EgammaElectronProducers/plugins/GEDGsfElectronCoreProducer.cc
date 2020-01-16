@@ -50,7 +50,7 @@ void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &even
     produceElectronCore(pfCand, electrons, ctfTracksHandle);
   }
 
-  event.emplace(putToken_, electrons);
+  event.emplace(putToken_, std::move(electrons));
 }
 
 void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pfCandidate,

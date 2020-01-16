@@ -27,9 +27,15 @@ private:
   const edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksToken_;
   const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksToken_;
   const edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
+
   const edm::EDPutTokenT<reco::GsfElectronCoreCollection> putToken_;
 };
-using namespace reco;
+
+using reco::ElectronSeedRef;
+using reco::GsfPFRecTrackCollection;
+using reco::GsfTrackCollection;
+using reco::SuperClusterRef;
+using reco::TrackCollection;
 
 void GsfElectronCoreEcalDrivenProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -65,12 +71,12 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
     }
   }
 
-  event.emplace(putToken_, electrons);
+  event.emplace(putToken_, std::move(electrons));
 }
 
 void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore(
-    const GsfTrackRef& gsfTrackRef,
-    GsfElectronCoreCollection& electrons,
+    const reco::GsfTrackRef& gsfTrackRef,
+    reco::GsfElectronCoreCollection& electrons,
     edm::Handle<TrackCollection> const& ctfTracksHandle) const {
   electrons.emplace_back(gsfTrackRef);
   auto& eleCore = electrons.back();
