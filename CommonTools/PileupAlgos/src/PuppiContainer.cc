@@ -27,6 +27,12 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
   }
 }
 
+// ------------------------------------------------------------------------------------------
+void PuppiContainer::fillDescriptionsPuppiContainer(edm::ParameterSetDescription& desc) {
+  desc.add<double>("PtMaxNeutrals", 200.);
+  desc.add<double>("PtMaxNeutralsStartSlope", 0.);
+}
+
 void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
   //Clear everything
   fPFParticles.resize(0);

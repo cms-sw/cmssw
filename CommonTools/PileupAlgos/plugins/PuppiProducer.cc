@@ -31,8 +31,6 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fEtaMaxCharged = iConfig.getParameter<double>("EtaMaxCharged");
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
-  fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
-  fPtMaxNeutralsStartSlope = iConfig.getParameter<double>("PtMaxNeutralsStartSlope");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
   fUseWeightsNoLep = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
@@ -160,9 +158,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             pReco.id = 1;
           } else if (tmpFromPV == 1 || tmpFromPV == 2) {
             pReco.id = 0;
-            if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+            if (pReco.pt > fPtMaxCharged)
               pReco.id = 1;
-            else if ((fEtaMaxCharged > 0) and (std::abs(pReco.eta) > fEtaMaxCharged))
+            else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
             else if (fUseDZ)
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
@@ -191,9 +189,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           } else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) ||
                      lPack->fromPV() == (pat::PackedCandidate::PVLoose)) {
             pReco.id = 0;
-            if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+            if (pReco.pt > fPtMaxCharged)
               pReco.id = 1;
-            else if ((fEtaMaxCharged > 0) and (std::abs(pReco.eta) > fEtaMaxCharged))
+            else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
             else if (fUseDZ)
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
@@ -355,12 +353,10 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<double>("DeltaZCut", 0.3);
-  desc.add<double>("PtMaxCharged", 0.);
-  desc.add<double>("EtaMaxCharged", 0.);
+  desc.add<double>("PtMaxCharged", 7000.);
+  desc.add<double>("EtaMaxCharged", 10.);
   desc.add<double>("PtMaxPhotons", 0.);
   desc.add<double>("EtaMaxPhotons", 2.5);
-  desc.add<double>("PtMaxNeutrals", 200.);
-  desc.add<double>("PtMaxNeutralsStartSlope", 0.);
   desc.add<bool>("useExistingWeights", false);
   desc.add<bool>("useWeightsNoLep", false);
   desc.add<bool>("clonePackedCands", false);
@@ -374,6 +370,7 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("MinPuppiWeight", .01);
 
   PuppiAlgo::fillDescriptionsPuppiAlgo(desc);
+  PuppiContainer::fillDescriptionsPuppiContainer(desc);
 
   descriptions.add("PuppiProducer", desc);
 }
