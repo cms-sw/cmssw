@@ -20,7 +20,7 @@ namespace {
 
     RunBasedHistograms()
         :  // overall event count and event types
-          events_processed(),
+          events_processed(nullptr),
           element_array() {}
   };
 }  // namespace
@@ -63,7 +63,6 @@ DaqTestHistograms::DaqTestHistograms(edm::ParameterSet const &config)
 void DaqTestHistograms::dqmBeginRun(edm::Run const &run,
                                     edm::EventSetup const &setup,
                                     RunBasedHistograms &histograms) const {
-  histograms.events_processed->Reset();
   histograms.element_array.resize(m_num_histograms);
 }
 
