@@ -73,54 +73,32 @@ namespace testinter {
     TBufferFile bufferFile_;
   };
 
-  struct StreamCache {
-    StreamCache(const char* iConfig, int id)
+  class ControllerChannel {
+  public:
+    ControllerChannel(std::string const& iName, int id)
         : id_{id},
-          managed_sm_{open_or_create, unique_name("testProd").c_str(), 1024},
+          managed_sm_{open_or_create, unique_name(iName).c_str(), 1024},
           bufferIndex_{bufferIndex(managed_sm_)},
-          readBuffer_{unique_name("testProd").c_str(), bufferIndex_},
           named_mtx_{open_or_create, unique_name("mtx").c_str()},
           named_cndFromMain_{open_or_create, unique_name("cndFromMain").c_str()},
-          named_cndToMain_{open_or_create, unique_name("cndToMain").c_str()},
-          deserializer_{readBuffer_},
-          br_deserializer_{readBuffer_},
-          er_deserializer_{readBuffer_},
-          bl_deserializer_{readBuffer_},
-          el_deserializer_(readBuffer_) {
-      managed_sm_.destroy<bool>(unique_name("stop").c_str());
-      stop_ = managed_sm_.construct<bool>(unique_name("stop").c_str())(false);
+          named_cndToMain_{open_or_create, unique_name("cndToMain").c_str()} {
+      managed_sm_.destroy<bool>("stop");
+      stop_ = managed_sm_.construct<bool>("stop")(false);
       assert(stop_);
 
-      managed_sm_.destroy<edm::Transition>(unique_name("transitionType").c_str());
-      transitionType_ = managed_sm_.construct<edm::Transition>(unique_name("transitionType").c_str())(
-          edm::Transition::NumberOfTransitions);
+      managed_sm_.destroy<edm::Transition>("transitionType");
+      transitionType_ = managed_sm_.construct<edm::Transition>("transitionType")(edm::Transition::NumberOfTransitions);
       assert(transitionType_);
 
-      managed_sm_.destroy<unsigned long long>(unique_name("transitionID").c_str());
-      transitionID_ = managed_sm_.construct<unsigned long long>(unique_name("transitionID").c_str())(0);
+      managed_sm_.destroy<unsigned long long>("transitionID");
+      transitionID_ = managed_sm_.construct<unsigned long long>("transitionID")(0);
       assert(transitionID_);
+    }
 
-      //make sure output is flushed before popen does any writing
-      fflush(stdout);
-      fflush(stderr);
-
+    template <typename F>
+    void setupWorker(F&& iF) {
       scoped_lock<named_mutex> lock(named_mtx_);
-      std::cout << id_ << " starting external process" << std::endl;
-      pipe_ = popen(unique_name("cmsInterProcess testProd ").c_str(), "w");
-
-      if (NULL == pipe_) {
-        abort();
-      }
-
-      {
-        auto length = strlen(iConfig);
-        auto nlines = std::to_string(std::count(iConfig, iConfig + length, '\n'));
-        auto result = fwrite(nlines.data(), sizeof(char), nlines.size(), pipe_);
-        assert(result = nlines.size());
-        result = fwrite(iConfig, sizeof(char), strlen(iConfig), pipe_);
-        assert(result == strlen(iConfig));
-        fflush(pipe_);
-      }
+      iF();
       using namespace boost::posix_time;
       std::cout << id_ << " waiting for external process" << std::endl;
 
@@ -132,82 +110,163 @@ namespace testinter {
       }
     }
 
-    edmtest::ThingCollection produce(unsigned long long iTransitionID) {
+    template <typename F>
+    bool doTransition(F&& iF, edm::Transition iTrans, unsigned long long iTransitionID) {
       std::cout << id_ << " taking from lock" << std::endl;
       scoped_lock<named_mutex> lock(named_mtx_);
 
-      wait(lock, edm::Transition::Event, iTransitionID);
+      if (not wait(lock, iTrans, iTransitionID)) {
+        return false;
+      }
 
-      auto value = deserializer_.deserialize();
-      std::cout << id_ << " from shared memory " << value.size() << std::endl;
-      return value;
+      iF();
+      return true;
     }
 
-    edmtest::ThingCollection beginRunProduce(unsigned long long iTransitionID) {
-      std::cout << id_ << " taking from lock" << std::endl;
+    char* bufferIndex() { return bufferIndex_; }
+
+    void stopWorker() {
       scoped_lock<named_mutex> lock(named_mtx_);
-
-      wait(lock, edm::Transition::BeginRun, iTransitionID);
-
-      auto value = br_deserializer_.deserialize();
-      std::cout << id_ << " from shared memory " << value.size() << std::endl;
-      return value;
+      *stop_ = true;
+      named_cndFromMain_.notify_all();
     }
 
-    edmtest::ThingCollection endRunProduce(unsigned long long iTransitionID) {
-      if (not externalFailed_) {
-        std::cout << id_ << " taking from lock" << std::endl;
-        scoped_lock<named_mutex> lock(named_mtx_);
-
-        wait(lock, edm::Transition::EndRun, iTransitionID);
-
-        auto value = er_deserializer_.deserialize();
-        std::cout << id_ << " from shared memory " << value.size() << std::endl;
-        return value;
-      }
-      return edmtest::ThingCollection();
-    }
-
-    edmtest::ThingCollection beginLumiProduce(unsigned long long iTransitionID) {
-      std::cout << id_ << " taking from lock" << std::endl;
-      scoped_lock<named_mutex> lock(named_mtx_);
-
-      wait(lock, edm::Transition::BeginLuminosityBlock, iTransitionID);
-
-      auto value = bl_deserializer_.deserialize();
-      std::cout << id_ << " from shared memory " << value.size() << std::endl;
-      return value;
-    }
-
-    edmtest::ThingCollection endLumiProduce(unsigned long long iTransitionID) {
-      if (not externalFailed_) {
-        std::cout << id_ << " taking from lock" << std::endl;
-        scoped_lock<named_mutex> lock(named_mtx_);
-
-        wait(lock, edm::Transition::EndLuminosityBlock, iTransitionID);
-
-        auto value = el_deserializer_.deserialize();
-        std::cout << id_ << " from shared memory " << value.size() << std::endl;
-        return value;
-      }
-      return edmtest::ThingCollection();
-    }
-
-    ~StreamCache() {
-      {
-        scoped_lock<named_mutex> lock(named_mtx_);
-        *stop_ = true;
-        named_cndFromMain_.notify_all();
-      }
-      pclose(pipe_);
-      managed_sm_.destroy<bool>(unique_name("stop").c_str());
-      managed_sm_.destroy<unsigned int>(unique_name("transitionType").c_str());
-      managed_sm_.destroy<unsigned long long>(unique_name("transitionID").c_str());
+    ~ControllerChannel() {
+      managed_sm_.destroy<bool>("stop");
+      managed_sm_.destroy<unsigned int>("transitionType");
+      managed_sm_.destroy<unsigned long long>("transitionID");
       managed_sm_.destroy<char>("bufferIndex");
 
       named_mutex::remove(unique_name("mtx").c_str());
       named_condition::remove(unique_name("cndFromMain").c_str());
       named_condition::remove(unique_name("cndToMain").c_str());
+    }
+
+  private:
+    static char* bufferIndex(managed_shared_memory& mem) {
+      mem.destroy<char>("bufferIndex");
+      char* v = mem.construct<char>("bufferIndex")();
+      return v;
+    }
+
+    std::string unique_name(std::string iBase) {
+      auto pid = getpid();
+      iBase += std::to_string(pid);
+      iBase += "_";
+      iBase += std::to_string(id_);
+
+      return iBase;
+    }
+
+    bool wait(scoped_lock<named_mutex>& lock, edm::Transition iTrans, unsigned long long iTransID) {
+      *transitionType_ = iTrans;
+      *transitionID_ = iTransID;
+      {
+        std::cout << id_ << " notifying" << std::endl;
+        named_cndFromMain_.notify_all();
+      }
+
+      std::cout << id_ << " waiting" << std::endl;
+      using namespace boost::posix_time;
+      if (not named_cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
+        return false;
+      }
+      return true;
+    }
+
+    int id_;
+    managed_shared_memory managed_sm_;
+    char* bufferIndex_;
+
+    named_mutex named_mtx_;
+    named_condition named_cndFromMain_;
+
+    named_condition named_cndToMain_;
+
+    edm::Transition* transitionType_;
+    unsigned long long* transitionID_;
+    bool* stop_;
+  };
+  struct StreamCache {
+    StreamCache(const char* iConfig, int id)
+        : id_{id},
+          channel_("testProd", id_),
+          readBuffer_{unique_name("testProd").c_str(), channel_.bufferIndex()},
+          deserializer_{readBuffer_},
+          br_deserializer_{readBuffer_},
+          er_deserializer_{readBuffer_},
+          bl_deserializer_{readBuffer_},
+          el_deserializer_(readBuffer_) {
+      //make sure output is flushed before popen does any writing
+      fflush(stdout);
+      fflush(stderr);
+
+      channel_.setupWorker([&]() {
+        std::cout << id_ << " starting external process" << std::endl;
+        pipe_ = popen(unique_name("cmsInterProcess testProd ").c_str(), "w");
+
+        if (NULL == pipe_) {
+          abort();
+        }
+
+        {
+          auto length = strlen(iConfig);
+          auto nlines = std::to_string(std::count(iConfig, iConfig + length, '\n'));
+          auto result = fwrite(nlines.data(), sizeof(char), nlines.size(), pipe_);
+          assert(result = nlines.size());
+          result = fwrite(iConfig, sizeof(char), strlen(iConfig), pipe_);
+          assert(result == strlen(iConfig));
+          fflush(pipe_);
+        }
+      });
+    }
+
+    template <typename SERIAL>
+    auto doTransition(SERIAL& iDeserializer, edm::Transition iTrans, unsigned long long iTransitionID)
+        -> decltype(iDeserializer.deserialize()) {
+      decltype(iDeserializer.deserialize()) value;
+      if (not channel_.doTransition(
+              [&value, this]() {
+                value = deserializer_.deserialize();
+                std::cout << id_ << " from shared memory " << value.size() << std::endl;
+              },
+              iTrans,
+              iTransitionID)) {
+        std::cout << id_ << " FAILED waiting for external process" << std::endl;
+        externalFailed_ = true;
+        throw cms::Exception("ExternalFailed");
+      }
+      return value;
+    }
+    edmtest::ThingCollection produce(unsigned long long iTransitionID) {
+      return doTransition(deserializer_, edm::Transition::Event, iTransitionID);
+    }
+
+    edmtest::ThingCollection beginRunProduce(unsigned long long iTransitionID) {
+      return doTransition(br_deserializer_, edm::Transition::BeginRun, iTransitionID);
+    }
+
+    edmtest::ThingCollection endRunProduce(unsigned long long iTransitionID) {
+      if (not externalFailed_) {
+        return doTransition(er_deserializer_, edm::Transition::EndRun, iTransitionID);
+      }
+      return edmtest::ThingCollection();
+    }
+
+    edmtest::ThingCollection beginLumiProduce(unsigned long long iTransitionID) {
+      return doTransition(bl_deserializer_, edm::Transition::BeginLuminosityBlock, iTransitionID);
+    }
+
+    edmtest::ThingCollection endLumiProduce(unsigned long long iTransitionID) {
+      if (not externalFailed_) {
+        return doTransition(el_deserializer_, edm::Transition::EndLuminosityBlock, iTransitionID);
+      }
+      return edmtest::ThingCollection();
+    }
+
+    ~StreamCache() {
+      channel_.stopWorker();
+      pclose(pipe_);
     }
 
   private:
@@ -220,50 +279,16 @@ namespace testinter {
       return iBase;
     }
 
-    void wait(scoped_lock<named_mutex>& lock, edm::Transition iTrans, unsigned long long iTransID) {
-      *transitionType_ = iTrans;
-      *transitionID_ = iTransID;
-      {
-        std::cout << id_ << " notifying" << std::endl;
-        named_cndFromMain_.notify_all();
-      }
-
-      std::cout << id_ << " waiting" << std::endl;
-      using namespace boost::posix_time;
-      if (not named_cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
-        std::cout << id_ << " FAILED waiting for external process" << std::endl;
-        externalFailed_ = true;
-        throw cms::Exception("ExternalFailed");
-      }
-      //named_cndToMain_.timed_wait(lock);
-      //named_cndToMain_.wait(lock);
-    }
-    static char* bufferIndex(managed_shared_memory& mem) {
-      mem.destroy<char>("bufferIndex");
-      char* v = mem.construct<char>("bufferIndex")();
-      return v;
-    }
-
     int id_;
     FILE* pipe_;
-
-    managed_shared_memory managed_sm_;
-    char* bufferIndex_;
+    ControllerChannel channel_;
     SMReadBuffer readBuffer_;
-
-    named_mutex named_mtx_;
-    named_condition named_cndFromMain_;
-
-    named_condition named_cndToMain_;
 
     testinter::Deserializer<edmtest::ThingCollection> deserializer_;
     testinter::Deserializer<edmtest::ThingCollection> br_deserializer_;
     testinter::Deserializer<edmtest::ThingCollection> er_deserializer_;
     testinter::Deserializer<edmtest::ThingCollection> bl_deserializer_;
     testinter::Deserializer<edmtest::ThingCollection> el_deserializer_;
-    edm::Transition* transitionType_;
-    unsigned long long* transitionID_;
-    bool* stop_;
     bool externalFailed_ = false;
   };
 
