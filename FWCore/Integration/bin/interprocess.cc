@@ -185,6 +185,50 @@ namespace {
     }
     std::cerr << "Ending cleanup thread\n";
   }
+
+  class WorkerChannel {
+  public:
+    WorkerChannel(std::string const& iName, const std::string& iUniqueID)
+        : managed_shm_{open_only, iName.c_str()},
+          mutex_{open_or_create, unique_name("mtx", iUniqueID).c_str()},
+          cndFromController_{open_or_create, unique_name("cndFromMain", iUniqueID).c_str()},
+          stop_{managed_shm_.find<bool>("stop").first},
+          transitionType_{managed_shm_.find<edm::Transition>("transitionType").first},
+          transitionID_{managed_shm_.find<unsigned long long>("transitionID").first},
+          bufferIndex_{managed_shm_.find<char>("bufferIndex").first},
+          cndToController_{open_or_create, unique_name("cndToMain", iUniqueID).c_str()},
+          lock_{mutex_} {
+      assert(stop_);
+      assert(transitionType_);
+      assert(transitionID_);
+      assert(bufferIndex_);
+    }
+
+    scoped_lock<named_mutex>* accessLock() { return &lock_; }
+    char* bufferIndex() { return bufferIndex_; }
+
+    edm::Transition transition() const noexcept { return *transitionType_; }
+    unsigned long long transitionID() const noexcept { return *transitionID_; }
+
+    void notifyController() { cndToController_.notify_all(); }
+
+    void waitForController() { cndFromController_.wait(lock_); }
+
+    bool stopRequested() const noexcept { return *stop_; }
+
+  private:
+    managed_shared_memory managed_shm_;
+
+    named_mutex mutex_;
+    named_condition cndFromController_;
+    bool* stop_;
+    edm::Transition* transitionType_;
+    unsigned long long* transitionID_;
+    char* bufferIndex_;
+    named_condition cndToController_;
+    scoped_lock<named_mutex> lock_;
+  };
+
 }  // namespace
 
 int main(int argc, char* argv[]) {
@@ -260,25 +304,13 @@ int main(int argc, char* argv[]) {
       using namespace boost::interprocess;
       auto controlNameUnique = unique_name(memoryName, uniqueID);
 
-      managed_shared_memory managed_shm{open_only, controlNameUnique.c_str()};
+      //This class is holding the lock
+      WorkerChannel communicationChannel(controlNameUnique, uniqueID);
 
-      named_mutex named_mtx{open_or_create, unique_name("mtx", uniqueID).c_str()};
-      named_condition named_cndFromMain{open_or_create, unique_name("cndFromMain", uniqueID).c_str()};
-      std::pair<bool*, std::size_t> sm_stop = managed_shm.find<bool>(unique_name("stop", uniqueID).c_str());
-      std::pair<edm::Transition*, std::size_t> sm_transitionType =
-          managed_shm.find<edm::Transition>(unique_name("transitionType", uniqueID).c_str());
-      assert(sm_transitionType.first);
-      std::pair<unsigned long long*, std::size_t> sm_transitionID =
-          managed_shm.find<unsigned long long>(unique_name("transitionID", uniqueID).c_str());
-      std::pair<char*, std::size_t> sm_bufferIndex = managed_shm.find<char>("bufferIndex");
-
-      named_condition named_cndToMain{open_or_create, unique_name("cndToMain", uniqueID).c_str()};
-
-      SMWriteBuffer sm_buffer{controlNameUnique, sm_bufferIndex.first};
+      SMWriteBuffer sm_buffer{controlNameUnique, communicationChannel.bufferIndex()};
       int counter = 0;
 
-      scoped_lock<named_mutex> lock(named_mtx);
-      s_lock.store(&lock);
+      s_lock.store(communicationChannel.accessLock());
       std::cerr << uniqueID << " process: initializing " << std::endl;
       int nlines;
       std::cin >> nlines;
@@ -312,21 +344,21 @@ int main(int argc, char* argv[]) {
       Serializer<edmtest::ThingCollection> er_serializer(sm_buffer);
 
       std::cerr << uniqueID << " process: done initializing" << std::endl;
-      named_cndToMain.notify_all();
+      communicationChannel.notifyController();
       while (true) {
         {
           ++counter;
           std::cerr << uniqueID << " process: waiting " << counter << std::endl;
-          named_cndFromMain.wait(lock);
-          if (*sm_stop.first) {
+          communicationChannel.waitForController();
+          if (communicationChannel.stopRequested()) {
             break;
           }
         }
 
-        switch (*sm_transitionType.first) {
+        switch (communicationChannel.transition()) {
           case edm::Transition::BeginRun: {
             std::cerr << uniqueID << " process: start beginRun " << std::endl;
-            auto value = harness.getBeginRunValue(*sm_transitionID.first);
+            auto value = harness.getBeginRunValue(communicationChannel.transitionID());
 
             br_serializer.serialize(value);
             std::cerr << uniqueID << " process: end beginRun " << value.size() << std::endl;
@@ -335,7 +367,7 @@ int main(int argc, char* argv[]) {
           }
           case edm::Transition::BeginLuminosityBlock: {
             std::cerr << uniqueID << " process: start beginLumi " << std::endl;
-            auto value = harness.getBeginLumiValue(*sm_transitionID.first);
+            auto value = harness.getBeginLumiValue(communicationChannel.transitionID());
 
             bl_serializer.serialize(value);
             std::cerr << uniqueID << " process: end beginLumi " << value.size() << std::endl;
@@ -376,7 +408,7 @@ int main(int argc, char* argv[]) {
           }
         }
         std::cerr << uniqueID << " process: notifying " << counter << std::endl;
-        named_cndToMain.notify_all();
+        communicationChannel.notifyController();
       }
     }
   } catch (std::exception const& iExcept) {
