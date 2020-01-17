@@ -89,7 +89,8 @@ void PrintGeomInfoAction::update(const BeginOfJob *job) {
         G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
         for (int k = leafDepth - 1; k >= 0; k--)
           G4cout << " " << copy[k];
-        G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")" << G4endl;
+        G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
+               << G4endl;
         dodet = fv.next();
       }
     }
