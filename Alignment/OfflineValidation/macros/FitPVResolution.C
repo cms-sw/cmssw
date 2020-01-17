@@ -600,6 +600,10 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
   for (Int_t j = 0; j < nFiles_; j++) {
     // first canvas
 
+    p_resolX_vsSumPt_[j]->GetXaxis()->SetRangeUser(0., 200.);
+    p_resolY_vsSumPt_[j]->GetXaxis()->SetRangeUser(0., 200.);
+    p_resolZ_vsSumPt_[j]->GetXaxis()->SetRangeUser(0., 200.);
+
     c1->cd(1);
     j == 0 ? p_resolX_vsSumPt_[j]->Draw("E1") : p_resolX_vsSumPt_[j]->Draw("E1same");
     lego->AddEntry(p_resolX_vsSumPt_[j], LegLabels[j]);

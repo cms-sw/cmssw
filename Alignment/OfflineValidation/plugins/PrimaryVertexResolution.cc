@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    BeamSpotCalibration/PrimaryVertexResolution
+// Package:    Alignment/OfflineValidation
 // Class:      PrimaryVertexResolution
 //
 /**\class PrimaryVertexResolution PrimaryVertexResolution.cc Alignment/OfflineValidation/plugins/PrimaryVertexResolution.cc

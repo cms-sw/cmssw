@@ -29,24 +29,24 @@ options = VarParsing.VarParsing("analysis")
 options.register ('outputRootFile',
                   "pvresolution_test.root",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  VarParsing.VarParsing.varType.string,         # string, int, or float
                   "output root file")
 
 options.register ('records',
                   [],
-                  VarParsing.VarParsing.multiplicity.list, # singleton or list
+                  VarParsing.VarParsing.multiplicity.list,       # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "record:tag names to be used/changed from GT")
 
 options.register ('external',
                   [],
-                  VarParsing.VarParsing.multiplicity.list, # singleton or list
+                  VarParsing.VarParsing.multiplicity.list,       # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "record:fle.db picks the following record from this external file")
 
 options.register ('GlobalTag',
                   'auto:run2_data',
-                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Global Tag to be used")
 
@@ -56,6 +56,7 @@ print "conditionGT       : ", options.GlobalTag
 print "conditionOverwrite: ", options.records
 print "external conditions:", options.external
 print "outputFile        : ", options.outputRootFile
+print "maxEvents         : ", options.maxEvents
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
@@ -64,7 +65,7 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
         #    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
     ))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
@@ -136,6 +137,28 @@ process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLaye
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0 
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2   
 
+
+###################################################################
+# The trigger filter module
+###################################################################
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
+process.HLTFilter = triggerResultsFilter.clone(
+    #triggerConditions = cms.vstring("HLT_ZeroBias_*"),
+    triggerConditions = cms.vstring("HLT_HT*"),
+    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+    l1tResults = cms.InputTag( "" ),
+    throw = cms.bool(False)
+)
+###################################################################
+# The analysis module
+###################################################################
+process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
+                                    TkTag  = cms.string('TrackRefitter'),
+                                    isCosmics = cms.bool(False)
+                                    )
+###################################################################
+# The PV resolution module
+###################################################################
 process.PrimaryVertexResolution = cms.EDAnalyzer('PrimaryVertexResolution',
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		
@@ -148,9 +171,12 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(False)
                                    )
 
-process.p = cms.Path(process.offlineBeamSpot                        + 
-                     process.TrackRefitter                          + 
-                     process.offlinePrimaryVerticesFromRefittedTrks +
-                     process.PrimaryVertexResolution)
+process.p = cms.Path(process.HLTFilter                                +
+                     process.offlineBeamSpot                         +
+                     process.TrackRefitter                           +
+                     process.offlinePrimaryVerticesFromRefittedTrks  +
+                     process.PrimaryVertexResolution                 +
+                     process.myanalysis
+                     )
 
 
