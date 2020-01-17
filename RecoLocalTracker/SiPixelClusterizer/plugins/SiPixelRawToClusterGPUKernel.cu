@@ -47,8 +47,8 @@ namespace pixelgpudetails {
   constexpr uint32_t MAX_FED_WORDS = pixelgpudetails::MAX_FED * pixelgpudetails::MAX_WORD;
 
   SiPixelRawToClusterGPUKernel::WordFedAppender::WordFedAppender() {
-    word_ = cudautils::make_host_noncached_unique<unsigned int[]>(MAX_FED_WORDS, cudaHostAllocWriteCombined);
-    fedId_ = cudautils::make_host_noncached_unique<unsigned char[]>(MAX_FED_WORDS, cudaHostAllocWriteCombined);
+    word_ = cms::cuda::make_host_noncached_unique<unsigned int[]>(MAX_FED_WORDS, cudaHostAllocWriteCombined);
+    fedId_ = cms::cuda::make_host_noncached_unique<unsigned char[]>(MAX_FED_WORDS, cudaHostAllocWriteCombined);
   }
 
   void SiPixelRawToClusterGPUKernel::WordFedAppender::initializeWordFed(int fedId,
@@ -549,7 +549,7 @@ namespace pixelgpudetails {
     }
     clusters_d = SiPixelClustersCUDA(gpuClustering::MaxNumModules, stream);
 
-    nModules_Clusters_h = cudautils::make_host_unique<uint32_t[]>(2, stream);
+    nModules_Clusters_h = cms::cuda::make_host_unique<uint32_t[]>(2, stream);
 
     if (wordCounter)  // protect in case of empty event....
     {
@@ -558,8 +558,8 @@ namespace pixelgpudetails {
 
       assert(0 == wordCounter % 2);
       // wordCounter is the total no of words in each event to be trasfered on device
-      auto word_d = cudautils::make_device_unique<uint32_t[]>(wordCounter, stream);
-      auto fedId_d = cudautils::make_device_unique<uint8_t[]>(wordCounter, stream);
+      auto word_d = cms::cuda::make_device_unique<uint32_t[]>(wordCounter, stream);
+      auto fedId_d = cms::cuda::make_device_unique<uint8_t[]>(wordCounter, stream);
 
       cudaCheck(
           cudaMemcpyAsync(word_d.get(), wordFed.word(), wordCounter * sizeof(uint32_t), cudaMemcpyDefault, stream));

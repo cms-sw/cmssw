@@ -6,7 +6,7 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelGenError.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAESProduct.h"
+#include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
@@ -95,7 +95,7 @@ private:
     pixelCPEforGPU::ParamsOnGPU h_paramsOnGPU;
     pixelCPEforGPU::ParamsOnGPU *d_paramsOnGPU = nullptr;  // copy of the above on the Device
   };
-  CUDAESProduct<GPUData> gpuData_;
+  cms::cuda::ESProduct<GPUData> gpuData_;
 
   void fillParamsForGpu();
 };
