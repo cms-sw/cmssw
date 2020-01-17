@@ -17,6 +17,8 @@
 <use   name="DQMServices/Core"/>
 <use   name="CondFormats/BTauObjects"/>
 <use   name="CondTools/BTau"/>
+<use   name="fastjet"/>
+<use   name="fastjet-contrib"/>
 <library   file="*.cc" name="PhysicsToolsNanoAODPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
