@@ -14,8 +14,8 @@ using namespace hgcalsimclustertime;
 std::vector<size_t> decrease_sorted_indices(const std::vector<float>& v) {
   // initialize original index locations
   std::vector<size_t> idx(v.size());
-  for (size_t i = 0; i != idx.size(); ++i)
-    idx[i] = i;
+  std::iota(idx.begin(), idx.end(), 0);
+
   // sort indices based on comparing values in v (decreasing order)
   std::sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
   return idx;

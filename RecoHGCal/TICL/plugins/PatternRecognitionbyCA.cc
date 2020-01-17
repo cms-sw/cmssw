@@ -96,7 +96,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       if (retVal.second) {
         float time = input.layerClustersTime.get(outerCluster).first;
         if (time > -99) {
-          times.push_back(input.layerClustersTime.get(outerCluster).first);
+          times.push_back(time);
           timeErrors.push_back(1. / pow(input.layerClustersTime.get(outerCluster).second, 2));
         }
       }
