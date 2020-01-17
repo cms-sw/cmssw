@@ -34,50 +34,71 @@ namespace {
     return iBase;
   }
 
+  using namespace boost::interprocess;
+
+  class SMWriteBuffer {
+    std::size_t bufferSize_;
+    char* buffer_;
+    char* bufferIndex_;
+    std::array<std::string, 2> bufferNames_;
+    std::unique_ptr<managed_shared_memory> sm_;
+
+  public:
+    SMWriteBuffer(std::string const& iUniqueName, char* iBufferIndex)
+        : bufferSize_{0}, buffer_{nullptr}, bufferIndex_{iBufferIndex} {
+      bufferNames_[0] = iUniqueName + "buffer0";
+      bufferNames_[1] = iUniqueName + "buffer1";
+      assert(bufferIndex_);
+    }
+
+    ~SMWriteBuffer() {
+      if (sm_) {
+        sm_->destroy<char>("buffer");
+        sm_.reset();
+        shared_memory_object::remove(bufferNames_[*bufferIndex_].c_str());
+      }
+    }
+
+    void copyToBuffer(const char* iStart, std::size_t iLength) {
+      if (iLength > bufferSize_) {
+        growBuffer(iLength);
+      }
+      std::copy(iStart, iStart + iLength, buffer_);
+    }
+
+  private:
+    void growBuffer(std::size_t iLength) {
+      int newBuffer = (*bufferIndex_ + 1) % 2;
+      std::cerr << "growing buffer " << iLength << " new index " << newBuffer << "\n";
+      if (sm_) {
+        sm_->destroy<char>("buffer");
+        sm_.reset();
+        shared_memory_object::remove(bufferNames_[*bufferIndex_].c_str());
+      }
+      sm_ = std::make_unique<managed_shared_memory>(open_or_create, bufferNames_[newBuffer].c_str(), iLength + 1024);
+      assert(sm_.get());
+      bufferSize_ = iLength;
+      *bufferIndex_ = newBuffer;
+      buffer_ = sm_->construct<char>("buffer")[iLength](0);
+      assert(buffer_);
+    }
+  };
+
   template <typename T>
   class Serializer {
   public:
-    Serializer(boost::interprocess::managed_shared_memory& iSM,
-               std::string iSMName,
-               std::string const& iBase,
-               std::string_view ID)
-        : managed_shm_(&iSM),
-          smName_{std::move(iSMName)},
-          name_{unique_name(iBase, ID)},
-          class_{TClass::GetClass(typeid(T))},
-          bufferFile_{TBuffer::kWrite} {
-      buffer_ = managed_shm_->find<char>(name_.c_str());
-      assert(buffer_.first);
-      std::pair<bool*, std::size_t> sm_buffer_resized =
-          managed_shm_->find<bool>(unique_name(iBase + "_resize", ID).c_str());
-      buffer_resized_ = sm_buffer_resized.first;
-      assert(buffer_resized_);
-    }
+    Serializer(SMWriteBuffer& iBuffer)
+        : buffer_(iBuffer), class_{TClass::GetClass(typeid(T))}, bufferFile_{TBuffer::kWrite} {}
 
     void serialize(T& iValue) {
       bufferFile_.Reset();
       class_->WriteBuffer(bufferFile_, &iValue);
 
-      if (static_cast<unsigned long>(bufferFile_.Length()) > buffer_.second) {
-        managed_shm_->destroy<char>(name_.c_str());
-        //auto diff = bufferFile_.Length() - buffer_.second;
-        // can not grow an existing shared memory segment that is already mapped
-        //auto success = managed_shm_->grow(smName_.c_str(), diff);
-        //assert(success);
-
-        buffer_.first = managed_shm_->construct<char>(name_.c_str())[bufferFile_.Length()](0);
-        buffer_.second = bufferFile_.Length();
-        *buffer_resized_ = true;
-      }
-      std::copy(bufferFile_.Buffer(), bufferFile_.Buffer() + bufferFile_.Length(), buffer_.first);
+      buffer_.copyToBuffer(bufferFile_.Buffer(), bufferFile_.Length());
     }
 
   private:
-    boost::interprocess::managed_shared_memory* const managed_shm_;
-    std::string smName_;
-    std::string name_;
-    std::pair<char*, std::size_t> buffer_;
-    bool* buffer_resized_;
+    SMWriteBuffer& buffer_;
     TClass* const class_;
     TBufferFile bufferFile_;
   };
@@ -148,7 +169,7 @@ namespace {
     std::cerr << "Start loop\n";
     s_helperReady = true;
     while (not s_stopRequested.load()) {
-      sleep(30);
+      sleep(60);
       if (s_signal_happened) {
         auto v = s_lock.load();
         if (v) {
@@ -156,7 +177,7 @@ namespace {
           v->unlock();
         }
         s_helperThreadDone = true;
-        std::cerr << "SIGNAL CAUGHT\n";
+        std::cerr << "SIGNAL CAUGHT " << s_sig << "\n";
         break;
       } else {
         std::cerr << "SIGNAL woke\n";
@@ -213,6 +234,9 @@ int main(int argc, char* argv[]) {
   {
     //Setup watchdog thread for crashing signals
 
+    //Need to use signal handler since signals generated
+    // from within a program are thread specific which can
+    // only be handed by a signal handler
     struct sigaction act;
     act.sa_sigaction = sig_handler;
     act.sa_flags = 0;
@@ -234,8 +258,9 @@ int main(int argc, char* argv[]) {
     std::string const uniqueID(vm[kUniqueIDOpt].as<std::string>());
     {
       using namespace boost::interprocess;
-      auto memoryNameUnique = unique_name(memoryName, uniqueID);
-      managed_shared_memory managed_shm{open_only, memoryNameUnique.c_str()};
+      auto controlNameUnique = unique_name(memoryName, uniqueID);
+
+      managed_shared_memory managed_shm{open_only, controlNameUnique.c_str()};
 
       named_mutex named_mtx{open_or_create, unique_name("mtx", uniqueID).c_str()};
       named_condition named_cndFromMain{open_or_create, unique_name("cndFromMain", uniqueID).c_str()};
@@ -245,9 +270,11 @@ int main(int argc, char* argv[]) {
       assert(sm_transitionType.first);
       std::pair<unsigned long long*, std::size_t> sm_transitionID =
           managed_shm.find<unsigned long long>(unique_name("transitionID", uniqueID).c_str());
+      std::pair<char*, std::size_t> sm_bufferIndex = managed_shm.find<char>("bufferIndex");
 
       named_condition named_cndToMain{open_or_create, unique_name("cndToMain", uniqueID).c_str()};
 
+      SMWriteBuffer sm_buffer{controlNameUnique, sm_bufferIndex.first};
       int counter = 0;
 
       scoped_lock<named_mutex> lock(named_mtx);
@@ -267,22 +294,22 @@ int main(int argc, char* argv[]) {
       Harness harness(configuration);
 
       {
-        //Make sure TestProcessor did not reset the signal handlers
-        sigset_t ensemble;
-        sigemptyset(&ensemble);
-        sigaddset(&ensemble, SIGABRT);
-        sigaddset(&ensemble, SIGILL);
-        sigaddset(&ensemble, SIGBUS);
-        sigaddset(&ensemble, SIGSEGV);
-        sigaddset(&ensemble, SIGTERM);
-        sigprocmask(SIG_BLOCK, &ensemble, NULL);
+        struct sigaction act;
+        act.sa_sigaction = sig_handler;
+        act.sa_flags = 0;
+        sigemptyset(&act.sa_mask);
+        sigaction(SIGABRT, &act, nullptr);
+        sigaction(SIGILL, &act, nullptr);
+        sigaction(SIGBUS, &act, nullptr);
+        sigaction(SIGSEGV, &act, nullptr);
+        sigaction(SIGTERM, &act, nullptr);
       }
 
-      Serializer<edmtest::ThingCollection> serializer(managed_shm, memoryNameUnique, "buffer", uniqueID);
-      Serializer<edmtest::ThingCollection> br_serializer(managed_shm, memoryNameUnique, "brbuffer", uniqueID);
-      Serializer<edmtest::ThingCollection> bl_serializer(managed_shm, memoryNameUnique, "blbuffer", uniqueID);
-      Serializer<edmtest::ThingCollection> el_serializer(managed_shm, memoryNameUnique, "elbuffer", uniqueID);
-      Serializer<edmtest::ThingCollection> er_serializer(managed_shm, memoryNameUnique, "erbuffer", uniqueID);
+      Serializer<edmtest::ThingCollection> serializer(sm_buffer);
+      Serializer<edmtest::ThingCollection> br_serializer(sm_buffer);
+      Serializer<edmtest::ThingCollection> bl_serializer(sm_buffer);
+      Serializer<edmtest::ThingCollection> el_serializer(sm_buffer);
+      Serializer<edmtest::ThingCollection> er_serializer(sm_buffer);
 
       std::cerr << uniqueID << " process: done initializing" << std::endl;
       named_cndToMain.notify_all();
@@ -353,7 +380,7 @@ int main(int argc, char* argv[]) {
       }
     }
   } catch (std::exception const& iExcept) {
-    std::cerr << iExcept.what();
+    std::cerr << "caught exception \n" << iExcept.what() << "\n";
     s_stopRequested = true;
     return 1;
   } catch (...) {
