@@ -17,10 +17,7 @@
 
 namespace edm {
   struct TypeIDHasher {
-    size_t operator()(TypeID const& tid) const {
-      tbb::tbb_hash<std::string> hasher;
-      return hasher(std::string(tid.name()));
-    }
+    size_t operator()(TypeID const& tid) const { return std::hash<std::string>{}(std::string(tid.name())); }
   };
 }  // namespace edm
 

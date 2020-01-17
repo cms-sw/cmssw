@@ -39,10 +39,7 @@ namespace edmplugin {
   class PluginFactoryBase;
 
   struct PluginManagerPathHasher {
-    size_t operator()(boost::filesystem::path const& iPath) const {
-      tbb::tbb_hash<std::string> hasher;
-      return hasher(iPath.native());
-    }
+    size_t operator()(boost::filesystem::path const& iPath) const { return std::hash<std::string>{}(iPath.native()); }
   };
 
   class PluginManager {

@@ -26,7 +26,7 @@ namespace XrdAdaptor {
 
   struct SourceHash {
     using Key = std::shared_ptr<Source>;
-    size_t operator()(const Key &iKey) const { return tbb::tbb_hasher(iKey.get()); }
+    size_t operator()(const Key &iKey) const { return std::hash<Key::element_type *>{}(iKey.get()); }
   };
 
   class XrootdException : public edm::Exception {
