@@ -130,7 +130,7 @@ void PrintGeomSummary::update(const BeginOfRun* run) {
         if ((*pvcite)->GetName() == (G4String)(nodeNames_[k])) {
           pvs_.clear();
           fillPV(*pvcite);
-	  G4cout << " Number of G4VPhysicalVolume's for " << nodeNames_[k] << ": " << pvs_.size() << G4endl;
+          G4cout << " Number of G4VPhysicalVolume's for " << nodeNames_[k] << ": " << pvs_.size() << G4endl;
         }
       }
     }
