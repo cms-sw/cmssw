@@ -1,6 +1,6 @@
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
@@ -18,7 +18,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 class PixelTrackDumpCUDA : public edm::global::EDAnalyzer<> {
@@ -31,8 +31,8 @@ public:
 private:
   void analyze(edm::StreamID streamID, edm::Event const& iEvent, const edm::EventSetup& iSetup) const override;
   const bool m_onGPU;
-  edm::EDGetTokenT<CUDAProduct<PixelTrackHeterogeneous>> tokenGPUTrack_;
-  edm::EDGetTokenT<CUDAProduct<ZVertexHeterogeneous>> tokenGPUVertex_;
+  edm::EDGetTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenGPUTrack_;
+  edm::EDGetTokenT<cms::cuda::Product<ZVertexHeterogeneous>> tokenGPUVertex_;
   edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
   edm::EDGetTokenT<ZVertexHeterogeneous> tokenSoAVertex_;
 };
@@ -41,9 +41,9 @@ PixelTrackDumpCUDA::PixelTrackDumpCUDA(const edm::ParameterSet& iConfig)
     : m_onGPU(iConfig.getParameter<bool>("onGPU")) {
   if (m_onGPU) {
     tokenGPUTrack_ =
-        consumes<CUDAProduct<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
+        consumes<cms::cuda::Product<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
     tokenGPUVertex_ =
-        consumes<CUDAProduct<ZVertexHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
+        consumes<cms::cuda::Product<ZVertexHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
   } else {
     tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
     tokenSoAVertex_ = consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
@@ -64,7 +64,7 @@ void PixelTrackDumpCUDA::analyze(edm::StreamID streamID,
                                  const edm::EventSetup& iSetup) const {
   if (m_onGPU) {
     auto const& hTracks = iEvent.get(tokenGPUTrack_);
-    CUDAScopedContextProduce ctx{hTracks};
+    cms::cuda::ScopedContextProduce ctx{hTracks};
 
     auto const& tracks = ctx.get(hTracks);
     auto const* tsoa = tracks.get();
