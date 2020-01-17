@@ -21,7 +21,7 @@ namespace dqm::implementation {
       // This is inefficient and error prone (callers need to do the same
       // branching to re-add the "/"!) but some legacy code expects it like
       // that and is to complicated to change.
-      assert(cwd_[cwd_.size()-1] == '/');
+      assert(cwd_[cwd_.size() - 1] == '/');
       auto pwd = cwd_.substr(0, cwd_.size() - 1);
       return pwd;
     }
