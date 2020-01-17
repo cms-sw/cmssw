@@ -132,8 +132,10 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
 
       max_n_timing_tracks_(iConfig.getParameter<unsigned int>("max_n_timing_tracks")),
 
-      algorithm_(
-          iConfig.getParameter<bool>("fitVtxY"), iConfig.getParameter<bool>("useImprovedInitialEstimate"), verbosity_),
+      algorithm_(iConfig.getParameter<bool>("fitVtxY"),
+                 iConfig.getParameter<bool>("useImprovedInitialEstimate"),
+                 iConfig.getParameter<std::string>("multiRPAlgorithm"),
+                 verbosity_),
       opticsValid_(false) {
   for (const std::string &sector : {"45", "56"}) {
     const unsigned int arm = (sector == "45") ? 0 : 1;
@@ -191,6 +193,9 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
   desc.add<bool>("useImprovedInitialEstimate", true)
       ->setComment(
           "for multi-RP reconstruction, flag whether a quadratic estimate of the initial point should be used");
+
+  desc.add<std::string>("multiRPAlgorithm", "chi2")
+      ->setComment("algorithm for multi-RP reco, options include chi2, newton, anal-iter");
 
   descriptions.add("ctppsProtons", desc);
 }
