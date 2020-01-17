@@ -215,7 +215,8 @@ namespace sistrip {
           bOffset += num_bits;
           if (bOffset > BITS_PER_BYTE) {
             bOffset -= BITS_PER_BYTE;
-            **out++ = SiStripRawDigi((((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask);
+            **out++ = SiStripRawDigi(
+                (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask);
             ++wOffset;
           } else {
             **out++ = SiStripRawDigi((data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask);
@@ -248,9 +249,9 @@ namespace sistrip {
               break;
             }
             const uint_fast8_t newFirstStrip = data[(offset++) ^ 7];
-            if (newFirstStrip < (firstStrip+inCluster)) {
+            if (newFirstStrip < (firstStrip + inCluster)) {
               LogDebug("FEDBuffer") << "First strip of new cluster is not greater than last strip of previous cluster. "
-                                    << "Last strip of previous cluster is " << uint16_t(firstStrip+inCluster) << ". "
+                                    << "Last strip of previous cluster is " << uint16_t(firstStrip + inCluster) << ". "
                                     << "First strip of new cluster is " << uint16_t(newFirstStrip) << ".";
               return StatusCode::UNORDERED_DATA;
             }
@@ -258,7 +259,9 @@ namespace sistrip {
             nInCluster = data[(offset++) ^ 7];
             inCluster = 0;
           }
-          *out++ = SiStripDigi(stripStart + firstStrip + inCluster, (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0)) << bits_shift);
+          *out++ = SiStripDigi(stripStart + firstStrip + inCluster,
+                               (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0))
+                                   << bits_shift);
           offset += num_words;
           ++inCluster;
         }
@@ -277,7 +280,8 @@ namespace sistrip {
         uint_fast16_t wOffset = channel.offset() + headerLength;  // header is 2 (lite) or 7
         uint_fast8_t bOffset{0}, firstStrip{0}, nInCluster{0}, inCluster{0};
         const uint_fast16_t chEnd = channel.offset() + channel.length();
-        while (((wOffset + 1) < chEnd) || ( (inCluster != nInCluster) && ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits) )) {
+        while (((wOffset + 1) < chEnd) ||
+               ((inCluster != nInCluster) && ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits))) {
           if (inCluster == nInCluster) {
             if (wOffset + 2 >= chEnd) {
               // offset should already be at end then (empty cluster)
@@ -288,9 +292,9 @@ namespace sistrip {
               bOffset = 0;
             }
             const uint_fast8_t newFirstStrip = data[(wOffset++) ^ 7];
-            if (newFirstStrip < (firstStrip+inCluster)) {
+            if (newFirstStrip < (firstStrip + inCluster)) {
               LogDebug("FEDBuffer") << "First strip of new cluster is not greater than last strip of previous cluster. "
-                                    << "Last strip of previous cluster is " << uint16_t(firstStrip+inCluster) << ". "
+                                    << "Last strip of previous cluster is " << uint16_t(firstStrip + inCluster) << ". "
                                     << "First strip of new cluster is " << uint16_t(newFirstStrip) << ".";
               return StatusCode::UNORDERED_DATA;
             }
@@ -302,10 +306,13 @@ namespace sistrip {
           bOffset += num_bits;
           if (bOffset > BITS_PER_BYTE) {
             bOffset -= BITS_PER_BYTE;
-            *out++ = SiStripDigi(stripStart + firstStrip + inCluster, (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask);
+            *out++ = SiStripDigi(
+                stripStart + firstStrip + inCluster,
+                (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask);
             ++wOffset;
           } else {
-            *out++ = SiStripDigi(stripStart + firstStrip + inCluster, (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask);
+            *out++ = SiStripDigi(stripStart + firstStrip + inCluster,
+                                 (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask);
           }
           ++inCluster;
           if (bOffset == BITS_PER_BYTE) {
@@ -318,13 +325,13 @@ namespace sistrip {
 
       inline uint16_t readoutOrder(uint16_t physical_order) {
         return (4 * ((static_cast<uint16_t>((static_cast<float>(physical_order) / 8.0))) % 4) +
-                         static_cast<uint16_t>(static_cast<float>(physical_order) / 32.0) + 16 * (physical_order % 8));
+                static_cast<uint16_t>(static_cast<float>(physical_order) / 32.0) + 16 * (physical_order % 8));
       }
     };  // namespace detail
 
     inline bool isZeroSuppressed(FEDReadoutMode mode,
-                          bool legacy = false,
-                          FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+                                 bool legacy = false,
+                                 FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
       if (!legacy) {
         switch (mode) {
           case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
@@ -357,27 +364,27 @@ namespace sistrip {
       }
     }
     inline bool isNonLiteZS(FEDReadoutMode mode,
-                     bool legacy = false,
-                     FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+                            bool legacy = false,
+                            FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
       return (!legacy) ? (mode == READOUT_MODE_ZERO_SUPPRESSED || mode == READOUT_MODE_ZERO_SUPPRESSED_FAKE)
                        : (lmode == READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL ||
                           lmode == READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE);
     }
     inline bool isVirginRaw(FEDReadoutMode mode,
-                     bool legacy = false,
-                     FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+                            bool legacy = false,
+                            FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
       return (!legacy) ? mode == READOUT_MODE_VIRGIN_RAW
                        : (lmode == READOUT_MODE_LEGACY_VIRGIN_RAW_REAL || lmode == READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE);
     }
     inline bool isProcessedRaw(FEDReadoutMode mode,
-                        bool legacy = false,
-                        FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+                               bool legacy = false,
+                               FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
       return (!legacy) ? mode == READOUT_MODE_PROC_RAW
                        : (lmode == READOUT_MODE_LEGACY_PROC_RAW_REAL || lmode == READOUT_MODE_LEGACY_PROC_RAW_FAKE);
     }
     inline bool isScopeMode(FEDReadoutMode mode,
-                     bool legacy = false,
-                     FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+                            bool legacy = false,
+                            FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
       return (!legacy) ? mode == READOUT_MODE_SCOPE : lmode == READOUT_MODE_LEGACY_SCOPE;
     }
 
@@ -402,9 +409,10 @@ namespace sistrip {
         st = detail::unpackRawB<10>(channel, std::back_inserter(samples));
       } else if (PACKET_CODE_VIRGIN_RAW8_BOTBOT == packetCode || PACKET_CODE_VIRGIN_RAW8_TOPBOT == packetCode) {
         samples.reserve(channel.length() - 3);
-        st = detail::unpackRawW<8>(channel, std::back_inserter(samples), (PACKET_CODE_VIRGIN_RAW8_BOTBOT == packetCode ? 2 : 1));
+        st = detail::unpackRawW<8>(
+            channel, std::back_inserter(samples), (PACKET_CODE_VIRGIN_RAW8_BOTBOT == packetCode ? 2 : 1));
       }
-      if (!samples.empty()) { // reorder
+      if (!samples.empty()) {  // reorder
         for (uint_fast16_t i{0}; i != samples.size(); ++i) {
           const auto physical = i % 128;
           uint16_t readout = detail::readoutOrder(physical);             // convert index from physical to readout order
