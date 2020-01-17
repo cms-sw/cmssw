@@ -81,7 +81,7 @@ namespace edm {
     //
     // constructors and destructor
     //
-    TestProcessor::TestProcessor(Config const& iConfig)
+    TestProcessor::TestProcessor(Config const& iConfig, ServiceToken iToken)
         : espController_(std::make_unique<eventsetup::EventSetupsController>()),
           historyAppender_(std::make_unique<HistoryAppender>()),
           moduleRegistry_(std::make_shared<ModuleRegistry>()) {
@@ -102,8 +102,7 @@ namespace edm {
 
       //initialize the services
       auto& serviceSets = procDesc->getServicesPSets();
-      ServiceToken token =
-          items.initServices(serviceSets, *psetPtr, ServiceToken(), serviceregistry::kOverlapIsError, true);
+      ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
       serviceToken_ = items.addCPRandTNS(*psetPtr, token);
 
       //make the services available
