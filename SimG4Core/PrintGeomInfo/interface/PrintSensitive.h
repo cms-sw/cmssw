@@ -20,12 +20,12 @@ public:
 
 private:
   void update(const BeginOfRun *run) override;
-  void dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, bool printIt, std::ostream &out = std::cout);
+  int dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, bool printIt, int ns, std::ostream &out = std::cout);
   G4VPhysicalVolume *getTopPV();
 
 private:
-  std::string name;
-  int nchar;
+  std::string name_;
+  int nchar_;
   G4NavigationHistory fHistory;
 };
 
