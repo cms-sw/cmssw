@@ -46,6 +46,6 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cudaStream_t stream) {
   } else {
     *device_nCells_ = 0;
   }
-  cudautils::launchZero(device_tupleMultiplicity_.get(), stream);
-  cudautils::launchZero(device_hitToTuple_.get(), stream);  // we may wish to keep it in the edm...
+  cms::cuda::launchZero(device_tupleMultiplicity_.get(), stream);
+  cms::cuda::launchZero(device_hitToTuple_.get(), stream);  // we may wish to keep it in the edm...
 }
