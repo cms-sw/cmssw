@@ -183,13 +183,13 @@ namespace sistrip {
       StatusCode unpackRawW(const FEDChannel& channel, OUT&& out, uint8_t bits_shift = 0) {
         constexpr auto num_words = num_bits / 8;
         static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
-        const uint8_t* data = channel.data();
         if ((num_words > 1) && ((channel.length() - 3) % num_words)) {
           LogDebug("FEDBuffer") << "Channel length is invalid. Raw channels have 3 header bytes and " << num_words
                                 << " bytes per sample. "
                                 << "Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
         }
+        const uint8_t* const data = channel.data();
         const uint_fast16_t end = channel.offset() + channel.length();
         for (uint_fast16_t offset = channel.offset() + 3; offset != end; offset += num_words) {
           *out++ = SiStripRawDigi((data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0))
@@ -201,13 +201,13 @@ namespace sistrip {
       // Generic implementation for non-whole words (10bit, essentially)
       template <uint_fast8_t num_bits, typename OUT>
       StatusCode unpackRawB(const FEDChannel& channel, OUT&& out) {
+        static_assert(num_bits <= 16, "Word length must be between 0 and 16.");
         if (channel.length() & 0xF000) {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
         }
-        static_assert(num_bits <= 16, "Word length must be between 0 and 16.");
         constexpr uint16_t mask = (1 << num_bits) - 1;
-        const uint8_t* data = channel.data();
+        const uint8_t* const data = channel.data();
         const uint_fast16_t chEnd = channel.offset() + channel.length();
         uint_fast16_t wOffset = channel.offset() + 3;
         uint_fast8_t bOffset = 0;
@@ -233,18 +233,13 @@ namespace sistrip {
           const FEDChannel& channel, OUT&& out, uint8_t headerLength, uint16_t stripStart, uint8_t bits_shift = 0) {
         constexpr auto num_words = num_bits / 8;
         static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
-        const uint8_t* data = channel.data();
-        uint_fast16_t offset = channel.offset() + headerLength;  // header is 2 (lite) or 7
         if (channel.length() & 0xF000) {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
         }
-        if ( channel.length() <= headerLength ) {
-          return StatusCode::SUCCESS;
-        }
-        uint_fast8_t firstStrip = data[(offset++) ^ 7];
-        uint_fast8_t nInCluster = data[(offset++) ^ 7];
-        uint_fast8_t inCluster = 0;
+        const uint8_t* const data = channel.data();
+        uint_fast16_t offset = channel.offset() + headerLength;  // header is 2 (lite) or 7
+        uint_fast8_t firstStrip{0}, nInCluster{0}, inCluster{0};
         const uint_fast16_t end = channel.offset() + channel.length();
         while (offset != end) {
           if (inCluster == nInCluster) {
@@ -274,19 +269,13 @@ namespace sistrip {
       template <uint_fast8_t num_bits, typename OUT>
       StatusCode unpackZSB(const FEDChannel& channel, OUT&& out, uint8_t headerLength, uint16_t stripStart) {
         constexpr uint16_t mask = (1 << num_bits) - 1;
-        const uint8_t* data = channel.data();
-        uint_fast16_t wOffset = channel.offset() + headerLength;  // header is 2 (lite) or 7
-        uint_fast8_t bOffset = 0;
         if (channel.length() & 0xF000) {
           LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
           return StatusCode::BAD_CHANNEL_LENGTH;
         }
-        if ( channel.length() <= headerLength ) {
-          return StatusCode::SUCCESS;
-        }
-        uint_fast8_t firstStrip = data[(wOffset++) ^ 7];
-        uint_fast8_t nInCluster = data[(wOffset++) ^ 7];
-        uint_fast8_t inCluster = 0;
+        const uint8_t* const data = channel.data();
+        uint_fast16_t wOffset = channel.offset() + headerLength;  // header is 2 (lite) or 7
+        uint_fast8_t bOffset{0}, firstStrip{0}, nInCluster{0}, inCluster{0};
         const uint_fast16_t chEnd = channel.offset() + channel.length();
         while (((wOffset + 1) < chEnd) || ( (inCluster != nInCluster) && ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits) )) {
           if (inCluster == nInCluster) {
