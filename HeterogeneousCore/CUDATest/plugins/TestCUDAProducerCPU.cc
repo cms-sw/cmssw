@@ -11,20 +11,20 @@
 
 class TestCUDAProducerCPU : public edm::global::EDProducer<> {
 public:
-  explicit TestCUDAProducerCPU(const edm::ParameterSet& iConfig);
+  explicit TestCUDAProducerCPU(edm::ParameterSet const& iConfig);
   ~TestCUDAProducerCPU() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID id, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
 
 private:
-  std::string label_;
+  std::string const label_;
   edm::EDGetTokenT<int> srcToken_;
-  edm::EDPutTokenT<int> dstToken_;
+  edm::EDPutTokenT<int> const dstToken_;
 };
 
-TestCUDAProducerCPU::TestCUDAProducerCPU(const edm::ParameterSet& iConfig)
+TestCUDAProducerCPU::TestCUDAProducerCPU(edm::ParameterSet const& iConfig)
     : label_{iConfig.getParameter<std::string>("@module_label")}, dstToken_{produces<int>()} {
   auto srcTag = iConfig.getParameter<edm::InputTag>("src");
   if (!srcTag.label().empty()) {
@@ -39,7 +39,7 @@ void TestCUDAProducerCPU::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.setComment("This EDProducer is part of the TestCUDAProducer* family. It models a CPU algorithm.");
 }
 
-void TestCUDAProducerCPU::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void TestCUDAProducerCPU::produce(edm::StreamID id, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   edm::LogVerbatim("TestCUDAProducerCPU")
       << label_ << " TestCUDAProducerCPU::produce begin event " << iEvent.id().event() << " stream " << id;
 
@@ -56,7 +56,7 @@ void TestCUDAProducerCPU::produce(edm::StreamID id, edm::Event& iEvent, const ed
       << " Task (CPU) for event " << iEvent.id().event() << " in stream " << id << " will take " << dur << " seconds";
   std::this_thread::sleep_for(std::chrono::seconds(1) * dur);
 
-  const unsigned int output = input + id * 100 + iEvent.id().event();
+  unsigned int const output = input + id * 100 + iEvent.id().event();
 
   iEvent.emplace(dstToken_, output);
 

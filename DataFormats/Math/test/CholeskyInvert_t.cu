@@ -16,9 +16,8 @@
 #include "DataFormats/Math/interface/choleskyInversion.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 
 constexpr int stride() { return 5 * 1024; }
 template <int DIM>
@@ -93,12 +92,6 @@ void go(bool soa) {
   auto delta1 = delta;
   auto delta2 = delta;
 
-  if (cudautils::cudaDeviceCount() == 0) {
-    std::cerr << "No CUDA devices on this system"
-              << "\n";
-    exit(EXIT_FAILURE);
-  }
-
   constexpr unsigned int SIZE = 4 * 1024;
 
   MX mm[stride()];  // just storage in case of SOA
@@ -130,7 +123,7 @@ void go(bool soa) {
 
   std::cout << mm[SIZE / 2](1, 1) << std::endl;
 
-  auto m_d = cudautils::make_device_unique<double[]>(DIM * DIM * stride(), nullptr);
+  auto m_d = cms::cuda::make_device_unique<double[]>(DIM * DIM * stride(), nullptr);
   cudaCheck(cudaMemcpy(m_d.get(), (double const *)(mm), stride() * sizeof(MX), cudaMemcpyHostToDevice));
 
   constexpr int NKK =
@@ -146,9 +139,9 @@ void go(bool soa) {
     delta -= (std::chrono::high_resolution_clock::now() - start);
 
     if (soa)
-      cudautils::launch(invertSOA<DIM>, {blocksPerGrid, threadsPerBlock}, m_d.get(), SIZE);
+      cms::cuda::launch(invertSOA<DIM>, {blocksPerGrid, threadsPerBlock}, m_d.get(), SIZE);
     else
-      cudautils::launch(invert<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
+      cms::cuda::launch(invert<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
 
     cudaCheck(cudaMemcpy(&mm, m_d.get(), stride() * sizeof(MX), cudaMemcpyDeviceToHost));
 
@@ -161,7 +154,7 @@ void go(bool soa) {
       delta1 -= (std::chrono::high_resolution_clock::now() - start);
 
 #ifndef DOPROF
-      cudautils::launch(invertSeq<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
+      cms::cuda::launch(invertSeq<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
       cudaCheck(cudaMemcpy(&mm, m_d.get(), stride() * sizeof(MX), cudaMemcpyDeviceToHost));
 #endif
       delta1 += (std::chrono::high_resolution_clock::now() - start);
@@ -197,7 +190,7 @@ void go(bool soa) {
 }
 
 int main() {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   go<2>(false);
   go<4>(false);

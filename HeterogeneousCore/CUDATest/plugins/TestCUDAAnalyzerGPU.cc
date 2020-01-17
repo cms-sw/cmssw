@@ -6,60 +6,61 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "CUDADataFormats/Common/interface/Product.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDATest/interface/CUDAThing.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
+#include "HeterogeneousCore/CUDATest/interface/Thing.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/StreamCache.h"
 
 #include "TestCUDAAnalyzerGPUKernel.h"
 
 class TestCUDAAnalyzerGPU : public edm::global::EDAnalyzer<> {
 public:
-  explicit TestCUDAAnalyzerGPU(const edm::ParameterSet& iConfig);
+  explicit TestCUDAAnalyzerGPU(edm::ParameterSet const& iConfig);
   ~TestCUDAAnalyzerGPU() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const& iSetup) const override;
   void endJob() override;
 
 private:
-  std::string label_;
-  edm::EDGetTokenT<CUDAProduct<CUDAThing>> srcToken_;
-  double minValue_;
-  double maxValue_;
-  std::unique_ptr<TestCUDAAnalyzerGPUKernel> gpuAlgo_;
+  std::string const label_;
+  edm::EDGetTokenT<cms::cuda::Product<cms::cudatest::Thing>> const srcToken_;
+  double const minValue_;
+  double const maxValue_;
+  // the public interface is thread safe
+  CMS_THREAD_SAFE mutable std::unique_ptr<TestCUDAAnalyzerGPUKernel> gpuAlgo_;
 };
 
-TestCUDAAnalyzerGPU::TestCUDAAnalyzerGPU(const edm::ParameterSet& iConfig)
+TestCUDAAnalyzerGPU::TestCUDAAnalyzerGPU(edm::ParameterSet const& iConfig)
     : label_(iConfig.getParameter<std::string>("@module_label")),
-      srcToken_(consumes<CUDAProduct<CUDAThing>>(iConfig.getParameter<edm::InputTag>("src"))),
+      srcToken_(consumes<cms::cuda::Product<cms::cudatest::Thing>>(iConfig.getParameter<edm::InputTag>("src"))),
       minValue_(iConfig.getParameter<double>("minValue")),
       maxValue_(iConfig.getParameter<double>("maxValue")) {
   edm::Service<CUDAService> cs;
   if (cs->enabled()) {
-    auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
+    auto streamPtr = cms::cuda::getStreamCache().get();
     gpuAlgo_ = std::make_unique<TestCUDAAnalyzerGPUKernel>(streamPtr.get());
   }
 }
 
 void TestCUDAAnalyzerGPU::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag())->setComment("Source of CUDAProduct<CUDAThing>.");
+  desc.add<edm::InputTag>("src", edm::InputTag())->setComment("Source of cms::cuda::Product<cms::cudatest::Thing>.");
   desc.add<double>("minValue", -1e308);
   desc.add<double>("maxValue", 1e308);
   descriptions.addWithDefaultLabel(desc);
   descriptions.setComment("This EDAnalyzer is part of the TestCUDAProducer* family. It models a GPU analyzer.");
 }
 
-void TestCUDAAnalyzerGPU::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void TestCUDAAnalyzerGPU::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const& iSetup) const {
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::analyze begin event "
                                           << iEvent.id().event() << " stream " << iEvent.streamID();
 
-  const auto& in = iEvent.get(srcToken_);
-  CUDAScopedContextAnalyze ctx{in};
-  const CUDAThing& input = ctx.get(in);
+  auto const& in = iEvent.get(srcToken_);
+  cms::cuda::ScopedContextAnalyze ctx{in};
+  cms::cudatest::Thing const& input = ctx.get(in);
   gpuAlgo_->analyzeAsync(input.get(), ctx.stream());
 
   edm::LogVerbatim("TestCUDAAnalyzerGPU")
@@ -69,7 +70,7 @@ void TestCUDAAnalyzerGPU::analyze(edm::StreamID, const edm::Event& iEvent, const
 void TestCUDAAnalyzerGPU::endJob() {
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::endJob begin";
 
-  auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
+  auto streamPtr = cms::cuda::getStreamCache().get();
   auto value = gpuAlgo_->value(streamPtr.get());
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << "  accumulated value " << value;
   assert(minValue_ <= value && value <= maxValue_);

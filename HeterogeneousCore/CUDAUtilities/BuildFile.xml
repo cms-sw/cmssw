@@ -1,3 +1,4 @@
+<iftool name="cuda-gcc-support">
 <use name="cub"/>
 <use name="cuda"/>
 <use name="FWCore/Utilities"/>
@@ -6,3 +7,4 @@
 <export>
     <lib name="1"/>
 </export>
+</iftool>

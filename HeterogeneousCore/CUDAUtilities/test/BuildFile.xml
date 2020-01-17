@@ -1,5 +1,6 @@
 <use name="HeterogeneousCore/CUDAUtilities"/>
 
+<iftool name="cuda-gcc-support">
 <bin file="assert_t.cu" name="cudaAssert_t">
 </bin>
 
@@ -81,3 +82,4 @@
   <flags CXXFLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
+</iftool>

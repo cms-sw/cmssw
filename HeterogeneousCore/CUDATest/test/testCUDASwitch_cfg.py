@@ -12,17 +12,15 @@ process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
 
 process.source = cms.Source("EmptySource")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(3) )
+process.maxEvents.input = 3
 if not silent:
     process.maxEvents.input = 10
     process.MessageLogger.cerr.threshold = cms.untracked.string("INFO")
     process.MessageLogger.cerr.INFO.limit = process.MessageLogger.cerr.default.limit
 
 
-process.options = cms.untracked.PSet(
-#    numberOfThreads = cms.untracked.uint32(4),
-    numberOfStreams = cms.untracked.uint32(0)
-)
+#process.options.numberOfThreads = 4
+process.options.numberOfStreams = 0
 #process.Tracer = cms.Service("Tracer")
 
 # Flow diagram of the modules

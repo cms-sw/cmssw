@@ -36,5 +36,5 @@ void toGlobalWrapper(SOAFrame<float> const* frame,
   std::cout << "CUDA toGlobal kernel launch with " << blocksPerGrid << " blocks of " << threadsPerBlock << " threads"
             << std::endl;
 
-  cudautils::launch(toGlobal, {blocksPerGrid, threadsPerBlock}, frame, xl, yl, x, y, z, le, ge, n);
+  cms::cuda::launch(toGlobal, {blocksPerGrid, threadsPerBlock}, frame, xl, yl, x, y, z, le, ge, n);
 }

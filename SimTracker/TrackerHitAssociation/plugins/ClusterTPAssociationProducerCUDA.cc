@@ -4,7 +4,7 @@
 
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -29,7 +29,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
@@ -71,10 +71,10 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> phase2OTClustersToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
 
-  edm::EDGetTokenT<CUDAProduct<SiPixelDigisCUDA>> tGpuDigis;
-  edm::EDGetTokenT<CUDAProduct<TrackingRecHit2DCUDA>> tGpuHits;
+  edm::EDGetTokenT<cms::cuda::Product<SiPixelDigisCUDA>> tGpuDigis;
+  edm::EDGetTokenT<cms::cuda::Product<TrackingRecHit2DCUDA>> tGpuHits;
 
-  edm::EDPutTokenT<CUDAProduct<ProductCUDA>> tokenGPUProd_;
+  edm::EDPutTokenT<cms::cuda::Product<ProductCUDA>> tokenGPUProd_;
 
   clusterSLOnGPU::Kernel m_gpuAlgo;
 };
@@ -94,12 +94,12 @@ ClusterTPAssociationProducerCUDA::ClusterTPAssociationProducerCUDA(const edm::Pa
           cfg.getParameter<edm::InputTag>("phase2OTClusterSrc"))),
       trackingParticleToken_(
           consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))),
-      tGpuDigis(
-          consumes<CUDAProduct<SiPixelDigisCUDA>>(cfg.getParameter<edm::InputTag>("heterogeneousPixelDigiClusterSrc"))),
-      tGpuHits(
-          consumes<CUDAProduct<TrackingRecHit2DCUDA>>(cfg.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
+      tGpuDigis(consumes<cms::cuda::Product<SiPixelDigisCUDA>>(
+          cfg.getParameter<edm::InputTag>("heterogeneousPixelDigiClusterSrc"))),
+      tGpuHits(consumes<cms::cuda::Product<TrackingRecHit2DCUDA>>(
+          cfg.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
       m_gpuAlgo(cfg.getParameter<bool>("dumpCSV")) {
-  tokenGPUProd_ = produces<CUDAProduct<ProductCUDA>>();
+  tokenGPUProd_ = produces<cms::cuda::Product<ProductCUDA>>();
 }
 
 void ClusterTPAssociationProducerCUDA::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -159,12 +159,12 @@ void ClusterTPAssociationProducerCUDA::produce(edm::StreamID streamID,
 
   auto mapping = makeMap(iEvent);
 
-  edm::Handle<CUDAProduct<SiPixelDigisCUDA>> gd;
+  edm::Handle<cms::cuda::Product<SiPixelDigisCUDA>> gd;
   iEvent.getByToken(tGpuDigis, gd);
-  edm::Handle<CUDAProduct<TrackingRecHit2DCUDA>> gh;
+  edm::Handle<cms::cuda::Product<TrackingRecHit2DCUDA>> gh;
   iEvent.getByToken(tGpuHits, gh);
 
-  CUDAScopedContextProduce ctx{*gd};
+  cms::cuda::ScopedContextProduce ctx{*gd};
   auto const &gDigis = ctx.get(*gd);
   auto const &gHits = ctx.get(*gh);
   auto ndigis = gDigis.nDigis();

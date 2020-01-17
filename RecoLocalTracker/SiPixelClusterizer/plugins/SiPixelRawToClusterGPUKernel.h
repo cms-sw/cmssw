@@ -156,8 +156,8 @@ namespace pixelgpudetails {
       const unsigned char* fedId() const { return fedId_.get(); }
 
     private:
-      cudautils::host::noncached::unique_ptr<unsigned int[]> word_;
-      cudautils::host::noncached::unique_ptr<unsigned char[]> fedId_;
+      cms::cuda::host::noncached::unique_ptr<unsigned int[]> word_;
+      cms::cuda::host::noncached::unique_ptr<unsigned char[]> fedId_;
     };
 
     SiPixelRawToClusterGPUKernel() = default;
@@ -187,7 +187,7 @@ namespace pixelgpudetails {
       // stream is still alive
       //
       // technically the statement above is not true anymore now that
-      // the CUDA streams are cached within the CUDAStreamCache, but it is
+      // the CUDA streams are cached within the cms::cuda::StreamCache, but it is
       // still better to release as early as possible
       nModules_Clusters_h.reset();
       return std::make_pair(std::move(digis_d), std::move(clusters_d));
@@ -199,7 +199,7 @@ namespace pixelgpudetails {
     uint32_t nDigis = 0;
 
     // Data to be put in the event
-    cudautils::host::unique_ptr<uint32_t[]> nModules_Clusters_h;
+    cms::cuda::host::unique_ptr<uint32_t[]> nModules_Clusters_h;
     SiPixelDigisCUDA digis_d;
     SiPixelClustersCUDA clusters_d;
     SiPixelDigiErrorsCUDA digiErrors_d;

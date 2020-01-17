@@ -1,4 +1,4 @@
 <lcgdict>
-  <class name="CUDAProduct<SiPixelClustersCUDA>" persistent="false"/>
-  <class name="edm::Wrapper<CUDAProduct<SiPixelClustersCUDA>>" persistent="false"/>
+  <class name="cms::cuda::Product<SiPixelClustersCUDA>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<SiPixelClustersCUDA>>" persistent="false"/>
 </lcgdict>

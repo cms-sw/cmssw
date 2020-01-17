@@ -19,112 +19,114 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 
-namespace cudautils {
+namespace cms {
+  namespace cuda {
 
-  template <typename Histo, typename T>
-  __global__ void countFromVector(Histo *__restrict__ h,
-                                  uint32_t nh,
-                                  T const *__restrict__ v,
-                                  uint32_t const *__restrict__ offsets) {
-    int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
-      auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
-      assert((*off) > 0);
-      int32_t ih = off - offsets - 1;
-      assert(ih >= 0);
-      assert(ih < int(nh));
-      (*h).count(v[i], ih);
+    template <typename Histo, typename T>
+    __global__ void countFromVector(Histo *__restrict__ h,
+                                    uint32_t nh,
+                                    T const *__restrict__ v,
+                                    uint32_t const *__restrict__ offsets) {
+      int first = blockDim.x * blockIdx.x + threadIdx.x;
+      for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
+        auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
+        assert((*off) > 0);
+        int32_t ih = off - offsets - 1;
+        assert(ih >= 0);
+        assert(ih < int(nh));
+        (*h).count(v[i], ih);
+      }
     }
-  }
 
-  template <typename Histo, typename T>
-  __global__ void fillFromVector(Histo *__restrict__ h,
-                                 uint32_t nh,
-                                 T const *__restrict__ v,
-                                 uint32_t const *__restrict__ offsets) {
-    int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
-      auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
-      assert((*off) > 0);
-      int32_t ih = off - offsets - 1;
-      assert(ih >= 0);
-      assert(ih < int(nh));
-      (*h).fill(v[i], i, ih);
+    template <typename Histo, typename T>
+    __global__ void fillFromVector(Histo *__restrict__ h,
+                                   uint32_t nh,
+                                   T const *__restrict__ v,
+                                   uint32_t const *__restrict__ offsets) {
+      int first = blockDim.x * blockIdx.x + threadIdx.x;
+      for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
+        auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
+        assert((*off) > 0);
+        int32_t ih = off - offsets - 1;
+        assert(ih >= 0);
+        assert(ih < int(nh));
+        (*h).fill(v[i], i, ih);
+      }
     }
-  }
 
-  template <typename Histo>
-  inline void launchZero(Histo *__restrict__ h,
-                         cudaStream_t stream
+    template <typename Histo>
+    inline void launchZero(Histo *__restrict__ h,
+                           cudaStream_t stream
 #ifndef __CUDACC__
-                         = cudaStreamDefault
+                           = cudaStreamDefault
 #endif
-  ) {
-    uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
+    ) {
+      uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
 #ifdef __CUDACC__
-    cudaCheck(cudaMemsetAsync(off, 0, 4 * Histo::totbins(), stream));
+      cudaCheck(cudaMemsetAsync(off, 0, 4 * Histo::totbins(), stream));
 #else
-    ::memset(off, 0, 4 * Histo::totbins());
+      ::memset(off, 0, 4 * Histo::totbins());
 #endif
-  }
+    }
 
-  template <typename Histo>
-  inline void launchFinalize(Histo *__restrict__ h,
-                             uint8_t *__restrict__ ws
+    template <typename Histo>
+    inline void launchFinalize(Histo *__restrict__ h,
+                               uint8_t *__restrict__ ws
 #ifndef __CUDACC__
-                             = cudaStreamDefault
+                               = cudaStreamDefault
 #endif
-                             ,
-                             cudaStream_t stream
+                               ,
+                               cudaStream_t stream
 #ifndef __CUDACC__
-                             = cudaStreamDefault
+                               = cudaStreamDefault
 #endif
-  ) {
+    ) {
 #ifdef __CUDACC__
-    assert(ws);
-    uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
-    size_t wss = Histo::wsSize();
-    assert(wss > 0);
-    CubDebugExit(cub::DeviceScan::InclusiveSum(ws, wss, off, off, Histo::totbins(), stream));
+      assert(ws);
+      uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
+      size_t wss = Histo::wsSize();
+      assert(wss > 0);
+      CubDebugExit(cub::DeviceScan::InclusiveSum(ws, wss, off, off, Histo::totbins(), stream));
 #else
-    h->finalize();
+      h->finalize();
 #endif
-  }
+    }
 
-  template <typename Histo, typename T>
-  inline void fillManyFromVector(Histo *__restrict__ h,
-                                 uint8_t *__restrict__ ws,
-                                 uint32_t nh,
-                                 T const *__restrict__ v,
-                                 uint32_t const *__restrict__ offsets,
-                                 uint32_t totSize,
-                                 int nthreads,
-                                 cudaStream_t stream
+    template <typename Histo, typename T>
+    inline void fillManyFromVector(Histo *__restrict__ h,
+                                   uint8_t *__restrict__ ws,
+                                   uint32_t nh,
+                                   T const *__restrict__ v,
+                                   uint32_t const *__restrict__ offsets,
+                                   uint32_t totSize,
+                                   int nthreads,
+                                   cudaStream_t stream
 #ifndef __CUDACC__
-                                 = cudaStreamDefault
+                                   = cudaStreamDefault
 #endif
-  ) {
-    launchZero(h, stream);
+    ) {
+      launchZero(h, stream);
 #ifdef __CUDACC__
-    auto nblocks = (totSize + nthreads - 1) / nthreads;
-    countFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
-    cudaCheck(cudaGetLastError());
-    launchFinalize(h, ws, stream);
-    fillFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
-    cudaCheck(cudaGetLastError());
+      auto nblocks = (totSize + nthreads - 1) / nthreads;
+      countFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
+      cudaCheck(cudaGetLastError());
+      launchFinalize(h, ws, stream);
+      fillFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
+      cudaCheck(cudaGetLastError());
 #else
-    countFromVector(h, nh, v, offsets);
-    h->finalize();
-    fillFromVector(h, nh, v, offsets);
+      countFromVector(h, nh, v, offsets);
+      h->finalize();
+      fillFromVector(h, nh, v, offsets);
 #endif
-  }
+    }
 
-  template <typename Assoc>
-  __global__ void finalizeBulk(AtomicPairCounter const *apc, Assoc *__restrict__ assoc) {
-    assoc->bulkFinalizeFill(*apc);
-  }
+    template <typename Assoc>
+    __global__ void finalizeBulk(AtomicPairCounter const *apc, Assoc *__restrict__ assoc) {
+      assoc->bulkFinalizeFill(*apc);
+    }
 
-}  // namespace cudautils
+  }  // namespace cuda
+}  // namespace cms
 
 // iteratate over N bins left and right of the one containing "v"
 template <typename Hist, typename V, typename Func>

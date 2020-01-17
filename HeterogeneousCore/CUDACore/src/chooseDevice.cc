@@ -1,10 +1,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
-#include "chooseCUDADevice.h"
+#include "chooseDevice.h"
 
-namespace cudacore {
-  int chooseCUDADevice(edm::StreamID id) {
+namespace cms::cuda {
+  int chooseDevice(edm::StreamID id) {
     edm::Service<CUDAService> cudaService;
 
     // For startes we "statically" assign the device based on
@@ -15,4 +15,4 @@ namespace cudacore {
     // TODO: improve the "assignment" logic
     return id % cudaService->numberOfDevices();
   }
-}  // namespace cudacore
+}  // namespace cms::cuda

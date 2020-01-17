@@ -1,4 +1,4 @@
 <lcgdict>
-  <class name="CUDAProduct<BeamSpotCUDA>" persistent="false"/>
-  <class name="edm::Wrapper<CUDAProduct<BeamSpotCUDA>>" persistent="false"/>
+  <class name="cms::cuda::Product<BeamSpotCUDA>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<BeamSpotCUDA>>" persistent="false"/>
 </lcgdict>

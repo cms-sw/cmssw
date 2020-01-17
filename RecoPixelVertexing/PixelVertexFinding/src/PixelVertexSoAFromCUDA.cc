@@ -1,6 +1,6 @@
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -15,7 +15,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 
 class PixelVertexSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -30,14 +30,14 @@ private:
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
-  edm::EDGetTokenT<CUDAProduct<ZVertexHeterogeneous>> tokenCUDA_;
+  edm::EDGetTokenT<cms::cuda::Product<ZVertexHeterogeneous>> tokenCUDA_;
   edm::EDPutTokenT<ZVertexHeterogeneous> tokenSOA_;
 
-  cudautils::host::unique_ptr<ZVertexSoA> m_soa;
+  cms::cuda::host::unique_ptr<ZVertexSoA> m_soa;
 };
 
 PixelVertexSoAFromCUDA::PixelVertexSoAFromCUDA(const edm::ParameterSet& iConfig)
-    : tokenCUDA_(consumes<CUDAProduct<ZVertexHeterogeneous>>(iConfig.getParameter<edm::InputTag>("src"))),
+    : tokenCUDA_(consumes<cms::cuda::Product<ZVertexHeterogeneous>>(iConfig.getParameter<edm::InputTag>("src"))),
       tokenSOA_(produces<ZVertexHeterogeneous>()) {}
 
 void PixelVertexSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -51,7 +51,7 @@ void PixelVertexSoAFromCUDA::acquire(edm::Event const& iEvent,
                                      edm::EventSetup const& iSetup,
                                      edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   auto const& inputDataWrapped = iEvent.get(tokenCUDA_);
-  CUDAScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
+  cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
   m_soa = inputData.toHostAsync(ctx.stream());

@@ -12,12 +12,12 @@ public:
   TestCUDAAnalyzerGPUKernel(cudaStream_t stream);
   ~TestCUDAAnalyzerGPUKernel() = default;
 
-  // returns (owning) pointer to device memory
-  void analyzeAsync(const float* d_input, cudaStream_t stream) const;
+  // thread safe
+  void analyzeAsync(const float* d_input, cudaStream_t stream);
   float value(cudaStream_t stream) const;
 
 private:
-  mutable cudautils::device::unique_ptr<float[]> sum_;  // all writes are atomic in CUDA
+  cms::cuda::device::unique_ptr<float[]> sum_;  // all writes are atomic in CUDA
 };
 
 #endif

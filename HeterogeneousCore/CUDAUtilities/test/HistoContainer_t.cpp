@@ -5,7 +5,7 @@
 #include <random>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 template <typename T, int NBINS = 128, int S = 8 * sizeof(T), int DELTA = 1000>
 void go() {
@@ -136,7 +136,7 @@ void go() {
 }
 
 int main() {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   go<int16_t>();
   go<uint8_t, 128, 8, 4>();

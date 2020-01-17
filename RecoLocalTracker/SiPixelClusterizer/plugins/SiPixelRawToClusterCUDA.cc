@@ -1,4 +1,4 @@
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
@@ -25,7 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPUWrapper.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -51,11 +51,11 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> rawGetToken_;
 
-  edm::EDPutTokenT<CUDAProduct<SiPixelDigisCUDA>> digiPutToken_;
-  edm::EDPutTokenT<CUDAProduct<SiPixelDigiErrorsCUDA>> digiErrorPutToken_;
-  edm::EDPutTokenT<CUDAProduct<SiPixelClustersCUDA>> clusterPutToken_;
+  edm::EDPutTokenT<cms::cuda::Product<SiPixelDigisCUDA>> digiPutToken_;
+  edm::EDPutTokenT<cms::cuda::Product<SiPixelDigiErrorsCUDA>> digiErrorPutToken_;
+  edm::EDPutTokenT<cms::cuda::Product<SiPixelClustersCUDA>> clusterPutToken_;
 
-  CUDAContextState ctxState_;
+  cms::cuda::ContextState ctxState_;
 
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher_;
   edm::ESGetToken<SiPixelFedCablingMapGPUWrapper, CkfComponentsRecord> gpuMapToken_;
@@ -78,8 +78,8 @@ private:
 
 SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig)
     : rawGetToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"))),
-      digiPutToken_(produces<CUDAProduct<SiPixelDigisCUDA>>()),
-      clusterPutToken_(produces<CUDAProduct<SiPixelClustersCUDA>>()),
+      digiPutToken_(produces<cms::cuda::Product<SiPixelDigisCUDA>>()),
+      clusterPutToken_(produces<cms::cuda::Product<SiPixelClustersCUDA>>()),
       gpuMapToken_(esConsumes<SiPixelFedCablingMapGPUWrapper, CkfComponentsRecord>()),
       gainsToken_(esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>()),
       cablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
@@ -89,7 +89,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
       usePilotBlade_(iConfig.getParameter<bool>("UsePilotBlade"))  // Control the usage of pilot-blade data, FED=40
 {
   if (includeErrors_) {
-    digiErrorPutToken_ = produces<CUDAProduct<SiPixelDigiErrorsCUDA>>();
+    digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }
 
   // regions
@@ -128,7 +128,7 @@ void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
 void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
                                       const edm::EventSetup& iSetup,
                                       edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  CUDAScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
+  cms::cuda::ScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
 
   auto hgpuMap = iSetup.getHandle(gpuMapToken_);
   if (hgpuMap->hasQuality() != useQuality_) {
@@ -143,7 +143,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
   // get the GPU product already here so that the async transfer can begin
   const auto* gpuGains = hgains->getGPUProductAsync(ctx.stream());
 
-  cudautils::device::unique_ptr<unsigned char[]> modulesToUnpackRegional;
+  cms::cuda::device::unique_ptr<unsigned char[]> modulesToUnpackRegional;
   const unsigned char* gpuModulesToUnpack;
 
   if (regions_) {
@@ -247,7 +247,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
 }
 
 void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  CUDAScopedContextProduce ctx{ctxState_};
+  cms::cuda::ScopedContextProduce ctx{ctxState_};
 
   auto tmp = gpuAlgo_.getResults();
   ctx.emplace(iEvent, digiPutToken_, std::move(tmp.first));

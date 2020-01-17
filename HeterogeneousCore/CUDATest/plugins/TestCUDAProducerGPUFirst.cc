@@ -5,49 +5,49 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
-#include "HeterogeneousCore/CUDATest/interface/CUDAThing.h"
+#include "CUDADataFormats/Common/interface/Product.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDATest/interface/Thing.h"
 
 #include "TestCUDAProducerGPUKernel.h"
 
 class TestCUDAProducerGPUFirst : public edm::global::EDProducer<> {
 public:
-  explicit TestCUDAProducerGPUFirst(const edm::ParameterSet& iConfig);
+  explicit TestCUDAProducerGPUFirst(edm::ParameterSet const& iConfig);
   ~TestCUDAProducerGPUFirst() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::StreamID stream, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID stream, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
 
 private:
-  std::string label_;
-  TestCUDAProducerGPUKernel gpuAlgo_;
+  std::string const label_;
+  edm::EDPutTokenT<cms::cuda::Product<cms::cudatest::Thing>> const dstToken_;
+  TestCUDAProducerGPUKernel const gpuAlgo_;
 };
 
-TestCUDAProducerGPUFirst::TestCUDAProducerGPUFirst(const edm::ParameterSet& iConfig)
-    : label_(iConfig.getParameter<std::string>("@module_label")) {
-  produces<CUDAProduct<CUDAThing>>();
-}
+TestCUDAProducerGPUFirst::TestCUDAProducerGPUFirst(edm::ParameterSet const& iConfig)
+    : label_(iConfig.getParameter<std::string>("@module_label")),
+      dstToken_{produces<cms::cuda::Product<cms::cudatest::Thing>>()} {}
 
 void TestCUDAProducerGPUFirst::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addWithDefaultLabel(desc);
   descriptions.setComment(
       "This EDProducer is part of the TestCUDAProducer* family. It models a GPU algorithm this the first algorithm in "
-      "the chain of the GPU EDProducers. Produces CUDA<ProductCUDAThing>.");
+      "the chain of the GPU EDProducers. Produces cms::cuda::Productcms::cudatest::Thing>.");
 }
 
 void TestCUDAProducerGPUFirst::produce(edm::StreamID streamID,
                                        edm::Event& iEvent,
-                                       const edm::EventSetup& iSetup) const {
+                                       edm::EventSetup const& iSetup) const {
   edm::LogVerbatim("TestCUDAProducerGPUFirst") << label_ << " TestCUDAProducerGPUFirst::produce begin event "
                                                << iEvent.id().event() << " stream " << iEvent.streamID();
 
-  CUDAScopedContextProduce ctx{streamID};
+  cms::cuda::ScopedContextProduce ctx{streamID};
 
-  cudautils::device::unique_ptr<float[]> output = gpuAlgo_.runAlgo(label_, ctx.stream());
-  iEvent.put(ctx.wrap(CUDAThing(std::move(output))));
+  cms::cuda::device::unique_ptr<float[]> output = gpuAlgo_.runAlgo(label_, ctx.stream());
+  ctx.emplace(iEvent, dstToken_, std::move(output));
 
   edm::LogVerbatim("TestCUDAProducerGPUFirst") << label_ << " TestCUDAProducerGPUFirst::produce end event "
                                                << iEvent.id().event() << " stream " << iEvent.streamID();

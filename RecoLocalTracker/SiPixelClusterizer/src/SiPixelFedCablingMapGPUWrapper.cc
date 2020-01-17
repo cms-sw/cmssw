@@ -127,10 +127,10 @@ const unsigned char* SiPixelFedCablingMapGPUWrapper::getModToUnpAllAsync(cudaStr
   return data.modToUnpDefault;
 }
 
-cudautils::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::getModToUnpRegionalAsync(
+cms::cuda::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::getModToUnpRegionalAsync(
     std::set<unsigned int> const& modules, cudaStream_t cudaStream) const {
-  auto modToUnpDevice = cudautils::make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
-  auto modToUnpHost = cudautils::make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
+  auto modToUnpDevice = cms::cuda::make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
+  auto modToUnpHost = cms::cuda::make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
 
   std::vector<unsigned int> const& fedIds = cablingMap_->fedIds();
   std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap_->cablingTree();

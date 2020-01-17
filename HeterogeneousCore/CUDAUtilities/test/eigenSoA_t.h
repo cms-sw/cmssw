@@ -59,13 +59,13 @@ __global__ void testBasicSoA(float* p) {
 #include <random>
 
 #ifdef __CUDACC__
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #endif
 
 int main() {
 #ifdef __CUDACC__
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 #endif
 
   float p[1024];

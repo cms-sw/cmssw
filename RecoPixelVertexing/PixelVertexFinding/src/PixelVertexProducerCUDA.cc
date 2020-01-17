@@ -1,6 +1,6 @@
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -15,7 +15,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 
 #include "gpuVertexFinder.h"
 
@@ -31,7 +31,7 @@ private:
 
   bool m_OnGPU;
 
-  edm::EDGetTokenT<CUDAProduct<PixelTrackHeterogeneous>> tokenGPUTrack_;
+  edm::EDGetTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenGPUTrack_;
   edm::EDPutTokenT<ZVertexCUDAProduct> tokenGPUVertex_;
   edm::EDGetTokenT<PixelTrackHeterogeneous> tokenCPUTrack_;
   edm::EDPutTokenT<ZVertexHeterogeneous> tokenCPUVertex_;
@@ -55,7 +55,8 @@ PixelVertexProducerCUDA::PixelVertexProducerCUDA(const edm::ParameterSet& conf)
       m_ptMin(conf.getParameter<double>("PtMin"))  // 0.5 GeV
 {
   if (m_OnGPU) {
-    tokenGPUTrack_ = consumes<CUDAProduct<PixelTrackHeterogeneous>>(conf.getParameter<edm::InputTag>("pixelTrackSrc"));
+    tokenGPUTrack_ =
+        consumes<cms::cuda::Product<PixelTrackHeterogeneous>>(conf.getParameter<edm::InputTag>("pixelTrackSrc"));
     tokenGPUVertex_ = produces<ZVertexCUDAProduct>();
   } else {
     tokenCPUTrack_ = consumes<PixelTrackHeterogeneous>(conf.getParameter<edm::InputTag>("pixelTrackSrc"));
@@ -88,10 +89,10 @@ void PixelVertexProducerCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
 
 void PixelVertexProducerCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   if (m_OnGPU) {
-    edm::Handle<CUDAProduct<PixelTrackHeterogeneous>> hTracks;
+    edm::Handle<cms::cuda::Product<PixelTrackHeterogeneous>> hTracks;
     iEvent.getByToken(tokenGPUTrack_, hTracks);
 
-    CUDAScopedContextProduce ctx{*hTracks};
+    cms::cuda::ScopedContextProduce ctx{*hTracks};
     auto const* tracks = ctx.get(*hTracks).get();
 
     assert(tracks);

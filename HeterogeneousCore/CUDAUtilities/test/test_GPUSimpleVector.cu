@@ -8,7 +8,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 __global__ void vector_pushback(GPU::SimpleVector<int> *foo) {
   auto index = threadIdx.x + blockIdx.x * blockDim.x;
@@ -23,7 +23,7 @@ __global__ void vector_emplace_back(GPU::SimpleVector<int> *foo) {
 }
 
 int main() {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   auto maxN = 10000;
   GPU::SimpleVector<int> *obj_ptr = nullptr;

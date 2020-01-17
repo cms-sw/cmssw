@@ -1,4 +1,4 @@
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 
@@ -17,11 +17,11 @@
 namespace {
   class BSHost {
   public:
-    BSHost() : bs{cudautils::make_host_noncached_unique<BeamSpotCUDA::Data>(cudaHostAllocWriteCombined)} {}
+    BSHost() : bs{cms::cuda::make_host_noncached_unique<BeamSpotCUDA::Data>(cudaHostAllocWriteCombined)} {}
     BeamSpotCUDA::Data* get() { return bs.get(); }
 
   private:
-    cudautils::host::noncached::unique_ptr<BeamSpotCUDA::Data> bs;
+    cms::cuda::host::noncached::unique_ptr<BeamSpotCUDA::Data> bs;
   };
 }  // namespace
 
@@ -44,12 +44,12 @@ public:
 
 private:
   edm::EDGetTokenT<reco::BeamSpot> bsGetToken_;
-  edm::EDPutTokenT<CUDAProduct<BeamSpotCUDA>> bsPutToken_;
+  edm::EDPutTokenT<cms::cuda::Product<BeamSpotCUDA>> bsPutToken_;
 };
 
 BeamSpotToCUDA::BeamSpotToCUDA(const edm::ParameterSet& iConfig)
     : bsGetToken_{consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("src"))},
-      bsPutToken_{produces<CUDAProduct<BeamSpotCUDA>>()} {}
+      bsPutToken_{produces<cms::cuda::Product<BeamSpotCUDA>>()} {}
 
 void BeamSpotToCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -58,7 +58,7 @@ void BeamSpotToCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 
 void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  CUDAScopedContextProduce ctx{streamID};
+  cms::cuda::ScopedContextProduce ctx{streamID};
 
   const reco::BeamSpot& bs = iEvent.get(bsGetToken_);
 

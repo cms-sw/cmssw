@@ -8,18 +8,18 @@
 
 namespace {
   const size_t maxAllocationSize =
-      notcub::CachingDeviceAllocator::IntPow(cudautils::allocator::binGrowth, cudautils::allocator::maxBin);
+      notcub::CachingDeviceAllocator::IntPow(cms::cuda::allocator::binGrowth, cms::cuda::allocator::maxBin);
 }
 
-namespace cudautils {
+namespace cms::cuda {
   void *allocate_host(size_t nbytes, cudaStream_t stream) {
     void *ptr = nullptr;
-    if constexpr (cudautils::allocator::useCaching) {
+    if constexpr (allocator::useCaching) {
       if (UNLIKELY(nbytes > maxAllocationSize)) {
         throw std::runtime_error("Tried to allocate " + std::to_string(nbytes) +
                                  " bytes, but the allocator maximum is " + std::to_string(maxAllocationSize));
       }
-      cudaCheck(cudautils::allocator::getCachingHostAllocator().HostAllocate(&ptr, nbytes, stream));
+      cudaCheck(allocator::getCachingHostAllocator().HostAllocate(&ptr, nbytes, stream));
     } else {
       cudaCheck(cudaMallocHost(&ptr, nbytes));
     }
@@ -27,11 +27,11 @@ namespace cudautils {
   }
 
   void free_host(void *ptr) {
-    if constexpr (cudautils::allocator::useCaching) {
-      cudaCheck(cudautils::allocator::getCachingHostAllocator().HostFree(ptr));
+    if constexpr (allocator::useCaching) {
+      cudaCheck(allocator::getCachingHostAllocator().HostFree(ptr));
     } else {
       cudaCheck(cudaFreeHost(ptr));
     }
   }
 
-}  // namespace cudautils
+}  // namespace cms::cuda

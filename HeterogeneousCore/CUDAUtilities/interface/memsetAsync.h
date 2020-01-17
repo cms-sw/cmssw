@@ -6,25 +6,28 @@
 
 #include <type_traits>
 
-namespace cudautils {
-  template <typename T>
-  inline void memsetAsync(cudautils::device::unique_ptr<T>& ptr, T value, cudaStream_t stream) {
-    // Shouldn't compile for array types because of sizeof(T), but
-    // let's add an assert with a more helpful message
-    static_assert(std::is_array<T>::value == false, "For array types, use the other overload with the size parameter");
-    cudaCheck(cudaMemsetAsync(ptr.get(), value, sizeof(T), stream));
-  }
+namespace cms {
+  namespace cuda {
+    template <typename T>
+    inline void memsetAsync(device::unique_ptr<T>& ptr, T value, cudaStream_t stream) {
+      // Shouldn't compile for array types because of sizeof(T), but
+      // let's add an assert with a more helpful message
+      static_assert(std::is_array<T>::value == false,
+                    "For array types, use the other overload with the size parameter");
+      cudaCheck(cudaMemsetAsync(ptr.get(), value, sizeof(T), stream));
+    }
 
-  /**
+    /**
    * The type of `value` is `int` because of `cudaMemsetAsync()` takes
    * it as an `int`. Note that `cudaMemsetAsync()` sets the value of
    * each **byte** to `value`. This may lead to unexpected results if
    * `sizeof(T) > 1` and `value != 0`.
    */
-  template <typename T>
-  inline void memsetAsync(cudautils::device::unique_ptr<T[]>& ptr, int value, size_t nelements, cudaStream_t stream) {
-    cudaCheck(cudaMemsetAsync(ptr.get(), value, nelements * sizeof(T), stream));
-  }
-}  // namespace cudautils
+    template <typename T>
+    inline void memsetAsync(device::unique_ptr<T[]>& ptr, int value, size_t nelements, cudaStream_t stream) {
+      cudaCheck(cudaMemsetAsync(ptr.get(), value, nelements * sizeof(T), stream));
+    }
+  }  // namespace cuda
+}  // namespace cms
 
 #endif

@@ -11,8 +11,8 @@
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAEventCache.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/EventCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/StreamCache.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
@@ -90,7 +90,7 @@ namespace {
     if (bufferSizes.empty())
       return;
 
-    auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
+    auto streamPtr = cms::cuda::getStreamCache().get();
 
     std::vector<UniquePtr<char[]> > buffers;
     buffers.reserve(bufferSizes.size());
@@ -104,22 +104,22 @@ namespace {
     cudaCheck(cudaGetDevice(&device));
     for (int i = 0; i < numberOfDevices; ++i) {
       cudaCheck(cudaSetDevice(i));
-      preallocate<cudautils::device::unique_ptr>(
-          [&](size_t size, cudaStream_t stream) { return cudautils::make_device_unique<char[]>(size, stream); },
+      preallocate<cms::cuda::device::unique_ptr>(
+          [&](size_t size, cudaStream_t stream) { return cms::cuda::make_device_unique<char[]>(size, stream); },
           bufferSizes);
     }
     cudaCheck(cudaSetDevice(device));
   }
 
   void hostPreallocate(const std::vector<unsigned int>& bufferSizes) {
-    preallocate<cudautils::host::unique_ptr>(
-        [&](size_t size, cudaStream_t stream) { return cudautils::make_host_unique<char[]>(size, stream); },
+    preallocate<cms::cuda::host::unique_ptr>(
+        [&](size_t size, cudaStream_t stream) { return cms::cuda::make_host_unique<char[]>(size, stream); },
         bufferSizes);
   }
 }  // namespace
 
 /// Constructor
-CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry& iRegistry) {
+CUDAService::CUDAService(edm::ParameterSet const& config) {
   bool configEnabled = config.getUntrackedParameter<bool>("enabled");
   if (not configEnabled) {
     edm::LogInfo("CUDAService") << "CUDAService disabled by configuration";
@@ -167,7 +167,9 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
         "exclusive (single process)",  // cudaComputeModeExclusiveProcess
         "unknown"};
     log << "  compute mode:" << std::right << std::setw(27)
-        << computeModeDescription[std::min(properties.computeMode, (int)std::size(computeModeDescription) - 1)] << '\n';
+        << computeModeDescription[std::min(properties.computeMode,
+                                           static_cast<int>(std::size(computeModeDescription)) - 1)]
+        << '\n';
 
     // TODO if a device is in exclusive use, skip it and remove it from the list, instead of failing with abort()
     cudaCheck(cudaSetDevice(i));
@@ -297,12 +299,12 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
   log << "\n";
 
   // Make sure the caching allocators and stream/event caches are constructed before declaring successful construction
-  if constexpr (cudautils::allocator::useCaching) {
-    cudautils::allocator::getCachingDeviceAllocator();
-    cudautils::allocator::getCachingHostAllocator();
+  if constexpr (cms::cuda::allocator::useCaching) {
+    cms::cuda::allocator::getCachingDeviceAllocator();
+    cms::cuda::allocator::getCachingHostAllocator();
   }
-  cudautils::getCUDAEventCache().clear();
-  cudautils::getCUDAStreamCache().clear();
+  cms::cuda::getEventCache().clear();
+  cms::cuda::getStreamCache().clear();
 
   log << "CUDAService fully initialized";
   enabled_ = true;
@@ -316,12 +318,12 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
 CUDAService::~CUDAService() {
   if (enabled_) {
     // Explicitly destruct the allocator before the device resets below
-    if constexpr (cudautils::allocator::useCaching) {
-      cudautils::allocator::getCachingDeviceAllocator().FreeAllCached();
-      cudautils::allocator::getCachingHostAllocator().FreeAllCached();
+    if constexpr (cms::cuda::allocator::useCaching) {
+      cms::cuda::allocator::getCachingDeviceAllocator().FreeAllCached();
+      cms::cuda::allocator::getCachingHostAllocator().FreeAllCached();
     }
-    cudautils::getCUDAEventCache().clear();
-    cudautils::getCUDAStreamCache().clear();
+    cms::cuda::getEventCache().clear();
+    cms::cuda::getStreamCache().clear();
 
     for (int i = 0; i < numberOfDevices_; ++i) {
       cudaCheck(cudaSetDevice(i));

@@ -2,7 +2,7 @@
 #define CalibTracker_SiPixelESProducers_interface_SiPixelGainCalibrationForHLTGPU_h
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAESProduct.h"
+#include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 
 class SiPixelGainCalibrationForHLT;
 class SiPixelGainForHLTonGPU;
@@ -26,7 +26,7 @@ private:
     SiPixelGainForHLTonGPU *gainForHLTonGPU = nullptr;
     SiPixelGainForHLTonGPU_DecodingStructure *gainDataOnGPU = nullptr;
   };
-  CUDAESProduct<GPUData> gpuData_;
+  cms::cuda::ESProduct<GPUData> gpuData_;
 };
 
 #endif  // CalibTracker_SiPixelESProducers_interface_SiPixelGainCalibrationForHLTGPU_h

@@ -22,7 +22,7 @@ int main() {
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties, i);
 
-    if (properties.major < minimumMajor) {
+    if ((not(properties.major == 3 and properties.minor == 5)) and properties.major < minimumMajor) {
       return EXIT_FAILURE;
     }
   }

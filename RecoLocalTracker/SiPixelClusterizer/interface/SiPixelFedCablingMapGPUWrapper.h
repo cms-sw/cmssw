@@ -1,7 +1,7 @@
 #ifndef RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPUWrapper_h
 #define RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPUWrapper_h
 
-#include "HeterogeneousCore/CUDACore/interface/CUDAESProduct.h"
+#include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPU.h"
@@ -29,7 +29,7 @@ public:
 
   // returns pointer to GPU memory
   const unsigned char *getModToUnpAllAsync(cudaStream_t cudaStream) const;
-  cudautils::device::unique_ptr<unsigned char[]> getModToUnpRegionalAsync(std::set<unsigned int> const &modules,
+  cms::cuda::device::unique_ptr<unsigned char[]> getModToUnpRegionalAsync(std::set<unsigned int> const &modules,
                                                                           cudaStream_t cudaStream) const;
 
 private:
@@ -44,13 +44,13 @@ private:
     ~GPUData();
     SiPixelFedCablingMapGPU *cablingMapDevice = nullptr;  // pointer to struct in GPU
   };
-  CUDAESProduct<GPUData> gpuData_;
+  cms::cuda::ESProduct<GPUData> gpuData_;
 
   struct ModulesToUnpack {
     ~ModulesToUnpack();
     unsigned char *modToUnpDefault = nullptr;  // pointer to GPU
   };
-  CUDAESProduct<ModulesToUnpack> modToUnp_;
+  cms::cuda::ESProduct<ModulesToUnpack> modToUnp_;
 };
 
 #endif

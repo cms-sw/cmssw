@@ -63,8 +63,8 @@ namespace pixelgpudetails {
     }
 
     if (nHits) {
-      auto hws = cudautils::make_device_unique<uint8_t[]>(TrackingRecHit2DSOAView::Hist::wsSize(), stream);
-      cudautils::fillManyFromVector(
+      auto hws = cms::cuda::make_device_unique<uint8_t[]>(TrackingRecHit2DSOAView::Hist::wsSize(), stream);
+      cms::cuda::fillManyFromVector(
           hits_d.phiBinner(), hws.get(), 10, hits_d.iphi(), hits_d.hitsLayerStart(), nHits, 256, stream);
       cudaCheck(cudaGetLastError());
     }

@@ -13,7 +13,7 @@
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 void toGlobalWrapper(SOAFrame<float> const *frame,
                      float const *xl,
@@ -26,7 +26,7 @@ void toGlobalWrapper(SOAFrame<float> const *frame,
                      uint32_t n);
 
 int main(void) {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   typedef float T;
   typedef TkRotation<T> Rotation;
@@ -49,15 +49,15 @@ int main(void) {
   float le[3 * size];
   float ge[6 * size];
 
-  auto d_xl = cudautils::make_device_unique<float[]>(size, nullptr);
-  auto d_yl = cudautils::make_device_unique<float[]>(size, nullptr);
+  auto d_xl = cms::cuda::make_device_unique<float[]>(size, nullptr);
+  auto d_yl = cms::cuda::make_device_unique<float[]>(size, nullptr);
 
-  auto d_x = cudautils::make_device_unique<float[]>(size, nullptr);
-  auto d_y = cudautils::make_device_unique<float[]>(size, nullptr);
-  auto d_z = cudautils::make_device_unique<float[]>(size, nullptr);
+  auto d_x = cms::cuda::make_device_unique<float[]>(size, nullptr);
+  auto d_y = cms::cuda::make_device_unique<float[]>(size, nullptr);
+  auto d_z = cms::cuda::make_device_unique<float[]>(size, nullptr);
 
-  auto d_le = cudautils::make_device_unique<float[]>(3 * size, nullptr);
-  auto d_ge = cudautils::make_device_unique<float[]>(6 * size, nullptr);
+  auto d_le = cms::cuda::make_device_unique<float[]>(3 * size, nullptr);
+  auto d_ge = cms::cuda::make_device_unique<float[]>(6 * size, nullptr);
 
   double a = 0.01;
   double ca = std::cos(a);
@@ -70,7 +70,7 @@ int main(void) {
 
   SFrame sf1(f1.position().x(), f1.position().y(), f1.position().z(), f1.rotation());
 
-  auto d_sf = cudautils::make_device_unique<char[]>(sizeof(SFrame), nullptr);
+  auto d_sf = cms::cuda::make_device_unique<char[]>(sizeof(SFrame), nullptr);
   cudaCheck(cudaMemcpy(d_sf.get(), &sf1, sizeof(SFrame), cudaMemcpyHostToDevice));
 
   for (auto i = 0U; i < size; ++i) {

@@ -12,17 +12,9 @@ namespace edm {
   class ConfigurationDescriptions;
 }  // namespace edm
 
-/**
- * TODO:
- * - CUDA stream management?
- *   * Not really needed until we want to pass CUDA stream objects from one module to another
- *   * Which is not really needed until we want to go for "streaming mode"
- *   * Until that framework's inter-module synchronization is safe (but not necessarily optimal)
- * - Management of (preallocated) memory?
- */
 class CUDAService {
 public:
-  CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iRegistry);
+  CUDAService(edm::ParameterSet const& iConfig);
   ~CUDAService();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -32,7 +24,7 @@ public:
   int numberOfDevices() const { return numberOfDevices_; }
 
   // major, minor
-  std::pair<int, int> computeCapability(int device) { return computeCapabilities_.at(device); }
+  std::pair<int, int> computeCapability(int device) const { return computeCapabilities_.at(device); }
 
   // Returns the id of device with most free memory. If none is found, returns -1.
   int deviceWithMostFreeMemory() const;

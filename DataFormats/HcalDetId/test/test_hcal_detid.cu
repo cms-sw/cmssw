@@ -6,7 +6,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 __global__ void test_gen_detid(DetId *id) {
   DetId did;
@@ -65,7 +65,7 @@ void test_hcal_detid() {
 }
 
 int main(int argc, char **argv) {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   // test det id functionality
   test_detid();

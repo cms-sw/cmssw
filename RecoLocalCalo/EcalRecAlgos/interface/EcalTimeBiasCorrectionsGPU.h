@@ -5,7 +5,7 @@
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAESProduct.h"
+#include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #endif
 
 #include <cuda_runtime.h>
@@ -44,7 +44,7 @@ private:
   std::vector<float> const& EETimeCorrShiftBins_;
 
 #ifndef __CUDACC__
-  CUDAESProduct<Product> product_;
+  cms::cuda::ESProduct<Product> product_;
 #endif
 };
 

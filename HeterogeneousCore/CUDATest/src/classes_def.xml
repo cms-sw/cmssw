@@ -1,4 +1,4 @@
 <lcgdict>
-    <class name="CUDAProduct<CUDAThing>" persistent="false"/>
-    <class name="edm::Wrapper<CUDAProduct<CUDAThing>>" persistent="false"/>
+    <class name="cms::cuda::Product<cms::cudatest::Thing>" persistent="false"/>
+    <class name="edm::Wrapper<cms::cuda::Product<cms::cudatest::Thing>>" persistent="false"/>
 </lcgdict>

@@ -2,9 +2,8 @@
 #include <iostream>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 
 __global__ void testBinaryFind() {
   int data[] = {1, 1, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6};
@@ -22,18 +21,10 @@ __global__ void testBinaryFind() {
   assert(data2 + 6 == cuda_std::binary_find(data2, data2 + 6, 5));
 }
 
-void wrapper() {
-  if (cudautils::cudaDeviceCount() == 0) {
-    std::cerr << "No CUDA devices on this system"
-              << "\n";
-    exit(EXIT_FAILURE);
-  }
-
-  cudautils::launch(testBinaryFind, {32, 64});
-}
+void wrapper() { cms::cuda::launch(testBinaryFind, {32, 64}); }
 
 int main() {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   wrapper();
 }

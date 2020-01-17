@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "SimTracker/TrackerHitAssociation/interface/trackerHitAssociationHeterogeneous.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"

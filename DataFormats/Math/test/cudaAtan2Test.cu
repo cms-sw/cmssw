@@ -30,7 +30,7 @@ end
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 constexpr float xmin = -100.001;  // avoid 0
@@ -68,7 +68,7 @@ void go() {
   // atan2
   delta -= (std::chrono::high_resolution_clock::now() - start);
 
-  auto diff_d = cudautils::make_device_unique<int[]>(3, nullptr);
+  auto diff_d = cms::cuda::make_device_unique<int[]>(3, nullptr);
 
   int diffs[3];
   cudaCheck(cudaMemset(diff_d.get(), 0, 3 * 4));
@@ -80,7 +80,7 @@ void go() {
   std::cout << "CUDA kernel 'diff' launch with " << blocksPerGrid.x << " blocks of " << threadsPerBlock.y
             << " threads\n";
 
-  cudautils::launch(diffAtan<DEGREE>, {blocksPerGrid, threadsPerBlock}, diff_d.get());
+  cms::cuda::launch(diffAtan<DEGREE>, {blocksPerGrid, threadsPerBlock}, diff_d.get());
 
   cudaCheck(cudaMemcpy(diffs, diff_d.get(), 3 * 4, cudaMemcpyDeviceToHost));
   delta += (std::chrono::high_resolution_clock::now() - start);
@@ -96,7 +96,7 @@ void go() {
 }
 
 int main() {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   try {
     go<3>();

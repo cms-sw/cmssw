@@ -1,6 +1,6 @@
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,7 +16,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "SimTracker/TrackerHitAssociation/interface/trackerHitAssociationHeterogeneous.h"
 
@@ -34,12 +34,12 @@ public:
 private:
   void analyze(edm::StreamID streamID, edm::Event const& iEvent, const edm::EventSetup& iSetup) const override;
   const bool m_onGPU;
-  edm::EDGetTokenT<CUDAProduct<ProductCUDA>> tokenGPU_;
+  edm::EDGetTokenT<cms::cuda::Product<ProductCUDA>> tokenGPU_;
 };
 
 ClusterTPCUDAdump::ClusterTPCUDAdump(const edm::ParameterSet& iConfig) : m_onGPU(iConfig.getParameter<bool>("onGPU")) {
   if (m_onGPU) {
-    tokenGPU_ = consumes<CUDAProduct<ProductCUDA>>(iConfig.getParameter<edm::InputTag>("clusterTP"));
+    tokenGPU_ = consumes<cms::cuda::Product<ProductCUDA>>(iConfig.getParameter<edm::InputTag>("clusterTP"));
   } else {
   }
 }
@@ -47,7 +47,7 @@ ClusterTPCUDAdump::ClusterTPCUDAdump(const edm::ParameterSet& iConfig) : m_onGPU
 void ClusterTPCUDAdump::analyze(edm::StreamID streamID, edm::Event const& iEvent, const edm::EventSetup& iSetup) const {
   if (m_onGPU) {
     auto const& hctp = iEvent.get(tokenGPU_);
-    CUDAScopedContextProduce ctx{hctp};
+    cms::cuda::ScopedContextProduce ctx{hctp};
 
     auto const& ctp = ctx.get(hctp);
     auto const& soa = ctp.view();

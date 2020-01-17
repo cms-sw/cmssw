@@ -1,6 +1,6 @@
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -19,7 +19,7 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 class SiPixelRecHitFromSOA : public edm::stream::EDProducer<edm::ExternalWork> {
@@ -37,17 +37,18 @@ private:
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
-  edm::EDGetTokenT<CUDAProduct<TrackingRecHit2DCUDA>> tokenHit_;  // CUDA hits
-  edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;    // Legacy Clusters
+  edm::EDGetTokenT<cms::cuda::Product<TrackingRecHit2DCUDA>> tokenHit_;  // CUDA hits
+  edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;           // Legacy Clusters
 
   uint32_t m_nHits;
-  cudautils::host::unique_ptr<uint16_t[]> m_store16;
-  cudautils::host::unique_ptr<float[]> m_store32;
-  cudautils::host::unique_ptr<uint32_t[]> m_hitsModuleStart;
+  cms::cuda::host::unique_ptr<uint16_t[]> m_store16;
+  cms::cuda::host::unique_ptr<float[]> m_store32;
+  cms::cuda::host::unique_ptr<uint32_t[]> m_hitsModuleStart;
 };
 
 SiPixelRecHitFromSOA::SiPixelRecHitFromSOA(const edm::ParameterSet& iConfig)
-    : tokenHit_(consumes<CUDAProduct<TrackingRecHit2DCUDA>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
+    : tokenHit_(
+          consumes<cms::cuda::Product<TrackingRecHit2DCUDA>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       clusterToken_(consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("src"))) {
   produces<SiPixelRecHitCollectionNew>();
   produces<HMSstorage>();
@@ -63,8 +64,8 @@ void SiPixelRecHitFromSOA::fillDescriptions(edm::ConfigurationDescriptions& desc
 void SiPixelRecHitFromSOA::acquire(edm::Event const& iEvent,
                                    edm::EventSetup const& iSetup,
                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  CUDAProduct<TrackingRecHit2DCUDA> const& inputDataWrapped = iEvent.get(tokenHit_);
-  CUDAScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
+  cms::cuda::Product<TrackingRecHit2DCUDA> const& inputDataWrapped = iEvent.get(tokenHit_);
+  cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
   m_nHits = inputData.nHits();

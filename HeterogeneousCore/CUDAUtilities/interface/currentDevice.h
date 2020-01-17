@@ -5,12 +5,14 @@
 
 #include <cuda_runtime.h>
 
-namespace cudautils {
-  inline int currentDevice() {
-    int dev;
-    cudaCheck(cudaGetDevice(&dev));
-    return dev;
-  }
-}  // namespace cudautils
+namespace cms {
+  namespace cuda {
+    inline int currentDevice() {
+      int dev;
+      cudaCheck(cudaGetDevice(&dev));
+      return dev;
+    }
+  }  // namespace cuda
+}  // namespace cms
 
 #endif

@@ -378,6 +378,7 @@ namespace notcub {
             cached_bytes[device].live += search_key.bytes;
 
             if (debug)
+              // CMS: improved debug message
               _CubLog(
                   "\tDevice %d reused cached block at %p (%lld bytes) for stream %lld, event %lld (previously "
                   "associated with stream %lld, event %lld).\n",
@@ -483,6 +484,7 @@ namespace notcub {
         mutex.Unlock();
 
         if (debug)
+          // CMS: improved debug message
           _CubLog(
               "\tDevice %d allocated new device block at %p (%lld bytes associated with stream %lld, event %lld).\n",
               device,
@@ -564,6 +566,7 @@ namespace notcub {
           cached_bytes[device].free += search_key.bytes;
 
           if (debug)
+            // CMS: improved debug message
             _CubLog(
                 "\tDevice %d returned %lld bytes at %p from associated stream %lld, event %lld.\n\t\t %lld available "
                 "blocks cached (%lld bytes), %lld live blocks outstanding. (%lld bytes)\n",
@@ -604,6 +607,7 @@ namespace notcub {
           return error;
 
         if (debug)
+          // CMS: improved debug message
           _CubLog(
               "\tDevice %d freed %lld bytes at %p from associated stream %lld, event %lld.\n\t\t  %lld available "
               "blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",

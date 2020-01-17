@@ -7,23 +7,16 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 template <typename T>
 void go() {
-  if (cudautils::cudaDeviceCount() == 0) {
-    std::cerr << "No CUDA devices on this system"
-              << "\n";
-    exit(EXIT_FAILURE);
-  }
-
   std::mt19937 eng;
   std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
 
   constexpr int N = 12000;
   T v[N];
-  auto v_d = cudautils::make_device_unique<T[]>(N, nullptr);
+  auto v_d = cms::cuda::make_device_unique<T[]>(N, nullptr);
 
   cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
 
@@ -37,10 +30,10 @@ void go() {
             << (std::numeric_limits<T>::max() - std::numeric_limits<T>::min()) / Hist::nbins() << std::endl;
 
   Hist h;
-  auto h_d = cudautils::make_device_unique<Hist[]>(1, nullptr);
-  auto ws_d = cudautils::make_device_unique<uint8_t[]>(Hist::wsSize(), nullptr);
+  auto h_d = cms::cuda::make_device_unique<Hist[]>(1, nullptr);
+  auto ws_d = cms::cuda::make_device_unique<uint8_t[]>(Hist::wsSize(), nullptr);
 
-  auto off_d = cudautils::make_device_unique<uint32_t[]>(nParts + 1, nullptr);
+  auto off_d = cms::cuda::make_device_unique<uint32_t[]>(nParts + 1, nullptr);
 
   for (int it = 0; it < 5; ++it) {
     offsets[0] = 0;
@@ -75,7 +68,7 @@ void go() {
 
     cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
 
-    cudautils::fillManyFromVector(h_d.get(), ws_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, 0);
+    cms::cuda::fillManyFromVector(h_d.get(), ws_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, 0);
     cudaCheck(cudaMemcpy(&h, h_d.get(), sizeof(Hist), cudaMemcpyDeviceToHost));
     assert(0 == h.off[0]);
     assert(offsets[10] == h.size());
@@ -152,7 +145,7 @@ void go() {
 }
 
 int main() {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   go<int16_t>();
   go<int8_t>();

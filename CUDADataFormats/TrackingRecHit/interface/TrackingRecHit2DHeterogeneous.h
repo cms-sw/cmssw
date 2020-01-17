@@ -37,9 +37,9 @@ public:
   auto iphi() { return m_iphi; }
 
   // only the local coord and detector index
-  cudautils::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const;
-  cudautils::host::unique_ptr<uint16_t[]> detIndexToHostAsync(cudaStream_t stream) const;
-  cudautils::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
+  cms::cuda::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const;
+  cms::cuda::host::unique_ptr<uint16_t[]> detIndexToHostAsync(cudaStream_t stream) const;
+  cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
 
 private:
   static constexpr uint32_t n16 = 4;
@@ -89,7 +89,7 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
         constexpr
 #endif
         (std::is_same<Traits, cudaCompat::GPUTraits>::value) {
-      cudautils::copyAsync(m_view, view, stream);
+      cms::cuda::copyAsync(m_view, view, stream);
     } else {
       m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
     }
@@ -136,7 +136,7 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
       constexpr
 #endif
       (std::is_same<Traits, cudaCompat::GPUTraits>::value) {
-    cudautils::copyAsync(m_view, view, stream);
+    cms::cuda::copyAsync(m_view, view, stream);
   } else {
     m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
   }

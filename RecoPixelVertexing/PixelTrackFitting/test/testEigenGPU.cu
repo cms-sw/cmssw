@@ -4,7 +4,7 @@
 #include <Eigen/Eigenvalues>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 #ifdef USE_BL
 #include "RecoPixelVertexing/PixelTrackFitting/interface/BrokenLine.h"
@@ -329,7 +329,7 @@ void testFit() {
 }
 
 int main(int argc, char* argv[]) {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   testFit<4>();
   testFit<3>();

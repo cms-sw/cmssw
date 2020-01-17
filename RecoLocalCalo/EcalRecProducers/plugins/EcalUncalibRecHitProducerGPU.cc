@@ -4,7 +4,7 @@
 //#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -79,7 +79,7 @@ private:
   ecal::multifit::EventDataForScratchGPU eventDataForScratchGPU_;
   bool shouldTransferToHost_{true};
 
-  CUDAContextState cudaState_;
+  cms::cuda::ContextState cudaState_;
 
   std::unique_ptr<ecal::UncalibratedRecHit<ecal::Tag::soa>> ebRecHits_{nullptr}, eeRecHits_{nullptr};
 
@@ -294,7 +294,7 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
   //DurationMeasurer<std::chrono::milliseconds> timer{std::string{"acquire duration"}};
 
   // raii
-  CUDAScopedContextAcquire ctx{event.streamID(), std::move(holder), cudaState_};
+  cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(holder), cudaState_};
 
   // conditions
   setup.get<EcalPedestalsRcd>().get(pedestalsHandle_);
@@ -364,7 +364,7 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
 
 void EcalUncalibRecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {
   //DurationMeasurer<std::chrono::milliseconds> timer{std::string{"produce duration"}};
-  CUDAScopedContextProduce ctx{cudaState_};
+  cms::cuda::ScopedContextProduce ctx{cudaState_};
 
   if (shouldTransferToHost_) {
     // rec hits objects were not originally member variables

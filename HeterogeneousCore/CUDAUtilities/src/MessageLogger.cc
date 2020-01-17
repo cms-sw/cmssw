@@ -1,7 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/MessageLogger.h"
 
-namespace cudautils {
+namespace cms::cuda {
 
   LogSystem::~LogSystem() { edm::LogSystem(category_) << message_.str(); }
 
@@ -21,4 +21,4 @@ namespace cudautils {
 
   LogVerbatim::~LogVerbatim() { edm::LogVerbatim(category_) << message_.str(); }
 
-}  // namespace cudautils
+}  // namespace cms::cuda

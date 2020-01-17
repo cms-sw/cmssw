@@ -1,6 +1,6 @@
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -15,7 +15,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 
 class PixelTrackSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -30,14 +30,14 @@ private:
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
-  edm::EDGetTokenT<CUDAProduct<PixelTrackHeterogeneous>> tokenCUDA_;
+  edm::EDGetTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenCUDA_;
   edm::EDPutTokenT<PixelTrackHeterogeneous> tokenSOA_;
 
-  cudautils::host::unique_ptr<pixelTrack::TrackSoA> m_soa;
+  cms::cuda::host::unique_ptr<pixelTrack::TrackSoA> m_soa;
 };
 
 PixelTrackSoAFromCUDA::PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig)
-    : tokenCUDA_(consumes<CUDAProduct<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("src"))),
+    : tokenCUDA_(consumes<cms::cuda::Product<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("src"))),
       tokenSOA_(produces<PixelTrackHeterogeneous>()) {}
 
 void PixelTrackSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -50,8 +50,8 @@ void PixelTrackSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& des
 void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,
                                     edm::EventSetup const& iSetup,
                                     edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  CUDAProduct<PixelTrackHeterogeneous> const& inputDataWrapped = iEvent.get(tokenCUDA_);
-  CUDAScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
+  cms::cuda::Product<PixelTrackHeterogeneous> const& inputDataWrapped = iEvent.get(tokenCUDA_);
+  cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
   m_soa = inputData.toHostAsync(ctx.stream());

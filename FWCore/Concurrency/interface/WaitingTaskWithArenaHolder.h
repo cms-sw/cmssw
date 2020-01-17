@@ -24,9 +24,8 @@
 
 #include "tbb/task_arena.h"
 
-#include "FWCore/Concurrency/interface/WaitingTask.h"
-
 namespace edm {
+  class WaitingTask;
   class WaitingTaskHolder;
 
   class WaitingTaskWithArenaHolder {

@@ -10,23 +10,19 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
 
 namespace {
-  CUDAService makeCUDAService(edm::ParameterSet ps, edm::ActivityRegistry& ar) {
+  CUDAService makeCUDAService(edm::ParameterSet ps) {
     auto desc = edm::ConfigurationDescriptions("Service", "CUDAService");
     CUDAService::fillDescriptions(desc);
     desc.validate(ps, "CUDAService");
-    return CUDAService(ps, ar);
+    return CUDAService(ps);
   }
 }  // namespace
 
 TEST_CASE("Tests of CUDAService", "[CUDAService]") {
-  edm::ActivityRegistry ar;
-
   // Test setup: check if a simple CUDA runtime API call fails:
   // if so, skip the test with the CUDAService enabled
   int deviceCount = 0;
@@ -41,7 +37,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     edm::ParameterSet ps;
     ps.addUntrackedParameter("enabled", true);
     SECTION("Enabled only if there are CUDA capable GPUs") {
-      auto cs = makeCUDAService(ps, ar);
+      auto cs = makeCUDAService(ps);
       if (deviceCount <= 0) {
         REQUIRE(cs.enabled() == false);
         WARN("CUDAService is disabled as there are no CUDA GPU devices");
@@ -55,7 +51,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
       return;
     }
 
-    auto cs = makeCUDAService(ps, ar);
+    auto cs = makeCUDAService(ps);
 
     SECTION("CUDA Queries") {
       int driverVersion = 0, runtimeVersion = 0;
@@ -116,11 +112,8 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
   SECTION("Force to be disabled") {
     edm::ParameterSet ps;
     ps.addUntrackedParameter("enabled", false);
-    auto cs = makeCUDAService(ps, ar);
+    auto cs = makeCUDAService(ps);
     REQUIRE(cs.enabled() == false);
     REQUIRE(cs.numberOfDevices() == 0);
   }
-
-  //Fake the end-of-job signal.
-  ar.postEndJobSignal_();
 }

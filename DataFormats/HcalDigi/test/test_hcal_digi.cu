@@ -11,7 +11,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 __global__ void kernel_test_hcal_qiesample(HcalQIESample *sample, uint16_t value) {
   printf("kernel: testing hcal qie sampel\n");
@@ -163,7 +163,7 @@ void test_hcal_qie8_hbhedf() {
 }
 
 int main(int argc, char **argv) {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   // qie8
   test_hcal_qiesample();

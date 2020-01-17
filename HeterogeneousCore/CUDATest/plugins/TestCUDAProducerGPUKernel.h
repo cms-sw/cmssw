@@ -10,7 +10,7 @@
 /**
  * This class models the actual CUDA implementation of an algorithm.
  *
- * Memory is allocated dynamically with the allocator in cudautils.
+ * Memory is allocated dynamically with the allocator in cms::cuda.
  *
  * The algorithm is intended to waste time with large matrix
  * operations so that the asynchronous nature of the CUDA integration
@@ -24,10 +24,10 @@ public:
   ~TestCUDAProducerGPUKernel() = default;
 
   // returns (owning) pointer to device memory
-  cudautils::device::unique_ptr<float[]> runAlgo(const std::string& label, cudaStream_t stream) const {
+  cms::cuda::device::unique_ptr<float[]> runAlgo(const std::string& label, cudaStream_t stream) const {
     return runAlgo(label, nullptr, stream);
   }
-  cudautils::device::unique_ptr<float[]> runAlgo(const std::string& label,
+  cms::cuda::device::unique_ptr<float[]> runAlgo(const std::string& label,
                                                  const float* d_input,
                                                  cudaStream_t stream) const;
 

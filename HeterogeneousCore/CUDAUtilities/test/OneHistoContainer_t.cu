@@ -7,9 +7,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaDeviceCount.h"
 
 template <typename T, int NBINS, int S, int DELTA>
 __global__ void mykernel(T const* __restrict__ v, uint32_t N) {
@@ -93,12 +92,6 @@ __global__ void mykernel(T const* __restrict__ v, uint32_t N) {
 
 template <typename T, int NBINS = 128, int S = 8 * sizeof(T), int DELTA = 1000>
 void go() {
-  if (cudautils::cudaDeviceCount() == 0) {
-    std::cerr << "No CUDA devices on this system"
-              << "\n";
-    exit(EXIT_FAILURE);
-  }
-
   std::mt19937 eng;
 
   int rmin = std::numeric_limits<T>::min();
@@ -113,7 +106,7 @@ void go() {
   constexpr int N = 12000;
   T v[N];
 
-  auto v_d = cudautils::make_device_unique<T[]>(N, nullptr);
+  auto v_d = cms::cuda::make_device_unique<T[]>(N, nullptr);
   assert(v_d.get());
 
   using Hist = HistoContainer<T, NBINS, N, S>;
@@ -132,12 +125,12 @@ void go() {
     assert(v);
     cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
     assert(v_d.get());
-    cudautils::launch(mykernel<T, NBINS, S, DELTA>, {1, 256}, v_d.get(), N);
+    cms::cuda::launch(mykernel<T, NBINS, S, DELTA>, {1, 256}, v_d.get(), N);
   }
 }
 
 int main() {
-  requireCUDADevices();
+  cms::cudatest::requireDevices();
 
   go<int16_t>();
   go<uint8_t, 128, 8, 4>();

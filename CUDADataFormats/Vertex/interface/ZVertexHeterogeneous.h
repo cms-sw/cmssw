@@ -7,8 +7,8 @@
 
 using ZVertexHeterogeneous = HeterogeneousSoA<ZVertexSoA>;
 #ifndef __CUDACC__
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
-using ZVertexCUDAProduct = CUDAProduct<ZVertexHeterogeneous>;
+#include "CUDADataFormats/Common/interface/Product.h"
+using ZVertexCUDAProduct = cms::cuda::Product<ZVertexHeterogeneous>;
 #endif
 
 #endif

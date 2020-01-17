@@ -26,7 +26,7 @@ public:
   Data const* data() const { return data_d_.get(); }
 
 private:
-  cudautils::device::unique_ptr<Data> data_d_;
+  cms::cuda::device::unique_ptr<Data> data_d_;
 };
 
 #endif
