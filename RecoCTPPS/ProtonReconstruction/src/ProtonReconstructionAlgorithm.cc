@@ -36,9 +36,9 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y,
   // check and set multi-RP algorithm
   if (multiRPAlgorithm == "chi2")
     multi_rp_algorithm_ = mrpaChi2;
-  if (multiRPAlgorithm == "newton")
+  else if (multiRPAlgorithm == "newton")
     multi_rp_algorithm_ = mrpaNewton;
-  if (multiRPAlgorithm == "anal-iter")
+  else if (multiRPAlgorithm == "anal-iter")
     multi_rp_algorithm_ = mrpaAnalIter;
 
   if (multi_rp_algorithm_ == mrpaUndefined)
@@ -310,7 +310,7 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
     }
   }
 
-  if (multi_rp_algorithm_ == mrpaNewton || multi_rp_algorithm_ == mrpaAnalIter) {
+  else if (multi_rp_algorithm_ == mrpaNewton || multi_rp_algorithm_ == mrpaAnalIter) {
     // settings
     const unsigned int maxIterations = 100;
     const double maxXiDiff = 1E-6;
@@ -338,13 +338,13 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
       }
 
       if (multi_rp_algorithm_ == mrpaAnalIter) {
-        const double D_x_eff_N = i_N.s_x_d_vs_xi->Eval(xi_prev) / xi_prev;
-        const double D_x_eff_F = i_F.s_x_d_vs_xi->Eval(xi_prev) / xi_prev;
+        const double d_x_eff_N = i_N.s_x_d_vs_xi->Eval(xi_prev) / xi_prev;
+        const double d_x_eff_F = i_F.s_x_d_vs_xi->Eval(xi_prev) / xi_prev;
 
-        const double L_x_N = i_N.s_L_x_vs_xi->Eval(xi_prev);
-        const double L_x_F = i_F.s_L_x_vs_xi->Eval(xi_prev);
+        const double l_x_N = i_N.s_L_x_vs_xi->Eval(xi_prev);
+        const double l_x_F = i_F.s_L_x_vs_xi->Eval(xi_prev);
 
-        xi = (L_x_N * x_F - L_x_F * x_N) / (L_x_N * D_x_eff_F - L_x_F * D_x_eff_N);
+        xi = (l_x_N * x_F - l_x_F * x_N) / (l_x_N * d_x_eff_F - l_x_F * d_x_eff_N);
       }
 
       if (abs(xi - xi_prev) < maxXiDiff) {
@@ -361,19 +361,19 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
     const double y_eff_N = y_N - i_N.s_y_d_vs_xi->Eval(xi);
     const double y_eff_F = y_F - i_F.s_y_d_vs_xi->Eval(xi);
 
-    const double L_y_N = i_N.s_L_y_vs_xi->Eval(xi);
-    const double L_y_F = i_F.s_L_y_vs_xi->Eval(xi);
+    const double l_y_N = i_N.s_L_y_vs_xi->Eval(xi);
+    const double l_y_F = i_F.s_L_y_vs_xi->Eval(xi);
 
     const double v_y_N = i_N.s_v_y_vs_xi->Eval(xi);
     const double v_y_F = i_F.s_v_y_vs_xi->Eval(xi);
 
-    const double D = L_y_N * v_y_F - L_y_F * v_y_N;
+    const double det = l_y_N * v_y_F - l_y_F * v_y_N;
 
     if (fitVtxY_) {
-      th_y = (y_eff_N * v_y_F - y_eff_F * v_y_N) / D;
-      vtx_y = (L_y_N * y_eff_F - L_y_F * y_eff_N) / D;
+      th_y = (y_eff_N * v_y_F - y_eff_F * v_y_N) / det;
+      vtx_y = (l_y_N * y_eff_F - l_y_F * y_eff_N) / det;
     } else {
-      th_y = (y_eff_N / L_y_N + y_eff_F / L_y_F) / 2.;
+      th_y = (y_eff_N / l_y_N + y_eff_F / l_y_F) / 2.;
       vtx_y = 0.;
     }
 
