@@ -1,7 +1,7 @@
-#ifndef CUDADataFormats__src_classes_h
-#define CUDADataFormats__src_classes_h
+#ifndef CUDADataFormats_Track_src_classes_h
+#define CUDADataFormats_Track__src_classes_h
 
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "CUDADataFormats/Common/interface/ArrayShadow.h"
