@@ -1,8 +1,7 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
@@ -18,7 +17,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
@@ -36,11 +35,11 @@ private:
   void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   // The mess with inputs will be cleaned up when migrating to the new framework
-  edm::EDGetTokenT<CUDAProduct<BeamSpotCUDA>> tBeamSpot;
-  edm::EDGetTokenT<CUDAProduct<SiPixelClustersCUDA>> token_;
-  edm::EDGetTokenT<CUDAProduct<SiPixelDigisCUDA>> tokenDigi_;
+  edm::EDGetTokenT<cms::cuda::Product<BeamSpotCUDA>> tBeamSpot;
+  edm::EDGetTokenT<cms::cuda::Product<SiPixelClustersCUDA>> token_;
+  edm::EDGetTokenT<cms::cuda::Product<SiPixelDigisCUDA>> tokenDigi_;
 
-  edm::EDPutTokenT<CUDAProduct<TrackingRecHit2DCUDA>> tokenHit_;
+  edm::EDPutTokenT<cms::cuda::Product<TrackingRecHit2DCUDA>> tokenHit_;
 
   std::string cpeName_;
 
@@ -48,10 +47,10 @@ private:
 };
 
 SiPixelRecHitCUDA::SiPixelRecHitCUDA(const edm::ParameterSet& iConfig)
-    : tBeamSpot(consumes<CUDAProduct<BeamSpotCUDA>>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
-      token_(consumes<CUDAProduct<SiPixelClustersCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
-      tokenDigi_(consumes<CUDAProduct<SiPixelDigisCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
-      tokenHit_(produces<CUDAProduct<TrackingRecHit2DCUDA>>()),
+    : tBeamSpot(consumes<cms::cuda::Product<BeamSpotCUDA>>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+      token_(consumes<cms::cuda::Product<SiPixelClustersCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
+      tokenDigi_(consumes<cms::cuda::Product<SiPixelDigisCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
+      tokenHit_(produces<cms::cuda::Product<TrackingRecHit2DCUDA>>()),
       cpeName_(iConfig.getParameter<std::string>("CPE")) {}
 
 void SiPixelRecHitCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -82,17 +81,17 @@ void SiPixelRecHitCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, cons
     throw cms::Exception("Configuration") << "too bad, not a fast cpe gpu processing not possible....";
   }
 
-  edm::Handle<CUDAProduct<SiPixelClustersCUDA>> hclusters;
+  edm::Handle<cms::cuda::Product<SiPixelClustersCUDA>> hclusters;
   iEvent.getByToken(token_, hclusters);
 
-  CUDAScopedContextProduce ctx{*hclusters};
+  cms::cuda::ScopedContextProduce ctx{*hclusters};
   auto const& clusters = ctx.get(*hclusters);
 
-  edm::Handle<CUDAProduct<SiPixelDigisCUDA>> hdigis;
+  edm::Handle<cms::cuda::Product<SiPixelDigisCUDA>> hdigis;
   iEvent.getByToken(tokenDigi_, hdigis);
   auto const& digis = ctx.get(*hdigis);
 
-  edm::Handle<CUDAProduct<BeamSpotCUDA>> hbs;
+  edm::Handle<cms::cuda::Product<BeamSpotCUDA>> hbs;
   iEvent.getByToken(tBeamSpot, hbs);
   auto const& bs = ctx.get(*hbs);
 

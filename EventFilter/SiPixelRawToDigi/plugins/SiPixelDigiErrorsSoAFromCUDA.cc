@@ -1,4 +1,4 @@
-#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelDigiErrorsSoA.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 class SiPixelDigiErrorsSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
@@ -24,16 +24,17 @@ private:
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  edm::EDGetTokenT<CUDAProduct<SiPixelDigiErrorsCUDA>> digiErrorGetToken_;
+  edm::EDGetTokenT<cms::cuda::Product<SiPixelDigiErrorsCUDA>> digiErrorGetToken_;
   edm::EDPutTokenT<SiPixelDigiErrorsSoA> digiErrorPutToken_;
 
-  cudautils::host::unique_ptr<PixelErrorCompact[]> data_;
+  cms::cuda::host::unique_ptr<PixelErrorCompact[]> data_;
   GPU::SimpleVector<PixelErrorCompact> error_;
   const PixelFormatterErrors* formatterErrors_ = nullptr;
 };
 
 SiPixelDigiErrorsSoAFromCUDA::SiPixelDigiErrorsSoAFromCUDA(const edm::ParameterSet& iConfig)
-    : digiErrorGetToken_(consumes<CUDAProduct<SiPixelDigiErrorsCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
+    : digiErrorGetToken_(
+          consumes<cms::cuda::Product<SiPixelDigiErrorsCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
       digiErrorPutToken_(produces<SiPixelDigiErrorsSoA>()) {}
 
 void SiPixelDigiErrorsSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -46,7 +47,7 @@ void SiPixelDigiErrorsSoAFromCUDA::acquire(const edm::Event& iEvent,
                                            const edm::EventSetup& iSetup,
                                            edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   // Do the transfer in a CUDA stream parallel to the computation CUDA stream
-  CUDAScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
+  cms::cuda::ScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
 
   const auto& gpuDigiErrors = ctx.get(iEvent, digiErrorGetToken_);
 
