@@ -4,6 +4,7 @@
 // user include files
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <vector>
 #include "TF1.h"
 
