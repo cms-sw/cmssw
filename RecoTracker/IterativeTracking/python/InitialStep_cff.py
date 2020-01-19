@@ -224,6 +224,22 @@ initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
     useHitsSplitting = True
     )
 
+from Configuration.ProcessModifiers.trackingMkFit_cff import trackingMkFit
+import RecoTracker.MkFit.mkFitInputConverter_cfi as mkFitInputConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+initialStepTrackCandidatesMkFitInput = mkFitInputConverter_cfi.mkFitInputConverter.clone(
+    seeds = "initialStepSeeds",
+)
+initialStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    hitsSeeds = "initialStepTrackCandidatesMkFitInput",
+)
+trackingMkFit.toReplaceWith(initialStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = "initialStepSeeds",
+    hitsSeeds = "initialStepTrackCandidatesMkFitInput",
+    tracks = "initialStepTrackCandidatesMkFit",
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(initialStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -394,6 +410,10 @@ InitialStepTask = cms.Task(initialStepSeedLayers,
                            initialStepClassifier1,initialStepClassifier2,initialStepClassifier3,
                            initialStep,caloJetsForTrkTask)
 InitialStep = cms.Sequence(InitialStepTask)
+
+_InitialStepTask_trackingMkFit = InitialStepTask.copy()
+_InitialStepTask_trackingMkFit.add(initialStepTrackCandidatesMkFitInput, initialStepTrackCandidatesMkFit)
+trackingMkFit.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFit)
 
 _InitialStepTask_LowPU = InitialStepTask.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrkTask, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStepTask_LowPU.replace(initialStep, initialStepSelector)
