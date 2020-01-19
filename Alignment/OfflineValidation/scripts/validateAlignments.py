@@ -550,11 +550,9 @@ def createMergeScript( path, validations, options ):
                     repMap[(validationtype, validationName, referenceName)]["beforeMerge"] += validationtype.doInitMerge()
                 repMap[(validationtype, validationName, referenceName)]["doMerge"] += validation.doMerge()
                 for f in validation.getRepMap()["outputFiles"]:
-		            longName = os.path.join("/eos/cms/store/group/alca_trackeralign/AlignmentValidation/",
-		                                    validation.getRepMap()["eosdir"], f)
-		            repMap[(validationtype, validationName, referenceName)]["rmUnmerged"] += "    rm "+longName+"\n"
-
-
+                    longName = os.path.join("/eos/cms/store/group/alca_trackeralign/AlignmentValidation/",
+                                            validation.getRepMap()["eosdir"], f)
+                    repMap[(validationtype, validationName, referenceName)]["rmUnmerged"] += "    rm "+longName+"\n"
 
         repMap[(validationtype, validationName, referenceName)]["rmUnmerged"] += ("else\n"
                                                                   "    echo -e \\n\"WARNING: Merging failed, unmerged"
@@ -743,7 +741,10 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
 
     map( lambda job: job.runJob(), jobs )
 
-    ValidationJobMultiIOV.runCondorJobs(outPath)
+    if options.dryRun:
+        pass
+    else:
+        ValidationJobMultiIOV.runCondorJobs(outPath)
 
 
 if __name__ == "__main__":
