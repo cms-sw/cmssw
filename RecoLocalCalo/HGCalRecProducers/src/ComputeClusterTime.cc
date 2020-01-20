@@ -61,13 +61,9 @@ float ComputeClusterTime::getTimeError(std::string type, float xVal) {
 
 //time-interval based on that ~210ps wide and with the highest number of hits
 //extension valid in high PU of taking smallest interval with (order of)68% of hits
-std::pair<float, float> ComputeClusterTime::fixSizeHighestDensity(std::vector<float>& time,
-                                                                  std::vector<float> weight,
-								  unsigned int minNhits,
-                                                                  float deltaT,
-                                                                  float timeWidthBy) {
-
-  if(time.size() < minNhits)
+std::pair<float, float> ComputeClusterTime::fixSizeHighestDensity(
+    std::vector<float>& time, std::vector<float> weight, unsigned int minNhits, float deltaT, float timeWidthBy) {
+  if (time.size() < minNhits)
     return std::pair<float, float>(-99., -1.);
 
   if (weight.empty())

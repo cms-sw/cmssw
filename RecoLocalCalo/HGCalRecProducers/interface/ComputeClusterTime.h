@@ -35,10 +35,10 @@ namespace hgcalsimclustertime {
     //time-interval based on that ~210ps wide and with the highest number of hits
     //apply weights if provided => weighted mean
     //return also error on the mean
-    //only effective with a minimum number of hits with time (3 from TDR time) 
+    //only effective with a minimum number of hits with time (3 from TDR time)
     std::pair<float, float> fixSizeHighestDensity(std::vector<float>& time,
                                                   std::vector<float> weight = std::vector<float>(),
-						  unsigned int minNhits = 3,
+                                                  unsigned int minNhits = 3,
                                                   float deltaT = 0.210, /*time window in ns*/
                                                   float timeWidthBy = 0.5);
 
