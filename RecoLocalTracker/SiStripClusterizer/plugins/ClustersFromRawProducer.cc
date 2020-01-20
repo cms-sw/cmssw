@@ -289,7 +289,7 @@ namespace {
     StripClusterizerAlgorithm::output_t::TSFastFiller& record_;
   };
 
-  template<typename Container>
+  template <typename Container>
   class ADC_back_inserter {
   public:
     typedef std::output_iterator_tag iterator_category;
@@ -307,6 +307,7 @@ namespace {
     ADC_back_inserter& operator*() { return *this; }
     ADC_back_inserter& operator++() { return *this; }
     ADC_back_inserter& operator++(int) { return *this; }
+
   private:
     Container& c_;
   };
