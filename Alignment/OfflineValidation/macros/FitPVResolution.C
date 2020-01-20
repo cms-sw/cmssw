@@ -193,7 +193,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
     }
 
     LegLabels[j].ReplaceAll("_", " ");
-    cout << "FitPVResolution::FitPVResolution(): label[" << j << "] " << LegLabels[j] << endl;
+    std::cout << "FitPVResolution::FitPVResolution(): label[" << j << "] " << LegLabels[j] << std::endl;
   }
 
   // max vertices
