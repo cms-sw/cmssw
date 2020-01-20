@@ -159,7 +159,7 @@ process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
 ###################################################################
 # The PV resolution module
 ###################################################################
-process.PrimaryVertexResolution = cms.EDAnalyzer('PrimaryVertexResolution',
+process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		
                                                  minVertexNdf        = cms.untracked.double(10.),
@@ -171,7 +171,7 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(False)
                                    )
 
-process.p = cms.Path(process.HLTFilter                                +
+process.p = cms.Path(process.HLTFilter                               +
                      process.offlineBeamSpot                         +
                      process.TrackRefitter                           +
                      process.offlinePrimaryVerticesFromRefittedTrks  +
