@@ -19,13 +19,13 @@ if args.l == None or args.l < 0:
 
 f = uproot.open(args.filename)
 things = f.keys()
-if 'Indices;1' in things:
-  indices = f['Indices']
-  runs = indices.array("Run")
-  lumis = indices.array("Lumi")
-  firstindex = indices.array("FirstIndex")
-  lastindex = indices.array("LastIndex")
-  types = indices.array("Type")
+if b'Indices;1' in things:
+  indices = f[b'Indices']
+  runs = indices.array(b"Run")
+  lumis = indices.array(b"Lumi")
+  firstindex = indices.array(b"FirstIndex")
+  lastindex = indices.array(b"LastIndex")
+  types = indices.array(b"Type")
 
   # If run is not provided, print all available runs in a given file.
   if args.r == None or args.r < 0:
@@ -36,25 +36,25 @@ if 'Indices;1' in things:
     exit()
 
   treenames = [ # order matters!
-    "Ints",
-    "Floats",
-    "Strings",
-    "TH1Fs",
-    "TH1Ss",
-    "TH1Ds",
-    "TH2Fs",
-    "TH2Ss",
-    "TH2Ds",
-    "TH3Fs",
-    "TProfiles",
-    "TProfile2Ds"
+    b"Ints",
+    b"Floats",
+    b"Strings",
+    b"TH1Fs",
+    b"TH1Ss",
+    b"TH1Ds",
+    b"TH2Fs",
+    b"TH2Ss",
+    b"TH2Ds",
+    b"TH3Fs",
+    b"TProfiles",
+    b"TProfile2Ds"
   ]
-  trees = [f[name]["FullName"].array() for name in treenames]
+  trees = [f[name][b"FullName"].array() for name in treenames]
 
   for run, lumi, first, last, type in zip(runs, lumis, firstindex, lastindex, types):
     if run == args.r and lumi == args.l:
-      for i in xrange(first, int(last + 1)): # In DQMIO both ranges are inclusive
-        print(trees[type][i])
+      for i in range(first, int(last + 1)): # In DQMIO both ranges are inclusive
+        print(trees[type][i].decode())
 else:
   print("This does not look like DQMIO data.")
 

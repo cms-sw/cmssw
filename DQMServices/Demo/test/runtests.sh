@@ -100,9 +100,9 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=300 numberEventsIn
 # Note that we pass the files in order here. In the future, this should be independent of the order of input files.
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=part1.root inputFiles=part2.root inputFiles=part3.root legacyoutput=True
 rootlist ()
-{  python -c '
+{  python3 -c '
 import uproot
-for k in uproot.open("'"$1"'").allkeys(): print k' 
+for k in uproot.open("'"$1"'").allkeys(): print(k.decode())'
 }
 [ 2 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | grep  -c '<harvestingsummary>s=beginRun(1) endLumi(1,1) endLumi(1,2) endLumi(1,3) endRun(1) endJob() </harvestingsummary>') ]
 
