@@ -1,14 +1,8 @@
-/*
-
- ######################## 
- #  Hydjet1		#
- #  version: 1.9 patch1 #
- ########################
-
- * Interface to the HYDJET generator, produces HepMC events
- *
- * Original Author: Camelia Mironov
- */
+/**
+ \brief Interface to the HYDJET generator, produces HepMC events
+ \version 1.9.1
+ \author Camelia Mironov
+*/
 
 #include <iostream>
 #include <cmath>
@@ -107,8 +101,13 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset)
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint", 0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_;
 
-  if (embedding_)
-    src_ = pset.getParameter<edm::InputTag>("backgroundLabel");
+  if (embedding_){
+    cflag_ = 0;
+    src_ = mayConsume<HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>( "backgroundLabel", edm::InputTag("generator","unsmeared") ));
+  }
+
+  int cm = 1, va, vb, vc;
+  HYJVER(cm, va, vb, vc);
 }
 
 //_____________________________________________________________________
@@ -191,14 +190,13 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
 
   // generate single event
   if (embedding_) {
-    cflag_ = 0;
     const edm::Event& e = getEDMEvent();
-    Handle<HepMCProduct> input;
-    e.getByLabel(src_, input);
+    Handle<HepMCProduct> input; 
+    e.getByToken(src_,input);
     const HepMC::GenEvent* inev = input->GetEvent();
     const HepMC::HeavyIon* hi = inev->heavy_ion();
     if (hi) {
-      bfixed_ = hi->impact_parameter();
+      bfixed_ = (hi->impact_parameter())/nuclear_radius();
       phi0_ = hi->event_plane_angle();
       sinphi0_ = sin(phi0_);
       cosphi0_ = cos(phi0_);
@@ -231,7 +229,7 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
       edm::Exception except(edm::errors::EventCorruption, sstr.str());
       throw except;
     } else {
-      HYEVNT();
+      HYEVNT(bfixed_);
       nsoft_ = hyfpar.nhyd;
       nsub_ = hyjpar.njet;
       nhard_ = hyfpar.npyt;

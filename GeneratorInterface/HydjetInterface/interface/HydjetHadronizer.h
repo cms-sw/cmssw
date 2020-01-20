@@ -14,6 +14,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -122,7 +126,7 @@ namespace gen {
                                     // DEFAULT= 58 mb
 
     Pythia6Service* pythia6Service_;
-    edm::InputTag src_;
+    edm::EDGetTokenT<edm::HepMCProduct> src_;
   };
 
   double HydjetHadronizer::nuclear_radius() const {
