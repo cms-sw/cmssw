@@ -60,8 +60,8 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part4.root numberEventsInRun
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=part1.root inputFiles=part2.root inputFiles=part3.root inputFiles=part4.root outfile=merged.root nomodules=True
 dqmiodumpmetadata.py merged.root | grep -q '4 runs, 12 lumisections'
 dumproot() { root2sqlite.py -o $1.sqlite $1 ; echo '.dump' | sqlite3 $1.sqlite > $1.sqldump ; rm $1.sqlite ; }
-dumproot multirun.root
-dumproot merged.root
+#dumproot multirun.root
+#dumproot merged.root
 # these are unlikely to ever fully argee, though the histograms should. They do not, for now.
 #cmp multirun.root.sqldump merged.root.sqldump
 
@@ -75,11 +75,11 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=100 numberEventsIn
 
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=alltypes.root nomodules=True legacyoutput=True
 
-dumproot DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root
-dumproot DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root
+#dumproot DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root
+#dumproot DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root
 # These disagree due to the werid handling of per-lumi MEs in the current DQMStore.
-cmp DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root.sqldump DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root.sqldump || true
-cmp <(grep -v lumi DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root.sqldump) <(grep -v lumi DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root.sqldump)
+#cmp DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root.sqldump DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root.sqldump || true
+#cmp <(grep -v lumi DQM_V0001_R000000001__EmptySource__DQMTests__DQMIO.root.sqldump) <(grep -v lumi DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root.sqldump)
 
 # 8. Try writing ProtoBuf files.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 protobufoutput=True
@@ -126,7 +126,7 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part4_metoedm.root metoedmou
 
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=part1_metoedm.root inputFiles=part2_metoedm.root inputFiles=part3_metoedm.root inputFiles=part4_metoedm.root outfile=metoedm_merged.root nomodules=True metoedminput=True
 dqmiodumpmetadata.py metoedm_merged.root | grep -q '4 runs, 12 lumisections'
-dumproot metoedm_merged.root
+#dumproot metoedm_merged.root
 #cmp multirun.root.sqldump metoedm_merged.root.sqldump
 
 
