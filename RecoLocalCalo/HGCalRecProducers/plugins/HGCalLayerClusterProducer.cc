@@ -54,6 +54,7 @@ private:
 
   std::string timeClname;
   double timeOffset;
+  unsigned int nHitsTime;
 };
 
 DEFINE_FWK_MODULE(HGCalLayerClusterProducer);
@@ -63,7 +64,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       doSharing(ps.getParameter<bool>("doSharing")),
       detector(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH or "all"
       timeClname(ps.getParameter<std::string>("timeClname")),
-      timeOffset(ps.getParameter<double>("timeOffset")) {
+      timeOffset(ps.getParameter<double>("timeOffset")),
+      nHitsTime(ps.getParameter<unsigned int>("nHitsTime")){
   if (detector == "HFNose") {
     hits_hfnose_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HFNoseInput"));
     algoId = reco::CaloCluster::hfnose;
@@ -117,6 +119,7 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
   desc.add<std::string>("timeClname", "timeLayerCluster");
   desc.add<double>("timeOffset", 0.0);
+  desc.add<unsigned int>("nHitsTime", 3);
   descriptions.add("hgcalLayerClusters", desc);
 }
 
@@ -204,7 +207,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
     std::pair<float, float> timeCl(-99., -1.);
 
     const reco::CaloCluster& sCl = (*clusterHandle)[i];
-    if (sCl.size() >= 3) {
+    if (sCl.size() >= nHitsTime) {
       std::vector<float> timeClhits;
       std::vector<float> timeErrorClhits;
 
@@ -222,10 +225,8 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
         timeClhits.push_back(rechit->time() - timeOffset);
         timeErrorClhits.push_back(1. / (rhTimeE * rhTimeE));
       }
-      if (timeClhits.size() >= 3) {
-        hgcalsimclustertime::ComputeClusterTime timeEstimator;
-        timeCl = timeEstimator.fixSizeHighestDensity(timeClhits, timeErrorClhits);
-      }
+      hgcalsimclustertime::ComputeClusterTime timeEstimator;
+      timeCl = timeEstimator.fixSizeHighestDensity(timeClhits, timeErrorClhits, nHitsTime);
     }
     times.push_back(timeCl);
   }

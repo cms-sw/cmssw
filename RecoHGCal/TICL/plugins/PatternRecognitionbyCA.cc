@@ -125,10 +125,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     tmp.seedIndex = seedIndices[tracksterId];
 
     std::pair<float, float> timeTrackster(-99., -1.);
-    if (times.size() >= 3) {
-      hgcalsimclustertime::ComputeClusterTime timeEstimator;
-      timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
-    }
+    hgcalsimclustertime::ComputeClusterTime timeEstimator;
+    timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
     tmp.time = timeTrackster.first;
     tmp.timeError = timeTrackster.second;
     std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices));
