@@ -20,18 +20,6 @@
 
 namespace hgcalsimclustertime {
 
-  /*
-  std::vector<size_t> decrease_sorted_indices(const std::vector<float>& v){
-    // initialize original index locations                                       
-    std::vector<size_t> idx(v.size());
-    for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
-    // sort indices based on comparing values in v (decreasing order)            
-    std::sort(idx.begin(), idx.end(),
-	      [&v](size_t i1, size_t i2) {return v[i1] < v[i2];} );
-    return idx;
-  };
-  */
-
   class ComputeClusterTime {
   public:
     ComputeClusterTime(float Xmix, float Xmax, float Cterm, float Aterm);
@@ -47,18 +35,12 @@ namespace hgcalsimclustertime {
     //time-interval based on that ~210ps wide and with the highest number of hits
     //apply weights if provided => weighted mean
     //return also error on the mean
+    //only effective with a minimum number of hits with time (3 from TDR time) 
     std::pair<float, float> fixSizeHighestDensity(std::vector<float>& time,
                                                   std::vector<float> weight = std::vector<float>(),
+						  unsigned int minNhits = 3,
                                                   float deltaT = 0.210, /*time window in ns*/
                                                   float timeWidthBy = 0.5);
-
-    //same as before but provide weights
-    //configure the reweight through type
-    /* std::pair<float,float> fixSizeHighestDensityEnergyResWeig(std::vector<float>& t, */
-    /* 							      std::vector<float>& w, */
-    /* 							      std::string& type, */
-    /* 							      float deltaT = 0.210, //time window in ns */
-    /* 							      float timeWidthBy = 0.5) {}; */
 
   private:
     float _Xmin;
