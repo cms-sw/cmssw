@@ -99,6 +99,9 @@ private:
   int ievt;
   int itrks;
 
+  // switch to keep the ntuple
+  bool storeNtuple_;
+
   // storing integrated luminosity
   double intLumi_;
   bool debug_;
@@ -115,7 +118,7 @@ private:
   double minVtxNdf_;
   double minVtxWgt_;
 
-  const double cmToUm = 10000.;
+  static constexpr double cmToUm = 10000.;
 
   edm::Service<TFileService> outfile_;
 
@@ -243,7 +246,8 @@ private:
 };
 
 SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
-    : intLumi_(iConfig.getUntrackedParameter<double>("intLumi", 0.)),
+    : storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
+      intLumi_(iConfig.getUntrackedParameter<double>("intLumi", 0.)),
       debug_(iConfig.getUntrackedParameter<bool>("Debug", false)),
       pvsTag_(iConfig.getParameter<edm::InputTag>("vtxCollection")),
       pvsToken_(consumes<reco::VertexCollection>(pvsTag_)),
@@ -581,7 +585,9 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
   h_nNonFakeVertices->Fill(noFakecounter);
   h_nFinalVertices->Fill(goodcounter);
 
-  tree_->Fill();
+  if (storeNtuple_) {
+    tree_->Fill();
+  }
 }
 
 void SplitVertexResolution::beginEvent() {

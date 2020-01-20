@@ -12,6 +12,7 @@ process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significa
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2   
 
 process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
+                                                 storeNtuple         = cms.bool(False),
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		
                                                  minVertexNdf        = cms.untracked.double(10.),
