@@ -1,0 +1,14 @@
+<use name="HeterogeneousCore/CUDAUtilities"/>
+
+<iftool name="cuda-gcc-support">
+<bin file="assert_t.cu" name="cudaAssert_t">
+</bin>
+
+<bin file="assert_t.cu"    name="cudaAssert_debug">
+  <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+</bin>
+
+<bin file="testCatch2Main.cpp,device_unique_ptr_t.cpp,host_unique_ptr_t.cpp,host_noncached_unique_ptr_t.cpp,copyAsync_t.cpp,memsetAsync_t.cpp" name="cudaMemUtils_t">
+  <use name="catch2"/>
+</bin>
+</iftool>
