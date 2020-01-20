@@ -234,7 +234,6 @@ void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::Event
 
   // Fill general info
   h_runNumber->Fill(iEvent.id().run());
-  ;
 
   edm::ESHandle<TransientTrackBuilder> theB;
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
