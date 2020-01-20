@@ -108,6 +108,10 @@ void PrintGeomSummary::update(const BeginOfRun* run) {
     std::string name = theTopPV_->GetName();
     dumpSummary(G4cout, name);
 
+    pvs_.clear();
+    fillPV(theTopPV_);
+    G4cout << " Number of G4VPhysicalVolume's for " << name << ": " << pvs_.size() << G4endl;
+
     for (unsigned int k = 0; k < nodeNames_.size(); ++k) {
       const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
       std::vector<G4LogicalVolume*>::const_iterator lvcite;
@@ -118,6 +122,15 @@ void PrintGeomSummary::update(const BeginOfRun* run) {
           touch_.clear();
           fillLV(*lvcite);
           dumpSummary(G4cout, nodeNames_[k]);
+        }
+      }
+      const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
+      std::vector<G4VPhysicalVolume*>::const_iterator pvcite;
+      for (pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
+        if ((*pvcite)->GetName() == (G4String)(nodeNames_[k])) {
+          pvs_.clear();
+          fillPV(*pvcite);
+          G4cout << " Number of G4VPhysicalVolume's for " << nodeNames_[k] << ": " << pvs_.size() << G4endl;
         }
       }
     }
@@ -133,6 +146,13 @@ void PrintGeomSummary::fillLV(G4LogicalVolume* lv) {
   touch_.push_back(lv);
   for (int ii = 0; ii < (int)(lv->GetNoDaughters()); ii++)
     fillLV(lv->GetDaughter(ii)->GetLogicalVolume());
+}
+
+void PrintGeomSummary::fillPV(G4VPhysicalVolume* pv) {
+  if (std::find(pvs_.begin(), pvs_.end(), pv) == pvs_.end())
+    pvs_.push_back(pv);
+  for (int ii = 0; ii < (int)(pv->GetLogicalVolume()->GetNoDaughters()); ii++)
+    fillPV(pv->GetLogicalVolume()->GetDaughter(ii));
 }
 
 void PrintGeomSummary::dumpSummary(std::ostream& out, std::string name) {

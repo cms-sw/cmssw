@@ -14,7 +14,7 @@ process.prod = cms.EDAnalyzer("SimTrackSimVertexDumper",
     moduleLabelTk = cms.InputTag('g4SimHits'),
     moduleLabelVtx = cms.InputTag('g4SimHits'),
     dumpHepMC = cms.untracked.bool(True),
-    moduleLabelHepMC = cms.InputTag('VtxSmeared')
+    moduleLabelHepMC = cms.InputTag('generatorSmeared')
 )
 
 process.p1 = cms.Path(process.prod)
