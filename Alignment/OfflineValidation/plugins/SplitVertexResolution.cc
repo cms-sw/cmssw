@@ -156,6 +156,9 @@ private:
   TH1F* h_PVCL_subVtx1;
   TH1F* h_PVCL_subVtx2;
 
+  TH1F* h_runNumber;
+
+  TH1I* h_nOfflineVertices;
   TH1I* h_nVertices;
   TH1I* h_nNonFakeVertices;
   TH1I* h_nFinalVertices;
@@ -175,6 +178,10 @@ private:
   std::vector<TH1F*> h_resolY_Ntracks_;
   std::vector<TH1F*> h_resolZ_Ntracks_;
 
+  std::vector<TH1F*> h_resolX_Nvtx_;
+  std::vector<TH1F*> h_resolY_Nvtx_;
+  std::vector<TH1F*> h_resolZ_Nvtx_;
+
   TH1F* p_resolX_vsSumPt;
   TH1F* p_resolY_vsSumPt;
   TH1F* p_resolZ_vsSumPt;
@@ -182,6 +189,10 @@ private:
   TH1F* p_resolX_vsNtracks;
   TH1F* p_resolY_vsNtracks;
   TH1F* p_resolZ_vsNtracks;
+
+  TH1F* p_resolX_vsNvtx;
+  TH1F* p_resolY_vsNvtx;
+  TH1F* p_resolZ_vsNvtx;
 
   // pulls
   std::vector<TH1F*> h_pullX_sumPt_;
@@ -192,6 +203,10 @@ private:
   std::vector<TH1F*> h_pullY_Ntracks_;
   std::vector<TH1F*> h_pullZ_Ntracks_;
 
+  std::vector<TH1F*> h_pullX_Nvtx_;
+  std::vector<TH1F*> h_pullY_Nvtx_;
+  std::vector<TH1F*> h_pullZ_Nvtx_;
+
   TH1F* p_pullX_vsSumPt;
   TH1F* p_pullY_vsSumPt;
   TH1F* p_pullZ_vsSumPt;
@@ -199,6 +214,10 @@ private:
   TH1F* p_pullX_vsNtracks;
   TH1F* p_pullY_vsNtracks;
   TH1F* p_pullZ_vsNtracks;
+
+  TH1F* p_pullX_vsNvtx;
+  TH1F* p_pullY_vsNvtx;
+  TH1F* p_pullZ_vsNvtx;
 
   TRandom rand;
 
@@ -217,6 +236,9 @@ private:
   //std::array<float,nTrackBins_+1>  myNTrack_bins_ = {{10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.}};
   //std::array<float,nTrackBins_+1>  myNTrack_bins_ = PVValHelper::makeLogBins<float,nPtBins_>(10.,50.);
 
+  static const int nVtxBins_ = 40;
+  std::array<float, nVtxBins_ + 1> myNVtx_bins_;
+
   std::map<std::string, std::pair<int, int> > triggerMap_;
 };
 
@@ -232,6 +254,10 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
       minVtxWgt_(iConfig.getUntrackedParameter<double>("minVertexMeanWeight")) {
   std::vector<float> vect = PVValHelper::generateBins(nTrackBins_ + 1, -0.5, 120.);
   std::copy(vect.begin(), vect.begin() + nTrackBins_ + 1, myNTrack_bins_.begin());
+
+  vect.clear();
+  vect = PVValHelper::generateBins(nVtxBins_ + 1, 1., 40.);
+  std::copy(vect.begin(), vect.begin() + nVtxBins_ + 1, myNVtx_bins_.begin());
 }
 
 SplitVertexResolution::~SplitVertexResolution() {}
@@ -239,6 +265,9 @@ SplitVertexResolution::~SplitVertexResolution() {}
 // ------------ method called for each event  ------------
 void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
+
+  // Fill general info
+  h_runNumber->Fill(iEvent.id().run());
 
   ievt++;
   edm::Handle<edm::TriggerResults> hltresults;
@@ -280,6 +309,8 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
   const reco::VertexCollection pvtx = *(vertices.product());
 
   event_.nVtx = pvtx.size();
+  int nOfflineVtx = pvtx.size();
+  h_nOfflineVertices->Fill(nOfflineVtx);
 
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(tracksToken_, tracks);
@@ -473,6 +504,26 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
 
+    // filling the vertex multeplicity binned distributions
+
+    for (int inVtxBin = 0; inVtxBin < nVtxBins_; inVtxBin++) {
+      /*
+	float nVtxF = myNVtx_bins_[inVtxBin];
+	float nVtxL = myNVtx_bins_[inVtxBin+1];
+	if(nOfflineVtx >= nVtxF && nOfflineVtx < nVtxL){
+      */
+
+      if (nOfflineVtx == inVtxBin) {
+        PVValHelper::fillByIndex(h_resolX_Nvtx_, inVtxBin, deltaX * cmToUm, "7");
+        PVValHelper::fillByIndex(h_resolY_Nvtx_, inVtxBin, deltaY * cmToUm, "8");
+        PVValHelper::fillByIndex(h_resolZ_Nvtx_, inVtxBin, deltaZ * cmToUm, "9");
+
+        PVValHelper::fillByIndex(h_pullX_Nvtx_, inVtxBin, deltaX / errX, "10");
+        PVValHelper::fillByIndex(h_pullY_Nvtx_, inVtxBin, deltaY / errY, "11");
+        PVValHelper::fillByIndex(h_pullZ_Nvtx_, inVtxBin, deltaZ / errZ, "12");
+      }
+    }
+
     h_sumPt1->Fill(sumPt1);
     h_sumPt2->Fill(sumPt2);
 
@@ -559,6 +610,10 @@ void SplitVertexResolution::beginJob() {
     edm::LogError("SplitVertexResolution") << " Warning -the vector of n. tracks bins is not ordered " << std::endl;
   }
 
+  if (!checkBinOrdering(myNVtx_bins_)) {
+    edm::LogError("SplitVertexResolution") << " Warning -the vector of n. vertices bins is not ordered " << std::endl;
+  }
+
   TFileDirectory xResolSumPt = outfile_->mkdir("xResolSumPt");
   h_resolX_sumPt_ = bookResidualsHistogram(xResolSumPt, nPtBins_, "resolX", "sumPt");
 
@@ -576,6 +631,15 @@ void SplitVertexResolution::beginJob() {
 
   TFileDirectory zResolNtracks_ = outfile_->mkdir("zResolNtracks");
   h_resolZ_Ntracks_ = bookResidualsHistogram(zResolNtracks_, nTrackBins_, "resolZ", "Ntracks");
+
+  TFileDirectory xResolNvtx_ = outfile_->mkdir("xResolNvtx");
+  h_resolX_Nvtx_ = bookResidualsHistogram(xResolNvtx_, nVtxBins_, "resolX", "Nvtx");
+
+  TFileDirectory yResolNvtx_ = outfile_->mkdir("yResolNvtx");
+  h_resolY_Nvtx_ = bookResidualsHistogram(yResolNvtx_, nVtxBins_, "resolY", "Nvtx");
+
+  TFileDirectory zResolNvtx_ = outfile_->mkdir("zResolNvtx");
+  h_resolZ_Nvtx_ = bookResidualsHistogram(zResolNvtx_, nVtxBins_, "resolZ", "Nvtx");
 
   // pulls
 
@@ -597,8 +661,19 @@ void SplitVertexResolution::beginJob() {
   TFileDirectory zPullNtracks_ = outfile_->mkdir("zPullNtracks");
   h_pullZ_Ntracks_ = bookResidualsHistogram(zPullNtracks_, nTrackBins_, "pullZ", "Ntracks");
 
-  // control plots
+  TFileDirectory xPullNvtx_ = outfile_->mkdir("xPullNvtx");
+  h_pullX_Nvtx_ = bookResidualsHistogram(xPullNvtx_, nVtxBins_, "pullX", "Nvtx");
 
+  TFileDirectory yPullNvtx_ = outfile_->mkdir("yPullNvtx");
+  h_pullY_Nvtx_ = bookResidualsHistogram(yPullNvtx_, nVtxBins_, "pullY", "Nvtx");
+
+  TFileDirectory zPullNvtx_ = outfile_->mkdir("zPullNvtx");
+  h_pullZ_Nvtx_ = bookResidualsHistogram(zPullNvtx_, nVtxBins_, "pullZ", "Nvtx");
+
+  // control plots
+  h_runNumber = outfile_->make<TH1F>("h_runNumber", "run number;run number;n_{events}", 100000, 250000., 350000.);
+
+  h_nOfflineVertices = outfile_->make<TH1I>("h_nOfflineVertices", "n. of vertices;n. vertices; events", 100, 0, 100);
   h_nVertices = outfile_->make<TH1I>("h_nVertices", "n. of vertices;n. vertices; events", 100, 0, 100);
   h_nNonFakeVertices =
       outfile_->make<TH1I>("h_nRealVertices", "n. of non-fake vertices;n. vertices; events", 100, 0, 100);
@@ -695,6 +770,19 @@ void SplitVertexResolution::beginJob() {
                                             myNTrack_bins_.size() - 1,
                                             myNTrack_bins_.data());
 
+  p_resolX_vsNvtx = outfile_->make<TH1F>("p_resolX_vsNvtx",
+                                         "x-resolution vs n_{vertices};n_{vertices}; x vertex resolution [#mum]",
+                                         myNVtx_bins_.size() - 1,
+                                         myNVtx_bins_.data());
+  p_resolY_vsNvtx = outfile_->make<TH1F>("p_resolY_vsNvtx",
+                                         "y-resolution vs n_{vertices};n_{vertices}; y vertex resolution [#mum]",
+                                         myNVtx_bins_.size() - 1,
+                                         myNVtx_bins_.data());
+  p_resolZ_vsNvtx = outfile_->make<TH1F>("p_resolZ_vsNvtx",
+                                         "z-resolution vs n_{vertices};n_{vertices}; z vertex resolution [#mum]",
+                                         myNVtx_bins_.size() - 1,
+                                         myNVtx_bins_.data());
+
   // pulls
 
   p_pullX_vsSumPt = outfile_->make<TH1F>(
@@ -716,6 +804,19 @@ void SplitVertexResolution::beginJob() {
                                            "z-pull vs n_{tracks};n_{tracks}; z vertex pull",
                                            myNTrack_bins_.size() - 1,
                                            myNTrack_bins_.data());
+
+  p_pullX_vsNvtx = outfile_->make<TH1F>("p_pullX_vsNvtx",
+                                        "x-pull vs n_{vertices};n_{vertices}; x vertex pull",
+                                        myNVtx_bins_.size() - 1,
+                                        myNVtx_bins_.data());
+  p_pullY_vsNvtx = outfile_->make<TH1F>("p_pullY_vsNvtx",
+                                        "y-pull vs n_{vertices};n_{vertices}; y vertex pull",
+                                        myNVtx_bins_.size() - 1,
+                                        myNVtx_bins_.data());
+  p_pullZ_vsNvtx = outfile_->make<TH1F>("p_pullZ_vsNvtx",
+                                        "z-pull vs n_{vertices};n_{vertices}; z vertex pull",
+                                        myNVtx_bins_.size() - 1,
+                                        myNVtx_bins_.data());
 
   tree_ = outfile_->make<TTree>("pvTree", "pvTree");
   tree_->Branch("event", &event_, 64000, 2);
@@ -762,7 +863,7 @@ void SplitVertexResolution::endJob() {
   edm::LogVerbatim("SplitVertexResolution") << "n. tracks: " << itrks << std::endl;
   edm::LogVerbatim("SplitVertexResolution") << "*******************************" << std::endl;
 
-  Int_t nFiringTriggers = triggerMap_.size();
+  int nFiringTriggers = triggerMap_.size();
   edm::LogVerbatim("SplitVertexResolution") << "firing triggers: " << nFiringTriggers << std::endl;
   edm::LogVerbatim("SplitVertexResolution") << "*******************************" << std::endl;
 
@@ -771,20 +872,20 @@ void SplitVertexResolution::endJob() {
   evtsByTrigger_ = outfile_->make<TH1D>(
       "evtsByTrigge", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
-  Int_t i = 0;
-
+  int i = 0;
   for (std::map<std::string, std::pair<int, int> >::iterator it = triggerMap_.begin(); it != triggerMap_.end(); ++it) {
     i++;
 
-    Double_t trkpercent = ((it->second).second) * 100. / Double_t(itrks);
-    Double_t evtpercent = ((it->second).first) * 100. / Double_t(ievt);
+    double trkpercent = ((it->second).second) * 100. / double(itrks);
+    double evtpercent = ((it->second).first) * 100. / double(ievt);
 
     std::cout.precision(4);
 
-    edm::LogVerbatim("SplitVertexResolution") << "HLT path: " << std::setw(60) << std::left << it->first << " | events firing: " << std::right
-              << std::setw(8) << (it->second).first << " (" << std::setw(8) << std::fixed << evtpercent << "%)"
-              << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << std::setw(8) << std::fixed
-              << trkpercent << "%)" << '\n';
+    edm::LogVerbatim("SplitVertexResolution")
+        << "HLT path: " << std::setw(60) << std::left << it->first << " | events firing: " << std::right << std::setw(8)
+        << (it->second).first << " (" << std::setw(8) << std::fixed << evtpercent << "%)"
+        << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << std::setw(8) << std::fixed
+        << trkpercent << "%)" << '\n';
 
     tksByTrigger_->SetBinContent(i, trkpercent);
     tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
@@ -821,6 +922,10 @@ void SplitVertexResolution::endJob() {
   fillTrendPlotByIndex(p_resolY_vsNtracks, h_resolY_Ntracks_, PVValHelper::WIDTH);
   fillTrendPlotByIndex(p_resolZ_vsNtracks, h_resolZ_Ntracks_, PVValHelper::WIDTH);
 
+  fillTrendPlotByIndex(p_resolX_vsNvtx, h_resolX_Nvtx_, PVValHelper::WIDTH);
+  fillTrendPlotByIndex(p_resolY_vsNvtx, h_resolY_Nvtx_, PVValHelper::WIDTH);
+  fillTrendPlotByIndex(p_resolZ_vsNvtx, h_resolZ_Nvtx_, PVValHelper::WIDTH);
+
   // pulls
 
   fillTrendPlotByIndex(p_pullX_vsSumPt, h_pullX_sumPt_, PVValHelper::WIDTH);
@@ -830,6 +935,10 @@ void SplitVertexResolution::endJob() {
   fillTrendPlotByIndex(p_pullX_vsNtracks, h_pullX_Ntracks_, PVValHelper::WIDTH);
   fillTrendPlotByIndex(p_pullY_vsNtracks, h_pullY_Ntracks_, PVValHelper::WIDTH);
   fillTrendPlotByIndex(p_pullZ_vsNtracks, h_pullZ_Ntracks_, PVValHelper::WIDTH);
+
+  fillTrendPlotByIndex(p_pullX_vsNvtx, h_pullX_Nvtx_, PVValHelper::WIDTH);
+  fillTrendPlotByIndex(p_pullY_vsNvtx, h_pullY_Nvtx_, PVValHelper::WIDTH);
+  fillTrendPlotByIndex(p_pullZ_vsNvtx, h_pullZ_Nvtx_, PVValHelper::WIDTH);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -997,10 +1106,10 @@ bool SplitVertexResolution::checkBinOrdering(std::array<float, SIZE>& bins)
     return true;
   } else {
     for (const auto& bin : bins) {
-      edm::LogVerbatim("SplitVertexResolution") << "bin: " << i << " : " << bin << std::endl;
+      edm::LogInfo("SplitVertexResolution") << "bin: " << i << " : " << bin << std::endl;
       i++;
     }
-    edm::LogVerbatim("SplitVertexResolution") << "--------------------------------" << std::endl;
+    edm::LogInfo("SplitVertexResolution") << "--------------------------------" << std::endl;
     return false;
   }
 }
