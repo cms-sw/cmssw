@@ -160,6 +160,7 @@ process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
 # The PV resolution module
 ###################################################################
 process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
+                                                 storeNtuple         = cms.bool(True),
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		
                                                  minVertexNdf        = cms.untracked.double(10.),
