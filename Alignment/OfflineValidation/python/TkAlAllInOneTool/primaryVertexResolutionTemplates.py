@@ -11,7 +11,7 @@ process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLaye
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0 
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2   
 
-process.PrimaryVertexResolution = cms.EDAnalyzer('PrimaryVertexResolution',
+process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		
                                                  minVertexNdf        = cms.untracked.double(10.),
@@ -33,6 +33,9 @@ process.p = cms.Path(process.offlineBeamSpot                        +
 ####################################################################
 PVResolutionScriptTemplate="""
 #!/bin/bash
+source /afs/cern.ch/cms/caf/setup.sh
+export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
+
 source /afs/cern.ch/cms/caf/setup.sh
 
 echo  -----------------------
