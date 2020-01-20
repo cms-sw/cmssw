@@ -8,42 +8,42 @@
 
 class pvCand {
 public:
-  Int_t nTrks;
-  Int_t ipos;
+  int nTrks;
+  int ipos;
 
-  Float_t x_origVtx;
-  Float_t y_origVtx;
-  Float_t z_origVtx;
+  float x_origVtx;
+  float y_origVtx;
+  float z_origVtx;
 
-  Float_t xErr_origVtx;
-  Float_t yErr_origVtx;
-  Float_t zErr_origVtx;
+  float xErr_origVtx;
+  float yErr_origVtx;
+  float zErr_origVtx;
 
-  Int_t n_subVtx1;
-  Float_t x_subVtx1;
-  Float_t y_subVtx1;
-  Float_t z_subVtx1;
+  int n_subVtx1;
+  float x_subVtx1;
+  float y_subVtx1;
+  float z_subVtx1;
 
-  Float_t xErr_subVtx1;
-  Float_t yErr_subVtx1;
-  Float_t zErr_subVtx1;
-  Float_t sumPt_subVtx1;
+  float xErr_subVtx1;
+  float yErr_subVtx1;
+  float zErr_subVtx1;
+  float sumPt_subVtx1;
 
-  Int_t n_subVtx2;
-  Float_t x_subVtx2;
-  Float_t y_subVtx2;
-  Float_t z_subVtx2;
+  int n_subVtx2;
+  float x_subVtx2;
+  float y_subVtx2;
+  float z_subVtx2;
 
-  Float_t xErr_subVtx2;
-  Float_t yErr_subVtx2;
-  Float_t zErr_subVtx2;
-  Float_t sumPt_subVtx2;
+  float xErr_subVtx2;
+  float yErr_subVtx2;
+  float zErr_subVtx2;
+  float sumPt_subVtx2;
 
-  Float_t CL_subVtx1;
-  Float_t CL_subVtx2;
+  float CL_subVtx1;
+  float CL_subVtx2;
 
-  Float_t minW_subVtx1;
-  Float_t minW_subVtx2;
+  float minW_subVtx1;
+  float minW_subVtx2;
 
   pvCand(){};
   virtual ~pvCand(){};
@@ -53,11 +53,11 @@ public:
 
 class pvEvent {
 public:
-  Int_t runNumber;
-  Int_t luminosityBlockNumber;
-  Int_t eventNumber;
+  int runNumber;
+  int luminosityBlockNumber;
+  int eventNumber;
 
-  Int_t nVtx;
+  int nVtx;
 
   std::vector<pvCand> pvs;
 
