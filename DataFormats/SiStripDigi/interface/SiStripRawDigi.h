@@ -21,8 +21,6 @@ public:
 
   inline uint16_t adc() const { return adc_; }
 
-  inline operator uint16_t() const { return adc_; }
-
   /** Not used! (even if implementation is required). */
   inline bool operator<(const SiStripRawDigi& other) const;
 

@@ -288,6 +288,28 @@ namespace {
     StripClusterizerAlgorithm::State& state_;
     StripClusterizerAlgorithm::output_t::TSFastFiller& record_;
   };
+
+  template<typename Container>
+  class ADC_back_inserter {
+  public:
+    typedef std::output_iterator_tag iterator_category;
+    typedef void value_type;
+    typedef void difference_type;
+    typedef void pointer;
+    typedef void reference;
+
+    ADC_back_inserter(Container& c) : c_(c) {}
+
+    ADC_back_inserter& operator=(SiStripRawDigi digi) {
+      c_.push_back(digi.adc());
+      return *this;
+    }
+    ADC_back_inserter& operator*() { return *this; }
+    ADC_back_inserter& operator++() { return *this; }
+    ADC_back_inserter& operator++(int) { return *this; }
+  private:
+    Container& c_;
+  };
 }  // namespace
 
 void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& record) {
@@ -398,7 +420,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
         if (FEDChannelUnpacker::isVirginRaw(mode, legacy_, lmode)) {
           std::vector<int16_t> digis;
           st_ch = FEDChannelUnpacker::unpackVirginRaw(
-              buffer->channel(fedCh), std::back_inserter(digis), buffer->channel(fedCh).packetCode());
+              buffer->channel(fedCh), ADC_back_inserter(digis), buffer->channel(fedCh).packetCode());
           if (FEDChannelUnpacker::StatusCode::SUCCESS == st_ch) {
             //process raw
             uint32_t id = conn->detId();
@@ -414,7 +436,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
           }
         } else if (FEDChannelUnpacker::isProcessedRaw(mode, legacy_, lmode)) {
           std::vector<int16_t> digis;
-          st_ch = FEDChannelUnpacker::unpackProcessedRaw(buffer->channel(fedCh), std::back_inserter(digis));
+          st_ch = FEDChannelUnpacker::unpackProcessedRaw(buffer->channel(fedCh), ADC_back_inserter(digis));
           if (FEDChannelUnpacker::StatusCode::SUCCESS == st_ch) {
             //process raw
             uint32_t id = conn->detId();
