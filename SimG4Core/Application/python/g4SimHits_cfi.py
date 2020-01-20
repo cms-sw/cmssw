@@ -491,6 +491,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     TotemRPSD = cms.PSet(
         Verbosity = cms.int32(0)
     ),
+    TotemSD = cms.PSet(
+        Verbosity = cms.untracked.int32(0)
+    ),
     PPSDiamondSD = cms.PSet(
         Verbosity = cms.int32(0)
     ),
