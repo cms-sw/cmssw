@@ -1,0 +1,14 @@
+<iftool name="cuda-gcc-support">
+<use name="FWCore/Concurrency"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CUDADataFormats/Common"/>
+<use name="DataFormats/Provenance"/>
+<use name="HeterogeneousCore/CUDAServices"/>
+<use name="cuda"/>
+
+<export>
+    <lib name="1"/>
+</export>
+</iftool>

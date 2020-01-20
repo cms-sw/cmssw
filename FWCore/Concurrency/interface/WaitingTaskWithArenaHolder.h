@@ -25,7 +25,6 @@
 #include "tbb/task_arena.h"
 
 namespace edm {
-
   class WaitingTask;
   class WaitingTaskHolder;
 
@@ -72,5 +71,29 @@ namespace edm {
     WaitingTask* m_task;
     std::shared_ptr<tbb::task_arena> m_arena;
   };
+
+  template <typename F>
+  auto make_lambda_with_holder(WaitingTaskWithArenaHolder h, F&& f) {
+    return [holder = std::move(h), func = std::forward<F>(f)]() mutable {
+      try {
+        func(holder);
+      } catch (...) {
+        holder.doneWaiting(std::current_exception());
+      }
+    };
+  }
+
+  template <typename ALLOC, typename F>
+  auto make_waiting_task_with_holder(ALLOC&& iAlloc, WaitingTaskWithArenaHolder h, F&& f) {
+    return make_waiting_task(
+        std::forward<ALLOC>(iAlloc),
+        [holder = h, func = make_lambda_with_holder(h, std::forward<F>(f))](std::exception_ptr const* excptr) mutable {
+          if (excptr) {
+            holder.doneWaiting(*excptr);
+            return;
+          }
+          func();
+        });
+  }
 }  // namespace edm
 #endif

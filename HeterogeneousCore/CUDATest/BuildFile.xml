@@ -1,0 +1,5 @@
+<iftool name="cuda-gcc-support">
+<use name="DataFormats/Common"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="rootcore"/>
+</iftool>
