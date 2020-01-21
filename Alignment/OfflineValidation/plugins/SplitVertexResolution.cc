@@ -279,7 +279,7 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
 
   const edm::TriggerNames& triggerNames_ = iEvent.triggerNames(*hltresults);
   int ntrigs = hltresults->size();
-  const std::vector<std::string>& triggernames = triggerNames_.triggerNames();
+  //const std::vector<std::string>& triggernames = triggerNames_.triggerNames();
 
   beginEvent();
 
@@ -324,7 +324,6 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     const std::string& trigName = triggerNames_.triggerName(itrig);
     bool accept = hltresults->accept(itrig);
     if (accept == 1) {
-      // cout << trigName << " " << accept << " ,track size: " << tC.size() << endl;
       triggerMap_[trigName].first += 1;
       triggerMap_[trigName].second += tracks.product()->size();
       // triggerInfo.push_back(pair <string, int> (trigName, accept));

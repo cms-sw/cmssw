@@ -1,26 +1,12 @@
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
-#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-#include "Alignment/CommonAlignment/interface/SurveyResidual.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
-#include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "CondFormats/Common/interface/Time.h"
-#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
@@ -40,42 +26,38 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TBranch.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+
+// ROOT includes
+
+#include "TMath.h"
 #include "TFile.h"
 #include "TH1D.h"
 #include "TH1I.h"
 #include "TH2D.h"
-#include "TLorentzVector.h"
 #include "TProfile.h"
-#include "TTree.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
+
+// system includes
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 class MagneticField;
 
@@ -124,8 +106,8 @@ public:
       if (*iter && (*iter)->GetName() == name)
         return result;
     }
-    edm::LogError("Alignment") << "@SUB=TrackerOfflineValidation::GetIndex"
-                               << " could not find " << name;
+    edm::LogError("GeneralPurposeTrackAnalyzer") << "@SUB=GeneralPurposeTrackAnalyzer::GetIndex"
+                                                 << " could not find " << name;
     return -1;
   }
 
@@ -267,22 +249,6 @@ public:
   std::map<int, std::pair<int, int> > runInfoMap_;
 
   void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
-    //typedef cond::Time_t Time_t;
-    // const unsigned int MAX_VAL(std::numeric_limits<unsigned int>::max());
-
-    // std::cout<<"====> MAXVAL: "<<MAX_VAL<<std::endl;
-
-    // edm::ESHandle<Alignments> globalPositionRcd;
-    // edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
-    // if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=MAX_VAL) {
-    //   throw cms::Exception("DatabaseError")
-    // 	<< "@SUB=AlignmentProducer::applyDB"
-    // 	<< "\nTrying to apply "<< setup.get<GlobalPositionRcd>().key().name()
-    // 	<< " with multiple IOVs in tag.\n"
-    // 	<< "Validity range is "
-    // 	<< iov.first().eventID().run() << " - " << iov.last().eventID().run();
-    // }
-
     ievt++;
 
     edm::Handle<reco::TrackCollection> trackCollection;
@@ -300,10 +266,11 @@ public:
 
     edm::ESHandle<SiStripLatency> apvlat;
     setup.get<SiStripLatencyRcd>().get(apvlat);
-    if (apvlat->singleReadOutMode() == 1)
+    if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
-    if (apvlat->singleReadOutMode() == 0)
+    } else if (apvlat->singleReadOutMode() == 0) {
       mode = -1;  // deco mode
+    }
 
     conditionsMap_[event.run()].first = mode;
     conditionsMap_[event.run()].second = B_;
@@ -321,8 +288,11 @@ public:
     }
 
     GlobalPoint zeroPoint(0, 0, 0);
-    //std::cout << "event#" << ievt << " Event ID = "<< event.id()
-    /// << " magnetic field: " << magneticField_->inTesla(zeroPoint) << std::endl ;
+    if (DEBUG) {
+      edm::LogInfo("GeneralPurposeTrackAnalyzer")
+          << "event#" << ievt << " Event ID = " << event.id()
+          << " magnetic field: " << magneticField_->inTesla(zeroPoint) << std::endl;
+    }
 
     const reco::TrackCollection tC = *(trackCollection.product());
     itrks += tC.size();
@@ -330,22 +300,25 @@ public:
     runInfoMap_[event.run()].first += 1;
     runInfoMap_[event.run()].second += tC.size();
 
-    //std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
-    TLorentzVector mother(0., 0., 0., 0.);
-
+    if (DEBUG) {
+      edm::LogInfo("GeneralPurposeTrackAnalyzer") << "Reconstructed " << tC.size() << " tracks" << std::endl;
+    }
     //int iCounter=0;
     edm::Handle<edm::TriggerResults> hltresults;
     event.getByToken(hltresultsToken, hltresults);
 
     const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
     int ntrigs = hltresults->size();
-    const vector<string> &triggernames = triggerNames_.triggerNames();
+    //const vector<string> &triggernames = triggerNames_.triggerNames();
 
     for (int itrig = 0; itrig != ntrigs; ++itrig) {
       const string &trigName = triggerNames_.triggerName(itrig);
       bool accept = hltresults->accept(itrig);
       if (accept == 1) {
-        // cout << trigName << " " << accept << " ,track size: " << tC.size() << endl;
+        if (DEBUG) {
+          edm::LogInfo("GeneralPurposeTrackAnalyzer")
+              << trigName << " " << accept << " ,track size: " << tC.size() << endl;
+        }
         triggerMap_[trigName].first += 1;
         triggerMap_[trigName].second += tC.size();
         // triggerInfo.push_back(pair <string, int> (trigName, accept));
@@ -409,9 +382,6 @@ public:
         }
       }
       hHit2D->Fill(nHit2D);
-
-      // std::cout << "nHit2D: "<<nHit2D<<std::endl;
-
       hHit->Fill(track->numberOfValidHits());
       hnhpxb->Fill(track->hitPattern().numberOfValidPixelBarrelHits());
       hnhpxe->Fill(track->hitPattern().numberOfValidPixelEndcapHits());
@@ -453,18 +423,21 @@ public:
       hEta->Fill(track->eta());
       hPhi->Fill(track->phi());
 
-      //std::cout << "nHit2D: "<<nHit2D<<std::endl;
-
-      if (fabs(track->eta()) < 0.8)
+      if (fabs(track->eta()) < 0.8) {
         hPhiBarrel->Fill(track->phi());
-      if (track->eta() > 0.8 && track->eta() < 1.4)
+      }
+      if (track->eta() > 0.8 && track->eta() < 1.4) {
         hPhiOverlapPlus->Fill(track->phi());
-      if (track->eta() < -0.8 && track->eta() > -1.4)
+      }
+      if (track->eta() < -0.8 && track->eta() > -1.4) {
         hPhiOverlapMinus->Fill(track->phi());
-      if (track->eta() > 1.4)
+      }
+      if (track->eta() > 1.4) {
         hPhiEndcapPlus->Fill(track->phi());
-      if (track->eta() < -1.4)
+      }
+      if (track->eta() < -1.4) {
         hPhiEndcapMinus->Fill(track->phi());
+      }
 
       hd0->Fill(track->d0());
       hdz->Fill(track->dz());
@@ -472,8 +445,6 @@ public:
       hvx->Fill(track->vx());
       hvy->Fill(track->vy());
       hvz->Fill(track->vz());
-
-      //std::cout << "nHit2D: "<<nHit2D<<std::endl;
 
       // int myalgo=-88;
       // if(track->algo()==reco::TrackBase::undefAlgorithm)myalgo=0;
@@ -630,8 +601,6 @@ public:
       static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_kappa");
       vTrack2DHistos_[normchi2kappa_2d]->Fill(normchi2, kappa);
 
-      //std::cout << "filling histos"<<std::endl;
-
       //dxy with respect to the beamspot
       reco::BeamSpot beamSpot;
       edm::Handle<reco::BeamSpot> beamSpotHandle;
@@ -646,47 +615,48 @@ public:
         hdzBS->Fill(dz);
       }
 
-      // //dxy with respect to the primary vertex
-      // reco::Vertex pvtx;
-      // edm::Handle<reco::VertexCollection> vertexHandle;
-      // reco::VertexCollection vertexCollection;
-      // event.getByLabel("offlinePrimaryVertices",vertexHandle);
-      // double mindxy = 100.;
-      // double dz = 100;
-      // if(vertexHandle.isValid()) {
-      // 	for(reco::VertexCollection::const_iterator pvtx = vertexHandle->begin(); pvtx!=vertexHandle->end(); ++pvtx) {
-      // 	  math::XYZPoint mypoint( pvtx->x(), pvtx->y(), pvtx->z());
-      // 	  if(abs(mindxy)>abs(track->dxy(mypoint))){
-      // 	    mindxy = track->dxy(mypoint);
-      // 	    dz=track->dz(mypoint);
-      // 	    std::cout<<"dxy: "<<mindxy<<"dz: "<<dz<<std::endl;
-      // 	  }
-      // 	}
+      //dxy with respect to the primary vertex
+      reco::Vertex pvtx;
+      edm::Handle<reco::VertexCollection> vertexHandle;
+      reco::VertexCollection vertexCollection;
+      event.getByLabel("offlinePrimaryVertices", vertexHandle);
+      double mindxy = 100.;
+      double dz = 100;
+      if (vertexHandle.isValid()) {
+        for (reco::VertexCollection::const_iterator pvtx = vertexHandle->begin(); pvtx != vertexHandle->end(); ++pvtx) {
+          math::XYZPoint mypoint(pvtx->x(), pvtx->y(), pvtx->z());
+          if (abs(mindxy) > abs(track->dxy(mypoint))) {
+            mindxy = track->dxy(mypoint);
+            dz = track->dz(mypoint);
+          }
+        }
 
-      // 	hdxyPV->Fill(mindxy);
-      // 	hd0PV->Fill(-mindxy);
-      // 	hdzPV->Fill(dz);
+        hdxyPV->Fill(mindxy);
+        hd0PV->Fill(-mindxy);
+        hdzPV->Fill(dz);
 
-      // 	hd0PVvsphi->Fill(track->phi(),-mindxy);
-      // 	hd0PVvseta->Fill(track->eta(),-mindxy);
-      // 	hd0PVvspt->Fill(track->pt(),-mindxy);
+        hd0PVvsphi->Fill(track->phi(), -mindxy);
+        hd0PVvseta->Fill(track->eta(), -mindxy);
+        hd0PVvspt->Fill(track->pt(), -mindxy);
 
-      // } else {
-      // 	hdxyPV->Fill(100);
-      // 	hd0PV->Fill(100);
-      // 	hdzPV->Fill(100);
-      // }
+      } else {
+        hdxyPV->Fill(100);
+        hd0PV->Fill(100);
+        hdzPV->Fill(100);
+      }
 
-      // std::cout<<"end of track loop"<<std::endl;
+      if (DEBUG) {
+        edm::LogInfo("GeneralPurposeTrackAnalyzer") << "end of track loop" << std::endl;
+      }
     }
-
-    // std::cout<<"end of analysis"<<std::endl;
 
     hNtrk->Fill(tC.size());
     hNtrkZoom->Fill(tC.size());
     hNhighPurity->Fill(nHighPurityTracks);
 
-    // std::cout<<"end of analysis"<<std::endl;
+    if (DEBUG) {
+      edm::LogInfo("GeneralPurposeTrackAnalyzer") << "end of analysis" << std::endl;
+    }
   }
 
   void beginJob() override {
@@ -995,14 +965,14 @@ public:
   }  //beginJob
 
   void endJob() override {
-    std::cout << "*******************************" << std::endl;
-    std::cout << "Events run in total: " << ievt << std::endl;
-    std::cout << "n. tracks: " << itrks << std::endl;
-    std::cout << "*******************************" << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "Events run in total: " << ievt << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "n. tracks: " << itrks << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
     Int_t nFiringTriggers = triggerMap_.size();
-    std::cout << "firing triggers: " << nFiringTriggers << std::endl;
-    std::cout << "*******************************" << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << nFiringTriggers << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
     tksByTrigger_ = fs->make<TH1D>(
         "tksByTrigger", "tracks by HLT path;;% of # traks", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
@@ -1020,10 +990,11 @@ public:
 
       std::cout.precision(4);
 
-      std::cout << "HLT path: " << std::setw(60) << left << it->first << " | events firing: " << right << std::setw(8)
-                << (it->second).first << " (" << setw(8) << fixed << evtpercent << "%)"
-                << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << setw(8) << fixed
-                << trkpercent << "%)" << '\n';
+      edm::LogPrint("GeneralPurposeTrackAnalyzer")
+          << "HLT path: " << std::setw(60) << left << it->first << " | events firing: " << right << std::setw(8)
+          << (it->second).first << " (" << setw(8) << fixed << evtpercent << "%)"
+          << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << setw(8) << fixed << trkpercent
+          << "%)";
 
       tksByTrigger_->SetBinContent(i, trkpercent);
       tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
@@ -1040,13 +1011,13 @@ public:
     }
 
     sort(theRuns_.begin(), theRuns_.end());
-    Int_t runRange = theRuns_[theRuns_.size() - 1] - theRuns_[0];
+    Int_t runRange = theRuns_[theRuns_.size() - 1] - theRuns_[0] +1;
 
-    std::cout << "*******************************" << std::endl;
-    std::cout << "first run: " << theRuns_[0] << std::endl;
-    std::cout << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
-    std::cout << "considered runs: " << nRuns << std::endl;
-    std::cout << "*******************************" << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "first run: " << theRuns_[0] << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "considered runs: " << nRuns << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
     modeByRun_ = fs->make<TH1D>("modeByRun",
                                 "Strip APV mode by run number;;APV mode (-1=deco,+1=peak)",
@@ -1061,10 +1032,11 @@ public:
 
     for (Int_t the_r = theRuns_[0]; the_r <= theRuns_[theRuns_.size() - 1]; the_r++) {
       if (conditionsMap_.find(the_r)->second.first != 0) {
-        std::cout << "run:" << the_r << " | isPeak: " << std::setw(4) << conditionsMap_.find(the_r)->second.first
-                  << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
-                  << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first << ", tracks " << setw(10)
-                  << runInfoMap_.find(the_r)->second.second << std::endl;
+        edm::LogPrint("GeneralPurposeTrackAnalyzer")
+            << "run:" << the_r << " | isPeak: " << std::setw(4) << conditionsMap_.find(the_r)->second.first
+            << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
+            << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first << ", tracks " << setw(10)
+            << runInfoMap_.find(the_r)->second.second << std::endl;
       }
 
       modeByRun_->SetBinContent(the_r - theRuns_[0], conditionsMap_.find(the_r)->second.first);
