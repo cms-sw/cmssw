@@ -3284,14 +3284,18 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                 stepName = step + specialWF.suffix
                 stepNamePU = step + 'PU' + specialWF.suffix
                 stepNamePUpmx = step + 'PUPRMX' + specialWF.suffix
-                if upgradeStepDict[stepName][k] is None:
+                if k not in upgradeStepDict[stepName] or upgradeStepDict[stepName][k] is None:
                     upgradeStepDict[stepNamePU][k] = None
+                elif stepNamePU in upgradeStepDict and k in upgradeStepDict[stepNamePU]:
+                    # in case special WF had PU-specific changes
+                    upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepNamePU][k]])
                 else:
                     upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
                 # Setup premixing stage2
                 if "Digi" in step or "Reco" in step:
                     d = merge([upgradeStepDict[stepName][k]])
+                    if d is None: continue
                     if "Digi" in step:
                         tmpsteps = []
                         for s in d["-s"].split(","):
@@ -3329,7 +3333,9 @@ for step in upgradeStepDict.keys():
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
                 if (step in upgradeStepDict or step.replace("PUPRMX", "PU")) and key in upgradeStepDict[step]:
-                    if 'Premix' in step:
+                    if upgradeStepDict[step][key] is None:
+                        steps[k]=None
+                    elif 'Premix' in step:
                         # Include premixing stage1 only for SingleNu, use special step name
                         if not 'SingleNu' in frag:
                             continue
