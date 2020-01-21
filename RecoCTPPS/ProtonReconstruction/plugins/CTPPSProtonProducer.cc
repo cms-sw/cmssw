@@ -46,6 +46,7 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
     edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
     std::string lhcInfoLabel_;
+    std::string opticsLabel_;
 
     unsigned int verbosity_;
 
@@ -68,6 +69,9 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
       bool th_y_cut_apply;
       double th_y_cut_value;
 
+      double ti_tr_min;
+      double ti_tr_max;
+
       void load(const edm::ParameterSet &ps)
       {
         x_cut_apply    = ps.getParameter<bool>  ("x_cut_apply");
@@ -78,6 +82,9 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
         xi_cut_value   = ps.getParameter<double>("xi_cut_value");
         th_y_cut_apply = ps.getParameter<bool>  ("th_y_cut_apply");
         th_y_cut_value = ps.getParameter<double>("th_y_cut_value");
+
+        ti_tr_min = ps.getParameter<double>("ti_tr_min");
+        ti_tr_max = ps.getParameter<double>("ti_tr_max");
       }
 
       static edm::ParameterSetDescription getDefaultParameters()
@@ -92,6 +99,9 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
         desc.add<double>("xi_cut_value", 0.013)->setComment("threshold of track-association cut in xi");
         desc.add<bool>("th_y_cut_apply", true)->setComment("whether to apply track-association cut in th_y");
         desc.add<double>("th_y_cut_value", 20E-6)->setComment("threshold of track-association cut in th_y, rad");
+
+        desc.add<double>("ti_tr_min", -1.)->setComment("minimum value for timing-tracking association cut");
+        desc.add<double>("ti_tr_max", +1.)->setComment("maximum value for timing-tracking association cut");
 
         return desc;
       }
@@ -112,6 +122,7 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
 CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
   tracksToken_                (consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
   lhcInfoLabel_               (iConfig.getParameter<std::string>("lhcInfoLabel")),
+  opticsLabel_                (iConfig.getParameter<std::string>("opticsLabel")),
   verbosity_                  (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
   doSingleRPReconstruction_   (iConfig.getParameter<bool>("doSingleRPReconstruction")),
   doMultiRPReconstruction_    (iConfig.getParameter<bool>("doMultiRPReconstruction")),
@@ -150,8 +161,8 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("tagLocalTrackLite", edm::InputTag("ctppsLocalTrackLiteProducer"))
     ->setComment("specification of the input lite-track collection");
 
-  desc.add<std::string>("lhcInfoLabel", "")
-    ->setComment("label of the LHCInfo record");
+  desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
+  desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
 
   desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
 
@@ -212,7 +223,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
 
     edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
-    iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);
+    iSetup.get<CTPPSInterpolatedOpticsRcd>().get(opticsLabel_, hOpticalFunctions);
 
     edm::ESHandle<CTPPSGeometry> hGeometry;
     iSetup.get<VeryForwardRealGeometryRecord>().get(hGeometry);
@@ -378,8 +389,9 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
               const double de_x = tr_ti.getX() - x_inter;
               const double de_x_unc = sqrt(tr_ti.getXUnc()*tr_ti.getXUnc() + x_inter_unc_sq);
+              const double r = (de_x_unc > 0.) ? de_x / de_x_unc : 1E100;
 
-              const bool matching = (std::abs(de_x) <= de_x_unc);
+              const bool matching = (ac.ti_tr_min < r && r < ac.ti_tr_max);
 
               if (verbosity_)
                 ssLog << "ti=" << ti << ", i=" << i << ", j=" << j
@@ -408,11 +420,12 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             if (verbosity_)
               ssLog << std::endl << "* reconstruction from tracking-RP tracks: " << i << ", " << j << " and timing-RP tracks: ";
 
-            // process tracking-RP data
+            // buffer contributing tracks
             CTPPSLocalTrackLiteRefVector sel_tracks;
             sel_tracks.push_back(CTPPSLocalTrackLiteRef(hTracks, i));
             sel_tracks.push_back(CTPPSLocalTrackLiteRef(hTracks, j));
-            reco::ForwardProton proton = algorithm_.reconstructFromMultiRP(sel_tracks, *hLHCInfo, ssLog);
+
+            CTPPSLocalTrackLiteRefVector sel_track_for_kin_reco = sel_tracks;
 
             // process timing-RP data
             double sw=0., swt=0.;
@@ -443,6 +456,9 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
             if (verbosity_)
               ssLog << std::endl << "    time = " << time << " +- " << time_unc << std::endl;
+
+            // process tracking-RP data
+            reco::ForwardProton proton = algorithm_.reconstructFromMultiRP(sel_track_for_kin_reco, *hLHCInfo, ssLog);
 
             // save combined output
             proton.setContributingLocalTracks(sel_tracks);

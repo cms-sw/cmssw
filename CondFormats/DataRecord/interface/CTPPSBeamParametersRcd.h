@@ -1,25 +1,15 @@
+// Authors:
+//  Wagner De Paula Carvalho
+//  Jan Kašpar
+
 #ifndef CTPPSBeamParametersRcd_CTPPSBeamParametersRcd_h
 #define CTPPSBeamParametersRcd_CTPPSBeamParametersRcd_h
-// -*- C++ -*-
-//
-// Package:     CondFormats/DataRecord
-// Class  :     CTPPSBeamParametersRcd
-// 
-/**\class CTPPSBeamParametersRcd CTPPSBeamParametersRcd.h CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h
 
- Description: Record for beam parameters for CTPPS
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 
- Usage:
-    <usage>
+#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "boost/mpl/vector.hpp"
 
-*/
-//
-// Author:      Wagner De Paula Carvalho
-// Created:     Wed, 21 Nov 2018 16:12:53 GMT
-//
-
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-
-class CTPPSBeamParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<CTPPSBeamParametersRcd> {};
+class CTPPSBeamParametersRcd : public edm::eventsetup::DependentRecordImplementation<CTPPSBeamParametersRcd, boost::mpl::vector<LHCInfoRcd>> {};
 
 #endif

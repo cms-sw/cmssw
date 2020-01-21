@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
@@ -29,97 +28,129 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<>
-{
-  public:
-    explicit CTPPSTrackDistributionPlotter(const edm::ParameterSet&);
+class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<> {
+public:
+  explicit CTPPSTrackDistributionPlotter(const edm::ParameterSet&);
 
-    ~CTPPSTrackDistributionPlotter() override {}
+  ~CTPPSTrackDistributionPlotter() override {}
 
-  private:
-    void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    void endJob() override;
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
+  edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
-    std::string outputFile_;
+  double x_pitch_pixels_;
 
-    struct RPPlots
-    {
-      std::unique_ptr<TH2D> h2_y_vs_x;
-      std::unique_ptr<TProfile> p_y_vs_x;
-      std::unique_ptr<TH1D> h_x;
+  std::string outputFile_;
 
-      RPPlots() :
-        h2_y_vs_x(new TH2D("", "", 300, -10., +70., 300, -30, +30.)),
-        p_y_vs_x(new TProfile("", "", 300, -10., +70.)),
-        h_x(new TH1D("", "", 600, -10., +70.))
-      {}
+  struct RPPlots {
+    bool initialized;
 
-      void fill(double x, double y)
-      {
-        h2_y_vs_x->Fill(x, y);
-        p_y_vs_x->Fill(x, y);
-        h_x->Fill(x);
-      }
+    std::unique_ptr<TH2D> h2_y_vs_x;
+    std::unique_ptr<TProfile> p_y_vs_x;
+    std::unique_ptr<TH1D> h_x;
+    std::unique_ptr<TH1D> h_y;
 
-      void write() const
-      {
-        h2_y_vs_x->Write("h2_y_vs_x");
-        p_y_vs_x->Write("p_y_vs_x");
-        h_x->Write("h_x");
-      }
-    };
+    RPPlots() : initialized(false) {}
 
-    std::map<unsigned int, RPPlots> rpPlots;
+    void init(bool pixel, double pitch) {
+      const double bin_size_x = (pixel) ? pitch * cos(18.4 / 180. * M_PI) : 100E-3;
 
+      h2_y_vs_x.reset(new TH2D("", "", 300, -10., +70., 300, -30., +30.));
+      p_y_vs_x.reset(new TProfile("", "", 300, -10., +70.));
 
-    struct ArmPlots
-    {
-      std::unique_ptr<TProfile2D> p2_de_x_vs_x_y, p2_de_y_vs_x_y;
+      int n_mi = ceil(10. / bin_size_x);
+      int n_pl = ceil(70. / bin_size_x);
 
-      ArmPlots() :
-        p2_de_x_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.)),
-        p2_de_y_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.))
-      {}
+      h_x.reset(new TH1D("", "", n_mi + n_pl, -n_mi * bin_size_x, +n_pl * bin_size_x));
 
-      void fill(double x_N, double y_N, double x_F, double y_F)
-      {
-        p2_de_x_vs_x_y->Fill(x_N, y_N, x_F - x_N);
-        p2_de_y_vs_x_y->Fill(x_N, y_N, y_F - y_N);
-      }
+      h_y.reset(new TH1D("", "", 300, -15., +15.));
 
-      void write() const
-      {
-        p2_de_x_vs_x_y->Write("p2_de_x_vs_x_y");
-        p2_de_y_vs_x_y->Write("p2_de_y_vs_x_y");
-      }
-    };
+      initialized = true;
+    }
 
-    std::map<unsigned int, ArmPlots> armPlots;
+    void fill(double x, double y) {
+      h2_y_vs_x->Fill(x, y);
+      p_y_vs_x->Fill(x, y);
+      h_x->Fill(x);
+      h_y->Fill(y);
+    }
+
+    void write() const {
+      h2_y_vs_x->Write("h2_y_vs_x");
+      p_y_vs_x->Write("p_y_vs_x");
+      h_x->Write("h_x");
+      h_y->Write("h_y");
+    }
+  };
+
+  std::map<unsigned int, RPPlots> rpPlots;
+
+  struct ArmPlots {
+    std::unique_ptr<TH1D> h_de_x, h_de_y;
+    std::unique_ptr<TProfile> p_de_x_vs_x, p_de_y_vs_x;
+    std::unique_ptr<TProfile2D> p2_de_x_vs_x_y, p2_de_y_vs_x_y;
+
+    ArmPlots()
+        : h_de_x(new TH1D("", ";x^{F} - x^{N}", 100, -1., +1.)),
+          h_de_y(new TH1D("", ";y^{F} - y^{N}", 100, -1., +1.)),
+          p_de_x_vs_x(new TProfile("", ";x^{N};x^{F} - x^{N}", 40, 0., 40.)),
+          p_de_y_vs_x(new TProfile("", ";x^{N};y^{F} - y^{N}", 40, 0., 40.)),
+          p2_de_x_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.)),
+          p2_de_y_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.)) {}
+
+    void fill(double x_N, double y_N, double x_F, double y_F) {
+      h_de_x->Fill(x_F - x_N);
+      h_de_y->Fill(y_F - y_N);
+
+      p_de_x_vs_x->Fill(x_N, x_F - x_N);
+      p_de_y_vs_x->Fill(x_N, y_F - y_N);
+
+      p2_de_x_vs_x_y->Fill(x_N, y_N, x_F - x_N);
+      p2_de_y_vs_x_y->Fill(x_N, y_N, y_F - y_N);
+    }
+
+    void write() const {
+      h_de_x->Write("h_de_x");
+      h_de_y->Write("h_de_y");
+
+      p_de_x_vs_x->Write("p_de_x_vs_x");
+      p_de_y_vs_x->Write("p_de_y_vs_x");
+
+      p2_de_x_vs_x_y->Write("p2_de_x_vs_x_y");
+      p2_de_y_vs_x_y->Write("p2_de_y_vs_x_y");
+    }
+  };
+
+  std::map<unsigned int, ArmPlots> armPlots;
 };
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSTrackDistributionPlotter::CTPPSTrackDistributionPlotter( const edm::ParameterSet& iConfig ) :
-  tracksToken_( consumes<CTPPSLocalTrackLiteCollection>( iConfig.getParameter<edm::InputTag>( "tagTracks" ) ) ),
-  outputFile_( iConfig.getParameter<std::string>("outputFile") )
-{
-}
+CTPPSTrackDistributionPlotter::CTPPSTrackDistributionPlotter(const edm::ParameterSet& iConfig)
+    : tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
+      x_pitch_pixels_(iConfig.getUntrackedParameter<double>("x_pitch_pixels", 150E-3)),
+      outputFile_(iConfig.getParameter<std::string>("outputFile")) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSTrackDistributionPlotter::analyze( const edm::Event& iEvent, const edm::EventSetup& )
-{
+void CTPPSTrackDistributionPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   // get input
   edm::Handle<CTPPSLocalTrackLiteCollection> tracks;
-  iEvent.getByToken( tracksToken_, tracks );
+  iEvent.getByToken(tracksToken_, tracks);
 
   // process tracks
   for (const auto& trk : *tracks) {
     CTPPSDetId rpId(trk.getRPId());
-    unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
-    rpPlots[rpDecId].fill(trk.getX(), trk.getY());
+    unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
+    bool rpPixel = (rpId.subdetId() == CTPPSDetId::sdTrackingPixel);
+
+    auto& pl = rpPlots[rpDecId];
+    if (!pl.initialized)
+      pl.init(rpPixel, x_pitch_pixels_);
+
+    pl.fill(trk.getX(), trk.getY());
   }
 
   for (const auto& t1 : *tracks) {
@@ -139,8 +170,7 @@ void CTPPSTrackDistributionPlotter::analyze( const edm::Event& iEvent, const edm
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSTrackDistributionPlotter::endJob()
-{
+void CTPPSTrackDistributionPlotter::endJob() {
   auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
   for (const auto& it : rpPlots) {
@@ -156,5 +186,4 @@ void CTPPSTrackDistributionPlotter::endJob()
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE( CTPPSTrackDistributionPlotter );
-
+DEFINE_FWK_MODULE(CTPPSTrackDistributionPlotter);

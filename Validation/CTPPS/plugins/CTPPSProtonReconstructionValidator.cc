@@ -46,8 +46,8 @@ class CTPPSProtonReconstructionValidator : public edm::one::EDAnalyzer<>
     {
       std::unique_ptr<TH1D> h_de_x, h_de_y;
       RPPlots() :
-        h_de_x(new TH1D("", ";#Deltax   (mm)", 100, -2., +2.)),
-        h_de_y(new TH1D("", ";#Deltay   (mm)", 100, -2., +2.))
+        h_de_x(new TH1D("", ";#Deltax   (mm)", 1000, -1., +1.)),
+        h_de_y(new TH1D("", ";#Deltay   (mm)", 1000, -1., +1.))
       {}
 
       void fill(double de_x, double de_y) {
@@ -107,8 +107,16 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
       CTPPSDetId rpId(tr->getRPId());
       unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
-      auto it = hOpticalFunctions->find(rpId);
+      // skip other than tracking RPs
+      if (rpId.subdetId() != CTPPSDetId::sdTrackingStrip && rpId.subdetId() != CTPPSDetId::sdTrackingPixel)
+        continue;
 
+      // try to get optics for the RP
+      auto it = hOpticalFunctions->find(rpId);
+      if (it == hOpticalFunctions->end())
+        continue;
+
+      // do propagation
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_in_beam = { 0., 0., 0., 0., 0. };
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_out_beam;
       it->second.transport(k_in_beam, k_out_beam);
@@ -117,6 +125,7 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_out;
       it->second.transport(k_in, k_out);
 
+      // fill plots
       const double de_x = (k_out.x - k_out_beam.x) * 10. - tr->getX();  // conversions: cm --> mm
       const double de_y = (k_out.y - k_out_beam.y) * 10. - tr->getY();  // conversions: cm --> mm
 
