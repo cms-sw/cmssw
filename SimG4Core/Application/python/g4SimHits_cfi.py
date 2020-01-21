@@ -575,5 +575,5 @@ phase2_timing.toModify( g4SimHits.ECalSD,
                              StoreLayerTimeSim = cms.untracked.bool(True),
                              TimeSliceUnit = cms.double(0.001) )
 
-from Configuration.Eras.Modifier_dd4hep import dd4hep
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
