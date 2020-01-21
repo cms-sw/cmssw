@@ -198,6 +198,7 @@ namespace {
           toWorkerBufferIndex_{managed_shm_.find<char>("bufferIndexToWorker").first},
           fromWorkerBufferIndex_{managed_shm_.find<char>("bufferIndexFromWorker").first},
           cndToController_{open_or_create, unique_name("cndToMain", iUniqueID).c_str()},
+          keepEvent_{managed_shm_.find<bool>("keepEvent").first},
           lock_{mutex_} {
       assert(stop_);
       assert(transitionType_);
@@ -219,6 +220,8 @@ namespace {
 
     bool stopRequested() const noexcept { return *stop_; }
 
+    void shouldKeepEvent(bool iChoice) { *keepEvent_ = iChoice; }
+
   private:
     managed_shared_memory managed_shm_;
 
@@ -230,6 +233,7 @@ namespace {
     char* toWorkerBufferIndex_;
     char* fromWorkerBufferIndex_;
     named_condition cndToController_;
+    bool* keepEvent_;
     scoped_lock<named_mutex> lock_;
   };
 
