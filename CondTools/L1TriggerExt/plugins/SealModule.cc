@@ -15,7 +15,7 @@ DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyListDummyProdExt);
 DEFINE_FWK_EVENTSETUP_MODULE(L1SubsystemKeysOnlineProdExt);
 DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyOnlineProdExt);
 
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondTools/L1Trigger/interface/WriterProxy.h"
 
 // Central L1 records
