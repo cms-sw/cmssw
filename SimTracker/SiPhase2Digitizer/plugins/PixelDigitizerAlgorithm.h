@@ -3,9 +3,6 @@
 
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 
-// forward declarations
-class TrackerTopology;
-
 class PixelDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm {
 public:
   PixelDigitizerAlgorithm(const edm::ParameterSet& conf);
@@ -19,14 +16,15 @@ public:
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
                          const std::vector<PSimHit>::const_iterator inputEnd,
                          const size_t inputBeginGlobalIndex,
-                         const unsigned int tofBin,
+                         const uint32_t tofBin,
                          const Phase2TrackerGeomDetUnit* pixdet,
                          const GlobalVector& bfield) override;
   void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet) override;
+
   // Addition four xtalk-related parameters to PixelDigitizerAlgorithm specific parameters initialized in Phase2TrackerDigitizerAlgorithm
-  const double odd_row_interchannelCoupling_next_row;
-  const double even_row_interchannelCoupling_next_row;
-  const double odd_column_interchannelCoupling_next_column;
-  const double even_column_interchannelCoupling_next_column;
+  const double odd_row_interchannelCoupling_next_row_;
+  const double even_row_interchannelCoupling_next_row_;
+  const double odd_column_interchannelCoupling_next_column_;
+  const double even_column_interchannelCoupling_next_column_;
 };
 #endif
