@@ -192,13 +192,13 @@ class ValidationJob(ValidationBase):
         elif valType == "primaryvertex":
             validation = PrimaryVertexValidation( name,
                 Alignment( alignments.strip(), config ), config )
+        elif valType == "pvresolution":
+            validation = PrimaryVertexResolution( name,
+                Alignment( alignments.strip(), config ), config )
         elif valType == "preexistingprimaryvertex":
             validation = PreexistingPrimaryVertexValidation(name, self.__config)
         elif valType == "overlap":
             validation = OverlapValidation( name,
-                Alignment( alignments.strip(), self.__config ), self.__config )
-        elif valType == "pvresolution":
-            validation = PrimaryVertexResolution( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError("Unknown validation mode '%s'"%valType)
