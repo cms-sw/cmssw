@@ -342,6 +342,37 @@ upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
 }
 # end of Patatrack workflows
 
+class UpgradeWorkflow_Run3ProdLike(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Digi' in step:
+	    stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+	elif 'Reco' in step:
+            stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
+        elif 'MiniAOD' in step:
+            # the separate miniAOD step is used here
+            stepDict[stepName][k] = deepcopy(stepDict[step][k])
+        if 'HARVEST' in step:
+            # remove step
+            stepDict[stepName][k] = None
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['Run3ProdLike'] = UpgradeWorkflow_Run3ProdLike(
+    steps = [
+	'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+        'MiniAODFullGlobal',
+    ],
+    PU = [
+	'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+	'MiniAODFullGlobal',
+    ],
+    suffix = '_Run3ProdLike',
+    offset = 0.22,
+)
+
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step:
