@@ -40,6 +40,11 @@ public:
     WaferOut = 99
   };
 
+  static const int k_allCorners = 6;
+  static const int k_fiveCorners = 5;
+  static const int k_fourCorners = 4;
+  static const int k_threeCorners = 3;
+
   static void radius(double zf,
                      double zb,
                      std::vector<double> const& zFront1,
