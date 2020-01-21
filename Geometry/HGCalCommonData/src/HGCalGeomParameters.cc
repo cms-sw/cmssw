@@ -524,7 +524,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
         for (unsigned int i2 = i1 + 1; i2 < trforms.size(); ++i2) {
           if (!trformUse[i2] && trforms[i2].zp == trforms[i1].zp &&
               php.layerGroup_[trforms[i2].lay - 1] == (int)(i + 1)) {
-            //          php.addTrForm(HGCalParameters::k_ScaleFromDDD * trforms[i2].h3v);
             php.addTrForm(trforms[i2].h3v);
             nz++;
             trformUse[i2] = true;
@@ -824,7 +823,6 @@ void HGCalGeomParameters::loadGeometryHexagon8(const std::map<int, HGCalGeomPara
   for (unsigned int i = 0; i < php.layer_.size(); ++i) {
     for (auto& trform : trforms) {
       if (trform.first.first == (int)(i + firstLayer)) {
-        //      trform.second.h3v *= HGCalParameters::k_ScaleFromDDD;
         php.fillTrForm(trform.second);
       }
     }
