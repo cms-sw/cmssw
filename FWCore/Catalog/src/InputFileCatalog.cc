@@ -4,16 +4,22 @@
 
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <boost/algorithm/string.hpp>
 
-namespace edm {
+#include <iostream>
 
+namespace edm {
+  
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
                                      std::string const& override,
-                                     bool useLFNasPFNifLFNnotFound)
+                                     bool useLFNasPFNifLFNnotFound,
+                                     bool setMultipleDataCatalogs) //--->HERE
       : logicalFileNames_(fileNames),
         fileNames_(fileNames),
         fallbackFileNames_(fileNames.size()),
@@ -22,7 +28,17 @@ namespace edm {
         overrideFileLocator_(),
         fallbackFileLocator_(),
         overrideFallbackFileLocator_() {
-    init(override, "", useLFNasPFNifLFNnotFound);
+    //std::cout << "\n I am constructing InputFileCatalog 1: " << setMultipleDataCatalogs << " " << hasMultipleDataCatalogs_ << " " << hasMultipleDataCatalogs() ;
+    //HERE
+    if (!setMultipleDataCatalogs) {
+      init(override, "", useLFNasPFNifLFNnotFound);
+      hasMultipleDataCatalogs_ = false;
+    }
+    else {
+      init(override, useLFNasPFNifLFNnotFound);
+      hasMultipleDataCatalogs_ = true;
+    }
+    //std::cout << "\n I am done constructing InputFileCatalog 1: " << hasMultipleDataCatalogs_ << " " << hasMultipleDataCatalogs() ;
   }
 
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
@@ -37,6 +53,7 @@ namespace edm {
         overrideFileLocator_(),
         fallbackFileLocator_(),
         overrideFallbackFileLocator_() {
+    //std::cout << "\n I am constructing InputFileCatalog 2: " << hasMultipleDataCatalogs_ << " " << hasMultipleDataCatalogs() ;
     init(override, overrideFallback, useLFNasPFNifLFNnotFound);
   }
 
@@ -119,4 +136,102 @@ namespace edm {
       // Empty fallback PFN is OK.
     }
   }
+  
+  //HERE
+  void InputFileCatalog::init(std::string const& inputOverride,
+                              bool useLFNasPFNifLFNnotFound) {
+
+    typedef std::vector<std::string>::iterator iter;
+
+    if (!overrideFileLocator_ && !inputOverride.empty()) {
+      overrideFileLocator_ =
+              std::make_unique<FileLocator>(inputOverride, false);  // propagate_const<T> has no reset() function
+    }
+    
+    //this is for backward compability
+    if (!fallbackFileLocator_) {
+      try {
+        fallbackFileLocator_ =
+          std::make_unique<FileLocator>("", true);  // propagate_const<T> has no reset() function
+      } catch (cms::Exception const& e) {
+            // No valid fallback locator is OK too.
+      }
+    }
+
+    //HERE build other file locators from local config service which are used to read file using other data catalog 
+    Service<SiteLocalConfig> localconfservice ;
+    std::vector<std::string> tmp_dataCatalogs = localconfservice->dataCatalogs() ;
+    if (fileLocators_.size() != 0) fileLocators_.clear() ;
+
+    for (unsigned int i = 0 ; i < tmp_dataCatalogs.size() ; ++i) {
+      try {
+        fileLocators_.push_back(std::make_unique<FileLocator>(tmp_dataCatalogs[i], false)) ;
+        //std::cout << "\n file locator: " << i << " " << tmp_dataCatalogs[i] ;
+      } catch (cms::Exception const& e) {
+        continue ;
+      }
+    } 
+     
+    for (iter it = fileNames_.begin(),
+              lt = logicalFileNames_.begin(),
+              ft = fallbackFileNames_.begin(), //this is for backward compability
+              itEnd = fileNames_.end() ;
+         it != itEnd;
+         ++it, ++lt, ++ft) {
+      boost::trim(*it);
+      std::vector<std::string> pfns ;
+      if (it->empty()) {
+        throw Exception(errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
+            << "An empty string specified in the fileNames parameter for input source.\n";
+      }
+      if (isPhysical(*it)) {
+        if (it->back() == ':') {
+          throw Exception(errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
+              << "An empty physical file name specified in the fileNames parameter for input source.\n";
+        }
+        pfns.push_back(*it) ;
+        // Clear the LFN.
+        lt->clear();
+      } else {
+        boost::trim(*lt);
+        findFile(*lt, pfns, *ft, useLFNasPFNifLFNnotFound); //for backward compability
+      }
+      fileCatalogItems_.push_back(FileCatalogItem(pfns, *lt, *ft));
+    }
+  }
+
+  void InputFileCatalog::findFile(std::string const& lfn,
+                                  std::vector<std::string>& pfns,
+                                  std::string& fallbackPfn, //for backward compability
+                                  bool useLFNasPFNifLFNnotFound) {
+    
+    if (overrideFileLocator_) {
+      std::string pfn = overrideFileLocator_->pfn(lfn);
+      if (!pfn.empty()) {
+        pfns.push_back(pfn) ;
+      }
+    }
+    else {
+      for (unsigned int i = 0 ; i < fileLocators_.size() ; ++i) {
+        std::string pfn = fileLocators_[i]->pfn(lfn) ;
+        if (!pfn.empty()) pfns.push_back(pfn) ;
+        //else {
+          //std::cout << "\nThis file locator is empty: " << i ;
+        //}
+      }
+    }
+    
+    if (pfns.size() == 0 && useLFNasPFNifLFNnotFound) {
+      pfns.push_back(lfn) ;
+    }
+    
+    // Empty PFN will be found by caller.
+    
+    //for backward compability
+    if (fallbackFileLocator_) {
+      fallbackPfn = fallbackFileLocator_->pfn(lfn);
+      // Empty fallback PFN is OK.
+    }
+  }
+
 }  // namespace edm
