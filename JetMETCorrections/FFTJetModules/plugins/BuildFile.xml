@@ -1,5 +1,5 @@
 <library   file="*.cc" name="JetMETCorrectionsFFTJetModulesPlugins">
-  <use   name="CondCore/PluginSystem"/>
+  <use   name="CondCore/ESSources"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondCore/DBOutputService"/>
   <use   name="DataFormats/JetReco"/>

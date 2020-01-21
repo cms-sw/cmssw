@@ -2,7 +2,6 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/PluginSystem"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondTools/L1Trigger"/>
