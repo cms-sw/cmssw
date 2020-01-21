@@ -195,17 +195,20 @@ namespace {
           stop_{managed_shm_.find<bool>("stop").first},
           transitionType_{managed_shm_.find<edm::Transition>("transitionType").first},
           transitionID_{managed_shm_.find<unsigned long long>("transitionID").first},
-          bufferIndex_{managed_shm_.find<char>("bufferIndex").first},
+          toWorkerBufferIndex_{managed_shm_.find<char>("bufferIndexToWorker").first},
+          fromWorkerBufferIndex_{managed_shm_.find<char>("bufferIndexFromWorker").first},
           cndToController_{open_or_create, unique_name("cndToMain", iUniqueID).c_str()},
           lock_{mutex_} {
       assert(stop_);
       assert(transitionType_);
       assert(transitionID_);
-      assert(bufferIndex_);
+      assert(toWorkerBufferIndex_);
+      assert(fromWorkerBufferIndex_);
     }
 
     scoped_lock<named_mutex>* accessLock() { return &lock_; }
-    char* bufferIndex() { return bufferIndex_; }
+    char* toWorkerBufferIndex() { return toWorkerBufferIndex_; }
+    char* fromWorkerBufferIndex() { return fromWorkerBufferIndex_; }
 
     edm::Transition transition() const noexcept { return *transitionType_; }
     unsigned long long transitionID() const noexcept { return *transitionID_; }
@@ -224,7 +227,8 @@ namespace {
     bool* stop_;
     edm::Transition* transitionType_;
     unsigned long long* transitionID_;
-    char* bufferIndex_;
+    char* toWorkerBufferIndex_;
+    char* fromWorkerBufferIndex_;
     named_condition cndToController_;
     scoped_lock<named_mutex> lock_;
   };
@@ -307,7 +311,7 @@ int main(int argc, char* argv[]) {
       //This class is holding the lock
       WorkerChannel communicationChannel(controlNameUnique, uniqueID);
 
-      SMWriteBuffer sm_buffer{controlNameUnique, communicationChannel.bufferIndex()};
+      SMWriteBuffer sm_buffer{controlNameUnique, communicationChannel.fromWorkerBufferIndex()};
       int counter = 0;
 
       s_lock.store(communicationChannel.accessLock());

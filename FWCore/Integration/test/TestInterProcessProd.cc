@@ -78,7 +78,8 @@ namespace testinter {
     ControllerChannel(std::string const& iName, int id)
         : id_{id},
           managed_sm_{open_or_create, unique_name(iName).c_str(), 1024},
-          bufferIndex_{bufferIndex(managed_sm_)},
+          toWorkerBufferIndex_{bufferIndex("ToWorker", managed_sm_)},
+          fromWorkerBufferIndex_{bufferIndex("FromWorker", managed_sm_)},
           named_mtx_{open_or_create, unique_name("mtx").c_str()},
           named_cndFromMain_{open_or_create, unique_name("cndFromMain").c_str()},
           named_cndToMain_{open_or_create, unique_name("cndToMain").c_str()} {
@@ -123,7 +124,8 @@ namespace testinter {
       return true;
     }
 
-    char* bufferIndex() { return bufferIndex_; }
+    char* toWorkerBufferIndex() { return toWorkerBufferIndex_; }
+    char* fromWorkerBufferIndex() { return fromWorkerBufferIndex_; }
 
     void stopWorker() {
       scoped_lock<named_mutex> lock(named_mtx_);
@@ -135,7 +137,8 @@ namespace testinter {
       managed_sm_.destroy<bool>("stop");
       managed_sm_.destroy<unsigned int>("transitionType");
       managed_sm_.destroy<unsigned long long>("transitionID");
-      managed_sm_.destroy<char>("bufferIndex");
+      managed_sm_.destroy<char>("bufferIndexToWorker");
+      managed_sm_.destroy<char>("bufferIndexFromWorker");
 
       named_mutex::remove(unique_name("mtx").c_str());
       named_condition::remove(unique_name("cndFromMain").c_str());
@@ -143,9 +146,11 @@ namespace testinter {
     }
 
   private:
-    static char* bufferIndex(managed_shared_memory& mem) {
-      mem.destroy<char>("bufferIndex");
-      char* v = mem.construct<char>("bufferIndex")();
+    static char* bufferIndex(const char* iWhich, managed_shared_memory& mem) {
+      std::string name("bufferIndex");
+      name += iWhich;
+      mem.destroy<char>(name.c_str());
+      char* v = mem.construct<char>(name.c_str())();
       return v;
     }
 
@@ -176,7 +181,8 @@ namespace testinter {
 
     int id_;
     managed_shared_memory managed_sm_;
-    char* bufferIndex_;
+    char* toWorkerBufferIndex_;
+    char* fromWorkerBufferIndex_;
 
     named_mutex named_mtx_;
     named_condition named_cndFromMain_;
@@ -191,7 +197,7 @@ namespace testinter {
     StreamCache(const char* iConfig, int id)
         : id_{id},
           channel_("testProd", id_),
-          readBuffer_{unique_name("testProd").c_str(), channel_.bufferIndex()},
+          readBuffer_{unique_name("testProd").c_str(), channel_.fromWorkerBufferIndex()},
           deserializer_{readBuffer_},
           br_deserializer_{readBuffer_},
           er_deserializer_{readBuffer_},
