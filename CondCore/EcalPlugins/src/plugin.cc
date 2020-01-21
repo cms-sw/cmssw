@@ -6,8 +6,6 @@
  *
  */
 
-// #include "CondCore/PluginSystem/interface/registration_macros.h"
-
 #include "CondCore/ESSources/interface/registration_macros.h"
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -66,7 +64,6 @@
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
-// #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
