@@ -14,13 +14,13 @@ args = parser.parse_args()
 
 f = uproot.open(args.filename)
 things = f.keys()
-if 'Indices;1' in things:
-  indices = f['Indices']
-  runs = indices.array("Run")
-  lumis = indices.array("Lumi")
-  firstindex = indices.array("FirstIndex")
-  lastindex = indices.array("LastIndex")
-  types = indices.array("Type")
+if b'Indices;1' in things:
+  indices = f[b'Indices']
+  runs = indices.array(b"Run")
+  lumis = indices.array(b"Lumi")
+  firstindex = indices.array(b"FirstIndex")
+  lastindex = indices.array(b"LastIndex")
+  types = indices.array(b"Type")
 
   counts = defaultdict(lambda: 0)
   for run, lumi, first, last, type in zip(runs, lumis, firstindex, lastindex, types):
@@ -41,7 +41,7 @@ if 'Indices;1' in things:
       else:
         print("Run %d, Lumi %d-%d, %d MEs" % (currentrun, minlumi, maxlumi, currentcount))
     
-  for ((run, lumi), count) in sorted(counts.iteritems()):
+  for ((run, lumi), count) in sorted(counts.items()):
     if (currentrun, currentcount) != (run, count) or (lumi != maxlumi+1):
       showrow()
       minlumi, maxlumi = lumi, lumi
