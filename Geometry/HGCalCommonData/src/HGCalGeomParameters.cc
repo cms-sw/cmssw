@@ -379,7 +379,7 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
           wafers.emplace_back(cell);
           if (names.count(name) == 0) {
             double zv[2], rv;
-	    const std::vector<double>& pars = fv1.parameters();
+            const std::vector<double>& pars = fv1.parameters();
             if (mode == HGCalGeometryMode::Polyhedra) {
               zv[0] = pars[4];
               zv[1] = pars[7];
@@ -524,7 +524,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
         for (unsigned int i2 = i1 + 1; i2 < trforms.size(); ++i2) {
           if (!trformUse[i2] && trforms[i2].zp == trforms[i1].zp &&
               php.layerGroup_[trforms[i2].lay - 1] == (int)(i + 1)) {
-//          php.addTrForm(HGCalParameters::k_ScaleFromDDD * trforms[i2].h3v);
+            //          php.addTrForm(HGCalParameters::k_ScaleFromDDD * trforms[i2].h3v);
             php.addTrForm(trforms[i2].h3v);
             nz++;
             trformUse[i2] = true;
@@ -713,8 +713,10 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
         fv.rotation().GetComponents(x, y, z);
         const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
         const CLHEP::HepRotation hr(rotation);
-        double xx = ((std::abs(fv.translation().X()) < tolerance) ? 0 : HGCalParameters::k_ScaleFromDDD * fv.translation().X());
-        double yy = ((std::abs(fv.translation().Y()) < tolerance) ? 0 : HGCalParameters::k_ScaleFromDDD * fv.translation().Y());
+        double xx =
+            ((std::abs(fv.translation().X()) < tolerance) ? 0 : HGCalParameters::k_ScaleFromDDD * fv.translation().X());
+        double yy =
+            ((std::abs(fv.translation().Y()) < tolerance) ? 0 : HGCalParameters::k_ScaleFromDDD * fv.translation().Y());
         const CLHEP::Hep3Vector h3v(xx, yy, HGCalParameters::k_ScaleFromDDD * fv.translation().Z());
         HGCalParameters::hgtrform mytrf;
         mytrf.zp = zside;
@@ -765,8 +767,12 @@ void HGCalGeomParameters::loadGeometryHexagon8(cms::DDFilteredView& fv, HGCalPar
         fv.rotation().GetComponents(x, y, z);
         const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
         const CLHEP::HepRotation hr(rotation);
-        double xx = ((std::abs(fv.translation().X()) < tolerance) ? 0 : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().X());
-        double yy = ((std::abs(fv.translation().Y()) < tolerance) ? 0 : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Y());
+        double xx =
+            ((std::abs(fv.translation().X()) < tolerance) ? 0
+                                                          : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().X());
+        double yy =
+            ((std::abs(fv.translation().Y()) < tolerance) ? 0
+                                                          : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Y());
         const CLHEP::Hep3Vector h3v(xx, yy, HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z());
         HGCalParameters::hgtrform mytrf;
         mytrf.zp = zside;
@@ -818,7 +824,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const std::map<int, HGCalGeomPara
   for (unsigned int i = 0; i < php.layer_.size(); ++i) {
     for (auto& trform : trforms) {
       if (trform.first.first == (int)(i + firstLayer)) {
-//      trform.second.h3v *= HGCalParameters::k_ScaleFromDDD;
+        //      trform.second.h3v *= HGCalParameters::k_ScaleFromDDD;
         php.fillTrForm(trform.second);
       }
     }
