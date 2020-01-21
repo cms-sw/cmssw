@@ -23,13 +23,13 @@ public:
   void setFedType(unsigned long t) { fedType_ = t; }
   void setFedId(unsigned long t) { fedId_ = t; }
   void setFedEventNumber(unsigned long t) { fedEventNumber_ = t; }
-  unsigned long getBunchCrossing() { return bunchCrossing_; }
-  unsigned long getNumberOfChannels() { return numberOfChannels_; }
-  unsigned long getNumberOfSamples() { return numberOfSamples_; }
-  unsigned long getFedType() { return fedType_; }
-  unsigned long getFedId() { return fedId_; }
-  unsigned long getFedEventNumber() { return fedEventNumber_; }
-  void Print() {
+  unsigned long getBunchCrossing() const { return bunchCrossing_; }
+  unsigned long getNumberOfChannels() const { return numberOfChannels_; }
+  unsigned long getNumberOfSamples() const { return numberOfSamples_; }
+  unsigned long getFedType() const { return fedType_; }
+  unsigned long getFedId() const { return fedId_; }
+  unsigned long getFedEventNumber() const { return fedEventNumber_; }
+  void Print() const {
     printf(
         "Bunch crossing %lx \n Number Of Channels %ld \n Number of Samples %ld \n Fed Type %lx \n Fed Id %lx \n Fed "
         "Event Number %ld \n",

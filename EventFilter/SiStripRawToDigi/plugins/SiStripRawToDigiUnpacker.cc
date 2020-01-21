@@ -809,7 +809,7 @@ namespace sistrip {
       }
 
       // Write event-specific data to event
-      TFHeaderDescription* header = (TFHeaderDescription*)data_u32;
+      const TFHeaderDescription* header = (const TFHeaderDescription*)data_u32;
       summary.event(static_cast<uint32_t>(header->getFedEventNumber()));
       summary.bx(static_cast<uint32_t>(header->getBunchCrossing()));
 

@@ -579,8 +579,8 @@ namespace sistrip {
     void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister) override;
     void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length) override;
     static uint32_t get32BitWordFrom(const uint8_t* startOfWord);
-    const uint8_t* feWord(const uint8_t internalFEUnitNum) const;
     uint8_t* feWord(const uint8_t internalFEUnitNum);
+    const uint8_t* feWord(const uint8_t internalFEUnitNum) const;
     FEDFullDebugHeader(const std::vector<uint16_t>& feUnitLengths = std::vector<uint16_t>(FEUNITS_PER_FED, 0),
                        const std::vector<uint8_t>& feMajorityAddresses = std::vector<uint8_t>(FEUNITS_PER_FED, 0),
                        const std::vector<FEDChannelStatus>& channelStatus =
@@ -1301,13 +1301,13 @@ namespace sistrip {
     memcpy(startOfWord, &value, 4);
   }
 
-  inline const uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) const {
+  inline uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) {
     return header_ + internalFEUnitNum * 2 * 8;
   }
 
-  //re-use const method
-  inline uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) {
-    return const_cast<uint8_t*>(static_cast<const FEDFullDebugHeader*>(this)->feWord(internalFEUnitNum));
+  //re-use non-const method
+  inline const uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) const {
+    return feWord(internalFEUnitNum);
   }
 
   inline void FEDFullDebugHeader::setUnlocked(const uint8_t internalFEDChannelNum, const bool value) {
