@@ -57,6 +57,7 @@ const std::vector<std::string> HydjetHadronizer::theSharedResources = {edm::Shar
 //_____________________________________________________________________
 HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset)
     : BaseHadronizer(pset),
+      EDConsumerBase(),
       evt(nullptr),
       pset_(pset),
       abeamtarget_(pset.getParameter<double>("aBeamTarget")),
@@ -103,7 +104,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset)
 
   if (embedding_){
     cflag_ = 0;
-    src_ = mayConsume<HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>( "backgroundLabel", edm::InputTag("generator","unsmeared") ));
+    src_ = mayConsume<HepMCProduct>(pset.getUntrackedParameter<edm::InputTag>( "backgroundLabel", edm::InputTag("generator","unsmeared") ));
   }
 
   int cm = 1, va, vb, vc;
