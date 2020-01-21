@@ -36,7 +36,7 @@ namespace HepMC {
 namespace gen {
   class Pythia6Service;
 
-  class HydjetHadronizer : public BaseHadronizer {
+  class HydjetHadronizer : public BaseHadronizer, public edm::EDConsumerBase {
   public:
     HydjetHadronizer(const edm::ParameterSet&);
     ~HydjetHadronizer() override;
