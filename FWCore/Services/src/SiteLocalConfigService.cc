@@ -72,6 +72,8 @@ namespace edm {
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
           m_dataCatalog(),
           m_fallbackDataCatalog(),
+          //HERE 
+          m_dataCatalogs(),
           m_frontierConnect(),
           m_rfioType("castor"),
           m_connected(false),
@@ -150,6 +152,24 @@ namespace edm {
 
       return m_dataCatalog;
     }
+
+    //HERE 
+    std::vector<std::string> const SiteLocalConfigService::dataCatalogs(void) const {
+      if (!m_connected) {
+        //throw cms::Exception("Incomplete configuration")
+        //    << "Valid site-local-config not found at " << m_url;
+        // Return PoolFileCatalog.xml for now
+        std::vector<std::string> tmp{"file:PoolFileCatalog.xml"} ;
+        return tmp ;
+      }
+
+      if (m_dataCatalogs.empty()) {
+        throw cms::Exception("Incomplete configuration") << "Did not find catalogs in event-data section in " << m_url;
+      }
+
+      return m_dataCatalogs;
+    }
+
 
     std::string const SiteLocalConfigService::fallbackDataCatalog(void) const {
       if (!m_connected) {
@@ -315,6 +335,14 @@ namespace edm {
               catalog = catalog->NextSiblingElement("catalog");
               if (catalog) {
                 m_fallbackDataCatalog = safe(catalog->Attribute("url"));
+              }
+              //HERE 
+              m_dataCatalogs.push_back(m_dataCatalog) ;
+              m_dataCatalogs.push_back(m_fallbackDataCatalog) ;
+              catalog = catalog->NextSiblingElement("catalog");
+              while(catalog) {
+                m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+                catalog = catalog->NextSiblingElement("catalog");
               }
             }
             auto rfiotype = eventData->FirstChildElement("rfiotype");
