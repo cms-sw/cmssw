@@ -6,7 +6,7 @@
 
 //#define EDM_ML_DEBUG
 
-bool HGCalWaferMask::maskCell(int u, int v, int N, int ncor, int fcor, int corners) {
+bool HGCalWaferMask::maskCell(int u, int v, int n, int ncor, int fcor, int corners) {
   /*
 Masks each cell (or not) according to its wafer and cell position (detId) and to the user needs (corners).
 Each wafer has k_CornerSize corners which are defined in anti-clockwise order starting from the corner at the top, which is always #0. 'ncor' denotes the number of corners inside the physical region. 'fcor' is the defined to be the first corner that appears inside the detector's physical volume in anti-clockwise order. 
@@ -16,14 +16,14 @@ The argument 'corners' controls the types of wafers the user wants: for instance
   if (ncor < corners) {
     mask = true;
   } else {
-    if (ncor == 4) {
+    if (ncor == HGCalGeomTools::k_fourCorners) {
       switch (fcor) {
         case (0): {
-          mask = (v >= N);
+          mask = (v >= n);
           break;
         }
         case (1): {
-          mask = (u >= N);
+          mask = (u >= n);
           break;
         }
         case (2): {
@@ -31,11 +31,11 @@ The argument 'corners' controls the types of wafers the user wants: for instance
           break;
         }
         case (3): {
-          mask = (v < N);
+          mask = (v < n);
           break;
         }
         case (4): {
-          mask = (u < N);
+          mask = (u < n);
           break;
         }
         default: {
@@ -46,50 +46,50 @@ The argument 'corners' controls the types of wafers the user wants: for instance
     } else {
       switch (fcor) {
         case (0): {
-          if (ncor == 3) {
-            mask = !((u > 2 * v) && (v < N));
+          if (ncor == HGCalGeomTools::k_threeCorners) {
+            mask = !((u > 2 * v) && (v < n));
           } else {
-            mask = ((u >= N) && (v >= N) && ((u + v) > (3 * N - 2)));
+            mask = ((u >= n) && (v >= n) && ((u + v) > (3 * n - 2)));
           }
           break;
         }
         case (1): {
-          if (ncor == 3) {
-            mask = !((u + v) < N);
+          if (ncor == HGCalGeomTools::k_threeCorners) {
+            mask = !((u + v) < n);
           } else {
-            mask = ((u >= N) && (u > v) && ((2 * u - v) > 2 * N));
+            mask = ((u >= n) && (u > v) && ((2 * u - v) > 2 * n));
           }
           break;
         }
         case (2): {
-          if (ncor == 3) {
-            mask = !((u < N) && (v > u) && (v > (2 * u - 1)));
+          if (ncor == HGCalGeomTools::k_threeCorners) {
+            mask = !((u < n) && (v > u) && (v > (2 * u - 1)));
           } else {
-            mask = ((u > 2 * v) && (v < N));
+            mask = ((u > 2 * v) && (v < n));
           }
           break;
         }
         case (3): {
-          if (ncor == 3) {
-            mask = !((v >= u) && ((2 * v - u) > (2 * N - 2)));
+          if (ncor == HGCalGeomTools::k_threeCorners) {
+            mask = !((v >= u) && ((2 * v - u) > (2 * n - 2)));
           } else {
-            mask = ((u + v) < N);
+            mask = ((u + v) < n);
           }
           break;
         }
         case (4): {
-          if (ncor == 3) {
-            mask = !((u >= N) && (v >= N) && ((u + v) > (3 * N - 2)));
+          if (ncor == HGCalGeomTools::k_threeCorners) {
+            mask = !((u >= n) && (v >= n) && ((u + v) > (3 * n - 2)));
           } else {
-            mask = ((u < N) && (v > u) && (v > (2 * u - 1)));
+            mask = ((u < n) && (v > u) && (v > (2 * u - 1)));
           }
           break;
         }
         default: {
-          if (ncor == 3) {
-            mask = !((u >= N) && (u > v) && ((2 * u - v) > 2 * N));
+          if (ncor == HGCalGeomTools::k_threeCorners) {
+            mask = !((u >= n) && (u > v) && ((2 * u - v) > 2 * n));
           } else {
-            mask = ((v >= u) && ((2 * v - u) > (2 * N - 2)));
+            mask = ((v >= u) && ((2 * v - u) > (2 * n - 2)));
           }
           break;
         }
@@ -97,15 +97,15 @@ The argument 'corners' controls the types of wafers the user wants: for instance
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Corners: " << ncor << ":" << fcor << " N " << N << " u " << u << " v " << v
+  edm::LogVerbatim("HGCalGeom") << "Corners: " << ncor << ":" << fcor << " N " << n << " u " << u << " v " << v
                                 << " Mask " << mask;
 #endif
   return mask;
 }
 
-bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
+bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
   bool good(false);
-  int n2 = N / 2;
+  int n2 = n / 2;
   switch (type) {
     case (HGCalGeomTools::WaferFull): {  //WaferFull
       good = true;
@@ -115,15 +115,15 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
       switch (rotn) {
         case (HGCalGeomTools::WaferCorner0): {
           int u2 = (u + 1) / 2;
-          good = ((v - u2) < N);
+          good = ((v - u2) < n);
           break;
         }
         case (HGCalGeomTools::WaferCorner1): {
-          good = ((v + u) < (3 * N));
+          good = ((v + u) < (3 * n));
           break;
         }
         case (HGCalGeomTools::WaferCorner2): {
-          good = ((2 * u - v) <= (2 * N));
+          good = ((2 * u - v) <= (2 * n));
           break;
         }
         case (HGCalGeomTools::WaferCorner3): {
@@ -132,7 +132,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
           break;
         }
         case (HGCalGeomTools::WaferCorner4): {
-          good = ((v + u) <= (N - 1));
+          good = ((v + u) <= (n - 1));
           break;
         }
         default: {
@@ -203,11 +203,11 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
     case (HGCalGeomTools::WaferHalf): {  //WaferHalf
       switch (rotn) {
         case (HGCalGeomTools::WaferCorner0): {
-          good = (v < N);
+          good = (v < n);
           break;
         }
         case (HGCalGeomTools::WaferCorner1): {
-          good = (u <= N);
+          good = (u <= n);
           break;
         }
         case (HGCalGeomTools::WaferCorner2): {
@@ -215,11 +215,11 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
           break;
         }
         case (HGCalGeomTools::WaferCorner3): {
-          good = (v >= (N - 1));
+          good = (v >= (n - 1));
           break;
         }
         case (HGCalGeomTools::WaferCorner4): {
-          good = (u >= N);
+          good = (u >= n);
           break;
         }
         default: {
@@ -232,11 +232,11 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
     case (HGCalGeomTools::WaferSemi): {  //WaferSemi
       switch (rotn) {
         case (HGCalGeomTools::WaferCorner0): {
-          good = ((u + v) <= (2 * N - 1));
+          good = ((u + v) <= (2 * n - 1));
           break;
         }
         case (HGCalGeomTools::WaferCorner1): {
-          good = ((2 * u - v) >= N);
+          good = ((2 * u - v) >= n);
           break;
         }
         case (HGCalGeomTools::WaferCorner2): {
@@ -245,11 +245,11 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
           break;
         }
         case (HGCalGeomTools::WaferCorner3): {
-          good = ((u + v) >= (2 * N - 1));
+          good = ((u + v) >= (2 * n - 1));
           break;
         }
         case (HGCalGeomTools::WaferCorner4): {
-          good = ((2 * u - v) <= N);
+          good = ((2 * u - v) <= n);
           break;
         }
         default: {
@@ -263,7 +263,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
     case (HGCalGeomTools::WaferThree): {  //WaferThree
       switch (rotn) {
         case (HGCalGeomTools::WaferCorner0): {
-          good = ((v + u) < N);
+          good = ((v + u) < n);
           break;
         }
         case (HGCalGeomTools::WaferCorner1): {
@@ -272,15 +272,15 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
         }
         case (HGCalGeomTools::WaferCorner2): {
           int u2 = (u / 2);
-          good = ((v - u2) >= N);
+          good = ((v - u2) >= n);
           break;
         }
         case (HGCalGeomTools::WaferCorner3): {
-          good = ((v + u) >= (3 * N - 1));
+          good = ((v + u) >= (3 * n - 1));
           break;
         }
         case (HGCalGeomTools::WaferCorner4): {
-          good = ((2 * u - v) >= (2 * N));
+          good = ((2 * u - v) >= (2 * n));
           break;
         }
         default: {
@@ -294,11 +294,11 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
     case (HGCalGeomTools::WaferSemi2): {  //WaferSemi2
       switch (rotn) {
         case (HGCalGeomTools::WaferCorner0): {
-          good = ((u + v) < (2 * N - 1));
+          good = ((u + v) < (2 * n - 1));
           break;
         }
         case (HGCalGeomTools::WaferCorner1): {
-          good = ((2 * u - v) > N);
+          good = ((2 * u - v) > n);
           break;
         }
         case (HGCalGeomTools::WaferCorner2): {
@@ -307,11 +307,11 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
           break;
         }
         case (HGCalGeomTools::WaferCorner3): {
-          good = ((u + v) > (2 * N - 1));
+          good = ((u + v) > (2 * n - 1));
           break;
         }
         case (HGCalGeomTools::WaferCorner4): {
-          good = ((2 * u - v) < N);
+          good = ((2 * u - v) < n);
           break;
         }
         default: {
@@ -324,7 +324,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int N, int type, int rotn) {
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "u|v " << u << ":" << v << " N " << N << " type " << type << " rot " << rotn
+  edm::LogVerbatim("HGCalGeom") << "u|v " << u << ":" << v << " N " << n << " type " << type << " rot " << rotn
                                 << " good " << good;
 #endif
   return good;
@@ -336,15 +336,16 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const double& delY,
                                                 const double& rin,
                                                 const double& rout,
-                                                const int& NW,
+                                                const int& nw,
                                                 const int& mode) {
   int ncor(0), fcor(0), iok(0);
   int type(HGCalGeomTools::WaferFull), rotn(HGCalGeomTools::WaferCorner0);
   static const double sqrt3 = std::sqrt(3.0);
-  double dxw = delX / (NW * sqrt3);
-  double dyw = 0.5 * delX / NW;
+  double dxw = delX / (nw * sqrt3);
+  double dyw = 0.5 * delX / nw;
 
   static const int corners = 6;
+  static const int base = 10;
   double xc[corners], yc[corners];
   xc[0] = xpos;
   yc[0] = ypos + delY;
@@ -362,9 +363,9 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
     double rpos = sqrt(xc[k] * xc[k] + yc[k] * yc[k]);
     if (rpos <= rout && rpos >= rin) {
       ++ncor;
-      iok = iok * 10 + 1;
+      iok = iok * base + 1;
     } else {
-      iok *= 10;
+      iok *= base;
     }
   }
   static const int ipat5[corners] = {111110, 11111, 101111, 110111, 111011, 111101};
@@ -383,14 +384,14 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   double dx6[corners] = {-0.5 * delX, 0.5 * delX, delX, 0.5 * delX, -0.5 * delX, -delX};
   double dy6[corners] = {-0.75 * delY, -0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0};
 
-  if (ncor == 6) {
-  } else if (ncor == 5) {
+  if (ncor == HGCalGeomTools::k_allCorners) {
+  } else if (ncor == HGCalGeomTools::k_fiveCorners) {
     fcor = static_cast<int>(std::find(ipat5, ipat5 + 6, iok) - ipat5);
     type = HGCalGeomTools::WaferFive;
     rotn = fcor + 1;
     if (rotn > 5)
       rotn = 0;
-  } else if (ncor == 4) {
+  } else if (ncor == HGCalGeomTools::k_fourCorners) {
     fcor = static_cast<int>(std::find(ipat4, ipat4 + 6, iok) - ipat4);
     type = HGCalGeomTools::WaferHalf;
     rotn = fcor;
@@ -408,7 +409,7 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
           type = HGCalGeomTools::WaferChopTwoM;
       }
     }
-  } else if (ncor == 3) {
+  } else if (ncor == HGCalGeomTools::k_threeCorners) {
     fcor = static_cast<int>(std::find(ipat3, ipat3 + 6, iok) - ipat3);
     type = HGCalGeomTools::WaferThree;
     rotn = fcor - 1;
