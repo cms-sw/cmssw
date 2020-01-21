@@ -14,7 +14,8 @@ class PrimaryVertexResolution(GenericValidationData, ValidationWithPlots):
     defaults = {
         # N.B.: the reference needs to be updated each time the format of the output is changed
         "pvresolutionreference": ("/store/group/alca_trackeralign/validation/PVResolution/Reference/PrimaryVertexResolution_phaseIMC92X_upgrade2017_Ideal.root"),
-        }
+        "multiIOV":"False",
+    }
     #mandatories = {"isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"}
     mandatories = {"trackcollection"}
     valType = "pvresolution"
