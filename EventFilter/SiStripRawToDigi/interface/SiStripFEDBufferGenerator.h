@@ -198,8 +198,8 @@ namespace sistrip {
   inline FEDStripData::FEDStripData(const std::vector<ChannelData>& data) : data_(data) {}
 
   //re-use non-const method
-  inline FEDStripData::ChannelData& FEDStripData::channel(const uint8_t internalFEDChannelNum) {
-    return const_cast<ChannelData&>(static_cast<const FEDStripData*>(this)->channel(internalFEDChannelNum));
+  inline const FEDStripData::ChannelData& FEDStripData::channel(const uint8_t internalFEDChannelNum) const {
+    return channel(internalFEDChannelNum);
   }
 
   inline FEDStripData::ChannelData& FEDStripData::operator[](const uint8_t internalFEDChannelNum) {
@@ -217,13 +217,13 @@ namespace sistrip {
 
   inline size_t FEDStripData::ChannelData::size() const { return data_.size(); }
 
-  inline const uint16_t& FEDStripData::ChannelData::operator[](const size_t sampleNumber) const {
+  inline uint16_t& FEDStripData::ChannelData::operator[](const size_t sampleNumber) {
     return data_[sampleNumber];
   }
 
-  //re-use const method
-  inline uint16_t& FEDStripData::ChannelData::operator[](const size_t sampleNumber) {
-    return const_cast<uint16_t&>(static_cast<const ChannelData&>(*this)[sampleNumber]);
+  //re-use non-const method
+  inline const uint16_t& FEDStripData::ChannelData::operator[](const size_t sampleNumber) const {
+    return (*this)[sampleNumber];
   }
 
   inline uint16_t FEDStripData::ChannelData::getSample(const uint16_t sampleNumber) const {
