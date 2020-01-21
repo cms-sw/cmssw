@@ -465,7 +465,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
     theFileCount = sourceList.size();
   }
 
-  if(theFileCount==0){
+  if (theFileCount == 0) {
     std::cout << "FitPVResiduals::FitPVResiduals(): empty input file list has been passed." << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -3468,9 +3468,10 @@ std::pair<TH2F *, TH2F *> trimTheMap(TH2 *hist) {
 
   if (isDebugMode) {
     std::cout << std::setw(24) << std::left << hist->GetName() << "| mean: " << std::setw(10) << std::setprecision(4)
-              << theMeanOfCells << "| min: " << std::setw(10) << std::setprecision(4) << min << "| max: " << std::setw(10)
-              << std::setprecision(4) << max << "| rms: " << std::setw(10) << std::setprecision(4) << theRMSOfCells
-              << "| mad: " << std::setw(10) << std::setprecision(4) << theMAD.first << std::endl;
+              << theMeanOfCells << "| min: " << std::setw(10) << std::setprecision(4) << min
+              << "| max: " << std::setw(10) << std::setprecision(4) << max << "| rms: " << std::setw(10)
+              << std::setprecision(4) << theRMSOfCells << "| mad: " << std::setw(10) << std::setprecision(4)
+              << theMAD.first << std::endl;
   }
 
   TCanvas *cCheck = new TCanvas(Form("cCheck_%s", hist->GetName()), Form("cCheck_%s", hist->GetName()), 1200, 1000);
@@ -3580,8 +3581,8 @@ std::pair<TH2F *, TH2F *> trimTheMap(TH2 *hist) {
 
     std::cout << "histo:" << std::setw(25) << hist->GetName() << " old min: " << std::setw(10) << hist->GetMinimum()
               << " old max: " << std::setw(10) << hist->GetMaximum();
-    std::cout << " | new min: " << std::setw(15) << hist->GetMinimum() << " new max: " << std::setw(10) << hist->GetMaximum()
-              << std::endl;
+    std::cout << " | new min: " << std::setw(15) << hist->GetMinimum() << " new max: " << std::setw(10)
+              << hist->GetMaximum() << std::endl;
   }
 
   delete histContentByCell;
