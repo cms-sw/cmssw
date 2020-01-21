@@ -351,7 +351,7 @@ class UpgradeWorkflow_Run3ProdLike(UpgradeWorkflow):
         elif 'MiniAOD' in step:
             # the separate miniAOD step is used here
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
-        if 'HARVEST' in step:
+        if 'ALCAFull' in step or 'HARVEST' in step:
             # remove step
             stepDict[stepName][k] = None
     def condition(self, fragment, stepList, key, hasHarvest):
@@ -362,12 +362,14 @@ upgradeWFs['Run3ProdLike'] = UpgradeWorkflow_Run3ProdLike(
         'RecoFull',
         'HARVESTFull',
         'MiniAODFullGlobal',
+	'ALCAFull',
     ],
     PU = [
 	'DigiFull',
         'RecoFull',
         'HARVESTFull',
 	'MiniAODFullGlobal',
+	'ALCAFull',
     ],
     suffix = '_Run3ProdLike',
     offset = 0.22,
