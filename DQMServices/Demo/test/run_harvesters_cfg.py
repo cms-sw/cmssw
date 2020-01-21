@@ -19,7 +19,7 @@ process.add_(cms.Service("DQMStore"))
 process.load("DQMServices.Demo.testharvester_cfi")
 process.load("DQMServices.Demo.testlegacyharvester_cfi")
 
-print args.inputFiles
+print(args.inputFiles)
 
 if args.protobufinput:
   infile = args.inputFiles[0]
