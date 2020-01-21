@@ -86,6 +86,8 @@ namespace testinter {
       managed_sm_.destroy<bool>("stop");
       stop_ = managed_sm_.construct<bool>("stop")(false);
       assert(stop_);
+      keepEvent_ = managed_sm_.construct<bool>("keepEvent")(true);
+      assert(keepEvent_);
 
       managed_sm_.destroy<edm::Transition>("transitionType");
       transitionType_ = managed_sm_.construct<edm::Transition>("transitionType")(edm::Transition::NumberOfTransitions);
@@ -133,7 +135,11 @@ namespace testinter {
       named_cndFromMain_.notify_all();
     }
 
+    //should only be called after calling `doTransition`
+    bool shouldKeepEvent() const { return *keepEvent_; }
+
     ~ControllerChannel() {
+      managed_sm_.destroy<bool>("keepEvent");
       managed_sm_.destroy<bool>("stop");
       managed_sm_.destroy<unsigned int>("transitionType");
       managed_sm_.destroy<unsigned long long>("transitionID");
@@ -192,9 +198,10 @@ namespace testinter {
     edm::Transition* transitionType_;
     unsigned long long* transitionID_;
     bool* stop_;
+    bool* keepEvent_;
   };
   struct StreamCache {
-    StreamCache(const char* iConfig, int id)
+    StreamCache(const std::string& iConfig, int id)
         : id_{id},
           channel_("testProd", id_),
           readBuffer_{unique_name("testProd").c_str(), channel_.fromWorkerBufferIndex()},
@@ -216,12 +223,11 @@ namespace testinter {
         }
 
         {
-          auto length = strlen(iConfig);
-          auto nlines = std::to_string(std::count(iConfig, iConfig + length, '\n'));
+          auto nlines = std::to_string(std::count(iConfig.begin(), iConfig.end(), '\n'));
           auto result = fwrite(nlines.data(), sizeof(char), nlines.size(), pipe_);
           assert(result = nlines.size());
-          result = fwrite(iConfig, sizeof(char), strlen(iConfig), pipe_);
-          assert(result == strlen(iConfig));
+          result = fwrite(iConfig.data(), sizeof(char), iConfig.size(), pipe_);
+          assert(result == iConfig.size());
           fflush(pipe_);
         }
       });
@@ -341,27 +347,36 @@ private:
   edm::EDPutTokenT<edmtest::ThingCollection> const blToken_;
   edm::EDPutTokenT<edmtest::ThingCollection> const elToken_;
 
+  std::string config_;
+
   mutable testinter::StreamCache* stream0Cache_ = nullptr;
   mutable std::atomic<testinter::StreamCache*> availableForBeginLumi_;
   mutable std::atomic<unsigned int> lastLumiIndex_ = 0;
 };
 
-TestInterProcessProd::TestInterProcessProd(edm::ParameterSet const&)
+TestInterProcessProd::TestInterProcessProd(edm::ParameterSet const& iPSet)
     : token_{produces<edmtest::ThingCollection>()},
       brToken_{produces<edmtest::ThingCollection, edm::Transition::BeginRun>("beginRun")},
       erToken_{produces<edmtest::ThingCollection, edm::Transition::EndRun>("endRun")},
       blToken_{produces<edmtest::ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi")},
-      elToken_{produces<edmtest::ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi")} {}
+      elToken_{produces<edmtest::ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi")},
+      config_{iPSet.getUntrackedParameter<std::string>("python_config")} {}
 
 std::unique_ptr<testinter::StreamCache> TestInterProcessProd::beginStream(edm::StreamID iID) const {
-  constexpr auto v = R"_(from FWCore.TestProcessor.TestProcess import *
-process = TestProcess()
-process.gen = cms.EDProducer("ThingProducer", nThings = cms.int32(100), grow=cms.bool(True), offsetDelta = cms.int32(1))
-process.moduleToTest(process.gen)
-process.add_(cms.Service("InitRootHandlers", UnloadRootSigHandler=cms.untracked.bool(True)))
-)_";
+  auto const label = moduleDescription().moduleLabel();
 
-  auto cache = std::make_unique<testinter::StreamCache>(v, iID.value());
+  using namespace std::string_literals;
+
+  std::string config = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+)_";
+  config += "process."s + label + "=" + config_ + "\n";
+  config += "process.moduleToTest(process."s + label + ")\n";
+  config += R"_(
+process.add_(cms.Service("InitRootHandlers", UnloadRootSigHandler=cms.untracked.bool(True)))
+  )_";
+
+  auto cache = std::make_unique<testinter::StreamCache>(config, iID.value());
   if (iID.value() == 0) {
     stream0Cache_ = cache.get();
 
