@@ -215,14 +215,13 @@ void DD4hep_TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventS
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
         dump << "Translation vector components: " << std::setw(14) << std::fixed << convertCmToMm(fv.translation().x())
-             << " " << std::setw(14) << std::fixed << convertCmToMm(fv.translation().y()) << " " << std::setw(14)
-             << std::fixed << convertCmToMm(fv.translation().z()) << " "
+             << " " << std::setw(14) << convertCmToMm(fv.translation().y()) << " " << std::setw(14)
+             << convertCmToMm(fv.translation().z()) << " "
              << "\n";
-        dump << "Rotation matrix components: " << std::setw(14) << std::fixed << x.X() << " " << std::setw(14)
-             << std::fixed << y.X() << " " << std::setw(14) << std::fixed << z.X() << " " << std::setw(14) << std::fixed
-             << x.Y() << " " << std::setw(14) << std::fixed << y.Y() << " " << std::setw(14) << std::fixed << z.Y()
-             << " " << std::setw(14) << std::fixed << x.Z() << " " << std::setw(14) << std::fixed << y.Z() << " "
-             << std::setw(14) << std::fixed << z.Z() << " "
+        dump << "Rotation matrix components: " << std::setw(14) << x.X() << " " << std::setw(14) << y.X() << " "
+             << std::setw(14) << z.X() << " " << std::setw(14) << x.Y() << " " << std::setw(14) << y.Y() << " "
+             << std::setw(14) << z.Y() << " " << std::setw(14) << x.Z() << " " << std::setw(14) << y.Z() << " "
+             << std::setw(14) << z.Z() << " "
              << "\n";
 
         DD3Vector zeroLocal(0., 0., 0.);
@@ -234,20 +233,18 @@ void DD4hep_TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventS
             std::sqrt(std::pow(zeroGlobal.X() - cn1Global.X(), 2) + std::pow(zeroGlobal.Y() - cn1Global.Y(), 2) +
                       std::pow(zeroGlobal.Z() - cn1Global.Z(), 2));
 
-        dump << "Center global   = " << std::setw(14) << std::fixed << convertCmToMm(zeroGlobal.X()) << std::setw(14)
-             << std::fixed << convertCmToMm(zeroGlobal.Y()) << std::setw(14) << std::fixed
-             << convertCmToMm(zeroGlobal.Z()) << " r = " << std::setw(14) << std::fixed
-             << convertCmToMm(zeroGlobal.Rho()) << " phi = " << std::setw(14) << std::fixed
+        dump << "Center global   = " << std::setw(14) << convertCmToMm(zeroGlobal.X()) << std::setw(14)
+             << convertCmToMm(zeroGlobal.Y()) << std::setw(14) << convertCmToMm(zeroGlobal.Z())
+             << " r = " << std::setw(14) << convertCmToMm(zeroGlobal.Rho()) << " phi = " << std::setw(14)
              << convertRadToDeg(zeroGlobal.Phi()) << "\n";
 
-        dump << "Corner 1 local  = " << std::setw(14) << std::fixed << convertCmToMm(cn1Local.X()) << std::setw(14)
-             << std::fixed << convertCmToMm(cn1Local.Y()) << std::setw(14) << std::fixed << convertCmToMm(cn1Local.Z())
-             << " DeltaR = " << std::setw(14) << std::fixed << convertCmToMm(distLocal) << "\n";
+        dump << "Corner 1 local  = " << std::setw(14) << convertCmToMm(cn1Local.X()) << std::setw(14)
+             << convertCmToMm(cn1Local.Y()) << std::setw(14) << convertCmToMm(cn1Local.Z())
+             << " DeltaR = " << std::setw(14) << convertCmToMm(distLocal) << "\n";
 
-        dump << "Corner 1 global = " << std::setw(14) << std::fixed << convertCmToMm(cn1Global.X()) << std::setw(14)
-             << std::fixed << convertCmToMm(cn1Global.Y()) << std::setw(14) << std::fixed
-             << convertCmToMm(cn1Global.Z()) << " DeltaR = " << std::setw(14) << std::fixed << convertCmToMm(distGlobal)
-             << "\n";
+        dump << "Corner 1 global = " << std::setw(14) << convertCmToMm(cn1Global.X()) << std::setw(14)
+             << convertCmToMm(cn1Global.Y()) << std::setw(14) << convertCmToMm(cn1Global.Z())
+             << " DeltaR = " << std::setw(14) << convertCmToMm(distGlobal) << "\n";
 
         dump << "\n";
         if (std::fabs(convertCmToMm(distGlobal - distLocal)) > 1.e-6) {
