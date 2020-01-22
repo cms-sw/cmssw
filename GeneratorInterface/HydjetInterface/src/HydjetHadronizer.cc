@@ -102,9 +102,10 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset)
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint", 0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_;
 
-  if (embedding_){
+  if (embedding_) {
     cflag_ = 0;
-    src_ = mayConsume<HepMCProduct>(pset.getUntrackedParameter<edm::InputTag>( "backgroundLabel", edm::InputTag("generator","unsmeared") ));
+    src_ = mayConsume<HepMCProduct>(
+     pset.getUntrackedParameter<edm::InputTag>("backgroundLabel", edm::InputTag("generator", "unsmeared")));
   }
 
   int cm = 1, va, vb, vc;
@@ -192,12 +193,12 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
   // generate single event
   if (embedding_) {
     const edm::Event& e = getEDMEvent();
-    Handle<HepMCProduct> input; 
-    e.getByToken(src_,input);
+    Handle<HepMCProduct> input;
+    e.getByToken(src_, input);
     const HepMC::GenEvent* inev = input->GetEvent();
     const HepMC::HeavyIon* hi = inev->heavy_ion();
     if (hi) {
-      bfixed_ = (hi->impact_parameter())/nuclear_radius();
+      bfixed_ = (hi->impact_parameter()) / nuclear_radius();
       phi0_ = hi->event_plane_angle();
       sinphi0_ = sin(phi0_);
       cosphi0_ = cos(phi0_);
