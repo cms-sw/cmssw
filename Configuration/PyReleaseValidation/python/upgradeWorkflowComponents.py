@@ -345,8 +345,8 @@ upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
 class UpgradeWorkflow_Run3ProdLike(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Digi' in step:
-	    stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
-	elif 'Reco' in step:
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        elif 'Reco' in step:
             stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
         elif 'MiniAOD' in step:
             # the separate miniAOD step is used here
@@ -358,18 +358,18 @@ class UpgradeWorkflow_Run3ProdLike(UpgradeWorkflow):
         return '2021' in key
 upgradeWFs['Run3ProdLike'] = UpgradeWorkflow_Run3ProdLike(
     steps = [
-	'DigiFull',
+        'DigiFull',
         'RecoFull',
         'HARVESTFull',
         'MiniAODFullGlobal',
-	'ALCAFull',
+        'ALCAFull',
     ],
     PU = [
-	'DigiFull',
+        'DigiFull',
         'RecoFull',
         'HARVESTFull',
-	'MiniAODFullGlobal',
-	'ALCAFull',
+        'MiniAODFullGlobal',
+        'ALCAFull',
     ],
     suffix = '_Run3ProdLike',
     offset = 0.22,
