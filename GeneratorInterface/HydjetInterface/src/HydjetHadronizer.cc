@@ -105,7 +105,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset)
   if (embedding_) {
     cflag_ = 0;
     src_ = mayConsume<HepMCProduct>(
-     pset.getUntrackedParameter<edm::InputTag>("backgroundLabel", edm::InputTag("generator", "unsmeared")));
+        pset.getUntrackedParameter<edm::InputTag>("backgroundLabel", edm::InputTag("generator", "unsmeared")));
   }
 
   int cm = 1, va, vb, vc;
