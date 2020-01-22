@@ -309,6 +309,8 @@ namespace dqm::implementation {
             logger << " (invalid)";
           }
         });
+        // A breakpoint can be useful here.
+        //std::raise(SIGINT);
       }
     }
   }
