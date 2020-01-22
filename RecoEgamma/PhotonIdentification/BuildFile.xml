@@ -2,7 +2,6 @@
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/PatCandidates"/>
-<use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/BeamSpot"/>
 <use   name="Geometry/CaloGeometry"/>
