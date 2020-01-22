@@ -354,7 +354,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
         if 'ALCA' in step or 'HARVEST' in step:
             # remove step
             stepDict[stepName][k] = None
-	if 'Nano' in step:
+        if 'Nano' in step:
             stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
