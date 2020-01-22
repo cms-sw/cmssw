@@ -144,7 +144,7 @@ private:
   const double pi = 3.14159265358979;
 
   edm::EDGetTokenT<edm::HepMCProduct> srcT_;
-//  edm::InputTag src_;
+  // edm::InputTag src_;
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
@@ -286,8 +286,9 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
   }
   etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2.);
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-  srcT_ = mayConsume<HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>( "src", edm::InputTag("generator","unsmeared") ));
-//  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared"));
+  srcT_ = mayConsume<HepMCProduct>(
+	  iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generator", "unsmeared")));
+  // src_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared"));
   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("hiGenParticles"));
   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("heavyIon"));
   doParticles_ = iConfig.getUntrackedParameter<bool>("doParticles", false);
@@ -481,8 +482,8 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       }
     } else {  //not mixing
       Handle<HepMCProduct> mc; 
-      iEvent.getByToken(srcT_,mc);
-//      iEvent.getByLabel(src_, mc);
+      iEvent.getByToken(srcT_, mc);
+      // iEvent.getByLabel(src_, mc);
       evt = mc->GetEvent();
       scale = evt->event_scale();
       const HeavyIon *hi = evt->heavy_ion();
