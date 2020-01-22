@@ -437,31 +437,31 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
       if (hitRefs_bx0[id].empty()) {
         hitRefs_bx0[id].emplace_back(charge, tof);
       } else if (tof <= hitRefs_bx0[id].back().second) {
-	//find position to insert new entry preserving time sorting
+        //find position to insert new entry preserving time sorting
         std::vector<std::pair<float, float>>::iterator findPos =
             std::upper_bound(hitRefs_bx0[id].begin(),
                              hitRefs_bx0[id].end(),
                              std::pair<float, float>(0.f, tof),
                              [](const auto& i, const auto& j) { return i.second <= j.second; });
 
-	std::vector<std::pair<float, float>>::iterator insertedPos = findPos;
-	if(findPos->second == tof){
-	  //just merge timestamps with exact timing
-	  findPos->first += charge;
-	} else{
-	  //insert new element cumulating the charge
-	  insertedPos = hitRefs_bx0[id].insert(
-            findPos,
-            (findPos == hitRefs_bx0[id].begin()) ? std::pair<float, float>(charge, tof)
-                                                 : std::pair<float, float>((findPos - 1)->first + charge, tof));
-	}
+        std::vector<std::pair<float, float>>::iterator insertedPos = findPos;
+        if (findPos->second == tof) {
+          //just merge timestamps with exact timing
+          findPos->first += charge;
+        } else {
+          //insert new element cumulating the charge
+          insertedPos = hitRefs_bx0[id].insert(findPos,
+                                               (findPos == hitRefs_bx0[id].begin())
+                                                   ? std::pair<float, float>(charge, tof)
+                                                   : std::pair<float, float>((findPos - 1)->first + charge, tof));
+        }
 
-	//cumulate the charge of new entry for all elements that follow in the sorted list
-	//and resize list accounting for cases when the inserted element itself crosses the threshold
-        for (std::vector<std::pair<float, float>>::iterator step = insertedPos; step != hitRefs_bx0[id].end();
-             ++step) {
-          if(step != insertedPos) step->first += charge;
-	  // resize the list stopping with the first timeStamp with cumulative charge above threshold
+        //cumulate the charge of new entry for all elements that follow in the sorted list
+        //and resize list accounting for cases when the inserted element itself crosses the threshold
+        for (std::vector<std::pair<float, float>>::iterator step = insertedPos; step != hitRefs_bx0[id].end(); ++step) {
+          if (step != insertedPos)
+            step->first += charge;
+          // resize the list stopping with the first timeStamp with cumulative charge above threshold
           if (step->first > tdcForToAOnset[waferThickness - 1] && step->second != hitRefs_bx0[id].back().second) {
             hitRefs_bx0[id].resize(std::upper_bound(hitRefs_bx0[id].begin(),
                                                     hitRefs_bx0[id].end(),
@@ -475,7 +475,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
         }
         orderChanged = true;
       } else {
-	//add new entry at the end of the list
+        //add new entry at the end of the list
         if (hitRefs_bx0[id].back().first <= tdcForToAOnset[waferThickness - 1]) {
           hitRefs_bx0[id].emplace_back(hitRefs_bx0[id].back().first + charge, tof);
         }
