@@ -148,14 +148,12 @@ void TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
         dump << "Translation vector components: " << std::setw(14) << std::fixed << fv.translation().x() << " "
-             << std::setw(14) << std::fixed << fv.translation().y() << " " << std::setw(14) << std::fixed
-             << fv.translation().z() << " "
+             << std::setw(14) << fv.translation().y() << " " << std::setw(14) << fv.translation().z() << " "
              << "\n";
-        dump << "Rotation matrix components: " << std::setw(14) << std::fixed << x.X() << " " << std::setw(14)
-             << std::fixed << y.X() << " " << std::setw(14) << std::fixed << z.X() << " " << std::setw(14) << std::fixed
-             << x.Y() << " " << std::setw(14) << std::fixed << y.Y() << " " << std::setw(14) << std::fixed << z.Y()
-             << " " << std::setw(14) << std::fixed << x.Z() << " " << std::setw(14) << std::fixed << y.Z() << " "
-             << std::setw(14) << std::fixed << z.Z() << " "
+        dump << "Rotation matrix components: " << std::setw(14) << x.X() << " " << std::setw(14) << y.X() << " "
+             << std::setw(14) << z.X() << " " << std::setw(14) << x.Y() << " " << std::setw(14) << y.Y() << " "
+             << std::setw(14) << z.Y() << " " << std::setw(14) << x.Z() << " " << std::setw(14) << y.Z() << " "
+             << std::setw(14) << z.Z() << " "
              << "\n";
 
         DD3Vector zeroLocal(0., 0., 0.);
@@ -168,18 +166,15 @@ void TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             std::sqrt(std::pow(zeroGlobal.X() - cn1Global.X(), 2) + std::pow(zeroGlobal.Y() - cn1Global.Y(), 2) +
                       std::pow(zeroGlobal.Z() - cn1Global.Z(), 2));
 
-        dump << "Center global   = " << std::setw(14) << std::fixed << zeroGlobal.X() << std::setw(14) << std::fixed
-             << zeroGlobal.Y() << std::setw(14) << std::fixed << zeroGlobal.Z() << " r = " << std::setw(14)
-             << std::fixed << zeroGlobal.Rho() << " phi = " << std::setw(14) << std::fixed << zeroGlobal.Phi() * rad2deg
-             << "\n";
+        dump << "Center global   = " << std::setw(14) << zeroGlobal.X() << std::setw(14) << zeroGlobal.Y()
+             << std::setw(14) << zeroGlobal.Z() << " r = " << std::setw(14) << zeroGlobal.Rho()
+             << " phi = " << std::setw(14) << zeroGlobal.Phi() * rad2deg << "\n";
 
-        dump << "Corner 1 local  = " << std::setw(14) << std::fixed << cn1Local.X() << std::setw(14) << std::fixed
-             << cn1Local.Y() << std::setw(14) << std::fixed << cn1Local.Z() << " DeltaR = " << std::setw(14)
-             << std::fixed << distLocal << "\n";
+        dump << "Corner 1 local  = " << std::setw(14) << cn1Local.X() << std::setw(14) << cn1Local.Y() << std::setw(14)
+             << cn1Local.Z() << " DeltaR = " << std::setw(14) << distLocal << "\n";
 
-        dump << "Corner 1 global = " << std::setw(14) << std::fixed << cn1Global.X() << std::setw(14) << std::fixed
-             << cn1Global.Y() << std::setw(14) << std::fixed << cn1Global.Z() << " DeltaR = " << std::setw(14)
-             << std::fixed << distGlobal << "\n";
+        dump << "Corner 1 global = " << std::setw(14) << cn1Global.X() << std::setw(14) << cn1Global.Y()
+             << std::setw(14) << cn1Global.Z() << " DeltaR = " << std::setw(14) << distGlobal << "\n";
 
         dump << "\n";
         if (std::fabs(distGlobal - distLocal) > 1.e-6) {
