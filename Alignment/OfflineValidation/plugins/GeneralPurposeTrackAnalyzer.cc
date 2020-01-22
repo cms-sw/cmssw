@@ -1,3 +1,37 @@
+// -*- C++ -*-
+//
+// Package:    Alignment/OfflineValidation
+// Class:      GeneralPurposeTrackAnalyzer
+//
+/**\class GeneralPurposeTrackAnalyzer GeneralPurposeTrackAnalyzer.cc Alignment/OfflineValidation/plugins/GeneralPurposeTrackAnalyzer.cc
+
+*/
+//
+// Original Author:  Marco Musich
+//         Created:  Mon, 13 Jun 2016 15:07:11 GMT
+//
+//
+
+// ROOT includes files
+
+#include "TMath.h"
+#include "TFile.h"
+#include "TH1D.h"
+#include "TH1I.h"
+#include "TH2D.h"
+#include "TProfile.h"
+
+// system includes files
+
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+
+// user include files
+
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -40,24 +74,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-
-// ROOT includes
-
-#include "TMath.h"
-#include "TFile.h"
-#include "TH1D.h"
-#include "TH1I.h"
-#include "TH2D.h"
-#include "TProfile.h"
-
-// system includes
-
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
 
 class MagneticField;
 
@@ -328,7 +344,7 @@ public:
     hrun->Fill(event.run());
     hlumi->Fill(event.luminosityBlock());
 
-    Int_t nHighPurityTracks = 0;
+    int nHighPurityTracks = 0;
 
     for (reco::TrackCollection::const_iterator track = tC.begin(); track != tC.end(); track++) {
       unsigned int nHit2D = 0;
@@ -815,7 +831,7 @@ public:
 
     TString dets[6] = {"PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
 
-    for (Int_t i = 1; i <= hHitComposition->GetNbinsX(); i++) {
+    for (int i = 1; i <= hHitComposition->GetNbinsX(); i++) {
       hHitComposition->GetXaxis()->SetBinLabel(i, dets[i - 1]);
     }
 
@@ -970,7 +986,7 @@ public:
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "n. tracks: " << itrks << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
-    Int_t nFiringTriggers = triggerMap_.size();
+    int nFiringTriggers = triggerMap_.size();
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << nFiringTriggers << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
@@ -979,14 +995,14 @@ public:
     evtsByTrigger_ = fs->make<TH1D>(
         "evtsByTrigge", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
-    Int_t i = 0;
+    int i = 0;
 
     for (std::map<std::string, std::pair<int, int> >::iterator it = triggerMap_.begin(); it != triggerMap_.end();
          ++it) {
       i++;
 
-      Double_t trkpercent = ((it->second).second) * 100. / Double_t(itrks);
-      Double_t evtpercent = ((it->second).first) * 100. / Double_t(ievt);
+      double trkpercent = ((it->second).second) * 100. / double(itrks);
+      double evtpercent = ((it->second).first) * 100. / double(ievt);
 
       std::cout.precision(4);
 
@@ -1003,7 +1019,7 @@ public:
       evtsByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
     }
 
-    Int_t nRuns = conditionsMap_.size();
+    int nRuns = conditionsMap_.size();
 
     vector<int> theRuns_;
     for (map<int, std::pair<int, float> >::iterator it = conditionsMap_.begin(); it != conditionsMap_.end(); ++it) {
@@ -1011,7 +1027,7 @@ public:
     }
 
     sort(theRuns_.begin(), theRuns_.end());
-    Int_t runRange = theRuns_[theRuns_.size() - 1] - theRuns_[0] +1;
+    int runRange = theRuns_[theRuns_.size() - 1] - theRuns_[0] + 1;
 
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "first run: " << theRuns_[0] << std::endl;
@@ -1030,7 +1046,7 @@ public:
                                  theRuns_[0] - 0.5,
                                  theRuns_[theRuns_.size() - 1] - 0.5);
 
-    for (Int_t the_r = theRuns_[0]; the_r <= theRuns_[theRuns_.size() - 1]; the_r++) {
+    for (int the_r = theRuns_[0]; the_r <= theRuns_[theRuns_.size() - 1]; the_r++) {
       if (conditionsMap_.find(the_r)->second.first != 0) {
         edm::LogPrint("GeneralPurposeTrackAnalyzer")
             << "run:" << the_r << " | isPeak: " << std::setw(4) << conditionsMap_.find(the_r)->second.first
