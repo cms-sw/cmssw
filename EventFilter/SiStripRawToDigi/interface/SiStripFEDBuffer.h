@@ -415,8 +415,8 @@ namespace sistrip {
       if (!samples.empty()) {  // reorder
         for (uint_fast16_t i{0}; i != samples.size(); ++i) {
           const auto physical = i % 128;
-          uint16_t readout = detail::readoutOrder(physical);             // convert index from physical to readout order
-          (i / 128) ? readout = readout* 2 + 1 : readout = readout * 2;  // un-multiplex data
+          const auto readout = (detail::readoutOrder(physical) * 2  // convert index from physical to readout order
+                                + (i >= 128 ? 1 : 0));              // un-multiplex data
           *out++ = samples[readout];
         }
       }
