@@ -27,6 +27,7 @@
   <use   name="SimDataFormats/Track"/>
   <use   name="SimDataFormats/Vertex"/>
   <use   name="SimDataFormats/JetMatching"/>
+  <use   name="SimDataFormats/PileupSummaryInfo"/>
   <use   name="SimGeneral/HepPDTRecord"/>
   <use   name="RecoMET/METAlgorithms"/>
   <use   name="RecoEgamma/EgammaTools"/>
