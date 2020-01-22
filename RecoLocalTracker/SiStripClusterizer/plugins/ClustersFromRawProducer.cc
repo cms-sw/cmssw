@@ -292,12 +292,6 @@ namespace {
   template <typename Container>
   class ADC_back_inserter {
   public:
-    typedef std::output_iterator_tag iterator_category;
-    typedef void value_type;
-    typedef void difference_type;
-    typedef void pointer;
-    typedef void reference;
-
     ADC_back_inserter(Container& c) : c_(c) {}
 
     ADC_back_inserter& operator=(SiStripRawDigi digi) {
@@ -380,21 +374,21 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
 
       using namespace sistrip;
       if
-        LIKELY(FEDChannelUnpacker::isZeroSuppressed(mode, legacy_, lmode)) {
+        LIKELY(fedchannelunpacker::isZeroSuppressed(mode, legacy_, lmode)) {
           auto perStripAdder = StripByStripAdder(clusterizer, state, record);
-          const auto isNonLite = FEDChannelUnpacker::isNonLiteZS(mode, legacy_, lmode);
+          const auto isNonLite = fedchannelunpacker::isNonLiteZS(mode, legacy_, lmode);
           const uint8_t pCode = (isNonLite ? buffer->packetCode(legacy_, fedCh) : 0);
-          auto st_ch = FEDChannelUnpacker::StatusCode::SUCCESS;
+          auto st_ch = fedchannelunpacker::StatusCode::SUCCESS;
           if
             LIKELY(!hybridZeroSuppressed_) {
-              st_ch = FEDChannelUnpacker::unpackZeroSuppressed(
+              st_ch = fedchannelunpacker::unpackZeroSuppressed(
                   buffer->channel(fedCh), perStripAdder, ipair * 256, isNonLite, mode, legacy_, lmode, pCode);
             }
           else {
             const uint32_t id = conn->detId();
             edm::DetSet<SiStripDigi> unpDigis{id};
             unpDigis.reserve(256);
-            st_ch = FEDChannelUnpacker::unpackZeroSuppressed(buffer->channel(fedCh),
+            st_ch = fedchannelunpacker::unpackZeroSuppressed(buffer->channel(fedCh),
                                                              std::back_inserter(unpDigis),
                                                              ipair * 256,
                                                              isNonLite,
@@ -402,7 +396,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
                                                              legacy_,
                                                              lmode,
                                                              pCode);
-            if (FEDChannelUnpacker::StatusCode::SUCCESS == st_ch) {
+            if (fedchannelunpacker::StatusCode::SUCCESS == st_ch) {
               SiStripRawProcessingAlgorithms::digivector_t workRawDigis;
               rawAlgos.convertHybridDigiToRawDigiVector(unpDigis, workRawDigis);
               edm::DetSet<SiStripDigi> suppDigis{id};
@@ -410,19 +404,19 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
               std::copy(std::begin(suppDigis), std::end(suppDigis), perStripAdder);
             }
           }
-          if (FEDChannelUnpacker::StatusCode::SUCCESS != st_ch && edm::isDebugEnabled()) {
+          if (fedchannelunpacker::StatusCode::SUCCESS != st_ch && edm::isDebugEnabled()) {
             edm::LogWarning(sistrip::mlRawToCluster_)
                 << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << toString(st_ch);
             continue;
           }
         }
       else {
-        auto st_ch = FEDChannelUnpacker::StatusCode::SUCCESS;
-        if (FEDChannelUnpacker::isVirginRaw(mode, legacy_, lmode)) {
+        auto st_ch = fedchannelunpacker::StatusCode::SUCCESS;
+        if (fedchannelunpacker::isVirginRaw(mode, legacy_, lmode)) {
           std::vector<int16_t> digis;
-          st_ch = FEDChannelUnpacker::unpackVirginRaw(
+          st_ch = fedchannelunpacker::unpackVirginRaw(
               buffer->channel(fedCh), ADC_back_inserter(digis), buffer->channel(fedCh).packetCode());
-          if (FEDChannelUnpacker::StatusCode::SUCCESS == st_ch) {
+          if (fedchannelunpacker::StatusCode::SUCCESS == st_ch) {
             //process raw
             uint32_t id = conn->detId();
             edm::DetSet<SiStripDigi> zsdigis(id);
@@ -435,10 +429,10 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
               clusterizer.stripByStripAdd(state, digi.strip(), digi.adc(), record);
             }
           }
-        } else if (FEDChannelUnpacker::isProcessedRaw(mode, legacy_, lmode)) {
+        } else if (fedchannelunpacker::isProcessedRaw(mode, legacy_, lmode)) {
           std::vector<int16_t> digis;
-          st_ch = FEDChannelUnpacker::unpackProcessedRaw(buffer->channel(fedCh), ADC_back_inserter(digis));
-          if (FEDChannelUnpacker::StatusCode::SUCCESS == st_ch) {
+          st_ch = fedchannelunpacker::unpackProcessedRaw(buffer->channel(fedCh), ADC_back_inserter(digis));
+          if (fedchannelunpacker::StatusCode::SUCCESS == st_ch) {
             //process raw
             uint32_t id = conn->detId();
             edm::DetSet<SiStripDigi> zsdigis(id);
@@ -455,7 +449,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
               << "[ClustersFromRawProducer::" << __func__ << "]"
               << " FEDRawData readout mode " << mode << " from FED id " << fedId << " not supported.";
         }
-        if (FEDChannelUnpacker::StatusCode::SUCCESS != st_ch && edm::isDebugEnabled()) {
+        if (fedchannelunpacker::StatusCode::SUCCESS != st_ch && edm::isDebugEnabled()) {
           edm::LogWarning(sistrip::mlRawToCluster_)
               << "[ClustersFromRawProducer::" << __func__ << "]" << toString(st_ch) << " from FED id " << fedId
               << " channel " << fedCh;

@@ -173,7 +173,7 @@ namespace sistrip {
     return checkStatusBits(internalFEDChannelNum(internalFEUnitNum, internalChannelNum));
   }
 
-  namespace FEDChannelUnpacker {
+  namespace fedchannelunpacker {
     enum class StatusCode { SUCCESS = 0, BAD_CHANNEL_LENGTH, UNORDERED_DATA, BAD_PACKET_CODE, ZERO_PACKET_CODE };
 
     namespace detail {
@@ -460,8 +460,8 @@ namespace sistrip {
         return st;
       }
     }
-  };  // namespace FEDChannelUnpacker
-  std::string toString(FEDChannelUnpacker::StatusCode status);
+  };  // namespace fedchannelunpacker
+  std::string toString(fedchannelunpacker::StatusCode status);
 }  // namespace sistrip
 
 #endif  //ndef EventFilter_SiStripRawToDigi_SiStripFEDBuffer_H

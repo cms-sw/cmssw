@@ -14,10 +14,10 @@
 */
 class SiStripRawDigi : public edm::DoNotSortUponInsertion {
 public:
-  explicit SiStripRawDigi(uint16_t adc) : adc_(adc) { ; }
+  explicit SiStripRawDigi(uint16_t adc) : adc_(adc) {}
 
-  SiStripRawDigi() : adc_(0) { ; }
-  ~SiStripRawDigi() { ; }
+  SiStripRawDigi() : adc_(0) {}
+  ~SiStripRawDigi() {}
 
   inline uint16_t adc() const { return adc_; }
 
