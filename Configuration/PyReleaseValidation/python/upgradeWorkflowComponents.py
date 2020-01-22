@@ -538,6 +538,37 @@ upgradeWFs['premixS1S2'] = UpgradeWorkflow(
     offset = 0.99,
 )
 
+class UpgradeWorkflow_TestOldDigi(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            # use existing DIGI-RAW file from old release
+            stepDict[stepName][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-110X_mcRun4_realistic_v2_2026D49noPU-v1/GEN-SIM-DIGI-RAW'}, stepDict[step][k]])
+            # handle separate PU input
+            stepNamePU = step + 'PU' + self.suffix
+            stepDict[stepNamePU][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/GEN-SIM-DIGI-RAW'},stepDict[stepName][k]])
+        elif 'GenSim' in step or 'Digi' in step:
+            # remove step
+            stepDict[stepName][k] = None
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # limited to HLT TDR production geometry
+        return fragment=="TTbar_14TeV" and '2026D49' in key
+    def workflow_(self, workflows, num, fragment, stepList):
+        UpgradeWorkflow.workflow_(self, workflows, num, fragment, stepList)
+upgradeWFs['TestOldDigi'] = UpgradeWorkflow_TestOldDigi(
+    steps = [
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFullTrigger',
+        'RecoFullGlobal',
+    ],
+    PU = [
+        'DigiFullTrigger',
+        'RecoFullGlobal',
+    ],
+    suffix = '_TestOldDigi',
+    offset = 0.1001,
+)
+
 # check for duplicate offsets
 offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
 seen = set()
