@@ -217,9 +217,7 @@ namespace sistrip {
 
   inline size_t FEDStripData::ChannelData::size() const { return data_.size(); }
 
-  inline uint16_t& FEDStripData::ChannelData::operator[](const size_t sampleNumber) {
-    return data_[sampleNumber];
-  }
+  inline uint16_t& FEDStripData::ChannelData::operator[](const size_t sampleNumber) { return data_[sampleNumber]; }
 
   //re-use non-const method
   inline const uint16_t& FEDStripData::ChannelData::operator[](const size_t sampleNumber) const {
