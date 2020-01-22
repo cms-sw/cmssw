@@ -178,6 +178,23 @@ namespace sistrip {
 
     namespace detail {
 
+      template <uint8_t num_words>
+      uint16_t getADC_W(const uint8_t* data, uint_fast16_t offset, uint8_t bits_shift) {
+        // get ADC from one or two bytes (at most 10 bits), and shift if needed
+        return (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0)) << bits_shift;
+      }
+
+      template <uint16_t mask>
+      uint16_t getADC_B2(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
+        // get ADC from two bytes, from wOffset until bOffset bits from the next byte (maximum decided by mask)
+        return (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask;
+      }
+      template <uint16_t mask>
+      uint16_t getADC_B1(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
+        // get ADC from one byte, until bOffset into the byte at wOffset (maximum decided by mask)
+        return (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask;
+      }
+
       // Unpack Raw with ADCs in whole 8-bit words (8bit and 10-in-16bit)
       template <uint8_t num_bits, typename OUT>
       StatusCode unpackRawW(const FEDChannel& channel, OUT&& out, uint8_t bits_shift = 0) {
@@ -192,8 +209,7 @@ namespace sistrip {
         const uint8_t* const data = channel.data();
         const uint_fast16_t end = channel.offset() + channel.length();
         for (uint_fast16_t offset = channel.offset() + 3; offset != end; offset += num_words) {
-          *out++ = SiStripRawDigi((data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0))
-                                  << bits_shift);
+          *out++ = SiStripRawDigi(getADC_W<num_words>(data, offset, bits_shift));
         }
         return StatusCode::SUCCESS;
       }
@@ -213,13 +229,12 @@ namespace sistrip {
         uint_fast8_t bOffset = 0;
         while (((wOffset + 1) < chEnd) || ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits)) {
           bOffset += num_bits;
-          if (bOffset > BITS_PER_BYTE) {
+          if ((num_bits > BITS_PER_BYTE) || (bOffset > BITS_PER_BYTE)) {
             bOffset -= BITS_PER_BYTE;
-            **out++ = SiStripRawDigi(
-                (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask);
+            **out++ = SiStripRawDigi(getADC_B2<mask>(data, wOffset, bOffset));
             ++wOffset;
           } else {
-            **out++ = SiStripRawDigi((data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask);
+            **out++ = SiStripRawDigi(getADC_B1<mask>(data, wOffset, bOffset));
           }
           if (bOffset == BITS_PER_BYTE) {
             bOffset = 0;
@@ -259,9 +274,7 @@ namespace sistrip {
             nInCluster = data[(offset++) ^ 7];
             inCluster = 0;
           }
-          *out++ = SiStripDigi(stripStart + firstStrip + inCluster,
-                               (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0))
-                                   << bits_shift);
+          *out++ = SiStripDigi(stripStart + firstStrip + inCluster, getADC_W<num_words>(data, offset, bits_shift));
           offset += num_words;
           ++inCluster;
         }
@@ -304,15 +317,12 @@ namespace sistrip {
             bOffset = 0;
           }
           bOffset += num_bits;
-          if (bOffset > BITS_PER_BYTE) {
+          if ((num_bits > BITS_PER_BYTE) || (bOffset > BITS_PER_BYTE)) {
             bOffset -= BITS_PER_BYTE;
-            *out++ = SiStripDigi(
-                stripStart + firstStrip + inCluster,
-                (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask);
+            *out++ = SiStripDigi(stripStart + firstStrip + inCluster, getADC_B2<mask>(data, wOffset, bOffset));
             ++wOffset;
           } else {
-            *out++ = SiStripDigi(stripStart + firstStrip + inCluster,
-                                 (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask);
+            *out++ = SiStripDigi(stripStart + firstStrip + inCluster, getADC_B1<mask>(data, wOffset, bOffset));
           }
           ++inCluster;
           if (bOffset == BITS_PER_BYTE) {
