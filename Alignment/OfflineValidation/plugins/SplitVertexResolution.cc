@@ -18,7 +18,9 @@
 #include <vector>     // std::vector
 #include <chrono>
 #include <iostream>
-#include "TRandom.h"
+#include <random>
+
+// ROOT include files
 #include "TTree.h"
 #include "TProfile.h"
 #include "TF1.h"
@@ -34,6 +36,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -60,15 +63,14 @@
 //
 
 namespace statmode {
-
-  using fitParams = std::pair<std::pair<double, double>, std::pair<double, double> >;
+  using fitParams = std::pair<Measurement1D, Measurement1D>;
 }
 
 //
 // class declaration
 //
 
-class SplitVertexResolution : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class SplitVertexResolution : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit SplitVertexResolution(const edm::ParameterSet&);
   ~SplitVertexResolution() override;
@@ -78,9 +80,11 @@ public:
 
 private:
   void beginJob() override;
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   virtual void beginEvent() final;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override{};
 
   template <std::size_t SIZE>
   bool checkBinOrdering(std::array<float, SIZE>& bins);
@@ -115,6 +119,10 @@ private:
   edm::InputTag triggerResultsTag_ = edm::InputTag("TriggerResults", "", "HLT");  //InputTag tag("TriggerResults");
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
 
+  // ES Tokens
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+
   double minVtxNdf_;
   double minVtxWgt_;
 
@@ -146,6 +154,7 @@ private:
 
   TH1F* h_ntrks;
   TH1F* h_sumPt;
+  TH1F* h_avgSumPt;
 
   TH1F* h_sumPt1;
   TH1F* h_sumPt2;
@@ -222,22 +231,17 @@ private:
   TH1F* p_pullY_vsNvtx;
   TH1F* p_pullZ_vsNvtx;
 
-  TRandom rand;
+  std::mt19937 engine_;
 
   pvEvent event_;
   TTree* tree_;
 
   // ----------member data ---------------------------
   static const int nPtBins_ = 30;
-  //std::array<float, nPtBins_+1>  mypT_bins_ = {{10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,34.,36.,38.,40.,43.,46.,50.,56.,65.,75.,84.,100.,120.,140.,160.,200.}};
-
   std::array<float, nPtBins_ + 1> mypT_bins_ = PVValHelper::makeLogBins<float, nPtBins_>(1., 1e3);
 
   static const int nTrackBins_ = 60;
   std::array<float, nTrackBins_ + 1> myNTrack_bins_;
-
-  //std::array<float,nTrackBins_+1>  myNTrack_bins_ = {{10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.}};
-  //std::array<float,nTrackBins_+1>  myNTrack_bins_ = PVValHelper::makeLogBins<float,nPtBins_>(10.,50.);
 
   static const int nVtxBins_ = 40;
   std::array<float, nVtxBins_ + 1> myNVtx_bins_;
@@ -254,6 +258,9 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
       tracksTag_(iConfig.getParameter<edm::InputTag>("trackCollection")),
       tracksToken_(consumes<reco::TrackCollection>(tracksTag_)),
       triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
+      transientTrackBuilderToken_(
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
+      runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
       minVtxNdf_(iConfig.getUntrackedParameter<double>("minVertexNdf")),
       minVtxWgt_(iConfig.getUntrackedParameter<double>("minVertexMeanWeight")) {
   std::vector<float> vect = PVValHelper::generateBins(nTrackBins_ + 1, -0.5, 120.);
@@ -269,6 +276,11 @@ SplitVertexResolution::~SplitVertexResolution() {}
 // ------------ method called for each event  ------------
 void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
+
+  // deterministic seed from the event number
+  // should not bias the result as the event number is already
+  // assigned randomly-enough
+  engine_.seed(iEvent.id().event() + (iEvent.id().luminosityBlock() << 10) + (iEvent.id().run() << 20));
 
   // Fill general info
   h_runNumber->Fill(iEvent.id().run());
@@ -288,25 +300,7 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
   event_.luminosityBlockNumber = iEvent.id().luminosityBlock();
   event_.eventNumber = iEvent.id().event();
 
-  unsigned int RunNumber_ = iEvent.eventAuxiliary().run();
-
-  if (!runNumbersTimesLog_.count(RunNumber_)) {
-    auto times = getRunTime(iSetup);
-
-    if (debug_) {
-      const time_t start_time = times.first / 1000000;
-      edm::LogInfo("SplitVertexResolution")
-          << RunNumber_ << " has start time: " << times.first << " - " << times.second << std::endl;
-      edm::LogInfo("SplitVertexResolution")
-          << "human readable time: " << std::asctime(std::gmtime(&start_time)) << std::endl;
-    }
-    runNumbersTimesLog_[RunNumber_] = times;
-  }
-
-  edm::ESHandle<TransientTrackBuilder> theB;
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  TransientTrackBuilder const& theB = iSetup.getData(transientTrackBuilderToken_);
 
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(pvsToken_, vertices);
@@ -333,13 +327,13 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
   int counter = 0;
   int noFakecounter = 0;
   int goodcounter = 0;
-  for (reco::VertexCollection::const_iterator pvIt = pvtx.begin(); pvIt != pvtx.end(); pvIt++) {
+
+  for (auto pvIt = pvtx.cbegin(); pvIt != pvtx.cend(); ++pvIt) {
     reco::Vertex iPV = *pvIt;
     counter++;
     if (iPV.isFake())
       continue;
     noFakecounter++;
-    reco::Vertex::trackRef_iterator trki;
 
     // vertex selection as in bs code
     if (iPV.ndof() < minVtxNdf_ || (iPV.ndof() + 3.) / iPV.tracksSize() < 2 * minVtxWgt_)
@@ -348,7 +342,7 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     goodcounter++;
     reco::TrackCollection allTracks;
     reco::TrackCollection groupOne, groupTwo;
-    for (trki = iPV.tracks_begin(); trki != iPV.tracks_end(); ++trki) {
+    for (auto trki = iPV.tracks_begin(); trki != iPV.tracks_end(); ++trki) {
       if (trki->isNonnull()) {
         reco::TrackRef trk_now(tracks, (*trki).key());
         allTracks.push_back(*trk_now);
@@ -372,8 +366,9 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     for (uint tracksIt = 0; tracksIt < even_ntrks; tracksIt = tracksIt + 2) {
       reco::Track firstTrk = allTracks.at(tracksIt);
       reco::Track secondTrk = allTracks.at(tracksIt + 1);
-      double therand = rand.Uniform(0, 1);
-      if (therand > 0.5) {
+      auto dis = std::uniform_int_distribution<>(0, 1);  // [0, 1]
+
+      if (dis(engine_) > 0.5) {
         groupOne.push_back(firstTrk);
         groupTwo.push_back(secondTrk);
       } else {
@@ -394,8 +389,8 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     // refit the two sets of tracks
     std::vector<reco::TransientTrack> groupOne_ttks;
     groupOne_ttks.clear();
-    for (reco::TrackCollection::const_iterator itrk = groupOne.begin(); itrk != groupOne.end(); itrk++) {
-      reco::TransientTrack tmpTransientTrack = (*theB).build(*itrk);
+    for (auto itrk = groupOne.cbegin(); itrk != groupOne.cend(); itrk++) {
+      reco::TransientTrack tmpTransientTrack = theB.build(*itrk);
       groupOne_ttks.push_back(tmpTransientTrack);
       sumPt1 += itrk->pt();
       sumPt += itrk->pt();
@@ -410,8 +405,8 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
 
     std::vector<reco::TransientTrack> groupTwo_ttks;
     groupTwo_ttks.clear();
-    for (reco::TrackCollection::const_iterator itrk = groupTwo.begin(); itrk != groupTwo.end(); itrk++) {
-      reco::TransientTrack tmpTransientTrack = (*theB).build(*itrk);
+    for (auto itrk = groupTwo.cbegin(); itrk != groupTwo.cend(); itrk++) {
+      reco::TransientTrack tmpTransientTrack = theB.build(*itrk);
       groupTwo_ttks.push_back(tmpTransientTrack);
       sumPt2 += itrk->pt();
       sumPt += itrk->pt();
@@ -419,6 +414,7 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
 
     // average sumPt
     avgSumPt = (sumPt1 + sumPt2) / 2.;
+    h_avgSumPt->Fill(avgSumPt);
 
     TransientVertex pvTwo = pvFitter.vertex(groupTwo_ttks);
     if (!pvTwo.isValid())
@@ -428,19 +424,17 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
 
     float theminW1 = 1.;
     float theminW2 = 1.;
-    for (std::vector<reco::TransientTrack>::const_iterator otrk = pvOne.originalTracks().begin();
-         otrk != pvOne.originalTracks().end();
-         ++otrk) {
+    for (auto otrk = pvOne.originalTracks().cbegin(); otrk != pvOne.originalTracks().cend(); ++otrk) {
       h_wTrks1->Fill(pvOne.trackWeight(*otrk));
-      if (pvOne.trackWeight(*otrk) < theminW1)
+      if (pvOne.trackWeight(*otrk) < theminW1) {
         theminW1 = pvOne.trackWeight(*otrk);
+      }
     }
-    for (std::vector<reco::TransientTrack>::const_iterator otrk = pvTwo.originalTracks().begin();
-         otrk != pvTwo.originalTracks().end();
-         ++otrk) {
+    for (auto otrk = pvTwo.originalTracks().cbegin(); otrk != pvTwo.originalTracks().end(); ++otrk) {
       h_wTrks2->Fill(pvTwo.trackWeight(*otrk));
-      if (pvTwo.trackWeight(*otrk) < theminW2)
+      if (pvTwo.trackWeight(*otrk) < theminW2) {
         theminW2 = pvTwo.trackWeight(*otrk);
+      }
     }
 
     h_sumPt->Fill(sumPt);
@@ -594,6 +588,23 @@ void SplitVertexResolution::beginEvent() {
   event_.nVtx = -1;
 }
 
+void SplitVertexResolution::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
+  unsigned int RunNumber_ = run.run();
+
+  if (!runNumbersTimesLog_.count(RunNumber_)) {
+    auto times = getRunTime(iSetup);
+
+    if (debug_) {
+      const time_t start_time = times.first / 1000000;
+      edm::LogInfo("SplitVertexResolution")
+          << RunNumber_ << " has start time: " << times.first << " - " << times.second << std::endl;
+      edm::LogInfo("SplitVertexResolution")
+          << "human readable time: " << std::asctime(std::gmtime(&start_time)) << std::endl;
+    }
+    runNumbersTimesLog_[RunNumber_] = times;
+  }
+}
+
 // ------------ method called once each job just before starting event loop  ------------
 void SplitVertexResolution::beginJob() {
   ievt = 0;
@@ -714,8 +725,12 @@ void SplitVertexResolution::beginJob() {
                                  "number of tracks in vertex;vertex multeplicity;vertices",
                                  myNTrack_bins_.size() - 1,
                                  myNTrack_bins_.data());
+
   h_sumPt = outfile_->make<TH1F>(
       "h_sumPt", "#Sigma p_{T};#sum p_{T} [GeV];vertices", mypT_bins_.size() - 1, mypT_bins_.data());
+
+  h_avgSumPt = outfile_->make<TH1F>(
+      "h_avgSumPt", "#LT #Sigma p_{T} #GT;#LT #sum p_{T} #GT [GeV];vertices", mypT_bins_.size() - 1, mypT_bins_.data());
 
   h_sumPt1 = outfile_->make<TH1F>("h_sumPt1",
                                   "#Sigma p_{T} sub-vertex 1;#sum p_{T} sub-vertex 1 [GeV];subvertices",
@@ -959,13 +974,11 @@ void SplitVertexResolution::fillDescriptions(edm::ConfigurationDescriptions& des
 std::pair<long long, long long> SplitVertexResolution::getRunTime(const edm::EventSetup& iSetup) const
 //*************************************************************
 {
-  edm::ESHandle<RunInfo> runInfo;
-  iSetup.get<RunInfoRcd>().get(runInfo);
+  const auto& runInfo = iSetup.getData(runInfoToken_);
   if (debug_) {
-    edm::LogInfo("SplitVertexResolution")
-        << runInfo.product()->m_start_time_str << " " << runInfo.product()->m_stop_time_str << std::endl;
+    edm::LogInfo("SplitVertexResolution") << runInfo.m_start_time_str << " " << runInfo.m_stop_time_str << std::endl;
   }
-  return std::make_pair(runInfo.product()->m_start_time_ll, runInfo.product()->m_stop_time_ll);
+  return std::make_pair(runInfo.m_start_time_ll, runInfo.m_stop_time_ll);
 }
 
 //*************************************************************
@@ -978,15 +991,15 @@ void SplitVertexResolution::fillTrendPlotByIndex(TH1F* trendPlot, std::vector<TH
 
     switch (fitPar_) {
       case PVValHelper::MEAN: {
-        float mean_ = myFit.first.first;
-        float meanErr_ = myFit.first.second;
+        float mean_ = myFit.first.value();
+        float meanErr_ = myFit.first.error();
         trendPlot->SetBinContent(bin, mean_);
         trendPlot->SetBinError(bin, meanErr_);
         break;
       }
       case PVValHelper::WIDTH: {
-        float width_ = myFit.second.first;
-        float widthErr_ = myFit.second.second;
+        float width_ = myFit.second.value();
+        float widthErr_ = myFit.second.error();
         trendPlot->SetBinContent(bin, width_);
         trendPlot->SetBinError(bin, widthErr_);
         break;
@@ -1018,8 +1031,9 @@ statmode::fitParams SplitVertexResolution::fitResiduals(TH1* hist, bool singleTi
 //*************************************************************
 {
   if (hist->GetEntries() < 10) {
-    // edm::LogInfo("SplitVertexResolution")<<"hist name: "<<hist->GetName() << std::endl;
-    return std::make_pair(std::make_pair(0., 0.), std::make_pair(0., 0.));
+    edm::LogWarning("SplitVertexResolution")
+        << "hist name: " << hist->GetName() << " has less than 10 entries" << std::endl;
+    return std::make_pair(Measurement1D(0., 0.), Measurement1D(0., 0.));
   }
 
   float maxHist = hist->GetXaxis()->GetXmax();
@@ -1053,17 +1067,23 @@ statmode::fitParams SplitVertexResolution::fitResiduals(TH1* hist, bool singleTi
     }
   }
 
-  return std::make_pair(std::make_pair(func.GetParameter(1), func.GetParError(1)),
-                        std::make_pair(func.GetParameter(2), func.GetParError(2)));
+  float res_mean = func.GetParameter(1);
+  float res_width = func.GetParameter(2);
+
+  float res_mean_err = func.GetParError(1);
+  float res_width_err = func.GetParError(2);
+
+  Measurement1D resultM(res_mean, res_mean_err);
+  Measurement1D resultW(res_width, res_width_err);
+
+  statmode::fitParams result = std::make_pair(resultM, resultW);
+  return result;
 }
 
 //*************************************************************
 statmode::fitParams SplitVertexResolution::fitResiduals_v0(TH1* hist)
 //*************************************************************
 {
-  //float fitResult(9999);
-  //if (hist->GetEntries() < 20) return ;
-
   float mean = hist->GetMean();
   float sigma = hist->GetRMS();
 
@@ -1088,15 +1108,10 @@ statmode::fitParams SplitVertexResolution::fitResiduals_v0(TH1* hist)
   float res_mean_err = func.GetParError(1);
   float res_width_err = func.GetParError(2);
 
-  std::pair<double, double> resultM;
-  std::pair<double, double> resultW;
+  Measurement1D resultM(res_mean, res_mean_err);
+  Measurement1D resultW(res_width, res_width_err);
 
-  resultM = std::make_pair(res_mean, res_mean_err);
-  resultW = std::make_pair(res_width, res_width_err);
-
-  statmode::fitParams result;
-
-  result = std::make_pair(resultM, resultW);
+  statmode::fitParams result = std::make_pair(resultM, resultW);
   return result;
 }
 
