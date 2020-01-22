@@ -18,7 +18,7 @@ namespace sistrip {
     }
   }
 
-  FEDStripData::ChannelData& FEDStripData::channel(const uint8_t internalFEDChannelNum) {
+  const FEDStripData::ChannelData& FEDStripData::channel(const uint8_t internalFEDChannelNum) const {
     try {
       return data_.at(internalFEDChannelNum);
     } catch (const std::out_of_range&) {

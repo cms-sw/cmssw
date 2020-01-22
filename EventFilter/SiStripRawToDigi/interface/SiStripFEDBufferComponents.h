@@ -1301,13 +1301,13 @@ namespace sistrip {
     memcpy(startOfWord, &value, 4);
   }
 
-  inline uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) {
+  inline const uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) const {
     return header_ + internalFEUnitNum * 2 * 8;
   }
 
-  //re-use non-const method
-  inline const uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) const {
-    return feWord(internalFEUnitNum);
+  //re-use const method
+  inline uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) {
+    return const_cast<uint8_t*>(std::as_const(*this).feWord(internalFEUnitNum));
   }
 
   inline void FEDFullDebugHeader::setUnlocked(const uint8_t internalFEDChannelNum, const bool value) {
