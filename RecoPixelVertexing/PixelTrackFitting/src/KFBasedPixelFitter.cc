@@ -29,19 +29,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/GeometrySurface/interface/OpenBounds.h"
 
-/*
-#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
-#include "Alignment/ReferenceTrajectories/interface/BeamSpotTransientTrackingRecHit.h"
-#include "Alignment/ReferenceTrajectories/interface/BeamSpotGeomDet.h"
-#include <TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h>
-#include <TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h>
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
-*/
-
 #include <sstream>
 template <class T>
 inline T sqr(T t) {

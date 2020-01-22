@@ -7,6 +7,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/FTLDigi"/>
 <use   name="DataFormats/FTLRecHit"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/MessageService"/>

@@ -1,9 +1,9 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/Records"/>
