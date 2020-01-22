@@ -456,7 +456,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
                                                  : std::pair<float, float>((findPos - 1)->first + charge, tof));
 	}
 
-	//cumulate the charge of new entry for all elements that follows in the sorted list
+	//cumulate the charge of new entry for all elements that follow in the sorted list
 	//and resize list accounting for cases when the inserted element itself crosses the threshold
         for (std::vector<std::pair<float, float>>::iterator step = insertedPos; step != hitRefs_bx0[id].end();
              ++step) {
