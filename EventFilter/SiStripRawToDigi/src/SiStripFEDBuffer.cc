@@ -408,8 +408,8 @@ namespace sistrip {
     }
   }
 
-  std::string toString(FEDChannelUnpacker::StatusCode status) {
-    using namespace sistrip::FEDChannelUnpacker;
+  std::string toString(fedchannelunpacker::StatusCode status) {
+    using namespace sistrip::fedchannelunpacker;
     switch (status) {
       case StatusCode::SUCCESS:
         return "SUCCESS";
