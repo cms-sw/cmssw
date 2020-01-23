@@ -56,6 +56,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet &ps)
 
   if (dbe_) {
     dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+    dbe_->setScope(MonitorElementData::Scope::RUN);
 
     sprintf(histo, "EcalSimHitsValidation Gun Momentum");
     meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);
