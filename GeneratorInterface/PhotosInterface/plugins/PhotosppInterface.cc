@@ -49,7 +49,7 @@ void PhotosppInterface::init() {
   if (fIsInitialized)
     return;  // do init only once
   Photospp::Photos::initialize();
-  Photospp::Photos::createHistoryEntries(true, 746); // P-H-O
+  Photospp::Photos::createHistoryEntries(true, 746);  // P-H-O
   std::vector<std::string> par = fPSet->getParameter<std::vector<std::string> >("parameterSets");
   for (unsigned int ip = 0; ip < par.size(); ++ip) {
     std::string curSet = par[ip];
