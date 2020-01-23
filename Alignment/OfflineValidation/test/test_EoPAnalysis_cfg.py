@@ -8,8 +8,30 @@ elif REFIT and not MISALIGN:
 elif REFIT and MISALIGN:
     print "REFIT + MISALIGN"
 else :
-    print "ERROR! ARRETE"
+    print "ERROR! STOP!"
+    exit
     
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing("analysis")
+
+options.register ('outputRootFile',
+                  "test_EOverP.root",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,         # string, int, or float
+                  "output root file")
+
+options.register ('GlobalTag',
+                  'auto:phase1_2021_realistic',
+                  VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "Global Tag to be used")
+
+options.parseArguments()
+
+print "conditionGT       : ", options.GlobalTag
+print "outputFile        : ", options.outputRootFile
+print "maxEvents         : ", options.maxEvents
+
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("EnergyOverMomentumTree")
     
@@ -36,7 +58,7 @@ process.source = cms.Source("PoolSource",
                             ))
                         
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(options.maxEvents)
 )
 
 ####################################################################
@@ -64,7 +86,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
 # choose geometry
 if MISALIGN:
@@ -116,7 +138,7 @@ else:
     process.energyOverMomentumTree.src = cms.InputTag('electronGsfTracks')
      
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TheTree.root')
+                                   fileName = cms.string(options.outputRootFile)
                                    )
  
 if REFIT:

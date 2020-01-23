@@ -150,6 +150,9 @@ private:
 
   // ----------member data ---------------------------
   edm::InputTag src_;
+  std::string theTrigger_;
+  std::string theFilter_;
+  bool debugTriggerSelection_;
 
   edm::Service<TFileService> fs_;
   TTree* tree_;
@@ -217,7 +220,12 @@ float ecalEta(float EtaParticle, float Zvertex, float RhoVertex) {
 
 // constructors and destructor
 
-EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig) {
+EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig):
+  src_(iConfig.getParameter<edm::InputTag>("src")),
+  theTrigger_(iConfig.getParameter<std::string>("triggerPath")),
+  theFilter_(iConfig.getParameter<std::string>("hltFilter")),
+  debugTriggerSelection_(iConfig.getParameter<bool>("debugTriggerSelection"))
+ {
   theVertexCollectionToken = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   theHBHERecHitCollectionToken = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco", ""));
   theEcalRecHitCollectionToken = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
@@ -227,9 +235,7 @@ EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig) {
   theTriggerResultsToken = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"));
   theTriggerEventToken = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD"));
 
-  src_ = iConfig.getParameter<edm::InputTag>("src");
   theGsfTrackCollectionToken = consumes<reco::GsfTrackCollection>(src_);
-
   theGsfElectronCoreCollectionToken = consumes<reco::GsfElectronCoreCollection>(edm::InputTag("gedGsfElectronCores"));
 
   // TTree creation
@@ -365,7 +371,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // getting primary vertex (necessary to convert eta track to eta detector
   edm::Handle<reco::VertexCollection> vertex;
-  //iEvent.getByLabel("offlinePrimaryVertices","", vertex);
   iEvent.getByToken(theVertexCollectionToken, vertex);
 
   if (vertex->empty()) {
@@ -386,12 +391,10 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // getting Hcal rechits
   edm::Handle<HBHERecHitCollection> HcalHits;
-  //iEvent.getByLabel("hbhereco","", HcalHits);
   iEvent.getByToken(theHBHERecHitCollectionToken, HcalHits);
 
   // getting Ecal rechits
   edm::Handle<EcalRecHitCollection> ecalrechitcollection;
-  //iEvent.getByLabel("ecalRecHit","EcalRecHitsEB", ecalrechitcollection);
   iEvent.getByToken(theEcalRecHitCollectionToken, ecalrechitcollection);
   const EcalRecHitCollection* rhc = ecalrechitcollection.product();
   if (rhc == nullptr)
@@ -400,8 +403,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // getting SuperCluster
   edm::Handle<reco::SuperClusterCollection> BarrelSupClusCollection;
   edm::Handle<reco::SuperClusterCollection> EndcapSupClusCollection;
-  //iEvent.getByLabel("hybridSuperClusters","", BarrelSupClusCollection);
-  //iEvent.getByLabel("multi5x5SuperClusters","multi5x5EndcapSuperClusters", EndcapSupClusCollection);
   iEvent.getByToken(theBarrelSupClusCollectionToken, BarrelSupClusCollection);
   iEvent.getByToken(theEndCapSupClusCollectionToken, EndcapSupClusCollection);
 
@@ -417,21 +418,19 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   const edm::InputTag triggerTag("TriggerResults", "", "HLT");
 
   edm::Handle<edm::TriggerResults> trigRes;
-  //iEvent.getByLabel(triggerTag, trigRes);
   iEvent.getByToken(theTriggerResultsToken, trigRes);
 
   // trigger event
   edm::Handle<trigger::TriggerEvent> triggerEvent;
-  //iEvent.getByLabel("hltTriggerSummaryAOD", triggerEvent );
   iEvent.getByToken(theTriggerEventToken, triggerEvent);
 
   //std::string pattern = "HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5";
-  std::string pattern = "HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v4";
+  //std::string pattern = "HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v4";
 
   // our trigger table
   std::map<std::string, EopTriggerType> HLTpaths;
   for (unsigned int i = 0; i < triggerNames_.size(); i++) {
-    if (triggerNames_[i].find(pattern) != 0)
+    if (triggerNames_[i].find(theTrigger_) != 0)
       continue;
     EopTriggerType myTrigger;
 
@@ -447,7 +446,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (myTrigger.index == -1)
       continue;
     myTrigger.fired =
-        trigRes->wasrun(myTrigger.index) && trigRes->accept(myTrigger.index) && !trigRes->error(myTrigger.index);
+      trigRes->wasrun(myTrigger.index) && trigRes->accept(myTrigger.index) && !trigRes->error(myTrigger.index);
     HLTpaths[triggerNames_[i]] = myTrigger;
   }
 
@@ -468,17 +467,19 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // Useful for finding the good filter label
   std::vector<std::string> filters = hltConfig_.moduleLabels(firstFiredPath);
 
-  /*
-   std::cout << "filters : ";
-   for (unsigned int i=0;i<filters.size();i++){ 
-   std::cout << filters[i]<<" ";
-   }
-   std::cout<<std::endl;
- */
+  if( debugTriggerSelection_){
+    std::cout << "filters : ";
+    for (unsigned int i=0;i<filters.size();i++){
+      std::cout << filters[i]<<" ";
+    }
+    std::cout<<std::endl;
+  }
 
   // Getting HLT electrons
   //edm::InputTag testTag("hltEle32CaloIdVLCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter","","HLT");
-  edm::InputTag testTag("hltDiEle27L1DoubleEGWPTightHcalIsoFilter", "", "HLT");
+  //edm::InputTag testTag("hltDiEle27L1DoubleEGWPTightHcalIsoFilter", "", "HLT");
+  edm::InputTag testTag(theFilter_, "", "HLT");
+
   int testindex = triggerEvent->filterIndex(testTag);
 
   if (testindex >= triggerEvent->sizeFilters())
@@ -513,7 +514,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // getting GsfTrack
   edm::Handle<reco::GsfTrackCollection> tracks;
-  //iEvent.getByLabel(src_, tracks);
   iEvent.getByToken(theGsfTrackCollectionToken, tracks);
 
   // filtering track
@@ -551,7 +551,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //-------- test:Matching SC/track using gsfElectonCore collection --------
 
   edm::Handle<reco::GsfElectronCoreCollection> electrons;
-  //iEvent.getByLabel("gsfElectronCores", electrons);
   iEvent.getByToken(theGsfElectronCoreCollectionToken, electrons);
 
   for (std::vector<reco::GsfElectronCore>::const_iterator elec = electrons->begin(); elec != electrons->end(); elec++) {
@@ -940,9 +939,11 @@ void EopElecTreeWriter::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
   }
 
   // Displaying the trigger names
-  unsigned int i = 0;
-  for (std::vector<std::string>::const_iterator it = triggerNames_.begin(); it < triggerNames_.end(); ++it) {
-    std::cout << "HLTpath: " << (i++) << " = " << (*it) << std::endl;
+  if( debugTriggerSelection_ ){
+    unsigned int i = 0;
+    for (std::vector<std::string>::const_iterator it = triggerNames_.begin(); it < triggerNames_.end(); ++it) {
+      std::cout << "HLTpath: " << (i++) << " = " << (*it) << std::endl;
+    }
   }
 }
 

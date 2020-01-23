@@ -2,6 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 energyOverMomentumTree = cms.EDAnalyzer('EopElecTreeWriter',
                                         src  = cms.InputTag('electronGsfTracks'),
+                                        # HLT path to filter on
+                                        triggerPath = cms.string("HLT_Ele"), # ("HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v4"),
+                                        # take HLT objects from this filter
+                                        hltFilter   = cms.string("hltDiEle27L1DoubleEGWPTightHcalIsoFilter"),
+                                        # debug the trigger and filter selections 
+                                        debugTriggerSelection = cms.bool(False),
                                         # Lower threshold on track's momentum magnitude in GeV
                                         PCut = cms.double(31.),#15.),                                    
                                         # tag on Z mass width window, between MzMin and MzMax
@@ -19,4 +25,4 @@ energyOverMomentumTree = cms.EDAnalyzer('EopElecTreeWriter',
                                         # SCdRIso: between SCdRMatch and SCdRIso arround track, NO OTHER Super Cluster
                                         SCdRMatch = cms.double(0.09),
                                         SCdRIso = cms.double(0.2)
-                                    )
+                                        )
