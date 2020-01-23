@@ -95,6 +95,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -196,6 +197,8 @@ private:
   const double relPtTolerance_;
   const bool hadronFlavourHasPriority_;
   const bool useSubjets_;
+  bool usePuppi_;
+
   const bool useLeptons_;
 
   ClusterSequencePtr fjClusterSeq_;
@@ -218,6 +221,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
       partonsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("partons"))),
       jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
       rParam_(iConfig.getParameter<double>("rParam")),
+
       jetPtMin_(
           0.),  // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
       ghostRescaling_(iConfig.exists("ghostRescaling") ? iConfig.getParameter<double>("ghostRescaling") : 1e-18),
@@ -232,6 +236,13 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
 {
   // register your products
   produces<reco::JetFlavourInfoMatchingCollection>();
+  std::string label = iConfig.getParameter<edm::InputTag>("jets").label();
+  usePuppi_ = false;
+  if(label.find("Puppi") != std::string::npos){
+    usePuppi_ = true;
+    // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
+  }
+
   if (useSubjets_)
     produces<reco::JetFlavourInfoMatchingCollection>("SubJets");
 
@@ -289,6 +300,7 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
   if (useLeptons_)
     iEvent.getByToken(leptonsToken_, leptons);
 
+
   auto jetFlavourInfos = std::make_unique<reco::JetFlavourInfoMatchingCollection>(reco::JetRefBaseProd(jets));
   std::unique_ptr<reco::JetFlavourInfoMatchingCollection> subjetFlavourInfos;
   if (useSubjets_)
@@ -315,7 +327,15 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
         edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
         continue;
       }
-      fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+      if(usePuppi_){
+	const auto pf_constit = dynamic_cast<const reco::PFCandidate*>(&*constit);
+	double w = pf_constit->puppiWeight();
+	double E_w = std::sqrt(pf_constit->p() * w * pf_constit->p() * w + pf_constit->mass() * pf_constit->mass());
+	fjInputs.push_back(fastjet::PseudoJet(pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz()* w, E_w));
+      }
+      else{
+	fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+      }
     }
   }
   // insert "ghost" b hadrons in the vector of constituents
