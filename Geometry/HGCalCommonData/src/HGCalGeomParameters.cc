@@ -12,6 +12,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
+#include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
@@ -294,9 +295,10 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
         if (fv.isA<dd4hep::Polyhedra>()) {
           rin = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[5] + pars[8]);
           rout = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[6] + pars[9]);
-        } else if (fv.isA<dd4hep::Tube>()) {
-          rin = HGCalParameters::k_ScaleFromDD4Hep * pars[0];
-          rout = HGCalParameters::k_ScaleFromDD4Hep * pars[1];
+        } else if (fv.isATubeSeg()) {
+	  cms::dd::DDTubs tubeSeg(fv);
+          rin = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rIn();
+          rout = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rOut();
         }
         HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
         layers[lay] = laypar;
