@@ -3,6 +3,7 @@
 <use   name="roothistmatrix"/>
 <use   name="CommonTools/Utils"/>
 <use   name="DataFormats/FWLite"/>
+<use   name="DataFormats/PatCandidates"/>
 <export>
   <lib   name="1"/>
 </export>
