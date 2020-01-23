@@ -35,23 +35,21 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   const bool preTDR = (baseNumber.getLevelName(3).find("Ring") != std::string::npos);
 
   const uint32_t modCopy(baseNumber.getCopyNumber(2));
-  
+
   const std::string& ringName(baseNumber.getLevelName(3));  // name of ring volume
   int modtyp(0);
   std::string baseName = ringName.substr(ringName.find(":") + 1);
   int ringCopy(::atoi(baseName.c_str() + 4));
-  
-  if ( !preTDR) {
 
+  if (!preTDR) {
     uint32_t discN = (baseNumber.getLevelName(4).find("Disk1") != std::string::npos) ? 0 : 1;
     uint32_t quarterS = (baseNumber.getLevelName(3).find("Front") != std::string::npos) ? 0 : 1;
     uint32_t quarterN = baseNumber.getCopyNumber(3);
     const uint32_t quarterOffset = 4;
 
-    ringCopy = quarterN+quarterS*quarterOffset+2*quarterOffset*discN;
+    ringCopy = quarterN + quarterS * quarterOffset + 2 * quarterOffset * discN;
 
-    modtyp = (baseNumber.getLevelName(2).find("_2") != std::string::npos ) ? 2 : 1;
-
+    modtyp = (baseNumber.getLevelName(2).find("_2") != std::string::npos) ? 2 : 1;
   }
 
   // Side choice: up to scenario D38 is given by level 7 (HGCal v9)
@@ -89,7 +87,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     return 0;
   }
 
-  if ((preTDR && (1 > ringCopy || 11 < ringCopy)) || ( !preTDR && (1 > ringCopy || 16 < ringCopy))) {
+  if ((preTDR && (1 > ringCopy || 11 < ringCopy)) || (!preTDR && (1 > ringCopy || 16 < ringCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad ring copy = " << ringCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(3);

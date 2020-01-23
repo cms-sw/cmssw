@@ -22,7 +22,8 @@ using namespace angle_units::operators;
 
 class DDMTDLinear : public DDAlgorithm {
 public:
-  DDMTDLinear() : m_n(1), m_startCopyNo(1), m_incrCopyNo(1), m_theta(0.), m_phi(0.), m_delta(0.), m_phi_obj(0.), m_theta_obj(0.) {}
+  DDMTDLinear()
+      : m_n(1), m_startCopyNo(1), m_incrCopyNo(1), m_theta(0.), m_phi(0.), m_delta(0.), m_phi_obj(0.), m_theta_obj(0.) {}
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -48,10 +49,10 @@ private:
 };
 
 void DDMTDLinear::initialize(const DDNumericArguments& nArgs,
-                          const DDVectorArguments& vArgs,
-                          const DDMapArguments&,
-                          const DDStringArguments& sArgs,
-                          const DDStringVectorArguments&) {
+                             const DDVectorArguments& vArgs,
+                             const DDMapArguments&,
+                             const DDStringArguments& sArgs,
+                             const DDStringVectorArguments&) {
   m_n = int(nArgs["N"]);
   m_startCopyNo = int(nArgs["StartCopyNo"]);
   m_incrCopyNo = int(nArgs["IncrCopyNo"]);
@@ -66,8 +67,8 @@ void DDMTDLinear::initialize(const DDNumericArguments& nArgs,
                           << "ing:: n " << m_n << " Direction Theta, Phi, Offset, Delta " << convertRadToDeg(m_theta)
                           << " " << convertRadToDeg(m_phi) << " "
                           << " " << convertRadToDeg(m_delta) << " Base " << m_base[0] << ", " << m_base[1] << ", "
-                          << m_base[2] << "Objects placement Phi_obj, Theta_obj " << convertRadToDeg(m_phi_obj) 
-                          << " " << convertRadToDeg(m_theta_obj);
+                          << m_base[2] << "Objects placement Phi_obj, Theta_obj " << convertRadToDeg(m_phi_obj) << " "
+                          << convertRadToDeg(m_theta_obj);
 
   m_childNmNs = DDSplit(sArgs["ChildName"]);
   if (m_childNmNs.second.empty())
@@ -90,26 +91,32 @@ void DDMTDLinear::execute(DDCompactView& cpv) {
   //rotation is in xy plane
   long double x_phi = 0.5;
   double thetaZ = m_theta_obj - angle_units::operators::operator""_pi(x_phi);
-  double phiZ = m_phi_obj;  
-  double thetaX = m_theta_obj;  
-  double thetaY = m_theta_obj;  
-  double phiX = m_phi_obj;     
-  double phiY = m_phi_obj + angle_units::operators::operator""_pi(x_phi);  
+  double phiZ = m_phi_obj;
+  double thetaX = m_theta_obj;
+  double thetaY = m_theta_obj;
+  double phiX = m_phi_obj;
+  double phiY = m_phi_obj + angle_units::operators::operator""_pi(x_phi);
 
   //DDRotation rotation = DDRotation("IdentityRotation");  this is the default rotation matrix in DDLinear
   DDRotation rotation = DDRotation("Rotation");
-
 
   if (!rotation) {
     LogDebug("DDAlgorithm") << "DDMTDLinear: Creating a new "
                             << "rotation: IdentityRotation for " << ddname;
 
-    rotation = DDrot( "Rotation", DDcreateRotationMatrix(thetaX, phiX, thetaY, phiY, thetaZ, phiZ)); //rotation = DDrot("IdentityRotation", std::make_unique<DDRotationMatrix>());
+    rotation = DDrot(
+        "Rotation",
+        DDcreateRotationMatrix(thetaX,
+                               phiX,
+                               thetaY,
+                               phiY,
+                               thetaZ,
+                               phiZ));  //rotation = DDrot("IdentityRotation", std::make_unique<DDRotationMatrix>());
   }
 
   for (int i = 0; i < m_n; ++i) {
-    DDTranslation tran = basetr + (double(i) * m_delta) * direction;   
-    cpv.position(ddname, mother, copy, tran, rotation);  
+    DDTranslation tran = basetr + (double(i) * m_delta) * direction;
+    cpv.position(ddname, mother, copy, tran, rotation);
     LogDebug("DDAlgorithm") << "DDMTDLinear: " << m_childNmNs.second << ":" << m_childNmNs.first << " number " << copy
                             << " positioned in " << mother << " at " << tran << " with " << rotation;
     copy += m_incrCopyNo;
