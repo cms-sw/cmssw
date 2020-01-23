@@ -59,6 +59,7 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
 
   if (dbe_) {
     dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+    dbe_->setScope(MonitorElementData::Scope::RUN);
 
     sprintf(histo, "ES hits layer 1 multiplicity z+");
     menESHits1zp_ = dbe_->book1D(histo, histo, 50, 0., 50.);
