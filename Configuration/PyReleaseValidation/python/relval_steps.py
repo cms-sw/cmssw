@@ -3075,6 +3075,7 @@ defaultDataSets['2023']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
 defaultDataSets['2024']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
 defaultDataSets['2026D35']='CMSSW_10_4_0_mtd3-103X_upgrade2023_realistic_v2_2023D35noPU_2-v'
 defaultDataSets['2026D41']='CMSSW_10_6_0_patch2-106X_upgrade2023_realistic_v3_2023D41noPU-v'
+defaultDataSets['2026D49']='CMSSW_11_0_0_pre13-110X_mcRun4_realistic_v2_2026D49noPU-v'
 
 puDataSets = {}
 for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
