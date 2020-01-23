@@ -296,7 +296,7 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
           rin = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[5] + pars[8]);
           rout = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[6] + pars[9]);
         } else if (fv.isATubeSeg()) {
-	  cms::dd::DDTubs tubeSeg(fv);
+          cms::dd::DDTubs tubeSeg(fv);
           rin = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rIn();
           rout = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rOut();
         }
