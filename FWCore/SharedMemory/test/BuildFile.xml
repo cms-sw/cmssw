@@ -12,4 +12,6 @@
   <use name="FWCore/SharedMemory"/>
   <use name="FWCore/Utilities"/>
 </bin>
-<test name="testFWCoreSharedMemoryMonitorThreadSignals" command="test_monitor_thread_signals.sh"/>
+<test name="testFWCoreSharedMemoryMonitorThreadSignals" command="test_monitor_thread_signals.sh">
+  <flags   PRE_TEST="testFWCoreSharedMemoryMonitorThread"/>
+</test>
