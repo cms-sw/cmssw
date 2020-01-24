@@ -5,8 +5,8 @@ muonSimHitMatcherPSet = cms.PSet(
         verbose = cms.int32(0),
         inputTag = cms.InputTag("g4SimHits"),
         minPt = cms.double(5.0),
-        minEta = cms.double(1.55),
-        maxEta = cms.double(2.45),
+        minEta = cms.double(0),
+        maxEta = cms.double(2.8),
     ),
     simVertex = cms.PSet(
         verbose = cms.int32(0),
