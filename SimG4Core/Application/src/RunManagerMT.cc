@@ -71,7 +71,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_p(p) {
   m_currentRun = nullptr;
-  m_UIsession.reset(new CustomUIsession());
+  m_UIsession = new CustomUIsession();
   m_physicsList.reset(nullptr);
   m_world.reset(nullptr);
 
@@ -227,7 +227,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   // Geometry checks
   if (m_check || !regionFile.empty()) {
-    CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession.get(), world);
+    CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession, world);
   }
 
   // If the Geant4 particle table is needed, decomment the lines below
