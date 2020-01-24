@@ -14,6 +14,7 @@
 #include <signal.h>
 #include <iostream>
 #include <unistd.h>
+#include <errno.h>
 
 // user include files
 #include "FWCore/SharedMemory/interface/WorkerMonitorThread.h"
@@ -26,9 +27,8 @@ using namespace edm::shared_memory;
 //
 // static data member definitions
 //
-std::atomic<bool> WorkerMonitorThread::s_signal_happened = false;
 std::atomic<bool> WorkerMonitorThread::s_helperThreadDone = false;
-int WorkerMonitorThread::s_sig = 0;
+int WorkerMonitorThread::s_pipeEnds[2] = {0, 0};
 
 //
 // constructors and destructor
@@ -51,18 +51,25 @@ void WorkerMonitorThread::run() {
 
   //std::cerr << "Start loop\n";
   helperReady_ = true;
-  while (not stopRequested_.load()) {
-    sleep(60);
-    if (s_signal_happened) {
+  while (true) {
+    int signal = -1;
+    auto res = read(s_pipeEnds[0], &signal, sizeof(signal) / sizeof(char));
+    if (res == -1) {
+      if (errno == EINTR) {
+        continue;
+      }
+      abort();
+    }
+    if (signal != 0) {
       if (actionSet_) {
         action_();
       }
-      std::cerr << "Worker: SIGNAL CAUGHT " << s_sig << "\n";
+      std::cerr << "Worker: SIGNAL CAUGHT " << signal << "\n";
       s_helperThreadDone = true;
       break;
-    } else {
-      //std::cerr << "SIGNAL woke\n";
-    }
+    } /* else {
+      std::cerr << "SIGNAL woke\n";
+    } */
   }
   //std::cerr << "Ending cleanup thread\n";
 }
@@ -71,6 +78,10 @@ void WorkerMonitorThread::startThread() {
   {
     //Setup watchdog thread for crashing signals
 
+    auto ret = pipe(s_pipeEnds);
+    if (ret != 0) {
+      abort();
+    }
     //Need to use signal handler since signals generated
     // from within a program are thread specific which can
     // only be handed by a signal handler
@@ -96,6 +107,12 @@ void WorkerMonitorThread::setupSignalHandling() {
   sigaction(SIGTERM, &act, nullptr);
 }
 
+void WorkerMonitorThread::stop() {
+  stopRequested_ = true;
+  int sig = 0;
+  write(s_pipeEnds[1], &sig, sizeof(int) / sizeof(char));
+}
+
 //
 // const member functions
 //
@@ -104,8 +121,7 @@ void WorkerMonitorThread::setupSignalHandling() {
 // static member functions
 //
 void WorkerMonitorThread::sig_handler(int sig, siginfo_t*, void*) {
-  s_sig = sig;
-  s_signal_happened = true;
+  write(s_pipeEnds[1], &sig, sizeof(int) / sizeof(char));
   while (not s_helperThreadDone) {
   };
   signal(sig, SIG_DFL);
