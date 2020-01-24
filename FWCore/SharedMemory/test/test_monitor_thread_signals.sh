@@ -7,7 +7,7 @@ dir=${PWD}
 cd ${LOCALTOP}
 
 #need to find a test program which we do not put on the PATH
-`find . -name "testFWCoreSharedMemoryMonitorThread" | grep -v '/tmp/'` 6 >& testFWCoreSharedMemoryMonitorThread.log && die "did not return signal" 1
+${CMSSW_BASE}/test/${SCRAM_ARCH}/testFWCoreSharedMemoryMonitorThread 6 >& testFWCoreSharedMemoryMonitorThread.log && die "did not return signal" 1
 
 retValue=$?
 if [ "$retValue" != "134" ]; then
@@ -19,7 +19,7 @@ else
 fi
 
 
-`find . -name "testFWCoreSharedMemoryMonitorThread" | grep -v '/tmp/'` 11 >& testFWCoreSharedMemoryMonitorThread.log && die "did not return signal" 1
+${CMSSW_BASE}/test/${SCRAM_ARCH}/testFWCoreSharedMemoryMonitorThread 11 >& testFWCoreSharedMemoryMonitorThread.log && die "did not return signal" 1
 
 retValue=$?
 if [ "$retValue" != "139" ]; then
