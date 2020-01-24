@@ -9,202 +9,18 @@
 #include <stdio.h>
 #include <iostream>
 
-#include "TBufferFile.h"
+#include "FWCore/SharedMemory/interface/ReadBuffer.h"
+#include "FWCore/SharedMemory/interface/ControllerChannel.h"
+#include "FWCore/SharedMemory/interface/ROOTDeserializer.h"
 
-#include "boost/interprocess/shared_memory_object.hpp"
-#include "boost/interprocess/managed_shared_memory.hpp"
-#include <boost/interprocess/sync/named_mutex.hpp>
-#include <boost/interprocess/sync/named_condition.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
-#include "boost/date_time/posix_time/posix_time.hpp"
-
-using namespace boost::interprocess;
-
+using namespace edm::shared_memory;
 namespace testinter {
 
-  class SMReadBuffer {
-    std::pair<char*, std::size_t> buffer_;
-    char* bufferIndex_;
-    char bufferOldIndex_;
-    std::array<std::string, 2> bufferNames_;
-    std::unique_ptr<managed_shared_memory> sm_;
-
-  public:
-    SMReadBuffer(std::string const& iUniqueName, char* iBufferIndex)
-        : buffer_{nullptr, 0}, bufferIndex_{iBufferIndex}, bufferOldIndex_{3} {
-      *bufferIndex_ = 0;
-      bufferNames_[0] = iUniqueName + "buffer0";
-      bufferNames_[1] = iUniqueName + "buffer1";
-    }
-
-    bool mustGetBufferAgain() const { return *bufferIndex_ != bufferOldIndex_; }
-
-    std::pair<char*, std::size_t> buffer() {
-      if (mustGetBufferAgain()) {
-        sm_ = std::make_unique<managed_shared_memory>(open_only, bufferNames_[*bufferIndex_].c_str());
-        buffer_ = sm_->find<char>("buffer");
-        bufferOldIndex_ = *bufferIndex_;
-      }
-      return buffer_;
-    }
-  };
-
-  template <typename T>
-  class Deserializer {
-  public:
-    Deserializer(SMReadBuffer& iBuffer)
-        : buffer_{iBuffer}, class_{TClass::GetClass(typeid(T))}, bufferFile_(TBuffer::kRead) {}
-
-    T deserialize() {
-      T value;
-      if (buffer_.mustGetBufferAgain()) {
-        auto buff = buffer_.buffer();
-        bufferFile_.SetBuffer(buff.first, buff.second, kFALSE);
-      }
-
-      class_->ReadBuffer(bufferFile_, &value);
-      bufferFile_.Reset();
-      return value;
-    }
-
-  private:
-    SMReadBuffer& buffer_;
-    TClass* const class_;
-    TBufferFile bufferFile_;
-  };
-
-  class ControllerChannel {
-  public:
-    ControllerChannel(std::string const& iName, int id)
-        : id_{id},
-          managed_sm_{open_or_create, unique_name(iName).c_str(), 1024},
-          toWorkerBufferIndex_{bufferIndex("ToWorker", managed_sm_)},
-          fromWorkerBufferIndex_{bufferIndex("FromWorker", managed_sm_)},
-          named_mtx_{open_or_create, unique_name("mtx").c_str()},
-          named_cndFromMain_{open_or_create, unique_name("cndFromMain").c_str()},
-          named_cndToMain_{open_or_create, unique_name("cndToMain").c_str()} {
-      managed_sm_.destroy<bool>("stop");
-      stop_ = managed_sm_.construct<bool>("stop")(false);
-      assert(stop_);
-      keepEvent_ = managed_sm_.construct<bool>("keepEvent")(true);
-      assert(keepEvent_);
-
-      managed_sm_.destroy<edm::Transition>("transitionType");
-      transitionType_ = managed_sm_.construct<edm::Transition>("transitionType")(edm::Transition::NumberOfTransitions);
-      assert(transitionType_);
-
-      managed_sm_.destroy<unsigned long long>("transitionID");
-      transitionID_ = managed_sm_.construct<unsigned long long>("transitionID")(0);
-      assert(transitionID_);
-    }
-
-    template <typename F>
-    void setupWorker(F&& iF) {
-      scoped_lock<named_mutex> lock(named_mtx_);
-      iF();
-      using namespace boost::posix_time;
-      std::cout << id_ << " waiting for external process" << std::endl;
-
-      if (not named_cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
-        std::cout << id_ << " FAILED waiting for external process" << std::endl;
-        throw cms::Exception("ExternalFailed");
-      } else {
-        std::cout << id_ << " done waiting for external process" << std::endl;
-      }
-    }
-
-    template <typename F>
-    bool doTransition(F&& iF, edm::Transition iTrans, unsigned long long iTransitionID) {
-      std::cout << id_ << " taking from lock" << std::endl;
-      scoped_lock<named_mutex> lock(named_mtx_);
-
-      if (not wait(lock, iTrans, iTransitionID)) {
-        return false;
-      }
-
-      iF();
-      return true;
-    }
-
-    char* toWorkerBufferIndex() { return toWorkerBufferIndex_; }
-    char* fromWorkerBufferIndex() { return fromWorkerBufferIndex_; }
-
-    void stopWorker() {
-      scoped_lock<named_mutex> lock(named_mtx_);
-      *stop_ = true;
-      named_cndFromMain_.notify_all();
-    }
-
-    //should only be called after calling `doTransition`
-    bool shouldKeepEvent() const { return *keepEvent_; }
-
-    ~ControllerChannel() {
-      managed_sm_.destroy<bool>("keepEvent");
-      managed_sm_.destroy<bool>("stop");
-      managed_sm_.destroy<unsigned int>("transitionType");
-      managed_sm_.destroy<unsigned long long>("transitionID");
-      managed_sm_.destroy<char>("bufferIndexToWorker");
-      managed_sm_.destroy<char>("bufferIndexFromWorker");
-
-      named_mutex::remove(unique_name("mtx").c_str());
-      named_condition::remove(unique_name("cndFromMain").c_str());
-      named_condition::remove(unique_name("cndToMain").c_str());
-    }
-
-  private:
-    static char* bufferIndex(const char* iWhich, managed_shared_memory& mem) {
-      std::string name("bufferIndex");
-      name += iWhich;
-      mem.destroy<char>(name.c_str());
-      char* v = mem.construct<char>(name.c_str())();
-      return v;
-    }
-
-    std::string unique_name(std::string iBase) {
-      auto pid = getpid();
-      iBase += std::to_string(pid);
-      iBase += "_";
-      iBase += std::to_string(id_);
-
-      return iBase;
-    }
-
-    bool wait(scoped_lock<named_mutex>& lock, edm::Transition iTrans, unsigned long long iTransID) {
-      *transitionType_ = iTrans;
-      *transitionID_ = iTransID;
-      {
-        std::cout << id_ << " notifying" << std::endl;
-        named_cndFromMain_.notify_all();
-      }
-
-      std::cout << id_ << " waiting" << std::endl;
-      using namespace boost::posix_time;
-      if (not named_cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
-        return false;
-      }
-      return true;
-    }
-
-    int id_;
-    managed_shared_memory managed_sm_;
-    char* toWorkerBufferIndex_;
-    char* fromWorkerBufferIndex_;
-
-    named_mutex named_mtx_;
-    named_condition named_cndFromMain_;
-
-    named_condition named_cndToMain_;
-
-    edm::Transition* transitionType_;
-    unsigned long long* transitionID_;
-    bool* stop_;
-    bool* keepEvent_;
-  };
   struct StreamCache {
     StreamCache(const std::string& iConfig, int id)
         : id_{id},
           channel_("testProd", id_),
-          readBuffer_{unique_name("testProd").c_str(), channel_.fromWorkerBufferIndex()},
+          readBuffer_{channel_.sharedMemoryName(), channel_.fromWorkerBufferIndex()},
           deserializer_{readBuffer_},
           br_deserializer_{readBuffer_},
           er_deserializer_{readBuffer_},
@@ -215,8 +31,9 @@ namespace testinter {
       fflush(stderr);
 
       channel_.setupWorker([&]() {
+        using namespace std::string_literals;
         std::cout << id_ << " starting external process" << std::endl;
-        pipe_ = popen(unique_name("cmsInterProcess testProd ").c_str(), "w");
+        pipe_ = popen(("cmsTestInterProcess "s + channel_.sharedMemoryName() + " " + channel_.uniqueID()).c_str(), "w");
 
         if (NULL == pipe_) {
           abort();
@@ -294,13 +111,14 @@ namespace testinter {
     int id_;
     FILE* pipe_;
     ControllerChannel channel_;
-    SMReadBuffer readBuffer_;
+    ReadBuffer readBuffer_;
 
-    testinter::Deserializer<edmtest::ThingCollection> deserializer_;
-    testinter::Deserializer<edmtest::ThingCollection> br_deserializer_;
-    testinter::Deserializer<edmtest::ThingCollection> er_deserializer_;
-    testinter::Deserializer<edmtest::ThingCollection> bl_deserializer_;
-    testinter::Deserializer<edmtest::ThingCollection> el_deserializer_;
+    using TCDeserializer = ROOTDeserializer<edmtest::ThingCollection, ReadBuffer>;
+    TCDeserializer deserializer_;
+    TCDeserializer br_deserializer_;
+    TCDeserializer er_deserializer_;
+    TCDeserializer bl_deserializer_;
+    TCDeserializer el_deserializer_;
     bool externalFailed_ = false;
   };
 
