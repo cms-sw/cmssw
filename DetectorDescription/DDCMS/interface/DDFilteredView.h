@@ -32,6 +32,7 @@ namespace cms {
     explicit DDSolid(dd4hep::Solid s) : solid_(s) {}
     dd4hep::Solid solid() const { return solid_; }
     dd4hep::Solid solidA() const;
+    dd4hep::Solid solidB() const;
     const std::vector<double> parameters() const;
 
   private:
