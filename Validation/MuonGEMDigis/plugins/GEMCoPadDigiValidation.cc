@@ -14,7 +14,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   const GEMGeometry* gem = initGeometry(event_setup);
 
   // NOTE Occupancy
-  const char* occ_folder = gSystem->ConcatFileName(folder_.c_str(), "Occupancy");
+  const std::string occ_folder = folder_ + "Occupancy";
   booker.setCurrentFolder(occ_folder);
 
   for (const auto& region : gem->regions()) {

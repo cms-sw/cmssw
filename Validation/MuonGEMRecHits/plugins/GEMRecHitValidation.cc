@@ -22,7 +22,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker,
   const GEMGeometry* gem = initGeometry(event_setup);
 
   // NOTE cluster size
-  const char* cls_folder = gSystem->ConcatFileName(folder_.c_str(), "ClusterSize");
+  std::string cls_folder = folder_ + "ClusterSize";
   booker.setCurrentFolder(cls_folder);
 
   TString cls_title = "Cluster Size Distribution";
@@ -49,7 +49,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker,
   }        // detail plot
 
   // NOTE Residual
-  const char* residual_folder = gSystem->ConcatFileName(folder_.c_str(), "Residual");
+  std::string residual_folder = folder_ + "Residual";
   booker.setCurrentFolder(residual_folder);
 
   for (const auto& region : gem->regions()) {
@@ -87,7 +87,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker,
   //////////////////////////////////////////////////////////////////////////////
   // NOTE Pull distribution
   //////////////////////////////////////////////////////////////////////////////
-  const char* pull_folder = gSystem->ConcatFileName(folder_.c_str(), "Pull");
+  std::string pull_folder = folder_ + "Pull";
   booker.setCurrentFolder(pull_folder);
 
   for (const auto& region : gem->regions()) {
@@ -114,7 +114,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker,
   }        // region loop
 
   // NOTE Occupancy
-  const char* occ_folder = gSystem->ConcatFileName(folder_.c_str(), "Occupancy");
+  std::string occ_folder = folder_ + "Occupancy";
   booker.setCurrentFolder(occ_folder);
 
   for (const auto& region : gem->regions()) {

@@ -12,7 +12,7 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   const GEMGeometry* gem = initGeometry(event_setup);
 
   // NOTE Occupancy
-  const char* occ_folder = gSystem->ConcatFileName(folder_.c_str(), "Occupancy");
+  std::string occ_folder = folder_ + "Occupancy";
   booker.setCurrentFolder(occ_folder);
 
   for (const auto& region : gem->regions()) {
@@ -57,7 +57,7 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
-    const char* bx_folder = gSystem->ConcatFileName(folder_.c_str(), "BunchCrossing");
+    std::string bx_folder = folder_ + "BunchCrossing";
     booker.setCurrentFolder(bx_folder);
 
     for (const auto& region : gem->regions()) {
