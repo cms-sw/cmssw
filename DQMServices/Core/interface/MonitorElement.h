@@ -131,13 +131,7 @@ namespace dqm::impl {
      * This object will contain the lock guard if one is needed. We differentiate
      * access for reading and access for mutation (denoted by `Access` or
      * `const Access`, however, also read-only access may need to take a lock
-     * if it is to a mutable object. Obtaining mutable access may involve
-     * creating a clone of the backing data. In this case, the pointers are
-     * updated using atomic operations. It can happen that reads go to the old
-     * object while a new object exists already, but this is fine; concurrent
-     * reads and writes can happen in arbitrary order. However, we need to
-     * protect against the case where clones happen concurrently and avoid
-     * leaking memory or loosing updates in this case, using atomics.
+     * if it is to a mutable object. 
      * We want all of this inlined and redundant operations any copies/refs
      * optimized away.
      */
@@ -451,7 +445,7 @@ namespace dqm::impl {
 
 }  // namespace dqm::impl
 
-// These will become distinct classes in the future.
+// These may become distinct classes in the future.
 namespace dqm::reco {
   typedef dqm::impl::MonitorElement MonitorElement;
 }

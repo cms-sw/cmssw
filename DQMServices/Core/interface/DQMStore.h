@@ -449,6 +449,18 @@ namespace dqm {
       //
 
       virtual MonitorElementData::Scope setScope(MonitorElementData::Scope newscope);
+      // RAII-Style guard to set and reset the Scope.
+      template <MonitorElementData::Scope SCOPE>
+      struct UseScope {
+        IBooker& parent;
+        MonitorElementData::Scope oldscope;
+        UseScope(IBooker& booker) : parent(booker) { oldscope = parent.setScope(SCOPE); }
+        ~UseScope() { parent.setScope(oldscope); }
+      };
+      using UseLumiScope = UseScope<MonitorElementData::Scope::LUMI>;
+      using UseRunScope = UseScope<MonitorElementData::Scope::RUN>;
+      using UseJobScope = UseScope<MonitorElementData::Scope::JOB>;
+
       ~IBooker() override;
 
     protected:
