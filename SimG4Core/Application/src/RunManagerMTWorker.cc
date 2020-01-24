@@ -253,8 +253,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   if (uitype == "MessageLogger") {
     new CustomUIsession();
   } else if (uitype == "MessageLoggerThreadPrefix") {
-    new CustomUIsessionThreadPrefix(
-        m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID);
+    new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID);
   } else if (uitype == "FilePerThread") {
     new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID);
   } else {
