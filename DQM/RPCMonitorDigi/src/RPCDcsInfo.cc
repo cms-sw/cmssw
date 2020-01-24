@@ -18,9 +18,8 @@ void RPCDcsInfo::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder(subsystemname_ + "/" + dcsinfofolder_);
 
-  auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
+  auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
   DCSbyLS_ = ibooker.book1D("DCSbyLS", "DCS", 1, 0.5, 1.5);
-  ibooker.setScope(scope);
 
   // initialize
   dcs = true;

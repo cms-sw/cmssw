@@ -338,9 +338,10 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
     hMET_2 = ibooker.book1D("MET_2", "MET Range 2", 200, 0, 2000);
     hSumET = ibooker.book1D("SumET", "SumET", 400, 0, 4000);
 
-    auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
-    hMETSig = ibooker.book1D("METSig", "METSig", 51, 0, 51);
-    ibooker.setScope(scope);
+    {
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+      hMETSig = ibooker.book1D("METSig", "METSig", 51, 0, 51);
+    }
 
     hMETPhi = ibooker.book1D("METPhi", "METPhi", 60, -M_PI, M_PI);
     hMET_logx = ibooker.book1D("MET_logx", "MET_logx", 40, -1, 9);

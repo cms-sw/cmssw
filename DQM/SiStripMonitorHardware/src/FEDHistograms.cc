@@ -895,16 +895,17 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker& ibooker,
 
   ibooker.setCurrentFolder(lBaseDir + "/PerLumiSection");
 
-  auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
-  bookHistogram(ibooker,
-                lumiErrorFraction_,
-                "lumiErrorFraction",
-                "Fraction of error per lumi section vs subdetector",
-                6,
-                0.5,
-                6.5,
-                "SubDetId");
-  ibooker.setScope(scope);
+  {
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+    bookHistogram(ibooker,
+                  lumiErrorFraction_,
+                  "lumiErrorFraction",
+                  "Fraction of error per lumi section vs subdetector",
+                  6,
+                  0.5,
+                  6.5,
+                  "SubDetId");
+  }
 
   //Set special property for lumi ME
   if (lumiErrorFraction_.enabled && lumiErrorFraction_.monitorEle) {

@@ -38,17 +38,18 @@ void DTDCSByLumiSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     globalHVSummary->setAxisTitle("Sectors", 1);
     globalHVSummary->setAxisTitle("Wheel", 2);
 
-    auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
-    totalDCSFraction = ibooker.bookFloat("DTDCSSummary");
-    for (int wh = -2; wh <= 2; wh++) {
-      stringstream wheel_str;
-      wheel_str << wh;
+    {
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+      totalDCSFraction = ibooker.bookFloat("DTDCSSummary");
+      for (int wh = -2; wh <= 2; wh++) {
+        stringstream wheel_str;
+        wheel_str << wh;
 
-      MonitorElement* FractionWh = ibooker.bookFloat("DT_Wheel" + wheel_str.str());
+        MonitorElement* FractionWh = ibooker.bookFloat("DT_Wheel" + wheel_str.str());
 
-      totalDCSFractionWh.push_back(FractionWh);
+        totalDCSFractionWh.push_back(FractionWh);
+      }
     }
-    ibooker.setScope(scope);
 
     globalHVSummary->Reset();
 

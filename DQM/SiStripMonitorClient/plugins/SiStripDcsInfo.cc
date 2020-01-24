@@ -129,7 +129,8 @@ void SiStripDcsInfo::bookStatus(DQMStore& dqm_store) {
   else
     dqm_store.setCurrentFolder("SiStrip/EventInfo");
 
-  auto scope = dqm_store.setScope(MonitorElementData::Scope::LUMI);
+  auto scope = DQMStore::UseLumiScope(dqm_store);
+
   DcsFraction_ = dqm_store.bookFloat("DCSSummary");
 
   dqm_store.cd();
@@ -142,7 +143,6 @@ void SiStripDcsInfo::bookStatus(DQMStore& dqm_store) {
     subDetME.DcsFractionME = dqm_store.bookFloat(me_name);
   }
   bookedStatus_ = true;
-  dqm_store.setScope(scope);
   dqm_store.cd();
 }
 

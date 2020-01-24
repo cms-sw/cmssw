@@ -173,17 +173,18 @@ void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     }
   }
   ibooker.setCurrentFolder(monitorName_ + "Service");
-  auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
-  theValuesContainer_ = ibooker.bookProfile("hHistoLumiValues",
-                                            "Histo Lumi Values",
-                                            3 * numberOfValuesToSave_,
-                                            0.,
-                                            3 * numberOfValuesToSave_,
-                                            100.,
-                                            -100.,
-                                            9000.,
-                                            " ");
-  ibooker.setScope(scope);
+  {
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+    theValuesContainer_ = ibooker.bookProfile("hHistoLumiValues",
+                                              "Histo Lumi Values",
+                                              3 * numberOfValuesToSave_,
+                                              0.,
+                                              3 * numberOfValuesToSave_,
+                                              100.,
+                                              -100.,
+                                              9000.,
+                                              " ");
+  }
 
   // create and cd into new folder
   ibooker.setCurrentFolder(monitorName_ + "Validation");
