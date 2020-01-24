@@ -287,7 +287,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   _dhashmap.initialize(_emap, electronicsmap::fE2DHashMap);
 
   //      MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
-  auto scope = ib.setScope(MonitorElementData::Scope::LUMI);
+  auto scope = DQMStore::IBooker::UseLumiScope(ib);
   if (_ptype == fOffline) {
     //_cDigiSize_FED.setLumiFlag(); // hidefed2crate : FED stuff not available offline anymore, so this histogram doesn't make sense?
     _cOccupancy_depth.book(ib, _emap, _subsystem);
@@ -301,7 +301,6 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   ib.setCurrentFolder(_subsystem + "/" + _name);
   meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
-  ib.setScope(scope);
 }
 
 /* virtual */ void DigiPhase1Task::_resetMonitors(hcaldqm::UpdateFreq uf) {

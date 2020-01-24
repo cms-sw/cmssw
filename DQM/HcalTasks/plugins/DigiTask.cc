@@ -776,23 +776,24 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
     }
   }
 
-  //	MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
-  auto scope = ib.setScope(MonitorElementData::Scope::LUMI);
-  if (_ptype == fOffline) {
-    //_cDigiSize_FED.setLumiFlag();
-    _cDigiSize_Crate.book(ib, _emap, _subsystem);
-    _cOccupancy_depth.book(ib, _emap, _subsystem);
+  {
+    //	MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
+    auto scope = DQMStore::IBooker::UseLumiScope(ib);
+    if (_ptype == fOffline) {
+      //_cDigiSize_FED.setLumiFlag();
+      _cDigiSize_Crate.book(ib, _emap, _subsystem);
+      _cOccupancy_depth.book(ib, _emap, _subsystem);
+    }
+
+    //	book Number of Events vs LS histogram
+    ib.setCurrentFolder(_subsystem + "/RunInfo");
+    meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents", 1, 0, 1);
+
+    //	book the flag for unknown ids and the online guy as well
+    ib.setCurrentFolder(_subsystem + "/" + _name);
+    meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
+    _unknownIdsPresent = false;
   }
-
-  //	book Number of Events vs LS histogram
-  ib.setCurrentFolder(_subsystem + "/RunInfo");
-  meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents", 1, 0, 1);
-
-  //	book the flag for unknown ids and the online guy as well
-  ib.setCurrentFolder(_subsystem + "/" + _name);
-  meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
-  _unknownIdsPresent = false;
-  ib.setScope(scope);
 }
 
 /* virtual */ void DigiTask::_resetMonitors(hcaldqm::UpdateFreq uf) {

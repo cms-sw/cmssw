@@ -182,9 +182,8 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _cBadQuality_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
   if (_ptype == fOffline) {
-    auto scope = ib.setScope(MonitorElementData::Scope::LUMI);
+    auto scope = DQMStore::IBooker::UseLumiScope(ib);
     _cBadQuality_depth.book(ib, _emap, _subsystem);
-    ib.setScope(scope);
   } else {
     _cBadQuality_depth.book(ib, _emap, _subsystem);
   }
