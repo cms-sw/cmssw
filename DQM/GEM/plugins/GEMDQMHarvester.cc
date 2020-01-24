@@ -86,7 +86,7 @@ void GEMDQMHarvester::refineTimeHistograms(edm::Service<DQMStore> &store) {
     refineTimeHistogramsCore(h2Curr->getTH2F(), strNewName, h2New);
 
     store->book2D(strNewName, h2New);
-    store->removeElement(strName);
+    //store->removeElement(strName);
   }
 }
 
@@ -106,7 +106,7 @@ void GEMDQMHarvester::refineTimeHistograms(DQMStore::IBooker &ibooker, DQMStore:
     refineTimeHistogramsCore(h2Curr->getTH2F(), strNewName, h2New);
 
     ibooker.book2D(strNewName, h2New);
-    igetter.removeElement(strName);
+    //igetter.removeElement(strName);
   }
 }
 
