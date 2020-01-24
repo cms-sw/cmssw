@@ -5,7 +5,7 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Validation/MuonGEMDigis/interface/GEMCheckGeometry.h"
+#include "Validation/MuonGEMDigis/plugins/GEMCheckGeometry.h"
 
 #include <iomanip>
 
@@ -49,22 +49,18 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
     theStdPlots.insert(std::map<UInt_t, MonitorElement *>::value_type(name.Hash(), temp_me));
   }
 
-  for (auto region : GEMGeometry_->regions())
-    for (auto station : region->stations())
-      for (auto ring : station->rings())
-        for (auto sch : ring->superChambers())
-          for (auto ch : sch->chambers())
+  for (auto region : GEMGeometry_->regions()) {
+    for (auto station : region->stations()) {
+      for (auto ring : station->rings()) {
+        for (auto sch : ring->superChambers()) {
+          for (auto ch : sch->chambers()) {
             for (auto roll : ch->etaPartitions()) {
               const StripTopology *topology(&(roll->specificTopology()));
               auto parameters(roll->specs()->parameters());
               float nStrips(parameters[3]);
               for (int strip = 0; strip <= nStrips; strip++) {
                 LocalPoint lEdge(topology->localPosition(strip));
-                // double x = roll->toGlobal(lEdge).x();
 
-                // double y = roll->toGlobal(lEdge).y();
-                // double z = roll->toGlobal(lEdge).z();
-                // double eta = roll->toGlobal(lEdge).eta();
                 double phi = roll->toGlobal(lEdge).phi().degrees();
 
                 GEMDetId id(roll->id());
@@ -72,7 +68,6 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
                 int station_idx = id.station();
                 int chamber_idx = id.chamber();
                 int layer_idx = id.layer();
-                // int roll_idx = id.roll();
                 int value = (station_idx - 1) * 4 + (layer_idx - 1) * 2 + (chamber_idx % 2) + 1;
 
                 if (region_idx == 1) {
@@ -84,6 +79,11 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
                 }
               }
             }
+          }
+        }
+      }
+    }
+  }
 }
 
 GEMCheckGeometry::~GEMCheckGeometry() {}
