@@ -42,7 +42,7 @@ public:
           "thprofile2d" + num, "2D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5, 3, -0.5, 2.5));
 
       if (DOLUMI) {
-        auto scope = ibooker.setScope(MonitorElementData::Scope::LUMI);
+        auto scope = typename BOOKERLIKE::UseLumiScope(ibooker);
         ibooker.setCurrentFolder(folder + "/lumi");
 
         mes_1D.push_back(ibooker.bookFloat("float" + num));
@@ -61,8 +61,6 @@ public:
             ibooker.book3D("th3f" + num, "3D Float Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5, 3, -0.5, 2.5));
         mes_3D.push_back(ibooker.bookProfile2D(
             "thprofile2d" + num, "2D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5, 3, -0.5, 2.5));
-
-        ibooker.setScope(scope);
       }
     }
   }
