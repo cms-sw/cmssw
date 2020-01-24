@@ -10,7 +10,6 @@
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "DataFormats/Math/interface/angle_units.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -89,20 +88,19 @@ void DDMTDLinear::execute(DDCompactView& cpv) {
   DDTranslation basetr(m_base[0], m_base[1], m_base[2]);
 
   //rotation is in xy plane
-  long double x_phi = 0.5;
-  double thetaZ = m_theta_obj - angle_units::operators::operator""_pi(x_phi);
+  double thetaZ = m_theta_obj - 0.5_pi;
   double phiZ = m_phi_obj;
   double thetaX = m_theta_obj;
   double thetaY = m_theta_obj;
   double phiX = m_phi_obj;
-  double phiY = m_phi_obj + angle_units::operators::operator""_pi(x_phi);
+  double phiY = m_phi_obj + 0.5_pi;
 
   //DDRotation rotation = DDRotation("IdentityRotation");  this is the default rotation matrix in DDLinear
   DDRotation rotation = DDRotation("Rotation");
 
   if (!rotation) {
     LogDebug("DDAlgorithm") << "DDMTDLinear: Creating a new "
-                            << "rotation: IdentityRotation for " << ddname;
+                            << "rotation for " << ddname;
 
     rotation = DDrot(
         "Rotation",
