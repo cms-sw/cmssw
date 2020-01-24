@@ -32,7 +32,11 @@ namespace edm::shared_memory {
   class WorkerMonitorThread {
   public:
     WorkerMonitorThread() {}
-    ~WorkerMonitorThread() { stopRequested_.store(true); }
+    ~WorkerMonitorThread() {
+      if (not stopRequested_.load()) {
+        stop();
+      }
+    }
     WorkerMonitorThread(const WorkerMonitorThread&) = delete;
     const WorkerMonitorThread& operator=(const WorkerMonitorThread&) = delete;
 
@@ -49,7 +53,7 @@ namespace edm::shared_memory {
     ///Sets the unix signal handler which communicates with the thread.
     void setupSignalHandling();
 
-    void stop() { stopRequested_ = true; }
+    void stop();
 
   private:
     static void sig_handler(int sig, siginfo_t*, void*);
@@ -60,9 +64,8 @@ namespace edm::shared_memory {
     std::atomic<bool> actionSet_ = false;
     CMS_THREAD_GUARD(actionSet_) std::function<void()> action_;
 
-    static std::atomic<bool> s_signal_happened;
+    static int s_pipeEnds[2];
     static std::atomic<bool> s_helperThreadDone;
-    CMS_THREAD_GUARD(s_signal_happened) static int s_sig;
 
     std::thread helperThread_;
   };
