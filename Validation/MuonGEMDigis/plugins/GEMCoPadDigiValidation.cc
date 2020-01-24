@@ -53,7 +53,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
-    const char* bx_folder = gSystem->ConcatFileName(folder_.c_str(), "BunchCrossing");
+    std::string bx_folder = folder_ + "BunchCrossing";
     booker.setCurrentFolder(bx_folder);
 
     for (const auto& region : gem->regions()) {
