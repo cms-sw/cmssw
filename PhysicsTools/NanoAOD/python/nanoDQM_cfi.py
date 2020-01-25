@@ -481,7 +481,11 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('phiJERUp', 'phiJERUp', 20, -3.14159, 3.14159, 'JER up phi'),
+                Plot1D('phiJESUp', 'phiJESUp', 20, -3.14159, 3.14159, 'JES up phi'),
                 Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
+                Plot1D('ptJERUp', 'ptJERUp', 20, 0, 400, 'JER up pt'),
+                Plot1D('ptJESUp', 'ptJESUp', 20, 0, 400, 'JES up pt'),
                 Plot1D('sumEt', 'sumEt', 20, 200, 3000, 'scalar sum of Et'),
             )
         ),
