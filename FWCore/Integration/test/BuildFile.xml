@@ -331,4 +331,5 @@
     <use   name="FWCore/SharedMemory"/>
     <use   name="boost"/>
   </library>
+  <test name="TestFWCoreIntegrationInterProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TestInterProcessProd_cfg.py"/>
 </environment>
