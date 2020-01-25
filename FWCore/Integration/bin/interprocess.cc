@@ -1,10 +1,10 @@
 #include "boost/program_options.hpp"
 
-#include <string>
-#include <iostream>
 #include <atomic>
+#include <csignal>
+#include <iostream>
+#include <string>
 #include <thread>
-#include <signal.h>
 
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"

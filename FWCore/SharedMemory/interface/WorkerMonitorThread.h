@@ -19,9 +19,9 @@
 
 // system include files
 #include <atomic>
+#include <csignal>
 #include <functional>
 #include <thread>
-#include <signal.h>
 
 // user include files
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
