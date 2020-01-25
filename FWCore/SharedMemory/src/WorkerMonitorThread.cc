@@ -11,10 +11,10 @@
 //
 
 // system include files
-#include <signal.h>
+#include <cerrno>
+#include <csignal>
 #include <iostream>
 #include <unistd.h>
-#include <errno.h>
 
 // user include files
 #include "FWCore/SharedMemory/interface/WorkerMonitorThread.h"
@@ -47,7 +47,7 @@ void WorkerMonitorThread::run() {
   sigaddset(&ensemble, SIGBUS);
   sigaddset(&ensemble, SIGSEGV);
   sigaddset(&ensemble, SIGTERM);
-  pthread_sigmask(SIG_BLOCK, &ensemble, NULL);
+  pthread_sigmask(SIG_BLOCK, &ensemble, nullptr);
 
   //std::cerr << "Start loop\n";
   helperReady_ = true;
