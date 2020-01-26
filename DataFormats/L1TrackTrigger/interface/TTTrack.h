@@ -35,12 +35,16 @@ private:
   double theD0;
   double theZ0;
   unsigned int thePhiSector;
+  unsigned int theEtaSector;
   double theStubPtConsistency;
   double theChi2;
+  double theChi2XY;
+  double theChi2Z;
   unsigned int NumFitPars;
   unsigned int theHitPattern;
-  float an_MVA_Value;
-  float another_MVA_Value;
+  double theTrkMVA1;
+  double theTrkMVA2;
+  double theTrkMVA3;
   int theTrackSeed;
   double theBField;  // needed for unpacking
   static constexpr unsigned int Npars4 = 4;
@@ -58,6 +62,24 @@ public:
           double az0,
           double ad0,
           double aChi2,
+	  double trkMVA1,
+	  double trkMVA2,
+	  double trkMVA3,
+          unsigned int aHitpattern,
+          unsigned int nPar,
+          double Bfield);
+
+
+  TTTrack(double aRinv,
+          double aphi,
+          double aeta,
+          double az0,
+          double ad0,
+          double aChi2xyfit,
+          double aChi2zfit,
+	  double trkMVA1,
+	  double trkMVA2,
+	  double trkMVA3,
           unsigned int aHitpattern,
           unsigned int nPar,
           double Bfield);
@@ -99,10 +121,21 @@ public:
   GlobalPoint POCA() const;
   GlobalPoint getPOCA(unsigned int npar = Npars4) const;
 
+
+  /// MVA Track quality variables
+  double trkMVA1() const;
+  double trkMVA2() const;
+  double trkMVA3() const;
+
   /// Phi Sector
-  unsigned int PhiSector() const { return thePhiSector; }
-  unsigned int getSector() const { return thePhiSector; }
+  unsigned int phiSector() const { return thePhiSector; }
+  unsigned int getPhiSector() const { return thePhiSector; }
   void setPhiSector(unsigned int aSector) { thePhiSector = aSector; }
+
+  /// Eta Sector
+  unsigned int etaSector() const { return theEtaSector; }
+  unsigned int getEtaSector() const { return theEtaSector; }
+  void setEtaSector(unsigned int aSector) { theEtaSector = aSector; }
 
   /// Track seeding (for debugging)
   unsigned int TrackSeed() const { return theTrackSeed; }
@@ -142,7 +175,14 @@ TTTrack<T>::TTTrack() {
   theMomentum = GlobalVector(0.0, 0.0, 0.0);
   theRInv = 0.0;
   thePOCA = GlobalPoint(0.0, 0.0, 0.0);
+  theTanL = 0;
+  thePhi = 0;
+  theEta = 0;
+  theTrkMVA1 = 0;
+  theTrkMVA2 = 0;
+  theTrkMVA3 = 0;
   thePhiSector = 0;
+  theEtaSector = 0;
   theTrackSeed = 0;
   theChi2 = 0.0;
   theStubPtConsistency = 0.0;
@@ -156,7 +196,14 @@ TTTrack<T>::TTTrack(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStu
   theMomentum = GlobalVector(0.0, 0.0, 0.0);
   theRInv = 0.0;
   thePOCA = GlobalPoint(0.0, 0.0, 0.0);
+  theTanL = 0;
+  thePhi = 0;
+  theEta = 0;
+  theTrkMVA1 = 0;
+  theTrkMVA2 = 0;
+  theTrkMVA3 = 0;
   thePhiSector = 0;
+  theEtaSector = 0;
   theTrackSeed = 0;
   theChi2 = 0.0;
   theStubPtConsistency = 0.0;
@@ -166,22 +213,70 @@ TTTrack<T>::TTTrack(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStu
 /// Meant to be default constructor
 template <typename T>
 TTTrack<T>::TTTrack(double aRinv,
-                    double aphi,
-                    double aeta,
+                    double aphi0,
+                    double aTanlambda,
                     double az0,
                     double ad0,
                     double aChi2,
+		    double trkMVA1,
+		    double trkMVA2,
+		    double trkMVA3,
                     unsigned int aHitPattern,
                     unsigned int nPar,
                     double aBfield) {
   theStubRefs.clear();
   double thePT = MagConstant * aRinv * aBfield;
-  theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi, thePT * sinh(aeta)));
+  theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
   theRInv = aRinv;
-  thePOCA = GlobalPoint(ad0 * cos(aphi), ad0 * sin(aphi), az0);
+  thePOCA = GlobalPoint(ad0 * cos(aphi0), ad0 * sin(aphi0), az0);
+  thePhi = aphi0;
+  theTanL = aTanlambda;
+  theEta = theMomentum.eta();
   thePhiSector = 0;  // must be set externally
+  theEtaSector = 0;  // must be set externally
   theTrackSeed = 0;  // must be set externally
   theChi2 = aChi2;
+  theTrkMVA1 = trkMVA1;
+  theTrkMVA2 = trkMVA2;
+  theTrkMVA3 = trkMVA3;
+  theStubPtConsistency = 0.0;  // must be set externally
+  NumFitPars = nPar;
+  theHitPattern = aHitPattern;
+  theBField = aBfield;
+  // should probably fill the momentum vectur
+}
+
+/// Second default constructor with split chi2
+template <typename T>
+TTTrack<T>::TTTrack(double aRinv,
+                    double aphi0,
+                    double aTanlambda,
+                    double az0,
+                    double ad0,
+                    double aChi2XY,
+                    double aChi2Z,
+		    double trkMVA1,
+		    double trkMVA2,
+		    double trkMVA3,
+                    unsigned int aHitPattern,
+                    unsigned int nPar,
+                    double aBfield) {
+  theStubRefs.clear();
+  double thePT = MagConstant * aRinv * aBfield;
+  theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
+  theRInv = aRinv;
+  thePOCA = GlobalPoint(ad0 * cos(aphi0), ad0 * sin(aphi0), az0);
+  thePhi = aphi0;
+  theTanL = aTanlambda;
+  theEta = theMomentum.eta();
+  thePhiSector = 0;  // must be set externally
+  theEtaSector = 0;  // must be set externally
+  theTrackSeed = 0;  // must be set externally
+  theChi2XY = aChi2XY;
+  theChi2Z = aChi2Z;
+  theTrkMVA1 = trkMVA1;
+  theTrkMVA2 = trkMVA2;
+  theTrkMVA3 = trkMVA3;
   theStubPtConsistency = 0.0;  // must be set externally
   NumFitPars = nPar;
   theHitPattern = aHitPattern;
@@ -314,6 +409,33 @@ double TTTrack<T>::getChi2Red(unsigned int npar) const  //backwards compatibilit
   return chi2Red();
 }
 
+/// MVA quality variables
+template <typename T>
+double TTTrack<T>::trkMVA1() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theTrkMVA1;
+  } else
+    return 0.0;
+}
+
+template <typename T>
+double TTTrack<T>::trkMVA2() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theTrkMVA2;
+  } else
+    return 0.0;
+}
+
+template <typename T>
+double TTTrack<T>::trkMVA3() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theTrkMVA3;
+  } else
+    return 0.0;
+}
+
+
+
 /// StubPtConsistency
 template <typename T>
 void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
@@ -344,8 +466,16 @@ void TTTrack<T>::setTrackWordBits() {
 
   // missing conversion of global phi to difference from sector center phi
 
-  setTrackWord(theMomentum, thePOCA, theRInv, theChi2, theStubPtConsistency, theHitPattern, sparebits);
+  if(theChi2Z == 0.) {
 
+    setTrackWord(theMomentum, thePOCA, theRInv, theChi2, theChi2Z, theStubPtConsistency, theHitPattern, sparebits);
+
+  }
+  else {
+
+    setTrackWord(theMomentum, thePOCA, theRInv, theChi2XY, theChi2Z, theStubPtConsistency, theHitPattern, sparebits);
+
+  }
   return;
 }
 
