@@ -24,7 +24,8 @@ public:
   TTTrack_TrackWord(const GlobalVector& Momentum,
                     const GlobalPoint& POCA,
                     double theRinv,
-                    double theChi2,
+                    double theChi2,  // would be xy chisq if chi2Z is non-zero
+                    double theChi2Z,
                     double theBendChi2,
                     unsigned int theHitPattern,
                     unsigned int iSpare);
@@ -34,7 +35,8 @@ public:
                     unsigned int tanl,
                     unsigned int z0,
                     unsigned int d0,
-                    unsigned int theChi2,
+                    unsigned int theChi2, // would be xy chisq if chi2Z is non-zero 
+                    unsigned int theChi2Z,
                     unsigned int theBendChi2,
                     unsigned int theHitPattern,
                     unsigned int iSpare);
@@ -42,7 +44,8 @@ public:
   void setTrackWord(const GlobalVector& Momentum,
                     const GlobalPoint& POCA,
                     double theRinv,
-                    double theChi2,
+                    double theChi2,  // would be xy chisq if chi2Z is non-zero 
+		    double theChi2Z,
                     double theBendChi2,
                     unsigned int theHitPattern,
                     unsigned int iSpare);
@@ -52,7 +55,8 @@ public:
                     unsigned int tanl,
                     unsigned int z0,
                     unsigned int d0,
-                    unsigned int theChi2,
+                    unsigned int theChi2, // would be xy chisq if chi2Z is non-zero 
+                    unsigned int theChi2Z,
                     unsigned int theBendChi2,
                     unsigned int theHitPattern,
                     unsigned int iSpare);
@@ -66,6 +70,7 @@ public:
   float get_iz0();
   float get_id0();
   float get_ichi2();
+  float get_ichi2Z();
   float get_iBendChi2();
 
   // separate functions for unpacking 96-bit track word
@@ -76,6 +81,7 @@ public:
   float unpack_iz0();
   float unpack_id0();
   float unpack_ichi2();
+  float unpack_ichi2Z();
   float unpack_iBendChi2();
   unsigned int unpack_ispare();
   unsigned int unpack_hitPattern();
@@ -93,6 +99,7 @@ public:
   unsigned int get_z0Bits();
   unsigned int get_d0Bits();
   unsigned int get_chi2Bits();
+  unsigned int get_chi2ZBits();
   unsigned int get_BendChi2Bits();
 
   // copy constructor
@@ -106,6 +113,7 @@ public:
     iz0 = word.iz0;
     id0 = word.id0;
     ichi2 = word.ichi2;
+    ichi2Z = word.ichi2Z;
     iBendChi2 = word.iBendChi2;
     ispare = word.ispare;
     iHitPattern = word.iHitPattern;
@@ -124,6 +132,7 @@ public:
     iz0 = word.iz0;
     id0 = word.id0;
     ichi2 = word.ichi2;
+    ichi2Z = word.ichi2Z;
     iBendChi2 = word.iBendChi2;
     ispare = word.ispare;
     iHitPattern = word.iHitPattern;
@@ -150,6 +159,7 @@ private:
   unsigned int iz0;
   unsigned int id0;
   unsigned int ichi2;
+  unsigned int ichi2Z;
   unsigned int iBendChi2;
   unsigned int ispare;
   unsigned int iHitPattern;
@@ -169,9 +179,10 @@ private:
   float valLSBD0;
 
   float chi2Bins[16];
+  float chi2ZBins[16];
   float Bchi2Bins[8];
 
-  unsigned int Nchi2;
+  unsigned int Nchi2;  // both chi2 have same packing
   unsigned int NBchi2;
 
   /* bits for packing: 
@@ -184,10 +195,11 @@ private:
   d0  = 12+1                                                                                                                                                      
 
   unsigned:
-  chi2     = 4
+  chi2     = 4  (or chisqXY)
   BendChi2 = 3
   hitmask  = 7
-  Spare    = 14 
+  chi2Z    = 4
+  Spare    = 10 
 
   */
 
