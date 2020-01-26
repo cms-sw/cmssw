@@ -80,14 +80,16 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     return 0;
   }
 
-  if ((preTDR && (1 > modCopy || 176 < modCopy)) || (!preTDR && (1 > modCopy || 292 < modCopy))) {
+  if ((preTDR && (1 > modCopy || ETLDetId::kETLv1maxModule < modCopy)) ||
+      (!preTDR && (1 > modCopy || ETLDetId::kETLv2maxModule < modCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad module copy = " << modCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(4);
     return 0;
   }
 
-  if ((preTDR && (1 > ringCopy || 11 < ringCopy)) || (!preTDR && (1 > ringCopy || 16 < ringCopy))) {
+  if ((preTDR && (1 > ringCopy || ETLDetId::kETLv1maxRing < ringCopy)) ||
+      (!preTDR && (1 > ringCopy || ETLDetId::kETLv2maxRing < ringCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad ring copy = " << ringCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(3);

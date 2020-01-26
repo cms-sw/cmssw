@@ -19,12 +19,18 @@ public:
   static const uint32_t kETLmodTypeOffset = 5;
   static const uint32_t kETLmodTypeMask = 0x3;
 
+  static constexpr int kETLv1maxRing = 11;
+  static constexpr int kETLv1maxModule = 176;
+
   /// constants for the TDR ETL model
   static const uint32_t kETLnDiscOffset = 3;
   static const uint32_t kETLnDiscMask = 0x1;
   static const uint32_t kETLdiscSideOffset = 2;
   static const uint32_t kETLdiscSideMask = 0x1;
   static const uint32_t kETLquarterMask = 0x3;
+
+  static constexpr int kETLv2maxRing = 16;
+  static constexpr int kETLv2maxModule = 292;
 
   // ---------- Constructors, enumerated types ----------
 
