@@ -95,21 +95,13 @@ void DDMTDLinear::execute(DDCompactView& cpv) {
   double phiX = m_phi_obj;
   double phiY = m_phi_obj + 0.5_pi;
 
-  //DDRotation rotation = DDRotation("IdentityRotation");  this is the default rotation matrix in DDLinear
   DDRotation rotation = DDRotation("Rotation");
 
   if (!rotation) {
     LogDebug("DDAlgorithm") << "DDMTDLinear: Creating a new "
                             << "rotation for " << ddname;
 
-    rotation = DDrot(
-        "Rotation",
-        DDcreateRotationMatrix(thetaX,
-                               phiX,
-                               thetaY,
-                               phiY,
-                               thetaZ,
-                               phiZ));  //rotation = DDrot("IdentityRotation", std::make_unique<DDRotationMatrix>());
+    rotation = DDrot("Rotation", DDcreateRotationMatrix(thetaX, phiX, thetaY, phiY, thetaZ, phiZ));
   }
 
   for (int i = 0; i < m_n; ++i) {
