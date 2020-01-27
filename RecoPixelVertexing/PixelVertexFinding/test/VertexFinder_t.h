@@ -8,18 +8,18 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #ifdef USE_DBSCAN
-#include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksDBSCAN.h"
+#include "../plugins/gpuClusterTracksDBSCAN.h"
 #define CLUSTERIZE clusterTracksDBSCAN
 #elif USE_ITERATIVE
-#include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksIterative.h"
+#include "../plugins/gpuClusterTracksIterative.h"
 #define CLUSTERIZE clusterTracksIterative
 #else
-#include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksByDensity.h"
+#include "../plugins/gpuClusterTracksByDensity.h"
 #define CLUSTERIZE clusterTracksByDensityKernel
 #endif
-#include "RecoPixelVertexing/PixelVertexFinding/src/gpuFitVertices.h"
-#include "RecoPixelVertexing/PixelVertexFinding/src/gpuSortByPt2.h"
-#include "RecoPixelVertexing/PixelVertexFinding/src/gpuSplitVertices.h"
+#include "../plugins/gpuFitVertices.h"
+#include "../plugins/gpuSortByPt2.h"
+#include "../plugins/gpuSplitVertices.h"
 
 #ifdef ONE_KERNEL
 #ifdef __CUDACC__
