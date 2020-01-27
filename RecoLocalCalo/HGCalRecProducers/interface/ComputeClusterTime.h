@@ -6,7 +6,7 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
-#include "TF1.h"
+#include <string>
 
 // functions to select the hits to compute the time of a given cluster
 // start with the only hits with timing information
