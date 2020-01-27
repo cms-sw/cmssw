@@ -1,6 +1,12 @@
 <environment>
-  <bin   file="testAlignmentOfflineValidation.cpp">
+  <bin name="testAlignmentOfflineValidation" file="testAlignmentOfflineValidation.cpp">
     <flags   TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_all.sh"/>
-		<use   name="FWCore/Utilities"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+  <bin file="testPVPlotting.cpp">
+    <flags PRE_TEST="testAlignmentOfflineValidation"/>
+    <use   name="rootmath"/>
+    <use   name="roothistmatrix"/>
+    <use   name="rootgraphics"/>
   </bin>
 </environment>
