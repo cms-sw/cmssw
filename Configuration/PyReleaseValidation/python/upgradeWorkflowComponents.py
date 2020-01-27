@@ -344,26 +344,40 @@ upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
 
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
+        if 'Digi' in step and 'Trigger' not in step:
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        elif 'Reco' in step:
             stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
         elif 'MiniAOD' in step:
             # the separate miniAOD step is used here
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
-        if 'HARVEST' in step:
+        if 'ALCA' in step or 'HARVEST' in step:
             # remove step
             stepDict[stepName][k] = None
+        if 'Nano' in step:
+            stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and '2026' in key
+        return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     steps = [
+        'DigiFull',
+        'RecoFull',
         'RecoFullGlobal',
+        'HARVESTFull',
         'HARVESTFullGlobal',
         'MiniAODFullGlobal',
+        'ALCAFull',
+        'NanoFull',
     ],
     PU = [
+        'DigiFull',
+        'RecoFull',
         'RecoFullGlobal',
+        'HARVESTFull',
         'HARVESTFullGlobal',
         'MiniAODFullGlobal',
+        'ALCAFull',
+        'NanoFull',
     ],
     suffix = '_ProdLike',
     offset = 0.21,
