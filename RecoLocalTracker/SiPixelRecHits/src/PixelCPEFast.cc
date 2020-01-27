@@ -312,8 +312,8 @@ PixelCPEFast::GPUData::~GPUData() {
   }
 }
 
-PixelCPEBase::ClusterParam* PixelCPEFast::createClusterParam(const SiPixelCluster& cl) const {
-  return new ClusterParamGeneric(cl);
+std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEFast::createClusterParam(const SiPixelCluster& cl) const {
+  return std::make_unique<ClusterParamGeneric>(cl);
 }
 
 void PixelCPEFast::errorFromTemplates(DetParam const& theDetParam,
