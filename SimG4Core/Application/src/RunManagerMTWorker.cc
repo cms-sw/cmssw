@@ -113,7 +113,6 @@ namespace {
 
 struct RunManagerMTWorker::TLSData {
   std::unique_ptr<G4RunManagerKernel> kernel;  //must be deleted last
-  std::unique_ptr<CustomUIsession> UIsession;
   std::unique_ptr<RunAction> userRunAction;
   std::unique_ptr<SimRunInterface> runInterface;
   std::unique_ptr<SimActivityRegistry> registry;
@@ -252,13 +251,11 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   G4UImanager::GetUIpointer()->SetUpForAThread(thisID);
   const std::string& uitype = m_pCustomUIsession.getUntrackedParameter<std::string>("Type", "MessageLogger");
   if (uitype == "MessageLogger") {
-    m_tls->UIsession.reset(new CustomUIsession());
+    new CustomUIsession();
   } else if (uitype == "MessageLoggerThreadPrefix") {
-    m_tls->UIsession.reset(new CustomUIsessionThreadPrefix(
-        m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID));
+    new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID);
   } else if (uitype == "FilePerThread") {
-    m_tls->UIsession.reset(
-        new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID));
+    new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID);
   } else {
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid value of CustomUIsession.Type '" << uitype
