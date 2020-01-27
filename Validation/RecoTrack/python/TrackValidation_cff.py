@@ -71,7 +71,10 @@ def _addSelectorsByAlgo(algos, modDict):
             continue
         modName = _algoToSelector(algo)
         if modName not in modDict:
-            mod = cutsRecoTracks_cfi.cutsRecoTracks.clone(algorithm=[algo])
+            mod = cutsRecoTracks_cfi.cutsRecoTracks.clone(
+#                src = [src],
+                algorithm=[algo]
+            )
             modDict[modName] = mod
         else:
             mod = modDict[modName]
@@ -404,10 +407,38 @@ trackValidatorTPPtLess09 = trackValidator.clone(
     doResolutionPlotsForLabels = ["disabled"], # resolutions are same as in trackValidator, no need to repeat here
 )
 
+## Select signal TrackingParticles, and do the corresponding associations
+trackingParticlesEtaGreater2p7 = _trackingParticleRefSelector.clone(
+    signalOnly = cms.bool(False),
+    tip = 1e5,
+    lip = 1e5,
+    minRapidity = -2.7,
+    maxRapidity =  2.7,
+    invertRapidityCut = cms.bool(True),
+    ptMin = 0,
+)
+
+
+# select tracks with |eta| > 2.7
+generalTracksEtaGreater2p7 = cutsRecoTracks_cfi.cutsRecoTracks.clone(
+    minRapidity = cms.double(-2.7),
+    maxRapidity = cms.double( 2.7),
+    invertRapidityCut = cms.bool(True)
+)
+
+_taskForEachEra(_addSelectorsBySrc, modDict=globals(),
+                    args=[["_generalTracksHp"]],
+                    plainArgs=["EtaGreater2p7", "generalTracksEtaGreater2p7"],
+                    names="_selectorsEtaGreater2p7", task="_tracksValidationSelectorsEtaGreater2p7",
+                    modifyTask=lambda task: task.add(generalTracksEtaGreater2p7))
+
 # for high-eta (phase2 : |eta| > 2.7)
 trackValidatorTPEtaGreater2p7 = trackValidator.clone(
     dirName = "Tracking/TrackTPEtaGreater2p7/",
-    label = [x for x in trackValidator.label.value() if ("Pt09" not in x) and ("BtvLike" not in x) and ("AK4PFJets" not in x)],
+    label_tp_effic = "trackingParticlesEtaGreater2p7",
+    label_tp_fake  = "trackingParticlesEtaGreater2p7",
+    label_tp_effic_refvector = True,
+    label_tp_fake_refvector  = True,
     dodEdxPlots = False,
 #    doPVAssociationPlots = False,
     minRapidityTP = -2.7,
@@ -426,11 +457,16 @@ trackValidatorTPEtaGreater2p7 = trackValidator.clone(
 #        nintEta = 90,
         #    minPt  = 0.01,
     ),
-    doSimPlots = False,       # same as in trackValidator, no need to repeat here
-    doRecoTrackPlots = False, # fake rates are same as in trackValidator, no need to repeat here
+    doSimPlots = True,       # ####same as in trackValidator, no need to repeat here
+    doRecoTrackPlots = True, # ####fake rates are same as in trackValidator, no need to repeat here
     doResolutionPlotsForLabels = ["disabled"] # resolutions are same as in trackValidator, no need to repeat here
 )
-
+for _eraName, _postfix, _era in _relevantEras:
+    _setForEra(trackValidatorTPEtaGreater2p7, _eraName, _era,
+               label = ["generalTracksEtaGreater2p7"] + locals()["_selectorsEtaGreater2p7"+_postfix] +
+                       locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix],
+               doResolutionPlotsForLabels = ["generalTracksEtaGreater2p7"] + locals()["_selectorsEtaGreater2p7"+_postfix]
+    )
 
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs
@@ -591,6 +627,29 @@ tracksValidationSelectors = cms.Task(
     ak4JetTracksAssociatorExplicitAll,
     cutsRecoTracksAK4PFJets
 )
+phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(generalTracksEtaGreater2p7))
+phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(cutsRecoTracksEtaGreater2p7Hp))
+
+# Validation iterative steps
+_taskForEachEra(_addSelectorsByAlgo, modDict=globals(),
+                args=["_algos"], 
+                names="_selectorsByAlgo", task="_tracksEtaGreater2p7ValidationSelectorsByAlgo"                
+               )
+
+# high purity
+_taskForEachEra(_addSelectorsByHp, modDict=globals(),
+                args=["_algos"], 
+                names="_selectorsByAlgoHp", task="_tracksEtaGreater2p7ValidationSelectorsByAlgoHp"
+               )
+
+for _eraName, _postfix, _era in _relevantEras:
+    selectors = locals()["_selectorsByAlgoHp"+_postfix]
+    locals()["_generalTracksHp"+_postfix] = selectors[0]
+    locals()["_selectorsByAlgoHp"+_postfix] = selectors[1:]
+
+phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(tracksEtaGreater2p7ValidationSelectorsByAlgo))
+phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(tracksEtaGreater2p7ValidationSelectorsByAlgoHp))
+
 tracksValidationTruth = cms.Task(
     tpClusterProducer,
     tpClusterProducerPreSplitting,
@@ -628,6 +687,8 @@ fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
     trackingParticlesConversion,
 ]))
 
+
+
 tracksValidation = cms.Sequence(
     trackValidator +
     trackValidatorTPPtLess09 +
@@ -643,6 +704,10 @@ tracksValidation = cms.Sequence(
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 #tracksValidationPhase2 = cms.Sequence(tracksValidation+trackValidatorTPEtaGreater2p7) # it does not work
+tracksPreValidationPhase2 = tracksPreValidation.copy()
+tracksPreValidationPhase2.add(trackingParticlesEtaGreater2p7)
+phase2_tracker.toReplaceWith(tracksPreValidation, tracksPreValidationPhase2)
+
 tracksValidationPhase2 = tracksValidation.copy()
 tracksValidationPhase2+=trackValidatorTPEtaGreater2p7
 phase2_tracker.toReplaceWith(tracksValidation, tracksValidationPhase2)
@@ -746,6 +811,11 @@ _trackValidatorsBase = cms.Sequence(
     trackValidatorGsfTracksStandalone +
     trackValidatorBHadronStandalone
 )
+
+_trackValidatorsBasePhase2 = _trackValidatorsBase.copy()
+_trackValidatorsBasePhase2+=trackValidatorTPEtaGreater2p7
+phase2_tracker.toReplaceWith(_trackValidatorsBase, _trackValidatorsBasePhase2)
+
 trackValidatorsStandalone = _trackValidatorsBase.copy()
 fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
 
@@ -819,7 +889,6 @@ fastSim.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.c
     trackValidatorConversionTrackingOnly,
     trackValidatorBHadronTrackingOnly
 ]))
-
 
 tracksValidationTrackingOnly = cms.Sequence(
     trackValidatorsTrackingOnly,
