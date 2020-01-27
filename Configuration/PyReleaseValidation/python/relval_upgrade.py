@@ -62,6 +62,8 @@ for year in upgradeKeys:
                         # hack to add an extra step
                         if specialType == 'ProdLike' and 'RecoFullGlobal' in step:
                             stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoFullGlobal','MiniAODFullGlobal'),specialWF.suffix))
+                        elif specialType == 'ProdLike' and 'RecoFull' in step:
+                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoFull','MiniAODFullGlobal'),specialWF.suffix))
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
 
