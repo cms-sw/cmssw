@@ -143,7 +143,7 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
       m_g4overlap(p.getUntrackedParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_p(p) {
-  m_UIsession.reset(new CustomUIsession());
+  m_UIsession = new CustomUIsession();
   m_kernel = new G4RunManagerKernel();
   G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
@@ -369,7 +369,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
 
   // Geometry checks
   if (m_check || !regionFile.empty()) {
-    CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession.get(), pworld);
+    CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession, pworld);
   }
 
   // If the Geant4 particle table is needed, decomment the lines below

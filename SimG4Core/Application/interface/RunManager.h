@@ -93,7 +93,7 @@ private:
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_LHCtr;
 
   bool m_nonBeam;
-  std::unique_ptr<CustomUIsession> m_UIsession;
+  CustomUIsession* m_UIsession;
   std::unique_ptr<PhysicsList> m_physicsList;
   PrimaryTransformer* m_primaryTransformer;
 

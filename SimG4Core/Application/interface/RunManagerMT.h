@@ -88,7 +88,7 @@ private:
 
   G4MTRunManagerKernel* m_kernel;
 
-  std::unique_ptr<CustomUIsession> m_UIsession;
+  CustomUIsession* m_UIsession;
   std::unique_ptr<PhysicsList> m_physicsList;
   bool m_managerInitialized;
   bool m_runTerminated;
