@@ -24,6 +24,17 @@ dd4hep::Solid DDSolid::solidA() const {
   return solid_;
 }
 
+dd4hep::Solid DDSolid::solidB() const {
+  if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) || dd4hep::isA<dd4hep::UnionSolid>(solid_) ||
+      dd4hep::isA<dd4hep::IntersectionSolid>(solid_)) {
+    const TGeoCompositeShape* sh = (const TGeoCompositeShape*)solid_.ptr();
+    const TGeoBoolNode* boolean = sh->GetBoolNode();
+    TGeoShape* solidB = boolean->GetRightShape();
+    return dd4hep::Solid(solidB);
+  }
+  return solid_;
+}
+
 const std::vector<double> DDSolid::parameters() const { return solid().dimensions(); }
 
 DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
