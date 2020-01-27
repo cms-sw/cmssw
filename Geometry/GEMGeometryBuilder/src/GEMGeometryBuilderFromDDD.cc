@@ -1,7 +1,7 @@
 /*
 //\class GEMGeometryBuilder
 
- Description: GEM Geometry builder from DD & DD4HEP
+ Description: GEM Geometry builder from DD and DD4HEP
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
 // Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
