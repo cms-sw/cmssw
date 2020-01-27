@@ -53,6 +53,7 @@ private:
   double maxDz_;
   double maxDtSignificance_;
   double minProbHeavy_;
+  double fixedT0Error_;
 };
 
 TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig)
@@ -67,7 +68,8 @@ TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig)
       vtxMaxSigmaT_(iConfig.getParameter<double>("vtxMaxSigmaT")),
       maxDz_(iConfig.getParameter<double>("maxDz")),
       maxDtSignificance_(iConfig.getParameter<double>("maxDtSignificance")),
-      minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")) {
+      minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
+      fixedT0Error_(iConfig.getParameter<double>("fixedT0Error")) {
   produces<edm::ValueMap<float>>(t0Name);
   produces<edm::ValueMap<float>>(sigmat0Name);
   produces<edm::ValueMap<float>>(t0safeName);
@@ -104,6 +106,7 @@ void TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
           "Maximum distance in time (normalized by uncertainty) for track-primary vertex association for particle id");
   desc.add<double>("minProbHeavy", 0.75)
       ->setComment("Minimum probability for a particle to be a kaon or proton before reassigning the timestamp");
+  desc.add<double>("fixedT0Error", 0.)->setComment("Use a fixed T0 uncertainty [ns]");
 
   descriptions.add("tofPIDProducer", desc);
 }
@@ -174,7 +177,7 @@ void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
     float t0 = t0In[trackref];
     float t0safe = t0;
     float sigmat0safe = sigmat0In[trackref];
-    float sigmatmtd = sigmatmtdIn[trackref];
+    float sigmatmtd = (sigmatmtdIn[trackref] > 0. && fixedT0Error_ > 0.) ? fixedT0Error_ : sigmatmtdIn[trackref];
     float sigmat0 = sigmatmtd;
 
     float prob_pi = -1.;
