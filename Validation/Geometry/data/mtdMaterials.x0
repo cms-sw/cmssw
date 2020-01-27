@@ -14,6 +14,8 @@ tkLayout_SenSi                                           0.000 1.000 0.000 0.000
 
 mtdtkLayout_SenSi                                        0.000 1.000 0.000 0.000 0.000
 
+Silicon                                                  0.000 1.000 0.000 0.000 0.000
+
 tkLayout_Al                                              0.000 0.000 0.000 1.000 0.000
 
 mtdtkLayout_Al                                           0.000 0.000 0.000 1.000 0.000
@@ -54,7 +56,7 @@ servicecompositeR323Z2666                                0.000 0.000 0.000 0.000
 
 servicecompositeR420Z2666                                0.000 0.000 0.000 0.000 1.000
 
-servicecompositeR511Z2666                                0.000 0.000 0.000 0.000 1.000 
+servicecompositeR511Z2666                                0.000 0.000 0.000 0.000 1.000
 
 servicecompositeR596Z2666                                0.000 0.000 0.000 0.000 1.000
 
@@ -85,3 +87,13 @@ servicecompositeR805Z2666                                0.000 0.000 0.000 0.000
 servicecompositeR887Z2666                                0.000 0.000 0.000 0.000 1.000
 
 servicecompositeR979Z2666                                0.000 0.000 0.000 0.000 1.000
+
+Epoxy                                                    0.000 0.000 0.000 0.000 1.000
+
+Laird                                                    0.000 0.000 0.000 0.000 1.000
+
+ServiceHybrid_PCB                                        0.000 0.000 0.000 0.000 1.000
+
+Aluminium_Nitride                                        0.000 0.000 0.000 0.000 1.000
+
+ThermalScreenComposite                                   0.000 0.000 0.000 1.000 0.000
