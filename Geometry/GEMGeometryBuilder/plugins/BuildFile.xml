@@ -24,3 +24,12 @@
   <flags EDM_PLUGIN="1"/>
 </library> 
 
+<library name="ME0GeometryPlugins" file="ME0GeometryESModule.cc">
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="dd4hep"/>
+<lib name="Geom"/>
+<use name="Geometry/GEMGeometryBuilder"/>
+<flags EDM_PLUGIN="1"/>
+</library>
