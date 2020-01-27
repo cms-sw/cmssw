@@ -104,33 +104,34 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             # l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
             # l2seed = cms.string("type(85) || type(86) || type(-99)"),  l2deltaR = cms.double(0.3),
             qualityBits = cms.string(
-                "1         * filter('hltBTagCaloCSVp087Triple') + " \
-                "2         * filter('hltDoubleCentralJet90') + " \
-                "4         * filter('hltDoublePFCentralJetLooseID90') + " \
-                "8         * filter('hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet') + " \
-                "16        * filter('hltQuadCentralJet30') + " \
-                "32        * filter('hltQuadPFCentralJetLooseID30') + " \
-                "64        * max(filter('hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF'), filter('hltL1sQuadJetCIorTripleJetVBFIorHTT')) + " \
-                "128       * filter('hltQuadCentralJet45') + " \
-                "256       * filter('hltQuadPFCentralJetLooseID45') + " \
-                "512       * max(filter('hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet'), filter('hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet')) + " \
-                "1024      * max(filter('hltBTagCaloCSVp05Double'), filter('hltBTagCaloDeepCSVp17Double')) + " \
-                "2048      * filter('hltPFCentralJetLooseIDQuad30') + " \
-                "4096      * filter('hlt1PFCentralJetLooseID75') + " \
-                "8192      * filter('hlt2PFCentralJetLooseID60') + " \
-                "16384     * filter('hlt3PFCentralJetLooseID45') + " \
-                "32768     * filter('hlt4PFCentralJetLooseID40') + " \
-                "65536     * max(filter('hltBTagPFCSVp070Triple'), max(filter('hltBTagPFDeepCSVp24Triple'), filter('hltBTagPFDeepCSV4p5Triple')) )"
+                "1         * filter('*CrossCleaned*LooseChargedIsoPFTau*') + " \
+                "2         * filter('hltBTagCaloCSVp087Triple') + " \
+                "4         * filter('hltDoubleCentralJet90') + " \
+                "8         * filter('hltDoublePFCentralJetLooseID90') + " \
+                "16        * filter('hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet') + " \
+                "32        * filter('hltQuadCentralJet30') + " \
+                "64        * filter('hltQuadPFCentralJetLooseID30') + " \
+                "128       * max(filter('hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF'), filter('hltL1sQuadJetCIorTripleJetVBFIorHTT')) + " \
+                "256       * filter('hltQuadCentralJet45') + " \
+                "512       * filter('hltQuadPFCentralJetLooseID45') + " \
+                "1024      * max(filter('hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet'), filter('hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet')) + " \
+                "2048      * max(filter('hltBTagCaloCSVp05Double'), filter('hltBTagCaloDeepCSVp17Double')) + " \
+                "4096      * filter('hltPFCentralJetLooseIDQuad30') + " \
+                "8192      * filter('hlt1PFCentralJetLooseID75') + " \
+                "16384     * filter('hlt2PFCentralJetLooseID60') + " \
+                "32768     * filter('hlt3PFCentralJetLooseID45') + " \
+                "65536     * filter('hlt4PFCentralJetLooseID40') + " \
+                "131072    * max(filter('hltBTagPFCSVp070Triple'), max(filter('hltBTagPFDeepCSVp24Triple'), filter('hltBTagPFDeepCSV4p5Triple')) )"
                 ), 
             qualityBitsDoc = cms.string(
-                "Jet bits: bit 0 for hltBTagCaloCSVp087Triple, bit 1 for hltDoubleCentralJet90, bit 2 for hltDoublePFCentralJetLooseID90," \
-                " bit 3 for hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet, bit 4 for hltQuadCentralJet30, bit 5 for hltQuadPFCentralJetLooseID30," \
-                " bit 6 for hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF or hltL1sQuadJetCIorTripleJetVBFIorHTT," \
-                " bit 7 for hltQuadCentralJet45, bit 8 for hltQuadPFCentralJetLooseID45," \
-                " bit 9  for hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet or hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet" \
-                " bit 10 for hltBTagCaloCSVp05Double or hltBTagCaloDeepCSVp17Double, bit 11 for hltPFCentralJetLooseIDQuad30, bit 12 for hlt1PFCentralJetLooseID75," \
-                " bit 13 for hlt2PFCentralJetLooseID60, bit 14 for hlt3PFCentralJetLooseID45, bit 15 for hlt4PFCentralJetLooseID40," \
-                " bit 16 for hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple "),
+                "Jet bits: bit 0 for VBF cross-cleaned from loose iso PFTau, bit 1 for hltBTagCaloCSVp087Triple, bit 2 for hltDoubleCentralJet90, bit 3 for hltDoublePFCentralJetLooseID90," \
+                " bit 4 for hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet, bit 5 for hltQuadCentralJet30, bit 6 for hltQuadPFCentralJetLooseID30," \
+                " bit 7 for hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF or hltL1sQuadJetCIorTripleJetVBFIorHTT," \
+                " bit 8 for hltQuadCentralJet45, bit 9 for hltQuadPFCentralJetLooseID45," \
+                " bit 10  for hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet or hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet" \
+                " bit 11 for hltBTagCaloCSVp05Double or hltBTagCaloDeepCSVp17Double, bit 12 for hltPFCentralJetLooseIDQuad30, bit 13 for hlt1PFCentralJetLooseID75," \
+                " bit 14 for hlt2PFCentralJetLooseID60, bit 15 for hlt3PFCentralJetLooseID45, bit 16 for hlt4PFCentralJetLooseID40," \
+                " bit 17 for hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple "),
         ),
         cms.PSet(
             name = cms.string("FatJet"),
