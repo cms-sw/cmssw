@@ -20,6 +20,10 @@
 #include <G4PhaseSpaceDecayChannel.hh>
 #include "G4ProcessManager.hh"
 
+#include "G4SIMP.hh"
+#include "G4AntiSIMP.hh"
+
+
 using namespace CLHEP;
 
 bool CustomParticleFactory::loaded = false;
@@ -80,6 +84,14 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   }
   
   
+  if(CustomPDGParser::s_isSIMP(pdgCode)) {
+    G4SIMP     * simp     = G4SIMP::Definition(mass*GeV);
+    G4AntiSIMP * antisimp = G4AntiSIMP::Definition(mass*GeV);
+    m_particles.insert(simp);
+    m_particles.insert(antisimp);
+    return;
+  }
+
   /////////////////////// Check!!!!!!!!!!!!!
   G4String pType="custom";
   G4String pSubType="";
@@ -233,11 +245,13 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
 				  << ", pdgId = " << pdgId
 				  << ", pdgIdPartner = " << pdgIdPartner  
 				  << ", CustomPDGParser::s_isRHadron(pdgId) = " << CustomPDGParser::s_isRHadron(pdgId)    
-				  << ", CustomPDGParser::s_isstopHadron(pdgId) = " << CustomPDGParser::s_isstopHadron(pdgId); 
+				  << ", CustomPDGParser::s_isstopHadron(pdgId) = " << CustomPDGParser::s_isstopHadron(pdgId)
+                                  << ", CustomPDGParser::s_isSIMP(pdgId) = " << CustomPDGParser::s_isSIMP(pdgId);
     
     if (aParticle && 
 	!CustomPDGParser::s_isRHadron(pdgId)    && 
 	!CustomPDGParser::s_isstopHadron(pdgId) && 
+        !CustomPDGParser::s_isSIMP(pdgId) &&
 	pdgId!=1000006 && 
 	pdgId!=-1000006  && 
 	pdgId!=25 && 
@@ -269,6 +283,13 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
       tmp = "anti_"+name;
       edm::LogInfo("CustomPhysics") << "Calling addCustomParticle for antiparticle (2) with pdgId: " << -pdgId 
 				    << ", mass " << mass << ", name " << tmp; 
+      addCustomParticle(-pdgId, mass, tmp);
+      theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
+    }
+    if(pdgId==9000006) {   
+      tmp = name+"bar";
+      edm::LogInfo("CustomPhysics") << "Calling addCustomParticle for antiparticle with pdgId: " << -pdgId 
+                                    << ", mass " << mass << ", name " << tmp; 
       addCustomParticle(-pdgId, mass, tmp);
       theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
     }
