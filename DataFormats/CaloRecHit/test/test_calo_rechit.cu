@@ -1,10 +1,11 @@
+#include <cassert>
+#include <iostream>
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include <iostream>
-#include <cassert>
-
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 __global__ void kernel_test_calo_rechit(CaloRecHit* other) {
   CaloRecHit rh{DetId(0), 10, 1, 0, 0};
@@ -42,12 +43,9 @@ void test_calo_rechit() {
 }
 
 int main(int argc, char** argv) {
-  int nDevices;
-  cudaGetDeviceCount(&nDevices);
-  std::cout << "nDevices = " << nDevices << std::endl;
+  cms::cudatest::requireDevices();
 
-  if (nDevices > 0)
-    test_calo_rechit();
+  test_calo_rechit();
 
   std::cout << "all good!" << std::endl;
   return 0;
