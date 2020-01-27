@@ -7,8 +7,7 @@ ALCARECOSiPixelCalSingleMuonHLTFilter = copy.deepcopy(hltHighLevel)
 #seqALCARECOSiPixelCalSingleMuon = cms.Sequence(ALCARECOSiPixelCalSingleMuonHLTFilter)
 ALCARECOSiPixelCalSingleMuonHLTFilter.andOr = True ## choose logical OR between Triggerbits
 ALCARECOSiPixelCalSingleMuonHLTFilter.throw = False ## dont throw on unknown path names
-#ALCARECOSiPixelCalSingleMuonHLTFilter.eventSetupPathsKey = 'SiPixelCalSingleMuon'
-ALCARECOSiPixelCalSingleMuonHLTFilter.HLTPaths = ['HLT_*']
+ALCARECOSiPixelCalSingleMuonHLTFilter.eventSetupPathsKey = 'SiPixelCalSingleMuon'
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOSiPixelCalSingleMuon = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
