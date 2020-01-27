@@ -113,4 +113,4 @@ void DDMTDLinear::execute(DDCompactView& cpv) {
   }
 }
 
-DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDMTDLinear, "global:DDMTDLinear");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDMTDLinear, "mtd:DDMTDLinear");

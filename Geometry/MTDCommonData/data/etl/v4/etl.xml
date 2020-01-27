@@ -527,7 +527,7 @@
 
   <!-- Algorithm Section begins -->
     <!-- Disk1 Front face -->
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Front"/>
 	<String name="ChildName" value="etl:SensorModule_2"/>
 	<Numeric name="N" value="8"/>
@@ -540,7 +540,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="1"/>
@@ -553,7 +553,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -566,7 +566,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="9"/>
@@ -579,7 +579,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="12"/>
@@ -592,7 +592,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="2"/>
@@ -605,7 +605,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="12"/>
@@ -618,7 +618,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="15"/>
@@ -631,7 +631,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="2"/>
@@ -644,7 +644,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -657,7 +657,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="15"/>
@@ -670,7 +670,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="18"/>
@@ -683,7 +683,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -696,7 +696,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="18"/>
@@ -709,7 +709,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="20"/>
@@ -722,7 +722,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">  <!-- y start changed from 13.1925 to 13.0925 to avoid extrusion -->
+  <Algorithm name="mtd:DDMTDLinear">  <!-- y start changed from 13.1925 to 13.0925 to avoid extrusion -->
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -735,7 +735,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <!-- <Algorithm name="global:DDMTDLinear">  
+  <!-- <Algorithm name="mtd:DDMTDLinear">  
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -748,7 +748,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm> -->
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="21"/>
@@ -761,7 +761,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="21"/>
@@ -774,7 +774,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -787,7 +787,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -800,7 +800,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="21"/>
@@ -813,7 +813,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="21"/>
@@ -826,7 +826,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -839,7 +839,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -852,7 +852,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="21"/>
@@ -865,7 +865,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="24"/>
@@ -878,7 +878,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="4"/>
@@ -891,7 +891,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="24"/>
@@ -904,7 +904,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="24"/>
@@ -917,7 +917,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="4"/>
@@ -930,7 +930,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="24"/>
@@ -943,7 +943,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="24"/>
@@ -956,7 +956,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-   <Algorithm name="global:DDMTDLinear">  <!-- y-pos of 1st SH module moved from 13.1925 to 16.2 to avoid module extrusion -->
+   <Algorithm name="mtd:DDMTDLinear">  <!-- y-pos of 1st SH module moved from 13.1925 to 16.2 to avoid module extrusion -->
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="4"/>
@@ -969,7 +969,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="21"/>
@@ -982,7 +982,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="18"/>
@@ -995,7 +995,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -1008,7 +1008,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="18"/>
@@ -1021,7 +1021,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="18"/>
@@ -1034,7 +1034,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -1047,7 +1047,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="18"/>
@@ -1060,7 +1060,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="18"/>
@@ -1073,7 +1073,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -1086,7 +1086,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="18"/>
@@ -1102,7 +1102,7 @@
  
 
     <!-- Disk1 Back face -->
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="1"/>
@@ -1115,7 +1115,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="6"/>
@@ -1128,7 +1128,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="10"/>
@@ -1141,7 +1141,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="2"/>
@@ -1154,7 +1154,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="12"/>
@@ -1167,7 +1167,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="14"/>
@@ -1180,7 +1180,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="2"/>
@@ -1193,7 +1193,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">  <!-- 1st placement of a short service hybrid -->
+  <Algorithm name="mtd:DDMTDLinear">  <!-- 1st placement of a short service hybrid -->
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -1206,7 +1206,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="15"/>
@@ -1219,7 +1219,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="17"/>
@@ -1232,7 +1232,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">  <!-- y start pos 13.0925 instead of 13.1925 to avoid extrusion -->
+  <Algorithm name="mtd:DDMTDLinear">  <!-- y start pos 13.0925 instead of 13.1925 to avoid extrusion -->
     <rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="2"/>  <!-- "3" -->
@@ -1245,7 +1245,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="18"/>
@@ -1258,7 +1258,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="18"/>
@@ -1271,7 +1271,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -1284,7 +1284,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="18"/>
@@ -1297,7 +1297,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="21"/>
@@ -1310,7 +1310,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -1323,7 +1323,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -1336,7 +1336,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="21"/>
@@ -1349,7 +1349,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="21"/>
@@ -1362,7 +1362,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -1375,7 +1375,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -1388,7 +1388,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="21"/>
@@ -1401,7 +1401,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="23"/>
@@ -1414,7 +1414,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="4"/>
@@ -1427,7 +1427,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="24"/>
@@ -1440,7 +1440,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="24"/>
@@ -1453,7 +1453,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="4"/>
@@ -1466,7 +1466,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="24"/>
@@ -1479,7 +1479,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="24"/>
@@ -1492,7 +1492,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="4"/>
@@ -1505,7 +1505,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="24"/>
@@ -1518,7 +1518,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="20"/>
@@ -1531,7 +1531,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -1544,7 +1544,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -1557,7 +1557,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="20"/>
@@ -1570,7 +1570,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="20"/>
@@ -1583,7 +1583,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-   <Algorithm name="global:DDMTDLinear">
+   <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -1596,7 +1596,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <!--<Algorithm name="global:DDMTDLinear">
+  <!--<Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -1609,7 +1609,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm> -->
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="19"/>   <!-- "20" -->
@@ -1622,7 +1622,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="18"/>
@@ -1635,7 +1635,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -1648,7 +1648,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="17"/>
@@ -1661,7 +1661,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="18"/>
@@ -1674,7 +1674,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -1690,7 +1690,7 @@
   
 
   	<!-- Disk2 Front face -->
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Front_2"/>
 	<String name="ChildName" value="etl:SensorModule_2"/>
 	<Numeric name="N" value="8"/>
@@ -1703,7 +1703,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="1"/>
@@ -1716,7 +1716,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -1729,7 +1729,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="9"/>
@@ -1742,7 +1742,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="12"/>
@@ -1755,7 +1755,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="2"/>
@@ -1768,7 +1768,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="12"/>
@@ -1781,7 +1781,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="15"/>
@@ -1794,7 +1794,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="2"/>
@@ -1807,7 +1807,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -1820,7 +1820,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="15"/>
@@ -1833,7 +1833,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="18"/>
@@ -1846,7 +1846,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -1859,7 +1859,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="18"/>
@@ -1872,7 +1872,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="20"/>
@@ -1885,7 +1885,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear"> <!-- y start changed from 13.1925 to 13.0925 to avoid extrusion -->
+  <Algorithm name="mtd:DDMTDLinear"> <!-- y start changed from 13.1925 to 13.0925 to avoid extrusion -->
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -1898,7 +1898,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <!-- <Algorithm name="global:DDMTDLinear"> 
+  <!-- <Algorithm name="mtd:DDMTDLinear"> 
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -1911,7 +1911,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm> -->
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="21"/>
@@ -1924,7 +1924,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="21"/>
@@ -1937,7 +1937,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -1950,7 +1950,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -1963,7 +1963,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="21"/>
@@ -1976,7 +1976,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="21"/>
@@ -1989,7 +1989,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -2002,7 +2002,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid_short"/>
     <Numeric name="N" value="1"/>
@@ -2015,7 +2015,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="21"/>
@@ -2028,7 +2028,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="24"/>
@@ -2041,7 +2041,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="4"/>
@@ -2054,7 +2054,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="24"/>
@@ -2067,7 +2067,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="24"/>
@@ -2080,7 +2080,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="4"/>
@@ -2093,7 +2093,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="24"/>
@@ -2106,7 +2106,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="24"/>
@@ -2119,7 +2119,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-   <Algorithm name="global:DDMTDLinear"> <!-- y-pos of 1st SH module moved from 13.1925 to 16 to avoid module extrusion -->
+   <Algorithm name="mtd:DDMTDLinear"> <!-- y-pos of 1st SH module moved from 13.1925 to 16 to avoid module extrusion -->
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="4"/>
@@ -2132,7 +2132,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="21"/>
@@ -2145,7 +2145,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="18"/>
@@ -2158,7 +2158,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -2171,7 +2171,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="18"/>
@@ -2184,7 +2184,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="18"/>
@@ -2197,7 +2197,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -2210,7 +2210,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="18"/>
@@ -2223,7 +2223,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_2"/>
     <Numeric name="N" value="18"/>
@@ -2236,7 +2236,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
     <Numeric name="N" value="3"/>
@@ -2249,7 +2249,7 @@
     <Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiskQuarter_Front_2"/>
     <String name="ChildName" value="etl:SensorModule"/>
     <Numeric name="N" value="18"/>
@@ -2265,7 +2265,7 @@
 
 
     <!-- Disk2 Back face -->
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="1"/>
@@ -2278,7 +2278,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="6"/>
@@ -2291,7 +2291,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="10"/>
@@ -2304,7 +2304,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="2"/>
@@ -2317,7 +2317,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="12"/>
@@ -2330,7 +2330,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="14"/>
@@ -2343,7 +2343,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="2"/>
@@ -2356,7 +2356,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">  <!-- 1st placement of a short service hybrid -->
+  <Algorithm name="mtd:DDMTDLinear">  <!-- 1st placement of a short service hybrid -->
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -2369,7 +2369,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="15"/>
@@ -2382,7 +2382,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="17"/>
@@ -2395,7 +2395,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear"> <!-- y start pos 13.0925 instead of 13.1925 to avoid extrusion -->
+  <Algorithm name="mtd:DDMTDLinear"> <!-- y start pos 13.0925 instead of 13.1925 to avoid extrusion -->
     <rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="2"/>  <!-- "3" -->
@@ -2408,7 +2408,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="18"/>
@@ -2421,7 +2421,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="18"/>
@@ -2434,7 +2434,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -2447,7 +2447,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="18"/>
@@ -2460,7 +2460,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="21"/>
@@ -2473,7 +2473,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -2486,7 +2486,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -2499,7 +2499,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="21"/>
@@ -2512,7 +2512,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="21"/>
@@ -2525,7 +2525,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -2538,7 +2538,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -2551,7 +2551,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="21"/>
@@ -2564,7 +2564,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="23"/>
@@ -2577,7 +2577,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="4"/>
@@ -2590,7 +2590,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="24"/>
@@ -2603,7 +2603,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="24"/>
@@ -2616,7 +2616,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="4"/>
@@ -2629,7 +2629,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="24"/>
@@ -2642,7 +2642,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="24"/>
@@ -2655,7 +2655,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="4"/>
@@ -2668,7 +2668,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="24"/>
@@ -2681,7 +2681,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="20"/>
@@ -2694,7 +2694,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -2707,7 +2707,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -2720,7 +2720,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="20"/>
@@ -2733,7 +2733,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="20"/>
@@ -2746,7 +2746,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-   <Algorithm name="global:DDMTDLinear">
+   <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -2759,7 +2759,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <!-- <Algorithm name="global:DDMTDLinear">
+  <!-- <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid_short"/>
 	<Numeric name="N" value="1"/>
@@ -2772,7 +2772,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm> -->
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="19"/>  <!-- "20" --> 
@@ -2785,7 +2785,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="18"/>
@@ -2798,7 +2798,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
@@ -2811,7 +2811,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r"/>
 	<Numeric name="N" value="17"/>
@@ -2824,7 +2824,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:SensorModule_r_2"/>
 	<Numeric name="N" value="18"/>
@@ -2837,7 +2837,7 @@
 	<Numeric name="Theta_obj" value="90.*deg"/> 
 	<Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-  <Algorithm name="global:DDMTDLinear">
+  <Algorithm name="mtd:DDMTDLinear">
 	<rParent name="etl:DiskQuarter_Back_2"/>
 	<String name="ChildName" value="etl:ServiceHybrid"/>
 	<Numeric name="N" value="3"/>
