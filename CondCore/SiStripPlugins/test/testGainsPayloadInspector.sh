@@ -41,31 +41,31 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-
 mv *.png $W_DIR/plots/G2_Value_update_TT.png
 
 getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsMaxDeviationRatio2sigmaTrackerMapSingleTag \
+    --plot plot_SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap \
     --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
     --time_type Run \
     --iovs '{"start_iov": "302393", "end_iov": "305114"}' \
     --db Prep \
+    --input_params '{"nsigma":"3"}' \
     --test;
 
 mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update_ST.png
 
 getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsMaxDeviationRatio2sigmaTrackerMapTwoTags \
+    --plot plot_SiStripApvGainsMaxDeviationRatioTrackerMapTwoTags \
     --tag SiStripApvGain_FromParticles_GR10_v1_express \
     --tagtwo SiStripApvGain_FromParticles_GR10_v1_hlt \
     --time_type Run \
     --iovs '{"start_iov": "286042", "end_iov": "286042"}' \
     --iovstwo '{"start_iov": "206037", "end_iov": "206037"}' \
     --db Prod \
+    --input_params '{"nsigma":"3"}' \
     --test;
-
 
 mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update_TT.png
 
