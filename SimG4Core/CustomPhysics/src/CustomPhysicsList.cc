@@ -61,7 +61,7 @@ void CustomPhysicsList::ConstructProcess() {
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if (pmanager) {
         CMSSIMPInelasticProcess* simpInelPr = new CMSSIMPInelasticProcess();
-        CMSQGSPSIMPBuilder* theQGSPSIMPB = new CMSQGSPSIMPBuilder(); 
+        CMSQGSPSIMPBuilder* theQGSPSIMPB = new CMSQGSPSIMPBuilder();
         theQGSPSIMPB->Build(simpInelPr);
         pmanager->AddDiscreteProcess(simpInelPr);
       } else
