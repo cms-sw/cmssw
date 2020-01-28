@@ -20,7 +20,7 @@ TrackPUIDMVA::TrackPUIDMVA(std::string weights_file) {
   std::string method("BDT");
 
   mva_ = std::make_unique<TMVAEvaluator>();
-  mva_->initialize(options, method, weights_file, vars_, spec_vars_, true, false); //use GBR, GradBoost 
+  mva_->initialize(options, method, weights_file, vars_, spec_vars_, true, false);  //use GBR, GradBoost
 }
 
 float TrackPUIDMVA::operator()(const reco::TrackRef& trk,
@@ -50,5 +50,5 @@ float TrackPUIDMVA::operator()(const reco::TrackRef& trk,
   vars.emplace(vars_[12], tmtds[ext_trk]);
   vars.emplace(vars_[13], trk_lengths[ext_trk]);
 
-  return mva_->evaluate(vars, false); //GBR, GradBoost
+  return mva_->evaluate(vars, false);  //GBR, GradBoost
 }

@@ -61,8 +61,7 @@ TrackPUIDMVAProducer::TrackPUIDMVAProducer(const ParameterSet& iConfig)
       mtdTimeToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("mtdTimeSrc"))),
       pathLengthToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
       trackAssocToken_(consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"))),
-      mva_(iConfig.getParameter<edm::FileInPath>("trackPUID_mtdQualBDT_weights_file").fullPath()) 
-{
+      mva_(iConfig.getParameter<edm::FileInPath>("trackPUID_mtdQualBDT_weights_file").fullPath()) {
   produces<edm::ValueMap<float>>(mvaName);
 }
 
@@ -127,23 +126,19 @@ void TrackPUIDMVAProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
     const reco::Track& track = tracks[itrack];
     const reco::TrackRef trackref(tracksH, itrack);
 
-    if(trackAssoc[trackref] == -1)
-      {
-	mvaOutRaw.push_back(-1.);
-	continue;
+    if (trackAssoc[trackref] == -1) {
+      mvaOutRaw.push_back(-1.);
+      continue;
+    } else {
+      //---training performed only above 0.5 GeV
+      if (track.pt() < 0.5)
+        mvaOutRaw.push_back(-1.);
+      else {
+        const reco::TrackRef mtdTrackref = reco::TrackRef(tracksMTDH, trackAssoc[trackref]);
+        mvaOutRaw.push_back(mva_(
+            trackref, mtdTrackref, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2, mtdTime, pathLength));
       }
-    else
-      {
-	//---training performed only above 0.5 GeV
-	if (track.pt() < 0.5)
-	  mvaOutRaw.push_back(-1.);
-	else
-	  {
-	    const reco::TrackRef mtdTrackref=reco::TrackRef(tracksMTDH, trackAssoc[trackref]);
-	    mvaOutRaw.push_back(mva_(
-				     trackref, mtdTrackref, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2, mtdTime, pathLength));
-	  }
-      }
+    }
   }
   fillValueMap(ev, tracksH, mvaOutRaw, mvaName);
 }
