@@ -23,8 +23,8 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     pfCandidateTypesForHcalDepth = cms.vint32(),
     storeHcalDepthEndcapOnly = cms.bool(False), # switch to store info only for endcap 
     storeTiming = cms.bool(False),
-    TimeMap = cms.InputTag(""),
-    TimeMapErr = cms.InputTag("")
+    timeMap = cms.InputTag(""),
+    timeMapErr = cms.InputTag("")
 )
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
