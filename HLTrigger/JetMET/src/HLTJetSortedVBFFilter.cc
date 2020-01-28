@@ -162,7 +162,7 @@ bool HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event,
       nJet++;
       //   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
     }
-    if (b1_idx >= sorted.size() || b1_idx < 0)
+    if (b1_idx >= sorted.size())
       edm::LogError("OutOfRange") << "b1 index out of range.";
     sorted.erase(sorted.begin() + b1_idx);           //remove the most b-tagged jet from "sorted"
     sort(sorted.begin(), sorted.end(), comparator);  //sort "sorted" by eta
