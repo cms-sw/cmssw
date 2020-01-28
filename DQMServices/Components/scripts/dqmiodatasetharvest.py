@@ -209,7 +209,7 @@ sqlite2tree = """
 // It is rather slow, but the root file is a lot more compact.
 
 int run;
-int fromlumi;mename.find("SiStrip")
+int fromlumi;
 int tolumi;
 TString* name;
 TH2F* value;
