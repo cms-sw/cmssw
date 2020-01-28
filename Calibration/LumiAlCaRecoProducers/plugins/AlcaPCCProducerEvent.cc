@@ -46,7 +46,6 @@ private:
   int countLumi_;           //counter
 
   std::unique_ptr<reco::PixelClusterCountsPerEvent> thePCCob;
-
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +55,7 @@ AlcaPCCProducerEvent::AlcaPCCProducerEvent(const edm::ParameterSet& iConfig) {
   trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerEventParameters")
                     .getUntrackedParameter<std::string>("trigstring", "alcaPCCEvent");
 
-  produces<reco::PixelClusterCountsPerEvent,edm::Transition::Event>(trigstring_);
+  produces<reco::PixelClusterCountsPerEvent, edm::Transition::Event>(trigstring_);
   pixelToken = consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
 }
 
@@ -92,11 +91,11 @@ void AlcaPCCProducerEvent::produce(edm::Event& iEvent, const edm::EventSetup& iS
     //    nClusterCount++;
     //}
     int nCluster = mod.size();
-    thePCCob->increment(detId(),nCluster);
+    thePCCob->increment(detId(), nCluster);
     thePCCob->setbxID(bx);
   }
 
-	iEvent.put(std::move(thePCCob),std::string(trigstring_));
+	iEvent.put(std::move(thePCCob), std::string(trigstring_));
 }
 
 DEFINE_FWK_MODULE(AlcaPCCProducerEvent);
