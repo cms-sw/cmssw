@@ -52,8 +52,6 @@ void ESFEDIntegrityTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, 
   meESFedsNonFatal_ = iBooker.book1D(histo, histo, 56, 520, 576);
 }
 
-void ESFEDIntegrityTask::endJob(void) { LogInfo("ESFEDIntegrityTask") << "analyzed " << ievt_ << " events"; }
-
 void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c) {
   ievt_++;
 

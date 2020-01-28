@@ -547,13 +547,6 @@ void SiStripTrackingRecHitsValid::bookHistograms(DQMStore::IBooker &ibooker,
   }
 }
 
-void SiStripTrackingRecHitsValid::endJob() {
-  //Only in standalone mode save local root file
-  if (runStandalone && outputMEsInRootFile) {
-    dbe_->save(outputFileName);
-  }
-}
-
 // Functions that gets called by framework every event
 void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventSetup &es) {
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();

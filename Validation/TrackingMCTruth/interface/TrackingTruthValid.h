@@ -22,7 +22,6 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run, const edm::EventSetup &es) override;
-  void endJob() override;
 
 private:
   bool runStandalone;
