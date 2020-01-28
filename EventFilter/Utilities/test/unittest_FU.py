@@ -57,7 +57,7 @@ process.options = cms.untracked.PSet(
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(2)
 )
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
+    cout = cms.untracked.PSet(threshold = cms.untracked.string( "ERROR" )),
     destinations = cms.untracked.vstring( 'cout' )
 )
 
@@ -72,7 +72,7 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     runNumber = cms.untracked.uint32(options.runNumber),
     baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
     buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
-    directorIsBU = cms.untracked.bool(False)
+    directorIsBU = cms.untracked.bool(False),
 )
 
 try:
@@ -81,6 +81,8 @@ except Exception as ex:
   print(str(ex))
   pass
 
+ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
+
 process.source = cms.Source("FedRawDataInputSource",
     getLSFromFilename = cms.untracked.bool(True),
     verifyChecksum = cms.untracked.bool(True),
@@ -88,7 +90,15 @@ process.source = cms.Source("FedRawDataInputSource",
     eventChunkSize = cms.untracked.uint32(8),
     eventChunkBlock = cms.untracked.uint32(8),
     numBuffers = cms.untracked.uint32(2),
-    maxBufferedFiles = cms.untracked.uint32(2)
+    maxBufferedFiles = cms.untracked.uint32(2),
+    fileListMode = cms.untracked.bool(True),
+    fileNames = cms.untracked.vstring(
+        ram_dir_path+"run000101_ls0001_index000000.raw",
+        ram_dir_path+"run000101_ls0001_index000001.raw",
+        ram_dir_path+"run000101_ls0002_index000000.raw",
+        ram_dir_path+"run000101_ls0002_index000001.raw"
+    )
+
 )
 
 process.PrescaleService = cms.Service( "PrescaleService",
@@ -154,6 +164,7 @@ process.DQMStore = cms.Service( "DQMStore",
 
 from DQMServices.FileIO.DQMFileSaverPB_cfi import dqmSaver
 process.hltDQMFileSaver = dqmSaver
+
 
 process.daqHistoTest = cms.EDProducer("DaqTestHistograms",
     numberOfHistograms = cms.untracked.uint32(50),
