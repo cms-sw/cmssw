@@ -83,7 +83,7 @@ class PrimaryVertexResolution(GenericValidationData, ValidationWithPlots):
 
     def appendToPlots(self):
         repMap = self.getRepMap()
-        return (' loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
+        return (' PVResolution::loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
                 '"PrimaryVertexResolution","%(title)s", %(color)s, %(style)s);\n')%repMap
 
     @classmethod

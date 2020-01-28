@@ -22,16 +22,16 @@
 #include <unordered_map>
 #define PLOTTING_MACRO  // to remove message logger
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
-#include "Alignment/OfflineValidation/macros/CMS_lumi.C"
+#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 
 /* 
    This is an auxilliary class to store the list of files
    to be used to plot
 */
 
-class PVValidationVariables {
+class PVResolutionVariables {
 public:
-  PVValidationVariables(TString fileName, TString baseDir, TString legName = "", int color = 1, int style = 1);
+  PVResolutionVariables(TString fileName, TString baseDir, TString legName = "", int color = 1, int style = 1);
   int getLineColor() { return lineColor; }
   int getLineStyle() { return lineStyle; }
   TString getName() { return legendName; }
@@ -46,7 +46,7 @@ private:
   TString fname;
 };
 
-PVValidationVariables::PVValidationVariables(
+PVResolutionVariables::PVResolutionVariables(
     TString fileName, TString baseDir, TString legName, int lColor, int lStyle) {
   fname = fileName;
   lineColor = lColor;
@@ -72,22 +72,24 @@ PVValidationVariables::PVValidationVariables(
   }
 }
 
-std::vector<PVValidationVariables*> sourceList;
+namespace PVResolution{
+  std::vector<PVResolutionVariables*> sourceList;
 
-// fill the list of files
-//*************************************************************
-void loadFileList(const char* inputFile, TString baseDir, TString legendName, int lineColor, int lineStyle)
-//*************************************************************
-{
-  gErrorIgnoreLevel = kFatal;
-  sourceList.push_back(new PVValidationVariables(inputFile, baseDir, legendName, lineColor, lineStyle));
-}
+  // fill the list of files
+  //*************************************************************
+  void loadFileList(const char* inputFile, TString baseDir, TString legendName, int lineColor, int lineStyle)
+  //*************************************************************
+  {
+    gErrorIgnoreLevel = kFatal;
+    sourceList.push_back(new PVResolutionVariables(inputFile, baseDir, legendName, lineColor, lineStyle));
+  }
 
-//*************************************************************
-void clearFileList()
-//*************************************************************
-{
-  sourceList.clear();
+  //*************************************************************
+  void clearFileList()
+  //*************************************************************
+  {
+    sourceList.clear();
+  }
 }
 
 namespace statmode {
@@ -106,12 +108,12 @@ Int_t def_markers[9] = {kFullSquare,
 Int_t def_colors[9] = {kBlack, kRed, kBlue, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
 
 // auxilliary functions
-void setStyle();
+void setPVResolStyle();
 void fillTrendPlotByIndex(TH1F* trendPlot,
                           std::unordered_map<std::string, TH1F*>& h,
                           std::regex toMatch,
                           PVValHelper::estimator fitPar_);
-statmode::fitParams fitResiduals(TH1* hist, bool singleTime = false);
+statmode::fitParams fitResolutions(TH1* hist, bool singleTime = false);
 void makeNiceTrendPlotStyle(TH1* hist, Int_t color, Int_t style);
 void adjustMaximum(TH1F* histos[], int size);
 
@@ -121,10 +123,10 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
   //*************************************************************
 
   bool fromLoader = false;
-  setStyle();
+  setPVResolStyle();
 
   // check if the loader is empty
-  if (sourceList.size() != 0) {
+  if (PVResolution::sourceList.size() != 0) {
     fromLoader = true;
   }
 
@@ -134,7 +136,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
     std::cout << "======================================================" << std::endl;
     std::cout << "!!    arguments passed from CLI will be neglected   !!" << std::endl;
     std::cout << "======================================================" << std::endl;
-    for (std::vector<PVValidationVariables*>::iterator it = sourceList.begin(); it != sourceList.end(); ++it) {
+    for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin(); it != PVResolution::sourceList.end(); ++it) {
       std::cout << "name:  " << std::setw(20) << (*it)->getName() << " |file:  " << std::setw(15) << (*it)->getFile()
                 << " |color: " << std::setw(5) << (*it)->getLineColor() << " |style: " << std::setw(5)
                 << (*it)->getLineStyle() << std::endl;
@@ -158,17 +160,17 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
       } else {
         std::cout << "Please give file name and legend entry in the following form:\n"
                   << " filename1=legendentry1,filename2=legendentry2\n";
-        return;
+	exit(EXIT_FAILURE);
       }
     }
 
     theFileCount = FileList->GetSize();
   } else {
-    for (std::vector<PVValidationVariables*>::iterator it = sourceList.begin(); it != sourceList.end(); ++it) {
+    for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin(); it != PVResolution::sourceList.end(); ++it) {
       //FileList->Add((*it)->getFile()); // was extremely slow
       FileList->Add(TFile::Open((*it)->getFileName(), "READ"));
     }
-    theFileCount = sourceList.size();
+    theFileCount = PVResolution::sourceList.size();
   }
 
   const Int_t nFiles_ = theFileCount;
@@ -187,9 +189,9 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
       markers[j] = def_markers[j];
       colors[j] = def_colors[j];
     } else {
-      LegLabels[j] = sourceList[j]->getName();
-      markers[j] = sourceList[j]->getLineStyle();
-      colors[j] = sourceList[j]->getLineColor();
+      LegLabels[j] = PVResolution::sourceList[j]->getName();
+      markers[j] = PVResolution::sourceList[j]->getLineStyle();
+      colors[j] = PVResolution::sourceList[j]->getLineColor();
     }
 
     LegLabels[j].ReplaceAll("_", " ");
@@ -382,7 +384,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
     if (key.second == nullptr) {
       std::cout << "!!!WARNING!!! FitPVResolution::FitPVResolution(): missing histograms for key " << key.first
                 << ". I am going to exit. Good-bye!" << std::endl;
-      return;
+      exit(EXIT_FAILURE);
     }
   }
 
@@ -821,7 +823,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
   delete c6;
 
   // delete everything in the source list
-  for (std::vector<PVValidationVariables*>::iterator it = sourceList.begin(); it != sourceList.end(); ++it) {
+  for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin(); it != PVResolution::sourceList.end(); ++it) {
     delete (*it);
   }
 }
@@ -834,7 +836,7 @@ void fillTrendPlotByIndex(TH1F* trendPlot,
 /*--------------------------------------------------------------------*/
 {
   for (const auto& iterator : h) {
-    statmode::fitParams myFit = fitResiduals(iterator.second);
+    statmode::fitParams myFit = fitResolutions(iterator.second,false);
 
     int bin = -1;
     std::string result;
@@ -888,7 +890,7 @@ void fillTrendPlotByIndex(TH1F* trendPlot,
 }
 
 /*--------------------------------------------------------------------*/
-statmode::fitParams fitResiduals(TH1* hist, bool singleTime)
+statmode::fitParams fitResolutions(TH1* hist, bool singleTime)
 /*--------------------------------------------------------------------*/
 {
   if (hist->GetEntries() < 10) {
@@ -905,7 +907,7 @@ statmode::fitParams fitResiduals(TH1* hist, bool singleTime)
     mean = 0;
     //sigma= - hist->GetXaxis()->GetBinLowEdge(1) + hist->GetXaxis()->GetBinLowEdge(hist->GetNbinsX()+1);
     sigma = -minHist + maxHist;
-    std::cout << "FitPVResolution::fitResiduals(): histogram" << hist->GetName() << " mean or sigma are NaN!!"
+    std::cout << "FitPVResolution::fitResolutions(): histogram" << hist->GetName() << " mean or sigma are NaN!!"
               << std::endl;
   }
 
@@ -980,7 +982,7 @@ void adjustMaximum(TH1F* histos[], int size)
 }
 
 /*--------------------------------------------------------------------*/
-void setStyle() {
+void setPVResolStyle() {
   /*--------------------------------------------------------------------*/
 
   writeExtraText = true;  // if extra text

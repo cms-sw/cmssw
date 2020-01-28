@@ -137,7 +137,6 @@ process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLaye
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0 
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2   
 
-
 ###################################################################
 # The trigger filter module
 ###################################################################
@@ -156,6 +155,7 @@ process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
                                     TkTag  = cms.string('TrackRefitter'),
                                     isCosmics = cms.bool(False)
                                     )
+
 ###################################################################
 # The PV resolution module
 ###################################################################

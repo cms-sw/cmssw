@@ -232,7 +232,7 @@ elif (theRefitter == RefitType.STANDARD):
 ####################################################################
 process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string("PVValidation_test_0.root")
-                                  )                                    
+                                  )
 
 ####################################################################
 # Deterministic annealing clustering
@@ -323,3 +323,53 @@ else:
 process.p = cms.Path(process.goodvertexSkim*
                      process.seqTrackselRefit*
                      process.PVValidation)
+
+## PV refit part
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
+process.offlinePrimaryVerticesFromRefittedTrks  = offlinePrimaryVertices.clone()
+process.offlinePrimaryVerticesFromRefittedTrks.TrackLabel                                       = cms.InputTag("FinalTrackRefitter")
+process.offlinePrimaryVerticesFromRefittedTrks.vertexCollections.maxDistanceToBeam              = 1
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxNormalizedChi2             = 20
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLayersWithHits      = 5
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2
+
+###################################################################
+# The trigger filter module
+###################################################################
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
+process.HLTFilter = triggerResultsFilter.clone(
+     triggerConditions = cms.vstring("HLT_ZeroBias_*"),
+     #triggerConditions = cms.vstring("HLT_HT*"),
+     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+     l1tResults = cms.InputTag( "" ),
+     throw = cms.bool(False)
+)
+
+###################################################################
+# The analysis module
+###################################################################
+process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
+                                    TkTag  = cms.string('FinalTrackRefitter'),
+                                    isCosmics = cms.bool(False)
+                                    )
+
+###################################################################
+# The PV resolution module
+###################################################################
+process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
+                                                 storeNtuple         = cms.bool(True),
+                                                 vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
+                                                 trackCollection     = cms.InputTag("FinalTrackRefitter"),
+                                                 minVertexNdf        = cms.untracked.double(10.),
+                                                 minVertexMeanWeight = cms.untracked.double(0.5)
+                                                 )
+
+process.p2 = cms.Path(process.HLTFilter                               +
+                      process.seqTrackselRefit                        +
+                      process.offlinePrimaryVerticesFromRefittedTrks  +
+                      process.PrimaryVertexResolution                 +
+                      process.myanalysis
+                      )
