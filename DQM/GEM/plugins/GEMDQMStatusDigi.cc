@@ -38,9 +38,6 @@ typedef struct tagTimeStoreItem {
   Int_t nNbinY;
   Int_t nNbinMin;
   Int_t nNbinMax;
-
-  std::vector<std::vector<Double_t>> listOccupy;
-  std::vector<std::vector<Double_t>> listRecord;
 } TimeStoreItem;
 
 class GEMDQMStatusDigi : public DQMEDAnalyzer {
@@ -61,9 +58,10 @@ protected:
   int LoadPrevData();
 
   Int_t seekIdx(std::vector<GEMDetId> &listLayers, UInt_t unId);
+  void seekIdxSummary(GEMDetId gid, Int_t &nIdxLayer, Int_t &nIdxChamber);
 
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
-  void dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
+  void dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup);
 
 private:
   const GEMGeometry *initGeometry(edm::EventSetup const &iSetup);
@@ -133,6 +131,9 @@ private:
 
   std::unordered_map<UInt_t, Bool_t> m_mapStatusFill;
   std::unordered_map<UInt_t, Bool_t> m_mapStatusErr;
+  
+  MonitorElement *h3SummaryStatusPre_;
+  const Int_t m_nIdxSummaryFill = 1, m_nIdxSummaryErr = 2;
 
   MonitorElement *h1_amc_ttsState_;
   MonitorElement *h1_amc_davCnt_;
@@ -142,10 +143,10 @@ private:
   MonitorElement *h2AMCStatus_;
 
   MonitorElement *m_summaryReport_;
-  MonitorElement *h2SummaryStatus_;
 
   // For more information, see SetConfigTimeRecord()
   std::unordered_map<UInt_t, TimeStoreItem> listTimeStore_;
+  Int_t nStackedBin_;
   Int_t nStackedEvt_;
 };
 
@@ -318,8 +319,8 @@ int GEMDQMStatusDigi::SetConfigTimeRecord() {
   listTimeStore_[0] = newTimeStore;
 
   for (auto layerId : m_listLayers) {
-    std::string strSuffix =
-        (layerId.region() > 0 ? "p" : "m") + std::to_string(layerId.station()) + "_" + std::to_string(layerId.layer());
+    std::string strSuffix = (layerId.region() > 0 ? "p" : "m") + 
+      std::to_string(layerId.station()) + "_" + std::to_string(layerId.layer());
 
     newTimeStore.strName = strCommonName + "status_GEB_" + suffixLayer(layerId);
     newTimeStore.strTitle = "";
@@ -371,12 +372,8 @@ int GEMDQMStatusDigi::LoadPrevData() {
   TFile *fPrev;
   Bool_t bSync = true;
 
+  nStackedBin_ = 0;
   nStackedEvt_ = 0;
-
-  for (auto &itStore : listTimeStore_) {
-    itStore.second.listOccupy.clear();
-    itStore.second.listRecord.clear();
-  }
 
   if (strPathPrevDQMRoot_ == "")
     return 0;
@@ -392,76 +389,37 @@ int GEMDQMStatusDigi::LoadPrevData() {
 
   std::cout << strPathPrevDQMRoot_ << " is being loaded" << std::endl;
   std::string strRunnum = ((TDirectoryFile *)fPrev->Get("DQMData"))->GetListOfKeys()->At(0)->GetName();
+  
+  // In this stage, we need to use them to check the consistence of time-histograms
+  nStackedBin_ = -1;
+  nStackedEvt_ = -1;
 
   for (auto &itStore : listTimeStore_) {
-    TH2F *h2Prev =
-        (TH2F *)fPrev->Get(("DQMData/" + strRunnum + "/GEM/Run summary/StatusDigi/" + itStore.second.strName).c_str());
-    auto &listCurrRec = itStore.second.listRecord;
-    auto &listCurrOcc = itStore.second.listOccupy;
-
-    listCurrRec.clear();
-    listCurrOcc.clear();
-
-    if (h2Prev == NULL)
-      continue;  // Hmmm, is it an error...?
-
-    Int_t nNbinX = h2Prev->GetNbinsX();
-    Int_t nNbinY = h2Prev->GetNbinsY();
-
-    Int_t nX, nY;
-    Int_t nXMaxOcc = 0;
-    Int_t nNNonFullFill = 0;
-
-    for (nX = 1; nX <= nNbinX; nX++) {
-      Int_t nNEvtCurrTime = h2Prev->GetBinContent(nX, 0);  // The (nX, 0)-bin keeps the number of filled events
-      if (0 < nNEvtCurrTime && nNEvtCurrTime < nNSecPerBin_ * nNEvtPerSec_)
-        nNNonFullFill++;
-      if (nNEvtCurrTime > 0)
-        nXMaxOcc = nX;
-    }
-
-    if (nNNonFullFill > 1) {  // The last bin may not full
-      std::cerr << "WARNING: There is a bin of the previous histograms which is not fully filled" << std::endl;
-    }
-
-    for (nY = 1; nY <= nNbinY; nY++) {
-      listCurrRec.emplace_back();
-      listCurrOcc.emplace_back();
-
-      if (nXMaxOcc > 0) {
-        for (nX = 1; nX <= nXMaxOcc; nX++) {
-          //listCurr[ nY - 1 ].push_back(h2Prev->GetBinContent(nX, nY));
-          listCurrRec[nY - 1].push_back(0);  // If hadd is used, then it must be blanked
-          listCurrOcc[nY - 1].push_back(0);  // If hadd is used, then it must be blanked
-        }
-
-        if (nNNonFullFill <= 0) {
-          listCurrRec[nY - 1].push_back(0);
-          listCurrOcc[nY - 1].push_back(0);
-        }
-      } else {  // Empty...?
-        listCurrRec[nY - 1].push_back(0);
-        listCurrOcc[nY - 1].push_back(0);
+    std::string strNameStore = "DQMData/" + strRunnum + "/GEM/Run summary/StatusDigi/" + itStore.second.strName;
+    TH2F *h2Prev = (TH2F *)fPrev->Get(strNameStore.c_str());
+    
+    Int_t nNBinX = h2Prev->GetNbinsX();
+    Int_t nNBinY = h2Prev->GetNbinsY();
+    
+    // Including all under/overflow bins (they contain important infos)
+    nStackedEvt_ = 0;
+    for ( Int_t i = 0 ; i <= nNBinX + 1 ; i++ ) {
+      if ( i > 0 ) nStackedEvt_ += h2Prev->GetBinContent(i, 0);
+      for ( Int_t j = 0 ; j <= nNBinY + 1 ; j++ ) {
+        itStore.second.h2Histo->setBinContent(i, j, h2Prev->GetBinContent(i, j));
       }
     }
-
-    if (nXMaxOcc <= 0)
-      std::cout << "nXMacOcc has a problem" << std::endl;
-    if (nXMaxOcc <= 0)
-      continue;  // Empty...?
-
-    // Keeping the number of lastly stacked events
-    // And also checking if the sync is okay
-    if (nStackedEvt_ == 0)
-      nStackedEvt_ = h2Prev->GetBinContent(nXMaxOcc, 0);
-    else {
-      if (nStackedEvt_ != h2Prev->GetBinContent(nXMaxOcc, 0))
-        bSync = false;
+    
+    Int_t nStackedBinCurr = nStackedEvt_ / ( nNSecPerBin_ * nNEvtPerSec_ );
+    Int_t nStackedEvtCurr = nStackedEvt_ % ( nNSecPerBin_ * nNEvtPerSec_ );
+    
+    if ( nStackedBin_ < 0 ) {
+      nStackedBin_ = nStackedBinCurr;
+      nStackedEvt_ = nStackedEvtCurr;
+    } else {
+      bSync = ( nStackedBin_ == nStackedBinCurr && nStackedEvt_ == nStackedEvtCurr );
     }
   }
-
-  if (nStackedEvt_ == nNSecPerBin_ * nNEvtPerSec_)
-    nStackedEvt_ = 0;
 
   if (!bSync) {  // No sync...!
     std::cerr << "WARNING: No sync on time histograms" << std::endl;
@@ -476,7 +434,6 @@ void GEMDQMStatusDigi::bookHistogramsChamberPart(DQMStore::IBooker &ibooker, GEM
   std::string hName, hTitle;
 
   UInt_t unBinPos;
-  //std::cout << "B: " << gid << std::endl;
 
   std::string strIdxName = suffixChamber(gid);
   std::string strIdxTitle = "GEMINIm" + to_string(gid.chamber()) + " in GE" + (gid.region() > 0 ? "+" : "-") +
@@ -485,7 +442,6 @@ void GEMDQMStatusDigi::bookHistogramsChamberPart(DQMStore::IBooker &ibooker, GEM
   hName = "vfatStatus_QualityFlag_" + strIdxName;
   hTitle = "VFAT quality " + strIdxTitle;
   hTitle += ";VFAT;";
-  std::cout << "booking: " << gid << std::endl;
   listVFATQualityFlag_[gid] = ibooker.book2D(hName, hTitle, nVfat_, 0, nVfat_, 9, 0, 9);
 
   hName = "vfatStatus_BC_" + strIdxName;
@@ -607,8 +563,6 @@ void GEMDQMStatusDigi::bookHistogramsAMCPart(DQMStore::IBooker &ibooker) {
 }
 
 void GEMDQMStatusDigi::bookHistogramsTimeRecordPart(DQMStore::IBooker &ibooker) {
-  //Int_t nNBinX = ( listTimeStore_[ 0 ].listRecord.size() / nNTimeBinTotal_ + 1 ) * nNTimeBinTotal_;
-
   for (auto &itStore : listTimeStore_) {
     auto &infoCurr = itStore.second;
 
@@ -622,7 +576,7 @@ void GEMDQMStatusDigi::bookHistogramsTimeRecordPart(DQMStore::IBooker &ibooker) 
     infoCurr.h2Histo = ibooker.book2D(
         infoCurr.strName,
         //infoCurr.strTitle + ";Time (per " + std::to_string(nNSecPerBin_) + " sec);" + infoCurr.strAxisX,
-        infoCurr.strTitle + ";Per " + std::to_string(nNSecPerBin_ * nNEvtPerSec_) + " events;" + infoCurr.strAxisX,
+        infoCurr.strTitle + ";Per " + std::to_string(nNSecPerBin_*nNEvtPerSec_) + " events;" + infoCurr.strAxisX,
         nNTimeBinPrimitive_,
         0,
         nNTimeBinPrimitive_,
@@ -691,39 +645,6 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
 
   SetInfoChambers();
 
-  // Setting the informations for time histograms
-  SetConfigTimeRecord();
-  LoadPrevData();
-
-  // The loading does not work well or something goes wrong...
-  // In this case, we need to make a new start of recording.
-  for (auto &itStore : listTimeStore_) {
-    auto &infoCurr = itStore.second;
-
-    if (infoCurr.nNbinY != (Int_t)infoCurr.listRecord.size()) {
-      if (infoCurr.listRecord.size() > 0) {
-        std::cerr << "WARNING: The previous result is not compatible to the current geometry. "
-                  << "We will discard the previous data." << std::endl;
-
-        infoCurr.listRecord.clear();
-        infoCurr.listOccupy.clear();
-      }
-
-      for (Int_t i = 0; i < infoCurr.nNbinY; i++) {
-        infoCurr.listRecord.emplace_back();
-        infoCurr.listRecord[i].push_back(0);
-
-        infoCurr.listOccupy.emplace_back();
-        infoCurr.listOccupy[i].push_back(0);
-      }
-    }
-    /*for ( Int_t i = 0 ; i < (Int_t)infoCurr.listRecord[ 0 ].size() ; i++ ) 
-    for ( Int_t j = 0 ; j < infoCurr.nNbinY ; j++ ) 
-      std::cout << "Init time: " << infoCurr.strName << ", " << j << ", " << i << ", " << infoCurr.listRecord[ j ][ i ] << std::endl;
-    
-    std::cout << "Init time: " << itStore.first << ", " << infoCurr.strName << ", " << infoCurr.nNbinY << ", " << infoCurr.listRecord.size() << "; " << listTimeStore_[ itStore.first ].listRecord.size() << std::endl;*/
-  }
-
   // End: Set the configurations
 
   // Start: Setting books
@@ -741,7 +662,11 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   }
 
   bookHistogramsAMCPart(ibooker);
+
+  // Setting the informations for time histograms
+  SetConfigTimeRecord();
   bookHistogramsTimeRecordPart(ibooker);
+  LoadPrevData();
 
   h1_vfat_qualityflag_ = ibooker.book1D("vfat_quality_flag", "quality and flag", 9, 0, 9);
   h2_vfat_qualityflag_ = ibooker.book2D("vfat_quality_flag_per_geb", "quality and flag", nNCh_, 0, nNCh_, 9, 0, 9);
@@ -759,13 +684,13 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   m_summaryReport_ = ibooker.bookFloat("reportSummary");
   m_summaryReport_->Fill(1.0);
 
-  h2SummaryStatus_ =
-      ibooker.book2D("reportSummaryMap", ";Chamber;", nNCh_, 0, nNCh_, m_listLayers.size(), 0, m_listLayers.size());
+  h3SummaryStatusPre_ = ibooker.book3D("reportSummaryMapPreliminary", ";Chamber;", 
+      nNCh_, 0, nNCh_, m_listLayers.size(), 0, m_listLayers.size(), 2, 0, 1);
 
   for (Int_t i = 0; i < nNCh_; i++) {
     auto &gid = this->m_listChambers[i];
     Int_t nCh = gid.chamber() + (bPerSuperchamber_ ? 0 : gid.layer() - 1);
-    h2SummaryStatus_->setBinLabel(i + 1, std::to_string(nCh), 1);
+    h3SummaryStatusPre_->setBinLabel(i + 1, std::to_string(nCh), 1);
   }
 
   Int_t nIdxLayer = 0;
@@ -780,7 +705,7 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
     mapArg["layer"] = lid.layer();
     mapArg["chamber"] = lid.chamber();
 
-    h2SummaryStatus_->setBinLabel(nIdxLayer + 1, printfWithMap(strFmtSummaryLabel_, mapArg), 2);
+    h3SummaryStatusPre_->setBinLabel(nIdxLayer + 1, printfWithMap(strFmtSummaryLabel_, mapArg), 2);
     nIdxLayer++;
   }
 }
@@ -818,6 +743,15 @@ Int_t GEMDQMStatusDigi::seekIdx(std::vector<GEMDetId> &listLayers, UInt_t unId) 
   return -1;
 }
 
+void GEMDQMStatusDigi::seekIdxSummary(GEMDetId gid, Int_t &nIdxLayer, Int_t &nIdxChamber) {
+  Int_t nLayer = (bPerSuperchamber_ ? gid.layer() : 0);
+  GEMDetId layerId(gid.region(), gid.ring(), gid.station(), nLayer, 0, 0);
+  GEMDetId chamberId(0, 1, 1, gid.layer() - nLayer, gid.chamber(), 0);
+  
+  nIdxLayer = seekIdx(m_listLayers, layerId);
+  nIdxChamber = seekIdx(m_listChambers, chamberId) + 1;
+}
+
 void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
   edm::Handle<GEMVfatStatusDigiCollection> gemVFAT;
   edm::Handle<GEMGEBdataCollection> gemGEB;
@@ -829,21 +763,18 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
   event.getByToken(tagAMC_, gemAMC);
   event.getByToken(tagDigi_, gemDigis);
 
-  auto fillTimeHisto = [](TimeStoreItem &listCurr, int nIdx, bool bFill) -> void {
-    return;
-    auto &listRecord = listCurr.listRecord[nIdx];
-    auto &listOccupy = listCurr.listOccupy[nIdx];
-    int nIdxTime = listRecord.size() - 1;
-
-    listOccupy[nIdxTime] = 1;
+  auto fillTimeHisto = [](TimeStoreItem &listCurr, int nStackedBin, int nIdx, bool bFill) -> void {
+    Int_t nX = nStackedBin + 1;
+    Int_t nY = nIdx + 1;
+    
+    listCurr.h2Histo->setBinContent(nX, 0, listCurr.h2Histo->getBinContent(nX, 0) + 1);
     if (bFill)
-      listRecord[nIdxTime]++;
+      listCurr.h2Histo->setBinContent(nX, nY, listCurr.h2Histo->getBinContent(nX, nY) + 1);
   };
 
   for (GEMVfatStatusDigiCollection::DigiRangeIterator vfatIt = gemVFAT->begin(); vfatIt != gemVFAT->end(); ++vfatIt) {
     GEMDetId gemid = (*vfatIt).first;
     GEMDetId gemchId = gemid.chamberId();
-    //std::cout << "A: " << gemchId << std::endl;
     GEMDetId gemOnlychId(0, 1, 1, (bPerSuperchamber_ ? 0 : gemid.layer()), gemid.chamber(), 0);
 
     int nIdx = seekIdx(m_listChambers, gemOnlychId);
@@ -858,7 +789,10 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       if ((unQFVFAT & ~0x1) == 0) {
         unQFVFAT |= 0x1;  // If no error, then it should be 'Good'
       } else {            // Error!!
-        m_mapStatusErr[gemchId] = true;
+        //m_mapStatusErr[gemchId] = true;
+        Int_t nIdxLayer, nIdxChamber;
+        seekIdxSummary(gemchId, nIdxLayer, nIdxChamber);
+        h3SummaryStatusPre_->setBinContent(nIdxChamber, nIdxLayer, m_nIdxSummaryErr, 1.0);
       }
 
       FillBits(h1_vfat_qualityflag_, unQFVFAT, qVFATBit_ + fVFATBit_);
@@ -870,7 +804,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       //listVFATBC_[ gemchId ]->Fill(vfatStat->bc(), nVFAT);
       listVFATEC_[gemchId]->Fill(vfatStat->ec(), nVFAT);
 
-      fillTimeHisto(listCurr, nVFAT, (unQFVFAT & ~0x1) != 0);
+      fillTimeHisto(listCurr, nStackedBin_, nVFAT, (unQFVFAT & ~0x1) != 0);
     }
   }
 
@@ -904,10 +838,11 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       unStatus |= (GEBStatus->stuckData() << unBit++);
       unStatus |= (GEBStatus->evUfw() << unBit++);
 
-      //std::cout << gemid;
-      //printf("%06X\n", (unsigned int)unStatus);
       if (unStatus != 0) {  // Error!
-        m_mapStatusErr[gemid] = true;
+        //m_mapStatusErr[gemid] = true;
+        Int_t nIdxLayer, nIdxChamber;
+        seekIdxSummary(gemid, nIdxLayer, nIdxChamber);
+        h3SummaryStatusPre_->setBinContent(nIdxChamber, nIdxLayer, m_nIdxSummaryErr, 1.0);
       }
 
       FillBits(listGEBInputStatus_[lid], unStatus, eBit_, nCh);
@@ -921,7 +856,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       listGEBecOH_[lid]->Fill(nCh, GEBStatus->ecOH());
       listGEBOHCRC_[lid]->Fill(nCh, GEBStatus->crc());
 
-      fillTimeHisto(listCurr, nCh, unStatus != 0);
+      fillTimeHisto(listCurr, nStackedBin_, nCh, unStatus != 0);
     }
   }
 
@@ -955,7 +890,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       h1_amc_oosGlib_->Fill(amc->oosGlib());
       h1_amc_chTimeOut_->Fill(amc->linkTo());
 
-      fillTimeHisto(listCurr, nIdAMC, unStatus != 0);
+      fillTimeHisto(listCurr, nStackedBin_, nIdAMC, unStatus != 0);
     }
   }
 
@@ -991,7 +926,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
 
         bIsHit = true;
         mapBXVFAT[nVFAT] = d->bx();
-        fillTimeHisto(listCurrDigi, nVFAT, true);
+        fillTimeHisto(listCurrDigi, nStackedBin_, nVFAT, true);
 
         Int_t nIdxBx;
 
@@ -1003,7 +938,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
           nIdxBx = (Int_t)(listCurrBx.nNbinY * 1.0 * (d->bx() - listCurrBx.nNbinMin) /
                            (listCurrBx.nNbinMax - listCurrBx.nNbinMin));
 
-        fillTimeHisto(listCurrBx, nIdxBx, true);
+        fillTimeHisto(listCurrBx, nStackedBin_, nIdxBx, true);
       }
 
       if (bIsHit)
@@ -1014,87 +949,18 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       listVFATBC_[cId]->Fill(bx.second, bx.first);
 
     if (bIsHit) {  // Data occur!
-      m_mapStatusFill[cId] = true;
+      //m_mapStatusFill[cId] = true;
+      Int_t nIdxLayer, nIdxChamber;
+      seekIdxSummary(cId, nIdxLayer, nIdxChamber);
+      h3SummaryStatusPre_->setBinContent(nIdxChamber, nIdxLayer, m_nIdxSummaryFill, 1.0);
     }
   }
 
   // Counting the time tables
   nStackedEvt_++;
   if (nStackedEvt_ >= nNSecPerBin_ * nNEvtPerSec_) {  // Time to jump!
-    for (auto &itStore : listTimeStore_)
-      for (Int_t i = 0; i < itStore.second.nNbinY; i++) {
-        itStore.second.listOccupy[i].push_back(0);
-        itStore.second.listRecord[i].push_back(0);
-      }
-
+    nStackedBin_++;
     nStackedEvt_ = 0;
-  }
-}
-
-void GEMDQMStatusDigi::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  //std::cout << "End run" << std::endl;
-
-  for (auto chamber : gemChambers_) {
-    auto gid = chamber.id();
-
-    UInt_t unVal = 0;  // No data, no error
-    if (m_mapStatusErr[gid])
-      unVal = 2;  // Error! (no matter there are data or not)
-    else if (m_mapStatusFill[gid])
-      unVal = 1;  // Data occur, with no error
-    //std::cout << gid << ": " << unVal << std::endl;
-
-    Int_t nLayer = (bPerSuperchamber_ ? gid.layer() : 0);
-    GEMDetId layerId(gid.region(), gid.ring(), gid.station(), nLayer, 0, 0);
-    GEMDetId chamberId(0, 1, 1, gid.layer() - nLayer, gid.chamber(), 0);
-
-    Int_t nIdxLayer = seekIdx(m_listLayers, layerId);
-    Int_t nIdxChamber = seekIdx(m_listChambers, chamberId);
-
-    if (h2SummaryStatus_)
-      h2SummaryStatus_->setBinContent(nIdxChamber, nIdxLayer + 1, unVal);
-
-    // The below is for under/overflow of BX histograms
-    Int_t nNbinX = listVFATBC_[gid]->getNbinsX();
-    Int_t nNbinY = listVFATBC_[gid]->getNbinsY();
-
-    for (Int_t i = 0; i < nNbinY; i++) {
-      listVFATBC_[gid]->setBinContent(
-          1, i, listVFATBC_[gid]->getBinContent(0, i) + listVFATBC_[gid]->getBinContent(1, i));
-      listVFATBC_[gid]->setBinContent(
-          nNbinX, i, listVFATBC_[gid]->getBinContent(nNbinX, i) + listVFATBC_[gid]->getBinContent(nNbinX + 1, i));
-    }
-  }
-
-  for (auto &itStore : listTimeStore_) {
-    auto &listCurrOcc = itStore.second.listOccupy;
-    auto &listCurrRec = itStore.second.listRecord;
-    MonitorElement *h2Curr = itStore.second.h2Histo;
-
-    h2Curr->setBinContent(0, 0, nNSecPerBin_ * nNEvtPerSec_);
-    h2Curr->setBinContent(0, 1, 1);
-
-    Int_t nSize = listCurrRec[0].size();
-    //Int_t nXOffset = std::max(nSize - nNTimeBinTotal_, 0);
-    Int_t nXOffset = 0;
-    Int_t nNbinY = listCurrRec.size();
-
-    for (Int_t nX = nXOffset; nX < nSize; nX++) {
-      Int_t nNEvt = (nX < nSize - 1 ? nNEvtPerSec_ * nNSecPerBin_ : nStackedEvt_);
-      h2Curr->setBinContent(nX - nXOffset + 1, 0, nNEvt);
-
-      for (Int_t nY = 1; nY <= nNbinY; nY++) {
-        Double_t dVal = listCurrRec[nY - 1][nX];
-        Double_t dErr = listCurrOcc[nY - 1][nX];
-
-        if (dErr > 0 && dVal <= 0)
-          dVal = -1;
-
-        if (dVal != 0)
-          h2Curr->setBinContent(nX - nXOffset + 1, nY, dVal);
-        //if ( dErr > 0 ) h2Curr->setBinError(nX - nXOffset + 1, nY, 1);
-      }
-    }
   }
 }
 

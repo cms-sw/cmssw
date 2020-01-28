@@ -16,7 +16,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 #process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 
