@@ -441,22 +441,20 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
       mappingPuppi[((*puppiCandsMap)[pkref]).key()] = ic;
     }
 
-    if (storeTiming_) 
-      {
-	if (timeFromValueMap_) {
-	  if (cand.trackRef().isNonnull()) {
-	    auto t0 = (*t0Map)[cand.trackRef()];
-	    auto t0Err = (*t0ErrMap)[cand.trackRef()];
-	    outPtrP->back().setTime(t0, t0Err);
-	  }
-	}
-	else {
-	  if (cand.isTimeValid()) {
-	    outPtrP->back().setTime(cand.time(), cand.timeError());
-	  }
-	}
+    if (storeTiming_) {
+      if (timeFromValueMap_) {
+        if (cand.trackRef().isNonnull()) {
+          auto t0 = (*t0Map)[cand.trackRef()];
+          auto t0Err = (*t0ErrMap)[cand.trackRef()];
+          outPtrP->back().setTime(t0, t0Err);
+        }
+      } else {
+        if (cand.isTimeValid()) {
+          outPtrP->back().setTime(cand.time(), cand.timeError());
+        }
       }
-    
+    }
+
     mapping[ic] = ic;  // trivial at the moment!
     if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
       mappingTk[cand.trackRef().key()] = ic;
