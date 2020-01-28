@@ -95,7 +95,7 @@ void AlcaPCCProducerEvent::produce(edm::Event& iEvent, const edm::EventSetup& iS
     thePCCob->setbxID(bx);
   }
 
-	iEvent.put(std::move(thePCCob), std::string(trigstring_));
+  iEvent.put(std::move(thePCCob), std::string(trigstring_));
 }
 
 DEFINE_FWK_MODULE(AlcaPCCProducerEvent);
