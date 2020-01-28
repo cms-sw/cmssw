@@ -61,7 +61,6 @@ protected:
   void seekIdxSummary(GEMDetId gid, Int_t &nIdxLayer, Int_t &nIdxChamber);
 
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
-  void dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup);
 
 private:
   const GEMGeometry *initGeometry(edm::EventSetup const &iSetup);
@@ -375,7 +374,7 @@ int GEMDQMStatusDigi::LoadPrevData() {
   nStackedBin_ = 0;
   nStackedEvt_ = 0;
 
-  if (strPathPrevDQMRoot_ == "")
+  if (strPathPrevDQMRoot_.empty())
     return 0;
 
   std::ifstream fExist(strPathPrevDQMRoot_.c_str());
@@ -384,7 +383,7 @@ int GEMDQMStatusDigi::LoadPrevData() {
   fExist.close();
 
   fPrev = new TFile(strPathPrevDQMRoot_.c_str());
-  if (fPrev == NULL)
+  if (fPrev == nullptr)
     return 1;
 
   std::cout << strPathPrevDQMRoot_ << " is being loaded" << std::endl;

@@ -68,10 +68,10 @@ void GEMDQMHarvester::refineSummaryHistogram(edm::Service<DQMStore> &store) {
   std::string strNameSrc = "reportSummaryMapPreliminary";
   std::string strNewName = "reportSummaryMap";
 
-  store->setCurrentFolder(strDirCurr.c_str());
+  store->setCurrentFolder(strDirCurr);
 
-  MonitorElement *h3Curr = store->get((strDirCurr + "/" + strNameSrc).c_str());
-  TH2F *h2New = NULL;
+  MonitorElement *h3Curr = store->get(strDirCurr + "/" + strNameSrc);
+  TH2F *h2New = nullptr;
 
   refineSummaryHistogramCore(h3Curr->getTH3F(), strNewName, h2New);
   store->book2D(strNewName, h2New);
@@ -112,8 +112,8 @@ void GEMDQMHarvester::refineSummaryHistogramCore(TH3F *h3Src,
 void GEMDQMHarvester::fillUnderOverflowBunchCrossing(edm::Service<DQMStore> &store, std::string strNameSrc) {
   std::string strDirCurr = "GEM/StatusDigi";
 
-  store->setCurrentFolder(strDirCurr.c_str());
-  MonitorElement *h2Curr = store->get((strDirCurr + "/" + strNameSrc).c_str());
+  store->setCurrentFolder(strDirCurr);
+  MonitorElement *h2Curr = store->get(strDirCurr + "/" + strNameSrc);
 
   Int_t nNBinX = h2Curr->getNbinsX();
   Int_t nNBinY = h2Curr->getNbinsY();
