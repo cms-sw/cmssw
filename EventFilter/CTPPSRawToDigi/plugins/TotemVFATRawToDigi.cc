@@ -3,6 +3,7 @@
 * This is a part of TOTEM offline software.
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Laurent Forthomme
 *
 ****************************************************************************/
 
@@ -33,6 +34,7 @@
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+#include "DataFormats/TotemReco/interface/TotemT2Digi.h"
 
 #include <string>
 
@@ -47,7 +49,7 @@ public:
 private:
   std::string subSystemName;
 
-  enum { ssUndefined, ssTrackingStrip, ssTimingDiamond, ssTotemTiming } subSystem;
+  enum { ssUndefined, ssTrackingStrip, ssTimingDiamond, ssTotemTiming, ssTotemT2 } subSystem;
 
   std::vector<unsigned int> fedIds;
 
@@ -80,6 +82,8 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
     subSystem = ssTimingDiamond;
   else if (subSystemName == "TotemTiming")
     subSystem = ssTotemTiming;
+  else if (subSystemName == "TotemT2")
+    subSystem = ssTotemT2;
 
   if (subSystem == ssUndefined)
     throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi")
@@ -97,6 +101,9 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
 
   else if (subSystem == ssTotemTiming)
     produces<DetSetVector<TotemTimingDigi>>(subSystemName);
+
+  else if (subSystem == ssTotemT2)
+    produces<DetSetVector<TotemT2Digi>>(subSystemName);
 
   // set default IDs
   if (fedIds.empty()) {
