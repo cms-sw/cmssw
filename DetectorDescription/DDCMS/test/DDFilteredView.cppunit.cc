@@ -68,6 +68,8 @@ void testDDFilteredView::checkFilteredView() {
   DDFilteredView fview(det.get(), det->description()->worldVolume());
   fview.next(0);
   std::cout << fview.name() << " is a " << cms::dd::name(cms::DDSolidShapeMap, fview.shape()) << "\n";
+  std::cout << "Full path to it is " << fview.path() << "\n";
+  auto copyNos = fview.copyNos();
   if (fview.isA<dd4hep::Box>())
     cout << "It's a Box\n";
   fview.parent();

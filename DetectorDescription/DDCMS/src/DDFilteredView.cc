@@ -68,6 +68,31 @@ const PlacedVolume DDFilteredView::volume() const {
   return PlacedVolume(node_);
 }
 
+// 
+// This should be used for debug purpose only
+//
+const std::string
+DDFilteredView::path() const {
+  TString fullPath;
+  it_.back().GetPath(fullPath);
+  return std::string(fullPath.Data());
+}
+
+//
+// The vector is filled from bottom up:
+// result[0] contains the current node copy number
+//
+const std::vector<int>
+DDFilteredView::copyNos() const {
+  std::vector<int> result;
+
+  for( int i = it_.back().GetLevel(); i > 0; --i ) {
+    result.emplace_back(it_.back().GetNode(i)->GetNumber());
+  }
+    
+  return result;
+}
+
 const Double_t* DDFilteredView::trans() const { return it_.back().GetCurrentMatrix()->GetTranslation(); }
 
 const Translation DDFilteredView::translation() const {
