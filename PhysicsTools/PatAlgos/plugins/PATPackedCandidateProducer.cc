@@ -147,11 +147,11 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
       pfCandidateTypesForHcalDepth_(iConfig.getParameter<std::vector<int>>("pfCandidateTypesForHcalDepth")),
       storeHcalDepthEndcapOnly_(iConfig.getParameter<bool>("storeHcalDepthEndcapOnly")),
       storeTiming_(iConfig.getParameter<bool>("storeTiming")),
-      timeFromValueMap_(!iConfig.getParameter<edm::InputTag>("TimeMap").encode().empty() ||
-                        !iConfig.getParameter<edm::InputTag>("TimeMapErr").encode().empty()),
-      t0Map_(timeFromValueMap_ ? consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("TimeMap"))
+      timeFromValueMap_(!iConfig.getParameter<edm::InputTag>("timeMap").encode().empty() ||
+                        !iConfig.getParameter<edm::InputTag>("timeMapErr").encode().empty()),
+      t0Map_(timeFromValueMap_ ? consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("timeMap"))
                                : edm::EDGetTokenT<edm::ValueMap<float>>()),
-      t0ErrMap_(timeFromValueMap_ ? consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("TimeErrorMap"))
+      t0ErrMap_(timeFromValueMap_ ? consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("timeMapErr"))
                                   : edm::EDGetTokenT<edm::ValueMap<float>>()) {
   std::vector<edm::InputTag> sv_tags =
       iConfig.getParameter<std::vector<edm::InputTag>>("secondaryVerticesForWhiteList");
@@ -441,18 +441,22 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
       mappingPuppi[((*puppiCandsMap)[pkref]).key()] = ic;
     }
 
-    if (storeTiming_ && !timeFromValueMap_) {
-      if (cand.isTimeValid()) {
-        outPtrP->back().setTime(cand.time(), cand.timeError());
+    if (storeTiming_) 
+      {
+	if (timeFromValueMap_) {
+	  if (cand.trackRef().isNonnull()) {
+	    auto t0 = (*t0Map)[cand.trackRef()];
+	    auto t0Err = (*t0ErrMap)[cand.trackRef()];
+	    outPtrP->back().setTime(t0, t0Err);
+	  }
+	}
+	else {
+	  if (cand.isTimeValid()) {
+	    outPtrP->back().setTime(cand.time(), cand.timeError());
+	  }
+	}
       }
-    } else if (storeTiming_ && timeFromValueMap_) {
-      if (cand.trackRef().isNonnull()) {
-        auto t0 = (*t0Map)[cand.trackRef()];
-        auto t0Err = (*t0ErrMap)[cand.trackRef()];
-        outPtrP->back().setTime(t0, t0Err);
-      }
-    }
-
+    
     mapping[ic] = ic;  // trivial at the moment!
     if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
       mappingTk[cand.trackRef().key()] = ic;
