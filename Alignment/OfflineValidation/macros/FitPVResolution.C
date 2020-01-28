@@ -72,7 +72,7 @@ PVResolutionVariables::PVResolutionVariables(
   }
 }
 
-namespace PVResolution{
+namespace PVResolution {
   std::vector<PVResolutionVariables*> sourceList;
 
   // fill the list of files
@@ -90,7 +90,7 @@ namespace PVResolution{
   {
     sourceList.clear();
   }
-}
+}  // namespace PVResolution
 
 namespace statmode {
   using fitParams = std::pair<std::pair<double, double>, std::pair<double, double> >;
@@ -136,7 +136,9 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
     std::cout << "======================================================" << std::endl;
     std::cout << "!!    arguments passed from CLI will be neglected   !!" << std::endl;
     std::cout << "======================================================" << std::endl;
-    for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin(); it != PVResolution::sourceList.end(); ++it) {
+    for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin();
+         it != PVResolution::sourceList.end();
+         ++it) {
       std::cout << "name:  " << std::setw(20) << (*it)->getName() << " |file:  " << std::setw(15) << (*it)->getFile()
                 << " |color: " << std::setw(5) << (*it)->getLineColor() << " |style: " << std::setw(5)
                 << (*it)->getLineStyle() << std::endl;
@@ -160,13 +162,15 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
       } else {
         std::cout << "Please give file name and legend entry in the following form:\n"
                   << " filename1=legendentry1,filename2=legendentry2\n";
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
 
     theFileCount = FileList->GetSize();
   } else {
-    for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin(); it != PVResolution::sourceList.end(); ++it) {
+    for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin();
+         it != PVResolution::sourceList.end();
+         ++it) {
       //FileList->Add((*it)->getFile()); // was extremely slow
       FileList->Add(TFile::Open((*it)->getFileName(), "READ"));
     }
@@ -823,7 +827,9 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
   delete c6;
 
   // delete everything in the source list
-  for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin(); it != PVResolution::sourceList.end(); ++it) {
+  for (std::vector<PVResolutionVariables*>::iterator it = PVResolution::sourceList.begin();
+       it != PVResolution::sourceList.end();
+       ++it) {
     delete (*it);
   }
 }
@@ -836,7 +842,7 @@ void fillTrendPlotByIndex(TH1F* trendPlot,
 /*--------------------------------------------------------------------*/
 {
   for (const auto& iterator : h) {
-    statmode::fitParams myFit = fitResolutions(iterator.second,false);
+    statmode::fitParams myFit = fitResolutions(iterator.second, false);
 
     int bin = -1;
     std::string result;
