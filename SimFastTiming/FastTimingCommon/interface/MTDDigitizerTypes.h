@@ -15,12 +15,15 @@ namespace mtd_digitizer {
   typedef std::array<MTDSimData_t, nSamples> MTDSimHitData;
 
   struct MTDCellInfo {
-    //1st array=energy, 2nd array=time-of-flight
-    std::array<MTDSimHitData, 2> hit_info;
+    // for the BTL tile geometry and ETL:
+    //     1st array=energy, 2nd array=time-of-flight
+    // for the BTL bar geometry:
+    //     3rd array=energy (right side), 4th array=time-of-flight (right side)
+    std::array<MTDSimHitData, 4> hit_info;
   };
 
   // Maximum value of time-of-flight for premixing packing
-  constexpr float PREMIX_MAX_TOF = 26.0f;
+  constexpr float PREMIX_MAX_TOF = 25.0f;
 
   struct MTDCellId {
     MTDCellId() : detid_(0), row_(0), column_(0) {}
@@ -36,6 +39,9 @@ namespace mtd_digitizer {
   // use a wider integer now since we have to add row and column in an
   // intermediate det id for ETL
   typedef std::unordered_map<MTDCellId, MTDCellInfo> MTDSimHitDataAccumulator;
+
+  constexpr int kNumberOfBX = 15;
+  constexpr int kInTimeBX = 9;
 
 }  // namespace mtd_digitizer
 

@@ -84,14 +84,16 @@ void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_
     if (smearLightCollTime_ > 0.)
       toa += CLHEP::RandGaussQ::shoot(hre, 0., smearLightCollTime_);
 
-    if (toa > bxTime_ || toa < 0)  //just consider BX==0
+    // Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
+    const int iBX = std::floor(toa / bxTime_) + mtd_digitizer::kInTimeBX;
+    if (iBX < 0 || iBX >= mtd_digitizer::kNumberOfBX)
       continue;
 
-    (simHitIt->second).hit_info[0][0] += Npe;
+    (simHitIt->second).hit_info[0][iBX] += Npe;
 
-    // --- Store the time of the first SimHit
-    if ((simHitIt->second).hit_info[1][0] == 0 || toa < (simHitIt->second).hit_info[1][0])
-      (simHitIt->second).hit_info[1][0] = toa;
+    // --- Store the time of the first SimHit in the i-th BX
+    if ((simHitIt->second).hit_info[1][iBX] == 0 || toa < (simHitIt->second).hit_info[1][iBX])
+      (simHitIt->second).hit_info[1][iBX] = toa - (iBX - mtd_digitizer::kInTimeBX) * bxTime_;
 
   }  // hitRef loop
 }
