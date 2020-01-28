@@ -1,57 +1,39 @@
 
 #include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
+
 #include "G4SystemOfUnits.hh"
 #include "G4ParticleDefinition.hh"
-#include "G4ParticleTable.hh"
-#include "G4ProcessManager.hh"
-#include "G4ExcitationHandler.hh"
+#include "G4TheoFSGenerator.hh"
+#include "G4PreCompoundModel.hh"
+#include "G4GeneratorPrecompoundInterface.hh"
+#include "G4QGSParticipants.hh"
+#include "G4QGSMFragmentation.hh"
+#include "G4ExcitedStringDecay.hh"
 
-#include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticXS.h"
-#include "SimG4Core/CustomPhysics/interface/CMSSIMP.h"
-
-CMSQGSPSIMPBuilder::CMSQGSPSIMPBuilder(G4bool quasiElastic) {
-  theMin = 12 * GeV;
-
-  theModel = new G4TheoFSGenerator("QGSP");
-
+CMSQGSPSIMPBuilder::CMSQGSPSIMPBuilder() {
   theStringModel = new G4QGSModel<G4QGSParticipants>;
   theStringDecay = new G4ExcitedStringDecay(theQGSM = new G4QGSMFragmentation);
   theStringModel->SetFragmentationModel(theStringDecay);
-
-  theCascade = new G4GeneratorPrecompoundInterface;
-  thePreEquilib = new G4PreCompoundModel(new G4ExcitationHandler);
-  theCascade->SetDeExcitation(thePreEquilib);
-
-  theModel->SetTransport(theCascade);
-  theModel->SetHighEnergyGenerator(theStringModel);
-  if (quasiElastic) {
-    theQuasiElastic = new G4QuasiElasticChannel;
-    theModel->SetQuasiElasticChannel(theQuasiElastic);
-  } else {
-    theQuasiElastic = nullptr;
-  }
 }
 
 CMSQGSPSIMPBuilder::~CMSQGSPSIMPBuilder() {
   delete theStringDecay;
   delete theStringModel;
-  delete thePreEquilib;
-  delete theCascade;
-  if (theQuasiElastic)
-    delete theQuasiElastic;
-  delete theModel;
   delete theQGSM;
 }
 
-void CMSQGSPSIMPBuilder::Build(G4HadronElasticProcess*) {}
-
-void CMSQGSPSIMPBuilder::Build(G4HadronFissionProcess*) {}
-
-void CMSQGSPSIMPBuilder::Build(G4HadronCaptureProcess*) {}
-
 void CMSQGSPSIMPBuilder::Build(CMSSIMPInelasticProcess* aP) {
-  theModel->SetMinEnergy(theMin);
-  theModel->SetMaxEnergy(100 * TeV);
+
+  G4GeneratorPrecompoundInterface* theCascade = 
+    new G4GeneratorPrecompoundInterface;
+  G4PreCompoundModel* thePreEquilib = new G4PreCompoundModel();
+  theCascade->SetDeExcitation(thePreEquilib);
+
+  G4TheoFSGenerator* theModel = new G4TheoFSGenerator("QGSP");
+  theModel->SetTransport(theCascade);
+  theModel->SetHighEnergyGenerator(theStringModel);
+  theModel->SetMinEnergy(0.0);
+  theModel->SetMaxEnergy(100 * CLHEP::TeV);
   aP->RegisterMe(theModel);
-  aP->AddDataSet(new CMSSIMPInelasticXS());
 }

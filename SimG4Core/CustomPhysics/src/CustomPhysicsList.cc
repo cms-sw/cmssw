@@ -61,10 +61,7 @@ void CustomPhysicsList::ConstructProcess() {
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if (pmanager) {
         CMSSIMPInelasticProcess* simpInelPr = new CMSSIMPInelasticProcess();
-        CMSQGSPSIMPBuilder* theQGSPSIMPB =
-            new CMSQGSPSIMPBuilder(false);  // false -> no QuasiElastic (not adapted for SIMP - crashes)
-        theQGSPSIMPB->SetMinEnergy(12.0 *
-                                   MeV);  // normally this is GeV, but that leads to crashes with the massive SIMPs
+        CMSQGSPSIMPBuilder* theQGSPSIMPB = new CMSQGSPSIMPBuilder(); 
         theQGSPSIMPB->Build(simpInelPr);
         pmanager->AddDiscreteProcess(simpInelPr);
       } else

@@ -3,17 +3,8 @@
 
 #include "G4VCrossSectionDataSet.hh"
 #include "globals.hh"
-#include "G4ElementData.hh"
-#include <vector>
 
-const G4int MAXZINEL = 93;
-
-class G4DynamicParticle;
-class G4ParticleDefinition;
-class G4Element;
-class G4PhysicsVector;
-class G4ComponentGGHadronNucleusXsc;
-class G4HadronNucleonXsc;
+class G4NeutronInelasticXS;
 
 class CMSSIMPInelasticXS : public G4VCrossSectionDataSet {
 public:
@@ -38,32 +29,15 @@ public:
 
   void BuildPhysicsTable(const G4ParticleDefinition&) override;
 
-  void CrossSectionDescription(std::ostream&) const override;
-
 private:
   void Initialise(G4int Z, G4DynamicParticle* dp = nullptr, const char* = nullptr);
 
-  G4PhysicsVector* RetrieveVector(std::ostringstream& in, G4bool warn);
+  CMSSIMPInelasticXS& operator=(const CMSSIMPInelasticXS& right);
+  CMSSIMPInelasticXS(const CMSSIMPInelasticXS&);
 
-  G4double IsoCrossSection(G4double ekin, G4int Z, G4int A);
-
-  CMSSIMPInelasticXS& operator=(const CMSSIMPInelasticXS& right) = delete;
-  CMSSIMPInelasticXS(const CMSSIMPInelasticXS&) = delete;
-
-  G4ComponentGGHadronNucleusXsc* ggXsection;
-  G4HadronNucleonXsc* fNucleon;
-
-  const G4ParticleDefinition* proton;
-
-  G4ElementData data;
-  std::vector<G4PhysicsVector*> work;
-  std::vector<G4double> temp;
-  std::vector<G4double> coeff;
-
+  G4NeutronInelasticXS* nXsection;
+  const G4ParticleDefinition* neutron;
   G4bool isInitialized;
-
-  static const G4int amin[MAXZINEL];
-  static const G4int amax[MAXZINEL];
 };
 
 #endif
