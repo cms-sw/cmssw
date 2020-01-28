@@ -1374,24 +1374,26 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         }
         if ((corner.first < (int)(HGCalParameters::k_CornerSize)) && (corner.first > 0)) {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner " << corner.first
-                                        << ":" << corner.second;
+          edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner "
+                                        << corner.first << ":" << corner.second;
 #endif
           int wl = HGCalWaferIndex::waferIndex(lay, u, v);
-	  if (php.waferMaskMode_ > 0) {
-	    std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(xpos, ypos, r, R, php.rMinLayHex_[i], php.rMaxLayHex_[i], N, php.waferMaskMode_);
-	    waferTypes[wl] = std::make_pair(corner0.first, corner0.second);
+          if (php.waferMaskMode_ > 0) {
+            std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(
+                xpos, ypos, r, R, php.rMinLayHex_[i], php.rMaxLayHex_[i], N, php.waferMaskMode_);
+            waferTypes[wl] = std::make_pair(corner0.first, corner0.second);
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner " << corner.first
-					  << ":" << corner.second << " croner0 " << corner0.first << ":" << corner0.second;
+            edm::LogVerbatim("HGCalGeom")
+                << "Layer " << lay << " u|v " << u << ":" << v << " with corner " << corner.first << ":"
+                << corner.second << " croner0 " << corner0.first << ":" << corner0.second;
 #endif
-	  } else {
-	    waferTypes[wl] = std::make_pair(corner.first, corner.second);
+          } else {
+            waferTypes[wl] = std::make_pair(corner.first, corner.second);
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner " << corner.first
-					  << ":" << corner.second;
+            edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner "
+                                          << corner.first << ":" << corner.second;
 #endif
-	  }
+          }
         }
       }
     }

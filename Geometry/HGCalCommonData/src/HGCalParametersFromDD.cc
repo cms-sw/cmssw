@@ -115,8 +115,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
-                                    << php.firstMixedLayer_ << " Det Type " << php.detectorType_
-				    << " Wafer Mask Mode " << php.waferMaskMode_;
+                                    << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
+                                    << php.waferMaskMode_;
 #endif
       attribute = "OnlyForHGCalNumbering";
       value = namet;
