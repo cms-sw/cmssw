@@ -467,7 +467,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     for (const auto& trj : trajwithmtd) {
       const auto& thetrj = (updateTraj_ ? trj : trajs.front());
       float pathLength = 0.f, tmtd = 0.f, sigmatmtd = -1.f;
-      reco::Track result = buildTrack(track, thetrj, trj, bs, magfield.product(), prop.product(), trajwithmtd.size()>0 && !mtdthits.empty(), pathLength, tmtd, sigmatmtd);
+      reco::Track result = buildTrack(track, thetrj, trj, bs, magfield.product(), prop.product(), !trajwithmtd.empty() && !mtdthits.empty(), pathLength, tmtd, sigmatmtd);
       if (result.ndof() >= 0) {
 	/// setup the track extras
 	reco::TrackExtra::TrajParams trajParams;
