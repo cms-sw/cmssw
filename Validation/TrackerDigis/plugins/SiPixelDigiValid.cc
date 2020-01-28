@@ -272,13 +272,6 @@ void SiPixelDigiValid::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
   }
 }
 
-void SiPixelDigiValid::endJob() {
-  // Save histos in a file only in standalone mode
-  if (runStandalone && !outputFile_.empty() && dbe_) {
-    dbe_->save(outputFile_);
-  }
-}
-
 void SiPixelDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
