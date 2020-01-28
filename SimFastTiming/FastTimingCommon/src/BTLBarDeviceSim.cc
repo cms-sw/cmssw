@@ -84,36 +84,43 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t
     // --- Get the simHit energy and convert it from MeV to photo-electrons
     float Npe = 1000. * hit.energyLoss() * LightYield_ * LightCollEff_ * PDE_;
 
-    // --- Get the simHit time of arrival
-    float toa = std::get<2>(hitRef);
-
-    if (toa > bxTime_ || toa < 0)  //just consider BX==0
-      continue;
-
-    // --- Accumulate the energy of simHits in the same crystal for the BX==0
-    // this is to simulate the charge integration in a 25 ns window
-    (simHitIt->second).hit_info[0][0] += Npe;
-    (simHitIt->second).hit_info[0][1] += Npe;
-
+    // --- Calculate the light propagation time to the crystal bases (labeled L and R)
     double distR = 0.5 * topo.pitch().second - 0.1 * hit.localPosition().y();
     double distL = 0.5 * topo.pitch().second + 0.1 * hit.localPosition().y();
 
-    // This is for the layout with bars along phi
+    // This is for the layouts with bars along phi
     if (topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::bar ||
         topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::barphiflat) {
       distR = 0.5 * topo.pitch().first - 0.1 * hit.localPosition().x();
       distL = 0.5 * topo.pitch().first + 0.1 * hit.localPosition().x();
     }
 
-    double tR = toa + LightCollSlopeR_ * distR;
-    double tL = toa + LightCollSlopeL_ * distL;
+    double tR = std::get<2>(hitRef) + LightCollSlopeR_ * distR;
+    double tL = std::get<2>(hitRef) + LightCollSlopeL_ * distL;
 
-    // --- Store the time of the first SimHit
-    if ((simHitIt->second).hit_info[1][0] == 0 || tR < (simHitIt->second).hit_info[1][0])
-      (simHitIt->second).hit_info[1][0] = tR;
+    // --- Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
+    const int iBXR = std::floor(tR / bxTime_) + mtd_digitizer::kInTimeBX;
+    const int iBXL = std::floor(tL / bxTime_) + mtd_digitizer::kInTimeBX;
 
-    if ((simHitIt->second).hit_info[1][1] == 0 || tL < (simHitIt->second).hit_info[1][1])
-      (simHitIt->second).hit_info[1][1] = tL;
+    // --- Right side
+    if (iBXR > 0 && iBXR < mtd_digitizer::kNumberOfBX) {
+      // Accumulate the energy of simHits in the same crystal
+      (simHitIt->second).hit_info[0][iBXR] += Npe;
+
+      // Store the time of the first SimHit in the i-th BX
+      if ((simHitIt->second).hit_info[1][iBXR] == 0 || tR < (simHitIt->second).hit_info[1][iBXR])
+        (simHitIt->second).hit_info[1][iBXR] = tR - (iBXR - mtd_digitizer::kInTimeBX) * bxTime_;
+    }
+
+    // --- Left side
+    if (iBXL > 0 && iBXL < mtd_digitizer::kNumberOfBX) {
+      // Accumulate the energy of simHits in the same crystal
+      (simHitIt->second).hit_info[2][iBXL] += Npe;
+
+      // Store the time of the first SimHit in the i-th BX
+      if ((simHitIt->second).hit_info[3][iBXL] == 0 || tL < (simHitIt->second).hit_info[3][iBXL])
+        (simHitIt->second).hit_info[3][iBXL] = tL - (iBXL - mtd_digitizer::kInTimeBX) * bxTime_;
+    }
 
   }  // hitRef loop
 }
