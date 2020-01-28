@@ -18,8 +18,8 @@ public:
 
 private:
   // hide assignment operator as private
-  CMSSIMPInelasticProcess& operator=(const CMSSIMPInelasticProcess& right);
-  CMSSIMPInelasticProcess(const CMSSIMPInelasticProcess&);
+  CMSSIMPInelasticProcess& operator=(const CMSSIMPInelasticProcess& right) = delete;
+  CMSSIMPInelasticProcess(const CMSSIMPInelasticProcess&) = delete;
 
   G4ParticleDefinition* theParticle;
 };
