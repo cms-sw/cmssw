@@ -454,7 +454,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
       } else {
         std::cout << "Please give file name and legend entry in the following form:\n"
                   << " filename1=legendentry1,filename2=legendentry2\n";
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
     theFileCount = FileList->GetSize();
