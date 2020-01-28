@@ -24,9 +24,7 @@ CMSQGSPSIMPBuilder::~CMSQGSPSIMPBuilder() {
 }
 
 void CMSQGSPSIMPBuilder::Build(CMSSIMPInelasticProcess* aP) {
-
-  G4GeneratorPrecompoundInterface* theCascade = 
-    new G4GeneratorPrecompoundInterface;
+  G4GeneratorPrecompoundInterface* theCascade = new G4GeneratorPrecompoundInterface;
   G4PreCompoundModel* thePreEquilib = new G4PreCompoundModel();
   theCascade->SetDeExcitation(thePreEquilib);
 

@@ -17,7 +17,6 @@ public:
   G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) override;
 
 private:
-
   // hide assignment operator as private
   CMSSIMPInelasticProcess& operator=(const CMSSIMPInelasticProcess& right);
   CMSSIMPInelasticProcess(const CMSSIMPInelasticProcess&);

@@ -21,7 +21,6 @@ public:
   void Build(CMSSIMPInelasticProcess* aP);
 
 private:
-
   G4QGSModel<G4QGSParticipants>* theStringModel;
   G4ExcitedStringDecay* theStringDecay;
   G4QGSMFragmentation* theQGSM;

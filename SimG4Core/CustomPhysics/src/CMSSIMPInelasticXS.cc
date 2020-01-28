@@ -10,8 +10,7 @@
 #include "G4Proton.hh"
 #include "G4Neutron.hh"
 
-CMSSIMPInelasticXS::CMSSIMPInelasticXS() : 
-G4VCrossSectionDataSet("CMSSIMPInelasticXS"), neutron(G4Neutron::Neutron()) {
+CMSSIMPInelasticXS::CMSSIMPInelasticXS() : G4VCrossSectionDataSet("CMSSIMPInelasticXS"), neutron(G4Neutron::Neutron()) {
   verboseLevel = 1;
   nXsection = new G4NeutronInelasticXS();
   isInitialized = false;
@@ -19,23 +18,25 @@ G4VCrossSectionDataSet("CMSSIMPInelasticXS"), neutron(G4Neutron::Neutron()) {
 
 CMSSIMPInelasticXS::~CMSSIMPInelasticXS() {}
 
-G4bool CMSSIMPInelasticXS::IsElementApplicable(const G4DynamicParticle*, G4int, const G4Material*) { 
-  return true; 
-}
+G4bool CMSSIMPInelasticXS::IsElementApplicable(const G4DynamicParticle*, G4int, const G4Material*) { return true; }
 
-G4bool CMSSIMPInelasticXS::IsIsoApplicable(
-    const G4DynamicParticle*, G4int, G4int, const G4Element*, const G4Material*) {
+G4bool CMSSIMPInelasticXS::IsIsoApplicable(const G4DynamicParticle*, G4int, G4int, const G4Element*, const G4Material*) {
   return true;
 }
 
-G4double CMSSIMPInelasticXS::GetElementCrossSection(const G4DynamicParticle* aParticle, G4int Z, const G4Material* mat) {
-  return nXsection->GetElementCrossSection(aParticle, Z, mat); 
+G4double CMSSIMPInelasticXS::GetElementCrossSection(const G4DynamicParticle* aParticle,
+                                                    G4int Z,
+                                                    const G4Material* mat) {
+  return nXsection->GetElementCrossSection(aParticle, Z, mat);
 }
 
-G4double CMSSIMPInelasticXS::GetIsoCrossSection(
-    const G4DynamicParticle* aParticle, G4int Z, G4int A, const G4Isotope* iso,
-    const G4Element* elm, const G4Material* mat) {
-  return nXsection->GetIsoCrossSection(aParticle, Z, A, iso, elm, mat); 
+G4double CMSSIMPInelasticXS::GetIsoCrossSection(const G4DynamicParticle* aParticle,
+                                                G4int Z,
+                                                G4int A,
+                                                const G4Isotope* iso,
+                                                const G4Element* elm,
+                                                const G4Material* mat) {
+  return nXsection->GetIsoCrossSection(aParticle, Z, A, iso, elm, mat);
 }
 
 G4Isotope* CMSSIMPInelasticXS::SelectIsotope(const G4Element* anElement, G4double kinEnergy) {
@@ -59,4 +60,3 @@ void CMSSIMPInelasticXS::BuildPhysicsTable(const G4ParticleDefinition& p) {
   }
   isInitialized = true;
 }
-
