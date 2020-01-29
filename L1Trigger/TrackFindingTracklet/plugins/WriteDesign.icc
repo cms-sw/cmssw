@@ -1,0 +1,649 @@
+
+  if(writeVerilog || writeHLS){
+    std::map<std::string,std::vector<var_base*> > v;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // L1L2
+    ////////////////////////////////////////////////////////////////////////////
+    v["L1L2"];
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.rinv_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phi0_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.t_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.z0_final);
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiL_0_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiL_1_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiL_2_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiL_3_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.zL_0_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.zL_1_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.zL_2_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.zL_3_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.der_phiL_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.der_zL_final);
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiD_0_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiD_1_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiD_2_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiD_3_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.phiD_4_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.rD_0_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.rD_1_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.rD_2_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.rD_3_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.rD_4_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.der_phiD_final);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.der_rD_final); 
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_trackpar);
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiL_0);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiL_1);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiL_2);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiL_3);
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_zL_0);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_zL_1);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_zL_2);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_zL_3);
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_der_phiL);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_der_zL);
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiD_0);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiD_1);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiD_2);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiD_3);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_phiD_4);
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_rD_0);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_rD_1);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_rD_2);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_rD_3);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_rD_4);
+
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_der_phiD);
+    v.at("L1L2").push_back(&TrackletCalculator::ITC_L1L2.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // L3L4
+    ////////////////////////////////////////////////////////////////////////////
+    v["L3L4"];
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.rinv_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phi0_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.t_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.z0_final);
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiL_0_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiL_1_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiL_2_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiL_3_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.zL_0_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.zL_1_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.zL_2_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.zL_3_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.der_phiL_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.der_zL_final);
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiD_0_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiD_1_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiD_2_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiD_3_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.phiD_4_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.rD_0_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.rD_1_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.rD_2_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.rD_3_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.rD_4_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.der_phiD_final);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.der_rD_final); 
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_trackpar);
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiL_0);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiL_1);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiL_2);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiL_3);
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_zL_0);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_zL_1);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_zL_2);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_zL_3);
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_der_phiL);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_der_zL);
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiD_0);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiD_1);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiD_2);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiD_3);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_phiD_4);
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_rD_0);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_rD_1);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_rD_2);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_rD_3);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_rD_4);
+
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_der_phiD);
+    v.at("L3L4").push_back(&TrackletCalculator::ITC_L3L4.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // L5L6
+    ////////////////////////////////////////////////////////////////////////////
+    v["L5L6"];
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.rinv_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phi0_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.t_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.z0_final);
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiL_0_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiL_1_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiL_2_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiL_3_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.zL_0_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.zL_1_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.zL_2_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.zL_3_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.der_phiL_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.der_zL_final);
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiD_0_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiD_1_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiD_2_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiD_3_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.phiD_4_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.rD_0_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.rD_1_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.rD_2_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.rD_3_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.rD_4_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.der_phiD_final);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.der_rD_final); 
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_trackpar);
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiL_0);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiL_1);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiL_2);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiL_3);
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_zL_0);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_zL_1);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_zL_2);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_zL_3);
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_der_phiL);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_der_zL);
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiD_0);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiD_1);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiD_2);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiD_3);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_phiD_4);
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_rD_0);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_rD_1);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_rD_2);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_rD_3);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_rD_4);
+
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_der_phiD);
+    v.at("L5L6").push_back(&TrackletCalculator::ITC_L5L6.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // F1F2
+    ////////////////////////////////////////////////////////////////////////////
+    v["F1F2"];
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.rinv_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.phi0_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.t_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.z0_final);
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.phiL_0_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.phiL_1_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.phiL_2_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.zL_0_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.zL_1_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.zL_2_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.der_phiL_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.der_zL_final);
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.phiD_0_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.phiD_1_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.phiD_2_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.rD_0_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.rD_1_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.rD_2_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.der_phiD_final);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.der_rD_final); 
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_trackpar);
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_phiL_0);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_phiL_1);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_phiL_2);
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_zL_0);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_zL_1);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_zL_2);
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_der_phiL);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_der_zL);
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_phiD_0);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_phiD_1);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_phiD_2);
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_rD_0);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_rD_1);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_rD_2);
+
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_der_phiD);
+    v.at("F1F2").push_back(&TrackletCalculator::ITC_F1F2.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // B1B2
+    ////////////////////////////////////////////////////////////////////////////
+    v["B1B2"];
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.rinv_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.phi0_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.t_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.z0_final);
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.phiL_0_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.phiL_1_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.phiL_2_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.zL_0_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.zL_1_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.zL_2_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.der_phiL_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.der_zL_final);
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.phiD_0_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.phiD_1_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.phiD_2_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.rD_0_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.rD_1_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.rD_2_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.der_phiD_final);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.der_rD_final); 
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_trackpar);
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_phiL_0);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_phiL_1);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_phiL_2);
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_zL_0);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_zL_1);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_zL_2);
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_der_phiL);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_der_zL);
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_phiD_0);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_phiD_1);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_phiD_2);
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_rD_0);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_rD_1);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_rD_2);
+
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_der_phiD);
+    v.at("B1B2").push_back(&TrackletCalculator::ITC_B1B2.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // F3F4
+    ////////////////////////////////////////////////////////////////////////////
+    v["F3F4"];
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.rinv_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.phi0_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.t_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.z0_final);
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.phiL_0_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.phiL_1_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.phiL_2_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.zL_0_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.zL_1_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.zL_2_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.der_phiL_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.der_zL_final);
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.phiD_0_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.phiD_1_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.phiD_2_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.rD_0_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.rD_1_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.rD_2_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.der_phiD_final);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.der_rD_final); 
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_trackpar);
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_phiL_0);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_phiL_1);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_phiL_2);
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_zL_0);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_zL_1);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_zL_2);
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_der_phiL);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_der_zL);
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_phiD_0);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_phiD_1);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_phiD_2);
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_rD_0);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_rD_1);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_rD_2);
+
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_der_phiD);
+    v.at("F3F4").push_back(&TrackletCalculator::ITC_F3F4.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // B3B4
+    ////////////////////////////////////////////////////////////////////////////
+    v["B3B4"];
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.rinv_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.phi0_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.t_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.z0_final);
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.phiL_0_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.phiL_1_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.phiL_2_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.zL_0_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.zL_1_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.zL_2_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.der_phiL_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.der_zL_final);
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.phiD_0_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.phiD_1_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.phiD_2_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.rD_0_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.rD_1_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.rD_2_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.der_phiD_final);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.der_rD_final); 
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_trackpar);
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_phiL_0);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_phiL_1);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_phiL_2);
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_zL_0);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_zL_1);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_zL_2);
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_der_phiL);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_der_zL);
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_phiD_0);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_phiD_1);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_phiD_2);
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_rD_0);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_rD_1);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_rD_2);
+
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_der_phiD);
+    v.at("B3B4").push_back(&TrackletCalculator::ITC_B3B4.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // L1F1
+    ////////////////////////////////////////////////////////////////////////////
+    v["L1F1"];
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.rinv_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.phi0_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.t_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.z0_final);
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.phiL_0_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.phiL_1_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.phiL_2_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.zL_0_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.zL_1_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.zL_2_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.der_phiL_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.der_zL_final);
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.phiD_0_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.phiD_1_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.phiD_2_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.phiD_3_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.rD_0_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.rD_1_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.rD_2_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.rD_3_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.der_phiD_final);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.der_rD_final); 
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_trackpar);
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_phiL_0);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_phiL_1);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_phiL_2);
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_zL_0);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_zL_1);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_zL_2);
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_der_phiL);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_der_zL);
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_phiD_0);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_phiD_1);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_phiD_2);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_phiD_3);
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_rD_0);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_rD_1);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_rD_2);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_rD_3);
+
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_der_phiD);
+    v.at("L1F1").push_back(&TrackletCalculator::ITC_L1F1.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // L1B1
+    ////////////////////////////////////////////////////////////////////////////
+    v["L1B1"];
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.rinv_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.phi0_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.t_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.z0_final);
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.phiL_0_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.phiL_1_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.phiL_2_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.zL_0_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.zL_1_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.zL_2_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.der_phiL_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.der_zL_final);
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.phiD_0_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.phiD_1_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.phiD_2_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.phiD_3_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.rD_0_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.rD_1_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.rD_2_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.rD_3_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.der_phiD_final);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.der_rD_final); 
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_trackpar);
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_phiL_0);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_phiL_1);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_phiL_2);
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_zL_0);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_zL_1);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_zL_2);
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_der_phiL);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_der_zL);
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_phiD_0);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_phiD_1);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_phiD_2);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_phiD_3);
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_rD_0);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_rD_1);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_rD_2);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_rD_3);
+
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_der_phiD);
+    v.at("L1B1").push_back(&TrackletCalculator::ITC_L1B1.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // L2F1
+    ////////////////////////////////////////////////////////////////////////////
+    v["L2F1"];
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.rinv_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.phi0_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.t_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.z0_final);
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.phiL_0_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.phiL_1_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.phiL_2_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.zL_0_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.zL_1_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.zL_2_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.der_phiL_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.der_zL_final);
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.phiD_0_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.phiD_1_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.phiD_2_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.phiD_3_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.rD_0_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.rD_1_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.rD_2_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.rD_3_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.der_phiD_final);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.der_rD_final); 
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_trackpar);
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_phiL_0);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_phiL_1);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_phiL_2);
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_zL_0);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_zL_1);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_zL_2);
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_der_phiL);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_der_zL);
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_phiD_0);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_phiD_1);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_phiD_2);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_phiD_3);
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_rD_0);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_rD_1);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_rD_2);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_rD_3);
+
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_der_phiD);
+    v.at("L2F1").push_back(&TrackletCalculator::ITC_L2F1.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // L2B1
+    ////////////////////////////////////////////////////////////////////////////
+    v["L2B1"];
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.rinv_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.phi0_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.t_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.z0_final);
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.phiL_0_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.phiL_1_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.phiL_2_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.zL_0_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.zL_1_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.zL_2_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.der_phiL_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.der_zL_final);
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.phiD_0_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.phiD_1_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.phiD_2_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.phiD_3_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.rD_0_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.rD_1_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.rD_2_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.rD_3_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.der_phiD_final);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.der_rD_final); 
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_trackpar);
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_phiL_0);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_phiL_1);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_phiL_2);
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_zL_0);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_zL_1);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_zL_2);
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_der_phiL);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_der_zL);
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_phiD_0);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_phiD_1);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_phiD_2);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_phiD_3);
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_rD_0);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_rD_1);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_rD_2);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_rD_3);
+
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_der_phiD);
+    v.at("L2B1").push_back(&TrackletCalculator::ITC_L2B1.valid_der_rD);
+    ////////////////////////////////////////////////////////////////////////////
+
+    for (const auto &calculator : v){
+      const std::string &layer = calculator.first;
+      const std::vector<var_base*> v = calculator.second;
+      ofstream fv("TC_"+layer+(writeVerilog?".v":".cpp"));
+
+      if (writeVerilog) var_base::Design_print(v,fv,var_base::verilog);
+      else              var_base::Design_print(v,fv,var_base::hls);
+      fv.close();
+    }
+  }

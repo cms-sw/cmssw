@@ -1,0 +1,485 @@
+
+
+    // ------------------------------------------------------------------------------------------
+    // number of tracklet phi sectors
+    const int NSector=24;
+
+    // ------------------------------------------------------------------------------------------
+    // set up geometry
+    int NBarrel=6;
+    int NDisk=5;
+
+    L1TBarrel* L[10];
+    L1TDisk* F[7];
+    L1TDisk* B[7];
+
+    L[0]=new L1TBarrel(20.0,30.0,125.0,NSector);
+    L[1]=new L1TBarrel(30.0,45.0,125.0,NSector);
+    L[2]=new L1TBarrel(45.0,60.0,125.0,NSector);
+    L[3]=new L1TBarrel(60.0,80.0,125.0,NSector);
+    L[4]=new L1TBarrel(80.0,100.0,125.0,NSector);
+    L[5]=new L1TBarrel(100.0,120.0,125.0,NSector);
+
+    F[0]=new L1TDisk(125.0,150.0,NSector);
+    F[1]=new L1TDisk(150.0,175.0,NSector);
+    F[2]=new L1TDisk(175.0,210.0,NSector);
+    F[3]=new L1TDisk(210.0,250.0,NSector);
+    F[4]=new L1TDisk(250.0,275.0,NSector);
+
+    B[0]=new L1TDisk(-125.0,-150.0,NSector);
+    B[1]=new L1TDisk(-150.0,-175.0,NSector);
+    B[2]=new L1TDisk(-175.0,-210.0,NSector);
+    B[3]=new L1TDisk(-210.0,-250.0,NSector);
+    B[4]=new L1TDisk(-250.0,-275.0,NSector);
+    
+
+    // ------------------------------------------------------------------------------------------
+    // loop over stubs 
+    for (int j=0;j<ev.nstubs();j++){
+
+      L1TStub stub=ev.stub(j);
+
+      int eventid=stub.eventid();
+      vector<int> tps=stub.tps();
+
+      int layer=stub.layer();
+      int ladder=stub.ladder();
+      int module=stub.module();
+
+      unsigned int isPSmodule = stub.isPSmodule();
+      /*
+      double sigmax=0.0029;
+      double sigmaz=0.0433;
+      if (hypot(stub.x(),stub.y())>60) sigmaz=1.44;  //HACK!!!
+      */
+
+      double sigmax=0.0;
+      double sigmaz=0.0;
+      if (isPSmodule) {
+      	 sigmax = 0.01/sqrt(12);
+	 sigmaz = 0.1467/sqrt(12);
+      }
+      else {
+      	 sigmax = 0.009/sqrt(12);
+	 sigmaz = 5.0/sqrt(12);
+      }
+
+      unsigned int isFlipped = stub.isFlipped();
+
+      L1TStub aStub(eventid,tps,stub.diphi(),stub.diz(),layer,ladder,module,stub.strip(),stub.x(),stub.y(),stub.z(),sigmax,sigmaz,stub.pt(),stub.bend(),isPSmodule,isFlipped);
+
+      int count_match=0;
+      for (int ilayer=0;ilayer<NBarrel;ilayer++){
+	if (L[ilayer]->addStub(aStub)) count_match++;
+      }
+      for (int idisk=0;idisk<NDisk;idisk++){
+	if (F[idisk]->addStub(aStub)) count_match++;
+	if (B[idisk]->addStub(aStub)) count_match++;
+      }
+      assert(count_match==1);
+
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // start track finding
+
+    L1TTracks allTracks;
+
+
+    if(1){	 
+      //tracklettimer.start();
+      L[0]->findTracklets(L[1]);
+      L[0]->findTracklets(B[0],50.0);
+      L[0]->findTracklets(F[0],50.0);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      L[0]->findMatches(L[2],phiWindowSF_,0.075,0.5); //0.075, 0.5
+      L[0]->findMatches(L[3],phiWindowSF_,0.12,3.0); //0.12, 4.0
+      L[0]->findMatches(L[4],phiWindowSF_,0.15,3.0); //0.15, 4.0
+      L[0]->findMatches(L[5],phiWindowSF_,0.2,3.0); //0.2, 4.0
+
+      L[0]->findMatches(F[0],phiWindowSF_);
+      L[0]->findMatches(F[1],phiWindowSF_);
+      L[0]->findMatches(F[2],phiWindowSF_);
+      L[0]->findMatches(F[3],phiWindowSF_);
+      L[0]->findMatches(F[4],phiWindowSF_);
+      L[0]->findMatches(B[0],phiWindowSF_);
+      L[0]->findMatches(B[1],phiWindowSF_);
+      L[0]->findMatches(B[2],phiWindowSF_);
+      L[0]->findMatches(B[3],phiWindowSF_);
+      L[0]->findMatches(B[4],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      L[0]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(L[0]->allTracks());
+    }      
+    
+    if(1){ 
+      //tracklettimer.start();
+      L[1]->findTracklets(L[2]);      //used in longVM (aka tracklet 2.0)
+      L[1]->findTracklets(B[0],70.0); //used in longVM (aka tracklet 2.0)
+      L[1]->findTracklets(F[0],70.0); //used in longVM (aka tracklet 2.0)
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      L[1]->findMatches(L[0],phiWindowSF_,0.04,0.5); 
+      L[1]->findMatches(L[3],phiWindowSF_,0.075,4.0); 
+      L[1]->findMatches(L[4],phiWindowSF_,0.1,4.0); 
+      L[1]->findMatches(L[5],phiWindowSF_,0.15,4.0); 
+      L[1]->findMatches(F[0],phiWindowSF_);
+      L[1]->findMatches(F[1],phiWindowSF_);
+      L[1]->findMatches(F[2],phiWindowSF_);
+      L[1]->findMatches(F[3],phiWindowSF_);
+      L[1]->findMatches(F[4],phiWindowSF_);
+      L[1]->findMatches(B[0],phiWindowSF_);
+      L[1]->findMatches(B[1],phiWindowSF_);
+      L[1]->findMatches(B[2],phiWindowSF_);
+      L[1]->findMatches(B[3],phiWindowSF_);
+      L[1]->findMatches(B[4],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      L[1]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(L[1]->allTracks());
+    }
+
+    if(1){
+      //tracklettimer.start();
+      L[2]->findTracklets(L[3]);
+      //L[2]->findTracklets(B[0]); //not used in firmware
+      //L[2]->findTracklets(F[0]); //not used in firmware
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      L[2]->findMatches(L[0],phiWindowSF_,0.025,5.0); //0.025, 5.0
+      L[2]->findMatches(L[1],phiWindowSF_,0.025,3.0); //0.025, 3.0
+      L[2]->findMatches(L[4],phiWindowSF_,0.03,7.0); //0.03, 8.0
+      L[2]->findMatches(L[5],phiWindowSF_,0.06,10.0); //0.05, 10.0
+      L[2]->findMatches(F[0],phiWindowSF_);
+      L[2]->findMatches(F[1],phiWindowSF_);
+      L[2]->findMatches(F[2],phiWindowSF_);
+      L[2]->findMatches(F[3],phiWindowSF_);
+      L[2]->findMatches(F[4],phiWindowSF_);
+      L[2]->findMatches(B[0],phiWindowSF_);
+      L[2]->findMatches(B[1],phiWindowSF_);
+      L[2]->findMatches(B[2],phiWindowSF_);
+      L[2]->findMatches(B[3],phiWindowSF_);
+      L[2]->findMatches(B[4],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      L[2]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(L[2]->allTracks());
+    }
+  
+    if(0){ //not used in firmware
+      //tracklettimer.start();
+      L[3]->findTracklets(L[4]);
+      L[3]->findTracklets(B[0]);
+      L[3]->findTracklets(F[0]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      L[3]->findMatches(L[0],phiWindowSF_,0.025,10.0);
+      L[3]->findMatches(L[1],phiWindowSF_,0.025,8.0);
+      L[3]->findMatches(L[2],phiWindowSF_,0.03,6.0);
+      L[3]->findMatches(L[5],phiWindowSF_,0.05,8.0);
+      L[3]->findMatches(F[0],phiWindowSF_);
+      L[3]->findMatches(F[1],phiWindowSF_);
+      L[3]->findMatches(F[2],phiWindowSF_);
+      L[3]->findMatches(F[3],phiWindowSF_);
+      L[3]->findMatches(F[4],phiWindowSF_);
+      L[3]->findMatches(B[0],phiWindowSF_);
+      L[3]->findMatches(B[1],phiWindowSF_);
+      L[3]->findMatches(B[2],phiWindowSF_);
+      L[3]->findMatches(B[3],phiWindowSF_);
+      L[3]->findMatches(B[4],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      L[3]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(L[3]->allTracks());
+    }
+
+    if(1){
+      //tracklettimer.start();
+      L[4]->findTracklets(L[5]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      L[4]->findMatches(L[0],phiWindowSF_,0.025,10.0); //0.025, 10.0
+      L[4]->findMatches(L[1],phiWindowSF_,0.025,9.0); //0.025, 10.0
+      L[4]->findMatches(L[2],phiWindowSF_,0.02,7.0); //0.03, 8.0
+      L[4]->findMatches(L[3],phiWindowSF_,0.02,6.0); //0.05, 6.0
+      //matchtimer.stop();
+
+      //fittimer.start();
+      L[4]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(L[4]->allTracks());
+    }
+  
+    if(1){
+      //tracklettimer.start();
+      F[0]->findTracklets(F[1]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      F[0]->findMatches(F[2],phiWindowSF_,0.05,0.3,0.1,2.5); //0.05, 0.5, 0.05, 3.0
+      F[0]->findMatches(F[3],phiWindowSF_,0.09,0.6,0.1); //0.09, 0.6, 0.09, 3.0
+      F[0]->findMatches(F[4],phiWindowSF_,0.1,1.0,0.15); //0.1, 1.0, 0.1, 3.0
+      F[0]->findBarrelMatches(L[0],phiWindowSF_);
+      F[0]->findBarrelMatches(L[1],phiWindowSF_);
+      F[0]->findBarrelMatches(L[2],phiWindowSF_);
+      F[0]->findBarrelMatches(L[3],phiWindowSF_);
+      F[0]->findBarrelMatches(L[4],phiWindowSF_);
+      F[0]->findBarrelMatches(L[5],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      F[0]->fitTracks();
+      //fittimer.stop();
+
+      allTracks.addTracks(F[0]->allTracks());
+    }      
+
+    if(0){ //not used in firmware
+      //tracklettimer.start();
+      F[1]->findTracklets(F[2]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      F[1]->findMatches(F[0],phiWindowSF_,0.04,0.4,0.04);
+      F[1]->findMatches(F[3],phiWindowSF_,0.05,0.5,0.05);
+      F[1]->findMatches(F[4],phiWindowSF_,0.075,0.5,0.075);
+      F[1]->findBarrelMatches(L[0],phiWindowSF_);
+      F[1]->findBarrelMatches(L[1],phiWindowSF_);
+      F[1]->findBarrelMatches(L[2],phiWindowSF_);
+      F[1]->findBarrelMatches(L[3],phiWindowSF_);
+      F[1]->findBarrelMatches(L[4],phiWindowSF_);
+      F[1]->findBarrelMatches(L[5],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      F[1]->fitTracks();
+      //fittimer.stop();
+
+      allTracks.addTracks(F[1]->allTracks());
+    }  
+
+    if(1){
+      //tracklettimer.start();
+      F[2]->findTracklets(F[3]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      F[2]->findMatches(F[0],phiWindowSF_,0.05,0.3,0.05); //0.05, 0.5, 0.05, 3.0
+      F[2]->findMatches(F[1],phiWindowSF_,0.04,0.2,0.04); //0.04, 0.5, 0.04, 3.0
+      F[2]->findMatches(F[4],phiWindowSF_,0.04,0.3,0.05,2.5); //0.05, 0.5, 0.05, 3.0
+      F[2]->findBarrelMatches(L[0],phiWindowSF_);
+      F[2]->findBarrelMatches(L[1],phiWindowSF_);
+      F[2]->findBarrelMatches(L[2],phiWindowSF_);
+      F[2]->findBarrelMatches(L[3],phiWindowSF_);
+      F[2]->findBarrelMatches(L[4],phiWindowSF_);
+      F[2]->findBarrelMatches(L[5],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      F[2]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(F[2]->allTracks());
+    }
+
+    if(0){ //not used in firmware
+      //tracklettimer.start();
+      F[3]->findTracklets(F[4]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      F[3]->findMatches(F[0],phiWindowSF_,0.05,0.5,0.05);
+      F[3]->findMatches(F[1],phiWindowSF_,0.05,0.5,0.05);
+      F[3]->findMatches(F[2],phiWindowSF_,0.05,0.5,0.05);
+      F[3]->findBarrelMatches(L[0],phiWindowSF_);
+      F[3]->findBarrelMatches(L[1],phiWindowSF_);
+      F[3]->findBarrelMatches(L[2],phiWindowSF_);
+      F[3]->findBarrelMatches(L[3],phiWindowSF_);
+      F[3]->findBarrelMatches(L[4],phiWindowSF_);
+      F[3]->findBarrelMatches(L[5],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      F[3]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(F[3]->allTracks());
+    }
+
+    if(1){
+      //tracklettimer.start();
+      B[0]->findTracklets(B[1]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      B[0]->findMatches(B[2],phiWindowSF_,0.05,0.3,0.1,0.25); //0.05, 0.5, 0.05, 3.0
+      B[0]->findMatches(B[3],phiWindowSF_,0.08,0.6,0.1); //0.08, 0.6, 0.08, 3.0
+      B[0]->findMatches(B[4],phiWindowSF_,0.1,1.0,0.15); //0.1, 1.0, 0.1, 3.0
+      B[0]->findBarrelMatches(L[0],phiWindowSF_);
+      B[0]->findBarrelMatches(L[1],phiWindowSF_);
+      B[0]->findBarrelMatches(L[2],phiWindowSF_);
+      B[0]->findBarrelMatches(L[3],phiWindowSF_);
+      B[0]->findBarrelMatches(L[4],phiWindowSF_);
+      B[0]->findBarrelMatches(L[5],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      B[0]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(B[0]->allTracks());
+    }      
+
+    if(0){ //not used in firmware
+      //tracklettimer.start();
+      B[1]->findTracklets(B[2]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      B[1]->findMatches(B[0],phiWindowSF_,0.04,0.4,0.04);
+      B[1]->findMatches(B[3],phiWindowSF_,0.05,0.5,0.05);
+      B[1]->findMatches(B[4],phiWindowSF_,0.075,0.5,0.075);
+      B[1]->findBarrelMatches(L[0],phiWindowSF_);
+      B[1]->findBarrelMatches(L[1],phiWindowSF_);
+      B[1]->findBarrelMatches(L[2],phiWindowSF_);
+      B[1]->findBarrelMatches(L[3],phiWindowSF_);
+      B[1]->findBarrelMatches(L[4],phiWindowSF_);
+      B[1]->findBarrelMatches(L[5],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      B[1]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(B[1]->allTracks());
+    }
+      
+    if(1){
+      //tracklettimer.start();
+      B[2]->findTracklets(B[3]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      B[2]->findMatches(B[0],phiWindowSF_,0.05,0.3,0.05); //0.05, 0.5, 0.05, 3.0
+      B[2]->findMatches(B[1],phiWindowSF_,0.04,0.2,0.04); //0.04, 0.5, 0.04, 3.0
+      B[2]->findMatches(B[4],phiWindowSF_,0.04,0.3,0.05,2.5); //0.05, 0.5, 0.05, 3.0
+      B[2]->findBarrelMatches(L[0],phiWindowSF_);
+      B[2]->findBarrelMatches(L[1],phiWindowSF_);
+      B[2]->findBarrelMatches(L[2],phiWindowSF_);
+      B[2]->findBarrelMatches(L[3],phiWindowSF_);
+      B[2]->findBarrelMatches(L[4],phiWindowSF_);
+      B[2]->findBarrelMatches(L[5],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      B[2]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(B[2]->allTracks());
+    }      
+
+    if(0){ //not used in firmware
+      //tracklettimer.start();
+      B[3]->findTracklets(B[4]);
+      //tracklettimer.stop();
+
+      //matchtimer.start();
+      B[3]->findMatches(B[0],phiWindowSF_,0.05,0.5,0.05);
+      B[3]->findMatches(B[1],phiWindowSF_,0.05,0.5,0.05);
+      B[3]->findMatches(B[2],phiWindowSF_,0.05,0.5,0.05);
+      B[3]->findBarrelMatches(L[0],phiWindowSF_);
+      B[3]->findBarrelMatches(L[1],phiWindowSF_);
+      B[3]->findBarrelMatches(L[2],phiWindowSF_);
+      B[3]->findBarrelMatches(L[3],phiWindowSF_);
+      B[3]->findBarrelMatches(L[4],phiWindowSF_);
+      B[3]->findBarrelMatches(L[5],phiWindowSF_);
+      //matchtimer.stop();
+
+      //fittimer.start();
+      B[3]->fitTracks();
+      //fittimer.stop();
+
+      allTracks.addTracks(B[3]->allTracks());
+    }      
+
+
+    // ------------------------------------------------------------------------------------------
+    // do duplicate removal
+    
+    L1TTracks purgedTracks=allTracks.purged();
+
+    bool printTracks=false;	
+
+    static ofstream out1;
+
+    if (printTracks) {
+      static bool first=true;
+        if (first) {                     
+        out1.open("tracks.txt");
+        first=false;
+      }
+
+      int nsim=ev.nsimtracks();
+    
+      if (nsim>0) out1 << "Event "<<ev.simtrack(0).pt()<<" "<<ev.simtrack(0).phi()<<" "<<ev.simtrack(0).eta()<<endl;
+      else out1 << "Event "<<999.99<<" "<<999.99<<" "<<999.99<<endl;	
+    }  
+
+    for (unsigned int i=0;i<purgedTracks.size();i++){
+      const L1TTrack& aTrack=purgedTracks.get(i);
+      double frac=0.0;
+      int simtrackid=aTrack.tpid(frac);
+      int isimtrack=ev.getSimtrackFromSimtrackid(simtrackid);
+      double simtrackpt=0.0;
+      double simtrackphi=999.0;
+      double simtracketa=999.0;
+      double simtrackvz=999.0;
+      if (isimtrack!=-1) {
+	L1SimTrack simtrack=ev.simtrack(isimtrack);
+	simtrackpt=simtrack.pt();
+	simtrackphi=simtrack.phi();
+	simtracketa=simtrack.eta();
+	simtrackvz=simtrack.vz();
+      }
+      if (printTracks) {
+        out1 <<"Track "<<simtrackpt<<" "<<simtrackphi<<" "
+	     <<simtracketa<<" "<<simtrackvz<<" "
+	     <<aTrack.pt(3.8)<<" "<<aTrack.phi0()<<" "
+	     <<aTrack.eta()<<" "<<aTrack.z0()<<" "
+	     <<aTrack.ptseed(3.8)<<" "<<aTrack.phi0seed()<<" "
+	     <<aTrack.etaseed()<<" "<<aTrack.z0seed()<<" "
+	     <<aTrack.chisqdof()<<" "<<aTrack.nstub()<<endl;
+      }
+    }
+    
+
+    // ------------------------------------------------------------------------------------------
+    // clean up
+
+    for (int i=0;i<NBarrel;i++){
+      delete L[i];
+    }
+    for (int i=0;i<NDisk;i++){
+      delete F[i];
+      delete B[i];
+    }
