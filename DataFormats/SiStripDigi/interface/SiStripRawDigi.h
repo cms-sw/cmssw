@@ -14,12 +14,12 @@
 */
 class SiStripRawDigi : public edm::DoNotSortUponInsertion {
 public:
-  SiStripRawDigi(const uint16_t& adc) : adc_(adc) { ; }
+  explicit SiStripRawDigi(uint16_t adc) : adc_(adc) {}
 
-  SiStripRawDigi() : adc_(0) { ; }
-  ~SiStripRawDigi() { ; }
+  SiStripRawDigi() : adc_(0) {}
+  ~SiStripRawDigi() {}
 
-  inline const uint16_t& adc() const;
+  inline uint16_t adc() const { return adc_; }
 
   /** Not used! (even if implementation is required). */
   inline bool operator<(const SiStripRawDigi& other) const;
@@ -32,7 +32,6 @@ private:
 inline std::ostream& operator<<(std::ostream& o, const SiStripRawDigi& digi) { return o << " " << digi.adc(); }
 
 // inline methods
-const uint16_t& SiStripRawDigi::adc() const { return adc_; }
-bool SiStripRawDigi::operator<(const SiStripRawDigi& other) const { return (this->adc() < other.adc()); }
+bool SiStripRawDigi::operator<(const SiStripRawDigi& other) const { return (adc() < other.adc()); }
 
 #endif  // DataFormats_SiStripDigi_SiStripRawDigi_H

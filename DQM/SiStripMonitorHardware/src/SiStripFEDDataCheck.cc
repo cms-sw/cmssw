@@ -233,7 +233,13 @@ void SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSe
     } else {
       //need to construct full object to go any further
       if (doPayloadChecks_ || checkChannelStatusBits_) {
-        buffer.reset(new sistrip::FEDBuffer(fedData.data(), fedData.size(), true));
+        const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData, true);
+        if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+          throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
+        }
+        auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData, true);
+        tmp_buffer->findChannels();
+        buffer = std::move(tmp_buffer);  // const now
         if (doPayloadChecks_) {
           bool channelLengthsOK = checkChannelLengths_ ? buffer->checkChannelLengthsMatchBufferLength() : true;
           bool channelPacketCodesOK = checkPacketCodes_ ? buffer->checkChannelPacketCodes() : true;
@@ -250,8 +256,15 @@ void SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSe
     if (hasFatalErrors) {
       fillFatalError(fedId, true);
       if (printDebug_) {
-        if (!buffer.get())
-          buffer.reset(new sistrip::FEDBuffer(fedData.data(), fedData.size(), true));
+        if (!buffer.get()) {
+          const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData, true);
+          if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+            throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
+          }
+          auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData, true);
+          tmp_buffer->findChannels();
+          buffer = std::move(tmp_buffer);  // const now
+        }
         edm::LogInfo("SiStripFEDCheck") << "Fatal error with FED ID " << fedId << ". Check summary: " << std::endl
                                         << buffer->checkSummary() << std::endl;
         std::stringstream ss;
@@ -263,8 +276,15 @@ void SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSe
       //fill non-fatal errors histogram if there were no fatal errors
       fillNonFatalError(fedId, rateNonFatal);
       if (printDebug_ && rateNonFatal > 0) {
-        if (!buffer.get())
-          buffer.reset(new sistrip::FEDBuffer(fedData.data(), fedData.size(), true));
+        if (!buffer.get()) {
+          const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData, true);
+          if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+            throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
+          }
+          auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData, true);
+          tmp_buffer->findChannels();
+          buffer = std::move(tmp_buffer);  // const now
+        }
         edm::LogInfo("SiStripFEDCheck") << "Non-fatal error with FED ID " << fedId << " for " << rateNonFatal
                                         << " of the channels. Check summary: " << std::endl
                                         << buffer->checkSummary() << std::endl;
