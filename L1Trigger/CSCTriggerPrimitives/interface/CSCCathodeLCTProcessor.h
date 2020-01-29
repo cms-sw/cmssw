@@ -65,9 +65,9 @@ public:
   void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
-  std::vector<CSCCLCTDigi> readoutCLCTs() const;
-  std::vector<CSCCLCTDigi> readoutCLCTsME1a() const;
-  std::vector<CSCCLCTDigi> readoutCLCTsME1b() const;
+  std::vector<CSCCLCTDigi> readoutCLCTs(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
+  std::vector<CSCCLCTDigi> readoutCLCTsME1a(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
+  std::vector<CSCCLCTDigi> readoutCLCTsME1b(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
 
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs() const;
@@ -85,11 +85,8 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
 protected:
-  /** Best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
-
-  /** Second best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
+  /** LCTs in this chamber, as found by the processor. */
+  CSCCLCTDigi CLCTContainer_[CSCConstants::MAX_CLCT_TBINS][CSCConstants::MAX_CLCTS_PER_PROCESSOR];
 
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
