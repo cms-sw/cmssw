@@ -25,8 +25,6 @@ public:
                               const G4Element* elm,
                               const G4Material* mat) override;
 
-  G4Isotope* SelectIsotope(const G4Element*, G4double kinEnergy) override;
-
   void BuildPhysicsTable(const G4ParticleDefinition&) override;
 
 private:

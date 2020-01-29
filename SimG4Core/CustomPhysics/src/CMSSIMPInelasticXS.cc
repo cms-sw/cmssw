@@ -39,10 +39,6 @@ G4double CMSSIMPInelasticXS::GetIsoCrossSection(const G4DynamicParticle* aPartic
   return nXsection->GetIsoCrossSection(aParticle, Z, A, iso, elm, mat);
 }
 
-G4Isotope* CMSSIMPInelasticXS::SelectIsotope(const G4Element* anElement, G4double kinEnergy) {
-  return nXsection->SelectIsotope(anElement, kinEnergy);
-}
-
 void CMSSIMPInelasticXS::BuildPhysicsTable(const G4ParticleDefinition& p) {
   if (isInitialized) {
     return;
