@@ -43,10 +43,10 @@ namespace hgcalsimclustertime {
                                                   float timeWidthBy = 0.5);
 
   private:
-    float _Xmin;
-    float _Xmax;
-    float _Cterm;
-    float _Aterm;
+    float xMin_;
+    float xMax_;
+    float cTerm_;
+    float aTerm_;
   };
 
 }  // namespace hgcalsimclustertime

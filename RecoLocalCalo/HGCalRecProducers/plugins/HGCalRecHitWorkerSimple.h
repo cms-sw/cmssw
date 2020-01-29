@@ -60,10 +60,6 @@ protected:
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
   std::unique_ptr<hgcal::RecHitTools> tools_;
 
-  double minValSiP_;
-  double maxValSiP_;
-  double noiseSiP_;
-  double constSiP_;
   hgcalsimclustertime::ComputeClusterTime timeEstimatorSi_;
 };
 
