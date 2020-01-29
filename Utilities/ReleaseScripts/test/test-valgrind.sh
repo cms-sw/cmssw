@@ -2,8 +2,9 @@
 
 SCRIPT_NAME=$(basename $0)
 TEST_NAME="test-valgrind-memleak"
+which ${TEST_NAME}
 valgrind --leak-check=full --undef-value-errors=no --error-limit=no \
-  ${CMSSW_BASE}/test/${SCRAM_ARCH}/${TEST_NAME} > ${SCRIPT_NAME}.log 2>&1
+         ${TEST_NAME} > ${SCRIPT_NAME}.log 2>&1
 
 cat ${SCRIPT_NAME}.log
 echo ""
