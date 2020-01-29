@@ -626,7 +626,7 @@ namespace dqm {
       // Log a backtrace on booking.
       void printTrace(std::string const& message);
       // print a log message if ME matches trackME_.
-      void debugTrackME(const char* message, MonitorElement* me) const;
+      void debugTrackME(const char* message, MonitorElement* me_local, MonitorElement* me_global) const;
 
     private:
       // MEComparison is a name-only comparison on MEs and Paths, allowing

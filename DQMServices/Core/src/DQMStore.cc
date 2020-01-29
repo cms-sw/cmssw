@@ -110,7 +110,7 @@ namespace dqm::implementation {
       if (forceReplace) {
         TH1* th1 = makeobject();
         assert(th1);
-        store_->debugTrackME("bookME (forceReplace)", me);
+        store_->debugTrackME("bookME (forceReplace)", nullptr, me);
         // surgically replace Histogram
         // This is rather dangerous because the ME is in a global set and may
         // be in use. We are protected by the booking lock here, but code
@@ -147,11 +147,11 @@ namespace dqm::implementation {
       // assertLegacySafe option).
       // We still created a local ME, so we can drive the lumi-changing for
       // legacy modules in watchPreGlobalBeginLumi.
-      store_->debugTrackME("bookME (legacy)", me);
+      store_->debugTrackME("bookME (legacy)", localme, me);
       return me;
     } else {
       // the normal case.
-      store_->debugTrackME("bookME (normal)", me);
+      store_->debugTrackME("bookME (normal)", localme, me);
       return localme;
     }
   }
@@ -162,7 +162,7 @@ namespace dqm::implementation {
     auto existing_new = globalMEs_[me->getRunLumi()].insert(me);
     if (existing_new.second == true) {
       // successfully inserted, return new object
-      debugTrackME("putME (global)", me);
+      debugTrackME("putME (global)", nullptr, me);
       return me;
     } else {
       // already present, return old object
@@ -183,7 +183,7 @@ namespace dqm::implementation {
       auto existing_new = localmes.insert(local_me);
       // successfully inserted, return new object
       assert(existing_new.second == true);  // insert successful
-      debugTrackME("putME (local, new)", me);
+      debugTrackME("putME (local, new)", local_me, me);
       return local_me;
     } else {
       // already present, return old object
@@ -198,7 +198,7 @@ namespace dqm::implementation {
       if (!local_me->isValid()) {
         local_me->switchData(me);
       }
-      debugTrackME("putME (local, existing)", me);
+      debugTrackME("putME (local, existing)", local_me, me);
       return local_me;
     }
   }
@@ -209,7 +209,7 @@ namespace dqm::implementation {
     for (auto& [runlumi, meset] : this->globalMEs_) {
       auto it = meset.find(path);
       if (it != meset.end()) {
-        debugTrackME("findME (found)", *it);
+        debugTrackME("findME (found)", nullptr, *it);
         // no guarantee on which ME we return here -- only that clone'ing this
         // would give a valid ME for that path.
         return *it;
@@ -287,26 +287,36 @@ namespace dqm::implementation {
     });
   }
 
-  void DQMStore::debugTrackME(const char* message, MonitorElement* me) const {
+  void DQMStore::debugTrackME(const char* message, MonitorElement* me_local, MonitorElement* me_global) const {
     const char* scopename[] = {"INVALID", "JOB", "RUN", "LUMI"};
-    if (!this->trackME_.empty() && me) {
-      std::string name = me->getFullname();
+    if (!this->trackME_.empty() && (me_local || me_global)) {
+      std::string name = me_global ? me_global->getFullname() : me_local->getFullname();
       if (name.find(this->trackME_) != std::string::npos) {
         edm::LogWarning("DQMStoreTrackME").log([&](auto& logger) {
-          logger << message << " for " << name << "(" << me << ")";
-          if (me->isValid()) {
-            logger << " " << me->getRunLumi() << " scope " << scopename[me->getScope()];
-            if (me->kind() >= MonitorElement::Kind::TH1F) {
-              logger << " entries " << me->getEntries();
-            } else if (me->kind() == MonitorElement::Kind::STRING) {
-              logger << " value " << me->getStringValue();
-            } else if (me->kind() == MonitorElement::Kind::REAL) {
-              logger << " value " << me->getFloatValue();
-            } else if (me->kind() == MonitorElement::Kind::INT) {
-              logger << " value " << me->getIntValue();
+          logger << message << " for " << name << "(" << me_local << "," << me_global << ")";
+          auto writeme = [&](MonitorElement* me) {
+            if (me->isValid()) {
+              logger << " " << me->getRunLumi() << " scope " << scopename[me->getScope()];
+              if (me->kind() >= MonitorElement::Kind::TH1F) {
+                logger << " entries " << me->getEntries();
+              } else if (me->kind() == MonitorElement::Kind::STRING) {
+                logger << " value " << me->getStringValue();
+              } else if (me->kind() == MonitorElement::Kind::REAL) {
+                logger << " value " << me->getFloatValue();
+              } else if (me->kind() == MonitorElement::Kind::INT) {
+                logger << " value " << me->getIntValue();
+              }
+            } else {
+              logger << " (invalid)";
             }
-          } else {
-            logger << " (invalid)";
+          };
+          if (me_local) {
+            logger << "  local:";
+            writeme(me_local);
+          }
+          if (me_global) {
+            logger << "  global:";
+            writeme(me_global);
           }
         });
         // A breakpoint can be useful here.
@@ -325,7 +335,7 @@ namespace dqm::implementation {
     auto existing = this->get(key);
     if (existing) {
       // exactly matching ME found, needs merging with the new data.
-      debugTrackME("findOrRecycle (found)", existing);
+      debugTrackME("findOrRecycle (found)", nullptr, existing);
       return existing;
     }  // else
 
@@ -351,7 +361,7 @@ namespace dqm::implementation {
       auto newme = *result.first;  // iterator to new ME
       assert(oldme == newme);      // recycling!
       // newme is reset and ready to accept data.
-      debugTrackME("findOrRecycle (recycled)", newme);
+      debugTrackME("findOrRecycle (recycled)", nullptr, newme);
       return newme;
     }  // else
 
@@ -387,7 +397,7 @@ namespace dqm::implementation {
       auto target = targetset.find(me);  // lookup by path, thanks to MEComparison
       if (target != targetset.end()) {
         // we already have a ME, just use it!
-        debugTrackME("enterLumi (existing)", *target);
+        debugTrackME("enterLumi (existing)", nullptr, *target);
       } else {
         // look for a prototype to reuse.
         auto proto = prototypes.find(me);
@@ -411,7 +421,7 @@ namespace dqm::implementation {
           auto result = targetset.insert(oldme);
           assert(result.second);  // was new insertion
           target = result.first;  // iterator to new ME
-          debugTrackME("enterLumi (reused)", *target);
+          debugTrackME("enterLumi (reused)", nullptr, *target);
         } else {
           // no prototype available. That means we have concurrent Lumis/Runs,
           // and need to make a clone now.
@@ -431,13 +441,14 @@ namespace dqm::implementation {
           auto result = targetset.insert(newme);
           assert(result.second);  // was new insertion
           target = result.first;  // iterator to new ME
-          debugTrackME("enterLumi (allocated)", *target);
+          debugTrackME("enterLumi (allocated)", nullptr, *target);
         }
       }
       // now we have the proper global ME in the right place, point the local there.
       // This is only safe if the name is exactly the same -- else it might corrupt
       // the tree structure of the set!
       me->switchData(*target);
+      debugTrackME("enterLumi (switchdata)", me, *target);
     }
   }
 
@@ -469,7 +480,7 @@ namespace dqm::implementation {
       // we have to be very careful with the ME here, it might not be backed by data at all.
       if (me->isValid() && checkScope(me->getScope()) == true) {
         // if we left the scope, simply release the data.
-        debugTrackME("leaveLumi (release)", me);
+        debugTrackME("leaveLumi (release)", me, nullptr);
         me->release(/* expectOwned */ false);
       }
     }
@@ -515,12 +526,12 @@ namespace dqm::implementation {
       auto other = this->findME(me);
       if (other) {
         // we still have a global one, so we can just remove this.
-        debugTrackME("cleanupLumi (delete)", me);
+        debugTrackME("cleanupLumi (delete)", nullptr, me);
         delete me;
       } else {
         // we will modify the ME, so it needs to be out of the set.
         // use a temporary vector to be save.
-        debugTrackME("cleanupLumi (recycle)", me);
+        debugTrackME("cleanupLumi (recycle)", nullptr, me);
         torecycle.push_back(me);
       }
     }
@@ -538,7 +549,7 @@ namespace dqm::implementation {
       me->Reset();
       auto result = prototypes.insert(me);
       assert(result.second);  // was new insertion, else findME should succeed
-      debugTrackME("cleanupLumi (reset)", me);
+      debugTrackME("cleanupLumi (reset)", nullptr, me);
     }
   }
 
@@ -550,7 +561,7 @@ namespace dqm::implementation {
       auto it = meset.lower_bound(path);
       // rfind can be used as a prefix match.
       while (it != meset.end() && (*it)->getPathname() == path.getDirname()) {
-        store_->debugTrackME("getContents (match)", *it);
+        store_->debugTrackME("getContents (match)", nullptr, *it);
         out.push_back(*it);
         ++it;
       }
@@ -571,7 +582,7 @@ namespace dqm::implementation {
         if (runlumi == edm::LuminosityBlockID() && (*it)->getScope() != MonitorElementData::Scope::JOB) {
           // skip prototypes
         } else {
-          store_->debugTrackME("getAllContents (match)", *it);
+          store_->debugTrackME("getAllContents (match)", nullptr, *it);
           out.push_back(*it);
         }
         ++it;
@@ -591,7 +602,7 @@ namespace dqm::implementation {
     auto it = meset.lower_bound(path);
     // rfind can be used as a prefix match.
     while (it != meset.end() && (*it)->getFullname().rfind(path_str, 0) == 0) {
-      store_->debugTrackME("getAllContents (run/lumi match)", *it);
+      store_->debugTrackME("getAllContents (run/lumi match)", nullptr, *it);
       out.push_back(*it);
       ++it;
     }
@@ -611,7 +622,7 @@ namespace dqm::implementation {
     auto it = meset.find(key.path_);
     if (it != meset.end()) {
       assert((*it)->getScope() == key.scope_);
-      store_->debugTrackME("get (key found)", *it);
+      store_->debugTrackME("get (key found)", nullptr, *it);
       return *it;
     }
     return nullptr;
