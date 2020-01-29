@@ -76,9 +76,9 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
 
   // error for recHit time
   timeEstimatorSi_ = hgcalsimclustertime::ComputeClusterTime(ps.getParameter<double>("minValSiPar"),
-							     ps.getParameter<double>("maxValSiPar"),
-							     ps.getParameter<double>("constSiPar"),
-							     ps.getParameter<double>("noiseSiPar"));
+                                                             ps.getParameter<double>("maxValSiPar"),
+                                                             ps.getParameter<double>("constSiPar"),
+                                                             ps.getParameter<double>("noiseSiPar"));
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
