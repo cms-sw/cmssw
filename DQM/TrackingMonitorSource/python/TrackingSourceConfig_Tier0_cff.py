@@ -14,7 +14,7 @@ import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
 TrackMon_ckf 					   = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
 TrackMon_ckf.TKTrackCollection                     = 'generalTracks'#ctfWithMaterialTracksBeamHaloMuon'#rsWithMaterialTracksP5'#muons'#globalCosmicMuons'#ctfWithMaterialTracksP5'
 TrackMon_ckf.AlgoName                              = 'CKFTk'
-TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters'
+TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters/TrackEfficiency'
 
 # Clone for RS Tracks
 #import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
