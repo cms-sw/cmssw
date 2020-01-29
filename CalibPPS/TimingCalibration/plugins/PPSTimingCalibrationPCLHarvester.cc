@@ -52,6 +52,7 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
   // fill the DB object record
   PPSTimingCalibration calib;
 
+  //FIXME use geometry ESHandle
   for (unsigned short arm = 0; arm < 2; ++arm) {
     for (unsigned short st = 0; st < 2; ++st) {
       for (unsigned short pl = 0; pl < 4; ++pl) {
