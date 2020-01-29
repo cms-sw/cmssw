@@ -158,8 +158,8 @@ run2_jme_2016.toModify(updatedJetsWithUserData.userInts,
 
 lepInJetVars = cms.EDProducer("LepInJetProducer",
     src = cms.InputTag("updatedJetsAK8"),
-    srcEle = cms.InputTag("slimmedElectrons"),
-    srcMu = cms.InputTag("slimmedMuons")
+    srcEle = cms.InputTag("finalElectrons"),
+    srcMu = cms.InputTag("finalMuons")
 )
 
 updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
