@@ -1,9 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-// The module providing event information
-#include "DQMEventInfo.h"
-DEFINE_FWK_MODULE(DQMEventInfo);
 #include "DQMFEDIntegrityClient.h"
 DEFINE_FWK_MODULE(DQMFEDIntegrityClient);
 #include "DQMStoreStats.h"
