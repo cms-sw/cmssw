@@ -75,12 +75,10 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
   rangeMask_ = ps.getParameter<uint32_t>("rangeMask");
 
   // error for recHit time
-  minValSiP_ = ps.getParameter<double>("minValSiPar");
-  maxValSiP_ = ps.getParameter<double>("maxValSiPar");
-  noiseSiP_ = ps.getParameter<double>("noiseSiPar");
-  constSiP_ = ps.getParameter<double>("constSiPar");
-
-  timeEstimatorSi_ = hgcalsimclustertime::ComputeClusterTime(minValSiP_, maxValSiP_, constSiP_, noiseSiP_);
+  timeEstimatorSi_ = hgcalsimclustertime::ComputeClusterTime(ps.getParameter<double>("minValSiPar"),
+							     ps.getParameter<double>("maxValSiPar"),
+							     ps.getParameter<double>("constSiPar"),
+							     ps.getParameter<double>("noiseSiPar"));
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {

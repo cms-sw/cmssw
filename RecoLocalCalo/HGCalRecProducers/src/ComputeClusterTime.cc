@@ -22,24 +22,24 @@ std::vector<size_t> decrease_sorted_indices(const std::vector<float>& v) {
 };
 
 ComputeClusterTime::ComputeClusterTime(float Xmin, float Xmax, float Cterm, float Aterm)
-    : _Xmin(Xmin), _Xmax(Xmax), _Cterm(Cterm), _Aterm(Aterm) {
-  if (_Xmin < 0)
-    _Xmin = 0.1;
+    : xMin_(Xmin), xMax_(Xmax), cTerm_(Cterm), aTerm_(Aterm) {
+  if (xMin_ <= 0)
+    xMin_ = 0.1;
 };
 
-ComputeClusterTime::ComputeClusterTime() : _Xmin(1.), _Xmax(5.), _Cterm(0), _Aterm(0){};
+ComputeClusterTime::ComputeClusterTime() : xMin_(1.), xMax_(5.), cTerm_(0), aTerm_(0){};
 
 void ComputeClusterTime::setParameters(float Xmin, float Xmax, float Cterm, float Aterm) {
-  _Xmin = (Xmin > 0) ? Xmin : 0.1;
-  _Xmax = Xmax;
-  _Cterm = Cterm;
-  _Aterm = Aterm;
+  xMin_ = (Xmin > 0) ? Xmin : 0.1;
+  xMax_ = Xmax;
+  cTerm_ = Cterm;
+  aTerm_ = Aterm;
   return;
 }
 
 //time resolution parametrization
 float ComputeClusterTime::timeResolution(float x) {
-  float funcVal = pow(_Aterm / x, 2) + pow(_Cterm, 2);
+  float funcVal = pow(aTerm_ / x, 2) + pow(cTerm_, 2);
   return sqrt(funcVal);
 }
 
@@ -47,10 +47,10 @@ float ComputeClusterTime::getTimeError(std::string type, float xVal) {
   if (type == "recHit") {
     //xVal is S/N
     //time is in ns units
-    if (xVal < _Xmin)
-      return timeResolution(_Xmin);
-    else if (xVal > _Xmax)
-      return _Cterm;
+    if (xVal < xMin_)
+      return timeResolution(xMin_);
+    else if (xVal > xMax_)
+      return cTerm_;
     else
       return timeResolution(xVal);
 
@@ -89,13 +89,13 @@ std::pair<float, float> ComputeClusterTime::fixSizeHighestDensity(
     if (c > max_elements) {
       max_elements = c;
       auto last_el = find_if_not(start, t.end(), [&](float el) { return el - startRef <= deltaT + tolerance; });
-      auto val = *(--last_el);
-      if (std::abs(deltaT - (val - startRef)) < tolerance) {
-        tolerance = std::abs(deltaT - (val - startRef));
+      auto valTostartDiff = *(--last_el) - startRef;
+      if (std::abs(deltaT - valTostartDiff) < tolerance) {
+        tolerance = std::abs(deltaT - valTostartDiff);
       }
       start_el = distance(t.begin(), start);
       end_el = distance(t.begin(), last_el);
-      timeW = val - startRef;
+      timeW = valTostartDiff;
     }
   }
 
