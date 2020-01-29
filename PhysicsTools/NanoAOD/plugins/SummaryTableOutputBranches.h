@@ -27,7 +27,7 @@ private:
     TBranch *branch;
     NamedBranchPtr(const std::string &aname, TBranch *branchptr = nullptr) : name(aname), branch(branchptr) {}
   };
-  std::vector<NamedBranchPtr> m_intBranches, m_floatBranches;
+  std::vector<NamedBranchPtr> m_intBranches, m_floatBranches, m_floatWithNormBranches;
 
   struct NamedVectorBranchPtr : public NamedBranchPtr {
     UInt_t count;
@@ -37,7 +37,7 @@ private:
                          TBranch *valueBranchptr = nullptr)
         : NamedBranchPtr(aname, valueBranchptr), counterBranch(counterBranchptr) {}
   };
-  std::vector<NamedVectorBranchPtr> m_vintBranches, m_vfloatBranches;
+  std::vector<NamedVectorBranchPtr> m_vintBranches, m_vfloatBranches, m_vfloatWithNormBranches;
 
   bool m_branchesBooked;
 

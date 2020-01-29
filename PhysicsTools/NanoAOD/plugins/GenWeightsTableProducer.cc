@@ -809,28 +809,33 @@ public:
       auto sumScales = runCounter->sumScale;
       for (auto& val : sumScales)
         val *= norm;
-      out->addVFloat("LHEScaleSumw" + label,
-                     "Sum of genEventWeight * LHEScaleWeight[i], divided by genEventSumw" + doclabel,
-                     sumScales);
+      out->addVFloatWithNorm("LHEScaleSumw" + label,
+                             "Sum of genEventWeight * LHEScaleWeight[i], divided by genEventSumw" + doclabel,
+                             sumScales,
+                             runCounter->sumw);
       auto sumPDFs = runCounter->sumPDF;
       for (auto& val : sumPDFs)
         val *= norm;
-      out->addVFloat(
-          "LHEPdfSumw" + label, "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw" + doclabel, sumPDFs);
+      out->addVFloatWithNorm("LHEPdfSumw" + label,
+                             "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw" + doclabel,
+                             sumPDFs,
+                             runCounter->sumw);
       if (!runCounter->sumRwgt.empty()) {
         auto sumRwgts = runCounter->sumRwgt;
         for (auto& val : sumRwgts)
           val *= norm;
-        out->addVFloat("LHEReweightingSumw" + label,
-                       "Sum of genEventWeight * LHEReweightingWeight[i], divided by genEventSumw" + doclabel,
-                       sumRwgts);
+        out->addVFloatWithNorm("LHEReweightingSumw" + label,
+                               "Sum of genEventWeight * LHEReweightingWeight[i], divided by genEventSumw" + doclabel,
+                               sumRwgts,
+                               runCounter->sumw);
       }
       if (!runCounter->sumNamed.empty()) {  // it could be empty if there's no LHE info in the sample
         for (unsigned int i = 0, n = namedWeightLabels_.size(); i < n; ++i) {
-          out->addFloat(
+          out->addFloatWithNorm(
               "LHESumw_" + namedWeightLabels_[i] + label,
               "Sum of genEventWeight * LHEWeight_" + namedWeightLabels_[i] + ", divided by genEventSumw" + doclabel,
-              runCounter->sumNamed[i] * norm);
+              runCounter->sumNamed[i] * norm,
+              runCounter->sumw);
         }
       }
     }

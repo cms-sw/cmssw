@@ -54,13 +54,17 @@ void SummaryTableOutputBranches::fillVectorBranches(const std::vector<Col> &tabc
 void SummaryTableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::MergeableCounterTable &tab, TTree &tree) {
   makeScalarBranches(tab.intCols(), tree, "L", m_intBranches);
   makeScalarBranches(tab.floatCols(), tree, "D", m_floatBranches);
+  makeScalarBranches(tab.floatWithNormCols(), tree, "D", m_floatWithNormBranches);
   makeVectorBranches(tab.vintCols(), tree, "L", m_vintBranches);
   makeVectorBranches(tab.vfloatCols(), tree, "D", m_vfloatBranches);
+  makeVectorBranches(tab.vfloatWithNormCols(), tree, "D", m_vfloatWithNormBranches);
 
   // now we go set the pointers for the counter branches
   for (auto &vbp : m_vintBranches)
     vbp.counterBranch->SetAddress(&vbp.count);
   for (auto &vbp : m_vfloatBranches)
+    vbp.counterBranch->SetAddress(&vbp.count);
+  for (auto &vbp : m_vfloatWithNormBranches)
     vbp.counterBranch->SetAddress(&vbp.count);
 }
 
@@ -75,6 +79,8 @@ void SummaryTableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever,
   }
   fillScalarBranches(tab.intCols(), m_intBranches);
   fillScalarBranches(tab.floatCols(), m_floatBranches);
+  fillScalarBranches(tab.floatWithNormCols(), m_floatWithNormBranches);
   fillVectorBranches(tab.vintCols(), m_vintBranches);
   fillVectorBranches(tab.vfloatCols(), m_vfloatBranches);
+  fillVectorBranches(tab.vfloatWithNormCols(), m_vfloatWithNormBranches);
 }
