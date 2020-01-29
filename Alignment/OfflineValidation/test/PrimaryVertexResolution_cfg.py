@@ -164,7 +164,9 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		
                                                  minVertexNdf        = cms.untracked.double(10.),
-                                                 minVertexMeanWeight = cms.untracked.double(0.5)
+                                                 minVertexMeanWeight = cms.untracked.double(0.5),
+                                                 runControl = cms.untracked.bool(True),
+                                                 runControlNumber = cms.untracked.vuint32(320040)
                                                  )
 
 process.TFileService = cms.Service("TFileService",

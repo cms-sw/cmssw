@@ -17,7 +17,7 @@ class PrimaryVertexResolution(GenericValidationData, ValidationWithPlots):
         "multiIOV":"False",
     }
     #mandatories = {"isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"}
-    mandatories = {"trackcollection"}
+    mandatories = {"runControl","runboundary","trackcollection"}
     valType = "pvresolution"
     def __init__(self, valName, alignment, config):
         super(PrimaryVertexResolution, self).__init__(valName, alignment, config)
