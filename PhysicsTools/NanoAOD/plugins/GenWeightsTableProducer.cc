@@ -452,7 +452,7 @@ public:
     for (auto id : pdfWeightIDs) {
       wPDF.push_back(weights.at(id) / w0);
     }
-    if (psWeightIDs.size() > 0) {
+    if (!psWeightIDs.empty()) {
       for (auto id : psWeightIDs)
         wPS.push_back((weights.at(id)) / genWeight);
     } else
