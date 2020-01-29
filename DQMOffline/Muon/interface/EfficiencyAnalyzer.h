@@ -19,7 +19,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -43,7 +42,6 @@ public:
 
 private:
   edm::ParameterSet parameters;
-  MuonServiceProxy* theService;
 
   // Switch for verbosity
   std::string metname;

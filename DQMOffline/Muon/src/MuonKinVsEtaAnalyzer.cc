@@ -21,9 +21,6 @@ MuonKinVsEtaAnalyzer::MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
 
-  // the services
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-
   theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >(parameters.getParameter<edm::InputTag>("MuonCollection"));
   theVertexLabel_ = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
 
@@ -61,7 +58,7 @@ MuonKinVsEtaAnalyzer::MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet) {
 
   theFolder = parameters.getParameter<string>("folder");
 }
-MuonKinVsEtaAnalyzer::~MuonKinVsEtaAnalyzer() { delete theService; }
+MuonKinVsEtaAnalyzer::~MuonKinVsEtaAnalyzer() {}
 
 void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                           edm::Run const& /*iRun*/,
@@ -167,7 +164,6 @@ void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 }
 void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace(metname) << "[MuonKinVsEtaAnalyzer] Analyze the mu in different eta regions";
-  theService->update(iSetup);
 
   edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByToken(theMuonCollectionLabel_, muons);

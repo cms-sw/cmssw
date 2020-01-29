@@ -8,6 +8,7 @@
  */
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,7 +45,7 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
 
   // the services
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
   edm::ConsumesCollector iC = consumesCollector();
 
   // TrackRefitter parameters
