@@ -58,8 +58,8 @@ public:
 
 private:
   // use the DDD as Geometry source
-  bool useDDD_;
-  bool useDD4hep_;
+  const bool useDDD_;
+  const bool useDD4hep_;
   bool applyAlignment_;
   const std::string alignmentsLabel_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
@@ -73,8 +73,8 @@ private:
 };
 
 GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
-    : useDDD_(p.getParameter<bool>("useDDD")),
-      useDD4hep_(p.getParameter<bool>("useDD4hep")),
+    : useDDD_{p.getParameter<bool>("useDDD")},
+      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)},
       applyAlignment_(p.getParameter<bool>("applyAlignment")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
