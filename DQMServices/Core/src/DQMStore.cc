@@ -436,6 +436,7 @@ namespace dqm::implementation {
           assert(!assertLegacySafe_);
 
           MonitorElementData newdata = anyme->cloneMEData();
+          newdata.key_.id_ = edm::LuminosityBlockID(run, lumi);
           auto newme = new MonitorElement(std::move(newdata));
           newme->Reset();  // we cloned a ME in use, not an empty prototype
           auto result = targetset.insert(newme);
