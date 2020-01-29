@@ -3,6 +3,7 @@
 * This is a part of TOTEM offline software.
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Nicola Minafra
 *   Laurent Forthomme
 *
 ****************************************************************************/
@@ -125,6 +126,11 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
            ++id)
         fedIds.push_back(id);
     }
+
+    else if (subSystem == ssTotemT2) {
+      for (int id = FEDNumbering::MINTotemT2FEDID; id < FEDNumbering::MAXTotemT2FEDID; ++id)
+        fedIds.push_back(id);
+    }
   }
 
   // conversion status
@@ -145,6 +151,9 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
 
   else if (subSystem == ssTotemTiming)
     run<DetSetVector<TotemTimingDigi>>(event, es);
+
+  else if (subSystem == ssTotemT2)
+    run<DetSetVector<TotemT2Digi>>(event, es);
 }
 
 template <typename DigiType>

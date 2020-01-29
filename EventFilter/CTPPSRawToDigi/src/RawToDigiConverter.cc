@@ -377,6 +377,14 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
   }
 }
 
+void RawToDigiConverter::run(const VFATFrameCollection& coll,
+                             const TotemDAQMapping& mapping,
+                             const TotemAnalysisMask& mask,
+                             edm::DetSetVector<TotemT2Digi>& digi,
+                             edm::DetSetVector<TotemVFATStatus>& status) {
+  //FIXME placeholder
+}
+
 void RawToDigiConverter::printSummaries() const {
   // print error summary
   if (printErrorSummary) {
