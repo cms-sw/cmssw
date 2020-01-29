@@ -364,7 +364,9 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("FinalTrackRefitter"),
                                                  minVertexNdf        = cms.untracked.double(10.),
-                                                 minVertexMeanWeight = cms.untracked.double(0.5)
+                                                 minVertexMeanWeight = cms.untracked.double(0.5),
+                                                 runControl = cms.untracked.bool(True),
+                                                 runControlNumber = cms.untracked.vuint32(int(runboundary))
                                                  )
 
 process.p2 = cms.Path(process.HLTFilter                               +

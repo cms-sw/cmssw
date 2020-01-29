@@ -1,4 +1,19 @@
 PrimaryVertexResolutionTemplate="""
+
+###################################################################
+#  Runs and events
+###################################################################
+runboundary = .oO[runboundary]Oo.
+isMultipleRuns=False
+if(isinstance(runboundary, (list, tuple))):
+     isMultipleRuns=True
+     print "Multiple Runs are selected"
+
+if(isMultipleRuns):
+     process.source.firstRun = cms.untracked.uint32(int(runboundary[0]))
+else:
+     process.source.firstRun = cms.untracked.uint32(int(runboundary))
+
 ## PV refit
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
@@ -16,7 +31,9 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		
                                                  minVertexNdf        = cms.untracked.double(10.),
-                                                 minVertexMeanWeight = cms.untracked.double(0.5)
+                                                 minVertexMeanWeight = cms.untracked.double(0.5),
+                                                 runControl = cms.untracked.bool(.oO[runControl]Oo.),
+                                                 runControlNumber = cms.untracked.vuint32(runboundary)
                                                  )
 
 """
@@ -44,7 +61,7 @@ echo  Job started at `date`
 echo  -----------------------
 
 export theLabel=.oO[alignmentName]Oo.
-export theDate = pippa
+export theDate =.oO[runboundary]Oo.
 
 cwd=`pwd`
 cd .oO[CMSSW_BASE]Oo./src

@@ -126,11 +126,17 @@ private:
   double minVtxNdf_;
   double minVtxWgt_;
 
+  // checks on the run to be processed
+
+  bool runControl_;
+  std::vector<unsigned int> runControlNumbers_;
+
   static constexpr double cmToUm = 10000.;
 
   edm::Service<TFileService> outfile_;
 
   TH1F* h_lumiFromConfig;
+  TH1I* h_runFromConfig;
 
   std::map<unsigned int, std::pair<long long, long long> > runNumbersTimesLog_;
   TH1I* h_runStartTimes;
@@ -262,7 +268,12 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
           esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
       runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
       minVtxNdf_(iConfig.getUntrackedParameter<double>("minVertexNdf")),
-      minVtxWgt_(iConfig.getUntrackedParameter<double>("minVertexMeanWeight")) {
+      minVtxWgt_(iConfig.getUntrackedParameter<double>("minVertexMeanWeight")),
+      runControl_(iConfig.getUntrackedParameter<bool>("runControl", false)) {
+  std::vector<unsigned int> defaultRuns;
+  defaultRuns.push_back(0);
+  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber", defaultRuns);
+
   std::vector<float> vect = PVValHelper::generateBins(nTrackBins_ + 1, -0.5, 120.);
   std::copy(vect.begin(), vect.begin() + nTrackBins_ + 1, myNTrack_bins_.begin());
 
@@ -284,6 +295,23 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // Fill general info
   h_runNumber->Fill(iEvent.id().run());
+
+  bool passesRunControl = false;
+
+  if (runControl_) {
+    for (const auto& runControlNumber : runControlNumbers_) {
+      if (iEvent.eventAuxiliary().run() == runControlNumber) {
+        if (debug_) {
+          edm::LogInfo("SplitVertexResolution")
+              << " run number: " << iEvent.eventAuxiliary().run() << " keeping run:" << runControlNumber;
+        }
+        passesRunControl = true;
+        break;
+      }
+    }
+    if (!passesRunControl)
+      return;
+  }
 
   ievt++;
   edm::Handle<edm::TriggerResults> hltresults;
@@ -615,6 +643,15 @@ void SplitVertexResolution::beginJob() {
   h_lumiFromConfig =
       EventFeatures.make<TH1F>("h_lumiFromConfig", "luminosity from config;;luminosity of present run", 1, -0.5, 0.5);
   h_lumiFromConfig->SetBinContent(1, intLumi_);
+
+  h_runFromConfig = EventFeatures.make<TH1I>("h_runFromConfig",
+                                             "run number from config;;run number (from configuration)",
+                                             runControlNumbers_.size(),
+                                             0.,
+                                             runControlNumbers_.size());
+  for (const auto r : runControlNumbers_) {
+    h_runFromConfig->SetBinContent(r + 1, r);
+  }
 
   // resolutions
 
