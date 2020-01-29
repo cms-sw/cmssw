@@ -52,8 +52,8 @@ G4VParticleChange* CMSSIMPInelasticProcess::PostStepDoIt(const G4Track& aTrack, 
   aParticle->SetDefinition(G4Neutron::Neutron());
 
   G4Nucleus* target = GetTargetNucleusPointer();
-  G4Material* aMaterial = aTrack.GetMaterial();
-  G4Element* anElement = GetCrossSectionDataStore()->SampleZandA(aParticle, aMaterial, *target);
+  const G4Material* aMaterial = aTrack.GetMaterial();
+  const G4Element* anElement = GetCrossSectionDataStore()->SampleZandA(aParticle, aMaterial, *target);
 
   // Next check for illegal track status
   //
@@ -72,7 +72,7 @@ G4VParticleChange* CMSSIMPInelasticProcess::PostStepDoIt(const G4Track& aTrack, 
 
   // Initialize the hadronic projectile from the track
   thePro.Initialise(aTrack);
-  G4HadronicInteraction* anInteraction = ChooseHadronicInteraction(thePro, *target, aMaterial, anElement);
+  G4HadronicInteraction* anInteraction = GetHadronicInteractionList()[0];
 
   G4HadFinalState* result = nullptr;
   G4int reentryCount = 0;
