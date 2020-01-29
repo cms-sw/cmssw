@@ -349,6 +349,40 @@ namespace sistrip {
     return os;
   }
 
+  std::ostream& operator<<(std::ostream& os, const FEDBufferStatusCode& value) {
+    switch (value) {
+      case FEDBufferStatusCode::SUCCESS:
+        os << "SUCCESS";
+        break;
+      case FEDBufferStatusCode::BUFFER_NULL:
+        os << "Buffer pointer is NULL.";
+        break;
+      case FEDBufferStatusCode::BUFFER_TOO_SHORT:
+        os << "Buffer is too small. Min size is 24.";
+        break;
+      case FEDBufferStatusCode::UNRECOGNIZED_FORMAT:
+        os << "Buffer format not recognized. ";
+        break;
+      case FEDBufferStatusCode::EXPECT_NOT_SPY:
+        os << "Unpacking of spy channel data with FEDBuffer is not supported";
+        break;
+      case FEDBufferStatusCode::EXPECT_SPY:
+        os << "Buffer is not from spy channel";
+        break;
+      case FEDBufferStatusCode::WRONG_HEADERTYPE:
+        os << "No or invalid header type";
+        break;
+      case FEDBufferStatusCode::CHANNEL_BEGIN_BEYOND_PAYLOAD:
+      case FEDBufferStatusCode::CHANNEL_END_BEYOND_PAYLOAD:
+        os << "Channel does not fit into buffer";
+        break;
+      case FEDBufferStatusCode::CHANNEL_TOO_SHORT:
+        os << "Channel is too short";
+        break;
+    }
+    return os;
+  }
+
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString) {
     if ((bufferFormatString == "OLD_VME") || (bufferFormatString == "BUFFER_FORMAT_OLD_VME") ||
         (bufferFormatString == "Old VME")) {
@@ -738,14 +772,6 @@ namespace sistrip {
       return BUFFER_FORMAT_INVALID;
   }
 
-  FEDHeaderType TrackerSpecialHeader::headerType() const {
-    if ((headerTypeNibble() == HEADER_TYPE_FULL_DEBUG) || (headerTypeNibble() == HEADER_TYPE_APV_ERROR) ||
-        (headerTypeNibble() == HEADER_TYPE_NONE))
-      return FEDHeaderType(headerTypeNibble());
-    else
-      return HEADER_TYPE_INVALID;
-  }
-
   FEDLegacyReadoutMode TrackerSpecialHeader::legacyReadoutMode() const {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
     const uint8_t mode = (eventTypeNibble & 0xF);
@@ -761,39 +787,6 @@ namespace sistrip {
         return FEDLegacyReadoutMode(mode);
       default:
         return READOUT_MODE_LEGACY_INVALID;
-    }
-  }
-
-  FEDReadoutMode TrackerSpecialHeader::readoutMode() const {
-    const uint8_t eventTypeNibble = trackerEventTypeNibble();
-    //if it is scope mode then return as is (it cannot be fake data)
-    if (eventTypeNibble == READOUT_MODE_SCOPE)
-      return FEDReadoutMode(eventTypeNibble);
-    //if it is premix then return as is: stripping last bit would make it spy data !
-    if (eventTypeNibble == READOUT_MODE_PREMIX_RAW)
-      return FEDReadoutMode(eventTypeNibble);
-    //if not then ignore the last bit which indicates if it is real or fake
-    else {
-      const uint8_t mode = (eventTypeNibble & 0xF);
-      switch (mode) {
-        case READOUT_MODE_VIRGIN_RAW:
-        case READOUT_MODE_PROC_RAW:
-        case READOUT_MODE_ZERO_SUPPRESSED:
-        case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-        //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-        case READOUT_MODE_SPY:
-          return FEDReadoutMode(mode);
-        default:
-          return READOUT_MODE_INVALID;
-      }
     }
   }
 
@@ -1252,46 +1245,26 @@ namespace sistrip {
 
   FEDFEHeader::~FEDFEHeader() {}
 
-  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
-      : channels_(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0)), originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
-    init(fedBuffer, fedBufferSize, allowUnrecognizedFormat);
+  FEDBufferBase::FEDBufferBase(const FEDRawData& fedBuffer)
+      : channels_(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0)),
+        originalBuffer_(fedBuffer.data()),
+        bufferSize_(fedBuffer.size()) {
+    init();
   }
 
-  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer,
-                               const size_t fedBufferSize,
-                               const bool allowUnrecognizedFormat,
-                               const bool fillChannelVector)
-      : originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
-    init(fedBuffer, fedBufferSize, allowUnrecognizedFormat);
+  FEDBufferBase::FEDBufferBase(const FEDRawData& fedBuffer, const bool fillChannelVector)
+      : originalBuffer_(fedBuffer.data()), bufferSize_(fedBuffer.size()) {
+    init();
     if (fillChannelVector)
       channels_.assign(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0));
   }
 
-  void FEDBufferBase::init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat) {
-    //min buffer length. DAQ header, DAQ trailer, tracker special header.
-    static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
-    //check size is non zero and data pointer is not NULL
-    if (!originalBuffer_)
-      throw cms::Exception("FEDBuffer") << "Buffer pointer is NULL.";
-    if (bufferSize_ < MIN_BUFFER_SIZE) {
-      std::ostringstream ss;
-      ss << "Buffer is too small. "
-         << "Min size is " << MIN_BUFFER_SIZE << ". "
-         << "Buffer size is " << bufferSize_ << ". ";
-      throw cms::Exception("FEDBuffer") << ss.str();
-    }
-
+  void FEDBufferBase::init() {
     //construct tracker special header using second 64 bit word
     specialHeader_ = TrackerSpecialHeader(originalBuffer_ + 8);
 
     //check the buffer format
     const FEDBufferFormat bufferFormat = specialHeader_.bufferFormat();
-    if (bufferFormat == BUFFER_FORMAT_INVALID && !allowUnrecognizedFormat) {
-      std::ostringstream ss;
-      ss << "Buffer format not recognized. "
-         << "Tracker special header: " << specialHeader_;
-      throw cms::Exception("FEDBuffer") << ss.str();
-    }
     //swap the buffer words so that the whole buffer is in slink ordering
     if ((bufferFormat == BUFFER_FORMAT_OLD_VME) || (bufferFormat == BUFFER_FORMAT_NEW)) {
       uint8_t* newBuffer = new uint8_t[bufferSize_];
@@ -1428,27 +1401,4 @@ namespace sistrip {
     summary << "Check length from trailer: " << (checkLengthFromTrailer() ? "passed" : "FAILED") << std::endl;
     return summary.str();
   }
-
-  uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const {
-    const auto pCode = packetCode();
-    if ((pCode != PACKET_CODE_ZERO_SUPPRESSED) && (pCode != PACKET_CODE_ZERO_SUPPRESSED10) &&
-        (pCode != PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT) && (pCode != PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT)) {
-      std::ostringstream ss;
-      ss << "Request for CM median from channel with non-ZS packet code. "
-         << "Packet code is " << uint16_t(packetCode()) << "." << std::endl;
-      throw cms::Exception("FEDBuffer") << ss.str();
-    }
-    if (apvIndex > 1) {
-      std::ostringstream ss;
-      ss << "Channel APV index out of range when requesting CM median for APV. "
-         << "Channel APV index is " << uint16_t(apvIndex) << "." << std::endl;
-      throw cms::Exception("FEDBuffer") << ss.str();
-    }
-    uint16_t result = 0;
-    //CM median is 10 bits with lowest order byte first. First APV CM median starts in 4th byte of channel data
-    result |= data_[(offset_ + 3 + 2 * apvIndex) ^ 7];
-    result |= (((data_[(offset_ + 4 + 2 * apvIndex) ^ 7]) << 8) & 0x300);
-    return result;
-  }
-
 }  // namespace sistrip
