@@ -186,8 +186,9 @@ void CSCCathodeLCTProcessor::clear() {
   thePreTriggerDigis.clear();
   thePreTriggerBXs.clear();
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    bestCLCT[bx].clear();
-    secondCLCT[bx].clear();
+    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
+      CLCTContainer_[bx][iCLCT].clear();
+    }
   }
 }
 
@@ -339,7 +340,9 @@ void CSCCathodeLCTProcessor::run(
   if (CLCTlist.size() > 1)
     sort(CLCTlist.begin(), CLCTlist.end(), std::greater<CSCCLCTDigi>());
 
-  // Take the best two candidates per bx.
+  // Take the best MAX_CLCTS_PER_PROCESSOR candidates per bx.
+  int CLCTIndex_[CSCConstants::MAX_CLCT_TBINS] = {};
+
   for (const auto& p : CLCTlist) {
     const int bx = p.getBX();
     if (bx >= CSCConstants::MAX_CLCT_TBINS) {
@@ -350,29 +353,21 @@ void CSCCathodeLCTProcessor::run(
       continue;
     }
 
-    if (!bestCLCT[bx].isValid()) {
-      bestCLCT[bx] = p;
-    } else if (!secondCLCT[bx].isValid()) {
-      secondCLCT[bx] = p;
-    }
+    CLCTContainer_[bx][CLCTIndex_[bx]] = p;
+    CLCTIndex_[bx]++;
   }
 
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    if (bestCLCT[bx].isValid()) {
-      bestCLCT[bx].setTrknmb(1);
-      if (infoV > 0)
-        LogDebug("CSCCathodeLCTProcessor")
-            << bestCLCT[bx] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
+    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
+      if (CLCTContainer_[bx][iCLCT].isValid()) {
+        CLCTContainer_[bx][iCLCT].setTrknmb(iCLCT+1);
+        if (infoV > 0) {
+          LogDebug("CSCCathodeLCTProcessor")
+            << CLCTContainer_[bx][iCLCT] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
             << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
             << "\n";
-    }
-    if (secondCLCT[bx].isValid()) {
-      secondCLCT[bx].setTrknmb(2);
-      if (infoV > 0)
-        LogDebug("CSCCathodeLCTProcessor")
-            << secondCLCT[bx] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
-            << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
-            << "\n";
+        }
+      }
     }
   }
   // Now that we have our best CLCTs, they get correlated with the best
@@ -1072,7 +1067,7 @@ void CSCCathodeLCTProcessor::dumpDigis(
 
 // Returns vector of read-out CLCTs, if any.  Starts with the vector
 // of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) const {
   std::vector<CSCCLCTDigi> tmpV;
 
   // The start time of the L1A*CLCT coincidence window should be
@@ -1114,8 +1109,13 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
   int bx_readout = -1;
   const std::vector<CSCCLCTDigi>& all_lcts = getCLCTs();
   for (const auto& p : all_lcts) {
+
+    // only consider valid CLCTs
     if (!p.isValid())
       continue;
+
+    //ignore the CLCTs with an index larger than nMaxCLCTs
+    if (p.getTrknmb() > nMaxCLCTs) break;
 
     const int bx = p.getBX();
     // Skip CLCTs found too early relative to L1Accept.
@@ -1153,11 +1153,11 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
 
 // Returns vector of read-out CLCTs, if any.  Starts with the vector
 // of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1a() const {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1a(int nMaxCLCTs) const {
   std::vector<CSCCLCTDigi> tmpV;
   if (not(theStation == 1 and (theRing == 1 or theRing == 4)))
     return tmpV;
-  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs();
+  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs(nMaxCLCTs);
   for (const auto& clct : allCLCTs)
     if (clct.getCFEB() >= 4)
       tmpV.push_back(clct);
@@ -1166,11 +1166,11 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1a() const {
 
 // Returns vector of read-out CLCTs, if any.  Starts with the vector
 // of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1b() const {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1b(int nMaxCLCTs) const {
   std::vector<CSCCLCTDigi> tmpV;
   if (not(theStation == 1 and (theRing == 1 or theRing == 4)))
     return tmpV;
-  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs();
+  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs(nMaxCLCTs);
   for (const auto& clct : allCLCTs)
     if (clct.getCFEB() < 4)
       tmpV.push_back(clct);
@@ -1203,10 +1203,11 @@ std::vector<CSCCLCTPreTriggerDigi> CSCCathodeLCTProcessor::preTriggerDigisME1b()
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
   std::vector<CSCCLCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    if (bestCLCT[bx].isValid())
-      tmpV.push_back(bestCLCT[bx]);
-    if (secondCLCT[bx].isValid())
-      tmpV.push_back(secondCLCT[bx]);
+    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
+      if (CLCTContainer_[bx][iCLCT].isValid()) {
+        tmpV.push_back(CLCTContainer_[bx][iCLCT]);
+      }
+    }
   }
   return tmpV;
 }
@@ -1217,13 +1218,13 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
 // to make a proper comparison with ALCTs we need
 // CLCT and ALCT to have the central BX in the same bin
 CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
-  CSCCLCTDigi lct = bestCLCT[bx];
+  CSCCLCTDigi lct = CLCTContainer_[bx][0];
   lct.setBX(lct.getBX() + alctClctOffset_);
   return lct;
 }
 
 CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
-  CSCCLCTDigi lct = secondCLCT[bx];
+  CSCCLCTDigi lct = CLCTContainer_[bx][1];
   lct.setBX(lct.getBX() + alctClctOffset_);
   return lct;
 }
