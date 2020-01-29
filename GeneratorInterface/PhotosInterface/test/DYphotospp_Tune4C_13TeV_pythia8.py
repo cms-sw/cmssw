@@ -102,7 +102,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 
 process.genParticles = cms.EDProducer("GenParticleProducer",
     saveBarCodes = cms.untracked.bool(True),
-    src = cms.InputTag("generator"),
+    src = cms.InputTag("generator:unsmeared"),
     abortOnUnknownPDGCode = cms.untracked.bool(False)
 )
 process.printTree1 = cms.EDAnalyzer("ParticleListDrawer",
