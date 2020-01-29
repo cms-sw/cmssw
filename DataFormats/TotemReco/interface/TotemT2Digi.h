@@ -16,6 +16,8 @@ public:
 private:
 };
 
-bool operator<(const TotemT2Digi&, const TotemT2Digi&);
+bool operator<(const TotemT2Digi&, const TotemT2Digi&) {
+  return true;
+}
 
 #endif
