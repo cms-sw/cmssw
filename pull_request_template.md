@@ -3,15 +3,13 @@
 <!-- Please replace this text with a description of the feature proposed or problem addressed, specifying:
   - what changes are expected in the output if any, 
   - what other PRs or externals it depends upon if any,
-  - link to any additional material useful to document this PR (slides, JIRA tickets, related pull requestes, Indico pages, TWiki pages)  -->
+  - link to any additional material useful to provide a documentation for this PR (slides, JIRA tickets, related pull requestes, hypernews, TWiki or Indico pages)  -->
 
 #### PR validation:
 
 <!-- Please replace this text with a description of which tests have been performed to verify the correctness of the PR, including the eventual addition of new code for testing like unit tests, test configurations, additions or updates to the runTheMatrix test workflows -->
 
 #### if this PR is a backport please specify the original PR and why you need to backport that PR:
-
-#### Links to additional material/slides/JIRA tickets/Pull requests:
 
 <!-- Please replace this text with any link to  -->
 
