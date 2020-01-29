@@ -20,7 +20,7 @@ process.GEMGeometryESProducer = cms.ESProducer("GEMGeometryESModule",
                                                attribute = cms.string('MuStructure'),
                                                value = cms.string('MuonEndCapGEM'),
                                                useDDD = cms.bool(False),
-                                               useDD4hep = cms.bool(True)
+                                               useDD4hep = cms.untracked.bool(True)
                                               )
 
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
