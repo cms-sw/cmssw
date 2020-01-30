@@ -110,8 +110,6 @@ protected:
   int verbose_;
 
 private:
-  /// for creating and deleting class instances
-  friend class dqm::dqmstoreimpl::DQMStore;
   /// for running the test
   friend class dqm::legacy::MonitorElement;
   friend class dqm::impl::MonitorElement;

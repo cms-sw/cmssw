@@ -59,10 +59,17 @@ namespace dqm {
   }
 }  // namespace dqm
 
-class DQMService;
-namespace dqm::dqmstoreimpl {
+// forward declarations for all our friends
+namespace dqm::implementation {
   class DQMStore;
+  class IBooker;
+}  // namespace dqm::implementation
+struct DQMTTreeIO;
+namespace dqm {
+  class DQMFileSaverPB;
 }
+class DQMService;
+class QualityTester;
 
 namespace dqm::impl {
 
@@ -89,8 +96,15 @@ namespace dqm::impl {
 
   /** The base class for all MonitorElements (ME) */
   class MonitorElement {
-    friend dqm::dqmstoreimpl::DQMStore;
-    friend DQMService;
+    // these need to create and destroy MEs.
+    friend dqm::implementation::DQMStore;
+    friend dqm::implementation::IBooker;
+    // these need to access some of the IO related methods.
+    friend ::DQMTTreeIO;  // declared in DQMRootSource
+    friend ::dqm::DQMFileSaverPB;
+    friend ::DQMService;
+    // this one only needs syncCoreObject.
+    friend ::QualityTester;
 
   public:
     using Scalar = MonitorElementData::Scalar;
@@ -121,26 +135,24 @@ namespace dqm::impl {
       }
     };
 
-  protected:
-    DQMNet::CoreObject data_;  //< Core object information.
-
-    std::atomic<MutableMonitorElementData *> mutable_;  // only set if this is a mutable copy of this ME
-    bool is_owned_;                                     // true if we are responsible for deleting the mutable object.
+  private:
+    MutableMonitorElementData *mutable_;  // only set if this is a mutable copy of this ME
+    // there are no immutable MEs at this time, but we might need them in the future.
+    bool is_owned_;  // true if we are responsible for deleting the mutable object.
     /** 
      * To do anything to the MEs data, one needs to obtain an access object.
      * This object will contain the lock guard if one is needed. We differentiate
      * access for reading and access for mutation (denoted by `Access` or
-     * `const Access`, however, also read-only access may need to take a lock
+     * `AccessMut`, however, also read-only access may need to take a lock
      * if it is to a mutable object. 
      * We want all of this inlined and redundant operations any copies/refs
      * optimized away.
      */
     const Access access() const {
       // First, check if there is a mutable object
-      auto mut = mutable_.load();
-      if (mut) {
+      if (mutable_) {
         // if there is a mutable object, that is the truth, and we take a lock.
-        return mut->access();
+        return mutable_->access();
       }  // else
       throw cms::Exception("LogicError") << "MonitorElement " << getName() << " not backed by any data!";
     }
@@ -150,15 +162,16 @@ namespace dqm::impl {
       this->update();
 
       // First, check if there is a mutable object
-      auto mut = mutable_.load();
-      if (mut) {
+      if (mutable_) {
         // if there is a mutable object, that is the truth, and we take a lock.
-        return mut->accessMut();
+        return mutable_->accessMut();
       }  // else
       throw cms::Exception("LogicError") << "MonitorElement " << getName() << " not backed by any data!";
     }
 
-  public:
+  private:
+    // but internal -- only for DQMStore etc.
+
     // Create ME using this data. A ROOT object pointer may be moved into the
     // new ME. The new ME will own this data.
     MonitorElement(MonitorElementData &&data);
@@ -166,38 +179,72 @@ namespace dqm::impl {
     MonitorElement(MutableMonitorElementData *data);
     // Create a new ME sharing data with this existing ME.
     MonitorElement(MonitorElement *me);
-    MonitorElement &operator=(const MonitorElement &) = delete;
-    MonitorElement &operator=(MonitorElement &&) = delete;
+
     // return a new clone of the data of this ME. Calls ->Clone(), new object
     // is owned by the returned value.
     MonitorElementData cloneMEData();
+
     // Remove access and ownership to the data. The flag is used for a sanity check.
     MutableMonitorElementData *release(bool expectOwned);
+
     // re-initialize this ME as a shared copy of the other.
     void switchData(MonitorElement *other);
     // re-initialize taking ownership of this data.
     void switchData(MutableMonitorElementData *data);
+
+    // Replace the ROOT object in this ME's data with the new object, taking
+    // ownership. The old object is deleted.
+    void switchObject(std::unique_ptr<TH1> &&newobject);
+
     // copy applicable fileds into the DQMNet core object for compatibility.
     // In a few places these flags are also still used by the ME.
     void syncCoreObject();
     void syncCoreObject(AccessMut &access);
-    virtual ~MonitorElement();
 
     // check if the ME is currently backed by MEData; if false (almost) any
     // access will throw.
-    bool isValid() const { return mutable_.load() != nullptr; }
+    bool isValid() const { return mutable_ != nullptr; }
+
+    // used to implement getQErrors et. al.
+    template <typename FILTER>
+    std::vector<MonitorElementData::QReport *> filterQReports(FILTER filter) const;
+
+    // legacy interfaces, there are no alternatives but they should not be used
 
     /// Compare monitor elements, for ordering in sets.
     bool operator<(const MonitorElement &x) const { return DQMNet::setOrder(data_, x.data_); }
-
     /// Check the consistency of the axis labels
     static bool CheckBinLabels(const TAxis *a1, const TAxis *a2);
+    /// Get the object flags.
+    uint32_t flags() const { return data_.flags; }
+    /// Mark the object updated.
+    void update() { data_.flags |= DQMNet::DQM_PROP_NEW; }
+
+    // mostly used for IO, should be private.
+    std::string valueString() const;
+    std::string tagString() const;
+    std::string tagLabelString() const;
+    std::string effLabelString() const;
+    std::string qualityTagString(const DQMNet::QValue &qv) const;
+
+    // kept for DQMService. data_ is also used for MEComparison, without it
+    // we'd need to keep a copy od the name somewhere else.
+    /// true if ME was updated in last monitoring cycle
+    bool wasUpdated() const { return data_.flags & DQMNet::DQM_PROP_NEW; }
+    void packScalarData(std::string &into, const char *prefix) const;
+    void packQualityData(std::string &into) const;
+    DQMNet::CoreObject data_;  //< Core object information.
+
+  public:
+    MonitorElement &operator=(const MonitorElement &) = delete;
+    MonitorElement &operator=(MonitorElement &&) = delete;
+    virtual ~MonitorElement();
+
+  public:
+    // good to be used in subsystem code
 
     /// Get the type of the monitor element.
     Kind kind() const { return Kind(data_.flags & DQMNet::DQM_PROP_TYPE_MASK); }
-
-    /// Get the object flags.
-    uint32_t flags() const { return data_.flags; }
 
     /// get name of ME
     const std::string &getName() const { return this->data_.objname; }
@@ -211,16 +258,6 @@ namespace dqm::impl {
     edm::LuminosityBlockID getRunLumi() { return access().key.id_; }
 
     MonitorElementData::Scope getScope() { return access().key.scope_; }
-
-    /// true if ME was updated in last monitoring cycle
-    bool wasUpdated() const { return data_.flags & DQMNet::DQM_PROP_NEW; }
-
-    /// Mark the object updated.
-    void update() { data_.flags |= DQMNet::DQM_PROP_NEW; }
-
-    /// specify whether ME should be reset at end of monitoring cycle (default:false);
-    /// (typically called by Sources that control the original ME)
-    void setResetMe(bool /* flag */) { data_.flags |= DQMNet::DQM_PROP_RESET; }
 
     /// true if ME is meant to be stored for each luminosity section
     bool getLumiFlag() const { return access().key.scope_ == MonitorElementData::Scope::LUMI; }
@@ -237,6 +274,7 @@ namespace dqm::impl {
       return access.value.object_ && access.value.object_->TestBit(TH1::kIsAverage);
     }
 
+  private:
     // A static assert to check that T actually fits in
     // int64_t.
     template <typename T>
@@ -244,10 +282,11 @@ namespace dqm::impl {
       int checkArray[sizeof(int64_t) - sizeof(T) + 1];
     };
 
-  protected:
     void doFill(int64_t x);
 
   public:
+    // filling API.
+
     void Fill(long long x) {
       fits_in_int64_t<long long>();
       doFill(static_cast<int64_t>(x));
@@ -299,14 +338,11 @@ namespace dqm::impl {
     DQM_DEPRECATED
     void ShiftFillLast(double y, double ye = 0., int32_t xscale = 1);
 
-    virtual void Reset();
+  public:
+    // additional APIs, mainly for harvesting.
 
-    // mostly used for IO, should be private.
-    std::string valueString() const;
-    std::string tagString() const;
-    std::string tagLabelString() const;
-    std::string effLabelString() const;
-    std::string qualityTagString(const DQMNet::QValue &qv) const;
+    /// Remove all data from the ME, keept the empty histogram with all its settings.
+    virtual void Reset();
 
     /// true if at least of one of the quality tests returned an error
     bool hasError() const { return data_.flags & DQMNet::DQM_PROP_REPORT_ERROR; }
@@ -316,14 +352,6 @@ namespace dqm::impl {
 
     /// true if at least of one of the tests returned some other (non-ok) status
     bool hasOtherReport() const { return data_.flags & DQMNet::DQM_PROP_REPORT_OTHER; }
-
-    /// true if the plot has been marked as an efficiency plot, which
-    /// will not be normalized when rendered within the DQM GUI.
-    bool isEfficiency() const { return data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
-
-    // used to implement getQErrors et. al.
-    template <typename FILTER>
-    std::vector<MonitorElementData::QReport *> filterQReports(FILTER filter) const;
 
     /// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
     const MonitorElementData::QReport *getQReport(const std::string &qtname) const;
@@ -360,6 +388,10 @@ namespace dqm::impl {
     virtual double getEntries() const;
     virtual double getBinEntries(int bin) const;
 
+    virtual int64_t getIntValue() const;
+    virtual double getFloatValue() const;
+    virtual const std::string &getStringValue() const;
+
     // non-const -- thread safety and semantical issues
     virtual void setBinContent(int binx, double content);
     virtual void setBinContent(int binx, int biny, double content);
@@ -375,14 +407,13 @@ namespace dqm::impl {
     virtual void setAxisTimeDisplay(int value, int axis = 1);
     virtual void setAxisTimeFormat(const char *format = "", int axis = 1);
     virtual void setTitle(const std::string &title);
-    // --- Operations that origianted in ConcurrentME ---
+
+    // additional operations mainly for booking
     virtual void setXTitle(std::string const &title);
     virtual void setYTitle(std::string const &title);
     virtual void enableSumw2();
     virtual void disableAlphanumeric();
     virtual void setOption(const char *option);
-
-    // new operations to reduce usage of getTH*
     virtual double getAxisMin(int axis = 1) const;
     virtual double getAxisMax(int axis = 1) const;
     // We should avoid extending histograms in general, and if the behaviour
@@ -407,47 +438,20 @@ namespace dqm::impl {
     virtual TProfile *getTProfile();
     virtual TProfile2D *getTProfile2D();
 
-  public:
-    virtual int64_t getIntValue() const;
-    virtual double getFloatValue() const;
-    virtual const std::string &getStringValue() const;
-    void packScalarData(std::string &into, const char *prefix) const;
-    void packQualityData(std::string &into) const;
-
-  protected:
+  private:
     void incompatible(const char *func) const;
     TH1 const *accessRootObject(Access const &access, const char *func, int reqdim) const;
     TH1 *accessRootObject(AccessMut const &, const char *func, int reqdim) const;
 
-    void setAxisTimeOffset(double toffset, const char *option = "local", int axis = 1);
-
-    /// true if ME is marked for deletion
-    bool markedToDelete() const { return data_.flags & DQMNet::DQM_PROP_MARKTODELETE; }
-
-    /// Mark the object for deletion.
-    /// NB: make sure that the following method is not called simultaneously for the same ME
-    void markToDelete() { data_.flags |= DQMNet::DQM_PROP_MARKTODELETE; }
-
-    /// reset "was updated" flag
-    void resetUpdate() { data_.flags &= ~DQMNet::DQM_PROP_NEW; }
-
-    /// true if ME should be reset at end of monitoring cycle
-    bool resetMe() const { return data_.flags & DQMNet::DQM_PROP_RESET; }
-
     TAxis const *getAxis(Access const &access, const char *func, int axis) const;
     TAxis *getAxis(AccessMut const &access, const char *func, int axis) const;
-
-    void addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2);
-    void addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2);
-    void copyFunctions(TH1 *from, TH1 *to);
-    void copyFrom(TH1 *from);
   };
 
 }  // namespace dqm::impl
 
 // These may become distinct classes in the future.
 namespace dqm::reco {
-  typedef dqm::impl::MonitorElement MonitorElement;
+  using MonitorElement = dqm::impl::MonitorElement;
 }
 namespace dqm::legacy {
   class MonitorElement : public dqm::reco::MonitorElement {
@@ -455,6 +459,8 @@ namespace dqm::legacy {
     // import constructors
     using dqm::reco::MonitorElement::MonitorElement;
 
+    // Add ROOT object accessors without cost here so that harvesting code can
+    // still freely use getTH1() and friends.
     using dqm::reco::MonitorElement::getRootObject;
     TObject *getRootObject() const override {
       return const_cast<TObject *>(
@@ -503,7 +509,7 @@ namespace dqm::legacy {
   };
 }  // namespace dqm::legacy
 namespace dqm::harvesting {
-  typedef dqm::legacy::MonitorElement MonitorElement;
+  using MonitorElement = dqm::legacy::MonitorElement;
 }
 
 #endif  // DQMSERVICES_CORE_MONITOR_ELEMENT_H
