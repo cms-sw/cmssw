@@ -100,7 +100,7 @@ full_102x_chs = cms.PSet(
             "jetPt" ,
             "jetEta",
         ),
-        JetIdParams = full_81x_chs_wp,
+        JetIdParams = full_102x_chs_wp,
         label = cms.string("full")
 )
 
@@ -203,7 +203,7 @@ full_94x_chs = cms.PSet(
             "jetPt" ,
             "jetEta",
         ),
-        JetIdParams = full_81x_chs_wp,
+        JetIdParams = full_94x_chs_wp,
         label = cms.string("full")
 )
 
