@@ -936,13 +936,11 @@ void SplitVertexResolution::endJob() {
     double trkpercent = ((it->second).second) * 100. / double(itrks);
     double evtpercent = ((it->second).first) * 100. / double(ievt);
 
-    std::cout.precision(4);
-
     edm::LogVerbatim("SplitVertexResolution")
         << "HLT path: " << std::setw(60) << std::left << it->first << " | events firing: " << std::right << std::setw(8)
-        << (it->second).first << " (" << std::setw(8) << std::fixed << evtpercent << "%)"
-        << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << std::setw(8) << std::fixed
-        << trkpercent << "%)";
+        << (it->second).first << " (" << std::setw(8) << std::fixed << std::setprecision(4) << evtpercent << "%)"
+        << " | tracks collected: " << std::setw(8) << (it->second).second << " (" << std::setw(8) << std::fixed
+        << std::setprecision(4) << trkpercent << "%)";
 
     tksByTrigger_->SetBinContent(i, trkpercent);
     tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());

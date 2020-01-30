@@ -45,6 +45,7 @@ else:
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
 process.MessageLogger.categories.append("PrimaryVertexValidation")  
+process.MessageLogger.categories.append("SplitVertexResolution")
 process.MessageLogger.categories.append("FilterOutLowPt")  
 process.MessageLogger.destinations = cms.untracked.vstring("cout")
 process.MessageLogger.cout = cms.untracked.PSet(
@@ -54,6 +55,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
     PrimaryVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    SplitVertexResolution   = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     FilterOutLowPt          = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
 process.MessageLogger.statistics.append('cout') 
