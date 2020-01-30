@@ -1,6 +1,3 @@
-#ifndef RecoTracker_TkTrackingRegions_TrackingRegionsFromSuperClustersProducer_H
-#define RecoTracker_TkTrackingRegions_TrackingRegionsFromSuperClustersProducer_H
-
 //******************************************************************************
 //
 // Part of the refactorisation of of the E/gamma pixel matching pre-2017
@@ -310,4 +307,12 @@ void TrackingRegionsFromSuperClustersProducer::validateConfigSettings() const {
   }
 }
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionEDProducerT.h"
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory,
+                  TrackingRegionsFromSuperClustersProducer,
+                  "TrackingRegionsFromSuperClustersProducer");
+using TrackingRegionsFromSuperClustersEDProducer = TrackingRegionEDProducerT<TrackingRegionsFromSuperClustersProducer>;
+DEFINE_FWK_MODULE(TrackingRegionsFromSuperClustersEDProducer);
