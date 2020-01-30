@@ -35,20 +35,30 @@ float TrackPUIDMVA::operator()(const reco::TrackRef& trk,
 
   std::map<std::string, float> vars;
 
-  vars.emplace(vars_[0], trk->pt());
-  vars.emplace(vars_[1], trk->eta());
-  vars.emplace(vars_[2], trk->phi());
-  vars.emplace(vars_[3], trk->chi2());
-  vars.emplace(vars_[4], trk->ndof());
-  vars.emplace(vars_[5], trk->numberOfValidHits());
-  vars.emplace(vars_[6], pattern.numberOfValidPixelBarrelHits());
-  vars.emplace(vars_[7], pattern.numberOfValidPixelEndcapHits());
-  vars.emplace(vars_[8], btl_chi2s.contains(ext_trk.id()) ? btl_chi2s[ext_trk] : -1);
-  vars.emplace(vars_[9], btl_time_chi2s.contains(ext_trk.id()) ? btl_time_chi2s[ext_trk] : -1);
-  vars.emplace(vars_[10], etl_chi2s.contains(ext_trk.id()) ? etl_chi2s[ext_trk] : -1);
-  vars.emplace(vars_[11], etl_time_chi2s.contains(ext_trk.id()) ? etl_time_chi2s[ext_trk] : -1);
-  vars.emplace(vars_[12], tmtds[ext_trk]);
-  vars.emplace(vars_[13], trk_lengths[ext_trk]);
+  //---training performed only above 0.5 GeV
+  constexpr float minPtForMVA=0.5;
+  if (trk->pt() < minPtForMVA)
+    return -1;
 
-  return mva_->evaluate(vars, false);  //GBR, GradBoost
+  //---training performed only for tracks with MTD hits
+  if (tmtds[ext_trk]>0) 
+    {
+      vars.emplace(vars_[0], trk->pt());
+      vars.emplace(vars_[1], trk->eta());
+      vars.emplace(vars_[2], trk->phi());
+      vars.emplace(vars_[3], trk->chi2());
+      vars.emplace(vars_[4], trk->ndof());
+      vars.emplace(vars_[5], trk->numberOfValidHits());
+      vars.emplace(vars_[6], pattern.numberOfValidPixelBarrelHits());
+      vars.emplace(vars_[7], pattern.numberOfValidPixelEndcapHits());
+      vars.emplace(vars_[8], btl_chi2s.contains(ext_trk.id()) ? btl_chi2s[ext_trk] : -1);
+      vars.emplace(vars_[9], btl_time_chi2s.contains(ext_trk.id()) ? btl_time_chi2s[ext_trk] : -1);
+      vars.emplace(vars_[10], etl_chi2s.contains(ext_trk.id()) ? etl_chi2s[ext_trk] : -1);
+      vars.emplace(vars_[11], etl_time_chi2s.contains(ext_trk.id()) ? etl_time_chi2s[ext_trk] : -1);
+      vars.emplace(vars_[12], tmtds[ext_trk]);
+      vars.emplace(vars_[13], trk_lengths[ext_trk]);
+      return 1./(1+sqrt(2/(1+mva_->evaluate(vars, false))-1)); //GradBoost, return values between 0-1 (probability)
+    }
+  else
+    return -1;
 }

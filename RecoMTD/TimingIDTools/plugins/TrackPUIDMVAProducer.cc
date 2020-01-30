@@ -123,22 +123,14 @@ void TrackPUIDMVAProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
 
   //Loop over tracks collection
   for (unsigned int itrack = 0; itrack < tracks.size(); ++itrack) {
-    const reco::Track& track = tracks[itrack];
     const reco::TrackRef trackref(tracksH, itrack);
-
-    if (trackAssoc[trackref] == -1) {
-      mvaOutRaw.push_back(-1.);
-      continue;
-    } else {
-      //---training performed only above 0.5 GeV
-      if (track.pt() < 0.5)
-        mvaOutRaw.push_back(-1.);
-      else {
-        const reco::TrackRef mtdTrackref = reco::TrackRef(tracksMTDH, trackAssoc[trackref]);
-        mvaOutRaw.push_back(mva_(
-            trackref, mtdTrackref, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2, mtdTime, pathLength));
+    if (trackAssoc[trackref] == -1) 
+	mvaOutRaw.push_back(-1.);
+    else 
+      {
+	const reco::TrackRef mtdTrackref = reco::TrackRef(tracksMTDH, trackAssoc[trackref]);
+	mvaOutRaw.push_back(mva_(trackref, mtdTrackref, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2, mtdTime, pathLength));
       }
-    }
   }
   fillValueMap(ev, tracksH, mvaOutRaw, mvaName);
 }
