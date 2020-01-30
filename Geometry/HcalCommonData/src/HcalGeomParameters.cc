@@ -413,8 +413,9 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParamet
       if (!hf) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "HF " << fv.name() << " Shape "
-                                     << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Z " << HcalGeomParameters::k_ScaleFromDD4HepToG4 * t.z() << " with "
-                                     << paras.size() << " Parameters";
+                                     << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Z "
+                                     << HcalGeomParameters::k_ScaleFromDD4HepToG4 * t.z() << " with " << paras.size()
+                                     << " Parameters";
         for (unsigned j = 0; j < paras.size(); j++)
           edm::LogVerbatim("HCalGeom") << "HF Parameter[" << j << "] = " << paras[j];
 #endif
@@ -430,7 +431,8 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParamet
 #ifdef EDM_ML_DEBUG
     } else {
       edm::LogVerbatim("HCalGeom") << "Unknown Detector " << idet << " for " << fv.name() << " Shape "
-                                   << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " R " << (HcalGeomParameters::k_ScaleFromDD4HepToG4 * t.Rho()) << " Z "
+                                   << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " R "
+                                   << (HcalGeomParameters::k_ScaleFromDD4HepToG4 * t.Rho()) << " Z "
                                    << (HcalGeomParameters::k_ScaleFromDD4HepToG4 * t.z());
 #endif
     }
