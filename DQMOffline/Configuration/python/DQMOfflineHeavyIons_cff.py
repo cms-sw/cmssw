@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLogger_cfi import *
-from DQMServices.Components.DQMDcsInfo_cfi import *
+from DQMServices.Components.DQMProvInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
@@ -15,7 +15,8 @@ from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 
-DQMOfflineHeavyIonsDCS = cms.Sequence( dqmDcsInfo )
+dqmProvInfo.runType = "hi_run"
+DQMOfflineHeavyIonsDCS = cms.Sequence( dqmProvInfo )
 
 # L1 trigger sequences
 DQMOfflineHeavyIonsL1T = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data
