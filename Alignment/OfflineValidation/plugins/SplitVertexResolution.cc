@@ -927,7 +927,7 @@ void SplitVertexResolution::endJob() {
   tksByTrigger_ = outfile_->make<TH1D>(
       "tksByTrigger", "tracks by HLT path;;% of # traks", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
   evtsByTrigger_ = outfile_->make<TH1D>(
-      "evtsByTrigge", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
+      "evtsByTrigger", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
   int i = 0;
   for (std::map<std::string, std::pair<int, int> >::iterator it = triggerMap_.begin(); it != triggerMap_.end(); ++it) {
@@ -942,7 +942,7 @@ void SplitVertexResolution::endJob() {
         << "HLT path: " << std::setw(60) << std::left << it->first << " | events firing: " << std::right << std::setw(8)
         << (it->second).first << " (" << std::setw(8) << std::fixed << evtpercent << "%)"
         << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << std::setw(8) << std::fixed
-        << trkpercent << "%)" << '\n';
+        << trkpercent << "%)";
 
     tksByTrigger_->SetBinContent(i, trkpercent);
     tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
@@ -1068,8 +1068,7 @@ statmode::fitParams SplitVertexResolution::fitResiduals(TH1* hist, bool singleTi
 //*************************************************************
 {
   if (hist->GetEntries() < 10) {
-    edm::LogWarning("SplitVertexResolution")
-        << "hist name: " << hist->GetName() << " has less than 10 entries" << std::endl;
+    LogDebug("SplitVertexResolution") << "hist name: " << hist->GetName() << " has less than 10 entries" << std::endl;
     return std::make_pair(Measurement1D(0., 0.), Measurement1D(0., 0.));
   }
 
