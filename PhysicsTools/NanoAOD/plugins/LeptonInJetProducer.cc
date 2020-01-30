@@ -75,9 +75,9 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
   unsigned int nEle = srcEle->size();
   unsigned int nMu = srcMu->size();
 
-  std::vector<float> *vlsf3 = new std::vector<float>;
-  std::vector<int> *vmuIdx3SJ = new std::vector<int>;
-  std::vector<int> *veleIdx3SJ = new std::vector<int>;
+  std::vector<float> vlsf3;
+  std::vector<int> vmuIdx3SJ;
+  std::vector<int> veleIdx3SJ;
 
   int ele_pfmatch_index = -1;
   int mu_pfmatch_index = -1;
@@ -132,27 +132,27 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
     std::vector<fastjet::PseudoJet> psub_3;
     std::sort(lClusterParticles.begin(), lClusterParticles.end(), orderPseudoJet);
     auto lsf_3 = calculateLSF(lClusterParticles, psub_3, lepPt, lepEta, lepPhi, lepId, 2.0, 3);
-    vlsf3->push_back(std::get<0>(lsf_3));
-    veleIdx3SJ->push_back(ele_pfmatch_index);
-    vmuIdx3SJ->push_back(mu_pfmatch_index);
+    vlsf3.push_back(std::get<0>(lsf_3));
+    veleIdx3SJ.push_back(ele_pfmatch_index);
+    vmuIdx3SJ.push_back(mu_pfmatch_index);
   }
 
   // Filling table
   std::unique_ptr<edm::ValueMap<float>> lsf3V(new edm::ValueMap<float>());
   edm::ValueMap<float>::Filler fillerlsf3(*lsf3V);
-  fillerlsf3.insert(srcJet, vlsf3->begin(), vlsf3->end());
+  fillerlsf3.insert(srcJet, vlsf3.begin(), vlsf3.end());
   fillerlsf3.fill();
   iEvent.put(std::move(lsf3V), "lsf3");
 
   std::unique_ptr<edm::ValueMap<int>> muIdx3SJV(new edm::ValueMap<int>());
   edm::ValueMap<int>::Filler fillermuIdx3SJ(*muIdx3SJV);
-  fillermuIdx3SJ.insert(srcJet, vmuIdx3SJ->begin(), vmuIdx3SJ->end());
+  fillermuIdx3SJ.insert(srcJet, vmuIdx3SJ.begin(), vmuIdx3SJ.end());
   fillermuIdx3SJ.fill();
   iEvent.put(std::move(muIdx3SJV), "muIdx3SJ");
 
   std::unique_ptr<edm::ValueMap<int>> eleIdx3SJV(new edm::ValueMap<int>());
   edm::ValueMap<int>::Filler fillereleIdx3SJ(*eleIdx3SJV);
-  fillereleIdx3SJ.insert(srcJet, veleIdx3SJ->begin(), veleIdx3SJ->end());
+  fillereleIdx3SJ.insert(srcJet, veleIdx3SJ.begin(), veleIdx3SJ.end());
   fillereleIdx3SJ.fill();
   iEvent.put(std::move(eleIdx3SJV), "eleIdx3SJ");
 }
