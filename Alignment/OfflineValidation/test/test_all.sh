@@ -86,7 +86,7 @@ offline validation_MinBias - prompt :
 offline validation_MinBias - express :
 offline validation_cosmics - prompt :
 offline validation_cosmics - express :
-compare Tracker - prompt 278819, express 278819
+compare Tracker - prompt 278819, express 278819 :
 zmumu some_zmumu_validation - prompt :
 zmumu some_zmumu_validation - express :
 split some_split_validation - prompt :
