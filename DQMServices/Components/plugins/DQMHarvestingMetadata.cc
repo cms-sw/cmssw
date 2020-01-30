@@ -28,6 +28,7 @@ private:
   std::string subsystemname_;
 
   MonitorElement* runId_;
+  MonitorElement* runList_;
   MonitorElement* firstLumisecId_;
   MonitorElement* lastLumisecId_;
 
@@ -65,14 +66,17 @@ void DQMHarvestingMetadata::dqmEndRun(DQMStore::IBooker& ibooker,
                                       edm::EventSetup const& /* iSetup */) {
   ibooker.setCurrentFolder(eventInfoFolder_);
 
-  //Event specific contents
-  runId_ = ibooker.bookString("Run", "");
-  if (runId_->getStringValue().empty()) {
+  runList_ = ibooker.bookString("Run", "");
+  runId_ = ibooker.bookInt("iRun");
+  if (runList_->getStringValue().empty()) {
     std::string run = std::to_string(iRun.id().run());
-    runId_->Fill(run);
+    runList_->Fill(run);
+    runId_->Fill(iRun.id().run());
   } else {
-    std::string run = runId_->getStringValue() + "," + std::to_string(iRun.id().run());
-    runId_->Fill(run);
+    std::string run = runList_->getStringValue() + "," + std::to_string(iRun.id().run());
+    runList_->Fill(run);
+    // this is the agreed-upon pseudo-runnumber for multi-run harvesting.
+    runId_->Fill(999999);
   }
 
   processTimeStamp_ = ibooker.bookFloat("processTimeStamp");
