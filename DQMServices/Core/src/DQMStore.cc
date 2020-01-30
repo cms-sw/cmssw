@@ -555,12 +555,12 @@ namespace dqm::implementation {
   }
 
   std::vector<dqm::harvesting::MonitorElement*> IGetter::getContents(std::string const& pathname) const {
+    auto lock = std::scoped_lock(store_->booking_mutex_);
     std::vector<MonitorElement*> out;
     MonitorElementData::Path path;
     path.set(pathname, MonitorElementData::Path::Type::DIR);
     for (auto& [runlumi, meset] : store_->globalMEs_) {
       auto it = meset.lower_bound(path);
-      // rfind can be used as a prefix match.
       while (it != meset.end() && (*it)->getPathname() == path.getDirname()) {
         store_->debugTrackME("getContents (match)", nullptr, *it);
         out.push_back(*it);
@@ -571,6 +571,7 @@ namespace dqm::implementation {
   }
 
   std::vector<dqm::harvesting::MonitorElement*> IGetter::getAllContents(std::string const& pathname) const {
+    auto lock = std::scoped_lock(store_->booking_mutex_);
     std::vector<MonitorElement*> out;
     MonitorElementData::Path path;
     path.set(pathname, MonitorElementData::Path::Type::DIR);
@@ -594,6 +595,7 @@ namespace dqm::implementation {
   std::vector<dqm::harvesting::MonitorElement*> IGetter::getAllContents(std::string const& pathname,
                                                                         uint32_t runNumber,
                                                                         uint32_t lumi) const {
+    auto lock = std::scoped_lock(store_->booking_mutex_);
     std::vector<MonitorElement*> out;
     MonitorElementData::Path path;
     path.set(pathname, MonitorElementData::Path::Type::DIR);

@@ -42,6 +42,9 @@ namespace dqm {
 
     class IBooker : public dqm::implementation::NavigatorBase {
     public:
+      // DQMStore configures the IBooker in bookTransaction.
+      friend class DQMStore;
+
       // functor to be passed as a default argument that does not do anything.
       struct NOOP {
         void operator()(TH1*) const {};
@@ -463,7 +466,7 @@ namespace dqm {
 
       ~IBooker() override;
 
-    protected:
+    private:
       IBooker(DQMStore* store);
       virtual uint64_t setModuleID(uint64_t moduleID);
       virtual edm::LuminosityBlockID setRunLumi(edm::LuminosityBlockID runlumi);
@@ -515,6 +518,9 @@ namespace dqm {
       virtual MonitorElement* getElement(std::string const& path) const;
 
       // return sub-directories of current directory
+      // Deprecated because the current implementation is very slow and barely
+      // used, use getAllContents instead.
+      DQM_DEPRECATED
       virtual std::vector<std::string> getSubdirs() const;
       // return element names of direct children of current directory
       virtual std::vector<std::string> getMEs() const;
@@ -536,6 +542,9 @@ namespace dqm {
       enum OpenRunDirs { KeepRunDirs, StripRunDirs };
 
       DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry&);
+      DQMStore(DQMStore const&) = delete;
+      DQMStore(DQMStore&&) = delete;
+      DQMStore& operator=(DQMStore const&) = delete;
       ~DQMStore() override;
 
       // ------------------------------------------------------------------------
@@ -550,26 +559,37 @@ namespace dqm {
                 OpenRunDirs stripdirs = KeepRunDirs,
                 bool fileMustExist = true);
 
-      DQMStore(DQMStore const&) = delete;
-      DQMStore& operator=(DQMStore const&) = delete;
-
       // ------------------------------------------------------------------------
       // ------------ IBooker/IGetter overrides to prevent ambiguity ------------
       void cd() override { this->IBooker::cd(); }
       void cd(std::string const& dir) override { this->IBooker::cd(dir); }
+      void goUp() override { this->IBooker::goUp(); }
+      std::string pwd() override { return this->IBooker::pwd(); }
+
       void setCurrentFolder(std::string const& fullpath) override {
         // only here we keep the two in sync -- all the others call this in the end!
         this->IBooker::setCurrentFolder(fullpath);
         this->IGetter::setCurrentFolder(fullpath);
       }
-      void goUp() override { this->IBooker::goUp(); }
-      std::string pwd() override { return this->IBooker::pwd(); }
 
     public:
       // internal -- figure out better protection.
       template <typename iFunc>
       void bookTransaction(iFunc f, uint64_t moduleId, bool canSaveByLumi) {
+        // taking the lock here only to protect the single, global IBooker (as
+        // base class of DQMStore). We could avoid taking this lock by making a
+        // new IBooker instance for each transaction, and the DQMStore itself
+        // takes the lock before touching any data structures.
+        // There is a race in bookME when we don't take this lock, where two
+        // modules might prepare a global ME for the same name at the same time
+        // and only one of them succeeds in putME: this is is safe, but we need
+        // to remove the assertion over there and subsystem code has to be
+        // aware that the booking callback *can* run multiple times.
+        // Additionally, this lock is what keeps usage of getTH1() safe during
+        // booking... all code needs to be migrated to callbacks before this can
+        // be removed.
         auto lock = std::scoped_lock(this->booking_mutex_);
+
         IBooker& booker = *this;
         auto newscope = MonitorElementData::Scope::RUN;
         if (canSaveByLumi && this->doSaveByLumi_) {
@@ -577,11 +597,10 @@ namespace dqm {
         }
         auto oldscope = booker.setScope(newscope);
         assert(moduleId != 0 || !"moduleID must be set for normal booking transaction");
-        // Access via this-> to allow access to protected member
-        auto oldmoduleid = this->setModuleID(moduleId);
+        auto oldmoduleid = booker.setModuleID(moduleId);
         assert(oldmoduleid == 0 || !"Nested booking transaction?");
         // always book prototypes (except for Scope::JOB, where we can use these directly).
-        auto oldrunlumi = this->setRunLumi(edm::LuminosityBlockID());
+        auto oldrunlumi = booker.setRunLumi(edm::LuminosityBlockID());
 
         f(booker);
 
@@ -603,11 +622,13 @@ namespace dqm {
 
       // For input modules: trigger recycling without local ME/enterLumi/moduleID.
       MonitorElement* findOrRecycle(MonitorElementData::Key const&);
+
       // modules are expected to call these callbacks when they change run/lumi.
       // The DQMStore then updates the module's MEs, potentially cloning them
       // if there are concurrent runs/lumis.
       void enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
       void leaveLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
+
       // this is triggered by a framework hook to remove/recycle MEs after a
       // run/lumi is saved. We do this via the edm::Service interface to make
       // sure it runs after *all* output modules, even if there are multiple.
@@ -637,9 +658,7 @@ namespace dqm {
       // ME objects must never appear more than once in these sets. ME objects
       // in localMEs_ cannot be deleted, since the module might hold pointers.
       // MEs in globalMEs_ can be deleted/recycled at the end of their scope,
-      // if there are no MEs left that share the data -- for non-legacy modules
-      // that should hold by construction, for legacy MEs (moduleID == 0) it
-      // needs an explicit check.
+      // if there are no local MEs left that share the data.
       // MEs can be _protoype MEs_ if their scope is not yet known (after
       // booking, after leaveLumi). A prototype is kept if and only if there is
       // no other global instance of the same ME. Prototype MEs have
@@ -651,19 +670,19 @@ namespace dqm {
       // pointers, this may be possible (not everything is const), but it could
       // still corrupt the datastructure.
       std::map<edm::LuminosityBlockID, std::set<MonitorElement*, MonitorElement::MEComparison>> globalMEs_;
-      // Key is (moduleID [, run]), run is only needed for edm::global.
+      // Key is (moduleID [, run | , stream]), run is only needed for
+      // edm::global, stream only for edm::stream.
       // Legacy MEs have moduleID 0.
       std::map<uint64_t, std::set<MonitorElement*, MonitorElement::MEComparison>> localMEs_;
-      // Whenever modifying these sets, take tihs mutex. It's recursive, so we
+      // Whenever modifying these sets, take this  mutex. It's recursive, so we
       // can be liberal -- lock on any access, but also lock on the full booking
-      // transaction. The former is required since also the MEComparison is not
-      // really thread safe, the latter since booking still uses a single,
-      // shared IBooker instance (`this`!), and the transaction needs to be
-      // atomic.
+      // transaction.
       std::recursive_mutex booking_mutex_;
 
-      // universal verbose flag.
+      // Universal verbose flag.
+      // Only very few usages remain, the main debugging tool is trackME_.
       int verbose_;
+
       // If set to true, error out whenever things happen that are not safe for
       // legacy modules.
       bool assertLegacySafe_;
@@ -681,16 +700,17 @@ namespace dqm {
   namespace legacy {
     class DQMStore : public dqm::implementation::DQMStore {
     public:
-      typedef dqm::implementation::IBooker IBooker;
-      typedef dqm::implementation::IGetter IGetter;
+      using IBooker = dqm::implementation::IBooker;
+      using IGetter = dqm::implementation::IGetter;
+      // import constructors.
       using dqm::implementation::DQMStore::DQMStore;
     };
   }  // namespace legacy
   namespace reco {
-    typedef dqm::legacy::DQMStore DQMStore;
+    using DQMStore = dqm::legacy::DQMStore;
   }  // namespace reco
   namespace harvesting {
-    typedef dqm::legacy::DQMStore DQMStore;
+    using DQMStore = dqm::legacy::DQMStore;
   }  // namespace harvesting
 }  // namespace dqm
 
