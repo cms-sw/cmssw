@@ -8,7 +8,7 @@ options.register('producerType',
                  'static_DDD', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "MF producer to use. Valid values: 'static_DDD', 'static_DD4Hep' or 'fromDB'")
+                 "MF producer to use. Valid values: 'static_DDD', 'static_DD4Hep', 'fromDB', 'fromDB_DD4Hep'")
 
 options.register('era',
                  'RunII', #default value
@@ -86,8 +86,12 @@ elif options.producerType == 'static_DD4Hep' :
         exit()
 
 
-elif options.producerType == 'fromDB':
-    process.load("Configuration.StandardSequences.MagneticField_cff")
+elif options.producerType == 'fromDB' or options.producerType == 'fromDB_DD4Hep':
+    if options.producerType == 'fromDB':
+        process.load("Configuration.StandardSequences.MagneticField_cff")
+    elif options.producerType == 'fromDB_DD4Hep':
+        process.load("MagneticField.Engine.volumeBasedMagneticFieldFromDB_dd4hep_cfi")
+
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     from Configuration.AlCa.GlobalTag import GlobalTag
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '') # Note: testing the proper set-up of data and MC iovs is beyond the scope of this script.
@@ -106,6 +110,8 @@ elif options.producerType == 'fromDB':
         process.VolumeBasedMagneticFieldESProducer.valueOverride = 14000 #3 T
     elif options.current > 4779 :
         process.VolumeBasedMagneticFieldESProducer.valueOverride = 10000 #2 T
+
+
 
 else :
     print '\nERROR: invalid producerType', producerType,'\n'
