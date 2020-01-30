@@ -56,9 +56,12 @@ public:
     // for whatever reason we need the explicit `template` keyword here.
     runToken_ = this->template produces<DQMToken, edm::Transition::EndRun>("DQMGenerationRecoRun");
     lumiToken_ = this->template produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationRecoLumi");
+    streamId_ = edm::StreamID::invalidStreamID().value();
   }
 
   void beginStream(edm::StreamID id) final {
+    assert(streamId_ == edm::StreamID::invalidStreamID().value() || streamId_ == id.value());
+    this->streamId_ = id.value();
     // now, since we can't access the global cache in the constructor (we
     // blocked that above to not expose the cache to the subsystem code,
     // we need to store the tokens here.
@@ -78,19 +81,19 @@ public:
           booker.cd();
           this->bookHistograms(booker, run, setup);
         },
-        this->moduleDescription().id(),
+        meId(),
         this->getCanSaveByLumi());
-    edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
+    edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, meId());
   }
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
-    edm::Service<DQMStore>()->enterLumi(lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
+    edm::Service<DQMStore>()->enterLumi(lumi.run(), lumi.luminosityBlock(), meId());
   }
 
   void accumulate(edm::Event const& event, edm::EventSetup const& setup) final { analyze(event, setup); }
 
   void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
-    edm::Service<DQMStore>()->leaveLumi(lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
+    edm::Service<DQMStore>()->leaveLumi(lumi.run(), lumi.luminosityBlock(), meId());
   }
 
   static void globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumi,
@@ -100,7 +103,7 @@ public:
   }
 
   void endRun(edm::Run const& run, edm::EventSetup const& setup) final {
-    edm::Service<DQMStore>()->leaveLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
+    edm::Service<DQMStore>()->leaveLumi(run.run(), /* lumi */ 0, meId());
   }
   static void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup, RunContext const* context) {
     run.emplace<DQMToken>(context->global()->runToken_);
@@ -116,6 +119,8 @@ public:
 protected:
   edm::EDPutTokenT<DQMToken> runToken_;
   edm::EDPutTokenT<DQMToken> lumiToken_;
+  unsigned int streamId_;
+  uint64_t meId() const { return (((uint64_t)streamId_) << 32) + this->moduleDescription().id(); }
 };
 
 #endif  // DQMServices_Core_DQMEDAnalyzer_h
