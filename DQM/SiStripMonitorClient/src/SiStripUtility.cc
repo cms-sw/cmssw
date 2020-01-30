@@ -238,9 +238,12 @@ int SiStripUtility::getMEStatus(MonitorElement const* me, int& bad_channels) {
 //
 void SiStripUtility::getMEValue(MonitorElement const* me, std::string& val) {
   val = "";
-  if (me && (me->kind() == MonitorElement::Kind::REAL || me->kind() == MonitorElement::Kind::INT)) {
-    val = me->valueString();
-    val = val.substr(val.find("=") + 1);
+  if (me) {
+    if (me->kind() == MonitorElement::Kind::REAL) {
+      val = std::to_string(me->getFloatValue());
+    } else if (me->kind() == MonitorElement::Kind::INT) {
+      val = std::to_string(me->getIntValue());
+    }
   }
 }
 //
