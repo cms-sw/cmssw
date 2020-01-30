@@ -156,23 +156,12 @@ run2_jme_2016.toModify(updatedJetsWithUserData.userInts,
     looseId = cms.InputTag("looseJetId"),
 )
 
-lepInJetVars = cms.EDProducer("LepInJetProducer",
-    src = cms.InputTag("updatedJetsAK8"),
-    srcEle = cms.InputTag("finalElectrons"),
-    srcMu = cms.InputTag("finalMuons")
-)
-
 updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      src = cms.InputTag("updatedJetsAK8"),
-     userFloats = cms.PSet(
-        lsf3 = cms.InputTag("lepInJetVars:lsf3"),
-     ),
-     userInts = cms.PSet(
+      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetIdAK8"),
         tightIdLepVeto = cms.InputTag("tightJetIdLepVetoAK8"),
-        muonIdx3SJ = cms.InputTag("lepInJetVars:muIdx3SJ"),
-        electronIdx3SJ = cms.InputTag("lepInJetVars:eleIdx3SJ"),
-     ),
+      ),
 )
 run2_jme_2016.toModify(updatedJetsAK8WithUserData.userInts,
     looseId = cms.InputTag("looseJetIdAK8"),
@@ -189,7 +178,11 @@ finalJetsAK8 = cms.EDFilter("PATJetRefSelector",
     cut = cms.string("pt > 170")
 )
 
-
+lepInJetVars = cms.EDProducer("LepInJetProducer",
+    src = cms.InputTag("finalJetsAK8"),
+    srcEle = cms.InputTag("finalElectrons"),
+    srcMu = cms.InputTag("finalMuons")
+)
 
 
 
@@ -438,14 +431,16 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 		     doc="index of first subjet"),
         subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", int,
 		     doc="index of second subjet"),
-        lsf3 = Var("userFloat('lsf3')",float, doc="Lepton Subjet Fraction (3 subjets)",precision=10),
-        muonIdx3SJ = Var("userInt('muonIdx3SJ')",int, doc="index of muon matched to jet"),
-        electronIdx3SJ = Var("userInt('electronIdx3SJ')",int,doc="index of electron matched to jet"),
 
 #        btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="CMVA V2 btag discriminator",precision=10),
 #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
 #        nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
 #        rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
+    ),
+    externalVariables = cms.PSet(
+        lsf3 = ExtVar(cms.InputTag("lepInJetVars:lsf3"),float, doc="Lepton Subjet Fraction (3 subjets)",precision=10),
+        muonIdx3SJ = ExtVar(cms.InputTag("lepInJetVars:muIdx3SJ"),int, doc="index of muon matched to jet"),
+        electronIdx3SJ = ExtVar(cms.InputTag("lepInJetVars:eleIdx3SJ"),int,doc="index of electron matched to jet"),
     )
 )
 ### Era dependent customization
@@ -645,7 +640,7 @@ from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
 qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 
 #before cross linking
-jetSequence = cms.Sequence(jetCorrFactorsNano+updatedJets+tightJetId+tightJetIdLepVeto+bJetVars+qgtagger+jercVars+updatedJetsWithUserData+jetCorrFactorsAK8+updatedJetsAK8+tightJetIdAK8+tightJetIdLepVetoAK8+lepInJetVars+updatedJetsAK8WithUserData+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
+jetSequence = cms.Sequence(jetCorrFactorsNano+updatedJets+tightJetId+tightJetIdLepVeto+bJetVars+qgtagger+jercVars+updatedJetsWithUserData+jetCorrFactorsAK8+updatedJetsAK8+tightJetIdAK8+tightJetIdLepVetoAK8+updatedJetsAK8WithUserData+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
 
 _jetSequence_2016 = jetSequence.copy()
 _jetSequence_2016.insert(_jetSequence_2016.index(tightJetId), looseJetId)
@@ -653,7 +648,7 @@ _jetSequence_2016.insert(_jetSequence_2016.index(tightJetIdAK8), looseJetIdAK8)
 run2_jme_2016.toReplaceWith(jetSequence, _jetSequence_2016)
 
 #after cross linkining
-jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
+jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+lepInJetVars+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+fatJetMCTable+genSubJetAK8Table+subjetMCTable)
