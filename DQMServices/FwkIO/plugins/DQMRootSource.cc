@@ -49,7 +49,9 @@
 
 #include "format.h"
 
-namespace {
+// class rather than namespace so we can make this a friend of the
+// MonitorElement to get access to constructors etc.
+struct DQMTTreeIO {
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
 
@@ -302,10 +304,9 @@ namespace {
     T m_buffer = 0;
     uint32_t m_tag = 0;
   };
+};
 
-}  // namespace
-
-class DQMRootSource : public edm::PuttableSourceBase {
+class DQMRootSource : public edm::PuttableSourceBase, DQMTTreeIO {
 public:
   DQMRootSource(edm::ParameterSet const&, const edm::InputSourceDescription&);
   ~DQMRootSource() override;

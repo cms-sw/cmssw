@@ -42,7 +42,7 @@ namespace dqm::impl {
 
   MonitorElement::MonitorElement(MonitorElementData &&data) {
     this->mutable_ = new MutableMonitorElementData();
-    this->mutable_.load()->data_ = std::move(data);
+    this->mutable_->data_ = std::move(data);
     this->is_owned_ = true;
     syncCoreObject();
   }
@@ -62,7 +62,7 @@ namespace dqm::impl {
 
   MutableMonitorElementData *MonitorElement::release(bool expectOwned) {
     assert(this->is_owned_ == expectOwned);
-    MutableMonitorElementData *data = this->mutable_.load();
+    MutableMonitorElementData *data = this->mutable_;
     this->mutable_ = nullptr;
     this->is_owned_ = false;
     assert(!expectOwned || data);
@@ -71,7 +71,7 @@ namespace dqm::impl {
 
   void MonitorElement::switchData(MonitorElement *other) {
     assert(other);
-    this->mutable_ = other->mutable_.load();
+    this->mutable_ = other->mutable_;
     this->is_owned_ = false;
     syncCoreObject();
   }
@@ -80,6 +80,13 @@ namespace dqm::impl {
     this->mutable_ = data;
     this->is_owned_ = true;
     syncCoreObject();
+  }
+
+  void MonitorElement::switchObject(std::unique_ptr<TH1> &&newobject) {
+    auto access = this->accessMut();
+    // Assume kind etc. matches.
+    // This should free the old object.
+    access.value.object_ = std::move(newobject);
   }
 
   void MonitorElement::syncCoreObject() {
@@ -753,12 +760,6 @@ namespace dqm::impl {
     getAxis(access, __PRETTY_FUNCTION__, axis)->SetTimeFormat(format);
   }
 
-  /// set the time offset, if option = "gmt" then the offset is treated as a GMT time
-  void MonitorElement::setAxisTimeOffset(double toffset, const char *option /* ="local" */, int axis /* = 1 */) {
-    auto access = this->accessMut();
-    getAxis(access, __PRETTY_FUNCTION__, axis)->SetTimeOffset(toffset, option);
-  }
-
   /// set (ie. change) histogram/profile title
   void MonitorElement::setTitle(const std::string &title) {
     auto access = this->accessMut();
@@ -870,134 +871,6 @@ namespace dqm::impl {
     assert(kind() == Kind::STRING);
     auto access = this->access();
     return access.value.scalar_.str;
-  }
-
-  // implementation: Giuseppe.Della-Ricca@ts.infn.it
-  // Can be called with sum = h1 or sum = h2
-  void MonitorElement::addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2) {
-    assert(h1);
-    assert(h2);
-    assert(sum);
-
-    static const Int_t NUM_STAT = 6;
-    Double_t stats1[NUM_STAT];
-    Double_t stats2[NUM_STAT];
-    Double_t stats3[NUM_STAT];
-
-    bool isRebinOn = sum->CanExtendAllAxes();
-    sum->SetCanExtend(TH1::kNoAxis);
-
-    for (Int_t i = 0; i < NUM_STAT; ++i)
-      stats1[i] = stats2[i] = stats3[i] = 0;
-
-    h1->GetStats(stats1);
-    h2->GetStats(stats2);
-
-    for (Int_t i = 0; i < NUM_STAT; ++i)
-      stats3[i] = c1 * stats1[i] + c2 * stats2[i];
-
-    stats3[1] = c1 * TMath::Abs(c1) * stats1[1] + c2 * TMath::Abs(c2) * stats2[1];
-
-    Double_t entries = c1 * h1->GetEntries() + c2 * h2->GetEntries();
-    TArrayD *h1sumw2 = h1->GetSumw2();
-    TArrayD *h2sumw2 = h2->GetSumw2();
-    for (Int_t bin = 0, nbin = sum->GetNbinsX() + 1; bin <= nbin; ++bin) {
-      Double_t entries = c1 * h1->GetBinEntries(bin) + c2 * h2->GetBinEntries(bin);
-      Double_t content =
-          c1 * h1->GetBinEntries(bin) * h1->GetBinContent(bin) + c2 * h2->GetBinEntries(bin) * h2->GetBinContent(bin);
-      Double_t error =
-          TMath::Sqrt(c1 * TMath::Abs(c1) * h1sumw2->fArray[bin] + c2 * TMath::Abs(c2) * h2sumw2->fArray[bin]);
-      sum->SetBinContent(bin, content);
-      sum->SetBinError(bin, error);
-      sum->SetBinEntries(bin, entries);
-    }
-
-    sum->SetEntries(entries);
-    sum->PutStats(stats3);
-    if (isRebinOn)
-      sum->SetCanExtend(TH1::kAllAxes);
-  }
-
-  // implementation: Giuseppe.Della-Ricca@ts.infn.it
-  // Can be called with sum = h1 or sum = h2
-  void MonitorElement::addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2) {
-    assert(h1);
-    assert(h2);
-    assert(sum);
-
-    static const Int_t NUM_STAT = 9;
-    Double_t stats1[NUM_STAT];
-    Double_t stats2[NUM_STAT];
-    Double_t stats3[NUM_STAT];
-
-    bool isRebinOn = sum->CanExtendAllAxes();
-    sum->SetCanExtend(TH1::kNoAxis);
-
-    for (Int_t i = 0; i < NUM_STAT; ++i)
-      stats1[i] = stats2[i] = stats3[i] = 0;
-
-    h1->GetStats(stats1);
-    h2->GetStats(stats2);
-
-    for (Int_t i = 0; i < NUM_STAT; i++)
-      stats3[i] = c1 * stats1[i] + c2 * stats2[i];
-
-    stats3[1] = c1 * TMath::Abs(c1) * stats1[1] + c2 * TMath::Abs(c2) * stats2[1];
-
-    Double_t entries = c1 * h1->GetEntries() + c2 * h2->GetEntries();
-    TArrayD *h1sumw2 = h1->GetSumw2();
-    TArrayD *h2sumw2 = h2->GetSumw2();
-    for (Int_t xbin = 0, nxbin = sum->GetNbinsX() + 1; xbin <= nxbin; ++xbin)
-      for (Int_t ybin = 0, nybin = sum->GetNbinsY() + 1; ybin <= nybin; ++ybin) {
-        Int_t bin = sum->GetBin(xbin, ybin);
-        Double_t entries = c1 * h1->GetBinEntries(bin) + c2 * h2->GetBinEntries(bin);
-        Double_t content =
-            c1 * h1->GetBinEntries(bin) * h1->GetBinContent(bin) + c2 * h2->GetBinEntries(bin) * h2->GetBinContent(bin);
-        Double_t error =
-            TMath::Sqrt(c1 * TMath::Abs(c1) * h1sumw2->fArray[bin] + c2 * TMath::Abs(c2) * h2sumw2->fArray[bin]);
-
-        sum->SetBinContent(bin, content);
-        sum->SetBinError(bin, error);
-        sum->SetBinEntries(bin, entries);
-      }
-    sum->SetEntries(entries);
-    sum->PutStats(stats3);
-    if (isRebinOn)
-      sum->SetCanExtend(TH1::kAllAxes);
-  }
-
-  void MonitorElement::copyFunctions(TH1 *from, TH1 *to) {
-    update();
-    TList *fromf = from->GetListOfFunctions();
-    TList *tof = to->GetListOfFunctions();
-    for (int i = 0, nfuncs = fromf ? fromf->GetSize() : 0; i < nfuncs; ++i) {
-      TObject *obj = fromf->At(i);
-      // not interested in statistics
-      if (!strcmp(obj->IsA()->GetName(), "TPaveStats"))
-        continue;
-
-      if (auto *fn = dynamic_cast<TF1 *>(obj))
-        tof->Add(new TF1(*fn));
-      //else if (dynamic_cast<TPaveStats *>(obj))
-      //  ; // FIXME? tof->Add(new TPaveStats(*stats));
-      else
-        raiseDQMError("MonitorElement",
-                      "Cannot extract function '%s' of type"
-                      " '%s' from monitor element '%s' for a copy",
-                      obj->GetName(),
-                      obj->IsA()->GetName(),
-                      data_.objname.c_str());
-    }
-  }
-
-  void MonitorElement::copyFrom(TH1 *from) {
-    TH1 *orig = getTH1();
-    if (orig->GetTitle() != from->GetTitle())
-      orig->SetTitle(from->GetTitle());
-
-    orig->Add(from);
-
-    copyFunctions(from, orig);
   }
 
   void MonitorElement::getQReport(bool create,

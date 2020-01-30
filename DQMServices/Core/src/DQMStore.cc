@@ -112,18 +112,7 @@ namespace dqm::implementation {
         assert(th1);
         store_->debugTrackME("bookME (forceReplace)", nullptr, me);
         // surgically replace Histogram
-        // This is rather dangerous because the ME is in a global set and may
-        // be in use. We are protected by the booking lock here, but code
-        // filling in parallel might observe `isValid() == false`.
-        // Maybe replace this with a proper API to atomically replace the TH1.
-        auto medata = me->release(/* expectOwned */ true);
-        // Assume kind etc. matches.
-        // This should free the old object.
-        {
-          auto access = medata->accessMut();
-          access.value.object_ = std::unique_ptr<TH1>(th1);
-        }
-        me->switchData(medata);
+        me->switchObject(std::unique_ptr<TH1>(th1));
       }
     }
 
