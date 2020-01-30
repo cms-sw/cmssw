@@ -15,6 +15,7 @@
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 #include <algorithm>
@@ -1266,7 +1267,7 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
             }
             if ((corner.first > 0) && (corner.first < (int)(HGCalParameters::k_CornerSize))) {
               int wl = HGCalWaferIndex::waferIndex(php.layer_[il], copy, 0, true);
-              waferTypes[wl] = std::make_pair(corner.first, corner.second);
+              waferTypes[wl] = corner;
             }
           }
         }
@@ -1373,11 +1374,26 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         }
         if ((corner.first < (int)(HGCalParameters::k_CornerSize)) && (corner.first > 0)) {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with " << corner.first
-                                        << " corners First " << corner.second;
+          edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner "
+                                        << corner.first << ":" << corner.second;
 #endif
           int wl = HGCalWaferIndex::waferIndex(lay, u, v);
-          waferTypes[wl] = std::make_pair(corner.first, corner.second);
+          if (php.waferMaskMode_ > 0) {
+            std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(
+                xpos, ypos, r, R, php.rMinLayHex_[i], php.rMaxLayHex_[i], N, php.waferMaskMode_);
+            waferTypes[wl] = corner0;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom")
+                << "Layer " << lay << " u|v " << u << ":" << v << " with corner " << corner.first << ":"
+                << corner.second << " croner0 " << corner0.first << ":" << corner0.second;
+#endif
+          } else {
+            waferTypes[wl] = corner;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner "
+                                          << corner.first << ":" << corner.second;
+#endif
+          }
         }
       }
     }
