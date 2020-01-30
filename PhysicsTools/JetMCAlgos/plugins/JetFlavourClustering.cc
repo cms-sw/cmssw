@@ -238,7 +238,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
   produces<reco::JetFlavourInfoMatchingCollection>();
   std::string label = iConfig.getParameter<edm::InputTag>("jets").label();
   usePuppi_ = false;
-  if(label.find("Puppi") != std::string::npos){
+  if (label.find("Puppi") != std::string::npos) {
     usePuppi_ = true;
     // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
   }
@@ -300,7 +300,6 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
   if (useLeptons_)
     iEvent.getByToken(leptonsToken_, leptons);
 
-
   auto jetFlavourInfos = std::make_unique<reco::JetFlavourInfoMatchingCollection>(reco::JetRefBaseProd(jets));
   std::unique_ptr<reco::JetFlavourInfoMatchingCollection> subjetFlavourInfos;
   if (useSubjets_)
@@ -327,14 +326,13 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
         edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
         continue;
       }
-      if(usePuppi_){
-	const auto pf_constit = dynamic_cast<const reco::PFCandidate*>(&*constit);
-	double w = pf_constit->puppiWeight();
-	double E_w = std::sqrt(pf_constit->p() * w * pf_constit->p() * w + pf_constit->mass() * pf_constit->mass());
-	fjInputs.push_back(fastjet::PseudoJet(pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz()* w, E_w));
-      }
-      else{
-	fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+      if (usePuppi_) {
+        const auto pf_constit = dynamic_cast<const reco::PFCandidate*>(&*constit);
+        double w = pf_constit->puppiWeight();
+        double E_w = std::sqrt(pf_constit->p() * w * pf_constit->p() * w + pf_constit->mass() * pf_constit->mass());
+        fjInputs.push_back(fastjet::PseudoJet(pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz() * w, E_w));
+      } else {
+        fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
       }
     }
   }

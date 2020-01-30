@@ -251,9 +251,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Since the size of the ValueMap must be equal to the input collection, we need
   // to search the "puppi" particles to find a match for each input. If none is found,
   // the input is set to have a four-vector of 0,0,0,0
-  fPuppiCandidates.clear();
-  fPuppiCandidatesWeighted.clear();
-  fPackedPuppiCandidates.clear();
+  PFOutputCollection fPuppiCandidates;
+  PFOutputCollection fPuppiCandidatesWeighted;
+  PackedOutputCollection fPackedPuppiCandidates;
+
   edm::ValueMap<LorentzVector> p4PupOut;
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
@@ -298,7 +299,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       fPackedPuppiCandidates.push_back(*pCand);
     } else {
-      // Here, we are not using packed candidates. That is, this is MINIAOD
+      // Here, we are not using packed candidates. That is, this is RECO
       // and we are computing puppi for the PFCandidates themselves.
       // We have TWO collections to write here. The first is the "weighted"
       // version that weights the p4 by the puppi weight. The second
