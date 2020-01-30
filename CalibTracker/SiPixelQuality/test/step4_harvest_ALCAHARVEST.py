@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step4_harvest --conditions auto:run2_data_promptlike -s ALCAHARVEST:SiPixelQuality --data --era Run2_2017 --filein file:PromptCalibProdSiPixel.root -n -1 --customise_commands=process.GlobalTag.toGet.append(cms.PSet(record=cms.string("SiPixelQualityFromDbRcd"), tag=cms.string("SiPixelQuality_v04_offline"), connect=cms.string("frontier://FrontierProd/CMS_CONDITIONS")))\n --no_exec
+# with command line options: step4_harvest --conditions auto:run2_data -s ALCAHARVEST:SiPixelQuality --data --era Run2_2017 --filein file:PromptCalibProdSiPixel.root -n -1 --customise_commands=process.GlobalTag.toGet.append(cms.PSet(record=cms.string("SiPixelQualityFromDbRcd"), tag=cms.string("SiPixelQuality_v04_offline"), connect=cms.string("frontier://FrontierProd/CMS_CONDITIONS")))\n --no_exec
 import FWCore.ParameterSet.Config as cms
 
 
@@ -50,7 +50,7 @@ process.configurationMetadata = cms.untracked.PSet(
 process.PoolDBOutputService.toPut.extend(process.ALCAHARVESTSiPixelQuality_dbOutput)
 process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVESTSiPixelQuality_metadata)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data_promptlike', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 # Path and EndPath definitions
 process.BeamSpotHPLowPUByRun = cms.Path(process.ALCAHARVESTBeamSpotHPLowPUByRun)
