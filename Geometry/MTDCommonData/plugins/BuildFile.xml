@@ -1,0 +1,7 @@
+<library name="DDMTDLinear" file="DDMTDLinear.cc">
+ <use name="DataFormats/Math"/>
+ <use name="DetectorDescription/Core"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/PluginManager"/>
+ <flags EDM_PLUGIN="1"/>
+</library>
