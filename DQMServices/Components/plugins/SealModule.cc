@@ -11,10 +11,6 @@ DEFINE_FWK_MODULE(DQMMessageLogger);
 DEFINE_FWK_MODULE(DQMMessageLoggerClient);
 #include "DQMProvInfo.h"
 DEFINE_FWK_MODULE(DQMProvInfo);
-#include "DQMDcsInfo.h"
-DEFINE_FWK_MODULE(DQMDcsInfo);
-#include "DQMDcsInfoClient.h"
-DEFINE_FWK_MODULE(DQMDcsInfoClient);
 #include "DQMScalInfo.h"
 DEFINE_FWK_MODULE(DQMScalInfo);
 

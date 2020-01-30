@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLogger_cfi import *
-from DQMServices.Components.DQMDcsInfo_cfi import *
+from DQMServices.Components.DQMProvInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cosmic_cff import *
@@ -14,7 +14,8 @@ from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cosmic_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 
-DQMOfflineCosmicsDCS = cms.Sequence( dqmDcsInfo )
+dqmProvInfo.runType = "cosmics_run"
+DQMOfflineCosmicsDCS = cms.Sequence( dqmProvInfo )
 
 DQMOfflineCosmicsEcal = cms.Sequence( ecal_dqm_source_offline *
                                 es_dqm_source_offline )

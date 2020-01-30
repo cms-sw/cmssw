@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLoggerClient_cff import *
-from DQMServices.Components.DQMDcsInfoClient_cfi import *
 from DQMServices.Components.DQMFastTimerServiceClient_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
@@ -13,8 +12,6 @@ from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
-
-DQMOfflineHeavyIons_SecondStepDCS = cms.Sequence( dqmDcsInfoClient )
 
 DQMOfflineHeavyIons_SecondStepEcal = cms.Sequence( ecal_dqm_client_offline *
 						    es_dqm_client_offline )
@@ -31,7 +28,7 @@ DQMOfflineHeavyIons_SecondStepMuonDPG = cms.Sequence(  dtClients *
 
 DQMOfflineHeavyIons_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
 
-DQMOfflineHeavyIons_SecondStep_PreDPG = cms.Sequence( DQMOfflineHeavyIons_SecondStepDCS *
+DQMOfflineHeavyIons_SecondStep_PreDPG = cms.Sequence( 
 						      DQMOfflineHeavyIons_SecondStepEcal *
                                                       DQMOfflineHeavyIons_SecondStepTrackerStrip *
                                                       DQMOfflineHeavyIons_SecondStepTrackerPixel *
