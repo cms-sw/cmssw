@@ -1,4 +1,3 @@
-<use   name="RecoEgamma/Examples"/>
 <use   name="RecoEgamma/EgammaElectronAlgos"/>
 <use   name="RecoEgamma/EgammaMCTools"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
@@ -40,6 +39,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectoryState"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="DQMServices/Core"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/Track"/>

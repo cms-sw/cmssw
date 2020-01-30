@@ -1,7 +1,5 @@
 <use name="mxnet-predict"/>
-<use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/MessageLogger"/>
 <export>
     <lib name="1" />
 </export>

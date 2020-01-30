@@ -23,7 +23,6 @@
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="RecoEgamma/ElectronIdentification"/>
-<use   name="TrackingTools/MeasurementDet"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="CondFormats/DataRecord"/>
