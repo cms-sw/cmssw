@@ -1,5 +1,7 @@
 PrimaryVertexResolutionTemplate="""
 
+HLTSel = .oO[doTriggerSelection]Oo.
+
 ###################################################################
 #  Runs and events
 ###################################################################
@@ -14,7 +16,21 @@ if(isMultipleRuns):
 else:
      process.source.firstRun = cms.untracked.uint32(int(runboundary))
 
-## PV refit
+
+###################################################################
+# The trigger filter module
+###################################################################
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
+process.theHLTFilter = triggerResultsFilter.clone(
+    triggerConditions = cms.vstring(.oO[triggerBits]Oo.),
+    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+    l1tResults = cms.InputTag( "" ),
+    throw = cms.bool(False)
+)
+
+###################################################################
+# PV refit
+###################################################################
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices 
@@ -26,6 +42,9 @@ process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLaye
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0 
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2   
 
+###################################################################
+# The PV resolution module
+###################################################################
 process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  storeNtuple         = cms.bool(False),
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
@@ -41,10 +60,15 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
 ####################################################################
 ####################################################################
 PVResolutionPath="""
-process.p = cms.Path(process.offlineBeamSpot                        + 
-                     process.TrackRefitter                          + 
-                     process.offlinePrimaryVerticesFromRefittedTrks +
-                     process.PrimaryVertexResolution)
+
+process.theValidSequence = cms.Sequence(process.offlineBeamSpot                        +
+                                        process.TrackRefitter                          +
+                                        process.offlinePrimaryVerticesFromRefittedTrks +
+                                        process.PrimaryVertexResolution)
+if (HLTSel):
+    process.p = cms.Path(process.theHLTFilter + process.theValidSequence)
+else:
+    process.p = cms.Path(process.theValidSequence)
 """
 
 ####################################################################

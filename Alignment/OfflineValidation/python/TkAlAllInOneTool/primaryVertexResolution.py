@@ -17,7 +17,7 @@ class PrimaryVertexResolution(GenericValidationData, ValidationWithPlots):
         "multiIOV":"False",
     }
     #mandatories = {"isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"}
-    mandatories = {"runControl","runboundary","trackcollection"}
+    mandatories = {"runControl","runboundary","doTriggerSelection","triggerBits","trackcollection"}
     valType = "pvresolution"
     def __init__(self, valName, alignment, config):
         super(PrimaryVertexResolution, self).__init__(valName, alignment, config)
@@ -25,7 +25,7 @@ class PrimaryVertexResolution(GenericValidationData, ValidationWithPlots):
         if self.general["pvresolutionreference"].startswith("/store"):
             self.general["pvresolutionreference"] = "root://eoscms//eos/cms" + self.general["pvresolutionreference"]
         if self.NJobs > 1:
-            raise AllInOneError("Parallel jobs not implemented for the PrimaryVertex validation!\n"
+            raise AllInOneError("Parallel jobs not implemented for the SplotVertexResolution validation!\n"
                                 "Please set parallelJobs = 1.")
     @property
     def ValidationTemplate(self):
