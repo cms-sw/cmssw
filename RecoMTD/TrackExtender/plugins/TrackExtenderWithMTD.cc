@@ -569,11 +569,7 @@ namespace {
     TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
     tscbl = tscblBuilder(stateForProjectionToBeamLine, bs);
 
-    if (!tscbl.isValid()) {
-      return false;
-    }
-
-    return true;
+    return tscbl.isValid();
   }
 
   bool trackPathLength(const Trajectory& traj,
