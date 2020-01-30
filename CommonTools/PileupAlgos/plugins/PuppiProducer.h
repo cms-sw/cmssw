@@ -77,8 +77,5 @@ private:
   double fVtxZCut;
   std::unique_ptr<PuppiContainer> fPuppiContainer;
   std::vector<RecoObj> fRecoObjCollection;
-  PFOutputCollection fPuppiCandidates;
-  PFOutputCollection fPuppiCandidatesWeighted;
-  PackedOutputCollection fPackedPuppiCandidates;
 };
 #endif
