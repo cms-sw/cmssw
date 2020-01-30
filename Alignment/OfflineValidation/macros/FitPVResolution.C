@@ -606,9 +606,9 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
   for (Int_t j = 0; j < nFiles_; j++) {
     // first canvas
 
-    //p_resolX_vsSumPt_[j]->GetXaxis()->SetRangeUser(0., 200.);
-    //p_resolY_vsSumPt_[j]->GetXaxis()->SetRangeUser(0., 200.);
-    //p_resolZ_vsSumPt_[j]->GetXaxis()->SetRangeUser(0., 200.);
+    //p_resolX_vsSumPt_[j]->GetXaxis()->SetRangeUser(10., 400.);
+    //p_resolY_vsSumPt_[j]->GetXaxis()->SetRangeUser(10., 400.);
+    //p_resolZ_vsSumPt_[j]->GetXaxis()->SetRangeUser(10., 400.);
 
     c1->cd(1);
     j == 0 ? p_resolX_vsSumPt_[j]->Draw("E1") : p_resolX_vsSumPt_[j]->Draw("E1same");
@@ -805,19 +805,25 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
   if (theDate.Length() != 0)
     theDate.Prepend("_");
 
-  c1->SaveAs("VertexResolVsSumPt" + theDate + ".png");
-  c2->SaveAs("VertexPullVsSumPt" + theDate + ".png");
-  c3->SaveAs("VertexResolVsNTracks" + theDate + ".png");
-  c4->SaveAs("VertexPullVsNTracks" + theDate + ".png");
-  c5->SaveAs("VertexResolVsNVertices" + theDate + ".png");
-  c6->SaveAs("VertexPullVsNVertices" + theDate + ".png");
+  TString theStrAlignment = LegLabels[0];
+  for (Int_t j = 1; j < nFiles_; j++) {
+    theStrAlignment += ("_vs_" + LegLabels[j]);
+  }
+  theStrAlignment.ReplaceAll(" ", "_");
 
-  c1->SaveAs("VertexResolVsSumPt" + theDate + ".pdf");
-  c2->SaveAs("VertexPullVsSumPt" + theDate + ".pdf");
-  c3->SaveAs("VertexResolVsNTracks" + theDate + ".pdf");
-  c4->SaveAs("VertexPullVsNTracks" + theDate + ".pdf");
-  c5->SaveAs("VertexResolVsNVertices" + theDate + ".pdf");
-  c6->SaveAs("VertexPullVsNVertices" + theDate + ".pdf");
+  c1->SaveAs("VertexResolVsSumPt_" + theStrAlignment + theDate + ".png");
+  c2->SaveAs("VertexPullVsSumPt_" + theStrAlignment + theDate + ".png");
+  c3->SaveAs("VertexResolVsNTracks_" + theStrAlignment + theDate + ".png");
+  c4->SaveAs("VertexPullVsNTracks_" + theStrAlignment + theDate + ".png");
+  c5->SaveAs("VertexResolVsNVertices_" + theStrAlignment + theDate + ".png");
+  c6->SaveAs("VertexPullVsNVertices_" + theStrAlignment + theDate + ".png");
+
+  c1->SaveAs("VertexResolVsSumPt_" + theStrAlignment + theDate + ".pdf");
+  c2->SaveAs("VertexPullVsSumPt_" + theStrAlignment + theDate + ".pdf");
+  c3->SaveAs("VertexResolVsNTracks_" + theStrAlignment + theDate + ".pdf");
+  c4->SaveAs("VertexPullVsNTracks_" + theStrAlignment + theDate + ".pdf");
+  c5->SaveAs("VertexResolVsNVertices_" + theStrAlignment + theDate + ".pdf");
+  c6->SaveAs("VertexPullVsNVertices_" + theStrAlignment + theDate + ".pdf");
 
   delete c1;
   delete c2;
