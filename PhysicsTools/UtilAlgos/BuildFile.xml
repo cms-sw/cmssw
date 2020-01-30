@@ -2,7 +2,6 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Services"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Common"/>
 <use   name="DataFormats/Common"/>
