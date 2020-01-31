@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #test execute: export CMSSW_BASE=/tmp/CMSSW && ./validateAlignments.py -c defaultCRAFTValidation.ini,test.ini -n -N test
 from __future__ import print_function
+from future.utils import lmap
 import subprocess
 import os
 import sys
@@ -214,6 +215,7 @@ class ValidationJob(ValidationBase):
                           os.path.abspath( self.commandLineOptions.Name) )
 
     def runJob( self ):
+
         general = self.config.getGeneral()
         log = ""
 
@@ -405,7 +407,7 @@ class ValidationJobMultiIOV(ValidationBase):
         return validations
 
     def createJob( self ):
-        map( lambda validation: validation.createJob(), self.validations )
+        lmap( lambda validation: validation.createJob(), self.validations )
 
     def runJob( self ):
         return [validation.runJob() for validation in self.validations]
@@ -533,7 +535,7 @@ def createMergeScript( path, validations, options ):
         #pprint.pprint("validations")
         #pprint.pprint(validations)
         globalDictionaries.plottingOptions = {}
-        map( lambda validation: validation.getRepMap(), validations )
+        lmap( lambda validation: validation.getRepMap(), validations )
         #plotInfo = "plots:offline"
         #allPlotInfo = dict(validations[0].config.items(plotInfo))
         #repMap[(validationtype, validationName, referenceName)].update(allPlotInfo)
@@ -639,7 +641,6 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
 
     (options, args) = optParser.parse_args(argv)
 
-
     if not options.restrictTo == None:
         options.restrictTo = options.restrictTo.split(",")
 
@@ -720,8 +721,8 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
                                 for alignment in alignmentList]
         validations.extend(validationsToAdd)
 
-
     for validation in validations:
+
         job = ValidationJobMultiIOV(validation, config, options, outPath, len(validations))
         if (job.optionMultiIOV == True):
             jobs.extend(job)
@@ -732,15 +733,14 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
         if job.needsproxy and not proxyexists:
             raise AllInOneError("At least one job needs a grid proxy, please init one.")
 
-    map( lambda job: job.createJob(), jobs )
+    lmap( lambda job: job.createJob(), jobs )
 
     validations = [ job.getValidation() for job in jobs ]
     validations = flatten(validations)
 
     createMergeScript(outPath, validations, options)
 
-
-    map( lambda job: job.runJob(), jobs )
+    lmap( lambda job: job.runJob(), jobs )
 
     if options.dryRun:
         pass
