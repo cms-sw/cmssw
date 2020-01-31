@@ -68,7 +68,7 @@ private:
 // constuctors and destructor
 //
 PFJetDQMPostProcessor::PFJetDQMPostProcessor(const edm::ParameterSet& iConfig) {
-  jetResponseDir = iConfig.getParameter<std::string>("jetResponseDir");
+  //jetResponseDir = iConfig.getParameter<std::string>("jetResponseDir");
   genjetDir = iConfig.getParameter<std::string>("genjetDir");
   ptBins = iConfig.getParameter<std::vector<double> >("ptBins");
   etaBins = iConfig.getParameter<std::vector<double> >("etaBins");
@@ -80,126 +80,128 @@ PFJetDQMPostProcessor::~PFJetDQMPostProcessor() {}
 // ------------ method called right after a run ends ------------
 void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& iget_) {
   //
-  iget_.setCurrentFolder(genjetDir);
-  std::vector<std::string> sME_genjets = iget_.getMEs();
-  std::for_each(sME_genjets.begin(), sME_genjets.end(), [&](auto& s) { s.insert(0, genjetDir.c_str()); });
-  //for (unsigned int i=0; i<sME_genjets.size(); i++) std::cout << sME_genjets[i] << std::endl;
+  std::string jetResponseDir[4] = {"ParticleFlow/JetResponse/slimmedJets/JEC/", "ParticleFlow/JetResponse/slimmedJets/noJEC/", "ParticleFlow/JetResponse/slimmedJetsPuppi/JEC/", "ParticleFlow/JetResponse/slimmedJetsPuppi/noJEC/"};
+  for (int ii = 0; ii < 4; ii++){
+    iget_.setCurrentFolder(genjetDir);
+    std::vector<std::string> sME_genjets = iget_.getMEs();
+    std::for_each(sME_genjets.begin(), sME_genjets.end(), [&](auto& s) { s.insert(0, genjetDir.c_str()); });
+    //for (unsigned int i=0; i<sME_genjets.size(); i++) std::cout << sME_genjets[i] << std::endl;
 
-  iget_.setCurrentFolder(jetResponseDir);
-  std::vector<std::string> sME_response = iget_.getMEs();
-  std::for_each(sME_response.begin(), sME_response.end(), [&](auto& s) { s.insert(0, jetResponseDir); });
-  //for (unsigned int i=0; i<sME_response.size(); i++) std::cout << sME_response[i] << std::endl;
+    iget_.setCurrentFolder(jetResponseDir[ii]);
+    std::vector<std::string> sME_response = iget_.getMEs();
+    std::for_each(sME_response.begin(), sME_response.end(), [&](auto& s) { s.insert(0, jetResponseDir[ii]); });
+    //for (unsigned int i=0; i<sME_response.size(); i++) std::cout << sME_response[i] << std::endl;
 
-  iget_.setCurrentFolder(jetResponseDir);
+    iget_.setCurrentFolder(jetResponseDir[ii]);
 
-  double ptBinsArray[ptBins.size()];
-  unsigned int nPtBins = ptBins.size() - 1;
-  std::copy(ptBins.begin(), ptBins.end(), ptBinsArray);
-  //for(unsigned int ipt = 0; ipt < ptBins.size(); ++ipt) std::cout << ptBins[ipt] << std::endl;
+    double ptBinsArray[ptBins.size()];
+    unsigned int nPtBins = ptBins.size() - 1;
+    std::copy(ptBins.begin(), ptBins.end(), ptBinsArray);
+    //for(unsigned int ipt = 0; ipt < ptBins.size(); ++ipt) std::cout << ptBins[ipt] << std::endl;
 
-  std::string stitle;
-  char ctitle[50];
-  std::vector<MonitorElement*> vME_presponse;
-  std::vector<MonitorElement*> vME_preso;
-  std::vector<MonitorElement*> vME_preso_rms;
+    std::string stitle;
+    char ctitle[50];
+    std::vector<MonitorElement*> vME_presponse;
+    std::vector<MonitorElement*> vME_preso;
+    std::vector<MonitorElement*> vME_preso_rms;
 
-  MonitorElement* me;
-  TH1F* h_resp;
-  TH1F* h_genjet_pt;
+    MonitorElement* me;
+    TH1F* h_resp;
+    TH1F* h_genjet_pt;
 
-  //
-  // Response distributions
-  //
-  for (unsigned int ieta = 1; ieta < etaBins.size(); ++ieta) {
-    stitle = genjetDir + "genjet_pt" + "_eta" + seta(etaBins[ieta]);
-    //std::cout << ieta << " " << stitle << std::endl;
-    std::vector<std::string>::const_iterator it = std::find(sME_genjets.begin(), sME_genjets.end(), stitle);
-    if (it == sME_genjets.end())
-      continue;
-    me = iget_.get(stitle);
-    h_genjet_pt = (TH1F*)me->getTH1F();
-
-
-    std::cout << "inPFJetDQM" << std::endl;
-
-
-    stitle = "presponse_eta" + seta(etaBins[ieta]);
-    sprintf(ctitle, "Jet pT response, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
-    TH1F* h_presponse = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
-
-    stitle = "preso_eta" + seta(etaBins[ieta]);
-    sprintf(ctitle, "Jet pT resolution, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
-    TH1F* h_preso = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
-
-    stitle = "preso_eta" + seta(etaBins[ieta]) + "_rms";
-    sprintf(ctitle, "Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
-    TH1F* h_preso_rms = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
-
-    for (unsigned int ipt = 0; ipt < ptBins.size() - 1; ++ipt) {
-      stitle = jetResponseDir + "reso_dist_" + spt(ptBins[ipt], ptBins[ipt + 1]) + "_eta" + seta(etaBins[ieta]);
-      std::vector<std::string>::const_iterator it = std::find(sME_response.begin(), sME_response.end(), stitle);
-      if (it == sME_response.end())
-        continue;
+    //
+    // Response distributions
+    //
+    for (unsigned int ieta = 1; ieta < etaBins.size(); ++ieta) {
+      stitle = genjetDir + "genjet_pt" + "_eta" + seta(etaBins[ieta]);
+      //std::cout << ieta << " " << stitle << std::endl;
+      
+      //std::cout << "stitle genjet: " << stitle << std::endl;
+      
+      std::vector<std::string>::const_iterator it = std::find(sME_genjets.begin(), sME_genjets.end(), stitle);
+      if (it == sME_genjets.end())
+	continue;
       me = iget_.get(stitle);
-      h_resp = (TH1F*)me->getTH1F();
+      h_genjet_pt = (TH1F*)me->getTH1F();
 
-      // Fit-based
-      double resp = 1.0, resp_err = 0.0, reso = 0.0, reso_err = 0.0;
-      fitResponse(h_resp, h_genjet_pt, ipt, ieta, recoptcut, resp, resp_err, reso, reso_err);
+      stitle = "presponse_eta" + seta(etaBins[ieta]);
+      sprintf(ctitle, "Jet pT response, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      TH1F* h_presponse = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
-      h_presponse->SetBinContent(ipt + 1, resp);
-      h_presponse->SetBinError(ipt + 1, resp_err);
-      h_preso->SetBinContent(ipt + 1, reso);
-      h_preso->SetBinError(ipt + 1, reso_err);
+      stitle = "preso_eta" + seta(etaBins[ieta]);
+      sprintf(ctitle, "Jet pT resolution, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      TH1F* h_preso = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
-      // RMS-based
-      double std = h_resp->GetStdDev();
-      double std_error = h_resp->GetStdDevError();
+      stitle = "preso_eta" + seta(etaBins[ieta]) + "_rms";
+      sprintf(ctitle, "Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      TH1F* h_preso_rms = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
-      // Scale each bin with mean response
-      double mean = 1.0;
-      double mean_error = 0.0;
-      double err = 0.0;
-      if (h_resp->GetMean() > 0) {
-        mean = h_resp->GetMean();
-        mean_error = h_resp->GetMeanError();
+      for (unsigned int ipt = 0; ipt < ptBins.size() - 1; ++ipt) {
+	stitle = jetResponseDir[ii] + "reso_dist_" + spt(ptBins[ipt], ptBins[ipt + 1]) + "_eta" + seta(etaBins[ieta]);
+	std::vector<std::string>::const_iterator it = std::find(sME_response.begin(), sME_response.end(), stitle);
+	if (it == sME_response.end())
+	  continue;
+	me = iget_.get(stitle);
+	h_resp = (TH1F*)me->getTH1F();
 
-        // Scale resolution by response.
-        std /= mean;
-        std_error /= mean;
+	// Fit-based
+	double resp = 1.0, resp_err = 0.0, reso = 0.0, reso_err = 0.0;
+	fitResponse(h_resp, h_genjet_pt, ipt, ieta, recoptcut, resp, resp_err, reso, reso_err);
 
-        err = getRespUnc(std, std_error, mean, mean_error);
-      }
+	h_presponse->SetBinContent(ipt + 1, resp);
+	h_presponse->SetBinError(ipt + 1, resp_err);
+	h_preso->SetBinContent(ipt + 1, reso);
+	h_preso->SetBinError(ipt + 1, reso_err);
 
-      h_preso_rms->SetBinContent(ipt + 1, std);
-      h_preso_rms->SetBinError(ipt + 1, err);
+	// RMS-based
+	double std = h_resp->GetStdDev();
+	double std_error = h_resp->GetStdDevError();
 
-    }  // ipt
+	// Scale each bin with mean response
+	double mean = 1.0;
+	double mean_error = 0.0;
+	double err = 0.0;
+	if (h_resp->GetMean() > 0) {
+	  mean = h_resp->GetMean();
+	  mean_error = h_resp->GetMeanError();
 
-    stitle = "presponse_eta" + seta(etaBins[ieta]);
-    me = ibook_.book1D(stitle.c_str(), h_presponse);
-    vME_presponse.push_back(me);
+	  // Scale resolution by response.
+	  std /= mean;
+	  std_error /= mean;
 
-    stitle = "preso_eta" + seta(etaBins[ieta]);
-    me = ibook_.book1D(stitle.c_str(), h_preso);
-    vME_preso.push_back(me);
+	  err = getRespUnc(std, std_error, mean, mean_error);
+	}
 
-    stitle = "preso_eta" + seta(etaBins[ieta]) + "_rms";
-    me = ibook_.book1D(stitle.c_str(), h_preso_rms);
-    vME_preso_rms.push_back(me);
+	h_preso_rms->SetBinContent(ipt + 1, std);
+	h_preso_rms->SetBinError(ipt + 1, err);
 
-  }  // ieta
+      }  // ipt
 
-  //
-  // Checks
-  //
-  if (debug) {
-    for (std::vector<MonitorElement*>::const_iterator i = vME_presponse.begin(); i != vME_presponse.end(); ++i)
-      (*i)->getTH1F()->Print();
-    for (std::vector<MonitorElement*>::const_iterator i = vME_preso.begin(); i != vME_preso.end(); ++i)
-      (*i)->getTH1F()->Print();
-    for (std::vector<MonitorElement*>::const_iterator i = vME_preso_rms.begin(); i != vME_preso_rms.end(); ++i)
-      (*i)->getTH1F()->Print();
+      stitle = "presponse_eta" + seta(etaBins[ieta]);
+      me = ibook_.book1D(stitle.c_str(), h_presponse);
+      vME_presponse.push_back(me);
+
+      stitle = "preso_eta" + seta(etaBins[ieta]);
+      me = ibook_.book1D(stitle.c_str(), h_preso);
+      vME_preso.push_back(me);
+
+      stitle = "preso_eta" + seta(etaBins[ieta]) + "_rms";
+      me = ibook_.book1D(stitle.c_str(), h_preso_rms);
+      vME_preso_rms.push_back(me);
+
+    }  // ieta
+
+    //
+    // Checks
+    //
+    if (debug) {
+      for (std::vector<MonitorElement*>::const_iterator i = vME_presponse.begin(); i != vME_presponse.end(); ++i)
+	(*i)->getTH1F()->Print();
+      for (std::vector<MonitorElement*>::const_iterator i = vME_preso.begin(); i != vME_preso.end(); ++i)
+	(*i)->getTH1F()->Print();
+      for (std::vector<MonitorElement*>::const_iterator i = vME_preso_rms.begin(); i != vME_preso_rms.end(); ++i)
+	(*i)->getTH1F()->Print();
+    }
   }
 }
 
