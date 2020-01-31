@@ -714,7 +714,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     validations = []
     jobs = []
     for validation in config.items("validation"):
-	validation = validation[0].split("-")
+        validation = validation[0].split("-")
         alignmentList = [validation[1]]
         validationsToAdd = [(validation[0],alignment) \
                                 for alignment in alignmentList]
