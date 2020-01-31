@@ -590,23 +590,42 @@ namespace dqm {
         // be removed.
         auto lock = std::scoped_lock(this->booking_mutex_);
 
-        IBooker& booker = *this;
-        auto newscope = MonitorElementData::Scope::RUN;
-        if (canSaveByLumi && this->doSaveByLumi_) {
-          newscope = MonitorElementData::Scope::LUMI;
-        }
-        auto oldscope = booker.setScope(newscope);
-        assert(moduleId != 0 || !"moduleID must be set for normal booking transaction");
-        auto oldmoduleid = booker.setModuleID(moduleId);
-        assert(oldmoduleid == 0 || !"Nested booking transaction?");
-        // always book prototypes (except for Scope::JOB, where we can use these directly).
-        auto oldrunlumi = booker.setRunLumi(edm::LuminosityBlockID());
+        // This is to make sure everything gets reset in case of an exception.
+        // That is not really required (an exception here will crash the job
+        // anyways, and it is technically not required to reset everything), but
+        // it prevents misleading error messages in other threads.
+        struct ModuleIdScope {
+          IBooker& booker_;
+          uint64_t oldid_;
+          MonitorElementData::Scope oldscope_;
+          edm::LuminosityBlockID oldrunlumi_;
+          ModuleIdScope(IBooker& booker,
+                        uint64_t newid,
+                        MonitorElementData::Scope newscope,
+                        edm::LuminosityBlockID newrunlumi)
+              : booker_(booker) {
+            oldid_ = booker_.setModuleID(newid);
+            oldscope_ = booker_.setScope(newscope);
+            oldrunlumi_ = booker_.setRunLumi(newrunlumi);
+            assert(newid != 0 || !"moduleID must be set for normal booking transaction");
+            assert(oldid_ == 0 || !"Nested booking transaction?");
+          }
+          ~ModuleIdScope() {
+            booker_.setModuleID(oldid_);
+            booker_.setScope(oldscope_);
+            booker_.setRunLumi(oldrunlumi_);
+          }
+        };
 
-        f(booker);
+        ModuleIdScope booker(
+            *this,
+            moduleId,
+            // enable per-lumi-by-default here
+            canSaveByLumi && this->doSaveByLumi_ ? MonitorElementData::Scope::LUMI : MonitorElementData::Scope::RUN,
+            // always book prototypes
+            edm::LuminosityBlockID());
 
-        booker.setScope(oldscope);
-        this->setModuleID(oldmoduleid);
-        this->setRunLumi(oldrunlumi);
+        f(booker.booker_);
       };
 
       template <typename iFunc>
