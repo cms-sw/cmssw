@@ -529,7 +529,7 @@ def createMergeScript( path, validations, options ):
     #pprint.pprint(comparisonLists)
     anythingToMerge = []
 
-    for (validationtype, validationName, referenceName), validations in comparisonLists.iteritems():
+    for (validationtype, validationName, referenceName), validations in six.iteritems(comparisonLists):
         #pprint.pprint("validations")
         #pprint.pprint(validations)
         globalDictionaries.plottingOptions = {}
