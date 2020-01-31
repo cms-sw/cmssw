@@ -280,7 +280,7 @@ SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      mll->Fill((selected_lep[0]+selected_lep[1]).M());
      ptll->Fill((selected_lep[0]+selected_lep[1]).Pt());
      etall->Fill((selected_lep[0]+selected_lep[1]).Eta());
-     if(selected_recoPFJets.size() > 0){ 
+     if(!selected_recoPFJets.empty()){ 
        dphi_lep1jet1->Fill(selected_recoPFJets[0].DeltaPhi(selected_lep[0]));
        dphi_lep2jet1->Fill(selected_recoPFJets[0].DeltaPhi(selected_lep[1]));
      }
@@ -290,7 +290,7 @@ SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      dphi_lepMET->Fill(selected_lep[0].DeltaPhi(imet));
      mass_lepMET->Fill((selected_lep[0]+imet).M());
      pt_lepMET->Fill((selected_lep[0]+imet).Pt());
-     if(selected_recoPFJets.size() > 0){dphi_lepjet1->Fill(selected_recoPFJets[0].DeltaPhi(selected_lep[0]));       }
+     if(!selected_recoPFJets.empty()){dphi_lepjet1->Fill(selected_recoPFJets[0].DeltaPhi(selected_lep[0]));       }
    }// W case
    
    else{ std::cout <<"zero lepton case"<<endl;}
