@@ -16,7 +16,6 @@ from .zMuMuValidation import ZMuMuValidation
 from .overlapValidation import OverlapValidation
 from six import with_metaclass
 
-#class BasePlottingOptions(object,metaclass=ValidationMetaClass):
 class BasePlottingOptions(with_metaclass(ValidationMetaClass,object)):
     defaults = {
                 "cmssw" : os.environ["CMSSW_BASE"],
