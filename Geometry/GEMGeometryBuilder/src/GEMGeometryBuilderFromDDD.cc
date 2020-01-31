@@ -183,7 +183,7 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv
   dpar = solid.solidB().parameters();
 
   dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
-  dz *= nch;                                               // 2 chambers in superchamber
+  dz *= nch;                                             // 2 chambers in superchamber
   dz += chgap;                                           // gap between chambers
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
@@ -411,8 +411,8 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(cms::DDFilteredVie
   const double chgap = 2.105;
 
   dz += dpar[2];  // chamber thickness
-  dz *= nch;                                               // 2 chambers in superchamber
-  dz += chgap;                                           // gap between chambers
+  dz *= nch;      // 2 chambers in superchamber
+  dz += chgap;    // gap between chambers
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
@@ -453,7 +453,7 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredVie
 
   std::vector<double> dpar = fv.parameters();
 
-  double ti = 0.4;      // half thickness
+  double ti = 0.4;  // half thickness
 
   const std::vector<float> pars = {float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads)};
 
