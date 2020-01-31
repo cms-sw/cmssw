@@ -39,7 +39,6 @@ class ValidationMetaClass(ABCMeta):
 
         return super(ValidationMetaClass, cls).__new__(cls, clsname, bases, dct)
 
-#class GenericValidation(object,metaclass=ValidationMetaClass):
 class GenericValidation(with_metaclass(ValidationMetaClass,object)):
     defaultReferenceName = "DEFAULT"
     mandatories = set()
