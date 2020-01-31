@@ -38,7 +38,7 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace std; 
+using namespace std;
 
 template <class T>
 typename enable_if<!numeric_limits<T>::is_integer, bool>::type almost_equal(T x, T y, int ulp) {
@@ -105,10 +105,9 @@ private:
 };
 
 GEMGeometryValidate::GEMGeometryValidate(const edm::ParameterSet& iConfig)
-  : infileName_(
-		iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2021.root")),  
-    outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateGEMGeometry.root")),
-    tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
+    : infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2021.root")),
+      outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateGEMGeometry.root")),
+      tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
 }
@@ -310,7 +309,6 @@ void GEMGeometryValidate::endJob() {
   LogVerbatim("GEMGeometry") << "Done.";
   LogVerbatim("GEMGeometry") << "Results written to " << outfileName_;
   outFile_->Close();
- 
 }
 
 DEFINE_FWK_MODULE(GEMGeometryValidate);
