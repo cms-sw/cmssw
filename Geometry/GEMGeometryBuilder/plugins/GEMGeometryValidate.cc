@@ -33,13 +33,12 @@
 #include <type_traits>
 #include <algorithm>
 
-// to debug
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 
-using namespace std;  // to debug
+using namespace std; 
 
 template <class T>
 typename enable_if<!numeric_limits<T>::is_integer, bool>::type almost_equal(T x, T y, int ulp) {
@@ -106,10 +105,10 @@ private:
 };
 
 GEMGeometryValidate::GEMGeometryValidate(const edm::ParameterSet& iConfig)
-    : infileName_(
-          iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2021.root")),  //it was cmsGeom10.root
-      outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateGEMGeometry.root")),
-      tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
+  : infileName_(
+		iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2021.root")),  
+    outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateGEMGeometry.root")),
+    tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
 }
@@ -164,7 +163,7 @@ void GEMGeometryValidate::validateGEMEtaPartitionGeometry() {
     const StripTopology& topo = it->specificTopology();
     const float stripLen = topo.stripLength();
     const float* parameters = fwGeometry_.getParameters(chId.rawId());
-    nstrips_.push_back(fabs(n_strips - parameters[0]));
+    nstrips_.push_back(abs(n_strips - parameters[0]));
 
     if (n_strips) {
       for (int istrips = 1; istrips <= n_strips; istrips++) {
@@ -186,7 +185,7 @@ void GEMGeometryValidate::compareTransform(const GlobalPoint& gp, const TGeoMatr
   matrix->LocalToMaster(local, global);
 
   float distance = getDistance(GlobalPoint(global[0], global[1], global[2]), gp);
-  if ((distance >= 0.0) && (distance < 1.0e-7))
+  if (abs(distance) < 1.0e-7)
     distance = 0.0;  // set a tollerance for the distance inside Histos
   globalDistances_.push_back(distance);
 }
@@ -311,6 +310,7 @@ void GEMGeometryValidate::endJob() {
   LogVerbatim("GEMGeometry") << "Done.";
   LogVerbatim("GEMGeometry") << "Results written to " << outfileName_;
   outFile_->Close();
+ 
 }
 
 DEFINE_FWK_MODULE(GEMGeometryValidate);

@@ -32,8 +32,7 @@ namespace cms {
     int theRingLevel;
     int theSectorLevel;
     int theRollLevel;
-
-    int detId;  //it was int
+    int detId;  
   };
-}  // namespace cms
+}  
 #endif

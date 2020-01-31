@@ -177,12 +177,14 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv
   double dx1 = geant_units::operators::convertMmToCm(dpar[4]);  // bottom width is along local X
   double dx2 = geant_units::operators::convertMmToCm(dpar[8]);  // top width is along local X
 
+  const int nch = 2;
+  const double chgap = 2.105;
+
   dpar = solid.solidB().parameters();
 
   dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
-  dz *= 2;                                               // 2 chambers in superchamber
-  dz += 2.105;                                           // gap between chambers
-
+  dz *= nch;                                               // 2 chambers in superchamber
+  dz += chgap;                                           // gap between chambers
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
 
@@ -405,10 +407,12 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(cms::DDFilteredVie
 
   auto solidB = solid.solidB();
   dpar = solidB.dimensions();
+  const int nch = 2;
+  const double chgap = 2.105;
 
   dz += dpar[2];  // chamber thickness
-  dz *= 2;        // 2 chambers in superchamber
-  dz += 2.105;    // gap between chambers
+  dz *= nch;                                               // 2 chambers in superchamber
+  dz += chgap;                                           // gap between chambers
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
@@ -449,20 +453,16 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredVie
 
   std::vector<double> dpar = fv.parameters();
 
-  double be = dpar[0];  // half bottom edge, it was 4 for DD
-  double te = dpar[1];  // half top edge, it was 8 for DD
-  double ap = dpar[3];  // half apothem, it was 0 for DD
   double ti = 0.4;      // half thickness
 
   const std::vector<float> pars = {float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads)};
 
   bool isOdd = detId.chamber() % 2;
-  RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(be, te, ap, ti), isOdd));
+  RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dpar[0], dpar[1], dpar[3], ti), isOdd));
+
   std::string_view name = fv.name();
 
   GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, std::string(name), pars);
-
-  LogDebug("GEMGeometryBuilderFromDDD") << "size " << be << " " << te << " " << ap << " " << ti << std::endl;
 
   GEMEtaPartition* etaPartition = new GEMEtaPartition(detId, surf, e_p_specs);
   return etaPartition;
