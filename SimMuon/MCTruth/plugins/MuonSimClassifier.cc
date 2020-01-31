@@ -321,10 +321,12 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
               if (mMom->numberOfMothers() > 0) {
                 mMom = mMom->motherRef();
               } else {
-                LogTrace("MuonSimClassifier") << "\t\t backtracking mother " << jm << ", pdgId = " << mMom->pdgId()
-                                              << ", status= " << mMom->status();
+                LogTrace("MuonSimClassifier") << "\t No Mother is found ";
                 break;
               }
+
+              LogTrace("MuonSimClassifier") << "\t\t backtracking mother " << jm << ", pdgId = " << mMom->pdgId()
+                                            << ", status= " << mMom->status();
             }
             genMom = mMom;  // redefine genMom
             simInfo[i].motherPdgId = genMom->pdgId();
