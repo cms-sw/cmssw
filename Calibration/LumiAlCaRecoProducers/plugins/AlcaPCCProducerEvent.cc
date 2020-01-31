@@ -45,7 +45,7 @@ private:
   int countEvt_;            //counter
   int countLumi_;           //counter
 
-  std::unique_ptr<reco::PixelClusterCountsPerEvent> thePCCob;
+  std::unique_ptr<reco::PixelClusterCountsInEvent> thePCCob;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ AlcaPCCProducerEvent::AlcaPCCProducerEvent(const edm::ParameterSet& iConfig) {
   trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerEventParameters")
                     .getUntrackedParameter<std::string>("trigstring", "alcaPCCEvent");
 
-  produces<reco::PixelClusterCountsPerEvent, edm::Transition::Event>(trigstring_);
+  produces<reco::PixelClusterCountsInEvent, edm::Transition::Event>(trigstring_);
   pixelToken = consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
 }
 
@@ -65,7 +65,7 @@ AlcaPCCProducerEvent::~AlcaPCCProducerEvent() {}
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducerEvent::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   countEvt_++;
-  thePCCob = std::make_unique<reco::PixelClusterCountsPerEvent>();
+  thePCCob = std::make_unique<reco::PixelClusterCountsInEvent>();
 
   unsigned int bx = iEvent.bunchCrossing();
 
