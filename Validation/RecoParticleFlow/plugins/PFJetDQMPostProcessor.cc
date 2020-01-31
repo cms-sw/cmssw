@@ -41,7 +41,7 @@ private:
                    double& reso_err);
   double getRespUnc(double width, double width_err, double mean, double mean_err);
 
-  std::string jetResponseDir;
+  std::vector<std::string> jetResponseDir;
   std::string genjetDir;
   std::vector<double> ptBins;
   std::vector<double> etaBins;
@@ -68,7 +68,7 @@ private:
 // constuctors and destructor
 //
 PFJetDQMPostProcessor::PFJetDQMPostProcessor(const edm::ParameterSet& iConfig) {
-  //jetResponseDir = iConfig.getParameter<std::string>("jetResponseDir");
+  jetResponseDir = iConfig.getParameter<std::vector<std::string>>("jetResponseDir");
   genjetDir = iConfig.getParameter<std::string>("genjetDir");
   ptBins = iConfig.getParameter<std::vector<double> >("ptBins");
   etaBins = iConfig.getParameter<std::vector<double> >("etaBins");
@@ -79,20 +79,19 @@ PFJetDQMPostProcessor::~PFJetDQMPostProcessor() {}
 
 // ------------ method called right after a run ends ------------
 void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& iget_) {
-  //
-  std::string jetResponseDir[4] = {"ParticleFlow/JetResponse/slimmedJets/JEC/", "ParticleFlow/JetResponse/slimmedJets/noJEC/", "ParticleFlow/JetResponse/slimmedJetsPuppi/JEC/", "ParticleFlow/JetResponse/slimmedJetsPuppi/noJEC/"};
-  for (int ii = 0; ii < 4; ii++){
+
+  for (unsigned int idir = 0; idir < jetResponseDir.size(); idir++){
     iget_.setCurrentFolder(genjetDir);
     std::vector<std::string> sME_genjets = iget_.getMEs();
     std::for_each(sME_genjets.begin(), sME_genjets.end(), [&](auto& s) { s.insert(0, genjetDir.c_str()); });
     //for (unsigned int i=0; i<sME_genjets.size(); i++) std::cout << sME_genjets[i] << std::endl;
 
-    iget_.setCurrentFolder(jetResponseDir[ii]);
+    iget_.setCurrentFolder(jetResponseDir[idir]);
     std::vector<std::string> sME_response = iget_.getMEs();
-    std::for_each(sME_response.begin(), sME_response.end(), [&](auto& s) { s.insert(0, jetResponseDir[ii]); });
+    std::for_each(sME_response.begin(), sME_response.end(), [&](auto& s) { s.insert(0, jetResponseDir[idir]); });
     //for (unsigned int i=0; i<sME_response.size(); i++) std::cout << sME_response[i] << std::endl;
 
-    iget_.setCurrentFolder(jetResponseDir[ii]);
+    iget_.setCurrentFolder(jetResponseDir[idir]);
 
     double ptBinsArray[ptBins.size()];
     unsigned int nPtBins = ptBins.size() - 1;
@@ -115,9 +114,9 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
     for (unsigned int ieta = 1; ieta < etaBins.size(); ++ieta) {
       stitle = genjetDir + "genjet_pt" + "_eta" + seta(etaBins[ieta]);
       //std::cout << ieta << " " << stitle << std::endl;
-      
+
       //std::cout << "stitle genjet: " << stitle << std::endl;
-      
+
       std::vector<std::string>::const_iterator it = std::find(sME_genjets.begin(), sME_genjets.end(), stitle);
       if (it == sME_genjets.end())
 	continue;
@@ -137,7 +136,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       TH1F* h_preso_rms = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
       for (unsigned int ipt = 0; ipt < ptBins.size() - 1; ++ipt) {
-	stitle = jetResponseDir[ii] + "reso_dist_" + spt(ptBins[ipt], ptBins[ipt + 1]) + "_eta" + seta(etaBins[ieta]);
+	stitle = jetResponseDir[idir] + "reso_dist_" + spt(ptBins[ipt], ptBins[ipt + 1]) + "_eta" + seta(etaBins[ieta]);
 	std::vector<std::string>::const_iterator it = std::find(sME_response.begin(), sME_response.end(), stitle);
 	if (it == sME_response.end())
 	  continue;
