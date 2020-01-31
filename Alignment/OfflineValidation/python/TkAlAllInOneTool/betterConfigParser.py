@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import ConfigParser
+import configparser as ConfigParser
 import os
 import re
 import copy
@@ -171,7 +171,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         if not self.has_option(internal_section, "workdir"):
             self.set(internal_section, "workdir", "/tmp/$USER")
         if not self.has_option(internal_section, "scriptsdir"):
-            self.set(internal_section, "scriptsdir", None)
+            self.set(internal_section, "scriptsdir", "")
             #replaceByMap will fail if this is not replaced (which it is in validateAlignments.py)
 
         general["workdir"] = self.get(internal_section, "workdir")
