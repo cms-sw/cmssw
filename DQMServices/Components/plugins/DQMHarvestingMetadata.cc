@@ -29,6 +29,7 @@ private:
 
   MonitorElement* runId_;
   MonitorElement* runList_;
+  MonitorElement* runStartTimeStamp_;  ///UTC time of the run start
   MonitorElement* firstLumisecId_;
   MonitorElement* lastLumisecId_;
 
@@ -68,10 +69,14 @@ void DQMHarvestingMetadata::dqmEndRun(DQMStore::IBooker& ibooker,
 
   runList_ = ibooker.bookString("Run", "");
   runId_ = ibooker.bookInt("iRun");
+  runStartTimeStamp_ = ibooker.bookFloat("runStartTimeStamp");
+
   if (runList_->getStringValue().empty()) {
     std::string run = std::to_string(iRun.id().run());
     runList_->Fill(run);
     runId_->Fill(iRun.id().run());
+    // in case of multiple runs, record start time of the first.
+    runStartTimeStamp_->Fill(stampToReal(iRun.beginTime()));
   } else {
     std::string run = runList_->getStringValue() + "," + std::to_string(iRun.id().run());
     runList_->Fill(run);
