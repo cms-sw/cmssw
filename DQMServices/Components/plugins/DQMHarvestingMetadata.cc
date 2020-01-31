@@ -30,6 +30,7 @@ private:
   MonitorElement* runId_;
   MonitorElement* runList_;
   MonitorElement* runStartTimeStamp_;  ///UTC time of the run start
+  MonitorElement* lumisecId_;
   MonitorElement* firstLumisecId_;
   MonitorElement* lastLumisecId_;
 
@@ -106,6 +107,8 @@ void DQMHarvestingMetadata::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(eventInfoFolder_);
   firstLumisecId_ = ibooker.bookInt("firstLumiSection");
   lastLumisecId_ = ibooker.bookInt("lastLumiSection");
+  lumisecId_ = ibooker.bookInt("iLumiSection");
+  lumisecId_->Fill(lumi);
 
   if (firstLumisecId_->getIntValue() == 0 || firstLumisecId_->getIntValue() > lumi) {
     firstLumisecId_->Fill(lumi);
