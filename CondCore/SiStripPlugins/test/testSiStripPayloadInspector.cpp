@@ -13,8 +13,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 int main(int argc, char** argv) {
-  Py_Initialize();
-
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
@@ -33,7 +31,6 @@ int main(int argc, char** argv) {
   std::string runTimeType = cond::time::timeTypeName(cond::runnumber);
   cond::Time_t start = boost::lexical_cast<unsigned long long>(132440);
   cond::Time_t end = boost::lexical_cast<unsigned long long>(285368);
-  boost::python::dict inputs;
 
   std::cout << "## Exercising Gains plots " << std::endl;
 
@@ -42,14 +39,10 @@ int main(int argc, char** argv) {
   std::cout << histo1.data() << std::endl;
 
   SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap histo2;
-  inputs["nsigma"] = "1";
-  histo2.setInputParamValues(inputs);
   histo2.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo2.data() << std::endl;
 
-  SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap histo3;
-  inputs["nsigma"] = "1";
-  histo3.setInputParamValues(inputs);
+  SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap histo3;
   histo3.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo3.data() << std::endl;
 
@@ -90,8 +83,6 @@ int main(int argc, char** argv) {
   std::cout << histoCompareMeanByRegion.data() << std::endl;
 
   SiStripNoisePerDetId histoNoiseForDetId;
-  inputs["DetId"] = "470148232";
-  histoNoiseForDetId.setInputParamValues(inputs);
   histoNoiseForDetId.process(connectionString, tag, runTimeType, start, start);
   std::cout << histoNoiseForDetId.data() << std::endl;
 
@@ -112,7 +103,6 @@ int main(int argc, char** argv) {
   std::cout << histo11.data() << std::endl;
 
   SiStripPedestalPerDetId histoPedestalForDetId;
-  histoPedestalForDetId.setInputParamValues(inputs);
   histoPedestalForDetId.process(connectionString, tag, runTimeType, start, start);
   std::cout << histoPedestalForDetId.data() << std::endl;
 
