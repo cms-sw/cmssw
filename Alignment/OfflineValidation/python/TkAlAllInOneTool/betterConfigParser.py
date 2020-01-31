@@ -8,7 +8,6 @@ import copy
 import collections
 from .TkAlExceptions import AllInOneError
 
-
 class AdaptedDict(collections.OrderedDict):
     """
     Dictionary which handles updates of values for already existing keys
@@ -35,7 +34,7 @@ class AdaptedDict(collections.OrderedDict):
         """
 
         if key != "__name__" and "__name__" in self and self["__name__"]=="validation":
-            if isinstance(value, (str, unicode)):
+            if isinstance(value, str):
                 for index, item in enumerate(self.validationslist[:]):
                     if item == (key, value.split("\n")):
                         self.validationslist[index] = (key, value)
@@ -160,10 +159,8 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
             }
-        mandatories = [
-            "eosdir",
-        ]
-        self.checkInput("general", knownSimpleOptions = defaults.keys() + mandatories)
+        mandatories = ["eosdir",]
+        self.checkInput("general", knownSimpleOptions = list(defaults.keys()) + mandatories )
         general = self.getResultingSection( "general", defaultDict = defaults, demandPars = mandatories )
         internal_section = "internals"
         if not self.has_section(internal_section):
@@ -231,7 +228,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         for section in self._sections:
             fp.write("[%s]\n" % section)
             for (key, value) in self._sections[section].items():
-                if key == "__name__" or not isinstance(value, (str, unicode)):
+                if key == "__name__" or not isinstance(value, str):
                     continue
                 if value is not None:
                     key = " = ".join((key, str(value).replace('\n', '\n\t')))
