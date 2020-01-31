@@ -31,7 +31,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-
 //#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 //#include "DQMServices/Core/interface/DQMStore.h"
 //#include "DQMServices/Core/interface/MonitorElement.h"
@@ -76,88 +75,80 @@
 // from  edm::one::EDAnalyzer<>
 // This will improve performance in multithreaded jobs.
 
-
 using namespace edm;
 using namespace std;
 using namespace reco;
 //using reco::TrackCollection;
 class DQMStore;
-class SMPDQM : public DQMEDAnalyzer{
-   public:
-     SMPDQM(const edm::ParameterSet&);
-      ~SMPDQM() override;
-
-
+class SMPDQM : public DQMEDAnalyzer {
+public:
+  SMPDQM(const edm::ParameterSet &);
+  ~SMPDQM() override;
 
 protected:
-void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
   void bookHistograms(DQMStore::IBooker &bei, edm::Run const &, edm::EventSetup const &) override;
   void bookHistos(DQMStore *bei);
 
- 
-      //      edm::EDGetTokenT<reco::VertexCollection> vertex_;
-      edm::EDGetTokenT<reco::MuonCollection> muons_;
-      //edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
-      edm::EDGetTokenT<reco::GsfElectronCollection> elecs_;
-      edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
-      edm::EDGetTokenT<edm::View<reco::PFJet> > jets_;
-      std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
-      //edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollectionToken_;
-      // ----------member data ---------------------------
-     
+  //      edm::EDGetTokenT<reco::VertexCollection> vertex_;
+  edm::EDGetTokenT<reco::MuonCollection> muons_;
+  //edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> elecs_;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
+  edm::EDGetTokenT<edm::View<reco::PFJet> > jets_;
+  std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
+  //edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollectionToken_;
+  // ----------member data ---------------------------
 
+  //NPV
+  MonitorElement *NPV;
+  //MET
+  MonitorElement *MET;
+  MonitorElement *METphi;
+  //muons
+  MonitorElement *pt_muons;
+  MonitorElement *eta_muons;
+  MonitorElement *phi_muons;
+  MonitorElement *muIso_CombRelIso03;
+  MonitorElement *Nmuons;
+  MonitorElement *isGlobalmuon;
+  MonitorElement *isTrackermuon;
+  MonitorElement *isStandalonemuon;
+  MonitorElement *isPFmuon;
+  MonitorElement *muIso_TrackerBased03;
+  //electrons
+  MonitorElement *Nelecs;
+  MonitorElement *HoverE_elecs;
+  MonitorElement *pt_elecs;
+  MonitorElement *eta_elecs;
+  MonitorElement *phi_elecs;
+  MonitorElement *elIso_cal;
+  MonitorElement *elIso_trk;
+  MonitorElement *elIso_CombRelIso;
+  //jets
+  MonitorElement *PFJetpt;
+  MonitorElement *PFJeteta;
+  MonitorElement *PFJetphi;
+  MonitorElement *PFJetMulti;
+  MonitorElement *PFJetRapidity;
+  MonitorElement *mjj;
+  MonitorElement *detajj;
+  //lepMET
 
-      //NPV
-      MonitorElement *NPV; 
-      //MET
-      MonitorElement *MET; 
-      MonitorElement *METphi;
-      //muons
-      MonitorElement *pt_muons;
-      MonitorElement *eta_muons;
-      MonitorElement *phi_muons;
-      MonitorElement *muIso_CombRelIso03;
-      MonitorElement *Nmuons;
-      MonitorElement *isGlobalmuon;
-      MonitorElement *isTrackermuon;
-      MonitorElement *isStandalonemuon;
-      MonitorElement *isPFmuon;
-      MonitorElement *muIso_TrackerBased03;
-      //electrons
-      MonitorElement * Nelecs;
-      MonitorElement * HoverE_elecs;
-      MonitorElement * pt_elecs;
-      MonitorElement * eta_elecs;
-      MonitorElement * phi_elecs;
-      MonitorElement * elIso_cal;
-      MonitorElement * elIso_trk;
-      MonitorElement * elIso_CombRelIso;
-      //jets
-      MonitorElement *PFJetpt;
-      MonitorElement *PFJeteta;
-      MonitorElement *PFJetphi;
-      MonitorElement *PFJetMulti;
-      MonitorElement *PFJetRapidity;
-      MonitorElement *mjj;
-      MonitorElement *detajj;
-      //lepMET
-      
-      MonitorElement *dphi_lepMET;
-      MonitorElement *mass_lepMET;
-      MonitorElement *pt_lepMET;
-      MonitorElement *detall;
-      MonitorElement *dphill;
-      MonitorElement *mll;
-      MonitorElement *etall;
-      MonitorElement *ptll;
-      //lepjet1
-      MonitorElement *dphi_lepjet1;
-      MonitorElement *dphi_lep1jet1;
-      MonitorElement *dphi_lep2jet1;
-
-
+  MonitorElement *dphi_lepMET;
+  MonitorElement *mass_lepMET;
+  MonitorElement *pt_lepMET;
+  MonitorElement *detall;
+  MonitorElement *dphill;
+  MonitorElement *mll;
+  MonitorElement *etall;
+  MonitorElement *ptll;
+  //lepjet1
+  MonitorElement *dphi_lepjet1;
+  MonitorElement *dphi_lep1jet1;
+  MonitorElement *dphi_lep2jet1;
 };
 
 //
