@@ -61,7 +61,8 @@ void GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
   roll = num.getBaseNo(theRollLevel) + 1;
   const int copyno = num.getBaseNo(theSectorLevel) + 1;
-  if (copyno < 50) {
+  const int maxcno = 50;
+  if (copyno < maxcno) {
     if (copyno % 2 == 0) {
       layer = 2;
       chamber = copyno - 1;
@@ -70,7 +71,7 @@ void GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
       chamber = copyno;
     }
   } else {
-    int copynp = copyno - 50;
+    int copynp = copyno - maxcno;
     if (copynp % 2 != 0) {
       layer = 2;
       chamber = copynp - 1;
