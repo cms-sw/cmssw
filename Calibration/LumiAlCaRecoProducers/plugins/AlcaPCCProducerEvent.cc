@@ -13,7 +13,7 @@ ________________________________________________________________**/
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
-#include "DataFormats/Luminosity/interface/PixelClusterCountsPerEvent.h"
+#include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
