@@ -1,7 +1,5 @@
 <use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/MuonDetId"/>
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="TrackingTools/DetLayers"/>
