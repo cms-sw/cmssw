@@ -16,11 +16,22 @@ public:
              int it = 0,
              int ip = 0,
              float stepl = 0,
-	     float xp = 0,
-	     float yp = 0,
-	     float zp = 0)
-    : vname_(vname), id_(id), energy_(e), etotal_(etot), time_(t), it_(it), ip_(ip), stepl_(stepl), xp_(xp), yp_(yp), zp_(zp) {}
- PassiveHit() : vname_(""), id_(0), energy_(0), etotal_(0), time_(0), it_(0), ip_(0), stepl_(0), xp_(0), yp_(0), zp_(0) {}
+             float xp = 0,
+             float yp = 0,
+             float zp = 0)
+      : vname_(vname),
+        id_(id),
+        energy_(e),
+        etotal_(etot),
+        time_(t),
+        it_(it),
+        ip_(ip),
+        stepl_(stepl),
+        xp_(xp),
+        yp_(yp),
+        zp_(zp) {}
+  PassiveHit()
+      : vname_(""), id_(0), energy_(0), etotal_(0), time_(0), it_(0), ip_(0), stepl_(0), xp_(0), yp_(0), zp_(0) {}
 
   //Names
   static const char *name() { return "PassiveHit"; }
