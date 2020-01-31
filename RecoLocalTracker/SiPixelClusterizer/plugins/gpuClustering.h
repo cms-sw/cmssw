@@ -89,7 +89,17 @@ namespace gpuClustering {
     __syncthreads();
 
     assert((msize == numElements) or ((msize < numElements) and (id[msize] != thisModuleId)));
-    assert(msize - firstPixel < maxPixInModule);
+
+    // limit to maxPixInModule  (FIXME if recurrent (and not limited to simulation with low threshold) one will need to implement something cleverer)
+    if (0 == threadIdx.x) {
+      if (msize - firstPixel > maxPixInModule) {
+        printf("too many pixels in module %d: %d > %d\n", thisModuleId, msize - firstPixel, maxPixInModule);
+        msize = maxPixInModule + firstPixel;
+      }
+    }
+
+    __syncthreads();
+    assert(msize - firstPixel <= maxPixInModule);
 
 #ifdef GPU_DEBUG
     __shared__ uint32_t totGood;
@@ -125,7 +135,7 @@ namespace gpuClustering {
     }
 
 #ifdef __CUDA_ARCH__
-    // assume that we can cover the whole module with up to 10 blockDim.x-wide iterations
+    // assume that we can cover the whole module with up to 16 blockDim.x-wide iterations
     constexpr int maxiter = 16;
 #else
     auto maxiter = hist.size();
