@@ -863,7 +863,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
     if (Folder == "Tr") {
       histname = "DistanceOfClosestApproachToBSdz_";
       DistanceOfClosestApproachToBSdz =
-          ibooker.book1D(histname + CategoryName, histname + CategoryName, 100, -1.1, 1.1);
+          ibooker.book1D(histname + CategoryName, histname + CategoryName, 100, -20.1, 20.1);
       DistanceOfClosestApproachToBSdz->setAxisTitle("Track d_{z} wrt beam spot (cm)", 1);
       DistanceOfClosestApproachToBSdz->setAxisTitle("Number of Tracks", 2);
 
