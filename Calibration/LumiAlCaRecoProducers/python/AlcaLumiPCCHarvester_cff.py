@@ -4,8 +4,8 @@ from Calibration.LumiAlCaRecoProducers.CorrPCCProducer_cfi import*
 
 DQMStore = cms.Service("DQMStore")
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-dqmEnvLumiPCC = DQMEDAnalyzer('DQMEventInfo',
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+dqmEnvLumiPCC = DQMEDHarvester('DQMHarvestingMetadata',
                               subSystemFolder=cms.untracked.string('AlCaReco'))
 
 
