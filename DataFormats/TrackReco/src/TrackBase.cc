@@ -154,3 +154,20 @@ TrackBase::TrackAlgorithm TrackBase::algoByName(const std::string &name)
     // cast
     return TrackAlgorithm(index);
 }
+
+double TrackBase::dxyError(Point const &vtx, math::Error<3>::type const &vertexCov) const {
+  // Gradient of TrackBase::dxy(const Point &myBeamSpot) with respect to track parameters
+  TrackBase::ParameterVector trackGrad =
+      TrackBase::ParameterVector(0,
+                                 0,
+                                 (vtx.x() * px() + vtx.y() * py()) / pt(),  // x_vert * cos(phi) + y_vert * sin(phi)
+                                 1,
+                                 0);
+  // Gradient with respect to point parameters
+  math::Vector<3>::type pointGrad = math::Vector<3>::type(py() / pt(),   // sin(phi)
+                                                          -px() / pt(),  // -cos(phi)
+                                                          0);
+  // Propagate covariance assuming cross-terms of the covariance between track and vertex parameters are 0
+  return std::sqrt(ROOT::Math::Dot(trackGrad, covariance() * trackGrad) +
+                   ROOT::Math::Dot(pointGrad, vertexCov * pointGrad));
+}
