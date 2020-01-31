@@ -278,15 +278,15 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
           markBusyKeys(best_halfstrip[ilct-1], best_pid[best_halfstrip[ilct-1]], quality);
 
           for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
-            if (quality[hstrip] > best_quality[1] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx]) {
+            if (quality[hstrip] > best_quality[ilct] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx]) {
               best_halfstrip[ilct] = hstrip;
               best_quality[ilct] = quality[hstrip];
               if (infoV > 1) {
                 LogTrace("CSCCathodeLCTProcessor")
                   << "CLCT " << ilct+1 << ": halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
                   << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
-                  << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
-                  << " best quality = " << std::setw(3) << best_quality[1];
+                  << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[ilct]
+                  << " best quality = " << std::setw(3) << best_quality[ilct];
               }
             }
           }
