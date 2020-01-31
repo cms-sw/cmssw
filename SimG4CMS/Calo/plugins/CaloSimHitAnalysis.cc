@@ -63,7 +63,7 @@ private:
   const std::vector<double> timeSliceUnit_;
   const double maxEnergy_, maxTime_, tMax_, tScale_, tCut_;
   const bool testNumber_, passive_;
-  const int  allSteps_;
+  const int allSteps_;
   const std::vector<std::string> detNames_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > toks_calo_;
   edm::EDGetTokenT<edm::PassiveHitContainer> tok_passive_;
@@ -238,17 +238,17 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
       h_timeTk_.back()->GetYaxis()->SetTitle("Hits");
       h_timeTk_.back()->GetXaxis()->SetTitle(title);
     }
-    if ((allSteps_/100)%10 > 0) {
+    if ((allSteps_ / 100) % 10 > 0) {
       for (int eta = 1; eta <= 29; ++eta) {
-	int dmax = (eta < 16) ? 4 : 7;
-	for (int depth = 1; depth <= dmax; ++depth) {
-	  sprintf(name, "Eta%dDepth%d", eta, depth);
-	  sprintf(title, "R vs Z (#eta = %d, depth = %d)", eta, depth);
-	  etaDepth_[eta * 100 + depth] = h_rzH_.size();
-	  h_rzH_.emplace_back(tfile->make<TH2F>(name, title, 120, 0., 600., 100, 0., 250.));
-	  h_rzH_.back()->GetXaxis()->SetTitle("z (cm)");
-	  h_rzH_.back()->GetYaxis()->SetTitle("R (cm)");
-	}
+        int dmax = (eta < 16) ? 4 : 7;
+        for (int depth = 1; depth <= dmax; ++depth) {
+          sprintf(name, "Eta%dDepth%d", eta, depth);
+          sprintf(title, "R vs Z (#eta = %d, depth = %d)", eta, depth);
+          etaDepth_[eta * 100 + depth] = h_rzH_.size();
+          h_rzH_.emplace_back(tfile->make<TH2F>(name, title, 120, 0., 600., 100, 0., 250.));
+          h_rzH_.back()->GetXaxis()->SetTitle("z (cm)");
+          h_rzH_.back()->GetYaxis()->SetTitle("R (cm)");
+        }
       }
     }
   }
@@ -497,31 +497,33 @@ void CaloSimHitAnalysis::analyzePassiveHits(std::vector<PassiveHit>& hits) {
       }
     }
 
-    if ((allSteps_/100)%10 > 0) {
+    if ((allSteps_ / 100) % 10 > 0) {
       uint32_t id = hit.id();
       if (DetId(id).det() == DetId::Hcal) {
-	HcalDetId hid = HcalDetId(id);
-	int indx = (100 * hid.ietaAbs() + hid.depth());
-	auto itr = etaDepth_.find(indx);
+        HcalDetId hid = HcalDetId(id);
+        int indx = (100 * hid.ietaAbs() + hid.depth());
+        auto itr = etaDepth_.find(indx);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis::ID: " << hid << " Index " << indx << " Iterator " << (itr != etaDepth_.end());
+        edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis::ID: " << hid << " Index " << indx << " Iterator "
+                                     << (itr != etaDepth_.end());
 #endif
-	++passive1;
-	if (itr != etaDepth_.end()) {
-	  uint32_t ipos = itr->second;
-	  double rr = std::sqrt(hit.x() * hit.x() + hit.y() * hit.y());
-	  if (ipos < h_rzH_.size()) {
-	    h_rzH_[ipos]->Fill(hit.z(), rr);
-	    ++passive2;
-	  }
-	}
+        ++passive1;
+        if (itr != etaDepth_.end()) {
+          uint32_t ipos = itr->second;
+          double rr = std::sqrt(hit.x() * hit.x() + hit.y() * hit.y());
+          if (ipos < h_rzH_.size()) {
+            h_rzH_[ipos]->Fill(hit.z(), rr);
+            ++passive2;
+          }
+        }
       }
     }
   }
   h_hitp_->Fill(hitx.size());
   h_trackp_->Fill(tracks.size());
   edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis::analyzPassiveHits: Total " << hits.size() << " Cells "
-                               << hitx.size() << " Tracks " << tracks.size() << " Passive " << passive1 << ":" << passive2;
+                               << hitx.size() << " Tracks " << tracks.size() << " Passive " << passive1 << ":"
+                               << passive2;
 }
 
 //define this as a plug-in
