@@ -55,7 +55,8 @@ namespace magneticfield {
     DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig);
     // forbid copy ctor and assignment op.
     DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const DD4hep_VolumeBasedMagneticFieldESProducerFromDB&) = delete;
-    const DD4hep_VolumeBasedMagneticFieldESProducerFromDB& operator=(const DD4hep_VolumeBasedMagneticFieldESProducerFromDB&) = delete;
+    const DD4hep_VolumeBasedMagneticFieldESProducerFromDB& operator=(
+        const DD4hep_VolumeBasedMagneticFieldESProducerFromDB&) = delete;
 
     std::shared_ptr<MagFieldConfig const> chooseConfigViaParameter(const IdealMagneticFieldRecord& iRecord);
     std::shared_ptr<MagFieldConfig const> chooseConfigAtRuntime(const IdealMagneticFieldRecord& iRecord);
@@ -79,7 +80,8 @@ namespace magneticfield {
   };
 }  // namespace magneticfield
 
-DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig)
+DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticFieldESProducerFromDB(
+    const edm::ParameterSet& iConfig)
     : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
   std::string const myConfigLabel = "VBMFESChoice";
 
@@ -177,8 +179,11 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
   std::unique_ptr<std::vector<unsigned char> > tb = blob->getUncompressedBlob();
 
   string sblob(tb->begin(), tb->end());
-  sblob.insert(sblob.rfind("</DDDefinition>"),"<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
-  
+  sblob.insert(
+      sblob.rfind("</DDDefinition>"),
+      "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" "
+      "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
+
   auto ddet = make_unique<cms::DDDetector>("", sblob, true);
 
   builder.build(ddet.get());
