@@ -210,7 +210,6 @@ PFJetAnalyzerDQM::PFJetAnalyzerDQM(const edm::ParameterSet& iConfig) {
 }
 
 void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection) {
-  //bool use_rawpt = false;
 
   //match gen jets to reco jets, require minimum jetDeltaR, choose closest, do not try to match charge
   std::vector<int> matchIndices;
@@ -233,10 +232,7 @@ void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, e
     if (iMatch != -1) {
       const auto& recoJet = recoJetCollection[iMatch];
       auto pt_reco = recoJet.pt();
-      /*
-      if (use_rawpt)
-        pt_reco *= recoJet.jecFactor("Uncorrected");
-      */
+
       const auto response = pt_reco / pt_gen;
       const auto response_raw = pt_reco * recoJet.jecFactor("Uncorrected") / pt_gen;
 
@@ -260,10 +256,7 @@ void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, e
 
 void PFJetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const&, edm::EventSetup const&) {
   //std::cout << "PFJetAnalyzerDQM booking response histograms" << std::endl;
-  //booker.setCurrentFolder("ParticleFlow/JetResponse/");
-  //for (auto& plot : jetResponsePlots) {
-  //  plot.book(booker);
-  //}
+  
   booker.setCurrentFolder("ParticleFlow/JetResponse/" + jetCollectionName + "/JEC/");
   for (auto& plot : jetResponsePlots) {
     plot.book(booker);
