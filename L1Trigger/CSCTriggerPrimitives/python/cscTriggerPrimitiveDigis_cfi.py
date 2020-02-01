@@ -160,7 +160,9 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         verbosity = cms.int32(0),
 
         # BX to start CLCT finding (poor man's dead-time shortening):
-        clctStartBxShift  = cms.int32(0)
+        clctStartBxShift  = cms.int32(0),
+
+        useRun3Patterns = cms.bool(False),
     ),
 
     # Parameters for CLCT processors: SLHC studies
@@ -203,6 +205,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
         # not feasible --Tao
         clctUseCorrectedBx = cms.bool(False)
+
+        useRun3Patterns = cms.bool(False),
     ),
 
     tmbParam = cms.PSet(
