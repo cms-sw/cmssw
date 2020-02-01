@@ -115,8 +115,6 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       stitle = genjetDir + "genjet_pt" + "_eta" + seta(etaBins[ieta]);
       //std::cout << ieta << " " << stitle << std::endl;
 
-      //std::cout << "stitle genjet: " << stitle << std::endl;
-
       std::vector<std::string>::const_iterator it = std::find(sME_genjets.begin(), sME_genjets.end(), stitle);
       if (it == sME_genjets.end())
 	continue;
