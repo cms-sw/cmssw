@@ -630,7 +630,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
             //ptn_trig = true;
             keystrip_data[ilct][CLCT_PATTERN] = best_pid[best_hs];
-            keystrip_data[ilct][CLCT_BEND] = clct_pattern_[best_pid[best_hs]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
+            keystrip_data[ilct][CLCT_BEND] =
+                clct_pattern_[best_pid[best_hs]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
             // Remove stagger if any.
             keystrip_data[ilct][CLCT_STRIP] = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
             keystrip_data[ilct][CLCT_BX] = first_bx;
@@ -703,7 +704,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
 // Common to all versions.
 void CSCCathodeLCTProcessor::pulseExtension(
-                                            const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+    const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
     const int nStrips,
     PulseArray pulse) {
   static const unsigned int bits_in_pulse = 8 * sizeof(pulse[0][0]);
@@ -748,9 +749,7 @@ void CSCCathodeLCTProcessor::pulseExtension(
 }  // pulseExtension.
 
 // TMB-07 version.
-bool CSCCathodeLCTProcessor::preTrigger(const PulseArray pulse,
-                                        const int start_bx,
-                                        int& first_bx) {
+bool CSCCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int start_bx, int& first_bx) {
   if (infoV > 1)
     LogTrace("CSCCathodeLCTProcessor") << "....................PreTrigger...........................";
 
@@ -785,7 +784,8 @@ bool CSCCathodeLCTProcessor::preTrigger(const PulseArray pulse,
 
           // write each pre-trigger to output
           nPreTriggers++;
-          const int bend = clct_pattern_[best_pid[hstrip]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
+          const int bend =
+              clct_pattern_[best_pid[hstrip]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
           const int halfstrip = hstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
           const int cfeb = hstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
           thePreTriggerDigis.push_back(CSCCLCTPreTriggerDigi(
@@ -807,9 +807,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const PulseArray pulse,
 }  // preTrigger -- TMB-07 version.
 
 // TMB-07 version.
-bool CSCCathodeLCTProcessor::patternFinding(const PulseArray pulse,
-                                            const int nStrips,
-                                            const unsigned int bx_time) {
+bool CSCCathodeLCTProcessor::patternFinding(const PulseArray pulse, const int nStrips, const unsigned int bx_time) {
   if (bx_time >= fifo_tbins)
     return false;
 
@@ -858,9 +856,8 @@ bool CSCCathodeLCTProcessor::patternFinding(const PulseArray pulse,
           int this_strip = CSCPatternBank::clct_pattern_offset_[strip_num] + key_hstrip;
           if (this_strip >= 0 && this_strip < nStrips) {
             if (infoV > 3) {
-              LogTrace("CSCCathodeLCTProcessor")
-                << " In patternFinding: key_strip = " << key_hstrip << " pid = " << pid
-                << " layer = " << this_layer << " strip = " << this_strip << std::endl;
+              LogTrace("CSCCathodeLCTProcessor") << " In patternFinding: key_strip = " << key_hstrip << " pid = " << pid
+                                                 << " layer = " << this_layer << " strip = " << this_strip << std::endl;
             }
             // Determine if "one shot" is high at this bx_time
             if (((pulse[this_layer][this_strip] >> bx_time) & 1) == 1) {
@@ -884,7 +881,6 @@ bool CSCCathodeLCTProcessor::patternFinding(const PulseArray pulse,
               if (infoV > 2)
                 LogTrace("CSCCathodeLCTProcessor") << " 1st bx in layer: " << first_bx_layer << " sum bx: " << times_sum
                                                    << " #pat. hits: " << num_pattern_hits;
-
             }
           }
         }
