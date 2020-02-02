@@ -931,7 +931,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       int tmp_trk_seed = 0;
       if (SaveTracklet) tmp_trk_seed = (int) iterL1Track->TrackSeed();
       
-      unsigned int tmp_trk_phiSector = iterL1Track->PhiSector();
+      unsigned int tmp_trk_phiSector = iterL1Track->phiSector();
       
       /*
       int tmp_trk_nPSstub = 0;

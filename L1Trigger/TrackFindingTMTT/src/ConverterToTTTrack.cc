@@ -57,8 +57,8 @@ TTTrack< Ref_Phase2TrackerDigi_ > ConverterToTTTrack::makeTTTrack(const L1track3
   double tmp_chi2 = -1;
   unsigned int tmp_hit = 0;
   unsigned int tmp_npar = nPar4;
-  double tmp_Bfield = 3.8; //FIX 
-  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, tmp_hit, tmp_npar, tmp_Bfield);
+  double tmp_Bfield = 3.81120228767395; //FIX 
+  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
 
   // set stub references
   track.setStubRefs(ttstubrefs);
@@ -124,8 +124,8 @@ TTTrack< Ref_Phase2TrackerDigi_ > ConverterToTTTrack::makeTTTrack(const L1fitted
   double tmp_chi2 = -1;
   unsigned int tmp_hit = 0;
   unsigned int tmp_npar = nPar;
-  double tmp_Bfield = 3.8; // FIX!
-  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, tmp_hit, tmp_npar, tmp_Bfield);
+  double tmp_Bfield = 3.81120228767395; //FIX 
+  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
 
   // set stub references
   track.setStubRefs(ttstubrefs);
@@ -213,8 +213,8 @@ TTTrack< Ref_Phase2TrackerDigi_ > ConverterToTTTrack::makeTTTrack(const L1fitted
   double tmp_chi2 = -1;
   unsigned int tmp_hit = 0;
   unsigned int tmp_npar = nPar;
-  double tmp_Bfield = 3.8; // FIX!
-  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, tmp_hit, tmp_npar, tmp_Bfield);
+  double tmp_Bfield = 3.81120228767395; //FIX 
+  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
 
   // set stub references
   track.setStubRefs(ttstubrefs);
