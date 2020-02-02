@@ -86,8 +86,6 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<TLorentzVector> selected_lep;
   selected_lep.clear();
 
-  bool verbose = false;  //true;
-
   for (std::vector<edm::EDGetTokenT<edm::View<reco::MET>>>::const_iterator met_ = mets_.begin(); met_ != mets_.end();
        ++met_) {
     edm::Handle<edm::View<reco::MET>> met;
@@ -109,16 +107,12 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   unsigned int pvMult = 0;
 
-  if (verbose)
-    cout << "check this" << pvs->size() << endl;
   for (edm::View<reco::Vertex>::const_iterator pv = pvs->begin(); pv != pvs->end(); ++pv) {
     if (pv->position().Rho() < 2 && abs(pv->position().z()) <= 24. && pv->ndof() > 4 && !pv->isFake()) {
       pvMult++;
     }
   }
   NPV->Fill(pvMult);
-  if (verbose)
-    cout << "filled vertices" << pvMult << endl;
 
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(muons_, muons);
@@ -126,13 +120,9 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (!muons.failedToGet()) {
     Nmuons->Fill(muons->size());
 
-    if (verbose)
-      cout << "going to muons \t " << muons->size() << endl;
     for (mu = muons->begin(); mu != muons->end(); ++mu) {
       if (mu->pt() < 3.0)
         continue;
-      if (verbose)
-        cout << "looking into muons " << endl;
       TLorentzVector Mu;
       Mu.SetPtEtaPhiM(mu->pt(), mu->eta(), mu->phi(), 0.0);
       selected_lep.push_back(Mu);
@@ -143,8 +133,6 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       isTrackermuon->Fill(mu->isTrackerMuon());
       isStandalonemuon->Fill(mu->isStandAloneMuon());
       isPFmuon->Fill(mu->isPFMuon());
-      if (verbose)
-        cout << "looking into muon kinematics " << endl;
 
       reco::MuonIsolation muIso03 = mu->isolationR03();
       double muonCombRelIso = 1.;
@@ -157,8 +145,6 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }  //size of muons
 
   }  // muons
-  if (verbose)
-    cout << "done with muons" << endl;
 
   // electrons
 
@@ -169,8 +155,6 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (!elecs.failedToGet()) {
     Nelecs->Fill(elecs->size());
 
-    if (verbose)
-      cout << "looking into electrons\t" << elecs->size() << endl;
     for (elec = elecs->begin(); elec != elecs->end(); ++elec) {
       if (elec->pt() < 5.0)
         continue;
@@ -178,8 +162,6 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       El.SetPtEtaPhiM(elec->pt(), elec->eta(), elec->phi(), 0.0);
       selected_lep.push_back(El);
 
-      if (verbose)
-        cout << "looking into electrons kinematics " << endl;
       HoverE_elecs->Fill(elec->hcalOverEcal());
       pt_elecs->Fill(elec->pt());
       eta_elecs->Fill(elec->eta());
@@ -197,8 +179,6 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
 
   }  // electrons
-  if (verbose)
-    cout << "done with electrons " << endl;
   // jets
 
   edm::Handle<edm::View<reco::PFJet>> jets;
@@ -216,8 +196,6 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   std::sort(recoPFJets.begin(), recoPFJets.end(), SortByPt());
   std::sort(selected_lep.begin(), selected_lep.end(), SortByPt());
-  if (verbose)
-    std::cout << "size of uncleaned jets" << recoPFJets.size() << std::endl;
 
   for (unsigned int i = 0; i < recoPFJets.size(); i++) {
     bool goodjet = false;
@@ -227,10 +205,6 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         continue;
       } else {
         goodjet = false;
-        if (verbose)
-          std::cout << "jet\t"
-                    << "\t matched to lep with deltaR = \t" << recoPFJets[i].DeltaR(selected_lep[j]) << "\t"
-                    << selected_lep[j].Pt() << "\t" << recoPFJets[i].Pt() << std::endl;
         break;
       }
     }
@@ -241,7 +215,7 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       selected_recoPFJets.push_back(temp);
     }
   }
-  std::cout << "size of selected jets" << selected_recoPFJets.size() << std::endl;
+
   std::sort(selected_recoPFJets.begin(), selected_recoPFJets.end(), SortByPt());  // for safety
   int njet = 0;
   for (unsigned int k = 0; k < selected_recoPFJets.size(); k++) {
@@ -281,7 +255,7 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }  // W case
 
   else {
-    std::cout << "zero lepton case" << endl;
+    // std::cout << "zero lepton case" << endl;
   }
   if (selected_recoPFJets.size() > 1) {
     detajj->Fill(abs(selected_recoPFJets[0].Eta() - selected_recoPFJets[1].Eta()));
