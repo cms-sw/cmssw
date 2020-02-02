@@ -171,7 +171,7 @@ void TIDLayer::groupedCompatibleDetsV(const TrajectoryStateOnSurface& startingSt
 #else
   constexpr int ringOrder[3]{1, 2, 0};
 #endif
-  auto index = [&ringIndices, &ringOrder](int i) { return ringOrder[ringIndices[i]]; };
+  auto index = [&ringIndices](int i) { return ringOrder[ringIndices[i]]; };
 
   auto& closestResult = groupsAtRingLevel[index(0)];
   theComps[ringIndices[0]]->groupedCompatibleDetsV(startingState, prop, est, closestResult);
