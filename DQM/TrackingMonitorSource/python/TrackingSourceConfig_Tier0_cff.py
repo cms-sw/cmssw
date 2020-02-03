@@ -266,7 +266,10 @@ for _step, _pset in six.iteritems(seedMonitoring):
     )
     locals()['TrackSeedMon'+str(_step)] = _mod
     _mod.TrackProducer = cms.InputTag("generalTracks")
-    _mod.FolderName    = cms.string("Tracking/TrackParameters/generalTracks")
+    _mod.FolderName = cms.string("Tracking/TrackParameters/generalTracks/SeedMon/"+str(_step))
+    _mod.doPUmonitoring = cms.bool(False)
+    _mod.doLumiAnalysis = cms.bool(False)
+    _mod.doPlotsVsGoodPVtx = cms.bool(False)
     _mod.SeedProducer  = _pset.seedInputTag
     _mod.TCProducer    = _pset.trackCandInputTag
     _mod.AlgoName      = cms.string( str(_step) )
