@@ -58,10 +58,14 @@ namespace gen {
       if (!((fMasterGen->particleData).isParticle(particleID))) {
         particleID = std::fabs(particleID);
       }
-      if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) // quarks
+      if (1 <= std::abs(particleID) && std::abs(particleID) <= 6){ // quarks
         (fMasterGen->event).append(particleID, 23, colorindex, 0, px, py, pz, ee, mass);
-      else if (std::abs(particleID) == 21) // gluons
+	if (!fAddAntiParticle) colorindex ++;
+      }
+      else if (std::abs(particleID) == 21){ // gluons
         (fMasterGen->event).append(21, 23, colorindex, colorindex+1, px, py, pz, ee, mass);
+	if (!fAddAntiParticle){colorindex ++; colorindex ++;}
+      }
       // other
       else {
         (fMasterGen->event).append(particleID, 1, 0, 0, px, py, pz, ee, mass);
