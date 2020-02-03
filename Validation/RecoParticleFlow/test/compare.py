@@ -101,7 +101,7 @@ def parse_args():
         doResponsePlots = True
     if args.doOffsetPlots:
         doOffsetPlots = True
-    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR, doResponsePlots, doOffsetPlots, files
+    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR, doResponsePlots, doOffsetPlots, files, args
     # This needs to be also changed whenever changing binning
 
 #CS: broke arg_parse() into 3 functions: arg_parse(), doResponsePlots(), doOffsetPlots()
@@ -165,12 +165,13 @@ def main():
 
     #### from here #####
 
-    samples, plots, doOffsetPlots, offsetVar, offsetDR, doResponsePlots, doOffsetPlots, files = parse_args()
+    samples, plots, doOffsetPlots, offsetVar, offsetDR, doResponsePlots, doOffsetPlots, files, args = parse_args()
 
     # why does f.Get("DQMData/Run 1/ParticleFlow/Run summary/") GIVE A NULL POINTER
     #for file in files:
         #print file
     f = ROOT.TFile.Open(files[1])
+    print(f.Get("DQMData/Run 1/ParticleFlow/Run summary"))
     for i in f.GetListOfKeys():
         for j in i.ReadObj().GetListOfKeys():
             for k in j.ReadObj().GetListOfKeys():
@@ -181,17 +182,18 @@ def main():
                                 for n in m.ReadObj().GetListOfKeys():
                                     for p in n.ReadObj().GetListOfKeys():
                                         folderDir = m.GetName() + "/" + n.GetName() + "/" + p.GetName()
-                                        print folderDir
-
 
                                         if doResponsePlots:
                                             do_response_plots(plots, folderDir)
-                                        #if doOffsetPlots:
-                                        #        doOffsetPllots(
+                                        if doOffsetPlots :
+                                            do_offset_plots(args, plots)
+                            
                                         plotter = Plotter()
-
+                                        
                                         for folder, name, histograms in plots:
                                             opts = plot_opts.get(name, {})
+                                            
+                                            print ("folder :" + folder ) 
 
                                             #fullfolder =  "DQMData/Run 1/Physics/Run summary/{0}".format(folder)
                                             fullfolder =  "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folderDir)
@@ -202,7 +204,8 @@ def main():
                                             else :
                                                 addPlots(plotter, fullfolder, name, folder, histograms, opts)
 
-                                        outputDir = "plots/" + folderDir # Plot output directory #CS: change this to "plots/{0}".format(<name of folder ur itering over>)
+                                        #outputDir = "plots/" + folderDir # Plot output directory #CS: change this to "plots/{0}".format(<name of folder ur itering over>)
+                                        outputDir = "plots/{0}".format(folderDir)
                                         description = "Simple ParticleFlow comparison"
 
                                         plotterDrawArgs = dict(
@@ -213,40 +216,39 @@ def main():
                                         val = SimpleValidation(samples, outputDir)
                                         report = val.createHtmlReport(validationName=description)
                                         val.doPlots([plotter], plotterDrawArgs=plotterDrawArgs)
-
-    report.write()
-                                        ### to here in the for loop ? ###
+                                        report.write()
 
 
-    #add tdr-style stack plots to offset html file
-    if doOffsetPlots :
-        offsetDir = "OffsetStacks"
-        fullOffsetDir = os.path.join( outputDir, offsetDir )
-        os.makedirs( fullOffsetDir )
+                                        #add tdr-style stack plots to offset html file
+                                        if doOffsetPlots :
+                                            #offsetOutputDir = " plots"
+                                            do_offset_plots(args, plots)
+                                            offsetDir = "OffsetStacks"
+                                            fullOffsetDir = os.path.join( outputDir, offsetDir )
+                                            os.makedirs( fullOffsetDir )
+	        
+                                            for s in samples :
+                                                offFile = open( outputDir + "/" + s.label() + "_offset.html", "r")
+                                                lines = offFile.readlines()
+                                                offFile.close()
+                                                for f in s.files() :
+                                                    fname = f.split('/')[-2]
+                                                    outName = offsetStack( [(fname,f)], offsetVar, offsetDR, fullOffsetDir )
+                                                    outName = outName.replace("plots/", "") #KH: This "plots" look redundant and causes trouble for .html. Stripping it off.
+                                                    addLine( outName, lines )
+                                                    
+                                                    for f2 in s.files() :
+                                                        if f == f2 : continue
+                                                        fname2 = f2.split('/')[-2]
+                                                        outName = offsetStack( [(fname,f), (fname2,f2)], offsetVar, offsetDR, fullOffsetDir )
+                                                        outName = outName.replace("plots/", "") #KH: This "plots" look redundant and causes trouble for .html. Stripping it off.
+                                                        addLine( outName, lines )
 
-        for s in samples :
-            offFile = open( outputDir + "/" + s.label() + "_offset.html", "r")
-            lines = offFile.readlines()
-            offFile.close()
-
-            for f in s.files() :
-                fname = f.split('/')[-2]
-                outName = offsetStack( [(fname,f)], offsetVar, offsetDR, fullOffsetDir )
-                outName = outName.replace("plots/", "") #KH: This "plots" look redundant and causes trouble for .html. Stripping it off.
-                addLine( outName, lines )
-
-                for f2 in s.files() :
-                    if f == f2 : continue
-                    fname2 = f2.split('/')[-2]
-                    outName = offsetStack( [(fname,f), (fname2,f2)], offsetVar, offsetDR, fullOffsetDir )
-                    outName = outName.replace("plots/", "") #KH: This "plots" look redundant and causes trouble for .html. Stripping it off.
-                    addLine( outName, lines )
-
-            offFile = open( outputDir + "/" + s.label() + "_offset.html", "w")
-            lines = "".join(lines)
-            offFile.write(lines)
-            offFile.close()
-
+                                                offFile = open( outputDir + "/" + s.label() + "_offset.html", "w")
+                                                lines = "".join(lines)
+                                                offFile.write(lines)
+                                                offFile.close()
+            
 def addLine(name, oldLines) :
     newLines = [
         '   <td><a href="{0}">{0}</a></td>\n'.format(name),
