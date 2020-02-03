@@ -1,5 +1,3 @@
-<export>
-</export>
 <library   name="RecoMTDTimingIDTools_plugins" file="*.cc">
    <use   name="FWCore/Framework"/>
    <use   name="FWCore/ParameterSet"/>

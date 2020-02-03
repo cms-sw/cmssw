@@ -147,7 +147,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
       pfCandidateTypesForHcalDepth_(iConfig.getParameter<std::vector<int>>("pfCandidateTypesForHcalDepth")),
       storeHcalDepthEndcapOnly_(iConfig.getParameter<bool>("storeHcalDepthEndcapOnly")),
       storeTiming_(iConfig.getParameter<bool>("storeTiming")),
-      timeFromValueMap_(!iConfig.getParameter<edm::InputTag>("timeMap").encode().empty() ||
+      timeFromValueMap_(!iConfig.getParameter<edm::InputTag>("timeMap").encode().empty() &&
                         !iConfig.getParameter<edm::InputTag>("timeMapErr").encode().empty()),
       t0Map_(timeFromValueMap_ ? consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("timeMap"))
                                : edm::EDGetTokenT<edm::ValueMap<float>>()),

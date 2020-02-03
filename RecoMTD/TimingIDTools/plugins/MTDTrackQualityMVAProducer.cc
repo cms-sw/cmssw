@@ -13,14 +13,14 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "RecoMTD/TimingIDTools/interface/TrackPUIDMVA.h"
+#include "RecoMTD/TimingIDTools/interface/MTDTrackQualityMVA.h"
 
 using namespace std;
 using namespace edm;
 
-class TrackPUIDMVAProducer : public edm::stream::EDProducer<> {
+class MTDTrackQualityMVAProducer : public edm::stream::EDProducer<> {
 public:
-  TrackPUIDMVAProducer(const ParameterSet& pset);
+  MTDTrackQualityMVAProducer(const ParameterSet& pset);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -46,10 +46,10 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
   edm::EDGetTokenT<edm::ValueMap<int>> trackAssocToken_;
 
-  TrackPUIDMVA mva_;
+  MTDTrackQualityMVA mva_;
 };
 
-TrackPUIDMVAProducer::TrackPUIDMVAProducer(const ParameterSet& iConfig)
+MTDTrackQualityMVAProducer::MTDTrackQualityMVAProducer(const ParameterSet& iConfig)
     : tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksSrc"))),
       tracksMTDToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksMTDSrc"))),
       btlMatchChi2Token_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("btlMatchChi2Src"))),
@@ -61,12 +61,12 @@ TrackPUIDMVAProducer::TrackPUIDMVAProducer(const ParameterSet& iConfig)
       mtdTimeToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("mtdTimeSrc"))),
       pathLengthToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
       trackAssocToken_(consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"))),
-      mva_(iConfig.getParameter<edm::FileInPath>("trackPUID_mtdQualBDT_weights_file").fullPath()) {
+      mva_(iConfig.getParameter<edm::FileInPath>("qualityBDT_weights_file").fullPath()) {
   produces<edm::ValueMap<float>>(mvaName);
 }
 
 // Configuration descriptions
-void TrackPUIDMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MTDTrackQualityMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tracksSrc", edm::InputTag("generalTracks"))->setComment("Input tracks collection");
   desc.add<edm::InputTag>("tracksMTDSrc", edm::InputTag("trackExtenderWithMTD"))
@@ -85,14 +85,14 @@ void TrackPUIDMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
       ->setComment("MTD PathLength value Map");
   desc.add<edm::InputTag>("trackAssocSrc", edm::InputTag("trackExtenderWithMTD", "generalTrackassoc"))
       ->setComment("Association between General and MTD Extended tracks");
-  desc.add<edm::FileInPath>("trackPUID_mtdQualBDT_weights_file",
+  desc.add<edm::FileInPath>("qualityBDT_weights_file",
                             edm::FileInPath("RecoMTD/TimingIDTools/data/clf4D_MTDquality_bo.xml"))
       ->setComment("Track MTD quality BDT weights");
-  descriptions.add("trackPUIDMVAProducer", desc);
+  descriptions.add("mtdTrackQualityMVAProducer", desc);
 }
 
 template <class H, class T>
-void TrackPUIDMVAProducer::fillValueMap(edm::Event& iEvent,
+void MTDTrackQualityMVAProducer::fillValueMap(edm::Event& iEvent,
                                         const edm::Handle<H>& handle,
                                         const std::vector<T>& vec,
                                         const std::string& name) const {
@@ -103,7 +103,7 @@ void TrackPUIDMVAProducer::fillValueMap(edm::Event& iEvent,
   iEvent.put(std::move(out), name);
 }
 
-void TrackPUIDMVAProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
+void MTDTrackQualityMVAProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
   edm::Handle<reco::TrackCollection> tracksH;
   ev.getByToken(tracksToken_, tracksH);
   const auto& tracks = *tracksH;
@@ -137,4 +137,4 @@ void TrackPUIDMVAProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
 
 //define this as a plug-in
 #include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(TrackPUIDMVAProducer);
+DEFINE_FWK_MODULE(MTDTrackQualityMVAProducer);
