@@ -32,11 +32,7 @@
 #include <string>
 #include <type_traits>
 #include <algorithm>
-
 #include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
 
 using namespace std;
 
@@ -109,7 +105,7 @@ GEMGeometryValidate::GEMGeometryValidate(const edm::ParameterSet& iConfig)
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateGEMGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
-  outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
+  outFile_ = TFile::Open(outfileName_.c_str(), "RECREATE");
 }
 
 void GEMGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
