@@ -31,10 +31,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-//#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-//#include "DQMServices/Core/interface/DQMStore.h"
-//#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -66,6 +62,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include <DataFormats/METReco/interface/PFMET.h>
+
 //
 // class declaration
 //
@@ -75,9 +72,6 @@
 // from  edm::one::EDAnalyzer<>
 // This will improve performance in multithreaded jobs.
 
-using namespace edm;
-using namespace std;
-using namespace reco;
 //using reco::TrackCollection;
 class DQMStore;
 class SMPDQM : public DQMEDAnalyzer {
@@ -92,9 +86,7 @@ private:
   void bookHistograms(DQMStore::IBooker &bei, edm::Run const &, edm::EventSetup const &) override;
   void bookHistos(DQMStore *bei);
 
-  //      edm::EDGetTokenT<reco::VertexCollection> vertex_;
   edm::EDGetTokenT<reco::MuonCollection> muons_;
-  //edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
   edm::EDGetTokenT<reco::GsfElectronCollection> elecs_;
   edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
   edm::EDGetTokenT<edm::View<reco::PFJet> > jets_;
