@@ -49,8 +49,9 @@ from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import q
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
 from RecoMTD.TimingIDTools.tofPIDProducer_cfi import tofPIDProducer
 
-tofPID4DnoPID=tofPIDProducer.clone()
-tofPID4DnoPID.vtxsSrc=cms.InputTag('unsortedOfflinePrimaryVertices4DnoPID')
-
+tofPID4DnoPID=tofPIDProducer.clone(vtxsSrc='unsortedOfflinePrimaryVertices4DnoPID')
 tofPID=tofPIDProducer.clone()
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(tofPID, vtxsSrc='unsortedOfflinePrimaryVertices4D')
 

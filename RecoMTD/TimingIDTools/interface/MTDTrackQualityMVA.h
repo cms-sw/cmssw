@@ -1,5 +1,5 @@
-#ifndef COMMONTOOLS_RECOALGOS_TRACKPUIDMVA
-#define COMMONTOOLS_RECOALGOS_TRACKPUIDMVA
+#ifndef RECOMTD_TIMINGIDTOOLS_MTDTRACKQUALITYMVA
+#define RECOMTD_TIMINGIDTOOLS_MTDTRACKQUALITYMVA
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -9,13 +9,36 @@
 
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 
-class TrackPUIDMVA {
+#define MTDTRACKQUALITYMVA_VARS(VAR) \
+  VAR(pt)   \
+  VAR(eta)  \
+  VAR(phi)   \
+  VAR(chi2)  \
+  VAR(ndof)  \
+  VAR(numberOfValidHits)  \
+  VAR(numberOfValidPixelBarrelHits)  \
+  VAR(numberOfValidPixelEndcapHits)  \
+  VAR(btlMatchChi2)  \
+  VAR(btlMatchTimeChi2)  \
+  VAR(etlMatchChi2)  \
+  VAR(etlMatchTimeChi2)  \
+  VAR(mtdt)  \
+  VAR(path_len)  \
+
+#define VAR_ENUM(ENUM) ENUM,
+#define VAR_STRING(STRING) #STRING,
+
+class MTDTrackQualityMVA {
 public:
   //---ctors---
-  TrackPUIDMVA(std::string weights_file);
+  MTDTrackQualityMVA(std::string weights_file);
 
   //---dtor---
-  ~TrackPUIDMVA(){};
+  ~MTDTrackQualityMVA(){};
+
+  enum varID { 
+    MTDTRACKQUALITYMVA_VARS(VAR_ENUM)
+  };
 
   //---getters---
   // 4D
@@ -31,6 +54,8 @@ public:
 private:
   std::vector<std::string> vars_, spec_vars_;
   std::unique_ptr<TMVAEvaluator> mva_;
+
+
 };
 
 #endif
