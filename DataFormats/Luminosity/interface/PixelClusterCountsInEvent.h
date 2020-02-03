@@ -15,7 +15,7 @@ namespace reco {
   class PixelClusterCountsInEvent {
   public:
     PixelClusterCountsInEvent() : m_bxID() {}
-    
+
     void increment(int mD, int count) {
       size_t modIndex = std::distance(m_ModID.begin(), std::find(m_ModID.begin(), m_ModID.end(), mD));
       if (modIndex == m_ModID.size()) {
@@ -30,7 +30,7 @@ namespace reco {
     std::vector<int> const& counts() const { return (m_counts); }
 
     std::vector<int> const& modID() const { return (m_ModID); }
-    
+
     unsigned int const& bxID() const { return m_bxID; }
 
   private:
