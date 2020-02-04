@@ -44,6 +44,7 @@
   <use   name="Geometry/EcalAlgo"/>
   <use   name="Geometry/Records"/>
   <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoLocalCalo/HcalRecProducers"/>
   <use   name="RecoParticleFlow/PFClusterProducer"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

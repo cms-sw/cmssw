@@ -22,6 +22,7 @@ hgcalLayerClusters.plugin.noiseMip = hgchebackDigitizer.digiCfg.noise
 hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
     detector = 'HFNose',
     timeOffset = hfnoseDigitizer.tofDelay,
+    nHitsTime = cms.uint32(3),
     plugin = dict(
         dEdXweights = dEdX.weightsNose,
         fcPerMip = HGCalUncalibRecHit.HGCHFNoseConfig.fCPerMIP,
