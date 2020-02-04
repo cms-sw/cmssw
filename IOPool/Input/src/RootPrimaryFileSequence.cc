@@ -18,6 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
+
 namespace edm {
   RootPrimaryFileSequence::RootPrimaryFileSequence(ParameterSet const& pset,
                                                    PoolSource& input,
@@ -45,6 +46,7 @@ namespace edm {
     }
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
+
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
       if (treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {
@@ -153,7 +155,7 @@ namespace edm {
                                       usingGoToEvent_,
                                       enablePrefetching_);
   }
-
+  
   bool RootPrimaryFileSequence::nextFile() {
     if (!noMoreFiles())
       setAtNextFile();

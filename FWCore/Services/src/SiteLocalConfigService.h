@@ -1,6 +1,11 @@
 #ifndef FWCore_Services_SiteLocalConfigService_H
 #define FWCore_Services_SiteLocalConfigService_H
 
+///////////////////////////////////////////////////////////////////////
+//
+// dataCatalogs() returns multiple data catalogs in site-local-config.xml
+//
+///////////////////////////////////////////////////////////////////////
 //<<<<<< INCLUDES                                                       >>>>>>
 #include <string>
 #include <list>
