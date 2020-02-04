@@ -133,7 +133,7 @@ namespace deep_tau {
   DeepTauCache::DeepTauCache(const std::map<std::string, std::string>& graph_names, bool mem_mapped) {
     for (const auto& graph_entry : graph_names) {
       tensorflow::SessionOptions options;
-      tensorflow::setThreading(options, 1, "no_threads");
+      tensorflow::setThreading(options, 1);
 
       const std::string& entry_name = graph_entry.first;
       const std::string& graph_file = graph_entry.second;
