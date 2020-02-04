@@ -72,6 +72,10 @@ namespace cms {
     //! The list of the volume copy numbers
     //  along the full path to the current node
     const std::vector<int> copyNos() const;
+    
+    void printFilter() const { printFilter(currentFilter_); };
+    void printFilter(const Filter* filter) const;
+
 
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
