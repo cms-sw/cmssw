@@ -353,12 +353,12 @@ namespace edm {
     //for (unsigned int i = 0 ; i < fNames.size() ; ++i) {
     //  std::cout << "\n " << fNames[i] ;
     //}
-
-    for (unsigned int i = 0 ; i < fNames.size() ; ++i) {
+    //this tries to open the file using multiple PFNs corresponding to different data catalogs
+    for (std::vector<std::string>::iterator it = fNames.begin() ; it != fNames.end() ; ++it) {
       try {
         std::unique_ptr<InputSource::FileOpenSentry> sentry(
           input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
-        std::unique_ptr<char[]> name(gSystem->ExpandPathName(fNames[i].c_str()));
+        std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
         filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
         break ;
       } catch (cms::Exception const& e) {
@@ -366,11 +366,11 @@ namespace edm {
           continue ;
         }
         else {
-          InputFile::reportSkippedFile(fNames[i], logicalFileName());
+          InputFile::reportSkippedFile((*it), logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
           ex.addContext("Calling RootFileSequenceBase::initTheFileDataCatalogs()");
           std::ostringstream out;
-          out << "Input file " << fNames[i] << " could not be opened.";
+          out << "Input file " << (*it) << " could not be opened.";
           ex.addAdditionalInfo(out.str());
           throw ex;
         }

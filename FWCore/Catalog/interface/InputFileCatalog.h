@@ -2,7 +2,11 @@
 #define FWCore_Catalog_InputFileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// Class InputFileCatalog. Services to manage InputFile catalog
+// Class InputFileCatalog. Services to manage InputFile catalog.
+//
+// InputFileCatalog builds FileCatalogItem, which contains PFN and LFN. The pfn_ and lfn_ correspond to the PFN and LFN constructed from the first (primary) data catalog in site-local-config.xml. The FileCatalogItem also has pfns_ which is the collection of PFNs from all data catalogs in site-local-config.xmll. Note that, the fallbackPfn_ is the PFN from the second data catalog. For backward comparability, the default setting is to use pfn_ and fallbackPfn_. Another note is that the InputFileCatalog have fileNames(), fallbackFileNames() to return PFN and fallback PFN of all input files so users can use them instead of accessing collections of FileCatalogItem (fileCatalogItems()).
+//
+// The multiple data catalogs mechanism is activated when initializing InputFileCatalog with setMultipleDataCatalog = true. In this case, pfns_ will be valid together with hasMultipleDataCatalogs_ = true. They can be used in RootPrimaryFileSequence, RootSecondaryFileSequence or other sequences to read files.
 //
 //////////////////////////////////////////////////////////////////////
 

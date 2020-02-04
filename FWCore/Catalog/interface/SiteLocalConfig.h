@@ -1,5 +1,10 @@
 #ifndef FWCore_Catalog_SiteLocalConfig_h
 #define FWCore_Catalog_SiteLocalConfig_h
+////////////////////////////////////////////////////////////
+//
+// Abstract class. dataCatalogs() returns multiple data catalogs from site-local-config.xml. It is overridden in derived classes.
+//
+////////////////////////////////////////////////////////////
 
 // INCLUDES
 #include <set>

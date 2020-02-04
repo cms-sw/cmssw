@@ -19,7 +19,7 @@ namespace edm {
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
                                      std::string const& override,
                                      bool useLFNasPFNifLFNnotFound,
-                                     bool setMultipleDataCatalogs) //--->HERE
+                                     bool setMultipleDataCatalogs) //HERE
       : logicalFileNames_(fileNames),
         fileNames_(fileNames),
         fallbackFileNames_(fileNames.size()),
@@ -28,8 +28,7 @@ namespace edm {
         overrideFileLocator_(),
         fallbackFileLocator_(),
         overrideFallbackFileLocator_() {
-    //std::cout << "\n I am constructing InputFileCatalog 1: " << setMultipleDataCatalogs << " " << hasMultipleDataCatalogs_ << " " << hasMultipleDataCatalogs() ;
-    //HERE
+        //HERE
     if (!setMultipleDataCatalogs) {
       init(override, "", useLFNasPFNifLFNnotFound);
       hasMultipleDataCatalogs_ = false;
@@ -38,7 +37,6 @@ namespace edm {
       init(override, useLFNasPFNifLFNnotFound);
       hasMultipleDataCatalogs_ = true;
     }
-    //std::cout << "\n I am done constructing InputFileCatalog 1: " << hasMultipleDataCatalogs_ << " " << hasMultipleDataCatalogs() ;
   }
 
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
@@ -53,8 +51,7 @@ namespace edm {
         overrideFileLocator_(),
         fallbackFileLocator_(),
         overrideFallbackFileLocator_() {
-    //std::cout << "\n I am constructing InputFileCatalog 2: " << hasMultipleDataCatalogs_ << " " << hasMultipleDataCatalogs() ;
-    init(override, overrideFallback, useLFNasPFNifLFNnotFound);
+          init(override, overrideFallback, useLFNasPFNifLFNnotFound);
   }
 
   InputFileCatalog::~InputFileCatalog() {}
@@ -148,7 +145,7 @@ namespace edm {
               std::make_unique<FileLocator>(inputOverride, false);  // propagate_const<T> has no reset() function
     }
     
-    //this is for backward compability
+    //this is for backward compability: need to initialize fallbackFileLocator_
     if (!fallbackFileLocator_) {
       try {
         fallbackFileLocator_ =
@@ -158,15 +155,14 @@ namespace edm {
       }
     }
 
-    //HERE build other file locators from local config service which are used to read file using other data catalog 
+    //HERE build other file locators from the local config service which are used to read files using different data catalogs 
     Service<SiteLocalConfig> localconfservice ;
     std::vector<std::string> tmp_dataCatalogs = localconfservice->dataCatalogs() ;
     if (fileLocators_.size() != 0) fileLocators_.clear() ;
 
-    for (unsigned int i = 0 ; i < tmp_dataCatalogs.size() ; ++i) {
+    for (std::vector<std::string>::iterator it = tmp_dataCatalogs.begin() ; it != tmp_dataCatalogs.end() ; ++it) {
       try {
-        fileLocators_.push_back(std::make_unique<FileLocator>(tmp_dataCatalogs[i], false)) ;
-        //std::cout << "\n file locator: " << i << " " << tmp_dataCatalogs[i] ;
+        fileLocators_.push_back(std::make_unique<FileLocator>(*it, false)) ;
       } catch (cms::Exception const& e) {
         continue ;
       }

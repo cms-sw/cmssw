@@ -1,3 +1,9 @@
+///////////////////////////////////////
+//
+// data catalogs are filled in "parse"
+//
+///////////////////////////////////////
+
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "FWCore/Services/src/SiteLocalConfigService.h"
@@ -329,19 +335,15 @@ namespace edm {
         {
           auto eventData = site->FirstChildElement("event-data");
           if (eventData) {
+            //HERE
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
               m_dataCatalog = safe(catalog->Attribute("url"));
-              catalog = catalog->NextSiblingElement("catalog");
-              if (catalog) {
-                m_fallbackDataCatalog = safe(catalog->Attribute("url"));
-              }
-              //HERE 
               m_dataCatalogs.push_back(m_dataCatalog) ;
-              m_dataCatalogs.push_back(m_fallbackDataCatalog) ;
               catalog = catalog->NextSiblingElement("catalog");
               while(catalog) {
-                m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+                m_dataCatalogs.push_back(safe(catalog->Attribute("url"))) ;
+                if (m_fallbackDataCatalog.empty()) m_fallbackDataCatalog = m_dataCatalogs.back() ; //for backward comparability
                 catalog = catalog->NextSiblingElement("catalog");
               }
             }
