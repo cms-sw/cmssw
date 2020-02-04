@@ -1,6 +1,6 @@
 /*
  * TensorFlow interface helpers.
- * Based on TensorFlow C++ API 2.0.
+ * Based on TensorFlow C++ API 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -9,13 +9,18 @@
 #ifndef PHYSICSTOOLS_TENSORFLOW_TENSORFLOW_H
 #define PHYSICSTOOLS_TENSORFLOW_TENSORFLOW_H
 
-#include "tensorflow/core/public/session.h"
 #include "tensorflow/core/framework/tensor.h"
-#include "tensorflow/cc/saved_model/loader.h"
-#include "tensorflow/cc/saved_model/tag_constants.h"
-#include "tensorflow/cc/saved_model/constants.h"
+#include "tensorflow/core/lib/core/threadpool.h"
 #include "tensorflow/core/lib/io/path.h"
+#include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/tensor_bundle/naming.h"
+#include "tensorflow/cc/client/client_session.h"
+#include "tensorflow/cc/saved_model/loader.h"
+#include "tensorflow/cc/saved_model/constants.h"
+#include "tensorflow/cc/saved_model/tag_constants.h"
+
+#include "PhysicsTools/TensorFlow/interface/NoThreadPool.h"
+#include "PhysicsTools/TensorFlow/interface/TBBThreadPool.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -27,9 +32,13 @@ namespace tensorflow {
   // set the tensorflow log level
   void setLogging(const std::string& level = "3");
 
-  // updates the config of sessionOptions so that it uses nThreads and if 1, sets the thread pool to
-  // singleThreadPool
-  void setThreading(SessionOptions& sessionOptions, int nThreads, const std::string& singleThreadPool = "no_threads");
+  // updates the config of sessionOptions so that it uses nThreads
+  void setThreading(SessionOptions& sessionOptions, int nThreads = 1);
+
+  // deprecated
+  // updates the config of sessionOptions so that it uses nThreads, prints a deprecation warning
+  // since the threading configuration is done per run() call as of 2.1
+  void setThreading(SessionOptions& sessionOptions, int nThreads, const std::string& singleThreadPool);
 
   // loads a meta graph definition saved at exportDir using the SavedModel interface for a tag and
   // predefined sessionOptions
@@ -77,38 +86,41 @@ namespace tensorflow {
   // closes a session, calls its destructor, resets the pointer, and returns true on success
   bool closeSession(Session*& session);
 
-  // run the session with inputs, outputNames and targetNodes, and store output tensors
+  // run the session with inputs and outputNames, store output tensors, and control the underlying
+  // thread pool using threadPoolOptions
+  // used for thread scheduling with custom thread pool options
   // throws a cms exception when not successful
   void run(Session* session,
            const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
-           const std::vector<std::string>& targetNodes,
-           std::vector<Tensor>* outputs);
+           std::vector<Tensor>* outputs,
+           const thread::ThreadPoolOptions& threadPoolOptions);
 
-  // run the session with inputNames, inputTensors, outputNames and targetNodes, and store output
-  // tensors
-  // throws a cms exception when not successful
-  void run(Session* session,
-           const std::vector<std::string>& inputNames,
-           const std::vector<Tensor>& inputTensors,
-           const std::vector<std::string>& outputNames,
-           const std::vector<std::string>& targetNodes,
-           std::vector<Tensor>* outputs);
-
-  // run the session with inputs and outputNames, and store output tensors
+  // run the session with inputs and outputNames, store output tensors, and control the underlying
+  // thread pool
   // throws a cms exception when not successful
   void run(Session* session,
            const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
-           std::vector<Tensor>* outputs);
+           std::vector<Tensor>* outputs,
+           thread::ThreadPoolInterface* threadPool);
 
-  // run the session with inputNames, inputTensors and outputNames, and store output tensors
+  // run the session with inputs and outputNames, store output tensors, and control the underlying
+  // thread pool using a threadPoolName ("no_threads", "tbb", or "tensorflow")
   // throws a cms exception when not successful
   void run(Session* session,
-           const std::vector<std::string>& inputNames,
-           const std::vector<Tensor>& inputTensors,
+           const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
-           std::vector<Tensor>* outputs);
+           std::vector<Tensor>* outputs,
+           const std::string& threadPoolName = "no_threads");
+
+  // run the session without inputs but only outputNames, store output tensors, and control the
+  // underlying thread pool using a threadPoolName ("no_threads", "tbb", or "tensorflow")
+  // throws a cms exception when not successful
+  void run(Session* session,
+           const std::vector<std::string>& outputNames,
+           std::vector<Tensor>* outputs,
+           const std::string& threadPoolName = "no_threads");
 
 }  // namespace tensorflow
 
