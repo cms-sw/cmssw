@@ -329,7 +329,6 @@ private:
   const bool useSimVertex_;
   const float dzCut_;
   const float bsTimeSpread_;
-
 };
 
 template <class TrackCollection>
@@ -784,7 +783,7 @@ namespace {
               double t_vtx = useVtxConstraint ? vtxTime : 0.;
 
               constexpr double vtx_res = 0.008;
-              double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;  
+              double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
 
               constexpr double t_res_manual = 0.035;
 
@@ -883,8 +882,18 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
   bool hitMatched = false;
 
   using namespace std::placeholders;
-  auto find_hits = std::bind(
-			     find_hits_in_dets, hits, traj, ilay, tsos, _1, bs, bsTimeSpread_, prop, std::ref(theEstimator), _2, std::ref(hitsInLayer));
+  auto find_hits = std::bind(find_hits_in_dets,
+                             hits,
+                             traj,
+                             ilay,
+                             tsos,
+                             _1,
+                             bs,
+                             bsTimeSpread_,
+                             prop,
+                             std::ref(theEstimator),
+                             _2,
+                             std::ref(hitsInLayer));
 
   if (useVertex_ && matchVertex)
     find_hits(vtxTime, true);
