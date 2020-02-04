@@ -14,13 +14,13 @@ autoCond = {
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
     'run2_mc_l1stage1'  :   '110X_mcRun2_asymptotic_l1stage1_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '110X_mcRun2_design_v3',
+    'run2_design'       :   '110X_mcRun2_design_v5',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, prior to VFP change
-    'run2_mc_pre_vfp'           :   '110X_mcRun2_asymptotic_preVFP_v1',
+    'run2_mc_pre_vfp'   :   '110X_mcRun2_asymptotic_preVFP_v3',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, after VFP change
-    'run2_mc'           :   '110X_mcRun2_asymptotic_v5',
+    'run2_mc'           :   '110X_mcRun2_asymptotic_v6',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '110X_mcRun2cosmics_startup_deco_v4',
+    'run2_mc_cosmics'   :   '110X_mcRun2cosmics_startup_deco_v5',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '110X_mcRun2_HeavyIon_v2',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
