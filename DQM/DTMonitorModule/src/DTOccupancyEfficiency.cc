@@ -36,13 +36,9 @@ DTOccupancyEfficiency::~DTOccupancyEfficiency() {}
 void DTOccupancyEfficiency::bookHistograms(DQMStore::IBooker& ibooker,
                                       edm::Run const& iRun,
                                       edm::EventSetup const& context) {
-  ibooker.setCurrentFolder("DT/04-OccupancyEfficiency");
+  ibooker.setCurrentFolder("DT/04-OccupancyEfficiency/digisPerStation");
 
-  
-  
   // Digis
-  digisPerEvent = ibooker.book1D("digisPerEvent","Number of digis per event",100,0,500);
-
   for (int station = 1; station<5; station++){
      string station_s = to_string(station);
      for (int wheel = -2; wheel < 3; wheel++){
@@ -54,6 +50,10 @@ void DTOccupancyEfficiency::bookHistograms(DQMStore::IBooker& ibooker,
        (digisPerRing[station])[wheel] = ibooker.book1D(histoName,histoTitle,100,0,150);
      }
   }
+
+  ibooker.setCurrentFolder("DT/04-OccupancyEfficiency");
+  digisPerEvent = ibooker.book1D("digisPerEvent","Number of digis per event",100,0,500);
+
   // RecHits
   recHitsPerEvent = ibooker.book1D("recHitsPerEvent","Number of RecHits per event",100,0,250);
  
