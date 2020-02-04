@@ -30,14 +30,14 @@ void EcalDeadChannelRecoveryBDTG<EBDetId>::addVariables(TMVA::Reader *reader) {
 }
 template <>
 void EcalDeadChannelRecoveryBDTG<EBDetId>::loadFile() {
-  readerNoCrack = new TMVA::Reader("!Color:!Silent");
-  readerCrack = new TMVA::Reader("!Color:!Silent");
+  readerNoCrack = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:!Silent"));
+  readerCrack = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:!Silent"));
 
-  this->addVariables(readerNoCrack);
-  this->addVariables(readerCrack);
+  addVariables(readerNoCrack.get());
+  addVariables(readerCrack.get());
 
-  reco::details::loadTMVAWeights(readerNoCrack, "BDTG", bdtWeightFileNoCracks_.fullPath());
-  reco::details::loadTMVAWeights(readerCrack, "BDTG", bdtWeightFileCracks_.fullPath());
+  reco::details::loadTMVAWeights(readerNoCrack.get(), "BDTG", bdtWeightFileNoCracks_.fullPath());
+  reco::details::loadTMVAWeights(readerCrack.get(), "BDTG", bdtWeightFileCracks_.fullPath());
 }
 
 template <typename T>
@@ -51,7 +51,7 @@ void EcalDeadChannelRecoveryBDTG<EBDetId>::setParameters(const edm::ParameterSet
   bdtWeightFileNoCracks_ = ps.getParameter<edm::FileInPath>("bdtWeightFileNoCracks");
   bdtWeightFileCracks_ = ps.getParameter<edm::FileInPath>("bdtWeightFileCracks");
 
-  this->loadFile();
+  loadFile();
 }
 
 template <>
@@ -83,7 +83,6 @@ double EcalDeadChannelRecoveryBDTG<EBDetId>::recover(
   for (auto const &theCells : m3x3aroundDC) {
     EBDetId cell = EBDetId(theCells);
     if (cell == id) {
-      
       int iEtaCentral = std::abs(cell.ieta());
       int iPhiCentral = cell.iphi();
 
@@ -93,21 +92,21 @@ double EcalDeadChannelRecoveryBDTG<EBDetId>::recover(
     }
     if (!cell.null()) {
       EcalRecHitCollection::const_iterator goS_it = hit_collection.find(cell);
-      if (goS_it != hit_collection.end() &&  cell!=id) {
-      	if (goS_it->energy() < single8Cut) {
-	  *acceptFlag = false;
-	  return 0.;
-	} else {
-	  neighTotEn += goS_it->energy();
-	  mx_.rEn[cellIndex] = goS_it->energy();
-	  mx_.iphi[cellIndex] = cell.iphi();
-	  mx_.ieta[cellIndex] = cell.ieta();
-	  cellIndex++;
-	}
-      } else if (cell==id)  {  // the cell is the central one
-	mx_.rEn[cellIndex] = 0;
-	cellIndex++;
-      }else {  //goS_it is not in the rechitcollection
+      if (goS_it != hit_collection.end() && cell != id) {
+        if (goS_it->energy() < single8Cut) {
+          *acceptFlag = false;
+          return 0.;
+        } else {
+          neighTotEn += goS_it->energy();
+          mx_.rEn[cellIndex] = goS_it->energy();
+          mx_.iphi[cellIndex] = cell.iphi();
+          mx_.ieta[cellIndex] = cell.ieta();
+          cellIndex++;
+        }
+      } else if (cell == id) {  // the cell is the central one
+        mx_.rEn[cellIndex] = 0;
+        cellIndex++;
+      } else {  //goS_it is not in the rechitcollection
         *acceptFlag = false;
         return 0.;
       }
