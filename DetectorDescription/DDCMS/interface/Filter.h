@@ -33,7 +33,6 @@ namespace cms {
   };
 
   namespace dd {
-//bool accepted(std::vector<std::string_view> const&, std::string_view);
     bool accepted(std::vector<std::pair<std::string_view, std::regex>> const&, std::string_view);
     int contains(std::string_view, std::string_view);
     bool isRegex(std::string_view);

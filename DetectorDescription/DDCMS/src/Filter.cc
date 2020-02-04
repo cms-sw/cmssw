@@ -16,11 +16,6 @@ namespace cms {
       return regex_match(begin(node), end(node), pattern);
     }
 
-    bool accepted(vector<string_view> const& names, string_view node) {
-      return (find_if(begin(names), end(names), [&](const auto& n) -> bool { return compareEqual(node, n); }) !=
-              end(names));
-    }
-
     bool accepted(vector<std::pair<std::string_view, std::regex>> const& keys, string_view node) {
       return (find_if(begin(keys), end(keys), [&](const auto& n) -> bool { return compareEqual(node, n.second); }) !=
               end(keys));

@@ -73,9 +73,8 @@ namespace cms {
     //  along the full path to the current node
     const std::vector<int> copyNos() const;
     
+    //! Debug filter
     void printFilter() const { printFilter(currentFilter_); };
-    void printFilter(const Filter* filter) const;
-
 
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
@@ -179,7 +178,8 @@ namespace cms {
 
     //! set the current node to the first sibling
     bool firstSibling();
-
+    void printFilter(const Filter* filter) const;
+    
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
     std::vector<std::unique_ptr<Filter>> filters_;
