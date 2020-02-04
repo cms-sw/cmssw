@@ -60,7 +60,7 @@ void DTOccupancyEfficiency::bookHistograms(DQMStore::IBooker& ibooker,
   // 4D segments
   segments4DPerEvent = ibooker.book1D("segments4DPerEvent","Number of 4D Segments per event",50,0,50);
 
-  recHitsPer4DSegment  = ibooker.book1D("recHitsPer4DSegment","Number of RecHits per segment",50,0,50);
+  recHitsPer4DSegment  = ibooker.book1D("recHitsPer4DSegment","Number of RecHits per segment",16,0.5,16.5);
 
   // T0 from segements
   t0From4DPhiSegment = ibooker.book1D("t0From4DPhiSegment","T0 from 4D Phi segments",100,-150,150);
