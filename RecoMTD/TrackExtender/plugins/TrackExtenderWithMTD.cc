@@ -328,6 +328,8 @@ private:
   const bool useVertex_;
   const bool useSimVertex_;
   const float dzCut_;
+  const float bsTimeSpread_;
+
 };
 
 template <class TrackCollection>
@@ -349,7 +351,8 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
       etlTimeChi2Cut_(iConfig.getParameter<double>("etlTimeChi2Cut")),
       useVertex_(iConfig.getParameter<bool>("useVertex")),
       useSimVertex_(iConfig.getParameter<bool>("useSimVertex")),
-      dzCut_(iConfig.getParameter<double>("dZCut")) {
+      dzCut_(iConfig.getParameter<double>("dZCut")),
+      bsTimeSpread_(iConfig.getParameter<double>("bsTimeSpread")) {
   if (useVertex_) {
     if (useSimVertex_) {
       genVtxPositionToken_ = consumes<GlobalPoint>(iConfig.getParameter<edm::InputTag>("genVtxPositionSrc"));
@@ -411,12 +414,13 @@ void TrackExtenderWithMTDT<TrackCollection>::fillDescriptions(edm::Configuration
   desc.add<double>("estimatorMaxChi2", 500.);
   desc.add<double>("estimatorMaxNSigma", 10.);
   desc.add<double>("btlChi2Cut", 50.);
-  desc.add<double>("btlTimeChi2Cut", 5.);
+  desc.add<double>("btlTimeChi2Cut", 10.);
   desc.add<double>("etlChi2Cut", 50.);
-  desc.add<double>("etlTimeChi2Cut", 5.);
+  desc.add<double>("etlTimeChi2Cut", 10.);
   desc.add<bool>("useVertex", false);
   desc.add<bool>("useSimVertex", false);
   desc.add<double>("dZCut", 0.1);
+  desc.add<double>("bsTimeSpread", 0.2);
   descriptions.add("trackExtenderWithMTDBase", desc);
 }
 
@@ -746,6 +750,7 @@ namespace {
                          const TrajectoryStateOnSurface& tsos,
                          const double vtxTime,
                          const reco::BeamSpot& bs,
+                         const float bsTimeSpread,
                          const Propagator* prop,
                          const std::unique_ptr<MeasurementEstimator>& theEstimator,
                          bool useVtxConstraint,
@@ -779,8 +784,7 @@ namespace {
               double t_vtx = useVtxConstraint ? vtxTime : 0.;
 
               constexpr double vtx_res = 0.008;
-              constexpr double beamSpot_res = 0.180;
-              double t_vtx_err = useVtxConstraint ? vtx_res : beamSpot_res;  //should use beam spot in the future
+              double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;  
 
               constexpr double t_res_manual = 0.035;
 
@@ -880,7 +884,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
 
   using namespace std::placeholders;
   auto find_hits = std::bind(
-      find_hits_in_dets, hits, traj, ilay, tsos, _1, bs, prop, std::ref(theEstimator), _2, std::ref(hitsInLayer));
+			     find_hits_in_dets, hits, traj, ilay, tsos, _1, bs, bsTimeSpread_, prop, std::ref(theEstimator), _2, std::ref(hitsInLayer));
 
   if (useVertex_ && matchVertex)
     find_hits(vtxTime, true);
