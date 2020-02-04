@@ -35,19 +35,14 @@ elif getattr(tf, "compat", None) and getattr(tf.compat, "v1"):
     tf1 = tf.compat.v1
 
 
-# internal helper to create a NotImplementedError
-def _not_impl_err(user=None):
-    return NotImplementedError("the v1 compatibility layer of TensorFlow v2 (tf.compat.v1) is "
-        "required{}, but missing".format((" by " + user) if user else ""))
-
-
-def read_constant_graph(graph_path, create_session=None, as_text=False):
+def read_constant_graph(graph_path, create_session=None, as_text=None):
     """
     Reads a saved TensorFlow graph from *graph_path* and returns it. When *create_session* is
     *True*, a session object (compatible with the v1 API) is created and returned as well as the
-    second value in a 2-tuple. The default value of *create_session* is *True* when TensorFlow v1
-    is detected, and *False* otherwise. When *as_text* is *True*, the content of the file at
-    *graph_path* is expected to be a human-readable text file. Example:
+    second value of a 2-tuple. The default value of *create_session* is *True* when TensorFlow v1
+    is detected, and *False* otherwise. When *as_text* is *True*, or *None* and the file extension
+    is ``".pbtxt"`` or ``".pb.txt"``, the content of the file at *graph_path* is expected to be a
+    human-readable text file. Otherwise, it is expected to be a binary protobuf file. Example:
 
     .. code-block:: python
 
@@ -55,6 +50,9 @@ def read_constant_graph(graph_path, create_session=None, as_text=False):
 
         graph, session = read_constant_graph("path/to/model.pb", create_session=True)
     """
+    if as_text is None:
+        as_text = graph_path.endswith((".pbtxt", ".pb.txt"))
+
     graph = tf.Graph()
     with graph.as_default():
         graph_def = graph.as_graph_def()
@@ -196,9 +194,8 @@ def _test():
     """
     Internal test of the above functions based on the deepjet model.
     """
-    deepjet_model = "/cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw-patch" \
-        "/CMSSW_10_6_0_patch1/external/slc7_amd64_gcc700/data" \
-        "/RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb"
+    deepjet_model = "/cvmfs/cms.cern.ch/slc7_amd64_gcc820/cms/data-RecoBTag-Combined/V01-02-01/" \
+        "RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb"
     deepjet_output = "ID_pred/Softmax"
 
     if not os.path.exists(deepjet_model):

@@ -1,6 +1,6 @@
 /*
  * TensorFlow interface helpers.
- * Based on TensorFlow C++ API 2.0.
+ * Based on TensorFlow C++ API 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -8,24 +8,22 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 namespace tensorflow {
 
   void setLogging(const std::string& level) { setenv("TF_CPP_MIN_LOG_LEVEL", level.c_str(), 0); }
 
-  void setThreading(SessionOptions& sessionOptions, int nThreads, const std::string& singleThreadPool) {
+  void setThreading(SessionOptions& sessionOptions, int nThreads) {
     // set number of threads used for intra and inter operation communication
     sessionOptions.config.set_intra_op_parallelism_threads(nThreads);
     sessionOptions.config.set_inter_op_parallelism_threads(nThreads);
+  }
 
-    // when exactly one thread is requested use a custom thread pool
-    if (nThreads == 1 && !singleThreadPool.empty()) {
-      // check for known thread pools
-      if (singleThreadPool != "no_threads" && singleThreadPool != "tbb") {
-        throw cms::Exception("UnknownThreadPool")
-            << "thread pool '" << singleThreadPool << "' unknown, use 'no_threads' or 'tbb'";
-      }
-      sessionOptions.target = singleThreadPool;
-    }
+  void setThreading(SessionOptions& sessionOptions, int nThreads, const std::string& singleThreadPool) {
+    edm::LogInfo("PhysicsTools/TensorFlow") << "setting the thread pool via tensorflow::setThreading is deprecated";
+
+    setThreading(sessionOptions, nThreads);
   }
 
   MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions) {
@@ -176,50 +174,60 @@ namespace tensorflow {
   void run(Session* session,
            const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
-           const std::vector<std::string>& targetNodes,
-           std::vector<Tensor>* outputs) {
+           std::vector<Tensor>* outputs,
+           const thread::ThreadPoolOptions& threadPoolOptions) {
     if (session == nullptr) {
       throw cms::Exception("InvalidSession") << "cannot run empty session";
     }
 
+    // create empty run options
+    RunOptions runOptions;
+
     // run and check the status
-    Status status = session->Run(inputs, outputNames, targetNodes, outputs);
+    Status status = session->Run(runOptions, inputs, outputNames, {}, outputs, nullptr, threadPoolOptions);
     if (!status.ok()) {
       throw cms::Exception("InvalidRun") << "error while running session: " << status.ToString();
     }
   }
 
   void run(Session* session,
-           const std::vector<std::string>& inputNames,
-           const std::vector<Tensor>& inputTensors,
+           const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
-           const std::vector<std::string>& targetNodes,
-           std::vector<Tensor>* outputs) {
-    if (inputNames.size() != inputTensors.size()) {
-      throw cms::Exception("InvalidInput") << "numbers of input names and tensors not equal";
-    }
+           std::vector<Tensor>* outputs,
+           thread::ThreadPoolInterface* threadPool) {
+    // create thread pool options
+    thread::ThreadPoolOptions threadPoolOptions;
+    threadPoolOptions.inter_op_threadpool = threadPool;
+    threadPoolOptions.intra_op_threadpool = threadPool;
 
-    NamedTensorList inputs;
-    for (size_t i = 0; i < inputNames.size(); i++) {
-      inputs.push_back(NamedTensor(inputNames[i], inputTensors[i]));
-    }
-
-    run(session, inputs, outputNames, targetNodes, outputs);
+    // run
+    run(session, inputs, outputNames, outputs, threadPoolOptions);
   }
 
   void run(Session* session,
            const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
-           std::vector<Tensor>* outputs) {
-    run(session, inputs, outputNames, {}, outputs);
+           std::vector<Tensor>* outputs,
+           const std::string& threadPoolName) {
+    // lookup the thread pool and forward the call accordingly
+    if (threadPoolName == "no_threads") {
+      run(session, inputs, outputNames, outputs, &NoThreadPool::instance());
+    } else if (threadPoolName == "tbb") {
+      // the TBBTreadPool singleton should be already initialized before with a number of threads
+      run(session, inputs, outputNames, outputs, &TBBThreadPool::instance());
+    } else if (threadPoolName == "tensorflow") {
+      run(session, inputs, outputNames, outputs, nullptr);
+    } else {
+      throw cms::Exception("UnknownThreadPool")
+          << "thread pool implementation'" << threadPoolName << "' unknown, use 'no_threads', 'tbb', or 'tensorflow'";
+    }
   }
 
   void run(Session* session,
-           const std::vector<std::string>& inputNames,
-           const std::vector<Tensor>& inputTensors,
            const std::vector<std::string>& outputNames,
-           std::vector<Tensor>* outputs) {
-    run(session, inputNames, inputTensors, outputNames, {}, outputs);
+           std::vector<Tensor>* outputs,
+           const std::string& threadPoolName) {
+    run(session, {}, outputNames, outputs, threadPoolName);
   }
 
 }  // namespace tensorflow

@@ -14,6 +14,7 @@ import tensorflow as tf
 
 from PhysicsTools.TensorFlow.tools import TF2
 
+
 # go into v1 compatibility mode
 if TF2:
     tf = tf.compat.v1
