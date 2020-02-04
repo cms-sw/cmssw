@@ -1,12 +1,12 @@
 from __future__ import print_function
 from __future__ import absolute_import
-import ConfigParser
+
+import configparser as ConfigParser
 import os
 import re
 import copy
 import collections
 from .TkAlExceptions import AllInOneError
-
 
 class AdaptedDict(collections.OrderedDict):
     """
@@ -34,7 +34,7 @@ class AdaptedDict(collections.OrderedDict):
         """
 
         if key != "__name__" and "__name__" in self and self["__name__"]=="validation":
-            if isinstance(value, (str, unicode)):
+            if isinstance(value, str):
                 for index, item in enumerate(self.validationslist[:]):
                     if item == (key, value.split("\n")):
                         self.validationslist[index] = (key, value)
@@ -159,10 +159,8 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
             }
-        mandatories = [
-            "eosdir",
-        ]
-        self.checkInput("general", knownSimpleOptions = defaults.keys() + mandatories)
+        mandatories = ["eosdir",]
+        self.checkInput("general", knownSimpleOptions = list(defaults.keys()) + mandatories )
         general = self.getResultingSection( "general", defaultDict = defaults, demandPars = mandatories )
         internal_section = "internals"
         if not self.has_section(internal_section):
@@ -170,7 +168,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         if not self.has_option(internal_section, "workdir"):
             self.set(internal_section, "workdir", "/tmp/$USER")
         if not self.has_option(internal_section, "scriptsdir"):
-            self.set(internal_section, "scriptsdir", None)
+            self.set(internal_section, "scriptsdir", "")
             #replaceByMap will fail if this is not replaced (which it is in validateAlignments.py)
 
         general["workdir"] = self.get(internal_section, "workdir")
@@ -230,7 +228,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         for section in self._sections:
             fp.write("[%s]\n" % section)
             for (key, value) in self._sections[section].items():
-                if key == "__name__" or not isinstance(value, (str, unicode)):
+                if key == "__name__" or not isinstance(value, str):
                     continue
                 if value is not None:
                     key = " = ".join((key, str(value).replace('\n', '\n\t')))
