@@ -16,7 +16,7 @@ if 'MessageLogger' in process.__dict__:
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                'file:simevent_minbias_FTFP_BERT_EMM.root'
+                                'file:simevent_singleMuon_FTFP_BERT_EMM.root'
 #       'file:simG4.root',
 #       'file:simGV.root',
                             )
@@ -37,7 +37,7 @@ process.analysis_step   = cms.Path(process.caloSimHitAnalysis)
 
 #process.caloSimHitAnalysis.moduleLabel = "geantv"
 #process.caloSimHitAnalysis.timeScale   = 1.0
-#process.caloSimHitAnalysis.passiveHits = True
+process.caloSimHitAnalysis.passiveHits = True
 
 # Schedule definition                                                          
 process.schedule = cms.Schedule(process.analysis_step)
