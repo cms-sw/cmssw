@@ -29,12 +29,12 @@ public:
   };
   class Data {
   public:
-    constexpr static unsigned energyOffset = 15;
-    constexpr static unsigned energyMask = 0x1;
-    constexpr static unsigned sampleOffset = 11;
+    constexpr static unsigned energyOffset = 14;
+    constexpr static unsigned energyMask = 0x3;
+    constexpr static unsigned sampleOffset = 10;
     constexpr static unsigned sampleMask = 0xf;
     constexpr static unsigned dataOffset = 0;
-    constexpr static unsigned dataMask = 0x7ff;
+    constexpr static unsigned dataMask = 0x3ff;
 
     Data() : data_(0) {}
     Data(unsigned short ei, unsigned short si, unsigned short d)

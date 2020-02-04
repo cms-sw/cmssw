@@ -192,7 +192,7 @@ private:
   void ReadSmearingFromFile(TString filename);  ///< File structure: category constTerm alpha;
 public:
   inline void SetSmearingType(fileFormat_t value) {
-    if (value >= 0 && value <= 1) {
+    if (value <= 1) {
       smearingType_ = value;
     } else {
       smearingType_ = UNKNOWN;

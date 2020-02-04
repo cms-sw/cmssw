@@ -22,7 +22,7 @@ namespace fastTrackerRecHitType {
     siStripProjectedStereo2D = 5,
   };
   inline trackerHitRTTI::RTTI rtti(HitType hitType) {
-    if (hitType >= 0 && hitType <= 2)
+    if (hitType >= siPixel && hitType <= siStrip2D)
       return trackerHitRTTI::fastSingle;
     else if (hitType == siStripMatched2D)
       return trackerHitRTTI::fastMatch;

@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-ddhcalPhase2-algorithm.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-Phase2GeometryFine-algorithm.xml'),
                                             appendToDataLabel = cms.string('')
                                             )
 
@@ -24,6 +24,7 @@ process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
 
 process.hpa = cms.EDAnalyzer("HcalParametersAnalyzer")
 process.hcalParameters.fromDD4Hep = cms.bool(True)
+process.hcalSimulationParameters.fromDD4Hep = cms.bool(True)
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")

@@ -112,37 +112,39 @@ namespace sistrip {
     const FEDRawDataCollection& fedRawData = *fedRawDataHandle;
     for (auto iFedId = cabling.fedIds().begin(); iFedId != cabling.fedIds().end(); ++iFedId) {
       const FEDRawData& data = fedRawData.FEDData(*iFedId);
-      if ((!data.data()) || (!data.size())) {
-        LogDebug(messageLabel_) << "Failed to get FED data for FED ID " << *iFedId;
+      const auto st_buffer = preconstructCheckFEDBuffer(data);
+      if (FEDBufferStatusCode::SUCCESS != st_buffer) {
+        LogInfo(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId
+                               << ". Exception was: An exception of category 'FEDBuffer' occurred.\n"
+                               << st_buffer << " (see debug output for details)";
         continue;
       }
-      std::unique_ptr<FEDBuffer> buffer;
-      try {
-        buffer.reset(new FEDBuffer(data.data(), data.size()));
-      } catch (const cms::Exception& e) {
-        LogDebug(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId << ". Exception was "
-                                << e.what();
+      FEDBuffer buffer{data};
+      const auto st_chan = buffer.findChannels();
+      if (FEDBufferStatusCode::SUCCESS != st_chan) {
+        LogDebug(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId << ". Exception was " << st_chan
+                                << " (see above for more details)";
         continue;
       }
-      if (!buffer->doChecks(true)) {
+      if (!buffer.doChecks(true)) {
         LogDebug(messageLabel_) << "Buffer check failed for FED ID " << *iFedId;
         continue;
       }
-      l1ID = buffer->daqLvl1ID();
-      apvAddress = buffer->trackerSpecialHeader().apveAddress();
+      l1ID = buffer.daqLvl1ID();
+      apvAddress = buffer.trackerSpecialHeader().apveAddress();
       if (apvAddress != 0) {
         return;
       } else {
-        if (buffer->trackerSpecialHeader().headerType() != HEADER_TYPE_FULL_DEBUG) {
+        if (buffer.trackerSpecialHeader().headerType() != HEADER_TYPE_FULL_DEBUG) {
           continue;
         }
-        const FEDFullDebugHeader* header = dynamic_cast<const FEDFullDebugHeader*>(buffer->feHeader());
+        const FEDFullDebugHeader* header = dynamic_cast<const FEDFullDebugHeader*>(buffer.feHeader());
         auto connections = cabling.fedConnections(*iFedId);
         for (auto iConn = connections.begin(); iConn != connections.end(); ++iConn) {
           if (!iConn->isConnected()) {
             continue;
           }
-          if (!buffer->channelGood(iConn->fedCh(), true)) {
+          if (!buffer.channelGood(iConn->fedCh(), true)) {
             continue;
           } else {
             apvAddress = header->feUnitMajorityAddress(iConn->fedCh() / FEDCH_PER_FEUNIT);

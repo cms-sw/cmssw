@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : HGCalRecHitWorkerBaseClass(ps) {
   rechitMaker_.reset(new HGCalRecHitSimpleAlgo());
@@ -72,6 +73,12 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
   // don't produce rechit if detid is a ghost one
   rangeMatch_ = ps.getParameter<uint32_t>("rangeMatch");
   rangeMask_ = ps.getParameter<uint32_t>("rangeMask");
+
+  // error for recHit time
+  timeEstimatorSi_ = hgcalsimclustertime::ComputeClusterTime(ps.getParameter<double>("minValSiPar"),
+                                                             ps.getParameter<double>("maxValSiPar"),
+                                                             ps.getParameter<double>("constSiPar"),
+                                                             ps.getParameter<double>("noiseSiPar"));
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
@@ -191,7 +198,16 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   }
 
   myrechit.setEnergy(new_E);
-  myrechit.setSignalOverSigmaNoise(new_E / sigmaNoiseGeV);
+  float SoN = new_E / sigmaNoiseGeV;
+  myrechit.setSignalOverSigmaNoise(SoN);
+
+  if (detid.det() == DetId::HGCalHSc || myrechit.time() < 0.) {
+    myrechit.setTimeError(-1.);
+  } else {
+    float timeError = timeEstimatorSi_.getTimeError("recHit", SoN);
+    myrechit.setTimeError(timeError);
+  }
+
   result.push_back(myrechit);
 
   return true;

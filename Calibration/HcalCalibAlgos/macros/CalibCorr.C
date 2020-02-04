@@ -256,10 +256,12 @@ public :
   ~CalibCorr() {}
 
   float getCorr(int run, unsigned int id);
+  double getCorr(const Long64_t& entry);
 private:
   void                     readCorrRun(const char* infile);
   void                     readCorrDepth(const char* infile);
   void                     readCorrResp(const char* infile);
+  void                     readCorrPU(const char* infile);
   unsigned int getDetIdHE(int ieta, int iphi, int depth);
   unsigned int getDetId(int subdet, int ieta, int iphi, int depth);
   unsigned int correctDetId(const unsigned int& detId);
@@ -268,6 +270,7 @@ private:
   int                           flag_;
   bool                          debug_;
   std::map<unsigned int,float>  corrFac_[nmax_], corrFacDepth_, corrFacResp_;
+  std::map<Long64_t,double>     cfactors_;
   std::vector<int>              runlow_;
 };
 
@@ -382,6 +385,7 @@ CalibCorr::CalibCorr(const char* infile, int flag, bool debug) :
 	    << " for i/p file " << infile << std::endl;
   if      (flag == 1) readCorrDepth(infile);
   else if (flag == 2) readCorrResp(infile);
+  else if (flag == 3) readCorrPU(infile);
   else                readCorrRun(infile);
 }
 
@@ -417,6 +421,13 @@ float CalibCorr::getCorr(int run, unsigned int id) {
 	      << " eta " << zside*ieta << " phi " << iphi << " depth " << depth
 	      << ")  Factor " << cfac << std::endl;
   }
+  return cfac;
+}
+
+double CalibCorr::getCorr(const Long64_t& entry) {
+  double cfac(-1.0);
+  std::map<Long64_t,double>::iterator itr = cfactors_.find(entry);
+  if (itr != cfactors_.end()) cfac = itr->second;
   return cfac;
 }
 
@@ -572,6 +583,28 @@ void CalibCorr::readCorrResp(const char* infile) {
 	      << other << " detector records of depth dependent factors from "
 	      << infile << std::endl;
   }
+}
+
+void CalibCorr::readCorrPU(const char* infile) {
+
+  if (std::string(infile) != "") {
+    std::ifstream fInput(infile);
+    if (!fInput.good()) {
+      std::cout << "Cannot open file " << infile << std::endl;
+    } else {
+      double val1, val2;
+      cfactors_.clear();
+      while (1) {
+	fInput >> val1 >> val2;
+	if (!fInput.good()) break;
+	Long64_t entry = (Long64_t)(val1);
+	cfactors_[entry] = val2;
+      }
+      fInput.close();
+    }
+  }
+  std::cout << "Reads " << cfactors_.size() << " PU correction factors from " 
+	    << infile << std::endl;
 }
 
 unsigned int CalibCorr::getDetIdHE(int ieta, int iphi, int depth) {

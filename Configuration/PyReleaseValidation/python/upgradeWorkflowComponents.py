@@ -49,6 +49,8 @@ upgradeKeys[2026] = [
     '2026D51PU',
     '2026D52',
     '2026D52PU',
+    '2026D53',
+    '2026D53PU',
 ]
 
 # pre-generation of WF numbers
@@ -344,26 +346,40 @@ upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
 
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
+        if 'Digi' in step and 'Trigger' not in step:
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        elif 'Reco' in step:
             stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
         elif 'MiniAOD' in step:
             # the separate miniAOD step is used here
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
-        if 'HARVEST' in step:
+        if 'ALCA' in step or 'HARVEST' in step:
             # remove step
             stepDict[stepName][k] = None
+        if 'Nano' in step:
+            stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and '2026' in key
+        return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     steps = [
+        'DigiFull',
+        'RecoFull',
         'RecoFullGlobal',
+        'HARVESTFull',
         'HARVESTFullGlobal',
         'MiniAODFullGlobal',
+        'ALCAFull',
+        'NanoFull',
     ],
     PU = [
+        'DigiFull',
+        'RecoFull',
         'RecoFullGlobal',
+        'HARVESTFull',
         'HARVESTFullGlobal',
         'MiniAODFullGlobal',
+        'ALCAFull',
+        'NanoFull',
     ],
     suffix = '_ProdLike',
     offset = 0.21,
@@ -538,6 +554,37 @@ upgradeWFs['premixS1S2'] = UpgradeWorkflow(
     offset = 0.99,
 )
 
+class UpgradeWorkflow_TestOldDigi(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            # use existing DIGI-RAW file from old release
+            stepDict[stepName][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-110X_mcRun4_realistic_v2_2026D49noPU-v1/GEN-SIM-DIGI-RAW'}, stepDict[step][k]])
+            # handle separate PU input
+            stepNamePU = step + 'PU' + self.suffix
+            stepDict[stepNamePU][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/GEN-SIM-DIGI-RAW'},stepDict[stepName][k]])
+        elif 'GenSim' in step or 'Digi' in step:
+            # remove step
+            stepDict[stepName][k] = None
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # limited to HLT TDR production geometry
+        return fragment=="TTbar_14TeV" and '2026D49' in key
+    def workflow_(self, workflows, num, fragment, stepList):
+        UpgradeWorkflow.workflow_(self, workflows, num, fragment, stepList)
+upgradeWFs['TestOldDigi'] = UpgradeWorkflow_TestOldDigi(
+    steps = [
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFullTrigger',
+        'RecoFullGlobal',
+    ],
+    PU = [
+        'DigiFullTrigger',
+        'RecoFullGlobal',
+    ],
+    suffix = '_TestOldDigi',
+    offset = 0.1001,
+)
+
 # check for duplicate offsets
 offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
 seen = set()
@@ -692,6 +739,13 @@ upgradeProperties[2026] = {
     },
     '2026D52' : {
         'Geom' : 'Extended2026D52',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D53' : {
+        'Geom' : 'Extended2026D53',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C9',
