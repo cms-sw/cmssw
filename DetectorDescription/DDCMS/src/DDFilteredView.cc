@@ -147,7 +147,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
     for (const auto& j : i->paths) {
       vector<string_view> toks = split(j, "/");
       auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-	  auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p){ return p.first == toks.front();});
+        auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p) { return p.first == toks.front(); });
         if (k != end(f->keys)) {
           currentFilter_ = f.get();
           return true;
@@ -155,19 +155,30 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         return false;
       });
       if (filter == end(filters_)) {
-        filters_.emplace_back(unique_ptr<Filter>(new Filter{{std::pair<std::string_view, std::regex>(toks.front(), regex(std::string(toks.front().data(), toks.front().size())))}, nullptr, nullptr, i}));
+        filters_.emplace_back(unique_ptr<Filter>(
+            new Filter{{std::pair<std::string_view, std::regex>(
+                           toks.front(), regex(std::string(toks.front().data(), toks.front().size())))},
+                       nullptr,
+                       nullptr,
+                       i}));
         currentFilter_ = filters_.back().get();
       }
       // all next levels
       for (size_t pos = 1; pos < toks.size(); ++pos) {
         if (currentFilter_->next != nullptr) {
           currentFilter_ = currentFilter_->next.get();
-          auto const& l = find_if(begin(currentFilter_->keys), end(currentFilter_->keys), [&](auto const& p){ return p.first == toks[pos];});
+          auto const& l = find_if(begin(currentFilter_->keys), end(currentFilter_->keys), [&](auto const& p) {
+            return p.first == toks[pos];
+          });
           if (l == end(currentFilter_->keys)) {
-            currentFilter_->keys.emplace_back(toks[pos], std::string(toks[pos].data(),toks[pos].size()));
+            currentFilter_->keys.emplace_back(toks[pos], std::string(toks[pos].data(), toks[pos].size()));
           }
         } else {
-	    currentFilter_->next.reset(new Filter{{std::pair<std::string_view, std::regex>(toks[pos], regex(std::string(toks[pos].data(),toks[pos].size())))}, nullptr, currentFilter_, i});
+          currentFilter_->next.reset(new Filter{{std::pair<std::string_view, std::regex>(
+                                                    toks[pos], regex(std::string(toks[pos].data(), toks[pos].size())))},
+                                                nullptr,
+                                                currentFilter_,
+                                                i});
         }
       }
     }
@@ -175,14 +186,14 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
 }
 
 void DDFilteredView::printFilter(const Filter* filter) const {
-  if(filter != nullptr) {
-    for( auto it : filter->keys)
+  if (filter != nullptr) {
+    for (auto it : filter->keys)
       std::cout << "//" << std::string(it.first.data(), it.first.size()) << "\n";
-    if(filter->next != nullptr)
+    if (filter->next != nullptr)
       printFilter(filter->next.get());
   }
 }
-  
+
 bool DDFilteredView::firstChild() {
   if (it_.empty()) {
     LogVerbatim("DDFilteredView") << "Iterator vector has zero size.";

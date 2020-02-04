@@ -8,19 +8,15 @@ using namespace std;
 namespace cms {
   namespace dd {
 
-    bool compareEqual(string_view node, string_view name) {
-      return (name == node);
-    }
-    
-    bool compareEqual(string_view node, regex pattern) {
-      return regex_match(begin(node), end(node), pattern);
-    }
+    bool compareEqual(string_view node, string_view name) { return (name == node); }
+
+    bool compareEqual(string_view node, regex pattern) { return regex_match(begin(node), end(node), pattern); }
 
     bool accepted(vector<std::pair<std::string_view, std::regex>> const& keys, string_view node) {
       return (find_if(begin(keys), end(keys), [&](const auto& n) -> bool { return compareEqual(node, n.second); }) !=
               end(keys));
     }
-    
+
     int contains(string_view input, string_view needle) {
       auto const& it = search(begin(input), end(input), default_searcher(begin(needle), end(needle)));
       if (it != end(input)) {

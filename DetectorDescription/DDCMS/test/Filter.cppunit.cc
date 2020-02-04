@@ -44,7 +44,7 @@ void testFilter::setUp() {
     vector<string_view> toks = split(i, "/");
     unique_ptr<Filter> f = nullptr;
     auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-	auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p){ return p.first == toks.front();});
+      auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p) { return p.first == toks.front(); });
       if (k != end(f->keys)) {
         currentFilter = f.get();
         return true;
@@ -52,19 +52,27 @@ void testFilter::setUp() {
       return false;
     });
     if (filter == end(filters_)) {
-      filters_.emplace_back(unique_ptr<Filter>(new Filter{{std::pair<std::string_view, std::regex>(toks.front(), regex(std::string(toks.front().data(), toks.front().size())))}, nullptr, nullptr}));
+      filters_.emplace_back(unique_ptr<Filter>(
+          new Filter{{std::pair<std::string_view, std::regex>(
+                         toks.front(), regex(std::string(toks.front().data(), toks.front().size())))},
+                     nullptr,
+                     nullptr}));
       currentFilter = filters_.back().get();
     }
     // all next levels
     for (size_t pos = 1; pos < toks.size(); ++pos) {
       if (currentFilter->next != nullptr) {
         currentFilter = currentFilter->next.get();
-        auto const& l = find_if(begin(currentFilter->keys), end(currentFilter->keys), [&](auto const& p){ return p.first == toks[pos];});
+        auto const& l = find_if(
+            begin(currentFilter->keys), end(currentFilter->keys), [&](auto const& p) { return p.first == toks[pos]; });
         if (l == end(currentFilter->keys)) {
           currentFilter->keys.emplace_back(toks[pos], regex(std::string(toks.front().data(), toks.front().size())));
         }
       } else {
-        currentFilter->next.reset(new Filter{{std::pair<std::string_view, std::regex>(toks[pos], regex({toks[pos].data(), toks[pos].size()}))}, nullptr, currentFilter});
+        currentFilter->next.reset(new Filter{
+            {std::pair<std::string_view, std::regex>(toks[pos], regex({toks[pos].data(), toks[pos].size()}))},
+            nullptr,
+            currentFilter});
       }
     }
   }
