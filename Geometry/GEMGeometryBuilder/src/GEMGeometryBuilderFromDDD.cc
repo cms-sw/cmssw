@@ -455,7 +455,7 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredVie
 
   double ti = 0.4;  // half thickness
 
-  const std::vector<float> pars = {float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads)};
+  const std::vector<float> pars{float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads)};
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dpar[0], dpar[1], dpar[3], ti), isOdd));
