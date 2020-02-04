@@ -82,15 +82,15 @@ customrighttitle = 2016G Z#rightarrow#mu#mu data, |#eta|<2.4
 legendheader = header
 
 [validation]
-offline validation_MinBias : prompt
-offline validation_MinBias : express
-offline validation_cosmics : prompt
-offline validation_cosmics : express
-compare Tracker: prompt 278819, express 278819
-zmumu some_zmumu_validation : prompt
-zmumu some_zmumu_validation : express
-split some_split_validation : prompt
-split some_split_validation : express
+offline validation_MinBias - prompt :
+offline validation_MinBias - express :
+offline validation_cosmics - prompt :
+offline validation_cosmics - express :
+compare Tracker - prompt 278819, express 278819 :
+zmumu some_zmumu_validation - prompt :
+zmumu some_zmumu_validation - express :
+split some_split_validation - prompt :
+split some_split_validation - express :
 EOF
 
 validateAlignments.py -c validation_config.ini -N testingAllInOneTool --dryRun || die "Failure running all-in-one test" $?
