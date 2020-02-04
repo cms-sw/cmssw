@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hfnoseCons.xml" eval="true">
+  <Vector name="RadiusMixBoundary" type="numeric" nEntries="2">
+    [hfnose:HFNoseRMax1], [hfnose:HFNoseRMax3]</Vector>
+  <Vector name="ZRanges" type="numeric" nEntries="2">
+    [hfnose:HFNoseZ1], [hfnose:HFNoseZ3]</Vector>
+  <Vector name="LayerCenter" type="numeric" nEntries="8">
+    0, 0, 0, 0, 0, 0, 0, 0</Vector>
+</ConstantsSection>
+
+<SpecParSection label="hfnoseCons.xml" eval="true">
+  <SpecPar name="HGCalHFNoseSensitive">
+    <PartSelector path="//HGCalHFNoseSensitive.*"/>  
+    <Parameter name="Volume" value="HGCalHFNoseSensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="LevelZSide"          value="2"/>
+    <Parameter name="LevelTop"            value="4"/>
+    <Parameter name="LevelTop"            value="4"/>
+    <Parameter name="CellThickness"       value="[hfnose:CellThicknessFine]"/>
+    <Parameter name="CellThickness"       value="[hfnose:CellThicknessFine]"/>
+    <Parameter name="CellThickness"       value="[hfnose:CellThicknessFine]"/>
+    <Parameter name="FirstLayer"          value="1"/>
+    <Parameter name="LayerOffset"         value="0"/>
+    <Parameter name="FirstMixedLayer"     value="-1"/>
+    <Parameter name="DetectorType"        value="1"/>
+    <Parameter name="WaferMaskMode"       value="1"/>
+    <Parameter name="Radius100to200"      value="[hfnose:HFNoseRMax3]"/>
+    <Parameter name="Radius100to200"      value="0"/>
+    <Parameter name="Radius100to200"      value="0"/>
+    <Parameter name="Radius100to200"      value="0"/> 
+    <Parameter name="Radius100to200"      value="0"/>
+    <Parameter name="Radius200to300"      value="[hfnose:HFNoseRMax4]"/>
+    <Parameter name="Radius200to300"      value="0"/>
+    <Parameter name="Radius200to300"      value="0"/>
+    <Parameter name="Radius200to300"      value="0"/>
+    <Parameter name="Radius200to300"      value="0"/>
+    <Parameter name="RadiusCuts"          value="[hfnose:ChoiceType]"/>
+    <Parameter name="RadiusCuts"          value="[hfnose:NCornerCut]"/>
+    <Parameter name="RadiusCuts"          value="[hfnose:FracAreaMin]"/>
+    <Parameter name="RadiusCuts"          value="[hfnose:HFNoseZ1]"/>
+    <Parameter name="SlopeBottom"         value="[hfnose:HFNoseSlope1]"/>
+    <Parameter name="SlopeBottom"         value="[hfnose:HFNoseSlope1]"/>
+    <Parameter name="ZFrontBottom"        value="[hfnose:HFNoseZ1]"/>
+    <Parameter name="ZFrontBottom"        value="[hfnose:HFNoseZ3]"/>
+    <Parameter name="RMinFront"           value="([hfnose:HFNoseSlope1]*[hfnose:HFNoseZ1])"/>
+    <Parameter name="RMinFront"           value="([hfnose:HFNoseSlope1]*[hfnose:HFNoseZ3])"/>
+    <Parameter name="SlopeTop"            value="[hfnose:HFNoseSlope2]"/>
+    <Parameter name="SlopeTop"            value="[hfnose:HFNoseSlope2]"/>
+    <Parameter name="ZFrontTop"           value="[hfnose:HFNoseZ1]"/>
+    <Parameter name="ZFrontTop"           value="[hfnose:HFNoseZ3]"/>
+    <Parameter name="RMaxFront"           value="[hfnose:HFNoseRMax1]"/>
+    <Parameter name="RMaxFront"           value="[hfnose:HFNoseRMax3]"/>
+  </SpecPar>
+  <SpecPar name="HFNose">
+    <PartSelector path="//HFNoseCell.*"/>
+    <Parameter name="OnlyForHGCalNumbering" value="HFNose" eval="false"/>
+    <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
+    <Parameter name="WaferSize"           value="[hfnose:WaferSize]"/>
+    <Parameter name="WaferThickness"      value="[hfnose:WaferThickness]"/>
+    <Parameter name="SensorSeparation"    value="[hfnose:SensorSeparation]"/>
+    <Parameter name="MouseBite"           value="[hfnose:MouseBite]"/>
+    <Parameter name="NumberOfCellsFine"   value="[hfnose:NumberOfCellsFine]"/>
+    <Parameter name="NumberOfCellsCoarse" value="[hfnose:NumberOfCellsCoarse]"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

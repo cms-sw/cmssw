@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <SpecParSection label="fasttimesens.xml" eval="true">
+    <SpecPar name="fasttimesenseBarrel">
+      <PartSelector path="//BModule1Layer1Timingactive"/>
+      <PartSelector path="//BModule17Layer1Timingactive"/>
+      <PartSelector path="//BModule33Layer1Timingactive"/>
+      <Parameter name="SensitiveDetector" value="MtdSensitiveDetector" eval="false"/>
+      <Parameter name="ReadOutName" value="FastTimerHitsBarrel" eval="false"/>
+      <Parameter name="Type"        value="1"/>
+    </SpecPar>
+    <SpecPar name="fasttimesenseEndcap">
+      <PartSelector path="//LGAD_ActiveThickness"/>
+      <Parameter name="SensitiveDetector" value="MtdSensitiveDetector" eval="false"/>
+      <Parameter name="ReadOutName" value="FastTimerHitsEndcap" eval="false"/>
+      <Parameter name="Type"        value="2"/>
+    </SpecPar>
+  </SpecParSection>
+
+</DDDefinition>

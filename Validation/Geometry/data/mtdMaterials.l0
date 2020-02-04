@@ -5,26 +5,50 @@
 #CommonMaterials 0 0 0 0 0
 
 tkLayout_SenLYSO                                         0.000 1.000 0.000 0.000 0.000
-                                                                                      
+
+mtdtkLayout_SenLYSO                                      0.000 1.000 0.000 0.000 0.000
+
 LYSO                                                     0.000 1.000 0.000 0.000 0.000
-                                                                                      
+
 tkLayout_SenSi                                           0.000 1.000 0.000 0.000 0.000
-                                                                                      
+
+mtdtkLayout_SenSi                                        0.000 1.000 0.000 0.000 0.000
+
+Silicon                                                  0.000 1.000 0.000 0.000 0.000
+
 tkLayout_Al                                              0.000 0.000 0.000 1.000 0.000
+
+mtdtkLayout_Al                                           0.000 0.000 0.000 1.000 0.000
+
+Aluminium                                                0.000 0.000 0.000 1.000 0.000
 
 hybridcompositeBModule1Layer1PositiveZFSide              0.000 0.000 0.000 0.000 1.000
 
+mtdhybridcompositeBModule1Layer1PositiveZFSide           0.000 0.000 0.000 0.000 1.000
+
 hybridcompositeBModule1Layer1PositiveZSupportPlate       0.000 0.000 0.000 1.000 0.000
 
-hybridcompositeEModule1Disc1Between                      0.000 0.000 0.000 0.000 1.000    
+mtdhybridcompositeBModule1Layer1PositiveZSupportPlate    0.000 0.000 0.000 1.000 0.000
+
+hybridcompositeEModule1Disc1Between                      0.000 0.000 0.000 0.000 1.000
+
+mtdhybridcompositeEModule1Disc1Between                   0.000 0.000 0.000 0.000 1.000
 
 hybridcompositeEModule1Disc1BSide                        0.000 0.000 0.000 0.000 1.000
 
+mtdhybridcompositeEModule1Disc1BSide                     0.000 0.000 0.000 0.000 1.000
+
 hybridcompositeEModule1Disc1FSide                        0.000 0.000 0.000 0.000 1.000
+
+mtdhybridcompositeEModule1Disc1FSide                     0.000 0.000 0.000 0.000 1.000
 
 hybridcompositeEModule1Disc1LSide                        0.000 0.000 0.000 0.000 1.000
 
+mtdhybridcompositeEModule1Disc1LSide                     0.000 0.000 0.000 0.000 1.000
+
 hybridcompositeEModule1Disc1SupportPlate                 0.000 0.000 0.000 0.000 1.000
+
+mtdhybridcompositeEModule1Disc1SupportPlate              0.000 0.000 0.000 0.000 1.000
 
 servicecompositeR1038Z2666                               0.000 0.000 0.000 0.000 1.000
 
@@ -32,7 +56,7 @@ servicecompositeR323Z2666                                0.000 0.000 0.000 0.000
 
 servicecompositeR420Z2666                                0.000 0.000 0.000 0.000 1.000
 
-servicecompositeR511Z2666                                0.000 0.000 0.000 0.000 1.000 
+servicecompositeR511Z2666                                0.000 0.000 0.000 0.000 1.000
 
 servicecompositeR596Z2666                                0.000 0.000 0.000 0.000 1.000
 
@@ -41,25 +65,35 @@ servicecompositeR688Z2666                                0.000 0.000 0.000 0.000
 servicecompositeR772Z2666                                0.000 0.000 0.000 0.000 1.000
 
 servicecompositeR864Z2666                                0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR946Z2666                                0.000 0.000 0.000 0.000 1.000
 
 servicecompositeR1059Z2666                               0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR264Z2666                                0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR361Z2666                                0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR452Z2666                                0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR537Z2666                                0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR629Z2666                                0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR713Z2666                                0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR805Z2666                                0.000 0.000 0.000 0.000 1.000
-                                                                                      
+
 servicecompositeR887Z2666                                0.000 0.000 0.000 0.000 1.000
 
 servicecompositeR979Z2666                                0.000 0.000 0.000 0.000 1.000
+
+Epoxy                                                    0.000 0.000 0.000 0.000 1.000
+
+Laird                                                    0.000 0.000 0.000 0.000 1.000
+
+ServiceHybrid_PCB                                        0.000 0.000 0.000 0.000 1.000
+
+Aluminium_Nitride                                        0.000 0.000 0.000 0.000 1.000
+
+ThermalScreenComposite                                   0.000 0.000 0.000 1.000 0.000

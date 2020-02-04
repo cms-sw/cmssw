@@ -106,9 +106,6 @@ namespace sistrip {
     /// dumps raw data to stdout (NB: payload is byte-swapped,headers/trailer are not).
     static void dumpRawData(uint16_t fed_id, const FEDRawData&, std::stringstream&);
 
-    /// catches all possible exceptions and rethrows them as cms::Exceptions
-    void handleException(std::string method_name, std::string extra_info = "");
-
     /// method to clear registries and digi collections
     void cleanupWorkVectors();
 

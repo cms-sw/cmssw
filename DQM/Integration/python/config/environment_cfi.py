@@ -1,7 +1,7 @@
 from __future__ import print_function
 import os
 import FWCore.ParameterSet.Config as cms
-import ConfigParser
+import configparser as ConfigParser
 
 def loadDQMRunConfigFromFile():
     # try reading the config

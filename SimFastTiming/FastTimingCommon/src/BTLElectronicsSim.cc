@@ -23,6 +23,7 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset)
       DarkCountRate_(pset.getParameter<double>("DarkCountRate")),
       SigmaElectronicNoise_(pset.getParameter<double>("SigmaElectronicNoise")),
       SigmaClock_(pset.getParameter<double>("SigmaClock")),
+      smearTimeForOOTtails_(pset.getParameter<bool>("SmearTimeForOOTtails")),
       Npe_to_pC_(pset.getParameter<double>("Npe_to_pC")),
       Npe_to_V_(pset.getParameter<double>("Npe_to_V")),
       adcNbits_(pset.getParameter<uint32_t>("adcNbits")),
@@ -37,6 +38,7 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset)
       cosPhi_(0.5 * (sqrt(1. + CorrCoeff_) + sqrt(1. - CorrCoeff_))),
       sinPhi_(0.5 * CorrCoeff_ / cosPhi_),
       ScintillatorDecayTime2_(ScintillatorDecayTime_ * ScintillatorDecayTime_),
+      ScintillatorDecayTimeInv_(1. / ScintillatorDecayTime_),
       SPTR2_(SinglePhotonTimeResolution_ * SinglePhotonTimeResolution_),
       DCRxRiseTime_(DarkCountRate_ * ScintillatorRiseTime_),
       SigmaElectronicNoise2_(SigmaElectronicNoise_ * SigmaElectronicNoise_),
@@ -48,17 +50,20 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   MTDSimHitData chargeColl, toa1, toa2;
 
   for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
+    // --- Digitize only the in-time bucket:
+    const unsigned int iBX = mtd_digitizer::kInTimeBX;
+
     chargeColl.fill(0.f);
     toa1.fill(0.f);
     toa2.fill(0.f);
-    for (size_t i = 0; i < it->second.hit_info[0].size(); i++) {
+    for (size_t iside = 0; iside < 2; iside++) {
       // --- Fluctuate the total number of photo-electrons
-      float Npe = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[0][i]);
+      float Npe = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[2 * iside][iBX]);
       if (Npe < EnergyThreshold_)
         continue;
 
       // --- Get the time of arrival and add a channel time offset
-      float finalToA1 = (it->second).hit_info[1][i] + ChannelTimeOffset_;
+      float finalToA1 = (it->second).hit_info[1 + 2 * iside][iBX] + ChannelTimeOffset_;
 
       if (smearChannelTimeOffset_ > 0.) {
         float timeSmearing = CLHEP::RandGaussQ::shoot(hre, 0., smearChannelTimeOffset_);
@@ -76,6 +81,26 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
       float finalToA2 = finalToA1 + times[1];
       finalToA1 += times[0];
+
+      // --- Estimate the time uncertainty due to photons from earlier OOT hits in the current BTL cell
+      if (smearTimeForOOTtails_) {
+        float rate_oot = 0.;
+        // Loop on earlier OOT hits
+        for (int ibx = 0; ibx < mtd_digitizer::kInTimeBX; ++ibx) {
+          if ((it->second).hit_info[2 * iside][ibx] > 0.) {
+            float hit_time = (it->second).hit_info[1 + 2 * iside][ibx] + bxTime_ * (ibx - mtd_digitizer::kInTimeBX);
+            float npe_oot = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[2 * iside][ibx]);
+            rate_oot += npe_oot * exp(hit_time * ScintillatorDecayTimeInv_) * ScintillatorDecayTimeInv_;
+          }
+        }  // ibx loop
+
+        if (rate_oot > 0.) {
+          float sigma_oot = sqrt(rate_oot * ScintillatorRiseTime_) * ScintillatorDecayTime_ / Npe;
+          float smearing_oot = CLHEP::RandGaussQ::shoot(hre, 0., sigma_oot);
+          finalToA1 += smearing_oot;
+          finalToA2 += smearing_oot;
+        }
+      }  // if smearTimeForOOTtails_
 
       // --- Uncertainty due to the fluctuations of the n-th photon arrival time:
       if (testBeamMIPTimeRes_ > 0.) {
@@ -115,17 +140,19 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       finalToA1 += cosPhi_ * smearing_thr1_uncorr + sinPhi_ * smearing_thr2_uncorr;
       finalToA2 += sinPhi_ * smearing_thr1_uncorr + cosPhi_ * smearing_thr2_uncorr;
 
-      chargeColl[i] = Npe * Npe_to_pC_;  // the p.e. number is here converted to pC
+      chargeColl[iside] = Npe * Npe_to_pC_;  // the p.e. number is here converted to pC
 
-      toa1[i] = finalToA1;
-      toa2[i] = finalToA2;
-    }
+      toa1[iside] = finalToA1;
+      toa2[iside] = finalToA2;
+
+    }  // iside loop
 
     //run the shaper to create a new data frame
     BTLDataFrame rawDataFrame(it->first.detid_);
     runTrivialShaper(rawDataFrame, chargeColl, toa1, toa2, it->first.row_, it->first.column_);
     updateOutput(output, rawDataFrame);
-  }
+
+  }  // MTDSimHitDataAccumulator loop
 }
 
 void BTLElectronicsSim::runTrivialShaper(BTLDataFrame& dataFrame,

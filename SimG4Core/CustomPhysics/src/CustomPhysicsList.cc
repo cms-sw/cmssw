@@ -15,6 +15,8 @@
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
 
 using namespace CLHEP;
 
@@ -55,6 +57,17 @@ void CustomPhysicsList::ConstructProcess() {
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   for (auto particle : fParticleFactory.get()->GetCustomParticles()) {
+    if (particle->GetParticleType() == "simp") {
+      G4ProcessManager* pmanager = particle->GetProcessManager();
+      if (pmanager) {
+        CMSSIMPInelasticProcess* simpInelPr = new CMSSIMPInelasticProcess();
+        CMSQGSPSIMPBuilder* theQGSPSIMPB = new CMSQGSPSIMPBuilder();
+        theQGSPSIMPB->Build(simpInelPr);
+        pmanager->AddDiscreteProcess(simpInelPr);
+      } else
+        edm::LogInfo("CustomPhysics") << "   No pmanager";
+    }
+
     CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if (cp) {
       G4ProcessManager* pmanager = particle->GetProcessManager();

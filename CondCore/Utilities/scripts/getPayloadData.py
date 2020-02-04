@@ -104,7 +104,7 @@ def deserialize_iovs(db, plugin_name, plot_name, tag, time_type, iovs, input_par
     output('deserialized data: ', result)
     return result
 @supress_output
-def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo):
+def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo, input_params):
     ''' Deserializes given iovs data and returns plot coordinates '''
     #print "Starting to deserialize iovs:"
     #print 'First Iovs',iovs
@@ -132,7 +132,8 @@ def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo):
     db_name = 'oracle://cms_orcon_adg/CMS_CONDITIONS' if db == 'Prod' else 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
     output('full DB name: ', db_name)
 
-
+    if input_params is not None:
+        plot.setInputParamValues( input_params )
     success = plot.processTwoTags(db_name, tag,tagtwo,int(iovs['start_iov']), int(iovstwo['end_iov']))
     #print "All good",success
     output('plot processed data successfully: ', success)
@@ -299,7 +300,7 @@ if __name__ == '__main__':
         #print 'A',a
         b=json.loads(args.iovstwo)
         #print 'B',b
-        result = deserialize_twoiovs(args.db, args.plugin, args.plot, args.tag,args.tagtwo,a,b)
+        result = deserialize_twoiovs(args.db, args.plugin, args.plot, args.tag,args.tagtwo,a,b, input_params)
         # If test -> output the result as formatted json
         if args.test:
             os.write( 1, json.dumps( json.loads( result ), indent=4 ))

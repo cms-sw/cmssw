@@ -66,6 +66,13 @@ namespace cms {
     //! The physical volume of the current node
     const PlacedVolume volume() const;
 
+    //! The full path to the current node
+    const std::string path() const;
+
+    //! The list of the volume copy numbers
+    //  along the full path to the current node
+    const std::vector<int> copyNos() const;
+
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;

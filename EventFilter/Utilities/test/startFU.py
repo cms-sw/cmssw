@@ -72,7 +72,7 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     runNumber = cms.untracked.uint32(options.runNumber),
     baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
     buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
-    directorIsBU = cms.untracked.bool(False),
+    directorIsBU = cms.untracked.bool(False)
 )
 
 try:
@@ -152,22 +152,10 @@ process.DQMStore = cms.Service( "DQMStore",
     verboseQT = cms.untracked.int32( 0 )
 )
 
-process.hltDQMFileSaver = cms.EDAnalyzer( "DQMFileSaver",
-    runIsComplete = cms.untracked.bool( False ),
-    referenceHandling = cms.untracked.string( "all" ),
-    producer = cms.untracked.string( "DQM" ),
-    forceRunNumber = cms.untracked.int32( -1 ),
-    saveByRun = cms.untracked.int32( 1 ),
-    saveAtJobEnd = cms.untracked.bool( False ),
-    saveByLumiSection = cms.untracked.int32( 1 ),
-    version = cms.untracked.int32( 1 ),
-    referenceRequireStatus = cms.untracked.int32( 100 ),
-    convention = cms.untracked.string( "FilterUnit" ),
-    dirName = cms.untracked.string( "." ),
-    fileFormat = cms.untracked.string( "PB" )
-)
+from DQMServices.FileIO.DQMFileSaverPB_cfi import dqmSaver
+process.hltDQMFileSaver = dqmSaver
 
-process.daqHistoTest = cms.EDAnalyzer("DaqTestHistograms",
+process.daqHistoTest = cms.EDProducer("DaqTestHistograms",
     numberOfHistograms = cms.untracked.uint32(50),
     lumisectionRange =  cms.untracked.uint32(20)
 )

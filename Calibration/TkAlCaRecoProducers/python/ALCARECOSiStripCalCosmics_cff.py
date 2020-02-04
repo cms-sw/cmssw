@@ -4,9 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOSiStripCalCosmicsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    HLTPaths = ["HLT_*"],
-    # eventually this needs to sterred via Global Tag in AlCaRecoTriggerBits
-    #eventSetupPathsKey = 'SiStripCalCosmics',
+    eventSetupPathsKey = 'SiStripCalCosmics',
     throw = False # tolerate triggers stated above, but not available
     )
 

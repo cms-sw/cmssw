@@ -171,7 +171,7 @@ void EnergyScaleCorrection::addSmearing(const std::string& category,
 }
 
 void EnergyScaleCorrection::setSmearingType(FileFormat value) {
-  if (value >= 0 && value <= 1) {
+  if (value <= 1) {
     smearingType_ = value;
   } else {
     smearingType_ = UNKNOWN;
