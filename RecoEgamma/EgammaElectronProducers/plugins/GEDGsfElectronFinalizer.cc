@@ -2,18 +2,18 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-class GEDGsfElectronFinalizer : public edm::global::EDProducer<> {
+class GEDGsfElectronFinalizer : public edm::stream::EDProducer<> {
 public:
   explicit GEDGsfElectronFinalizer(const edm::ParameterSet&);
 
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   const edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons_;
@@ -50,7 +50,7 @@ GEDGsfElectronFinalizer::GEDGsfElectronFinalizer(const edm::ParameterSet& cfg)
   }
 }
 
-void GEDGsfElectronFinalizer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
+void GEDGsfElectronFinalizer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // Output collection
   reco::GsfElectronCollection outputElectrons;
 

@@ -29,6 +29,10 @@ namespace ticl {
     edm::ProductID seedID;
     int seedIndex;
 
+    // -99, -1 if not available. ns units otherwise
+    float time;
+    float timeError;
+
     // regressed energy
     float regressed_energy;
 
