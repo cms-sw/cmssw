@@ -226,6 +226,12 @@ HGCalRecHit = cms.EDProducer(
     HGCHFNose_noise_fC = hfnoseDigitizer.digiCfg.noise_fC,
     HGCHFNose_cce = hfnoseDigitizer.digiCfg.chargeCollectionEfficiencies,
 
+    # expected resolution on time for recHits - ns units
+    minValSiPar = cms.double(10.),
+    maxValSiPar = cms.double(1.e4),
+    noiseSiPar = cms.double(5.5),
+    constSiPar = cms.double(0.02),
+
     # algo
     algo = cms.string("HGCalRecHitWorkerSimple")
 
