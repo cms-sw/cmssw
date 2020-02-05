@@ -52,6 +52,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
       lay = copy[nsiz - 1] / 10;
     if (nsiz > 1)
       idet = copy[nsiz - 2] / 1000;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "Name " << fv.logicalPart().solid().name() << " Copy " << copy.size();
+#endif
     double dx = 0, dy = 0, dz = 0, dx1 = 0, dx2 = 0;
     double alp(0);
     if (sol.shape() == DDSolidShape::ddbox) {
@@ -241,9 +244,8 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParamet
   mypar.filter(ref, attribute, "HCAL");
   fv.mergedSpecifics(ref);
   clear(php);
-  bool dodet = fv.firstChild();
   bool hf(false);
-  while (dodet) {
+  while (fv.firstChild()) {
     auto t = fv.translation();
     std::vector<double> paras = fv.parameters();
     std::vector<int> copy = fv.copyNos();
@@ -436,7 +438,6 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParamet
                                    << (HcalGeomParameters::k_ScaleFromDD4HepToG4 * t.z());
 #endif
     }
-    dodet = fv.firstChild();
   }
   loadfinal(php);
 }
