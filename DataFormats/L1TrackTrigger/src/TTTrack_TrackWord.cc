@@ -194,7 +194,7 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
   seg1 = (iRinv << 17);
   seg2 = (iBendChi2 << 14);
   seg3 = (ichi2Z << 10);
-  unsigned int seg4 = ispare; 
+  unsigned int seg4 = ispare;
 
   TrackWord3 = seg1 + seg2 + seg3 + seg4;
 }
@@ -315,7 +315,7 @@ unsigned int TTTrack_TrackWord::get_BendChi2Bits() {
 }
 
 float TTTrack_TrackWord::unpack_ichi2Z() {
-  unsigned int bits = (TrackWord3 & 0x00003C00) >> 10; 
+  unsigned int bits = (TrackWord3 & 0x00003C00) >> 10;
   float unpChi2Z = chi2ZBins[bits];
   return unpChi2Z;
 }
@@ -394,7 +394,6 @@ void TTTrack_TrackWord::initialize() {
   valLSBZ0 = maxZ0 / float(z0Bins);
   valLSBD0 = maxD0 / float(d0Bins);
 
-
   chi2Bins[0] = 0.25;
   chi2Bins[1] = 0.5;
   chi2Bins[2] = 1.0;
@@ -426,7 +425,6 @@ void TTTrack_TrackWord::initialize() {
   chi2ZBins[12] = 500.;
   chi2ZBins[13] = 1000.;
   chi2ZBins[14] = 3000.;
-
 
   Bchi2Bins[0] = 0.5;
   Bchi2Bins[1] = 1.25;
