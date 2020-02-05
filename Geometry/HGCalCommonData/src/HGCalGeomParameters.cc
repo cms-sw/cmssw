@@ -40,12 +40,12 @@ HGCalGeomParameters::~HGCalGeomParameters() {
 }
 
 void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
-					      HGCalParameters& php,
-					      const std::string& sdTag1,
-					      const DDCompactView* cpv,
-					      const std::string& sdTag2,
-					      const std::string& sdTag3,
-					      HGCalGeometryMode::WaferMode mode) {
+                                              HGCalParameters& php,
+                                              const std::string& sdTag1,
+                                              const DDCompactView* cpv,
+                                              const std::string& sdTag2,
+                                              const std::string& sdTag3,
+                                              HGCalGeometryMode::WaferMode mode) {
   DDFilteredView fv = _fv;
   bool dodet(true);
   std::map<int, HGCalGeomParameters::layerParameters> layers;
@@ -739,9 +739,9 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
 }
 
 void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
-					       HGCalParameters& php,
-					       const std::string& sdTag1,
-					       int firstLayer) {
+                                               HGCalParameters& php,
+                                               const std::string& sdTag1,
+                                               int firstLayer) {
   cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
   std::string attribute = "Volume";
   cms::DDSpecParRefs refs;
