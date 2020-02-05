@@ -1,9 +1,9 @@
 import os
-import configTemplates
-import globalDictionaries
-from genericValidation import GenericValidationData, ValidationWithPlots, pythonboolstring
-from helperFunctions import replaceByMap
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from . import globalDictionaries
+from .genericValidation import GenericValidationData, ValidationWithPlots, pythonboolstring
+from .helperFunctions import replaceByMap
+from .TkAlExceptions import AllInOneError
 
 class PrimaryVertexResolution(GenericValidationData, ValidationWithPlots):
     configBaseName  = "TkAlPrimaryVertexResolution"
