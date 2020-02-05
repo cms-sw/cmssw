@@ -18,7 +18,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
 #include "CalibPPS/TimingCalibration/interface/TimingCalibrationStruct.h"
 
@@ -35,17 +35,15 @@ public:
 private:
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&, TimingCalibrationHistograms&) const override;
 
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi>> digiToken_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHitToken_;
   const std::string dqmDir_;
-  const double ts_to_ns_;
 };
 
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationPCLWorker::PPSTimingCalibrationPCLWorker(const edm::ParameterSet& iConfig)
-  :digiToken_(consumes<edm::DetSetVector<CTPPSDiamondDigi>>(iConfig.getParameter<edm::InputTag>("digiTag"))),
-   dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
-   ts_to_ns_(iConfig.getParameter<double>("timeSliceNs")) {
+  :diamondRecHitToken_(consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(iConfig.getParameter<edm::InputTag>("diamondRecHitTag"))),
+   dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
 }
 
 //------------------------------------------------------------------------------
@@ -74,30 +72,24 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
 
 void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TimingCalibrationHistograms& iHists) const
 {
-  edm::Handle<edm::DetSetVector<CTPPSDiamondDigi>> dsv_digis;
-  iEvent.getByToken(digiToken_, dsv_digis);
-  if (dsv_digis->empty()) {
-    edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "No digis retrieved from the event content.";
+  edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit>> dsv_rechits;
+  iEvent.getByToken(diamondRecHitToken_, dsv_rechits);
+  if (dsv_rechits->empty()) {
+    edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "No rechits retrieved from the event content.";
     return;
   }
-  for (const auto& ds_digis : *dsv_digis) {
-    const CTPPSDiamondDetId detid(ds_digis.detId());
+  for (const auto& ds_rechits : *dsv_rechits) {
+    const CTPPSDiamondDetId detid(ds_rechits.detId());
     if (iHists.leadingTimeVsToT.count(detid.rawId()) == 0) {
       edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "Pad with detId=" << detid << " is not set to be monitored.";
       continue;
     }
-    for (const auto& digi : ds_digis) {
-      const int t_lead = digi.leadingEdge(), t_trail = digi.trailingEdge();
-      // skip invalid digis
-      if (t_lead == 0 && t_trail == 0)
+    for (const auto& rechit : ds_rechits) {
+      // skip invalid rechits
+      if (rechit.time() == 0. || rechit.toT() < 0.)
         continue;
-      double tot = -1., ch_t = 0.;
-      if (t_lead != 0 && t_trail != 0) { // skip digis with invalid ToT
-        tot = (t_trail - t_lead) * ts_to_ns_;
-        ch_t = (t_lead % 1024) * ts_to_ns_;
-        iHists.leadingTime.at(detid.rawId())->Fill(ch_t); //FIXME
-        iHists.leadingTimeVsToT.at(detid.rawId())->Fill(tot, ch_t);
-      }
+      iHists.leadingTime.at(detid.rawId())->Fill(rechit.time());
+      iHists.leadingTimeVsToT.at(detid.rawId())->Fill(rechit.toT(), rechit.time());
     }
   }
 }
@@ -106,12 +98,10 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent, const e
 
 void PPSTimingCalibrationPCLWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("digiTag", edm::InputTag("ctppsDiamondRawToDigi", "TimingDiamond"))
-    ->setComment("input tag for the PPS diamond detectors digis");
+  desc.add<edm::InputTag>("diamondRecHitTag", edm::InputTag("ctppsDiamondRecHits"))
+    ->setComment("input tag for the PPS diamond detectors rechits");
   desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
     ->setComment("output path for the various DQM plots");
-  desc.add<double>("timeSliceNs", 25./*ns*/ / 1024./*bins*/)
-    ->setComment("conversion constant between HPTDC timing bin size and nanoseconds");
   descriptions.addWithDefaultLabel(desc);
 }
 
