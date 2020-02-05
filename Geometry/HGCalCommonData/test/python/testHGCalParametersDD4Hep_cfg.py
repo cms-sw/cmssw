@@ -11,10 +11,10 @@ if hasattr(process,'MessageLogger'):
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/cms-test-ddhgcal-algorithm.xml'),
                                             appendToDataLabel = cms.string('')
-                                        )
+                                            )
 
 process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                 appendToDataLabel = cms.string('')
+                                                appendToDataLabel = cms.string('')
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")
