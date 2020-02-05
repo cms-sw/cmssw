@@ -150,8 +150,6 @@ updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
         tightIdLepVeto = cms.InputTag("tightJetIdLepVeto"),
         vtxNtrk = cms.InputTag("bJetVars:vtxNtrk"),
         leptonPdgId = cms.InputTag("bJetVars:leptonPdgId"),
-        puId94X  = cms.InputTag('pileupJetId94X:fullId'),
-        puId102X = cms.InputTag('pileupJetId102X:fullId'),
      ),
 )
 run2_jme_2016.toModify(updatedJetsWithUserData.userInts,
@@ -216,12 +214,8 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
         btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="DeepCSV charm btag discriminator",precision=10),
         btagDeepFlavC = Var("bDiscriminator('pfDeepFlavourJetTags:probc')",float,doc="DeepFlavour charm tag discriminator",precision=10),
-        puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant with 80X training",precision=10),
-        puId = Var("userInt('pileupJetId:fullId')",int,doc="Pilup ID flags with 80X training"),
-        puId94XDisc = Var("userFloat('puId94XDisc')",float,doc="Pileup ID discriminant with 94X training",precision=10),
-        puId94X = Var("userInt('puId94X')",int,doc="Pilup ID flags with 94X training"),
-        puId102XDisc = Var("userFloat('puId102XDisc')",float,doc="Pileup ID discriminant with 102X training",precision=10),
-        puId102X = Var("userInt('puId102X')",int,doc="Pilup ID flags with 102X training"),
+        puIdDisc = Var("userFloat('puId102XDisc')",float,doc="Pilup ID discriminant with 102X (2018) training",precision=10),
+        puId = Var("userInt('pileupJetId:fullId')",int,doc="Pilup ID flags with 80X (2016) training"),
         jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
         qgl = Var("userFloat('qgl')",float,doc="Quark vs Gluon likelihood discriminator",precision=10),
         nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
@@ -241,7 +235,8 @@ jetTable.variables.pt.precision=10
 
 ### Era dependent customization
 run2_jme_2016.toModify( jetTable.variables, jetId = Var("userInt('tightIdLepVeto')*4+userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight, bit3 is tightLepVeto"))
-
+run2_jme_2016.toModify( jetTable.variables, puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10))
+run2_jme_2017.toModify( jetTable.variables, puIdDisc = Var("userFloat('puId94XDisc')", float,doc="Pilup ID discriminant with 94X (2017) training",precision=10))
 
 bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
     backend = cms.string("TF"),
