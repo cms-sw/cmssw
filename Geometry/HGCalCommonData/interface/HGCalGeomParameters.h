@@ -38,11 +38,11 @@ public:
                            const std::string&,
                            HGCalGeometryMode::WaferMode);
   void loadGeometryHexagon(const cms::DDCompactView*,
-			   HGCalParameters&,
-			   const std::string&,
-			   const std::string&,
-			   const std::string&,
-			   HGCalGeometryMode::WaferMode);
+                           HGCalParameters&,
+                           const std::string&,
+                           const std::string&,
+                           const std::string&,
+                           HGCalGeometryMode::WaferMode);
   void loadGeometryHexagon8(const DDFilteredView&, HGCalParameters&, int);
   void loadGeometryHexagon8(const cms::DDCompactView*, HGCalParameters&, const std::string&, int);
   void loadSpecParsHexagon(
@@ -78,16 +78,16 @@ public:
 
 private:
   void loadGeometryHexagon(const std::map<int, HGCalGeomParameters::layerParameters>&,
-			   std::vector<HGCalParameters::hgtrform>&,
-			   std::vector<bool>&,
-			   const std::unordered_map<int32_t, int32_t>&,
-			   const HGCalParameters::layer_map&,
-			   const std::vector<int32_t>&,
-			   const std::vector<HGCalGeomParameters::cellParameters>&,
-			   const std::map<int, int>&,
-			   const std::map<int, HGCalGeomParameters::cellParameters>&,
-			   const std::map<int, HGCalGeomParameters::cellParameters>&,
-			   HGCalParameters&);
+                           std::vector<HGCalParameters::hgtrform>&,
+                           std::vector<bool>&,
+                           const std::unordered_map<int32_t, int32_t>&,
+                           const HGCalParameters::layer_map&,
+                           const std::vector<int32_t>&,
+                           const std::vector<HGCalGeomParameters::cellParameters>&,
+                           const std::map<int, int>&,
+                           const std::map<int, HGCalGeomParameters::cellParameters>&,
+                           const std::map<int, HGCalGeomParameters::cellParameters>&,
+                           HGCalParameters&);
   void loadGeometryHexagon8(const std::map<int, HGCalGeomParameters::layerParameters>&,
                             std::map<std::pair<int, int>, HGCalParameters::hgtrform>&,
                             const int&,
