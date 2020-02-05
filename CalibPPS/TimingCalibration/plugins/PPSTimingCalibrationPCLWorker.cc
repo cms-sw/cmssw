@@ -16,9 +16,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 
 #include "CalibPPS/TimingCalibration/interface/TimingCalibrationStruct.h"
 
@@ -36,14 +37,19 @@ private:
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&, TimingCalibrationHistograms&) const override;
 
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHitToken_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTrackToken_;
   const std::string dqmDir_;
+  const unsigned int minPixTracks_, maxPixTracks_;
 };
 
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationPCLWorker::PPSTimingCalibrationPCLWorker(const edm::ParameterSet& iConfig)
   :diamondRecHitToken_(consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(iConfig.getParameter<edm::InputTag>("diamondRecHitTag"))),
-   dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
+   pixelTrackToken_(consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(iConfig.getParameter<edm::InputTag>("pixelTrackTag"))),
+   dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
+   minPixTracks_(iConfig.getParameter<unsigned int>("minPixelTracks")),
+   maxPixTracks_(iConfig.getParameter<unsigned int>("maxPixelTracks")) {
 }
 
 //------------------------------------------------------------------------------
@@ -72,8 +78,26 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
 
 void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TimingCalibrationHistograms& iHists) const
 {
+  // first unpack the pixel tracks information to ensure event quality
+  edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> dsv_pixtrks;
+  iEvent.getByToken(pixelTrackToken_, dsv_pixtrks);
+  // require at least pixel tracks in the event before further analysis
+  if (dsv_pixtrks->empty()) {
+    edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "No pixel tracks retrieved from the event content.";
+    return;
+  }
+  std::map<CTPPSPixelDetId,unsigned short> m_pixtrks_mult;
+  for (const auto& ds_pixtrks : *dsv_pixtrks) {
+    const CTPPSPixelDetId detid(ds_pixtrks.detId());
+    for (const auto& track : ds_pixtrks)
+      if (track.isValid())
+        m_pixtrks_mult[detid]++;
+  }
+
+  // then extract the rechits information for later processing
   edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit>> dsv_rechits;
   iEvent.getByToken(diamondRecHitToken_, dsv_rechits);
+  // ensure timing detectors rechits are found in the event content
   if (dsv_rechits->empty()) {
     edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "No rechits retrieved from the event content.";
     return;
@@ -102,6 +126,10 @@ void PPSTimingCalibrationPCLWorker::fillDescriptions(edm::ConfigurationDescripti
     ->setComment("input tag for the PPS diamond detectors rechits");
   desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
     ->setComment("output path for the various DQM plots");
+  desc.add<unsigned int>("minPixelTracks", 1)
+    ->setComment("minimal pixel tracks multiplicity per sector");
+  desc.add<unsigned int>("maxPixelTracks", 6)
+    ->setComment("maximal pixel tracks multiplicity per sector before shower rejection");
   descriptions.addWithDefaultLabel(desc);
 }
 
