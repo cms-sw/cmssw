@@ -23,11 +23,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESProductTag.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "MagneticField/GeomBuilder/src/DD4hep_MagGeoBuilder.h"
 
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 
 #include "CondFormats/Common/interface/FileBlob.h"
@@ -36,14 +34,12 @@
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 #include "CondFormats/DataRecord/interface/MagFieldConfigRcd.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <string>
 #include <vector>
 #include <iostream>
 #include <memory>
-
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace magneticfield;
