@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESProductTag.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 
@@ -39,10 +38,6 @@
 #include <vector>
 #include <iostream>
 #include <memory>
-
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace magneticfield;
