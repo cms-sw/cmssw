@@ -61,13 +61,12 @@ public:
           double az0,
           double ad0,
           double aChi2,
-	  double trkMVA1,
-	  double trkMVA2,
-	  double trkMVA3,
+          double trkMVA1,
+          double trkMVA2,
+          double trkMVA3,
           unsigned int aHitpattern,
           unsigned int nPar,
           double Bfield);
-
 
   TTTrack(double aRinv,
           double aphi,
@@ -76,9 +75,9 @@ public:
           double ad0,
           double aChi2xyfit,
           double aChi2zfit,
-	  double trkMVA1,
-	  double trkMVA2,
-	  double trkMVA3,
+          double trkMVA1,
+          double trkMVA2,
+          double trkMVA3,
           unsigned int aHitpattern,
           unsigned int nPar,
           double Bfield);
@@ -117,7 +116,6 @@ public:
   /// POCA
   GlobalPoint POCA() const;
   GlobalPoint getPOCA(unsigned int npar = Npars4) const;
-
 
   /// MVA Track quality variables
   double trkMVA1() const;
@@ -211,21 +209,21 @@ TTTrack<T>::TTTrack(double aRinv,
                     double az0,
                     double ad0,
                     double aChi2,
-		    double trkMVA1,
-		    double trkMVA2,
-		    double trkMVA3,
+                    double trkMVA1,
+                    double trkMVA2,
+                    double trkMVA3,
                     unsigned int aHitPattern,
                     unsigned int nPar,
                     double aBfield) {
   theStubRefs.clear();
-  double thePT = MagConstant * 1.0/aRinv * aBfield/100.0;  // Rinv is in cm-1
+  double thePT = MagConstant * 1.0 / aRinv * aBfield / 100.0;  // Rinv is in cm-1
   theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
   theRInv = aRinv;
   thePOCA = GlobalPoint(ad0 * cos(aphi0), ad0 * sin(aphi0), az0);
   thePhi = aphi0;
   theTanL = aTanlambda;
-  thePhiSector = 0;  // must be set externally
-  theEtaSector = 0;  // must be set externally
+  thePhiSector = 0;      // must be set externally
+  theEtaSector = 0;      // must be set externally
   theTrackSeedType = 0;  // must be set externally
   theChi2 = aChi2;
   theTrkMVA1 = trkMVA1;
@@ -247,21 +245,21 @@ TTTrack<T>::TTTrack(double aRinv,
                     double ad0,
                     double aChi2XY,
                     double aChi2Z,
-		    double trkMVA1,
-		    double trkMVA2,
-		    double trkMVA3,
+                    double trkMVA1,
+                    double trkMVA2,
+                    double trkMVA3,
                     unsigned int aHitPattern,
                     unsigned int nPar,
                     double aBfield) {
   theStubRefs.clear();
-  double thePT = MagConstant * 1.0/aRinv * aBfield/100.0;  // Rinv is in cm-1
+  double thePT = MagConstant * 1.0 / aRinv * aBfield / 100.0;  // Rinv is in cm-1
   theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
   theRInv = aRinv;
   thePOCA = GlobalPoint(ad0 * cos(aphi0), ad0 * sin(aphi0), az0);
   thePhi = aphi0;
   theTanL = aTanlambda;
-  thePhiSector = 0;  // must be set externally
-  theEtaSector = 0;  // must be set externally
+  thePhiSector = 0;      // must be set externally
+  theEtaSector = 0;      // must be set externally
   theTrackSeedType = 0;  // must be set externally
   theChi2XY = aChi2XY;
   theChi2Z = aChi2Z;
@@ -294,12 +292,10 @@ GlobalVector TTTrack<T>::momentum() const {
   return theMomentum;
 }
 
-
 template <typename T>
 double TTTrack<T>::rInv() const {
   return theRInv;
 }
-
 
 template <typename T>
 double TTTrack<T>::tanL() const {
@@ -343,13 +339,11 @@ double TTTrack<T>::chi2z() const {
   return theChi2Z;
 }
 
-
 /// Chi2 reduced
 template <typename T>
 double TTTrack<T>::chi2Red() const {
   return theChi2 / (2 * theStubRefs.size() - numFitPars);
 }
-
 
 /// MVA quality variables
 template <typename T>
@@ -366,8 +360,6 @@ template <typename T>
 double TTTrack<T>::trkMVA3() const {
   return theTrkMVA3;
 }
-
-
 
 /// StubPtConsistency
 template <typename T>
@@ -395,15 +387,11 @@ void TTTrack<T>::setTrackWordBits() {
 
   // missing conversion of global phi to difference from sector center phi
 
-  if(theChi2Z == 0.) {
-
+  if (theChi2Z == 0.) {
     setTrackWord(theMomentum, thePOCA, theRInv, theChi2, theChi2Z, theStubPtConsistency, theHitPattern, sparebits);
 
-  }
-  else {
-
+  } else {
     setTrackWord(theMomentum, thePOCA, theRInv, theChi2XY, theChi2Z, theStubPtConsistency, theHitPattern, sparebits);
-
   }
   return;
 }
