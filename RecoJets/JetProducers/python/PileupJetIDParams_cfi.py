@@ -13,7 +13,7 @@ full_102x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(0.0),
                 jEtaMax = cms.double(2.5),
-                tmvaWeights  = cms.string("RecoJets/JetProducers/data/pileupJetId_102X_Eta0p0To2p5_chs_BDT.weights.xml.gz"),
+                tmvaWeights  = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_102X_Eta0p0To2p5_chs_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx"      ,
                     "dR2Mean"   ,
@@ -35,7 +35,7 @@ full_102x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.5),
                 jEtaMax = cms.double(2.75),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_102X_Eta2p5To2p75_chs_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_102X_Eta2p5To2p75_chs_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx"      ,
                     "dR2Mean"   ,
@@ -57,7 +57,7 @@ full_102x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.75),
                 jEtaMax = cms.double(3.0),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_102X_Eta2p75To3p0_chs_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_102X_Eta2p75To3p0_chs_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx"      ,
                     "dR2Mean"   ,
@@ -79,7 +79,7 @@ full_102x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(3.),
                 jEtaMax = cms.double(5.),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_102X_Eta3p0To5p0_chs_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_102X_Eta3p0To5p0_chs_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx"      ,
                     "dR2Mean"   ,
@@ -116,7 +116,7 @@ full_94x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(0.0),
                 jEtaMax = cms.double(2.5),
-                tmvaWeights  = cms.string("RecoJets/JetProducers/data/pileupJetId_94X_Eta0p0To2p5_chs_BDT.weights.xml.gz"),
+                tmvaWeights  = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_94X_Eta0p0To2p5_chs_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx"      ,
                     "dR2Mean"   ,
@@ -138,7 +138,7 @@ full_94x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.5),
                 jEtaMax = cms.double(2.75),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_94X_Eta2p5To2p75_chs_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_94X_Eta2p5To2p75_chs_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx"      ,
                     "dR2Mean"   ,
@@ -160,7 +160,7 @@ full_94x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.75),
                 jEtaMax = cms.double(3.0),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_94X_Eta2p75To3p0_chs_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_94X_Eta2p75To3p0_chs_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx"      ,
                     "dR2Mean"   ,
@@ -182,7 +182,7 @@ full_94x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(3.),
                 jEtaMax = cms.double(5.),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_94X_Eta3p0To5p0_chs_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_94X_Eta3p0To5p0_chs_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx"      ,
                     "dR2Mean"   ,
