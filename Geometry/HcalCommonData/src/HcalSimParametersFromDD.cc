@@ -146,7 +146,7 @@ bool HcalSimParametersFromDD::build(const cms::DDCompactView* cpv, HcalSimulatio
   fv2.mergedSpecifics(ref2);
 
   while (fv2.firstChild()) {
-     const std::string matName{cms::dd::noNamespace(fv2.materialName()).data(),
+    const std::string matName{cms::dd::noNamespace(fv2.materialName()).data(),
                               cms::dd::noNamespace(fv2.materialName()).size()};
     std::vector<int> copy = fv2.copyNos();
     int idet = (copy.size() > 1) ? (copy[1] / 1000) : 0;
