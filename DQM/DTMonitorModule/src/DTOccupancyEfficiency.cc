@@ -36,9 +36,9 @@ DTOccupancyEfficiency::~DTOccupancyEfficiency() {}
 void DTOccupancyEfficiency::bookHistograms(DQMStore::IBooker& ibooker,
                                       edm::Run const& iRun,
                                       edm::EventSetup const& context) {
-  ibooker.setCurrentFolder("DT/04-OccupancyEfficiency/digisPerStation");
 
-  // Digis
+  ibooker.setCurrentFolder("DT/04-OccupancyEfficiency/digisPerRing");
+  // Digis per ring
   for (int station = 1; station<5; station++){
      string station_s = to_string(station);
      for (int wheel = -2; wheel < 3; wheel++){
@@ -51,7 +51,26 @@ void DTOccupancyEfficiency::bookHistograms(DQMStore::IBooker& ibooker,
      }
   }
 
+  ibooker.setCurrentFolder("DT/04-OccupancyEfficiency/timeBoxesPerRing");
+  // TimeBoxes per ring
+    for (int station = 1; station<5; station++){
+     string station_s = to_string(station);
+     for (int wheel = -2; wheel < 3; wheel++){
+
+       string wheel_s = to_string(wheel);
+       if (wheel>0) wheel_s = "+" + wheel_s;
+       string histoName = "timeBoxesPerMB" + station_s + "W" + wheel_s;
+       string histoTitle = "Number of TDC counts in MB" + station_s + "YB" + wheel_s;
+       (timeBoxesPerRing[station])[wheel] = ibooker.book1D(histoName,histoTitle,400,0,1600);
+     }
+  }
+
   ibooker.setCurrentFolder("DT/04-OccupancyEfficiency");
+
+  // TimeBoxes
+  timeBoxesPerEvent  = ibooker.book1D("timeBoxesPerEvent","TDC counts per event",400,0,1600);
+
+  // Digis
   digisPerEvent = ibooker.book1D("digisPerEvent","Number of digis per event",100,0,500);
 
   // RecHits
@@ -78,7 +97,7 @@ void DTOccupancyEfficiency::analyze(const edm::Event& event, const edm::EventSet
 
   int numberOfDigis=0;
   std::map<int, std::map<int, int>> numberOfDigisPerRing;
-  
+ 
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It = dtdigis->begin(); dtLayerId_It != dtdigis->end(); ++dtLayerId_It) {  // Loop over layers
         for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
@@ -88,7 +107,10 @@ void DTOccupancyEfficiency::analyze(const edm::Event& event, const edm::EventSet
                   int wheelId = ((*dtLayerId_It).first).wheel();
                   int stationId =  ((*dtLayerId_It).first).station();
                   (numberOfDigisPerRing[stationId])[wheelId] += 1;               
-         } 
+
+                  timeBoxesPerEvent->Fill((*digiIt).countsTDC());  
+                  (timeBoxesPerRing[stationId])[wheelId]->Fill((*digiIt).countsTDC());
+         }  
   }
  
   // Total number of Digis per Event

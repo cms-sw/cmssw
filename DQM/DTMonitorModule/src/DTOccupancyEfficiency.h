@@ -54,7 +54,7 @@ private:
 
   edm::ParameterSet parameters;
 
-
+  MonitorElement * timeBoxesPerEvent;
   MonitorElement * digisPerEvent;
   MonitorElement * segments4DPerEvent;
   MonitorElement * recHitsPerEvent;
@@ -62,6 +62,7 @@ private:
   MonitorElement * t0From4DPhiSegment;
   MonitorElement * t0From4DZSegment;
   // station, wheel for ints
+  std::map<int, std::map<int,MonitorElement*> > timeBoxesPerRing;
   std::map<int, std::map<int,MonitorElement*> > digisPerRing;
 };
 #endif
