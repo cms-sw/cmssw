@@ -15,7 +15,7 @@
 class SummaryPlotXmlParser;
 
 /** Debug information. */
-std::ostream& operator<< ( std::ostream&, const SummaryPlotXmlParser& );
+std::ostream& operator<<(std::ostream&, const SummaryPlotXmlParser&);
 
 /** 
     @class SummaryPlotXmlParser
@@ -24,35 +24,31 @@ std::ostream& operator<< ( std::ostream&, const SummaryPlotXmlParser& );
     @brief Parses the "summary plot" xml configuration file
 */
 class SummaryPlotXmlParser {
-  
- public:
-
+public:
   // ---------- Co(de)nstructors and consts ----------
 
   /** Default constructor. */
   SummaryPlotXmlParser();
 
   /** Default destructor. */
-  ~SummaryPlotXmlParser(){;}
-  
+  ~SummaryPlotXmlParser() { ; }
+
   // ---------- Public interface ----------
 
-  
   /** Fill the map with the required tag/names and values */
-  void parseXML( const std::string& xml_file );
-  
-  /** Returns SummaryPlot objects for given commissioning task. */
-  std::vector<SummaryPlot> summaryPlots( const sistrip::RunType& );
-  
-  /** Debug print method. */
-  void print( std::stringstream& ) const;
-  
- private:
+  void parseXML(const std::string& xml_file);
 
+  /** Returns SummaryPlot objects for given commissioning task. */
+  std::vector<SummaryPlot> summaryPlots(const sistrip::RunType&);
+
+  /** Debug print method. */
+  void print(std::stringstream&) const;
+
+private:
   // ---------- Private member data ----------
 
   /** Container holding the SummaryPlot objects. */
-  std::map< sistrip::RunType, std::vector<SummaryPlot> > plots_;
+  std::map<sistrip::RunType, std::vector<SummaryPlot> > plots_;
 
   // RunType tags and attributes
   static const std::string rootTag_;
@@ -66,10 +62,6 @@ class SummaryPlotXmlParser {
   static const std::string viewAttr_;
   static const std::string levelAttr_;
   static const std::string granularityAttr_;
-  
 };
 
-#endif // DQM_SiStripCommissioningClients_SummaryPlotXmlParser_H
-
-
-    
+#endif  // DQM_SiStripCommissioningClients_SummaryPlotXmlParser_H
