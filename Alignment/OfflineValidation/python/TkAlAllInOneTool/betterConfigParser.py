@@ -7,6 +7,10 @@ import re
 import copy
 import collections
 from .TkAlExceptions import AllInOneError
+from future.utils import PY3
+
+if PY3:
+    unicode = str
 
 class AdaptedDict(collections.OrderedDict):
     """
@@ -34,7 +38,7 @@ class AdaptedDict(collections.OrderedDict):
         """
 
         if key != "__name__" and "__name__" in self and self["__name__"]=="validation":
-            if isinstance(value, str):
+            if isinstance(value, (str, unicode)):
                 for index, item in enumerate(self.validationslist[:]):
                     if item == (key, value.split("\n")):
                         self.validationslist[index] = (key, value)
@@ -228,7 +232,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         for section in self._sections:
             fp.write("[%s]\n" % section)
             for (key, value) in self._sections[section].items():
-                if key == "__name__" or not isinstance(value, str):
+                if key == "__name__" or not isinstance(value, (str, unicode)):
                     continue
                 if value is not None:
                     key = " = ".join((key, str(value).replace('\n', '\n\t')))
