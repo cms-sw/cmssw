@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 
   monitorThread.startThread();
 
-  try {
+  CMS_SA_ALLOW try {
     std::string const memoryName(vm[kMemoryNameOpt].as<std::string>());
     std::string const uniqueID(vm[kUniqueIDOpt].as<std::string>());
     {
