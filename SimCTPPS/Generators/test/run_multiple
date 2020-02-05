@@ -1,0 +1,161 @@
+#!/bin/bash
+
+# directory naming:
+#  JOB_DIR: where configs and output plot ROOT files are stored
+#  EXE_DIR: where the job is executed (may be different for local and Condor jobs)
+#  EOS_DIR: where ntuples are stored
+
+sub_script="condor.sub"
+
+cwd=`pwd`
+base_dir="$cwd"
+
+#----------------------------------------------------------------------------------------------------
+
+function RunOne()
+{
+	tag="$version/$baseDir/m_X_$mass/xangle_$xangle/$config"
+	dir="output/$tag"
+	eos_dir="/eos/cms/store/group/phys_pps/ppxz/$tag"
+
+	echo "* $tag"
+
+	mkdir -p "$dir"
+	
+	if [ "$save_ntuples" == "True" ]
+	then
+		mkdir -p "$eos_dir"
+	fi
+
+	job_dir="$(pwd -P)/$dir"
+
+	RD_base=$(pwd -P)
+	RD_base=${RD_base#*/src/}
+
+	cat "template_cfg.py"|sed "\
+			s|\$config|$config|g;\
+			s|\$mass|$mass|g;\
+			s|\$xangle|$xangle|g;\
+			s|\$n_events|$n_events|g;\
+			s|\$JOB_DIR|$job_dir|g;\
+			s|\$save_ntuples|$save_ntuples|g;\
+			s|\$settings_function|$settingsFunction|g;\
+			s|\$RD|$RD_base/$dir|g;\
+		" > "$dir/cfg.py"
+
+	cat "template_job"|sed "\
+			s|\$JOB_DIR|$job_dir|;\
+			s|\$EOS_DIR|$eos_dir|;\
+			s|\$CMSSW_BASE|$CMSSW_BASE|;\
+		" > "$dir/job"
+
+	chmod u+x "$dir/job"
+
+	(
+		echo ""
+		echo "dir=$dir"
+		echo "queue"
+	) >> "$sub_script"
+
+	cd "$dir"
+	cmsRun "cfg.py" &> "log" &
+	cd - &> /dev/null
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function RunMultiple()
+{
+	baseDir="$1"
+	settingsFunction="$2"
+	
+	for mass in ${masses[*]}
+	do
+		for xangle in ${xangles[*]}
+		do
+			for config in ${configs[*]}
+			do
+				RunOne
+			done
+		done
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+(
+	echo "executable = $base_dir/\$(dir)/job"
+	echo "arguments = \$(ClusterId) \$(ProcId) \\\"\$(dir)\\\""
+	echo "output = $base_dir/\$(dir)/out"
+	echo "error = $base_dir/\$(dir)/err"
+	echo "log = $base_dir/condor.log"
+
+	echo ""
+	echo "+MAX_REMAP_RECURSIONS = 50"
+	echo "should_transfer_files = NO"
+
+	echo ""
+	#echo "+MaxRuntime = 600" # in s
+	#echo "+MaxRuntime = 14400" # in s
+	echo "+MaxRuntime = 82800" # in s
+
+	#echo "+JobBatchName = \"$output_dir\""
+
+	echo "requirements = (OpSysAndVer =?= \"CentOS7\")"
+
+) > "$sub_script"
+
+#----------------------------------------------------------------------------------------------------
+
+#version="version4"
+#version="version5" # version4 of the 2017 optics used also for 2017 post-TS2
+#version="version6" # after bugfix of spherical uniform distribution (at 7c33cd172bed4d4703726407dc4a35e66913b133)
+#version="version7" # new config hierarchy, also configs with optics v1
+#version="version8" # updated submission scripts, 4E6 events simulated, added more low-mass points
+#version="version9" # with latest simu configuration (SW at 52915687f6a8b4467e892ee1e0e78cfb1b0ff91c), 4E5 events, only v4 optics
+#version="version10" # as version9 but 4E6 events
+version="version11-test"
+
+masses=()
+for mass in {600..1650..60}
+do
+	masses+=($mass)
+done
+
+masses+=(800)
+masses+=(1000)
+#masses+=(1200)
+masses+=(1400)
+masses+=(1600)
+
+masses=(1200)
+
+xangles=(
+	120
+	#130
+	#140
+	150
+)
+
+configs=(
+	"2017_preTS2"
+	"2017_postTS2"
+
+	#"2017_preTS2_opt_v1_simu"
+	#"2017_preTS2_opt_v1_simu_reco"
+
+	#"2017_postTS2_opt_v1_simu"
+	#"2017_postTS2_opt_v1_simu_reco"
+)
+
+#n_events="4E6"
+n_events="4E5"
+#n_events="1E4"
+
+save_ntuples="False"
+
+RunMultiple "Z" "UseSettingsZ"
+#RunMultiple "gamma" "UseSettingsGamma"
+
+echo "To submit:"
+echo "    condor_submit \"$sub_script\""

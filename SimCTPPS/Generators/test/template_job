@@ -1,0 +1,67 @@
+#!/bin/bash
+
+exe_dir="$(pwd -P)"
+
+# settings
+export HOME="/afs/cern.ch/exp/totem/scratch/jkaspar"
+export X509_USER_PROXY="/afs/cern.ch/user/j/jkaspar/x509up_u2177"
+
+# init CMSSW
+source "/cvmfs/cms.cern.ch/cmsset_default.sh"
+cd "$CMSSW_BASE"
+eval `scramv1 runtime -sh`
+
+export CMSSW_SEARCH_PATH="$CMSSW_SEARCH_PATH:/afs/cern.ch/work/j/jkaspar/work/software/ctpps/cms-data"
+export CMSSW_DATA_PATH="/afs"
+
+job_dir="$JOB_DIR"
+eos_dir="$EOS_DIR"
+
+date > "$job_dir/submitted"
+
+# run cmsRun
+cd "$exe_dir"
+
+echo "cmsRun will be executed on $(uname -n) in $(pwd -P)"
+
+cmsRun "$job_dir/cfg.py" &> "$job_dir/log"
+rc=$?
+if [ $rc -ne 0 ]
+then
+    echo "cmsRun crashed: return code = $rc"
+	rm -rf "output.root"
+	date > "finished"
+    exit 1
+fi
+
+ls -l
+
+# copy ntuple
+function SafeCmd()
+{
+	echo ""
+	echo ">> SafeCmd: $@"
+	for i in {1..60}
+	do
+		echo "* attempt $i:"
+		"$@" && return 0
+		sleep 5
+	done
+	echo "* giving up..."
+	return 1
+}
+
+if [ -f "ntuple.root" ]
+then
+	SafeCmd cp "ntuple.root" "$EOS_DIR/"
+
+	rm -rf "ntuple.root"
+fi
+
+ls -l
+
+date > "$job_dir/finished"
+
+date > "$job_dir/success"
+
+echo "SUCCESS"

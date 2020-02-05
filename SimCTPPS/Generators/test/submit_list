@@ -1,0 +1,58 @@
+#!/bin/bash
+
+sub_script="condor.sub"
+
+cwd=`pwd -P`
+base_dir="$cwd"
+
+#----------------------------------------------------------------------------------------------------
+
+function RunList()
+{
+	for dir in ${list[*]}
+	do
+		eos_dir="/eos/cms/store/group/phys_pps/ppxz/$dir"
+		rm -rf "$eos_dir/ntuple.root"
+
+		(
+			echo ""
+			echo "dir=output/$dir"
+			echo "queue"
+		) >> "$sub_script"
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+(
+	echo "executable = $base_dir/\$(dir)/job"
+	echo "arguments = \$(ClusterId) \$(ProcId) \\\"\$(dir)\\\""
+	echo "output = $base_dir/\$(dir)/out"
+	echo "error = $base_dir/\$(dir)/err"
+	echo "log = $base_dir/condor.log"
+
+	echo ""
+	echo "+MAX_REMAP_RECURSIONS = 50"
+	echo "should_transfer_files = NO"
+
+	echo ""
+	#echo "+MaxRuntime = 600" # in s
+	#echo "+MaxRuntime = 14400" # in s
+	echo "+MaxRuntime = 82800" # in s
+
+	#echo "+JobBatchName = \"$output_dir\""
+
+	echo "requirements = (OpSysAndVer =?= \"CentOS7\")"
+
+) > "$sub_script"
+
+#----------------------------------------------------------------------------------------------------
+
+list=(
+	version10/gamma/m_X_1080/xangle_130/2017_preTS2
+)
+
+RunList
+
+echo "To submit:"
+echo "    condor_submit \"$sub_script\""

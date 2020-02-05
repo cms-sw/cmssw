@@ -1,0 +1,90 @@
+#!/bin/bash
+
+sub_script="condor.sub"
+
+cwd=`pwd -P`
+base_dir="$cwd"
+
+#----------------------------------------------------------------------------------------------------
+
+function CheckMultiple()
+{
+	baseDir="$1"
+	
+	for mass in ${masses[*]}
+	do
+		for xangle in ${xangles[*]}
+		do
+			for config in ${configs[*]}
+			do
+				tag="$version/$baseDir/m_X_$mass/xangle_$xangle/$config"
+				dir="output/$tag"
+				eos_dir="/eos/cms/store/group/phys_pps/ppxz/$tag"
+
+				error=""
+
+				if [ ! -f "$dir/success" ]
+				then
+					error="${error}1"
+				fi
+
+				if [ ! -f "$eos_dir/ntuple.root" ]
+				then
+					size="0"
+					error="${error}2"
+				else
+					size=$(ls -l "$eos_dir/ntuple.root" |awk '{print $5}')
+
+					if [ $size -lt 50000000 ]
+					then
+						error="${error}3"
+					fi
+				fi
+
+				if [ -n "$error" ]
+				then
+					echo "ERROR: $tag ($error)"
+				#else
+				#	echo "OK: $tag"
+				fi
+			done
+		done
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+version="version10"
+
+masses=()
+for mass in {600..1650..60}
+do
+	masses+=($mass)
+done
+
+masses+=(800)
+masses+=(1000)
+#masses+=(1200)
+masses+=(1400)
+masses+=(1600)
+
+xangles=(
+	120
+	130
+	140
+	150
+)
+
+configs=(
+	"2017_preTS2"
+	"2017_postTS2"
+
+	#"2017_preTS2_opt_v1_simu"
+	#"2017_preTS2_opt_v1_simu_reco"
+
+	#"2017_postTS2_opt_v1_simu"
+	#"2017_postTS2_opt_v1_simu_reco"
+)
+
+CheckMultiple "Z"
+CheckMultiple "gamma"
