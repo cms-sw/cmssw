@@ -1,6 +1,7 @@
-/** \class VolumeBasedMagneticFieldESProducerFromDB
+/** \class DD4hep_VolumeBasedMagneticFieldESProducerFromDB
  *
- *  Producer for the VolumeBasedMagneticField, taking all inputs (geometry, etc) from DB
+ *  Producer for the VolumeBasedMagneticField, taking all inputs (geometry, etc) from DB.
+ *  This version uses DD4hep and is adapted from the DDD version (MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducerFromDB.cc)
  *
  */
 
@@ -23,16 +24,17 @@
 #include "FWCore/Utilities/interface/ESProductTag.h"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
+#include "MagneticField/GeomBuilder/src/DD4hep_MagGeoBuilder.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDRoot.h"
-#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/DDCMS/interface/DDDetector.h"
+
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/MFGeometryFileRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 #include "CondFormats/DataRecord/interface/MagFieldConfigRcd.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 #include <vector>
@@ -44,12 +46,13 @@ using namespace magneticfield;
 using namespace edm;
 
 namespace magneticfield {
-  class VolumeBasedMagneticFieldESProducerFromDB : public edm::ESProducer {
+  class DD4hep_VolumeBasedMagneticFieldESProducerFromDB : public edm::ESProducer {
   public:
-    VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig);
+    DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig);
     // forbid copy ctor and assignment op.
-    VolumeBasedMagneticFieldESProducerFromDB(const VolumeBasedMagneticFieldESProducerFromDB&) = delete;
-    const VolumeBasedMagneticFieldESProducerFromDB& operator=(const VolumeBasedMagneticFieldESProducerFromDB&) = delete;
+    DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const DD4hep_VolumeBasedMagneticFieldESProducerFromDB&) = delete;
+    const DD4hep_VolumeBasedMagneticFieldESProducerFromDB& operator=(
+        const DD4hep_VolumeBasedMagneticFieldESProducerFromDB&) = delete;
 
     std::shared_ptr<MagFieldConfig const> chooseConfigViaParameter(const IdealMagneticFieldRecord& iRecord);
     std::shared_ptr<MagFieldConfig const> chooseConfigAtRuntime(const IdealMagneticFieldRecord& iRecord);
@@ -73,7 +76,8 @@ namespace magneticfield {
   };
 }  // namespace magneticfield
 
-VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig)
+DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticFieldESProducerFromDB(
+    const edm::ParameterSet& iConfig)
     : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
   std::string const myConfigLabel = "VBMFESChoice";
 
@@ -82,7 +86,7 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
   if (current < 0) {
     //We do not know what to get until we first read RunInfo
     setWhatProduced(
-        this, &VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime, edm::es::Label(myConfigLabel))
+        this, &DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime, edm::es::Label(myConfigLabel))
         .setMayConsume(
             mayGetConfigToken_,
             [](auto const& iGet, edm::ESTransientHandle<RunInfo> iHandle) {
@@ -99,7 +103,7 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
     edm::LogInfo("MagneticFieldDB") << "Current :" << current
                                     << " (from valueOverride card); using map configuration with label: " << label;
     setWhatProduced(
-        this, &VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter, edm::es::Label(myConfigLabel))
+        this, &DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter, edm::es::Label(myConfigLabel))
         .setConsumes(knownFromParamConfigToken_, edm::ESInputTag(""s, std::string(label)));
   }
 
@@ -120,7 +124,7 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
       .setConsumes(chosenConfigToken_, myConfigTag);  //Use same tag as the choice
 }
 
-std::shared_ptr<MagFieldConfig const> VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime(
+std::shared_ptr<MagFieldConfig const> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime(
     IdealMagneticFieldRecord const& iRcd) {
   edm::ESHandle<MagFieldConfig> config = iRcd.getHandle(mayGetConfigToken_);
 
@@ -128,7 +132,7 @@ std::shared_ptr<MagFieldConfig const> VolumeBasedMagneticFieldESProducerFromDB::
   return std::shared_ptr<MagFieldConfig const>(config.product(), [](auto*) {});
 }
 
-std::shared_ptr<MagFieldConfig const> VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter(
+std::shared_ptr<MagFieldConfig const> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter(
     const IdealMagneticFieldRecord& iRecord) {
   auto config = iRecord.getHandle(knownFromParamConfigToken_);
 
@@ -137,7 +141,7 @@ std::shared_ptr<MagFieldConfig const> VolumeBasedMagneticFieldESProducerFromDB::
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(
+std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::produce(
     const IdealMagneticFieldRecord& iRecord) {
   auto const& conf = iRecord.getTransientHandle(chosenConfigToken_);
 
@@ -153,7 +157,7 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
   }
 
   // Full VolumeBased map + parametrization
-  MagGeoBuilderFromDDD builder(conf->version, conf->geometryVersion, debug_);
+  MagGeoBuilder builder(conf->version, conf->geometryVersion, debug_);
 
   // Set scaling factors
   if (!conf->keys.empty()) {
@@ -165,20 +169,20 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
     builder.setGridFiles(conf->gridFiles);
   }
 
-  // Build the geometry (DDDCompactView) from the DB blob
-  // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc)
+  // Build the geometry from the DB blob
 
   auto const& blob = iRecord.getTransientHandle(mayConsumeBlobToken_);
-
-  DDCompactView cpv{DDName("cmsMagneticField:MAGF")};
-  DDLParser parser(cpv);
-  parser.getDDLSAX2FileHandler()->setUserNS(true);
-  parser.clearFiles();
   std::unique_ptr<std::vector<unsigned char> > tb = blob->getUncompressedBlob();
-  parser.parse(*tb, tb->size());
-  cpv.lockdown();
 
-  builder.build(cpv);
+  string sblob(tb->begin(), tb->end());
+  sblob.insert(
+      sblob.rfind("</DDDefinition>"),
+      "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" "
+      "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
+
+  auto ddet = make_unique<cms::DDDetector>("", sblob, true);
+
+  builder.build(ddet.get());
 
   // Build the VB map. Ownership of the parametrization is transferred to it
   return std::make_unique<VolumeBasedMagneticField>(conf->geometryVersion,
@@ -192,7 +196,7 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
                                                     true);
 }
 
-std::string_view VolumeBasedMagneticFieldESProducerFromDB::closerNominalLabel(float current) {
+std::string_view DD4hep_VolumeBasedMagneticFieldESProducerFromDB::closerNominalLabel(float current) {
   constexpr std::array<int, 7> nominalCurrents = {{-1, 0, 9558, 14416, 16819, 18268, 19262}};
   constexpr std::array<std::string_view, 7> nominalLabels = {{"3.8T", "0T", "2T", "3T", "3.5T", "3.8T", "4T"}};
 
@@ -204,7 +208,7 @@ std::string_view VolumeBasedMagneticFieldESProducerFromDB::closerNominalLabel(fl
   return nominalLabels[i];
 }
 
-void VolumeBasedMagneticFieldESProducerFromDB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DD4hep_VolumeBasedMagneticFieldESProducerFromDB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("debugBuilder", false);
   desc.add<int>("valueOverride", -1)->setComment("Force value of current (in A); take the value from DB if < 0.");
@@ -213,4 +217,4 @@ void VolumeBasedMagneticFieldESProducerFromDB::fillDescriptions(edm::Configurati
   descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducerFromDB);
+DEFINE_FWK_EVENTSETUP_MODULE(DD4hep_VolumeBasedMagneticFieldESProducerFromDB);
