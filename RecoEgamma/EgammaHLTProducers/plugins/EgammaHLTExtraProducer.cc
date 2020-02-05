@@ -102,7 +102,6 @@ void EgammaHLTExtraProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 void EgammaHLTExtraProducer::produce(edm::StreamID streamID,
 				     edm::Event& event,
 				     const edm::EventSetup& eventSetup) const {
-
   auto ecalCandsHandle = event.getHandle(tokens_.ecalCands);
   auto gsfTrksHandle = event.getHandle(tokens_.gsfTracks);
   auto pixelSeedsHandle = event.getHandle(tokens_.pixelSeeds);
@@ -153,8 +152,11 @@ void EgammaHLTExtraProducer::setVars(reco::EgTrigSumObj& egTrigObj,const reco::R
 
 reco::GsfTrackRefVector EgammaHLTExtraProducer::matchingGsfTrks(const reco::SuperClusterRef& scRef,const edm::Handle<reco::GsfTrackCollection>& gsfTrksHandle)
 {
-  reco::GsfTrackRefVector gsfTrkRefs(gsfTrksHandle.id());
+  if(!gsfTrksHandle.isValid()){
+    return reco::GsfTrackRefVector();
+  }
 
+  reco::GsfTrackRefVector gsfTrkRefs(gsfTrksHandle.id());
   for(size_t trkNr=0;gsfTrksHandle.isValid() && trkNr<gsfTrksHandle->size();trkNr++){
     reco::GsfTrackRef trkRef(gsfTrksHandle,trkNr);
     edm::RefToBase<TrajectorySeed> seed = trkRef->extra()->seedRef();
@@ -176,18 +178,24 @@ void EgammaHLTExtraProducer::setGsfTracks(reco::EgTrigSumObj& egTrigObj,const ed
 
 void EgammaHLTExtraProducer::setSeeds(reco::EgTrigSumObj& egTrigObj,edm::Handle<reco::ElectronSeedCollection>& eleSeedsHandle)
 {
-  reco::ElectronSeedRefVector trigObjSeeds(eleSeedsHandle.id());
-  for(size_t seedNr=0;eleSeedsHandle.isValid() && seedNr<eleSeedsHandle->size();seedNr++){
-
-    reco::ElectronSeedRef eleSeed(eleSeedsHandle,seedNr);
-    edm::RefToBase<reco::CaloCluster> caloCluster = eleSeed->caloCluster();
-    reco::SuperClusterRef scRefFromSeed = caloCluster.castTo<reco::SuperClusterRef>();
-
-    if(scRefFromSeed==egTrigObj.superCluster()){
-      trigObjSeeds.push_back(eleSeed);
+  if(!eleSeedsHandle.isValid()){
+    egTrigObj.setSeeds(reco::ElectronSeedRefVector());
+  }else{
+    reco::ElectronSeedRefVector trigObjSeeds(eleSeedsHandle.id());
+    
+    
+    for(size_t seedNr=0;eleSeedsHandle.isValid() && seedNr<eleSeedsHandle->size();seedNr++){
+      
+      reco::ElectronSeedRef eleSeed(eleSeedsHandle,seedNr);
+      edm::RefToBase<reco::CaloCluster> caloCluster = eleSeed->caloCluster();
+      reco::SuperClusterRef scRefFromSeed = caloCluster.castTo<reco::SuperClusterRef>();
+      
+      if(scRefFromSeed==egTrigObj.superCluster()){
+	trigObjSeeds.push_back(eleSeed);
+      }
     }
+    egTrigObj.setSeeds(std::move(trigObjSeeds));
   }
-  egTrigObj.setSeeds(std::move(trigObjSeeds));
 }
 
 
@@ -200,6 +208,7 @@ std::unique_ptr<RecHitCollection> EgammaHLTExtraProducer::filterRecHits(const re
   std::vector<std::pair<float,float> > etaPhis;
   for(const auto& egTrigObj : egTrigObjs){
     etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()});
+    etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()+3.14159});
   }
   auto deltaR2Match = [&etaPhis,&maxDR2](const GlobalPoint& pos){
     float eta = pos.eta();
