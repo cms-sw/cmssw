@@ -1,5 +1,5 @@
-#ifndef __SimFastTiming_FastTimingCommon_BTLBarDeviceSim_h__
-#define __SimFastTiming_FastTimingCommon_BTLBarDeviceSim_h__
+#ifndef __SimFastTiming_FastTimingCommon_BTLDeviceSim_h__
+#define __SimFastTiming_FastTimingCommon_BTLDeviceSim_h__
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,9 +20,9 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class BTLBarDeviceSim {
+class BTLDeviceSim {
 public:
-  BTLBarDeviceSim(const edm::ParameterSet& pset);
+  BTLDeviceSim(const edm::ParameterSet& pset);
 
   void getEvent(const edm::Event& evt) {}
 

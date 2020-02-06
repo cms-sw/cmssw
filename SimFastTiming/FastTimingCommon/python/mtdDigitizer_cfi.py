@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-_barrel_bar_MTDDigitizer = cms.PSet(
-    digitizerName     = cms.string("BTLBarDigitizer"),
+_barrel_MTDDigitizer = cms.PSet(
+    digitizerName     = cms.string("BTLDigitizer"),
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsBarrel"),
     digiCollectionTag = cms.string("FTLBarrel"),
     maxSimHitsAccTime = cms.uint32(100),
@@ -82,7 +82,7 @@ _endcap_MTDDigitizer = cms.PSet(
 )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-for _m in [_barrel_bar_MTDDigitizer, _endcap_MTDDigitizer]:
+for _m in [_barrel_MTDDigitizer, _endcap_MTDDigitizer]:
     premix_stage1.toModify(_m, premixStage1 = True)
 
 # Fast Timing
@@ -91,7 +91,7 @@ mtdDigitizer = cms.PSet(
     makeDigiSimLinks  = cms.bool(False),
     verbosity         = cms.untracked.uint32(0),
 
-    barrelDigitizer = _barrel_bar_MTDDigitizer,
+    barrelDigitizer = _barrel_MTDDigitizer,
     endcapDigitizer = _endcap_MTDDigitizer
 )
 
