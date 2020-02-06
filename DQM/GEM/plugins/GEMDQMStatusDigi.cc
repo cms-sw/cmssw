@@ -759,7 +759,7 @@ void GEMDQMStatusDigi::seekIdxSummary(GEMDetId gid, Int_t &nIdxLayer, Int_t &nId
   GEMDetId layerId(gid.region(), gid.ring(), gid.station(), nLayer, 0, 0);
   GEMDetId chamberId(0, 1, 1, gid.layer() - nLayer, gid.chamber(), 0);
 
-  nIdxLayer = seekIdx(m_listLayers, layerId);
+  nIdxLayer = seekIdx(m_listLayers, layerId) + 1;
   nIdxChamber = seekIdx(m_listChambers, chamberId) + 1;
 }
 
@@ -887,7 +887,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       unStatus |= (!amc->daqReady() << unBit++);
       unStatus |= (!amc->daqClockLocked() << unBit++);
       unStatus |= (!amc->mmcmLocked() << unBit++);
-      unStatus |= (!amc->backPressure() << unBit++);
+      unStatus |= (amc->backPressure() << unBit++);
       unStatus |= (amc->oosGlib() << unBit++);
 
       FillBits(h2AMCStatus_, unStatus, amcStatusBit_, nIdAMC);
