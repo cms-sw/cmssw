@@ -42,6 +42,8 @@ namespace edm::shared_memory {
     ~ControllerChannel();
     ControllerChannel(const ControllerChannel&) = delete;
     const ControllerChannel& operator=(const ControllerChannel&) = delete;
+    ControllerChannel(ControllerChannel&&) = delete;
+    const ControllerChannel& operator=(ControllerChannel&&) = delete;
 
     // ---------- member functions ---------------------------
 
