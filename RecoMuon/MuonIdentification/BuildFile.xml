@@ -1,20 +1,13 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Math"/>
-<use   name="DataFormats/TrajectoryState"/>
 <use   name="DataFormats/VertexReco"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="RecoMuon/Navigation"/>
 <use   name="RecoMuon/TransientTrackingRecHit"/>
-<use   name="RecoMuon/MuonIsolation"/>
 <use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoTracker/TkMSParametrization"/>
-<use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/Records"/>
-<use   name="TrackingTools/TrackFitters"/>
 <use   name="TrackingTools/TrackRefitter"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
@@ -29,15 +22,10 @@
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CSCGeometry"/>
-<use   name="Geometry/GEMGeometry"/>
 <use   name="Geometry/Records"/>
-<use   name="SimTracker/Records"/>
-<use   name="SimMuon/MCTruth"/>
-<use   name="SimTracker/TrackAssociation"/>
 <use   name="roothistmatrix"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="DataFormats/CSCRecHit"/>
-<use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="PhysicsTools/SelectorUtils"/>
 <export>
   <lib   name="1"/>
