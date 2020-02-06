@@ -142,4 +142,6 @@ int main(int argc, char** argv) {
   SiStripThresholdValueHigh histo14;
   histo14.process(connectionString, tag, runTimeType, start, start);
   std::cout << histo14.data() << std::endl;
+
+  Py_Finalize();
 }
