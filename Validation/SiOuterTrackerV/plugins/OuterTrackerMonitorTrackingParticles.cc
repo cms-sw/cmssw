@@ -239,7 +239,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
         dmatch_eta = std::fabs(my_tp->p4().eta() - tmp_tp_eta);
         dmatch_phi = std::fabs(my_tp->p4().phi() - tmp_tp_phi);
         match_id = my_tp->pdgId();
-        float tmp_trk_chi2dof = (thisTrack->getChi2(L1Tk_nPar)) / (2 * tmp_trk_nstub - L1Tk_nPar);
+        float tmp_trk_chi2dof = (thisTrack->chi2()) / (2 * tmp_trk_nstub - L1Tk_nPar);
 
         // ensure that track is uniquely matched to the TP we are looking at!
         if (dmatch_pt < 0.1 && dmatch_eta < 0.1 && dmatch_phi < 0.1 && tmp_tp_pdgid == match_id) {
@@ -264,20 +264,20 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
       int tmp_matchTrk_nStub = -999;
       float tmp_matchtrk_d0 = -999;
 
-      tmp_matchtrk_pt = matchedTracks[i_track]->getMomentum(L1Tk_nPar).perp();
-      tmp_matchtrk_eta = matchedTracks[i_track]->getMomentum(L1Tk_nPar).eta();
-      tmp_matchtrk_phi = matchedTracks[i_track]->getMomentum(L1Tk_nPar).phi();
-      tmp_matchtrk_VtxZ = matchedTracks[i_track]->getPOCA(L1Tk_nPar).z();
-      tmp_matchtrk_chi2 = matchedTracks[i_track]->getChi2(L1Tk_nPar);
-      tmp_matchtrk_chi2dof = matchedTracks[i_track]->getChi2Red(L1Tk_nPar);
+      tmp_matchtrk_pt = matchedTracks[i_track]->momentum().perp();
+      tmp_matchtrk_eta = matchedTracks[i_track]->eta();
+      tmp_matchtrk_phi = matchedTracks[i_track]->phi();
+      tmp_matchtrk_VtxZ = matchedTracks[i_track]->z0();
+      tmp_matchtrk_chi2 = matchedTracks[i_track]->chi2();
+      tmp_matchtrk_chi2dof = matchedTracks[i_track]->chi2Red();
       tmp_matchTrk_nStub = (int)matchedTracks[i_track]->getStubRefs().size();
 
       Track_MatchedChi2->Fill(tmp_matchtrk_chi2);
       Track_MatchedChi2Red->Fill(tmp_matchtrk_chi2dof);
 
       //for d0
-      float tmp_matchtrk_x0 = matchedTracks[i_track]->getPOCA(L1Tk_nPar).x();
-      float tmp_matchtrk_y0 = matchedTracks[i_track]->getPOCA(L1Tk_nPar).y();
+      float tmp_matchtrk_x0 = matchedTracks[i_track]->POCA().x();
+      float tmp_matchtrk_y0 = matchedTracks[i_track]->POCA().y();
       tmp_matchtrk_d0 = -tmp_matchtrk_x0 * sin(tmp_matchtrk_phi) + tmp_matchtrk_y0 * cos(tmp_matchtrk_phi);
 
       //Add cuts for the matched tracks, numerator

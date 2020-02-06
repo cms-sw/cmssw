@@ -35,7 +35,7 @@ public:
                     unsigned int tanl,
                     unsigned int z0,
                     unsigned int d0,
-                    unsigned int theChi2, // would be xy chisq if chi2Z is non-zero 
+                    unsigned int theChi2,  // would be xy chisq if chi2Z is non-zero
                     unsigned int theChi2Z,
                     unsigned int theBendChi2,
                     unsigned int theHitPattern,
@@ -44,8 +44,8 @@ public:
   void setTrackWord(const GlobalVector& Momentum,
                     const GlobalPoint& POCA,
                     double theRinv,
-                    double theChi2,  // would be xy chisq if chi2Z is non-zero 
-		    double theChi2Z,
+                    double theChi2,  // would be xy chisq if chi2Z is non-zero
+                    double theChi2Z,
                     double theBendChi2,
                     unsigned int theHitPattern,
                     unsigned int iSpare);
@@ -55,7 +55,7 @@ public:
                     unsigned int tanl,
                     unsigned int z0,
                     unsigned int d0,
-                    unsigned int theChi2, // would be xy chisq if chi2Z is non-zero 
+                    unsigned int theChi2,  // would be xy chisq if chi2Z is non-zero
                     unsigned int theChi2Z,
                     unsigned int theBendChi2,
                     unsigned int theHitPattern,
