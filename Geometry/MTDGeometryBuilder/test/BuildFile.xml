@@ -1,12 +1,13 @@
-<use name="Geometry/TrackerGeometryBuilder"/>
-<use name="Geometry/TrackerNumberingBuilder"/>
-<use name="Geometry/CommonDetUnit"/>
-<use name="FWCore/Framework"/>
-<library file="MTDDigiGeometryAnalyzer.cc" name="MTDDigiGeometryAnalyzer">
-  <use name="Geometry/MTDNumberingBuilder"/>
-  <use name="Geometry/MTDGeometryBuilder"/>
-  <use name="CondFormats/Alignment"/>
-  <use name="Geometry/Records"/>
-  <flags EDM_PLUGIN="1"/>
+<library name="MTDDigiGeometryAnalyzer" file="MTDDigiGeometryAnalyzer.cc">
+ <use name="DataFormats/GeometrySurface"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="Geometry/CommonTopologies"/>
+ <use name="Geometry/MTDGeometryBuilder"/>
+ <use name="Geometry/MTDNumberingBuilder"/>
+ <use name="Geometry/Records"/>
+ <use name="boost_system"/>
+ <use name="rootcling"/>
+ <flags EDM_PLUGIN="1"/>
 </library>
-
