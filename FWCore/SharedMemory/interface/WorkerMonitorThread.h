@@ -66,7 +66,8 @@ namespace edm::shared_memory {
     std::atomic<bool> actionSet_ = false;
     CMS_THREAD_GUARD(actionSet_) std::function<void()> action_;
 
-    static int s_pipeEnds[2];
+    static std::atomic<int> s_pipeReadEnd;
+    static std::atomic<int> s_pipeWriteEnd;
     static std::atomic<bool> s_helperThreadDone;
 
     std::thread helperThread_;
