@@ -43,6 +43,8 @@ namespace edm::shared_memory {
     }
     ReadBuffer(const ReadBuffer&) = delete;
     const ReadBuffer& operator=(const ReadBuffer&) = delete;
+    ReadBuffer(ReadBuffer&&) = delete;
+    const ReadBuffer& operator=(ReadBuffer&&) = delete;
 
     // ---------- const member functions ---------------------
     bool mustGetBufferAgain() const { return *bufferIndex_ != bufferOldIndex_; }

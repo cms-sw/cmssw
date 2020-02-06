@@ -39,6 +39,8 @@ namespace edm::shared_memory {
     }
     WorkerMonitorThread(const WorkerMonitorThread&) = delete;
     const WorkerMonitorThread& operator=(const WorkerMonitorThread&) = delete;
+    WorkerMonitorThread(WorkerMonitorThread&&) = delete;
+    const WorkerMonitorThread& operator=(WorkerMonitorThread&&) = delete;
 
     // ---------- const member functions ---------------------
 

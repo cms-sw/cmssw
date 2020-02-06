@@ -47,6 +47,8 @@ namespace edm::shared_memory {
     }
     WriteBuffer(const WriteBuffer&) = delete;
     const WriteBuffer& operator=(const WriteBuffer&) = delete;
+    WriteBuffer(WriteBuffer&&) = delete;
+    const WriteBuffer& operator=(WriteBuffer&&) = delete;
 
     ~WriteBuffer();
 

@@ -39,6 +39,8 @@ namespace edm::shared_memory {
     WorkerChannel(std::string const& iName, const std::string& iUniqueID);
     WorkerChannel(const WorkerChannel&) = delete;
     const WorkerChannel& operator=(const WorkerChannel&) = delete;
+    WorkerChannel(WorkerChannel&&) = delete;
+    const WorkerChannel& operator=(WorkerChannel&&) = delete;
 
     // ---------- member functions ---------------------------
     /// the lock is made accessible so that the WorkerMonitorThread can be used to unlock it in the event of a unix signal

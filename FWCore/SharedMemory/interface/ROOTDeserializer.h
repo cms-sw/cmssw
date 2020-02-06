@@ -35,6 +35,8 @@ namespace edm::shared_memory {
 
     ROOTDeserializer(const ROOTDeserializer&) = delete;
     const ROOTDeserializer& operator=(const ROOTDeserializer&) = delete;
+    ROOTDeserializer(ROOTDeserializer&&) = delete;
+    const ROOTDeserializer& operator=(ROOTDeserializer&&) = delete;
 
     // ---------- const member functions ---------------------
 
