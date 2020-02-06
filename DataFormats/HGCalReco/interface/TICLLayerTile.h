@@ -53,9 +53,7 @@ public:
   // numbering is not handled internally. It is the user's responsibility to
   // properly use and consistently access it here.
   const TICLLayerTile& operator[](int index) const { return tiles_[index]; }
-  void fill(int index, double eta, double phi, unsigned int objectId) {
-    tiles_[index].fill(eta, phi, objectId);
-  }
+  void fill(int index, double eta, double phi, unsigned int objectId) { tiles_[index].fill(eta, phi, objectId); }
 
 private:
   T tiles_;
@@ -64,7 +62,7 @@ private:
 namespace ticl {
   using Tiles = std::array<TICLLayerTile, constants::nLayers>;
   using TracksterTiles = std::array<TICLLayerTile, constants::iterations>;
-} // namespace ticl
+}  // namespace ticl
 
 using TICLLayerTiles = TICLGenericTile<ticl::Tiles>;
 using TICLTracksterTiles = TICLGenericTile<ticl::TracksterTiles>;
