@@ -21,7 +21,7 @@ class ThingExternalProcessProducer(cms.EDProducer):
         newpset.addString(True, "@module_type", self.type_())
         newpset.addString(True, "@module_edm_type", cms.EDProducer.__name__)
         newpset.addString(True, "@external_type", self._prod.type_())
-        newpset.addString(False,"python_config", self._prod.dumpPython())
+        newpset.addString(False,"@python_config", self._prod.dumpPython())
         self._prod.insertContentsInto(newpset)
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
