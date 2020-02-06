@@ -377,6 +377,8 @@ std::shared_ptr<TestRandomNumberServiceLumiCache> TestRandomNumberServiceGlobal:
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine(lumi.index());
+  std::unique_ptr<CLHEP::HepRandomEngine> engineClone = rng->cloneEngine(lumi.index());
+
   double x1 = engine.flat();
   double x2 = engine.flat();
 
@@ -387,6 +389,14 @@ std::shared_ptr<TestRandomNumberServiceLumiCache> TestRandomNumberServiceGlobal:
         << lumiCache->referenceEngine_->name() << " seed0= " << seed0 << " nStream= " << nStreams_;
   }
 
+  double z1 = engineClone->flat();
+  double z2 = engineClone->flat();
+  if (x1 != z1 || x2 != z2 || engine.getSeed() != engineClone->getSeed()) {
+    throw cms::Exception("TestRandomNumberService")
+        << "TestRandomNumberServiceGlobal::globalBeginLuminosityBlock:  test of cloned engine failed "
+        << " x1= " << x1 << " z1= " << z1 << " x2= " << x2 << " z2= " << z2 << " " << engine.name() << " "
+        << engineClone->name() << " seed0= " << seed0 << " nStream= " << nStreams_;
+  }
   return lumiCache;
 }
 

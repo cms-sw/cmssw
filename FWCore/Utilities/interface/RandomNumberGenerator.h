@@ -127,6 +127,7 @@ of the SWGuide.
 
 #include <cstdint>
 #include <iosfwd>
+#include <memory>
 #include <vector>
 
 class RandomEngineState;
@@ -156,6 +157,8 @@ namespace edm {
 
     /// Use this engine in the global begin luminosity block method
     virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) = 0;
+
+    virtual std::unique_ptr<CLHEP::HepRandomEngine> cloneEngine(LuminosityBlockIndex const&) = 0;
 
     /// This returns the seed from the configuration. In the unusual case where an
     /// an engine type takes multiple seeds to initialize a sequence, this function
