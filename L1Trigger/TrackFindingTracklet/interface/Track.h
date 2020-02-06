@@ -92,6 +92,9 @@ public:
   double eta() const {
     return asinh(it_*ktpars);
   }
+  double tanL() const {
+    return it_*ktpars;
+  }
   double z0() const {
     return iz0_*kz0pars;
   }

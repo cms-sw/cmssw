@@ -910,26 +910,26 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > l1track_ptr(TTTrackHandle, this_l1track);
       this_l1track++;
       
-      float tmp_trk_pt   = iterL1Track->getMomentum(L1Tk_nPar).perp();
-      float tmp_trk_eta  = iterL1Track->getMomentum(L1Tk_nPar).eta();
-      float tmp_trk_phi  = iterL1Track->getMomentum(L1Tk_nPar).phi();
-      float tmp_trk_z0   = iterL1Track->getPOCA(L1Tk_nPar).z(); //cm
+      float tmp_trk_pt   = iterL1Track->momentum().perp();
+      float tmp_trk_eta  = iterL1Track->momentum().eta();
+      float tmp_trk_phi  = iterL1Track->momentum().phi();
+      float tmp_trk_z0   = iterL1Track->z0(); //cm
 
       float tmp_trk_d0 = -999;
       if (L1Tk_nPar == 5) {
-	float tmp_trk_x0   = iterL1Track->getPOCA(L1Tk_nPar).x();
-	float tmp_trk_y0   = iterL1Track->getPOCA(L1Tk_nPar).y();
+	float tmp_trk_x0   = iterL1Track->POCA().x();
+	float tmp_trk_y0   = iterL1Track->POCA().y();
 	tmp_trk_d0 = -tmp_trk_x0*sin(tmp_trk_phi) + tmp_trk_y0*cos(tmp_trk_phi);
       }
 
-      float tmp_trk_chi2 = iterL1Track->getChi2(L1Tk_nPar);
-      float tmp_trk_bendchi2 = iterL1Track->getStubPtConsistency(L1Tk_nPar);
+      float tmp_trk_chi2 = iterL1Track->chi2();
+      float tmp_trk_bendchi2 = iterL1Track->stubPtConsistency();
 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubRefs = iterL1Track->getStubRefs();
       int tmp_trk_nstub  = (int) stubRefs.size();
 
       int tmp_trk_seed = 0;
-      if (SaveTracklet) tmp_trk_seed = (int) iterL1Track->TrackSeed();
+      if (SaveTracklet) tmp_trk_seed = (int) iterL1Track->trackSeedType();
       
       unsigned int tmp_trk_phiSector = iterL1Track->phiSector();
       
@@ -1293,12 +1293,12 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    cout << "TP matched to track matched to TP ... tp pt = " << my_tp->p4().pt() << " eta = " << my_tp->momentum().eta()
 		 << " phi = " << my_tp->momentum().phi() << " z0 = " << my_tp->vertex().z() << endl;
 	  }
-	  cout << "   ... matched L1 track has pt = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).perp()
-	       << " eta = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).eta()
-	       << " phi = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).phi()
-	       << " chi2 = " << matchedTracks.at(it)->getChi2(L1Tk_nPar)
-	       << " consistency = " << matchedTracks.at(it)->getStubPtConsistency(L1Tk_nPar)
-	       << " z0 = " << matchedTracks.at(it)->getPOCA(L1Tk_nPar).z()
+	  cout << "   ... matched L1 track has pt = " << matchedTracks.at(it)->momentum().perp()
+	       << " eta = " << matchedTracks.at(it)->momentum().eta()
+	       << " phi = " << matchedTracks.at(it)->momentum().phi()
+	       << " chi2 = " << matchedTracks.at(it)->chi2()
+	       << " consistency = " << matchedTracks.at(it)->stubPtConsistency()
+	       << " z0 = " << matchedTracks.at(it)->z0()
 	       << " nstub = " << matchedTracks.at(it)->getStubRefs().size();
 	  if (tmp_trk_genuine) cout << " (genuine!) " << endl;
 	  if (tmp_trk_loosegenuine) cout << " (loose genuine!) " << endl;
@@ -1339,7 +1339,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 	dmatch_phi = fabs(my_tp->p4().phi() - tmp_tp_phi);
 	match_id = my_tp->pdgId();
 
-	float tmp_trk_chi2dof = (matchedTracks.at(it)->getChi2(L1Tk_nPar)) / (2*tmp_trk_nstub - L1Tk_nPar);
+	float tmp_trk_chi2dof = (matchedTracks.at(it)->chi2()) / (2*tmp_trk_nstub - L1Tk_nPar);
 
 	// ensure that track is uniquely matched to the TP we are looking at!
 	if (dmatch_pt<0.1 && dmatch_eta<0.1 && dmatch_phi<0.1 && tmp_tp_pdgid==match_id) {
@@ -1392,21 +1392,21 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (nLooseMatch > 1 && DebugMode) cout << "WARNING *** 2 or more matches to loosely genuine L1 tracks ***" << endl;
 
     if (nMatch > 0) {
-      tmp_matchtrk_pt   = matchedTracks.at(i_track)->getMomentum(L1Tk_nPar).perp();
-      tmp_matchtrk_eta  = matchedTracks.at(i_track)->getMomentum(L1Tk_nPar).eta();
-      tmp_matchtrk_phi  = matchedTracks.at(i_track)->getMomentum(L1Tk_nPar).phi();
-      tmp_matchtrk_z0   = matchedTracks.at(i_track)->getPOCA(L1Tk_nPar).z();
+      tmp_matchtrk_pt   = matchedTracks.at(i_track)->momentum().perp();
+      tmp_matchtrk_eta  = matchedTracks.at(i_track)->momentum().eta();
+      tmp_matchtrk_phi  = matchedTracks.at(i_track)->momentum().phi();
+      tmp_matchtrk_z0   = matchedTracks.at(i_track)->z0();
 
       if (L1Tk_nPar == 5) {
-	float tmp_matchtrk_x0 = matchedTracks.at(i_track)->getPOCA(L1Tk_nPar).x();
-	float tmp_matchtrk_y0 = matchedTracks.at(i_track)->getPOCA(L1Tk_nPar).y();
+	float tmp_matchtrk_x0 = matchedTracks.at(i_track)->POCA().x();
+	float tmp_matchtrk_y0 = matchedTracks.at(i_track)->POCA().y();
 	tmp_matchtrk_d0 = -tmp_matchtrk_x0*sin(tmp_matchtrk_phi) + tmp_matchtrk_y0*cos(tmp_matchtrk_phi);
       }
 
-      tmp_matchtrk_chi2 = matchedTracks.at(i_track)->getChi2(L1Tk_nPar);
-      tmp_matchtrk_bendchi2 = matchedTracks.at(i_track)->getStubPtConsistency(L1Tk_nPar);
+      tmp_matchtrk_chi2 = matchedTracks.at(i_track)->chi2();
+      tmp_matchtrk_bendchi2 = matchedTracks.at(i_track)->stubPtConsistency();
       tmp_matchtrk_nstub  = (int) matchedTracks.at(i_track)->getStubRefs().size();
-      if (SaveTracklet)	tmp_matchtrk_seed = (int) matchedTracks.at(i_track)->TrackSeed();
+      if (SaveTracklet)	tmp_matchtrk_seed = (int) matchedTracks.at(i_track)->trackSeedType();
       
 
       // ------------------------------------------------------------------------------------------
@@ -1444,21 +1444,21 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
 
     if (nLooseMatch > 0) {
-      tmp_loosematchtrk_pt   = matchedTracks.at(i_loosetrack)->getMomentum(L1Tk_nPar).perp();
-      tmp_loosematchtrk_eta  = matchedTracks.at(i_loosetrack)->getMomentum(L1Tk_nPar).eta();
-      tmp_loosematchtrk_phi  = matchedTracks.at(i_loosetrack)->getMomentum(L1Tk_nPar).phi();
-      tmp_loosematchtrk_z0   = matchedTracks.at(i_loosetrack)->getPOCA(L1Tk_nPar).z();
+      tmp_loosematchtrk_pt   = matchedTracks.at(i_loosetrack)->momentum().perp();
+      tmp_loosematchtrk_eta  = matchedTracks.at(i_loosetrack)->momentum().eta();
+      tmp_loosematchtrk_phi  = matchedTracks.at(i_loosetrack)->momentum().phi();
+      tmp_loosematchtrk_z0   = matchedTracks.at(i_loosetrack)->z0();
 
       if (L1Tk_nPar == 5) {
-	float tmp_loosematchtrk_x0 = matchedTracks.at(i_loosetrack)->getPOCA(L1Tk_nPar).x();
-	float tmp_loosematchtrk_y0 = matchedTracks.at(i_loosetrack)->getPOCA(L1Tk_nPar).y();
+	float tmp_loosematchtrk_x0 = matchedTracks.at(i_loosetrack)->POCA().x();
+	float tmp_loosematchtrk_y0 = matchedTracks.at(i_loosetrack)->POCA().y();
 	tmp_loosematchtrk_d0 = -tmp_loosematchtrk_x0*sin(tmp_loosematchtrk_phi) + tmp_loosematchtrk_y0*cos(tmp_loosematchtrk_phi);
       }
       
-      tmp_loosematchtrk_chi2 = matchedTracks.at(i_loosetrack)->getChi2(L1Tk_nPar);
-      tmp_loosematchtrk_bendchi2 = matchedTracks.at(i_loosetrack)->getStubPtConsistency(L1Tk_nPar);
+      tmp_loosematchtrk_chi2 = matchedTracks.at(i_loosetrack)->chi2();
+      tmp_loosematchtrk_bendchi2 = matchedTracks.at(i_loosetrack)->stubPtConsistency();
       tmp_loosematchtrk_nstub  = (int) matchedTracks.at(i_loosetrack)->getStubRefs().size();
-      if (SaveTracklet)	tmp_loosematchtrk_seed = (int) matchedTracks.at(i_loosetrack)->TrackSeed();
+      if (SaveTracklet)	tmp_loosematchtrk_seed = (int) matchedTracks.at(i_loosetrack)->trackSeedType();
     }
 
 

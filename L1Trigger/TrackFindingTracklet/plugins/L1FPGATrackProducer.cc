@@ -207,6 +207,9 @@ private:
   Sector** sectors;
   Cabling cabling;
 
+  unsigned int nHelixPar_;
+  bool extended_;
+  
   std::map<string,vector<int> > dtclayerdisk;
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -292,9 +295,11 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig) :
   // --------------------------------------------------------------------------------
 
 
-  hourglassExtended=iConfig.getUntrackedParameter<bool>("Extended",false);
-  nHelixPar=iConfig.getUntrackedParameter<int>("Hnpar",4);
-
+  extended_  = iConfig.getUntrackedParameter<bool>("Extended",false);
+  nHelixPar_ = iConfig.getUntrackedParameter<int>("Hnpar",4);
+  hourglassExtended = extended_; 
+  nHelixPar = nHelixPar_;
+  
   krinvpars = TrackletCalculator::ITC_L1L2.rinv_final.get_K();
   kphi0pars = TrackletCalculator::ITC_L1L2.phi0_final.get_K();
   ktpars    = TrackletCalculator::ITC_L1L2.t_final.get_K();
@@ -970,67 +975,33 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     ntracks++;
 
     // this is where we create the TTTrack object
-    double tmp_rinv = track->rinv() * 100.; //by default this variable is in [cm-1], so convert to [m-1]
-    double tmp_phi = track->phi0();
-    double tmp_eta = track->eta();
-    double tmp_z0 = track->z0();
-    double tmp_d0 = track->d0();
+    double tmp_rinv = track->rinv();
+    double tmp_phi  = track->phi0();
+    double tmp_tanL = track->tanL();
+    double tmp_z0   = track->z0();
+    double tmp_d0   = track->d0();
     double tmp_chi2 = track->chisq();
-    unsigned int tmp_hit = 0;
-    unsigned int tmp_npar = 4;
+    unsigned int tmp_hit  = 0;
     double tmp_Bfield = mMagneticFieldStrength;
     
-    TTTrack< Ref_Phase2TrackerDigi_ > aTrack(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
+    TTTrack< Ref_Phase2TrackerDigi_ > aTrack(tmp_rinv, tmp_phi, tmp_tanL, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, nHelixPar_, tmp_Bfield);
 
     unsigned int trksector = track->sector();
     unsigned int trkseed = (unsigned int) abs(track->seed());
 
     aTrack.setPhiSector(trksector); //tracklet phi sector
-    aTrack.setTrackSeed(trkseed);   //tracklet seed
-
-    /*
-    //First do the 4 parameter fit
-    GlobalPoint bsPosition4par(0.0,0.0,track->z0());
-    aTrack.setPOCA(bsPosition4par,4);
-
-    double pt4par=fabs(track->pt(mMagneticFieldStrength));
-
-    GlobalVector p34par(GlobalVector::Cylindrical(pt4par,
-						  track->phi0(),
-						  pt4par*sinh(track->eta())));
-
-    aTrack.setMomentum(p34par,4);
-    aTrack.setRInv(track->rinv(),4);
-    double tmpchi2 = track->chisq();
-    aTrack.setChi2(tmpchi2,4);
-    */
-
-    /*
-    //Now do the 5 parameter fit
-    GlobalPoint bsPosition5par(-track->d0()*sin(track->phi0()),track->d0()*cos(track->phi0()),track->z0());
-    aTrack.setPOCA(bsPosition5par,5);
-
-    double pt5par=fabs(track->pt(mMagneticFieldStrength));
-
-    GlobalVector p35par(GlobalVector::Cylindrical(pt5par,
-						  track->phi0(),
-						  pt5par*sinh(track->eta())));
-
-    aTrack.setMomentum(p35par,5);
-    aTrack.setRInv(track->rinv(),5);
-    double tmpchi25 = track->chisq();
-    aTrack.setChi2(tmpchi25,5);
-    */
+    aTrack.setTrackSeedType(trkseed);   //tracklet seed
 
     vector<L1TStub*> stubptrs = track->stubs();
-
     vector<L1TStub> stubs;
 
     if (doMyDebug) {
       cout << "FPGA Track pt, eta, phi, z0, chi2, nstub, rinv = "
-	   << track->pt() << " " << track->eta() << " " << track->phi0() << " " << track->z0() << " " << track->chisq() << " " << stubptrs.size() << " " << track->rinv() << endl;
+	   << track->pt() << " " << track->eta() << " " << track->phi0() << " " << track->z0() << " "
+	   << track->chisq() << " " << stubptrs.size() << " " << track->rinv() << endl;
       cout << "INT FPGA Track irinv, iphi0, iz0, it, ichisq = "
-	   << track->irinv() << " " << track->iphi0() << " " << track->iz0() << " " << track->it() << " " << track->ichisq() << endl;
+	   << track->irinv() << " " << track->iphi0() << " " << track->iz0() << " " << track->it()
+	   << " " << track->ichisq() << endl;
     }
 
     for (unsigned int i=0;i<stubptrs.size();i++){
@@ -1057,10 +1028,8 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 
     // pt consistency
-    float consistency4par = StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo,  mMagneticFieldStrength, 4);
-    aTrack.setStubPtConsistency(consistency4par);
-    //float consistency5par = StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, mMagneticFieldStrength, 5);
-    //aTrack.setStubPtConsistency(consistency5par,5);
+    float ptconsistency = StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo,  mMagneticFieldStrength, nHelixPar_);
+    aTrack.setStubPtConsistency(ptconsistency);
 
     L1TkTracksForOutput->push_back(aTrack);
 

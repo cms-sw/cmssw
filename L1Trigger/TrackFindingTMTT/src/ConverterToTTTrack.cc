@@ -51,21 +51,21 @@ TTTrack< Ref_Phase2TrackerDigi_ > ConverterToTTTrack::makeTTTrack(const L1track3
   // new TTTrack constructor
   double tmp_rinv = invPtToInvR_ * trk.qOverPt();
   double tmp_phi = trk.phi0();
-  double tmp_eta = trk.eta();
+  double tmp_tanL = trk.tanLambda();
   double tmp_z0 = trk.z0();
   double tmp_d0 = trk.d0();
   double tmp_chi2 = -1;
   unsigned int tmp_hit = 0;
   unsigned int tmp_npar = nPar4;
   double tmp_Bfield = 3.81120228767395; //FIX 
-  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
+  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_tanL, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
 
   // set stub references
   track.setStubRefs(ttstubrefs);
 
   // Note which (eta,phi) sector this track was reconstructed in by HT.
   track.setPhiSector(iPhiSec);
-  track.setTrackSeed(iEtaReg); // <=== no appropriate variable! 
+  track.setEtaSector(iEtaReg);
 
   track.setStubPtConsistency(-1); // not filled.
     
@@ -118,21 +118,21 @@ TTTrack< Ref_Phase2TrackerDigi_ > ConverterToTTTrack::makeTTTrack(const L1fitted
   // new TTTrack constructor
   double tmp_rinv = invPtToInvR_ * trk.qOverPt();
   double tmp_phi = trk.phi0();
-  double tmp_eta = trk.eta();
+  double tmp_tanL = trk.tanLambda();
   double tmp_z0 = trk.z0();
   double tmp_d0 = trk.d0();
   double tmp_chi2 = -1;
   unsigned int tmp_hit = 0;
   unsigned int tmp_npar = nPar;
   double tmp_Bfield = 3.81120228767395; //FIX 
-  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
+  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_tanL, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
 
   // set stub references
   track.setStubRefs(ttstubrefs);
 
   // Note which (eta,phi) sector this track was reconstructed in by HT.
   track.setPhiSector(iPhiSec);
-  track.setTrackSeed(iEtaReg); // <=== no appropriate variable! 
+  track.setEtaSector(iEtaReg);
 
   track.setStubPtConsistency(-1); // not filled.
 
@@ -207,21 +207,21 @@ TTTrack< Ref_Phase2TrackerDigi_ > ConverterToTTTrack::makeTTTrack(const L1fitted
 
   double tmp_rinv = invPtToInvR_ * trk.qOverPt();
   double tmp_phi = trk.phi0();
-  double tmp_eta = trk.eta();
+  double tmp_tanL = trk.tanLambda();
   double tmp_z0 = trk.z0();
   double tmp_d0 = trk.d0();
   double tmp_chi2 = -1;
   unsigned int tmp_hit = 0;
   unsigned int tmp_npar = nPar;
   double tmp_Bfield = 3.81120228767395; //FIX 
-  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_eta, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
+  TTTrack< Ref_Phase2TrackerDigi_ > track(tmp_rinv, tmp_phi, tmp_tanL, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, tmp_npar, tmp_Bfield);
 
   // set stub references
   track.setStubRefs(ttstubrefs);
 
   // Note which (eta,phi) sector this track was reconstructed in by HT.
   track.setPhiSector(iPhiSec);
-  track.setTrackSeed(iEtaReg); // <=== no appropriate variable! 
+  track.setEtaSector(iEtaReg);
 
   track.setStubPtConsistency(-1); // not filled.
 
