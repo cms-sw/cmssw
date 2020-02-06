@@ -123,10 +123,14 @@ namespace testinter {
   };
 
   struct RunCache {
-    mutable edmtest::ThingCollection thingCollection_;
+    //Only stream 0 sets this at stream end Run and it is read at global end run
+    // the framework guarantees those calls can not happen simultaneously
+    CMS_THREAD_SAFE mutable edmtest::ThingCollection thingCollection_;
   };
   struct LumiCache {
-    mutable edmtest::ThingCollection thingCollection_;
+    //Only stream 0 sets this at stream end Lumi and it is read at global end Lumi
+    // the framework guarantees those calls can not happen simultaneously
+    CMS_THREAD_SAFE mutable edmtest::ThingCollection thingCollection_;
   };
 }  // namespace testinter
 
@@ -167,8 +171,14 @@ private:
 
   std::string config_;
 
-  mutable testinter::StreamCache* stream0Cache_ = nullptr;
+  //This is set at beginStream and used for globalBeginRun
+  //The framework guarantees that non of those can happen concurrently
+  CMS_THREAD_SAFE mutable testinter::StreamCache* stream0Cache_ = nullptr;
+  //A stream which has finished processing the last lumi is used for the
+  // call to globalBeginLuminosityBlockProduce
   mutable std::atomic<testinter::StreamCache*> availableForBeginLumi_;
+  //Streams all see the lumis in the same order, we want to be sure to pick a stream cache
+  // to use at globalBeginLumi which just finished the most recent lumi and not a previous one
   mutable std::atomic<unsigned int> lastLumiIndex_ = 0;
 };
 
