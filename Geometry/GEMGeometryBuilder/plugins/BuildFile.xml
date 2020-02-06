@@ -1,18 +1,35 @@
-<use name="Geometry/MuonNumbering"/>
-<use name="Geometry/Records"/>
-<use name="Geometry/GEMGeometry"/>
-<use name="Geometry/GEMGeometryBuilder"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/AlignmentRecord"/>
 <use name="CondFormats/Alignment"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/GeometryObjects"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/MuonNumbering"/>
+<use name="Geometry/Records"/>
+
+<library name="GEMGeometryPlugins" file="GEMGeometryESModule.cc">
 <use name="DetectorDescription/Core"/>
-<library file="GEMGeometryESModule.cc"> 
-  <flags EDM_PLUGIN="1"/>
-</library>
-<library file="ME0GeometryESModule.cc"> 
-  <flags EDM_PLUGIN="1"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="dd4hep"/>
+<lib name="Geom"/>
+<use name="Geometry/GEMGeometryBuilder"/>
+<flags EDM_PLUGIN="1"/>
 </library>
 
+<library name="GEMGeometryValidationPlugins" file="GEMGeometryValidate.cc">
+  <use name="Fireworks/Core"/>
+  <use name="Geometry/GEMGeometry"/>
+  <use name="rootgeom"/>
+  <flags EDM_PLUGIN="1"/>
+</library> 
 
+<library name="ME0GeometryPlugins" file="ME0GeometryESModule.cc">
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="dd4hep"/>
+<lib name="Geom"/>
+<use name="Geometry/GEMGeometryBuilder"/>
+<flags EDM_PLUGIN="1"/>
+</library>
