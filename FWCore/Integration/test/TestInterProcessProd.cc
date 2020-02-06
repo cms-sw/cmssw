@@ -188,7 +188,7 @@ TestInterProcessProd::TestInterProcessProd(edm::ParameterSet const& iPSet)
       erToken_{produces<edmtest::ThingCollection, edm::Transition::EndRun>("endRun")},
       blToken_{produces<edmtest::ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi")},
       elToken_{produces<edmtest::ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi")},
-      config_{iPSet.getUntrackedParameter<std::string>("python_config")} {}
+      config_{iPSet.getUntrackedParameter<std::string>("@python_config")} {}
 
 std::unique_ptr<testinter::StreamCache> TestInterProcessProd::beginStream(edm::StreamID iID) const {
   auto const label = moduleDescription().moduleLabel();
