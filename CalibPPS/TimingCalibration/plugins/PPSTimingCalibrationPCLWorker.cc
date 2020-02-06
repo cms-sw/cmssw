@@ -53,8 +53,8 @@ PPSTimingCalibrationPCLWorker::PPSTimingCalibrationPCLWorker(const edm::Paramete
    dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
   for (const auto& pix_pot : iConfig.getParameter<std::vector<edm::ParameterSet>>("pixelPotSelection"))
     pixelPotSel_[CTPPSPixelDetId(pix_pot.getParameter<unsigned int>("potId"))] = CTPPSPixelSelection{
-      iConfig.getParameter<int>("minPixelTracks"),
-      iConfig.getParameter<int>("maxPixelTracks")};
+      pix_pot.getParameter<int>("minPixelTracks"),
+      pix_pot.getParameter<int>("maxPixelTracks")};
 }
 
 //------------------------------------------------------------------------------
@@ -69,10 +69,10 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
     for (unsigned short st = 0; st < 2; ++st) {
       for (unsigned short pl = 0; pl < 4; ++pl) {
         for (unsigned short ch = 0; ch < 12; ++ch) {
-          const CTPPSDiamondDetId detid(arm, st, 0, pl, ch); //FIXME RP?
+          const CTPPSDiamondDetId detid(arm, st, 6, pl, ch); //FIXME RP?
           detid.channelName(ch_name);
-          iHists.leadingTime[detid.rawId()] = iBooker.book1D(Form("t_%s", ch_name.c_str()), Form("%s;t (ns);Entries", ch_name.c_str()), 1200, -60., 60.);
-          iHists.leadingTimeVsToT[detid.rawId()] = iBooker.book2D(Form("tvstot_%s", ch_name.c_str()), Form("%s;ToT (ns);t (ns)", ch_name.c_str()), 240, 0., 60., 450, -20., 25.);
+          iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_"+ch_name, ch_name+";t (ns);Entries", 1200, -60., 60.);
+          iHists.leadingTimeVsToT[detid.rawId()] = iBooker.book2D("tvstot_"+ch_name, ch_name+";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
         } // loop over channels
       } // loop over arms
     } // loop over stations
@@ -146,6 +146,8 @@ void PPSTimingCalibrationPCLWorker::fillDescriptions(edm::ConfigurationDescripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("diamondRecHitTag", edm::InputTag("ctppsDiamondRecHits"))
     ->setComment("input tag for the PPS diamond detectors rechits");
+  desc.add<edm::InputTag>("pixelTrackTag", edm::InputTag("ctppsPixelLocalTracks"))
+    ->setComment("input tag for the PPS pixel tracks");
   desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
     ->setComment("output path for the various DQM plots");
 
