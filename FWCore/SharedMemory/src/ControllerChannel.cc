@@ -84,10 +84,8 @@ std::string ControllerChannel::uniqueName(std::string iBase) const {
 bool ControllerChannel::wait(scoped_lock<named_mutex>& lock, edm::Transition iTrans, unsigned long long iTransID) {
   *transitionType_ = iTrans;
   *transitionID_ = iTransID;
-  {
-    //std::cout << id_ << " notifying" << std::endl;
-    cndFromMain_.notify_all();
-  }
+  //std::cout << id_ << " notifying" << std::endl;
+  cndFromMain_.notify_all();
 
   //std::cout << id_ << " waiting" << std::endl;
   using namespace boost::posix_time;
