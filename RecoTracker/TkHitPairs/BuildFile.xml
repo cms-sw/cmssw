@@ -8,7 +8,6 @@
 <use   name="TrackingTools/DetLayers"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="FWCore/Framework"/>
-<use   name="DataFormats/SiStripDetId"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="RecoTracker/TkMSParametrization"/>
 <use   name="RecoTracker/TkSeedingLayers"/>

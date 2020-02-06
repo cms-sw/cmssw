@@ -7,8 +7,6 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
@@ -19,4 +17,3 @@
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="TrackingTools/IPTools"/>
