@@ -21,7 +21,7 @@ namespace StubPtConsistency {
 
     // Need the pT signed in order to determine if bend is positive or negative
     // P(MeV/c) = (c/10^9)·Q·B(kG)·R(cm)
-    float trk_signedPt = speedOfLightConverted * mMagneticFieldStrength / aTrack.getRInv(nPar);
+    float trk_signedPt = speedOfLightConverted * mMagneticFieldStrength / aTrack.rInv();
 
     // loop over stubs
     const auto& stubRefs = aTrack.getStubRefs();
