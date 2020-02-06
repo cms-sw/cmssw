@@ -6,4 +6,3 @@
 <use   name="RecoVertex/TrimmedKalmanVertexFinder"/>
 <use   name="RecoVertex/AdaptiveVertexFinder"/>
 <use   name="RecoVertex/MultiVertexFit"/>
-<use   name="DataFormats/Math"/>
