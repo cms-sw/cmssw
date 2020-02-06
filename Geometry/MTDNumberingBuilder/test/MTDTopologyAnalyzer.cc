@@ -103,7 +103,7 @@ void MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
 #ifdef EDM_ML_DEBUG
-   edm::LogVerbatim("MTDTopologyAnalyzer") << "Top level volume: " << ddtop;
+    edm::LogVerbatim("MTDTopologyAnalyzer") << "Top level volume: " << ddtop;
 #endif
 
     if (num <= limit && fv.geoHistory()[num - 1].logicalPart().name().name() != ddtop) {
@@ -111,7 +111,8 @@ void MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MTDTopologyAnalyzer") << "Top level volume: " << ddtop << " at history " << fv.geoHistory()[num - 1].logicalPart().name().name();
+    edm::LogVerbatim("MTDTopologyAnalyzer")
+        << "Top level volume: " << ddtop << " at history " << fv.geoHistory()[num - 1].logicalPart().name().name();
 #endif
 
     if (!ddtop.empty()) {
