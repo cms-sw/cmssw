@@ -28,7 +28,8 @@ using namespace edm::shared_memory;
 // static data member definitions
 //
 std::atomic<bool> WorkerMonitorThread::s_helperThreadDone = false;
-int WorkerMonitorThread::s_pipeEnds[2] = {0, 0};
+std::atomic<int> WorkerMonitorThread::s_pipeReadEnd = 0;
+std::atomic<int> WorkerMonitorThread::s_pipeWriteEnd = 0;
 
 //
 // constructors and destructor
@@ -53,7 +54,7 @@ void WorkerMonitorThread::run() {
   helperReady_ = true;
   while (true) {
     int signal = -1;
-    auto res = read(s_pipeEnds[0], &signal, sizeof(signal) / sizeof(char));
+    auto res = read(s_pipeReadEnd.load(), &signal, sizeof(signal) / sizeof(char));
     if (res == -1) {
       if (errno == EINTR) {
         continue;
@@ -78,10 +79,13 @@ void WorkerMonitorThread::startThread() {
   {
     //Setup watchdog thread for crashing signals
 
-    auto ret = pipe(s_pipeEnds);
+    int pipeEnds[2] = {0, 0};
+    auto ret = pipe(pipeEnds);
     if (ret != 0) {
       abort();
     }
+    s_pipeReadEnd.store(pipeEnds[0]);
+    s_pipeWriteEnd.store(pipeEnds[1]);
     //Need to use signal handler since signals generated
     // from within a program are thread specific which can
     // only be handed by a signal handler
@@ -110,7 +114,7 @@ void WorkerMonitorThread::setupSignalHandling() {
 void WorkerMonitorThread::stop() {
   stopRequested_ = true;
   int sig = 0;
-  write(s_pipeEnds[1], &sig, sizeof(int) / sizeof(char));
+  write(s_pipeWriteEnd.load(), &sig, sizeof(int) / sizeof(char));
 }
 
 //
@@ -121,7 +125,7 @@ void WorkerMonitorThread::stop() {
 // static member functions
 //
 void WorkerMonitorThread::sig_handler(int sig, siginfo_t*, void*) {
-  write(s_pipeEnds[1], &sig, sizeof(int) / sizeof(char));
+  write(s_pipeWriteEnd.load(), &sig, sizeof(int) / sizeof(char));
   while (not s_helperThreadDone) {
   };
   signal(sig, SIG_DFL);
