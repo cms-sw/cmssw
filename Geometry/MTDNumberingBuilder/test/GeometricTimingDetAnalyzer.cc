@@ -30,14 +30,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
-
-// CLHEP Dependency
-#include <CLHEP/Vector/ThreeVector.h>
 
 //
 //

@@ -1,17 +1,22 @@
-<use   name="Geometry/MTDNumberingBuilder"/>
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<use   name="DataFormats/TrackerCommon"/>
-
-<library   file="MTDModuleNumbering.cc" name="MTDModuleNumbering">
-  <use name="Geometry/MTDGeometryBuilder"/>
-  <use name="Geometry/TrackerGeometryBuilder"/>
-  <flags   EDM_PLUGIN="1"/>
+<library name="testMTDNumberingBuilder" file="GeometricTimingDetAnalyzer.cc">
+ <use name="DetectorDescription/Core"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="Geometry/MTDNumberingBuilder"/>
+ <use name="Geometry/Records"/>
+ <use name="rootcling"/>
+ <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="GeometricTimingDetAnalyzer.cc" name="testMTDNumberingBuilder">
-  <flags   EDM_PLUGIN="1"/>
+<library name="MTDTopologyAnalyzer" file="MTDTopologyAnalyzer.cc">
+ <use name="DataFormats/ForwardDetId"/>
+ <use name="DetectorDescription/Core"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="Geometry/MTDCommonData"/>
+ <use name="Geometry/MTDNumberingBuilder"/>
+ <use name="Geometry/Records"/>
+ <use name="rootcling"/>
+ <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="MTDTopologyAnalyzer.cc" name="MTDTopologyAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-
