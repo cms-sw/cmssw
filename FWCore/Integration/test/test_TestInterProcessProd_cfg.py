@@ -13,7 +13,7 @@ class ThingExternalProcessProducer(cms.EDProducer):
         return getattr(self._prod, name)
     def clone(self, **params):
         returnValue = ThingExternalProcessProducerProducer.__new__(type(self))
-        returnValue.__init__(self._prod)
+        returnValue.__init__(self._prod.clone())
         return returnValue
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()
