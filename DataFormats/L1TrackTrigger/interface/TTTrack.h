@@ -115,7 +115,6 @@ public:
 
   /// POCA
   GlobalPoint POCA() const;
-  GlobalPoint getPOCA(unsigned int npar = Npars4) const;
 
   /// MVA Track quality variables
   double trkMVA1() const;
