@@ -153,7 +153,8 @@ namespace deep_tau {
                             graphs_.at(entry_name).get());
         if (!load_graph_status.ok())
           throw cms::Exception("DeepTauCache: unable to load graph from ") << graph_file << ". \n"
-                                                                           << mmap_status.ToString();
+                                                                           << load_graph_status.ToString();
+
         options.config.mutable_graph_options()->mutable_optimizer_options()->set_opt_level(
             ::tensorflow::OptimizerOptions::L0);
         options.env = memmappedEnv_.at(entry_name).get();
