@@ -406,8 +406,8 @@ namespace eos {
       // after reading the note above you still might decide to
       // deactivate this static assert and try if it works out.
       typename traits::bits bits;
-      BOOST_STATIC_ASSERT(sizeof(bits) == sizeof(T));
-      BOOST_STATIC_ASSERT(std::numeric_limits<T>::is_iec559);
+      static_assert(sizeof(bits) == sizeof(T));
+      static_assert(std::numeric_limits<T>::is_iec559);
 
       load(bits);
       traits::set_bits(t, bits);
@@ -455,43 +455,43 @@ BOOST_SERIALIZATION_REGISTER_ARCHIVE(eos::polymorphic_portable_iarchive)
 // about multiple template instantiations (eg. gcc is) then you need to
 // define NO_EXPLICIT_TEMPLATE_INSTANTIATION before every include but one
 // or you move the instantiation section into an implementation file
-#ifndef NO_EXPLICIT_TEMPLATE_INSTANTIATION
-
-#include <boost/archive/impl/basic_binary_iarchive.ipp>
-#include <boost/archive/impl/basic_binary_iprimitive.ipp>
-
-#if BOOST_VERSION < 104000
-#include <boost/archive/impl/archive_pointer_iserializer.ipp>
-#elif !defined BOOST_ARCHIVE_SERIALIZER_INCLUDED
-#include <boost/archive/impl/archive_serializer_map.ipp>
-#define BOOST_ARCHIVE_SERIALIZER_INCLUDED
-#endif
-
-namespace boost {
-  namespace archive {
-
-    // explicitly instantiate for this type of binary stream
-    template class basic_binary_iarchive<eos::portable_iarchive>;
-
-    template class basic_binary_iprimitive<eos::portable_iarchive
-#if BOOST_VERSION < 103400
-                                           ,
-                                           std::istream
-#else
-                                           ,
-                                           std::istream::char_type,
-                                           std::istream::traits_type
-#endif
-                                           >;
-
-#if BOOST_VERSION < 104000
-    template class detail::archive_pointer_iserializer<eos::portable_iarchive>;
-#else
-    template class detail::archive_serializer_map<eos::portable_iarchive>;
-    //template class detail::archive_serializer_map<eos::polymorphic_portable_iarchive>;
-#endif
-
-  }  // namespace archive
-}  // namespace boost
-
-#endif
+// #ifndef NO_EXPLICIT_TEMPLATE_INSTANTIATION
+// 
+// #include <boost/archive/impl/basic_binary_iarchive.ipp>
+// #include <boost/archive/impl/basic_binary_iprimitive.ipp>
+// 
+// #if BOOST_VERSION < 104000
+// #include <boost/archive/impl/archive_pointer_iserializer.ipp>
+// #elif !defined BOOST_ARCHIVE_SERIALIZER_INCLUDED
+// #include <boost/archive/impl/archive_serializer_map.ipp>
+// #define BOOST_ARCHIVE_SERIALIZER_INCLUDED
+// #endif
+// 
+// namespace boost {
+//   namespace archive {
+// 
+//     // explicitly instantiate for this type of binary stream
+//     template class basic_binary_iarchive<eos::portable_iarchive>;
+// 
+//     template class basic_binary_iprimitive<eos::portable_iarchive
+// #if BOOST_VERSION < 103400
+//                                            ,
+//                                            std::istream
+// #else
+//                                            ,
+//                                            std::istream::char_type,
+//                                            std::istream::traits_type
+// #endif
+//                                            >;
+// 
+// #if BOOST_VERSION < 104000
+//     template class detail::archive_pointer_iserializer<eos::portable_iarchive>;
+// #else
+//     template class detail::archive_serializer_map<eos::portable_iarchive>;
+//     //template class detail::archive_serializer_map<eos::polymorphic_portable_iarchive>;
+// #endif
+// 
+//   }  // namespace archive
+// }  // namespace boost
+// 
+// #endif
