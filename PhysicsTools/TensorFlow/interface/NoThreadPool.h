@@ -10,6 +10,8 @@
 #ifndef PHYSICSTOOLS_TENSORFLOW_NOTHREADPOOL_H
 #define PHYSICSTOOLS_TENSORFLOW_NOTHREADPOOL_H
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 #include "tensorflow/core/lib/core/threadpool.h"
 #include "tensorflow/core/lib/core/threadpool_options.h"
 
@@ -18,7 +20,7 @@ namespace tensorflow {
   class NoThreadPool : public tensorflow::thread::ThreadPoolInterface {
   public:
     static NoThreadPool& instance() {
-      static NoThreadPool pool;
+      CMS_THREAD_SAFE static NoThreadPool pool;
       return pool;
     }
 
@@ -40,7 +42,7 @@ namespace tensorflow {
     int GetNumScheduleCalled() { return numScheduleCalled_; }
 
   private:
-    int numScheduleCalled_;
+    std::atomic<int> numScheduleCalled_;
   };
 
 }  // namespace tensorflow
