@@ -24,5 +24,6 @@
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="TrackingTools/MeasurementDet"/>
+<use   name="TrackingTools/KalmanUpdators"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
 <flags   EDM_PLUGIN="1"/>
