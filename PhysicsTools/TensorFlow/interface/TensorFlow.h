@@ -43,11 +43,19 @@ namespace tensorflow {
   // loads a meta graph definition saved at exportDir using the SavedModel interface for a tag and
   // predefined sessionOptions
   // transfers ownership
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions);
+
+  // deprecated in favor of loadMetaGraphDef
   MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions);
 
   // loads a meta graph definition saved at exportDir using the SavedModel interface for a tag and
   // nThreads
   // transfers ownership
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir,
+                                 const std::string& tag = kSavedModelTagServe,
+                                 int nThreads = 1);
+
+  // deprecated in favor of loadMetaGraphDef
   MetaGraphDef* loadMetaGraph(const std::string& exportDir,
                               const std::string& tag = kSavedModelTagServe,
                               int nThreads = 1);
@@ -64,22 +72,26 @@ namespace tensorflow {
   // transfers ownership
   Session* createSession(int nThreads = 1);
 
-  // return a new session that will contain an already loaded meta graph whose exportDir must be given
-  // in order to load and initialize the variables, sessionOptions are predefined
+  // return a new session that will contain an already loaded meta graph whose exportDir must be
+  // given in order to load and initialize the variables, sessionOptions are predefined
+  // an error is thrown when metaGraphDef is a nullptr or when the graph has no nodes
   // transfers ownership
-  Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, SessionOptions& sessionOptions);
+  Session* createSession(MetaGraphDef* metaGraphDef, const std::string& exportDir, SessionOptions& sessionOptions);
 
   // return a new session that will contain an already loaded meta graph whose exportDir must be given
   // in order to load and initialize the variables, threading options are inferred from nThreads
+  // an error is thrown when metaGraphDef is a nullptr or when the graph has no nodes
   // transfers ownership
-  Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads = 1);
+  Session* createSession(MetaGraphDef* metaGraphDef, const std::string& exportDir, int nThreads = 1);
 
   // return a new session that will contain an already loaded graph def, sessionOptions are predefined
+  // an error is thrown when graphDef is a nullptr or when the grah has no nodes
   // transfers ownership
   Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions);
 
   // return a new session that will contain an already loaded graph def, threading options are
   // inferred from nThreads
+  // an error is thrown when graphDef is a nullptr or when the grah has no nodes
   // transfers ownership
   Session* createSession(GraphDef* graphDef, int nThreads = 1);
 

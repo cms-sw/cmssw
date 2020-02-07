@@ -21,12 +21,12 @@ namespace tensorflow {
   }
 
   void setThreading(SessionOptions& sessionOptions, int nThreads, const std::string& singleThreadPool) {
-    edm::LogInfo("PhysicsTools/TensorFlow") << "setting the thread pool via tensorflow::setThreading is deprecated";
+    edm::LogInfo("PhysicsTools/TensorFlow") << "setting the thread pool via tensorflow::setThreading() is deprecated";
 
     setThreading(sessionOptions, nThreads);
   }
 
-  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions) {
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions) {
     // objects to load the graph
     Status status;
     RunOptions runOptions;
@@ -35,19 +35,34 @@ namespace tensorflow {
     // load the model
     status = LoadSavedModel(sessionOptions, runOptions, exportDir, {tag}, &bundle);
     if (!status.ok()) {
-      throw cms::Exception("InvalidMetaGraph") << "error while loading meta graph: " << status.ToString();
+      throw cms::Exception("InvalidMetaGraphDef")
+          << "error while loading metaGraphDef from '" << exportDir << "': " << status.ToString();
     }
 
     // return a copy of the graph
     return new MetaGraphDef(bundle.meta_graph_def);
   }
 
-  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, int nThreads) {
+  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions) {
+    edm::LogInfo("PhysicsTools/TensorFlow")
+        << "tensorflow::loadMetaGraph() is deprecated, use tensorflow::loadMetaGraphDef() instead";
+
+    return loadMetaGraphDef(exportDir, tag, sessionOptions);
+  }
+
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
 
-    return loadMetaGraph(exportDir, tag, sessionOptions);
+    return loadMetaGraphDef(exportDir, tag, sessionOptions);
+  }
+
+  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, int nThreads) {
+    edm::LogInfo("PhysicsTools/TensorFlow")
+        << "tensorflow::loadMetaGraph() is deprecated, use tensorflow::loadMetaGraphDef() instead";
+
+    return loadMetaGraphDef(exportDir, tag, nThreads);
   }
 
   GraphDef* loadGraphDef(const std::string& pbFile) {
@@ -60,7 +75,8 @@ namespace tensorflow {
 
     // check for success
     if (!status.ok()) {
-      throw cms::Exception("InvalidGraphDef") << "error while loading graph def: " << status.ToString();
+      throw cms::Exception("InvalidGraphDef")
+          << "error while loading graphDef from '" << pbFile << "': " << status.ToString();
     }
 
     return graphDef;
@@ -88,20 +104,31 @@ namespace tensorflow {
     return createSession(sessionOptions);
   }
 
-  Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, SessionOptions& sessionOptions) {
+  Session* createSession(MetaGraphDef* metaGraphDef, const std::string& exportDir, SessionOptions& sessionOptions) {
+    // check for valid pointer
+    if (metaGraphDef == nullptr) {
+      throw cms::Exception("InvalidMetaGraphDef") << "error while creating session: metaGraphDef is nullptr";
+    }
+
+    // check that the graph has nodes
+    if (metaGraphDef->graph_def().node_size() <= 0) {
+      throw cms::Exception("InvalidMetaGraphDef") << "error while creating session: graphDef has no nodes";
+    }
+
     Session* session = createSession(sessionOptions);
 
     // add the graph def from the meta graph
     Status status;
-    status = session->Create(metaGraph->graph_def());
+    status = session->Create(metaGraphDef->graph_def());
     if (!status.ok()) {
-      throw cms::Exception("InvalidSession") << "error while attaching meta graph to session: " << status.ToString();
+      throw cms::Exception("InvalidMetaGraphDef")
+          << "error while attaching metaGraphDef to session: " << status.ToString();
     }
 
     // restore variables using the variable and index files in the export directory
     // first, find names and paths
-    std::string varFileTensorName = metaGraph->saver_def().filename_tensor_name();
-    std::string restoreOpName = metaGraph->saver_def().restore_op_name();
+    std::string varFileTensorName = metaGraphDef->saver_def().filename_tensor_name();
+    std::string restoreOpName = metaGraphDef->saver_def().restore_op_name();
     std::string varDir = io::JoinPath(exportDir, kSavedModelVariablesDirectory);
     std::string indexFile = io::JoinPath(varDir, MetaFilename(kSavedModelVariablesFilename));
     std::string varFile = io::JoinPath(varDir, kSavedModelVariablesFilename);
@@ -124,15 +151,25 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads) {
+  Session* createSession(MetaGraphDef* metaGraphDef, const std::string& exportDir, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
 
-    return createSession(metaGraph, exportDir, sessionOptions);
+    return createSession(metaGraphDef, exportDir, sessionOptions);
   }
 
   Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions) {
+    // check for valid pointer
+    if (graphDef == nullptr) {
+      throw cms::Exception("InvalidGraphDef") << "error while creating session: graphDef is nullptr";
+    }
+
+    // check that the graph has nodes
+    if (graphDef->node_size() <= 0) {
+      throw cms::Exception("InvalidGraphDef") << "error while creating session: graphDef has no nodes";
+    }
+
     // create a new, empty session
     Session* session = createSession(sessionOptions);
 
@@ -142,7 +179,7 @@ namespace tensorflow {
 
     // check for success
     if (!status.ok()) {
-      throw cms::Exception("InvalidSession") << "error while attaching graph def to session: " << status.ToString();
+      throw cms::Exception("InvalidSession") << "error while attaching graphDef to session: " << status.ToString();
     }
 
     return session;
