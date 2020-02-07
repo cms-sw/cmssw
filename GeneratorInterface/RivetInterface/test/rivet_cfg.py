@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
@@ -82,9 +82,11 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     )
 )
 
+process.load("GeneratorInterface.RivetInterface.rivetAnalyzer_cfi")
+process.rivetAnalyzer.AnalysisNames = cms.vstring('MC_GENERIC', 'CMS_2013_I1224539_DIJET', 'CMS_2014_I1305624')
 
 # Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen)
+process.generation_step = cms.Path(process.pgen*process.rivetAnalyzer)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
@@ -94,15 +96,3 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
-
-# customisation of the process.
-
-# Automatic addition of the customisation function from Configuration.GenProduction.rivet_customize
-from Configuration.GenProduction.rivet_customize import customise 
-
-#call to customisation function customise imported from Configuration.GenProduction.rivet_customize
-process = customise(process)
-
-# End of customisation functions
-process.rivetAnalyzer.AnalysisNames = cms.vstring('CMS_2013_I1224539_DIJET')
-process.rivetAnalyzer.OutputFile = cms.string('mcfile.yoda')
