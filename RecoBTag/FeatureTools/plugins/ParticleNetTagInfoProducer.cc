@@ -337,12 +337,12 @@ void ParticleNetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures &ft
 
       TrackInfoBuilder trkinfo(track_builder_);
       trkinfo.buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
-      fts.fill("pfcand_btagEtaRel", trkinfo.getTrackEtaRel());
-      fts.fill("pfcand_btagPtRatio", trkinfo.getTrackPtRatio());
-      fts.fill("pfcand_btagPParRatio", trkinfo.getTrackPParRatio());
-      fts.fill("pfcand_btagSip3dVal", trkinfo.getTrackSip3dVal());
-      fts.fill("pfcand_btagSip3dSig", trkinfo.getTrackSip3dSig());
-      fts.fill("pfcand_btagJetDistVal", trkinfo.getTrackJetDistVal());
+      fts.fill("pfcand_btagEtaRel", catch_infs(trkinfo.getTrackEtaRel()));
+      fts.fill("pfcand_btagPtRatio", catch_infs(trkinfo.getTrackPtRatio()));
+      fts.fill("pfcand_btagPParRatio", catch_infs(trkinfo.getTrackPParRatio()));
+      fts.fill("pfcand_btagSip3dVal", catch_infs(trkinfo.getTrackSip3dVal()));
+      fts.fill("pfcand_btagSip3dSig", catch_infs(trkinfo.getTrackSip3dSig()));
+      fts.fill("pfcand_btagJetDistVal", catch_infs(trkinfo.getTrackJetDistVal()));
     } else {
       fts.fill("pfcand_normchi2", 999);
 
