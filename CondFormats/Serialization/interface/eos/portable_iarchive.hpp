@@ -3,7 +3,7 @@
  * \file portable_iarchive.hpp
  * \brief Provides an archive to read from portable binary files.
  * \author christian.pfligersdorffer@gmx.at
- * \version 5.0
+ * \version 5.1
  *
  * This pair of archives brings the advantages of binary streams to the cross
  * platform boost::serialization user. While being almost as fast as the native
@@ -22,6 +22,9 @@
  *       and x86-64 platforms featuring different byte order. So there is a good
  *       chance it will instantly work for your specific setup. If you encounter
  *       problems or have suggestions please contact the author.
+ *
+ * \note Version 5.1 is now compatible with boost up to version 1.59. Thanks to
+ *       ecotax for pointing to the issue with shared_ptr_helper.
  *
  * \note Version 5.0 is now compatible with boost up to version 1.49 and enables
  *       serialization of std::wstring by converting it to/from utf8 (thanks to
@@ -63,7 +66,7 @@
  *       in binary floating point serialization as desired by some boost users.
  *       Instead we support only the most widely used IEEE 754 format and try to
  *       detect when requirements are not met and hence our approach must fail.
- *       Contributions we made by Johan Rade and ¡kos MarÛy.
+ *       Contributions we made by Johan Rade and √Åkos Mar√≥y.
  *
  * \note Version 2.0 fixes a serious bug that effectively transformed most
  *       of negative integral values into positive values! For example the two
@@ -89,7 +92,7 @@
 #include <boost/archive/basic_binary_iprimitive.hpp>
 #include <boost/archive/basic_binary_iarchive.hpp>
 
-#if BOOST_VERSION >= 103500 && BOOST_VERSION <= 105500
+#if BOOST_VERSION >= 103500 && BOOST_VERSION < 105600
 #include <boost/archive/shared_ptr_helper.hpp>
 #endif
 
@@ -114,6 +117,10 @@
 #elif BOOST_VERSION < 104800
 #include <boost/spirit/home/support/detail/integer/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
+#elif BOOST_VERSION >= 106900
+#define BOOST_MATH_DISABLE_STD_FPCLASSIFY
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/endian/conversion.hpp>
 #else
 #include <boost/spirit/home/support/detail/endian/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
@@ -122,6 +129,8 @@
 // namespace alias
 #if BOOST_VERSION < 103800
 namespace fp = boost::math;
+#elif BOOST_VERSION >= 106900
+namespace fp = boost::math;
 #else
 namespace fp = boost::spirit::math;
 #endif
@@ -129,11 +138,13 @@ namespace fp = boost::spirit::math;
 // namespace alias endian
 #if BOOST_VERSION < 104800
 namespace endian = boost::detail;
+#elif BOOST_VERSION >= 106900
+namespace endian = boost::endian;
 #else
 namespace endian = boost::spirit::detail;
 #endif
 
-#ifndef BOOST_NO_STD_WSTRING
+#if BOOST_VERSION >= 104500 && !defined BOOST_NO_STD_WSTRING
 // used for wstring to utf8 conversion
 #include <boost/program_options/config.hpp>
 #include <boost/program_options/detail/convert.hpp>
@@ -155,22 +166,20 @@ namespace endian = boost::spirit::detail;
 
 namespace eos {
 
-  // forward declaration
-  class portable_iarchive;
+	// forward declaration
+	class portable_iarchive;
 
-  typedef boost::archive::basic_binary_iprimitive<portable_iarchive
-#if BOOST_VERSION < 103400
-                                                  ,
-                                                  std::istream
-#else
-                                                  ,
-                                                  std::istream::char_type,
-                                                  std::istream::traits_type
-#endif
-                                                  >
-      portable_iprimitive;
+	typedef boost::archive::basic_binary_iprimitive<
+		portable_iarchive
+	#if BOOST_VERSION < 103400
+		, std::istream
+	#else
+		, std::istream::char_type 
+		, std::istream::traits_type
+	#endif
+	> portable_iprimitive;
 
-  /**
+	/**
 	 * \brief Portable binary input archive using little endian format.
 	 *
 	 * This archive addresses integer size, endianness and floating point types so
@@ -184,65 +193,63 @@ namespace eos {
 	 * \note The class is based on the portable binary example by Robert Ramey and
 	 *	     uses Beman Dawes endian library plus fp_utilities by Johan Rade.
 	 */
-  class portable_iarchive : public portable_iprimitive
+	class portable_iarchive : public portable_iprimitive
 
-      // the example derives from common_oarchive but that lacks the
-      // load_override functions so we chose to stay one level higher
-      ,
-                            public boost::archive::basic_binary_iarchive<portable_iarchive>
-#if BOOST_VERSION >= 103500 && BOOST_VERSION <= 105500
-      // mix-in helper class for serializing shared_ptr
-      ,
-                            public boost::archive::detail::shared_ptr_helper
-#endif
-  {
-    // only needed for Robert's hack in basic_binary_iarchive::init
-    friend class boost::archive::basic_binary_iarchive<portable_iarchive>;
+		// the example derives from common_oarchive but that lacks the
+		// load_override functions so we chose to stay one level higher
+		, public boost::archive::basic_binary_iarchive<portable_iarchive>
 
-    // workaround for gcc: use a dummy struct
-    // as additional argument type for overloading
-    template <int>
-    struct dummy {
-      dummy(int) {}
-    };
+	#if BOOST_VERSION >= 103500 && BOOST_VERSION < 105600
+		// mix-in helper class for serializing shared_ptr
+		, public boost::archive::detail::shared_ptr_helper
+	#endif
+	{
+		// only needed for Robert's hack in basic_binary_iarchive::init
+		friend class boost::archive::basic_binary_iarchive<portable_iarchive>;
 
-    // loads directly from stream
-    inline signed char load_signed_char() {
-      signed char c;
-      portable_iprimitive::load(c);
-      return c;
-    }
+		// workaround for gcc: use a dummy struct
+		// as additional argument type for overloading
+		template <int> struct dummy { dummy(int) {}};
 
-    // archive initialization
-    void init(unsigned flags) {
-      using namespace boost::archive;
-      archive_version_type input_library_version(3);
+		// loads directly from stream
+		inline signed char load_signed_char()
+		{ 
+			signed char c; 
+			portable_iprimitive::load(c); 
+			return c; 
+		}
 
-      // it is vital to have version information!
-      // if we don't have any we assume boost 1.33
-      if (flags & no_header)
-        set_library_version(input_library_version);
+		// archive initialization
+		void init(unsigned flags)
+		{
+			using namespace boost::archive;
+			archive_version_type input_library_version(3);
 
-      // extract and check the magic eos byte
-      else if (load_signed_char() != magic_byte)
-        throw archive_exception(archive_exception::invalid_signature);
+			// it is vital to have version information!
+			// if we don't have any we assume boost 1.33
+			if (flags & no_header)
+				set_library_version(input_library_version);
 
-      else {
-        // extract version information
-        operator>>(input_library_version);
+			// extract and check the magic eos byte
+			else if (load_signed_char() != magic_byte)
+				throw archive_exception(archive_exception::invalid_signature);
 
-        // throw if file version is newer than we are
-        if (input_library_version > archive_version)
-          throw archive_exception(archive_exception::unsupported_version);
+			else
+			{
+				// extract version information
+				operator>>(input_library_version);
 
-        // else set the library version accordingly
-        else
-          set_library_version(input_library_version);
-      }
-    }
+				// throw if file version is newer than we are
+				if (input_library_version > archive_version)
+					throw archive_exception(archive_exception::unsupported_version);
 
-  public:
-    /**
+				// else set the library version accordingly
+				else set_library_version(input_library_version);
+			}
+		}
+
+	public:
+		/**
 		 * \brief Constructor on a stream using ios::binary mode!
 		 *
 		 * We cannot call basic_binary_iprimitive::init which tries to detect
@@ -253,30 +260,34 @@ namespace eos {
 		 * the boost::serialization standard archive header containing also the
 		 * library version. Due to efficiency we stick with our own.
 		 */
-    portable_iarchive(std::istream& is, unsigned flags = 0)
-#if BOOST_VERSION < 103400
-        : portable_iprimitive(is, flags & boost::archive::no_codecvt)
-#else
-        : portable_iprimitive(*is.rdbuf(), flags & boost::archive::no_codecvt)
-#endif
-          ,
-          boost::archive::basic_binary_iarchive<portable_iarchive>(flags) {
-      init(flags);
-    }
+		portable_iarchive(std::istream& is, unsigned flags = 0)
+		#if BOOST_VERSION < 103400
+			: portable_iprimitive(is, flags & boost::archive::no_codecvt)
+		#else
+			: portable_iprimitive(*is.rdbuf(), flags & boost::archive::no_codecvt)
+		#endif
+			, boost::archive::basic_binary_iarchive<portable_iarchive>(flags)
+		{
+			init(flags);
+		}
 
-#if BOOST_VERSION >= 103400
-    portable_iarchive(std::streambuf& sb, unsigned flags = 0)
-        : portable_iprimitive(sb, flags & boost::archive::no_codecvt),
-          boost::archive::basic_binary_iarchive<portable_iarchive>(flags) {
-      init(flags);
-    }
-#endif
+	#if BOOST_VERSION >= 103400
+		portable_iarchive(std::streambuf& sb, unsigned flags = 0)
+			: portable_iprimitive(sb, flags & boost::archive::no_codecvt)
+			, boost::archive::basic_binary_iarchive<portable_iarchive>(flags)
+		{
+			init(flags);
+		}
+	#endif
 
-    //! Load narrow strings.
-    void load(std::string& s) { portable_iprimitive::load(s); }
+		//! Load narrow strings.
+		void load(std::string& s) 
+		{
+			portable_iprimitive::load(s);
+		}
 
-#ifndef BOOST_NO_STD_WSTRING
-    /**
+	#ifndef BOOST_NO_STD_WSTRING
+		/**
 		 * \brief Load wide strings.
 		 *
 		 * This is rather tricky to get right for true portability as there
@@ -288,14 +299,15 @@ namespace eos {
 		 * format, ie. UTF-16 on Windows and UTF-32 on Linux machines. Don't
 		 * know about Mac here so I can't really say about that.
 		 */
-    void load(std::wstring& s) {
-      std::string utf8;
-      load(utf8);
-      s = boost::from_utf8(utf8);
-    }
-#endif
+		void load(std::wstring& s)
+		{
+			std::string utf8;
+			load(utf8);
+			s = boost::from_utf8(utf8);
+		}
+	#endif
 
-    /**
+        /**
          * \brief Loading bool type.
          *
          * Byte pattern is same as with integer types, so this function
@@ -308,52 +320,55 @@ namespace eos {
          * portable_archive is not able to handle custom primitive types in
          * a general manner.
          */
-    void load(bool& b) {
-      switch (signed char c = load_signed_char()) {
-        case 0:
-          b = false;
-          break;
-        case 1:
-          b = load_signed_char();
-          break;
-        default:
-          throw portable_archive_exception(c);
-      }
-    }
+		void load(bool& b) 
+		{ 
+			switch (signed char c = load_signed_char())
+			{
+			case 0: b = false; break;
+			case 1: b = load_signed_char(); break;
+			default: throw portable_archive_exception(c);
+			}
+		}
 
-    /**
+		/**
 		 * \brief Load integer types.
 		 *
 		 * First we load the size information ie. the number of bytes that 
 		 * hold the actual data. Then we retrieve the data and transform it
 		 * to the original value by using load_little_endian.
 		 */
-    template <typename T>
-    typename boost::enable_if<boost::is_integral<T> >::type load(T& t, dummy<2> = 0) {
-      // get the number of bytes in the stream
-      if (signed char size = load_signed_char()) {
-        // check for negative value in unsigned type
-        if (size < 0 && boost::is_unsigned<T>::value)
-          throw portable_archive_exception();
+		template <typename T>
+		typename boost::enable_if<boost::is_integral<T> >::type
+		load(T & t, dummy<2> = 0)
+		{
+			// get the number of bytes in the stream
+			if (signed char size = load_signed_char())
+			{
+				// check for negative value in unsigned type
+				if (size < 0 && boost::is_unsigned<T>::value)
+					throw portable_archive_exception();
 
-        // check that our type T is large enough
-        else if ((unsigned)abs(size) > sizeof(T))
-          throw portable_archive_exception(size);
+				// check that our type T is large enough
+				else if ((unsigned) abs(size) > sizeof(T)) 
+					throw portable_archive_exception(size);
 
-        // reconstruct the value
-        T temp = size < 0 ? -1 : 0;
-        load_binary(&temp, abs(size));
+				// reconstruct the value
+				T temp = size < 0 ? -1 : 0;
+				load_binary(&temp, abs(size));
 
-        // load the value from little endian - is is then converted
-        // to the target type T and fits it because size <= sizeof(T)
-        t = endian::load_little_endian<T, sizeof(T)>(&temp);
-      }
+				// load the value from little endian - it is then converted
+				// to the target type T and fits it because size <= sizeof(T)
+                                #if BOOST_VERSION >= 106900
+				t = endian::little_to_native(temp);
+                                #else
+                                t = endian::load_little_endian<T, sizeof(T)>(&temp);
+                                #endif
+			}
 
-      else
-        t = 0;  // zero optimization
-    }
+			else t = 0; // zero optimization
+		}
 
-    /** 
+		/** 
 		 * \brief Load floating point types.
 		 * 
 		 * We simply rely on fp_traits to set the bit pattern from the (unsigned)
@@ -380,52 +395,57 @@ namespace eos {
 		 * then your floating point numbers will be truncated. This will introduce
 		 * small rounding off errors. 
 		 */
-    template <typename T>
-    typename boost::enable_if<boost::is_floating_point<T> >::type load(T& t, dummy<3> = 0) {
-      typedef typename fp::detail::fp_traits<T>::type traits;
+		template <typename T>
+		typename boost::enable_if<boost::is_floating_point<T> >::type
+		load(T & t, dummy<3> = 0)
+		{
+			typedef typename fp::detail::fp_traits<T>::type traits;
 
-      // if you end here there are three possibilities:
-      // 1. you're serializing a long double which is not portable
-      // 2. you're serializing a double but have no 64 bit integer
-      // 3. your machine is using an unknown floating point format
-      // after reading the note above you still might decide to
-      // deactivate this static assert and try if it works out.
-      typename traits::bits bits;
-      static_assert(sizeof(bits) == sizeof(T));
-      static_assert(std::numeric_limits<T>::is_iec559);
+			// if you end here there are three possibilities:
+			// 1. you're serializing a long double which is not portable
+			// 2. you're serializing a double but have no 64 bit integer
+			// 3. your machine is using an unknown floating point format
+			// after reading the note above you still might decide to 
+			// deactivate this static assert and try if it works out.
+			typename traits::bits bits;
+			BOOST_STATIC_ASSERT(sizeof(bits) == sizeof(T));
+			BOOST_STATIC_ASSERT(std::numeric_limits<T>::is_iec559);
 
-      load(bits);
-      traits::set_bits(t, bits);
+			load(bits);
+			traits::set_bits(t, bits);
 
-      // if the no_infnan flag is set we must throw here
-      if (get_flags() & no_infnan && !fp::isfinite(t))
-        throw portable_archive_exception(t);
+			// if the no_infnan flag is set we must throw here
+			if (get_flags() & no_infnan && !fp::isfinite(t))
+				throw portable_archive_exception(t);
 
-      // if you end here your floating point type does not support
-      // denormalized numbers. this might be the case even though
-      // your type conforms to IEC 559 (and thus to IEEE 754)
-      if (std::numeric_limits<T>::has_denorm == std::denorm_absent && fp::fpclassify(t) == (int)FP_SUBNORMAL)  // GCC4
-        throw portable_archive_exception(t);
-    }
+			// if you end here your floating point type does not support 
+			// denormalized numbers. this might be the case even though 
+			// your type conforms to IEC 559 (and thus to IEEE 754)
+			if (std::numeric_limits<T>::has_denorm == std::denorm_absent
+				&& fp::fpclassify(t) == (int) FP_SUBNORMAL) // GCC4
+				throw portable_archive_exception(t);
+		}
 
-    // in boost 1.44 version_type was splitted into library_version_type and
-    // item_version_type, plus a whole bunch of additional strong typedefs.
-    template <typename T>
-    typename boost::disable_if<boost::is_arithmetic<T> >::type load(T& t, dummy<4> = 0) {
-      // we provide a generic load routine for all types that feature
-      // conversion operators into an unsigned integer value like those
-      // created through BOOST_STRONG_TYPEDEF(X, some unsigned int) like
-      // library_version_type, collection_size_type, item_version_type,
-      // class_id_type, object_id_type, version_type and tracking_type
-      load((typename boost::uint_t<sizeof(T) * CHAR_BIT>::least&)(t));
-    }
-  };
+		// in boost 1.44 version_type was splitted into library_version_type and
+		// item_version_type, plus a whole bunch of additional strong typedefs.
+		template <typename T>
+		typename boost::disable_if<boost::is_arithmetic<T> >::type
+		load(T& t, dummy<4> = 0)
+		{
+			// we provide a generic load routine for all types that feature
+			// conversion operators into an unsigned integer value like those
+			// created through BOOST_STRONG_TYPEDEF(X, some unsigned int) like
+			// library_version_type, collection_size_type, item_version_type,
+			// class_id_type, object_id_type, version_type and tracking_type
+			load((typename boost::uint_t<sizeof(T)*CHAR_BIT>::least&)(t));
+		}
+	};
 
-  // polymorphic portable binary iarchive typedef
-  typedef POLYMORPHIC(portable_iarchive) polymorphic_portable_iarchive;
-#undef POLYMORPHIC
+	// polymorphic portable binary iarchive typedef
+	typedef POLYMORPHIC(portable_iarchive) polymorphic_portable_iarchive;
+	#undef POLYMORPHIC
 
-}  // namespace eos
+} // namespace eos
 
 // this is required by export which registers all of your
 // classes with all the inbuilt archives plus our archive.
@@ -440,40 +460,40 @@ BOOST_SERIALIZATION_REGISTER_ARCHIVE(eos::polymorphic_portable_iarchive)
 // about multiple template instantiations (eg. gcc is) then you need to
 // define NO_EXPLICIT_TEMPLATE_INSTANTIATION before every include but one
 // or you move the instantiation section into an implementation file
-//-ap #ifndef NO_EXPLICIT_TEMPLATE_INSTANTIATION
-//-ap
-//-ap #include <boost/archive/impl/basic_binary_iarchive.ipp>
-//-ap #include <boost/archive/impl/basic_binary_iprimitive.ipp>
-//-ap
-//-ap #if BOOST_VERSION < 104000
-//-ap #include <boost/archive/impl/archive_pointer_iserializer.ipp>
-//-ap #elif !defined BOOST_ARCHIVE_SERIALIZER_INCLUDED
-//-ap #include <boost/archive/impl/archive_serializer_map.ipp>
-//-ap #define BOOST_ARCHIVE_SERIALIZER_INCLUDED
-//-ap #endif
-//-ap
-//-ap namespace boost { namespace archive {
-//-ap
-//-ap 	// explicitly instantiate for this type of binary stream
-//-ap 	template class basic_binary_iarchive<eos::portable_iarchive>;
-//-ap
-//-ap 	template class basic_binary_iprimitive<
-//-ap 		eos::portable_iarchive
-//-ap 	#if BOOST_VERSION < 103400
-//-ap 		, std::istream
-//-ap 	#else
-//-ap 		, std::istream::char_type
-//-ap 		, std::istream::traits_type
-//-ap 	#endif
-//-ap 	>;
-//-ap
-//-ap #if BOOST_VERSION < 104000
-//-ap 	template class detail::archive_pointer_iserializer<eos::portable_iarchive>;
-//-ap #else
-//-ap 	template class detail::archive_serializer_map<eos::portable_iarchive>;
-//-ap 	//template class detail::archive_serializer_map<eos::polymorphic_portable_iarchive>;
-//-ap #endif
-//-ap
-//-ap } } // namespace boost::archive
-//-ap
-//-ap #endif
+#ifndef NO_EXPLICIT_TEMPLATE_INSTANTIATION
+
+#include <boost/archive/impl/basic_binary_iarchive.ipp>
+#include <boost/archive/impl/basic_binary_iprimitive.ipp>
+
+#if BOOST_VERSION < 104000
+#include <boost/archive/impl/archive_pointer_iserializer.ipp>
+#elif !defined BOOST_ARCHIVE_SERIALIZER_INCLUDED
+#include <boost/archive/impl/archive_serializer_map.ipp>
+#define BOOST_ARCHIVE_SERIALIZER_INCLUDED
+#endif
+
+namespace boost { namespace archive {
+
+	// explicitly instantiate for this type of binary stream
+	template class basic_binary_iarchive<eos::portable_iarchive>;
+
+	template class basic_binary_iprimitive<
+		eos::portable_iarchive
+	#if BOOST_VERSION < 103400
+		, std::istream
+	#else
+		, std::istream::char_type
+		, std::istream::traits_type
+	#endif
+	>;
+
+#if BOOST_VERSION < 104000
+	template class detail::archive_pointer_iserializer<eos::portable_iarchive>;
+#else
+	template class detail::archive_serializer_map<eos::portable_iarchive>;
+	//template class detail::archive_serializer_map<eos::polymorphic_portable_iarchive>;
+#endif
+
+} } // namespace boost::archive
+
+#endif
