@@ -363,6 +363,7 @@ namespace edm {
         break ;
       } catch (cms::Exception const& e) {
         if (!skipBadFiles) {
+          if (std::next(it) == fNames.end()) LogWarning("RootInputFileSequence") << "Fail to open the file after trying all data catalogs.\n" ;
           continue ;
         }
         else {
@@ -394,7 +395,7 @@ namespace edm {
         throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFileDataCatalogs(): Input file " << fName
                                                << " was not found or could not be opened.\n";
       }
-      LogWarning("") << "Input file: " << fName << " was not found or could not be opened, and will be skipped.\n";
+      LogWarning("RootInputFileSequence") << "Input file: " << fName << " was not found or could not be opened, and will be skipped.\n";
     }
 
   }
