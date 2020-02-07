@@ -15,18 +15,18 @@ public:
   virtual ~HGCalParametersFromDD() {}
 
   bool build(const DDCompactView* cpv,
-	     HGCalParameters& php,
-	     const std::string& name,
-	     const std::string& namew,
-	     const std::string& namec,
-	     const std::string& namet);
+             HGCalParameters& php,
+             const std::string& name,
+             const std::string& namew,
+             const std::string& namec,
+             const std::string& namet);
   bool build(const cms::DDCompactView* cpv,
-	     HGCalParameters& php,
-	     const std::string& name,
-	     const std::string& namew,
-	     const std::string& namec,
-	     const std::string& namet,
-	     const std::string& name2);
+             HGCalParameters& php,
+             const std::string& name,
+             const std::string& namew,
+             const std::string& namec,
+             const std::string& namet,
+             const std::string& name2);
 
 private:
   void getCellPosition(HGCalParameters& php, int type);
