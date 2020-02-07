@@ -50,7 +50,6 @@ namespace gen {
     //std::unique_ptr<PhotosInterfaceBase> fPhotosInterface;
     std::vector<int> fPDGs;
     std::vector<std::string> fSpecialSettings;
-
   };
 
 }  // namespace gen
