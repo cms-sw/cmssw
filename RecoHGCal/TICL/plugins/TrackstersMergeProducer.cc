@@ -273,14 +273,14 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       }
       if (diff_pt_sigmas < -pt_sigma_low_) {
         auto startEtaBin = std::max(entryEtaBin - eta_bin_window_, 0);
-        auto endEtaBin = std::min(entryEtaBin + eta_bin_window_ + 1, ticl::constants::nEtaBins);
+        auto endEtaBin = std::min(entryEtaBin + eta_bin_window_ + 1, ticl::TileConstants::nEtaBins);
         auto startPhiBin = entryPhiBin - phi_bin_window_;
         auto endPhiBin = entryPhiBin + phi_bin_window_ + 1;
         bool recoverEM = (e_over_h < e_over_h_threshold_);
         for (int ieta = startEtaBin; ieta < endEtaBin; ++ieta) {
-          auto offset = ieta * ticl::constants::nPhiBins;
+          auto offset = ieta * ticl::TileConstants::nPhiBins;
           for (int iphi_it = startPhiBin; iphi_it < endPhiBin; ++iphi_it) {
-            int iphi = ((iphi_it % ticl::constants::nPhiBins + ticl::constants::nPhiBins) % ticl::constants::nPhiBins);
+            int iphi = ((iphi_it % ticl::TileConstants::nPhiBins + ticl::TileConstants::nPhiBins) % ticl::TileConstants::nPhiBins);
             auto ibin = offset + iphi;
             auto const & searchable = recoverEM ? tracksterTile[0][ibin] : tracksterTile[2][ibin];
             auto const & searchableTracksters = recoverEM ? trackstersEM : trackstersHAD;
