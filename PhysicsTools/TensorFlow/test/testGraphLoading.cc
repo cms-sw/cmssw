@@ -39,6 +39,9 @@ void testGraphLoading::checkAll() {
   tensorflow::Session* session = tensorflow::createSession(graphDef);
   CPPUNIT_ASSERT(session != nullptr);
 
+  // check for exception
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr), cms::Exception);
+
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});
   float* d = input.flat<float>().data();

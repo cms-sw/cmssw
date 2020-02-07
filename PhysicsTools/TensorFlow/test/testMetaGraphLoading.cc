@@ -32,16 +32,19 @@ void testMetaGraphLoading::checkAll() {
 
   // load the graph
   tensorflow::setLogging();
-  tensorflow::MetaGraphDef* metaGraph = tensorflow::loadMetaGraph(exportDir);
-  CPPUNIT_ASSERT(metaGraph != nullptr);
+  tensorflow::MetaGraphDef* metaGraphDef = tensorflow::loadMetaGraphDef(exportDir);
+  CPPUNIT_ASSERT(metaGraphDef != nullptr);
 
   // create a new, empty session
   tensorflow::Session* session1 = tensorflow::createSession();
   CPPUNIT_ASSERT(session1 != nullptr);
 
   // create a new session, using the meta graph
-  tensorflow::Session* session2 = tensorflow::createSession(metaGraph, exportDir);
+  tensorflow::Session* session2 = tensorflow::createSession(metaGraphDef, exportDir);
   CPPUNIT_ASSERT(session2 != nullptr);
+
+  // check for exception
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, exportDir), cms::Exception);
 
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});
@@ -77,5 +80,5 @@ void testMetaGraphLoading::checkAll() {
   // cleanup
   CPPUNIT_ASSERT(tensorflow::closeSession(session1));
   CPPUNIT_ASSERT(tensorflow::closeSession(session2));
-  delete metaGraph;
+  delete metaGraphDef;
 }
