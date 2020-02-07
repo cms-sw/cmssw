@@ -1,4 +1,5 @@
 <lcgdict>
        <class name="BeamSpotObjects"/>       
        <class name="SimBeamSpotObjects"/>       
-</lcgdict>  
+       <class name="BeamSpotOnlineObjects"/>
+</lcgdict>
