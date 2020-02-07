@@ -9,6 +9,8 @@
 #ifndef PHYSICSTOOLS_TENSORFLOW_TBBTHREADPOOL_H
 #define PHYSICSTOOLS_TENSORFLOW_TBBTHREADPOOL_H
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 #include "tensorflow/core/lib/core/threadpool.h"
 
 #include "tbb/task_scheduler_init.h"
@@ -20,7 +22,7 @@ namespace tensorflow {
   class TBBThreadPool : public tensorflow::thread::ThreadPoolInterface {
   public:
     static TBBThreadPool& instance(int nThreads = -1) {
-      static TBBThreadPool pool(nThreads);
+      CMS_THREAD_SAFE static TBBThreadPool pool(nThreads);
       return pool;
     }
 
@@ -68,7 +70,7 @@ namespace tensorflow {
 
   private:
     int nThreads_;
-    int numScheduleCalled_;
+    std::atomic<int> numScheduleCalled_;
   };
 
 }  // namespace tensorflow
