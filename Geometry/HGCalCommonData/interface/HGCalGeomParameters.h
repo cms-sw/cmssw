@@ -32,45 +32,44 @@ public:
   ~HGCalGeomParameters();
 
   void loadGeometryHexagon(const DDFilteredView& _fv,
-			   HGCalParameters& php,
-			   const std::string& sdTag1,
-			   const DDCompactView* cpv,
-			   const std::string& sdTag2,
-			   const std::string& sdTag3,
-			   HGCalGeometryMode::WaferMode mode);
+                           HGCalParameters& php,
+                           const std::string& sdTag1,
+                           const DDCompactView* cpv,
+                           const std::string& sdTag2,
+                           const std::string& sdTag3,
+                           HGCalGeometryMode::WaferMode mode);
   void loadGeometryHexagon(const cms::DDCompactView* cpv,
-			   HGCalParameters& php,
-			   const std::string& sdTag1,
-			   const std::string& sdTag2,
-			   const std::string& sdTag3,
-			   HGCalGeometryMode::WaferMode mode);
-  void loadGeometryHexagon8(const DDFilteredView& _fv,
-			    HGCalParameters& php, int firstLayer);
+                           HGCalParameters& php,
+                           const std::string& sdTag1,
+                           const std::string& sdTag2,
+                           const std::string& sdTag3,
+                           HGCalGeometryMode::WaferMode mode);
+  void loadGeometryHexagon8(const DDFilteredView& _fv, HGCalParameters& php, int firstLayer);
   void loadGeometryHexagon8(const cms::DDCompactView* cpv,
-			    HGCalParameters& php,
-			    const std::string& sdTag1,
-			    int firstLayer);
+                            HGCalParameters& php,
+                            const std::string& sdTag1,
+                            int firstLayer);
   void loadSpecParsHexagon(const DDFilteredView& fv,
-			   HGCalParameters& php,
-			   const DDCompactView* cpv,
-			   const std::string& sdTag1,
-			   const std::string& sdTag2);
+                           HGCalParameters& php,
+                           const DDCompactView* cpv,
+                           const std::string& sdTag1,
+                           const std::string& sdTag2);
   void loadSpecParsHexagon(const cms::DDFilteredView& fv,
-			   HGCalParameters& php,
-			   const std::string& sdTag1,
-			   const std::string& sdTag2,
-			   const std::string& sdTag3,
-			   const std::string& sdTag4);
+                           HGCalParameters& php,
+                           const std::string& sdTag1,
+                           const std::string& sdTag2,
+                           const std::string& sdTag3,
+                           const std::string& sdTag4);
   void loadSpecParsHexagon8(const DDFilteredView& fv, HGCalParameters& php);
   void loadSpecParsHexagon8(const cms::DDFilteredView& fv,
-			    const cms::DDVectorsMap& vmap,
-			    HGCalParameters& php,
-			    const std::string& sdTag1);
+                            const cms::DDVectorsMap& vmap,
+                            HGCalParameters& php,
+                            const std::string& sdTag1);
   void loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalParameters& php);
-void loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
-			   const cms::DDVectorsMap& vmap,
-			   HGCalParameters& php,
-			   const std::string& sdTag1);
+  void loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
+                             const cms::DDVectorsMap& vmap,
+                             HGCalParameters& php,
+                             const std::string& sdTag1);
   void loadWaferHexagon(HGCalParameters& php);
   void loadWaferHexagon8(HGCalParameters& php);
   void loadCellParsHexagon(const DDCompactView* cpv, HGCalParameters& php);
@@ -92,20 +91,20 @@ void loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
 
 private:
   void loadGeometryHexagon(const std::map<int, HGCalGeomParameters::layerParameters>& layers,
-			   std::vector<HGCalParameters::hgtrform>& trforms,
-			   std::vector<bool>& trformUse,
-			   const std::unordered_map<int32_t, int32_t>& copies,
-			   const HGCalParameters::layer_map& copiesInLayers,
-			   const std::vector<int32_t>& wafer2copy,
-			   const std::vector<HGCalGeomParameters::cellParameters>& wafers,
-			   const std::map<int, int>& wafertype,
-			   const std::map<int, HGCalGeomParameters::cellParameters>& cellsf,
-			   const std::map<int, HGCalGeomParameters::cellParameters>& cellsc,
-			   HGCalParameters& php);
+                           std::vector<HGCalParameters::hgtrform>& trforms,
+                           std::vector<bool>& trformUse,
+                           const std::unordered_map<int32_t, int32_t>& copies,
+                           const HGCalParameters::layer_map& copiesInLayers,
+                           const std::vector<int32_t>& wafer2copy,
+                           const std::vector<HGCalGeomParameters::cellParameters>& wafers,
+                           const std::map<int, int>& wafertype,
+                           const std::map<int, HGCalGeomParameters::cellParameters>& cellsf,
+                           const std::map<int, HGCalGeomParameters::cellParameters>& cellsc,
+                           HGCalParameters& php);
   void loadGeometryHexagon8(const std::map<int, HGCalGeomParameters::layerParameters>& layers,
-			    std::map<std::pair<int, int>, HGCalParameters::hgtrform>& trforms,
-			    const int& firstLayer,
-			    HGCalParameters& php);
+                            std::map<std::pair<int, int>, HGCalParameters::hgtrform>& trforms,
+                            const int& firstLayer,
+                            HGCalParameters& php);
   void loadSpecParsHexagon(const HGCalParameters& php);
   void loadSpecParsHexagon8(const HGCalParameters& php);
   void loadSpecParsTrapezoid(const HGCalParameters& php);
