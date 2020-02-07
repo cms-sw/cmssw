@@ -96,7 +96,7 @@ namespace edm {
       return false;
     return rootFile()->containsItem(run, lumi, event);
   }
-  
+
   bool RootInputFileSequence::skipToItemInNewFile(RunNumber_t run,
                                                   LuminosityBlockNumber_t lumi,
                                                   EventNumber_t event,
@@ -305,7 +305,6 @@ namespace edm {
   //Initiate the file using multiple data catalogs
   void RootInputFileSequence::initTheFileDataCatalogs(
       bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType) {
-
     //std::cout << "\n Use initTheFileDataCatalogs" << std::endl;
     // We are really going to close the open file.
 
@@ -347,26 +346,26 @@ namespace edm {
     std::shared_ptr<InputFile> filePtr;
     std::list<std::string> originalInfo;
 
-    std::vector<std::string> fNames = fileNames() ;
-    
+    std::vector<std::string> fNames = fileNames();
+
     //HERE
     //for (unsigned int i = 0 ; i < fNames.size() ; ++i) {
     //  std::cout << "\n " << fNames[i] ;
     //}
     //this tries to open the file using multiple PFNs corresponding to different data catalogs
-    for (std::vector<std::string>::iterator it = fNames.begin() ; it != fNames.end() ; ++it) {
+    for (std::vector<std::string>::iterator it = fNames.begin(); it != fNames.end(); ++it) {
       try {
         std::unique_ptr<InputSource::FileOpenSentry> sentry(
-          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
+            input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
         std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
         filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
-        break ;
+        break;
       } catch (cms::Exception const& e) {
         if (!skipBadFiles) {
-          if (std::next(it) == fNames.end()) LogWarning("RootInputFileSequence") << "Fail to open the file after trying all data catalogs.\n" ;
-          continue ;
-        }
-        else {
+          if (std::next(it) == fNames.end())
+            LogWarning("RootInputFileSequence") << "Fail to open the file after trying all data catalogs.\n";
+          continue;
+        } else {
           InputFile::reportSkippedFile((*it), logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
           ex.addContext("Calling RootFileSequenceBase::initTheFileDataCatalogs()");
@@ -377,7 +376,7 @@ namespace edm {
         }
       }
     }
-    
+
     if (filePtr) {
       size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = makeRootFile(filePtr);
@@ -389,15 +388,15 @@ namespace edm {
       setIndexIntoFile(currentIndexIntoFile);
       rootFile_->reportOpened(inputTypeName);
     } else {
-      std::string fName = fNames.size() > 0 ? fNames[0] : "" ;
-      InputFile::reportSkippedFile(fName, logicalFileName()); //0 cause exception?
+      std::string fName = fNames.size() > 0 ? fNames[0] : "";
+      InputFile::reportSkippedFile(fName, logicalFileName());  //0 cause exception?
       if (!skipBadFiles) {
-        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFileDataCatalogs(): Input file " << fName
-                                               << " was not found or could not be opened.\n";
+        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFileDataCatalogs(): Input file "
+                                               << fName << " was not found or could not be opened.\n";
       }
-      LogWarning("RootInputFileSequence") << "Input file: " << fName << " was not found or could not be opened, and will be skipped.\n";
+      LogWarning("RootInputFileSequence")
+          << "Input file: " << fName << " was not found or could not be opened, and will be skipped.\n";
     }
-
   }
 
   void RootInputFileSequence::setIndexIntoFile(size_t index) {

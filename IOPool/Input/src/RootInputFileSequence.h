@@ -58,10 +58,10 @@ namespace edm {
                      InputType inputType);
     //HERE
     void initTheFileDataCatalogs(bool skipBadFiles,
-                     bool deleteIndexIntoFile,
-                     InputSource* input,
-                     char const* inputTypeName,
-                     InputType inputType);
+                                 bool deleteIndexIntoFile,
+                                 InputSource* input,
+                                 char const* inputTypeName,
+                                 InputType inputType);
 
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash);
@@ -80,9 +80,9 @@ namespace edm {
     void setAtPreviousFile() { --fileIter_; }
 
     std::string const& fileName() const { return fileIter_->fileName(); }
-    
+
     //HERE
-    std::vector<std::string> const& fileNames() const {return fileIter_->fileNames() ;}
+    std::vector<std::string> const& fileNames() const { return fileIter_->fileNames(); }
 
     std::string const& logicalFileName() const { return fileIter_->logicalFileName(); }
     std::string const& fallbackFileName() const { return fileIter_->fallbackFileName(); }

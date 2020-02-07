@@ -78,7 +78,7 @@ namespace edm {
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
           m_dataCatalog(),
           m_fallbackDataCatalog(),
-          //HERE 
+          //HERE
           m_dataCatalogs(),
           m_frontierConnect(),
           m_rfioType("castor"),
@@ -159,14 +159,14 @@ namespace edm {
       return m_dataCatalog;
     }
 
-    //HERE 
+    //HERE
     std::vector<std::string> const SiteLocalConfigService::dataCatalogs(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
         //    << "Valid site-local-config not found at " << m_url;
         // Return PoolFileCatalog.xml for now
-        std::vector<std::string> tmp{"file:PoolFileCatalog.xml"} ;
-        return tmp ;
+        std::vector<std::string> tmp{"file:PoolFileCatalog.xml"};
+        return tmp;
       }
 
       if (m_dataCatalogs.empty()) {
@@ -175,7 +175,6 @@ namespace edm {
 
       return m_dataCatalogs;
     }
-
 
     std::string const SiteLocalConfigService::fallbackDataCatalog(void) const {
       if (!m_connected) {
@@ -339,11 +338,12 @@ namespace edm {
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
               m_dataCatalog = safe(catalog->Attribute("url"));
-              m_dataCatalogs.push_back(m_dataCatalog) ;
+              m_dataCatalogs.push_back(m_dataCatalog);
               catalog = catalog->NextSiblingElement("catalog");
-              while(catalog) {
-                m_dataCatalogs.push_back(safe(catalog->Attribute("url"))) ;
-                if (m_fallbackDataCatalog.empty()) m_fallbackDataCatalog = m_dataCatalogs.back() ; //for backward comparability
+              while (catalog) {
+                m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+                if (m_fallbackDataCatalog.empty())
+                  m_fallbackDataCatalog = m_dataCatalogs.back();  //for backward comparability
                 catalog = catalog->NextSiblingElement("catalog");
               }
             }

@@ -31,7 +31,7 @@ namespace edm {
     virtual ~SiteLocalConfig() {}
 
     virtual std::string const dataCatalog(void) const = 0;
-    //HERE 
+    //HERE
     virtual std::vector<std::string> const dataCatalogs(void) const = 0;
     virtual std::string const fallbackDataCatalog(void) const = 0;
     virtual std::string const lookupCalibConnect(std::string const& input) const = 0;
