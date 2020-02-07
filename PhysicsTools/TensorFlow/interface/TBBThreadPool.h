@@ -26,7 +26,8 @@ namespace tensorflow {
       return pool;
     }
 
-    explicit TBBThreadPool(int nThreads = -1) : nThreads_(nThreads), numScheduleCalled_(0) {
+    explicit TBBThreadPool(int nThreads = -1)
+        : nThreads_(nThreads > 0 ? nThreads : tbb::task_scheduler_init::default_num_threads()), numScheduleCalled_(0) {
       // when nThreads is zero or smaller, use the default value determined by tbb
       if (nThreads_ <= 0) {
         nThreads_ = tbb::task_scheduler_init::default_num_threads();
@@ -69,7 +70,7 @@ namespace tensorflow {
     int GetNumScheduleCalled() { return numScheduleCalled_; }
 
   private:
-    int nThreads_;
+    const int nThreads_;
     std::atomic<int> numScheduleCalled_;
   };
 
