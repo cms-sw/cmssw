@@ -12,8 +12,6 @@ namespace cms {
       if (!isRegex(name)) {
         return (name == node);
       } else {
-        if (name.front() != node.front())
-          return false;
         regex pattern({name.data(), name.size()});
         return regex_match(begin(node), end(node), pattern);
       }
