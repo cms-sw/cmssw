@@ -154,7 +154,7 @@ namespace edm {
                                       usingGoToEvent_,
                                       enablePrefetching_);
   }
-  
+
   bool RootPrimaryFileSequence::nextFile() {
     if (!noMoreFiles())
       setAtNextFile();
