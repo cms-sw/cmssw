@@ -46,7 +46,6 @@ namespace edm {
     }
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
-
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
       if (treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {

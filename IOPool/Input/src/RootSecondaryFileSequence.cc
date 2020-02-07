@@ -25,7 +25,13 @@ namespace edm {
         input_(input),
         orderedProcessHistoryIDs_(),
         enablePrefetching_(false),
-        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")),
+        useMultipleDataCatalogs_(false) { 
+    if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
+      LogWarning("RootPrimaryFileSequence") << "Want to use multiple data catalogs, but they are not available. Please, change the setting in InputFileCatalog (setUseMultipleDataCatalogs = true). I use the default setting for now, ie. a primary and fallback data catalogs.\n" ;
+      useMultipleDataCatalogs_ = false ;
+    }
+
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
@@ -61,9 +67,11 @@ namespace edm {
       rootFile().reset();
     }
   }
-
+  
+  //HERE
   void RootSecondaryFileSequence::initFile_(bool skipBadFiles) {
-    initTheFile(skipBadFiles, false, nullptr, "secondaryFiles", InputType::SecondaryFile);
+    if (!useMultipleDataCatalogs_) initTheFile(skipBadFiles, false, nullptr, "secondaryFiles", InputType::SecondaryFile);
+    else initTheFileDataCatalogs(skipBadFiles, false, nullptr, "secondaryFiles", InputType::SecondaryFile);
   }
 
   RootSecondaryFileSequence::RootFileSharedPtr RootSecondaryFileSequence::makeRootFile(
