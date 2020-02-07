@@ -1,0 +1,2 @@
+<test name="test-rivet-list" command="test-rivet-list.sh"/>
+<test name="test-rivet-run" command="test-rivet-run.sh"/>
