@@ -64,8 +64,9 @@ int HcalTB02HcalNumberingScheme::getUnitID(const G4Step* aStep) const {
 
   G4VPhysicalVolume* thePV = preStepPoint->GetPhysicalVolume();
   int ilayer = ((thePV->GetCopyNo()) / 10) % 100;
-  edm::LogVerbatim("HcalTBSim") << "HcalTB02HcalNumberingScheme:: Layer " << thePV->GetName() << " found at phi = " 
-				<< phi << " eta = " << eta << " lay = " << thePV->GetCopyNo() << " " << ilayer;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02HcalNumberingScheme:: Layer " << thePV->GetName()
+                                << " found at phi = " << phi << " eta = " << eta << " lay = " << thePV->GetCopyNo()
+                                << " " << ilayer;
 
   scintID = phiScale * phi + etaScale * eta + ilayer;
   if (hy < 0.)
