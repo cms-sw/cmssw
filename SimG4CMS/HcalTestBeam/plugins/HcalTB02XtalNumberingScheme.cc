@@ -39,6 +39,7 @@ int HcalTB02XtalNumberingScheme::getUnitID(const G4Step* aStep) const {
   if (touch->GetHistoryDepth() > 0)
     idl = touch->GetReplicaNumber(1);
   int idunit = idl * 100 + idx;
-  edm::LogVerbatim("HcalTBSim") << "HcalTB02XtalNumberingScheme:: Row " << idl << " Column " << idl << " idunit = " << idunit;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02XtalNumberingScheme:: Row " << idl << " Column " << idl
+                                << " idunit = " << idunit;
   return idunit;
 }
