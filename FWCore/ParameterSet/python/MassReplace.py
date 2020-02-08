@@ -113,10 +113,16 @@ class MassSearchReplaceParamVisitor(object):
         self._paramSearch = paramSearch
         self._verbose = verbose
     def enter(self,visitee):
-        if (hasattr(visitee,self._paramName)):
-            if getattr(visitee,self._paramName) == self._paramSearch:
-                if self._verbose:print("Replaced %s.%s: %s => %s" % (visitee,self._paramName,getattr(visitee,self._paramName),self._paramValue))
-                setattr(visitee,self._paramName,self._paramValue)
+        if isinstance(visitee, cms.SwitchProducer):
+            for modName in visitee.parameterNames_():
+                self.doIt(getattr(visitee, modName), "%s.%s"%(str(visitee), modName))
+        else:
+            self.doIt(visitee, str(visitee))
+    def doIt(self, mod, name):
+        if (hasattr(mod,self._paramName)):
+            if getattr(mod,self._paramName) == self._paramSearch:
+                if self._verbose:print("Replaced %s.%s: %s => %s" % (name,self._paramName,getattr(mod,self._paramName),self._paramValue))
+                setattr(mod,self._paramName,self._paramValue)
     def leave(self,visitee):
         pass
 
@@ -279,7 +285,9 @@ if __name__=="__main__":
                                  nested = cms.PSet(src = cms.InputTag("c"), src2 = cms.InputTag("b"))
                                 )
             p.sp = SwitchProducerTest(
-                test1 = cms.EDProducer("a", src = cms.InputTag("b")),
+                test1 = cms.EDProducer("a", src = cms.InputTag("b"),
+                                       nested = cms.PSet(src = cms.InputTag("b"))
+                                       ),
                 test2 = cms.EDProducer("b", src = cms.InputTag("b")),
             )
             p.s = cms.Sequence(p.a*p.b*p.c*p.d*p.sp)
@@ -290,8 +298,9 @@ if __name__=="__main__":
             self.assertEqual(cms.untracked.InputTag("a"),p.d.src)
             self.assertEqual(cms.InputTag("c"),p.d.nested.src)
             self.assertEqual(cms.InputTag("b"),p.d.nested.src2)
-            self.assertEqual(cms.InputTag("b"),p.sp.test1.src)
-            self.assertEqual(cms.InputTag("b"),p.sp.test2.src)
+            self.assertEqual(cms.InputTag("a"),p.sp.test1.src)
+            self.assertEqual(cms.InputTag("b"),p.sp.test1.nested.src)
+            self.assertEqual(cms.InputTag("a"),p.sp.test2.src)
 
         def testMassReplaceParam(self):
             process1 = cms.Process("test")
@@ -313,7 +322,9 @@ if __name__=="__main__":
             p.i = cms.EDProducer("ab", src=cms.InputTag("a"))
             p.j = cms.EDProducer("ab", src=cms.untracked.InputTag("a"))
             p.sp = SwitchProducerTest(
-                test1 = cms.EDProducer("a", src = cms.InputTag("a")),
+                test1 = cms.EDProducer("a", src = cms.InputTag("a"),
+                                       nested = cms.PSet(src = cms.InputTag("a"))
+                                       ),
                 test2 = cms.EDProducer("b", src = cms.InputTag("a")),
             )
             p.s1 = cms.Sequence(p.a*p.b*p.c*p.sp)
@@ -339,6 +350,7 @@ if __name__=="__main__":
             self.assertEqual(cms.InputTag("b"), p.h.src)
             self.assertEqual(cms.InputTag("b"), p.i.src)
             self.assertEqual(cms.untracked.InputTag("b"), p.j.src)
-            self.assertEqual(cms.InputTag("a"),p.sp.test1.src)
-            self.assertEqual(cms.InputTag("a"),p.sp.test2.src)
+            self.assertEqual(cms.InputTag("b"),p.sp.test1.src)
+            self.assertEqual(cms.InputTag("a"),p.sp.test1.nested.src)
+            self.assertEqual(cms.InputTag("b"),p.sp.test2.src)
     unittest.main()
