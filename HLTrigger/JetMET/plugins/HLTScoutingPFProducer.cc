@@ -137,7 +137,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
   std::unique_ptr<ScoutingParticleCollection> outPFCandidates(new ScoutingParticleCollection());
   if (doCandidates && iEvent.getByToken(pfCandidateCollection_, pfCandidateCollection)) {
     for (auto &cand : *pfCandidateCollection) {
-      if (cand.pt() > pfCandidatePtCut && fabs(cand.eta()) < pfCandidateEtaCut) {
+      if (cand.pt() > pfCandidatePtCut && std::abs(cand.eta()) < pfCandidateEtaCut) {
         int vertex_index = -1;
         int index_counter = 0;
         double dr2 = 0.0001;
@@ -168,7 +168,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
     }
 
     for (auto &jet : *pfJetCollection) {
-      if (jet.pt() < pfJetPtCut || fabs(jet.eta()) > pfJetEtaCut)
+      if (jet.pt() < pfJetPtCut || std::abs(jet.eta()) > pfJetEtaCut)
         continue;
       //find the jet tag corresponding to the jet
       float tagValue = -20;
@@ -186,7 +186,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
       std::vector<int> candIndices;
       if (doCandidates) {
         for (auto &cand : jet.getPFConstituents()) {
-          if (cand->pt() > pfCandidatePtCut && fabs(cand->eta()) < pfCandidateEtaCut) {
+          if (cand->pt() > pfCandidatePtCut && std::abs(cand->eta()) < pfCandidateEtaCut) {
             //search for the candidate in the collection
             float minDR2 = 0.0001;
             int matchIndex = -1;
