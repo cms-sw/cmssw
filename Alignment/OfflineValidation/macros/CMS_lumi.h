@@ -178,4 +178,3 @@ void CMS_lumi(TPad* pad, int iPeriod, int iPosX) {
 }
 
 #endif
->>>>>>> ff70dd412ba... make adjustments to provide plotting test of primaryVertexResolution plots
