@@ -17,8 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CommonTools/Utils/interface/FormulaEvaluator.h"
-
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
@@ -27,6 +25,9 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+
+#include "TProfile.h"
+#include "TF1.h"
 
 //------------------------------------------------------------------------------
 
@@ -41,15 +42,20 @@ private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
   std::vector<CTPPSDiamondDetId> detids_;
   const std::string formula_;
-  const reco::FormulaEvaluator interp_;
+  const unsigned int min_entries_;
+  TF1 interp_;
 };
 
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationPCLHarvester::PPSTimingCalibrationPCLHarvester(const edm::ParameterSet& iConfig)
   :formula_(iConfig.getParameter<std::string>("formula")),
-   interp_(formula_)
-{}
+   min_entries_(iConfig.getParameter<unsigned int>("minEntries")),
+   interp_("interp", formula_.c_str(), 10.5, 25.)
+{
+  interp_.SetParLimits(1, 9., 15.);
+  interp_.SetParLimits(2, 0.2, 2.5);
+}
 
 //------------------------------------------------------------------------------
 
@@ -82,10 +88,25 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
   std::string ch_name;
   for (const auto& detid : detids_) {
     detid.channelName(ch_name);
+    const auto chid = detid.rawId();
     const PPSTimingCalibration::Key key{ (int)detid.arm(), (int)detid.station(), (int)detid.plane(), (int)detid.channel() };
-    hists.leadingTime[detid.rawId()] = iGetter.get("t_"+ch_name);
-    hists.leadingTimeVsToT[detid.rawId()] = iGetter.get("tvstot_"+ch_name);
-    std::cout << detid << ": " << hists.leadingTime[detid.rawId()]->getMean() << std::endl;
+    hists.leadingTime[chid] = iGetter.get("t_"+ch_name);
+    hists.toT[chid] = iGetter.get("tot_"+ch_name);
+    hists.leadingTimeVsToT[chid] = iGetter.get("tvstot_"+ch_name);
+    if (min_entries_ > 0 && hists.leadingTimeVsToT[chid]->getEntries() < min_entries_) {
+      edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
+        << "Not enough entries for channel (" << detid << "): "
+        << hists.leadingTimeVsToT[chid]->getEntries() << " < " << min_entries_
+        << ". Skipping calibration.";
+      continue;
+    }
+    const double upper_tot_range = hists.toT[chid]->getMean()+2.5;
+    auto prof = hists.leadingTimeVsToT[chid]->getTH2D()->ProfileX("_pf_x", 1, -1);
+    interp_.SetParameters(hists.leadingTime[chid]->getRMS(), hists.toT[chid]->getMean(), 0.8, hists.leadingTime[chid]->getMean()-hists.leadingTime[chid]->getRMS());
+    prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
+    calib_params[key] = { interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3) };
+    // do something with interp_.GetChiSquare()...
+    std::cout << detid << ": " << hists.leadingTime[chid]->getMean() << std::endl;
   }
 
   // fill the DB object record
@@ -106,6 +127,8 @@ void PPSTimingCalibrationPCLHarvester::fillDescriptions(edm::ConfigurationDescri
     ->setComment("input path for the various DQM plots");
   desc.add<std::string>("formula", "[0]/(exp((x-[1])/[2])+1)+[3]")
     ->setComment("interpolation formula for the time walk component");
+  desc.add<unsigned int>("minEntries", 100)
+    ->setComment("minimal number of hits to extract calibration");
   descriptions.addWithDefaultLabel(desc);
 }
 

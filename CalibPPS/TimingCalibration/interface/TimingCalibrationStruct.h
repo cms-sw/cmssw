@@ -10,7 +10,7 @@ public:
 
   using MonitorMap = std::unordered_map<uint32_t,dqm::reco::MonitorElement*>;
 
-  MonitorMap leadingTime;
+  MonitorMap leadingTime, toT;
   MonitorMap leadingTimeVsToT;
 };
 
