@@ -5,7 +5,6 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/TCDS"/>
-<use   name="DQMServices/ClientConfig"/>
 <use   name="DQMServices/Core"/>
 <use   name="EventFilter/Utilities"/>
 <use   name="FWCore/Catalog"/>
