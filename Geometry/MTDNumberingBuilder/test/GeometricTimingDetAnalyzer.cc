@@ -113,8 +113,7 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
   edm::LogVerbatim("GeometricTimingDetAnalyzer").log([&](auto& log) {
     log << "\n---------------------------------------------------------------------------------------\n";
     log << "Module = " << det->name() << " type = " << det->type() << " rawId = " << det->geographicalID().rawId()
-        << " Sub/side/RR = " << thisDet.mtdSubDetector() << " " << thisDet.mtdSide() << " " << thisDet.mtdRR()
-        << "\n\n"
+        << " Sub/side/RR = " << thisDet.mtdSubDetector() << " " << thisDet.mtdSide() << " " << thisDet.mtdRR() << "\n\n"
         << "      shape = " << det->shape() << "\n"
         << "    radLength " << det->radLength() << "\n"
         << "           xi " << det->xi() << "\n"
