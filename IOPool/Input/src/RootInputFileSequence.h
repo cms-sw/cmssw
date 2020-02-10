@@ -56,7 +56,6 @@ namespace edm {
                      InputSource* input,
                      char const* inputTypeName,
                      InputType inputType);
-    //HERE
     void initTheFileDataCatalogs(bool skipBadFiles,
                                  bool deleteIndexIntoFile,
                                  InputSource* input,
@@ -81,7 +80,6 @@ namespace edm {
 
     std::string const& fileName() const { return fileIter_->fileName(); }
 
-    //HERE
     std::vector<std::string> const& fileNames() const { return fileIter_->fileNames(); }
 
     std::string const& logicalFileName() const { return fileIter_->logicalFileName(); }

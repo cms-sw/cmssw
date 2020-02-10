@@ -71,7 +71,6 @@ namespace edm {
     }
   }
 
-  //HERE
   void RootSecondaryFileSequence::initFile_(bool skipBadFiles) {
     if (!useMultipleDataCatalogs_)
       initTheFile(skipBadFiles, false, nullptr, "secondaryFiles", InputType::SecondaryFile);
