@@ -655,7 +655,7 @@ public:
 
     if (DEBUG) {
       edm::LogInfo("GeneralPurposeTrackAnalyzer")
-	<< "run number:" << run.run() << " magnetic field: " << B_ << " [T]" << std::endl;
+          << "run number:" << run.run() << " magnetic field: " << B_ << " [T]" << std::endl;
     }
 
     //topology setup
