@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("READ")
 
 process.source = cms.Source("DQMRootSource",
+                            reScope = cms.untracked.string(""),
                             fileNames = cms.untracked.vstring("file:dqm_run_only.root"))
 
 #NOTE: even though we only store histograms on runs, we still record the lumis that were seen

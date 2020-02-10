@@ -65,6 +65,9 @@ namespace ecaldqm {
     size_t slashPos(path_.find_last_of('/'));
     string name(path_.substr(slashPos + 1));
     _ibooker.setCurrentFolder(path_.substr(0, slashPos));
+    auto oldscope = MonitorElementData::Scope::RUN;
+    if (lumiFlag_)
+      oldscope = _ibooker.setScope(MonitorElementData::Scope::LUMI);
 
     MonitorElement *me(nullptr);
 
@@ -172,7 +175,7 @@ namespace ecaldqm {
     }
 
     if (lumiFlag_)
-      me->setLumiFlag();
+      _ibooker.setScope(oldscope);
 
     mes_.push_back(me);
 

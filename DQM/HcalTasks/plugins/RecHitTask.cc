@@ -454,9 +454,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	book some mes...
   ib.setCurrentFolder(_subsystem + "/" + _name);
+  auto scope = DQMStore::IBooker::UseLumiScope(ib);
   meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
-  meUnknownIds1LS->setLumiFlag();
 }
 
 /* virtual */ void RecHitTask::_resetMonitors(hcaldqm::UpdateFreq uf) {

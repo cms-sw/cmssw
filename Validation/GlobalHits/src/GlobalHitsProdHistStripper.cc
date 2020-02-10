@@ -38,11 +38,6 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const edm::ParameterSet &
   dbe = nullptr;
   dbe = edm::Service<DQMStore>().operator->();
 
-  if (dbe) {
-    if (verbosity > 0)
-      dbe->showDirStructure();
-  }
-
   // print out Parameter Set information being used
   if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) << "\n===============================\n"

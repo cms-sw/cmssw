@@ -196,6 +196,9 @@ METAnalyzer::~METAnalyzer() {
 void METAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
   std::string DirName = FolderName_ + metCollectionLabel_.label();
   ibooker.setCurrentFolder(DirName);
+  // since this module does things in dqmEndRun, we need to make sure to have
+  // per-run histograms.
+  ibooker.setScope(MonitorElementData::Scope::RUN);
 
   if (!folderNames_.empty()) {
     folderNames_.clear();
@@ -334,8 +337,12 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
     hMET = ibooker.book1D("MET", "MET", 200, 0, 1000);
     hMET_2 = ibooker.book1D("MET_2", "MET Range 2", 200, 0, 2000);
     hSumET = ibooker.book1D("SumET", "SumET", 400, 0, 4000);
-    hMETSig = ibooker.book1D("METSig", "METSig", 51, 0, 51);
-    hMETSig->setLumiFlag();
+
+    {
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+      hMETSig = ibooker.book1D("METSig", "METSig", 51, 0, 51);
+    }
+
     hMETPhi = ibooker.book1D("METPhi", "METPhi", 60, -M_PI, M_PI);
     hMET_logx = ibooker.book1D("MET_logx", "MET_logx", 40, -1, 9);
     hSumET_logx = ibooker.book1D("SumET_logx", "SumET_logx", 40, -1, 9);

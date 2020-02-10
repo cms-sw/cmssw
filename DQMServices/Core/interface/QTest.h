@@ -13,40 +13,8 @@
 
 //#include "DQMServices/Core/interface/DQMStore.h"
 
-class ContentsXRange;
-using ContentsXRangeROOT = ContentsXRange;
-class ContentsYRange;
-using ContentsYRangeROOT = ContentsYRange;
-class NoisyChannel;
-using NoisyChannelROOT = NoisyChannel;
-class ContentSigma;
-using ContentSigmaROOT = ContentSigma;
-class DeadChannel;
-using DeadChannelROOT = DeadChannel;
-class ContentsWithinExpected;
-using ContentsWithinExpectedROOT = ContentsWithinExpected;
-class MeanWithinExpected;
-using MeanWithinExpectedROOT = MeanWithinExpected;
-//class AllContentWithinFixedRange;	typedef AllContentWithinFixedRange RuleAllContentWithinFixedRange; typedef AllContentWithinFixedRange AllContentWithinFixedRangeROOT;
-//class AllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange RuleAllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange AllContentWithinFloatingRangeROOT;
-class FlatOccupancy1d;
-using RuleFlatOccupancy1d = FlatOccupancy1d;
-using FlatOccupancy1dROOT = FlatOccupancy1d;
-class FixedFlatOccupancy1d;
-using RuleFixedFlatOccupancy1d = FixedFlatOccupancy1d;
-using FixedFlatOccupancy1dROOT = FixedFlatOccupancy1d;
-class CSC01;
-using RuleCSC01 = CSC01;
-using CSC01ROOT = CSC01;
-class AllContentAlongDiagonal;
-using RuleAllContentAlongDiagonal = AllContentAlongDiagonal;
-using AllContentAlongDiagonalROOT = AllContentAlongDiagonal;
-class CompareToMedian;
-using CompareToMedianROOT = CompareToMedian;
-class CompareLastFilledBin;
-using CompareLastFilledBinROOT = CompareLastFilledBin;
-class CheckVariance;
-using CheckVarianceROOT = CheckVariance;
+using DQMChannel = MonitorElementData::QReport::DQMChannel;
+using QReport = MonitorElementData::QReport;
 
 /** Base class for quality tests run on Monitoring Elements;
 
@@ -65,7 +33,7 @@ class QCriterion {
 
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
-  /// get test status (see Core/interface/DQMDefinitions.h)
+  /// get test status
   int getStatus() const { return status_; }
   /// get message attached to test
   std::string getMessage() const { return message_; }
@@ -118,7 +86,7 @@ public:
     qv.qtname = qtname_;
     qv.algorithm = algoName_;
     qv.qtresult = prob_;
-    qr.badChannels_ = getBadChannels();
+    qr.setBadChannels(getBadChannels());
 
     return prob_;
   }
@@ -142,8 +110,6 @@ protected:
   int verbose_;
 
 private:
-  /// for creating and deleting class instances
-  friend class dqm::dqmstoreimpl::DQMStore;
   /// for running the test
   friend class dqm::legacy::MonitorElement;
   friend class dqm::impl::MonitorElement;
