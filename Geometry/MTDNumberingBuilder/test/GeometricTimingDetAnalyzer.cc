@@ -36,6 +36,8 @@
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+
 //
 //
 // class decleration
@@ -106,9 +108,12 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
   DD3Vector x, y, z;
   res.GetComponents(x, y, z);
 
+  MTDDetId thisDet(det->geographicalID());
+
   edm::LogVerbatim("GeometricTimingDetAnalyzer").log([&](auto& log) {
     log << "\n---------------------------------------------------------------------------------------\n";
-    log << "Module = " << det->name() << " rawId = " << det->geographicalID().rawId() << " type = " << det->type()
+    log << "Module = " << det->name() << " type = " << det->type() << " rawId = " << det->geographicalID().rawId()
+        << " Sub/side/RR = " << thisDet.mtdSubDetector() << " " << thisDet.mtdSide() << " " << thisDet.mtdRR()
         << "\n\n"
         << "      shape = " << det->shape() << "\n"
         << "    radLength " << det->radLength() << "\n"
