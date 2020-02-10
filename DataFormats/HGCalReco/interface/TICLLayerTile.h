@@ -51,7 +51,7 @@ namespace ticl {
   using TICLLayerTile = TICLLayerTileT<TileConstants>;
   using Tiles = std::array<TICLLayerTile, TileConstants::nLayers>;
   using TracksterTiles = std::array<TICLLayerTile, TileConstants::iterations>;
-}
+}  // namespace ticl
 
 template <typename T>
 class TICLGenericTile {
@@ -59,7 +59,7 @@ public:
   // This class represents a generic collection of Tiles. The additional index
   // numbering is not handled internally. It is the user's responsibility to
   // properly use and consistently access it here.
-  const auto & operator[](int index) const { return tiles_[index]; }
+  const auto& operator[](int index) const { return tiles_[index]; }
   void fill(int index, double eta, double phi, unsigned int objectId) { tiles_[index].fill(eta, phi, objectId); }
 
 private:
