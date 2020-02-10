@@ -140,11 +140,8 @@ public:
 
   // load the private store with info from the
   // file with the index (int) filenum ${dir}template_summary_zp${filenum}.out
+#ifdef SI_PIXEL_TEMPLATE_STANDALONE
   static bool pushfile(int filenum, std::vector<SiPixelTemplateStore2D>& pixelTemp, std::string dir = "");
-
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-  static bool pushfile(const SiPixel2DTemplateDBObject& dbobject,
-                       std::vector<SiPixelTemplateStore2D>& pixelTemp);  // load the private store with info from db
 
   // For calibrations only: load precalculated values -- no interpolation.
   void sideload(SiPixelTemplateEntry2D* entry,
