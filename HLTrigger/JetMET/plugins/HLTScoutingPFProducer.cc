@@ -59,6 +59,7 @@ private:
   const double pfJetPtCut;
   const double pfJetEtaCut;
   const double pfCandidatePtCut;
+  const double pfCandidateEtaCut;
 
   const bool doJetTags;
   const bool doCandidates;
@@ -79,6 +80,7 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet &iConfig)
       pfJetPtCut(iConfig.getParameter<double>("pfJetPtCut")),
       pfJetEtaCut(iConfig.getParameter<double>("pfJetEtaCut")),
       pfCandidatePtCut(iConfig.getParameter<double>("pfCandidatePtCut")),
+      pfCandidateEtaCut(iConfig.getParameter<double>("pfCandidateEtaCut")),
       doJetTags(iConfig.getParameter<bool>("doJetTags")),
       doCandidates(iConfig.getParameter<bool>("doCandidates")),
       doMet(iConfig.getParameter<bool>("doMet")) {
@@ -135,7 +137,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
   std::unique_ptr<ScoutingParticleCollection> outPFCandidates(new ScoutingParticleCollection());
   if (doCandidates && iEvent.getByToken(pfCandidateCollection_, pfCandidateCollection)) {
     for (auto &cand : *pfCandidateCollection) {
-      if (cand.pt() > pfCandidatePtCut) {
+      if (cand.pt() > pfCandidatePtCut && std::abs(cand.eta()) < pfCandidateEtaCut) {
         int vertex_index = -1;
         int index_counter = 0;
         double dr2 = 0.0001;
@@ -166,7 +168,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
     }
 
     for (auto &jet : *pfJetCollection) {
-      if (jet.pt() < pfJetPtCut || fabs(jet.eta()) > pfJetEtaCut)
+      if (jet.pt() < pfJetPtCut || std::abs(jet.eta()) > pfJetEtaCut)
         continue;
       //find the jet tag corresponding to the jet
       float tagValue = -20;
@@ -184,7 +186,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
       std::vector<int> candIndices;
       if (doCandidates) {
         for (auto &cand : jet.getPFConstituents()) {
-          if (cand->pt() > pfCandidatePtCut) {
+          if (cand->pt() > pfCandidatePtCut && std::abs(cand->eta()) < pfCandidateEtaCut) {
             //search for the candidate in the collection
             float minDR2 = 0.0001;
             int matchIndex = -1;
@@ -250,6 +252,7 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<double>("pfJetPtCut", 20.0);
   desc.add<double>("pfJetEtaCut", 3.0);
   desc.add<double>("pfCandidatePtCut", 0.6);
+  desc.add<double>("pfCandidateEtaCut", 5.0);
   desc.add<bool>("doJetTags", true);
   desc.add<bool>("doCandidates", true);
   desc.add<bool>("doMet", true);
