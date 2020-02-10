@@ -6,5 +6,4 @@
   <use name="CondFormats/CTPPSReadoutObjects"/>
   <use name="Geometry/VeryForwardGeometryBuilder"/>
   <use name="CommonTools/Utils"/>
-  <use name="clhep"/><!--FIXME-->
 </library>
