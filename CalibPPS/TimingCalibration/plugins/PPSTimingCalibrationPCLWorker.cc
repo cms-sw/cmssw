@@ -73,25 +73,18 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
   edm::ESHandle<CTPPSGeometry> hGeom;
   iSetup.get<VeryForwardRealGeometryRecord>().get(hGeom);
   for (auto it = hGeom->beginSensor(); it != hGeom->endSensor(); ++it) {
-    CTPPSDetId detid(it->first);
+    CTPPSDetId base_detid(it->first);
     try {
-      CTPPSDiamondDetId ddetid(detid);
-      std::cout << ">>> " << ddetid << std::endl;
-    } catch (const cms::Exception&) { continue; }
+      CTPPSDiamondDetId detid(base_detid);
+      if (detid.station() != 1)
+        continue;
+      detid.channelName(ch_name);
+      iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_"+ch_name, ch_name+";t (ns);Entries", 1200, -60., 60.);
+      iHists.leadingTimeVsToT[detid.rawId()] = iBooker.book2D("tvstot_"+ch_name, ch_name+";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
+    } catch (const cms::Exception&) {
+      continue;
+    }
   }
-  //FIXME use geometry ESHandle
-  for (unsigned short arm = 0; arm < 2; ++arm) {
-    for (unsigned short st = 0; st < 2; ++st) {
-      for (unsigned short pl = 0; pl < 4; ++pl) {
-        for (unsigned short ch = 0; ch < 12; ++ch) {
-          const CTPPSDiamondDetId detid(arm, st, 6, pl, ch); //FIXME RP?
-          detid.channelName(ch_name);
-          iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_"+ch_name, ch_name+";t (ns);Entries", 1200, -60., 60.);
-          iHists.leadingTimeVsToT[detid.rawId()] = iBooker.book2D("tvstot_"+ch_name, ch_name+";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
-        } // loop over channels
-      } // loop over arms
-    } // loop over stations
-  } // loop over arms
 }
 
 //------------------------------------------------------------------------------
