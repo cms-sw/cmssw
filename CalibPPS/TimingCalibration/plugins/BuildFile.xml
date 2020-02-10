@@ -4,4 +4,6 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/CTPPSReadoutObjects"/>
+  <use name="Geometry/VeryForwardGeometryBuilder"/>
+  <use name="clhep"/><!--FIXME-->
 </library>

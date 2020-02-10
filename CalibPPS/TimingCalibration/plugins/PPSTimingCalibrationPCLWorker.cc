@@ -14,7 +14,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
@@ -36,6 +40,7 @@ public:
 private:
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&, TimingCalibrationHistograms&) const override;
 
+  edm::ESWatcher<CTPPSGeometry> geomWatcher_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHitToken_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTrackToken_;
   const std::string dqmDir_;
@@ -64,6 +69,16 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
   iBooker.cd();
   iBooker.setCurrentFolder(dqmDir_);
   std::string ch_name;
+
+  edm::ESHandle<CTPPSGeometry> hGeom;
+  iSetup.get<VeryForwardRealGeometryRecord>().get(hGeom);
+  for (auto it = hGeom->beginSensor(); it != hGeom->endSensor(); ++it) {
+    CTPPSDetId detid(it->first);
+    try {
+      CTPPSDiamondDetId ddetid(detid);
+      std::cout << ">>> " << ddetid << std::endl;
+    } catch (const cms::Exception&) { continue; }
+  }
   //FIXME use geometry ESHandle
   for (unsigned short arm = 0; arm < 2; ++arm) {
     for (unsigned short st = 0; st < 2; ++st) {
