@@ -1364,7 +1364,8 @@ void EcalHitMaker::cracksPads(std::vector<neighbour>& cracks, unsigned iq) {
         mycorners[2] = (myPad.edge(SOUTHWEST));
         mycorners[3] = (padsatdepth_[cracks[ic].second].edge(SOUTHEAST));
       } break;
-      default: {}
+      default: {
+      }
     }
     CrystalPad crackpad(ic, mycorners);
     // to be tuned. A simpleconfigurable should be used
