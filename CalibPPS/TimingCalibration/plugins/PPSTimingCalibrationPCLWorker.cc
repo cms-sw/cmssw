@@ -38,7 +38,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&, TimingCalibrationHistograms&) const override;
+  void bookHistograms(DQMStore::IBooker&,
+                      const edm::Run&,
+                      const edm::EventSetup&,
+                      TimingCalibrationHistograms&) const override;
 
   edm::ESWatcher<CTPPSGeometry> geomWatcher_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHitToken_;
@@ -47,25 +50,28 @@ private:
   struct CTPPSPixelSelection {
     int minPixTracks, maxPixTracks;
   };
-  std::map<CTPPSPixelDetId,CTPPSPixelSelection> pixelPotSel_;
+  std::map<CTPPSPixelDetId, CTPPSPixelSelection> pixelPotSel_;
 };
 
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationPCLWorker::PPSTimingCalibrationPCLWorker(const edm::ParameterSet& iConfig)
-  :diamondRecHitToken_(consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(iConfig.getParameter<edm::InputTag>("diamondRecHitTag"))),
-   pixelTrackToken_(consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(iConfig.getParameter<edm::InputTag>("pixelTrackTag"))),
-   dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
+    : diamondRecHitToken_(
+          consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(iConfig.getParameter<edm::InputTag>("diamondRecHitTag"))),
+      pixelTrackToken_(
+          consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(iConfig.getParameter<edm::InputTag>("pixelTrackTag"))),
+      dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
   for (const auto& pix_pot : iConfig.getParameter<std::vector<edm::ParameterSet>>("pixelPotSelection"))
-    pixelPotSel_[CTPPSPixelDetId(pix_pot.getParameter<unsigned int>("potId"))] = CTPPSPixelSelection{
-      pix_pot.getParameter<int>("minPixelTracks"),
-      pix_pot.getParameter<int>("maxPixelTracks")};
+    pixelPotSel_[CTPPSPixelDetId(pix_pot.getParameter<unsigned int>("potId"))] =
+        CTPPSPixelSelection{pix_pot.getParameter<int>("minPixelTracks"), pix_pot.getParameter<int>("maxPixelTracks")};
 }
 
 //------------------------------------------------------------------------------
 
-void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run& iRun, const edm::EventSetup& iSetup, TimingCalibrationHistograms& iHists) const
-{
+void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
+                                                   const edm::Run& iRun,
+                                                   const edm::EventSetup& iSetup,
+                                                   TimingCalibrationHistograms& iHists) const {
   iBooker.cd();
   iBooker.setCurrentFolder(dqmDir_);
   std::string ch_name;
@@ -79,9 +85,10 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
       if (detid.station() != 1)
         continue;
       detid.channelName(ch_name);
-      iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_"+ch_name, ch_name+";t (ns);Entries", 1200, -60., 60.);
-      iHists.toT[detid.rawId()] = iBooker.book1D("tot_"+ch_name, ch_name+";ToT (ns);Entries", 100, -20., 20.);
-      iHists.leadingTimeVsToT[detid.rawId()] = iBooker.book2D("tvstot_"+ch_name, ch_name+";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
+      iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_" + ch_name, ch_name + ";t (ns);Entries", 1200, -60., 60.);
+      iHists.toT[detid.rawId()] = iBooker.book1D("tot_" + ch_name, ch_name + ";ToT (ns);Entries", 100, -20., 20.);
+      iHists.leadingTimeVsToT[detid.rawId()] =
+          iBooker.book2D("tvstot_" + ch_name, ch_name + ";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
     } catch (const cms::Exception&) {
       continue;
     }
@@ -90,8 +97,9 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
 
 //------------------------------------------------------------------------------
 
-void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TimingCalibrationHistograms& iHists) const
-{
+void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent,
+                                               const edm::EventSetup& iSetup,
+                                               const TimingCalibrationHistograms& iHists) const {
   // first unpack the pixel tracks information to ensure event quality
   edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> dsv_pixtrks;
   iEvent.getByToken(pixelTrackToken_, dsv_pixtrks);
@@ -101,16 +109,16 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent, const e
     return;
   }
   // check the per-pot tracks multiplicity
-  std::map<CTPPSPixelDetId,unsigned short> m_pixtrks_mult;
+  std::map<CTPPSPixelDetId, unsigned short> m_pixtrks_mult;
   for (const auto& ds_pixtrks : *dsv_pixtrks) {
     const CTPPSPixelDetId detid(ds_pixtrks.detId());
     if (pixelPotSel_.count(detid) == 0)
-      continue; // no selection defined, discarding this pot
+      continue;  // no selection defined, discarding this pot
     for (const auto& track : ds_pixtrks)
       if (track.isValid())
         m_pixtrks_mult[detid]++;
   }
-  std::array<bool,2> pass_pix_sel{{true, true}}; // enough but not too much tracks were found for this pot
+  std::array<bool, 2> pass_pix_sel{{true, true}};  // enough but not too much tracks were found for this pot
   for (const auto& mult_vs_pot : m_pixtrks_mult) {
     const auto& pix_sel = pixelPotSel_.at(mult_vs_pot.first);
     if (pix_sel.minPixTracks < 0 || mult_vs_pot.second >= pix_sel.minPixTracks)
@@ -136,7 +144,8 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent, const e
     if (!pass_pix_sel.at(detid.arm()))
       continue;
     if (iHists.leadingTimeVsToT.count(detid.rawId()) == 0) {
-      edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "Pad with detId=" << detid << " is not set to be monitored.";
+      edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze")
+          << "Pad with detId=" << detid << " is not set to be monitored.";
       continue;
     }
     for (const auto& rechit : ds_rechits) {
@@ -155,23 +164,19 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent, const e
 void PPSTimingCalibrationPCLWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("diamondRecHitTag", edm::InputTag("ctppsDiamondRecHits"))
-    ->setComment("input tag for the PPS diamond detectors rechits");
+      ->setComment("input tag for the PPS diamond detectors rechits");
   desc.add<edm::InputTag>("pixelTrackTag", edm::InputTag("ctppsPixelLocalTracks"))
-    ->setComment("input tag for the PPS pixel tracks");
+      ->setComment("input tag for the PPS pixel tracks");
   desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
-    ->setComment("output path for the various DQM plots");
+      ->setComment("output path for the various DQM plots");
 
   edm::ParameterSetDescription desc_pixpotcuts;
   desc_pixpotcuts.add<unsigned int>("potId", 0);
-  desc_pixpotcuts.add<int>("minPixelTracks", -1)
-    ->setComment("minimal pixel tracks multiplicity");
-  desc_pixpotcuts.add<int>("maxPixelTracks", -1)
-    ->setComment("maximal pixel tracks multiplicity for shower rejection");
+  desc_pixpotcuts.add<int>("minPixelTracks", -1)->setComment("minimal pixel tracks multiplicity");
+  desc_pixpotcuts.add<int>("maxPixelTracks", -1)->setComment("maximal pixel tracks multiplicity for shower rejection");
 
   std::vector<edm::ParameterSet> potsDefaults;
-  std::vector<CTPPSPixelDetId> pots_ids = {
-    CTPPSPixelDetId(1, 0), CTPPSPixelDetId(1, 1)
-  };
+  std::vector<CTPPSPixelDetId> pots_ids = {CTPPSPixelDetId(1, 0), CTPPSPixelDetId(1, 1)};
   for (const auto& pot : pots_ids) {
     edm::ParameterSet pot_ps;
     pot_ps.addParameter<unsigned int>("potId", pot.rawId());
