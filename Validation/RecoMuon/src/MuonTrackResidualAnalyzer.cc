@@ -82,8 +82,6 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                                edm::EventSetup const & /* iSetup */) {
   LogDebug("MuonTrackResidualAnalyzer") << "Begin Run";
 
-  //ibooker.showDirStructure();
-
   ibooker.cd();
   InputTag algo = theMuonTrackLabel;
   string dirName = dirName_;

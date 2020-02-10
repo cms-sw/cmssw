@@ -40,6 +40,9 @@ ZDCDigiStudy::~ZDCDigiStudy() {}
 
 void ZDCDigiStudy::bookHistograms(DQMStore::IBooker& ib, edm::Run const& run, edm::EventSetup const& es) {
   ib.setCurrentFolder("ZDCDigiValidation");
+  // run histos only since there is dqmEndRun processing.
+  ib.setScope(MonitorElementData::Scope::RUN);
+
   //Histograms for Hits
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //# Below we are filling the histograms made in the .h file. The syntax is as follows:                                      #

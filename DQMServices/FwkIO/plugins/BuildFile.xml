@@ -1,5 +1,6 @@
 <use   name="DQMServices/Core"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Sources"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>

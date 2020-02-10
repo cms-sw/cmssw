@@ -73,11 +73,13 @@ void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     stringstream wheel_str;
     wheel_str << wheel;
 
-    MonitorElement* ME =
-        ibooker.book1D("hActiveUnits" + wheel_str.str(), "Active Untis x LS Wh" + wheel_str.str(), 2, 0.5, 2.5);
-    ME->setLumiFlag();  // Set LumiFlag in order to save histo every LS
-
-    hActiveUnits.push_back(ME);
+    {
+      // Set Lumi scope in order to save histo every LS
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+      MonitorElement* ME =
+          ibooker.book1D("hActiveUnits" + wheel_str.str(), "Active Untis x LS Wh" + wheel_str.str(), 2, 0.5, 2.5);
+      hActiveUnits.push_back(ME);
+    }
   }
 }
 

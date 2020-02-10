@@ -373,7 +373,6 @@ void TrackEfficiencyMonitor::endJob(void)
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {
-    //dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
   }
 

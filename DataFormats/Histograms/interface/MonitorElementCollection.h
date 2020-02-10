@@ -12,14 +12,6 @@
  required fields to represent a ME. The only opration allowed on these objects
  is merging, which is a important part of the DQM functionality and should be
  handled by EDM.
- Once a MonitorElement enters this product, it is immutable. During event
- processing, the ROOT objects need to be protectd by locks. These locks are not
- present in this structure: Any potential modification needs to be done as a
- copy-on-write and create a new MonitorElement.
- The file IO for these objects should still be handled by the DQMIO classes
- (DQMRootOutputModule and DQMRootSource), so persistent=false would be ok for
- this class. However, if we can get EDM IO cheaply, it could be useful to 
- handle corner cases like MEtoEDM more cleanly.
 
  Usage: This product should only be handled by the DQMStore, which provides 
  access to the MEs inside. The DQMStore will wrap the MonitorElementData in
@@ -27,9 +19,9 @@
  histograms, depending on the current stage of processing: In the RECO step,
  only filling is allowed, while in HARVESTING, the same data will be wrapped in
  a MonitorElement that also allows access to the ROOT objects.
- We only use pointers to MonitorElementData, to allow replacing it with a
- variable-size templated version later. That could eliminate one level of 
- indirection in accessing histograms.
+
+ Currently, the product types are not used as products and all data is passed
+ through the edm::Service<DQMStore>.
 
 */
 //
@@ -54,6 +46,82 @@ struct MonitorElementData {
     int64_t num = 0;
     double real = 0;
     std::string str;
+  };
+
+  // Quality test result types.
+  // These are inherited from DQMNet/old DQMStore, and left unchanged to avoid
+  // another layer of wrapping. The APIs are used in some places in subsystem
+  // code, and could be changed, but not removed.
+  class QReport {
+  public:
+    struct QValue {
+      int code;
+      float qtresult;
+      std::string message;
+      std::string qtname;
+      std::string algorithm;
+    };
+    struct DQMChannel {
+      int binx;       //< bin # in x-axis (or bin # for 1D histogram)
+      int biny;       //< bin # in y-axis (for 2D or 3D histograms)
+      int binz;       //< bin # in z-axis (for 3D histograms)
+      float content;  //< bin content
+      float RMS;      //< RMS of bin content
+
+      int getBin() { return getBinX(); }
+      int getBinX() { return binx; }
+      int getBinY() { return biny; }
+      int getBinZ() { return binz; }
+      float getContents() { return content; }
+      float getRMS() { return RMS; }
+
+      DQMChannel(int bx, int by, int bz, float data, float rms) {
+        binx = bx;
+        biny = by;
+        binz = bz;
+        content = data;
+        RMS = rms;
+      }
+
+      DQMChannel() {
+        binx = 0;
+        biny = 0;
+        binz = 0;
+        content = 0;
+        RMS = 0;
+      }
+    };
+
+    /// access underlying value
+    QValue& getValue() { return qvalue_; };
+    QValue const& getValue() const { return qvalue_; };
+
+    /// get test status
+    int getStatus() const { return qvalue_.code; }
+
+    /// get test result i.e. prob value
+    float getQTresult() const { return qvalue_.qtresult; }
+
+    /// get message attached to test
+    const std::string& getMessage() const { return qvalue_.message; }
+
+    /// get name of quality test
+    const std::string& getQRName() const { return qvalue_.qtname; }
+
+    /// get quality test algorithm
+    const std::string& getAlgorithm() const { return qvalue_.algorithm; }
+
+    /// get vector of channels that failed test
+    /// (not relevant for all quality tests!)
+    const std::vector<DQMChannel>& getBadChannels() const { return badChannels_; }
+
+    void setBadChannels(std::vector<DQMChannel> badChannels) { badChannels_ = badChannels; }
+
+    QReport(QValue value) : qvalue_(value) {}
+
+  private:
+    QValue qvalue_;                        //< Pointer to the actual data.
+    std::vector<DQMChannel> badChannels_;  //< Bad channels from QCriterion.
   };
 
   // These values are compatible to DQMNet, but DQMNet is not likely to exist
@@ -88,6 +156,7 @@ struct MonitorElementData {
   struct Value {
     Scalar scalar_;
     edm::propagate_const<std::unique_ptr<TH1>> object_;
+    std::vector<QReport> qreports_;
   };
 
   struct Path {
@@ -101,6 +170,7 @@ struct MonitorElementData {
 
     std::string const& getDirname() const { return dirname_; }
     std::string const& getObjectname() const { return objname_; }
+    std::string getFullname() const { return dirname_ + objname_; }
 
     // Clean up the path and normalize it to preserve certain invariants.
     // Instead of reasoning about whatever properties of paths, we just parse
@@ -111,7 +181,7 @@ struct MonitorElementData {
     void set(std::string path, Path::Type type) {
       std::string in(path);
       std::vector<std::string> buf;
-      std::regex dir("^/*([^/]+)");
+      static std::regex const dir("^/*([^/]+)");
       std::smatch m;
 
       while (std::regex_search(in, m, dir)) {
@@ -179,8 +249,7 @@ struct MonitorElementData {
 // For now, no additional (meta-)data is needed apart from the MEs themselves.
 // The framework will take care of tracking the plugin and LS/run that the MEs
 // belong to.
-
-// Only to hold the mergeProduct placeholder for now.
+// Unused for now.
 class MonitorElementCollection {
   std::vector<std::unique_ptr<const MonitorElementData>> data_;
 

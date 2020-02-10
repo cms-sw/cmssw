@@ -34,11 +34,6 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
   menESHits1zp_ = nullptr;
   menESHits2zp_ = nullptr;
   menESHits1zm_ = nullptr;
@@ -64,6 +59,7 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
 
   if (dbe_) {
     dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+    dbe_->setScope(MonitorElementData::Scope::RUN);
 
     sprintf(histo, "ES hits layer 1 multiplicity z+");
     menESHits1zp_ = dbe_->book1D(histo, histo, 50, 0., 50.);

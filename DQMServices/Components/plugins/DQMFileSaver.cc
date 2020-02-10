@@ -113,7 +113,7 @@ void DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi
   }
 
   LegacyIOHelper h(dbe_);
-  h.save(filename, run);
+  h.save(filename, "", run, /* saveall */ true, "RECREATE");
 
   // save the JobReport
   saveJobReport(filename);

@@ -197,18 +197,6 @@ void HLXMonitor::SetupHists(DQMStore::IBooker &iBooker) {
     }
   }
 
-  if (!Accumulate) {
-    for (unsigned int iWedge = 0; iWedge < NUM_HLX; ++iWedge) {
-      Set1Below[iWedge]->setResetMe(true);
-      Set1Between[iWedge]->setResetMe(true);
-      Set1Above[iWedge]->setResetMe(true);
-      Set2Below[iWedge]->setResetMe(true);
-      Set2Between[iWedge]->setResetMe(true);
-      Set2Above[iWedge]->setResetMe(true);
-      ETSum[iWedge]->setResetMe(true);
-    }
-  }
-
   if (Style == "BX") {
     OccXAxisTitle = "Bunch Crossing";
     OccYAxisTitle = "Tower Occupancy";

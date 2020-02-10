@@ -1,0 +1,3 @@
+RUN=325172
+../../Components/test/dqmiofilecopy.sh /DoubleMuon/Run2018D-12Nov2019_UL2018-v2/DQMIO $RUN >> harvesting.py
+echo "process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('$RUN:1-$(($RUN+1)):0')" >> harvesting.py

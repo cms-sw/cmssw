@@ -15,7 +15,6 @@ V00-03-25
 */
 
 #include "DQM/BeamMonitor/plugins/BeamMonitor.h"
-#include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
@@ -1023,7 +1022,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
         auto tmphisto = h_PVy[0]->getTH1F();
         h_PVy[1]->getTH1()->SetBins(
             tmphisto->GetNbinsX(), tmphisto->GetXaxis()->GetXmin(), tmphisto->GetXaxis()->GetXmax());
-        h_PVy[1]->update();
         h_PVy[1]->Reset();
         h_PVy[1]->getTH1()->Add(tmphisto);
         h_PVy[1]->getTH1()->Fit(fgaus.get(), "QLM");
@@ -1054,7 +1052,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
         auto tmphisto = h_PVz[0]->getTH1F();
         h_PVz[1]->getTH1()->SetBins(
             tmphisto->GetNbinsX(), tmphisto->GetXaxis()->GetXmin(), tmphisto->GetXaxis()->GetXmax());
-        h_PVz[1]->update();
         h_PVz[1]->Reset();
         h_PVz[1]->getTH1()->Add(tmphisto);
         h_PVz[1]->getTH1()->Fit(fgaus.get(), "QLM");

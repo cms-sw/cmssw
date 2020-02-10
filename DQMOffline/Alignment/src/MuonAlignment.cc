@@ -66,6 +66,10 @@ void MuonAlignment::beginJob() {
   }
 
   dbe = edm::Service<DQMStore>().operator->();
+  // Since this is a legacy module which will block concurrent-anything, we can
+  // safely request per-run histograms here. This is required since the default
+  // for legacy modules (JOB histograms) cannot be saved into MEtoEDM format.
+  dbe->setScope(MonitorElementData::Scope::RUN);
 
   if (doSummary) {
     if (doDT) {
@@ -913,7 +917,6 @@ void MuonAlignment::endJob(void) {
   }      // doSummary
 
   if (outputMEsInRootFile) {
-    //    dbe->showDirStructure();
     dbe->save(outputFileName);
   }
 }
