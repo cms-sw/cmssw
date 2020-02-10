@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "CalibPPS/TimingCalibration/interface/TimingCalibrationStruct.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
 
@@ -74,7 +75,7 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
 void PPSTimingCalibrationPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
-    ->setComment("output path for the various DQM plots");
+    ->setComment("input path for the various DQM plots");
   descriptions.addWithDefaultLabel(desc);
 }
 
