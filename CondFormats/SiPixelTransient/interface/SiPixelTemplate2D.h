@@ -145,10 +145,8 @@ public:
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
   static bool pushfile(const SiPixel2DTemplateDBObject& dbobject,
                        std::vector<SiPixelTemplateStore2D>& pixelTemp);  // load the private store with info from db
-#endif
 
-  //  Initialize things before interpolating
-
+  // For calibrations only: load precalculated values -- no interpolation.
   void sideload(SiPixelTemplateEntry2D* entry,
                 int iDtype,
                 float locBx,
@@ -160,6 +158,16 @@ public:
                 float xsize,
                 float ysize,
                 float zsize);
+
+
+#else
+   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore2D > & pixelTemp , std::string dir = "CalibTracker/SiPixelESProducers/data/");
+
+   // Load from the DB (the default in CMSSW):
+   static bool pushfile(const SiPixel2DTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore2D > & pixelTemp);
+
+#endif
+   
 
   //  Initialize things before interpolating
   bool getid(int id);
@@ -350,7 +358,6 @@ private:
   const SiPixelTemplateEntry2D* entry01_;  // Pointer to presently interpolated point [iy,ix+1]
 
   // The actual template store is a std::vector container
-
   const std::vector<SiPixelTemplateStore2D>& thePixelTemp_;
 };
 

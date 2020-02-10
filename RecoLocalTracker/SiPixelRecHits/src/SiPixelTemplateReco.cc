@@ -71,13 +71,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
-static const int theVerboseLevel = 2;
+static const int theVerboseLevel = 2;   // in CMSSW
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 #else
 #include "SiPixelTemplateReco.h"
 #include "VVIObjF.h"
-//static int theVerboseLevel = {2};
+static const int theVerboseLevel = 2;   // in standalone, could have different value
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGDEBUG(x) std::cout << x << ": "
 #define ENDL std::endl
@@ -175,19 +175,26 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 
   // The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
 
-  const double mean1pix = {0.100}, chi21min = {0.160};
+  const double mean1pix = {0.100};
+#ifdef SI_PIXEL_TEMPLATE_STANDALONE
+  const double chi21min = {0.};
+#else 
+  const double chi21min = {0.160};
+#endif
 
   // First, interpolate the template needed to analyze this cluster
   // check to see of the track direction is in the physical range of the loaded template
 
-  if (!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
-    if (theVerboseLevel > 2) {
-      LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha
-                                      << ", cot(beta) = " << cotbeta << ", local B_z = " << locBz
-                                      << ", local B_x = " << locBx << ", template ID = " << id
-                                      << ", no reconstruction performed" << ENDL;
+  if(id > 0) { //if id == 0 bypass interpolation (used in calibration)
+    if (!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
+      if (theVerboseLevel > 2) {
+        LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha
+                                        << ", cot(beta) = " << cotbeta << ", local B_z = " << locBz
+                                        << ", local B_x = " << locBx << ", template ID = " << id
+                                        << ", no reconstruction performed" << ENDL;
+      }
+      return 20;
     }
-    return 20;
   }
 
   // Check to see if Q probability is selected
