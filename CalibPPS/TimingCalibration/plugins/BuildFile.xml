@@ -5,5 +5,4 @@
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/CTPPSReadoutObjects"/>
   <use name="Geometry/VeryForwardGeometryBuilder"/>
-  <use name="CommonTools/Utils"/>
 </library>

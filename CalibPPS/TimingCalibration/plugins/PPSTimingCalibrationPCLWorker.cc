@@ -80,6 +80,7 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
         continue;
       detid.channelName(ch_name);
       iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_"+ch_name, ch_name+";t (ns);Entries", 1200, -60., 60.);
+      iHists.toT[detid.rawId()] = iBooker.book1D("tot_"+ch_name, ch_name+";ToT (ns);Entries", 100, -20., 20.);
       iHists.leadingTimeVsToT[detid.rawId()] = iBooker.book2D("tvstot_"+ch_name, ch_name+";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
     } catch (const cms::Exception&) {
       continue;
@@ -143,6 +144,7 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent, const e
       if (rechit.time() == 0. || rechit.toT() < 0.)
         continue;
       iHists.leadingTime.at(detid.rawId())->Fill(rechit.time());
+      iHists.toT.at(detid.rawId())->Fill(rechit.toT());
       iHists.leadingTimeVsToT.at(detid.rawId())->Fill(rechit.toT(), rechit.time());
     }
   }
