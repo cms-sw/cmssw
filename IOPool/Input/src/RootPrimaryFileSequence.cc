@@ -18,7 +18,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
-
 namespace edm {
   RootPrimaryFileSequence::RootPrimaryFileSequence(ParameterSet const& pset,
                                                    PoolSource& input,

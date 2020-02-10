@@ -12,14 +12,12 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <iostream>
-
 namespace edm {
 
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
                                      std::string const& override,
                                      bool useLFNasPFNifLFNnotFound,
-                                     bool setMultipleDataCatalogs)  //HERE
+                                     bool setMultipleDataCatalogs)
       : logicalFileNames_(fileNames),
         fileNames_(fileNames),
         fallbackFileNames_(fileNames.size()),
@@ -28,7 +26,6 @@ namespace edm {
         overrideFileLocator_(),
         fallbackFileLocator_(),
         overrideFallbackFileLocator_() {
-    //HERE
     if (!setMultipleDataCatalogs) {
       init(override, "", useLFNasPFNifLFNnotFound);
       hasMultipleDataCatalogs_ = false;
@@ -133,7 +130,6 @@ namespace edm {
     }
   }
 
-  //HERE
   void InputFileCatalog::init(std::string const& inputOverride, bool useLFNasPFNifLFNnotFound) {
     typedef std::vector<std::string>::iterator iter;
 
@@ -151,10 +147,10 @@ namespace edm {
       }
     }
 
-    //HERE build other file locators from the local config service which are used to read files using different data catalogs
+    //build other file locators from the local config service which are used to read files using different data catalogs
     Service<SiteLocalConfig> localconfservice;
     std::vector<std::string> tmp_dataCatalogs = localconfservice->dataCatalogs();
-    if (fileLocators_.size() != 0)
+    if (!fileLocators_.empty())
       fileLocators_.clear();
 
     for (std::vector<std::string>::iterator it = tmp_dataCatalogs.begin(); it != tmp_dataCatalogs.end(); ++it) {
@@ -207,13 +203,10 @@ namespace edm {
         std::string pfn = fileLocators_[i]->pfn(lfn);
         if (!pfn.empty())
           pfns.push_back(pfn);
-        //else {
-        //std::cout << "\nThis file locator is empty: " << i ;
-        //}
       }
     }
 
-    if (pfns.size() == 0 && useLFNasPFNifLFNnotFound) {
+    if (pfns.empty() && useLFNasPFNifLFNnotFound) {
       pfns.push_back(lfn);
     }
 

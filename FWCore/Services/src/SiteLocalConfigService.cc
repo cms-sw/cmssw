@@ -78,7 +78,6 @@ namespace edm {
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
           m_dataCatalog(),
           m_fallbackDataCatalog(),
-          //HERE
           m_dataCatalogs(),
           m_frontierConnect(),
           m_rfioType("castor"),
@@ -159,7 +158,6 @@ namespace edm {
       return m_dataCatalog;
     }
 
-    //HERE
     std::vector<std::string> const SiteLocalConfigService::dataCatalogs(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
@@ -334,7 +332,6 @@ namespace edm {
         {
           auto eventData = site->FirstChildElement("event-data");
           if (eventData) {
-            //HERE
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
               m_dataCatalog = safe(catalog->Attribute("url"));

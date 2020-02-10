@@ -13,9 +13,6 @@
 
 #include "TSystem.h"
 
-//HERE
-#include <iostream>
-
 namespace edm {
   class BranchIDListHelper;
   class EventPrincipal;
@@ -301,7 +298,6 @@ namespace edm {
     }
   }
 
-  //HERE
   //Initiate the file using multiple data catalogs
   void RootInputFileSequence::initTheFileDataCatalogs(
       bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType) {
@@ -348,10 +344,6 @@ namespace edm {
 
     std::vector<std::string> fNames = fileNames();
 
-    //HERE
-    //for (unsigned int i = 0 ; i < fNames.size() ; ++i) {
-    //  std::cout << "\n " << fNames[i] ;
-    //}
     //this tries to open the file using multiple PFNs corresponding to different data catalogs
     for (std::vector<std::string>::iterator it = fNames.begin(); it != fNames.end(); ++it) {
       try {
@@ -388,7 +380,7 @@ namespace edm {
       setIndexIntoFile(currentIndexIntoFile);
       rootFile_->reportOpened(inputTypeName);
     } else {
-      std::string fName = fNames.size() > 0 ? fNames[0] : "";
+      std::string fName = !fNames.empty() ? fNames[0] : "";
       InputFile::reportSkippedFile(fName, logicalFileName());  //0 cause exception?
       if (!skipBadFiles) {
         throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFileDataCatalogs(): Input file "
