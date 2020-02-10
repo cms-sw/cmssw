@@ -32,9 +32,9 @@ void BTLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
 }
 
 void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
-				   const edm::Handle<edm::PSimHitContainer>& hits,
-				   mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
-				   CLHEP::HepRandomEngine* hre) {
+                                   const edm::Handle<edm::PSimHitContainer>& hits,
+                                   mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
+                                   CLHEP::HepRandomEngine* hre) {
   //loop over sorted simHits
   for (auto const& hitRef : hitRefs) {
     const int hitidx = std::get<0>(hitRef);
@@ -55,8 +55,8 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
 
     if (thedet == nullptr) {
-      throw cms::Exception("BTLDeviceSim") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
-					   << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+      throw cms::Exception("BTLDeviceSim") << "GeographicalID: " << std::hex << geoId.rawId() << " (" << detId.rawId()
+                                           << ") is invalid!" << std::dec << std::endl;
     }
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
@@ -70,9 +70,9 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
 
     if (btlid.row(topo.nrows()) != row || btlid.column(topo.nrows()) != col) {
       edm::LogWarning("BTLDeviceSim") << "BTLDetId (row,column): (" << btlid.row(topo.nrows()) << ','
-				      << btlid.column(topo.nrows()) << ") is not equal to "
-				      << "topology (row,column): (" << uint32_t(row) << ',' << uint32_t(col)
-				      << "), overriding to detid";
+                                      << btlid.column(topo.nrows()) << ") is not equal to "
+                                      << "topology (row,column): (" << uint32_t(row) << ',' << uint32_t(col)
+                                      << "), overriding to detid";
       row = btlid.row(topo.nrows());
       col = btlid.column(topo.nrows());
     }
