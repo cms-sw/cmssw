@@ -1231,8 +1231,10 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
   char title8[80];
   sprintf(title8, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
   if (modOn) {
-    averageDigiOccupancy = iBooker.bookProfile("averageDigiOccupancy", title7, 40, -0.5, 39.5, 0., 3.);
-    averageDigiOccupancy->setLumiFlag();
+    {
+      auto scope = DQMStore::IBooker::UseLumiScope(iBooker);
+      averageDigiOccupancy = iBooker.bookProfile("averageDigiOccupancy", title7, 40, -0.5, 39.5, 0., 3.);
+    }
     avgfedDigiOccvsLumi = iBooker.book2D("avgfedDigiOccvsLumi", title8, 640, 0., 3200., 40, -0.5, 39.5);
     avgBarrelFedOccvsLumi = iBooker.book1D(
         "avgBarrelFedOccvsLumi",

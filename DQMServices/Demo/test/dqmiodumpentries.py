@@ -11,19 +11,6 @@ parser.add_argument('-l', '--lumi', help='Lumisection to process', default=0, ty
 parser.add_argument('-s', '--summary', help='Only show values and how often they appeared.', action='store_true')
 args = parser.parse_args()
 
-interesting_types = {
-  "Ints",
-  "Floats",
-  "Strings",
-  "TH2Fs",
-  "TH1Fs",
-  "TH2Ds",
-  "TH1Ds",
-  "TH2Ds",
-  "TProfiles",
-  "TProfile2Ds",
-}
-
 treenames = {
     0: "Ints",
     1: "Floats",
@@ -48,9 +35,6 @@ for i in range(idxtree.GetEntries()):
     idxtree.GetEntry(i)
     run, lumi, metype = idxtree.Run, idxtree.Lumi, idxtree.Type
     if run != args.run or lumi != args.lumi:
-        continue
-
-    if not treenames[metype] in interesting_types:
         continue
 
     # inclusive range -- for 0 entries, row is left out

@@ -103,8 +103,10 @@ public:
   }
 
   void accumulate(edm::Event const &ev, edm::EventSetup const &es) final {
-    dqmstore_->meBookerGetter(
-        [this, &ev, &es](DQMStore::IBooker &b, DQMStore::IGetter &g) { this->dqmAnalyze(b, g, ev, es); });
+    dqmstore_->meBookerGetter([this, &ev, &es](DQMStore::IBooker &b, DQMStore::IGetter &g) {
+      b.setScope(MonitorElementData::Scope::JOB);
+      this->dqmAnalyze(b, g, ev, es);
+    });
   }
 
   void endLuminosityBlockProduce(edm::LuminosityBlock &lumi, edm::EventSetup const &es) final {
@@ -113,6 +115,7 @@ public:
     //lumimegetter_.fillHandles(lumi, refs);
 
     dqmstore_->meBookerGetter([this, &lumi, &es](DQMStore::IBooker &b, DQMStore::IGetter &g) {
+      b.setScope(MonitorElementData::Scope::JOB);
       this->dqmEndLuminosityBlock(b, g, lumi, es);
     });
 
@@ -122,8 +125,10 @@ public:
   void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) final{};
 
   void endRunProduce(edm::Run &run, edm::EventSetup const &es) final {
-    dqmstore_->meBookerGetter(
-        [this, &run, &es](DQMStore::IBooker &b, DQMStore::IGetter &g) { this->dqmEndRun(b, g, run, es); });
+    dqmstore_->meBookerGetter([this, &run, &es](DQMStore::IBooker &b, DQMStore::IGetter &g) {
+      b.setScope(MonitorElementData::Scope::JOB);
+      this->dqmEndRun(b, g, run, es);
+    });
 
     run.put(runToken_, std::make_unique<DQMToken>());
   }
@@ -131,7 +136,10 @@ public:
   void endRun(edm::Run const &, edm::EventSetup const &) override{};
 
   void endJob() final {
-    dqmstore_->meBookerGetter([this](DQMStore::IBooker &b, DQMStore::IGetter &g) { this->dqmEndJob(b, g); });
+    dqmstore_->meBookerGetter([this](DQMStore::IBooker &b, DQMStore::IGetter &g) {
+      b.setScope(MonitorElementData::Scope::JOB);
+      this->dqmEndJob(b, g);
+    });
   };
 
   ~DQMEDHarvester() override = default;
@@ -144,7 +152,6 @@ public:
                                      DQMStore::IGetter &,
                                      edm::LuminosityBlock const &,
                                      edm::EventSetup const &){};
-  // DQM_EXPERIMENTAL
   // HARVESTING should happen in endJob (or endLumi, for online), but there can
   // be applications for end-run harvesting. Better to have a callback than
   // have unprotected DQMStore access.

@@ -236,7 +236,6 @@ void TrackerOfflineValidationSummary::endJob() {
   this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
   this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
 
-  //dbe_->showDirStructure();
   //dbe_->save("dqmOut.root");
 
   // Method for filling histograms which show summarized values (mean, rms, median ...)

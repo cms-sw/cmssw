@@ -41,11 +41,11 @@ public:
           b.cd();
           bookHistograms(b, run, setup, *h);
         },
-        run.run(),
-        /* moduleID */ 0,
+        // The run number is part of the module ID here, since we want distinct
+        // local MEs for each run cache.
+        meId(run),
         /* canSaveByLumi */ false);
-    // Populate run numbers, in case booking only books prototypes.
-    // We will not call enterLumi per-lumi, since this is strictly run-based.
+    dqmstore_->enterLumi(run.run(), /* lumi */ 0, meId(run));
     return h;
   }
 
@@ -57,6 +57,7 @@ public:
   void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup) const final {
     auto const& h = *this->runCache(run.index());
     dqmEndRun(run, setup, h);
+    dqmstore_->leaveLumi(run.run(), /* lumi */ 0, meId(run));
     run.emplace(runToken_);
   }
 
@@ -74,6 +75,7 @@ public:
 private:
   DQMStore* dqmstore_;
   edm::EDPutTokenT<DQMToken> runToken_;
+  uint64_t meId(edm::Run const& run) const { return (((uint64_t)run.run()) << 32) + this->moduleDescription().id(); }
 };
 
 #endif  // DQMServices_Core_DQMGlobalEDAnalyzer_h

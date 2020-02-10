@@ -45,11 +45,6 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet &ps)
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
   meGunEnergy_ = nullptr;
   meGunEta_ = nullptr;
   meGunPhi_ = nullptr;
@@ -61,6 +56,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet &ps)
 
   if (dbe_) {
     dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+    dbe_->setScope(MonitorElementData::Scope::RUN);
 
     sprintf(histo, "EcalSimHitsValidation Gun Momentum");
     meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);

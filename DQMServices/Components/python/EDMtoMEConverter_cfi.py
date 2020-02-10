@@ -7,6 +7,8 @@ EDMtoMEConverter = cms.EDProducer("EDMtoMEConverter",
     Frequency = cms.untracked.int32(50),
     convertOnEndLumi = cms.untracked.bool(True),
     convertOnEndRun = cms.untracked.bool(True),
+    # convert everything into JOB histograms so endJob harvesting works.
+    reScope = cms.untracked.string("JOB"),
     runInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterRun'),
     lumiInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterLumi')
 )

@@ -81,11 +81,6 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker, const edm::R
   Char_t hname5[50], htitle5[80];
   Char_t hname6[50], htitle6[80];
 
-  if (fDBE) {
-    if (verbose_)
-      fDBE->showDirStructure();
-  }
-
   if (fDBE != nullptr) {
     //   fDBE->setCurrentFolder("TrackerHitsV/TrackerHitTask");
 

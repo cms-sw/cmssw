@@ -178,8 +178,8 @@ void ESIntegrityTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
 
   if (doLumiAnalysis_) {
     sprintf(histo, "ES Good Channel Fraction");
+    auto scope = DQMStore::IBooker::UseLumiScope(iBooker);
     meDIFraction_ = iBooker.book2D(histo, histo, 3, 1.0, 3.0, 3, 1.0, 3.0);
-    meDIFraction_->setLumiFlag();
   }
 }
 

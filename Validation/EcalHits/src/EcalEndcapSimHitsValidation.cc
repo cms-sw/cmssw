@@ -29,11 +29,6 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
   meEEzpHits_ = nullptr;
   meEEzmHits_ = nullptr;
   meEEzpCrystals_ = nullptr;
@@ -72,6 +67,7 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
 
   if (dbe_) {
     dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+    dbe_->setScope(MonitorElementData::Scope::RUN);
 
     sprintf(histo, "EE+ hits multiplicity");
     meEEzpHits_ = dbe_->book1D(histo, histo, 50, 0., 5000.);

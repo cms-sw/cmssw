@@ -83,6 +83,7 @@ private:
 
   bool convertOnEndLumi;
   bool convertOnEndRun;
+  MonitorElementData::Scope reScope;
 
   template <typename T>
   class Tokens {
