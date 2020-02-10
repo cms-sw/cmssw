@@ -6,8 +6,10 @@ function die { echo $1: status $2 ;  exit $2; }
 dir=${PWD}
 cd ${LOCALTOP}
 
-#need to find a test program which we do not put on the PATH
-${CMSSW_BASE}/test/${SCRAM_ARCH}/testFWCoreSharedMemoryMonitorThread 6 >& testFWCoreSharedMemoryMonitorThread.log && die "did not return signal" 1
+#test programs are placed on PATH when tests are run by scram
+testpath="testFWCoreSharedMemoryMonitorThread"
+
+$testpath 6 >& testFWCoreSharedMemoryMonitorThread.log && die "did not return signal" 1
 
 retValue=$?
 if [ "$retValue" != "134" ]; then
@@ -19,7 +21,7 @@ else
 fi
 
 
-${CMSSW_BASE}/test/${SCRAM_ARCH}/testFWCoreSharedMemoryMonitorThread 11 >& testFWCoreSharedMemoryMonitorThread.log && die "did not return signal" 1
+$testpath 11 >& testFWCoreSharedMemoryMonitorThread.log && die "did not return signal" 1
 
 retValue=$?
 if [ "$retValue" != "139" ]; then
