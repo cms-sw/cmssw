@@ -8,19 +8,20 @@
  *  \author Petra Merkel
  */
 
-#include "DQMServices/ClientConfig/interface/DQMParserBase.h"
 #include <fstream>
 #include <map>
 #include <string>
 #include <vector>
 
-class SiPixelConfigParser : public DQMParserBase {
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+class SiPixelConfigParser {
 public:
   // Constructor
   SiPixelConfigParser();
 
-  // Destructor
-  ~SiPixelConfigParser() override;
+  void getDocument(std::string filename);
 
   // get List of MEs for TrackerMap
   bool getMENamesForTrackerMap(std::string &tkmap_name, std::vector<std::string> &me_names);
@@ -40,6 +41,7 @@ public:
   bool getCalibType(int &u_freq);
 
 private:
+  boost::property_tree::ptree config_;
 };
 
 #endif

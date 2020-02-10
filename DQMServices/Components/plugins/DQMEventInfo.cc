@@ -1,20 +1,89 @@
 /*
- * \file DQMEventInfo.cc
- * \author M. Zanetti - CERN PH
- * Last Update:
+ * \file DQMEventInfo.h
  *
- */
-#include "DQMEventInfo.h"
+ * \author M. Zanetti - INFN Padova
+ *
+*/
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-#include <TSystem.h>
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/Run.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ServiceRegistry/interface/Service.h>
 
 #include <algorithm>
-#include <cstdio>
+#include <iostream>
 #include <sstream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <memory>
+#include <cstdio>
 #include <cmath>
+#include <map>
+
+#include <sys/time.h>
+#include <TSystem.h>
 
 #include <boost/algorithm/string/join.hpp>
+
+class DQMEventInfo : public DQMEDAnalyzer {
+public:
+  /// Constructor
+  DQMEventInfo(const edm::ParameterSet& ps);
+
+  /// Destructor
+  ~DQMEventInfo() override;
+
+protected:
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
+  std::string eventInfoFolder_;
+  std::string subsystemname_;
+
+  double currentTime_, lastUpdateTime_, lastAvgTime_;
+  double runStartTime_;
+  double evtRateWindow_;
+  int64_t evtRateCount_;
+  int64_t pEvent_;
+
+  //////////////////////////////////////////////////////////////////
+  ///These MEs are filled with the info from the most recent event
+  ///   by the module
+  //////////////////////////////////////////////////////////////////
+  MonitorElement* runId_;
+  MonitorElement* runStartTimeStamp_;  ///UTC time of the run start
+  MonitorElement* eventId_;
+  MonitorElement* lumisecId_;
+  MonitorElement* eventTimeStamp_;
+
+  //////////////////////////////////////////////////////////////////
+  ///These MEs are either static or updated upon each analyze() call
+  //////////////////////////////////////////////////////////////////
+  MonitorElement* nUpdates_;               ///Number of collector updates (TBD)
+  MonitorElement* processId_;              ///The PID associated with this job
+  MonitorElement* processStartTimeStamp_;  ///The UTC time of the first event processed
+  MonitorElement* processTimeStamp_;       ///The UTC time of the last event
+  MonitorElement* processLatency_;         ///Time elapsed since the last event
+  MonitorElement* processEventRate_;       ///Avg # of events in programmable window (default: 5 min)
+  MonitorElement* processEvents_;          ///# of event processed so far
+  MonitorElement* hostName_;               ///Hostname of the local machine
+  MonitorElement* processName_;            ///DQM "name" of the job (eg, Hcal or DT)
+  MonitorElement* workingDir_;             ///Current working directory of the job
+  MonitorElement* cmsswVer_;               ///CMSSW version run for this job
+  MonitorElement* dqmPatch_;               ///DQM patch version for this job
+  MonitorElement* errSummary_;             ///Subdetector-specific error summary (float)
+  MonitorElement* errSummaryEtaPhi_;       ///Subdetector-specific etaPhi summary (float)
+  MonitorElement* errSummarySegment_[10];
+};
 
 static inline double stampToReal(edm::Timestamp time) {
   return (time.value() >> 32) + 1e-6 * (time.value() & 0xffffffff);
@@ -145,3 +214,6 @@ void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   return;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DQMEventInfo);

@@ -32,6 +32,7 @@ namespace cms {
     explicit DDSolid(dd4hep::Solid s) : solid_(s) {}
     dd4hep::Solid solid() const { return solid_; }
     dd4hep::Solid solidA() const;
+    dd4hep::Solid solidB() const;
     const std::vector<double> parameters() const;
 
   private:
@@ -64,6 +65,13 @@ namespace cms {
 
     //! The physical volume of the current node
     const PlacedVolume volume() const;
+
+    //! The full path to the current node
+    const std::string path() const;
+
+    //! The list of the volume copy numbers
+    //  along the full path to the current node
+    const std::vector<int> copyNos() const;
 
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.

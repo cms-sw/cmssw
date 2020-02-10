@@ -1,7 +1,5 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DTRecHit"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/RPCRecHit"/>
@@ -11,7 +9,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/RPCGeometry"/>
@@ -23,8 +20,6 @@
 <use   name="RecoMuon/Records"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="RecoMuon/TransientTrackingRecHit"/>
-<use   name="SimDataFormats/TrackingHit"/>
-<use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="gsl"/>

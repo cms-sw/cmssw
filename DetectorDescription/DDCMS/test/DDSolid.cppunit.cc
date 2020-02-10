@@ -56,6 +56,19 @@ void testDDSolid::checkDDSolid() {
       for (auto const& i : a.parameters())
         cout << i << ", ";
       cout << "\n";
+
+      auto solidB = solid.solidB();
+      std::cout << "Solid B is a " << solidB->GetTitle() << "\n";
+      if (dd4hep::isA<dd4hep::ConeSegment>(dd4hep::Solid(solidB))) {
+        cout << " is a ConeSegment:\n";
+        for (auto const& i : solidB.dimensions())
+          cout << i << ", ";
+      }
+      cout << "\n";
+      DDSolid b(solidB);
+      for (auto const& i : b.parameters())
+        cout << i << ", ";
+      cout << "\n";
     }
   }
 }

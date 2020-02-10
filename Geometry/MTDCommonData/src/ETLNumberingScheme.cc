@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 ETLNumberingScheme::ETLNumberingScheme() : MTDNumberingScheme() {
 #ifdef EDM_ML_DEBUG
@@ -30,12 +30,27 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     return 0;
   }
 
+  // Discriminate pre-TDR and TDR scenarios
+
+  const bool preTDR = (baseNumber.getLevelName(3).find("Ring") != std::string::npos);
+
   const uint32_t modCopy(baseNumber.getCopyNumber(2));
 
   const std::string& ringName(baseNumber.getLevelName(3));  // name of ring volume
-  const int modtyp(0);
+  int modtyp(0);
   std::string baseName = ringName.substr(ringName.find(":") + 1);
-  const int ringCopy(::atoi(baseName.c_str() + 4));
+  int ringCopy(::atoi(baseName.c_str() + 4));
+
+  if (!preTDR) {
+    uint32_t discN = (baseNumber.getLevelName(4).find("Disk1") != std::string::npos) ? 0 : 1;
+    uint32_t quarterS = (baseNumber.getLevelName(3).find("Front") != std::string::npos) ? 0 : 1;
+    uint32_t quarterN = baseNumber.getCopyNumber(3);
+    const uint32_t quarterOffset = 4;
+
+    ringCopy = quarterN + quarterS * quarterOffset + 2 * quarterOffset * discN;
+
+    modtyp = (baseNumber.getLevelName(2).find("_2") != std::string::npos) ? 2 : 1;
+  }
 
   // Side choice: up to scenario D38 is given by level 7 (HGCal v9)
   int nSide(7);
@@ -58,21 +73,23 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   // error checking
 
-  if (modtyp != 0) {
+  if ((modtyp != 0 && preTDR) || (modtyp == 0 && !preTDR)) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad module name = " << modtyp
                                << ", Volume Name = " << baseNumber.getLevelName(4);
     return 0;
   }
 
-  if (1 > modCopy || 176 < modCopy) {
+  if ((preTDR && (1 > modCopy || ETLDetId::kETLv1maxModule < modCopy)) ||
+      (!preTDR && (1 > modCopy || ETLDetId::kETLv2maxModule < modCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad module copy = " << modCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(4);
     return 0;
   }
 
-  if (1 > ringCopy || 11 < ringCopy) {
+  if ((preTDR && (1 > ringCopy || ETLDetId::kETLv1maxRing < ringCopy)) ||
+      (!preTDR && (1 > ringCopy || ETLDetId::kETLv2maxRing < ringCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad ring copy = " << ringCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(3);

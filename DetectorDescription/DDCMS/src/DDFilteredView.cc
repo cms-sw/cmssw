@@ -24,6 +24,17 @@ dd4hep::Solid DDSolid::solidA() const {
   return solid_;
 }
 
+dd4hep::Solid DDSolid::solidB() const {
+  if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) || dd4hep::isA<dd4hep::UnionSolid>(solid_) ||
+      dd4hep::isA<dd4hep::IntersectionSolid>(solid_)) {
+    const TGeoCompositeShape* sh = static_cast<const TGeoCompositeShape*>(solid_.ptr());
+    const TGeoBoolNode* boolean = sh->GetBoolNode();
+    TGeoShape* solidB = boolean->GetRightShape();
+    return dd4hep::Solid(solidB);
+  }
+  return solid_;
+}
+
 const std::vector<double> DDSolid::parameters() const { return solid().dimensions(); }
 
 DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
@@ -55,6 +66,29 @@ DDFilteredView::DDFilteredView(const DDCompactView& cpv, const DDFilter& attribu
 const PlacedVolume DDFilteredView::volume() const {
   assert(node_);
   return PlacedVolume(node_);
+}
+
+//
+// This should be used for debug purpose only
+//
+const std::string DDFilteredView::path() const {
+  TString fullPath;
+  it_.back().GetPath(fullPath);
+  return std::string(fullPath.Data());
+}
+
+//
+// The vector is filled from bottom up:
+// result[0] contains the current node copy number
+//
+const std::vector<int> DDFilteredView::copyNos() const {
+  std::vector<int> result;
+
+  for (int i = it_.back().GetLevel(); i > 0; --i) {
+    result.emplace_back(it_.back().GetNode(i)->GetNumber());
+  }
+
+  return result;
 }
 
 const Double_t* DDFilteredView::trans() const { return it_.back().GetCurrentMatrix()->GetTranslation(); }

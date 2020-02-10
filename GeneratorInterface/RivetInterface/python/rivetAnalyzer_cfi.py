@@ -12,5 +12,5 @@ rivetAnalyzer = cms.EDAnalyzer('RivetAnalyzer',
   CrossSection = cms.double(-1),
   DoFinalize = cms.bool(True),
   ProduceDQMOutput = cms.bool(False),
-  OutputFile = cms.string('out.aida')
+  OutputFile = cms.string('out.yoda')
 )

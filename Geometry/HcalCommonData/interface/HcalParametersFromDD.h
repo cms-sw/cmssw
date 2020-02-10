@@ -14,7 +14,8 @@ public:
   bool build(const cms::DDCompactView*, HcalParameters&);
 
 private:
-  bool build(const HcalParameters&);
+  bool build(HcalParameters&);
+  void rescale(std::vector<double>&, const double s);
 };
 
 #endif

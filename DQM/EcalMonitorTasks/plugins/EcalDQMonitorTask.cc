@@ -52,7 +52,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
       },
       "initialization");
 
-  edm::ParameterSet const& collectionTags(_ps.getUntrackedParameterSet("collectionTags"));
+  edm::ParameterSet const& collectionTags(_ps.getParameterSet("collectionTags"));
 
   for (unsigned iCol(0); iCol < ecaldqm::nCollections; iCol++) {
     if (hasTaskToRun[iCol])
@@ -90,7 +90,7 @@ void EcalDQMonitorTask::fillDescriptions(edm::ConfigurationDescriptions& _descs)
 
   edm::ParameterSetDescription collectionTags;
   collectionTags.addWildcardUntracked<edm::InputTag>("*");
-  desc.addUntracked("collectionTags", collectionTags);
+  desc.add("collectionTags", collectionTags);
 
   desc.addUntracked<bool>("allowMissingCollections", true);
   desc.addUntracked<double>("resetInterval", 0.);

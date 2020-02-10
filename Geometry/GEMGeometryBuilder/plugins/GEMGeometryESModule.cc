@@ -1,8 +1,12 @@
-/** \file
- *
- *  \author M. Maggi - INFN Bari
- */
+/*
+//\class GEMGeometryESModule
 
+ Description: GEM Geometry ES Module from DD & DD4HEP
+              DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
+//
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+//          Created:  27 Jan 2020 
+*/
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromDDD.h"
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromCondDB.h"
 
@@ -33,6 +37,12 @@
 
 #include <memory>
 
+//dd4hep
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+
 using namespace edm;
 
 class GEMGeometryESModule : public edm::ESProducer {
@@ -48,11 +58,14 @@ public:
 
 private:
   // use the DDD as Geometry source
-  bool useDDD_;
+  const bool useDDD_;
+  const bool useDD4hep_;
   bool applyAlignment_;
   const std::string alignmentsLabel_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
   edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> mdcToken_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepcpvToken_;
+  edm::ESGetToken<cms::MuonNumbering, MuonNumberingRecord> dd4hepmdcToken_;
   edm::ESGetToken<RecoIdealGeometry, GEMRecoGeometryRcd> riggemToken_;
   edm::ESGetToken<Alignments, GlobalPositionRcd> globalPositionToken_;
   edm::ESGetToken<Alignments, GEMAlignmentRcd> alignmentsToken_;
@@ -60,12 +73,15 @@ private:
 };
 
 GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
-    : useDDD_(p.getParameter<bool>("useDDD")),
+    : useDDD_{p.getParameter<bool>("useDDD")},
+      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)},
       applyAlignment_(p.getParameter<bool>("applyAlignment")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
   if (useDDD_) {
     cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
+  } else if (useDD4hep_) {
+    cc.setConsumes(dd4hepcpvToken_).setConsumes(dd4hepmdcToken_);
   } else {
     cc.setConsumes(riggemToken_);
   }
@@ -84,6 +100,11 @@ std::unique_ptr<GEMGeometry> GEMGeometryESModule::produce(const MuonGeometryReco
   if (useDDD_) {
     auto cpv = record.getTransientHandle(cpvToken_);
     const auto& mdc = record.get(mdcToken_);
+    GEMGeometryBuilderFromDDD builder;
+    builder.build(*gemGeometry, cpv.product(), mdc);
+  } else if (useDD4hep_) {
+    edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(dd4hepcpvToken_);
+    const auto& mdc = record.get(dd4hepmdcToken_);
     GEMGeometryBuilderFromDDD builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else {

@@ -16,9 +16,7 @@ ALCARECOSiPixelCalCosmicsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcssta
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOSiPixelCalCosmicsHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    HLTPaths = ["HLT_*"],
-    # eventually this needs to sterred via Global Tag in AlCaRecoTriggerBits
-    eventSetupPathsKey = '',
+    eventSetupPathsKey = 'SiPixelCalCosmics',
     throw = False # tolerate triggers stated above, but not available
 )
 
