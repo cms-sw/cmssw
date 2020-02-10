@@ -396,10 +396,19 @@ namespace edm {
     lhef::LHERunInfo* lheRunInfo = cache->hadronizer_.getLHERunInfo().get();
     lheRunInfo->initLumi();
 
-    RandomEngineSentry<HAD> randomEngineSentry(&cache->hadronizer_, lumi.index());
-    RandomEngineSentry<DEC> randomEngineSentryDecay(cache->decayer_.get(), lumi.index());
+    //We need all copies to see same random # for begin lumi
+    Service<RandomNumberGenerator> rng;
+    auto enginePtr = rng->cloneEngine(lumi.index());
+    cache->hadronizer_.setRandomEngine(enginePtr.get());
+    cache->decayer_->setRandomEngine(enginePtr.get());
 
-    cache->hadronizer_.randomizeIndex(lumi, randomEngineSentry.randomEngine());
+    auto unsetH = [](HAD* h) { h->setRandomEngine(nullptr); };
+    auto unsetD = [](DEC* d) { d->setRandomEngine(nullptr); };
+
+    std::unique_ptr<HAD, decltype(unsetH)> randomEngineSentry(&cache->hadronizer_, unsetH);
+    std::unique_ptr<DEC, decltype(unsetD)> randomEngineSentryDecay(cache->decayer_.get(), unsetD);
+
+    cache->hadronizer_.randomizeIndex(lumi, enginePtr.get());
 
     if (!cache->hadronizer_.readSettings(1))
       throw edm::Exception(errors::Configuration)
@@ -514,6 +523,10 @@ namespace edm {
   void ConcurrentHadronizerFilter<HAD, DEC>::globalEndLuminosityBlockProduce(LuminosityBlock& lumi,
                                                                              EventSetup const&,
                                                                              gen::LumiSummary const* iSummary) const {
+    //Advance the random number generator so next begin lumi starts with new seed
+    Service<RandomNumberGenerator> rng;
+    rng->getEngine(lumi.index()).flat();
+
     lumi.put(std::move(iSummary->lumiInfo_));
 
     // produce GenFilterInfo if HepMCFilter is called
