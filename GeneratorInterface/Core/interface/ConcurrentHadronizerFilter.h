@@ -136,7 +136,7 @@ namespace edm {
         nAttempts_(1),
         hasFilter_(ps.exists("HepMCFilter")) {
     auto ptrThis = this;
-    this->template callWhenNewProductsRegistered([ptrThis](BranchDescription const& iBD) {
+    this->callWhenNewProductsRegistered([ptrThis](BranchDescription const& iBD) {
       //this is called each time a module registers that it will produce a LHERunInfoProduct
       if (iBD.unwrappedTypeID() == edm::TypeID(typeid(LHERunInfoProduct)) && iBD.branchType() == InRun) {
         ++(ptrThis->counterRunInfoProducts_);
