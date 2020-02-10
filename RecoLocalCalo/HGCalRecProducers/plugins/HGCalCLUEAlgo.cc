@@ -518,7 +518,8 @@ void HGCalCLUEAlgoT<T>::computeThreshold() {
 
   std::vector<double> dummy;
   const unsigned maxNumberOfThickIndices = 3;
-  dummy.resize(maxNumberOfThickIndices + 1, 0);  // +1 to accomodate for the Scintillators
+  if(isNose_) dummy.resize(maxNumberOfThickIndices, 0);
+  else dummy.resize(maxNumberOfThickIndices+1, 0); // +1 to accomodate for the Scintillators
   thresholds_.resize(maxlayer_, dummy);
   v_sigmaNoise_.resize(maxlayer_, dummy);
 
