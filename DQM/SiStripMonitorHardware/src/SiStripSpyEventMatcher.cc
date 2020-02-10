@@ -79,16 +79,17 @@ namespace sistrip {
   void SpyEventMatcher::initialize() {
     size_t fileNameHash = 0U;
     //add spy events to the map until there are none left
-    source_->loopOverEvents(*eventPrincipal_,
-                            fileNameHash,
-                            std::numeric_limits<size_t>::max(),
-                            [this](auto const& iE, auto const&) {
-                              this->addNextEventToMap(iE);
-                              return true;
-                            },
-                            nullptr,
-                            nullptr,
-                            false);
+    source_->loopOverEvents(
+        *eventPrincipal_,
+        fileNameHash,
+        std::numeric_limits<size_t>::max(),
+        [this](auto const& iE, auto const&) {
+          this->addNextEventToMap(iE);
+          return true;
+        },
+        nullptr,
+        nullptr,
+        false);
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";
