@@ -4,12 +4,10 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "EventFilter/GEMRawToDigi/plugins/GEMRawToDigiModule.h"
@@ -20,6 +18,9 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     : fed_token(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputLabel"))),
       useDBEMap_(pset.getParameter<bool>("useDBEMap")),
       unPackStatusDigis_(pset.getParameter<bool>("unPackStatusDigis")) {
+  if (useDBEMap_) {
+    gemEMapToken_ = esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>();
+  }
   produces<GEMDigiCollection>();
   if (unPackStatusDigis_) {
     produces<GEMVfatStatusDigiCollection>("vfatStatus");
@@ -40,9 +41,8 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
 std::shared_ptr<GEMROMapping> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const {
   auto gemROmap = std::make_shared<GEMROMapping>();
   if (useDBEMap_) {
-    edm::ESHandle<GEMeMap> gemEMapRcd;
-    iSetup.get<GEMeMapRcd>().get(gemEMapRcd);
-    auto gemEMap = std::make_unique<GEMeMap>(*(gemEMapRcd.product()));
+    GEMeMap const& eMap = iSetup.getData(gemEMapToken_);
+    auto gemEMap = std::make_unique<GEMeMap>(eMap);
     gemEMap->convert(*gemROmap);
     gemEMap.reset();
   } else {

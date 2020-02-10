@@ -6,10 +6,9 @@
  *  \author J. Lee - UoS
  */
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -26,10 +25,6 @@
 #include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
 #include "EventFilter/GEMRawToDigi/interface/VFATdata.h"
 
-namespace edm {
-  class ConfigurationDescriptions;
-}
-
 class GEMRawToDigiModule : public edm::global::EDProducer<edm::RunCache<GEMROMapping> > {
 public:
   /// Constructor
@@ -45,6 +40,7 @@ public:
 
 private:
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
+  edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
   bool useDBEMap_;
   bool unPackStatusDigis_;
 };

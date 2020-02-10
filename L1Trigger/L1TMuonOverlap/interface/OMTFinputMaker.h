@@ -7,24 +7,22 @@
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "L1Trigger/L1TMuonOverlap/interface/AngleConverter.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinput.h"
 
+class AngleConverter;
 class OMTFConfiguration;
-
-namespace edm {
-  class EventSetup;
-}
 
 class OMTFinputMaker {
 public:
-  OMTFinputMaker();
+  OMTFinputMaker(edm::ConsumesCollector &, bool getDuringEvent = true);
 
   ~OMTFinputMaker();
 
-  void initialize(const edm::EventSetup &es, const OMTFConfiguration *);
+  void initialize(const edm::EventSetup &, const OMTFConfiguration *);
 
   ///Method translating trigger digis into input matrix with global phi coordinates
   OMTFinput buildInputForProcessor(const L1MuDTChambPhContainer *dtPhDigis,
@@ -70,7 +68,7 @@ private:
   ///Result is modulo allowed number of hits per chamber
   unsigned int getInputNumber(unsigned int rawId, unsigned int iProcessor, l1t::tftype type);
 
-  AngleConverter myAngleConverter;
+  std::unique_ptr<AngleConverter> myAngleConverter;
 
   const OMTFConfiguration *myOmtfConfig;
 
