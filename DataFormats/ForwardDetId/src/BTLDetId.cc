@@ -20,7 +20,9 @@ int BTLDetId::iphi(CrysLayout lay) const {
       kCrystalsInPhi = kCrystalsInPhiBarPhi;
       break;
     }
-    default: { break; }
+    default: {
+      break;
+    }
   }
   return kCrystalsInPhi * ((mtdRR() % HALF_ROD > 0 ? mtdRR() % HALF_ROD : HALF_ROD) - 1) +
          (crystal() % kCrystalsInPhi > 0 ? crystal() % kCrystalsInPhi : kCrystalsInPhi);
@@ -55,7 +57,9 @@ int BTLDetId::ietaAbs(CrysLayout lay) const {
       kTypeBoundaries = kTypeBoundariesBarPhiFlat;
       break;
     }
-    default: { break; }
+    default: {
+      break;
+    }
   }
   int etaRowInModule =
       zside() > 0 ? (crystal() - 1) / kCrystalsInPhi + 1 : kCrystalsInEta - (crystal() - 1) / kCrystalsInPhi;
@@ -85,7 +89,9 @@ int BTLDetId::hashedIndex(CrysLayout lay) const {
       max_ieta = MAX_IETA_BARPHIFLAT;
       break;
     }
-    default: { break; }
+    default: {
+      break;
+    }
   }
   return (max_ieta + (zside() > 0 ? ietaAbs(lay) - 1 : -ietaAbs(lay))) * max_iphi + iphi(lay) - 1;
 }
@@ -128,7 +134,9 @@ BTLDetId BTLDetId::getUnhashedIndex(int hi, CrysLayout lay) const {
       kTypeBoundaries = kTypeBoundariesBarPhiFlat;
       break;
     }
-    default: { break; }
+    default: {
+      break;
+    }
   }
   int zside = 0, rod = 0, module = 0, modtype = 1, crystal = 0;
   if (tmphi > max_ieta * max_iphi) {
