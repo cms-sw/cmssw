@@ -270,6 +270,8 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
       minVtxNdf_(iConfig.getUntrackedParameter<double>("minVertexNdf")),
       minVtxWgt_(iConfig.getUntrackedParameter<double>("minVertexMeanWeight")),
       runControl_(iConfig.getUntrackedParameter<bool>("runControl", false)) {
+  usesResource(TFileService::kSharedResource);
+
   std::vector<unsigned int> defaultRuns;
   defaultRuns.push_back(0);
   runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber", defaultRuns);
