@@ -167,8 +167,8 @@ TTTrack<T>::TTTrack() {
   theMomentum = GlobalVector(0.0, 0.0, 0.0);
   theRInv = 0.0;
   thePOCA = GlobalPoint(0.0, 0.0, 0.0);
-  theD0 = 0;
-  theZ0 = 0;
+  theD0 = 0.;
+  theZ0 = 0.;
   theTanL = 0;
   thePhi = 0;
   theTrkMVA1 = 0;
@@ -189,8 +189,8 @@ TTTrack<T>::TTTrack(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStu
   theMomentum = GlobalVector(0.0, 0.0, 0.0);
   theRInv = 0.0;
   thePOCA = GlobalPoint(0.0, 0.0, 0.0);
-  theD0 = 0;
-  theZ0 = 0;
+  theD0 = 0.;
+  theZ0 = 0.;
   theTanL = 0;
   thePhi = 0;
   theTrkMVA1 = 0;
@@ -261,8 +261,8 @@ TTTrack<T>::TTTrack(double aRinv,
   theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
   theRInv = aRinv;
   thePOCA = GlobalPoint(ad0 * cos(aphi0), ad0 * sin(aphi0), az0);
-  theZ0 = az0;
   theD0 = ad0;
+  theZ0 = az0;
   thePhi = aphi0;
   theTanL = aTanlambda;
   thePhiSector = 0;      // must be set externally
