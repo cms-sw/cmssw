@@ -111,8 +111,10 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
       static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
   if (geomNose) {
     maxNumberOfWafersNose_ = (geomNose->topology().dddConstants()).waferCount(0);
+    noseLastLayer_ = (geomNose->topology().dddConstants()).layers(true);
   } else {
     maxNumberOfWafersNose_ = 0;
+    noseLastLayer_ = 0;
   }
 }
 
