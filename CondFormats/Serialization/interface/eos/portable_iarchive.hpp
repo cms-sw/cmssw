@@ -118,7 +118,6 @@
 #include <boost/spirit/home/support/detail/integer/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
 #elif BOOST_VERSION >= 106900
-#define BOOST_MATH_DISABLE_STD_FPCLASSIFY
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/endian/conversion.hpp>
 #else
