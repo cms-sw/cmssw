@@ -65,19 +65,18 @@
 // Use current version of gsl instead of ROOT::Math
 //#include <gsl/gsl_cdf.h>
 
+static const int theVerboseLevel = 2;   
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/VVIObjF.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
-static const int theVerboseLevel = 2;   // in CMSSW
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 #else
 #include "SiPixelTemplateReco.h"
 #include "VVIObjF.h"
-static const int theVerboseLevel = 2;   // in standalone, could have different value
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGDEBUG(x) std::cout << x << ": "
 #define ENDL std::endl

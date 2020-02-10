@@ -330,63 +330,63 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   if (theVerboseLevel > 20)
     cout << "\t >>> Generic:: processing Y" << endl;
 #endif
-   
-   float yPos =
-   SiPixelUtils::generic_position_formula( theClusterParam.theCluster->sizeY(),
-                            Q_f_Y, Q_l_Y,
-                            local_URcorn_LLpix.y(), local_LLcorn_URpix.y(),
-                            chargeWidthY,   // lorentz shift in cm
-                            theDetParam.theThickness,
-                            theClusterParam.cotbeta,
-                            theDetParam.thePitchY,
-                            theDetParam.theRecTopol->isItBigPixelInY( theClusterParam.theCluster->minPixelCol() ),
-                            theDetParam.theRecTopol->isItBigPixelInY( theClusterParam.theCluster->maxPixelCol() ),
-                            the_eff_charge_cut_lowY,
-                            the_eff_charge_cut_highY,
-                            the_size_cutY);           // cut for eff charge width &&&
-   
-   // apply the lorentz offset correction
-   yPos = yPos + shiftY;
-   
-   // Apply irradiation corrections. NOT USED FOR NOW
-   if ( IrradiationBiasCorrection_ ) {
-      if ( theClusterParam.theCluster->sizeX() == 1 ) {  // size=1
-         // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-         //float tmp1 =  (0.5 * theDetParam.lorentzShiftInCmX);
-         //cout << "Apply correction correction_dx1 = " << theClusterParam.dx1 << " to xPos = " << xPos;
-         xPos = xPos - (0.5f * theDetParam.lorentzShiftInCmX);
-         // Find if pixel is double (big).
-         bool bigInX = theDetParam.theRecTopol->isItBigPixelInX( theClusterParam.theCluster->maxPixelRow() );
-         if ( !bigInX ) xPos -= theClusterParam.dx1;
-         else           xPos -= theClusterParam.dx2;
-         //cout<<" to "<<xPos<<" "<<(tmp1+theClusterParam.dx1)<<endl;
-      } else { // size>1
-         //cout << "Apply correction correction_deltax = " << theClusterParam.deltax << " to xPos = " << xPos;
-         xPos -= theClusterParam.deltax;
-         //cout<<" to "<<xPos<<endl;
-      }
-      
-      if ( theClusterParam.theCluster->sizeY() == 1 ) {
-         // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-         yPos = yPos - (0.5f * theDetParam.lorentzShiftInCmY);
-         
-         // Find if pixel is double (big).
-         bool bigInY = theDetParam.theRecTopol->isItBigPixelInY( theClusterParam.theCluster->maxPixelCol() );
-         if ( !bigInY ) yPos -= theClusterParam.dy1;
-         else           yPos -= theClusterParam.dy2;
-         
-      } else {
-         //cout << "Apply correction correction_deltay = " << theClusterParam.deltay << " to yPos = " << yPos << endl;
-         yPos -= theClusterParam.deltay;
-      }
-      
-   } // if ( IrradiationBiasCorrection_ )
-   
-   //cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
-   
-   //--- Now put the two together
-   LocalPoint pos_in_local( xPos, yPos );
-   return pos_in_local;
+  
+  float yPos =
+  SiPixelUtils::generic_position_formula( theClusterParam.theCluster->sizeY(),
+                           Q_f_Y, Q_l_Y,
+                           local_URcorn_LLpix.y(), local_LLcorn_URpix.y(),
+                           chargeWidthY,   // lorentz shift in cm
+                           theDetParam.theThickness,
+                           theClusterParam.cotbeta,
+                           theDetParam.thePitchY,
+                           theDetParam.theRecTopol->isItBigPixelInY( theClusterParam.theCluster->minPixelCol() ),
+                           theDetParam.theRecTopol->isItBigPixelInY( theClusterParam.theCluster->maxPixelCol() ),
+                           the_eff_charge_cut_lowY,
+                           the_eff_charge_cut_highY,
+                           the_size_cutY);           // cut for eff charge width &&&
+  
+  // apply the lorentz offset correction
+  yPos = yPos + shiftY;
+  
+  // Apply irradiation corrections. NOT USED FOR NOW
+  if ( IrradiationBiasCorrection_ ) {
+     if ( theClusterParam.theCluster->sizeX() == 1 ) {  // size=1
+        // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
+        //float tmp1 =  (0.5 * theDetParam.lorentzShiftInCmX);
+        //cout << "Apply correction correction_dx1 = " << theClusterParam.dx1 << " to xPos = " << xPos;
+        xPos = xPos - (0.5f * theDetParam.lorentzShiftInCmX);
+        // Find if pixel is double (big).
+        bool bigInX = theDetParam.theRecTopol->isItBigPixelInX( theClusterParam.theCluster->maxPixelRow() );
+        if ( !bigInX ) xPos -= theClusterParam.dx1;
+        else           xPos -= theClusterParam.dx2;
+        //cout<<" to "<<xPos<<" "<<(tmp1+theClusterParam.dx1)<<endl;
+     } else { // size>1
+        //cout << "Apply correction correction_deltax = " << theClusterParam.deltax << " to xPos = " << xPos;
+        xPos -= theClusterParam.deltax;
+        //cout<<" to "<<xPos<<endl;
+     }
+     
+     if ( theClusterParam.theCluster->sizeY() == 1 ) {
+        // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
+        yPos = yPos - (0.5f * theDetParam.lorentzShiftInCmY);
+        
+        // Find if pixel is double (big).
+        bool bigInY = theDetParam.theRecTopol->isItBigPixelInY( theClusterParam.theCluster->maxPixelCol() );
+        if ( !bigInY ) yPos -= theClusterParam.dy1;
+        else           yPos -= theClusterParam.dy2;
+        
+     } else {
+        //cout << "Apply correction correction_deltay = " << theClusterParam.deltay << " to yPos = " << yPos << endl;
+        yPos -= theClusterParam.deltay;
+     }
+     
+  } // if ( IrradiationBiasCorrection_ )
+  
+  //cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
+  
+  //--- Now put the two together
+  LocalPoint pos_in_local( xPos, yPos );
+  return pos_in_local;
 }
 
 //-----------------------------------------------------------------------------
