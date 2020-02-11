@@ -9,36 +9,31 @@
 
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 
-#define MTDTRACKQUALITYMVA_VARS(VAR) \
-  VAR(pt)   \
-  VAR(eta)  \
-  VAR(phi)   \
-  VAR(chi2)  \
-  VAR(ndof)  \
-  VAR(numberOfValidHits)  \
-  VAR(numberOfValidPixelBarrelHits)  \
-  VAR(numberOfValidPixelEndcapHits)  \
-  VAR(btlMatchChi2)  \
-  VAR(btlMatchTimeChi2)  \
-  VAR(etlMatchChi2)  \
-  VAR(etlMatchTimeChi2)  \
-  VAR(mtdt)  \
-  VAR(path_len)  \
+#define MTDTRACKQUALITYMVA_VARS(MTDBDTVAR) \
+  MTDBDTVAR(pt)                            \
+  MTDBDTVAR(eta)                           \
+  MTDBDTVAR(phi)                           \
+  MTDBDTVAR(chi2)                          \
+  MTDBDTVAR(ndof)                          \
+  MTDBDTVAR(numberOfValidHits)             \
+  MTDBDTVAR(numberOfValidPixelBarrelHits)  \
+  MTDBDTVAR(numberOfValidPixelEndcapHits)  \
+  MTDBDTVAR(btlMatchChi2)                  \
+  MTDBDTVAR(btlMatchTimeChi2)              \
+  MTDBDTVAR(etlMatchChi2)                  \
+  MTDBDTVAR(etlMatchTimeChi2)              \
+  MTDBDTVAR(mtdt)                          \
+  MTDBDTVAR(path_len)
 
-#define VAR_ENUM(ENUM) ENUM,
-#define VAR_STRING(STRING) #STRING,
+#define MTDBDTVAR_ENUM(ENUM) ENUM,
+#define MTDBDTVAR_STRING(STRING) #STRING,
 
 class MTDTrackQualityMVA {
 public:
   //---ctors---
   MTDTrackQualityMVA(std::string weights_file);
 
-  //---dtor---
-  ~MTDTrackQualityMVA(){};
-
-  enum varID { 
-    MTDTRACKQUALITYMVA_VARS(VAR_ENUM)
-  };
+  enum class VarID { MTDTRACKQUALITYMVA_VARS(MTDBDTVAR_ENUM) };
 
   //---getters---
   // 4D
@@ -54,8 +49,6 @@ public:
 private:
   std::vector<std::string> vars_, spec_vars_;
   std::unique_ptr<TMVAEvaluator> mva_;
-
-
 };
 
 #endif

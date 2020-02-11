@@ -93,9 +93,9 @@ void MTDTrackQualityMVAProducer::fillDescriptions(edm::ConfigurationDescriptions
 
 template <class H, class T>
 void MTDTrackQualityMVAProducer::fillValueMap(edm::Event& iEvent,
-                                        const edm::Handle<H>& handle,
-                                        const std::vector<T>& vec,
-                                        const std::string& name) const {
+                                              const edm::Handle<H>& handle,
+                                              const std::vector<T>& vec,
+                                              const std::string& name) const {
   auto out = std::make_unique<edm::ValueMap<T>>();
   typename edm::ValueMap<T>::Filler filler(*out);
   filler.insert(handle, vec.begin(), vec.end());
