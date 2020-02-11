@@ -1,11 +1,24 @@
 #!/bin/bash
 
+dumpHelpAndExit(){
+cat << EOF
+
+examples:
+    ./genLUT.sh dumpAll card=cardPhysics.sh
+    ./genLUT.sh generate card=cardPhysics.sh
+    ./genLUT.sh diff conditions/newtag/newtag.xml conditions/oldtag/oldtag.xml
+    ./genLUT.sh validate card=cardPhysics.sh
+
+EOF
+exit 0
+}
+
 FullPath=`pwd -P`
 BaseDir=${FullPath#${CMSSW_BASE}/src/}
 CondDir=conditions
 templatefile=template.py
 
-inputConditions=(ElectronicsMap LutMetadata LUTCorrs QIETypes QIEData SiPMParameters TPParameters TPChannelParameters ChannelQuality Gains Pedestals RespCorrs )
+inputConditions=(ElectronicsMap LutMetadata LUTCorrs QIETypes QIEData SiPMParameters TPParameters TPChannelParameters ChannelQuality Gains Pedestals RespCorrs L1TriggerObjects)
 
 
 
@@ -30,11 +43,6 @@ CheckFile(){
 ###
 
 cmd=$1
-if [[ -z $cmd ]]
-then
-    echo "ERROR: no command provided"
-    exit 1
-fi
 
 echo ">>>>>>>>>>>>>>>>> genLUT::$cmd <<<<<<<<<<<<<<<<<<<<<"
 for var in "$@"
@@ -157,12 +165,47 @@ then
     hcalLUT merge storePrepend="$flist" outputFile=$CondDir/$Tag/${Tag}.xml
     mv *$Tag*.{xml,dat} $CondDir/$Tag/Debug
 
+    echo "-------------------"
+    echo "-------------------"
+    echo "Creating Trigger Key..."
+    echo 
 
+    dd=$(date +"%Y-%m-%d %H:%M:%S")
+    individualInputTags=""
+    for i in ${inputConditions[@]}; do
+	t=$i
+	v=${!t}
+	if [[ -n $v ]]; then
+           individualInputTags="""$individualInputTags
+    <Parameter type=\"string\" name=\"$t\">$v</Parameter>"""
+	fi 
+    done
+
+    echo """<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>
+<CFGBrickSet>
+<CFGBrick>
+    <Parameter type=\"string\" name=\"INFOTYPE\">TRIGGERKEY</Parameter>
+    <Parameter type=\"string\" name=\"CREATIONSTAMP\">$dd</Parameter>
+    <Parameter type=\"string\" name=\"CREATIONTAG\">$Tag</Parameter> 
+    <Parameter type=\"string\" name=\"HCAL_LUT_TAG\">$Tag</Parameter>  
+    <Parameter type=\"boolean\" name=\"applyO2O\">$applyO2O</Parameter>  
+    <Parameter type=\"string\" name=\"CMSSW\">$CMSSW_VERSION</Parameter> 
+    <Parameter type=\"string\" name=\"InputRun\">$Run</Parameter> 
+    <Parameter type=\"string\" name=\"GlobalTag\">$GlobalTag</Parameter>$individualInputTags 
+    <Data elements=\"1\">1</Data> 
+</CFGBrick>
+</CFGBrickSet>""" > $CondDir/$Tag/tk_$Tag.xml
+    
 elif [[ "$cmd" == "validate" ]]
 then
     CheckParameter card
     CheckFile $card
     source $card
+
+    echo "Comparing input and re-generated L1TriggerObjects files"
+    diff $CondDir/L1TriggerObjects/L1TriggerObjects_Run$Run.txt $CondDir/$Tag/Deploy/Gen_L1TriggerObjects_$Tag.txt 
+
+    #parse LUT xml file and check that changes are consistent with changes in input conditions
     runs=$OldRun,$Run
     mkdir -p $CondDir/$Tag/Figures
     cmsRun PlotLUT.py globaltag=$GlobalTag run=$Run \
@@ -200,50 +243,8 @@ then
 
     hcalLUT diff inputFiles=$BaseDir/$2,$BaseDir/$3 section=$verbosity
 
-
-elif [ "$cmd" == "makeTriggerKey" ]
-then
-    CheckParameter card
-    CheckParameter l1to
-    CheckParameter production
-    CheckFile $card
-    source $card
-    tktag=$Tag
-    dd=$(date +"%Y-%m-%d %H:%M:%S")
-    inputs=""
-    for i in ${inputConditions[@]}; do
-	t=$i
-	v=${!t}
-	if [[ -n $v ]]; then
-           inputs="""$inputs
-    <Parameter type=\"string\" name=\"$t\">$v</Parameter>"""
-	fi 
-    done
-
-    echo """<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>
-<CFGBrickSet>
-<CFGBrick>
-    <Parameter type=\"string\" name=\"INFOTYPE\">TRIGGERKEY</Parameter>
-    <Parameter type=\"string\" name=\"CREATIONSTAMP\">$dd</Parameter>
-    <Parameter type=\"string\" name=\"CREATIONTAG\">$tktag</Parameter> 
-    <Parameter type=\"string\" name=\"HCAL_LUT_TAG\">$Tag</Parameter>  
-    <Parameter type=\"boolean\" name=\"updateInputs\">$O2OInputs</Parameter>  
-    <Parameter type=\"boolean\" name=\"updateL1TriggerObjects\">$O2OL1TriggerObjects</Parameter>  
-    <Parameter type=\"string\" name=\"GlobalTag\">$GlobalTag</Parameter> 
-    <Parameter type=\"string\" name=\"CMSSW\">$CMSSW_VERSION</Parameter> 
-    <Parameter type=\"string\" name=\"InputRun\">$Run</Parameter>  
-    <Parameter type=\"string\" name=\"L1TriggerObjects\">$l1to</Parameter>$inputs
-    <Data elements=\"1\">$production</Data> 
-</CFGBrick>
-</CFGBrickSet>""" > $CondDir/$Tag/tk_$tktag.xml
-    
-
-##
-## Unknown command
-##
 else
-    echo "Unknown command"
-    exit 1;
+    dumpHelpAndExit
 fi
 
 
