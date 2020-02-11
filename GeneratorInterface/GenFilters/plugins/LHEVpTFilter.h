@@ -14,45 +14,35 @@
 */
 //
 
-// system include files
-#include <memory>
-#include <iostream>
-
 // user include files
 #include "Math/Vector4D.h"
 #include "Math/Vector4Dfwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 //
 // class declaration
 //
 
-class LHEVpTFilter : public edm::EDFilter {
+class LHEVpTFilter : public edm::global::EDFilter<> {
 public:
   explicit LHEVpTFilter(const edm::ParameterSet&);
-  ~LHEVpTFilter() override;
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<LHEEventProduct> src_;
-  std::vector<lhef::HEPEUP::FiveVector> lheParticles;
-  std::vector<ROOT::Math::PxPyPzEVector> lepCands;
-
-  double vptMin_;    // number of particles required to pass filter
-  double vptMax_;    // number of particles required to pass filter
-  int totalEvents_;  // counters
-  int passedEvents_;
+  const edm::EDGetTokenT<LHEEventProduct> src_;
+  const double vptMin_;  // number of particles required to pass filter
+  const double vptMax_;  // number of particles required to pass filter
 };
 #endif

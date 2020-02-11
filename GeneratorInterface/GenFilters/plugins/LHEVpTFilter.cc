@@ -1,32 +1,24 @@
 #include "GeneratorInterface/GenFilters/plugins/LHEVpTFilter.h"
 
-using namespace edm;
-using namespace std;
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include <cmath>
+#include <vector>
 
 LHEVpTFilter::LHEVpTFilter(const edm::ParameterSet& iConfig)
-    : vptMin_(iConfig.getParameter<double>("VpTMin")),
-      vptMax_(iConfig.getParameter<double>("VpTMax")),
-      totalEvents_(0),
-      passedEvents_(0) {
-  //here do whatever other initialization is needed
-  src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
-}
-
-LHEVpTFilter::~LHEVpTFilter() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+    : src_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"))),
+      vptMin_(iConfig.getParameter<double>("VpTMin")),
+      vptMax_(iConfig.getParameter<double>("VpTMax")) {}
 
 // ------------ method called to skim the data  ------------
-bool LHEVpTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  lepCands.clear();
+bool LHEVpTFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   edm::Handle<LHEEventProduct> EvtHandle;
   iEvent.getByToken(src_, EvtHandle);
 
-  totalEvents_++;
+  std::vector<lhef::HEPEUP::FiveVector> const& lheParticles = EvtHandle->hepeup().PUP;
 
-  lheParticles = EvtHandle->hepeup().PUP;
-
+  std::vector<ROOT::Math::PxPyPzEVector> lepCands;
   for (unsigned int i = 0; i < lheParticles.size(); ++i) {
     if (EvtHandle->hepeup().ISTUP[i] != 1) {  // keep only outgoing particles
       continue;
@@ -42,17 +34,10 @@ bool LHEVpTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     vpt_ = (lepCands[0] + lepCands[1]).pt();
   }
   if (vpt_ <= vptMax_ && vpt_ > vptMin_) {
-    passedEvents_++;
     return true;
   } else {
     return false;
   }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void LHEVpTFilter::endJob() {
-  edm::LogInfo("LHEVpTFilter") << "=== Results of LHEVpTFilter: passed " << passedEvents_ << "/" << totalEvents_
-                               << " events" << std::endl;
 }
 
 //define this as a plug-in
