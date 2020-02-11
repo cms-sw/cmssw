@@ -61,7 +61,7 @@ public:
   inline void getEventSetup(const edm::EventSetup &es) {
     rhtools_.getEventSetup(es);
     maxlayer_ = rhtools_.lastLayer(isNose_);
-    lastLayerEE_ = rhtools_.lastLayerEE();
+    lastLayerEE_ = rhtools_.lastLayerEE(isNose_);
     lastLayerFH_ = rhtools_.lastLayerFH();
     firstLayerBH_ = rhtools_.firstLayerBH();
     scintMaxIphi_ = rhtools_.getScintMaxIphi();

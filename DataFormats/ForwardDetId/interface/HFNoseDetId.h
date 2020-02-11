@@ -26,6 +26,7 @@ public:
   static const int HFNoseCoarseN = 8;
   static const int HFNoseFineTrigger = 3;
   static const int HFNoseCoarseTrigger = 2;
+  static const int kHFNoseLayerEEmax = 6;
 
   /** Create a null cellid*/
   HFNoseDetId();
@@ -107,7 +108,6 @@ public:
   static const HFNoseDetId Undefined;
 
 private:
-  static const int kHFNoseLayerEEmax = 6;
   static const int kHFNoseCellUOffset = 0;
   static const int kHFNoseCellUMask = 0x1F;
   static const int kHFNoseCellVOffset = 5;
