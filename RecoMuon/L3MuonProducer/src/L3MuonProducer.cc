@@ -9,6 +9,7 @@
  */
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -51,7 +52,7 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
 
   // the services
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
   ConsumesCollector iC = consumesCollector();
 
   // instantiate the concrete trajectory builder in the Track Finder

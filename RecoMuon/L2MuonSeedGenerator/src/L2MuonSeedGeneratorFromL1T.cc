@@ -21,6 +21,7 @@
 #include "RecoMuon/L2MuonSeedGenerator/src/L2MuonSeedGeneratorFromL1T.h"
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -101,7 +102,7 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet &
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   // the estimator
   theEstimator = new Chi2MeasurementEstimator(10000.);

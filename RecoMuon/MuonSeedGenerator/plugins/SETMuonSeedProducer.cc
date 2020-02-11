@@ -5,6 +5,7 @@
 #include "RecoMuon/MuonSeedGenerator/plugins/SETMuonSeedProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -36,7 +37,7 @@ SETMuonSeedProducer::SETMuonSeedProducer(const ParameterSet& parameterSet)
   //std::cout<<" The SET SEED producer started."<<std::endl;
 
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
   thePatternRecognition->setServiceProxy(theService);
   theSeedFinder.setServiceProxy(theService);
   // Parameter set for the Builder
