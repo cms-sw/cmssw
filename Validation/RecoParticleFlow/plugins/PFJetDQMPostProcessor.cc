@@ -70,8 +70,8 @@ private:
 PFJetDQMPostProcessor::PFJetDQMPostProcessor(const edm::ParameterSet& iConfig) {
   jetResponseDir = iConfig.getParameter<std::vector<std::string>>("jetResponseDir");
   genjetDir = iConfig.getParameter<std::string>("genjetDir");
-  ptBins = iConfig.getParameter<std::vector<double> >("ptBins");
-  etaBins = iConfig.getParameter<std::vector<double> >("etaBins");
+  ptBins = iConfig.getParameter<std::vector<double>>("ptBins");
+  etaBins = iConfig.getParameter<std::vector<double>>("etaBins");
   recoptcut = iConfig.getParameter<double>("recoPtCut");
 }
 
@@ -79,11 +79,10 @@ PFJetDQMPostProcessor::~PFJetDQMPostProcessor() {}
 
 // ------------ method called right after a run ends ------------
 void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& iget_) {
-
-  for (unsigned int idir = 0; idir < jetResponseDir.size(); idir++){
+  for (unsigned int idir = 0; idir < jetResponseDir.size(); idir++) {
     iget_.setCurrentFolder(genjetDir);
     std::vector<std::string> sME_genjets = iget_.getMEs();
-    std::for_each(sME_genjets.begin(), sME_genjets.end(), [&](auto& s) { s.insert(0, genjetDir.c_str()); });
+    std::for_each(sME_genjets.begin(), sME_genjets.end(), [&](auto& s) { s.insert(0, genjetDir); });
     //for (unsigned int i=0; i<sME_genjets.size(); i++) std::cout << sME_genjets[i] << std::endl;
 
     iget_.setCurrentFolder(jetResponseDir[idir]);
@@ -117,7 +116,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
 
       std::vector<std::string>::const_iterator it = std::find(sME_genjets.begin(), sME_genjets.end(), stitle);
       if (it == sME_genjets.end())
-	continue;
+        continue;
       me = iget_.get(stitle);
       h_genjet_pt = (TH1F*)me->getTH1F();
 
@@ -134,43 +133,43 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       TH1F* h_preso_rms = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
       for (unsigned int ipt = 0; ipt < ptBins.size() - 1; ++ipt) {
-	stitle = jetResponseDir[idir] + "reso_dist_" + spt(ptBins[ipt], ptBins[ipt + 1]) + "_eta" + seta(etaBins[ieta]);
-	std::vector<std::string>::const_iterator it = std::find(sME_response.begin(), sME_response.end(), stitle);
-	if (it == sME_response.end())
-	  continue;
-	me = iget_.get(stitle);
-	h_resp = (TH1F*)me->getTH1F();
+        stitle = jetResponseDir[idir] + "reso_dist_" + spt(ptBins[ipt], ptBins[ipt + 1]) + "_eta" + seta(etaBins[ieta]);
+        std::vector<std::string>::const_iterator it = std::find(sME_response.begin(), sME_response.end(), stitle);
+        if (it == sME_response.end())
+          continue;
+        me = iget_.get(stitle);
+        h_resp = (TH1F*)me->getTH1F();
 
-	// Fit-based
-	double resp = 1.0, resp_err = 0.0, reso = 0.0, reso_err = 0.0;
-	fitResponse(h_resp, h_genjet_pt, ipt, ieta, recoptcut, resp, resp_err, reso, reso_err);
+        // Fit-based
+        double resp = 1.0, resp_err = 0.0, reso = 0.0, reso_err = 0.0;
+        fitResponse(h_resp, h_genjet_pt, ipt, ieta, recoptcut, resp, resp_err, reso, reso_err);
 
-	h_presponse->SetBinContent(ipt + 1, resp);
-	h_presponse->SetBinError(ipt + 1, resp_err);
-	h_preso->SetBinContent(ipt + 1, reso);
-	h_preso->SetBinError(ipt + 1, reso_err);
+        h_presponse->SetBinContent(ipt + 1, resp);
+        h_presponse->SetBinError(ipt + 1, resp_err);
+        h_preso->SetBinContent(ipt + 1, reso);
+        h_preso->SetBinError(ipt + 1, reso_err);
 
-	// RMS-based
-	double std = h_resp->GetStdDev();
-	double std_error = h_resp->GetStdDevError();
+        // RMS-based
+        double std = h_resp->GetStdDev();
+        double std_error = h_resp->GetStdDevError();
 
-	// Scale each bin with mean response
-	double mean = 1.0;
-	double mean_error = 0.0;
-	double err = 0.0;
-	if (h_resp->GetMean() > 0) {
-	  mean = h_resp->GetMean();
-	  mean_error = h_resp->GetMeanError();
+        // Scale each bin with mean response
+        double mean = 1.0;
+        double mean_error = 0.0;
+        double err = 0.0;
+        if (h_resp->GetMean() > 0) {
+          mean = h_resp->GetMean();
+          mean_error = h_resp->GetMeanError();
 
-	  // Scale resolution by response.
-	  std /= mean;
-	  std_error /= mean;
+          // Scale resolution by response.
+          std /= mean;
+          std_error /= mean;
 
-	  err = getRespUnc(std, std_error, mean, mean_error);
-	}
+          err = getRespUnc(std, std_error, mean, mean_error);
+        }
 
-	h_preso_rms->SetBinContent(ipt + 1, std);
-	h_preso_rms->SetBinError(ipt + 1, err);
+        h_preso_rms->SetBinContent(ipt + 1, std);
+        h_preso_rms->SetBinError(ipt + 1, err);
 
       }  // ipt
 
@@ -193,11 +192,11 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
     //
     if (debug) {
       for (std::vector<MonitorElement*>::const_iterator i = vME_presponse.begin(); i != vME_presponse.end(); ++i)
-	(*i)->getTH1F()->Print();
+        (*i)->getTH1F()->Print();
       for (std::vector<MonitorElement*>::const_iterator i = vME_preso.begin(); i != vME_preso.end(); ++i)
-	(*i)->getTH1F()->Print();
+        (*i)->getTH1F()->Print();
       for (std::vector<MonitorElement*>::const_iterator i = vME_preso_rms.begin(); i != vME_preso_rms.end(); ++i)
-	(*i)->getTH1F()->Print();
+        (*i)->getTH1F()->Print();
     }
   }
 }
