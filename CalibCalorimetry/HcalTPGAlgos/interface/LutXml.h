@@ -54,7 +54,7 @@ public:
   //
   //std::vector<unsigned int> getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel );
 
-  HcalSubdetector subdet_from_crate(int crate, int eta, int depth);
+  HcalSubdetector subdet_from_crate(int crate, int slot, int fiber);
   int a_to_i(char* inbuf);
   int create_lut_map(void);
 
