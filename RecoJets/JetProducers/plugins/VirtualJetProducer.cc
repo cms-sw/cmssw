@@ -154,7 +154,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   anomalousTowerDef_ = unique_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
-  if (applyPuppiWeights_)
+  if (applyPuppiWeight_)
     input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
   input_candidateview_token_ = consumes<reco::CandidateView>(src_);
   input_candidatefwdptr_token_ =
@@ -284,11 +284,8 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // Get Weights Collection
-  edm::Handle<edm::ValueMap<float>> hWeightsProduct;
-  if(applyPuppiWeights_) {
-    iEvent.getByToken(input_weights_token_, hWeightsProduct);
-    weights_ = hWeightsProduct.product();
-  }
+  if (applyPuppiWeight_)
+    iEvent.getByToken(input_weights_token_, weights_);
 
   // For Pileup subtraction using offset correction:
   // set up geometry map
@@ -475,7 +472,7 @@ void VirtualJetProducer::inputTowers() {
         // To apply puppi weight, first check if this is a PFCandidate.
         // If not, then check if it is a PackedCandidate
         reco::PFCandidate const* pPF = dynamic_cast<reco::PFCandidate const*>(i->get());
-        auto w = pPF ? (*weights)[i] : 0.0;
+        auto w = pPF ? (*weights_)[*i] : 0.0;
 
         if (!pPF) {
           pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(i->get());

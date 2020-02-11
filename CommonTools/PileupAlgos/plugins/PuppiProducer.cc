@@ -216,14 +216,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //Compute the weights and get the particles
     lWeights = fPuppiContainer->puppiWeights();
   } else if (fUseExternalWeights) {
-    //Use external weights
-    int lPCtr = 0;
-    for (auto const& aPF : *pfCol) {
-      const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
-      float curpupweight = (*weightsProduct)[pfCol->ptrAt(lPCtr)];
-      lWeights.push_back(curpupweight);
-      lPCtr++;
-    }
+    for (unsigned int i = 0; i < pfCol->size(); ++i)
+      lWeights.push_back((*weightsProduct)[pfCol->ptrAt(i)]);
   } else {
     //Use the existing weights
     for (auto const& aPF : *pfCol) {
