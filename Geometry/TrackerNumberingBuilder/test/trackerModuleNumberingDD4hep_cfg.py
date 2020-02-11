@@ -4,7 +4,7 @@ process = cms.Process("NumberingTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("Configuration.Geometry.DD4hep_GeometrySim_cff")
+process.load("Configuration.StandardSequences.DD4hep_GeometrySim_cff")
 process.load("Geometry.TrackerNumberingBuilder.DD4hep_trackerNumberingGeometry_cfi")
 
 #this is always needed if users want access to the vector<GeometricDetExtra>
