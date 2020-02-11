@@ -338,7 +338,7 @@ namespace eos {
 // we choose to use little endian because this way we just
 // save the first size bytes to the stream and skip the rest
 #if BOOST_VERSION >= 106900
-        temp = endian::native_to_little(temp);
+        temp = endian::native_to_little(t);
 #else
         endian::store_little_endian<T, sizeof(T)>(&temp, t);
 #endif
