@@ -180,10 +180,9 @@ protected:
   bool doPUOffsetCorr_;  // add the pileup calculation from offset correction?
   std::string puSubtractorName_;
 
-  std::vector<edm::Ptr<reco::Candidate> >
+  std::vector<edm::Ptr<reco::Candidate>>
       inputs_;                                // input candidates [View, PtrVector and CandCollection have limitations]
   reco::Particle::Point vertex_;              // Primary vertex
-  edm::ValueMap<float> weights_;              // weights per particle (e.g. from PUPPI)
   ClusterSequencePtr fjClusterSeq_;           // fastjet cluster sequence
   JetDefPtr fjJetDefinition_;                 // fastjet jet definition
   PluginPtr fjPlugin_;                        // fastjet plugin
@@ -206,19 +205,20 @@ protected:
   bool useDeterministicSeed_;  // If desired, use a deterministic seed to fastjet
   unsigned int minSeed_;       // minimum seed to use, useful for MC generation
 
-  int verbosity_;                       // flag to enable/disable debug output
-  bool fromHTTTopJetProducer_ = false;  // for running the v2.0 HEPTopTagger
-  bool applyPuppiWeight_;               // Apply weights stored in a value map (e.g. from PUPPI)
+  int verbosity_;                              // flag to enable/disable debug output
+  bool fromHTTTopJetProducer_ = false;         // for running the v2.0 HEPTopTagger
+  bool applyPuppiWeight_;                      // Apply weights stored in a value map (e.g. from PUPPI)
+  edm::Handle<edm::ValueMap<float>> weights_;  // weights per particle (e.g. from PUPPI)
 
 private:
   std::unique_ptr<AnomalousTower> anomalousTowerDef_;  // anomalous tower definition
 
   // tokens for the data access
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate> > > input_candidatefwdptr_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedCandidate> > > input_packedcandidatefwdptr_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::GenParticle> > > input_gencandidatefwdptr_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedGenParticle> > > input_packedgencandidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate>>> input_candidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedCandidate>>> input_packedcandidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::GenParticle>>> input_gencandidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedGenParticle>>> input_packedgencandidatefwdptr_token_;
 
 protected:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
