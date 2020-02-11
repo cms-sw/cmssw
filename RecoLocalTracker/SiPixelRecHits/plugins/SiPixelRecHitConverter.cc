@@ -120,7 +120,9 @@ namespace cms {
       DetId detIdObject(detid);
       const GeomDetUnit* genericDet = geom->idToDetUnit(detIdObject);
       auto gind = genericDet->index();
-      assert(gind < 2000);
+      // FIXME to be changed to support Phase2
+      if (gind >= int(gpuClustering::MaxNumModules))
+        continue;
       auto const nclus = DSViter->size();
       assert(nclus > 0);
       clusInModule[gind] = nclus;
