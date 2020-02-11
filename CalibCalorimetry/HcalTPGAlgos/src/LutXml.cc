@@ -305,7 +305,7 @@ HcalSubdetector LutXml::subdet_from_crate(int crate_, int slot, int fiber) {
   // HO: 3,6,7,13,18  (+20)
   int crate = crate_ < 20 ? crate_ : crate_ - 20;
   if (crate == 2 || crate == 9 || crate == 12) return HcalForward;
-  else if (crate == 3 || crate == 6 || crate == 7 || crate == 13 || crate == 38) return HcalOuter;
+  else if (crate == 3 || crate == 6 || crate == 7 || crate == 13 || crate == 18) return HcalOuter;
   else if (crate == 0 || crate == 1 || crate == 4 || crate == 5 || crate == 10 || crate == 11 || crate == 14 || crate == 15 || crate == 17) {
       if (slot%3==1) return HcalBarrel;
       else if(slot%3==0) return HcalEndcap; 
