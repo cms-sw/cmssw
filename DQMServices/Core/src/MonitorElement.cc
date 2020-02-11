@@ -828,7 +828,9 @@ namespace dqm::impl {
   void MonitorElement::enableSumw2() {
     auto access = this->accessMut();
     update();
-    access.value.object_->Sumw2();
+    if (access.value.object_->GetSumw2() == nullptr) {
+      access.value.object_->Sumw2();
+    }
   }
 
   void MonitorElement::disableAlphanumeric() {
