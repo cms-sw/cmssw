@@ -19,7 +19,8 @@ simHcalDigis = cms.EDProducer("HcalRealisticZS",
     HEregion = cms.vint32(3,6),
     HOregion = cms.vint32(1,8),
     HFregion = cms.vint32(2,3),      
-    useConfigZSvalues = cms.int32(0)
+    useConfigZSvalues = cms.int32(0),
+    use1ts = cms.bool(False)              # True for >= Run3
 )
 
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
@@ -36,6 +37,12 @@ from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
 run2_HE_2018.toModify( simHcalDigis,
                              HEregion = cms.vint32(2,5)
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( simHcalDigis, 
+                             use1ts = cms.bool(True)
+) 
+
 
 # Switch off HCAL ZS in digi for premixing stage1
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
