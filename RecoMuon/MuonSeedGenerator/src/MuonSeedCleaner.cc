@@ -46,13 +46,13 @@ static bool lengthSorting(const TrajectorySeed& s1, const TrajectorySeed& s2) { 
 /*
  * Constructor
  */
-MuonSeedCleaner::MuonSeedCleaner(const edm::ParameterSet& pset) {
+MuonSeedCleaner::MuonSeedCleaner(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC) {
   // Local Debug flag
   debug = pset.getParameter<bool>("DebugMuonSeed");
 
   // muon service
   edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, std::move(iC));
 }
 
 /*

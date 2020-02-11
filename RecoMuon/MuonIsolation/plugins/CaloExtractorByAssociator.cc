@@ -57,7 +57,7 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, ed
       theAssociator(nullptr),
       thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport")) {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, edm::ConsumesCollector(iC));
 
   //theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
   theAssociatorParameters = new TrackAssociatorParameters();
