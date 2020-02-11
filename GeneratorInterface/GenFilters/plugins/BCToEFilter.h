@@ -12,24 +12,18 @@
  *
  ************************************************************/
 
-// system include files
-#include <memory>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/GenFilters/plugins/BCToEFilterAlgo.h"
 
-class BCToEFilter : public edm::EDFilter {
+class BCToEFilter : public edm::global::EDFilter<> {
 public:
   explicit BCToEFilter(const edm::ParameterSet&);
-  ~BCToEFilter() override;
-
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  std::unique_ptr<BCToEFilterAlgo> BCToEAlgo_;
+  const BCToEFilterAlgo BCToEAlgo_;
 };
 #endif

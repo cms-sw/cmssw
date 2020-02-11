@@ -1,40 +1,40 @@
 #include "GeneratorInterface/GenFilters/plugins/LHEGenericFilter.h"
 
-using namespace edm;
-using namespace std;
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include <string>
 
 LHEGenericFilter::LHEGenericFilter(const edm::ParameterSet& iConfig)
-    : numRequired_(iConfig.getParameter<int>("NumRequired")),
-      acceptLogic_(iConfig.getParameter<std::string>("AcceptLogic")),
-      particleID_(iConfig.getParameter<std::vector<int> >("ParticleID")),
-      totalEvents_(0),
-      passedEvents_(0) {
-  //here do whatever other initialization is needed
-  src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
-
-  if (acceptLogic_ == "LT")
+    : src_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"))),
+      numRequired_(iConfig.getParameter<int>("NumRequired")),
+      particleID_(iConfig.getParameter<std::vector<int> >("ParticleID")) {
+  // LT  meaning <
+  // GT          >
+  // EQ          =
+  // NE          !=
+  std::string acceptLogic = iConfig.getParameter<std::string>("AcceptLogic");
+  if (acceptLogic == "LT")
     whichlogic = LT;
-  else if (acceptLogic_ == "GT")
+  else if (acceptLogic == "GT")
     whichlogic = GT;
-  else if (acceptLogic_ == "EQ")
+  else if (acceptLogic == "EQ")
     whichlogic = EQ;
-  else if (acceptLogic_ == "NE")
+  else if (acceptLogic == "NE")
     whichlogic = NE;
-  else
+  else {
     edm::LogError("cat_A") << "wrong input for AcceptLogic string";
-}
-
-LHEGenericFilter::~LHEGenericFilter() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
+    // at least initialize it to something reproducible
+    whichlogic = LT;
+  }
 }
 
 // ------------ method called to skim the data  ------------
-bool LHEGenericFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool LHEGenericFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   edm::Handle<LHEEventProduct> EvtHandle;
   iEvent.getByToken(src_, EvtHandle);
 
-  totalEvents_++;
   int nFound = 0;
 
   for (int i = 0; i < EvtHandle->hepeup().NUP; ++i) {
@@ -53,17 +53,10 @@ bool LHEGenericFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // event accept/reject logic
   if ((whichlogic == LT && nFound < numRequired_) || (whichlogic == GT && nFound > numRequired_) ||
       (whichlogic == EQ && nFound == numRequired_) || (whichlogic == NE && nFound != numRequired_)) {
-    passedEvents_++;
     return true;
   } else {
     return false;
   }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void LHEGenericFilter::endJob() {
-  edm::LogInfo("LHEGenericFilter") << "=== Results of LHEGenericFilter: passed " << passedEvents_ << "/" << totalEvents_
-                                   << " events" << std::endl;
 }
 
 //define this as a plug-in

@@ -19,44 +19,36 @@
 //
 
 // system include files
-#include <memory>
-#include <iostream>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 //
 // class declaration
 //
 
-class LHEGenericFilter : public edm::EDFilter {
+class LHEGenericFilter : public edm::global::EDFilter<> {
 public:
   explicit LHEGenericFilter(const edm::ParameterSet&);
-  ~LHEGenericFilter() override;
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<LHEEventProduct> src_;
-  int numRequired_;              // number of particles required to pass filter
-  std::string acceptLogic_;      // LT  meaning <
-                                 // GT          >
-                                 // EQ          =
-                                 // NE          !=
-  std::vector<int> particleID_;  // vector of particle IDs to look for
-  int totalEvents_;              // counters
-  int passedEvents_;
-  enum logic_ { LT, GT, EQ, NE };
-  logic_ whichlogic;
+  const edm::EDGetTokenT<LHEEventProduct> src_;
+  const int numRequired_;              // number of particles required to pass filter
+  const std::vector<int> particleID_;  // vector of particle IDs to look for
+  enum Logic { LT, GT, EQ, NE };
+  Logic whichlogic;
 };
 #endif
