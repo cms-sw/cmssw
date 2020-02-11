@@ -412,7 +412,7 @@ float PixelCPEGeneric::generic_position_formula(int size,                    //!
                                                 float eff_charge_cut_low,    //!< Use edge if > W_eff  &&&
                                                 float eff_charge_cut_high,   //!< Use edge if < W_eff  &&&
                                                 float size_cut               //!< Use edge when size == cuts
-                                                ) const {
+) const {
   //cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
 
   float geom_center = 0.5f * (upper_edge_first_pix + lower_edge_last_pix);
@@ -522,7 +522,7 @@ void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  /
                                            int& Q_l_X,                         //!< output, Q last   in X
                                            int& Q_f_Y,                         //!< output, Q first  in Y
                                            int& Q_l_Y                          //!< output, Q last   in Y
-                                           ) const {
+) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   // Initialize return variables.
