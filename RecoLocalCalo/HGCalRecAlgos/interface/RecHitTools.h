@@ -20,7 +20,7 @@ namespace edm {
 namespace hgcal {
   class RecHitTools {
   public:
-  RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0), fhLastLayer_(0), noseLastLayer_(0), geometryType_(0) {}
+    RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0), fhLastLayer_(0), noseLastLayer_(0), geometryType_(0) {}
     ~RecHitTools() {}
 
     void getEvent(const edm::Event&);
@@ -60,15 +60,11 @@ namespace hgcal {
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
     inline const CaloGeometry* getGeometry() const { return geom_; };
-    unsigned int lastLayerEE(bool nose = false) const {
-      return (nose ? HFNoseDetId::kHFNoseLayerEEmax : fhOffset_);
-    }
+    unsigned int lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::kHFNoseLayerEEmax : fhOffset_); }
     unsigned int lastLayerFH() const { return fhLastLayer_; }
     unsigned int firstLayerBH() const { return bhOffset_ + 1; }
     unsigned int lastLayerBH() const { return bhLastLayer_; }
-    unsigned int lastLayer(bool nose = false) const {
-      return (nose ? noseLastLayer_ : bhLastLayer_);
-    }
+    unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : bhLastLayer_); }
     unsigned int maxNumberOfWafersPerLayer(bool nose = false) const {
       return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);
     }
