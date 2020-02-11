@@ -47,7 +47,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalSmallBiasScan_Output_cff 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_Output_cff import *
 # AlCaReco for SiPixel Bad Component using ZeroBias events
 from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_Output_cff import *
-# AlCaReco for tracker calibration using Cosmics events 
+# AlCaReco for tracker calibration using Cosmics events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalCosmics_Output_cff import *
 
@@ -133,6 +133,11 @@ from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_Output_cff import *
 from CalibMuon.DTCalibration.ALCARECODtCalib_Output_cff import *
 from CalibMuon.DTCalibration.ALCARECODtCalibHI_Output_cff import *
 from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
+
+###############################################################
+# PPS calibration
+###############################################################
+from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_Output_cff import *
 
 ###############################################################
 # stream for prompt-calibration @ Tier0

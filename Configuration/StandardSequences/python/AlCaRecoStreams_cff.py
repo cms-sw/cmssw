@@ -45,7 +45,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalSmallBiasScan_cff import 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 # AlCaReco for SiPixel Bad Components using ZeroBias events in ExpressPhysics stream
 from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_cff import *
-# AlCaReco for tracker calibration using Cosmics events 
+# AlCaReco for tracker calibration using Cosmics events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_cff import *
 
 ###############################################################
@@ -117,6 +117,11 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import *
 ###############################################################
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
 
+###############################################################
+# PPS calibration
+###############################################################
+# Timing calibration
+from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_cff import *
 
 ###############################################################
 # nonbeam alcas
@@ -213,6 +218,7 @@ pathALCARECOMuAlZMuMuGeneralTracks = cms.Path(seqALCARECOMuAlZMuMuGeneralTracks)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralTracks)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
+pathALCARECOPPSTimingCalib = cms.Path(seqALCARECOPPSTimingCalib)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
@@ -773,6 +779,14 @@ ALCARECOStreamTkAlLAS = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamPPSTimingCalib = cms.FilteredStream(
+  responsible = 'Laurent Forthomme',
+  name = 'PPSTimingCalib',
+  paths = (pathALCARECOPPSTimingCalib),
+  content = OutALCARECOPPSTimingCalib.outputCommands,
+  selectEvents = OutALCARECOPPSTimingCalib.SelectEvents,
+  dataTier = cms.untracked.string('ALCARECO')
+  )
 
 ALCARECOStreamPromptCalibProd = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
