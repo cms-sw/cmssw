@@ -114,6 +114,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   moduleLabel_ = iConfig.getParameter<string>("@module_label");
   src_ = iConfig.getParameter<edm::InputTag>("src");
   srcPVs_ = iConfig.getParameter<edm::InputTag>("srcPVs");
+  srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
   jetType_ = iConfig.getParameter<string>("jetType");
   jetAlgorithm_ = iConfig.getParameter<string>("jetAlgorithm");
   rParam_ = iConfig.getParameter<double>("rParam");
@@ -153,6 +154,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   anomalousTowerDef_ = unique_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
+  if (applyPuppiWeights_)
+    input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
   input_candidateview_token_ = consumes<reco::CandidateView>(src_);
   input_candidatefwdptr_token_ =
       consumes<vector<edm::FwdPtr<reco::PFCandidate>>>(iConfig.getParameter<edm::InputTag>("src"));
@@ -278,6 +281,13 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(input_vertex_token_, pvCollection);
     if (!pvCollection->empty())
       vertex_ = pvCollection->begin()->position();
+  }
+
+  // Get Weights Collection
+  edm::Handle<edm::ValueMap<float>> hWeightsProduct;
+  if(applyPuppiWeights_) {
+    iEvent.getByToken(input_weights_token_, hWeightsProduct);
+    weights_ = hWeightsProduct.product();
   }
 
   // For Pileup subtraction using offset correction:
@@ -465,7 +475,7 @@ void VirtualJetProducer::inputTowers() {
         // To apply puppi weight, first check if this is a PFCandidate.
         // If not, then check if it is a PackedCandidate
         reco::PFCandidate const* pPF = dynamic_cast<reco::PFCandidate const*>(i->get());
-        auto w = pPF ? pPF->puppiWeight() : 0.0;
+        auto w = pPF ? (*weights)[i] : 0.0;
 
         if (!pPF) {
           pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(i->get());

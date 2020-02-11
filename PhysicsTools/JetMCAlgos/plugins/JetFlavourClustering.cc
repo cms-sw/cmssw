@@ -188,6 +188,7 @@ private:
   const edm::EDGetTokenT<reco::GenParticleRefVector> bHadronsToken_;  // Input b hadron collection
   const edm::EDGetTokenT<reco::GenParticleRefVector> cHadronsToken_;  // Input c hadron collection
   const edm::EDGetTokenT<reco::GenParticleRefVector> partonsToken_;   // Input parton collection
+  const edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;         // Input weights collection
   edm::EDGetTokenT<reco::GenParticleRefVector> leptonsToken_;         // Input lepton collection
 
   const std::string jetAlgorithm_;
@@ -197,7 +198,7 @@ private:
   const double relPtTolerance_;
   const bool hadronFlavourHasPriority_;
   const bool useSubjets_;
-  bool usePuppi_;
+  bool useWeights_;
 
   const bool useLeptons_;
 
@@ -219,6 +220,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
       bHadronsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("bHadrons"))),
       cHadronsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("cHadrons"))),
       partonsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("partons"))),
+      weightsToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"))),
       jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
       rParam_(iConfig.getParameter<double>("rParam")),
 
@@ -237,9 +239,9 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
   // register your products
   produces<reco::JetFlavourInfoMatchingCollection>();
   std::string label = iConfig.getParameter<edm::InputTag>("jets").label();
-  usePuppi_ = false;
+  useWeights_ = false;
   if (label.find("Puppi") != std::string::npos) {
-    usePuppi_ = true;
+    useWeights_ = true;
     // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
   }
 
@@ -296,6 +298,9 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::GenParticleRefVector> partons;
   iEvent.getByToken(partonsToken_, partons);
 
+  edm::Handle<edm::ValueMap<float>> weights;
+  iEvent.getByToken(weightsToken_, weights);
+
   edm::Handle<reco::GenParticleRefVector> leptons;
   if (useLeptons_)
     iEvent.getByToken(leptonsToken_, leptons);
@@ -326,9 +331,9 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
         edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
         continue;
       }
-      if (usePuppi_) {
+      if (useWeights_) {
         const auto pf_constit = dynamic_cast<const reco::PFCandidate*>(&*constit);
-        double w = pf_constit->puppiWeight();
+        double w = (*weights)[constit];
         double E_w = std::sqrt(pf_constit->p() * w * pf_constit->p() * w + pf_constit->mass() * pf_constit->mass());
         fjInputs.push_back(fastjet::PseudoJet(pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz() * w, E_w));
       } else {

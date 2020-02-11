@@ -147,6 +147,7 @@ protected:
   std::string moduleLabel_;   // label for this module
   edm::InputTag src_;         // input constituent source
   edm::InputTag srcPVs_;      // primary vertex source
+  edm::InputTag srcWeights_;  // weights source
   std::string jetType_;       // type of jet (Calo,PF,Basic,Gen)
   std::string jetAlgorithm_;  // the jet algorithm to use
   double rParam_;             // the R parameter to use
@@ -182,6 +183,7 @@ protected:
   std::vector<edm::Ptr<reco::Candidate> >
       inputs_;                                // input candidates [View, PtrVector and CandCollection have limitations]
   reco::Particle::Point vertex_;              // Primary vertex
+  edm::ValueMap<float> weights_;              // weights per particle (e.g. from PUPPI)
   ClusterSequencePtr fjClusterSeq_;           // fastjet cluster sequence
   JetDefPtr fjJetDefinition_;                 // fastjet jet definition
   PluginPtr fjPlugin_;                        // fastjet plugin
@@ -206,7 +208,7 @@ protected:
 
   int verbosity_;                       // flag to enable/disable debug output
   bool fromHTTTopJetProducer_ = false;  // for running the v2.0 HEPTopTagger
-  bool applyPuppiWeight_;               // Apply puppi weights stored in PFCandidate
+  bool applyPuppiWeight_;               // Apply weights stored in a value map (e.g. from PUPPI)
 
 private:
   std::unique_ptr<AnomalousTower> anomalousTowerDef_;  // anomalous tower definition
@@ -220,6 +222,7 @@ private:
 
 protected:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> input_weights_token_;
 };
 
 #endif
