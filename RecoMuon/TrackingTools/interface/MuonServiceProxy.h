@@ -34,22 +34,15 @@
 
 #include <map>
 #include <string>
-#include <utility>
 
 class MuonServiceProxy {
 public:
-  /// Deprecated Constructor
-  /// This constructor should be deleted as soon as all clients are migrated
-  /// to use the other constructor. At that time, the code in this class that
-  /// supports this constructor should also be deleted.
-  /// This constructor does not make calls to esConsumes.
-  /// Eventually clients using this will fail at runtime when
-  /// the Framework enforces the requirement that EventSetup clients
-  /// must call esConsumes.
-  MuonServiceProxy(const edm::ParameterSet&);
+  enum class UseEventSetupIn { Run, Event, RunAndEvent };
 
   /// Constructor
-  MuonServiceProxy(const edm::ParameterSet&, edm::ConsumesCollector&&);
+  MuonServiceProxy(const edm::ParameterSet&,
+                   edm::ConsumesCollector&&,
+                   UseEventSetupIn useEventSetupIn = UseEventSetupIn::Event);
 
   /// Destructor
   virtual ~MuonServiceProxy();
@@ -57,7 +50,7 @@ public:
   // Operations
 
   /// update the services each event
-  void update(const edm::EventSetup& setup);
+  void update(const edm::EventSetup& setup, bool duringEvent = true);
 
   /// get the magnetic field
   edm::ESHandle<MagneticField> magneticField() const { return theMGField; }
@@ -88,16 +81,26 @@ public:
   const MuonNavigationSchool* muonNavigationSchool() const { return theSchool; }
 
 private:
-  using PropagatorMap =
-      std::map<std::string, std::pair<edm::ESHandle<Propagator>, edm::ESGetToken<Propagator, TrackingComponentsRecord>>>;
+  class PropagatorInfo {
+  public:
+    edm::ESHandle<Propagator> esHandle_;
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> eventToken_;
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> runToken_;
+  };
+
+  using PropagatorMap = std::map<std::string, PropagatorInfo>;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
   edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
 
-  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalTrackingGeometryToken_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
-  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonDetLayerGeometryToken_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalTrackingGeometryEventToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldEventToken_;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonDetLayerGeometryEventToken_;
+
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalTrackingGeometryRunToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldRunToken_;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonDetLayerGeometryRunToken_;
 
   const edm::EventSetup* theEventSetup;
   bool theMuonNavigationFlag;

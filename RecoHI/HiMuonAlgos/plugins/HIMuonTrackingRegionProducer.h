@@ -7,7 +7,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -28,7 +27,6 @@ public:
 
     // initialize muon service proxy
     edm::ParameterSet servicePSet = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
-    theService = new MuonServiceProxy(servicePSet);
   }
 
   ~HIMuonTrackingRegionProducer() override {}
@@ -55,7 +53,6 @@ public:
     std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // initialize the region builder
-    theService->update(es);
     theRegionBuilder->setEvent(ev);
 
     // get stand-alone muon collection
@@ -83,7 +80,6 @@ private:
   edm::InputTag theMuonSource;
   edm::EDGetTokenT<reco::TrackCollection> theMuonSourceToken;
   MuonTrackingRegionBuilder* theRegionBuilder;
-  MuonServiceProxy* theService;
 };
 
 #endif

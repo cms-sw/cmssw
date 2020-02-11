@@ -24,7 +24,9 @@
 #include <vector>
 
 // Constructor
-MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par)
+MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par,
+                                   edm::ConsumesCollector&& iC,
+                                   UseEventSetupIn useEventSetupIn)
     : theTrackingGeometry(nullptr),
       theMGField(nullptr),
       theDetLayerGeometry(nullptr),
@@ -66,22 +68,34 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par)
     LogDebug("Muon|RecoMuon|MuonServiceProxy") << "NO propagator(s) selected!";
 
   for (auto const& propagatorName : propagatorNames) {
-    thePropagators[propagatorName] =
-        std::make_pair(edm::ESHandle<Propagator>(), edm::ESGetToken<Propagator, TrackingComponentsRecord>());
+    thePropagators[propagatorName] = PropagatorInfo();
   }
   theCacheId_GTG = 0;
   theCacheId_MG = 0;
   theCacheId_DG = 0;
   theCacheId_P = 0;
   theChangeInTrackingComponentsRecord = false;
-}
 
-MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) : MuonServiceProxy(par) {
-  globalTrackingGeometryToken_ = iC.esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
-  magneticFieldToken_ = iC.esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  muonDetLayerGeometryToken_ = iC.esConsumes<MuonDetLayerGeometry, MuonRecoGeometryRecord>();
-  for (auto& element : thePropagators) {
-    element.second.second = iC.esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", element.first));
+  // Declare the products we get from the EventSetup and initialize the tokens used to get them
+  if (useEventSetupIn == UseEventSetupIn::Event || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
+    globalTrackingGeometryEventToken_ = iC.esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
+    magneticFieldEventToken_ = iC.esConsumes<MagneticField, IdealMagneticFieldRecord>();
+    muonDetLayerGeometryEventToken_ = iC.esConsumes<MuonDetLayerGeometry, MuonRecoGeometryRecord>();
+    for (auto& element : thePropagators) {
+      element.second.eventToken_ =
+          iC.esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", element.first));
+    }
+  }
+  if (useEventSetupIn == UseEventSetupIn::Run || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
+    globalTrackingGeometryRunToken_ =
+        iC.esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord, edm::Transition::BeginRun>();
+    magneticFieldRunToken_ = iC.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+    muonDetLayerGeometryRunToken_ =
+        iC.esConsumes<MuonDetLayerGeometry, MuonRecoGeometryRecord, edm::Transition::BeginRun>();
+    for (auto& element : thePropagators) {
+      element.second.runToken_ = iC.esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", element.first));
+    }
   }
 }
 
@@ -94,7 +108,7 @@ MuonServiceProxy::~MuonServiceProxy() {
 // Operations
 
 // update the services each event
-void MuonServiceProxy::update(const edm::EventSetup& setup) {
+void MuonServiceProxy::update(const edm::EventSetup& setup, bool duringEvent) {
   const std::string metname = "Muon|RecoMuon|MuonServiceProxy";
 
   theEventSetup = &setup;
@@ -104,12 +118,10 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
   if (newCacheId_GTG != theCacheId_GTG) {
     LogTrace(metname) << "GlobalTrackingGeometry changed!";
     theCacheId_GTG = newCacheId_GTG;
-    if (globalTrackingGeometryToken_.isInitialized()) {
-      theTrackingGeometry = setup.getHandle(globalTrackingGeometryToken_);
+    if (duringEvent) {
+      theTrackingGeometry = setup.getHandle(globalTrackingGeometryEventToken_);
     } else {
-      // FIXME, when the deprecated constructor is deleted, then the following
-      // line can be deleted. Also the if-else conditional can be deleted.
-      setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+      theTrackingGeometry = setup.getHandle(globalTrackingGeometryRunToken_);
     }
   }
 
@@ -118,12 +130,10 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
   if (newCacheId_MG != theCacheId_MG) {
     LogTrace(metname) << "Magnetic Field changed!";
     theCacheId_MG = newCacheId_MG;
-    if (magneticFieldToken_.isInitialized()) {
-      theMGField = setup.getHandle(magneticFieldToken_);
+    if (duringEvent) {
+      theMGField = setup.getHandle(magneticFieldEventToken_);
     } else {
-      // FIXME, when the deprecated constructor is deleted, then the following
-      // line can be deleted. Also the if-else conditional can be deleted.
-      setup.get<IdealMagneticFieldRecord>().get(theMGField);
+      theMGField = setup.getHandle(magneticFieldRunToken_);
     }
   }
 
@@ -132,12 +142,10 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
   if (newCacheId_DG != theCacheId_DG) {
     LogTrace(metname) << "Muon Reco Geometry changed!";
     theCacheId_DG = newCacheId_DG;
-    if (muonDetLayerGeometryToken_.isInitialized()) {
-      theDetLayerGeometry = setup.getHandle(muonDetLayerGeometryToken_);
+    if (duringEvent) {
+      theDetLayerGeometry = setup.getHandle(muonDetLayerGeometryEventToken_);
     } else {
-      // FIXME, when the deprecated constructor is deleted, then the following
-      // line can be deleted. Also the if-else conditional can be deleted.
-      setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
+      theDetLayerGeometry = setup.getHandle(muonDetLayerGeometryRunToken_);
     }
     // MuonNavigationSchool should live until its validity expires, and then DELETE
     // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
@@ -155,13 +163,10 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
     theChangeInTrackingComponentsRecord = true;
     theCacheId_P = newCacheId_P;
     for (auto& element : thePropagators) {
-      if (element.second.second.isInitialized()) {
-        // element.second.first is the ESHandle, element.second.second is the ESGetToken
-        element.second.first = setup.getHandle(element.second.second);
+      if (duringEvent) {
+        element.second.esHandle_ = setup.getHandle(element.second.eventToken_);
       } else {
-        // FIXME, when the deprecated constructor is deleted, then the following
-        // line can be deleted. Also the if-else conditional can be deleted.
-        setup.get<TrackingComponentsRecord>().get(element.first, element.second.first);
+        element.second.esHandle_ = setup.getHandle(element.second.runToken_);
       }
     }
   } else
@@ -177,5 +182,5 @@ edm::ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorNam
                                                     << " not found! Please load it in the MuonServiceProxy.cff";
     return edm::ESHandle<Propagator>(nullptr);
   }
-  return prop->second.first;
+  return prop->second.esHandle_;
 }

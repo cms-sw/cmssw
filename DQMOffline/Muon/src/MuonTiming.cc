@@ -21,7 +21,6 @@ MuonTiming::MuonTiming(const edm::ParameterSet& pSet) {
   // Input booleans
 
   // the services:
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >(parameters.getParameter<edm::InputTag>("MuonCollection"));
 
   tnbins_ = parameters.getParameter<int>("tnbins");
@@ -56,7 +55,7 @@ MuonTiming::MuonTiming(const edm::ParameterSet& pSet) {
   theFolder_ = parameters.getParameter<string>("folder");
 }
 
-MuonTiming::~MuonTiming() { delete theService; }
+MuonTiming::~MuonTiming() {}
 
 void MuonTiming::bookHistograms(DQMStore::IBooker& ibooker,
                                 edm::Run const& /*iRun*/,
@@ -153,7 +152,6 @@ void MuonTiming::bookHistograms(DQMStore::IBooker& ibooker,
 
 void MuonTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace(metname_) << "[MuonTiming] Analyze the mu";
-  theService->update(iSetup);
 
   // Take the muon container
   edm::Handle<edm::View<reco::Muon> > muons;

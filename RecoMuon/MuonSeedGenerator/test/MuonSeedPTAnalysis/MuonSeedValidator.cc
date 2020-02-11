@@ -10,6 +10,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -60,7 +61,7 @@ MuonSeedValidator::MuonSeedValidator(const ParameterSet& pset) {
   eta_High = pset.getUntrackedParameter<double>("eta_High");
 
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   recsegSelector = new SegSelector(pset);
 
