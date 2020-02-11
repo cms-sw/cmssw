@@ -42,16 +42,15 @@ private:
 
   edm::EDGetTokenT<CandidateView> tokenPFCandidates_;
   edm::EDGetTokenT<VertexCollection> tokenVertices_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tokenWeights_;
   edm::EDGetTokenT<PuppiContainer> tokenPuppiContainer_;
   edm::EDGetTokenT<PFOutputCollection> tokenPuppiCandidates_;
-  edm::EDGetTokenT<PFOutputCollection> tokenPuppiCandidatesWeighted_;
   edm::EDGetTokenT<PackedOutputCollection> tokenPackedPuppiCandidates_;
   edm::EDPutTokenT<edm::ValueMap<float>> ptokenPupOut_;
   edm::EDPutTokenT<edm::ValueMap<LorentzVector>> ptokenP4PupOut_;
   edm::EDPutTokenT<edm::ValueMap<reco::CandidatePtr>> ptokenValues_;
   edm::EDPutTokenT<pat::PackedCandidateCollection> ptokenPackedPuppiCandidates_;
   edm::EDPutTokenT<reco::PFCandidateCollection> ptokenPuppiCandidates_;
-  edm::EDPutTokenT<reco::PFCandidateCollection> ptokenPuppiCandidatesWeighted_;
   edm::EDPutTokenT<double> ptokenNalgos_;
   edm::EDPutTokenT<std::vector<double>> ptokenRawAlphas_;
   edm::EDPutTokenT<std::vector<double>> ptokenAlphas_;
@@ -71,6 +70,7 @@ private:
   double fPtMaxNeutrals;
   double fPtMaxNeutralsStartSlope;
   bool fUseExistingWeights;
+  bool fUseExternalWeights;
   bool fUseWeightsNoLep;
   bool fClonePackedCands;
   int fVtxNdofCut;

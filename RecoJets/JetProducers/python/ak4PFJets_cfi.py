@@ -18,6 +18,7 @@ ak4PFJetsCHS = ak4PFJets.clone(
 
 ak4PFJetsPuppi = ak4PFJets.clone(
     src = cms.InputTag("particleFlow"),
+    srcWeights = cms.InputTag("puppi"),
     applyPuppiWeight = True
     )
 

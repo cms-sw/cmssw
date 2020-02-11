@@ -6,6 +6,7 @@ from RecoJets.JetProducers.kt4PFJets_cfi import *
 from RecoJets.JetProducers.kt6PFJets_cfi import *
 from RecoJets.JetProducers.ca15PFJets_cfi import *
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
+from CommonTools.PileupAlgos.Puppi_cff import puppi
 from CommonTools.PileupAlgos.softKiller_cfi import softKiller
 from RecoJets.JetProducers.fixedGridRhoProducer_cfi import fixedGridRhoAll
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFastjetAll
@@ -32,13 +33,14 @@ recoPFJetsTask   =cms.Task(fixedGridRhoAll,
                            fixedGridRhoFastjetCentralChargedPileUp,
                            fixedGridRhoFastjetCentralNeutral,
                            ak4PFJets,
+                           pfNoPileUpJMETask,
                            ak4PFJetsCHS,
+                           puppi,
                            ak4PFJetsPuppi,
                            ak8PFJetsPuppi,
                            ak8PFJetsPuppiConstituents,
                            ak8PFJetsPuppiSoftDrop,
-                           ak8PFJetsPuppiSoftDropMass,
-                           pfNoPileUpJMETask
+                           ak8PFJetsPuppiSoftDropMass
     )
 recoPFJets   = cms.Sequence(recoPFJetsTask)
 
@@ -47,11 +49,11 @@ recoAllPFJetsTask=cms.Task(fixedGridRhoAll,
                            fixedGridRhoFastjetCentral,
                            fixedGridRhoFastjetCentralChargedPileUp,
                            fixedGridRhoFastjetCentralNeutral,
-                           ak4PFJets,ak8PFJets,
+                           ak4PFJets,
+			   ak8PFJets,
                            pfNoPileUpJMETask,
-                           ak8PFJetsPuppi,
-                           ak8PFJetsPuppiSoftDrop,
                            ak4PFJetsCHS,
+                           puppi,
                            ak4PFJetsPuppi,
                            ak8PFJetsPuppi,
                            ak8PFJetsPuppiSoftDrop,
@@ -65,11 +67,11 @@ recoPFJetsWithSubstructureTask=cms.Task(
                            fixedGridRhoFastjetCentral,
                            fixedGridRhoFastjetCentralChargedPileUp,
                            fixedGridRhoFastjetCentralNeutral,
-                           ak4PFJets,ak8PFJets,
+                           ak4PFJets,
+			   ak8PFJets,
                            pfNoPileUpJMETask,
-                           ak8PFJetsPuppi,
-                           ak8PFJetsPuppiSoftDrop,
                            ak4PFJetsCHS,
+                           puppi,
                            ak4PFJetsPuppi,
                            ak8PFJetsPuppi,
                            ak8PFJetsPuppiSoftDrop,
@@ -77,7 +79,6 @@ recoPFJetsWithSubstructureTask=cms.Task(
                            ak8PFJetsPuppiSoftDropMass,
                            ak8PFJetsCS,
                            ak8PFJetsCSConstituents,                           
-                           ak4PFJetsPuppi,
                            softKiller,
                            ak4PFJetsSK
     )
