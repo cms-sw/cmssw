@@ -1,5 +1,5 @@
 #ifndef CUDADataFormats_Track_src_classes_h
-#define CUDADataFormats_Track__src_classes_h
+#define CUDADataFormats_Track_src_classes_h
 
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
@@ -7,4 +7,4 @@
 #include "CUDADataFormats/Common/interface/ArrayShadow.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-#endif
+#endif  // CUDADataFormats_Track_src_classes_h

@@ -53,8 +53,6 @@ void go(bool soa) {
 
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
-  auto delta1 = delta;
-  auto delta2 = delta;
 
   constexpr unsigned int SIZE = 4 * 1024;
 
@@ -94,7 +92,7 @@ void go(bool soa) {
       1000;
 #endif
   for (int kk = 0; kk < NKK; ++kk) {
-    delta2 -= (std::chrono::high_resolution_clock::now() - start);
+    delta -= (std::chrono::high_resolution_clock::now() - start);
     if (soa)
 #pragma GCC ivdep
 #pragma clang loop vectorize(enable) interleave(enable)
@@ -108,13 +106,13 @@ void go(bool soa) {
         choleskyInversion::invert(m, m);
       }
 
-    delta2 += (std::chrono::high_resolution_clock::now() - start);
+    delta += (std::chrono::high_resolution_clock::now() - start);
   }
 
   std::cout << mm[SIZE / 2](1, 1) << std::endl;
 
   double DNNK = NKK;
-  std::cout << "x86 computation took " << std::chrono::duration_cast<std::chrono::milliseconds>(delta2).count() / DNNK
+  std::cout << "x86 computation took " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() / DNNK
             << ' ' << " ms" << std::endl;
 }
 
