@@ -86,7 +86,8 @@ bool HcalZSAlgoRealistic::keepMe<QIE11DataFrame>(
   // sum of 2 timeslices or just single one
   for (int i = start; i < finish; i++) {
     int sum = inp[i].adc();
-    if (!use1ts_) sum += inp[i + 1].adc();
+    if (!use1ts_)
+      sum += inp[i + 1].adc();
     if (sum >= threshold)
       return true;
   }

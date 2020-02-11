@@ -17,13 +17,13 @@
 class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {
 public:
   HcalZSAlgoRealistic(bool markAndPass,
-                      bool use1ts, 
+                      bool use1ts,
                       std::pair<int, int> HBsearchTS,
                       std::pair<int, int> HEsearchTS,
                       std::pair<int, int> HOsearchTS,
                       std::pair<int, int> HFsearchTS);
   HcalZSAlgoRealistic(bool markAndPass,
-                      bool use1ts, 
+                      bool use1ts,
                       int levelHB,
                       int levelHE,
                       int levelHO,
