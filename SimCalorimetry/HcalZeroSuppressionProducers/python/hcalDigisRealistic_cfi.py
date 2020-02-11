@@ -15,6 +15,8 @@ simHcalDigis = cms.EDProducer("HcalRealisticZS",
     HElevel = cms.int32(9),
     HOlevel = cms.int32(24),
     HFlevel = cms.int32(-9999),
+#--- region: (3,6) for 2TS means (3+4),(4+5),(5+6) 
+#--- region: (3,6) for 1TS means (3),(4),(5) i.e. < 6 in C++ "for" cycle.  
     HBregion = cms.vint32(3,6),      
     HEregion = cms.vint32(3,6),
     HOregion = cms.vint32(1,8),
