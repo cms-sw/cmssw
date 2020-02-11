@@ -68,7 +68,10 @@ public:
     getEventSetupPerAlgorithm(es);
   }
   inline void setVerbosity(VerbosityLevel the_verbosity) { verbosity_ = the_verbosity; }
-  inline void setAlgoId(reco::CaloCluster::AlgoId algo, bool isNose=false ) { algoId_ = algo; isNose_ = isNose; }
+  inline void setAlgoId(reco::CaloCluster::AlgoId algo, bool isNose = false) {
+    algoId_ = algo;
+    isNose_ = isNose;
+  }
 
   //max number of layers
   unsigned int maxlayer_;
