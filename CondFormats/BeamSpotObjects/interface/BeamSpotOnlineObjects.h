@@ -75,6 +75,4 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream&, BeamSpotOnlineObjects beam);
-
 #endif
