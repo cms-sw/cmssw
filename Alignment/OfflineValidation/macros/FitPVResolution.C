@@ -575,9 +575,9 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
     c6->cd(c)->SetTopMargin(0.05);
   }
 
-  TLegend* lego = new TLegend(0.22, 0.80, 0.79, 0.91);
+  TLegend* lego = new TLegend(0.18, 0.80, 0.79, 0.93);
   // might be useful if many objects are compared
-  if (nFiles_ > 3) {
+  if (nFiles_ > 4) {
     lego->SetNColumns(2);
   }
 

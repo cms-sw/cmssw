@@ -75,12 +75,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
-class MagneticField;
-
+// toggle to enable debugging
 #define DEBUG 0
-
-using namespace std;
-using namespace edm;
 
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
@@ -90,26 +86,26 @@ public:
   GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset) {
     usesResource(TFileService::kSharedResource);
 
-    TkTag_ = pset.getParameter<string>("TkTag");
+    TkTag_ = pset.getParameter<std::string>("TkTag");
     theTrackCollectionToken = consumes<reco::TrackCollection>(TkTag_);
 
-    InputTag tag("TriggerResults", "", "HLT");
+    edm::InputTag tag("TriggerResults", "", "HLT");
     hltresultsToken = consumes<edm::TriggerResults>(tag);
 
-    InputTag beamSpotTag("offlineBeamSpot");
+    edm::InputTag beamSpotTag("offlineBeamSpot");
     beamspotToken = consumes<reco::BeamSpot>(beamSpotTag);
 
-    InputTag vertexTag("offlinePrimaryVertices");
+    edm::InputTag vertexTag("offlinePrimaryVertices");
     vertexToken = consumes<reco::VertexCollection>(vertexTag);
 
     isCosmics_ = pset.getParameter<bool>("isCosmics");
 
-    pmap = new TrackerMap("Pixel");
+    pmap = std::make_unique<TrackerMap>("Pixel");
     pmap->onlyPixel(true);
     pmap->setTitle("Pixel Hit entries");
     pmap->setPalette(1);
 
-    tmap = new TrackerMap("Strip");
+    tmap = std::make_unique<TrackerMap>("Strip");
     tmap->setTitle("Strip Hit entries");
     tmap->setPalette(1);
   }
@@ -131,8 +127,8 @@ public:
 
   edm::Service<TFileService> fs;
 
-  TrackerMap *tmap;
-  TrackerMap *pmap;
+  std::unique_ptr<TrackerMap> tmap;
+  std::unique_ptr<TrackerMap> pmap;
 
   TH1D *hchi2ndof;
   TH1D *hNtrk;
@@ -304,19 +300,19 @@ public:
 
     const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
     int ntrigs = hltresults->size();
-    //const vector<string> &triggernames = triggerNames_.triggerNames();
+    //const vector<std::string> &triggernames = triggerNames_.triggerNames();
 
     for (int itrig = 0; itrig != ntrigs; ++itrig) {
-      const string &trigName = triggerNames_.triggerName(itrig);
+      const std::string &trigName = triggerNames_.triggerName(itrig);
       bool accept = hltresults->accept(itrig);
       if (accept == 1) {
         if (DEBUG) {
           edm::LogInfo("GeneralPurposeTrackAnalyzer")
-              << trigName << " " << accept << " ,track size: " << tC.size() << endl;
+              << trigName << " " << accept << " ,track size: " << tC.size() << std::endl;
         }
         triggerMap_[trigName].first += 1;
         triggerMap_[trigName].second += tC.size();
-        // triggerInfo.push_back(pair <string, int> (trigName, accept));
+        // triggerInfo.push_back(pair <std::string, int> (trigName, accept));
       }
     }
 
@@ -685,7 +681,7 @@ public:
   //*************************************************************
   {
     if (DEBUG) {
-      edm::LogInfo("GeneralPurposeTrackAnalyzer") << __LINE__ << endl;
+      edm::LogInfo("GeneralPurposeTrackAnalyzer") << __LINE__ << std::endl;
     }
 
     TH1D::SetDefaultSumw2(kTRUE);
@@ -724,9 +720,9 @@ public:
     }
 
     htrkQuality = fs->make<TH1I>("h_trkQuality", "track quality;track quality;tracks", 6, -1, 5);
-    TString qualities[7] = {"undef", "loose", "tight", "highPurity", "confirmed", "goodIterative"};
+    std::string qualities[7] = {"undef", "loose", "tight", "highPurity", "confirmed", "goodIterative"};
     for (int nbin = 1; nbin <= htrkQuality->GetNbinsX(); nbin++) {
-      htrkQuality->GetXaxis()->SetBinLabel(nbin, qualities[nbin - 1]);
+      htrkQuality->GetXaxis()->SetBinLabel(nbin, (qualities[nbin - 1]).c_str());
     }
 
     hP = fs->make<TH1D>("h_P", "Momentum;track momentum [GeV];tracks", 100, 0., 100.);
@@ -1046,10 +1042,11 @@ public:
       std::cout.precision(4);
 
       edm::LogPrint("GeneralPurposeTrackAnalyzer")
-          << "HLT path: " << std::setw(60) << left << it.first << " | events firing: " << right << std::setw(8)
-          << (it.second).first << " (" << setw(8) << fixed << evtpercent << "%)"
-          << " | tracks collected: " << std::setw(10) << (it.second).second << " (" << setw(8) << fixed << trkpercent
-          << "%)";
+          << "HLT path: " << std::setw(60) << std::left << it.first << " | events firing: " << std::right
+          << std::setw(8) << (it.second).first << " (" << std::setw(8) << std::fixed << std::setprecision(4)
+          << evtpercent << "%)"
+          << " | tracks collected: " << std::setw(10) << (it.second).second << " (" << std::setw(8) << std::fixed
+          << std::setprecision(4) << trkpercent << "%)";
 
       tksByTrigger_->SetBinContent(i, trkpercent);
       tksByTrigger_->GetXaxis()->SetBinLabel(i, (it.first).c_str());
@@ -1060,16 +1057,13 @@ public:
 
     int nRuns = conditionsMap_.size();
 
-    vector<int> theRuns_;
+    std::vector<int> theRuns_;
     for (const auto &it : conditionsMap_) {
       theRuns_.push_back(it.first);
     }
 
     sort(theRuns_.begin(), theRuns_.end());
     int runRange = theRuns_.back() - theRuns_.front() + 1;
-
-    std::cout << "theRuns_[0]: " << theRuns_.front() << " theRuns_[theRuns_.size()]: " << theRuns_.back()
-              << " runRange: " << runRange << std::endl;
 
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "first run: " << theRuns_.front() << std::endl;
@@ -1094,7 +1088,7 @@ public:
         edm::LogPrint("GeneralPurposeTrackAnalyzer")
             << "run:" << the_r << " | isPeak: " << std::setw(4) << conditionsMap_.find(the_r)->second.first
             << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
-            << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first << ", tracks " << setw(10)
+            << "| events: " << std::setw(10) << runInfoMap_.find(the_r)->second.first << ", tracks " << std::setw(10)
             << runInfoMap_.find(the_r)->second.second << std::endl;
       }
 
