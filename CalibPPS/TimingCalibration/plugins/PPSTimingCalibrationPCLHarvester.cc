@@ -34,7 +34,7 @@
 class PPSTimingCalibrationPCLHarvester : public DQMEDHarvester {
 public:
   PPSTimingCalibrationPCLHarvester(const edm::ParameterSet&);
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -58,7 +58,7 @@ PPSTimingCalibrationPCLHarvester::PPSTimingCalibrationPCLHarvester(const edm::Pa
 
 //------------------------------------------------------------------------------
 
-void PPSTimingCalibrationPCLHarvester::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void PPSTimingCalibrationPCLHarvester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   edm::ESHandle<CTPPSGeometry> hGeom;
   iSetup.get<VeryForwardRealGeometryRecord>().get(hGeom);
   for (auto it = hGeom->beginSensor(); it != hGeom->endSensor(); ++it) {
@@ -103,12 +103,17 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
                           hists.toT[chid]->getMean(),
                           0.8,
                           hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
-    prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
-    calib_params[key] = {
-        interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
-    calib_time[key] = std::make_pair(0.1, 0.);  //FIXME hardcoded resolution/offset placeholder
-    // do something with interp_.GetChiSquare()...
-    std::cout << detid << ": " << hists.leadingTime[chid]->getMean() << std::endl;
+    const auto& res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
+    if ((bool)res) {
+      calib_params[key] = {
+          interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
+      calib_time[key] = std::make_pair(0.1, 0.);  //FIXME hardcoded resolution/offset placeholder
+      // do something with interp_.GetChiSquare()...
+      std::cout << detid << ": " << hists.leadingTime[chid]->getMean() << std::endl;
+    } else
+      edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
+          << "Fit did not converge for channel (" << detid << ").";
+    delete prof;
   }
 
   // fill the DB object record
