@@ -6,6 +6,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 
 class CaloGeometry;
 class CaloSubdetectorGeometry;
@@ -59,7 +60,9 @@ namespace hgcal {
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
     inline const CaloGeometry* getGeometry() const { return geom_; };
-    unsigned int lastLayerEE() const { return fhOffset_; }
+    unsigned int lastLayerEE(bool nose = false) const {
+      return (nose ? HFNoseDetId::kHFNoseLayerEEmax : fhOffset_);
+    }
     unsigned int lastLayerFH() const { return fhLastLayer_; }
     unsigned int firstLayerBH() const { return bhOffset_ + 1; }
     unsigned int lastLayerBH() const { return bhLastLayer_; }
