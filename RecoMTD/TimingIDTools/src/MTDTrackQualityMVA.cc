@@ -4,7 +4,7 @@ MTDTrackQualityMVA::MTDTrackQualityMVA(std::string weights_file) {
   std::string options("!Color:Silent");
   std::string method("BDT");
 
-  std::string vars_array[] = {MTDTRACKQUALITYMVA_VARS(VAR_STRING)};
+  std::string vars_array[] = {MTDTRACKQUALITYMVA_VARS(MTDBDTVAR_STRING)};
   int nvars = sizeof(vars_array) / sizeof(vars_array[0]);
   vars_.assign(vars_array, vars_array + nvars);
 
@@ -31,20 +31,22 @@ float MTDTrackQualityMVA::operator()(const reco::TrackRef& trk,
 
   //---training performed only for tracks with MTD hits
   if (tmtds[ext_trk] > 0) {
-    vars.emplace(vars_[pt], trk->pt());
-    vars.emplace(vars_[eta], trk->eta());
-    vars.emplace(vars_[phi], trk->phi());
-    vars.emplace(vars_[chi2], trk->chi2());
-    vars.emplace(vars_[ndof], trk->ndof());
-    vars.emplace(vars_[numberOfValidHits], trk->numberOfValidHits());
-    vars.emplace(vars_[numberOfValidPixelBarrelHits], pattern.numberOfValidPixelBarrelHits());
-    vars.emplace(vars_[numberOfValidPixelEndcapHits], pattern.numberOfValidPixelEndcapHits());
-    vars.emplace(vars_[btlMatchChi2], btl_chi2s.contains(ext_trk.id()) ? btl_chi2s[ext_trk] : -1);
-    vars.emplace(vars_[btlMatchTimeChi2], btl_time_chi2s.contains(ext_trk.id()) ? btl_time_chi2s[ext_trk] : -1);
-    vars.emplace(vars_[etlMatchChi2], etl_chi2s.contains(ext_trk.id()) ? etl_chi2s[ext_trk] : -1);
-    vars.emplace(vars_[etlMatchTimeChi2], etl_time_chi2s.contains(ext_trk.id()) ? etl_time_chi2s[ext_trk] : -1);
-    vars.emplace(vars_[mtdt], tmtds[ext_trk]);
-    vars.emplace(vars_[path_len], trk_lengths[ext_trk]);
+    vars.emplace(vars_[int(VarID::pt)], trk->pt());
+    vars.emplace(vars_[int(VarID::eta)], trk->eta());
+    vars.emplace(vars_[int(VarID::phi)], trk->phi());
+    vars.emplace(vars_[int(VarID::chi2)], trk->chi2());
+    vars.emplace(vars_[int(VarID::ndof)], trk->ndof());
+    vars.emplace(vars_[int(VarID::numberOfValidHits)], trk->numberOfValidHits());
+    vars.emplace(vars_[int(VarID::numberOfValidPixelBarrelHits)], pattern.numberOfValidPixelBarrelHits());
+    vars.emplace(vars_[int(VarID::numberOfValidPixelEndcapHits)], pattern.numberOfValidPixelEndcapHits());
+    vars.emplace(vars_[int(VarID::btlMatchChi2)], btl_chi2s.contains(ext_trk.id()) ? btl_chi2s[ext_trk] : -1);
+    vars.emplace(vars_[int(VarID::btlMatchTimeChi2)],
+                 btl_time_chi2s.contains(ext_trk.id()) ? btl_time_chi2s[ext_trk] : -1);
+    vars.emplace(vars_[int(VarID::etlMatchChi2)], etl_chi2s.contains(ext_trk.id()) ? etl_chi2s[ext_trk] : -1);
+    vars.emplace(vars_[int(VarID::etlMatchTimeChi2)],
+                 etl_time_chi2s.contains(ext_trk.id()) ? etl_time_chi2s[ext_trk] : -1);
+    vars.emplace(vars_[int(VarID::mtdt)], tmtds[ext_trk]);
+    vars.emplace(vars_[int(VarID::path_len)], trk_lengths[ext_trk]);
     return 1. / (1 + sqrt(2 / (1 + mva_->evaluate(vars, false)) - 1));  //return values between 0-1 (probability)
   } else
     return -1;

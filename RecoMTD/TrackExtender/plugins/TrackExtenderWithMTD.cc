@@ -62,149 +62,152 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-class MTDHitMatchingInfo {
-public:
-  MTDHitMatchingInfo() {
-    hit = nullptr;
-    estChi2 = std::numeric_limits<double>::max();
-    timeChi2 = std::numeric_limits<double>::max();
-  }
+namespace {
+  class MTDHitMatchingInfo {
+  public:
+    MTDHitMatchingInfo() {
+      hit = nullptr;
+      estChi2 = std::numeric_limits<double>::max();
+      timeChi2 = std::numeric_limits<double>::max();
+    }
 
-  //Operator used to sort the hits while performing the matching step at the MTD
-  inline bool operator<(const MTDHitMatchingInfo& m2) const {
-    //only for good matching in time use estChi2, otherwise use mostly time compatibility
-    constexpr double chi2_cut = 10.;
-    constexpr double low_weight = 3.;
-    constexpr double high_weight = 8.;
-    if (timeChi2 < chi2_cut && m2.timeChi2 < chi2_cut)
-      return chi2(low_weight) < m2.chi2(low_weight);
-    else
-      return chi2(high_weight) < m2.chi2(high_weight);
-  }
+    //Operator used to sort the hits while performing the matching step at the MTD
+    inline bool operator<(const MTDHitMatchingInfo& m2) const {
+      //only for good matching in time use estChi2, otherwise use mostly time compatibility
+      constexpr double chi2_cut = 10.;
+      constexpr double low_weight = 3.;
+      constexpr double high_weight = 8.;
+      if (timeChi2 < chi2_cut && m2.timeChi2 < chi2_cut)
+        return chi2(low_weight) < m2.chi2(low_weight);
+      else
+        return chi2(high_weight) < m2.chi2(high_weight);
+    }
 
-  inline double chi2(double timeWeight = 1.) const { return estChi2 + timeWeight * timeChi2; }
+    inline double chi2(double timeWeight = 1.) const { return estChi2 + timeWeight * timeChi2; }
 
-  const MTDTrackingRecHit* hit;
-  double estChi2;
-  double timeChi2;
-};
+    const MTDTrackingRecHit* hit;
+    double estChi2;
+    double timeChi2;
+  };
 
-struct TrackTofPidInfo {
-  double tmtd;
-  double tmtderror;
-  double pathlength;
+  struct TrackTofPidInfo {
+    double tmtd;
+    double tmtderror;
+    double pathlength;
 
-  double betaerror;
+    double betaerror;
 
-  double dt;
-  double dterror;
-  double dtchi2;
+    double dt;
+    double dterror;
+    double dtchi2;
 
-  double dt_best;
-  double dterror_best;
-  double dtchi2_best;
+    double dt_best;
+    double dterror_best;
+    double dtchi2_best;
 
-  double gammasq_pi;
-  double beta_pi;
-  double dt_pi;
+    double gammasq_pi;
+    double beta_pi;
+    double dt_pi;
 
-  double gammasq_k;
-  double beta_k;
-  double dt_k;
+    double gammasq_k;
+    double beta_k;
+    double dt_k;
 
-  double gammasq_p;
-  double beta_p;
-  double dt_p;
+    double gammasq_p;
+    double beta_p;
+    double dt_p;
 
-  double prob_pi;
-  double prob_k;
-  double prob_p;
-};
+    double prob_pi;
+    double prob_k;
+    double prob_p;
+  };
 
-void computeTrackTofPidInfo(TrackTofPidInfo& tofpid,
-                            double magp2,
-                            double length,
-                            double t_mtd,
-                            double t_mtderr,
-                            double t_vtx,
-                            double t_vtx_err,
-                            bool addPIDError = true) {
-  constexpr double m_pi = 0.13957018;
-  constexpr double m_pi_inv2 = 1.0 / m_pi / m_pi;
-  constexpr double m_k = 0.493677;
-  constexpr double m_k_inv2 = 1.0 / m_k / m_k;
-  constexpr double m_p = 0.9382720813;
-  constexpr double m_p_inv2 = 1.0 / m_p / m_p;
-  constexpr double c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
-  constexpr double c_inv = 1.0 / c_cm_ns;
+  const TrackTofPidInfo computeTrackTofPidInfo(double magp2,
+                                               double length,
+                                               double t_mtd,
+                                               double t_mtderr,
+                                               double t_vtx,
+                                               double t_vtx_err,
+                                               bool addPIDError = true) {
+    constexpr double m_pi = 0.13957018;
+    constexpr double m_pi_inv2 = 1.0 / m_pi / m_pi;
+    constexpr double m_k = 0.493677;
+    constexpr double m_k_inv2 = 1.0 / m_k / m_k;
+    constexpr double m_p = 0.9382720813;
+    constexpr double m_p_inv2 = 1.0 / m_p / m_p;
+    constexpr double c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
+    constexpr double c_inv = 1.0 / c_cm_ns;
 
-  tofpid.tmtd = t_mtd;
-  tofpid.tmtderror = t_mtderr;
-  tofpid.pathlength = length;
+    TrackTofPidInfo tofpid;
 
-  tofpid.gammasq_pi = 1. + magp2 * m_pi_inv2;
-  tofpid.beta_pi = std::sqrt(1. - 1. / tofpid.gammasq_pi);
-  tofpid.dt_pi = tofpid.pathlength / tofpid.beta_pi * c_inv;
+    tofpid.tmtd = t_mtd;
+    tofpid.tmtderror = t_mtderr;
+    tofpid.pathlength = length;
 
-  tofpid.gammasq_k = 1. + magp2 * m_k_inv2;
-  tofpid.beta_k = std::sqrt(1. - 1. / tofpid.gammasq_k);
-  tofpid.dt_k = tofpid.pathlength / tofpid.beta_k * c_inv;
+    tofpid.gammasq_pi = 1. + magp2 * m_pi_inv2;
+    tofpid.beta_pi = std::sqrt(1. - 1. / tofpid.gammasq_pi);
+    tofpid.dt_pi = tofpid.pathlength / tofpid.beta_pi * c_inv;
 
-  tofpid.gammasq_p = 1. + magp2 * m_p_inv2;
-  tofpid.beta_p = std::sqrt(1. - 1. / tofpid.gammasq_p);
-  tofpid.dt_p = tofpid.pathlength / tofpid.beta_p * c_inv;
+    tofpid.gammasq_k = 1. + magp2 * m_k_inv2;
+    tofpid.beta_k = std::sqrt(1. - 1. / tofpid.gammasq_k);
+    tofpid.dt_k = tofpid.pathlength / tofpid.beta_k * c_inv;
 
-  tofpid.dt = tofpid.tmtd - tofpid.dt_pi - t_vtx;  //assume by default the pi hypothesis
-  tofpid.dterror = sqrt(tofpid.tmtderror * tofpid.tmtderror + t_vtx_err * t_vtx_err);
-  tofpid.betaerror = 0;
-  if (addPIDError) {
-    tofpid.dterror =
-        sqrt(tofpid.dterror * tofpid.dterror + (tofpid.dt_p - tofpid.dt_pi) * (tofpid.dt_p - tofpid.dt_pi));
-    tofpid.betaerror = tofpid.beta_p - tofpid.beta_pi;
-  }
+    tofpid.gammasq_p = 1. + magp2 * m_p_inv2;
+    tofpid.beta_p = std::sqrt(1. - 1. / tofpid.gammasq_p);
+    tofpid.dt_p = tofpid.pathlength / tofpid.beta_p * c_inv;
 
-  tofpid.dtchi2 = (tofpid.dt * tofpid.dt) / (tofpid.dterror * tofpid.dterror);
+    tofpid.dt = tofpid.tmtd - tofpid.dt_pi - t_vtx;  //assume by default the pi hypothesis
+    tofpid.dterror = sqrt(tofpid.tmtderror * tofpid.tmtderror + t_vtx_err * t_vtx_err);
+    tofpid.betaerror = 0;
+    if (addPIDError) {
+      tofpid.dterror =
+          sqrt(tofpid.dterror * tofpid.dterror + (tofpid.dt_p - tofpid.dt_pi) * (tofpid.dt_p - tofpid.dt_pi));
+      tofpid.betaerror = tofpid.beta_p - tofpid.beta_pi;
+    }
 
-  tofpid.dt_best = tofpid.dt;
-  tofpid.dterror_best = tofpid.dterror;
-  tofpid.dtchi2_best = tofpid.dtchi2;
+    tofpid.dtchi2 = (tofpid.dt * tofpid.dt) / (tofpid.dterror * tofpid.dterror);
 
-  tofpid.prob_pi = -1.;
-  tofpid.prob_k = -1.;
-  tofpid.prob_p = -1.;
+    tofpid.dt_best = tofpid.dt;
+    tofpid.dterror_best = tofpid.dterror;
+    tofpid.dtchi2_best = tofpid.dtchi2;
 
-  if (!addPIDError) {
-    //*TODO* deal with heavier nucleons and/or BSM case here?
-    double chi2_pi = tofpid.dtchi2;
-    double chi2_k =
-        (tofpid.tmtd - tofpid.dt_k - t_vtx) * (tofpid.tmtd - tofpid.dt_k - t_vtx) / (tofpid.dterror * tofpid.dterror);
-    double chi2_p =
-        (tofpid.tmtd - tofpid.dt_p - t_vtx) * (tofpid.tmtd - tofpid.dt_p - t_vtx) / (tofpid.dterror * tofpid.dterror);
+    tofpid.prob_pi = -1.;
+    tofpid.prob_k = -1.;
+    tofpid.prob_p = -1.;
 
-    double rawprob_pi = exp(-0.5 * chi2_pi);
-    double rawprob_k = exp(-0.5 * chi2_k);
-    double rawprob_p = exp(-0.5 * chi2_p);
-    double normprob = 1. / (rawprob_pi + rawprob_k + rawprob_p);
+    if (!addPIDError) {
+      //*TODO* deal with heavier nucleons and/or BSM case here?
+      double chi2_pi = tofpid.dtchi2;
+      double chi2_k =
+          (tofpid.tmtd - tofpid.dt_k - t_vtx) * (tofpid.tmtd - tofpid.dt_k - t_vtx) / (tofpid.dterror * tofpid.dterror);
+      double chi2_p =
+          (tofpid.tmtd - tofpid.dt_p - t_vtx) * (tofpid.tmtd - tofpid.dt_p - t_vtx) / (tofpid.dterror * tofpid.dterror);
 
-    tofpid.prob_pi = rawprob_pi * normprob;
-    tofpid.prob_k = rawprob_k * normprob;
-    tofpid.prob_p = rawprob_p * normprob;
+      double rawprob_pi = exp(-0.5 * chi2_pi);
+      double rawprob_k = exp(-0.5 * chi2_k);
+      double rawprob_p = exp(-0.5 * chi2_p);
+      double normprob = 1. / (rawprob_pi + rawprob_k + rawprob_p);
 
-    double prob_heavy = 1. - tofpid.prob_pi;
-    constexpr double heavy_threshold = 0.75;
+      tofpid.prob_pi = rawprob_pi * normprob;
+      tofpid.prob_k = rawprob_k * normprob;
+      tofpid.prob_p = rawprob_p * normprob;
 
-    if (prob_heavy > heavy_threshold) {
-      if (chi2_k < chi2_p) {
-        tofpid.dt_best = (tofpid.tmtd - tofpid.dt_k - t_vtx);
-        tofpid.dtchi2_best = chi2_k;
-      } else {
-        tofpid.dt_best = (tofpid.tmtd - tofpid.dt_p - t_vtx);
-        tofpid.dtchi2_best = chi2_p;
+      double prob_heavy = 1. - tofpid.prob_pi;
+      constexpr double heavy_threshold = 0.75;
+
+      if (prob_heavy > heavy_threshold) {
+        if (chi2_k < chi2_p) {
+          tofpid.dt_best = (tofpid.tmtd - tofpid.dt_k - t_vtx);
+          tofpid.dtchi2_best = chi2_k;
+        } else {
+          tofpid.dt_best = (tofpid.tmtd - tofpid.dt_p - t_vtx);
+          tofpid.dtchi2_best = chi2_p;
+        }
       }
     }
+    return tofpid;
   }
-}
-
+}  // namespace
 template <class TrackCollection>
 class TrackExtenderWithMTDT : public edm::stream::EDProducer<> {
 public:
@@ -500,7 +503,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   if (useVertex_ && !useSimVertex_) {
     edm::Handle<VertexCollection> vtxH;
     ev.getByToken(vtxToken_, vtxH);
-    if (vtxH.isValid())
+    if (vtxH.product()->size() > 0)
       pv = &(vtxH.product()->at(0));
   }
 
@@ -508,9 +511,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   if (useVertex_ && useSimVertex_) {
     const auto& genVtxPositionHandle = ev.getHandle(genVtxPositionToken_);
     const auto& genVtxTimeHandle = ev.getHandle(genVtxTimeToken_);
-    if (genVtxPositionHandle.isValid() && genVtxTimeHandle.isValid())
-      genPV = std::make_unique<math::XYZTLorentzVectorF>(
-          genVtxPositionHandle->x(), genVtxPositionHandle->y(), genVtxPositionHandle->z(), *(genVtxTimeHandle));
+    genPV = std::make_unique<math::XYZTLorentzVectorF>(
+        genVtxPositionHandle->x(), genVtxPositionHandle->y(), genVtxPositionHandle->z(), *(genVtxTimeHandle));
   }
 
   double vtxTime = 0.;
@@ -787,15 +789,13 @@ namespace {
 
               constexpr double t_res_manual = 0.035;
 
-              TrackTofPidInfo tof;
-              computeTrackTofPidInfo(tof,
-                                     p.mag2(),
-                                     tot_pl,
-                                     itr->time(),
-                                     t_res_manual,  //put hit error by hand for the moment
-                                     t_vtx,
-                                     t_vtx_err,  //put vtx error by hand for the moment
-                                     false);
+              TrackTofPidInfo tof = computeTrackTofPidInfo(p.mag2(),
+                                                           tot_pl,
+                                                           itr->time(),
+                                                           t_res_manual,  //put hit error by hand for the moment
+                                                           t_vtx,
+                                                           t_vtx_err,  //put vtx error by hand for the moment
+                                                           false);
               MTDHitMatchingInfo mi;
               mi.hit = &(*itr);
               mi.estChi2 = est.second;
@@ -984,10 +984,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     }
 
     if (validmtd && validpropagation) {
-      TrackTofPidInfo tofInfo;
-
       //here add the PID uncertainty for later use in the 1st step of 4D vtx reconstruction
-      computeTrackTofPidInfo(tofInfo, p.mag2(), pathlength, thit, thiterror, 0., 0., true);
+      TrackTofPidInfo tofInfo = computeTrackTofPidInfo(p.mag2(), pathlength, thit, thiterror, 0., 0., true);
       pathLengthOut = pathlength;  // set path length if we've got a timing hit
       tmtdOut = thit;
       sigmatmtdOut = thiterror;
