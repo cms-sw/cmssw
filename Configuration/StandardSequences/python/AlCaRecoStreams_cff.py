@@ -780,13 +780,13 @@ ALCARECOStreamTkAlLAS = cms.FilteredStream(
 	)
 
 ALCARECOStreamPPSTimingCalib = cms.FilteredStream(
-  responsible = 'Laurent Forthomme',
-  name = 'PPSTimingCalib',
-  paths = (pathALCARECOPPSTimingCalib),
-  content = OutALCARECOPPSTimingCalib.outputCommands,
-  selectEvents = OutALCARECOPPSTimingCalib.SelectEvents,
-  dataTier = cms.untracked.string('ALCARECO')
-  )
+	responsible = 'Laurent Forthomme',
+	name = 'PPSTimingCalib',
+	paths  = (pathALCARECOPPSTimingCalib),
+	content = OutALCARECOPPSTimingCalib.outputCommands,
+	selectEvents = OutALCARECOPPSTimingCalib.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
 
 ALCARECOStreamPromptCalibProd = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
