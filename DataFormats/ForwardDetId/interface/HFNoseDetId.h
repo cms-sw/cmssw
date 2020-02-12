@@ -26,7 +26,7 @@ public:
   static const int HFNoseCoarseN = 8;
   static const int HFNoseFineTrigger = 3;
   static const int HFNoseCoarseTrigger = 2;
-  static const int kHFNoseLayerEEmax = 6;
+  static const int HFNoseLayerEEmax = 6;
 
   /** Create a null cellid*/
   HFNoseDetId();
@@ -101,8 +101,8 @@ public:
   std::pair<int, int> triggerCellUV() const { return std::pair<int, int>(triggerCellU(), triggerCellV()); }
 
   /// consistency check : no bits left => no overhead
-  bool isEE() const { return (layer() <= kHFNoseLayerEEmax); }
-  bool isHE() const { return (layer() > kHFNoseLayerEEmax); }
+  bool isEE() const { return (layer() <= HFNoseLayerEEmax); }
+  bool isHE() const { return (layer() > HFNoseLayerEEmax); }
   bool isForward() const { return true; }
 
   static const HFNoseDetId Undefined;
