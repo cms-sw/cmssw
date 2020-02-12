@@ -87,9 +87,7 @@ pfNoPileUpIso.enable = False
 pfPileUpIso.Enable = False
 pfNoPileUp.enable = False
 pfPileUp.Enable = False
-# Note: HI is not going to urn puppi so the "PrePuppi" module
-# becomes the "particleFlow" module. 
-particleFlow = particleFlowPrePuppi.clone(Muons = cms.InputTag("muons","hiMuons1stStep2muonsMap"))
+particleFlow.Muons = cms.InputTag("muons","hiMuons1stStep2muonsMap")
 
 
 # local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration
