@@ -300,8 +300,7 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
       useWeights = true;
     }
   }
-  if (useWeights)
-    token_weights = consumes<edm::ValueMap<float> >(params.getParameter<edm::InputTag>("weights"));
+  token_weights = mayConsume<edm::ValueMap<float> >(params.getParameter<edm::InputTag>("weights"));
   if (useGroomedFatJets) {
     token_groomedFatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("groomedFatJets"));
   }
@@ -1318,6 +1317,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::fillDescriptions(edm::Configur
   desc.addOptional<double>("relPtTolerance", 1e-03);
   desc.addOptional<edm::InputTag>("fatJets");
   desc.addOptional<edm::InputTag>("groomedFatJets");
+  desc.addOptional<edm::InputTag>("weights");
   descriptions.addDefault(desc);
 }
 

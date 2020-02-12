@@ -54,6 +54,7 @@ RecoJetsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_ak4CaloJets_*_*',
                                            'keep *_ak4PFJets_*_*',
                                            'keep *_ak4PFJetsCHS_*_*',
+					   'keep floatedmValueMap_puppi_*_*',
                                            'keep *_ak4PFJetsPuppi_*_*',
                                            'keep *_ak8PFJetsPuppi_*_*',
                                            'keep *_ak8PFJetsPuppiSoftDrop_*_*',                                           
@@ -96,6 +97,7 @@ RecoGenJetsRECO = cms.PSet(
 RecoJetsAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_ak4CaloJets_*_*',
                                            'keep *_ak4PFJetsCHS_*_*',
+					   'keep floatedmValueMap_puppi_*_*',
                                            'keep *_ak4PFJetsPuppi_*_*',
                                            'keep *_ak8PFJetsPuppi_*_*',
                                            'keep *_ak8PFJetsPuppiSoftDrop_*_*',
