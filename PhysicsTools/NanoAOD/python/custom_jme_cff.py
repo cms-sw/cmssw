@@ -316,7 +316,6 @@ class TableRecoJetAdder(object):
       )
     else:
       tableContents = JETVARS.clone()
-
     
     updatedJets = "updatedJets{}".format(recoJetInfo.jetTagName)
     setattr(proc, table, cms.EDProducer("SimpleCandidateFlatTableProducer",

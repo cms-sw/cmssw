@@ -8,6 +8,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.StandardSequences.Services_cff')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase1_2017_realistic']
 
@@ -28,11 +29,14 @@ process.source.fileNames = [
 
 process.load("PhysicsTools.NanoAOD.nano_cff")
 
-
 process.nanoPath = cms.Path(process.nanoSequenceMC)
 #for data:
 #process.nanoPath = cms.Path(process.nanoSequence)
 #process.GlobalTag.globaltag = autoCond['run2_data']
+
+process.finalTaus.cut = cms.string("pt > 18 && tauID(\'decayModeFindingNewDMs\') && (tauID(\'byLooseCombinedIsolationDeltaBetaCorr3Hits\') || tauID(\'byVLooseIsolationMVArun2v1DBoldDMwLT2015\') || tauID(\'byVLooseIsolationMVArun2v1DBnewDMwLT\') || tauID(\'byVLooseIsolationMVArun2v1DBdR03oldDMwLT\') || tauID(\'byVVLooseIsolationMVArun2v1DBoldDMwLT\') || tauID(\'byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2\') || tauID(\'byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2\') || tauID(\'byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2\'))")
+from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV13; UpdatePuppiTuneV13(process)
+from PhysicsTools.NanoAOD.custom_jme_cff import PrepJMECustomNanoAOD; PrepJMECustomNanoAOD(process)
 
 process.out = cms.OutputModule("NanoAODOutputModule",
     fileName = cms.untracked.string('nano.root'),
