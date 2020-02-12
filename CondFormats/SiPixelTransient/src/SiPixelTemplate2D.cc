@@ -702,7 +702,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
     case 4:
     case 5:
       if (locBx * locBz < 0.f) {
-	    cota = std::abs(cotalpha);
+        cota = std::abs(cotalpha);
         flip_x_ = true;
       }
       if (locBx < 0.f) {
