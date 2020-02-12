@@ -721,18 +721,24 @@ namespace dqm::impl {
 
   /// set bin label for x, y or z axis (axis=1, 2, 3 respectively)
   void MonitorElement::setBinLabel(int bin, const std::string &label, int axis /* = 1 */) {
-    auto access = this->accessMut();
-    update();
-    if (getAxis(access, __PRETTY_FUNCTION__, axis)->GetNbins() >= bin) {
-      getAxis(access, __PRETTY_FUNCTION__, axis)->SetBinLabel(bin, label.c_str());
-    } else {
-#if WITHOUT_CMS_FRAMEWORK
-      std::cout
-#else
-      edm::LogWarning("MonitorElement")
-#endif
-          << "*** MonitorElement: WARNING:"
-          << "setBinLabel: attempting to set label of non-existent bin number for ME: " << getFullname() << " \n";
+    bool fail = false;
+    {
+      auto access = this->accessMut();
+      update();
+      if (getAxis(access, __PRETTY_FUNCTION__, axis)->GetNbins() >= bin) {
+        getAxis(access, __PRETTY_FUNCTION__, axis)->SetBinLabel(bin, label.c_str());
+      } else {
+        fail = true;
+      }
+    }
+    // do this with the ME lock released to prevent a deadlock
+    if (fail) {
+      // this also takes the lock, make sure to release it before going to edm
+      // (which might take more locks)
+      auto name = getFullname();
+      edm::LogWarning("MonitorElement") << "*** MonitorElement: WARNING:"
+                                        << "setBinLabel: attempting to set label of non-existent bin number for ME: "
+                                        << name << " \n";
     }
   }
 
@@ -822,7 +828,9 @@ namespace dqm::impl {
   void MonitorElement::enableSumw2() {
     auto access = this->accessMut();
     update();
-    access.value.object_->Sumw2();
+    if (access.value.object_->GetSumw2() == nullptr) {
+      access.value.object_->Sumw2();
+    }
   }
 
   void MonitorElement::disableAlphanumeric() {
