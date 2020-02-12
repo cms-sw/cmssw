@@ -1,7 +1,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define LOCAL_DEBUG
+//#define LOCAL_DEBUG
 
 void MuonBaseNumber::addBase(const LevelBaseNumber& num) {
   basenumber_type::iterator cur = sortedBaseNumber.begin();
