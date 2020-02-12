@@ -2,17 +2,23 @@ from __future__ import print_function
 # Auto generated configuration file
 # with command line options: stepALCA --datatier ALCARECO --conditions auto:run2_data -s ALCA:PromptCalibProdSiStripGains --eventcontent ALCARECO -n 1000 --dasquery=file dataset=/ZeroBias/Run2016C-SiStripCalMinBias-18Apr2017-v1/ALCARECO run=276243 --no_exec
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+options = VarParsing('analysis')
+options.register('era',"A", VarParsing.multiplicity.singleton, VarParsing.varType.string, "input era")
+options.parseArguments()
+
 import os
 
 import Utilities.General.cmssw_das_client as das_client
 
 ###################################################################
-def getFileNames_das_client():
+def getFileNames_das_client(era_name):
 ###################################################################
     """Return files for given DAS query via das_client"""
     files = []
 
-    query = "dataset dataset=/ZeroBias/Run2*SiStripCalMinBias-*/ALCARECO site=T2_CH_CERN" 
+    query = "dataset dataset=/ZeroBias/Run2*"+era_name+"*SiStripCalMinBias-*/ALCARECO site=T2_CH_CERN"
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
@@ -79,7 +85,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 
-INPUTFILES=getFileNames_das_client()
+INPUTFILES=getFileNames_das_client(options.era)
 
 if len(INPUTFILES)==0: 
     print("** WARNING: ** According to a DAS query no suitable data for test is available. Skipping test")
@@ -97,13 +103,11 @@ process.options = cms.untracked.PSet()
 
 # Additional output definition
 process.ALCARECOStreamPromptCalibProdSiStripGains = cms.OutputModule("PoolOutputModule",
-                                                                     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiStripGains')
-                                                                                                       ),
+                                                                     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiStripGains')),
                                                                      dataset = cms.untracked.PSet(dataTier = cms.untracked.string('ALCARECO'),
-                                                                                                  filterName = cms.untracked.string('PromptCalibProdSiStripGains')
-                                                                                                  ),
+                                                                                                  filterName = cms.untracked.string('PromptCalibProdSiStripGains')),
                                                                      eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-                                                                     fileName = cms.untracked.string('PromptCalibProdSiStripGains.root'),
+                                                                     fileName = cms.untracked.string('PromptCalibProdSiStripGains_'+options.era+'.root'),
                                                                      outputCommands = cms.untracked.vstring('drop *', 
                                                                                                             'keep *_MEtoEDMConvertSiStripGains_*_*'
                                                                                                             )
