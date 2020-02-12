@@ -23,3 +23,10 @@ void BeamSpotOnlineObjects::print(std::stringstream& ss) const {
      << " Target lumi  = " << GetTargetLumi() << "\n"
      << "-----------------------------------------------------\n\n";
 }
+
+std::ostream& operator<<(std::ostream& os, BeamSpotOnlineObjects beam) {
+  std::stringstream ss;
+  beam.print(ss);
+  os << ss.str();
+  return os;
+}
