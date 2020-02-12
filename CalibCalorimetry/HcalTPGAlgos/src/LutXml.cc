@@ -28,8 +28,7 @@
 using namespace std;
 XERCES_CPP_NAMESPACE_USE
 
-LutXml::Config::_Config()
-{
+LutXml::Config::_Config() {
   infotype = "LUT";
   ieta = -1000;
   iphi = -1000;
@@ -83,7 +82,7 @@ void LutXml::addLut(LutXml::Config &_config, XMLDOMBlock *checksums_xml) {
   brickElem = document->createElement(XMLProcessor::_toXMLCh("CFGBrick"));
   rootElem->appendChild(brickElem);
 
-  addParameter( "INFOTYPE", "string", _config.infotype );
+  addParameter("INFOTYPE", "string", _config.infotype);
   addParameter("CREATIONTAG", "string", _config.creationtag);
   addParameter("CREATIONSTAMP", "string", _config.creationstamp);
   addParameter("FORMATREVISION", "string", _config.formatrevision);
@@ -304,15 +303,22 @@ HcalSubdetector LutXml::subdet_from_crate(int crate_, int slot, int fiber) {
   // HF: 2,9,12  (+20)
   // HO: 3,6,7,13,18  (+20)
   int crate = crate_ < 20 ? crate_ : crate_ - 20;
-  if (crate == 2 || crate == 9 || crate == 12) return HcalForward;
-  else if (crate == 3 || crate == 6 || crate == 7 || crate == 13 || crate == 18) return HcalOuter;
-  else if (crate == 0 || crate == 1 || crate == 4 || crate == 5 || crate == 10 || crate == 11 || crate == 14 || crate == 15 || crate == 17) {
-      if (slot%3==1) return HcalBarrel;
-      else if(slot%3==0) return HcalEndcap; 
-      else if(fiber<12) return HcalBarrel;
-      else return HcalEndcap;
+  if (crate == 2 || crate == 9 || crate == 12)
+    return HcalForward;
+  else if (crate == 3 || crate == 6 || crate == 7 || crate == 13 || crate == 18)
+    return HcalOuter;
+  else if (crate == 0 || crate == 1 || crate == 4 || crate == 5 || crate == 10 || crate == 11 || crate == 14 ||
+           crate == 15 || crate == 17) {
+    if (slot % 3 == 1)
+      return HcalBarrel;
+    else if (slot % 3 == 0)
+      return HcalEndcap;
+    else if (fiber < 12)
+      return HcalBarrel;
+    else
+      return HcalEndcap;
   }
-  return HcalOther; 
+  return HcalOther;
 }
 
 int LutXml::a_to_i(char *inbuf) {
