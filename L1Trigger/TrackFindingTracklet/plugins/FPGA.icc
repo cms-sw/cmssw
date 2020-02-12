@@ -1,0 +1,469 @@
+
+    //cout << "Read event:"<<ev.eventnum()<<" Number of stubs="
+    //	 <<ev.nstubs()<<endl;
+    
+    cleanTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->clean();
+    }
+    
+//for (std::map<string,DTC>::iterator it=dtcs.begin();it!=dtcs.end();it++){
+//  	it->second.clean();
+//  }
+    
+    cleanTimer.stop();
+
+    bool hitlayer[6];
+    bool hitdisk[5];
+    int stublayer[6];
+    int stublayer1[6][NSector];
+    int stubdisk1[5][NSector];
+    for (unsigned int ll=0;ll<6;ll++){
+      hitlayer[ll]=false;
+      stublayer[ll]=0;
+      for (unsigned int jj=0;jj<NSector;jj++){
+        stublayer1[ll][jj]=0;
+      }
+    }
+    for (unsigned int ll=0;ll<5;ll++){
+      hitdisk[ll]=false;
+      for (unsigned int jj=0;jj<NSector;jj++){
+        stubdisk1[ll][jj]=0;
+      }
+    }	
+
+
+    int stubcount[6][24*NSector];	
+    for (unsigned int ll=0;ll<24*NSector;ll++){
+      stubcount[0][ll]=0;
+      stubcount[1][ll]=0;
+      stubcount[2][ll]=0;
+      stubcount[3][ll]=0;
+      stubcount[4][ll]=0;
+      stubcount[5][ll]=0;
+    }    
+
+    addStubTimer.start();
+    
+    for (int j=0;j<ev.nstubs();j++){
+
+      L1TStub stub=ev.stub(j);
+      //if (stub.layer()>999) {
+      //	 cout << "Found stub in disk : "<<stub.module()<<" r= "<<stub.r()
+	// <<" z= "<<stub.z()<<endl;
+      //}
+
+      if (debug1) cout << "Stub: layer="<<stub.layer()+1
+                       <<" disk="<<stub.disk()  
+		       <<" phi="<<stub.phi()
+	               <<" r="<<stub.r()
+	               <<" z="<<stub.z()
+	               <<endl;
+
+
+      double phi=stub.phi();
+      phi+=0.5*dphisectorHG;
+
+      if (phi<0.0) phi+=two_pi;
+      unsigned int isector=NSector*phi/two_pi;
+      assert(isector<NSector);
+
+
+
+      if (stub.layer()<7) {
+
+        //cout << "Stub in layer : "<<stub.layer()+1<<endl;
+
+	hitlayer[stub.layer()]=true;
+
+	stub.lorentzcor(-40.0/10000.0);
+
+        double phi=stub.phi();
+        if (phi<0.0) phi+=two_pi;
+        unsigned int iphi=24*NSector*phi/two_pi;
+        assert(iphi<24*NSector);
+	double max=115.0;
+	if (stub.layer()==0) max=70.0;
+        if (fabs(stub.z())<max) stubcount[stub.layer()][iphi]++;
+	unsigned int isector=iphi/24;
+	assert(isector<NSector);
+	stublayer1[stub.layer()][isector]++;
+        stublayer[stub.layer()]++;
+
+      } else {
+	stubdisk1[abs(stub.disk())-1][isector]++;
+        hitdisk[abs(stub.disk())-1]=true;
+      }
+
+
+
+      //cout << "stub layer : "<<stub.layer()<<endl;
+
+      int layer=stub.layer()+1;
+      int ladder=stub.ladder(); 
+      int module=stub.module();
+	
+      //HACK for mistake in ASCII files
+      if (layer==3&&module==40) {
+	assert(0);
+	module=39;
+      }
+      if (layer==1&&module>31) {
+	assert(0);
+	module=31;
+      }	
+	//cout << "Done add stub"<<endl;	
+
+      string dtc=cabling.dtc(layer,ladder,module);
+      string dtcbase=dtc.substr(2,dtc.size()-2);
+      if (dtc[0]=='n') {
+         dtcbase=dtc.substr(0,4)+dtc.substr(6,dtc.size()-6);
+      }     
+
+      //cout << "Found dtc for : "<<layer<<" "<<ladder<<" "<<module<<" "<<dtc<<endl;
+      
+      cabling.addphi(dtc,stub.phi(),layer, module);
+
+      for (unsigned int k=0;k<NSector;k++) {
+        int diff=k-isector;
+	int nSector=NSector;
+        if (diff>nSector/2) diff-=NSector;
+        if (diff<-nSector/2) diff+=NSector;
+	if (abs(diff)>1) continue;
+	double phiminsect=k*two_pi/NSector-0.5*(dphisectorHG-two_pi/NSector)-0.5*two_pi/NSector;
+	double dphi=stub.phi()-phiminsect;
+	if (dphi>0.5*two_pi) dphi-=two_pi;
+	while (dphi<0.0) dphi+=two_pi;
+	if (dphi>dphisectorHG) continue;
+	//cout << "Will try to add stub to sector : "<<k<<endl;
+        bool add=sectors[k]->addStub(stub,dtcbase);
+
+	static std::map<string,ofstream*> dtcstubs;
+
+	if (writememLinks) {
+	  vector<string>  dtcs=cabling.DTCs();
+	  for(auto it=dtcs.begin();it!=dtcs.end();++it){
+	    string dtc=*it;
+	    string dtcbase=dtc.substr(2,dtc.size()-2);
+	    if (dtc[0]=='n') {
+	      dtcbase=dtc.substr(0,4)+dtc.substr(6,dtc.size()-6);
+	    }     
+	    
+	    string fname="../data/MemPrints/InputStubs/Link_";
+	    fname+=dtcbase;
+	    if (dtcstubs.find(dtcbase+"A")!=dtcstubs.end()) continue;
+	    fname+="_A.dat";
+	    ofstream* out=new ofstream;
+	    out->open(fname.c_str());
+	    dtcstubs[dtcbase+"A"]=out;
+	    
+	    fname="../data/MemPrints/InputStubs/Link_";
+	    fname+=dtcbase;
+	    if (dtcstubs.find(dtcbase+"B")!=dtcstubs.end()) continue;
+	    fname+="_B.dat";
+	    out=new ofstream;
+	    out->open(fname.c_str());
+	    dtcstubs[dtcbase+"B"]=out;
+	  }
+	  
+	  static int oldevent=-1;
+	  if (eventnum!=oldevent) {
+	    oldevent=eventnum;
+	    for(auto it=dtcstubs.begin();it!=dtcstubs.end();++it) {
+	      FPGAWord tmp;
+	      tmp.set(eventnum%8,3);
+	      (*(it->second)) << "BX "<<tmp.str()<<" Event : "<<eventnum+1<<endl;
+	    }	       		
+	  }
+	}
+
+	if(add&&writememLinks&&k==writememsect) {
+	  Stub fpgastub(stub,sectors[k]->phimin(),sectors[k]->phimax());
+	  FPGAWord phi=fpgastub.phi();
+	  int topbit=phi.value()>>(phi.nbits()-1);
+	  //cout << "dtcbase:"<<dtcbase<<endl;
+	  std::vector<int> tmp=dtclayerdisk[dtcbase];
+	  int layerdisk=stub.layer()+1;
+	  if (layerdisk>999){
+	    layerdisk=10+abs(stub.disk());
+	  }
+	  int layerdiskcode=-1;
+	  for(unsigned int i=0;i<tmp.size();i++){
+	    if (tmp[i]==layerdisk) layerdiskcode=i;
+          }
+	  if (layerdiskcode==-1) {
+	    cout << "dtcbase layerdisk layer disk : "<<dtcbase<<" "<<layerdisk<<" "<<stub.layer()+1<<" "<<stub.disk()<<endl;
+          }
+	  assert(layerdiskcode>=0);
+	  assert(layerdiskcode<4);
+	  FPGAWord ldcode;
+	  ldcode.set(layerdiskcode,2);
+	  string dataword=ldcode.str()+"|"+fpgastub.str();
+	  //cout << "fpgastub phi:"<<phi.str()<<" "<<topbit<<endl;
+	  if (topbit==0) {
+	    (*dtcstubs[dtcbase+"A"]) << dataword<<" "<<MemoryBase::hexFormat(dataword)<<endl;
+	  } else {
+	    (*dtcstubs[dtcbase+"B"]) << dataword<<" "<<MemoryBase::hexFormat(dataword)<<endl;
+          }
+        }
+
+      }
+
+
+
+
+      
+    }
+
+    for(int ii=0;ii<6;ii++){
+     if (hitlayer[ii]) nlayershit++;
+     if (ii<5) {
+       if (hitdisk[ii]) nlayershit++;
+     }
+    }   
+
+//if (writeDTCLinks) {
+//  //cout << "Will write DTC links"<<endl;
+//  static ofstream out("dtclinks.txt");
+//  for (std::map<string,DTC>::iterator iter=dtcs.begin();iter!=dtcs.end();iter++) {
+//    for (unsigned int j=0;j<iter->second.nLinks();j++) {
+//      out << iter->first << " " << j << " " << iter->second.link(j).nStubs() << endl;    
+//    }	 
+//  }
+//  //cout << "Done write DTC links"<<endl;
+// }
+
+if (writestubs) {
+  for (unsigned int k=0;k<NSector;k++) {
+    if(k==writememsect)
+      sectors[k]->writeInputStubs(first);
+  }
+ }
+
+if (writestubs_in2) {
+  for (unsigned int k=0;k<NSector;k++) {
+    if(k==writememsect)
+      sectors[k]->writeInputStubs_in2(first);
+  }
+ }
+
+if (writeHitEff) {
+        static ofstream outhit("hiteff.txt");
+    	outhit << simtrk.eta()<<" "<<hitlayer[0] << " " << hitlayer[1] << " "
+                  << hitlayer[2] << " " << hitlayer[3] << " "	  
+		  << hitlayer[4] << " " << hitlayer[5] << endl;
+    }
+
+    if (writeStubsLayer) {
+      static ofstream out("stubslayer.txt");
+      out <<stublayer[0]<<" "<<stublayer[1]<<" "<<stublayer[2]<<" "
+          <<stublayer[3]<<" "<<stublayer[4]<<" "<<stublayer[5]<<endl;
+    }     
+
+
+    if (writeStubsLayerperSector) {
+      static ofstream out("stubslayerpersector.txt");
+      for(unsigned int jj=0;jj<NSector;jj++){
+        out <<stublayer1[0][jj]<<" "<<stublayer1[1][jj]<<" "
+	    <<stublayer1[2][jj]<<" "
+            <<stublayer1[3][jj]<<" "<<stublayer1[4][jj]<<" "
+            <<stublayer1[5][jj]<<endl; 
+      }
+      static ofstream out1("stubsdiskpersector.txt");
+      for(unsigned int jj=0;jj<NSector;jj++){
+        out1 <<stubdisk1[0][jj]<<" "<<stubdisk1[1][jj]<<" "
+	    <<stubdisk1[2][jj]<<" "
+            <<stubdisk1[3][jj]<<" "<<stubdisk1[4][jj]<<endl; 
+      }
+    }     
+
+
+    
+    if (0) {
+      static ofstream out("newvmoccupancy.txt");
+      for (unsigned int ll=0;ll<24*NSector;ll++){
+        out<<1<<" "<<stubcount[0][ll]<<endl;
+        out<<2<<" "<<stubcount[1][ll]<<endl;
+        out<<3<<" "<<stubcount[2][ll]<<endl;
+        out<<4<<" "<<stubcount[3][ll]<<endl;
+        out<<5<<" "<<stubcount[4][ll]<<endl;
+        out<<6<<" "<<stubcount[5][ll]<<endl;
+      }
+    } 
+
+
+
+    addStubTimer.stop();
+
+
+    //Now start processing
+
+    VMRouterTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeVMR();	 
+      if(writemem&&k==writememsect) {
+        sectors[k]->writeInputStubs(first);	 
+        sectors[k]->writeVMSTE(first);	 
+        sectors[k]->writeVMSME(first);	 
+        sectors[k]->writeAS(first);	 
+      }      
+    }
+    VMRouterTimer.stop();
+
+    TETimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeTE();	
+      if(writemem&&k==writememsect){
+        sectors[k]->writeSP(first);
+      } 
+    }
+    TETimer.stop();
+
+    TEDTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeTED();	
+      if(writemem&&k==writememsect){
+        sectors[k]->writeSP(first);
+      } 
+    }
+    TEDTimer.stop();
+
+    TRETimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeTRE();	
+      if(writemem&&k==writememsect){
+        sectors[k]->writeST(first);
+      } 
+    }
+    TRETimer.stop();
+
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeTP();	 
+      if(writemem&&k==writememsect){
+        sectors[k]->writeTPAR(first);
+        //sectors[k]->writeTPROJ(first);
+      } 
+    }
+
+    TCTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      if (writeTC) {
+	cout << "TCSector" << endl;
+      }
+      sectors[k]->executeTC();	 
+      if(writemem&&k==writememsect){
+        sectors[k]->writeTPAR(first);
+        //sectors[k]->writeTPROJ(first);
+      } 
+    }
+    TCTimer.stop();
+
+    int nTP=GlobalHistTruth::event()->nsimtracks();
+    for (int iTP=0;iTP<nTP;iTP++){
+      L1SimTrack simtrk=GlobalHistTruth::event()->simtrack(iTP-1);
+      if (simtrk.pt()<2.0) continue;
+      if (fabs(simtrk.vz())>15.0) continue;
+      if (hypot(simtrk.vx(),simtrk.vy())>0.1) continue;
+      bool electron=(abs(simtrk.type())==11);
+      bool muon=(abs(simtrk.type())==13);
+      bool pion=(abs(simtrk.type())==211);
+      bool kaon=(abs(simtrk.type())==321);
+      bool proton=(abs(simtrk.type())==2212);
+      if (!(electron||muon||pion||kaon||proton)) continue;
+      int nlayers=0;
+      int ndisks=0;
+      int simtrackid=simtrk.trackid();
+      ev.layersHit(simtrackid,nlayers,ndisks);
+      if (nlayers+ndisks<4) continue;
+
+      std::set<int> matchseed;
+      for (unsigned int k=0;k<NSector;k++) {
+	std::set<int> matchseedtmp=sectors[k]->seedMatch(iTP);
+	matchseed.insert(matchseedtmp.begin(),matchseedtmp.end());
+      }
+      for(int iseed=0;iseed<8;iseed++){
+	bool eff=matchseed.find(iseed)!=matchseed.end();
+	GlobalHistTruth::histograms()->fillSeedEff(iseed,simtrk.eta(),eff);
+      }
+    } 
+
+    TCDTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeTCD();	 
+      if(writemem&&k==writememsect){
+        sectors[k]->writeTPAR(first);
+        sectors[k]->writeTPROJ(first);
+      } 
+    }
+    TCDTimer.stop();
+
+
+    PRTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executePR();	
+      if(writemem&&k==writememsect){
+        sectors[k]->writeVMPROJ(first);
+        sectors[k]->writeAP(first);
+      }
+    }
+    PRTimer.stop();
+    
+    METimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeME();	
+      if(writemem&&k==writememsect){
+        sectors[k]->writeCM(first);
+      } 
+    }
+    METimer.stop();
+
+    MCTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeMC();
+      if(writemem&&k==writememsect){
+        sectors[k]->writeMC(first);
+      }
+    }
+    MCTimer.stop();
+
+
+    MPTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeMP();
+      if(writemem&&k==writememsect){
+        sectors[k]->writeMC(first);
+      }
+    }
+    MPTimer.stop();
+
+
+
+
+    FTTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executeFT();	 
+      if((writemem||writeifit)&&k==writememsect){
+         sectors[k]->writeTF(first);
+      }
+    }
+    FTTimer.stop();
+
+    PDTimer.start();
+    for (unsigned int k=0;k<NSector;k++) {
+      sectors[k]->executePD(tracks);	  
+      if(((writemem||writeifit)&&k==writememsect) || writeAllCT){
+         sectors[k]->writeCT(first);
+      }
+    }
+    PDTimer.stop();
+
+    bool match=false;
+    for (unsigned int k=0;k<NSector;k++) {
+      //cout << "FPGA.icc " << k << " " << tracks.size() << endl;
+      if (selectmu==1) {
+	if (ev.nsimtracks()>0) {
+	  match=match||sectors[k]->foundTrack(outres,simtrk);
+	}
+      }
+    }
+

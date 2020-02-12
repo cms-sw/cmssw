@@ -1,0 +1,36 @@
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="SimDataFormats/EncodedEventId"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimGeneral/TrackingAnalysis"/>
+<use name="SimTracker/TrackTriggerAssociation"/>
+<use name="DataFormats/JetReco"/>
+<use name="boost"/>
+<use name="roothistmatrix"/>
+<!-- Add no-misleading-indentation option to avoid warnings about bug in Boost library. -->
+<flags CXXFLAGS="-g -Wno-unused-variable -Wno-misleading-indentation -Wno-maybe-uninitialized"/>
+
+<!-- THE FOLLOWING LINES ARE NEDED IF YOU WANT TO USE KF HLS CODE, BUT THEY REQUIRE YOU TO HAVE VIVADO -->
+<use name="hls"/>                        <!-- link to Vivado HLS libraries & header files -->
+<flags ADD_SUBDIR="1"/>                  <!-- Compile HLS/ subdirectories in src/ & interface/ -->
+<flags CXXFLAGS="-DUSE_HLS"/>            <!-- Define pragma variable to enable HLS code   -->
+<!-- Print all input/output arguments of HLS block to debug -->
+<!-- /flags CXXFLAGS="-DPRINT_HLSARGS"/ --> 
+<flags CXXFLAGS="-Wno-int-in-bool-context -Wno-unknown-pragmas"/> <!-- Suppress warnings from HLS library and HLS pragmas -->
+
+<export>
+    <lib name="1"/>
+</export>
+

@@ -1,0 +1,157 @@
+// Add Found tracks to the ROOT Tree Event
+
+// Get tracks
+for(unsigned int ntrk=0; ntrk<tracks.size(); ntrk++) {
+
+//    if(tracks[ntrk]->duplicate()) continue; //Uncomment to only fill root tree with tracks not tagged as duplicates
+    FPGAEventTrack *fpgaEventTrack = new FPGAEventTrack(tracks[ntrk]->irinv(),
+                                                  tracks[ntrk]->iphi0(),
+                                                  tracks[ntrk]->iz0(),
+                                                  tracks[ntrk]->it(),
+                                                  tracks[ntrk]->ichisq(),
+
+                                                  tracks[ntrk]->stubIDpremerge(),
+                                                  tracks[ntrk]->stubIDprefit(),
+                                                  tracks[ntrk]->stubID(),
+
+                                                  tracks[ntrk]->seed(),
+                                                  tracks[ntrk]->duplicate(),
+                                                  tracks[ntrk]->sector(),
+
+                                                  tracks[ntrk]->pt(),
+                                                  tracks[ntrk]->phi0(),
+                                                  tracks[ntrk]->eta(),
+                                                  tracks[ntrk]->z0(),
+                                                  tracks[ntrk]->rinv(),
+                                                  tracks[ntrk]->chisq()
+
+                                                 );
+    fpgaEvent->tracks.push_back(*fpgaEventTrack);
+}
+
+
+// Get stubs
+for (unsigned int k=0; k<NSector; k++){
+
+  if(sectors[k]->getStubs().size() == 0) continue;
+  std::vector<std::pair<Stub*,L1TStub*>> stubList = sectors[k]->getStubs();
+  for(unsigned int nSt=0; nSt<stubList.size(); nSt++) {
+
+    // L1TStub first (will be added to Stub)
+    L1TStub* lstub = stubList.at(nSt).second;
+
+    FPGAEventL1Stub *fpgaEvtL1Stub = new FPGAEventL1Stub(
+        lstub->eventid(),
+        lstub->simtrackid(),
+        lstub->iphi(),
+        lstub->iz(),
+        lstub->layer(),
+        lstub->ladder(),
+        lstub->module(),
+        lstub->strip(),
+        lstub->x(),
+        lstub->y(),
+        lstub->z(),
+        lstub->sigmax(),
+        lstub->sigmaz(),
+        lstub->pt(),
+        lstub->bend(),
+        lstub->isPSmodule(),
+        lstub->isFlipped(),
+        lstub->allStubIndex()
+    );
+    fpgaEvent->l1stubs.push_back(*fpgaEvtL1Stub);
+
+
+    // Stub second
+    Stub* fstub = stubList.at(nSt).first;
+
+    // Initialize some constants
+    int irbits = 0;
+    int izbits = 0;
+    int iphibits = 0;
+
+    double phiminsec = -1.;
+    double phimaxsec = -1.;
+    double rmin = -1.;
+    double rmax = -1.;
+
+    // Barrel stubs first
+    if(fstub->isBarrel()) {
+
+      phiminsec=sectors[k]->phimin();
+      phimaxsec=sectors[k]->phimax();
+
+      if(fstub->layer().value()>=4) {
+        irbits = nbitsrL456;
+        izbits = nbitszL456;
+        iphibits = nbitsphistubL456;
+      } else {
+        irbits = nbitsrL123;
+        izbits = nbitszL123;
+        iphibits = nbitsphistubL123;
+      }
+ 
+      if (fstub->layer().value() == 1) {rmin=rminL1; rmax=rmaxL1;}
+      if (fstub->layer().value() == 2) {rmin=rminL2; rmax=rmaxL2;}
+      if (fstub->layer().value() == 3) {rmin=rminL3; rmax=rmaxL3;}
+      if (fstub->layer().value() == 4) {rmin=rminL4; rmax=rmaxL4;}
+      if (fstub->layer().value() == 5) {rmin=rminL5; rmax=rmaxL5;}
+      if (fstub->layer().value() == 6) {rmin=rminL6; rmax=rmaxL6;}
+
+      FPGAEventStub *fpgaEvtStub = new FPGAEventStub(
+        k,
+        fstub->layer().value()+1,
+        99,
+        ((fstub->phiregion().value())<<6)+fstub->stubindex().value(),
+//        fpgaEvtL1Stub,
+        fstub->stubrpt(),
+        fstub->ir(),
+        fstub->iphi(),
+        fstub->iz(),
+        fstub->ir()*(double)(rmax-rmin)/(double)(1<<irbits) + rmean[fstub->layer().value()],
+        (fstub->iphi()/(double)(1<<iphibits)-0.125)*(double)(phimaxsec-phiminsec)/0.75 + phiminsec,
+        fstub->iz()*(2.*(double)zlength)/(double)(1<<izbits),  //slightly concerned about the factor of 2
+        fstub->stubr(),  //real versions from L1Stub class
+        fstub->stubphi(), // these do not have the real --> int --> real conversion as three above do.
+        fstub->stubz(),
+        fstub->stubrpt()
+      );
+      fpgaEvent->stubs.push_back(*fpgaEvtStub);
+
+    } // end barrel stub
+
+    // Now disk stubs
+    if(fstub->isDisk()) {
+
+      int disk = 0;
+      if(fstub->disk().value() < 0) disk = -10+fstub->disk().value();
+      if(fstub->disk().value() > 0) disk = 10+fstub->disk().value();
+
+      FPGAEventStub *fpgaEvtStub = new FPGAEventStub(
+          k,
+          99,
+          disk,
+          ((fstub->phiregion().value())<<6)+fstub->stubindex().value(),
+//          fpgaEvtL1Stub,
+          fstub->stubrpt(),
+          fstub->ir(),
+          fstub->iphi(),
+          fstub->iz(),
+          0.,
+          0.,
+          0.,
+          fstub->stubr(),  //real versions from L1Stub class
+          fstub->stubphi(), // these do not have the real --> int --> real conversion as three above do.
+          fstub->stubz(),
+          fstub->stubrpt());
+      fpgaEvent->stubs.push_back(*fpgaEvtStub);
+    } // end disk stub
+
+  } // end stubs loop
+
+} // end sector loop 
+
+//fill the tree
+trackTree->Fill();
+  
