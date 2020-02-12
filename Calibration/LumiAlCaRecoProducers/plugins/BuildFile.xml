@@ -27,4 +27,6 @@
 <library   file="CorrPCCProducer.cc" name="CorrPCCProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
-
+<library   file="AlcaPCCProducerEvent.cc" name="AlcaPCCProducerEvent">
+  <flags   EDM_PLUGIN="1"/>
+</library>
