@@ -114,7 +114,6 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   moduleLabel_ = iConfig.getParameter<string>("@module_label");
   src_ = iConfig.getParameter<edm::InputTag>("src");
   srcPVs_ = iConfig.getParameter<edm::InputTag>("srcPVs");
-  srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
   jetType_ = iConfig.getParameter<string>("jetType");
   jetAlgorithm_ = iConfig.getParameter<string>("jetAlgorithm");
   rParam_ = iConfig.getParameter<double>("rParam");
@@ -150,12 +149,14 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   minSeed_ = iConfig.getParameter<unsigned int>("minSeed");
   verbosity_ = iConfig.getParameter<int>("verbosity");
   applyPuppiWeight_ = iConfig.getParameter<bool>("applyPuppiWeight");
+  if (applyPuppiWeight_) {
+    srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
+    input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
+  }
 
   anomalousTowerDef_ = unique_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
-  if (applyPuppiWeight_)
-    input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
   input_candidateview_token_ = consumes<reco::CandidateView>(src_);
   input_candidatefwdptr_token_ =
       consumes<vector<edm::FwdPtr<reco::PFCandidate>>>(iConfig.getParameter<edm::InputTag>("src"));
@@ -1043,4 +1044,5 @@ void VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(edm::ParameterSe
   vector<double> puCentersDefault;
   desc.add<vector<double>>("puCenters", puCentersDefault);
   desc.add<bool>("applyPuppiWeight", false);
+  desc.add<edm::InputTag>("srcWeights", edm::InputTag("puppi"));
 }

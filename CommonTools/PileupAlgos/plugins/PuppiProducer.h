@@ -42,7 +42,6 @@ private:
 
   edm::EDGetTokenT<CandidateView> tokenPFCandidates_;
   edm::EDGetTokenT<VertexCollection> tokenVertices_;
-  edm::EDGetTokenT<edm::ValueMap<float>> tokenWeights_;
   edm::EDGetTokenT<PuppiContainer> tokenPuppiContainer_;
   edm::EDGetTokenT<PFOutputCollection> tokenPuppiCandidates_;
   edm::EDGetTokenT<PackedOutputCollection> tokenPackedPuppiCandidates_;
@@ -70,7 +69,6 @@ private:
   double fPtMaxNeutrals;
   double fPtMaxNeutralsStartSlope;
   bool fUseExistingWeights;
-  bool fUseExternalWeights;
   bool fUseWeightsNoLep;
   bool fClonePackedCands;
   int fVtxNdofCut;
