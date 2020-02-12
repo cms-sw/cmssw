@@ -7,7 +7,6 @@
  *  - lastAnalyzedLumi : last lumisection analyzed
  *  - lastAnalyzedRun  : run of the last analyzed lumisection
  *  - lastAnalyzedFill : fill of the last analyzed lumisection
- *  - targetLumi       : HLT target lumisection
  *
  * \author Francisco Brivio, Milano-Bicocca (francesco.brivio@cern.ch)
  *
@@ -28,7 +27,6 @@ public:
     lastAnalyzedLumi_ = 0;
     lastAnalyzedRun_ = 0;
     lastAnalyzedFill_ = 0;
-    targetLumi_ = 0;
   }
 
   virtual ~BeamSpotOnlineObjects() {}
@@ -44,9 +42,6 @@ public:
   // set lastAnalyzedFill_, fill of the last analyzed lumisection
   void SetLastAnalyzedFill(int val) { lastAnalyzedFill_ = val; }
 
-  // set targetLumi_, HLT target lumisection
-  void SetTargetLumi(int val) { targetLumi_ = val; }
-
 
   /// Getters Methods
   // get lastAnalyzedLumi_, last analyzed lumisection
@@ -58,9 +53,6 @@ public:
   // get lastAnalyzedFill_, fill of the last analyzed lumisection
   int GetLastAnalyzedFill() const { return lastAnalyzedFill_; }
 
-  // get targetLumi_, HLT target lumisection
-  int GetTargetLumi() const { return targetLumi_; }
-
 
   /// Print BeamSpotOnline parameters
   void print(std::stringstream& ss) const;
@@ -70,7 +62,6 @@ private:
   int lastAnalyzedLumi_;
   int lastAnalyzedRun_;
   int lastAnalyzedFill_;
-  int targetLumi_;
 
   COND_SERIALIZABLE;
 };

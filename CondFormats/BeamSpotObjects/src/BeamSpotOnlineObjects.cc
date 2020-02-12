@@ -20,7 +20,6 @@ void BeamSpotOnlineObjects::print(std::stringstream& ss) const {
      << " Last Lumi    = " << GetLastAnalyzedLumi() << "\n"
      << " Last Run     = " << GetLastAnalyzedRun() << "\n"
      << " Last Fill    = " << GetLastAnalyzedFill() << "\n"
-     << " Target lumi  = " << GetTargetLumi() << "\n"
      << "-----------------------------------------------------\n\n";
 }
 
