@@ -601,7 +601,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   for (auto& metadata : m_fileMetadatas) {
     if (run < metadata.m_run && metadata.m_lumi != 0) {
       // run transition and lumi transition at the same time!
-      FileMetadata dummy{0};  // zero initialize
+      FileMetadata dummy{};  // zero initialize
       dummy.m_run = metadata.m_run;
       dummy.m_lumi = 0;
       dummy.m_type = kNoTypesStored;
