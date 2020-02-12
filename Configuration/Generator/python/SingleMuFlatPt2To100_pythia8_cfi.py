@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 generator = cms.EDFilter("Pythia8PtGun",
                          PGunParameters = cms.PSet(
-        MaxPt = cms.double(10.01),
-        MinPt = cms.double(9.99),
+        MaxPt = cms.double(100.0),
+        MinPt = cms.double(2.0),
         ParticleID = cms.vint32(-13),
         AddAntiParticle = cms.bool(True),
         MaxEta = cms.double(2.85),
@@ -11,7 +11,7 @@ generator = cms.EDFilter("Pythia8PtGun",
         MinPhi = cms.double(-3.14159265359) ## in radians
         ),
                          Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
-                         psethack = cms.string('single mu pt 10'),
+                         psethack = cms.string('single mu pt 2 to 100'),
                          firstRun = cms.untracked.uint32(1),
                          PythiaParameters = cms.PSet(parameterSets = cms.vstring())
                          )
