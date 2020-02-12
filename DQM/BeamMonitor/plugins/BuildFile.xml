@@ -9,6 +9,7 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="TrackingTools/PatternTools"/>
+<use   name="CondCore/DBOutputService"/>
 <library   file="BeamMonitor.cc" name="BeamMonitor">
   <flags   EDM_PLUGIN="1"/>
 </library>
