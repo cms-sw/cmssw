@@ -43,7 +43,10 @@ phase2_hgcalV9.toModify(
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify(
     caloParticles,
-    simHitCollections = dict(hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')])
+    simHitCollections = dict(
+        hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')],
+        hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits'))
+    )
 )
 
 from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
