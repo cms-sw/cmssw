@@ -45,18 +45,8 @@ public:
   ~PFEnergyCalibration();
 
   // ecal calibration for photons
-  double energyEm(const reco::PFCluster& clusterEcal,
-                  std::vector<double>& EclustersPS1,
-                  std::vector<double>& EclustersPS2,
-                  bool crackCorrection = true) const;
   double energyEm(const reco::PFCluster& clusterEcal, double ePS1, double ePS2, bool crackCorrection = true) const;
 
-  double energyEm(const reco::PFCluster& clusterEcal,
-                  std::vector<double>& EclustersPS1,
-                  std::vector<double>& EclustersPS2,
-                  double& ps1,
-                  double& ps2,
-                  bool crackCorrection = true) const;
   double energyEm(const reco::PFCluster& clusterEcal,
                   double ePS1,
                   double ePS2,
