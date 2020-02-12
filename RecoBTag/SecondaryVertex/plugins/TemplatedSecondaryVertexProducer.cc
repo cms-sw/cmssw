@@ -300,7 +300,7 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
       useWeights = true;
     }
   }
-  if ((useWeights)||(params.existsAs<edm::InputTag>("weights")))
+  if ((useWeights) || (params.existsAs<edm::InputTag>("weights")))
     token_weights = consumes<edm::ValueMap<float> >(params.getParameter<edm::InputTag>("weights"));
   if (useGroomedFatJets) {
     token_groomedFatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("groomedFatJets"));
