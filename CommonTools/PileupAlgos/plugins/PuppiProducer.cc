@@ -33,7 +33,6 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
   fPtMaxNeutralsStartSlope = iConfig.getParameter<double>("PtMaxNeutralsStartSlope");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
-  fUseExternalWeights = iConfig.getParameter<bool>("useExternalWeights");
   fUseWeightsNoLep = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
@@ -42,7 +41,6 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
 
   tokenPFCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
-  tokenWeights_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weightsName"));
 
   ptokenPupOut_ = produces<edm::ValueMap<float>>();
   ptokenP4PupOut_ = produces<edm::ValueMap<LorentzVector>>();
@@ -83,12 +81,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       npv++;
   }
 
-  // Get Weights Collection
-  edm::Handle<edm::ValueMap<float>> weightsProduct;
-  iEvent.getByToken(tokenWeights_, weightsProduct);
-
   std::vector<double> lWeights;
-  if ((!fUseExistingWeights) && (!fUseExternalWeights)) {
+  if (!fUseExistingWeights) {
     //Fill the reco objects
     fRecoObjCollection.clear();
     fRecoObjCollection.reserve(pfCol->size());
@@ -215,9 +209,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     //Compute the weights and get the particles
     lWeights = fPuppiContainer->puppiWeights();
-  } else if (fUseExternalWeights) {
-    for (unsigned int i = 0; i < pfCol->size(); ++i)
-      lWeights.push_back((*weightsProduct)[pfCol->ptrAt(i)]);
   } else {
     //Use the existing weights
     for (auto const& aPF : *pfCol) {
@@ -367,14 +358,12 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("PtMaxNeutrals", 200.);
   desc.add<double>("PtMaxNeutralsStartSlope", 0.);
   desc.add<bool>("useExistingWeights", false);
-  desc.add<bool>("useExternalWeights", false);
   desc.add<bool>("useWeightsNoLep", false);
   desc.add<bool>("clonePackedCands", false);
   desc.add<int>("vtxNdofCut", 4);
   desc.add<double>("vtxZCut", 24);
   desc.add<edm::InputTag>("candName", edm::InputTag("particleFlow"));
   desc.add<edm::InputTag>("vertexName", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<edm::InputTag>("weightsName", edm::InputTag("puppi"));
   desc.add<bool>("applyCHS", true);
   desc.add<bool>("invertPuppi", false);
   desc.add<bool>("useExp", false);

@@ -188,7 +188,7 @@ private:
   const edm::EDGetTokenT<reco::GenParticleRefVector> bHadronsToken_;  // Input b hadron collection
   const edm::EDGetTokenT<reco::GenParticleRefVector> cHadronsToken_;  // Input c hadron collection
   const edm::EDGetTokenT<reco::GenParticleRefVector> partonsToken_;   // Input parton collection
-  const edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;         // Input weights collection
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;               // Input weights collection
   edm::EDGetTokenT<reco::GenParticleRefVector> leptonsToken_;         // Input lepton collection
 
   const std::string jetAlgorithm_;
@@ -220,7 +220,6 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
       bHadronsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("bHadrons"))),
       cHadronsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("cHadrons"))),
       partonsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("partons"))),
-      weightsToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"))),
       jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
       rParam_(iConfig.getParameter<double>("rParam")),
 
@@ -244,6 +243,9 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
     useWeights_ = true;
     // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
   }
+
+  if (useWeights_)
+    weightsToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"));
 
   if (useSubjets_)
     produces<reco::JetFlavourInfoMatchingCollection>("SubJets");
@@ -299,7 +301,8 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(partonsToken_, partons);
 
   edm::Handle<edm::ValueMap<float>> weights;
-  iEvent.getByToken(weightsToken_, weights);
+  if (useWeights_)
+    iEvent.getByToken(weightsToken_, weights);
 
   edm::Handle<reco::GenParticleRefVector> leptons;
   if (useLeptons_)
