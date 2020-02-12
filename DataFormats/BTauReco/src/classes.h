@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #if defined __has_feature
-#  if __has_feature(modules)
+#if __has_feature(modules)
 // Workaround the missing CLHEP.modulemap
 #include "CLHEP/Vector/LorentzVector.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
