@@ -8,7 +8,7 @@
 namespace hcaldqm {
   namespace constants {
     /*
- *	Detector Subsystem Status States
+ *  Detector Subsystem Status States
  */
     double const GOOD = 1.0;
     double const PROBLEMATIC = 0.9;
@@ -19,12 +19,12 @@ namespace hcaldqm {
     double const DELTA = 0.005;
 
     /*
- *	Electronics Constants
+ *  Electronics Constants
  */
-    //	FED2Crate array and CRATE2FED array
-    //	use conversion functions in Utilities.h
-    //	For fast look up
-    //	This is for uTCA Crates/FEDs only - no other way...
+    //  FED2Crate array and CRATE2FED array
+    //  use conversion functions in Utilities.h
+    //  For fast look up
+    //  This is for uTCA Crates/FEDs only - no other way...
     std::map<unsigned int, unsigned int> const crate2fed_map = {
         {24, 1100},
         {20, 1102},
@@ -38,48 +38,59 @@ namespace hcaldqm {
         {22, 1118},
         {29, 1120},
         {32, 1122},
-        {38, 1134},
+        //{38, 1134},
         {3, 724},
         {7, 726},
         {6, 728},
         {13, 730},
+
+        // New HO crates as of 2020
+        {23, 1124},
+        {27, 1126},
+        {26, 1128},
+        {38, 1130},
     };
 
     std::map<unsigned int, unsigned int> const fed2crate_map = {
         {724, 3},   {725, 3},   {726, 7},   {727, 7},   {728, 6},   {729, 6},   {730, 13},  {731, 13},  {1100, 24},
         {1101, 24}, {1102, 20}, {1103, 20}, {1104, 21}, {1105, 21}, {1106, 25}, {1107, 25}, {1108, 31}, {1109, 31},
         {1110, 35}, {1111, 35}, {1112, 37}, {1113, 37}, {1114, 34}, {1115, 34}, {1116, 30}, {1117, 30}, {1118, 22},
-        {1119, 22}, {1120, 29}, {1121, 29}, {1122, 32}, {1123, 32}, {1134, 38}, {1135, 38},
+        {1119, 22}, {1120, 29}, {1121, 29}, {1122, 32}, {1123, 32}, {1124, 23}, {1125, 23}, {1126, 27}, {1127, 27}, 
+        {1128, 26}, {1129, 26}, {1130, 38}, {1131, 38}, {1134, 38}, {1135, 38},
     };
 
     std::vector<unsigned int> const fedList = {724,  725,  726,  727,  728,  729,  730,  731,  1100, 1101, 1102, 1103,
                                                1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115,
-                                               1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1134, 1135};
+                                               1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127,
+                                               1128, 1129, 1130, 1131, 1134, 1135};
     std::vector<unsigned int> const fedListuTCA = {1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108,
                                                    1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117,
-                                                   1118, 1119, 1120, 1121, 1122, 1123, 1134, 1135};
+                                                   1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127, 1128, 
+                                                   1129, 1130, 1131, 1134, 1135};
     std::vector<unsigned int> const fedListVME = {724, 725, 726, 727, 728, 729, 730, 731};
-    std::vector<unsigned int> const crateList = {3, 6, 7, 13, 20, 21, 22, 24, 25, 29, 30, 31, 32, 34, 35, 37, 38};
-    std::vector<unsigned int> const crateListuTCA = {20, 21, 22, 24, 25, 29, 30, 31, 32, 34, 35, 37, 38};
+    std::vector<unsigned int> const crateList = {3, 6, 7, 13, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 34, 35, 37, 38};
+    std::vector<unsigned int> const crateListuTCA = {20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 37, 38};
     std::vector<unsigned int> const crateListVME = {3, 6, 7, 13};
     std::vector<unsigned int> const crateListHF = {22, 29, 32};
+    std::vector<unsigned int> const crateListHO = {23, 26, 27, 38};
+
 
     int const FED_uTCA_MAX_REAL = 50;
 
-    //	FEDs use the first 50 uTCA FED numbers only everywhere
+    //  FEDs use the first 50 uTCA FED numbers only everywhere
     int const FED_VME_MIN = FEDNumbering::MINHCALFEDID;
     int const FED_VME_MAX = FEDNumbering::MAXHCALFEDID;
     int const FED_VME_DELTA = 1;
     int const FED_VME_NUM = FED_VME_MAX - FED_VME_MIN + 1;
 
     int const FED_uTCA_MIN = FEDNumbering::MINHCALuTCAFEDID;
-    //		int const FED_uTCA_MAX = FEDNumbering::MAXHCALuTCAFEDID;
+    //      int const FED_uTCA_MAX = FEDNumbering::MAXHCALuTCAFEDID;
     int const FED_uTCA_MAX = FED_uTCA_MIN + FED_uTCA_MAX_REAL - 1;
     int const FED_uTCA_NUM = FED_uTCA_MAX - FED_uTCA_MIN + 1;
     int const FED_uTCA_DELTA = 1;
     int const FED_TOTAL_NUM = FED_VME_NUM + FED_uTCA_NUM;
 
-    //	Crates
+    //  Crates
     int const CRATE_VME_MIN = 0;
     int const CRATE_VME_MAX = 18;
     int const CRATE_VME_DELTA = 1;
@@ -91,7 +102,7 @@ namespace hcaldqm {
     int const CRATE_uTCA_NUM = CRATE_uTCA_MAX - CRATE_uTCA_MIN + 1;
     int const CRATE_TOTAL_NUM = CRATE_VME_NUM + CRATE_uTCA_NUM;
 
-    //	Slots
+    //  Slots
     int const SLOT_uTCA_MIN = 1;
     int const SLOT_uTCA_MAX = 12;
     int const SLOT_uTCA_DELTA = 1;
@@ -109,7 +120,7 @@ namespace hcaldqm {
     int const SPIGOT_MAX = 11;
     int const SPIGOT_NUM = SPIGOT_MAX - SPIGOT_MIN + 1;
 
-    //	Fibers
+    //  Fibers
     int const FIBER_VME_MIN = 1;
     int const FIBER_VME_MAX = 8;
     int const FIBER_VME_NUM = FIBER_VME_MAX - FIBER_VME_MIN + 1;
@@ -123,7 +134,7 @@ namespace hcaldqm {
     int const FIBERCH_MAX = 5;
     int const FIBERCH_NUM = FIBERCH_MAX - FIBERCH_MIN + 1;
 
-    //	TP SLBs, Fibers
+    //  TP SLBs, Fibers
     int const SLB_MIN = 1;
     int const SLB_MAX = 6;
     int const SLB_NUM = SLB_MAX - SLB_MIN + 1;
@@ -141,10 +152,10 @@ namespace hcaldqm {
     int const TPFIBERCH_NUM = TPFIBERCH_MAX - TPFIBERCH_MIN + 1;
 
     /*
- *	Detector Constants
+ *  Detector Constants
  */
 
-    //	Hcal Subdetector
+    //  Hcal Subdetector
     int const HB = 1;
     int const HE = 2;
     int const HO = 3;
@@ -157,7 +168,7 @@ namespace hcaldqm {
     std::string const TPSUBDET_NAME[TPSUBDET_NUM] = {"HBHE", "HF"};
     std::string const TPSUBDETPM_NAME[2 * TPSUBDET_NUM] = {"HBHEM", "HBHEP", "HFM", "HFP"};
 
-    //	iphis
+    //  iphis
     int const IPHI_MIN = 1;
     int const IPHI_MAX = 72;
     int const IPHI_NUM = 72;
@@ -167,7 +178,7 @@ namespace hcaldqm {
     int const IPHI_DELTA_HF = 2;
     int const IPHI_DELTA_TPHF = 4;
 
-    //	ietas
+    //  ietas
     int const IETA_MIN = 1;
     int const IETA_DELTA = 1;
     int const IETA_MAX = 41;
@@ -184,31 +195,31 @@ namespace hcaldqm {
     int const IETA_MAX_TPHBHE = 28;
     int const IETA_MAX_TPHF = 32;
 
-    //	Depth
+    //  Depth
     int const DEPTH_MIN = 1;
     int const DEPTH_DELTA = 1;
     int const DEPTH_MAX = 4;
     int const DEPTH_NUM = 4;
 
-    //	Caps
+    //  Caps
     int const CAPS_NUM = 4;
 
-    //	Number of FG Bits
+    //  Number of FG Bits
     int const NUM_FGBITS = 6;
 
     /*
- *	Number of Channels Constants
+ *  Number of Channels Constants
  */
     int const CHS_NUM[SUBDET_NUM] = {2592, 2592, 2192, 1728};  // HO ??!
     int const TPCHS_NUM[TPSUBDET_NUM] = {2 * 28 * 72, 144};
 
     /*
- *	Number of Time Samples
+ *  Number of Time Samples
  */
     int const TS_NUM[SUBDET_NUM] = {10, 10, 10, 4};
 
     /*
- *	Value Constants
+ *  Value Constants
  */
     double const AXIS_ENERGY_MIN = -10.;
     double const AXIS_ENERGY_MAX = 200;
@@ -261,10 +272,10 @@ namespace hcaldqm {
         268000, 276000, 284000, 291000, 302000, 316000, 329000, 343000, 356000, 370000, 384000};
 
     /*
- *	TObject Related. The first 3 bits are set by the Axis Class
- *	0 - log X axis
- *	1 - log Y axis
- *	2 - log Z axis
+ *  TObject Related. The first 3 bits are set by the Axis Class
+ *  0 - log X axis
+ *  1 - log Y axis
+ *  2 - log Z axis
  */
     int const BIT_OFFSET = 19;
     int const BIT_AXIS_XLOG = 0;
@@ -274,7 +285,7 @@ namespace hcaldqm {
     int const BIT_AXIS_FLAG = 4;
 
     /*
- *	Orbit Gap Operations enum
+ *  Orbit Gap Operations enum
  */
     uint8_t const EVENTTYPE_PEDESTAL = 1;
     uint8_t const EVENTTYPE_LASER = 14;
