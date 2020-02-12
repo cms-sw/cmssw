@@ -7,6 +7,5 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="RecoMuon/StandAloneTrackFinder"/>
 <use   name="RecoMuon/TrackingTools"/>
-<use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/PatternTools"/>
 <flags   EDM_PLUGIN="1"/>

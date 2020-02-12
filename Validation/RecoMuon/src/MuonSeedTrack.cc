@@ -10,6 +10,7 @@
 
 #include "Validation/RecoMuon/src/MuonSeedTrack.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -38,7 +39,7 @@ typedef TrajectoryStateOnSurface TSOS;
 MuonSeedTrack::MuonSeedTrack(const edm::ParameterSet& pset) {
   // service parameters
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   ParameterSet updatorPar = pset.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters");
   //theSeedPropagatorName = updatorPar.getParameter<string>("Propagator");

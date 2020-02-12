@@ -1,0 +1,2856 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="etl.xml" eval="true/false">
+	<Constant name="ETLrmin" value="[caloBase:Rmin100]"/>   <!-- 26.3 cm -->
+	<Constant name="ETLrmax" value="[caloBase:Rmax100]"/>   <!-- 125.525 cm --> 
+	<Constant name="ETLzmin" value="-0.5*([caloBase:Zpos110]-[caloBase:Zpos10])"/>  
+	<Constant name="ETLzmax" value="0.5*([caloBase:Zpos110]-[caloBase:Zpos10])-2*cm"/>
+
+	<Constant name="Disk_thickness" value="1.894"/>  <!-- thickness of one disk comprising modules, service hybrids on both faces, mounted on the Al and MIC6-Al rings. Fig 3.73 TDR and line 354 Ulascan ETLDetectorDimensions.cc -->
+	<Constant name="DiskQuarter_thickness" value="0.585"/> <!-- this is the service hybrid height according to TDR table 3.9 -->
+	<!-- LGAD and ETROC values taken from Ulascan code (line 103 on in ETLDetectorDimensions.cc), same values in the TDR -->
+	<Constant name="LGADdx" value="2.12"/>
+	<Constant name="LGADdy" value="4.2"/>
+	<Constant name="LGAD_ActiveThickness" value="0.005"/> 
+	<Constant name="LGAD_Substrate" value="0.025"/>
+	<Constant name="LGADdz" value="0.03"/>
+	<Constant name="lgadSep_X" value="0.025"/>  <!-- x-offset between lgad in a 2SensorModule, line 232 ETLDetectorDimensions.cc -->
+	<Constant name="lgadSep_Y" value="0.05"/> <!-- y-offset between SensorModules and service hybrids, line 414 ETLDetectorDimensions.cc -->
+	<Constant name="ETROCdx" value="2.23"/>
+	<Constant name="ETROCdy" value="2.08"/>
+	<Constant name="ETROCdz" value="0.025"/>
+	<Constant name="etrocSep_X" value="0.03"/>  <!-- line 202 Ulascan ETLDetectorDimensions.cc -->
+	<Constant name="etrocSep_Y" value="0.01"/>
+
+	<Constant name="ServiceHybrid_X" value="3.4"/>  <!-- line 294 Ulascan ETLDetectorDimensions.cc -->
+	<Constant name="ServiceHybrid_Y" value="26.11"/> <!-- ORANGE 6x SensorModule_dy + 5x lgadSep_Y -->
+	<Constant name="ServiceHybrid_Y_short" value="13.03"/> <!-- RED 3x SensorModule_dy + 2x lgadSep_Y -->
+	<Constant name="ServiceHybrid_Z" value="0.585"/>
+	<Constant name="SensorModuledx" value="2.585"/>  <!-- Half of a 2-Sensor-Module line 181 Ulascan ETLDetectorDimensions.cc -->
+	<Constant name="SensorModuledy" value="4.31"/>
+	<Constant name="SensorModuledz" value="0.229"/>
+	<Constant name="DeltaX_ServiceModule" value="2.9925"/>
+	<Constant name="DeltaY" value="0.05"/>
+	<Constant name="DeltaY_ServiceLong_ServiceShort" value="19.57"/>
+  </ConstantsSection>
+
+
+  <SolidSection label="etl.xml">
+	<Polycone name="EndcapTimingLayer" startPhi="0*deg" deltaPhi="360*deg">
+	  <ZSection z="[ETLzmin]"         rMin="[ETLrmin]"          rMax="[ETLrmax]" />
+	  <ZSection z="[ETLzmax]"         rMin="[ETLrmin]"          rMax="[ETLrmax]" />
+	</Polycone>
+	<!-- Aluminium rings: dimensions as defined by ulascan (line 345 ETLDetectorDimensions.cc). Note: epoxy not considered as single element but included in "Aluminium_Disk" (0.081 + 0.008 cm) -->
+	<Tubs name="ThermalScreen" rMin="26.3*cm" rMax="124.37*cm" dz="0.5*(2)*cm" startPhi="0*deg" deltaPhi="360*deg"/> <!-- rMax=124.37*cm -->
+	<Tubs name="Disk" rMin="31*cm" rMax="119*cm" dz="0.5*[Disk_thickness]*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+	<Tubs name="Aluminium_Disk" rMin="31*cm" rMax="119*cm" dz="0.5*(0.089)*cm" startPhi="0*deg" deltaPhi="360*deg"/>  
+	<Tubs name="MIC6_Aluminium_Disk" rMin="31*cm" rMax="119*cm" dz="0.5*(0.635)*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+
+	<!-- FRONT: face closest to IP, BACK: furthest from IP -->
+	<Tubs name="DiskQuarter_Back" rMin="31*cm" rMax="119*cm" dz="0.5*[DiskQuarter_thickness]*cm" startPhi="90*deg" deltaPhi="90*deg"/>
+	<Tubs name="DiskQuarter_Front" rMin="31*cm" rMax="119*cm" dz="0.5*[DiskQuarter_thickness]*cm" startPhi="90*deg" deltaPhi="90*deg"/>
+	<Tubs name="DiskQuarter_Back_2" rMin="31*cm" rMax="119*cm" dz="0.5*[DiskQuarter_thickness]*cm" startPhi="0*deg" deltaPhi="90*deg"/>
+	<Tubs name="DiskQuarter_Front_2" rMin="31*cm" rMax="119*cm" dz="0.5*[DiskQuarter_thickness]*cm" startPhi="0*deg" deltaPhi="90*deg"/>
+	<Box name="SensorModule" dx="0.5*[SensorModuledx]*cm" dy="0.5*[SensorModuledy]*cm" dz="0.5*[SensorModuledz]*cm"/>
+	<Box name="ServiceHybrid" dx="0.5*[ServiceHybrid_X]*cm" dy="0.5*[ServiceHybrid_Y]*cm" dz="0.5*[ServiceHybrid_Z]*cm"/>
+	<Box name="ServiceHybrid_short" dx="0.5*[ServiceHybrid_X]*cm" dy="0.5*[ServiceHybrid_Y_short]*cm" dz="0.5*[ServiceHybrid_Z]*cm"/>
+
+	<Box name="ThermalPad" dx="0.5*[SensorModuledx]*cm" dy="0.5*[SensorModuledy]*cm" dz="0.5*(0.025)*cm"/>
+	<Box name="AlN_Carrier" dx="0.5*[SensorModuledx]*cm" dy="0.5*[SensorModuledy]*cm" dz="0.5*(0.079)*cm"/>
+	<Box name="LairdFilm" dx="0.5*([ETROCdx]+0.5*[etrocSep_X])*cm" dy="0.5*([ETROCdy]*2+[etrocSep_Y])*cm" dz="0.5*(0.008)*cm"/> <!-- Line 220 ETLDetectorDimensions.cc -->
+	<Box name="ETROC" dx="0.5*[ETROCdx]*cm" dy="0.5*[ETROCdy]*cm" dz="0.5*(0.028)*cm"/>  <!-- solder bumps not considered, their thickness is included in that of the ETROC --> 
+	<Box name="LGAD" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*[LGADdz]*cm"/>
+	<Box name="LGAD_ActiveThickness" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*[LGAD_ActiveThickness]*cm"/>
+	<Box name="LGAD_Substrate" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*[LGAD_Substrate]*cm"/>
+	<Box name="AlN_Cover" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*(0.059)*cm"/>  <!-- epoxy included in the thickness of the AlN cover -->
+  </SolidSection>
+
+  <RotationSection label="etl.xml">
+    <Rotation name="0" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg" phiZ="0*deg"/>
+	<Rotation name="270" thetaX="90*deg" phiX="270*deg" thetaY="90*deg" phiY="0*deg" thetaZ="0*deg" phiZ="0*deg"/>
+	<Rotation name="180" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="270*deg" thetaZ="0*deg" phiZ="0*deg"/>
+	<Rotation name="90" thetaX="90*deg" phiX="90*deg" thetaY="90*deg" phiY="180*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  </RotationSection>
+
+
+  <LogicalPartSection label="etl.xml">                                 
+	<LogicalPart name="EndcapTimingLayer" category="unspecified">      
+	  <rSolid name="etl:EndcapTimingLayer"/>                               
+	  <rMaterial name="materials:Air"/>                                
+	</LogicalPart>
+	<LogicalPart name="ThermalScreen" category="unspecified">      
+	  <rSolid name="etl:ThermalScreen"/>                               
+	  <rMaterial name="mtdMaterial:ThermalScreenComposite"/>                                  
+	</LogicalPart>
+	<LogicalPart name="Disk1" category="unspecified">      
+	  <rSolid name="etl:Disk"/>                               
+	  <rMaterial name="materials:Air"/>                                
+	</LogicalPart>
+    <LogicalPart name="Disk2" category="unspecified">      
+      <rSolid name="etl:Disk"/>                               
+      <rMaterial name="materials:Air"/>                                
+    </LogicalPart>  
+	<LogicalPart name="Aluminium_Disk" category="unspecified">
+      <rSolid name="etl:Aluminium_Disk"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="MIC6_Aluminium_Disk" category="unspecified">
+      <rSolid name="etl:MIC6_Aluminium_Disk"/>
+      <rMaterial name="materials:Aluminium"/>     
+    </LogicalPart>
+    <!-- Quarters on Disk1 -->
+    <LogicalPart name="DiskQuarter_Front" category="unspecified">
+      <rSolid name="etl:DiskQuarter_Front"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <LogicalPart name="DiskQuarter_Back" category="unspecified">
+      <rSolid name="etl:DiskQuarter_Back"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart> 
+    <!-- Quarters on Disk2 -->
+    <LogicalPart name="DiskQuarter_Front_2" category="unspecified">
+      <rSolid name="etl:DiskQuarter_Front_2"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <LogicalPart name="DiskQuarter_Back_2" category="unspecified">
+      <rSolid name="etl:DiskQuarter_Back_2"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <!-- Sensor module on front face  -->
+    <LogicalPart name="SensorModule" category="unspecified">  
+      <rSolid name="etl:SensorModule"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <LogicalPart name="SensorModule_2" category="unspecified">  
+      <rSolid name="etl:SensorModule"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <!-- Sensor module on back face  -->
+    <LogicalPart name="SensorModule_r" category="unspecified">  
+      <rSolid name="etl:SensorModule"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <LogicalPart name="SensorModule_r_2" category="unspecified">  
+      <rSolid name="etl:SensorModule"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <!-- Service Hybrids -->
+    <LogicalPart name="ServiceHybrid" category="unspecified">  
+      <rSolid name="etl:ServiceHybrid"/>
+      <rMaterial name="mtdMaterial:ServiceHybrid_PCB"/>     
+    </LogicalPart>
+    <LogicalPart name="ServiceHybrid_short" category="unspecified">  
+      <rSolid name="etl:ServiceHybrid_short"/>
+      <rMaterial name="mtdMaterial:ServiceHybrid_PCB"/>     
+    </LogicalPart>
+    
+    <!-- Elements composing the sensor module -->
+    <LogicalPart name="ThermalPad" category="unspecified">  
+      <rSolid name="etl:ThermalPad"/>
+      <rMaterial name="materials:Epoxy"/>  
+    </LogicalPart>
+    <LogicalPart name="AlN_Carrier" category="unspecified">  
+      <rSolid name="etl:AlN_Carrier"/>
+      <rMaterial name="mtdMaterial:Aluminium_Nitride"/>     
+    </LogicalPart> 
+    <LogicalPart name="LairdFilm" category="unspecified">  
+      <rSolid name="etl:LairdFilm"/>
+      <rMaterial name="mtdMaterial:Laird"/>     
+    </LogicalPart> 
+    <LogicalPart name="ETROC" category="unspecified">  
+      <rSolid name="etl:ETROC"/>
+      <rMaterial name="materials:Silicon"/>     
+    </LogicalPart> 
+    <LogicalPart name="LGAD" category="unspecified">  
+      <rSolid name="etl:LGAD"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <LogicalPart name="LGAD_2" category="unspecified">  
+      <rSolid name="etl:LGAD"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <LogicalPart name="LGAD_r" category="unspecified">  
+      <rSolid name="etl:LGAD"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart>
+    <LogicalPart name="LGAD_r_2" category="unspecified">  
+      <rSolid name="etl:LGAD"/>
+      <rMaterial name="materials:Air"/>     
+    </LogicalPart> 
+    <LogicalPart name="LGAD_ActiveThickness" category="unspecified">  
+      <rSolid name="etl:LGAD_ActiveThickness"/>
+      <rMaterial name="materials:Silicon"/>     
+    </LogicalPart>
+    <LogicalPart name="LGAD_Substrate" category="unspecified">  
+      <rSolid name="etl:LGAD_Substrate"/>
+      <rMaterial name="materials:Silicon"/>     
+    </LogicalPart>
+    <LogicalPart name="AlN_Cover" category="unspecified">  
+      <rSolid name="etl:AlN_Cover"/>
+      <rMaterial name="mtdMaterial:Aluminium_Nitride"/>     
+    </LogicalPart>
+  </LogicalPartSection> 
+
+  
+  <PosPartSection label="etl.xml">                                     
+	<PosPart copyNumber="1">                                           
+	  <rParent name="caloBase:CALOECFront"/>                         
+	  <rChild name="etl:EndcapTimingLayer"/>  
+	  <Translation x="0." y="0." z="0.5*([caloBase:Zpos110]+[caloBase:Zpos10])+2*cm" />  <!--  -->
+	</PosPart>
+	
+	<!-- Positions wrt IP: endcap: 2966mm -> 3063mm  / Disk1 3002.47mm / Disk2 3023.47mm / Center of endcap 3014.5mm / Center of thermal screen 2976mm -->
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:EndcapTimingLayer"/>                         
+	  <rChild name="etl:ThermalScreen"/>  
+	  <Translation x="0." y="0." z="-3.85*cm" />  <!-- -3.95*cm -->
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:EndcapTimingLayer"/>                         
+	  <rChild name="etl:Disk1"/>  
+	  <Translation x="0." y="0." z="-1.788*cm" />
+	</PosPart> 
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:EndcapTimingLayer"/>                         
+	  <rChild name="etl:Disk2"/>  
+	  <Translation x="0." y="0." z="1.212*cm" />
+	</PosPart> 
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:Aluminium_Disk"/>  
+	  <Translation x="0." y="0." z="0.3175*cm" />
+	</PosPart> 
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:MIC6_Aluminium_Disk"/>  
+	  <Translation x="0." y="0." z="-0.0445*cm" />
+	</PosPart>
+	<!-- Quarters in both Disk1 and Disk2 (Front/Back faces) are placed anti-clockwise (Quarter 1 is on top right, Quarter 2 top left...) -->
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:DiskQuarter_Front"/> 
+	  <rRotation name="etl:0"/> 
+	  <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />  <!-- 1.2375 = 1.2 + 0.075/2 -->
+	</PosPart> 
+	<PosPart copyNumber="2">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:DiskQuarter_Front"/>  
+	  <rRotation name="etl:270"/>
+	  <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
+	</PosPart> 
+	<PosPart copyNumber="3">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:DiskQuarter_Front"/>
+	  <rRotation name="etl:180"/>  
+	  <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
+	</PosPart> 
+	<PosPart copyNumber="4">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:DiskQuarter_Front"/> 
+	  <rRotation name="etl:90"/> 
+	  <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:DiskQuarter_Back"/>  
+	  <rRotation name="etl:0"/>
+	  <Translation x="0*cm" y="0*cm" z="0.6545*cm" />  
+	</PosPart>
+	<PosPart copyNumber="2">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:DiskQuarter_Back"/>
+	  <rRotation name="etl:270"/>  
+	  <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
+	</PosPart> 
+	<PosPart copyNumber="3">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:DiskQuarter_Back"/>
+	  <rRotation name="etl:180"/>  
+	  <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
+	</PosPart> 
+	<PosPart copyNumber="4">                                           
+	  <rParent name="etl:Disk1"/>                         
+	  <rChild name="etl:DiskQuarter_Back"/> 
+	  <rRotation name="etl:90"/> 
+	  <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
+	</PosPart> 
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:Aluminium_Disk"/>  
+      <Translation x="0." y="0." z="0.3175*cm" />
+    </PosPart> 
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:MIC6_Aluminium_Disk"/>  
+      <Translation x="0." y="0." z="-0.0445*cm" />
+    </PosPart>
+     <PosPart copyNumber="1">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:DiskQuarter_Front_2"/> 
+      <rRotation name="etl:0"/> 
+      <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
+    </PosPart> 
+    <PosPart copyNumber="2">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:DiskQuarter_Front_2"/>  
+      <rRotation name="etl:270"/>
+      <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
+    </PosPart> 
+    <PosPart copyNumber="3">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:DiskQuarter_Front_2"/>
+      <rRotation name="etl:180"/>  
+      <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
+    </PosPart> 
+    <PosPart copyNumber="4">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:DiskQuarter_Front_2"/> 
+      <rRotation name="etl:90"/> 
+      <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:DiskQuarter_Back_2"/>  
+      <rRotation name="etl:0"/>
+      <Translation x="0*cm" y="0*cm" z="0.6545*cm" />   
+    </PosPart>
+    <PosPart copyNumber="2">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:DiskQuarter_Back_2"/>
+      <rRotation name="etl:270"/>  
+      <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
+    </PosPart> 
+    <PosPart copyNumber="3">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:DiskQuarter_Back_2"/>
+      <rRotation name="etl:180"/>  
+      <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
+    </PosPart> 
+    <PosPart copyNumber="4">                                           
+      <rParent name="etl:Disk2"/>                         
+      <rChild name="etl:DiskQuarter_Back_2"/> 
+      <rRotation name="etl:90"/> 
+      <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
+    </PosPart> 
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule"/>                         
+	  <rChild name="etl:ThermalPad"/>  
+	  <Translation x="0." y="0." z="0.102*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule"/>                         
+	  <rChild name="etl:AlN_Carrier"/>  
+	  <Translation x="0." y="0." z="0.05*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule"/>                         
+	  <rChild name="etl:LairdFilm"/>  
+	  <Translation x="0.17" y="0." z="0.0065*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule"/>                         
+	  <rChild name="etl:ETROC"/>  
+	  <Translation x="0.1625*cm" y="1.045*cm" z="-0.0115*cm" />
+	</PosPart>
+	<PosPart copyNumber="2">                                           
+	  <rParent name="etl:SensorModule"/>                         
+	  <rChild name="etl:ETROC"/>  
+	  <Translation x="0.1625*cm" y="-1.045*cm" z="-0.0115*cm" />
+	</PosPart> 
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule"/>                         
+	  <rChild name="etl:LGAD"/>  
+	  <Translation x="0.22*cm" y="0." z="-0.0405*cm" />
+	</PosPart>
+	<!-- definition of LGAD active/substrate volumes -->
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:LGAD"/>                         
+	  <rChild name="etl:LGAD_ActiveThickness"/>  
+	  <Translation x="0.*cm" y="0.*cm" z="-0.0125*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:LGAD"/>                         
+	  <rChild name="etl:LGAD_Substrate"/>  
+	  <Translation x="0.*cm" y="0.*cm" z="0.0025*cm" />
+	</PosPart> 
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule"/>                         
+	  <rChild name="etl:AlN_Cover"/>  
+	  <Translation x="0.22*cm" y="0." z="-0.085*cm" /> <!-- not correct: AlN Cover should be a bit longer in x and separation in x is different than that of the LGAD -->
+	</PosPart> 
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule_2"/>                         
+	  <rChild name="etl:ThermalPad"/>  
+	  <Translation x="0." y="0." z="0.102*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule_2"/>                         
+	  <rChild name="etl:AlN_Carrier"/>  
+	  <Translation x="0." y="0." z="0.05*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule_2"/>                         
+	  <rChild name="etl:LairdFilm"/>  
+	  <Translation x="-0.17" y="0." z="0.0065*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule_2"/>                         
+	  <rChild name="etl:ETROC"/>  
+	  <Translation x="-0.1625*cm" y="1.045*cm" z="-0.0115*cm" />
+	</PosPart>
+	<PosPart copyNumber="2">                                           
+	  <rParent name="etl:SensorModule_2"/>                         
+	  <rChild name="etl:ETROC"/>  
+	  <Translation x="-0.1625*cm" y="-1.045*cm" z="-0.0115*cm" />
+	</PosPart> 
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule_2"/>                         
+	  <rChild name="etl:LGAD_2"/>  
+	  <Translation x="-0.22*cm" y="0." z="-0.0405*cm" />
+	</PosPart>
+	<!-- definition of LGAD active/substrate volumes -->
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:LGAD_2"/>                         
+	  <rChild name="etl:LGAD_ActiveThickness"/>  
+	  <Translation x="0.*cm" y="0.*cm" z="-0.0125*cm" />
+	</PosPart>
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:LGAD_2"/>                         
+	  <rChild name="etl:LGAD_Substrate"/>  
+	  <Translation x="0.*cm" y="0.*cm" z="0.0025*cm" />
+	</PosPart>  
+	<PosPart copyNumber="1">                                           
+	  <rParent name="etl:SensorModule_2"/>                         
+	  <rChild name="etl:AlN_Cover"/>  
+	  <Translation x="-0.22*cm" y="0." z="-0.085*cm" /> <!-- not correct: AlN Cover should be a bit longer in x and separation in x is different than that of the LGAD -->
+	</PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r"/>                         
+      <rChild name="etl:ThermalPad"/>  
+      <Translation x="0." y="0." z="-0.102*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r"/>                         
+      <rChild name="etl:AlN_Carrier"/>  
+      <Translation x="0." y="0." z="-0.05*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r"/>                         
+      <rChild name="etl:LairdFilm"/>  
+      <Translation x="0.17" y="0." z="-0.0065*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r"/>                         
+      <rChild name="etl:ETROC"/>  
+      <Translation x="0.1625*cm" y="1.045*cm" z="0.0115*cm" />
+    </PosPart>
+    <PosPart copyNumber="2">                                           
+      <rParent name="etl:SensorModule_r"/>                         
+      <rChild name="etl:ETROC"/>  
+      <Translation x="0.1625*cm" y="-1.045*cm" z="0.0115*cm" />
+    </PosPart> 
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r"/>                         
+      <rChild name="etl:LGAD_r"/>  
+      <Translation x="0.22*cm" y="0." z="0.0405*cm" />
+    </PosPart>
+    <!-- definition of LGAD active/substrate volumes -->
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:LGAD_r"/>                         
+      <rChild name="etl:LGAD_ActiveThickness"/>  
+      <Translation x="0.*cm" y="0.*cm" z="0.0125*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:LGAD_r"/>                         
+      <rChild name="etl:LGAD_Substrate"/>  
+      <Translation x="0.*cm" y="0.*cm" z="-0.0025*cm" />
+    </PosPart>  
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r"/>                         
+      <rChild name="etl:AlN_Cover"/>  
+      <Translation x="0.22*cm" y="0." z="0.085*cm" /> <!-- not correct: AlN Cover should be a bit longer in x and separation in x is different than that of the LGAD -->
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r_2"/>                         
+      <rChild name="etl:ThermalPad"/>  
+      <Translation x="0." y="0." z="-0.102*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r_2"/>                         
+      <rChild name="etl:AlN_Carrier"/>  
+      <Translation x="0." y="0." z="-0.05*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r_2"/>                         
+      <rChild name="etl:LairdFilm"/>  
+      <Translation x="-0.17" y="0." z="-0.0065*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r_2"/>                         
+      <rChild name="etl:ETROC"/>  
+      <Translation x="-0.1625*cm" y="1.045*cm" z="0.0115*cm" />
+    </PosPart>
+    <PosPart copyNumber="2">                                           
+      <rParent name="etl:SensorModule_r_2"/>                         
+      <rChild name="etl:ETROC"/>  
+      <Translation x="-0.1625*cm" y="-1.045*cm" z="0.0115*cm" />
+    </PosPart> 
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r_2"/>                         
+      <rChild name="etl:LGAD_r"/>  
+      <Translation x="-0.22*cm" y="0." z="0.0405*cm" />
+    </PosPart>
+    <!-- definition of LGAD active/substrate volumes -->
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:LGAD_r_2"/>                         
+      <rChild name="etl:LGAD_ActiveThickness"/>  
+      <Translation x="0.*cm" y="0.*cm" z="0.0125*cm" />
+    </PosPart>
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:LGAD_r_2"/>                         
+      <rChild name="etl:LGAD_Substrate"/>  
+      <Translation x="0.*cm" y="0.*cm" z="-0.0025*cm" />
+    </PosPart>  
+    <PosPart copyNumber="1">                                           
+      <rParent name="etl:SensorModule_r_2"/>                         
+      <rChild name="etl:AlN_Cover"/>  
+      <Translation x="-0.22*cm" y="0." z="0.085*cm" /> <!-- not correct: AlN Cover should be a bit longer in x and separation in x is different than that of the LGAD -->
+    </PosPart> 
+
+    
+  </PosPartSection> 
+
+
+
+
+
+  <!-- Algorithm Section begins -->
+    <!-- Disk1 Front face -->
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Front"/>
+	<String name="ChildName" value="etl:SensorModule_2"/>
+	<Numeric name="N" value="8"/>
+	<Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> -111.93*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+[DeltaX_ServiceModule])*cm, 13.1925*cm, 0.*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+[DeltaX_ServiceModule])*cm, (13.1925+[DeltaY_ServiceLong_ServiceShort]+[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="9"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+2*[DeltaX_ServiceModule])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="12"/>
+    <Numeric name="StartCopyNo" value="12"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+2*[DeltaX_ServiceModule]+[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="2"/>
+    <Numeric name="StartCopyNo" value="2"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+3*[DeltaX_ServiceModule]+[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="12"/>
+    <Numeric name="StartCopyNo" value="10"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+4*[DeltaX_ServiceModule]+[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="15"/>
+    <Numeric name="StartCopyNo" value="20"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+4*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="2"/>
+    <Numeric name="StartCopyNo" value="4"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+5*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="2"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+5*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, (13.1925+[ServiceHybrid_Y]+[DeltaY_ServiceLong_ServiceShort]+2*[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="15"/>
+    <Numeric name="StartCopyNo" value="20"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+6*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="35"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+6*[DeltaX_ServiceModule]+3*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="6"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+7*[DeltaX_ServiceModule]+3*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="34"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+8*[DeltaX_ServiceModule]+3*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="20"/>
+    <Numeric name="StartCopyNo" value="53"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+8*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">  <!-- y start changed from 13.1925 to 13.0925 to avoid extrusion -->
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="9"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+9*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, 13.0925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <!-- <Algorithm name="mtd:DDMTDLinear">  
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="3"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+9*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, (13.0925+2*[ServiceHybrid_Y]+[DeltaY_ServiceLong_ServiceShort]+3*[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm> -->
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="53"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+10*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="73"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+10*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="12"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+11*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="4"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+11*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, (13.1925+2*[ServiceHybrid_Y]+[DeltaY_ServiceLong_ServiceShort]+3*[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="73"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+12*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="94"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+12*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="15"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+13*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="5"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+13*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, (13.1925+2*[ServiceHybrid_Y]+[DeltaY_ServiceLong_ServiceShort]+3*[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="94"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+14*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="115"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+14*[DeltaX_ServiceModule]+7*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="4"/>
+    <Numeric name="StartCopyNo" value="18"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+15*[DeltaX_ServiceModule]+7*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="115"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+16*[DeltaX_ServiceModule]+7*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="139"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+16*[DeltaX_ServiceModule]+8*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="4"/>
+    <Numeric name="StartCopyNo" value="22"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+17*[DeltaX_ServiceModule]+8*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="139"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+18*[DeltaX_ServiceModule]+8*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="163"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+18*[DeltaX_ServiceModule]+9*[SensorModuledx])*cm, (2.2925+[SensorModuledy]+[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+   <Algorithm name="mtd:DDMTDLinear">  <!-- y-pos of 1st SH module moved from 13.1925 to 16.2 to avoid module extrusion -->
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="4"/>
+    <Numeric name="StartCopyNo" value="26"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+19*[DeltaX_ServiceModule]+9*[SensorModuledx])*cm, (16.2+[SensorModuledy]+[DeltaY])*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="163"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+20*[DeltaX_ServiceModule]+9*[SensorModuledx])*cm, (2.2925+4*[SensorModuledy]+4*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="187"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+20*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, (2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="30"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+21*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, (13.1925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="184"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+22*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, ( 2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="205"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+22*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, ( 2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="33"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+23*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, (13.1925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="202"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+24*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, ( 2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="223"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+24*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, ( 2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="36"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (-111.93+25*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, (13.1925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="220"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+26*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, ( 2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+ 
+
+    <!-- Disk1 Back face -->
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="1"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> -113.555*cm, 13.1925*cm, 0.*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> <!-- translation along y -->
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="6"/>
+	<Numeric name="StartCopyNo" value="1"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+[DeltaX_ServiceModule])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="10"/>
+	<Numeric name="StartCopyNo" value="1"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+[DeltaX_ServiceModule]+[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="2"/>
+	<Numeric name="StartCopyNo" value="2"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+2*[DeltaX_ServiceModule]+[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="12"/>
+	<Numeric name="StartCopyNo" value="7"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+3*[DeltaX_ServiceModule]+[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="14"/>
+	<Numeric name="StartCopyNo" value="11"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+3*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="2"/>
+	<Numeric name="StartCopyNo" value="4"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+4*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">  <!-- 1st placement of a short service hybrid -->
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="1"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+4*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, (13.1925+[ServiceHybrid_Y]+2*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="15"/>
+	<Numeric name="StartCopyNo" value="19"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+5*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="17"/>
+	<Numeric name="StartCopyNo" value="25"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+5*[DeltaX_ServiceModule]+3*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">  <!-- y start pos 13.0925 instead of 13.1925 to avoid extrusion -->
+    <rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="2"/>  <!-- "3" -->
+	<Numeric name="StartCopyNo" value="6"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+6*[DeltaX_ServiceModule]+3*[SensorModuledx])*cm, 13.0925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="34"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+7*[DeltaX_ServiceModule]+3*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="42"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+7*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="9"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+8*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="52"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+9*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="21"/>
+	<Numeric name="StartCopyNo" value="60"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+9*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="12"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+10*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="2"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+10*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, (13.1925+2*[ServiceHybrid_Y]+3*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="21"/>
+	<Numeric name="StartCopyNo" value="70"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+11*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="21"/>
+	<Numeric name="StartCopyNo" value="81"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+11*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="15"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+12*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="3"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+12*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, (13.1925+2*[ServiceHybrid_Y]+3*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="21"/>
+	<Numeric name="StartCopyNo" value="91"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+13*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="23"/>
+	<Numeric name="StartCopyNo" value="102"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+13*[DeltaX_ServiceModule]+7*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="4"/>
+	<Numeric name="StartCopyNo" value="18"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+14*[DeltaX_ServiceModule]+7*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="112"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+15*[DeltaX_ServiceModule]+7*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="125"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+15*[DeltaX_ServiceModule]+8*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="4"/>
+	<Numeric name="StartCopyNo" value="22"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+16*[DeltaX_ServiceModule]+8*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="136"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+17*[DeltaX_ServiceModule]+8*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="149"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+17*[DeltaX_ServiceModule]+9*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="4"/>
+	<Numeric name="StartCopyNo" value="26"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+18*[DeltaX_ServiceModule]+9*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="160"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+19*[DeltaX_ServiceModule]+9*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="20"/>
+	<Numeric name="StartCopyNo" value="173"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+19*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, (2.2925+4*[SensorModuledy]+4*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="30"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+20*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, (13.1925+4*[SensorModuledy]+4*[DeltaY])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="4"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+20*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, (13.1925+4*[SensorModuledy]+4*[DeltaY]+2*[ServiceHybrid_Y]+3*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="20"/>
+	<Numeric name="StartCopyNo" value="184"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+21*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, (2.2925+5*[SensorModuledy]+5*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="20"/>
+	<Numeric name="StartCopyNo" value="193"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+21*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, (2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+   <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="33"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+22*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, (13.1925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <!--<Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="5"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+22*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, (13.1925+6*[SensorModuledy]+6*[DeltaY]+2*[ServiceHybrid_Y]+3*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm> -->
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="19"/>   <!-- "20" -->
+	<Numeric name="StartCopyNo" value="204"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+23*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, (2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="213"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+23*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, (2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="36"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+24*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, (13.1925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="17"/>
+	<Numeric name="StartCopyNo" value="224"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+25*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, (2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="231"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+25*[DeltaX_ServiceModule]+13*[SensorModuledx])*cm, (2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="39"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (-113.555+26*[DeltaX_ServiceModule]+13*[SensorModuledx])*cm, (13.1925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  
+
+  	<!-- Disk2 Front face -->
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Front_2"/>
+	<String name="ChildName" value="etl:SensorModule_2"/>
+	<Numeric name="N" value="8"/>
+	<Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> 111.93*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-[DeltaX_ServiceModule])*cm, 13.1925*cm, 0.*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-[DeltaX_ServiceModule])*cm, (13.1925+[DeltaY_ServiceLong_ServiceShort]+[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="9"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-2*[DeltaX_ServiceModule])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="12"/>
+    <Numeric name="StartCopyNo" value="12"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-2*[DeltaX_ServiceModule]-[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="2"/>
+    <Numeric name="StartCopyNo" value="2"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-3*[DeltaX_ServiceModule]-[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="12"/>
+    <Numeric name="StartCopyNo" value="10"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-4*[DeltaX_ServiceModule]-[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="15"/>
+    <Numeric name="StartCopyNo" value="20"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-4*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="2"/>
+    <Numeric name="StartCopyNo" value="4"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-5*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="2"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-5*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, (13.1925+[ServiceHybrid_Y]+[DeltaY_ServiceLong_ServiceShort]+2*[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="15"/>
+    <Numeric name="StartCopyNo" value="20"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-6*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="35"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-6*[DeltaX_ServiceModule]-3*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="6"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-7*[DeltaX_ServiceModule]-3*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="34"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-8*[DeltaX_ServiceModule]-3*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="20"/>
+    <Numeric name="StartCopyNo" value="53"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-8*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear"> <!-- y start changed from 13.1925 to 13.0925 to avoid extrusion -->
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="9"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-9*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, 13.0925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <!-- <Algorithm name="mtd:DDMTDLinear"> 
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="3"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-9*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, (13.0925+2*[ServiceHybrid_Y]+[DeltaY_ServiceLong_ServiceShort]+3*[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm> -->
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="53"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-10*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="73"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-10*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="12"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-11*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="4"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-11*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, (13.1925+2*[ServiceHybrid_Y]+[DeltaY_ServiceLong_ServiceShort]+3*[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="73"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-12*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="94"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-12*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="15"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-13*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid_short"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="StartCopyNo" value="5"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-13*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, (13.1925+2*[ServiceHybrid_Y]+[DeltaY_ServiceLong_ServiceShort]+3*[DeltaY])*cm, 0*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="94"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-14*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="115"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-14*[DeltaX_ServiceModule]-7*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="4"/>
+    <Numeric name="StartCopyNo" value="18"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-15*[DeltaX_ServiceModule]-7*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="115"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-16*[DeltaX_ServiceModule]-7*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="139"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-16*[DeltaX_ServiceModule]-8*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="4"/>
+    <Numeric name="StartCopyNo" value="22"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-17*[DeltaX_ServiceModule]-8*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="139"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-18*[DeltaX_ServiceModule]-8*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="24"/>
+    <Numeric name="StartCopyNo" value="163"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-18*[DeltaX_ServiceModule]-9*[SensorModuledx])*cm, (2.2925+[SensorModuledy]+[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+   <Algorithm name="mtd:DDMTDLinear"> <!-- y-pos of 1st SH module moved from 13.1925 to 16 to avoid module extrusion -->
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="4"/>
+    <Numeric name="StartCopyNo" value="26"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-19*[DeltaX_ServiceModule]-9*[SensorModuledx])*cm, (16.2+[SensorModuledy]+[DeltaY])*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="21"/>
+    <Numeric name="StartCopyNo" value="163"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-20*[DeltaX_ServiceModule]-9*[SensorModuledx])*cm, (2.2925+4*[SensorModuledy]+4*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="187"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-20*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, (2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="30"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-21*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, (13.1925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="184"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-22*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, ( 2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="205"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-22*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, ( 2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="33"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-23*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, (13.1925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="202"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-24*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, ( 2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule_2"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="223"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-24*[DeltaX_ServiceModule]-12*[SensorModuledx])*cm, ( 2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:ServiceHybrid"/>
+    <Numeric name="N" value="3"/>
+    <Numeric name="StartCopyNo" value="36"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> (111.93-25*[DeltaX_ServiceModule]-12*[SensorModuledx])*cm, (13.1925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.*cm </Vector>
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+    <rParent name="etl:DiskQuarter_Front_2"/>
+    <String name="ChildName" value="etl:SensorModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="220"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+    <Vector  name="Base" type="numeric" nEntries="3">  (111.93-26*[DeltaX_ServiceModule]-12*[SensorModuledx])*cm, ( 2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.178*cm </Vector> 
+    <Numeric name="Theta" value="90.*deg"/> 
+    <Numeric name="Phi" value="90.*deg"/>
+    <Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+
+
+    <!-- Disk2 Back face -->
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="1"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> 113.555*cm, 13.1925*cm, 0.*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> <!-- translation along y -->
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="6"/>
+	<Numeric name="StartCopyNo" value="1"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-[DeltaX_ServiceModule])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="10"/>
+	<Numeric name="StartCopyNo" value="1"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-[DeltaX_ServiceModule]-[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="2"/>
+	<Numeric name="StartCopyNo" value="2"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-2*[DeltaX_ServiceModule]-[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="12"/>
+	<Numeric name="StartCopyNo" value="7"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-3*[DeltaX_ServiceModule]-[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="14"/>
+	<Numeric name="StartCopyNo" value="11"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-3*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="2"/>
+	<Numeric name="StartCopyNo" value="4"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-4*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">  <!-- 1st placement of a short service hybrid -->
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="1"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-4*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, (13.1925+[ServiceHybrid_Y]+2*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="15"/>
+	<Numeric name="StartCopyNo" value="19"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-5*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="17"/>
+	<Numeric name="StartCopyNo" value="25"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-5*[DeltaX_ServiceModule]-3*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear"> <!-- y start pos 13.0925 instead of 13.1925 to avoid extrusion -->
+    <rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="2"/>  <!-- "3" -->
+	<Numeric name="StartCopyNo" value="6"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-6*[DeltaX_ServiceModule]-3*[SensorModuledx])*cm, 13.0925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="34"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-7*[DeltaX_ServiceModule]-3*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="42"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-7*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="9"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-8*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="52"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-9*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="21"/>
+	<Numeric name="StartCopyNo" value="60"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-9*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="12"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-10*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="2"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-10*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, (13.1925+2*[ServiceHybrid_Y]+3*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="21"/>
+	<Numeric name="StartCopyNo" value="70"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-11*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="21"/>
+	<Numeric name="StartCopyNo" value="81"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-11*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="15"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-12*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="3"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-12*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, (13.1925+2*[ServiceHybrid_Y]+3*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="21"/>
+	<Numeric name="StartCopyNo" value="91"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-13*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="23"/>
+	<Numeric name="StartCopyNo" value="102"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-13*[DeltaX_ServiceModule]-7*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="4"/>
+	<Numeric name="StartCopyNo" value="18"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-14*[DeltaX_ServiceModule]-7*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="112"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-15*[DeltaX_ServiceModule]-7*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="125"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-15*[DeltaX_ServiceModule]-8*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="4"/>
+	<Numeric name="StartCopyNo" value="22"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-16*[DeltaX_ServiceModule]-8*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="136"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-17*[DeltaX_ServiceModule]-8*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="149"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-17*[DeltaX_ServiceModule]-9*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="4"/>
+	<Numeric name="StartCopyNo" value="26"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-18*[DeltaX_ServiceModule]-9*[SensorModuledx])*cm, 13.1925*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="24"/>
+	<Numeric name="StartCopyNo" value="160"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-19*[DeltaX_ServiceModule]-9*[SensorModuledx])*cm, 2.2925*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="20"/>
+	<Numeric name="StartCopyNo" value="173"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-19*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, (2.2925+4*[SensorModuledy]+4*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="30"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-20*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, (13.1925+4*[SensorModuledy]+4*[DeltaY])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="4"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-20*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, (13.1925+4*[SensorModuledy]+4*[DeltaY]+2*[ServiceHybrid_Y]+3*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="20"/>
+	<Numeric name="StartCopyNo" value="184"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-21*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, (2.2925+5*[SensorModuledy]+5*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="20"/>
+	<Numeric name="StartCopyNo" value="193"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-21*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, (2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+   <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="33"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-22*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, (13.1925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <!-- <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid_short"/>
+	<Numeric name="N" value="1"/>
+	<Numeric name="StartCopyNo" value="5"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y_short]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-22*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, (13.1925+6*[SensorModuledy]+6*[DeltaY]+2*[ServiceHybrid_Y]+3*[DeltaY]+[DeltaY_ServiceLong_ServiceShort])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm> -->
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="19"/>  <!-- "20" --> 
+	<Numeric name="StartCopyNo" value="204"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-23*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, (2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="213"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-23*[DeltaX_ServiceModule]-12*[SensorModuledx])*cm, (2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="36"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-24*[DeltaX_ServiceModule]-12*[SensorModuledx])*cm, (13.1925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r"/>
+	<Numeric name="N" value="17"/>
+	<Numeric name="StartCopyNo" value="224"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-25*[DeltaX_ServiceModule]-12*[SensorModuledx])*cm, (2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:SensorModule_r_2"/>
+	<Numeric name="N" value="18"/>
+	<Numeric name="StartCopyNo" value="231"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-25*[DeltaX_ServiceModule]-13*[SensorModuledx])*cm, (2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, -0.178*cm </Vector> 
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="mtd:DDMTDLinear">
+	<rParent name="etl:DiskQuarter_Back_2"/>
+	<String name="ChildName" value="etl:ServiceHybrid"/>
+	<Numeric name="N" value="3"/>
+	<Numeric name="StartCopyNo" value="39"/>
+	<Numeric name="IncrCopyNo" value="1"/>
+	<Numeric name="Delta" value="([ServiceHybrid_Y]+[DeltaY])*cm"/>
+	<Vector  name="Base" type="numeric" nEntries="3"> (113.555-26*[DeltaX_ServiceModule]-13*[SensorModuledx])*cm, (13.1925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.*cm </Vector>
+	<Numeric name="Theta" value="90.*deg"/> 
+	<Numeric name="Phi" value="90.*deg"/>
+	<Numeric name="Theta_obj" value="90.*deg"/> 
+	<Numeric name="Phi_obj" value="0.*deg"/>
+  </Algorithm>
+  
+    
+
+</DDDefinition>

@@ -94,7 +94,9 @@ std::string rpcrawtodigi::DataRecord::name(const rpcrawtodigi::DataRecord::DataR
       result = "RDM";
       break;
     }
-    default: { result = "UndefinedType"; }
+    default: {
+      result = "UndefinedType";
+    }
   }
   return result;
 }

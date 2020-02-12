@@ -77,7 +77,7 @@ MuonShowerInformationFiller::MuonShowerInformationFiller(const edm::ParameterSet
   theDT4DRecSegmentToken = iC.consumes<DTRecSegment4DCollection>(theDT4DRecSegmentLabel);
 
   edm::ParameterSet serviceParameters = par.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, edm::ConsumesCollector(iC));
 
   theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");

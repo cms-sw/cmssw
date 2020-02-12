@@ -37,7 +37,7 @@ public:
                            const std::string&,
                            const std::string&,
                            HGCalGeometryMode::WaferMode);
-  void loadGeometryHexagon(const cms::DDFilteredView&,
+  void loadGeometryHexagon(cms::DDFilteredView&,
                            HGCalParameters&,
                            const std::string&,
                            const cms::DDCompactView*,
@@ -45,7 +45,7 @@ public:
                            const std::string&,
                            HGCalGeometryMode::WaferMode);
   void loadGeometryHexagon8(const DDFilteredView&, HGCalParameters&, int);
-  void loadGeometryHexagon8(const cms::DDFilteredView&, HGCalParameters&, int);
+  void loadGeometryHexagon8(cms::DDFilteredView&, HGCalParameters&, int);
   void loadSpecParsHexagon(
       const DDFilteredView&, HGCalParameters&, const DDCompactView*, const std::string&, const std::string&);
   void loadSpecParsHexagon(const cms::DDFilteredView&,

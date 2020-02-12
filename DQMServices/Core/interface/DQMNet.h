@@ -18,6 +18,9 @@
 #include <set>
 #include <ext/hash_set>
 
+// for definition of QValue
+#include "DataFormats/Histograms/interface/MonitorElementCollection.h"
+
 //class DQMStore;
 
 class DQMNet {
@@ -74,21 +77,13 @@ public:
   static const uint32_t MAX_PEER_WAITREQS = 128;
 
   struct Peer;
-  struct QValue;
   struct WaitObject;
 
+  using QValue = MonitorElementData::QReport::QValue;
   using DataBlob = std::vector<unsigned char>;
   using QReports = std::vector<QValue>;
   using TagList = std::vector<uint32_t>;  // DEPRECATED
   using WaitList = std::list<WaitObject>;
-
-  struct QValue {
-    int code;
-    float qtresult;
-    std::string message;
-    std::string qtname;
-    std::string algorithm;
-  };
 
   struct CoreObject {
     uint32_t flags;
@@ -98,7 +93,7 @@ public:
     uint32_t lumi;
     uint32_t streamId;
     uint32_t moduleId;
-    const std::string *dirname;
+    std::string dirname;
     std::string objname;
     QReports qreports;
   };
@@ -172,10 +167,10 @@ public:
       if (a.lumi == b.lumi) {
         if (a.streamId == b.streamId) {
           if (a.moduleId == b.moduleId) {
-            if (*a.dirname == *b.dirname) {
+            if (a.dirname == b.dirname) {
               return a.objname < b.objname;
             }
-            return *a.dirname < *b.dirname;
+            return a.dirname < b.dirname;
           }
           return a.moduleId < b.moduleId;
         }
@@ -192,7 +187,7 @@ public:
 
   struct HashEqual {
     bool operator()(const Object &a, const Object &b) const {
-      return a.hash == b.hash && *a.dirname == *b.dirname && a.objname == b.objname;
+      return a.hash == b.hash && a.dirname == b.dirname && a.objname == b.objname;
     }
   };
 
@@ -406,7 +401,7 @@ protected:
     std::string path(name, 0, dirpos);
     ObjType proto;
     proto.hash = dqmhash(name.c_str(), name.size());
-    proto.dirname = &path;
+    proto.dirname = path;
     proto.objname.append(name, namepos, std::string::npos);
 
     typename ObjectMap::iterator pos;
@@ -446,7 +441,7 @@ protected:
     o.tag = 0;
     o.version = 0;
     o.lastreq = 0;
-    o.dirname = &*ip->dirs.insert(name.substr(0, dirpos)).first;
+    o.dirname = *ip->dirs.insert(name.substr(0, dirpos)).first;
     o.objname.append(name, namepos, std::string::npos);
     o.hash = dqmhash(name.c_str(), name.size());
     return const_cast<ObjType *>(&*ip->objs.insert(o).first);
@@ -528,7 +523,7 @@ protected:
     for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
       for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi, ++numobjs)
         if (all || (oi->flags & DQM_PROP_NEW))
-          size += 9 * sizeof(uint32_t) + oi->dirname->size() + oi->objname.size() + 1 + oi->scalar.size() +
+          size += 9 * sizeof(uint32_t) + oi->dirname.size() + oi->objname.size() + 1 + oi->scalar.size() +
                   oi->qdata.size() + (oi->lastreq > 0 ? oi->rawdata.size() : 0);
 
     msg->data.reserve(msg->data.size() + size + 8 * sizeof(uint32_t));

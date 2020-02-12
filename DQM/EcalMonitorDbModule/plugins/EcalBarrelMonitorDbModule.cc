@@ -50,9 +50,6 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet &ps
 
   ME_Db_ = new MonitorElementsDb(ps, xmlFile_);
 
-  if (dqmStore_)
-    dqmStore_->showDirStructure();
-
   icycle_ = 0;
   session_ = nullptr;
 }

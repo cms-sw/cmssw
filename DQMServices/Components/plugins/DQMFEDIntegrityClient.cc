@@ -159,8 +159,6 @@ void DQMFEDIntegrityClient::endLuminosityBlock(const edm::LuminosityBlock& lumiB
 void DQMFEDIntegrityClient::fillHistograms() {
   // FED Entries
 
-  // dbe_->showDirStructure();
-
   std::vector<std::string> entries;
   entries.push_back("CSC/" + fedFolderName + "/FEDEntries");
   entries.push_back("DT/" + fedFolderName + "/FEDEntries");

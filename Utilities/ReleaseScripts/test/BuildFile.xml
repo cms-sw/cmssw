@@ -1,1 +1,6 @@
 <test name="TestSCRAM" command="run.sh"/>
+<test name="TestValgrind" command="test-valgrind.sh">
+  <flags PRE_TEST="test-valgrind-memleak"/>
+  <use name="valgrind"/>
+</test>
+<bin name="test-valgrind-memleak" file="test-valgrind-memleak.cpp"/>

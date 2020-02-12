@@ -49,6 +49,7 @@ void PhotosppInterface::init() {
   if (fIsInitialized)
     return;  // do init only once
   Photospp::Photos::initialize();
+  Photospp::Photos::createHistoryEntries(true, 746);  // P-H-O
   std::vector<std::string> par = fPSet->getParameter<std::vector<std::string> >("parameterSets");
   for (unsigned int ip = 0; ip < par.size(); ++ip) {
     std::string curSet = par[ip];
@@ -97,6 +98,8 @@ void PhotosppInterface::init() {
       Photospp::Photos::setPhotonEmission(fPSet->getParameter<bool>(curSet));
     if (curSet == "setStopAtCriticalError")
       Photospp::Photos::setStopAtCriticalError(fPSet->getParameter<bool>(curSet));
+    if (curSet == "createHistoryEntries")
+      Photospp::Photos::createHistoryEntries(fPSet->getParameter<bool>(curSet), 746);
 
     // Now setup more complicated radiation/mass supression and forcing.
     if (curSet == "suppressBremForBranch") {

@@ -222,9 +222,6 @@ namespace hcaldqm {
     //      TO BE USED IN THE FUTURE!
     virtual void extendAxisRange(int);
 
-    //      set lumi flags for all mes
-    virtual void setLumiFlag();
-
     virtual void showOverflowX(bool showOverflow);
     virtual void showOverflowY(bool showOverflow);
 

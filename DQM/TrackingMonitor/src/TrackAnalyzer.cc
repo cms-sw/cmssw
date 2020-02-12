@@ -863,7 +863,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
     if (Folder == "Tr") {
       histname = "DistanceOfClosestApproachToBSdz_";
       DistanceOfClosestApproachToBSdz =
-          ibooker.book1D(histname + CategoryName, histname + CategoryName, 100, -1.1, 1.1);
+          ibooker.book1D(histname + CategoryName, histname + CategoryName, 100, -20.1, 20.1);
       DistanceOfClosestApproachToBSdz->setAxisTitle("Track d_{z} wrt beam spot (cm)", 1);
       DistanceOfClosestApproachToBSdz->setAxisTitle("Number of Tracks", 2);
 
@@ -2435,16 +2435,6 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
     it->second.NumberOfLayersPerTrackVsEta->Fill(eta, nValidLayers);
     it->second.NumberOfLayersPerTrackVsPt->Fill(pt, nValidLayers);
   }
-}
-//
-// -- Set Lumi Flag
-//
-void TrackAnalyzer::setLumiFlag() {
-  TkParameterMEs tkmes;
-  if (Chi2oNDF_lumiFlag)
-    Chi2oNDF_lumiFlag->setLumiFlag();
-  if (NumberOfRecHitsPerTrack_lumiFlag)
-    NumberOfRecHitsPerTrack_lumiFlag->setLumiFlag();
 }
 //
 // -- Apply Reset

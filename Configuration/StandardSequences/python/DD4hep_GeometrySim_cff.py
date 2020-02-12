@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Geometry.DD4hep_GeometrySim_cff import *
+from Configuration.Geometry.GeometryDD4hepExtended2021_cff import *

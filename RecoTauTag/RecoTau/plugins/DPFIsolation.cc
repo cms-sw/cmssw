@@ -168,8 +168,6 @@ private:
 
         if (p.pt() < 0.5)
           continue;
-        if (p.fromPV() < 0)
-          continue;
         if (deltaR_tau_p > 0.5)
           continue;
         if (p.fromPV() < 1 && p.charge() != 0)

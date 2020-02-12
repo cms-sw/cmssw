@@ -11,6 +11,7 @@ parser.register('legacyoutput',         False, one, bool, "Use DQMFileSaver for 
 parser.register('protobufinput',        False, one, bool, "Use DQMProtobufReader for input instead of DQMIO.")
 parser.register('metoedminput',         False, one, bool, "Use PoolInputSource and EDMtoMEConverter for input.")
 parser.register('outfile',              "dqm.root", one, string, "Output file name.")
+parser.register('reScope',              "",         one, string, "Type of reScoping to use.")
 parser.parseArguments()
 args = parser
 
@@ -54,7 +55,8 @@ elif args.metoedminput:
 
 else:
   process.source = cms.Source("DQMRootSource",
-                              fileNames = cms.untracked.vstring(*["file://" + f for f in args.inputFiles]))
+                              fileNames = cms.untracked.vstring(*["file://" + f for f in args.inputFiles]),
+                              reScope = cms.untracked.string(args.reScope))
 
 
 process.harvest = cms.Sequence(process.testharvester)
@@ -86,3 +88,6 @@ if args.legacyoutput:
 else:
   process.e = cms.EndPath(process.out)
 
+# useful for debugging
+#process.DQMStore.trackME = cms.untracked.string("testlegacyfillrun")
+#process.Tracer = cms.Service("Tracer")

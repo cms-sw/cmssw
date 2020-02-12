@@ -11,7 +11,9 @@
 #include <sys/stat.h>
 
 void LegacyIOHelper::save(std::string const &filename,
+                          std::string const &path /* = "" */,
                           uint32_t const run /* = 0 */,
+                          bool saveall /* = true */,
                           std::string const &fileupdate /* = "RECREATE" */) {
   // TFile flushes to disk with fsync() on every TDirectory written to
   // the file.  This makes DQM file saving painfully slow, and
@@ -31,7 +33,15 @@ void LegacyIOHelper::save(std::string const &filename,
   TFileNoSync *file = new TFileNoSync(filename.c_str(), fileupdate.c_str());  // open file
 
   // Traverse all MEs
-  auto mes = dbe_->getAllContents("");  // TODO run/lumi and/or job?
+  std::vector<MonitorElement *> mes;
+  if (saveall) {
+    // this is typically used, at endJob there will only be JOB histos here
+    mes = dbe_->getAllContents(path);
+  } else {
+    // at endRun it might make sense to use this, to not save JOB histos yet.
+    mes = dbe_->getAllContents(path, run, 0);
+  }
+
   for (auto me : mes) {
     // Modify dirname to comply with DQM GUI format. Change:
     // A/B/C/plot

@@ -671,7 +671,6 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset)
 
   // the service parameters
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
-  theMuonService = new MuonServiceProxy(serviceParameters);
 
   // retrieve the instance of DQMService
   dbe_ = Service<DQMStore>().operator->();
@@ -792,19 +791,13 @@ void RecoMuonValidator::bookHistograms(DQMStore::IBooker& ibooker,
 //
 //Destructor
 //
-RecoMuonValidator::~RecoMuonValidator() {
-  if (theMuonService)
-    delete theMuonService;
-}
+RecoMuonValidator::~RecoMuonValidator() {}
 
 //
 //Begin run
 //
 
-void RecoMuonValidator::dqmBeginRun(const edm::Run&, const EventSetup& eventSetup) {
-  if (theMuonService)
-    theMuonService->update(eventSetup);
-}
+void RecoMuonValidator::dqmBeginRun(const edm::Run&, const EventSetup& eventSetup) {}
 
 //
 //End run

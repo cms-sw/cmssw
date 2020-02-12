@@ -11,6 +11,7 @@
  */
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -58,7 +59,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   edm::ConsumesCollector iC = consumesCollector();
 
   // the services
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
 
   auto trackLoader = std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get());
   std::unique_ptr<MuonTrajectoryBuilder> trajectoryBuilder;

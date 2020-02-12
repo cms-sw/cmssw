@@ -1,5 +1,4 @@
 <use name="CommonTools/Utils"/>
-<use name="DataFormats/Math"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/EgammaCandidates"/>
@@ -10,7 +9,6 @@
 <use name="DataFormats/Provenance"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Common"/>
-<use name="FWCore/FWLite"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 
@@ -20,7 +18,6 @@
 <export>
   <lib name="1"/>
   <use name="CommonTools/Utils"/>
-  <use name="DataFormats/Math"/>
   <use name="DataFormats/Candidate"/>
   <use name="DataFormats/PatCandidates"/>
   <use name="DataFormats/BeamSpot"/>
@@ -28,7 +25,6 @@
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/VertexReco"/>
   <use name="FWCore/Common"/>
-  <use name="FWCore/FWLite"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="openssl"/>

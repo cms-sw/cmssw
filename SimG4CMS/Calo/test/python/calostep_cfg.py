@@ -24,10 +24,27 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('HCalGeom')
     process.MessageLogger.categories.append('HcalSim')
 
-process.source = cms.Source("EmptySource")
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(10000)
+)
+
+process.source = cms.Source("EmptySource",
+    firstRun        = cms.untracked.uint32(1),
+    firstEvent      = cms.untracked.uint32(1)
+)
+
+process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(13),
+        MinEta = cms.double(-3.0),
+        MaxEta = cms.double(3.0),
+        MinPhi = cms.double(-3.14159265359),
+        MaxPhi = cms.double(3.14159265359),
+        MinPt  = cms.double(100.),
+        MaxPt  = cms.double(100.)
+    ),
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(True)
 )
 
 process.Timing = cms.Service("Timing")
@@ -46,13 +63,13 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('minbias_FTFP_BERT_EMM.root')
+    fileName = cms.string('singleMuon_FTFP_BERT_EMM.root')
 )
 
 # Event output
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent_minbias_FTFP_BERT_EMM.root')
+    fileName = cms.untracked.string('simevent_singleMuon_FTFP_BERT_EMM.root')
 )
 
 process.generation_step = cms.Path(process.pgen)
@@ -60,8 +77,6 @@ process.simulation_step = cms.Path(process.psim)
 process.analysis_step   = cms.Path(process.CaloSimHitStudy)
 process.out_step = cms.EndPath(process.output)
 
-process.generator.pythiaHepMCVerbosity = False
-process.generator.pythiaPylistVerbosity = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.CaloSimHitStudy.TestNumbering = True
 
@@ -71,7 +86,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
             EBSDNames       = cms.vstring('EBRY'),
             EESDNames       = cms.vstring('EFRY'),
             HCSDNames       = cms.vstring('HBS','HES','HTS'),
-            AllSteps        = cms.int32(2),
+            AllSteps        = cms.int32(100),
             SlopeLightYield = cms.double(0.02),
             BirkC1EC        = cms.double(0.03333),
             BirkSlopeEC     = cms.double(0.253694),

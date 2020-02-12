@@ -9,6 +9,7 @@
  *
  */
 
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h>
 #include <DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h>
@@ -30,7 +31,7 @@ public:
   typedef std::deque<bool> BoolContainer;
 
   /// Constructor
-  explicit MuonSeedCleaner(const edm::ParameterSet&);
+  explicit MuonSeedCleaner(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
   /// Destructor
   ~MuonSeedCleaner();
