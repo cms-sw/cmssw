@@ -40,6 +40,7 @@ particleFlowRecoTask = cms.Task( particleFlowTrackWithDisplacedVertexTask,
 particleFlowReco = cms.Sequence(particleFlowRecoTask)
 
 particleFlowLinksTask = cms.Task( particleFlow, particleFlowPtrs, chargedHadronPFTrackIsolation, particleBasedIsolationTask)
+particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
