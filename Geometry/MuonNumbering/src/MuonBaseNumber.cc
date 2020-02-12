@@ -29,7 +29,7 @@ void MuonBaseNumber::addBase(const LevelBaseNumber& num) {
   }
   sortedBaseNumber.insert(cur, num);
 
-  //#ifdef LOCAL_DEBUG
+#ifdef LOCAL_DEBUG
   cur = sortedBaseNumber.begin();
   end = sortedBaseNumber.end();
   edm::LogVerbatim("Geometry") << "MuonBaseNumber::AddBase ";
@@ -39,7 +39,7 @@ void MuonBaseNumber::addBase(const LevelBaseNumber& num) {
     cur++;
     ++k;
   }
-  //#endif
+#endif
 }
 
 void MuonBaseNumber::addBase(const int level, const int super, const int base) {
