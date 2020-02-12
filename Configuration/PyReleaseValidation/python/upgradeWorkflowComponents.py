@@ -787,7 +787,7 @@ upgradeFragments = OrderedDict([
     ('TTbar_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(10,100),'TTbar_14TeV')),
     ('WE_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'WE_14TeV')),
     ('ZTT_Tauola_All_hadronic_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,100),'ZTT_14TeV')),
-    ('H130GGgluonfusion_14TeV_cfi', UpgradeFragment(Kby(9,100),'H130GGgluonfusion_14TeV')),
+    ('H130GGgluonfusion_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'H130GGgluonfusion_14TeV')),
     ('PhotonJet_Pt_10_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'PhotonJets_Pt_10_14TeV')),
     ('QQH1352T_Tauola_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'QQH1352T_Tauola_14TeV')),
     ('MinBias_14TeV_pythia8_TuneCP5_cfi', UpgradeFragment(Kby(100,100),'MinBias_14TeV')),
