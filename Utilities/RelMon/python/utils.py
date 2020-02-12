@@ -16,20 +16,22 @@ import array
 import os
 import re
 import sys
-from cPickle import load
+from pickle import load
 from os.path import dirname,basename,join,isfile
 from threading import Thread
 from time import asctime
 
 theargv=sys.argv
 sys.argv=[]
-from ROOT import *
 import ROOT
 ROOT.gErrorIgnoreLevel=1001
 ROOT.gROOT.SetBatch(True)
 sys.argv=theargv
 
-from urllib2  import Request,build_opener,urlopen
+if sys.version_info[0]==2:
+  from urllib2  import Request,build_opener,urlopen
+else:
+  from urllib.request  import Request,build_opener,urlopen
 
 if "RELMON_SA" in os.environ:
   from .definitions import *
