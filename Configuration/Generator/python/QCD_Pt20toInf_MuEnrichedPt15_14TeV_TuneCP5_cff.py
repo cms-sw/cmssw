@@ -14,25 +14,26 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 	crossSection = cms.untracked.double(7.20648e+08),
 
 	PythiaParameters = cms.PSet(
-            pythia8CommonSettingsBlock,
-            #pythia8CUEP8M1SettingsBlock,
-            pythia8CP5SettingsBlock,
+        pythia8CommonSettingsBlock,
+        #pythia8CUEP8M1SettingsBlock,
+        pythia8CP5SettingsBlock,
 	    processParameters = cms.vstring(
-            		'ParticleDecays:limitTau0 = off',
-			'ParticleDecays:limitCylinder = on',
-            		'ParticleDecays:xyMax = 2000',
-            		'ParticleDecays:zMax = 4000',
-			'HardQCD:all = on',
-			'PhaseSpace:pTHatMin = 20',
-           		'130:mayDecay = on',
-            		'211:mayDecay = on',
-            		'321:mayDecay = on'
+            'ParticleDecays:limitTau0 = off',
+            'ParticleDecays:limitCylinder = on',
+            'ParticleDecays:xyMax = 2000',
+            'ParticleDecays:zMax = 4000',
+            'HardQCD:all = on',
+            'PhaseSpace:pTHatMin = 20',
+            '130:mayDecay = on',
+            '211:mayDecay = on',
+            '321:mayDecay = on'
 	    ),
-            parameterSets = cms.vstring('pythia8CommonSettings',
-                                        #'pythia8CUEP8M1Settings',
-                                        'pythia8CP5Settings',
-                                        'processParameters',
-                                        )
+        
+        parameterSets = cms.vstring('pythia8CommonSettings',
+                                    #'pythia8CUEP8M1Settings',
+                                    'pythia8CP5Settings',
+                                    'processParameters',
+                                    )
 	)
 )
 
