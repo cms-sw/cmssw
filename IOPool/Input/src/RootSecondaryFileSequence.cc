@@ -26,12 +26,10 @@ namespace edm {
         orderedProcessHistoryIDs_(),
         enablePrefetching_(false),
         enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")),
-        useMultipleDataCatalogs_(false) { 
+        useMultipleDataCatalogs_(false) {
     if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
       LogWarning("RootPrimaryFileSequence")
-          << "Want to use multiple data catalogs, but they are not available. Please, change the setting in "
-             "InputFileCatalog (setUseMultipleDataCatalogs = true). I use the default setting for now, ie. a primary "
-             "and fallback data catalogs.\n";
+          << "Want to use multiple data catalogs, but they are not available. Please, change the setting in InputFileCatalog (setUseMultipleDataCatalogs = true). I use the default setting for now, ie. a primary and fallback data catalogs.\n";
       useMultipleDataCatalogs_ = false;
     }
 
