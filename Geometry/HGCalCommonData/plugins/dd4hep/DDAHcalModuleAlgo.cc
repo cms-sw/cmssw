@@ -64,9 +64,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << tileN[i] << ":" << tileStep[i];
 #endif
   const auto& zMinBlock = args.value<double>("zMinBlock");        // Starting z-value of the block
-  std::string idNameSpace = static_cast<std::string>(ns.name());  // Namespace of this and ALL sub-parts
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << "  NameSpace " << idNameSpace;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << "  NameSpace " << ns.name();
 #endif
 
   // Mother module

@@ -35,7 +35,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   Volume mother = ns.volume(args.parentName());
   string childName = args.value<string>("ChildName");
   if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+    childName = ns.prepend(childName);
   Volume child = ns.volume(childName);
 
   double delta = 0e0;

@@ -23,17 +23,14 @@ static long algorithm(dd4hep::Detector& /* description */,
   auto const& m_startCopyNo = args.value<int>("startCopyNo");       // Start copy Number
   auto const& m_incrCopyNo = args.value<int>("incrCopyNo");         // Increment copy Number
   auto const& m_childName = args.value<std::string>("ChildName");   // Children name
-  std::string m_idNameSpace = static_cast<std::string>(ns.name());  // Namespace of this and ALL sub-parts
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace << "\tParent "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << ns.name() << "\tParent "
                                 << args.parentName();
 #endif
 
   dd4hep::Volume parent = ns.volume(args.parentName());
-  std::string name(m_childName);
-  if (strchr(name.c_str(), NAMESPACE_SEP) == nullptr)
-    name = ns.name() + name;
+  std::string name = ns.prepend(m_childName);
 
   const int ix[4] = {1, -1, -1, 1};
   const int iy[4] = {1, 1, -1, -1};
