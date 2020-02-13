@@ -89,7 +89,7 @@ void reco::writeSpecific(reco::PFJet& jet,
   for (std::vector<reco::CandidatePtr>::const_iterator ic = constituents.begin(), icend = constituents.end();
        ic != icend;
        ++ic) {
-    float weight = (weights!=NULL) ? (*weights)[*ic] : 1.0;
+    float weight = (weights != NULL) ? (*weights)[*ic] : 1.0;
     charge += (*ic)->charge() * weight;
   }
   jet = reco::PFJet(p4, point, specific, constituents);
@@ -218,7 +218,9 @@ bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& towers,
 }
 
 //______________________________________________________________________________
-bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& particles, PFJet::Specific* pfJetSpecific, edm::ValueMap<float>* weights) {
+bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& particles,
+                        PFJet::Specific* pfJetSpecific,
+                        edm::ValueMap<float>* weights) {
   if (nullptr == pfJetSpecific)
     return false;
 
@@ -258,56 +260,56 @@ bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& particles, PFJet:
     const Candidate* pfCand = itParticle->get();
     if (pfCand) {
       const PFCandidate* pfCandCast = dynamic_cast<const PFCandidate*>(pfCand);
-      float weight = (weights!=NULL) ? (*weights)[*itParticle] : 1.0;
+      float weight = (weights != NULL) ? (*weights)[*itParticle] : 1.0;
       if (pfCandCast)
         HOEnergy += pfCandCast->hoEnergy() * weight;
 
       switch (std::abs(pfCand->pdgId())) {
         case 211:  //PFCandidate::h:       // charged hadron
           chargedHadronEnergy += pfCand->energy() * weight;
-          chargedHadronMultiplicity+=weight;
-          chargedMultiplicity+=weight;
+          chargedHadronMultiplicity += weight;
+          chargedMultiplicity += weight;
           break;
 
         case 130:  //PFCandidate::h0 :    // neutral hadron
           neutralHadronEnergy += pfCand->energy() * weight;
-          neutralHadronMultiplicity+=weight;
-          neutralMultiplicity+=weight;
+          neutralHadronMultiplicity += weight;
+          neutralMultiplicity += weight;
           break;
 
         case 22:  //PFCandidate::gamma:   // photon
           photonEnergy += pfCand->energy() * weight;
-          photonMultiplicity+=weight;
+          photonMultiplicity += weight;
           neutralEmEnergy += pfCand->energy() * weight;
-          neutralMultiplicity+=weight;
+          neutralMultiplicity += weight;
           break;
 
         case 11:  // PFCandidate::e:       // electron
           electronEnergy += pfCand->energy() * weight;
-          electronMultiplicity+=weight;
+          electronMultiplicity += weight;
           chargedEmEnergy += pfCand->energy() * weight;
-          chargedMultiplicity+=weight;
+          chargedMultiplicity += weight;
           break;
 
         case 13:  //PFCandidate::mu:      // muon
           muonEnergy += pfCand->energy() * weight;
-          muonMultiplicity+=weight;
+          muonMultiplicity += weight;
           chargedMuEnergy += pfCand->energy() * weight;
-          chargedMultiplicity+=weight;
+          chargedMultiplicity += weight;
           break;
 
         case 1:  // PFCandidate::h_HF :    // hadron in HF
           HFHadronEnergy += pfCand->energy() * weight;
-          HFHadronMultiplicity+=weight;
+          HFHadronMultiplicity += weight;
           neutralHadronEnergy += pfCand->energy() * weight;
-          neutralMultiplicity+=weight;
+          neutralMultiplicity += weight;
           break;
 
         case 2:  //PFCandidate::egamma_HF :    // electromagnetic in HF
           HFEMEnergy += pfCand->energy() * weight;
-          HFEMMultiplicity+=weight;
+          HFEMMultiplicity += weight;
           neutralEmEnergy += pfCand->energy() * weight;
-          neutralMultiplicity+=weight;
+          neutralMultiplicity += weight;
           break;
 
         default:

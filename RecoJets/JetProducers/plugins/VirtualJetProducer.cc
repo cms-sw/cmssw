@@ -288,7 +288,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   if (applyPuppiWeight_) {
     edm::Handle<edm::ValueMap<float>> weightsHandle;
     iEvent.getByToken(input_weights_token_, weightsHandle);
-    weights_=*weightsHandle.product();
+    weights_ = *weightsHandle.product();
   }
 
   // For Pileup subtraction using offset correction:
@@ -707,11 +707,15 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
       // These are overridden functions that will call the appropriate
       // specific allocator.
       if (applyPuppiWeight_)
-        writeSpecific(
-          dynamic_cast<reco::PFJet&>(jet), Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup,  &weights_);
+        writeSpecific(dynamic_cast<reco::PFJet&>(jet),
+                      Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
+                      vertex_,
+                      constituents,
+                      iSetup,
+                      &weights_);
       else
         writeSpecific(
-          jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup);
+            jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup);
       phiJ[ijet] = jet.phi();
       etaJ[ijet] = jet.eta();
     }
