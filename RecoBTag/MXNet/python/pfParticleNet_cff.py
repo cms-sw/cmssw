@@ -9,15 +9,15 @@ from RecoBTag.MXNet.pfMassDecorrelatedParticleNetDiscriminatorsJetTags_cfi impor
 
 pfParticleNetJetTags = _pfParticleNetJetTags.clone(
     preprocessParams = pfParticleNetPreprocessParams,
-    model_path = 'RecoBTag/Combined/data/ParticleNet/V00/ParticleNet-symbol.json',
-    param_path = 'RecoBTag/Combined/data/ParticleNet/V00/ParticleNet-0000.params',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-symbol.json',
+    param_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-0000.params',
     debugMode  = False, # debug
 )
 
 pfMassDecorrelatedParticleNetJetTags = _pfParticleNetJetTags.clone(
     preprocessParams = pfMassDecorrelatedParticleNetPreprocessParams,
-    model_path = 'RecoBTag/Combined/data/ParticleNet-MD/V00/ParticleNet-symbol.json',
-    param_path = 'RecoBTag/Combined/data/ParticleNet-MD/V00/ParticleNet-0000.params',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V00/ParticleNet-symbol.json',
+    param_path = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V00/ParticleNet-0000.params',
     flav_names = cms.vstring("probXbb", "probXcc", "probXqq", "probQCDbb", "probQCDcc", "probQCDb", "probQCDc", "probQCDothers"),
     debugMode = False,  # debug
 )
