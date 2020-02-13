@@ -84,7 +84,6 @@ struct HCalEndcapAlgo {
   std::string scintMat;                //Scintillator material
   std::string rotmat;                  //Rotation matrix for positioning
   std::string idName;                  //Name of the "parent" volume.
-  std::string idNameSpace;             //Namespace of this and ALL sub-parts
   int idOffset;                        // Geant4 ID's...    = 4000;
   double tolPos, tolAbs;               //Tolerances
 
@@ -306,11 +305,10 @@ struct HCalEndcapAlgo {
 #endif
 
     idName = args.value<std::string>("MotherName");
-    idNameSpace = static_cast<std::string>(ns.name());
     idOffset = args.value<int>("IdOffset");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: Parent " << args.parentName() << " idName " << idName
-                                 << " NameSpace " << idNameSpace << " Offset " << idOffset;
+                                 << " NameSpace " << ns.name() << " Offset " << idOffset;
 #endif
 
     tolPos = args.value<double>("TolPos");
