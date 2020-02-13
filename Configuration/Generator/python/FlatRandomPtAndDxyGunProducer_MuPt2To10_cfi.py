@@ -11,9 +11,9 @@ generator = cms.EDProducer("FlatRandomPtAndDxyGunProducer",
         MaxPhi = cms.double(3.14159265359),
         LxyMax = cms.double(1000.0),#make sure most muons generated before Muon system, Gauss distribution
         LzMax = cms.double(1000.0),#make sure most muons generated before Muon system, Gauss distribution
-	ConeRadius = cms.double(1000.0),
-	ConeH = cms.double(3000.0),
-	DistanceToAPEX = cms.double(100.0),
+        ConeRadius = cms.double(1000.0),
+        ConeH = cms.double(3000.0),
+        DistanceToAPEX = cms.double(100.0),
         dxyMin = cms.double(0.0),
         dxyMax = cms.double(1000.0) # in mm
     ),
