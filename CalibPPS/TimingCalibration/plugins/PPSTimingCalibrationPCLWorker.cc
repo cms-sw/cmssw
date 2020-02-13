@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
@@ -43,7 +42,6 @@ private:
                       const edm::EventSetup&,
                       TimingCalibrationHistograms&) const override;
 
-  edm::ESWatcher<CTPPSGeometry> geomWatcher_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHitToken_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTrackToken_;
   const std::string dqmDir_;
@@ -105,7 +103,7 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent,
   iEvent.getByToken(pixelTrackToken_, dsv_pixtrks);
   // require at least pixel tracks in the event before further analysis
   if (dsv_pixtrks->empty()) {
-    edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "No pixel tracks retrieved from the event content.";
+    edm::LogInfo("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "No pixel tracks retrieved from the event content.";
     return;
   }
   // check the per-pot tracks multiplicity
