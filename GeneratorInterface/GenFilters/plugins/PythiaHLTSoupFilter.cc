@@ -1,10 +1,52 @@
+// -*- C++ -*-
+//
+// Package:    PythiaHLTSoupFilter
+// Class:      PythiaHLTSoupFilter
+//
+/**\class PythiaHLTSoupFilter PythiaHLTSoupFilter.cc IOMC/PythiaHLTSoupFilter/src/PythiaHLTSoupFilter.cc
 
-#include "GeneratorInterface/GenFilters/plugins/PythiaHLTSoupFilter.h"
+ Description: <one line class summary>
 
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Filip Moortgat
+//         Created:  Mon Jan 23 14:57:54 CET 2006
+//
+//
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include <iostream>
 
-using namespace edm;
+#include <cmath>
+#include <cstdlib>
+#include <string>
+
+class PythiaHLTSoupFilter : public edm::global::EDFilter<> {
+public:
+  explicit PythiaHLTSoupFilter(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+
+  const double minptelectron;
+  const double minptmuon;
+  const double maxetaelectron;
+  const double maxetamuon;
+  const double minpttau;
+  const double maxetatau;
+};
+
 using namespace std;
 
 PythiaHLTSoupFilter::PythiaHLTSoupFilter(const edm::ParameterSet& iConfig)
@@ -15,26 +57,11 @@ PythiaHLTSoupFilter::PythiaHLTSoupFilter(const edm::ParameterSet& iConfig)
       maxetaelectron(iConfig.getUntrackedParameter("MaxEtaElectron", 10.)),
       maxetamuon(iConfig.getUntrackedParameter("MaxEtaMuon", 10.)),
       minpttau(iConfig.getUntrackedParameter("MinPtTau", 0.)),
-      maxetatau(iConfig.getUntrackedParameter("MaxEtaTau", 10.))
+      maxetatau(iConfig.getUntrackedParameter("MaxEtaTau", 10.)) {}
 
-{
-  //now do what ever initialization is needed
-}
-
-PythiaHLTSoupFilter::~PythiaHLTSoupFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
-bool PythiaHLTSoupFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
+bool PythiaHLTSoupFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
-  Handle<HepMCProduct> evt;
+  edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
@@ -61,10 +88,7 @@ bool PythiaHLTSoupFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   } else {
     accepted = true;
   }
-
-  if (accepted) {
-    return true;
-  } else {
-    return false;
-  }
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(PythiaHLTSoupFilter);
