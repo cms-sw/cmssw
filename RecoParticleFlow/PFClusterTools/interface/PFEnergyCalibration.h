@@ -5,6 +5,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
 class TF1;
 
@@ -53,6 +54,18 @@ public:
                   double& ps1,
                   double& ps2,
                   bool crackCorrection = true) const;
+
+  struct CalibratedEndcapPFClusterEnergies {
+    double clusterEnergy = 0.;
+    double ps1Energy = 0.;
+    double ps2Energy = 0.;
+  };
+
+  CalibratedEndcapPFClusterEnergies calibrateEndcapClusterEnergies(
+      reco::PFCluster const& eeCluster,
+      std::vector<reco::PFCluster const*> const& psClusterPointers,
+      ESChannelStatus const& channelStatus,
+      bool applyCrackCorrections) const;
 
   // ECAL+HCAL (abc) calibration, with E and eta dependent coefficients, for hadrons
   void energyEmHad(double t, double& e, double& h, double eta, double phi) const;
