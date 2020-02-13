@@ -832,16 +832,10 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
     double z = ns.attr<double>(rotation, _U(z));
     rot = RotationZYX(z, y, x);
   } else if (refRotation.ptr()) {
-    string rotName = refRotation.nameStr();
-    if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
-      rotName = ns.prepend(rotName);
-
+    string rotName = ns.prepend(refRotation.nameStr());
     rot = ns.rotation(rotName);
   } else if (refReflectionRotation.ptr()) {
-    string rotName = refReflectionRotation.nameStr();
-    if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
-      rotName = ns.prepend(rotName);
-
+    string rotName = ns.prepend(refReflectionRotation.nameStr());
     rot = ns.rotation(rotName);
   }
   *tr = Transform3D(rot, pos);
