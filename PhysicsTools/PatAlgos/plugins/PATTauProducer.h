@@ -33,7 +33,7 @@
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
 
@@ -94,7 +94,7 @@ namespace pat {
     std::vector<NameTag> tauIDSrcs_;
     std::vector<std::vector<NameWPIdx> > tauIDSrcContainers_;
     std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > pfTauIDTokens_;
-    std::vector<edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> > pfTauIDContainerTokens_;
+    std::vector<edm::EDGetTokenT<reco::TauDiscriminatorContainer> > pfTauIDContainerTokens_;
     bool skipMissingTauID_;
     // tools
     GreaterByPt<Tau> pTTauComparator_;
@@ -117,7 +117,7 @@ namespace pat {
     float getTauIdDiscriminator(const edm::Handle<TauCollectionType>&, size_t, const edm::Handle<TauDiscrType>&);
     float getTauIdDiscriminatorFromContainer(const edm::Handle<reco::PFTauCollection>&,
                                              size_t,
-                                             const edm::Handle<reco::PFTauDiscriminatorContainer>&,
+                                             const edm::Handle<reco::TauDiscriminatorContainer>&,
                                              int);
   };
 

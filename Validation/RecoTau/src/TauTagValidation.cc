@@ -95,12 +95,12 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
           consumes<reco::PFTauDiscriminator>(edm::InputTag(it->getParameter<string>("discriminator"))));
     } else {
       temp_discriminatorContainers.push_back(*it);
-      currentDiscriminatorContainerToken_.push_back(std::pair<edm::EDGetTokenT<reco::PFTauDiscriminatorContainer>, int>(
-          consumes<reco::PFTauDiscriminatorContainer>(edm::InputTag(it->getParameter<string>("container"))),
+      currentDiscriminatorContainerToken_.push_back(std::pair<edm::EDGetTokenT<reco::TauDiscriminatorContainer>, int>(
+          consumes<reco::TauDiscriminatorContainer>(edm::InputTag(it->getParameter<string>("container"))),
           it->getParameter<int>("workingPointIndex")));
     }
   }
-  //sort discriminators_: first of type PFTauDiscriminator then PFTauDiscriminatorContainer
+  //sort discriminators_: first of type PFTauDiscriminator then TauDiscriminatorContainer
   discriminators_ = temp_plainDiscriminators;
   discriminators_.insert(
       discriminators_.end(), temp_discriminatorContainers.begin(), temp_discriminatorContainers.end());
@@ -595,7 +595,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
 
       Handle<PFTauDiscriminator> currentDiscriminator;
-      Handle<PFTauDiscriminatorContainer> currentDiscriminatorContainer;
+      Handle<TauDiscriminatorContainer> currentDiscriminatorContainer;
 
       //filter the candidates
       if (thePFTau->pt() < TauPtCut_)

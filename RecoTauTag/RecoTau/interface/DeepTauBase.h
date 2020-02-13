@@ -18,7 +18,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/PATTauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -58,7 +58,7 @@ namespace deep_tau {
   class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
   public:
     using TauType = pat::Tau;
-    using TauDiscriminator = pat::PATTauDiscriminatorContainer;
+    using TauDiscriminator = reco::TauDiscriminatorContainer;
     using TauCollection = std::vector<TauType>;
     using TauRef = edm::Ref<TauCollection>;
     using TauRefProd = edm::RefProd<TauCollection>;

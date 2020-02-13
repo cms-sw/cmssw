@@ -209,7 +209,7 @@ public:
   ~PFRecoTauDiscriminationByIsolationContainer() override {}
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
-  reco::PFSingleTauDiscriminatorContainer discriminate(const PFTauRef& pfTau) const override;
+  reco::SingleTauDiscriminatorContainer discriminate(const PFTauRef& pfTau) const override;
 
   inline double weightedSum(const std::vector<CandidatePtr>& inColl_, double eta, double phi) const {
     double out = 1.0;
@@ -341,7 +341,7 @@ void PFRecoTauDiscriminationByIsolationContainer::beginEvent(const edm::Event& e
   }
 }
 
-reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContainer::discriminate(
+reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContainer::discriminate(
     const PFTauRef& pfTau) const {
   LogDebug("discriminate") << " tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi();
   LogDebug("discriminate") << *pfTau;
@@ -526,7 +526,7 @@ reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContai
   }
 
   //Now all needed incredients are ready. Loop over all ID configurations and produce output
-  reco::PFSingleTauDiscriminatorContainer result;
+  reco::SingleTauDiscriminatorContainer result;
   const size_t n_raws = storeRawValue_.size();
   for (size_t i = 0; i < includeGammas_.size(); i++) {
     //determine number of raw values (needed to apply correct indices) and check whether a raw value or a flag is calculated

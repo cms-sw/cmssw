@@ -7,7 +7,7 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -26,8 +26,8 @@ struct PFTauSelectorDefinition {
     double cut;
   };
   struct DiscContCutPair {
-    edm::Handle<reco::PFTauDiscriminatorContainer> handle;
-    edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> inputToken;
+    edm::Handle<reco::TauDiscriminatorContainer> handle;
+    edm::EDGetTokenT<reco::TauDiscriminatorContainer> inputToken;
     std::vector<std::pair<int, double> > rawCuts;
     std::vector<int> wpCuts;
   };
@@ -48,7 +48,7 @@ struct PFTauSelectorDefinition {
     for (auto const& pset : discriminatorContainers) {
       DiscContCutPair newCut;
       newCut.inputToken =
-          iC.consumes<reco::PFTauDiscriminatorContainer>(pset.getParameter<edm::InputTag>("discriminator"));
+          iC.consumes<reco::TauDiscriminatorContainer>(pset.getParameter<edm::InputTag>("discriminator"));
       std::vector<int> rawIdx = pset.getParameter<std::vector<int> >("rawIndices");
       std::vector<double> rawCutValues = pset.getParameter<std::vector<double> >("selectionCuts");
       if (rawIdx.size() != rawCutValues.size()) {

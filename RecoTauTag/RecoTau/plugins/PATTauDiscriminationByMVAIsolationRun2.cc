@@ -134,7 +134,7 @@ namespace reco {
 
       void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-      pat::PATSingleTauDiscriminatorContainer discriminate(const TauRef&) const override;
+      reco::SingleTauDiscriminatorContainer discriminate(const TauRef&) const override;
 
       ~PATTauDiscriminationByMVAIsolationRun2() override {
         if (!loadMVAfromDB_)
@@ -181,10 +181,10 @@ namespace reco {
       evt.getByToken(Tau_token, taus_);
     }
 
-    pat::PATSingleTauDiscriminatorContainer PATTauDiscriminationByMVAIsolationRun2::discriminate(
+    reco::SingleTauDiscriminatorContainer PATTauDiscriminationByMVAIsolationRun2::discriminate(
         const TauRef& tau) const {
       // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
-      pat::PATSingleTauDiscriminatorContainer result;
+      reco::SingleTauDiscriminatorContainer result;
       result.rawValues = {-1.};
 
       // CV: computation of MVA value requires presence of leading charged hadron

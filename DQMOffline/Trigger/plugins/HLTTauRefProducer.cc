@@ -3,7 +3,7 @@
 // TAU includes
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 // ELECTRON includes
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -34,11 +34,11 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
     auto discs = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminators");
     auto discConts = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminatorContainers");
     PFTauDisContIdx_ = pfTau.getUntrackedParameter<vector<int>>("PFTauDiscriminatorContainerIndices");
-    for (edm::InputTag& tag : discs) {
+    for (auto const& tag : discs) {
       PFTauDis_.push_back(consumes<reco::PFTauDiscriminator>(tag));
     }
-    for (edm::InputTag& tag : discConts) {
-      PFTauDisCont_.push_back(consumes<reco::PFTauDiscriminatorContainer>(tag));
+    for (auto const& tag : discConts) {
+      PFTauDisCont_.push_back(consumes<reco::TauDiscriminatorContainer>(tag));
     }
     doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus", false);
     ptMinPFTau_ = pfTau.getUntrackedParameter<double>("ptMin", 15.);
@@ -143,7 +143,7 @@ void HLTTauRefProducer::doPFTaus(edm::Event& iEvent) const {
           pftau.phi() > phiMinPFTau_ && pftau.phi() < phiMaxPFTau_) {
         reco::PFTauRef thePFTau{pftaus, i};
         bool passAll{true};
-        for (edm::EDGetTokenT<reco::PFTauDiscriminator> const& token : PFTauDis_) {
+        for (auto const& token : PFTauDis_) {
           edm::Handle<reco::PFTauDiscriminator> pftaudis;
           if (iEvent.getByToken(token, pftaudis)) {
             if ((*pftaudis)[thePFTau] < 0.5) {
@@ -156,12 +156,13 @@ void HLTTauRefProducer::doPFTaus(edm::Event& iEvent) const {
           }
         }
         int idx = 0;
-        for (edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> const& token : PFTauDisCont_) {
-          edm::Handle<reco::PFTauDiscriminatorContainer> pftaudis;
+        for (auto const& token : PFTauDisCont_) {
+          edm::Handle<reco::TauDiscriminatorContainer> pftaudis;
           if (iEvent.getByToken(token, pftaudis)) {
+            //WP vector not filled if prediscriminator in RecoTauDiscriminator failed.
             if ((*pftaudis)[thePFTau].workingPoints.empty() ||
                 !(*pftaudis)[thePFTau].workingPoints.at(
-                    PFTauDisContIdx_[idx])) {  //WP vector not filled if prediscriminor in RecoTauDiscriminator failed.
+                    PFTauDisContIdx_[idx])) {
               passAll = false;
               break;
             }

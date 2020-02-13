@@ -8,7 +8,7 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -108,7 +108,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
          mapEntry != idContainerMap.end();
          mapEntry++) {
       tauIDSrcContainers_.push_back(mapEntry->second.second);
-      pfTauIDContainerTokens_.push_back(mayConsume<reco::PFTauDiscriminatorContainer>(mapEntry->second.first));
+      pfTauIDContainerTokens_.push_back(mayConsume<reco::TauDiscriminatorContainer>(mapEntry->second.first));
     }
   }
   pfTauIDTokens_ = edm::vector_transform(
@@ -391,7 +391,7 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
         }
         for (size_t i = 0; i < tauIDSrcContainers_.size(); ++i) {
-          edm::Handle<reco::PFTauDiscriminatorContainer> pfTauIdDiscr;
+          edm::Handle<reco::TauDiscriminatorContainer> pfTauIdDiscr;
           iEvent.getByToken(pfTauIDContainerTokens_[i], pfTauIdDiscr);
           if (skipMissingTauID_ && !pfTauIdDiscr.isValid()) {
             for (std::vector<NameWPIdx>::const_iterator it = tauIDSrcContainers_[i].begin();
@@ -612,7 +612,7 @@ float PATTauProducer::getTauIdDiscriminator(const edm::Handle<TauCollectionType>
 float PATTauProducer::getTauIdDiscriminatorFromContainer(
     const edm::Handle<reco::PFTauCollection>& tauCollection,
     size_t tauIdx,
-    const edm::Handle<reco::PFTauDiscriminatorContainer>& tauIdDiscr,
+    const edm::Handle<reco::TauDiscriminatorContainer>& tauIdDiscr,
     int WPIdx) {
   edm::Ref<reco::PFTauCollection> tauRef(tauCollection, tauIdx);
   if (WPIdx < 0) {

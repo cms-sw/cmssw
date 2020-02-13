@@ -88,7 +88,7 @@ namespace {
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-    reco::PFSingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
+    reco::SingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
 
     ~PFRecoTauDiscriminationAgainstMuonMVA() override {
       if (!loadMVAfromDB_)
@@ -164,14 +164,14 @@ namespace {
     }
   }  // namespace
 
-  reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuonMVA::discriminate(
+  reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuonMVA::discriminate(
       const PFTauRef& tau) const {
     if (verbosity_) {
       edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:";
       edm::LogPrint("PFTauAgainstMuonMVA") << " moduleLabel = " << moduleLabel_;
     }
 
-    reco::PFSingleTauDiscriminatorContainer result;
+    reco::SingleTauDiscriminatorContainer result;
     result.rawValues = {
         -1.,
         0.};  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts

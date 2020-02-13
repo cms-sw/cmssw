@@ -6,7 +6,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -124,12 +124,12 @@ private:
 
   // variables from config file
   edm::EDGetTokenT<reco::PFTauCollection> theTauCollection_;
-  edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> AntiMuInputTag_;
+  edm::EDGetTokenT<reco::TauDiscriminatorContainer> AntiMuInputTag_;
   int AntiMuWPIndex_;
-  edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> AntiEleInputTag_;
+  edm::EDGetTokenT<reco::TauDiscriminatorContainer> AntiEleInputTag_;
   int AntiEleWPIndex_;
   edm::EDGetTokenT<reco::PFTauDiscriminator> DecayModeFindingInputTag_;
-  edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> comb3TInputTag_;
+  edm::EDGetTokenT<reco::TauDiscriminatorContainer> comb3TInputTag_;
   int comb3TWPIndex_;
   edm::EDGetTokenT<reco::MuonCollection> MuonInputTag_;
   edm::EDGetTokenT<reco::PFMETCollection> MetInputTag_;
