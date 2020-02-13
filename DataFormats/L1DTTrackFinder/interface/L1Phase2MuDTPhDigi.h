@@ -40,6 +40,7 @@ public:
   // Operations
   int bxNum() const;
 
+
   int whNum() const;
   int scNum() const;
   int stNum() const;
