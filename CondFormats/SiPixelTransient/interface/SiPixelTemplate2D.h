@@ -156,15 +156,15 @@ public:
                 float ysize,
                 float zsize);
 
-
 #else
-   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore2D > & pixelTemp , std::string dir = "CalibTracker/SiPixelESProducers/data/");
+  static bool pushfile(int filenum,
+                       std::vector<SiPixelTemplateStore2D>& pixelTemp,
+                       std::string dir = "CalibTracker/SiPixelESProducers/data/");
 
-   // Load from the DB (the default in CMSSW):
-   static bool pushfile(const SiPixel2DTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore2D > & pixelTemp);
+  // Load from the DB (the default in CMSSW):
+  static bool pushfile(const SiPixel2DTemplateDBObject& dbobject, std::vector<SiPixelTemplateStore2D>& pixelTemp);
 
 #endif
-   
 
   //  Initialize things before interpolating
   bool getid(int id);
