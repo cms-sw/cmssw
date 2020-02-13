@@ -61,17 +61,6 @@ namespace hcaldqm {
 
     std::vector<unsigned int> const fedList = {724,  725,  726,  727,  728,  729,  730,  731,  1100, 1101, 1102, 1103,
                                                1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115,
-<<<<<<< HEAD
-                                               1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1134, 1135};
-    std::vector<unsigned int> const fedListuTCA = {
-        1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116,
-        1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127, 1128, 1129, 1130, 1131, 1134, 1135};
-    std::vector<unsigned int> const fedListVME = {724, 725, 726, 727, 728, 729, 730, 731};
-    std::vector<unsigned int> const crateList = {3,  6,  7,  13, 20, 21, 22, 23, 24, 25, 26,
-                                                 27, 29, 30, 31, 32, 33, 34, 35, 37, 38};
-    std::vector<unsigned int> const crateListuTCA = {
-        20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 37, 38};
-=======
                                                1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127,
                                                1128, 1129, 1130, 1131, 1134, 1135};
     std::vector<unsigned int> const fedListuTCA = {1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108,
@@ -81,7 +70,6 @@ namespace hcaldqm {
     std::vector<unsigned int> const fedListVME = {724, 725, 726, 727, 728, 729, 730, 731};
     std::vector<unsigned int> const crateList = {3, 6, 7, 13, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 34, 35, 37, 38};
     std::vector<unsigned int> const crateListuTCA = {20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 37, 38};
->>>>>>> a7294fa57ef... Change FED-crate mapping for 2020 HO upgrade
     std::vector<unsigned int> const crateListVME = {3, 6, 7, 13};
     std::vector<unsigned int> const crateListHF = {22, 29, 32};
     std::vector<unsigned int> const crateListHO = {23, 26, 27, 38};
