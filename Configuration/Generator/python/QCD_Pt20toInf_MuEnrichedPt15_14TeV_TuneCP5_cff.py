@@ -28,7 +28,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
             '211:mayDecay = on',
             '321:mayDecay = on'
 	    ),
-        
+                
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     #'pythia8CUEP8M1Settings',
                                     'pythia8CP5Settings',
