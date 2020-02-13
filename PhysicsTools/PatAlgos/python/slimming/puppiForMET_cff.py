@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from CommonTools.PileupAlgos.Puppi_cff import *
-from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton,setupPuppiPhotonMiniAOD
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
