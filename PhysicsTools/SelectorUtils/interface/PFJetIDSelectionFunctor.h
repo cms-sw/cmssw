@@ -270,7 +270,7 @@ public:  // interface
         nef = patJet->neutralEmEnergyFraction();
         nch = patJet->chargedMultiplicity();
         muf = patJet->muonEnergyFraction();
-        nconstituents = patJet->neutralMultiplicity()+patJet->chargedMultiplicity();
+        nconstituents = patJet->neutralMultiplicity() + patJet->chargedMultiplicity();
         nneutrals = patJet->neutralMultiplicity();
       }
       // Handle the special case where this is a composed jet for

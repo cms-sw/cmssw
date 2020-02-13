@@ -205,10 +205,10 @@ protected:
   bool useDeterministicSeed_;  // If desired, use a deterministic seed to fastjet
   unsigned int minSeed_;       // minimum seed to use, useful for MC generation
 
-  int verbosity_;                              // flag to enable/disable debug output
-  bool fromHTTTopJetProducer_ = false;         // for running the v2.0 HEPTopTagger
-  bool applyPuppiWeight_;                      // Apply weights stored in a value map (e.g. from PUPPI)
-  edm::ValueMap<float> weights_;               // weights per particle (e.g. from PUPPI)
+  int verbosity_;                       // flag to enable/disable debug output
+  bool fromHTTTopJetProducer_ = false;  // for running the v2.0 HEPTopTagger
+  bool applyPuppiWeight_;               // Apply weights stored in a value map (e.g. from PUPPI)
+  edm::ValueMap<float> weights_;        // weights per particle (e.g. from PUPPI)
 
 private:
   std::unique_ptr<AnomalousTower> anomalousTowerDef_;  // anomalous tower definition
