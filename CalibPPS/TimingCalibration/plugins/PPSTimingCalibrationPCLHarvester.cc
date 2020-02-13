@@ -41,6 +41,7 @@ public:
 private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
   std::vector<CTPPSDiamondDetId> detids_;
+  const std::string dqmDir_;
   const std::string formula_;
   const unsigned int min_entries_;
   TF1 interp_;
@@ -49,7 +50,8 @@ private:
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationPCLHarvester::PPSTimingCalibrationPCLHarvester(const edm::ParameterSet& iConfig)
-    : formula_(iConfig.getParameter<std::string>("formula")),
+    : dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
+      formula_(iConfig.getParameter<std::string>("formula")),
       min_entries_(iConfig.getParameter<unsigned int>("minEntries")),
       interp_("interp", formula_.c_str(), 10.5, 25.) {
   interp_.SetParLimits(1, 9., 15.);
@@ -80,6 +82,9 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
   PPSTimingCalibration::ParametersMap calib_params;
   PPSTimingCalibration::TimingMap calib_time;
 
+  iGetter.cd();
+  iGetter.setCurrentFolder(dqmDir_);
+
   // compute the fit parameters for all monitored channels
   TimingCalibrationHistograms hists;
   std::string ch_name;
@@ -88,9 +93,28 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     const auto chid = detid.rawId();
     const PPSTimingCalibration::Key key{
         (int)detid.arm(), (int)detid.station(), (int)detid.plane(), (int)detid.channel()};
+    //std::cout << "1:" << detid << std::endl;
     hists.leadingTime[chid] = iGetter.get("t_" + ch_name);
+    if (hists.leadingTime[chid] == nullptr) {
+      edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
+          << "Failed to retrieve leading time monitor for channel (" << detid << ").";
+      continue;
+    }
+    //std::cout << "2:" << detid << std::endl;
     hists.toT[chid] = iGetter.get("tot_" + ch_name);
+    if (hists.toT[chid] == nullptr) {
+      edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
+          << "Failed to retrieve time over threshold monitor for channel (" << detid << ").";
+      continue;
+    }
+    //std::cout << "3:" << detid << std::endl;
     hists.leadingTimeVsToT[chid] = iGetter.get("tvstot_" + ch_name);
+    if (hists.leadingTimeVsToT[chid] == nullptr) {
+      edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
+          << "Failed to retrieve leading time vs. time over threshold monitor for channel (" << detid << ").";
+      continue;
+    }
+    //std::cout << "4:" << detid << std::endl;
     if (min_entries_ > 0 && hists.leadingTimeVsToT[chid]->getEntries() < min_entries_) {
       edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Not enough entries for channel (" << detid << "): " << hists.leadingTimeVsToT[chid]->getEntries() << " < "
@@ -103,13 +127,13 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
                           hists.toT[chid]->getMean(),
                           0.8,
                           hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
+    //std::cout << detid << ": " << hists.leadingTime[chid]->getMean() << std::endl;
     const auto& res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
     if ((bool)res) {
       calib_params[key] = {
           interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
       calib_time[key] = std::make_pair(0.1, 0.);  //FIXME hardcoded resolution/offset placeholder
       // do something with interp_.GetChiSquare()...
-      std::cout << detid << ": " << hists.leadingTime[chid]->getMean() << std::endl;
     } else
       edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Fit did not converge for channel (" << detid << ").";
