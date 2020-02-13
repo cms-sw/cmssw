@@ -34,10 +34,6 @@ process.nanoPath = cms.Path(process.nanoSequenceMC)
 #process.nanoPath = cms.Path(process.nanoSequence)
 #process.GlobalTag.globaltag = autoCond['run2_data']
 
-process.finalTaus.cut = cms.string("pt > 18 && tauID(\'decayModeFindingNewDMs\') && (tauID(\'byLooseCombinedIsolationDeltaBetaCorr3Hits\') || tauID(\'byVLooseIsolationMVArun2v1DBoldDMwLT2015\') || tauID(\'byVLooseIsolationMVArun2v1DBnewDMwLT\') || tauID(\'byVLooseIsolationMVArun2v1DBdR03oldDMwLT\') || tauID(\'byVVLooseIsolationMVArun2v1DBoldDMwLT\') || tauID(\'byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2\') || tauID(\'byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2\') || tauID(\'byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2\'))")
-from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV13; UpdatePuppiTuneV13(process)
-from PhysicsTools.NanoAOD.custom_jme_cff import PrepJMECustomNanoAOD; PrepJMECustomNanoAOD(process)
-
 process.out = cms.OutputModule("NanoAODOutputModule",
     fileName = cms.untracked.string('nano.root'),
     outputCommands = process.NanoAODEDMEventContent.outputCommands,
