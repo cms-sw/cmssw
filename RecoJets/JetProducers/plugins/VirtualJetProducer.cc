@@ -285,8 +285,11 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // Get Weights Collection
-  if (applyPuppiWeight_)
-    iEvent.getByToken(input_weights_token_, weights_);
+  if (applyPuppiWeight_) {
+    edm::Handle<edm::ValueMap<float>> weightsHandle;               // weights per particle (e.g. from PUPPI)
+    iEvent.getByToken(input_weights_token_, weightsHandle);
+    weights_=*weightsHandle.product();
+  }
 
   // For Pileup subtraction using offset correction:
   // set up geometry map
@@ -473,11 +476,11 @@ void VirtualJetProducer::inputTowers() {
         // To apply puppi weight, first check if this is a PFCandidate.
         // If not, then check if it is a PackedCandidate
         reco::PFCandidate const* pPF = dynamic_cast<reco::PFCandidate const*>(i->get());
-        auto w = pPF ? (*weights_)[*i] : 0.0;
-
+        auto w = pPF ? weights_[*i] : 0.0;
         if (!pPF) {
           pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(i->get());
           w = pPC ? pPC->puppiWeight() : 0.0;
+          weights_[*i] = w;
         }
 
         if (w > 0) {
@@ -703,7 +706,11 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
       // write the specifics to the jet (simultaneously sets 4-vector, vertex).
       // These are overridden functions that will call the appropriate
       // specific allocator.
-      writeSpecific(
+      if (applyPuppiWeight_)
+        writeSpecific(
+          dynamic_cast<reco::PFJet&>(jet), Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup,  &weights_);
+      else
+        writeSpecific(
           jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup);
       phiJ[ijet] = jet.phi();
       etaJ[ijet] = jet.eta();

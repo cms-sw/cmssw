@@ -3906,10 +3906,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mPhiVSEta->Fill(correctedJet.eta(), correctedJet.phi());
       //if(!isJPTJet_){
       float nConstituents = correctedJet.nConstituents();
-      if (isMiniAODJet_) {
-        if ((*patJets)[ijet].hasUserFloat("patPuppiJetSpecificProducer:puppiMultiplicity"))
-          nConstituents = (*patJets)[ijet].userFloat("patPuppiJetSpecificProducer:puppiMultiplicity");
-      }
       mConstituents = map_of_MEs[DirName + "/" + "Constituents"];
       if (mConstituents && mConstituents->getRootObject())
         mConstituents->Fill(nConstituents);
