@@ -479,8 +479,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     //
     int nTSToCopy = maxTS;
     int tsShift = 0;
-    if (maxTS > 8 && use8ts_)
-    {
+    if (maxTS > 8 && use8ts_) {
       const int soiWanted = 3;
 
       // We need to chop off the excess time slices
@@ -493,8 +492,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
       // accessing time slices out of bounds
       if (tsShift < 0)
         tsShift = 0;
-      else
-      {
+      else {
         const int nExcessTS = nRead - nTSToCopy;
         if (tsShift > nExcessTS)
           tsShift = nExcessTS;
