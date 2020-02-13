@@ -63,7 +63,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   for (unsigned int i = 0; i < tileN.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << tileN[i] << ":" << tileStep[i];
 #endif
-  const auto& zMinBlock = args.value<double>("zMinBlock");        // Starting z-value of the block
+  const auto& zMinBlock = args.value<double>("zMinBlock");  // Starting z-value of the block
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << "  NameSpace " << ns.name();
 #endif

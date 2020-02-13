@@ -15,18 +15,17 @@ static long algorithm(dd4hep::Detector& /* description */,
   cms::DDAlgoArguments args(ctxt, e);
   std::string motherName = args.parentName();
 
-  auto const& m_tiltAngle = args.value<double>("tiltAngle");        // Tilt  angle
-  auto const& m_rMin = args.value<double>("rMin");                  // Inner radius
-  auto const& m_rMax = args.value<double>("rMax");                  // Outer radius
-  auto const& m_zoffset = args.value<double>("zoffset");            // Offset in z
-  auto const& m_xyoffset = args.value<double>("xyoffset");          // Offset in x or y
-  auto const& m_startCopyNo = args.value<int>("startCopyNo");       // Start copy Number
-  auto const& m_incrCopyNo = args.value<int>("incrCopyNo");         // Increment copy Number
-  auto const& m_childName = args.value<std::string>("ChildName");   // Children name
+  auto const& m_tiltAngle = args.value<double>("tiltAngle");       // Tilt  angle
+  auto const& m_rMin = args.value<double>("rMin");                 // Inner radius
+  auto const& m_rMax = args.value<double>("rMax");                 // Outer radius
+  auto const& m_zoffset = args.value<double>("zoffset");           // Offset in z
+  auto const& m_xyoffset = args.value<double>("xyoffset");         // Offset in x or y
+  auto const& m_startCopyNo = args.value<int>("startCopyNo");      // Start copy Number
+  auto const& m_incrCopyNo = args.value<int>("incrCopyNo");        // Increment copy Number
+  auto const& m_childName = args.value<std::string>("ChildName");  // Children name
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << ns.name() << "\tParent "
-                                << args.parentName();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << ns.name() << "\tParent " << args.parentName();
 #endif
 
   dd4hep::Volume parent = ns.volume(args.parentName());
