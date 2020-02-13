@@ -11,6 +11,7 @@ class AHCalParameters {
 public:
   /** Create geometry of AHCal */
   AHCalParameters(edm::ParameterSet const&);
+  AHCalParameters() = delete;
   ~AHCalParameters() {}
 
   /// get maximum number of layers
@@ -30,7 +31,6 @@ public:
   static constexpr int kSignRowColumn_ = kSign_ * kRowColumn_;
 
 private:
-  AHCalParameters() = delete;
   const int maxDepth_;
   const double deltaX_, deltaY_, deltaZ_, zFirst_;
 };
