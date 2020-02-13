@@ -33,16 +33,16 @@ process.source = cms.Source("PoolSource", fileNames = Source_Files)
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 
 # prompt tracking only
-#process.TTTracksEmulation = cms.Path(process.L1HybridTracks)
-#process.TTTracksEmulationWithTruth = cms.Path(process.L1HybridTracksWithAssociators)
+process.TTTracksEmulation = cms.Path(process.L1HybridTracks)
+process.TTTracksEmulationWithTruth = cms.Path(process.L1HybridTracksWithAssociators)
 
 # extended tracking only
 #process.TTTracksEmulation = cms.Path(process.L1ExtendedHybridTracks)
 #process.TTTracksEmulationWithTruth = cms.Path(process.L1ExtendedHybridTracksWithAssociators)
 
 # both prompt+extended hybrid tracking
-process.TTTracksEmulation = cms.Path(process.L1PromptExtendedHybridTracks)
-process.TTTracksEmulationWithTruth = cms.Path(process.L1PromptExtendedHybridTracksWithAssociators)
+#process.TTTracksEmulation = cms.Path(process.L1PromptExtendedHybridTracks)
+#process.TTTracksEmulationWithTruth = cms.Path(process.L1PromptExtendedHybridTracksWithAssociators)
 
 
 # ----------------------------------------------------------------------------------
@@ -57,7 +57,6 @@ process.out = cms.OutputModule( "PoolOutputModule",
 process.FEVToutput_step = cms.EndPath(process.out)
 
   
-#process.schedule = cms.Schedule(process.TTTracksWithTruth,process.FEVToutput_step)
-#process.schedule = cms.Schedule(process.TTTracksEmulationWithTruth,process.FEVToutput_step)
-process.schedule = cms.Schedule(process.TTTracksEmulationWithTruth)
+#process.schedule = cms.Schedule(process.TTTracksEmulation,process.FEVToutput_step)
+process.schedule = cms.Schedule(process.TTTracksEmulationWithTruth,process.FEVToutput_step)
 
