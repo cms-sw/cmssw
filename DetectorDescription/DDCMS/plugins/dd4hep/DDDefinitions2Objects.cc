@@ -834,13 +834,13 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
   } else if (refRotation.ptr()) {
     string rotName = refRotation.nameStr();
     if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
-      rotName = ns.name() + rotName;
+      rotName = ns.prepend(rotName);
 
     rot = ns.rotation(rotName);
   } else if (refReflectionRotation.ptr()) {
     string rotName = refReflectionRotation.nameStr();
     if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
-      rotName = ns.name() + rotName;
+      rotName = ns.prepend(rotName);
 
     rot = ns.rotation(rotName);
   }
@@ -868,11 +868,11 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
            copy);
 
   if (!parent.isValid() && strchr(parentName.c_str(), NAMESPACE_SEP) == nullptr)
-    parentName = ns.name() + parentName;
+    parentName = ns.prepend(parentName);
   parent = ns.volume(parentName);
 
   if (!child.isValid() && strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+    childName = ns.prepend(childName);
   child = ns.volume(childName, false);
 
   printout(ns.context()->debug_placements ? ALWAYS : DEBUG,
@@ -1558,11 +1558,11 @@ void Converter<DDLDivision>::operator()(xml_h element) const {
   xml_dim_t e(element);
   string childName = e.nameStr();
   if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+    childName = ns.prepend(childName);
 
   string parentName = ns.attr<string>(e, DD_CMU(parent));
   if (strchr(parentName.c_str(), NAMESPACE_SEP) == nullptr)
-    parentName = ns.name() + parentName;
+    parentName = ns.prepend(parentName);
   string axis = ns.attr<string>(e, DD_CMU(axis));
 
   // If you divide a tube of 360 degrees the offset displaces
