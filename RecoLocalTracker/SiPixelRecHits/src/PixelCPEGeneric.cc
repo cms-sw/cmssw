@@ -307,21 +307,21 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     cout << "\t >>> Generic:: processing X" << endl;
 #endif
 
-  float xPos =
-    SiPixelUtils::generic_position_formula(theClusterParam.theCluster->sizeX(),
-                               Q_f_X,
-                               Q_l_X,
-                               local_URcorn_LLpix.x(),
-                               local_LLcorn_URpix.x(),
-                               chargeWidthX,  // lorentz shift in cm
-                               theDetParam.theThickness,
-                               theClusterParam.cotalpha,
-                               theDetParam.thePitchX,
-                               theDetParam.theRecTopol->isItBigPixelInX(theClusterParam.theCluster->minPixelRow()),
-                               theDetParam.theRecTopol->isItBigPixelInX(theClusterParam.theCluster->maxPixelRow()),
-                               the_eff_charge_cut_lowX,
-                               the_eff_charge_cut_highX,
-                               the_size_cutX);  // cut for eff charge width &&&
+  float xPos = SiPixelUtils::generic_position_formula(
+      theClusterParam.theCluster->sizeX(),
+      Q_f_X,
+      Q_l_X,
+      local_URcorn_LLpix.x(),
+      local_LLcorn_URpix.x(),
+      chargeWidthX,  // lorentz shift in cm
+      theDetParam.theThickness,
+      theClusterParam.cotalpha,
+      theDetParam.thePitchX,
+      theDetParam.theRecTopol->isItBigPixelInX(theClusterParam.theCluster->minPixelRow()),
+      theDetParam.theRecTopol->isItBigPixelInX(theClusterParam.theCluster->maxPixelRow()),
+      the_eff_charge_cut_lowX,
+      the_eff_charge_cut_highX,
+      the_size_cutX);  // cut for eff charge width &&&
 
   // apply the lorentz offset correction
   xPos = xPos + shiftX;
@@ -330,26 +330,26 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   if (theVerboseLevel > 20)
     cout << "\t >>> Generic:: processing Y" << endl;
 #endif
-  
-  float yPos =
-    SiPixelUtils::generic_position_formula(theClusterParam.theCluster->sizeY(),
-                               Q_f_Y,
-                               Q_l_Y,
-                               local_URcorn_LLpix.y(),
-                               local_LLcorn_URpix.y(),
-                               chargeWidthY,  // lorentz shift in cm
-                               theDetParam.theThickness,
-                               theClusterParam.cotbeta,
-                               theDetParam.thePitchY,
-                               theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->minPixelCol()),
-                               theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->maxPixelCol()),
-                               the_eff_charge_cut_lowY,
-                               the_eff_charge_cut_highY,
-                               the_size_cutY);  // cut for eff charge width &&&
-  
+
+  float yPos = SiPixelUtils::generic_position_formula(
+      theClusterParam.theCluster->sizeY(),
+      Q_f_Y,
+      Q_l_Y,
+      local_URcorn_LLpix.y(),
+      local_LLcorn_URpix.y(),
+      chargeWidthY,  // lorentz shift in cm
+      theDetParam.theThickness,
+      theClusterParam.cotbeta,
+      theDetParam.thePitchY,
+      theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->minPixelCol()),
+      theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->maxPixelCol()),
+      the_eff_charge_cut_lowY,
+      the_eff_charge_cut_highY,
+      the_size_cutY);  // cut for eff charge width &&&
+
   // apply the lorentz offset correction
   yPos = yPos + shiftY;
-  
+
   // Apply irradiation corrections
   if (IrradiationBiasCorrection_) {
     if (theClusterParam.theCluster->sizeX() == 1) {  // size=1
@@ -387,9 +387,9 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     }
 
   }  // if ( IrradiationBiasCorrection_ )
- 
+
   //cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
-  
+
   //--- Now put the two together
   LocalPoint pos_in_local(xPos, yPos);
   return pos_in_local;
@@ -405,7 +405,7 @@ void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  /
                                            int& Q_l_X,                         //!< output, Q last   in X
                                            int& Q_f_Y,                         //!< output, Q first  in Y
                                            int& Q_l_Y                          //!< output, Q last   in Y
-) const {
+                                           ) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   // Initialize return variables.

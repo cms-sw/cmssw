@@ -973,7 +973,7 @@ void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry,
       }
       break;
     default:
-    std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << iDtype << std::endl;
+      std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << iDtype << std::endl;
   }
 
   //  Calculate signed quantities

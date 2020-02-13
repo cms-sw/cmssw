@@ -65,7 +65,7 @@
 // Use current version of gsl instead of ROOT::Math
 //#include <gsl/gsl_cdf.h>
 
-static const int theVerboseLevel = 2;   
+static const int theVerboseLevel = 2;
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/VVIObjF.h"
@@ -177,14 +177,14 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
   const double mean1pix = {0.100};
 #ifdef SI_PIXEL_TEMPLATE_STANDALONE
   const double chi21min = {0.};
-#else 
+#else
   const double chi21min = {0.160};
 #endif
 
   // First, interpolate the template needed to analyze this cluster
   // check to see of the track direction is in the physical range of the loaded template
 
-  if(id > 0) { //if id == 0 bypass interpolation (used in calibration)
+  if (id > 0) {  //if id == 0 bypass interpolation (used in calibration)
     if (!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
       if (theVerboseLevel > 2) {
         LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha
