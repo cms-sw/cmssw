@@ -69,7 +69,7 @@ namespace hcaldqm {
                                                    1129, 1130, 1131, 1134, 1135};
     std::vector<unsigned int> const fedListVME = {724, 725, 726, 727, 728, 729, 730, 731};
     std::vector<unsigned int> const crateList = {3, 6, 7, 13, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 34, 35, 37, 38};
-    std::vector<unsigned int> const crateListuTCA = {20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 37, 38};
+    std::vector<unsigned int> const crateListuTCA = {20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 34, 35, 37, 38};
     std::vector<unsigned int> const crateListVME = {3, 6, 7, 13};
     std::vector<unsigned int> const crateListHF = {22, 29, 32};
     std::vector<unsigned int> const crateListHO = {23, 26, 27, 38};
