@@ -1,42 +1,43 @@
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDConstruction.h"
 #include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-void CmsMTDConstruction::buildComponent(DDFilteredView& fv, GeometricTimingDet* mother, std::string attribute) {
-  //
-  // at this level I check whether it is a merged detector or not
-  //
+#include "DataFormats/Math/interface/deltaPhi.h"
 
-  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name()));
+bool CmsMTDConstruction::mtdOrderSubdet(const GeometricTimingDet* a, const GeometricTimingDet* b) {
+  MTDDetId id1(a->geographicalId());
+  MTDDetId id2(b->geographicalId());
+  return id1.mtdSubDetector() < id2.mtdSubDetector();
+}
 
-  const std::string part_name = fv.name().substr(0, 7);
+bool CmsMTDConstruction::mtdOrderZ(const GeometricTimingDet* a, const GeometricTimingDet* b) {
+  bool order = (a->translation().z() == b->translation().z()) ? a->translation().rho() < b->translation().rho()
+                                                              : a->translation().z() < b->translation().z();
+  return order;
+}
 
-  if (theCmsMTDStringToEnum.type(part_name) == GeometricTimingDet::BTLModule) {
-    bool dodets = fv.firstChild();
-    while (dodets) {
-      buildBTLModule(fv, det, attribute);
-      dodets = fv.nextSibling();
-    }
-    fv.parent();
-  } else if (theCmsMTDStringToEnum.type(part_name) == GeometricTimingDet::ETLModule) {
-    bool dodets = fv.firstChild();
-    while (dodets) {
-      buildETLModule(fv, det, attribute);
-      dodets = fv.nextSibling();
-    }
-    fv.parent();
-  } else {
-    throw cms::Exception("MTDConstruction") << "woops got: " << part_name << std::endl;
-  }
+bool CmsMTDConstruction::mtdOrderRR(const GeometricTimingDet* a, const GeometricTimingDet* b) {
+  MTDDetId id1(a->geographicalId());
+  MTDDetId id2(b->geographicalId());
+  return id1.mtdRR() < id2.mtdRR();
+}
 
-  mother->addComponent(det);
+bool CmsMTDConstruction::mtdOrderPhi(const GeometricTimingDet* a, const GeometricTimingDet* b) {
+  MTDDetId id1(a->geographicalId());
+  MTDDetId id2(b->geographicalId());
+  return (id1.mtdRR() == id2.mtdRR()) && (angle0to2pi::make0To2pi(a->phi()) < angle0to2pi::make0To2pi(b->phi()));
+}
+
+bool CmsMTDConstruction::mtdOrderSide(const GeometricTimingDet* a, const GeometricTimingDet* b) {
+  MTDDetId id1(a->geographicalId());
+  MTDDetId id2(b->geographicalId());
+  return id1.mtdSide() > id2.mtdSide();
 }
 
 void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* mother, const std::string& attribute) {
-  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name()));
+  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name().substr(0, 7)));
 
   const auto& copyNumbers = fv.copyNumbers();
   auto module_number = copyNumbers[copyNumbers.size() - 2];
@@ -62,8 +63,7 @@ void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* 
 }
 
 void CmsMTDConstruction::buildETLModule(DDFilteredView& fv, GeometricTimingDet* mother, const std::string& attribute) {
-  GeometricTimingDet* det =
-      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv)));
+  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name().substr(0, 7)));
 
   const auto& copyNumbers = fv.copyNumbers();
   auto module_number = copyNumbers[copyNumbers.size() - 2];
