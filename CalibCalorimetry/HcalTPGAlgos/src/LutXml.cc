@@ -318,7 +318,8 @@ HcalSubdetector LutXml::subdet_from_crate(int crate_, int slot, int fiber) {
     else
       return HcalEndcap;
   }
-  return HcalOther;
+  edm::LogWarning("LutXml::subdet_from_crate") << "crate " << crate_ << " is not accounted for";
+  return HcalEmpty;
 }
 
 int LutXml::a_to_i(char *inbuf) {
