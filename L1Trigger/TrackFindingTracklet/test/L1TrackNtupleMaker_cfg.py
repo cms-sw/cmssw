@@ -61,7 +61,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 # Get list of MC datasets from repo, or specify yourself.
 
@@ -76,7 +76,8 @@ elif GEOMETRY == "D41":
 
 elif GEOMETRY == "D49":
     # single muons
-    inputMC = ['/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/F5E783E4-CF4A-4745-B4ED-6F1AA5E5C16F.root',
+    inputMC = [
+    '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/F5E783E4-CF4A-4745-B4ED-6F1AA5E5C16F.root',
     '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/89B1EEFF-DEEB-9841-A79A-6DFED5C029B4.root',
     '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/836BFF0D-A86C-9B48-A942-24B7D31562D7.root',
     '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/70A0C91B-C42B-0E46-8805-0DA23C7E5D7E.root',
