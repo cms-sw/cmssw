@@ -22,7 +22,6 @@
 
 #include "L1Trigger/DTPhase2Trigger/interface/MotherGrouping.h"
 
-
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 
@@ -36,7 +35,6 @@
 #include <iostream>
 #include <fstream>
 
-
 // ===============================================================================
 // Previous definitions and declarations
 // ===============================================================================
@@ -46,26 +44,28 @@
 // ===============================================================================
 
 class MotherGrouping {
-  public:
-    // Constructors and destructor
-    MotherGrouping(const edm::ParameterSet& pset);
-    virtual ~MotherGrouping();
-    
-    // Main methods
-    virtual void initialise(const edm::EventSetup& iEventSetup);
-    virtual void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, DTDigiCollection digis, std::vector<MuonPath*> *outMpath);
-    virtual void finish();
-    
-    // Other public methods
-    
-    // Public attributes
-    
-  private:
-    // Private methods
-    
-    // Private attributes
-    Bool_t debug;
-};
+public:
+  // Constructors and destructor
+  MotherGrouping(const edm::ParameterSet& pset);
+  virtual ~MotherGrouping();
 
+  // Main methods
+  virtual void initialise(const edm::EventSetup& iEventSetup);
+  virtual void run(edm::Event& iEvent,
+                   const edm::EventSetup& iEventSetup,
+                   DTDigiCollection digis,
+                   std::vector<MuonPath*>* outMpath);
+  virtual void finish();
+
+  // Other public methods
+
+  // Public attributes
+
+private:
+  // Private methods
+
+  // Private attributes
+  Bool_t debug;
+};
 
 #endif

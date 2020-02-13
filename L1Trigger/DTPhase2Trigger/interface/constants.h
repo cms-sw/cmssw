@@ -38,13 +38,13 @@ namespace CMS {
 //#define MAXDRIFT ((float)(391.75))
 #define MAXDRIFT ((float)(386.75))
 // En milímetros (dimensiones de la celda)
-#define CELL_HEIGHT     13
+#define CELL_HEIGHT 13
 #define CELL_SEMIHEIGHT 6.5
-#define CELL_LENGTH     42
+#define CELL_LENGTH 42
 #define CELL_SEMILENGTH 21
 // En milímetros / nanosegundo (velocidad de deriva)
 //#define DRIFT_SPEED (CELL_SEMILENGTH/MAXDRIFT)
-#define DRIFT_SPEED ((float) 0.0542)
+#define DRIFT_SPEED ((float)0.0542)
 //#define DRIFT_SPEED ((float) 0.0555)
 /*
   This is the maximum value than internal time can take. This is because
@@ -54,18 +54,18 @@ namespace CMS {
   maximum BX index, plus an arbitrary amount for taking into account the
   muon traveling time and muon's signal drift time.
  */
-#define MAX_VALUE_OF_TIME (LHC_CLK_FREQ*MAX_BX_IDX+5000)
+#define MAX_VALUE_OF_TIME (LHC_CLK_FREQ * MAX_BX_IDX + 5000)
 
 /*
  * Total BTI number and total channel number must be coordinated. One BTI
  * works over 10 channels, but 2 consecutive BTI's overlap many of their
  * channels.
  */
-#define TOTAL_BTI           100  // Should be the same value as NUM_CH_PER_LAYER
-#define NUM_CH_PER_LAYER    100  // Should be the same value as TOTAL_BTI
-#define NUM_LAYERS          4
-#define TOTAL_CHANNELS      (NUM_LAYERS*NUM_CH_PER_LAYER)
-#define NUM_SUPERLAYERS     3
+#define TOTAL_BTI 100         // Should be the same value as NUM_CH_PER_LAYER
+#define NUM_CH_PER_LAYER 100  // Should be the same value as TOTAL_BTI
+#define NUM_LAYERS 4
+#define TOTAL_CHANNELS (NUM_LAYERS * NUM_CH_PER_LAYER)
+#define NUM_SUPERLAYERS 3
 
 /*
  * Size of pre-mixer buffers for DTPrimitives
@@ -86,8 +86,8 @@ namespace CMS {
  * from/to files
  */
 #define PAYLOAD_ENTRIES 9
-// #define PAYLOAD_ENTRIES 1
+  // #define PAYLOAD_ENTRIES 1
 
-}
+}  // namespace CMS
 
 #endif

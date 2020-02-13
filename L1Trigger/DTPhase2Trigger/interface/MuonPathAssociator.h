@@ -40,43 +40,44 @@
 // ===============================================================================
 
 class MuonPathAssociator {
- public:
+public:
   // Constructors and destructor
-  MuonPathAssociator(const edm::ParameterSet& pset);
+  MuonPathAssociator(const edm::ParameterSet &pset);
   virtual ~MuonPathAssociator();
-    
+
   // Main methods
-  void initialise(const edm::EventSetup& iEventSetup);
-  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, edm::Handle<DTDigiCollection> digis,
-	   std::vector<metaPrimitive> &inMPaths, std::vector<metaPrimitive> &outMPaths);
-  
-    
+  void initialise(const edm::EventSetup &iEventSetup);
+  void run(edm::Event &iEvent,
+           const edm::EventSetup &iEventSetup,
+           edm::Handle<DTDigiCollection> digis,
+           std::vector<metaPrimitive> &inMPaths,
+           std::vector<metaPrimitive> &outMPaths);
+
   void finish();
-    
+
   // Other public methods
 
-  bool shareFit (metaPrimitive first, metaPrimitive second); 
-  bool isNotAPrimo (metaPrimitive first, metaPrimitive second); 
-  void removeSharingFits (std::vector<metaPrimitive> &chamberMPaths,
-			  std::vector<metaPrimitive> &allMPaths);
-  void removeSharingHits (std::vector<metaPrimitive> &firstMPaths,
-			  std::vector<metaPrimitive> &secondMPaths,
-			  std::vector<metaPrimitive> &allMPaths);
+  bool shareFit(metaPrimitive first, metaPrimitive second);
+  bool isNotAPrimo(metaPrimitive first, metaPrimitive second);
+  void removeSharingFits(std::vector<metaPrimitive> &chamberMPaths, std::vector<metaPrimitive> &allMPaths);
+  void removeSharingHits(std::vector<metaPrimitive> &firstMPaths,
+                         std::vector<metaPrimitive> &secondMPaths,
+                         std::vector<metaPrimitive> &allMPaths);
   void printmPC(metaPrimitive mP);
- 
-  // Public attributes
- edm::ESHandle<DTGeometry> dtGeo;  
 
+  // Public attributes
+  edm::ESHandle<DTGeometry> dtGeo;
 
 private:
- 
   // Private methods
- void correlateMPaths(edm::Handle<DTDigiCollection> digis, std::vector<metaPrimitive> &inMPaths, std::vector<metaPrimitive> &outMPaths);
+  void correlateMPaths(edm::Handle<DTDigiCollection> digis,
+                       std::vector<metaPrimitive> &inMPaths,
+                       std::vector<metaPrimitive> &outMPaths);
 
   //  void associate(metaPrimitive MP, std::vector<metaPrimitive> &outMP);
 
-  bool hasPosRF(int wh,int sec) {    return  wh>0 || (wh==0 && sec%4>1); }
-  
+  bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); }
+
   // Private attributes
   Bool_t debug;
   Bool_t clean_chi2_correlation;
@@ -88,14 +89,12 @@ private:
   double minx_match_2digis;
   double chi2corTh;
   Bool_t use_LSB;
-  double tanPsi_precision; 
-  double x_precision; 
+  double tanPsi_precision;
+  double x_precision;
 
   //shift
   edm::FileInPath shift_filename;
-  std::map<int,float> shiftinfo;
-  
+  std::map<int, float> shiftinfo;
 };
-
 
 #endif

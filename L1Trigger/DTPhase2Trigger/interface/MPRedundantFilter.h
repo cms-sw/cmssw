@@ -44,31 +44,33 @@
 // ===============================================================================
 
 class MPRedundantFilter : public MPFilter {
- public:
+public:
   // Constructors and destructor
   MPRedundantFilter(const edm::ParameterSet& pset);
   virtual ~MPRedundantFilter();
-    
+
   // Main methods
   void initialise(const edm::EventSetup& iEventSetup);
-  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath) {}; 
-  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMPath, std::vector<MuonPath*> &outMPath);
+  void run(edm::Event& iEvent,
+           const edm::EventSetup& iEventSetup,
+           std::vector<metaPrimitive>& inMPath,
+           std::vector<metaPrimitive>& outMPath){};
+  void run(edm::Event& iEvent,
+           const edm::EventSetup& iEventSetup,
+           std::vector<MuonPath*>& inMPath,
+           std::vector<MuonPath*>& outMPath);
   void finish() { buffer.clear(); };
-    
+
   // Other public methods
-  
- private:
-  
-  void filter(MuonPath *mpath, std::vector<MuonPath*> &outMPaths);
+
+private:
+  void filter(MuonPath* mpath, std::vector<MuonPath*>& outMPaths);
   bool isInBuffer(MuonPath* mpath);
-  
-  
+
   // Private attributes
   Bool_t debug;
   unsigned int MaxBufferSize;
-  std::deque<MuonPath*> buffer; 
-  
+  std::deque<MuonPath*> buffer;
 };
-
 
 #endif

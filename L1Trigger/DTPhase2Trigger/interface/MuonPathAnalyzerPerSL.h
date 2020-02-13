@@ -19,7 +19,7 @@
 #include "L1Trigger/DTPhase2Trigger/interface/muonpath.h"
 #include "L1Trigger/DTPhase2Trigger/interface/analtypedefs.h"
 #include "L1Trigger/DTPhase2Trigger/interface/constants.h"
-#include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h" 
+#include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -34,7 +34,6 @@
 #include <iostream>
 #include <fstream>
 
-
 // ===============================================================================
 // Previous definitions and declarations
 // ===============================================================================
@@ -44,63 +43,67 @@
 // ===============================================================================
 
 class MuonPathAnalyzerPerSL : public MuonPathAnalyzer {
- public:
+public:
   // Constructors and destructor
-  MuonPathAnalyzerPerSL(const edm::ParameterSet& pset);
+  MuonPathAnalyzerPerSL(const edm::ParameterSet &pset);
   virtual ~MuonPathAnalyzerPerSL();
-  
+
   // Main methods
-  void initialise(const edm::EventSetup& iEventSetup);
-  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMpath, std::vector<metaPrimitive> &metaPrimitives);
-  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMpath, std::vector<MuonPath*> &outMPath) {};
+  void initialise(const edm::EventSetup &iEventSetup);
+  void run(edm::Event &iEvent,
+           const edm::EventSetup &iEventSetup,
+           std::vector<MuonPath *> &inMpath,
+           std::vector<metaPrimitive> &metaPrimitives);
+  void run(edm::Event &iEvent,
+           const edm::EventSetup &iEventSetup,
+           std::vector<MuonPath *> &inMpath,
+           std::vector<MuonPath *> &outMPath){};
 
   void finish();
-  
+
   // Other public methods
   void setBXTolerance(int t);
   int getBXTolerance(void);
-  
+
   void setChiSquareThreshold(float ch2Thr);
-  
+
   void setMinimumQuality(MP_QUALITY q);
   MP_QUALITY getMinimumQuality(void);
 
-  bool hasPosRF(int wh,int sec) {    return  wh>0 || (wh==0 && sec%4>1);   };
+  bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); };
 
   // Public attributes
   edm::ESHandle<DTGeometry> dtGeo;
 
   //ttrig
   edm::FileInPath ttrig_filename;
-  std::map<int,float> ttriginfo;
-  
-  //z 
+  std::map<int, float> ttriginfo;
+
+  //z
   edm::FileInPath z_filename;
-  std::map<int,float> zinfo;
-  
+  std::map<int, float> zinfo;
+
   //shift
   edm::FileInPath shift_filename;
-  std::map<int,float> shiftinfo;
-  
+  std::map<int, float> shiftinfo;
+
   int chosen_sl;
-  
- private:
+
+private:
   // Private methods
   void analyze(MuonPath *inMPath, std::vector<metaPrimitive> &metaPrimitives);
 
   void setCellLayout(const int layout[4]);
   void buildLateralities(void);
   bool isStraightPath(LATERAL_CASES sideComb[4]);
-  
- 
+
   /* Determina si los valores de 4 primitivas forman una trayectoria
      Los valores tienen que ir dispuestos en el orden de capa:
      0    -> Capa más próxima al centro del detector,
      1, 2 -> Siguientes capas
      3    -> Capa más externa */
   void evaluatePathQuality(MuonPath *mPath);
-  void evaluateLateralQuality(int latIdx, MuonPath *mPath,
-			      LATQ_TYPE *latQuality);
+  void evaluateLateralQuality(int latIdx, MuonPath *mPath, LATQ_TYPE *latQuality);
   /* Función que evalua, mediante el criterio de mean-timer, la bondad
      de una trayectoria. Involucra 3 celdas en 3 capas distintas, ordenadas
      de abajo arriba siguiendo el índice del array.
@@ -116,34 +119,31 @@ class MuonPathAnalyzerPerSL : public MuonPathAnalyzer {
      haciendo uso de funciones que generen el código en tiempo de síntesis,
      aunque la función software diseñada debería ser exportable directamente
      a VHDL */
-  void validate(LATERAL_CASES sideComb[3], int layerIndex[3],
-		MuonPath* mPath, PARTIAL_LATQ_TYPE *latq);
-  
-  int eqMainBXTerm(LATERAL_CASES sideComb[2], int layerIdx[2],
-		   MuonPath* mPath);
-  
-  int eqMainTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPath* mPath,
-		 int bxValue);
-  
+  void validate(LATERAL_CASES sideComb[3], int layerIndex[3], MuonPath *mPath, PARTIAL_LATQ_TYPE *latq);
+
+  int eqMainBXTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPath *mPath);
+
+  int eqMainTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPath *mPath, int bxValue);
+
   void getLateralCoeficients(LATERAL_CASES sideComb[2], int *coefs);
   bool sameBXValue(PARTIAL_LATQ_TYPE *latq);
-  
+
   void calculatePathParameters(MuonPath *mPath);
-  void calcTanPhiXPosChamber  (MuonPath *mPath);
-  void calcCellDriftAndXcoor  (MuonPath *mPath);
-  void calcChiSquare          (MuonPath *mPath);
-  
+  void calcTanPhiXPosChamber(MuonPath *mPath);
+  void calcCellDriftAndXcoor(MuonPath *mPath);
+  void calcChiSquare(MuonPath *mPath);
+
   void calcTanPhiXPosChamber3Hits(MuonPath *mPath);
   void calcTanPhiXPosChamber4Hits(MuonPath *mPath);
-  
+
   int getOmittedHit(int idx);
-  
+
   // Private attributes
 
   /* Combinaciones verticales de 3 celdas sobre las que se va a aplicar el
      mean-timer */
   static const int LAYER_ARRANGEMENTS[4][3];
-  
+
   /* El máximo de combinaciones de lateralidad para 4 celdas es 16 grupos
      Es feo reservar todo el posible bloque de memoria de golpe, puesto que
      algunas combinaciones no serán válidas, desperdiciando parte de la
@@ -152,7 +152,7 @@ class MuonPathAnalyzerPerSL : public MuonPathAnalyzer {
      que ir se va, pero ir p'a n'á es tontería! */
   LATERAL_CASES lateralities[16][4];
   LATQ_TYPE latQuality[16];
-  
+
   int totalNumValLateralities;
   /* Posiciones horizontales de cada celda (una por capa), en unidades de
      semilongitud de celda, relativas a la celda de la capa inferior
@@ -170,10 +170,8 @@ class MuonPathAnalyzerPerSL : public MuonPathAnalyzer {
   double tanPhiTh;
   int cellLayout[4];
   Bool_t use_LSB;
-  double tanPsi_precision; 
-  double x_precision; 
-  
+  double tanPsi_precision;
+  double x_precision;
 };
-
 
 #endif

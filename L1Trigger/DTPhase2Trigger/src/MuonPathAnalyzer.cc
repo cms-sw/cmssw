@@ -3,29 +3,27 @@
 using namespace edm;
 using namespace std;
 
-
-
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
 MuonPathAnalyzer::MuonPathAnalyzer(const ParameterSet& pset) {
   // Obtention of parameters
-  debug         = pset.getUntrackedParameter<Bool_t>("debug");
-  if (debug) cout <<"MuonPathAnalyzer: constructor" << endl;
+  debug = pset.getUntrackedParameter<Bool_t>("debug");
+  if (debug)
+    cout << "MuonPathAnalyzer: constructor" << endl;
 }
-
 
 MuonPathAnalyzer::~MuonPathAnalyzer() {
-  if (debug) cout <<"MuonPathAnalyzer: destructor" << endl;
+  if (debug)
+    cout << "MuonPathAnalyzer: destructor" << endl;
 }
-
-
 
 // ============================================================================
 // Main methods (initialise, run, finish)
 // ============================================================================
 void MuonPathAnalyzer::initialise(const edm::EventSetup& iEventSetup) {
-  if(debug) cout << "MuonPathAnalyzer::initialiase" << endl;
+  if (debug)
+    cout << "MuonPathAnalyzer::initialiase" << endl;
 }
 
 /*
@@ -35,7 +33,6 @@ void MuonPathAnalyzer::run(edm::Event& iEvent, const edm::EventSetup& iEventSetu
 }
 */
 void MuonPathAnalyzer::finish() {
-  if (debug) cout <<"MuonPathAnalyzer: finish" << endl;
+  if (debug)
+    cout << "MuonPathAnalyzer: finish" << endl;
 };
-
-

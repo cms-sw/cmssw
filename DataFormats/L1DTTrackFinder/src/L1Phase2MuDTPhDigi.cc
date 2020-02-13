@@ -86,4 +86,3 @@ int L1Phase2MuDTPhDigi::t0() const { return m_t0; }
 int L1Phase2MuDTPhDigi::chi2() const { return m_chi2; }
 
 int L1Phase2MuDTPhDigi::rpcFlag() const { return m_rpcFlag; }
-

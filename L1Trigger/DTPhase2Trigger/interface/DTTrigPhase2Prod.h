@@ -62,117 +62,114 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "L1Trigger/DTPhase2Trigger/interface/RPCIntegrator.h"
 
-
 #include <fstream>
 #include <iostream>
 #include <queue>
 #include <cmath>
 
-
-class DTTrigPhase2Prod: public edm::EDProducer {
-  typedef std::map< DTChamberId,DTDigiCollection,std::less<DTChamberId> > DTDigiMap;
+class DTTrigPhase2Prod : public edm::EDProducer {
+  typedef std::map<DTChamberId, DTDigiCollection, std::less<DTChamberId>> DTDigiMap;
   typedef DTDigiMap::iterator DTDigiMap_iterator;
   typedef DTDigiMap::const_iterator DTDigiMap_const_iterator;
 
-  public:
-    //! Constructor
-    DTTrigPhase2Prod(const edm::ParameterSet& pset);
+public:
+  //! Constructor
+  DTTrigPhase2Prod(const edm::ParameterSet& pset);
 
-    //! Destructor
-    ~DTTrigPhase2Prod() override;
-    
-    //! Create Trigger Units before starting event processing
-    //void beginJob(const edm::EventSetup & iEventSetup);
-    void beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
-  
-    //! Producer: process every event and generates trigger data
-    void produce(edm::Event & iEvent, const edm::EventSetup& iEventSetup) override;
-    
-    //! endRun: finish things
-    void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
-    
-    edm::ESHandle<DTGeometry> dtGeo;
+  //! Destructor
+  ~DTTrigPhase2Prod() override;
 
-    std::vector<std::pair<int,MuonPath>> primitives;
+  //! Create Trigger Units before starting event processing
+  //void beginJob(const edm::EventSetup & iEventSetup);
+  void beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
 
-    int rango(metaPrimitive mp);
-    bool outer(metaPrimitive mp);
-    bool inner(metaPrimitive mp);
-    void printmP(metaPrimitive mP);
-    void printmPC(metaPrimitive mP);
+  //! Producer: process every event and generates trigger data
+  void produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) override;
 
-    double trigPos(metaPrimitive mP);
-    double trigDir(metaPrimitive mp);
+  //! endRun: finish things
+  void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
 
-    bool hasPosRF(int wh,int sec);
+  edm::ESHandle<DTGeometry> dtGeo;
 
-    double zcn[4];
-    double xCenter[2];
-    
-    void setBXTolerance(int t);
-    int getBXTolerance(void);
+  std::vector<std::pair<int, MuonPath>> primitives;
 
-    void setChiSquareThreshold(float ch2Thr);
-    
-    void setMinimumQuality(MP_QUALITY q);
-    MP_QUALITY getMinimumQuality(void);
+  int rango(metaPrimitive mp);
+  bool outer(metaPrimitive mp);
+  bool inner(metaPrimitive mp);
+  void printmP(metaPrimitive mP);
+  void printmPC(metaPrimitive mP);
 
-    DTTrigGeomUtils *trigGeomUtils;
+  double trigPos(metaPrimitive mP);
+  double trigDir(metaPrimitive mp);
 
-  private:
-    // Trigger Configuration Manager CCB validity flag
-    bool my_CCBValid;
+  bool hasPosRF(int wh, int sec);
 
-    // BX offset used to correct DTTPG output
-    int my_BXoffset;
+  double zcn[4];
+  double xCenter[2];
 
-    // Debug Flag
-    bool debug;
-    bool dump;
-    double dT0_correlate_TP;
-    int min_phinhits_match_segment;
-    bool do_correlation;
-    int p2_df;
-    int scenario;
-    bool printHits;
-    bool printPython;
-    int eventBX;
+  void setBXTolerance(int t);
+  int getBXTolerance(void);
 
+  void setChiSquareThreshold(float ch2Thr);
 
-    // txt ttrig flag
-    bool txt_ttrig_bc0;
-    // shift
-    edm::FileInPath shift_filename;
-    std::map<int,float> shiftinfo;
-            
-    // ParameterSet
-    edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken;
-    edm::EDGetTokenT<DTDigiCollection> dtDigisToken;
-    edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsLabel;
+  void setMinimumQuality(MP_QUALITY q);
+  MP_QUALITY getMinimumQuality(void);
 
-    // Grouping attributes and methods
-    Int_t grcode; // Grouping code
-    MotherGrouping* grouping_obj;
-    MuonPathAnalyzer* mpathanalyzer;
-    MPFilter* mpathqualityenhancer;
-    MPFilter* mpathredundantfilter;
-    MuonPathAssociator* mpathassociator;
+  DTTrigGeomUtils* trigGeomUtils;
 
-    // Buffering
-    Bool_t  activateBuffer;
-    Int_t   superCellhalfspacewidth;
-    Float_t superCelltimewidth;
-    std::vector<DTDigiCollection*> distribDigis(std::queue<std::pair<DTLayerId*, DTDigi*>>& inQ);
-    void processDigi(std::queue<std::pair<DTLayerId*, DTDigi*>>& inQ, std::vector<std::queue<std::pair<DTLayerId*, DTDigi*>>*>& vec);
+private:
+  // Trigger Configuration Manager CCB validity flag
+  bool my_CCBValid;
 
-    // RPC
-    RPCIntegrator* rpc_integrator;
-    bool useRPC;
+  // BX offset used to correct DTTPG output
+  int my_BXoffset;
 
-    void assignIndex(std::vector<metaPrimitive> &inMPaths);
-    void assignIndexPerBX(std::vector<metaPrimitive> &inMPaths);
-    int assignQualityOrder(metaPrimitive mP);
+  // Debug Flag
+  bool debug;
+  bool dump;
+  double dT0_correlate_TP;
+  int min_phinhits_match_segment;
+  bool do_correlation;
+  int p2_df;
+  int scenario;
+  bool printHits;
+  bool printPython;
+  int eventBX;
+
+  // txt ttrig flag
+  bool txt_ttrig_bc0;
+  // shift
+  edm::FileInPath shift_filename;
+  std::map<int, float> shiftinfo;
+
+  // ParameterSet
+  edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken;
+  edm::EDGetTokenT<DTDigiCollection> dtDigisToken;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsLabel;
+
+  // Grouping attributes and methods
+  Int_t grcode;  // Grouping code
+  MotherGrouping* grouping_obj;
+  MuonPathAnalyzer* mpathanalyzer;
+  MPFilter* mpathqualityenhancer;
+  MPFilter* mpathredundantfilter;
+  MuonPathAssociator* mpathassociator;
+
+  // Buffering
+  Bool_t activateBuffer;
+  Int_t superCellhalfspacewidth;
+  Float_t superCelltimewidth;
+  std::vector<DTDigiCollection*> distribDigis(std::queue<std::pair<DTLayerId*, DTDigi*>>& inQ);
+  void processDigi(std::queue<std::pair<DTLayerId*, DTDigi*>>& inQ,
+                   std::vector<std::queue<std::pair<DTLayerId*, DTDigi*>>*>& vec);
+
+  // RPC
+  RPCIntegrator* rpc_integrator;
+  bool useRPC;
+
+  void assignIndex(std::vector<metaPrimitive>& inMPaths);
+  void assignIndexPerBX(std::vector<metaPrimitive>& inMPaths);
+  int assignQualityOrder(metaPrimitive mP);
 };
-
 
 #endif

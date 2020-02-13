@@ -1,102 +1,100 @@
 #ifndef MUONPATH_H
 #define MUONPATH_H
-#include <iostream> 
+#include <iostream>
 #include "analtypedefs.h"
-
 
 #include "L1Trigger/DTPhase2Trigger/interface/dtprimitive.h"
 
 class MuonPath {
+public:
+  MuonPath();
+  MuonPath(DTPrimitive *ptrPrimitive[4]);
+  MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown);
+  MuonPath(MuonPath *ptr);
+  virtual ~MuonPath();
 
-  public:
-    MuonPath();
-    MuonPath(DTPrimitive *ptrPrimitive[4]);
-    MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown);
-    MuonPath(MuonPath *ptr);
-    virtual ~MuonPath();
+  void setPrimitive(DTPrimitive *ptr, int layer);
+  DTPrimitive *getPrimitive(int layer);
 
-    void setPrimitive(DTPrimitive *ptr, int layer);
-    DTPrimitive *getPrimitive(int layer);
-    
-    short getNPrimitives(void)            { return nprimitives;     }
-    void  setNPrimitives(short nprim)     { nprimitives = nprim;    }
-    short getNPrimitivesUp(void)          { return nprimitivesUp;   }
-    void  setNPrimitivesUp(short nprim)   { nprimitives = nprim;    }
-    short getNPrimitivesDown(void)        { return nprimitivesDown; }
-    void  setNPrimitivesDown(short nprim) { nprimitives = nprim;    }
+  short getNPrimitives(void) { return nprimitives; }
+  void setNPrimitives(short nprim) { nprimitives = nprim; }
+  short getNPrimitivesUp(void) { return nprimitivesUp; }
+  void setNPrimitivesUp(short nprim) { nprimitives = nprim; }
+  short getNPrimitivesDown(void) { return nprimitivesDown; }
+  void setNPrimitivesDown(short nprim) { nprimitives = nprim; }
 
-    void setCellHorizontalLayout(int layout[4]);
-    void setCellHorizontalLayout(const int *layout);
-    const int* getCellHorizontalLayout(void);
+  void setCellHorizontalLayout(int layout[4]);
+  void setCellHorizontalLayout(const int *layout);
+  const int *getCellHorizontalLayout(void);
 
-    int  getBaseChannelId(void);
-    void setBaseChannelId(int bch);
+  int getBaseChannelId(void);
+  void setBaseChannelId(int bch);
 
-    void setQuality(MP_QUALITY qty);
-    MP_QUALITY getQuality(void);
+  void setQuality(MP_QUALITY qty);
+  MP_QUALITY getQuality(void);
 
-    bool isEqualTo(MuonPath *ptr);
-    
-    /* El MuonPath debe ser analizado si hay al menos 3 Primitivas válidas */
-    bool isAnalyzable(void);
-    /* Indica que hay 4 Primitivas con dato válido */
-    bool completeMP(void);
+  bool isEqualTo(MuonPath *ptr);
 
-    void setBxTimeValue(int time);
-    int  getBxTimeValue(void);
+  /* El MuonPath debe ser analizado si hay al menos 3 Primitivas válidas */
+  bool isAnalyzable(void);
+  /* Indica que hay 4 Primitivas con dato válido */
+  bool completeMP(void);
 
-    int  getBxNumId(void);
+  void setBxTimeValue(int time);
+  int getBxTimeValue(void);
 
-    void setLateralComb(LATERAL_CASES latComb[4]);
-    void setLateralComb(const LATERAL_CASES *latComb);
-    const LATERAL_CASES* getLateralComb(void);
-    void setLateralCombFromPrimitives(void);
+  int getBxNumId(void);
 
-    void  setHorizPos(float pos);
-    float getHorizPos(void);
+  void setLateralComb(LATERAL_CASES latComb[4]);
+  void setLateralComb(const LATERAL_CASES *latComb);
+  const LATERAL_CASES *getLateralComb(void);
+  void setLateralCombFromPrimitives(void);
 
-    void  setTanPhi(float tanPhi);
-    float getTanPhi(void);
+  void setHorizPos(float pos);
+  float getHorizPos(void);
 
-    void  setChiSq(float chi);
-    float getChiSq(void);
+  void setTanPhi(float tanPhi);
+  float getTanPhi(void);
 
-    void  setPhi(float phi);
-    float getPhi(void);
+  void setChiSq(float chi);
+  float getChiSq(void);
 
-    void  setPhiB(float phib);
-    float getPhiB(void);
+  void setPhi(float phi);
+  float getPhi(void);
 
-    void  setXCoorCell(float x, int cell);
-    float getXCoorCell(int cell);
+  void setPhiB(float phib);
+  float getPhiB(void);
 
-    void  setDriftDistance(float dx, int cell);
-    float getDriftDistance(int cell);
+  void setXCoorCell(float x, int cell);
+  float getXCoorCell(int cell);
 
-    void  setXWirePos(float x, int cell);
-    float getXWirePos(int cell);
-    void  setZWirePos(float z, int cell);
-    float getZWirePos(int cell);
-    void  settWireTDC(float t, int cell);
-    float gettWireTDC(int cell);
-    
-    void setRawId(uint32_t id) { rawId=id; }
-    uint32_t getRawId() { return rawId;}
+  void setDriftDistance(float dx, int cell);
+  float getDriftDistance(int cell);
 
-  private:
-    //------------------------------------------------------------------
-    //--- Datos del MuonPath
-    //------------------------------------------------------------------
-    /*
+  void setXWirePos(float x, int cell);
+  float getXWirePos(int cell);
+  void setZWirePos(float z, int cell);
+  float getZWirePos(int cell);
+  void settWireTDC(float t, int cell);
+  float gettWireTDC(int cell);
+
+  void setRawId(uint32_t id) { rawId = id; }
+  uint32_t getRawId() { return rawId; }
+
+private:
+  //------------------------------------------------------------------
+  //--- Datos del MuonPath
+  //------------------------------------------------------------------
+  /*
       Primitivas que forman el path. En posición 0 está el dato del canal de la
       capa inferior, y de ahí hacia arriba. El orden es crítico.
      */
-    DTPrimitive *prim[8];
-    short nprimitives;
-    short nprimitivesUp;
-    short nprimitivesDown;
+  DTPrimitive *prim[8];
+  short nprimitives;
+  short nprimitivesUp;
+  short nprimitivesDown;
 
-    /* Posiciones horizontales de cada celda (una por capa), en unidades de
+  /* Posiciones horizontales de cada celda (una por capa), en unidades de
        semilongitud de celda, relativas a la celda de la capa inferior
        (capa 0). Pese a que la celda de la capa 0 siempre está en posición
        0 respecto de sí misma, se incluye en el array para que el código que
@@ -106,40 +104,40 @@ class MuonPath {
        que el 'PathAnalyzer' sea un único componente (y no uno por posible
        ruta, como en la versión original) y se puede disponer en arquitectura
        tipo pipe-line */
-    int cellLayout[4];  
-    int baseChannelId;  
+  int cellLayout[4];
+  int baseChannelId;
 
-    //------------------------------------------------------------------
-    //--- Resultados tras cálculos
-    //------------------------------------------------------------------
-    /* Calidad del path */
-    MP_QUALITY quality; 
-    
-    /* Combinación de lateralidad */
-    LATERAL_CASES lateralComb[4]; 
+  //------------------------------------------------------------------
+  //--- Resultados tras cálculos
+  //------------------------------------------------------------------
+  /* Calidad del path */
+  MP_QUALITY quality;
 
-    /* Tiempo del BX respecto del BX0 de la órbita en curso */
-    int bxTimeValue; 
+  /* Combinación de lateralidad */
+  LATERAL_CASES lateralComb[4];
 
-    /* Número del BX dentro de una órbita */
-    int bxNumId;  
+  /* Tiempo del BX respecto del BX0 de la órbita en curso */
+  int bxTimeValue;
 
-    /* Parámetros de celda */
-    float xCoorCell[8];         // Posicion horizontal del hit en la cámara
-    float xDriftDistance[8];    // Distancia de deriva en la celda (sin signo)
-    float xWirePos[8];
-    float zWirePos[8];
-    float tWireTDC[8];
+  /* Número del BX dentro de una órbita */
+  int bxNumId;
 
-    float tanPhi;   
-    float horizPos; 
+  /* Parámetros de celda */
+  float xCoorCell[8];       // Posicion horizontal del hit en la cámara
+  float xDriftDistance[8];  // Distancia de deriva en la celda (sin signo)
+  float xWirePos[8];
+  float zWirePos[8];
+  float tWireTDC[8];
 
-    float chiSquare; 
-    
-    float Phi;
-    float PhiB;
-    
-    uint32_t rawId;
+  float tanPhi;
+  float horizPos;
+
+  float chiSquare;
+
+  float Phi;
+  float PhiB;
+
+  uint32_t rawId;
 };
 
 #endif

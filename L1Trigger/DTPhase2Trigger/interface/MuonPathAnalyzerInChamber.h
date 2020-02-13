@@ -19,7 +19,7 @@
 #include "L1Trigger/DTPhase2Trigger/interface/muonpath.h"
 #include "L1Trigger/DTPhase2Trigger/interface/analtypedefs.h"
 #include "L1Trigger/DTPhase2Trigger/interface/constants.h"
-#include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h" 
+#include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -45,58 +45,62 @@ typedef std::array<LATERAL_CASES, NLayers> TLateralities;
 // ===============================================================================
 
 class MuonPathAnalyzerInChamber : public MuonPathAnalyzer {
- public:
+public:
   // Constructors and destructor
-  MuonPathAnalyzerInChamber(const edm::ParameterSet& pset);
+  MuonPathAnalyzerInChamber(const edm::ParameterSet &pset);
   virtual ~MuonPathAnalyzerInChamber();
-  
+
   // Main methods
-  void initialise(const edm::EventSetup& iEventSetup);
-  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMpath, std::vector<metaPrimitive> &metaPrimitives) {}
-  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMpath, std::vector<MuonPath*> &outMPath);
+  void initialise(const edm::EventSetup &iEventSetup);
+  void run(edm::Event &iEvent,
+           const edm::EventSetup &iEventSetup,
+           std::vector<MuonPath *> &inMpath,
+           std::vector<metaPrimitive> &metaPrimitives) {}
+  void run(edm::Event &iEvent,
+           const edm::EventSetup &iEventSetup,
+           std::vector<MuonPath *> &inMpath,
+           std::vector<MuonPath *> &outMPath);
 
   void finish();
-  
+
   // Other public methods
   void setBXTolerance(int t);
   int getBXTolerance(void);
-  
-  void setMinHits4Fit(int h) { minHits4Fit = h;}; 
+
+  void setMinHits4Fit(int h) { minHits4Fit = h; };
   int getMinHits4Fit(void) { return minHits4Fit; }
 
   void setChiSquareThreshold(float ch2Thr);
-  
+
   void setMinimumQuality(MP_QUALITY q);
   MP_QUALITY getMinimumQuality(void);
 
-  bool hasPosRF(int wh,int sec) {    return  wh>0 || (wh==0 && sec%4>1);   };
+  bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); };
 
   // Public attributes
   edm::ESHandle<DTGeometry> dtGeo;
 
   //ttrig
-  std::map<int,float> ttriginfo;
-  
-  //z 
-  std::map<int,float> zinfo;
-  
+  std::map<int, float> ttriginfo;
+
+  //z
+  std::map<int, float> zinfo;
+
   //shift
-  std::map<int,float> shiftinfo;
- 
- 
- private:
-  
+  std::map<int, float> shiftinfo;
+
+private:
   // Private methods
   //  void analyze(MuonPath *inMPath, std::vector<metaPrimitive> &metaPrimitives);
-  void analyze(MuonPath *inMPath, std::vector<MuonPath*> &outMPaths);
-  
+  void analyze(MuonPath *inMPath, std::vector<MuonPath *> &outMPaths);
+
   void setCellLayout(MuonPath *mpath);
   void buildLateralities(MuonPath *mpath);
-  void setLateralitiesInMP(MuonPath *mpath,TLateralities lat);
+  void setLateralitiesInMP(MuonPath *mpath, TLateralities lat);
   void setWirePosAndTimeInMP(MuonPath *mpath);
   void calculateFitParameters(MuonPath *mpath, TLateralities lat, int present_layer[8]);
   //void calculateFitParameters(MuonPath *mpath, TLateralities lat);
- 
+
   /* Determina si los valores de 4 primitivas forman una trayectoria
      Los valores tienen que ir dispuestos en el orden de capa:
      0    -> Capa más próxima al centro del detector,
@@ -108,7 +112,7 @@ class MuonPathAnalyzerInChamber : public MuonPathAnalyzer {
   /* Combinaciones verticales de 3 celdas sobre las que se va a aplicar el
      mean-timer */
   static const int LAYER_ARRANGEMENTS[4][3];
-  
+
   /* El máximo de combinaciones de lateralidad para 4 celdas es 16 grupos
      Es feo reservar todo el posible bloque de memoria de golpe, puesto que
      algunas combinaciones no serán válidas, desperdiciando parte de la
@@ -116,10 +120,10 @@ class MuonPathAnalyzerInChamber : public MuonPathAnalyzer {
      código con vectores y reserva dinámica de memoria y, ¡bueno! ¡si hay
      que ir se va, pero ir p'a n'á es tontería! */
 
-  int totalNumValLateralities;  
+  int totalNumValLateralities;
   std::vector<TLateralities> lateralities;
   std::vector<LATQ_TYPE> latQuality;
-  
+
   /* Posiciones horizontales de cada celda (una por capa), en unidades de
      semilongitud de celda, relativas a la celda de la capa inferior
      (capa 0). Pese a que la celda de la capa 0 siempre está en posición
@@ -135,8 +139,6 @@ class MuonPathAnalyzerInChamber : public MuonPathAnalyzer {
   float chiSquareThreshold;
   short minHits4Fit;
   int cellLayout[8];
-  
 };
-
 
 #endif

@@ -33,7 +33,6 @@
 #include <iostream>
 #include <fstream>
 
-
 // ===============================================================================
 // Previous definitions and declarations
 // ===============================================================================
@@ -43,28 +42,33 @@
 // ===============================================================================
 
 class MuonPathAnalyzer {
- public:
+public:
   // Constructors and destructor
   MuonPathAnalyzer(const edm::ParameterSet& pset);
   virtual ~MuonPathAnalyzer();
-    
-    // Main methods
-    virtual void initialise(const edm::EventSetup& iEventSetup);
-    virtual void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMpath, std::vector<metaPrimitive> &metaPrimitives)=0;
-    virtual void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMpath, std::vector<MuonPath*> &outMPath)=0;
 
-    virtual void finish();
-    
-    // Other public methods
-    
-    // Public attributes
-    
-  private:
-    // Private methods
-    
-    // Private attributes
-    Bool_t debug;
+  // Main methods
+  virtual void initialise(const edm::EventSetup& iEventSetup);
+  virtual void run(edm::Event& iEvent,
+                   const edm::EventSetup& iEventSetup,
+                   std::vector<MuonPath*>& inMpath,
+                   std::vector<metaPrimitive>& metaPrimitives) = 0;
+  virtual void run(edm::Event& iEvent,
+                   const edm::EventSetup& iEventSetup,
+                   std::vector<MuonPath*>& inMpath,
+                   std::vector<MuonPath*>& outMPath) = 0;
+
+  virtual void finish();
+
+  // Other public methods
+
+  // Public attributes
+
+private:
+  // Private methods
+
+  // Private attributes
+  Bool_t debug;
 };
-
 
 #endif
