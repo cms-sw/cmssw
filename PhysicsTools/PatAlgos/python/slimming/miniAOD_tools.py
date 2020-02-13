@@ -407,24 +407,9 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
     applyDeepBtagging( process )
 
-    addToProcessAndTask('slimmedJetsPuppiNoMultiplicities', process.slimmedJetsNoDeepFlavour.clone(), process, task)
-    process.slimmedJetsPuppiNoMultiplicities.src = cms.InputTag("selectedPatJetsPuppi")
-    process.slimmedJetsPuppiNoMultiplicities.packedPFCandidates = cms.InputTag("packedPFCandidates")
-
-    from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
-    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-    process.patPuppiJetSpecificProducer = patPuppiJetSpecificProducer.clone(
-      src=cms.InputTag("slimmedJetsPuppiNoMultiplicities"),
-    )
-    task.add(process.patPuppiJetSpecificProducer)
-    updateJetCollection(
-       process,
-       labelName = 'PuppiJetSpecific',
-       jetSource = cms.InputTag('slimmedJetsPuppiNoMultiplicities'),
-    )
-    process.updatedPatJetsPuppiJetSpecific.userData.userFloats.src = ['patPuppiJetSpecificProducer:puppiMultiplicity', 'patPuppiJetSpecificProducer:neutralPuppiMultiplicity', 'patPuppiJetSpecificProducer:neutralHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:photonPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFEMPuppiMultiplicity' ]
-    process.slimmedJetsPuppi = process.selectedUpdatedPatJetsPuppiJetSpecific.clone()
-    delattr(process, 'selectedUpdatedPatJetsPuppiJetSpecific')
+    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(), process, task)
+    process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")
+    process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
 
     task.add(process.slimmedJetsPuppi)
 

@@ -208,7 +208,7 @@ protected:
   int verbosity_;                              // flag to enable/disable debug output
   bool fromHTTTopJetProducer_ = false;         // for running the v2.0 HEPTopTagger
   bool applyPuppiWeight_;                      // Apply weights stored in a value map (e.g. from PUPPI)
-  edm::Handle<edm::ValueMap<float>> weights_;  // weights per particle (e.g. from PUPPI)
+  edm::ValueMap<float> weights_;               // weights per particle (e.g. from PUPPI)
 
 private:
   std::unique_ptr<AnomalousTower> anomalousTowerDef_;  // anomalous tower definition
