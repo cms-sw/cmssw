@@ -149,9 +149,9 @@ void ParticleNetJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions
   preprocessParams.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("preprocessParams", preprocessParams);
   desc.add<edm::FileInPath>("model_path",
-                            edm::FileInPath("RecoBTag/Combined/data/DeepBoostedJet/V01/full/resnet-symbol.json"));
+                            edm::FileInPath("RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-symbol.json"));
   desc.add<edm::FileInPath>("param_path",
-                            edm::FileInPath("RecoBTag/Combined/data/DeepBoostedJet/V01/full/resnet-0000.params"));
+                            edm::FileInPath("RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-0000.params"));
   desc.add<std::vector<std::string>>(
       "flav_names",
       std::vector<std::string>{
