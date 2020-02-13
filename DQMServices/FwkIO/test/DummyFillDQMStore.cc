@@ -56,17 +56,15 @@ namespace {
                                 m_steps,
                                 m_min,
                                 iPSet.getUntrackedParameter<double>("highX"));
-      m_hist = m_element->getTH1F();
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
 
     virtual ~TH1FFiller(){};
 
     void reset() { m_element->Reset(); }
-    void fill() { m_hist->Fill(m_valueToFill); }
+    void fill() { m_element->Fill(m_valueToFill); }
 
   private:
-    TH1F* m_hist;
     double m_valueToFill;
     double m_min;
     unsigned int m_steps;
@@ -89,17 +87,15 @@ namespace {
                                 iPSet.getUntrackedParameter<int>("nchY"),
                                 iPSet.getUntrackedParameter<double>("lowY"),
                                 iPSet.getUntrackedParameter<double>("highY"));
-      m_hist = m_element->getTH2F();
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
 
     virtual ~TH2FFiller(){};
 
     void reset() { m_element->Reset(); }
-    void fill() { m_hist->Fill(m_valueToFill, m_valueToFill); }
+    void fill() { m_element->Fill(m_valueToFill, m_valueToFill); }
 
   private:
-    TH2F* m_hist;
     double m_valueToFill;
     double m_min;
     unsigned int m_steps;
