@@ -36,7 +36,8 @@ namespace hcaldqm {
             ++fed;
           }
         } else {
-          if (slot > 6 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) != constants::crateListuTCA.end())) {  // needed to handle dual fed readout
+          if (slot > 6 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
+                           constants::crateListuTCA.end())) {  // needed to handle dual fed readout
             ++fed;
           }
         }
