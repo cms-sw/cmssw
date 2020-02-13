@@ -405,7 +405,7 @@ void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  /
                                            int& Q_l_X,                         //!< output, Q last   in X
                                            int& Q_f_Y,                         //!< output, Q first  in Y
                                            int& Q_l_Y                          //!< output, Q last   in Y
-                                           ) const {
+) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   // Initialize return variables.
