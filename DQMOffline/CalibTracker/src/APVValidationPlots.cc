@@ -43,56 +43,13 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   explicit APVValidationPlots(const edm::ParameterSet&);
-  ~APVValidationPlots() override;
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  std::ostringstream oss;
-
-  DQMStore* dqmStore;
-
-  MonitorElement* tmp;
-
-  // Histograms
-  // indexes in these arrays are [SubDetId-2][LayerN]
-  // histograms for [SubDetId-2][0] are global for the subdetector
-  // histogram for [0][0] is global for the tracker
-
-  TH2F* medianVsAbsoluteOccupancy[5][10];
-  TH1F* medianOccupancy[5][10];
-  TH1F* absoluteOccupancy[5][10];
-
-  std::vector<std::string> subDetName;
-  std::vector<unsigned int> nLayers;
-  std::vector<std::string> layerName;
-
-  std::string infilename;
-  std::string outfilename;
-
-  TFile* infile;
-  TTree* intree;
-
-  // Declaration of leaf types
-  Int_t DetRawId;
-  Int_t SubDetId;
-  Int_t Layer_Ring;
-  Int_t Disc;
-  Int_t IsBack;
-  Int_t IsExternalString;
-  Int_t IsZMinusSide;
-  Int_t RodStringPetal;
-  Int_t IsStereo;
-  Int_t ModulePosition;
-  Int_t NumberOfStrips;
-  Float_t APVGlobalPositionX;
-  Float_t APVGlobalPositionY;
-  Float_t APVGlobalPositionZ;
-  Int_t APVNumber;
-  Int_t APVAbsoluteOccupancy;
-  Double_t APVMedianOccupancy;
+  const std::string infilename;
+  const std::string outfilename;
 
   // ----------member data ---------------------------
 };
@@ -116,11 +73,6 @@ APVValidationPlots::APVValidationPlots(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
 }
 
-APVValidationPlots::~APVValidationPlots() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -128,15 +80,18 @@ APVValidationPlots::~APVValidationPlots() {
 // ------------ method called to for each event  ------------
 void APVValidationPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
-// ------------ method called once each job just before starting event loop  ------------
-void APVValidationPlots::beginJob() {
-  oss.str("");
+// ------------ method called once each job just after ending the event loop  ------------
+void APVValidationPlots::endJob() {
+  std::ostringstream oss;
   oss << 1;  //runNumber
 
-  dqmStore = edm::Service<DQMStore>().operator->();
+  DQMStore* dqmStore = edm::Service<DQMStore>().operator->();
   dqmStore->setCurrentFolder("ChannelStatusPlots");
 
   // Initialize histograms
+  std::vector<std::string> subDetName;
+  std::vector<unsigned int> nLayers;
+  std::vector<std::string> layerName;
   subDetName.push_back("");
   subDetName.push_back("TIB");
   subDetName.push_back("TID");
@@ -155,6 +110,13 @@ void APVValidationPlots::beginJob() {
 
   std::string histoName;
   std::string histoTitle;
+  // Histograms
+  // indexes in these arrays are [SubDetId-2][LayerN]
+  // histograms for [SubDetId-2][0] are global for the subdetector
+  // histogram for [0][0] is global for the tracker
+  TH2F* medianVsAbsoluteOccupancy[5][10];
+  TH1F* medianOccupancy[5][10];
+  TH1F* absoluteOccupancy[5][10];
   for (unsigned int i = 0; i < subDetName.size(); i++) {
     for (unsigned int j = 0; j <= nLayers[i]; j++) {
       histoName = "medianVsAbsoluteOccupancy" + subDetName[i];
@@ -169,7 +131,7 @@ void APVValidationPlots::beginJob() {
       if (j != 0) {
         histoTitle += " " + layerName[i] + " " + oss.str();
       }
-      tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6., 1000, -1., 3.);
+      MonitorElement* tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6., 1000, -1., 3.);
       medianVsAbsoluteOccupancy[i][j] = tmp->getTH2F();
       medianVsAbsoluteOccupancy[i][j]->Rebin2D(10, 10);
       medianVsAbsoluteOccupancy[i][j]->GetXaxis()->SetTitle("log_{10}(Abs. Occupancy)");
@@ -210,13 +172,28 @@ void APVValidationPlots::beginJob() {
       absoluteOccupancy[i][j]->GetYaxis()->SetTitle("APVs");
     }
   }
-}
 
-// ------------ method called once each job just after ending the event loop  ------------
-void APVValidationPlots::endJob() {
-  infile = new TFile(infilename.c_str(), "READ");
-  intree = (TTree*)infile->Get("moduleOccupancy");
+  TFile* infile = new TFile(infilename.c_str(), "READ");
+  TTree* intree = (TTree*)infile->Get("moduleOccupancy");
 
+  // Declaration of leaf types
+  Int_t DetRawId;
+  Int_t SubDetId;
+  Int_t Layer_Ring;
+  Int_t Disc;
+  Int_t IsBack;
+  Int_t IsExternalString;
+  Int_t IsZMinusSide;
+  Int_t RodStringPetal;
+  Int_t IsStereo;
+  Int_t ModulePosition;
+  Int_t NumberOfStrips;
+  Float_t APVGlobalPositionX;
+  Float_t APVGlobalPositionY;
+  Float_t APVGlobalPositionZ;
+  Int_t APVNumber;
+  Int_t APVAbsoluteOccupancy;
+  Double_t APVMedianOccupancy;
   intree->SetBranchAddress("DetRawId", &DetRawId);
   intree->SetBranchAddress("SubDetId", &SubDetId);
   intree->SetBranchAddress("Layer_Ring", &Layer_Ring);
