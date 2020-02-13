@@ -48,7 +48,7 @@ namespace deep_tau {
   std::unique_ptr<DeepTauBase::TauDiscriminator> DeepTauBase::Output::get_value(const edm::Handle<TauCollection>& taus,
                                                                                 const tensorflow::Tensor& pred,
                                                                                 const WPList& working_points) const {
-    std::unique_ptr<TauDiscriminator> output = std::make_unique<TauDiscriminator>(TauRefProd(taus));
+    std::vector<reco::SingleTauDiscriminatorContainer> outputbuffer(taus->size());
 
     for (size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
       float x = 0;
@@ -60,13 +60,16 @@ namespace deep_tau {
           den_val += pred.matrix<float>()(tau_index, den_elem);
         x = den_val != 0 ? x / den_val : std::numeric_limits<float>::max();
       }
-      TauRef tauRef(taus, tau_index);
-      (*output)[tauRef].rawValues.push_back(x);
+      outputbuffer[tau_index].rawValues.push_back(x);
       for (const auto& wp : working_points) {
         const bool pass = x > (*wp)(taus->at(tau_index));
-        (*output)[tauRef].workingPoints.push_back(pass);
+        outputbuffer[tau_index].workingPoints.push_back(pass);
       }
     }
+    std::unique_ptr<TauDiscriminator> output = std::make_unique<TauDiscriminator>();
+    reco::TauDiscriminatorContainer::Filler filler(*output);
+    filler.insert(taus, outputbuffer.begin(), outputbuffer.end());
+    filler.fill();
     return output;
   }
 

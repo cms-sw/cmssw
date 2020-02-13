@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
-#include "DataFormats/PatCandidates/interface/PATTauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "FWCore/Utilities/interface/transform.h"
 
@@ -25,7 +25,7 @@ private:
   std::vector<NameTag> tauIDSrcs_;
   std::vector<std::vector<NameWPIdx> > tauIDSrcContainers_;
   std::vector<edm::EDGetTokenT<pat::PATTauDiscriminator> > patTauIDTokens_;
-  std::vector<edm::EDGetTokenT<pat::PATTauDiscriminatorContainer> > patTauIDContainerTokens_;
+  std::vector<edm::EDGetTokenT<reco::TauDiscriminatorContainer> > patTauIDContainerTokens_;
   size_t nNewPlainTauIds_;
   size_t nNewTauIds_;
 };
@@ -61,7 +61,7 @@ PATTauIDEmbedder::PATTauIDEmbedder(const edm::ParameterSet& cfg) {
        mapEntry != idContainerMap.end();
        mapEntry++) {
     tauIDSrcContainers_.push_back(mapEntry->second.second);
-    patTauIDContainerTokens_.push_back(mayConsume<pat::PATTauDiscriminatorContainer>(mapEntry->second.first));
+    patTauIDContainerTokens_.push_back(mayConsume<reco::TauDiscriminatorContainer>(mapEntry->second.first));
   }
   patTauIDTokens_ = edm::vector_transform(
       tauIDSrcs_, [this](NameTag const& tag) { return mayConsume<pat::PATTauDiscriminator>(tag.second); });
@@ -105,7 +105,7 @@ void PATTauIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
 
     // store IDs that were produced in PATTauDiscriminatorContainer format
     size_t nEmbeddedIDs = nTauIds + nNewPlainTauIds_;
-    edm::Handle<pat::PATTauDiscriminatorContainer> tauDiscrCont;
+    edm::Handle<reco::TauDiscriminatorContainer> tauDiscrCont;
     for (size_t i = 0; i < tauIDSrcContainers_.size(); ++i) {
       evt.getByToken(patTauIDContainerTokens_[i], tauDiscrCont);
       for (size_t j = 0; j < tauIDSrcContainers_[i].size(); ++j) {

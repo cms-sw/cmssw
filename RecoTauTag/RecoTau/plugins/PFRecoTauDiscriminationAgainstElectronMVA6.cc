@@ -18,7 +18,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <iostream>
@@ -42,7 +41,7 @@ public:
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  reco::PFSingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
+  reco::SingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
 
   ~PFRecoTauDiscriminationAgainstElectronMVA6() override {}
 
@@ -72,9 +71,9 @@ void PFRecoTauDiscriminationAgainstElectronMVA6::beginEvent(const edm::Event& ev
   evt.getByToken(GsfElectrons_token, gsfElectrons_);
 }
 
-reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(
+reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(
     const PFTauRef& thePFTauRef) const {
-  reco::PFSingleTauDiscriminatorContainer result;
+  reco::SingleTauDiscriminatorContainer result;
   result.rawValues = {1., -1.};
   double category = -1.;
   bool isGsfElectronMatched = false;

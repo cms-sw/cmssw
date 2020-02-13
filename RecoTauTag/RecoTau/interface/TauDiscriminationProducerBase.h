@@ -43,11 +43,10 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
-#include "DataFormats/PatCandidates/interface/PATTauDiscriminatorContainer.h"
 
 template <class TauType,
           class TauDiscriminator,
@@ -110,18 +109,24 @@ private:
   std::vector<TauDiscInfo> prediscriminants_;
   // select boolean operation on prediscriminants (and = 0x01, or = 0x00)
   uint8_t andPrediscriminants_;
+
+  template <class ResultType = TauDiscriminator>
+  std::unique_ptr<TauDiscriminator> init_result_object(edm::Handle<TauCollection> taus, typename std::enable_if<!std::is_same<ResultType, reco::TauDiscriminatorContainer>::value, std::nullptr_t>::type = nullptr);
+
+  template <class ResultType = TauDiscriminator>
+  std::unique_ptr<TauDiscriminator> init_result_object(edm::Handle<TauCollection> taus, typename std::enable_if<std::is_same<ResultType, reco::TauDiscriminatorContainer>::value, std::nullptr_t>::type = nullptr);
 };
 
 // define our implementations
 typedef TauDiscriminationProducerBase<reco::PFTau,
-                                      reco::PFTauDiscriminatorContainer,
-                                      reco::PFSingleTauDiscriminatorContainer,
+                                      reco::TauDiscriminatorContainer,
+                                      reco::SingleTauDiscriminatorContainer,
                                       reco::PFTauDiscriminator>
     PFTauDiscriminationProducerBaseForIDContainers;
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator> PFTauDiscriminationProducerBase;
 typedef TauDiscriminationProducerBase<pat::Tau,
-                                      pat::PATTauDiscriminatorContainer,
-                                      pat::PATSingleTauDiscriminatorContainer,
+                                      reco::TauDiscriminatorContainer,
+                                      reco::SingleTauDiscriminatorContainer,
                                       pat::PATTauDiscriminator>
     PATTauDiscriminationProducerBaseForIDContainers;
 typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator> PATTauDiscriminationProducerBase;

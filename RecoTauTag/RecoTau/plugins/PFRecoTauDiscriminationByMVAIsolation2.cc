@@ -102,7 +102,7 @@ public:
         consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
 
     BasicTauDiscriminators_token =
-        consumes<reco::PFTauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
+        consumes<reco::TauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
     chargedIsoPtSum_index_ = cfg.getParameter<int>("srcChargedIsoPtSumIndex");
     neutralIsoPtSum_index_ = cfg.getParameter<int>("srcNeutralIsoPtSumIndex");
     pucorrPtSum_index_ = cfg.getParameter<int>("srcPUcorrPtSumIndex");
@@ -112,7 +112,7 @@ public:
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  reco::PFSingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
+  reco::SingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
 
   ~PFRecoTauDiscriminationByIsolationMVA2() override {
     if (!loadMVAfromDB_)
@@ -141,8 +141,8 @@ private:
   edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
   edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
 
-  edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> BasicTauDiscriminators_token;
-  edm::Handle<reco::PFTauDiscriminatorContainer> basicTauDiscriminators_;
+  edm::EDGetTokenT<reco::TauDiscriminatorContainer> BasicTauDiscriminators_token;
+  edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
   int chargedIsoPtSum_index_;
   int neutralIsoPtSum_index_;
   int pucorrPtSum_index_;
@@ -170,8 +170,8 @@ void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, c
   evt.getByToken(Tau_token, taus_);
 }
 
-reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const {
-  reco::PFSingleTauDiscriminatorContainer result;
+reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const {
+  reco::SingleTauDiscriminatorContainer result;
   result.rawValues = {
       -1.,
       0.};  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts

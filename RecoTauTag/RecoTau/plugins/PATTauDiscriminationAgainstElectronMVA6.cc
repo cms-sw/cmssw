@@ -38,7 +38,7 @@ public:
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  pat::PATSingleTauDiscriminatorContainer discriminate(const TauRef&) const override;
+  reco::SingleTauDiscriminatorContainer discriminate(const TauRef&) const override;
 
   ~PATTauDiscriminationAgainstElectronMVA6() override {}
 
@@ -68,9 +68,9 @@ void PATTauDiscriminationAgainstElectronMVA6::beginEvent(const edm::Event& evt, 
   evt.getByToken(electronToken, Electrons);
 }
 
-pat::PATSingleTauDiscriminatorContainer PATTauDiscriminationAgainstElectronMVA6::discriminate(
+reco::SingleTauDiscriminatorContainer PATTauDiscriminationAgainstElectronMVA6::discriminate(
     const TauRef& theTauRef) const {
-  pat::PATSingleTauDiscriminatorContainer result;
+  reco::SingleTauDiscriminatorContainer result;
   result.rawValues = {1., -1.};
   double category = -1.;
   bool isGsfElectronMatched = false;

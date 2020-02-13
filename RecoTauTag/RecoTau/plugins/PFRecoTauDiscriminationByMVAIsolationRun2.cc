@@ -23,7 +23,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
@@ -120,7 +119,7 @@ namespace reco {
             consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
 
         BasicTauDiscriminators_token =
-            consumes<reco::PFTauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
+            consumes<reco::TauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
         chargedIsoPtSum_index_ = cfg.getParameter<int>("srcChargedIsoPtSumIndex");
         neutralIsoPtSum_index_ = cfg.getParameter<int>("srcNeutralIsoPtSumIndex");
         pucorrPtSum_index_ = cfg.getParameter<int>("srcPUcorrPtSumIndex");
@@ -132,7 +131,7 @@ namespace reco {
 
       void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-      reco::PFSingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
+      reco::SingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
 
       ~PFRecoTauDiscriminationByMVAIsolationRun2() override {
         if (!loadMVAfromDB_)
@@ -160,8 +159,8 @@ namespace reco {
       edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
       edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
 
-      edm::EDGetTokenT<reco::PFTauDiscriminatorContainer> BasicTauDiscriminators_token;
-      edm::Handle<reco::PFTauDiscriminatorContainer> basicTauDiscriminators_;
+      edm::EDGetTokenT<reco::TauDiscriminatorContainer> BasicTauDiscriminators_token;
+      edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
       int chargedIsoPtSum_index_;
       int neutralIsoPtSum_index_;
       int pucorrPtSum_index_;
@@ -191,9 +190,9 @@ namespace reco {
       evt.getByToken(Tau_token, taus_);
     }
 
-    reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(
+    reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(
         const PFTauRef& tau) const {
-      reco::PFSingleTauDiscriminatorContainer result;
+      reco::SingleTauDiscriminatorContainer result;
       result.rawValues = {-1.};
 
       // CV: computation of MVA value requires presence of leading charged hadron

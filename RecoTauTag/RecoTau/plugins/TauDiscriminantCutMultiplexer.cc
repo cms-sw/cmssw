@@ -34,13 +34,13 @@
 #include "TFormula.h"
 #include "TFile.h"
 
-template <class TauType, class TauTypeRef, class TauDiscriminatorValueType, class TauDiscriminator, class ParentClass>
+template <class TauType, class TauTypeRef, class ParentClass>
 class TauDiscriminantCutMultiplexerBase : public ParentClass {
 public:
   explicit TauDiscriminantCutMultiplexerBase(const edm::ParameterSet& pset);
 
   ~TauDiscriminantCutMultiplexerBase() override;
-  TauDiscriminatorValueType discriminate(const TauTypeRef&) const override;
+  reco::SingleTauDiscriminatorContainer discriminate(const TauTypeRef&) const override;
   void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -70,8 +70,8 @@ private:
   bool isInitialized_;
 
   edm::InputTag toMultiplex_;
-  edm::Handle<TauDiscriminator> toMultiplexHandle_;
-  edm::EDGetTokenT<TauDiscriminator> toMultiplex_token;
+  edm::Handle<reco::TauDiscriminatorContainer> toMultiplexHandle_;
+  edm::EDGetTokenT<reco::TauDiscriminatorContainer> toMultiplex_token;
 
   int verbosity_;
 };
@@ -128,15 +128,15 @@ namespace {
   }
 }  // namespace
 
-template <class TauType, class TauTypeRef, class TauDiscriminatorValueType, class TauDiscriminator, class ParentClass>
-TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValueType, TauDiscriminator, ParentClass>::
+template <class TauType, class TauTypeRef, class ParentClass>
+TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
     TauDiscriminantCutMultiplexerBase(const edm::ParameterSet& cfg)
     : ParentClass(cfg),
       moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       mvaOutput_normalization_(),
       isInitialized_(false) {
   toMultiplex_ = cfg.getParameter<edm::InputTag>("toMultiplex");
-  toMultiplex_token = this->template consumes<TauDiscriminator>(toMultiplex_);
+  toMultiplex_token = this->template consumes<reco::TauDiscriminatorContainer>(toMultiplex_);
 
   verbosity_ = cfg.getParameter<int>("verbosity");
 
@@ -222,12 +222,12 @@ TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValueType
     std::cout << "constructed " << moduleLabel_ << std::endl;
 }
 
-template <class TauType, class TauTypeRef, class TauDiscriminatorValueType, class TauDiscriminator, class ParentClass>
-TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValueType, TauDiscriminator, ParentClass>::
+template <class TauType, class TauTypeRef, class ParentClass>
+TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
     ~TauDiscriminantCutMultiplexerBase() {}
 
-template <class TauType, class TauTypeRef, class TauDiscriminatorValueType, class TauDiscriminator, class ParentClass>
-void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValueType, TauDiscriminator, ParentClass>::
+template <class TauType, class TauTypeRef, class ParentClass>
+void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
     beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
   if (verbosity_)
     std::cout << " begin! " << moduleLabel_ << " " << isInitialized_ << std::endl;
@@ -271,16 +271,16 @@ void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValu
   evt.getByToken(toMultiplex_token, toMultiplexHandle_);
 }
 
-template <class TauType, class TauTypeRef, class TauDiscriminatorValueType, class TauDiscriminator, class ParentClass>
-TauDiscriminatorValueType
-TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValueType, TauDiscriminator, ParentClass>::
+template <class TauType, class TauTypeRef, class ParentClass>
+reco::SingleTauDiscriminatorContainer
+TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
     discriminate(const TauTypeRef& tau) const {
   if (verbosity_) {
     std::cout << "<TauDiscriminantCutMultiplexerBase::discriminate>:" << std::endl;
     std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
   }
 
-  TauDiscriminatorValueType result;
+  reco::SingleTauDiscriminatorContainer result;
   double disc_result = (*toMultiplexHandle_)[tau].rawValues.at(0);
   if (verbosity_) {
     std::cout << "disc_result = " << disc_result << std::endl;
@@ -356,8 +356,8 @@ std::string getDefaultConfigString<pat::Tau>() {
   return "PATTauDiscriminantCutMultiplexerDefault";
 }
 
-template <class TauType, class TauTypeRef, class TauDiscriminatorValueType, class TauDiscriminator, class ParentClass>
-void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValueType, TauDiscriminator, ParentClass>::
+template <class TauType, class TauTypeRef, class ParentClass>
+void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
     fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // recoTauDiscriminantCutMultiplexer
   edm::ParameterSetDescription desc;
@@ -395,26 +395,18 @@ void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, TauDiscriminatorValu
 // compile our desired types and make available to linker
 template class TauDiscriminantCutMultiplexerBase<reco::PFTau,
                                                  reco::PFTauRef,
-                                                 reco::PFSingleTauDiscriminatorContainer,
-                                                 reco::PFTauDiscriminatorContainer,
                                                  PFTauDiscriminationProducerBaseForIDContainers>;
 template class TauDiscriminantCutMultiplexerBase<pat::Tau,
                                                  pat::TauRef,
-                                                 pat::PATSingleTauDiscriminatorContainer,
-                                                 pat::PATTauDiscriminatorContainer,
                                                  PATTauDiscriminationProducerBaseForIDContainers>;
 
 // define our implementations
 typedef TauDiscriminantCutMultiplexerBase<reco::PFTau,
                                           reco::PFTauRef,
-                                          reco::PFSingleTauDiscriminatorContainer,
-                                          reco::PFTauDiscriminatorContainer,
                                           PFTauDiscriminationProducerBaseForIDContainers>
     RecoTauDiscriminantCutMultiplexer;
 typedef TauDiscriminantCutMultiplexerBase<pat::Tau,
                                           pat::TauRef,
-                                          pat::PATSingleTauDiscriminatorContainer,
-                                          pat::PATTauDiscriminatorContainer,
                                           PATTauDiscriminationProducerBaseForIDContainers>
     PATTauDiscriminantCutMultiplexer;
 

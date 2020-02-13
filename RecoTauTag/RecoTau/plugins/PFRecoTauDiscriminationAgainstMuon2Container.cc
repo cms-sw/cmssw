@@ -77,7 +77,7 @@ namespace {
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-    reco::PFSingleTauDiscriminatorContainer discriminate(const reco::PFTauRef&) const override;
+    reco::SingleTauDiscriminatorContainer discriminate(const reco::PFTauRef&) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -109,7 +109,7 @@ namespace {
     }
   }
 
-  reco::PFSingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuon2Container::discriminate(
+  reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuon2Container::discriminate(
       const reco::PFTauRef& pfTau) const {
     if (verbosity_) {
       edm::LogPrint("PFTauAgainstMuon2") << "<PFRecoTauDiscriminationAgainstMuon2Container::discriminate>:";
@@ -245,7 +245,7 @@ namespace {
       else if (pfLeadChargedHadron->gsfTrackRef().isNonnull())
         leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
     }
-    reco::PFSingleTauDiscriminatorContainer result;
+    reco::SingleTauDiscriminatorContainer result;
     for (std::vector<edm::ParameterSet>::const_iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end();
          ++wpDefsEntry) {
       //extract WP parameters
