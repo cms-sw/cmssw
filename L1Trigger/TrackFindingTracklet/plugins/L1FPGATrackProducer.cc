@@ -1031,6 +1031,13 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     float ptconsistency = StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo,  mMagneticFieldStrength, nHelixPar_);
     aTrack.setStubPtConsistency(ptconsistency);
 
+
+    // set TTTrack word
+    aTrack.setTrackWordBits();
+    
+    // test track word
+    //aTrack.testTrackWordBits();
+      
     L1TkTracksForOutput->push_back(aTrack);
 
   }
