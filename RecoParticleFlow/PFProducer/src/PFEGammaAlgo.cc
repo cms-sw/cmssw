@@ -1799,55 +1799,17 @@ reco::SuperCluster PFEGammaAlgo::buildRefinedSuperCluster(const PFEGammaAlgo::Pr
     posZ += cluseraw * cluspos.Z();
     // update EE calibrated super cluster energies
     if (isEE && RO.ecal2ps.count(clus.get())) {
-      double ps1_energy_sum = 0.;
-      double ps2_energy_sum = 0.;
-      ePS1 = 0.;
-      ePS2 = 0.;
-      int condP1 = 1;
-      int condP2 = 1;
-
       const auto& psclusters = RO.ecal2ps.at(clus.get());
 
-      for (auto i_ps = psclusters.begin(); i_ps != psclusters.end(); ++i_ps) {
-        const PFClusterRef& psclus = (*i_ps)->clusterRef();
-
-        auto const& recH_Frac = psclus->recHitFractions();
-
-        switch (psclus->layer()) {
-          case PFLayer::PS1:
-            ps1_energy_sum += psclus->energy();
-            for (auto const& recH : recH_Frac) {
-              ESDetId strip1 = recH.recHitRef()->detId();
-              if (strip1 != ESDetId(0)) {
-                //getStatusCode() == 0 => active channel
-                // apply correction if all recHits are dead
-                if (channelStatus_->getMap().find(strip1)->getStatusCode() == 0)
-                  condP1 = 0;
-              }
-            }
-            break;
-          case PFLayer::PS2:
-            ps2_energy_sum += psclus->energy();
-            for (auto const& recH : recH_Frac) {
-              ESDetId strip2 = recH.recHitRef()->detId();
-              if (strip2 != ESDetId(0)) {
-                if (channelStatus_->getMap().find(strip2)->getStatusCode() == 0)
-                  condP2 = 0;
-              }
-            }
-            break;
-          default:
-            break;
-        }
+      std::vector<reco::PFCluster const*> psClusterPointers;
+      for (auto const& psc : psclusters) {
+        psClusterPointers.push_back(psc->clusterRef().get());
       }
-
-      if (condP1 == 1)
-        ePS1 = -1.;
-      if (condP2 == 1)
-        ePS2 = -1.;
-
-      cluscalibe = thePFEnergyCalibration_.energyEm(
-          *clusptr, ps1_energy_sum, ps2_energy_sum, ePS1, ePS2, cfg_.applyCrackCorrections);
+      auto calibratedEnergies = thePFEnergyCalibration_.calibrateEndcapClusterEnergies(
+          *clusptr, psClusterPointers, *channelStatus_, cfg_.applyCrackCorrections);
+      cluscalibe = calibratedEnergies.clusterEnergy;
+      ePS1 = calibratedEnergies.ps1Energy;
+      ePS2 = calibratedEnergies.ps2Energy;
     }
     if (ePS1 == -1.)
       ePS1 = 0;
