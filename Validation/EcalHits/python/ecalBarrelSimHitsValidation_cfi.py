@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalBarrelSimHitsValidation = cms.EDAnalyzer("EcalBarrelSimHitsValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalBarrelSimHitsValidation = DQMEDAnalyzer("EcalBarrelSimHitsValidation",
     moduleLabelG4 = cms.string('g4SimHits'),
     verbose = cms.untracked.bool(False),
     ValidationCollection = cms.string('EcalValidInfo'),
