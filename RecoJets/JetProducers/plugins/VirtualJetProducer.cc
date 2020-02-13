@@ -286,7 +286,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // Get Weights Collection
   if (applyPuppiWeight_) {
-    edm::Handle<edm::ValueMap<float>> weightsHandle;               // weights per particle (e.g. from PUPPI)
+    edm::Handle<edm::ValueMap<float>> weightsHandle;
     iEvent.getByToken(input_weights_token_, weightsHandle);
     weights_=*weightsHandle.product();
   }

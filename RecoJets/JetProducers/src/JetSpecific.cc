@@ -340,8 +340,8 @@ bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& particles, PFJet:
   pfJetSpecific->mChargedEmEnergy = chargedEmEnergy;
   pfJetSpecific->mChargedMuEnergy = chargedMuEnergy;
   pfJetSpecific->mNeutralEmEnergy = neutralEmEnergy;
-  pfJetSpecific->mChargedMultiplicity = chargedMultiplicity;
-  pfJetSpecific->mNeutralMultiplicity = neutralMultiplicity;
+  pfJetSpecific->mChargedMultiplicity = int(chargedMultiplicity);
+  pfJetSpecific->mNeutralMultiplicity = int(neutralMultiplicity);
 
   pfJetSpecific->mHOEnergy = HOEnergy;
 
