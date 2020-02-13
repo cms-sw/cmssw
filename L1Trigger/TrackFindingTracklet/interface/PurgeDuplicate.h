@@ -144,10 +144,10 @@ public:
             seedRank.push_back(7);
           } else if (curSeed == 21) {
             seedRank.push_back(8);
-          } else if (hourglassExtended) {
+          } else if (extended_) {
             seedRank.push_back(9);
           } else {
-            cout << "Error: Seed " << curSeed << " not found in list, and hourglassExtended not set." << endl;
+            cout << "Error: Seed " << curSeed << " not found in list, and extended_ not set." << endl;
             assert(0);
           }
 
@@ -284,10 +284,11 @@ public:
             std::vector<std::pair<Stub*,L1TStub*>> stubsTrk1 = inputstublists_[rejetrk];
             std::vector<std::pair<Stub*,L1TStub*>> stubsTrk2 = inputstublists_[preftrk];
             newStubList = stubsTrk1;
-            newStubList.insert(newStubList.end(),stubsTrk2.begin(),stubsTrk2.end());
-            sort( newStubList.begin(), newStubList.end() );
-            // Erase duplicate stubs
-            newStubList.erase( unique( newStubList.begin(), newStubList.end() ), newStubList.end() );
+            for (unsigned int stub2it=0; stub2it<stubsTrk2.size(); stub2it++) {
+              if ( find(stubsTrk1.begin(), stubsTrk1.end(), stubsTrk2[stub2it]) == stubsTrk1.end()) {
+                newStubList.push_back(stubsTrk2[stub2it]);
+              }
+            }
             // Overwrite stublist of preferred track with merged list
             inputstublists_[preftrk] = newStubList;
 
@@ -295,10 +296,11 @@ public:
             std::vector<std::pair<int,int>> stubidsTrk1 = mergedstubidslists_[rejetrk];
             std::vector<std::pair<int,int>> stubidsTrk2 = mergedstubidslists_[preftrk];
             newStubidsList = stubidsTrk1;
-            newStubidsList.insert(newStubidsList.end(),stubidsTrk2.begin(),stubidsTrk2.end());
-            sort( newStubidsList.begin(), newStubidsList.end() );
-            // Erase duplicate stubs
-            newStubidsList.erase( unique( newStubidsList.begin(), newStubidsList.end() ), newStubidsList.end() );
+            for (unsigned int stub2it=0; stub2it<stubidsTrk2.size(); stub2it++) {
+              if ( find(stubidsTrk1.begin(), stubidsTrk1.end(), stubidsTrk2[stub2it]) == stubidsTrk1.end()) {
+                newStubidsList.push_back(stubidsTrk2[stub2it]);
+              }
+            }
             // Overwrite stubidslist of preferred track with merged list
             mergedstubidslists_[preftrk] = newStubidsList;
 
@@ -317,9 +319,9 @@ public:
         //add phicrit cut to reduce duplicates
         //double phicrit=tracklet->phi0()-asin(0.5*rcrit*tracklet->rinv());
         //bool keep=(phicrit>phicritmin)&&(phicrit<phicritmax);
-                          
-          HybridFit hybridFitter(iSector_);
-          hybridFitter.Fit(tracklet, trackstublist);
+	
+	HybridFit hybridFitter(iSector_,extended_,nHelixPar_);
+	hybridFitter.Fit(tracklet, trackstublist);
 
         // If the track was accepted (and thus fit), add to output
         if(tracklet->fit()) {

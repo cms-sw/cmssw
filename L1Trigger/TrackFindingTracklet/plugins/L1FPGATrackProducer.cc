@@ -296,7 +296,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig) :
 
 
   extended_  = iConfig.getUntrackedParameter<bool>("Extended",false);
-  nHelixPar_ = iConfig.getUntrackedParameter<int>("Hnpar",4);
+  nHelixPar_ = iConfig.getUntrackedParameter<unsigned int>("Hnpar",4);
   hourglassExtended = extended_; 
   nHelixPar = nHelixPar_;
   

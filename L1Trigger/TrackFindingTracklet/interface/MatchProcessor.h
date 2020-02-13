@@ -844,7 +844,7 @@ public:
 	    }
 	    int layer=tracklet->layer();
 	    int disk=abs(tracklet->disk());
-	    if (!hourglassExtended) {
+	    if (!extended_) {
 	      if ((layer==1&&disk==0&&fullmatches_[l]->getName().substr(3,4)=="L1L2")||
 		  (layer==2&&disk==0&&fullmatches_[l]->getName().substr(3,4)=="L2L3")||
 		  (layer==3&&disk==0&&fullmatches_[l]->getName().substr(3,4)=="L3L4")||
@@ -1080,7 +1080,7 @@ public:
 	  int layer=tracklet->layer();
 	  int disk=abs(tracklet->disk());
 	  for (unsigned int l=0;l<fullmatches_.size();l++){
-	    if (!hourglassExtended) {
+	    if (!extended_) {
 	      if ((layer==1&&disk==0&&fullmatches_[l]->getName().substr(3,4)=="L1L2")||
 		  (layer==3&&disk==0&&fullmatches_[l]->getName().substr(3,4)=="L3L4")||
 		  (layer==5&&disk==0&&fullmatches_[l]->getName().substr(3,4)=="L5L6")||
