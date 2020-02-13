@@ -28,7 +28,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << positionX[k] << " y " << positionY[k] << " angle "
                                   << angles[k] << " detector " << detectorType[k];
 
-  std::string idName = args.parentName();                         // Name of the "parent" volume.
+  std::string idName = args.parentName();  // Name of the "parent" volume.
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " << idName << " NameSpace " << ns.name();
 #endif
 

@@ -48,9 +48,9 @@ struct HCalEndcapModuleAlgo {
   std::vector<std::string> phiName;    //Name of Phi sections
   std::vector<std::string> layerName;  //Layer Names
 
-  std::string idName;       //Name of the "parent" volume.
-  std::string modName;      //Module Name
-  int idOffset;             // Geant4 ID's...    = 4000;
+  std::string idName;   //Name of the "parent" volume.
+  std::string modName;  //Module Name
+  int idOffset;         // Geant4 ID's...    = 4000;
 
   struct HcalEndcapPar {
     double yh1, bl1, tl1, yh2, bl2, tl2, alp, theta, phi, xpos, ypos, zpos;
