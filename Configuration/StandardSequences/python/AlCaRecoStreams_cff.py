@@ -779,7 +779,7 @@ ALCARECOStreamTkAlLAS = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamPPSTimingCalibProd = cms.FilteredStream(
+ALCARECOStreamPPSTimingCalib = cms.FilteredStream(
 	responsible = 'Laurent Forthomme',
 	name = 'PPSTimingCalib',
 	paths  = (pathALCARECOPPSTimingCalib),
