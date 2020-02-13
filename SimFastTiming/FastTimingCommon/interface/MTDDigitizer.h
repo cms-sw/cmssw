@@ -120,7 +120,7 @@ namespace mtd_digitizer {
 
       if (iEn == 0 || iEn == 2) {
         hit_info[iEn][iSample] += value;
-      } else if (hit_info[iEn][iSample] == 0) {
+      } else if (hit_info[iEn][iSample] == 0 || value < hit_info[iEn][iSample]) {
         // For iEn==1 the digitizers just set the TOF of the first SimHit
         hit_info[iEn][iSample] = value;
       }
