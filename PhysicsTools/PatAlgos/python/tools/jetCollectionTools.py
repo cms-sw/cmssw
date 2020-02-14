@@ -361,9 +361,9 @@ class RecoJetAdder(object):
           )
         )
         if recoJetInfo.jetPUMethod == "puppi":
-	  getattr(proc, jetCollection).src = self.pfLabel
-	  getattr(proc, jetCollection).srcWeights = self.pfCand
-	  getattr(proc, jetCollection).applyPuppiWeights = True
+          getattr(proc, jetCollection).src = self.pfLabel
+          getattr(proc, jetCollection).srcWeights = pfCand
+          getattr(proc, jetCollection).applyPuppiWeights = True
         currentTasks.append(jetCollection)
       else:
         jetCollection = inputCollection
