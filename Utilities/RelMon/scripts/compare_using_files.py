@@ -186,7 +186,7 @@ if options.compare:
     from Utilities.RelMon.dqm_interfaces import DirID,DirWalkerFile,string2blacklist
     from Utilities.RelMon.dirstructure import Directory
 
-  import cPickle
+  import pickle
   from os import mkdir,chdir,getcwd
   from os.path import exists
 
@@ -303,8 +303,8 @@ if options.compare:
   # Dump the directory structure on disk in a pickle
   original_pickle_name="%s.pkl" %fulldirname
   print("Pickleing the directory as %s in dir %s" %(original_pickle_name,getcwd()))
-  output = open(original_pickle_name,"w")
-  cPickle.dump(directory, output, -1)# use highest protocol available for the pickle
+  output = open(original_pickle_name,"wb")
+  pickle.dump(directory, output, -1)# use highest protocol available for the pickle
   output.close()
 
 #-------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ if options.report:
   from os.path import exists
   from os import chdir,mkdir
   import os
-  import cPickle    
+  import pickle    
   
   pickle_name=options.pklfile
   if len(options.pklfile)==0:
@@ -328,7 +328,7 @@ if options.report:
 
   print("Reading directory from %s" %(pickle_name))
   ifile=open(pickle_name,"rb")
-  directory=cPickle.load(ifile)
+  directory=pickle.load(ifile)
   ifile.close()
 
   if not options.compare:
