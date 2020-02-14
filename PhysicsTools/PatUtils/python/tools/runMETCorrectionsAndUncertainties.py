@@ -1569,7 +1569,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
             #puppi
             if self._parameters["Puppi"].value:
-                getattr(process, jetColName).src = cms.InputTag("puppi")
+                getattr(process, jetColName).srcWeights = cms.InputTag("puppi")
+                getattr(process, jetColName).applyPuppiWeights = True
 
             patMetModuleSequence += getattr(process, jetColName)
 
