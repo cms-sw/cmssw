@@ -50,7 +50,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   flagString = args.value<std::string>("FlagString");
 
   if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+    childName = ns.prepend(childName);
 
   dd4hep::Volume child = ns.volume(childName);
 
