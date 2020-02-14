@@ -9,9 +9,7 @@ _thresholdsHEphase1 = cms.vdouble(0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
 
 particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
-            name = cms.string("PFRecHitHCALNavigator"),
-            sigmaCut = cms.double(4.0),
-            timeResolutionCalc = _timeResolutionHCAL
+            name = cms.string("PFRecHitHCALNavigator")
     ),
     producers = cms.VPSet(
            cms.PSet(
