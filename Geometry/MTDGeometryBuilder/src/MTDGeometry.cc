@@ -44,30 +44,31 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd) : theTrackerDet(gd) {
   }
   GeometricTimingDet::ConstGeometricTimingDetContainer subdetgd = gd->components();
 
-  LogDebug("BuildingSubDetTypeMap") << "GeometricTimingDet and GeomDetEnumerators enumerator values of the subdetectors"
-                                    << std::endl;
+  LogDebug("BuildingSubDetTypeMap")
+      << "MTD GeometricTimingDet and GeomDetEnumerators enumerator values of the subdetectors" << std::endl;
   for (unsigned int i = 0; i < subdetgd.size(); ++i) {
     MTDDetId mtdid(subdetgd[i]->geographicalId());
     assert(mtdid.mtdSubDetector() > 0 && mtdid.mtdSubDetector() < 3);
     theSubDetTypeMap[mtdid.mtdSubDetector() - 1] = geometricDetToGeomDet(subdetgd[i]->type());
     theNumberOfLayers[mtdid.mtdSubDetector() - 1] = subdetgd[i]->components().size();
-    LogTrace("BuildingSubDetTypeMap").log([&](auto& debugstr) {
-      debugstr << "subdet " << i << " Geometric Det type " << subdetgd[i]->type() << " Geom Det type "
-               << theSubDetTypeMap[mtdid.mtdSubDetector() - 1] << " detid " << std::hex
-               << subdetgd[i]->geographicalId().rawId() << std::dec << " subdetid " << mtdid.mtdSubDetector()
-               << " number of layers " << subdetgd[i]->components().size() << std::endl;
-    });
+    LogTrace("BuildingSubDetTypeMap") << "MTD subdet " << i << " Geometric Det type " << subdetgd[i]->type()
+                                      << " Geom Det type " << theSubDetTypeMap[mtdid.mtdSubDetector() - 1] << " detid "
+                                      << std::hex << subdetgd[i]->geographicalId().rawId() << std::dec << " subdetid "
+                                      << mtdid.mtdSubDetector() << " number of layers "
+                                      << subdetgd[i]->components().size();
   }
   LogDebug("SubDetTypeMapContent").log([&](auto& debugstr) {
-    debugstr << "Content of theSubDetTypeMap" << std::endl;
+    debugstr << "MTD Content of theSubDetTypeMap"
+             << "\n";
     for (unsigned int i = 1; i <= 2; ++i) {
-      debugstr << " detid subdet " << i << " Geom Det type " << geomDetSubDetector(i) << std::endl;
+      debugstr << " detid subdet " << i << " Geom Det type " << geomDetSubDetector(i) << "\n";
     }
   });
   LogDebug("NumberOfLayers").log([&](auto& debugstr) {
-    debugstr << "Content of theNumberOfLayers" << std::endl;
+    debugstr << "MTD Content of theNumberOfLayers"
+             << "\n";
     for (unsigned int i = 1; i <= 2; ++i) {
-      debugstr << " detid subdet " << i << " number of layers " << numberOfLayers(i) << std::endl;
+      debugstr << " detid subdet " << i << " number of layers " << numberOfLayers(i) << "\n";
     }
   });
   std::vector<const GeometricTimingDet*> deepcomp;
@@ -75,21 +76,21 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd) : theTrackerDet(gd) {
 
   sort(deepcomp.begin(), deepcomp.end(), DetIdComparator());
 
-  LogDebug("ThicknessAndType") << " Total Number of Detectors " << deepcomp.size() << std::endl;
-  LogDebug("ThicknessAndType") << "Dump of sensors names and bounds" << std::endl;
+  LogDebug("ThicknessAndType") << "MTD Total Number of Detectors " << deepcomp.size() << std::endl;
+  LogDebug("ThicknessAndType") << "MTD Dump of sensors names and bounds" << std::endl;
   LogDebug("ThicknessAndType").log([&](auto& debugstr) {
     for (auto det : deepcomp) {
       fillTestMap(det);
       debugstr << std::hex << det->geographicalId().rawId() << std::dec << " " << det->name() << " "
-               << det->bounds()->thickness();
+               << det->bounds()->thickness() << "\n";
     }
   });
   LogDebug("DetTypeList").log([&](auto& debugstr) {
-    debugstr << " Content of DetTypetList : size " << theDetTypetList.size() << std::endl;
+    debugstr << "MTD Content of DetTypeList : size " << theDetTypetList.size() << "\n";
     for (auto iVal : theDetTypetList) {
       debugstr << " DetId " << std::get<0>(iVal).rawId() << " Type "
                << static_cast<std::underlying_type<MTDGeometry::ModuleType>::type>(std::get<1>(iVal)) << " Thickness "
-               << std::get<2>(iVal) << std::endl;
+               << std::get<2>(iVal) << "\n";
     }
   });
 }
