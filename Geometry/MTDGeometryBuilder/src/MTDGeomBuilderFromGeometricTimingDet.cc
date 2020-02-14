@@ -51,16 +51,14 @@ MTDGeometry* MTDGeomBuilderFromGeometricTimingDet::build(const GeometricTimingDe
       2, GeometricTimingDet::unknown);  // hardcoded "2" should not be a surprise...
   GeometricTimingDet::ConstGeometricTimingDetContainer subdetgd = gd->components();
 
-  LogDebug("SubDetectorGeometricTimingDetType")
-      << "GeometricTimingDet enumerator values of the subdetectors" << std::endl;
+  LogDebug("SubDetectorGeometricTimingDetType") << "MTD GeometricTimingDet enumerator values of the subdetectors";
   for (unsigned int i = 0; i < subdetgd.size(); ++i) {
     MTDDetId mtdid(subdetgd[i]->geographicalId());
     assert(mtdid.mtdSubDetector() > 0 && mtdid.mtdSubDetector() < 3);
     gdsubdetmap[mtdid.mtdSubDetector() - 1] = subdetgd[i]->type();
-    LogTrace("SubDetectorGeometricTimingDetType")
-        << "subdet " << i << " type " << subdetgd[i]->type() << " detid " << std::hex
-        << subdetgd[i]->geographicalId().rawId() << std::dec << " subdetid " << subdetgd[i]->geographicalId().subdetId()
-        << std::endl;
+    LogTrace("SubDetectorGeometricTimingDetType") << "MTD subdet " << i << " type " << subdetgd[i]->type() << " detid "
+                                                  << std::hex << subdetgd[i]->geographicalId().rawId() << std::dec
+                                                  << " subdetid " << subdetgd[i]->geographicalId().subdetId();
   }
 
   std::vector<const GeometricTimingDet*> dets[2];
@@ -98,11 +96,10 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
     GeomDetType::SubDetector det,
     const PMTDParameters& ptp)  // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
 {
-  LogDebug("BuildingGeomDetUnits") << " Pixel type. Size of vector: " << gdv.size()
+  LogDebug("BuildingGeomDetUnits") << " MTD Pixel type. Size of vector: " << gdv.size()
                                    << " GeomDetType subdetector: " << det
                                    << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det]
-                                   << " big pix per ROC x: " << 0 << " y: " << 0 << " is upgrade: " << true
-                                   << std::endl;
+                                   << " big pix per ROC x: " << 0 << " y: " << 0 << " is upgrade: " << true;
 
   // this is a hack while we put things into the DDD
   int ROCrows(0), ROCcols(0), ROCSx(0), ROCSy(0);
