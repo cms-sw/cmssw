@@ -149,7 +149,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   minSeed_ = iConfig.getParameter<unsigned int>("minSeed");
   verbosity_ = iConfig.getParameter<int>("verbosity");
   applyPuppiWeight_ = iConfig.getParameter<bool>("applyPuppiWeight");
-  if (applyPuppiWeight_) {
+  if ((applyPuppiWeight_) && (iConfig.getParameter<edm::InputTag>("src").label()!="packedPFCandidates")) {
     srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
     input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
   }
@@ -285,7 +285,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // Get Weights Collection
-  if (applyPuppiWeight_) {
+  if ((applyPuppiWeight_) && (!input_weights_token_.isUninitialized())) {
     edm::Handle<edm::ValueMap<float>> weightsHandle;
     iEvent.getByToken(input_weights_token_, weightsHandle);
     weights_ = *weightsHandle.product();
@@ -473,14 +473,15 @@ void VirtualJetProducer::inputTowers() {
         fjInputs_.emplace_back(input.px(), input.py(), input.pz(), input.energy());
         fjInputs_.back().set_user_index(i - inBegin);
       } else {
-        // To apply puppi weight, first check if this is a PFCandidate.
-        // If not, then check if it is a PackedCandidate
-        reco::PFCandidate const* pPF = dynamic_cast<reco::PFCandidate const*>(i->get());
-        auto w = pPF ? weights_[*i] : 0.0;
-        if (!pPF) {
+        float w=0.0;
+        if (!input_weights_token_.isUninitialized())
+          w = weights_[*i];
+        else {
           pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(i->get());
-          w = pPC ? pPC->puppiWeight() : 0.0;
-          weights_[*i] = w;
+          if (pPC) {
+            w = pPC->puppiWeight();
+            weights_[*i] = w;
+          }
         }
 
         if (w > 0) {

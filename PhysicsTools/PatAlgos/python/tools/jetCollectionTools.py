@@ -360,6 +360,10 @@ class RecoJetAdder(object):
             useExplicitGhosts         = recoJetInfo.doCS or recoJetInfo.jetPUMethod == "sk",
           )
         )
+        if recoJetInfo.jetPUMethod == "puppi":
+	  getattr(proc, jetCollection).src = self.pfLabel
+	  getattr(proc, jetCollection).srcWeights = self.pfCand
+	  getattr(proc, jetCollection).applyPuppiWeights = True
         currentTasks.append(jetCollection)
       else:
         jetCollection = inputCollection
