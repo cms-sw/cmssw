@@ -86,7 +86,7 @@ void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es)
     }
 
     // gets the map and geometry from the DB (to kill ROCs)
-    es.get<SiPixelFedCablingMapRcd>().get(map_);
+    es.get<SiPixelFedCablingMapRcd>().get(fedCablingMap_);
     es.get<TrackerDigiGeometryRecord>().get(geom_);
 }
 
@@ -99,18 +99,18 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
     _ohm_column_radius(5.0*unit_um)
 {
     // XXX - NEEDED?
-    pixelFlag = true;
+    pixelFlag_ = true;
 
     edm::LogInfo("Pixel3DDigitizerAlgorithm") << "Algorithm constructed \n"
                                      << "Configuration parameters:\n"
                                      << "\n*** Threshold" 
-                                     << "\n    Endcap = " << theThresholdInE_Endcap << " electrons"
-                                     << "\n    Barrel = " << theThresholdInE_Barrel << " electrons"
+                                     << "\n    Endcap = " << theThresholdInE_Endcap_ << " electrons"
+                                     << "\n    Barrel = " << theThresholdInE_Barrel_ << " electrons"
                                      << "\n*** Gain" 
-                                     << "\n    Electrons per ADC:" << theElectronPerADC 
-                                     << "\n    ADC Full Scale: " << theAdcFullScale 
-                                     << "\n*** The delta cut-off is set to " << tMax 
-                                     << "\n*** Pixel-inefficiency: " << AddPixelInefficiency;
+                                     << "\n    Electrons per ADC:" << theElectronPerADC_ 
+                                     << "\n    ADC Full Scale: " << theAdcFullScale_ 
+                                     << "\n*** The delta cut-off is set to " << tMax_ 
+                                     << "\n*** Pixel-inefficiency: " << addPixelInefficiency_;
 }
 
 
@@ -150,8 +150,8 @@ void Pixel3DDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
         const auto global_hit_position = pix3Ddet->surface().toGlobal(it->localPosition()).mag();
 
         // Only accept those sim hits produced inside a time window (same bunch-crossing)
-        if( (it->tof()-global_hit_position/SPEED_OF_LIGHT >= theTofLowerCut) 
-                && (it->tof()-global_hit_position/SPEED_OF_LIGHT <= theTofUpperCut) )
+        if( (it->tof()-global_hit_position/SPEED_OF_LIGHT >= theTofLowerCut_) 
+                && (it->tof()-global_hit_position/SPEED_OF_LIGHT <= theTofUpperCut_) )
         {
             // XXX: this vectors are the output of the next methods, the methods should
             // return them, instead of an input argument
@@ -434,12 +434,12 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(cons
         float energyOnCollector = nelectrons;
         // FIXME: is this correct?  Not for 3D...
 
-        if(pseudoRadDamage >= 0.001) 
+        if(pseudoRadDamage_ >= 0.001) 
         {
             const float module_radius = pixdet->surface().position().perp();
-            if(module_radius <= pseudoRadDamageRadius)
+            if(module_radius <= pseudoRadDamageRadius_)
             {
-                const float kValue = pseudoRadDamage/(module_radius*module_radius);
+                const float kValue = pseudoRadDamage_/(module_radius*module_radius);
                 energyOnCollector = energyOnCollector*std::exp(-1.0*kValue*drift_distance/max_radial_distance);
             }
         }
