@@ -263,22 +263,26 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       layers, trforms, trformUse, copies, copiesInLayers, wafer2copy, wafers, wafertype, cellsf, cellsc, php);
 }
 
-void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
+void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
                                               HGCalParameters& php,
                                               const std::string& sdTag1,
-                                              const cms::DDCompactView* cpv,
                                               const std::string& sdTag2,
                                               const std::string& sdTag3,
                                               HGCalGeometryMode::WaferMode mode) {
-  bool dodet(true);
+  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
+  std::string attribute = "Volume";
+  cms::DDSpecParRefs refs;
+  const cms::DDSpecParRegistry& mypar = cpv->specpars();
+  mypar.filter(refs, attribute, sdTag1);
+  fv.mergedSpecifics(refs);
   std::map<int, HGCalGeomParameters::layerParameters> layers;
   std::vector<HGCalParameters::hgtrform> trforms;
   std::vector<bool> trformUse;
 
-  while (dodet) {
+  while (fv.firstChild()) {
     const std::vector<double>& pars = fv.parameters();
     // Layers first
-    std::vector<int> copy = fv.history().copyNos;
+    std::vector<int> copy = fv.copyNos();
     int nsiz = (int)(copy.size());
     int lay = (nsiz > 0) ? copy[nsiz - 1] : 0;
     int zp = (nsiz > 2) ? copy[nsiz - 3] : -1;
@@ -294,8 +298,8 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
       if (itr == layers.end()) {
         double rin(0), rout(0);
         if (fv.isA<dd4hep::Polyhedra>()) {
-          rin = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[5] + pars[8]);
-          rout = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[6] + pars[9]);
+          rin = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[4] + pars[7]);
+          rout = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[5] + pars[8]);
         } else if (fv.isATubeSeg()) {
           cms::dd::DDTubs tubeSeg(fv);
           rin = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rIn();
@@ -325,7 +329,6 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
       trforms.emplace_back(mytrf);
       trformUse.emplace_back(false);
     }
-    dodet = fv.nextSibling();
   }
 
   // Then wafers
@@ -337,7 +340,6 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
   std::vector<int32_t> wafer2copy;
   std::vector<HGCalGeomParameters::cellParameters> wafers;
   cms::DDFilteredView fv1(cpv->detector(), cpv->detector()->worldVolume());
-  std::string attribute = "Volume";
   cms::DDSpecParRefs ref1;
   const cms::DDSpecParRegistry& mypar1 = cpv->specpars();
   mypar1.filter(ref1, attribute, sdTag2);
@@ -347,11 +349,11 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
     edm::LogError("HGCalGeom") << " Attribute " << sdTag2 << " not found but needed.";
     throw cms::Exception("DDException") << "Attribute " << sdTag2 << " not found but needed.";
   } else {
-    dodet = true;
+    bool dodet = true;
     std::unordered_set<std::string> names;
     while (dodet) {
       const std::string name = static_cast<std::string>(fv1.name());
-      std::vector<int> copy = fv1.history().copyNos;
+      std::vector<int> copy = fv1.copyNos();
       int nsiz = (int)(copy.size());
       int wafer = (nsiz > 0) ? copy[nsiz - 1] : 0;
       int layer = (nsiz > 1) ? copy[nsiz - 2] : 0;
@@ -384,13 +386,13 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
             double zv[2], rv;
             const std::vector<double>& pars = fv1.parameters();
             if (mode == HGCalGeometryMode::Polyhedra) {
-              zv[0] = pars[4];
-              zv[1] = pars[7];
-              rv = pars[6];
+              zv[0] = pars[3];
+              zv[1] = pars[6];
+              rv = pars[5];
             } else {
-              zv[0] = pars[4];
-              zv[1] = pars[7];
-              rv = pars[6];
+              zv[0] = pars[2];
+              zv[1] = pars[8];
+              rv = pars[3];
             }
             php.waferR_ = HGCalParameters::k_ScaleFromDD4HepToG4 * rv / std::cos(30._deg);
             php.waferSize_ = HGCalParameters::k_ScaleFromDD4Hep * rv;
@@ -412,7 +414,7 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
           }
         }
       }
-      dodet = fv1.nextSibling();
+      dodet = fv1.firstChild();
     }
   }
 
@@ -429,10 +431,10 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
     edm::LogError("HGCalGeom") << " Attribute " << sdTag3 << " not found but needed.";
     throw cms::Exception("DDException") << "Attribute " << sdTag3 << " not found but needed.";
   } else {
-    dodet = true;
+    bool dodet = true;
     while (dodet) {
       const std::string name = static_cast<std::string>(fv2.name());
-      std::vector<int> copy = fv2.history().copyNos;
+      std::vector<int> copy = fv2.copyNos();
       int nsiz = (int)(copy.size());
       int cellx = (nsiz > 0) ? copy[nsiz - 1] : 0;
       int wafer = (nsiz > 1) ? copy[nsiz - 2] : 0;
@@ -478,7 +480,7 @@ void HGCalGeomParameters::loadGeometryHexagon(cms::DDFilteredView& fv,
           }
         }
       }
-      dodet = fv2.nextSibling();
+      dodet = fv2.firstChild();
     }
   }
 
@@ -736,14 +738,23 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
   loadGeometryHexagon8(layers, trforms, firstLayer, php);
 }
 
-void HGCalGeomParameters::loadGeometryHexagon8(cms::DDFilteredView& fv, HGCalParameters& php, int firstLayer) {
-  bool dodet(true);
+void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
+                                               HGCalParameters& php,
+                                               const std::string& sdTag1,
+                                               int firstLayer) {
+  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
+  std::string attribute = "Volume";
+  cms::DDSpecParRefs refs;
+  const cms::DDSpecParRegistry& mypar = cpv->specpars();
+  mypar.filter(refs, attribute, sdTag1);
+  fv.mergedSpecifics(refs);
+  bool dodet = fv.firstChild();
   std::map<int, HGCalGeomParameters::layerParameters> layers;
   std::map<std::pair<int, int>, HGCalParameters::hgtrform> trforms;
   int levelTop = 3 + std::max(php.levelT_[0], php.levelT_[1]);
   while (dodet) {
     // Layers first
-    std::vector<int> copy = fv.history().copyNos;
+    std::vector<int> copy = fv.copyNos();
     int nsiz = static_cast<int>(copy.size());
     int lay = (nsiz > levelTop) ? copy[nsiz - 4] : copy[nsiz - 1];
     int zside = (nsiz > php.levelZSide_) ? copy[php.levelZSide_] : -1;
@@ -786,7 +797,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(cms::DDFilteredView& fv, HGCalPar
         trforms[std::make_pair(lay, zside)] = mytrf;
       }
     }
-    dodet = fv.nextSibling();
+    dodet = fv.firstChild();
   }
 
   loadGeometryHexagon8(layers, trforms, firstLayer, php);
@@ -894,7 +905,6 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
 
 void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
                                               HGCalParameters& php,
-                                              const cms::DDCompactView* cpv,
                                               const std::string& sdTag1,
                                               const std::string& sdTag2,
                                               const std::string& sdTag3,
