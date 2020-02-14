@@ -20,6 +20,9 @@ materialDumperAnalyzer = DQMEDAnalyzer('TrackingRecoMaterialAnalyser',
                                         PropagatorOpposite = cms.string("RungeKuttaTrackerPropagatorOpposite")
 )
 
+from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
+run4_PixelCPEGeneric.toModify(materialDumperAnalyzer, TrackerRecHitBuilder='WithTrackAngle')
+
 materialDumper = cms.Sequence(materialDumperAnalyzer)
 materialDumper_step = cms.Path(materialDumper)
 

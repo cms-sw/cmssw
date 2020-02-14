@@ -49,6 +49,9 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     Min_dr = cms.double(0.2)
 )
 
+from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
+run4_PixelCPEGeneric.toModify(trackerDrivenElectronSeeds, TTRHBuilder  = 'WithTrackAngle')
+
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
