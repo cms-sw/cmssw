@@ -64,7 +64,7 @@ public:
     std::vector<float> vals_mass;
     std::vector<float> vals_pz;
     std::vector<int> vals_pid;
-    std::vector<bool> vals_status;
+    std::vector<uint8_t> vals_status;
     std::vector<int> vals_spin;
     alphaS = hepeup.AQCDUP;
     for (unsigned int i = 0, n = pup.size(); i < n; ++i) {
