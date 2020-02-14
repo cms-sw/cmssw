@@ -66,6 +66,16 @@ requireDecayMode = cms.PSet(
 )
 
 ## Cut based isolations dR=0.5
+combinedIsoDefinition =  cms.PSet(
+            IDname = cms.string("ByLooseCombinedIsolationDBSumPtCorr3Hits"),
+            maximumSumPtCut = cms.double(2.5),
+            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
+            ApplyDiscriminationByECALIsolation = cms.bool(True),
+            applyDeltaBetaCorrection = cms.bool(True),
+            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
+            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
+            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
+            )
 hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
     PFTauProducer = cms.InputTag("hpsPFTauProducer"),
     Prediscriminants = requireDecayMode.clone(),
@@ -74,6 +84,7 @@ hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
     customOuterCone = PFRecoTauPFJetInputs.isolationConeSize,
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),
+    qualityCuts = dict(isolationQualityCuts = dict(minTrackHits = 3, minGammaEt = 1.0, minTrackPt = 0.5)),
     IDdefinitions = cms.VPSet(
         cms.PSet(
             IDname = cms.string("ChargedIsoPtSum"),
@@ -113,35 +124,17 @@ hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
             )
         ),
     IDWPdefinitions = cms.VPSet(
-        cms.PSet(
+        combinedIsoDefinition.clone(
             IDname = cms.string("ByLooseCombinedIsolationDBSumPtCorr3Hits"),
-            maximumSumPtCut = cms.double(2.5),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-            ApplyDiscriminationByECALIsolation = cms.bool(True),
-            applyDeltaBetaCorrection = cms.bool(True),
-            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
-            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
+            maximumSumPtCut = cms.double(2.5)
             ),
-        cms.PSet(
+        combinedIsoDefinition.clone(
             IDname = cms.string("ByMediumCombinedIsolationDBSumPtCorr3Hits"),
-            maximumSumPtCut = cms.double(1.5),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-            ApplyDiscriminationByECALIsolation = cms.bool(True),
-            applyDeltaBetaCorrection = cms.bool(True),
-            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
-            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
+            maximumSumPtCut = cms.double(1.5)
             ),
-        cms.PSet(
+        combinedIsoDefinition.clone(
             IDname = cms.string("ByTightCombinedIsolationDBSumPtCorr3Hits"),
-            maximumSumPtCut = cms.double(0.8),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-            ApplyDiscriminationByECALIsolation = cms.bool(True),
-            applyDeltaBetaCorrection = cms.bool(True),
-            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
-            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
+            maximumSumPtCut = cms.double(0.8)
             ),
         cms.PSet(
             IDname = cms.string("ByLooseChargedIsolation"),
@@ -157,92 +150,27 @@ hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
             )
         )
 )
-hpsPFTauBasicDiscriminators.qualityCuts.isolationQualityCuts.minTrackHits = cms.uint32(3)
-hpsPFTauBasicDiscriminators.qualityCuts.isolationQualityCuts.minGammaEt = cms.double(1.0)
-hpsPFTauBasicDiscriminators.qualityCuts.isolationQualityCuts.minTrackPt = cms.double(0.5)
 phase2_common.toModify(hpsPFTauBasicDiscriminators.qualityCuts,
                        isolationQualityCuts = dict( minTrackPt = 0.8 )
 )
 hpsPFTauBasicDiscriminatorsTask = cms.Task(
     hpsPFTauBasicDiscriminators
 )
-hpsPFTauBasicDiscriminatorsSeq = cms.Sequence(
-    hpsPFTauBasicDiscriminatorsTask
-)
 
 ## Cut based isolations dR=0.3
 hpsPFTauBasicDiscriminatorsdR03 = hpsPFTauBasicDiscriminators.clone(
-    deltaBetaFactor = cms.string('0.0720'), # 0.2*(0.3/0.5)^2
-    customOuterCone = cms.double(0.3),
-    IDdefinitions = cms.VPSet(
-        cms.PSet(
-            IDname = cms.string("ChargedIsoPtSumdR03"),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-            storeRawSumPt = cms.bool(True)
-            ),
-        cms.PSet(
-            IDname = cms.string("NeutralIsoPtSumdR03"),
-            ApplyDiscriminationByECALIsolation = cms.bool(True),
-            storeRawSumPt = cms.bool(True)
-            ),
-        cms.PSet(
-            IDname = cms.string("NeutralIsoPtSumWeightdR03"),
-            ApplyDiscriminationByWeightedECALIsolation = cms.bool(True),
-            storeRawSumPt = cms.bool(True),
-            UseAllPFCandsForWeights = cms.bool(True)
-            ),
-        cms.PSet(
-            IDname = cms.string("TauFootprintCorrectiondR03"),
-            storeRawFootprintCorrection = cms.bool(True)
-            ),
-        cms.PSet(
-            IDname = cms.string("PhotonPtSumOutsideSignalConedR03"),
-            storeRawPhotonSumPt_outsideSignalCone = cms.bool(True)
-            ),
-        cms.PSet(
-            IDname = cms.string("PUcorrPtSumdR03"),
-            applyDeltaBetaCorrection = cms.bool(True),
-            storeRawPUsumPt = cms.bool(True)
-            )
-        ),
-    IDWPdefinitions = cms.VPSet(
-        cms.PSet(
-            IDname = cms.string("ByLooseCombinedIsolationDBSumPtCorr3HitsdR03"),
-            maximumSumPtCut = cms.double(2.5),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-            ApplyDiscriminationByECALIsolation = cms.bool(True),
-            applyDeltaBetaCorrection = cms.bool(True),
-            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
-            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
-            ),
-        cms.PSet(
-            IDname = cms.string("ByMediumCombinedIsolationDBSumPtCorr3HitsdR03"),
-            maximumSumPtCut = cms.double(1.5),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-            ApplyDiscriminationByECALIsolation = cms.bool(True),
-            applyDeltaBetaCorrection = cms.bool(True),
-            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
-            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
-            ),
-        cms.PSet(
-            IDname = cms.string("ByTightCombinedIsolationDBSumPtCorr3HitsdR03"),
-            maximumSumPtCut = cms.double(0.8),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-            ApplyDiscriminationByECALIsolation = cms.bool(True),
-            applyDeltaBetaCorrection = cms.bool(True),
-            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
-            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
-            )
-        )
+    deltaBetaFactor = '0.0720', # 0.2*(0.3/0.5)^2
+    customOuterCone = 0.3
 )
+del hpsPFTauBasicDiscriminatorsdR03.IDdefinitions[-1] # ByRawCombinedIsolationDBSumPtCorr3Hits not defined for dR03
+del hpsPFTauBasicDiscriminatorsdR03.IDWPdefinitions[-1] # ByPhotonPtSumOutsideSignalCone not defined for dR03
+del hpsPFTauBasicDiscriminatorsdR03.IDWPdefinitions[-1] # ByLooseChargedIsolation not defined for dR03
+for pset in hpsPFTauBasicDiscriminatorsdR03.IDdefinitions:
+    pset.IDname = pset.IDname.value() + "dR03"
+for pset in hpsPFTauBasicDiscriminatorsdR03.IDWPdefinitions:
+    pset.IDname = pset.IDname.value() + "dR03"
 hpsPFTauBasicDiscriminatorsdR03Task = cms.Task(
     hpsPFTauBasicDiscriminatorsdR03
-)
-hpsPFTauBasicDiscriminatorsdR03Seq = cms.Sequence(
-    hpsPFTauBasicDiscriminatorsdR03Task
 )
 
 # define helper function to read indices of basic IDs or antimuon
@@ -380,6 +308,10 @@ hpsPFTauDiscriminationByMVA6ElectronRejection = recoTauDiscriminantCutMultiplexe
             variable = cms.string("pt")
         )
     ),
+    rawValues = cms.vstring(
+        "discriminator",
+        "category"
+    ),
     workingPoints = cms.vstring(
         "_VLoose",
         "_Loose",
@@ -459,19 +391,12 @@ hpsPFTauVertexAndImpactParametersSeq = cms.Sequence(
 #Define new Run2 MVA isolations
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByMVAIsolationRun2_cff import *
 hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw = discriminationByIsolationMVArun2v1raw.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = "hpsPFTauProducer",
     Prediscriminants = requireDecayMode.clone(),
-    loadMVAfromDB = cms.bool(True),
-    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT"),
-    mvaOpt = cms.string("DBoldDMwLTwGJ"),
-    srcTauTransverseImpactParameters = cms.InputTag('hpsPFTauTransverseImpactParameters'),
-    srcBasicTauDiscriminators = cms.InputTag('hpsPFTauBasicDiscriminators'),
-    srcChargedIsoPtSumIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminators, 'ChargedIsoPtSum')),
-    srcNeutralIsoPtSumIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminators, 'NeutralIsoPtSum')),
-    srcPUcorrPtSumIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminators, 'PUcorrPtSum')),
-    srcPhotonPtSumOutsideSignalConeIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminators, 'PhotonPtSumOutsideSignalCone')),
-    srcFootprintCorrectionIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminators, 'TauFootprintCorrection')),
-    verbosity = cms.int32(0)
+    mvaName = "RecoTauTag_tauIdMVAIsoDBoldDMwLT",
+    mvaOpt = "DBoldDMwLTwGJ",
+    srcTauTransverseImpactParameters = "hpsPFTauTransverseImpactParameters",
+    verbosity = 0
 )
 
 hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT = discriminationByIsolationMVArun2v1.clone(
@@ -514,28 +439,15 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByI
             cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT"),
             variable = cms.string("pt")
         )
-    ),
-    workingPoints = cms.vstring(
-        "_VVLoose",
-        "_VLoose",
-        "_Loose",
-        "_Medium",
-        "_Tight",
-        "_VTight",
-        "_VVTight"
     )
 )
 
 hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw.clone(
-    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT"),
-    mvaOpt = cms.string("DBoldDMwLTwGJ"),
-    srcBasicTauDiscriminators = cms.InputTag('hpsPFTauBasicDiscriminatorsdR03'),
-    srcChargedIsoPtSumIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminatorsdR03, 'ChargedIsoPtSumdR03')),
-    srcNeutralIsoPtSumIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminatorsdR03, 'NeutralIsoPtSumdR03')),
-    srcPUcorrPtSumIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminatorsdR03, 'PUcorrPtSumdR03')),
-    srcPhotonPtSumOutsideSignalConeIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminatorsdR03, 'PhotonPtSumOutsideSignalConedR03')),
-    srcFootprintCorrectionIndex = cms.int32(getBasicTauDiscriminatorRawIndex(hpsPFTauBasicDiscriminatorsdR03, 'TauFootprintCorrectiondR03')),
-    verbosity = cms.int32(0)
+    mvaName = "RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT",
+    mvaOpt = "DBoldDMwLTwGJ",
+    srcBasicTauDiscriminators = "hpsPFTauBasicDiscriminatorsdR03",
+    inputIDNameSuffix = cms.string("dR03"),
+    verbosity = 0
 )
 hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
@@ -549,15 +461,6 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminatio
             cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT"),
             variable = cms.string("pt")
         )
-    ),
-    workingPoints = cms.vstring(
-        "_VVLoose",
-        "_VLoose",
-        "_Loose",
-        "_Medium",
-        "_Tight",
-        "_VTight",
-        "_VVTight"
     )
 )
 

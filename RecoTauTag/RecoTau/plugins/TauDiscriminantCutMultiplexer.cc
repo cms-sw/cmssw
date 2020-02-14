@@ -63,6 +63,9 @@ private:
   };
   typedef std::map<int, std::vector<std::unique_ptr<DiscriminantCutEntry>>> DiscriminantCutMap;
   DiscriminantCutMap cuts_;
+  uint n_raws_;
+  int raw_discriminator_idx_ = -1;
+  int raw_category_idx_ = -1;
 
   std::string mvaOutputNormalizationName_;
   std::unique_ptr<const TFormula> mvaOutput_normalization_;
@@ -148,10 +151,18 @@ TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
     std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
   mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization");
 
-  // Setup our cut map
+  // Setup our cut map, first raw values then working points
   typedef std::vector<edm::ParameterSet> VPSet;
   typedef std::vector<std::string> VString;
   typedef std::vector<double> VDouble;
+  VString rawValueConfig = cfg.getParameter<VString>("rawValues");
+  for (uint i=0; i<rawValueConfig.size(); i++){
+      if (rawValueConfig[i]=="discriminator") raw_discriminator_idx_ = i;
+      else if(rawValueConfig[i]=="category") raw_category_idx_ = i;
+      else throw cms::Exception("TauDiscriminantCutMultiplexerBase")
+              << " Configuration Parameter 'rawValues' containes unknown values. Must be 'discriminator' or 'category'!!\n";
+  }
+  n_raws_ = rawValueConfig.size();
   VPSet mapping = cfg.getParameter<VPSet>("mapping");
   for (VPSet::const_iterator mappingEntry = mapping.begin(); mappingEntry != mapping.end(); ++mappingEntry) {
     unsigned category = mappingEntry->getParameter<uint32_t>("category");
@@ -281,11 +292,12 @@ TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
   }
 
   reco::SingleTauDiscriminatorContainer result;
+  result.rawValues.resize(n_raws_);
   double disc_result = (*toMultiplexHandle_)[tau].rawValues.at(0);
   if (verbosity_) {
     std::cout << "disc_result = " << disc_result << std::endl;
   }
-  result.rawValues.push_back(disc_result);
+  if (raw_discriminator_idx_>=0) result.rawValues[raw_discriminator_idx_] = disc_result;
   if (mvaOutput_normalization_) {
     disc_result = mvaOutput_normalization_->Eval(disc_result);
     //if ( disc_result > 1. ) disc_result = 1.;
@@ -297,7 +309,7 @@ TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
   double key_result = 0.0;
   if ((*toMultiplexHandle_)[tau].rawValues.size() == 2) {
     key_result = (*toMultiplexHandle_)[tau].rawValues.at(1);
-    result.rawValues.push_back(key_result);
+    if (raw_category_idx_>=0) result.rawValues[raw_category_idx_] = key_result;
   }
   typename DiscriminantCutMap::const_iterator cutWPsIter = cuts_.find(TMath::Nint(key_result));
 
@@ -381,8 +393,9 @@ void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
     desc.addVPSet("mapping", desc_mapping, vpsd_mapping);
   }
 
-  std::vector<double> defaultWP;
-  defaultWP.push_back(0.0);
+  std::vector<std::string> defaultRaws{"discriminator"};
+  desc.add<std::vector<std::string>>("rawValues", defaultRaws);
+  std::vector<double> defaultWP{0.0};
   desc.addNode(edm::ParameterDescription<std::vector<double>>("workingPoints", defaultWP, true) xor
                edm::ParameterDescription<std::vector<std::string>>("workingPoints", true));
   desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));

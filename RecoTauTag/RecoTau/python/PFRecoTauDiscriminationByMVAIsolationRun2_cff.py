@@ -21,11 +21,6 @@ discriminationByIsolationMVArun2v1raw = cms.EDProducer("PFRecoTauDiscriminationB
     srcTauTransverseImpactParameters = cms.InputTag(''),
     
     srcBasicTauDiscriminators = cms.InputTag('hpsPFTauBasicDiscriminators'),
-    srcChargedIsoPtSumIndex = cms.int32(0),
-    srcNeutralIsoPtSumIndex = cms.int32(1),
-    srcPUcorrPtSumIndex = cms.int32(5),
-    srcPhotonPtSumOutsideSignalConeIndex = cms.int32(4),
-    srcFootprintCorrectionIndex = cms.int32(3),
 
     verbosity = cms.int32(0)
 )
