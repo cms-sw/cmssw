@@ -73,6 +73,8 @@ namespace cms {
     //  along the full path to the current node
     const std::vector<int> copyNos() const;
 
+    const std::vector<int> copyNumbers() { return copyNos(); }
+
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;

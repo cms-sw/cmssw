@@ -4,7 +4,7 @@ process = cms.Process("GeometryTest")
 # empty input service, fire 10 events
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("Configuration.Geometry.GeometryExtended2026D44_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D50_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi")
 
