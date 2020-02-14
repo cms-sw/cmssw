@@ -29,9 +29,6 @@ namespace tensorflow {
     explicit TBBThreadPool(int nThreads = -1)
         : nThreads_(nThreads > 0 ? nThreads : tbb::task_scheduler_init::default_num_threads()), numScheduleCalled_(0) {
       // when nThreads is zero or smaller, use the default value determined by tbb
-      if (nThreads_ <= 0) {
-        nThreads_ = tbb::task_scheduler_init::default_num_threads();
-      }
     }
 
     void Schedule(std::function<void()> fn) override {
