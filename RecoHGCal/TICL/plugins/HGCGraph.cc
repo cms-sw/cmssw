@@ -44,7 +44,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
       startEtaBin = std::max(entryEtaBin - deltaIEta, 0);
       endEtaBin = std::min(entryEtaBin + deltaIEta + 1, nEtaBins);
       startPhiBin = entryPhiBin - deltaIPhi;
-      endPhiBin = entryPhiBin + deltaIPhi;
+      endPhiBin = entryPhiBin + deltaIPhi + 1;
     }
 
     for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
@@ -54,18 +54,18 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
         auto const &outerLayerHisto = histo[currentOuterLayerId];
         auto const &innerLayerHisto = histo[currentInnerLayerId];
 
-        for (int oeta = startEtaBin; oeta < endEtaBin; ++oeta) {
-          auto offset = oeta * nPhiBins;
-          for (int ophi_it = startPhiBin; ophi_it < endPhiBin; ++ophi_it) {
-            int ophi = ((ophi_it % nPhiBins + nPhiBins) % nPhiBins);
-            for (auto outerClusterId : outerLayerHisto[offset + ophi]) {
+        for (int ieta = startEtaBin; ieta < endEtaBin; ++ieta) {
+          auto offset = ieta * nPhiBins;
+          for (int iphi_it = startPhiBin; iphi_it < endPhiBin; ++iphi_it) {
+            int iphi = ((iphi_it % nPhiBins + nPhiBins) % nPhiBins);
+            for (auto innerClusterId : innerLayerHisto[offset + iphi]) {
               // Skip masked clusters
-              if (mask[outerClusterId] == 0.)
+              if (mask[innerClusterId] == 0.)
                 continue;
-              const auto etaRangeMin = std::max(0, oeta - deltaIEta);
-              const auto etaRangeMax = std::min(oeta + deltaIEta + 1, nEtaBins);
+              const auto etaRangeMin = std::max(0, ieta - deltaIEta);
+              const auto etaRangeMax = std::min(ieta + deltaIEta + 1, nEtaBins);
 
-              for (int ieta = etaRangeMin; ieta < etaRangeMax; ++ieta) {
+              for (int oeta = etaRangeMin; oeta < etaRangeMax; ++oeta) {
                 // wrap phi bin
                 for (int phiRange = 0; phiRange < 2 * deltaIPhi + 1; ++phiRange) {
                   // The first wrapping is to take into account the
@@ -73,10 +73,10 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                   // negative bins. The second wrap is mandatory to
                   // account for all other cases, since we add in
                   // between a full nPhiBins slot.
-                  auto iphi = ((ophi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
-                  for (auto innerClusterId : innerLayerHisto[ieta * nPhiBins + iphi]) {
+                  auto ophi = ((iphi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
+                  for (auto outerClusterId : outerLayerHisto[oeta * nPhiBins + ophi]) {
                     // Skip masked clusters
-                    if (mask[innerClusterId] == 0.)
+                    if (mask[outerClusterId] == 0.)
                       continue;
                     auto doubletId = allDoublets_.size();
                     if (maxDeltaTime != -1 &&
@@ -132,7 +132,7 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
   float timeOut = layerClustersTime.get(outerIdx).first;
   float timeOutE = layerClustersTime.get(outerIdx).second;
 
-  return (timeIn == -99 || timeOut == -99 ||
+  return (timeIn == -99. || timeOut == -99. ||
           std::abs(timeIn - timeOut) < maxDeltaTime * sqrt(timeInE * timeInE + timeOutE * timeOutE));
 }
 

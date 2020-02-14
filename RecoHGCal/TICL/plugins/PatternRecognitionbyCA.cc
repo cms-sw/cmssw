@@ -54,8 +54,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   std::vector<uint8_t> layer_cluster_usage(input.layerClusters.size(), 0);
   theGraph_->makeAndConnectDoublets(input.tiles,
                                     input.regions,
-                                    ticl::constants::nEtaBins,
-                                    ticl::constants::nPhiBins,
+                                    ticl::TileConstants::nEtaBins,
+                                    ticl::TileConstants::nPhiBins,
                                     input.layerClusters,
                                     input.mask,
                                     input.layerClustersTime,
@@ -242,7 +242,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
         float *features = &input.tensor<float, 4>()(i, j, seenClusters[j], 0);
 
         // fill features
-        *(features++) = float(cluster.eta());
+        *(features++) = float(std::abs(cluster.eta()));
         *(features++) = float(cluster.phi());
         *features = float(cluster.energy());
 
