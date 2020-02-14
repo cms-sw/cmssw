@@ -28,11 +28,11 @@ class Branch:
         self.single = True
         self.kind   = "Unknown"
         if branch.GetNleaves() != 1:
-            sys.stderr.write("Cannot parse branch '%s' in tree %s (%d leaves)\n", tree.GetName(), branch.GetName(), branch.GetNleaves())
+            sys.stderr.write("Cannot parse branch '%s' in tree %s (%d leaves)\n"%(branch.GetName(), tree.GetName(), branch.GetNleaves()))
             return
         self.leaf = branch.FindLeaf(branch.GetName())
         if not self.leaf:
-            sys.stderr.write("Cannot parse branch '%s' in tree %s (no leaf)\n", tree.GetName(), branch.GetName())
+            sys.stderr.write("Cannot parse branch '%s' in tree %s (no leaf)\n"%(branch.GetName(), tree.GetName()))
             return
         self.kind = self.leaf.GetTypeName()
         if "Idx" in self.name:

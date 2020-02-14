@@ -35,6 +35,20 @@ namespace nanoaod {
     typedef SingleColumn<int_accumulator> IntColumn;
 
     template <typename T>
+    struct SingleWithNormColumn : SingleColumn<T> {
+      SingleWithNormColumn() { norm = 0; }
+      SingleWithNormColumn(const std::string& aname, const std::string& adoc, T avalue = T(), const double anorm = 0)
+          : SingleColumn<T>(aname, adoc, avalue), norm(anorm) {}
+      double norm;
+      void operator+=(const SingleWithNormColumn<T>& other) {
+        auto newNorm = norm + other.norm;
+        this->value = (newNorm != 0) ? (this->value * norm + other.value * other.norm) / newNorm : 0;
+        norm = newNorm;
+      }
+    };
+    typedef SingleWithNormColumn<float_accumulator> FloatWithNormColumn;
+
+    template <typename T>
     struct VectorColumn {
       typedef T element_type;
       VectorColumn() {}
@@ -60,14 +74,43 @@ namespace nanoaod {
     typedef VectorColumn<float_accumulator> VFloatColumn;
     typedef VectorColumn<int_accumulator> VIntColumn;
 
+    template <typename T>
+    struct VectorWithNormColumn : VectorColumn<T> {
+      double norm;
+      VectorWithNormColumn() { norm = 0; }
+      VectorWithNormColumn(const std::string& aname, const std::string& adoc, unsigned int size, double anorm = 0)
+          : VectorColumn<T>(aname, adoc, size), norm(anorm) {}
+      VectorWithNormColumn(const std::string& aname,
+                           const std::string& adoc,
+                           const std::vector<T>& somevalues,
+                           double anorm = 0)
+          : VectorColumn<T>(aname, adoc, somevalues), norm(anorm) {}
+      void operator+=(const VectorWithNormColumn<T>& other) {
+        auto newNorm = norm + other.norm;
+        for (unsigned int i = 0, n = this->values.size(); i < n; ++i) {
+          this->values[i] =
+              (newNorm != 0) ? (this->values[i] * norm + other.values[i] * other.norm) / (norm + other.norm) : 0;
+        }
+        norm = newNorm;
+      }
+    };
+    typedef VectorWithNormColumn<float_accumulator> VFloatWithNormColumn;
+
     const std::vector<FloatColumn>& floatCols() const { return floatCols_; }
     const std::vector<VFloatColumn>& vfloatCols() const { return vfloatCols_; }
+    const std::vector<FloatWithNormColumn>& floatWithNormCols() const { return floatWithNormCols_; }
+    const std::vector<VFloatWithNormColumn>& vfloatWithNormCols() const { return vfloatWithNormCols_; }
     const std::vector<IntColumn>& intCols() const { return intCols_; }
     const std::vector<VIntColumn>& vintCols() const { return vintCols_; }
 
     template <typename F>
     void addFloat(const std::string& name, const std::string& doc, F value) {
       floatCols_.push_back(FloatColumn(name, doc, value));
+    }
+
+    template <typename F>
+    void addFloatWithNorm(const std::string& name, const std::string& doc, F value, double norm) {
+      floatWithNormCols_.push_back(FloatWithNormColumn(name, doc, value, norm));
     }
 
     template <typename I>
@@ -79,6 +122,12 @@ namespace nanoaod {
     void addVFloat(const std::string& name, const std::string& doc, const std::vector<F> values) {
       vfloatCols_.push_back(VFloatColumn(name, doc, values.size()));
       std::copy(values.begin(), values.end(), vfloatCols_.back().values.begin());
+    }
+
+    template <typename F>
+    void addVFloatWithNorm(const std::string& name, const std::string& doc, const std::vector<F> values, double norm) {
+      vfloatWithNormCols_.push_back(VFloatWithNormColumn(name, doc, values.size(), norm));
+      std::copy(values.begin(), values.end(), vfloatWithNormCols_.back().values.begin());
     }
 
     template <typename I>
@@ -96,12 +145,18 @@ namespace nanoaod {
         return false;
       if (!tryMerge(vfloatCols_, other.vfloatCols_))
         return false;
+      if (!tryMerge(floatWithNormCols_, other.floatWithNormCols_))
+        return false;
+      if (!tryMerge(vfloatWithNormCols_, other.vfloatWithNormCols_))
+        return false;
       return true;
     }
 
     void swap(MergeableCounterTable& iOther) {
       floatCols_.swap(iOther.floatCols_);
       vfloatCols_.swap(iOther.vfloatCols_);
+      floatWithNormCols_.swap(iOther.floatWithNormCols_);
+      vfloatWithNormCols_.swap(iOther.vfloatWithNormCols_);
       intCols_.swap(iOther.intCols_);
       vintCols_.swap(iOther.vintCols_);
     }
@@ -109,6 +164,8 @@ namespace nanoaod {
   private:
     std::vector<FloatColumn> floatCols_;
     std::vector<VFloatColumn> vfloatCols_;
+    std::vector<FloatWithNormColumn> floatWithNormCols_;
+    std::vector<VFloatWithNormColumn> vfloatWithNormCols_;
     std::vector<IntColumn> intCols_;
     std::vector<VIntColumn> vintCols_;
 
