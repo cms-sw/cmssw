@@ -149,7 +149,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   minSeed_ = iConfig.getParameter<unsigned int>("minSeed");
   verbosity_ = iConfig.getParameter<int>("verbosity");
   applyPuppiWeight_ = iConfig.getParameter<bool>("applyPuppiWeight");
-  if ((applyPuppiWeight_) && (iConfig.getParameter<edm::InputTag>("src").label()!="packedPFCandidates")) {
+  if ((applyPuppiWeight_) && (iConfig.getParameter<edm::InputTag>("src").label() != "packedPFCandidates")) {
     srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
     input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
   }
@@ -473,7 +473,7 @@ void VirtualJetProducer::inputTowers() {
         fjInputs_.emplace_back(input.px(), input.py(), input.pz(), input.energy());
         fjInputs_.back().set_user_index(i - inBegin);
       } else {
-        float w=0.0;
+        float w = 0.0;
         if (!input_weights_token_.isUninitialized())
           w = weights_[*i];
         else {
