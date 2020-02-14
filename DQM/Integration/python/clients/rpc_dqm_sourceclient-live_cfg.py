@@ -68,6 +68,9 @@ process.omtfStage2Digis = cms.EDProducer("OmtfUnpacker",
 )
 
 process.load("EventFilter.RPCRawToDigi.RPCDigiMerger_cff")
+process.rpcDigiMerger.inputTagTwinMuxDigis = 'rpcTwinMuxRawToDigi'
+process.rpcDigiMerger.inputTagOMTFDigis = 'omtfStage2Digis'
+process.rpcDigiMerger.inputTagCPPFDigis = 'rpcCPPFRawToDigi'
 
 ################# RPC Rec Hits  #################
 process.load("RecoLocalMuon.RPCRecHit.rpcRecHits_cfi")
