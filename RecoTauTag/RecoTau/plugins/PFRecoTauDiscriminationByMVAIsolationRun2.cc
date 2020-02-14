@@ -9,6 +9,7 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -21,6 +22,8 @@
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
@@ -120,11 +123,7 @@ namespace reco {
 
         BasicTauDiscriminators_token =
             consumes<reco::TauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
-        chargedIsoPtSum_index_ = cfg.getParameter<int>("srcChargedIsoPtSumIndex");
-        neutralIsoPtSum_index_ = cfg.getParameter<int>("srcNeutralIsoPtSumIndex");
-        pucorrPtSum_index_ = cfg.getParameter<int>("srcPUcorrPtSumIndex");
-        photonPtSumOutsideSignalCone_index_ = cfg.getParameter<int>("srcPhotonPtSumOutsideSignalConeIndex");
-        footprintCorrection_index_ = cfg.getParameter<int>("srcFootprintCorrectionIndex");
+        input_id_name_suffix_ = cfg.getParameter<std::string>("inputIDNameSuffix");
 
         verbosity_ = cfg.getParameter<int>("verbosity");
       }
@@ -161,11 +160,13 @@ namespace reco {
 
       edm::EDGetTokenT<reco::TauDiscriminatorContainer> BasicTauDiscriminators_token;
       edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
-      int chargedIsoPtSum_index_;
-      int neutralIsoPtSum_index_;
-      int pucorrPtSum_index_;
-      int photonPtSumOutsideSignalCone_index_;
-      int footprintCorrection_index_;
+      int chargedIsoPtSum_index_=0;
+      int neutralIsoPtSum_index_=0;
+      int pucorrPtSum_index_=0;
+      int photonPtSumOutsideSignalCone_index_=0;
+      int footprintCorrection_index_=0;
+      std::string input_id_name_suffix_;
+      edm::ProcessHistoryID phID_;
 
       edm::Handle<TauCollection> taus_;
 
@@ -188,6 +189,20 @@ namespace reco {
       evt.getByToken(BasicTauDiscriminators_token, basicTauDiscriminators_);
 
       evt.getByToken(Tau_token, taus_);
+      
+      // load indices from input provenance config if process history changed, in particular for the first event
+      if(evt.processHistoryID()!=phID_){
+        phID_ = evt.processHistoryID();
+        const edm::Provenance* prov = basicTauDiscriminators_.provenance();
+        const std::vector<edm::ParameterSet> psetsFromProvenance = edm::parameterSet(*prov, evt.processHistory()).getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++){
+            if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="ChargedIsoPtSum"+input_id_name_suffix_) chargedIsoPtSum_index_ = i;
+            else if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="NeutralIsoPtSum"+input_id_name_suffix_) neutralIsoPtSum_index_ = i;
+            else if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="PUcorrPtSum"+input_id_name_suffix_) pucorrPtSum_index_ = i;
+            else if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="PhotonPtSumOutsideSignalCone"+input_id_name_suffix_) photonPtSumOutsideSignalCone_index_ = i;
+            else if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="TauFootprintCorrection"+input_id_name_suffix_) footprintCorrection_index_ = i;
+        }
+      }
     }
 
     reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(
@@ -371,12 +386,7 @@ namespace reco {
 
       desc.add<edm::InputTag>("srcTauTransverseImpactParameters");
       desc.add<edm::InputTag>("srcBasicTauDiscriminators");
-      desc.add<int>("srcChargedIsoPtSumIndex");
-      desc.add<int>("srcNeutralIsoPtSumIndex");
-      desc.add<int>("srcPUcorrPtSumIndex");
-
-      desc.add<int>("srcPhotonPtSumOutsideSignalConeIndex");
-      desc.add<int>("srcFootprintCorrectionIndex");
+      desc.add<std::string>("inputIDNameSuffix", "");
 
       desc.add<int>("verbosity", 0);
 
