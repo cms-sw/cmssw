@@ -53,6 +53,9 @@ GlobalMuonRefitter = cms.PSet(
     RefitFlag = cms.bool( True )
 )
 
+from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
+run4_PixelCPEGeneric.toModify(GlobalMuonRefitter, TrackerRecHitBuilder = 'WithTrackAngle')
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 # FastSim doesn't use Runge Kute for propagation
 fastSim.toModify(GlobalMuonRefitter, Propagator = "SmartPropagatorAny")

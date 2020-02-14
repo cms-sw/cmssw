@@ -26,3 +26,6 @@ TrackProducer = cms.EDProducer("TrackProducer",
     MeasurementTracker = cms.string(''),
     MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
 )
+
+from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
+run4_PixelCPEGeneric.toModify(TrackProducer, TTRHBuilder = 'WithTrackAngle')
