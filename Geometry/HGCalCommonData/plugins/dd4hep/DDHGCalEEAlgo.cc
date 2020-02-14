@@ -57,7 +57,6 @@ struct HGCalEEAlgo {
   std::vector<double> slopeT_;          // Slopes at the larger R
   std::vector<double> zFrontT_;         // Starting Z values for the slopes
   std::vector<double> rMaxFront_;       // Corresponding rMax's
-  std::string nameSpace_;               // Namespace of this and ALL sub-parts
   std::unordered_set<int> copies_;      // List of copy #'s
   double alpha_, cosAlpha_;
 
@@ -168,9 +167,8 @@ struct HGCalEEAlgo {
                                     << " Slope " << slopeT_[i];
 #endif
 
-    nameSpace_ = static_cast<std::string>(ns.name());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: NameSpace " << nameSpace_;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: NameSpace " << ns.name();
 #endif
 
     waferType_ = std::make_unique<HGCalWaferType>(
@@ -221,7 +219,7 @@ struct HGCalEEAlgo {
         zz += hthick;
         thickTot += thick_[ii];
 
-        std::string name = nameSpace_ + names_[ii] + std::to_string(copy);
+        std::string name = ns.prepend(names_[ii]) + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: Layer " << ly << ":" << ii << " Front " << zi << ", " << routF
                                       << " Back " << zo << ", " << rinB << " superlayer thickness " << layerThick_[i];
