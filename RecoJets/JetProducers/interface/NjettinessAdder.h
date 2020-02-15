@@ -10,6 +10,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "fastjet/contrib/Njettiness.hh"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 class NjettinessAdder : public edm::stream::EDProducer<> {
 public:
@@ -61,6 +62,11 @@ private:
   unsigned axesDefinition_;
   int nPass_;
   double akAxesR0_;
+
+  bool applyPuppiWeight_;
+  edm::InputTag srcWeights_;
+  edm::EDGetTokenT<edm::ValueMap<float>> input_weights_token_;
+  edm::Handle<edm::ValueMap<float>> weightsHandle_;
 
   std::unique_ptr<fastjet::contrib::Njettiness> routine_;
 };
