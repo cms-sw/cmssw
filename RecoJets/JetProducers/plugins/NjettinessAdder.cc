@@ -12,7 +12,12 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig)
       Rcutoff_(iConfig.getParameter<double>("Rcutoff")),
       axesDefinition_(iConfig.getParameter<unsigned>("axesDefinition")),
       nPass_(iConfig.getParameter<int>("nPass")),
-      akAxesR0_(iConfig.getParameter<double>("akAxesR0")) {
+      akAxesR0_(iConfig.getParameter<double>("akAxesR0")),
+      applyPuppiWeight_(iConfig.getParameter<bool>("applyPuppiWeight")) {
+  if ((applyPuppiWeight_) && (iConfig.getParameter<edm::InputTag>("src").label() != "packedPFCandidates")) {
+    srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
+    input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
+  }
   for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
     std::ostringstream tauN_str;
     tauN_str << "tau" << *n;
@@ -108,6 +113,10 @@ void NjettinessAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(src_token_, jets);
 
+  // Get Weights Collection
+  if ((applyPuppiWeight_) && (!input_weights_token_.isUninitialized()))
+    iEvent.getByToken(input_weights_token_, weightsHandle_);
+
   for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
     std::ostringstream tauN_str;
     tauN_str << "tau" << *n;
@@ -137,9 +146,22 @@ float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) c
   std::vector<fastjet::PseudoJet> FJparticles;
   for (unsigned k = 0; k < object->numberOfDaughters(); ++k) {
     const reco::CandidatePtr& dp = object->daughterPtr(k);
-    if (dp.isNonnull() && dp.isAvailable())
-      FJparticles.push_back(fastjet::PseudoJet(dp->px(), dp->py(), dp->pz(), dp->energy()));
-    else
+    if (dp.isNonnull() && dp.isAvailable()) {
+      if (!applyPuppiWeight_)
+        FJparticles.push_back(fastjet::PseudoJet(dp->px(), dp->py(), dp->pz(), dp->energy()));
+      else {
+        float w = 1.0;
+        if (!input_weights_token_.isUninitialized())
+          w = (*weightsHandle_)[dp];
+        else {
+          pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(dp.get());
+          if (pPC)
+            w = pPC->puppiWeight();
+        }
+        if (w > 0)
+          FJparticles.push_back(fastjet::PseudoJet(dp->px() * w, dp->py() * w, dp->pz() * w, dp->energy() * w));
+      }
+    } else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
   }
 
