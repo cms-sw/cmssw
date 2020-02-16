@@ -3,6 +3,5 @@
 <use   name="TBDataFormats/EcalTBObjects"/>
 <use   name="TBDataFormats/HcalTBObjects"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/MessageService"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
