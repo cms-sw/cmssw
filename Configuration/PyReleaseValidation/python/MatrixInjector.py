@@ -276,7 +276,7 @@ class MatrixInjector(object):
             wmsplit['HYBRIDZSHI2015']=1
             wmsplit['RECOHID15']=1
             wmsplit['RECOHID18']=1
-	    wmsplit['DigiFullTriggerPU_2026D35PU'] = 1
+            wmsplit['DigiFullTriggerPU_2026D35PU'] = 1
             wmsplit['RecoFullGlobalPU_2026D35PU']=1
             wmsplit['DigiFullTriggerPU_2026D41PU'] = 1
             wmsplit['RecoFullGlobalPU_2026D41PU']=1
