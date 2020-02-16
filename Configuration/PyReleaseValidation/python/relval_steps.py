@@ -3095,7 +3095,7 @@ for gen in upgradeFragments:
 
 PUDataSets={}
 for ds in defaultDataSets:
-    key='MinBias_14TeV_pythia8_TuneCUETP8M1'+'_'+ds
+    key='MinBias_14TeV_pythia8_TuneCP5'+'_'+ds
     name=baseDataSetReleaseBetter[key]
     if '2017' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
