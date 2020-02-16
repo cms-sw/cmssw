@@ -15,7 +15,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 	PythiaParameters = cms.PSet(
             pythia8CommonSettingsBlock,
             pythia8CP5SettingsBlock,
-	    processParameters = cms.vstring(
+            processParameters = cms.vstring(
             		'ParticleDecays:limitTau0 = off',
 			'ParticleDecays:limitCylinder = on',
             		'ParticleDecays:xyMax = 2000',
