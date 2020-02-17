@@ -157,8 +157,8 @@ class HybridFit{
       int itanlfit = trk.tanLambda() / ktpars;
       int iz0fit   = trk.z0() / kz0pars;
       int id0fit   = trk.d0() / kd0pars;
-      int ichi2rphifit = trk.chi2rphi() / 16
-      int ichi2rzfit = trk.chi2rz() / 16
+      int ichi2rphifit = trk.chi2rphi() / 16;
+      int ichi2rzfit = trk.chi2rz() / 16;
 
       if (trk.accepted()) {
 
@@ -174,8 +174,8 @@ class HybridFit{
 
 	tracklet->setFitPars(rinvfit,phi0fit,trk.d0(),trk.tanLambda(),trk.z0(),trk.chi2rphi(),trk.chi2rz(),
 			     rinvfit,phi0fit,trk.d0(),trk.tanLambda(),trk.z0(),trk.chi2rphi(),trk.chi2rz(),
-			     irinvfit,iphi0fit,id0fit,itanlfit,iz0fit,ichi2rphifit,ichi2rzfit
-                             hitpattern,l1stubsFromFit);
+			     irinvfit,iphi0fit,id0fit,itanlfit,iz0fit,ichi2rphifit,ichi2rzfit,
+                             trk.getHitPattern(),l1stubsFromFit);
       }
       else {
 	if (printDebugKF) cout << "FitTrack:KF rejected track"<<endl;

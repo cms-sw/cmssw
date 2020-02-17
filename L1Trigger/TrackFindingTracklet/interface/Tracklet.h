@@ -986,10 +986,12 @@ public:
   FPGAWord id0fit() const { return fpgafitpars_.d0(); }
   FPGAWord itfit() const { return fpgafitpars_.t(); }
   FPGAWord iz0fit() const { return fpgafitpars_.z0(); }
-  FPGAWord ichiSqfit() const { return ichisqrphifit_ + ichisqrzfit_; }
+  FPGAWord ichiSqfit() const {
+    return FPGAWord(ichisqrphifit_.value() + ichisqrzfit_.value(), ichisqrphifit_.nbits());
+  }
 
   void setFitPars(double rinvfit, double phi0fit, double d0fit, double tfit,
-		  double z0fit, double chisqrphifit, double chi2rzfit,
+		  double z0fit, double chisqrphifit, double chisqrzfit,
 		  double rinvfitexact, double phi0fitexact, double d0fitexact, double tfitexact,
 		  double z0fitexact, double chisqrphifitexact, double chisqrzfitexact,
 		  int irinvfit, int iphi0fit, int id0fit, int itfit,
@@ -1235,7 +1237,7 @@ public:
   }
   
 
-  bool fit() const { return ichisqfit_.value()!=-1; }
+  bool fit() const { return ichisqrphifit_.value()!=-1; }
 
   int layer() const {
     int l1 = (innerFPGAStub_ && innerFPGAStub_->isBarrel()) ? innerStub_->layer()+1 : 999,
