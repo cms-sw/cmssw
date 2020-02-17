@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLogger_cfi import *
-from DQMServices.Components.DQMDcsInfo_cfi import *
+from DQMServices.Components.DQMProvInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
@@ -22,7 +22,8 @@ DQMNone = cms.Sequence()
 
 DQMMessageLoggerSeq = cms.Sequence( DQMMessageLogger )
 
-DQMOfflineDCS = cms.Sequence( dqmDcsInfo )
+dqmProvInfo.runType = "pp_run"
+DQMOfflineDCS = cms.Sequence( dqmProvInfo )
 
 # L1 trigger sequences
 DQMOfflineL1T = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data

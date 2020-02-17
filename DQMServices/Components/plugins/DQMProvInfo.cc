@@ -273,14 +273,17 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
 
   edm::Handle<DcsStatusCollection> dcsStatusCollection;
   event.getByToken(dcsStatusCollection_, dcsStatusCollection);
+  edm::Handle<DCSRecord> dcsRecord;
+  event.getByToken(dcsRecordToken_, dcsRecord);
 
-  if (!dcsStatusCollection->empty()) {
+  if (dcsStatusCollection.isValid() && !dcsStatusCollection->empty()) {
     edm::LogInfo("DQMProvInfo") << "Using FED#735 for reading DCS bits" << std::endl;
     fillDcsBitsFromDcsStatusCollection(dcsStatusCollection);
-  } else {
+  } else if (dcsRecord.isValid()) {
     edm::LogInfo("DQMProvInfo") << "Using softFED#1022 for reading DCS bits" << std::endl;
-    DCSRecord const& dcsRecord = event.get(dcsRecordToken_);
-    fillDcsBitsFromDCSRecord(dcsRecord);
+    fillDcsBitsFromDCSRecord(*dcsRecord);
+  } else {
+    edm::LogError("DQMProvInfo") << "No DCS information found!" << std::endl;
   }
 }
 
