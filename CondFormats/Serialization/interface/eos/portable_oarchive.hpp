@@ -3,7 +3,7 @@
  * \file portable_oarchive.hpp
  * \brief Provides an archive to create portable binary files.
  * \author christian.pfligersdorffer@gmx.at
- * \version 5.0
+ * \version 5.1
  *
  * This pair of archives brings the advantages of binary streams to the cross
  * platform boost::serialization user. While being almost as fast as the native
@@ -22,6 +22,9 @@
  *       and x86-64 platforms featuring different byte order. So there is a good
  *       chance it will instantly work for your specific setup. If you encounter
  *       problems or have suggestions please contact the author.
+ *
+ * \note Version 5.1 is now compatible with boost up to version 1.59. Thanks to
+ *       ecotax for pointing to the issue with shared_ptr_helper.
  *
  * \note Version 5.0 is now compatible with boost up to version 1.49 and enables
  *       serialization of std::wstring by converting it to/from utf8 (thanks to
@@ -66,7 +69,7 @@
  *       in binary floating point serialization as desired by some boost users.
  *       Instead we support only the most widely used IEEE 754 format and try to
  *       detect when requirements are not met and hence our approach must fail.
- *       Contributions we made by Johan Rade and ¡kos MarÛy.
+ *       Contributions we made by Johan Rade and √Åkos Mar√≥y.
  *
  * \note Version 2.0 fixes a serious bug that effectively transformed most
  *       of negative integral values into positive values! For example the two
@@ -92,7 +95,7 @@
 #include <boost/archive/basic_binary_oprimitive.hpp>
 #include <boost/archive/basic_binary_oarchive.hpp>
 
-#if BOOST_VERSION >= 103500 && BOOST_VERSION <= 105500
+#if BOOST_VERSION >= 103500 && BOOST_VERSION < 105600
 #include <boost/archive/shared_ptr_helper.hpp>
 #endif
 
@@ -122,6 +125,9 @@
 #elif BOOST_VERSION < 104800
 #include <boost/spirit/home/support/detail/integer/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
+#elif BOOST_VERSION >= 106900
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/endian/conversion.hpp>
 #else
 #include <boost/spirit/home/support/detail/endian/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
@@ -130,6 +136,8 @@
 // namespace alias fp_classify
 #if BOOST_VERSION < 103800
 namespace fp = boost::math;
+#elif BOOST_VERSION >= 106900
+namespace fp = boost::math;
 #else
 namespace fp = boost::spirit::math;
 #endif
@@ -137,11 +145,13 @@ namespace fp = boost::spirit::math;
 // namespace alias endian
 #if BOOST_VERSION < 104800
 namespace endian = boost::detail;
+#elif BOOST_VERSION >= 106900
+namespace endian = boost::endian;
 #else
 namespace endian = boost::spirit::detail;
 #endif
 
-#ifndef BOOST_NO_STD_WSTRING
+#if BOOST_VERSION >= 104500 && !defined BOOST_NO_STD_WSTRING
 // used for wstring to utf8 conversion
 #include <boost/program_options/config.hpp>
 #include <boost/program_options/detail/convert.hpp>
@@ -196,7 +206,7 @@ namespace eos {
       // save_override functions so we chose to stay one level higher
       ,
                             public boost::archive::basic_binary_oarchive<portable_oarchive>
-#if BOOST_VERSION >= 103500 && BOOST_VERSION <= 105500
+#if BOOST_VERSION >= 103500 && BOOST_VERSION < 105600
       // mix-in helper class for serializing shared_ptr
       ,
                             public boost::archive::detail::shared_ptr_helper
@@ -325,9 +335,13 @@ namespace eos {
         save_signed_char(t > 0 ? size : -size);
         BOOST_ASSERT(t > 0 || boost::is_signed<T>::value);
 
-        // we choose to use little endian because this way we just
-        // save the first size bytes to the stream and skip the rest
+// we choose to use little endian because this way we just
+// save the first size bytes to the stream and skip the rest
+#if BOOST_VERSION >= 106900
+        temp = endian::native_to_little(t);
+#else
         endian::store_little_endian<T, sizeof(T)>(&temp, t);
+#endif
         save_binary(&temp, size);
       }
       // zero optimization
@@ -382,16 +396,22 @@ namespace eos {
 
       // examine value closely
       switch (fp::fpclassify(t)) {
-        //case FP_ZERO: bits = 0; break;
+//case FP_ZERO: bits = 0; break;
+#if BOOST_VERSION >= 106900
+        case FP_NAN:
+          bits = traits::exponent | traits::significand;
+          break;
+#else
         case FP_NAN:
           bits = traits::exponent | traits::mantissa;
           break;
+#endif
         case FP_INFINITE:
           bits = traits::exponent | (t < 0) * traits::sign;
           break;
         case FP_SUBNORMAL:
           assert(std::numeric_limits<T>::has_denorm);  // pass
-        case FP_ZERO:                                  // note that floats can be ±0.0
+        case FP_ZERO:                                  // note that floats can be ¬±0.0
         case FP_NORMAL:
           traits::get_bits(t, bits);
           break;
@@ -433,40 +453,43 @@ BOOST_SERIALIZATION_REGISTER_ARCHIVE(eos::polymorphic_portable_oarchive)
 // about multiple template instantiations (eg. gcc is) then you need to
 // define NO_EXPLICIT_TEMPLATE_INSTANTIATION before every include but one
 // or you move the instantiation section into an implementation file
-//-ap #ifndef NO_EXPLICIT_TEMPLATE_INSTANTIATION
-//-ap
-//-ap #include <boost/archive/impl/basic_binary_oarchive.ipp>
-//-ap #include <boost/archive/impl/basic_binary_oprimitive.ipp>
-//-ap
-//-ap #if BOOST_VERSION < 104000
-//-ap #include <boost/archive/impl/archive_pointer_oserializer.ipp>
-//-ap #elif !defined BOOST_ARCHIVE_SERIALIZER_INCLUDED
-//-ap #include <boost/archive/impl/archive_serializer_map.ipp>
-//-ap #define BOOST_ARCHIVE_SERIALIZER_INCLUDED
-//-ap #endif
-//-ap
-//-ap namespace boost { namespace archive {
-//-ap
-//-ap 	// explicitly instantiate for this type of binary stream
-//-ap 	template class basic_binary_oarchive<eos::portable_oarchive>;
-//-ap
-//-ap 	template class basic_binary_oprimitive<
-//-ap 		eos::portable_oarchive
-//-ap 	#if BOOST_VERSION < 103400
-//-ap 		, std::ostream
-//-ap 	#else
-//-ap 		, std::ostream::char_type
-//-ap 		, std::ostream::traits_type
-//-ap 	#endif
-//-ap 	>;
-//-ap
-//-ap #if BOOST_VERSION < 104000
-//-ap 	template class detail::archive_pointer_oserializer<eos::portable_oarchive>;
-//-ap #else
-//-ap 	template class detail::archive_serializer_map<eos::portable_oarchive>;
-//-ap 	//template class detail::archive_serializer_map<eos::polymorphic_portable_oarchive>;
-//-ap #endif
-//-ap
-//-ap } } // namespace boost::archive
-//-ap
-//-ap #endif
+// #ifndef NO_EXPLICIT_TEMPLATE_INSTANTIATION
+//
+// #include <boost/archive/impl/basic_binary_oarchive.ipp>
+// #include <boost/archive/impl/basic_binary_oprimitive.ipp>
+//
+// #if BOOST_VERSION < 104000
+// #include <boost/archive/impl/archive_pointer_oserializer.ipp>
+// #elif !defined BOOST_ARCHIVE_SERIALIZER_INCLUDED
+// #include <boost/archive/impl/archive_serializer_map.ipp>
+// #define BOOST_ARCHIVE_SERIALIZER_INCLUDED
+// #endif
+//
+// namespace boost {
+//   namespace archive {
+//
+//     // explicitly instantiate for this type of binary stream
+//     template class basic_binary_oarchive<eos::portable_oarchive>;
+//
+//     template class basic_binary_oprimitive<eos::portable_oarchive
+// #if BOOST_VERSION < 103400
+//                                            ,
+//                                            std::ostream
+// #else
+//                                            ,
+//                                            std::ostream::char_type,
+//                                            std::ostream::traits_type
+// #endif
+//                                            >;
+//
+// #if BOOST_VERSION < 104000
+//     template class detail::archive_pointer_oserializer<eos::portable_oarchive>;
+// #else
+//     template class detail::archive_serializer_map<eos::portable_oarchive>;
+//     //template class detail::archive_serializer_map<eos::polymorphic_portable_oarchive>;
+// #endif
+//
+//   }  // namespace archive
+// }  // namespace boost
+//
+// #endif
