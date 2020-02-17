@@ -47,7 +47,7 @@ private:
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
   const edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> clustersTime_token_;
+  const edm::EDGetTokenT<edm::ValueMap<std::pair<float,float>>> clustersTime_token_;
   const edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
   const std::vector<int> filter_on_categories_;
@@ -80,7 +80,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
     clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
     filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
     original_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"))),
-    clustersTime_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
+    clustersTime_token_(consumes<edm::ValueMap<std::pair<float,float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
     layer_clusters_tiles_token_(consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"))),
     seeding_regions_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
     filter_on_categories_(ps.getParameter<std::vector<int>>("filter_on_categories")),
