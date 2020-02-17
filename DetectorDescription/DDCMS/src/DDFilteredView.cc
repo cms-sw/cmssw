@@ -463,6 +463,12 @@ bool DDFilteredView::isATruncTube() const { return isA<dd4hep::TruncatedTube>();
 
 bool DDFilteredView::isATubeSeg() const { return isA<dd4hep::Tube>(); }
 
+bool DDFilteredView::isAPolycone() const { return isA<dd4hep::Polycone>(); }
+
+bool DDFilteredView::isAPolyhedra() const { return isA<dd4hep::Polyhedra>(); }
+
+bool DDFilteredView::isAnExtrudedPolygon() const { return isA<dd4hep::ExtrudedPolygon>(); }
+
 bool DDFilteredView::isASubtraction() const {
   return (isA<dd4hep::SubtractionSolid>() && !isA<dd4hep::TruncatedTube>() && !isA<dd4hep::PseudoTrap>());
 }

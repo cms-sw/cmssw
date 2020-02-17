@@ -166,4 +166,49 @@ DDTruncTubs::DDTruncTubs(const DDFilteredView &fv) : valid{fv.isATruncTube()} {
   }
 }
 
-// *** end of DDTruncTubs
+
+// ** DDPolycone
+DDPolycone::DDPolycone(const cms::DDFilteredView &fview) : valid{fv.isAPolycone()} {
+  if (valid) {
+    auto polycone = fv.solid();
+    std::vector<double> params = polycone.dimensions();
+    int paramSize = params.size();
+    if (paramSize < 9) {
+      edm::LogError("DDShapes DDPolycone") << "Polycone parameters list too small: " << paramSize;
+      return;
+    }
+    startPhi_ = params[0];  // This order determined by reading DD4hep source code
+    deltaPhi_ = params[1];
+    int numPlanes = params[2];
+    for (int index = 3; index <= numPlanes * 3 && index < paramSize; index += 3) {
+      zVec_.emplace_back(params[index]);
+      rMinVec_.emplace_back(params[index + 1]);
+      rMaxVec_.emplace_back(params[index + 2]);
+    }
+}
+
+// *** end of DDPolycone
+
+
+// ** DDPolyhedra
+DDPolyhedra::DDPolyhedra(const cms::DDFilteredView &fview) : valid{fv.isAPolyhedra()} {
+  if (valid) {
+    auto polyhedra = fv.solid();
+    std::vector<double> params = polyhedra.dimensions();
+    int paramSize = params.size();
+    if (paramSize < 9) {
+      edm::LogError("DDShapes DDPolyhedra") << "Polyhedra parameters list too small: " << paramSize;
+      return;
+    }
+    startPhi_ = params[0];  // This order determined by reading DD4hep source code
+    deltaPhi_ = params[1];
+    sides_ = params[2];
+    numPlanes = params[3];
+    for (int index = 3; index <= numPlanes * 3 && index < paramSize; index += 3) {
+      zVec_.emplace_back(params[index]);
+      rMinVec_.emplace_back(params[index + 1]);
+      rMaxVec_.emplace_back(params[index + 2]);
+    }
+}
+
+// *** end of DDPolyhedra

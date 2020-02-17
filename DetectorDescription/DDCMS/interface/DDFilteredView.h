@@ -109,6 +109,10 @@ namespace cms {
     bool isATrapezoid() const;
     bool isATruncTube() const;
     bool isATubeSeg() const;
+    bool isAPolycone() const;
+    bool isAPolyhedra() const;
+    bool isAnExtrudedPolygon() const;
+
     bool isASubtraction() const;
 
     // Get shape pointer of current node.

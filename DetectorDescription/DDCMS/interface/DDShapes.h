@@ -215,6 +215,79 @@ namespace cms {
       double cutAtDelta_;
       bool cutInside_;
     };
+
+
+    class DDPolyhedra{
+    public:
+      DDPolyhedra(const cms::DDFilteredView &fview);
+      DDPolyhedra(void) = delete;
+
+      int sides(void) const { return (sides_); }
+      double startPhi(void) const { return (startPhi_); }
+      double deltaPhi(void) const { return (deltaPhi_); }
+      std::vector<double> zVec(void) const { return (zVec_); }
+      std::vector<double> rVec(void) const { return (rVec_); }
+      std::vector<double> rMinVec(void) const { return (rMinVec_); }
+      std::vector<double> rMaxVec(void) const { return (rMaxVec_); }
+
+      const bool valid;
+
+    private:
+      int sides_;
+      double startPhi_;
+      double deltaPhi_;
+      std::vector<double> zVec_;
+      std::vector<double> rVec_;
+      std::vector<double> rMinVec_;
+      std::vector<double> rMaxVec_;
+    };
+
+
+    class DDPolycone {
+    public:
+      DDPolycone(const cms::DDFilteredView &fview);
+      DDPolycone(void) = delete;
+
+      double startPhi(void) const { return (startPhi_); }
+      double deltaPhi(void) const { return (deltaPhi_); }
+      std::vector<double> zVec(void) const { return (zVec_); }
+      std::vector<double> rMinVec(void) const { return (rMinVec_); }
+      std::vector<double> rMaxVec(void) const { return (rMaxVec_); }
+
+      const bool valid;
+
+    private:
+      double startPhi_;
+      double deltaPhi_;
+      std::vector<double> zVec_;
+      std::vector<double> rMinVec_;
+      std::vector<double> rMaxVec_;
+     };
+
+
+    class DDExtrudedPolygon {
+    public:
+      DDExtrudedPolygon(const cms::DDFilteredView &fview);
+      DDExtrudedPolygon(void) = delete;
+
+      std::vector<double> xVec(void) const { return (xVec_); }
+      std::vector<double> yVec(void) const { return (yVec_); }
+      std::vector<double> zVec(void) const { return (zVec_); }
+      std::vector<double> zxVec(void) const { return (zxVec_); }
+      std::vector<double> zyVec(void) const { return (zyVec_); }
+      std::vector<double> zscaleVec(void) const { return (zscaleVec); }
+
+      const bool valid;
+
+   private:
+     std::vector<double> xVec_;
+     std::vector<double> yVec_;
+     std::vector<double> zVec_;
+     std::vector<double> zxVec_;
+     std::vector<double> zyVec_;
+     std::vector<double> zscaleVec_;
+   };
+
   }  // namespace dd
 }  // namespace cms
 
