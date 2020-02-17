@@ -402,6 +402,13 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
     Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta d_{z}) (cm)", **_common),
     Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
+_common = {"title": "", "ylog": True, "xtitle": "TP #Phi (PCA to beamline)", "ymin": _minMaxResol, "ymax": _minMaxResol}
+_resolutionsPhi = PlotGroup("resolutionsPhi", [
+    Plot("dxyres_vs_phi_Sigma", ytitle="#sigma(#delta d_{xy}) (cm)", **_common),
+    Plot("dzres_vs_phi_Sigma", ytitle="#sigma(#delta d_{z}) (cm)", **_common),
+    Plot("phires_vs_phi_Sigma", ytitle="#sigma(#delta #phi) (rad)", **_common),
+    Plot("ptres_vs_phi_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
+])
 
 ## Extended set of plots
 _extDistPtEtaPhi = PlotGroup("distPtEtaPhi",
@@ -1220,6 +1227,7 @@ _recoBasedPlots = [
     _hitsAndPt,
     _pulls,
     _resolutionsEta,
+    _resolutionsPhi,
     _resolutionsPt,
     _tuning,
 ]
@@ -1242,6 +1250,7 @@ _seedingBuildingPlots = _simBasedPlots + [
 _buildingExtendedPlots = [
     _pulls,
     _resolutionsEta,
+    _resolutionsPhi,
     _resolutionsPt,
     _tuning,
 ]
