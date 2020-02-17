@@ -92,7 +92,7 @@ void EcalBarrelSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run
   histo = "EB E4oE9";
   meEBe4oe9_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
 
-  histo = "EBE9oE16";
+  histo = "EB E9oE16";
   meEBe9oe16_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
 
   histo = "EB E1oE25";
