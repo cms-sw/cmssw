@@ -10,16 +10,15 @@ for lxplus with SLC7 (default since April 2019)
 ~~~
 export SCRAM_ARCH=slc7_amd64_gcc700
 # for SLC6 use 'slc6_amd64_gcc700' instead above
-cmsrel CMSSW_10_6_0
-cd CMSSW_10_6_0
+cmsrel CMSSW_11_0_0
+cd CMSSW_11_0_0
 cmsenv
 ~~~
 
 Get the code and compile
 
 ~~~
-git cms-checkout-topic jpata:pfvalidation-10_6_X-master
-# 'git cms-rebase-topic jpata:pfvalidation-10_6_X-master' might be better when using 10_6_0_patchX or higher version
+git cms-addpkg Validation/RecoParticleFlow
 scram b -j4
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow
 ~~~
