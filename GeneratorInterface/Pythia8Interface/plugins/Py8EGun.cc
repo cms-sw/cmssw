@@ -42,6 +42,9 @@ namespace gen {
 
     for (size_t i = 0; i < fPartIDs.size(); i++) {
       int particleID = fPartIDs[i];  // this is PDG - need to convert to Py8 ???
+      if ( (particleID <= 6 || particleID == 21) && !(fAddAntiParticle) ){
+	throw cms::Exception("PythiaError") << "Attempting to generate quarks or gluons without setting AddAntiParticle to true. This will not handle color properly." << std::endl;
+      }
 
       double phi = (fMaxPhi - fMinPhi) * randomEngine().flat() + fMinPhi;
       double ee = (fMaxE - fMinE) * randomEngine().flat() + fMinE;
