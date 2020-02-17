@@ -27,7 +27,8 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TMath.h"
 //The class
 class AlcaPCCProducerEvent : public edm::stream::EDProducer<> {
