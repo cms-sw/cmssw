@@ -94,7 +94,15 @@ void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   const auto& top = rDD.product();
   dumpGeometricTimingDet(top);
 
-  std::vector<const GeometricTimingDet*> det = rDD->deepComponents();
+  std::vector<const GeometricTimingDet*> det;
+
+  det = rDD->components();
+  for (const auto& it : det) {
+    dumpGeometricTimingDet(it);
+  }
+  det.clear();
+
+  det = rDD->deepComponents();
   for (const auto& it : det) {
     dumpGeometricTimingDet(it);
   }
@@ -125,8 +133,11 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
         << "SiliconAPVNumber " << det->siliconAPVNum() << "\n"
         << "Siblings numbers = ";
     std::vector<int> nv = det->navType();
-    for (auto sib : nv)
+    for (auto sib : nv) {
       log << sib << ", ";
+    }
+    log << "\n";
+    log << " And Contains SubDetectors: " << det->components().size() << "\n";
     log << " And Contains  Daughters: " << det->deepComponents().size() << "\n\n";
     log << "Translation = " << std::fixed << std::setw(14) << trans.X() << " " << std::setw(14) << trans.Y() << " "
         << std::setw(14) << trans.Z() << "\n";

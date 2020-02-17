@@ -21,6 +21,8 @@ public:
   void buildBTLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
   void buildETLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
 
+  GeometricTimingDet* buildSubdet(DDFilteredView&, GeometricTimingDet*, const std::string&);
+
 protected:
   CmsMTDStringToEnum theCmsMTDStringToEnum;
 };

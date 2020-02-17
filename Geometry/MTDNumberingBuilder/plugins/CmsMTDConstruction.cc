@@ -80,3 +80,23 @@ void CmsMTDConstruction::buildETLModule(DDFilteredView& fv, GeometricTimingDet* 
 
   mother->addComponent(det);
 }
+
+GeometricTimingDet* CmsMTDConstruction::buildSubdet(DDFilteredView& fv,
+                                                    GeometricTimingDet* mother,
+                                                    const std::string& attribute) {
+  auto thisDet = theCmsMTDStringToEnum.type(fv.name());
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, thisDet);
+
+  if (thisDet == GeometricTimingDet::BTL) {
+    subdet->setGeographicalID(BTLDetId(0, 0, 0, 0, 0));
+  } else if (thisDet == GeometricTimingDet::ETL) {
+    const uint32_t side = subdet->translation().z() > 0 ? 1 : 0;
+    subdet->setGeographicalID(ETLDetId(side, 0, 0, 0));
+  } else {
+    throw cms::Exception("CmsMTDConstruction") << " ERROR - I was expecting a SubDet, I got a " << fv.name();
+  }
+
+  mother->addComponent(subdet);
+
+  return subdet;
+}

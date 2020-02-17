@@ -76,8 +76,8 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   auto mtd = std::make_unique<GeometricTimingDet>(&fv, GeometricTimingDet::MTD);
   size_t limit = 0;
   CmsMTDConstruction theCmsMTDConstruction;
-  size_t nBTL;
-  nBTL = 0;
+
+  std::vector<GeometricTimingDet *> subdet;
 
   do {
     GeometricTimingDet::GeometricTimingEnumType fullNode = theCmsMTDStringToEnum.type(fv.name());
@@ -91,9 +91,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
     if (fullNode == GeometricTimingDet::BTL || fullNode == GeometricTimingDet::ETL) {
       limit = 0;
+
+      // define subdetectors as GeometricTimingDet components
+
+      subdet.emplace_back(theCmsMTDConstruction.buildSubdet(fv, mtd.get(), attribute));
     }
     //
-    // the level chosen corersponds to wafers for D50 and previous scenarios
+    // the level chosen corresponds to wafers for D50 and previous scenarios
     //
     if ((thisNode == GeometricTimingDet::BTLModule || thisNode == GeometricTimingDet::ETLModule) && limit == 0) {
       limit = num + 1;
@@ -102,14 +106,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
       continue;
     }
     if (thisNode == GeometricTimingDet::BTLModule) {
-      theCmsMTDConstruction.buildBTLModule(fv, mtd.get(), attribute);
-      nBTL++;
+      theCmsMTDConstruction.buildBTLModule(fv, subdet.back(), attribute);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
       limit = num;
     } else if (thisNode == GeometricTimingDet::ETLModule) {
-      theCmsMTDConstruction.buildETLModule(fv, mtd.get(), attribute);
+      theCmsMTDConstruction.buildETLModule(fv, subdet.back(), attribute);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
@@ -119,9 +122,8 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
   // sort GeometricTimingDet
 
-  GeometricTimingDet::ConstGeometricTimingDetContainer& comp = mtd->components();
-
 #ifdef EDM_ML_DEBUG
+  auto comp = mtd->deepComponents();
   std::stringstream before(std::stringstream::in | std::stringstream::out);
   for (const auto& it : comp) {
     before << "ORDER1 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
@@ -129,15 +131,18 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order before sorting \n" << before.str();
 #endif
 
-  std::stable_sort(comp.begin(), comp.end(), CmsMTDConstruction::mtdOrderZ);
-  std::stable_sort(comp.begin(), comp.end(), CmsMTDConstruction::mtdOrderRR);
-  std::stable_sort(comp.begin(), comp.end(), CmsMTDConstruction::mtdOrderSubdet);
-  GeometricTimingDet::ConstGeometricTimingDetContainer::iterator endbtl =
-      std::find(comp.begin(), comp.end(), comp[nBTL]);
-  std::stable_sort(endbtl, comp.end(), CmsMTDConstruction::mtdOrderPhi);
-  std::stable_sort(endbtl, comp.end(), CmsMTDConstruction::mtdOrderSide);
+  for (size_t index = 0; index < subdet.size(); index++ ) {
+
+    GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = subdet[index]->components();
+    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderZ);
+    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderRR);
+    if ( index > 0 ) { std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderPhi); }
+
+  }
 
 #ifdef EDM_ML_DEBUG
+  comp.clear();
+  comp = mtd->deepComponents();
   std::stringstream after(std::stringstream::in | std::stringstream::out);
   for (const auto& it : comp) {
     after << "ORDER2 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
