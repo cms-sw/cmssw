@@ -25,7 +25,7 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                    PFTauDiscriminatorContainers = cms.untracked.VInputTag(
                                                     cms.InputTag("hpsPFTauBasicDiscriminators")
                                    ),
-                                   PFTauDiscriminatorContainerIndices =  cms.untracked.vint32(0), # ByLooseCombinedIsolationDBSumPtCorr3Hits
+                                   PFTauDiscriminatorContainerWPs =  cms.untracked.vstring("ByLooseCombinedIsolationDBSumPtCorr3Hits"),
                                    doPFTaus = cms.untracked.bool(True),
                                    ptMin = cms.untracked.double(15.0),
                                    etaMin = cms.untracked.double(-2.5),

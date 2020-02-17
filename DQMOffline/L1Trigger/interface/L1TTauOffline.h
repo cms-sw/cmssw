@@ -16,8 +16,11 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 
 // FWCore
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -122,14 +125,19 @@ private:
   edm::ESHandle<Propagator> m_propagatorAlong;
   edm::ESHandle<Propagator> m_propagatorOpposite;
 
+  edm::ProcessHistoryID phID_;
+  
   // variables from config file
   edm::EDGetTokenT<reco::PFTauCollection> theTauCollection_;
   edm::EDGetTokenT<reco::TauDiscriminatorContainer> AntiMuInputTag_;
+  std::string AntiMuWP_;
   int AntiMuWPIndex_;
   edm::EDGetTokenT<reco::TauDiscriminatorContainer> AntiEleInputTag_;
+  std::string AntiEleWP_;
   int AntiEleWPIndex_;
   edm::EDGetTokenT<reco::PFTauDiscriminator> DecayModeFindingInputTag_;
   edm::EDGetTokenT<reco::TauDiscriminatorContainer> comb3TInputTag_;
+  std::string comb3TWP_;
   int comb3TWPIndex_;
   edm::EDGetTokenT<reco::MuonCollection> MuonInputTag_;
   edm::EDGetTokenT<reco::PFMETCollection> MetInputTag_;

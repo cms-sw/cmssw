@@ -358,3 +358,4 @@ void PFRecoTauDiscriminationAgainstMuon2::fillDescriptions(edm::ConfigurationDes
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon2);
+

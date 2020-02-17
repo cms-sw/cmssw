@@ -172,9 +172,8 @@ namespace {
     }
 
     reco::SingleTauDiscriminatorContainer result;
-    result.rawValues = {
-        -1.,
-        0.};  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
+    // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
+    result.rawValues = {-1., 0.};
 
     // CV: computation of anti-muon MVA value requires presence of leading charged hadron
     if (tau->leadPFChargedHadrCand().isNull())

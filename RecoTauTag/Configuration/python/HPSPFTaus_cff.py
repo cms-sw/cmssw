@@ -174,28 +174,6 @@ hpsPFTauBasicDiscriminatorsdR03Task = cms.Task(
 )
 
 # define helper function to read indices of basic IDs or antimuon
-def getBasicTauDiscriminatorRawIndex(module, IDname, ignore_notfound=False):
-    if hasattr(module, "IDdefinitions"):
-        IDdefs = module.IDdefinitions.value()
-        for i in range(len(module.IDdefinitions.value())):
-            if IDname==IDdefs[i].IDname.value():
-                return i
-    if ignore_notfound: #used by combined searches for raw and WP indices which apply their own sanity checks
-        return None
-    print("Basic Tau Discriminator <{}> not found!".format(IDname))
-    raise Exception
-def getBasicTauDiscriminatorWPIndex(module, IDname, ignore_notfound=False):
-    if hasattr(module, "IDWPdefinitions"):
-        IDdefs = module.IDWPdefinitions.value()
-        for i in range(len(module.IDWPdefinitions.value())):
-            if IDname==IDdefs[i].IDname.value():
-                return i
-    if ignore_notfound: #used by combined searches for raw and WP indices which apply their own sanity checks
-        return None
-    print("Basic Tau Discriminator <{}> not found!".format(IDname))
-    raise Exception
-
-
 ## MuonRejection3
 hpsPFTauDiscriminationByMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),

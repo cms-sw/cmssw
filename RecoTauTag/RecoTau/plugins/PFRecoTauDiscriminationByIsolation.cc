@@ -737,3 +737,4 @@ void PFRecoTauDiscriminationByIsolation::fillDescriptions(edm::ConfigurationDesc
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByIsolation);
+
