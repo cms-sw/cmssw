@@ -28,7 +28,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
-  void endRun(edm::Run const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &);
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};  // Cannot use; it is called after dqmSaver
 
   void refineSummaryHistogram(edm::Service<DQMStore> &);
@@ -49,7 +52,10 @@ void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions &descripti
   descriptions.add("GEMDQMHarvester", desc);
 }
 
-void GEMDQMHarvester::endRun(edm::Run const &, edm::EventSetup const &) {
+void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &,
+                                            DQMStore::IGetter &,
+                                            edm::LuminosityBlock const &,
+                                            edm::EventSetup const &) {
   edm::Service<DQMStore> store;
   refineSummaryHistogram(store);
 
