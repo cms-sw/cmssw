@@ -14,7 +14,6 @@ ________________________________________________________________**/
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 #include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -27,7 +26,8 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TMath.h"
 //The class
 class AlcaPCCEventProducer : public edm::stream::EDProducer<> {
@@ -53,7 +53,6 @@ private:
 AlcaPCCEventProducer::AlcaPCCEventProducer(const edm::ParameterSet& iConfig) {
   fPixelClusterLabel = iConfig.getParameter<edm::InputTag>("pixelClusterLabel");
   trigstring_ = iConfig.getUntrackedParameter<std::string>("trigstring", "alcaPCCEvent");
-
   produces<reco::PixelClusterCountsInEvent, edm::Transition::Event>(trigstring_);
   pixelToken = consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
 }
