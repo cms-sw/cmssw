@@ -25,11 +25,11 @@
 using namespace reco;
 using namespace std;
 
-class PFRecoTauDiscriminationByIsolationContainer : public PFTauDiscriminationProducerBaseForIDContainers {
+class PFRecoTauDiscriminationByIsolationContainer : public PFTauDiscriminationContainerProducerBase {
 public:
   enum StoredRawType { None, SumPt, PUsumPt, Occupancy, FootPrintCorrection, PhotonSumPt };
   explicit PFRecoTauDiscriminationByIsolationContainer(const edm::ParameterSet& pset)
-      : PFTauDiscriminationProducerBaseForIDContainers(pset),
+      : PFTauDiscriminationContainerProducerBase(pset),
         moduleLabel_(pset.getParameter<std::string>("@module_label")),
         qualityCutsPSet_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
     // RIC: multiply neutral isolation by a flat factor.

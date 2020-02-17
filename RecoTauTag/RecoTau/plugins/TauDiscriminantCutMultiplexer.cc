@@ -408,19 +408,19 @@ void TauDiscriminantCutMultiplexerBase<TauType, TauTypeRef, ParentClass>::
 // compile our desired types and make available to linker
 template class TauDiscriminantCutMultiplexerBase<reco::PFTau,
                                                  reco::PFTauRef,
-                                                 PFTauDiscriminationProducerBaseForIDContainers>;
+                                                 PFTauDiscriminationContainerProducerBase>;
 template class TauDiscriminantCutMultiplexerBase<pat::Tau,
                                                  pat::TauRef,
-                                                 PATTauDiscriminationProducerBaseForIDContainers>;
+                                                 PATTauDiscriminationContainerProducerBase>;
 
 // define our implementations
 typedef TauDiscriminantCutMultiplexerBase<reco::PFTau,
                                           reco::PFTauRef,
-                                          PFTauDiscriminationProducerBaseForIDContainers>
+                                          PFTauDiscriminationContainerProducerBase>
     RecoTauDiscriminantCutMultiplexer;
 typedef TauDiscriminantCutMultiplexerBase<pat::Tau,
                                           pat::TauRef,
-                                          PATTauDiscriminationProducerBaseForIDContainers>
+                                          PATTauDiscriminationContainerProducerBase>
     PATTauDiscriminantCutMultiplexer;
 
 DEFINE_FWK_MODULE(RecoTauDiscriminantCutMultiplexer);

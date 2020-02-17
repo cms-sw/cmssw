@@ -35,12 +35,12 @@ using reco::tau::format_vint;
 
 namespace {
 
-  class PFRecoTauDiscriminationAgainstMuon2Container final : public PFTauDiscriminationProducerBaseForIDContainers {
+  class PFRecoTauDiscriminationAgainstMuon2Container final : public PFTauDiscriminationContainerProducerBase {
     enum { kLoose, kMedium, kTight, kCustom };
 
   public:
     explicit PFRecoTauDiscriminationAgainstMuon2Container(const edm::ParameterSet& cfg)
-        : PFTauDiscriminationProducerBaseForIDContainers(cfg),
+        : PFTauDiscriminationContainerProducerBase(cfg),
           moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
       wpDefs_ = cfg.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
       // check content of discriminatorOption and add as enum to avoid string comparison per event
