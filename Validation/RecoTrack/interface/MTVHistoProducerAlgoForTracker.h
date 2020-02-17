@@ -29,7 +29,7 @@
 struct MTVHistoProducerAlgoForTrackerHistograms {
   //sim
   using METype = dqm::reco::MonitorElement*;
-  METype h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM, h_bunchxSIM;
+  METype h_ptSIM, h_etaSIM, h_phiSIM, h_tracksSIM, h_vertposSIM, h_bunchxSIM;
 
   //1D
   std::vector<METype> h_tracks, h_fakes, h_hits, h_charge, h_algo, h_seedsFitFailed, h_seedsFitFailedFraction;
@@ -119,7 +119,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   //2D
   std::vector<METype> chi2_vs_nhits, etares_vs_eta;
   std::vector<METype> h_ptshifteta;
-  std::vector<METype> ptres_vs_phi, chi2_vs_phi, nhits_vs_phi, phires_vs_phi;
+  std::vector<METype> dxyres_vs_phi, dzres_vs_phi, ptres_vs_phi, chi2_vs_phi, nhits_vs_phi, phires_vs_phi;
 
   //Profile2D
   std::vector<METype> ptmean_vs_eta_phi, phimean_vs_eta_phi;
