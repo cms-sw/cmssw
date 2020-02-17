@@ -37,7 +37,7 @@ public:
   explicit PFCTRecHitProducer(const edm::ParameterSet&);
   ~PFCTRecHitProducer() override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
