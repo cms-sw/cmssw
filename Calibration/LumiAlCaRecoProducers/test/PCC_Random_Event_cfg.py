@@ -20,8 +20,8 @@ process.OutALCARECOPromptCalibProdPCC = cms.PSet(
         'keep *_MEtoEDMConvertSiStrip_*_*')
 )
 #Make sure that variables match in producer.cc and .h
-process.alcaPCCProducerEvent = cms.EDProducer("AlcaPCCProducerEvent",
-    AlcaPCCProducerEventParameters = cms.PSet(
+process.alcaPCCEventProducer = cms.EDProducer("AlcaPCCEventProducer",
+    AlcaPCCEventProducerParameters = cms.PSet(
         WriteToDB = cms.bool(False),
         pixelClusterLabel = cms.InputTag("siPixelClustersForLumi"),
         #Mod factor to count lumi and the string to specify output 
@@ -97,12 +97,12 @@ process.ALCARECOStreamPromptCalibProdPCC = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     fileName = cms.untracked.string('ProdPCC_Random_Event_100.root'),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_alcaPCCProducerEvent_*_*', 
+        'keep *_alcaPCCEventProducer_*_*', 
         'keep *_MEtoEDMConvertSiStrip_*_*')
 )
 
 #This is the key sequence that we are adding first...
-process.seqALCARECOPromptCalibProdPCC = cms.Sequence(process.ALCARECOHltFilterForPCC+process.alcaPCCProducerEvent)
+process.seqALCARECOPromptCalibProdPCC = cms.Sequence(process.ALCARECOHltFilterForPCC+process.alcaPCCEventProducer)
 
 process.pathALCARECOPromptCalibProdPCC = cms.Path(process.seqALCARECOPromptCalibProdPCC)
 
