@@ -147,9 +147,9 @@ _fastSim_globalrecoTask.add(newCombinedSeeds,trackExtrapolator,caloTowerForTrk,f
 fastSim.toReplaceWith(globalrecoTask,_fastSim_globalrecoTask)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-_phase2HGALReco = globalreco.copy()
-_phase2HGALReco += iterTICL
-phase2_hgcal.toReplaceWith(globalreco, _phase2HGALReco)
+_phase2HGALRecoTask = globalrecoTask.copy()
+_phase2HGALRecoTask.add(iterTICLTask)
+phase2_hgcal.toReplaceWith(globalrecoTask, _phase2HGALRecoTask)
 
 
 globalreco_plusPLTask= cms.Task(globalrecoTask,ctfTracksPixelLessTask)
