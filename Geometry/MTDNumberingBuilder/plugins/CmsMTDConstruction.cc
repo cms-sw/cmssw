@@ -6,12 +6,6 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-bool CmsMTDConstruction::mtdOrderSubdet(const GeometricTimingDet* a, const GeometricTimingDet* b) {
-  MTDDetId id1(a->geographicalId());
-  MTDDetId id2(b->geographicalId());
-  return id1.mtdSubDetector() < id2.mtdSubDetector();
-}
-
 bool CmsMTDConstruction::mtdOrderZ(const GeometricTimingDet* a, const GeometricTimingDet* b) {
   bool order = (a->translation().z() == b->translation().z()) ? a->translation().rho() < b->translation().rho()
                                                               : a->translation().z() < b->translation().z();
@@ -28,12 +22,6 @@ bool CmsMTDConstruction::mtdOrderPhi(const GeometricTimingDet* a, const Geometri
   MTDDetId id1(a->geographicalId());
   MTDDetId id2(b->geographicalId());
   return (id1.mtdRR() == id2.mtdRR()) && (angle0to2pi::make0To2pi(a->phi()) < angle0to2pi::make0To2pi(b->phi()));
-}
-
-bool CmsMTDConstruction::mtdOrderSide(const GeometricTimingDet* a, const GeometricTimingDet* b) {
-  MTDDetId id1(a->geographicalId());
-  MTDDetId id2(b->geographicalId());
-  return id1.mtdSide() > id2.mtdSide();
 }
 
 void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* mother, const std::string& attribute) {

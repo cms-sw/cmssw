@@ -77,7 +77,7 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   size_t limit = 0;
   CmsMTDConstruction theCmsMTDConstruction;
 
-  std::vector<GeometricTimingDet *> subdet;
+  std::vector<GeometricTimingDet*> subdet;
 
   do {
     GeometricTimingDet::GeometricTimingEnumType fullNode = theCmsMTDStringToEnum.type(fv.name());
@@ -131,13 +131,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order before sorting \n" << before.str();
 #endif
 
-  for (size_t index = 0; index < subdet.size(); index++ ) {
-
+  for (size_t index = 0; index < subdet.size(); index++) {
     GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = subdet[index]->components();
     std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderZ);
     std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderRR);
-    if ( index > 0 ) { std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderPhi); }
-
+    if (index > 0) {
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderPhi);
+    }
   }
 
 #ifdef EDM_ML_DEBUG
