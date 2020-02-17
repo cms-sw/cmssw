@@ -212,8 +212,7 @@ public:
               // hits that belonged completely to the absorbed cluster are redistributed
               // based on the fraction of energy shared in the shared hits
               float sharedFraction = pair.second / totalSharedEnergy;
-              if(sharedFraction > 1e-6)
-              {
+              if (sharedFraction > 1e-6) {
                 float assignedEnergy = realisticHit.totalEnergy_ * sharedFraction;
                 realisticSimClusters_[pair.first].increaseEnergy(assignedEnergy);
                 realisticSimClusters_[pair.first].addHitAndFraction(hitId, sharedFraction);
