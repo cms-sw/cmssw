@@ -1317,7 +1317,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook,
                         dxyRes_rangeMin,
                         dxyRes_rangeMax);
 
-
   bookResolutionPlots2D(histograms.dzres_vs_eta,
                         false,
                         "dzres_vs_eta",
@@ -1350,7 +1349,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook,
                         dzRes_nbin,
                         dzRes_rangeMin,
                         dzRes_rangeMax);
-
 
   bookResolutionPlotsProfile2D(histograms.ptmean_vs_eta_phi,
                                "ptmean_vs_eta_phi",
