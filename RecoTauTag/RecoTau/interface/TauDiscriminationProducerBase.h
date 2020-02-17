@@ -122,13 +122,13 @@ typedef TauDiscriminationProducerBase<reco::PFTau,
                                       reco::TauDiscriminatorContainer,
                                       reco::SingleTauDiscriminatorContainer,
                                       reco::PFTauDiscriminator>
-    PFTauDiscriminationProducerBaseForIDContainers;
+    PFTauDiscriminationContainerProducerBase;
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator> PFTauDiscriminationProducerBase;
 typedef TauDiscriminationProducerBase<pat::Tau,
                                       reco::TauDiscriminatorContainer,
                                       reco::SingleTauDiscriminatorContainer,
                                       pat::PATTauDiscriminator>
-    PATTauDiscriminationProducerBaseForIDContainers;
+    PATTauDiscriminationContainerProducerBase;
 typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator> PATTauDiscriminationProducerBase;
 
 /// helper function retrieve the correct cfi getter string (ie PFTauProducer)

@@ -65,10 +65,10 @@ namespace {
     return mva.product();
   }
 
-  class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationProducerBaseForIDContainers {
+  class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationContainerProducerBase {
   public:
     explicit PFRecoTauDiscriminationAgainstMuonMVA(const edm::ParameterSet& cfg)
-        : PFTauDiscriminationProducerBaseForIDContainers(cfg),
+        : PFTauDiscriminationContainerProducerBase(cfg),
           moduleLabel_(cfg.getParameter<std::string>("@module_label")),
           mvaReader_(nullptr),
           mvaInput_(nullptr) {
