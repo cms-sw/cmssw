@@ -27,8 +27,8 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
   std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
   std::unique_ptr<PFRecHitNavigatorBase> navigator_;
   bool init_;

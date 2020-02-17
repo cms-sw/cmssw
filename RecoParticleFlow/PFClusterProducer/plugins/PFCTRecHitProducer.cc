@@ -104,8 +104,6 @@ PFCTRecHitProducer::PFCTRecHitProducer(const edm::ParameterSet& iConfig) {
 }
 
 void PFCTRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  navigator_->beginEvent(iSetup);
-
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
 
@@ -743,7 +741,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 PFCTRecHitProducer::~PFCTRecHitProducer() = default;
 
 // ------------ method called once each job just before starting event loop  ------------
-void PFCTRecHitProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const EventSetup& es) {
+void PFCTRecHitProducer::beginRun(const edm::Run&, const EventSetup& es) {
   // Get cleaned channels in the HCAL and HF
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
@@ -758,6 +756,8 @@ void PFCTRecHitProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
   es.get<CaloGeometryRecord>().get(cttopo);
   theTowerConstituentsMap = cttopo.product();
+
+  navigator_->init(es);
 }
 
 reco::PFRecHit* PFCTRecHitProducer::createHcalRecHit(const DetId& detid,

@@ -9,7 +9,8 @@ _thresholdsHEphase1 = cms.vdouble(0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
 
 particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
-            name = cms.string("PFRecHitHCALNavigator")
+            name = cms.string("PFRecHitHCALNavigator"),
+            detectorEnums = cms.vint32(1,2)
     ),
     producers = cms.VPSet(
            cms.PSet(
