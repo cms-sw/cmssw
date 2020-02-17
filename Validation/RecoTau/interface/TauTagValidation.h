@@ -16,6 +16,7 @@
 // Original Author: Ricardo Vasquez Sierra On August 29, 2007
 // user include files
 
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,6 +26,8 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
@@ -108,6 +111,9 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> primaryVertexCollectionToken_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > currentDiscriminatorToken_;
   std::vector<std::pair<edm::EDGetTokenT<reco::TauDiscriminatorContainer>, int> > currentDiscriminatorContainerToken_;
+  std::vector<std::string> currentDiscriminatorContainerProvCfgName_;
+  std::vector<std::pair<std::string, std::string> > currentDiscriminatorContainerIdName_;
+  edm::ProcessHistoryID phID_;
   std::string refCollection_;
 
   // In case you need to distinguish the output file

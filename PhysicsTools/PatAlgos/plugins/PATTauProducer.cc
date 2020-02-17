@@ -82,19 +82,22 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
     edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
     std::vector<std::string> names = idps.getParameterNamesForType<edm::ParameterSet>();
     std::map<std::string, IDContainerData> idContainerMap;
-    for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-      edm::ParameterSet idp = idps.getParameter<edm::ParameterSet>(*it);
-      int wpidx = idp.getParameter<int>("workingPointIndex");
+    for (auto const& name : names) {
+      auto const& idp = idps.getParameter<edm::ParameterSet>(name);
+      std::string prov_cfg_label = idp.getParameter<std::string>("provenanceConfigLabel");
+      std::string prov_ID_label = idp.getParameter<std::string>("idLabel");
       edm::InputTag tag = idp.getParameter<edm::InputTag>("inputTag");
-      if (wpidx == -99) {
-        tauIDSrcs_.push_back(NameTag(*it, tag));
+      if (prov_cfg_label.empty()) {
+        tauIDSrcs_.push_back(NameTag(name, tag));
       } else {
+        if (prov_cfg_label!="rawValues" && prov_cfg_label!="workingPoints" && prov_cfg_label!="IDdefinitions" && prov_cfg_label!="IDWPdefinitions" && prov_cfg_label!="direct_rawValues" && prov_cfg_label!="direct_workingPoints")
+          throw cms::Exception("Configuration") << "PATTauProducer: Parameter 'provenanceConfigLabel' does only accept 'rawValues', 'workingPoints', 'IDdefinitions', 'IDWPdefinitions', 'direct_rawValues', 'direct_workingPoints'\n";
         std::map<std::string, IDContainerData>::iterator it2;
         it2 = idContainerMap
                   .insert(std::pair<std::string, IDContainerData>(tag.label() + tag.instance(),
                                                                   IDContainerData(tag, std::vector<NameWPIdx>())))
                   .first;
-        it2->second.second.push_back(NameWPIdx(*it, wpidx));
+        it2->second.second.push_back(NameWPIdx(name, WPIdx(WPCfg(prov_cfg_label, prov_ID_label), -99)));
       }
     }
     // but in any case at least once
@@ -104,11 +107,9 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
                                             << "\t\tInputTag <someName> = <someTag>   // as many as you want \n "
                                             << "\t}\n";
 
-    for (std::map<std::string, IDContainerData>::const_iterator mapEntry = idContainerMap.begin();
-         mapEntry != idContainerMap.end();
-         mapEntry++) {
-      tauIDSrcContainers_.push_back(mapEntry->second.second);
-      pfTauIDContainerTokens_.push_back(mayConsume<reco::TauDiscriminatorContainer>(mapEntry->second.first));
+    for (auto const& mapEntry : idContainerMap) {
+      tauIDSrcContainers_.push_back(mapEntry.second.second);
+      pfTauIDContainerTokens_.push_back(mayConsume<reco::TauDiscriminatorContainer>(mapEntry.second.first));
     }
   }
   pfTauIDTokens_ = edm::vector_transform(
@@ -363,10 +364,55 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     if (addTauID_) {
       size_t numberPlainTauIds = tauIDSrcs_.size();
       size_t numberTauIds = numberPlainTauIds;
-      for (std::vector<std::vector<NameWPIdx>>::iterator it = tauIDSrcContainers_.begin();
-           it != tauIDSrcContainers_.end();
-           it++) {
-        numberTauIds += it->size();
+      for (auto const& it : tauIDSrcContainers_) {
+        numberTauIds += it.size();
+      }
+      // if ID containers exist, product incices need to be retrieved from provenanceConfigLabel. This is done if config history changes, in particular for the first event.
+      if (numberPlainTauIds != numberTauIds && phID_ != iEvent.processHistoryID()){
+        phID_ = iEvent.processHistoryID();
+        for (size_t idx = 0; idx < tauIDSrcContainers_.size(); ++idx) {
+          auto pfTauIdDiscr = iEvent.getHandle(pfTauIDContainerTokens_[idx]);
+          const edm::Provenance* prov = pfTauIdDiscr.provenance();
+          for (NameWPIdx& idcfg : tauIDSrcContainers_[idx]) {
+            std::string prov_cfg_label = idcfg.second.first.first;
+            std::string prov_ID_label = idcfg.second.first.second;
+            bool found = false;
+            if (prov_cfg_label=="rawValues" || prov_cfg_label=="workingPoints"){
+              const std::vector<std::string> psetsFromProvenance = edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<std::string>>(prov_cfg_label);
+              for (size_t i = 0; i < psetsFromProvenance.size(); ++i){
+                if (psetsFromProvenance[i]==prov_ID_label){
+                  // using negative indices for raw values
+                  if (prov_cfg_label=="rawValues") idcfg.second.second = -1-i;
+                  else idcfg.second.second = i;
+                  found = true;
+                }
+              }
+            }else if (prov_cfg_label=="IDdefinitions" || prov_cfg_label=="IDWPdefinitions"){
+              const std::vector<edm::ParameterSet> psetsFromProvenance = edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<edm::ParameterSet>>(prov_cfg_label);
+              for (size_t i = 0; i < psetsFromProvenance.size(); ++i){
+                if (psetsFromProvenance[i].getParameter<std::string>("IDname")==prov_ID_label){
+                  // using negative indices for raw values
+                  if (prov_cfg_label=="IDdefinitions") idcfg.second.second = -1-i;
+                  else idcfg.second.second = i;
+                  found = true;
+                }
+              }
+            }else{
+              // checked prov_cfg_label before, so it must be a direct access via indices
+              try {
+                int i = std::stoi(prov_ID_label);
+                if (prov_cfg_label=="direct_rawValues") idcfg.second.second = -i;
+                else idcfg.second.second = i;
+              }
+              catch (std::invalid_argument const &e) {
+                throw cms::Exception("Configuration") << "PATTauProducer: Direct access to ID container requested, so argument of 'idLabel' must be convertable to int!\n";
+              }
+            }
+            if (!found){
+              throw cms::Exception("Configuration") << "PATTauProducer: Requested working point '" << prov_ID_label << "' for ID '" << idcfg.first << "' not found!\n";
+            }
+          }
+        }
       }
       std::string missingDiscriminators;
       std::vector<pat::Tau::IdPair> ids(numberTauIds);
@@ -377,8 +423,7 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         for (size_t i = 0; i < numberPlainTauIds; ++i) {
           //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
 
-          edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
-          iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
+          auto pfTauIdDiscr = iEvent.getHandle(pfTauIDTokens_[i]);
 
           if (skipMissingTauID_ && !pfTauIdDiscr.isValid()) {
             if (!missingDiscriminators.empty()) {
@@ -391,24 +436,20 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
         }
         for (size_t i = 0; i < tauIDSrcContainers_.size(); ++i) {
-          edm::Handle<reco::TauDiscriminatorContainer> pfTauIdDiscr;
-          iEvent.getByToken(pfTauIDContainerTokens_[i], pfTauIdDiscr);
+          auto pfTauIdDiscr = iEvent.getHandle(pfTauIDContainerTokens_[i]);
           if (skipMissingTauID_ && !pfTauIdDiscr.isValid()) {
-            for (std::vector<NameWPIdx>::const_iterator it = tauIDSrcContainers_[i].begin();
-                 it != tauIDSrcContainers_[i].end();
-                 it++) {
+            for (auto const& it : tauIDSrcContainers_[i]) {
               if (!missingDiscriminators.empty()) {
                 missingDiscriminators += ", ";
               }
-              missingDiscriminators += it->first;
+              missingDiscriminators += it.first;
             }
             continue;
           }
           for (size_t j = 0; j < tauIDSrcContainers_[i].size(); ++j) {
-            //std::cout << "filling PFTauDiscriminator '" << tauIDSrcContainers_[i][j].first << "' into pat::Tau object at index " << numberPlainTauIds + i + j << " ..." << std::endl;
             ids[numberPlainTauIds + j].first = tauIDSrcContainers_[i][j].first;
             ids[numberPlainTauIds + j].second = getTauIdDiscriminatorFromContainer(
-                pfTauCollection, idx, pfTauIdDiscr, tauIDSrcContainers_[i][j].second);
+                pfTauCollection, idx, pfTauIdDiscr, tauIDSrcContainers_[i][j].second.second);
           }
           numberPlainTauIds += tauIDSrcContainers_[i].size();
         }
@@ -616,14 +657,13 @@ float PATTauProducer::getTauIdDiscriminatorFromContainer(
     int WPIdx) {
   edm::Ref<reco::PFTauCollection> tauRef(tauCollection, tauIdx);
   if (WPIdx < 0) {
-    if ((*tauIdDiscr)[tauRef].rawValues.size() == 1)
-      return (*tauIdDiscr)[tauRef].rawValues.at(
-          0);  //Only 0th component filled with default value if prediscriminor in RecoTauDiscriminator failed.
-    return (*tauIdDiscr)[tauRef].rawValues.at(
-        -1 - WPIdx);  //uses negative indices to access rawValues. In most cases only one rawValue at WPIdx=-1 exists.
+    //Only 0th component filled with default value if prediscriminor in RecoTauDiscriminator failed.
+    if ((*tauIdDiscr)[tauRef].rawValues.size() == 1) return (*tauIdDiscr)[tauRef].rawValues.at(0);
+    //uses negative indices to access rawValues. In most cases only one rawValue at WPIdx=-1 exists.
+    return (*tauIdDiscr)[tauRef].rawValues.at(-1 - WPIdx);
   } else {
-    if ((*tauIdDiscr)[tauRef].workingPoints.empty())
-      return 0.0;  //WP vector not filled if prediscriminor in RecoTauDiscriminator failed. Set PAT output to false in this case
+    //WP vector not filled if prediscriminor in RecoTauDiscriminator failed. Set PAT output to false in this case
+    if ((*tauIdDiscr)[tauRef].workingPoints.empty()) return 0.0;
     return (*tauIdDiscr)[tauRef].workingPoints.at(WPIdx);
   }
 }

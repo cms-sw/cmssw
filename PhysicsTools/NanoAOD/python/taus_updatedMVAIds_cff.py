@@ -277,6 +277,10 @@ patTauDiscriminationByElectronRejectionMVA62018 = patTauDiscriminantCutMultiplex
             variable = cms.string('pt')
         )
     ),
+    rawValues = cms.vstring(
+        "discriminator",
+        "category"
+    ),
     workingPoints = cms.vstring(
       "_VLoose",
       "_Loose",
@@ -305,6 +309,10 @@ patTauDiscriminationByElectronRejectionMVA62015 = patTauDiscriminationByElectron
     PATTauProducer = patTauDiscriminationByElectronRejectionMVA62015Raw.PATTauProducer,
     Prediscriminants = patTauDiscriminationByElectronRejectionMVA62015Raw.Prediscriminants,
     toMultiplex = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62015Raw"),
+    rawValues = cms.vstring(
+        "discriminator",
+        "category"
+    ),
     workingPoints = cms.vstring(
       "_WPEff99",
       "_WPEff96",
