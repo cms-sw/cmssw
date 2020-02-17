@@ -12,11 +12,9 @@ class CmsMTDConstruction {
 public:
   ~CmsMTDConstruction() = default;
 
-  static bool mtdOrderSubdet(const GeometricTimingDet* a, const GeometricTimingDet* b);
   static bool mtdOrderZ(const GeometricTimingDet* a, const GeometricTimingDet* b);
   static bool mtdOrderRR(const GeometricTimingDet* a, const GeometricTimingDet* b);
   static bool mtdOrderPhi(const GeometricTimingDet* a, const GeometricTimingDet* b);
-  static bool mtdOrderSide(const GeometricTimingDet* a, const GeometricTimingDet* b);
 
   void buildBTLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
   void buildETLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
