@@ -219,7 +219,7 @@ class FitTrack:public ProcessBase{
       return;
     }
 
-    HybridFit hybridFitter(iSector_);
+    HybridFit hybridFitter(iSector_,extended_,nHelixPar_);
     hybridFitter.Fit(tracklet, trackstublist);
     return;
    }

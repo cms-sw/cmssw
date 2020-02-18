@@ -26,7 +26,7 @@ static unsigned int nHelixPar = 4; // 4 or 5 param helix fit.
 static bool hourglassExtended=false; // turn on displaced tracking, also edit L1TrackNtupleMaker_cfg.py (search for "Extended" on several lines)
 
 //Gemetry extensions -- used only by stand-alone code.
-static const std::string geomext=hourglassExtended?"hourglassExtended":"hourglass";  
+static std::string geomext=hourglassExtended?"hourglassExtended":"hourglass";  
 
 static const bool geomTkTDR=false; // false => newest T14 tracker, true => "TDR" (T5/T6 tracker, D21/D11/D17 CMS geometries)
 

@@ -246,7 +246,7 @@ public:
       executeTE(true);
     }
 
-    if (hourglassExtended) {
+    if (extended_) {
       if (layer_==2||layer_==3) //needed for L2L3D1 since for it L2 is inner and L3 is outer
         executeTEextended(false);
       if (layer_==2||disk_==1)   //needed for D1 in L2L3D1 and L2 in D1D2L2 (possibility to have a different VM granularity) 
@@ -434,7 +434,7 @@ public:
 		break;
 	      case 4 : binlookup=lookupOuterDisk(stub.first);
 		break;
-	      case 1 : binlookup=lookupInnerDisk(stub.first,hourglassExtended);
+	      case 1 : binlookup=lookupInnerDisk(stub.first,extended_);
 		break;
 	      case 3 : binlookup=lookupInnerDisk(stub.first);
 		break;

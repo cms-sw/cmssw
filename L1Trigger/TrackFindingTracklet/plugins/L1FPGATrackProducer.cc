@@ -296,7 +296,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig) :
 
 
   extended_  = iConfig.getUntrackedParameter<bool>("Extended",false);
-  nHelixPar_ = iConfig.getUntrackedParameter<int>("Hnpar",4);
+  nHelixPar_ = iConfig.getUntrackedParameter<unsigned int>("Hnpar",4);
   hourglassExtended = extended_; 
   nHelixPar = nHelixPar_;
   
@@ -1032,6 +1032,13 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     float ptconsistency = StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo,  mMagneticFieldStrength, nHelixPar_);
     aTrack.setStubPtConsistency(ptconsistency);
 
+
+    // set TTTrack word
+    aTrack.setTrackWordBits();
+    
+    // test track word
+    //aTrack.testTrackWordBits();
+      
     L1TkTracksForOutput->push_back(aTrack);
 
   }

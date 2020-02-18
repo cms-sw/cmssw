@@ -13,6 +13,8 @@ public:
   ProcessBase(string name, unsigned int iSector){
     name_=name;
     iSector_=iSector;
+    extended_=hourglassExtended;
+    nHelixPar_=nHelixPar;
   }
 
   virtual ~ProcessBase() { } 
@@ -45,7 +47,8 @@ protected:
 
   string name_;
   unsigned int iSector_;
-
+  bool extended_;
+  unsigned int nHelixPar_;
 
 };
 

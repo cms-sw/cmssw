@@ -25,8 +25,10 @@ class HybridFit{
 
   public:
 
-    HybridFit(unsigned int iSector){
+    HybridFit(unsigned int iSector, bool extended, unsigned int nHelixPar){
       iSector_ = iSector;
+      extended_ = extended;
+      nHelixPar_ = nHelixPar;
     }
 
     void Fit(Tracklet* tracklet, std::vector<std::pair<Stub*,L1TStub*>> &trackstublist){
@@ -128,11 +130,11 @@ class HybridFit{
       // Create Kalman track fitter.
       static bool firstPrint = true;
 #ifdef USE_HLS
-      if (firstPrint) cout << "Will make KFParamsCombHLS for " << nHelixPar << " param fit" << endl;
-      static thread_local TMTT::KFParamsCombCallHLS fitterKF(&settings, nHelixPar, "KFfitterHLS");
+      if (firstPrint) cout << "Will make KFParamsCombHLS for " << nHelixPar_ << " param fit" << endl;
+      static thread_local TMTT::KFParamsCombCallHLS fitterKF(&settings, nHelixPar_, "KFfitterHLS");
 #else
-      if (firstPrint) cout << "Will make KFParamsComb for " << nHelixPar << " param fit"<< endl;
-      static thread_local TMTT::KFParamsComb fitterKF(&settings, nHelixPar, "KFfitter");
+      if (firstPrint) cout << "Will make KFParamsComb for " << nHelixPar_ << " param fit"<< endl;
+      static thread_local TMTT::KFParamsComb fitterKF(&settings, nHelixPar_, "KFfitter");
 #endif
       firstPrint = false;
 
@@ -189,7 +191,9 @@ class HybridFit{
 
   private:
     unsigned int iSector_;
-
+    bool extended_;
+    unsigned int nHelixPar_;
+    
 };
 
 #endif
