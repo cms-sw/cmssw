@@ -7,8 +7,7 @@
 #include <vector>
 
 namespace ticl {
-  void assignPCAtoTracksters(std::vector<Trackster> &, const std::vector<reco::CaloCluster>&, double);
+  void assignPCAtoTracksters(std::vector<Trackster> &, const std::vector<reco::CaloCluster>&, double, bool energyWeight=true);
 }
-
 #endif
 

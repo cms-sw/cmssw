@@ -58,6 +58,7 @@ namespace ticl {
     std::array<float, 3> eigenvalues;
     std::array<Vector, 3> eigenvectors;
     std::array<float, 3> sigmas;
+    std::array<float, 3> sigmasPCA;
 
     // types considered by the particle identification
     enum class ParticleType {
