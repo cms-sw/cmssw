@@ -16,12 +16,10 @@ recoTauDiscriminantCutMultiplexer = recoTauDiscriminantCutMultiplexerDefault.clo
     toMultiplex = cms.InputTag("fixme"),
     mapping = cms.VPSet(
         cms.PSet(
-            category = cms.uint32(0),
-            cut = cms.string("fixme"),
+            category = cms.uint32(0)
         ),
         cms.PSet(
-            category = cms.uint32(1),
-            cut = cms.string("fixme"),
+            category = cms.uint32(1)
         ),
     )
 )
