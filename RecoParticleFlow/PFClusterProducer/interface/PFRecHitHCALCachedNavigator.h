@@ -74,8 +74,7 @@ public:
       DetId NE(0);
       DetId SW(0);
       DetId SE(0);
-      std::vector<DetId> neighbours;
-      neighbours.resize(9);
+      std::vector<DetId> neighbours(9, DetId(0));
 
       // the centre
       unsigned denseid_c = vDenseIdHcal[i];
@@ -145,6 +144,8 @@ public:
     DetId detid(hit.detId());
     unsigned denseid = topology_.get()->detId2denseId(detid);
 
+    std::vector<DetId> neighbours(9, DetId(0));
+
     if (denseid < denseIdHcalMin_ || denseid > denseIdHcalMax_) {
       edm::LogWarning("PFRecHitHCALCachedNavigator") << " DenseId for this cell is out of the range." << std::endl;
     } else if (!validNeighbours(denseid)) {
@@ -152,15 +153,17 @@ public:
           << " DenseId for this cell does not have the neighbour information." << std::endl;
     } else {
       unsigned index = denseid - denseIdHcalMin_;
-      associateNeighbour(neighboursHcal_[index][NORTH], hit, hits, refProd, 0, 1, 0);        // N
-      associateNeighbour(neighboursHcal_[index][NORTHEAST], hit, hits, refProd, 1, 1, 0);    // NE
-      associateNeighbour(neighboursHcal_[index][SOUTH], hit, hits, refProd, 0, -1, 0);       // S
-      associateNeighbour(neighboursHcal_[index][SOUTHWEST], hit, hits, refProd, -1, -1, 0);  // SW
-      associateNeighbour(neighboursHcal_[index][EAST], hit, hits, refProd, 1, 0, 0);         // E
-      associateNeighbour(neighboursHcal_[index][SOUTHEAST], hit, hits, refProd, 1, -1, 0);   // SE
-      associateNeighbour(neighboursHcal_[index][WEST], hit, hits, refProd, -1, 0, 0);        // W
-      associateNeighbour(neighboursHcal_[index][NORTHWEST], hit, hits, refProd, -1, 1, 0);   // NW
+      neighbours = neighboursHcal_[index];
     }
+
+    associateNeighbour(neighbours[NORTH], hit, hits, refProd, 0, 1, 0);        // N
+    associateNeighbour(neighbours[NORTHEAST], hit, hits, refProd, 1, 1, 0);    // NE
+    associateNeighbour(neighbours[SOUTH], hit, hits, refProd, 0, -1, 0);       // S
+    associateNeighbour(neighbours[SOUTHWEST], hit, hits, refProd, -1, -1, 0);  // SW
+    associateNeighbour(neighbours[EAST], hit, hits, refProd, 1, 0, 0);         // E
+    associateNeighbour(neighbours[SOUTHEAST], hit, hits, refProd, 1, -1, 0);   // SE
+    associateNeighbour(neighbours[WEST], hit, hits, refProd, -1, 0, 0);        // W
+    associateNeighbour(neighbours[NORTHWEST], hit, hits, refProd, -1, 1, 0);   // NW
   }
 
   bool validNeighbours(const unsigned int denseid) const {
