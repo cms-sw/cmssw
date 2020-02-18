@@ -268,6 +268,7 @@ TTTrack<T>::TTTrack(double aRinv,
   thePhiSector = 0;      // must be set externally
   theEtaSector = 0;      // must be set externally
   theTrackSeedType = 0;  // must be set externally
+  theChi2 = aChi2XY + aChi2Z; // Total Chi2 is the sum of individual Chi2's.
   theChi2XY = aChi2XY;
   theChi2Z = aChi2Z;
   theTrkMVA1 = trkMVA1;
