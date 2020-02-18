@@ -1214,13 +1214,6 @@ public:
       l1stubs = getL1Stubs(); // If fitter produced no stub list, take it from original tracklet.
     };
 
-	cout << "CASEY: chi2stuff in makeTrack: "
-		<< ichisqrphifit_.value() << " "
-		<< ichisqrzfit_.value() << " "
-		<< chisqrphifit_ << " "
-		<< chisqrzfit_ << " "
-		<< hitpattern_ << endl;
-
     Track tmpTrack(fpgafitpars_.rinv().value(),
 		   fpgafitpars_.phi0().value(),
 		   fpgafitpars_.d0().value(),
