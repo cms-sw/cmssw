@@ -69,7 +69,8 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endStream() override;
 
-  DTTTrigBaseSync* theSync;
+  std::unique_ptr<DTTTrigBaseSync> theSync;
+
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -93,7 +94,8 @@ private:
 //
 // constructors and destructor
 //
-CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig) {
+CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig)
+{
   //register your products
   /* Examples
    produces<ExampleData2>();
@@ -108,11 +110,12 @@ CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig) {
   std::cout << "dtDigiTag found:" << dtDigiTag << std::endl;
   dtDigisToken = consumes<DTDigiCollection>(dtDigiTag);
 
+  theSync = DTTTrigSyncFactory::get()->create(iConfig.getParameter<string>("tTrigMode"),
+					      iConfig.getParameter<ParameterSet>("tTrigModeConfig"));
+
   flat_calib_ = iConfig.getParameter<int>("flat_calib");
   timeOffset_ = iConfig.getParameter<int>("timeOffset");
-  theSync = DTTTrigSyncFactory::get()->create(iConfig.getParameter<string>("tTrigMode"),
-                                              iConfig.getParameter<ParameterSet>("tTrigModeConfig"));
-
+  
   scenario = iConfig.getUntrackedParameter<int>("scenario");
 
   produces<DTDigiCollection>();
