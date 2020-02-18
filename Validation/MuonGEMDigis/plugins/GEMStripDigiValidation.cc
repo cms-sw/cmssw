@@ -154,6 +154,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event,
           me_strip_occ_eta_[region_id]->Fill(simhit_g_eta);
           me_strip_occ_phi_[key2]->Fill(simhit_g_phi);
           me_strip_occ_det_[key2]->Fill(bin_x, roll_id);
+          me_detail_bx_[key3]->Fill(bx);
           break;
         }
       }  // range loop
