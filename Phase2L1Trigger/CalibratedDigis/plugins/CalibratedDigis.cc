@@ -94,8 +94,7 @@ private:
 //
 // constructors and destructor
 //
-CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig)
-{
+CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig) {
   //register your products
   /* Examples
    produces<ExampleData2>();
@@ -111,11 +110,11 @@ CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig)
   dtDigisToken = consumes<DTDigiCollection>(dtDigiTag);
 
   theSync = DTTTrigSyncFactory::get()->create(iConfig.getParameter<string>("tTrigMode"),
-					      iConfig.getParameter<ParameterSet>("tTrigModeConfig"));
+                                              iConfig.getParameter<ParameterSet>("tTrigModeConfig"));
 
   flat_calib_ = iConfig.getParameter<int>("flat_calib");
   timeOffset_ = iConfig.getParameter<int>("timeOffset");
-  
+
   scenario = iConfig.getUntrackedParameter<int>("scenario");
 
   produces<DTDigiCollection>();
