@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
 
-RootPrimaryFileSequence: This is an InputSource. To use multiple data catalogs in reading files, set useMultipleDataCatalogs_ = true in the constructor. Note that multiple data catalogs needs to be available by setUseMultipleDataCatalogs = true in InputFileCatalog
+RootPrimaryFileSequence: This is an InputSource
 
 ----------------------------------------------------------------------*/
 
@@ -78,7 +78,7 @@ namespace edm {
     bool usingGoToEvent_;
     bool enablePrefetching_;
     bool enforceGUIDInFileName_;
-    bool useMultipleDataCatalogs_;
+    bool useMultipleDataCatalogs_ ;
   };  // class RootPrimaryFileSequence
 }  // namespace edm
 #endif
