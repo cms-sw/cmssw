@@ -78,7 +78,7 @@ namespace edm {
     bool usingGoToEvent_;
     bool enablePrefetching_;
     bool enforceGUIDInFileName_;
-    bool useMultipleDataCatalogs_ ;
+    bool useMultipleDataCatalogs_;
   };  // class RootPrimaryFileSequence
 }  // namespace edm
 #endif
