@@ -31,7 +31,7 @@ protected:
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
                              DQMStore::IGetter &,
                              edm::LuminosityBlock const &,
-                             edm::EventSetup const &);
+                             edm::EventSetup const &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};  // Cannot use; it is called after dqmSaver
 
   void refineSummaryHistogram(edm::Service<DQMStore> &);
