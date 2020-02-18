@@ -4,7 +4,7 @@
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="rmin"          value="0.0*fm"/>
   <Constant name="rmax"          value="52.0*cm"/>
-  <Constant name="zCaloFront"    value="2500*cm"/>
+  <Constant name="zCaloFront"    value="[cms:zCaloFront]"/>
   <Constant name="rminEE"        value="0.0*fm"/>
   <Constant name="rmaxEE"        value="8.0*cm"/>
   <Constant name="rmaxEEF"       value="9.5*cm"/>
