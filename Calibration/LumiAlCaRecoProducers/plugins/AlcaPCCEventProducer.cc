@@ -104,7 +104,7 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 void AlcaPCCEventProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   edm::ParameterSetDescription evtParamDesc;
-  evtParamDesc.add<edm::InputTag>("pixelClusterLabel");
+  evtParamDesc.add<edm::InputTag>("pixelClusterLabel",edm::InputTag("siPixelClustersForLumi"));
   evtParamDesc.addUntracked<std::string>("trigstring","alcaPCCEvent");
   desc.add<edm::ParameterSetDescription>("AlcaPCCEventProducerParameters",evtParamDesc);
   descriptions.add("alcaPCCEventProducer", desc);
