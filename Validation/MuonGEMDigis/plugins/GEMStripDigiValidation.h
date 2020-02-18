@@ -1,24 +1,24 @@
-#ifndef Validation_MuonGEMDigis_GEMStripDigiValidation_H
-#define Validation_MuonGEMDigis_GEMStripDigiValidation_H
+#ifndef Validation_MuonGEMDigis_GEMStripDigiValidation_h
+#define Validation_MuonGEMDigis_GEMStripDigiValidation_h
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
+
 class GEMStripDigiValidation : public GEMBaseValidation {
-public:
+ public:
   explicit GEMStripDigiValidation(const edm::ParameterSet&);
   ~GEMStripDigiValidation() override;
-  void analyze(const edm::Event& e, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-private:
+ private:
   // ParameterSet
-  edm::EDGetTokenT<GEMDigiCollection> inputToken_;
-  edm::EDGetTokenT<edm::PSimHitContainer> inputTokenSH_;
+  edm::EDGetTokenT<GEMDigiCollection> strip_token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> simhit_token_;
 
   // Monitor elements
-  // NOTE muon simhit - strip digi matching
-  // occupancy plots for efficiency
+  // muon simhit - strip digi matching. occupancy plots for efficiency
   MEMap1Ids me_simhit_occ_eta_;
   MEMap1Ids me_strip_occ_eta_;
   MEMap2Ids me_simhit_occ_phi_;
@@ -30,4 +30,4 @@ private:
   MEMap3Ids me_detail_bx_;
 };
 
-#endif
+#endif // Validation_MuonGEMDigis_GEMStripDigiValidation_h

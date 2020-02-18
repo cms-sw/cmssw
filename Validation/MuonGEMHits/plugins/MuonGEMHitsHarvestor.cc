@@ -1,13 +1,11 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Validation/MuonGEMHits/plugins/MuonGEMHitsHarvestor.h"
 
-using namespace std;
-MuonGEMHitsHarvestor::MuonGEMHitsHarvestor(const edm::ParameterSet& ps) : MuonGEMBaseHarvestor(ps) {
-  folder_ = ps.getParameter<std::string>("folder");
-}
+
+MuonGEMHitsHarvestor::MuonGEMHitsHarvestor(const edm::ParameterSet& pset)
+    : MuonGEMBaseHarvestor(pset, "MuonGEMHitsHarvestor") {}
+
 
 MuonGEMHitsHarvestor::~MuonGEMHitsHarvestor() {}
 
-void MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-  igetter.setCurrentFolder(folder_);
-}
+
+void MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {}

@@ -1,22 +1,21 @@
-#ifndef Validation_MuonGEMRecHits_GEMRecHitValidation_H
-#define Validation_MuonGEMRecHits_GEMRecHitValidation_H
+#ifndef Validation_MuonGEMRecHits_GEMRecHitValidation_h
+#define Validation_MuonGEMRecHits_GEMRecHitValidation_h
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
+
 class GEMRecHitValidation : public GEMBaseValidation {
-public:
+ public:
   explicit GEMRecHitValidation(const edm::ParameterSet&);
   ~GEMRecHitValidation() override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void analyze(const edm::Event& e, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-private:
+ private:
   Bool_t matchRecHitAgainstSimHit(GEMRecHitCollection::const_iterator, Int_t);
 
   // MonitorElement
-
-  // cluster size of rechit
   MonitorElement* me_cls_;
   MEMap3Ids me_detail_cls_;
 
@@ -38,8 +37,8 @@ private:
   MEMap2Ids me_simhit_occ_det_;
   MEMap2Ids me_rechit_occ_det_;
 
-  edm::EDGetTokenT<GEMRecHitCollection> inputToken_;
-  edm::EDGetTokenT<edm::PSimHitContainer> inputTokenSH_;
+  edm::EDGetTokenT<GEMRecHitCollection> rechit_token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> simhit_token_;
 };
 
-#endif
+#endif // Validation_MuonGEMRecHits_GEMRecHitValidation_h

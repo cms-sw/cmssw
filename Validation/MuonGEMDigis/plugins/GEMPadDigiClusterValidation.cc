@@ -1,20 +1,20 @@
 #include "Validation/MuonGEMDigis/plugins/GEMPadDigiClusterValidation.h"
 #include <TMath.h>
 
-GEMPadDigiClusterValidation::GEMPadDigiClusterValidation(const edm::ParameterSet& cfg) : GEMBaseValidation(cfg) {
-  const auto& pset = cfg.getParameterSet("gemPadCluster");
-  inputToken_ = consumes<GEMPadDigiClusterCollection>(pset.getParameter<edm::InputTag>("inputTag"));
+GEMPadDigiClusterValidation::GEMPadDigiClusterValidation(const edm::ParameterSet& pset)
+    : GEMBaseValidation(pset, "GEMPadDigiClusterValidation") {
+  const auto& pad_cluster_pset = pset.getParameterSet("gemPadCluster");
+  const auto& pad_cluster_tag = pad_cluster_pset.getParameter<edm::InputTag>("inputTag");
+  pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(pad_cluster_tag);
 }
 
 void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
                                                  edm::Run const& Run,
-                                                 edm::EventSetup const& event_setup) {
-  const GEMGeometry* gem = initGeometry(event_setup);
+                                                 edm::EventSetup const& setup) {
+  const GEMGeometry* gem = initGeometry(setup);
 
   // NOTE Occupancy
-  std::string occ_folder = folder_ + "Occupancy";
-  booker.setCurrentFolder(occ_folder);
-
+  booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/PadCluster/Occupancy");
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
@@ -57,8 +57,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
-    std::string bx_folder = folder_ + "BunchCrossing";
-    booker.setCurrentFolder(bx_folder);
+    booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/PadCluster/BunchCrossing");
 
     for (const auto& region : gem->regions()) {
       Int_t region_id = region->region();
@@ -80,13 +79,13 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
 
 GEMPadDigiClusterValidation::~GEMPadDigiClusterValidation() {}
 
-void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::EventSetup& event_setup) {
-  const GEMGeometry* gem = initGeometry(event_setup);
+void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  const GEMGeometry* gem = initGeometry(setup);
 
   edm::Handle<GEMPadDigiClusterCollection> collection;
-  event.getByToken(inputToken_, collection);
+  event.getByToken(pad_cluster_token_, collection);
   if (not collection.isValid()) {
-    edm::LogError(log_category_) << "Cannot get pads by label GEMPadToken.";
+    edm::LogError(kLogCategory_) << "Cannot get pads by label GEMPadToken.";
     return;
   }
 
@@ -95,8 +94,9 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::Ev
     const auto& range = (*range_iter).second;
 
     if (gem->idToDet(gemid) == nullptr) {
-      edm::LogError(log_category_) << "Getting DetId failed. Discard this gem pad hit. "
-                                   << "Maybe it comes from unmatched geometry." << std::endl;
+      edm::LogError(kLogCategory_)
+          << "Getting DetId failed. Discard this gem pad hit. "
+          << "Maybe it comes from unmatched geometry." << std::endl;
       continue;
     }
 
