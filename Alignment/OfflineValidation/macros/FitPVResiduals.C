@@ -43,7 +43,7 @@
 #include <TTimeStamp.h>
 #include <TStopwatch.h>
 //#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
-#include "Alignment/OfflineValidation/macros/CMS_lumi.C"
+#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #define PLOTTING_MACRO  // to remove message logger
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 
@@ -454,6 +454,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
       } else {
         std::cout << "Please give file name and legend entry in the following form:\n"
                   << " filename1=legendentry1,filename2=legendentry2\n";
+        exit(EXIT_FAILURE);
       }
     }
     theFileCount = FileList->GetSize();
