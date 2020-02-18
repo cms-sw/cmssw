@@ -1271,14 +1271,14 @@ step1LHEDefaults=merge([{'-s':'LHE',
 # transfer extendedgen step1 LHE to be used in a normal workflow
 step1LHENormal = {'--relval'     : '9000,50',
                  '--conditions'  : 'auto:run2_mc',
-                 '--beamspot'    : 'Realistic50ns13TeVCollision',
+                 '--beamspot'    : 'Realistic25ns13TeV2016Collision',
                  }
 
 # transfer extendedgen step1 GEN to GEN-SIM to be used in a normal workflow
 step1GENNormal = {'--relval'     : '9000,50',
                  '-s'            : 'GEN,SIM',
                  '--conditions'  : 'auto:run2_mc',
-                 '--beamspot'    : 'Realistic50ns13TeVCollision',
+                 '--beamspot'    : 'Realistic25ns13TeV2016Collision',
                  '--eventcontent': 'FEVTDEBUG',
                  '--datatier'    : 'GEN-SIM',
                  '--era'         : 'Run2_2016',
