@@ -1,60 +1,64 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Validation/MuonGEMDigis/plugins/GEMStripDigiValidation.h"
 
-#include <TMath.h>
-#include <iomanip>
-GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& cfg) : GEMBaseValidation(cfg) {
-  const auto& pset = cfg.getParameterSet("gemStripDigi");
-  inputToken_ = consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("inputTag"));
+
+GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& pset)
+    : GEMBaseValidation(pset, "GEMStripDigiValidation") {
+
+  const auto& strip_pset = pset.getParameterSet("gemStripDigi");
+  const auto& strip_tag = strip_pset.getParameter<edm::InputTag>("inputTag");
+  strip_token_ = consumes<GEMDigiCollection>(strip_tag);
+
+  const auto& simhit_pset = pset.getParameterSet("gemSimHit");
+  const auto& simhit_tag = simhit_pset.getParameter<edm::InputTag>("inputTag");
+  simhit_token_ = consumes<edm::PSimHitContainer>(simhit_tag);
 }
+
 
 void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                             edm::Run const& run,
-                                            edm::EventSetup const& event_setup) {
-  const GEMGeometry* gem = initGeometry(event_setup);
+                                            edm::EventSetup const& setup) {
+  const GEMGeometry* gem = initGeometry(setup);
 
   // NOTE Occupancy
-  std::string occ_folder = folder_ + "Occupancy";
-  booker.setCurrentFolder(occ_folder);
+  booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/Strip/Occupancy");
 
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    // NOTE occupancy plots for eta efficiency
+    // occupancy plots for eta efficiency
     me_simhit_occ_eta_[region_id] = bookHist1D(
-                                               booker, region_id, "muon_simhit_occ_eta", "Muon SimHit Eta Occupancy",
-                                               50, eta_range_[0], eta_range_[1], "|#eta|");
+        booker, region_id, "muon_simhit_occ_eta", "Muon SimHit Eta Occupancy",
+        50, eta_range_[0], eta_range_[1], "|#eta|");
 
     me_strip_occ_eta_[region_id] = bookHist1D(
-                                              booker, region_id, "matched_strip_occ_eta", "Strip Digi Eta Occupancy",
-                                              50, eta_range_[0], eta_range_[1], "|#eta|");
+        booker, region_id, "matched_strip_occ_eta", "Strip Digi Eta Occupancy",
+        50, eta_range_[0], eta_range_[1], "|#eta|");
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
       ME2IdsKey key2(region_id, station_id);
 
-      // NOTE occupancy plots for phi efficiency
       me_simhit_occ_phi_[key2] = bookHist1D(
-                                            booker, key2, "muon_simhit_occ_phi", "Muon SimHit Phi Occupancy",
-                                            51, -M_PI, M_PI, "#phi");
+          booker, key2, "muon_simhit_occ_phi", "Muon SimHit Phi Occupancy",
+          51, -M_PI, M_PI, "#phi");
 
       me_strip_occ_phi_[key2] = bookHist1D(
-                                           booker, key2, "matched_strip_occ_phi", "Matched Digi Phi Occupancy",
-                                           51, -M_PI, M_PI, "#phi");
+          booker, key2, "matched_strip_occ_phi", "Matched Digi Phi Occupancy",
+          51, -M_PI, M_PI, "#phi");
 
-      // NOTE occupancy plots for detector component efficiency
       me_simhit_occ_det_[key2] = bookDetectorOccupancy(
-                                                       booker, key2, station, "muon_simhit", "Muon SimHit");
-      me_strip_occ_det_[key2] = bookDetectorOccupancy(
-                                                      booker, key2, station, "matched_strip", "Matched Strip Digi");
+          booker, key2, station, "muon_simhit", "Muon SimHit");
 
-    }  // End loop over station ids
-  }    // End loop over region ids
+      me_strip_occ_det_[key2] = bookDetectorOccupancy(
+          booker, key2, station, "matched_strip", "Matched Strip Digi");
+
+    } // station looop 
+  } // region loop
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
-    std::string bx_folder = folder_ + "BunchCrossing";
-    booker.setCurrentFolder(bx_folder);
+    booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/Strip/BunchCrossing");
 
     for (const auto& region : gem->regions()) {
       Int_t region_id = region->region();
@@ -67,40 +71,44 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
           ME3IdsKey key3(region_id, station_id, layer_id);
 
           me_detail_bx_[key3] = bookHist1D(
-                                           booker, key3, "strip_bx", "Strip Digi Bunch Crossing",
-                                           5, -2.5, 2.5, "Bunch crossing");
-        }  // chamber loop
-      }    // station loop
-    }      // region loop
-  }        // detail plot
+              booker, key3, "strip_bx", "Strip Digi Bunch Crossing",
+              5, -2.5, 2.5, "Bunch crossing");
+        } // chamber loop
+      } // station loop
+    } // region loop
+  } // detail plot
 }
+
 
 GEMStripDigiValidation::~GEMStripDigiValidation() {}
 
-void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSetup& event_setup) {
-  const GEMGeometry* gem = initGeometry(event_setup);
+
+void GEMStripDigiValidation::analyze(const edm::Event& event,
+                                     const edm::EventSetup& setup) {
+  const GEMGeometry* gem = initGeometry(setup);
 
   edm::Handle<edm::PSimHitContainer> simhit_container;
-  event.getByToken(inputTokenSH_, simhit_container);
+  event.getByToken(simhit_token_, simhit_container);
   if (not simhit_container.isValid()) {
-    edm::LogError(log_category_) << "Failed to get PSimHitContainer." << std::endl;
+    edm::LogError(kLogCategory_) << "Failed to get PSimHitContainer." << std::endl;
     return;
   }
 
   edm::Handle<GEMDigiCollection> digi_collection;
-  event.getByToken(inputToken_, digi_collection);
+  event.getByToken(strip_token_, digi_collection);
   if (not digi_collection.isValid()) {
-    edm::LogError(log_category_) << "Cannot get strips by Token stripToken." << std::endl;
+    edm::LogError(kLogCategory_) << "Cannot get strips by Token stripToken." << std::endl;
     return;
   }
 
   for (const auto& simhit : *simhit_container.product()) {
     // muon only
-    if (not isMuonSimHit(simhit))
+    if (not isMuonSimHit(simhit)) {
       continue;
+    }
 
     if (gem->idToDet(simhit.detUnitId()) == nullptr) {
-      edm::LogError(log_category_) << "SimHit did not match with GEMGeometry." << std::endl;
+      edm::LogError(kLogCategory_) << "SimHit did not match with GEMGeometry." << std::endl;
       continue;
     }
 
@@ -129,8 +137,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     me_simhit_occ_eta_[region_id]->Fill(simhit_g_eta);
     me_simhit_occ_phi_[key2]->Fill(simhit_g_phi);
     me_simhit_occ_det_[key2]->Fill(bin_x, roll_id);
-    Bool_t found_matched_digi = false;
 
+    Bool_t found_matched_digi = false;
+    // FIXME too long
     for (auto range_iter = digi_collection->begin(); range_iter != digi_collection->end(); range_iter++) {
       if (simhit_gemid != (*range_iter).first)
         continue;
@@ -147,11 +156,11 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
           me_strip_occ_det_[key2]->Fill(bin_x, roll_id);
           break;
         }
-      }  // end loop over range
+      }  // range loop
 
       if (found_matched_digi)
         break;
 
-    }  // end lopp over digi_collection
-  }    // end loop over simhit_container
+    } // digi_collection lop
+  } // simhit_container loop
 }

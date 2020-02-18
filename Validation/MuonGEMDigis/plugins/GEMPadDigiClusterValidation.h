@@ -1,14 +1,15 @@
-#ifndef Validation_MuonGEMDigis_GEMPadDigiClusterValidation_H
-#define Validation_MuonGEMDigis_GEMPadDigiClusterValidation_H
+#ifndef Validation_MuonGEMDigis_GEMPadDigiClusterValidation_h
+#define Validation_MuonGEMDigis_GEMPadDigiClusterValidation_h
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
+
 
 class GEMPadDigiClusterValidation : public GEMBaseValidation {
 public:
   explicit GEMPadDigiClusterValidation(const edm::ParameterSet&);
   ~GEMPadDigiClusterValidation() override;
-  void analyze(const edm::Event& e, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
@@ -20,7 +21,7 @@ private:
 
   MEMap3Ids me_detail_bx_;
 
-  edm::EDGetTokenT<GEMPadDigiClusterCollection> inputToken_;
+  edm::EDGetTokenT<GEMPadDigiClusterCollection> pad_cluster_token_;
 };
 
-#endif
+#endif // Validation_MuonGEMDigis_GEMPadDigiClusterValidation_h

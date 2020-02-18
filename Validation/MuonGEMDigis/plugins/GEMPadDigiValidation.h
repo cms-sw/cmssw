@@ -1,27 +1,27 @@
-#ifndef Validation_MuonGEMDigis_GEMPadDigiValidation_H
-#define Validation_MuonGEMDigis_GEMPadDigiValidation_H
+#ifndef Validation_MuonGEMDigis_GEMPadDigiValidation_h
+#define Validation_MuonGEMDigis_GEMPadDigiValidation_h
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 
+
 class GEMPadDigiValidation : public GEMBaseValidation {
-public:
+ public:
   explicit GEMPadDigiValidation(const edm::ParameterSet&);
   ~GEMPadDigiValidation() override;
-  void analyze(const edm::Event& e, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-private:
-  // monitor elements
+ private:
+  // MonitorElemnt
   MEMap2Ids me_occ_det_;
   MEMap1Ids me_occ_zr_;
   MEMap3Ids me_detail_occ_xy_;
   MEMap3Ids me_detail_occ_phi_pad_;
-  MEMap3Ids me_detail_occ_pad_;  // DIGI Occupancy per Pad number
-
+  MEMap3Ids me_detail_occ_pad_;
   MEMap3Ids me_detail_bx_;
 
-  edm::EDGetTokenT<GEMPadDigiCollection> inputToken_;
+  edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
 };
 
-#endif
+#endif // Validation_MuonGEMDigis_GEMPadDigiValidation_h

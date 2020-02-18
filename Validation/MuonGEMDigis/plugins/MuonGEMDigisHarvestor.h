@@ -1,10 +1,10 @@
-#ifndef Validation_MuonGEMDigis_MuonGEMDigisHarvestor_H
-#define Validation_MuonGEMDigis_MuonGEMDigisHarvestor_H
+#ifndef Validation_MuonGEMDigis_MuonGEMDigisHarvestor_h
+#define Validation_MuonGEMDigis_MuonGEMDigisHarvestor_h
 
 #include "Validation/MuonGEMHits/interface/MuonGEMBaseHarvestor.h"
 
 class MuonGEMDigisHarvestor : public MuonGEMBaseHarvestor {
-public:
+ public:
   /// constructor
   explicit MuonGEMDigisHarvestor(const edm::ParameterSet&);
   /// destructor
@@ -17,8 +17,9 @@ public:
   // void harvestPadDigi();
   // void harvestCoPadDigi();
 
-private:
+ private:
   std::string strip_folder_, pad_folder_, copad_folder_, cluster_folder;
   std::vector<Int_t> region_ids_, station_ids_, layer_ids_;
 };
-#endif
+
+#endif // Validation_MuonGEMDigis_MuonGEMDigisHarvestor_h

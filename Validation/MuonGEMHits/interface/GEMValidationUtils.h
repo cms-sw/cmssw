@@ -1,5 +1,5 @@
-#ifndef Validation_MuonGEMHits_INTERFACE_GEMValidationUtils_h_
-#define Validation_MuonGEMHits_INTERFACE_GEMValidationUtils_h_
+#ifndef Validation_MuonGEMHits_INTERFACE_GEMValidationUtils_h
+#define Validation_MuonGEMHits_INTERFACE_GEMValidationUtils_h
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,7 +27,6 @@ typedef std::map<ME3IdsKey, MonitorElement*> MEMap3Ids;
 typedef std::map<ME4IdsKey, MonitorElement*> MEMap4Ids;
 
 namespace GEMUtils {
-
   TString getSuffixName(Int_t region_id);
   TString getSuffixName(Int_t region_id, Int_t station_id);
   TString getSuffixName(Int_t region_id, Int_t station_id, Int_t layer_id);
@@ -48,4 +47,4 @@ namespace GEMUtils {
 
 }  // namespace GEMUtils
 
-#endif  // Validation_MuonGEMHits_GEMValidationUtils_h_
+#endif  // Validation_MuonGEMHits_GEMValidationUtils_h
