@@ -154,7 +154,10 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
     auto print_path = [&](std::vector<std::pair<std::string_view, uint32_t>>& theHistory) {
       dump << " - ";
       for (const auto& t : theHistory) {
-        dump << t.first + "[" + t.second + "]/";
+        dump << t.first;
+        dump << "[";
+        dump << t.second;
+        dump << "]/";
       }
       dump << "\n";
     };
@@ -163,7 +166,10 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
     edm::LogInfo("DD4hep_TestMTDNumbering") << level << " " << clevel << " " << fv.name() << " " << ccopy;
     edm::LogVerbatim("DD4hep_TestMTDNumbering").log([&geoHistory](auto& log) {
       for (const auto& t : geoHistory) {
-        log << t.first + "[" + t.second + "]/";
+        log << t.first;
+        log << "[";
+        log << t.second;
+        log << "]/";
       }
     });
 #endif
