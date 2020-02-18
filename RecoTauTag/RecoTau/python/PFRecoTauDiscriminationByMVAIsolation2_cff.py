@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import *
-from RecoTauTag.Configuration.HPSPFTaus_cff import *
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauBasicDiscriminators
 
 discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsolationMVA2",
 

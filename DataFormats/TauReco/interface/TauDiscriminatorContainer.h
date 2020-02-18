@@ -15,11 +15,6 @@ namespace reco {
   };
 
   typedef edm::ValueMap<SingleTauDiscriminatorContainer> TauDiscriminatorContainer;
-
-  //typedef pat::PATTauDiscriminatorContainer::value_type PATTauDiscriminatorContainerVT;
-  //typedef edm::Ref<pat::PATTauDiscriminatorContainer> PATTauDiscriminatorContainerRef;
-  //typedef edm::RefProd<pat::PATTauDiscriminatorContainer> PATTauDiscriminatorContainerRefProd;
-  //typedef edm::RefVector<pat::PATTauDiscriminatorContainer> PATTauDiscriminatorContainerRefVector;
 }  // namespace reco
 
 #endif

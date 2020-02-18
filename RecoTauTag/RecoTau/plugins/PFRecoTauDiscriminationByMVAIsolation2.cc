@@ -101,7 +101,7 @@ public:
     TauTransverseImpactParameters_token =
         consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
 
-    BasicTauDiscriminators_token =
+    basicTauDiscriminators_token =
         consumes<reco::TauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
     chargedIsoPtSum_index_ = cfg.getParameter<int>("srcChargedIsoPtSumIndex");
     neutralIsoPtSum_index_ = cfg.getParameter<int>("srcNeutralIsoPtSumIndex");
@@ -141,7 +141,7 @@ private:
   edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
   edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
 
-  edm::EDGetTokenT<reco::TauDiscriminatorContainer> BasicTauDiscriminators_token;
+  edm::EDGetTokenT<reco::TauDiscriminatorContainer> basicTauDiscriminators_token;
   edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
   int chargedIsoPtSum_index_;
   int neutralIsoPtSum_index_;
@@ -165,16 +165,15 @@ void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, c
 
   evt.getByToken(TauTransverseImpactParameters_token, tauLifetimeInfos);
 
-  evt.getByToken(BasicTauDiscriminators_token, basicTauDiscriminators_);
+  evt.getByToken(basicTauDiscriminators_token, basicTauDiscriminators_);
 
   evt.getByToken(Tau_token, taus_);
 }
 
 reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const {
   reco::SingleTauDiscriminatorContainer result;
-  result.rawValues = {
-      -1.,
-      0.};  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
+  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
+  result.rawValues = {-1., 0.};
 
   // CV: computation of MVA value requires presence of leading charged hadron
   if (tau->leadChargedHadrCand().isNull())

@@ -28,7 +28,7 @@ struct PFTauSelectorDefinition {
     edm::EDGetTokenT<reco::PFTauDiscriminator> inputToken;
     double cut;
   };
-  struct DiscContCutPair {
+  struct DiscContainerCutPair {
     edm::Handle<reco::TauDiscriminatorContainer> handle;
     edm::EDGetTokenT<reco::TauDiscriminatorContainer> inputToken;
     std::vector<std::string> rawLabels;
@@ -37,11 +37,11 @@ struct PFTauSelectorDefinition {
     std::vector<int> wpCuts;
   };
   typedef std::vector<DiscCutPair> DiscCutPairVec;
-  typedef std::vector<DiscContCutPair> DiscContCutPairVec;
+  typedef std::vector<DiscContainerCutPair> DiscContainerCutPairVec;
 
   PFTauSelectorDefinition(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) {
-    std::vector<edm::ParameterSet> discriminators = cfg.getParameter<std::vector<edm::ParameterSet> >("discriminators");
-    std::vector<edm::ParameterSet> discriminatorContainers =
+    auto const& discriminators = cfg.getParameter<std::vector<edm::ParameterSet> >("discriminators");
+    auto const& discriminatorContainers =
         cfg.getParameter<std::vector<edm::ParameterSet> >("discriminatorContainers");
     // Build each of our cuts
     for (auto const& pset : discriminators) {
@@ -51,7 +51,7 @@ struct PFTauSelectorDefinition {
       discriminators_.push_back(newCut);
     }
     for (auto const& pset : discriminatorContainers) {
-      DiscContCutPair newCut;
+      DiscContainerCutPair newCut;
       newCut.inputToken =
           iC.consumes<reco::TauDiscriminatorContainer>(pset.getParameter<edm::InputTag>("discriminator"));
       auto const rawLabels = pset.getParameter<std::vector<std::string> >("rawValues");
@@ -204,7 +204,7 @@ struct PFTauSelectorDefinition {
 private:
   container selected_;
   DiscCutPairVec discriminators_;
-  DiscContCutPairVec discriminatorContainers_;
+  DiscContainerCutPairVec discriminatorContainers_;
   edm::ProcessHistoryID phID_;
   
   std::unique_ptr<StringCutObjectSelector<reco::PFTau> > cut_;

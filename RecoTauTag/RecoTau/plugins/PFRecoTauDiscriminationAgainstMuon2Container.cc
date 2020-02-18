@@ -44,23 +44,22 @@ namespace {
           moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
       wpDefs_ = cfg.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
       // check content of discriminatorOption and add as enum to avoid string comparison per event
-      for (std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end();
-           ++wpDefsEntry) {
-        std::string discriminatorOption_string = wpDefsEntry->getParameter<std::string>("discriminatorOption");
+      for (auto& wpDefsEntry : wpDefs_) {
+        std::string discriminatorOption_string = wpDefsEntry.getParameter<std::string>("discriminatorOption");
         if (discriminatorOption_string == "loose")
-          wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kLoose);
+          wpDefsEntry.addParameter<int>("discriminatorOptionEnum", kLoose);
         else if (discriminatorOption_string == "medium")
-          wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kMedium);
+          wpDefsEntry.addParameter<int>("discriminatorOptionEnum", kMedium);
         else if (discriminatorOption_string == "tight")
-          wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kTight);
+          wpDefsEntry.addParameter<int>("discriminatorOptionEnum", kTight);
         else if (discriminatorOption_string == "custom")
-          wpDefsEntry->addParameter<int>("discriminatorOptionEnum", kCustom);
+          wpDefsEntry.addParameter<int>("discriminatorOptionEnum", kCustom);
         else
           throw edm::Exception(edm::errors::UnimplementedFeature)
               << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
       }
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
-      Muons_token = consumes<reco::MuonCollection>(srcMuons_);
+      muons_token = consumes<reco::MuonCollection>(srcMuons_);
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
       dRmuonMatchLimitedToJetArea_ = cfg.getParameter<bool>("dRmuonMatchLimitedToJetArea");
       minPtMatchedMuon_ = cfg.getParameter<double>("minPtMatchedMuon");
@@ -86,7 +85,7 @@ namespace {
     std::vector<edm::ParameterSet> wpDefs_;
     edm::InputTag srcMuons_;
     edm::Handle<reco::MuonCollection> muons_;
-    edm::EDGetTokenT<reco::MuonCollection> Muons_token;
+    edm::EDGetTokenT<reco::MuonCollection> muons_token;
     double dRmuonMatch_;
     bool dRmuonMatchLimitedToJetArea_;
     double minPtMatchedMuon_;
@@ -105,7 +104,7 @@ namespace {
 
   void PFRecoTauDiscriminationAgainstMuon2Container::beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
     if (!srcMuons_.label().empty()) {
-      evt.getByToken(Muons_token, muons_);
+      evt.getByToken(muons_token, muons_);
     }
   }
 
@@ -173,7 +172,7 @@ namespace {
           if (pfTau->jetRef().isNonnull())
             jetArea = pfTau->jetRef()->jetArea();
           if (jetArea > 0.) {
-            dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea / TMath::Pi()));
+            dRmatch = std::min(dRmatch, std::sqrt(jetArea / M_PI));
           } else {
             if (numWarnings_ < maxWarnings_) {
               edm::LogInfo("PFRecoTauDiscriminationAgainstMuon2Container::discriminate")
@@ -246,14 +245,13 @@ namespace {
         leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
     }
     reco::SingleTauDiscriminatorContainer result;
-    for (std::vector<edm::ParameterSet>::const_iterator wpDefsEntry = wpDefs_.begin(); wpDefsEntry != wpDefs_.end();
-         ++wpDefsEntry) {
+    for (auto const& wpDefsEntry : wpDefs_) {
       //extract WP parameters
-      int discriminatorOption = wpDefsEntry->getParameter<int>("discriminatorOptionEnum");
-      double hop = wpDefsEntry->getParameter<double>("HoPMin");
-      int maxNumberOfMatches = wpDefsEntry->getParameter<int>("maxNumberOfMatches");
-      bool doCaloMuonVeto = wpDefsEntry->getParameter<bool>("doCaloMuonVeto");
-      int maxNumberOfHitsLast2Stations = wpDefsEntry->getParameter<int>("maxNumberOfHitsLast2Stations");
+      int discriminatorOption = wpDefsEntry.getParameter<int>("discriminatorOptionEnum");
+      double hop = wpDefsEntry.getParameter<double>("HoPMin");
+      int maxNumberOfMatches = wpDefsEntry.getParameter<int>("maxNumberOfMatches");
+      bool doCaloMuonVeto = wpDefsEntry.getParameter<bool>("doCaloMuonVeto");
+      int maxNumberOfHitsLast2Stations = wpDefsEntry.getParameter<int>("maxNumberOfHitsLast2Stations");
 
       if (pfLeadChargedHadron.isNonnull()) {
         if (pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop * leadTrack->p()))

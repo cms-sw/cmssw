@@ -121,7 +121,7 @@ namespace reco {
         TauTransverseImpactParameters_token =
             consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
 
-        BasicTauDiscriminators_token =
+        basicTauDiscriminators_token =
             consumes<reco::TauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
         input_id_name_suffix_ = cfg.getParameter<std::string>("inputIDNameSuffix");
 
@@ -158,7 +158,7 @@ namespace reco {
       edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
       edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
 
-      edm::EDGetTokenT<reco::TauDiscriminatorContainer> BasicTauDiscriminators_token;
+      edm::EDGetTokenT<reco::TauDiscriminatorContainer> basicTauDiscriminators_token;
       edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
       int chargedIsoPtSum_index_=0;
       int neutralIsoPtSum_index_=0;
@@ -186,7 +186,7 @@ namespace reco {
 
       evt.getByToken(TauTransverseImpactParameters_token, tauLifetimeInfos);
 
-      evt.getByToken(BasicTauDiscriminators_token, basicTauDiscriminators_);
+      evt.getByToken(basicTauDiscriminators_token, basicTauDiscriminators_);
 
       evt.getByToken(Tau_token, taus_);
       
@@ -223,12 +223,12 @@ namespace reco {
             mvaOpt_ == kDBnewDMwLTwGJ) &&
            (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 ||
             tauDecayMode == 10 || tauDecayMode == 11))) {
-        float chargedIsoPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(chargedIsoPtSum_index_);
-        float neutralIsoPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(neutralIsoPtSum_index_);
-        float puCorrPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(pucorrPtSum_index_);
-        float photonPtSumOutsideSignalCone =
-            (*basicTauDiscriminators_)[tau].rawValues.at(photonPtSumOutsideSignalCone_index_);
-        float footprintCorrection = (*basicTauDiscriminators_)[tau].rawValues.at(footprintCorrection_index_);
+        auto const rawValues = (*basicTauDiscriminators_)[tau].rawValues;
+        float chargedIsoPtSum = rawValues.at(chargedIsoPtSum_index_);
+        float neutralIsoPtSum = rawValues.at(neutralIsoPtSum_index_);
+        float puCorrPtSum = rawValues.at(pucorrPtSum_index_);
+        float photonPtSumOutsideSignalCone = rawValues.at(photonPtSumOutsideSignalCone_index_);
+        float footprintCorrection = rawValues.at(footprintCorrection_index_);
 
         const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[tau];
 

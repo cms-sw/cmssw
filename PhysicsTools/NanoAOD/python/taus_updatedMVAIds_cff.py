@@ -49,20 +49,13 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTSeq = cms.Sequence(
 )
 ## DBnewDM
 # Raw
-patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw = patDiscriminationByIsolationMVArun2v1raw.clone(
-   PATTauProducer = cms.InputTag('slimmedTaus'),
-   Prediscriminants = noPrediscriminants,
-   loadMVAfromDB = cms.bool(True),
+patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw = patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw.clone(
    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT"), # name of the training you want to use
-   mvaOpt = cms.string("DBnewDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
-   verbosity = cms.int32(0)
+   mvaOpt = cms.string("DBnewDMwLTwGJ") # option you want to use for your training (i.e., which variables are used to compute the BDT score)
 )
 # WPs
-patTauDiscriminationByIsolationMVArun2v1DBnewDMwLT = patDiscriminationByIsolationMVArun2v1.clone(
-   PATTauProducer = cms.InputTag('slimmedTaus'),
-   Prediscriminants = noPrediscriminants,
+patTauDiscriminationByIsolationMVArun2v1DBnewDMwLT = patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT.clone(
    toMultiplex = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
-   loadMVAfromDB = cms.bool(True),
    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_mvaOutput_normalization"), # normalization fo the training you want to use
    mapping = cms.VPSet(
       cms.PSet(
@@ -70,15 +63,6 @@ patTauDiscriminationByIsolationMVArun2v1DBnewDMwLT = patDiscriminationByIsolatio
          cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT"), # this is the name of the working point you want to use
          variable = cms.string("pt"),
       )
-   ),
-   workingPoints = cms.vstring(
-      "_VVLoose",
-      "_VLoose",
-      "_Loose",
-      "_Medium",
-      "_Tight",
-      "_VTight",
-      "_VVTight"
    )
 )
 # MVAIso DBnewDM Seqeunce
@@ -88,25 +72,18 @@ patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTSeq = cms.Sequence(
 )
 ## DBoldDMdR0p3
 # Raw
-patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw = patDiscriminationByIsolationMVArun2v1raw.clone(
-   PATTauProducer = cms.InputTag('slimmedTaus'),
-   Prediscriminants = noPrediscriminants,
-   loadMVAfromDB = cms.bool(True),
+patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw = patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw.clone(
    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT"), # name of the training you want to use
    mvaOpt = cms.string("DBoldDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
    srcChargedIsoPtSum = cms.string('chargedIsoPtSumdR03'),
    srcFootprintCorrection = cms.string('footprintCorrectiondR03'),
    srcNeutralIsoPtSum = cms.string('neutralIsoPtSumdR03'),
    srcPUcorrPtSum = cms.string('puCorrPtSum'),
-   srcPhotonPtSumOutsideSignalCone = cms.string('photonPtSumOutsideSignalConedR03'),
-   verbosity = cms.int32(0)
+   srcPhotonPtSumOutsideSignalCone = cms.string('photonPtSumOutsideSignalConedR03')
 )
 # WPs
-patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLT = patDiscriminationByIsolationMVArun2v1.clone(
-   PATTauProducer = cms.InputTag('slimmedTaus'),
-   Prediscriminants = noPrediscriminants,
+patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLT = patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT.clone(
    toMultiplex = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw'),
-   loadMVAfromDB = cms.bool(True),
    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_mvaOutput_normalization"), # normalization fo the training you want to use
    mapping = cms.VPSet(
       cms.PSet(
@@ -114,15 +91,6 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLT = patDiscriminationByIso
          cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT"), # this is the name of the working point you want to use
          variable = cms.string("pt"),
       )
-   ),
-   workingPoints = cms.vstring(
-      "_VVLoose",
-      "_VLoose",
-      "_Loose",
-      "_Medium",
-      "_Tight",
-      "_VTight",
-      "_VVTight"
    )
 )
 # MVAIso DBoldDMdR0p3 Seqeunce
@@ -133,20 +101,13 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTSeq = cms.Sequence(
 ### MVAIso 2017v1 for Nano on top of MiniAODv1
 ## DBoldDM
 # Raw
-patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2017v1 = patDiscriminationByIsolationMVArun2v1raw.clone(
-   PATTauProducer = cms.InputTag('slimmedTaus'),
-   Prediscriminants = noPrediscriminants,
-   loadMVAfromDB = cms.bool(True),
+patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2017v1 = patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw.clone(
    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1"), # name of the training you want to use
-   mvaOpt = cms.string("DBoldDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
-   verbosity = cms.int32(0)
+   mvaOpt = cms.string("DBoldDMwLTwGJ") # option you want to use for your training (i.e., which variables are used to compute the BDT score)
 )
 # WPs
-patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1 = patDiscriminationByIsolationMVArun2v1.clone(
-   PATTauProducer = cms.InputTag('slimmedTaus'),
-   Prediscriminants = noPrediscriminants,
+patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1 = patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT.clone(
    toMultiplex = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2017v1'),
-   loadMVAfromDB = cms.bool(True),
    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization"), # normalization fo the training you want to use
    mapping = cms.VPSet(
       cms.PSet(
@@ -173,20 +134,13 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Seq = cms.Sequence(
 ### MVAIso 2015 for Nano on top of MiniAODv2
 ## DBoldDM
 # Raw
-patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2015 = patDiscriminationByIsolationMVArun2v1raw.clone(
-   PATTauProducer = cms.InputTag('slimmedTaus'),
-   Prediscriminants = noPrediscriminants,
-   loadMVAfromDB = cms.bool(True),
+patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2015 = patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw.clone(
    mvaName = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1"), # name of the training you want to use
-   mvaOpt = cms.string("DBoldDMwLT"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
-   verbosity = cms.int32(0)
+   mvaOpt = cms.string("DBoldDMwLT") # option you want to use for your training (i.e., which variables are used to compute the BDT score)
 )
 # WPs
-patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015 = patDiscriminationByIsolationMVArun2v1.clone(
-   PATTauProducer = cms.InputTag('slimmedTaus'),
-   Prediscriminants = noPrediscriminants,
+patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015 = patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT.clone(
    toMultiplex = cms.InputTag('patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2015'),
-   loadMVAfromDB = cms.bool(True),
    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_mvaOutput_normalization"), # normalization fo the training you want to use
    mapping = cms.VPSet(
       cms.PSet(

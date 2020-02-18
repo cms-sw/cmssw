@@ -47,29 +47,28 @@ public:
     tracksNeeded_ = false;
     gammasNeeded_ = false;
     storeRawValue_.clear();
-    std::vector<edm::ParameterSet> rawDefs = pset.getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
-    for (std::vector<edm::ParameterSet>::iterator rawDefsEntry = rawDefs.begin(); rawDefsEntry != rawDefs.end();
-         ++rawDefsEntry) {
+    auto const& rawDefs = pset.getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
+    for (auto const& rawDefsEntry : rawDefs) {
       // Can only store one type
       int numStoreOptions = 0;
-      if (rawDefsEntry->getParameter<bool>("storeRawSumPt")) {
+      if (rawDefsEntry.getParameter<bool>("storeRawSumPt")) {
         storeRawValue_.push_back(SumPt);
         ++numStoreOptions;
       }
-      if (rawDefsEntry->getParameter<bool>("storeRawOccupancy")) {
+      if (rawDefsEntry.getParameter<bool>("storeRawOccupancy")) {
         storeRawValue_.push_back(Occupancy);
         ++numStoreOptions;
       }
-      if (rawDefsEntry->getParameter<bool>("storeRawPUsumPt")) {
+      if (rawDefsEntry.getParameter<bool>("storeRawPUsumPt")) {
         storeRawValue_.push_back(PUsumPt);
         ++numStoreOptions;
       }
-      if (rawDefsEntry->getParameter<bool>("storeRawFootprintCorrection")) {
+      if (rawDefsEntry.getParameter<bool>("storeRawFootprintCorrection")) {
         storeRawValue_.push_back(FootPrintCorrection);
         storeRawFootprintCorrection = true;
         ++numStoreOptions;
       }
-      if (rawDefsEntry->getParameter<bool>("storeRawPhotonSumPt_outsideSignalCone")) {
+      if (rawDefsEntry.getParameter<bool>("storeRawPhotonSumPt_outsideSignalCone")) {
         storeRawValue_.push_back(PhotonSumPt);
         ++numStoreOptions;
       }
@@ -79,19 +78,19 @@ public:
             << " These options are mutually exclusive.";
       }
 
-      includeGammas_.push_back(rawDefsEntry->getParameter<bool>("ApplyDiscriminationByECALIsolation"));
+      includeGammas_.push_back(rawDefsEntry.getParameter<bool>("ApplyDiscriminationByECALIsolation"));
       if (includeGammas_.back())
         gammasNeeded_ = true;
-      calculateWeights_.push_back(rawDefsEntry->getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation"));
+      calculateWeights_.push_back(rawDefsEntry.getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation"));
       if (calculateWeights_.back())
         weightsNeeded_ = true;
-      includeTracks_.push_back(rawDefsEntry->getParameter<bool>("ApplyDiscriminationByTrackerIsolation"));
+      includeTracks_.push_back(rawDefsEntry.getParameter<bool>("ApplyDiscriminationByTrackerIsolation"));
       if (includeTracks_.back())
         tracksNeeded_ = true;
-      applyDeltaBetaCorrection_.push_back(rawDefsEntry->getParameter<bool>("applyDeltaBetaCorrection"));
+      applyDeltaBetaCorrection_.push_back(rawDefsEntry.getParameter<bool>("applyDeltaBetaCorrection"));
       if (applyDeltaBetaCorrection_.back())
         deltaBetaNeeded_ = true;
-      useAllPFCandsForWeights_.push_back(rawDefsEntry->getParameter<bool>("UseAllPFCandsForWeights"));
+      useAllPFCandsForWeights_.push_back(rawDefsEntry.getParameter<bool>("UseAllPFCandsForWeights"));
 
       // sanity check2 - can't use weighted and unweighted iso at the same time
       if (includeGammas_.back() && calculateWeights_.back()) {
