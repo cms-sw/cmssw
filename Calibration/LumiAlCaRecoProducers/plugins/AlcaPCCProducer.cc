@@ -53,10 +53,8 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig) {
-  fPixelClusterLabel = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters")
-                           .getParameter<edm::InputTag>("pixelClusterLabel");
-  trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters")
-                    .getUntrackedParameter<std::string>("trigstring", "alcaPCC");
+  fPixelClusterLabel = iConfig.getParameter<edm::InputTag>("pixelClusterLabel");
+  trigstring_ = iConfig.getUntrackedParameter<std::string>("trigstring", "alcaPCC");
 
   countLumi_ = 0;
 
