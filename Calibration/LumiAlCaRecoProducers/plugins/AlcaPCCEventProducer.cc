@@ -52,10 +52,8 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 AlcaPCCEventProducer::AlcaPCCEventProducer(const edm::ParameterSet& iConfig) {
-  fPixelClusterLabel = iConfig.getParameter<edm::ParameterSet>("AlcaPCCEventProducerParameters")
-                           .getParameter<edm::InputTag>("pixelClusterLabel");
-  trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCEventProducerParameters")
-                    .getUntrackedParameter<std::string>("trigstring", "alcaPCCEvent");
+  fPixelClusterLabel = iConfig.getParameter<edm::InputTag>("pixelClusterLabel");
+  trigstring_ = iConfig.getUntrackedParameter<std::string>("trigstring");
 
   produces<reco::PixelClusterCountsPerEvent, edm::Transition::Event>(trigstring_);
   pixelToken = consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
@@ -102,12 +100,10 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCEventProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  edm::ParameterSetDescription desc;
   edm::ParameterSetDescription evtParamDesc;
   evtParamDesc.add<edm::InputTag>("pixelClusterLabel",edm::InputTag("siPixelClustersForLumi"));
   evtParamDesc.addUntracked<std::string>("trigstring","alcaPCCEvent");
-  desc.add<edm::ParameterSetDescription>("AlcaPCCEventProducerParameters",evtParamDesc);
-  descriptions.add("alcaPCCEventProducer", desc);
+  descriptions.add("alcaPCCEventProducer", evtParamDesc);
 }
 
 

@@ -21,12 +21,9 @@ process.OutALCARECOPromptCalibProdPCC = cms.PSet(
 )
 #Make sure that variables match in producer.cc and .h
 process.alcaPCCEventProducer = cms.EDProducer("AlcaPCCEventProducer",
-    AlcaPCCEventProducerParameters = cms.PSet(
-        WriteToDB = cms.bool(False),
-        pixelClusterLabel = cms.InputTag("siPixelClustersForLumi"),
-        #Mod factor to count lumi and the string to specify output 
-        trigstring = cms.untracked.string("alcaPCCRandom") 
-    ),
+    pixelClusterLabel = cms.InputTag("siPixelClustersForLumi"),
+    #Mod factor to count lumi and the string to specify output 
+    trigstring = cms.untracked.string("alcaPCCEvent") 
 )
 
 process.OutALCARECOLumiPixels = cms.PSet(
