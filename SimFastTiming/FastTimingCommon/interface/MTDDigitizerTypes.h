@@ -15,8 +15,6 @@ namespace mtd_digitizer {
   typedef std::array<MTDSimData_t, nSamples> MTDSimHitData;
 
   struct MTDCellInfo {
-    // for the BTL tile geometry and ETL:
-    //     1st array=energy, 2nd array=time-of-flight
     // for the BTL bar geometry:
     //     3rd array=energy (right side), 4th array=time-of-flight (right side)
     std::array<MTDSimHitData, 4> hit_info;
