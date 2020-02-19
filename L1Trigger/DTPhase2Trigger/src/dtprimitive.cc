@@ -66,9 +66,9 @@ int DTPrimitive::getTDCTimeNoOffset(void) { return tdcTimeStamp - timeCorrection
 int DTPrimitive::getOrbit(void) { return orbit; }
 void DTPrimitive::setOrbit(int orb) { orbit = orb; }
 
-int DTPrimitive::getTDCCoarsePart(void) { return (((tdcTimeStamp && TDC_TIME_COARSE_MASK) >> TDC_TIME_FINE_MASK)); }
+//int DTPrimitive::getTDCCoarsePart(void) { return (((tdcTimeStamp && TDC_TIME_COARSE_MASK) >> TDC_TIME_FINE_MASK)); }
 
-int DTPrimitive::getTDCFinePart(void) { return ((tdcTimeStamp && TDC_TIME_FINE_MASK)); }
+//int DTPrimitive::getTDCFinePart(void) { return ((tdcTimeStamp && TDC_TIME_FINE_MASK)); }
 
 double DTPrimitive::getPayload(int idx) { return hitTag[idx]; }
 void DTPrimitive::setPayload(double hitTag, int idx) { this->hitTag[idx] = hitTag; }

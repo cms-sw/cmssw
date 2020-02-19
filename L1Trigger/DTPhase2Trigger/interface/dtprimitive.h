@@ -36,8 +36,8 @@ public:
   void setOrbit(int orb);
   int getTDCTimeNoOffset(void);
 
-  int getTDCCoarsePart(void);
-  int getTDCFinePart(void);
+  //  int getTDCCoarsePart(void);
+  //  int getTDCFinePart(void);
 
   double getPayload(int idx);
   void setPayload(double hitTag, int idx);

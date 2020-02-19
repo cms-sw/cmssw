@@ -7,10 +7,8 @@
 //------------------------------------------------------------------
 Pattern::Pattern() {}
 
-Pattern::Pattern(RefPatternHit seedUp, RefPatternHit seedDown) {
+Pattern::Pattern(RefPatternHit seedUp, RefPatternHit seedDown) : seedUp(seedUp), seedDown(seedDown) {
   //On creation, pattern is based on seeds, with no hits. Due to traslational simmetry we only need the superlayer indexes as well as the cell index difference
-  seedUp = seedUp;
-  seedDown = seedDown;
   id = std::make_tuple(std::get<0>(seedUp), std::get<0>(seedDown), std::get<1>(seedUp) - std::get<1>(seedDown));
   if (debug)
     std::cout << "Pattern id: " << std::get<0>(id) << " , " << std::get<1>(id) << " , " << std::get<2>(id) << std::endl;

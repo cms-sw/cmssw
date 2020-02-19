@@ -96,7 +96,6 @@
 // Previous definitions and declarations
 // ===============================================================================
 // Namespaces
-using namespace std;
 using namespace edm;
 using namespace cms;
 

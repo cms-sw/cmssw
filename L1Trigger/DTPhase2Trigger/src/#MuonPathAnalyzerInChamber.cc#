@@ -432,13 +432,12 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPath *mpath,
   }
 
   //Proceed with calculation of fit parameters
-  double cbscal = 0.0;
-  double zbscal = 0.0;
-  double czscal = 0.0;
-  double bbscal = 0.0;
-  double zzscal = 0.0;
-  double ccscal = 0.0;
-
+  double cbscal = 0.000000d};
+  double zbscal = 0.000000d};
+  double czscal = 0.000000d};
+  double bbscal = 0.000000d};
+  double zzscal = 0.000000d};
+  double ccscal = {0.000000d};
   for (int lay = 0; lay < 8; lay++) {
     if (present_layer[lay] == 0)
       continue;
@@ -456,12 +455,12 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPath *mpath,
     ccscal = (-1 + 2 * laterality[lay]) * (-1 + 2 * laterality[lay]) + ccscal;
   }
 
-  double cz = 0.0;
-  double cb = 0.0;
-  double zb = 0.0;
-  double zc = 0.0;
-  double bc = 0.0;
-  double bz = 0.0;
+  double cz = {0.000000d};
+  double cb = {0.000000d};
+  double zb = {0.000000d};
+  double zc = {0.000000d};
+  double bc = {0.000000d};
+  double bz = {0.000000d};
 
   cz = (cbscal * zbscal - czscal * bbscal) / (zzscal * bbscal - zbscal * zbscal);
   cb = (czscal * zbscal - cbscal * zzscal) / (zzscal * bbscal - zbscal * zbscal);
@@ -488,16 +487,16 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPath *mpath,
   }
 
   //Calculate results per lat
-  double xctilde = 0.0;
-  double xztilde = 0.0;
-  double xbtilde = 0.0;
-  double ctildectilde = 0.0;
-  double ztildeztilde = 0.0;
-  double btildebtilde = 0.0;
+  double xctilde = {0.000000d};
+  double xztilde = {0.000000d};
+  double xbtilde = {0.000000d};
+  double ctildectilde = {0.000000d};
+  double ztildeztilde = {0.000000d};
+  double btildebtilde = {0.000000d};
 
-  double rect0vdrift = 0.0;
-  double recslope = 0.0;
-  double recpos = 0.0;
+  double rect0vdrift = {0.000000d};
+  double recslope = {0.000000d};
+  double recpos = {0.000000d};
 
   for (int lay = 0; lay < 8; lay++) {
     if (present_layer[lay] == 0)
@@ -522,9 +521,9 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPath *mpath,
   }
 
   //Get t*v and residuals per layer, and chi2 per laterality
-  double rectdriftvdrift[8];
-  double recres[8];
-  double recchi2 = 0.0;
+  double rectdriftvdrift[8] = {0.000000d};
+  double recres[8] = {0.000000d};
+  double recchi2 = {0.000000d};
   int sign_tdriftvdrift = {0};
   int incell_tdriftvdrift = {0};
   int physical_slope = {0};
