@@ -1,5 +1,5 @@
-#ifndef __SimFastTiming_FastTimingCommon_BTLTileDeviceSim_h__
-#define __SimFastTiming_FastTimingCommon_BTLTileDeviceSim_h__
+#ifndef __SimFastTiming_FastTimingCommon_BTLDeviceSim_h__
+#define __SimFastTiming_FastTimingCommon_BTLDeviceSim_h__
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,7 +10,9 @@
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
 #include <tuple>
 
@@ -18,9 +20,9 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class BTLTileDeviceSim {
+class BTLDeviceSim {
 public:
-  BTLTileDeviceSim(const edm::ParameterSet& pset);
+  BTLDeviceSim(const edm::ParameterSet& pset);
 
   void getEvent(const edm::Event& evt) {}
 
@@ -33,12 +35,14 @@ public:
 
 private:
   const MTDGeometry* geom_;
+  const MTDTopology* topo_;
 
   const float bxTime_;
   const float LightYield_;
   const float LightCollEff_;
-  const float LightCollTime_;
-  const float smearLightCollTime_;
+
+  const float LightCollSlopeR_;
+  const float LightCollSlopeL_;
   const float PDE_;
 };
 
