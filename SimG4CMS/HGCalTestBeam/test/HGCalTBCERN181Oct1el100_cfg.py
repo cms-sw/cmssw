@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 
 if 'MessageLogger' in process.__dict__:
      process.MessageLogger.categories.append('BeamMomentumGun')
-#    process.MessageLogger.categories.append('HGCSim')
+     process.MessageLogger.categories.append('HGCSim')
 #    process.MessageLogger.categories.append('HcalSim')
 
 # Input source
@@ -108,6 +108,7 @@ process.HGCalTBAnalyzer.doRecHits       = False
 process.HGCalTBAnalyzer.useFH           = True
 process.HGCalTBAnalyzer.useBH           = True
 process.HGCalTBAnalyzer.useBeam         = True
+process.HGCalTBAnalyzer.addP            = True
 process.HGCalTBAnalyzer.zFrontEE        = 1110.0
 process.HGCalTBAnalyzer.zFrontFH        = 1176.5
 process.HGCalTBAnalyzer.zFrontFH        = 1307.5
