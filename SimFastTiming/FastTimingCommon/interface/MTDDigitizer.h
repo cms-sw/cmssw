@@ -66,7 +66,7 @@ namespace mtd_digitizer {
 
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
     const float maxPackChargeLog = std::log(maxCharge);
-    constexpr uint16_t base = 1 << PMTDSimAccumulator::Data::sampleOffset;
+    constexpr uint16_t base = PMTDSimAccumulator::Data::dataMask + 1;
 
     simResult.reserve(simData.size());
     // mimicking the digitization
@@ -96,7 +96,7 @@ namespace mtd_digitizer {
                                     const float maxCharge) {
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
     const float maxPackChargeLog = std::log(maxCharge);
-    constexpr uint16_t base = 1 << PMTDSimAccumulator::Data::sampleOffset;
+    constexpr uint16_t base = PMTDSimAccumulator::Data::dataMask + 1;
 
     for (const auto& detIdIndexHitInfo : simAccumulator) {
       auto foo = simData.emplace(
@@ -120,7 +120,7 @@ namespace mtd_digitizer {
 
       if (iEn == 0 || iEn == 2) {
         hit_info[iEn][iSample] += value;
-      } else if (hit_info[iEn][iSample] == 0) {
+      } else if (hit_info[iEn][iSample] == 0 || value < hit_info[iEn][iSample]) {
         // For iEn==1 the digitizers just set the TOF of the first SimHit
         hit_info[iEn][iSample] = value;
       }

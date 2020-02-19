@@ -29,22 +29,20 @@ public:
   };
   class Data {
   public:
-    constexpr static unsigned energyOffset = 14;
+    constexpr static unsigned energyOffset = 4;
     constexpr static unsigned energyMask = 0x3;
-    constexpr static unsigned sampleOffset = 10;
     constexpr static unsigned sampleMask = 0xf;
-    constexpr static unsigned dataOffset = 0;
-    constexpr static unsigned dataMask = 0x3ff;
+    constexpr static unsigned dataMask = 0x7fff;
 
-    Data() : data_(0) {}
-    Data(unsigned short ei, unsigned short si, unsigned short d)
-        : data_((ei << energyOffset) | (si << sampleOffset) | d) {}
+    Data() : indices_(0), data_(0) {}
+    Data(unsigned short ei, unsigned short si, unsigned short d) : indices_((ei << energyOffset) | si), data_(d) {}
 
-    unsigned int energyIndex() const { return data_ >> energyOffset; }
-    unsigned int sampleIndex() const { return (data_ >> sampleOffset) & sampleMask; }
+    unsigned int energyIndex() const { return indices_ >> energyOffset; }
+    unsigned int sampleIndex() const { return indices_ & sampleMask; }
     unsigned int data() const { return data_ & dataMask; }
 
   private:
+    unsigned char indices_;
     unsigned short data_;
   };
 
