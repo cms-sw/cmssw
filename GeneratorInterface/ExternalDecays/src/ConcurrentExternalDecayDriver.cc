@@ -1,4 +1,4 @@
-#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+#include "GeneratorInterface/ExternalDecays/interface/ConcurrentExternalDecayDriver.h"
 
 #include "GeneratorInterface/Core/interface/FortranInstance.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
@@ -20,11 +20,13 @@
 using namespace gen;
 using namespace edm;
 
-ExternalDecayDriver::ExternalDecayDriver(const ParameterSet& pset) : fIsInitialized(false) {
+ConcurrentExternalDecayDriver::ConcurrentExternalDecayDriver(const ParameterSet& pset) : fIsInitialized(false) {
   std::vector<std::string> extGenNames = pset.getParameter<std::vector<std::string> >("parameterSets");
 
   for (unsigned int ip = 0; ip < extGenNames.size(); ++ip) {
     std::string curSet = extGenNames[ip];
+    throw cms::Exception("ThreadUnsafeDecayer") << "The decayer " << curSet << " is not thread-friendly.";
+    /*
     if (curSet == "EvtGen") {
       fEvtGenInterface = std::unique_ptr<EvtGenInterfaceBase>(
           EvtGenFactory::get()->create("EvtGen", pset.getUntrackedParameter<ParameterSet>(curSet)));
@@ -61,21 +63,22 @@ ExternalDecayDriver::ExternalDecayDriver(const ParameterSet& pset) : fIsInitiali
         exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
       }
     }
+    */
   }
 }
 
-ExternalDecayDriver::~ExternalDecayDriver() = default;
+ConcurrentExternalDecayDriver::~ConcurrentExternalDecayDriver() = default;
 
-HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt, lhef::LHEEvent* lheEvent) {
-  if (fTauolaInterface)
-    fTauolaInterface->SetLHE(lheEvent);
+HepMC::GenEvent* ConcurrentExternalDecayDriver::decay(HepMC::GenEvent* evt, lhef::LHEEvent* lheEvent) {
+  /*  if (fTauolaInterface)
+      fTauolaInterface->SetLHE(lheEvent); */
   return decay(evt);
 }
 
-HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt) {
+HepMC::GenEvent* ConcurrentExternalDecayDriver::decay(HepMC::GenEvent* evt) {
   if (!fIsInitialized)
     return evt;
-
+  /*
   if (fEvtGenInterface) {
     evt = fEvtGenInterface->decay(evt);
     if (!evt)
@@ -93,14 +96,14 @@ HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt) {
     if (!evt)
       return nullptr;
   }
-
+  */
   return evt;
 }
 
-void ExternalDecayDriver::init(const edm::EventSetup& es) {
+void ConcurrentExternalDecayDriver::init(const edm::EventSetup& es) {
   if (fIsInitialized)
     return;
-
+  /*
   if (fTauolaInterface) {
     fTauolaInterface->init(es);
     for (std::vector<int>::const_iterator i = fTauolaInterface->operatesOnParticles().begin();
@@ -129,26 +132,30 @@ void ExternalDecayDriver::init(const edm::EventSetup& es) {
       }
     }
   }
+  */
 
   fIsInitialized = true;
 
   return;
 }
 
-void ExternalDecayDriver::statistics() const {
-  if (fTauolaInterface)
+void ConcurrentExternalDecayDriver::statistics() const {
+  /*  if (fTauolaInterface)
     fTauolaInterface->statistics();
   if (fPhotosInterface)
     fPhotosInterface->statistics();
+  */
   // similar for EvtGen if needed
   return;
 }
 
-void ExternalDecayDriver::setRandomEngine(CLHEP::HepRandomEngine* v) {
+void ConcurrentExternalDecayDriver::setRandomEngine(CLHEP::HepRandomEngine* v) {
+  /*
   if (fTauolaInterface)
     fTauolaInterface->setRandomEngine(v);
   if (fEvtGenInterface)
     fEvtGenInterface->setRandomEngine(v);
   if (fPhotosInterface)
     fPhotosInterface->setRandomEngine(v);
+  */
 }
