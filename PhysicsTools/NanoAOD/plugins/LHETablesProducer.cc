@@ -75,19 +75,19 @@ public:
         vals_pid.push_back(hepeup.IDUP[i]);
         vals_spin.push_back(hepeup.SPINUP[i]);
         if (status == -1) {
-            vals_pt.push_back(0);
-            vals_eta.push_back(0);
-            vals_phi.push_back(0);
-            vals_mass.push_back(0);
-            vals_pz.push_back(p4.Pz());
-            vals_status.push_back(1);
+          vals_pt.push_back(0);
+          vals_eta.push_back(0);
+          vals_phi.push_back(0);
+          vals_mass.push_back(0);
+          vals_pz.push_back(p4.Pz());
+          vals_status.push_back(1);
         } else {
-            vals_pt.push_back(p4.Pt());
-            vals_eta.push_back(p4.Eta());
-            vals_phi.push_back(p4.Phi());
-            vals_mass.push_back(p4.M());
-            vals_pz.push_back(0);
-            vals_status.push_back(0);
+          vals_pt.push_back(p4.Pt());
+          vals_eta.push_back(p4.Eta());
+          vals_phi.push_back(p4.Phi());
+          vals_mass.push_back(p4.M());
+          vals_pz.push_back(0);
+          vals_status.push_back(0);
         }
       }
       if ((status == 1) && ((idabs == 21) || (idabs > 0 && idabs < 7))) {  //# gluons and quarks
@@ -161,7 +161,8 @@ public:
     outPart->addColumn<float>(
         "incomingpz", vals_pz, "Pz of incoming LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
     outPart->addColumn<int>("pdgId", vals_pid, "PDG ID of LHE particles", nanoaod::FlatTable::IntColumn);
-    outPart->addColumn<uint8_t>("isIncoming", vals_status, "LHE particle status; 1:incoming, 0:outgoing", nanoaod::FlatTable::BoolColumn);
+    outPart->addColumn<uint8_t>(
+        "isIncoming", vals_status, "LHE particle status; 1:incoming, 0:outgoing", nanoaod::FlatTable::BoolColumn);
     outPart->addColumn<int>("spin", vals_spin, "Spin of LHE particles", nanoaod::FlatTable::IntColumn);
 
     return outPart;
