@@ -180,7 +180,8 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: DoPassive " << doPassive_ << ":" << doPassiveEE_ << ":"
                              << doPassiveHE_ << ":" << doPassiveBH_;
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: MIP conversion factors " << gev2mip200_ << ":" << gev2mip300_
-                             << " Time smearing " << stoc_smear_time_200_ << ":" << stoc_smear_time_300_ << " AddP " << addP_;
+                             << " Time smearing " << stoc_smear_time_200_ << ":" << stoc_smear_time_300_ << " AddP "
+                             << addP_;
 #endif
   if (idBeams_.empty())
     idBeams_.push_back(1001);
@@ -550,10 +551,10 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     HepMC::FourVector pxyz(0, 0, 0, 0);
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p, ++k) {
-      edm::LogVerbatim("HGCSim") << "Particle [" << k << "] with p " << (*p)->momentum().rho() << " theta " 
-				 << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi() << " pxyz ("
-				 << (*p)->momentum().px() << ", " << (*p)->momentum().py() << ", "
-				 << (*p)->momentum().pz() << ")";
+      edm::LogVerbatim("HGCSim") << "Particle [" << k << "] with p " << (*p)->momentum().rho() << " theta "
+                                 << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi() << " pxyz ("
+                                 << (*p)->momentum().px() << ", " << (*p)->momentum().py() << ", "
+                                 << (*p)->momentum().pz() << ")";
       if (addP_) {
         pxyz.setPx(pxyz.px() + (*p)->momentum().px());
         pxyz.setPy(pxyz.py() + (*p)->momentum().py());
