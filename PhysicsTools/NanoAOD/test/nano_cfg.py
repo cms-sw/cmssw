@@ -8,7 +8,6 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("Configuration.StandardSequences.MagneticField_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase1_2017_realistic']
 
