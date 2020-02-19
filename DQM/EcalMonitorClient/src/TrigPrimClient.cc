@@ -30,7 +30,8 @@ namespace ecaldqm {
 
   void TrigPrimClient::producePlots(ProcessType) {
     MESet* meNonSingleSummary = nullptr;
-    MESet* meTimingSummary = nullptr;;
+    MESet* meTimingSummary = nullptr;
+    ;
     MESet* sEtEmulError = nullptr;
     MESet* sMatchedIndex = nullptr;
 
@@ -56,40 +57,39 @@ namespace ecaldqm {
       bool doMask(meEmulQualitySummary.maskMatches(ttid, mask, statusManager_));
 
       if (sourceFromEmul_) {
-	sEtEmulError = &sources_.at("EtEmulError");
-	sMatchedIndex = &sources_.at("MatchedIndex");
-	meNonSingleSummary = &MEs_.at("NonSingleSummary");
-	meTimingSummary = &MEs_.at("TimingSummary");
-	float towerEntries(0.);
-	float tMax(0.5);
-	float nMax(0.);
-	for (int iBin(0); iBin < 6; iBin++) {
-	  float entries(sMatchedIndex->getBinContent(ttid, iBin + 1));
-	  towerEntries += entries;
+        sEtEmulError = &sources_.at("EtEmulError");
+        sMatchedIndex = &sources_.at("MatchedIndex");
+        meNonSingleSummary = &MEs_.at("NonSingleSummary");
+        meTimingSummary = &MEs_.at("TimingSummary");
+        float towerEntries(0.);
+        float tMax(0.5);
+        float nMax(0.);
+        for (int iBin(0); iBin < 6; iBin++) {
+          float entries(sMatchedIndex->getBinContent(ttid, iBin + 1));
+          towerEntries += entries;
 
-	  if (entries > nMax) {
-	    nMax = entries;
-	    tMax = iBin == 0 ? -0.5 : iBin + 0.5;  // historical reasons.. much clearer to say "no entry = -0.5"
-	  }
-	}
-	meTimingSummary->setBinContent(ttid, tMax);
-	if (towerEntries < minEntries_) {
-	  meEmulQualitySummary.setBinContent(ttid, doMask ? kMUnknown : kUnknown);
-	  continue;
-	}
+          if (entries > nMax) {
+            nMax = entries;
+            tMax = iBin == 0 ? -0.5 : iBin + 0.5;  // historical reasons.. much clearer to say "no entry = -0.5"
+          }
+        }
+        meTimingSummary->setBinContent(ttid, tMax);
+        if (towerEntries < minEntries_) {
+          meEmulQualitySummary.setBinContent(ttid, doMask ? kMUnknown : kUnknown);
+          continue;
+        }
 
-	float nonsingleFraction(1. - nMax / towerEntries);
+        float nonsingleFraction(1. - nMax / towerEntries);
 
-	if (nonsingleFraction > 0.) {
-	  meNonSingleSummary->setBinContent(ttid, nonsingleFraction);
-	}
+        if (nonsingleFraction > 0.) {
+          meNonSingleSummary->setBinContent(ttid, nonsingleFraction);
+        }
 
-	if (sEtEmulError->getBinContent(ttid) / towerEntries > errorFractionThreshold_) {
-	  meEmulQualitySummary.setBinContent(ttid, doMask ? kMBad : kBad);
-	}
-	else {
-	  meEmulQualitySummary.setBinContent(ttid, doMask ? kMGood : kGood);
-	}
+        if (sEtEmulError->getBinContent(ttid) / towerEntries > errorFractionThreshold_) {
+          meEmulQualitySummary.setBinContent(ttid, doMask ? kMBad : kBad);
+        } else {
+          meEmulQualitySummary.setBinContent(ttid, doMask ? kMGood : kGood);
+        }
       }
 
       // Keep count for Occupancy analysis
