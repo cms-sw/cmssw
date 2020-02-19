@@ -1,4 +1,4 @@
-#include "SimFastTiming/FastTimingCommon/interface/BTLBarDeviceSim.h"
+#include "SimFastTiming/FastTimingCommon/interface/BTLDeviceSim.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
@@ -11,7 +11,7 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-BTLBarDeviceSim::BTLBarDeviceSim(const edm::ParameterSet& pset)
+BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset)
     : geom_(nullptr),
       topo_(nullptr),
       bxTime_(pset.getParameter<double>("bxTime")),
@@ -21,7 +21,7 @@ BTLBarDeviceSim::BTLBarDeviceSim(const edm::ParameterSet& pset)
       LightCollSlopeL_(pset.getParameter<double>("LightCollectionSlopeL")),
       PDE_(pset.getParameter<double>("PhotonDetectionEff")) {}
 
-void BTLBarDeviceSim::getEventSetup(const edm::EventSetup& evs) {
+void BTLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   edm::ESHandle<MTDGeometry> geom;
   evs.get<MTDDigiGeometryRecord>().get(geom);
   geom_ = geom.product();
@@ -31,10 +31,10 @@ void BTLBarDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   topo_ = mtdTopo.product();
 }
 
-void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
-                                      const edm::Handle<edm::PSimHitContainer>& hits,
-                                      mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
-                                      CLHEP::HepRandomEngine* hre) {
+void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
+                                   const edm::Handle<edm::PSimHitContainer>& hits,
+                                   mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
+                                   CLHEP::HepRandomEngine* hre) {
   //loop over sorted simHits
   for (auto const& hitRef : hitRefs) {
     const int hitidx = std::get<0>(hitRef);
@@ -55,8 +55,8 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
 
     if (thedet == nullptr) {
-      throw cms::Exception("BTLBarDeviceSim") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
-                                              << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+      throw cms::Exception("BTLDeviceSim") << "GeographicalID: " << std::hex << geoId.rawId() << " (" << detId.rawId()
+                                           << ") is invalid!" << std::dec << std::endl;
     }
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
@@ -69,10 +69,10 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t
     uint8_t row(thepixel.first), col(thepixel.second);
 
     if (btlid.row(topo.nrows()) != row || btlid.column(topo.nrows()) != col) {
-      edm::LogWarning("BTLBarDeviceSim") << "BTLDetId (row,column): (" << btlid.row(topo.nrows()) << ','
-                                         << btlid.column(topo.nrows()) << ") is not equal to "
-                                         << "topology (row,column): (" << uint32_t(row) << ',' << uint32_t(col)
-                                         << "), overriding to detid";
+      edm::LogWarning("BTLDeviceSim") << "BTLDetId (row,column): (" << btlid.row(topo.nrows()) << ','
+                                      << btlid.column(topo.nrows()) << ") is not equal to "
+                                      << "topology (row,column): (" << uint32_t(row) << ',' << uint32_t(col)
+                                      << "), overriding to detid";
       row = btlid.row(topo.nrows());
       col = btlid.column(topo.nrows());
     }
