@@ -85,15 +85,6 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                       )
 )
 
-from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-run2_miniAOD_devel.toModify(
-    puppi,
-    UseDeltaZCut   = cms.bool(False),
-    PtMaxCharged   = cms.double(20.),
-    EtaMaxCharged   = cms.double(2.5),
-    PtMaxNeutralsStartSlope = cms.double(20.)
-)
-                        
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(
     puppi,
