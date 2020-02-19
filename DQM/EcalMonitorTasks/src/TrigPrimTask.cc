@@ -35,6 +35,7 @@ namespace ecaldqm {
       MEs_.erase(std::string("MatchedIndex"));
       MEs_.erase(std::string("EtEmulError"));
       MEs_.erase(std::string("FGEmulError"));
+      MEs_.erase(std::string("RealvEmulEt"));
     }
     lhcStatusInfoCollectionTag_ = _params.getUntrackedParameter<edm::InputTag>(
         "lhcStatusInfoCollectionTag", edm::InputTag("tcdsDigis", "tcdsRecord"));
