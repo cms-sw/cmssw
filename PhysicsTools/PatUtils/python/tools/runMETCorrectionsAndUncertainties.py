@@ -1336,8 +1336,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             genJetsCollection=cms.InputTag("slimmedGenJets")
 
         if self._parameters["Puppi"].value:
-	    getattr(process, "patSmearedJets"+postfix).algo = cms.string('AK4PFPuppi')
-	    getattr(process, "patSmearedJets"+postfix).algopt = cms.string('AK4PFPuppi_pt')
+            getattr(process, "patSmearedJets"+postfix).algo = cms.string('AK4PFPuppi')
+            getattr(process, "patSmearedJets"+postfix).algopt = cms.string('AK4PFPuppi_pt')
 
         if "PF" == self._parameters["metType"].value:
             smearedJetModule = getattr(process, "patSmearedJets"+postfix).clone(
