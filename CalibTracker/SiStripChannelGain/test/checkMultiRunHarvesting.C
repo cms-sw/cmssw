@@ -28,8 +28,8 @@ void checkDQMHarvesting(TString filename) {
         }
         exit(EXIT_FAILURE);
       } else {
-        std::cout << "checkMultiRunHarvesting: this (" << entries << ") corresponds to the expected number of events"
-                  << expected_entries << std::endl;
+        std::cout << "checkMultiRunHarvesting: this (" << entries << ") corresponds to the expected number of events ("
+                  << expected_entries << ")" << std::endl;
       }
     }
   }
