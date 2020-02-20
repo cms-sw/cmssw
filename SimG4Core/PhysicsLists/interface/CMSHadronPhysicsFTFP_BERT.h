@@ -7,13 +7,12 @@
 
 #include "G4VPhysicsConstructor.hh"
 
-class CMSHadronPhysicsFTFP_BERT : public G4VPhysicsConstructor
-{
-public: 
+class CMSHadronPhysicsFTFP_BERT : public G4VPhysicsConstructor {
+public:
   explicit CMSHadronPhysicsFTFP_BERT(G4int verb);
   explicit CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2);
   ~CMSHadronPhysicsFTFP_BERT() override;
- 
+
   void ConstructParticle() override;
   void ConstructProcess() override;
 
@@ -34,4 +33,3 @@ private:
 };
 
 #endif
-
