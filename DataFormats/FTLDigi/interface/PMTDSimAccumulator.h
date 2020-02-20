@@ -32,18 +32,18 @@ public:
     constexpr static unsigned energyOffset = 4;
     constexpr static unsigned energyMask = 0x3;
     constexpr static unsigned sampleMask = 0xf;
-    constexpr static unsigned dataMask = 0x7fff;
+    constexpr static unsigned dataMask = 0xffff;
 
-    Data() : indices_(0), data_(0) {}
-    Data(unsigned short ei, unsigned short si, unsigned short d) : indices_((ei << energyOffset) | si), data_(d) {}
+    Data() : data_(0), indices_(0) {}
+    Data(unsigned short ei, unsigned short si, unsigned short d) : data_(d), indices_((ei << energyOffset) | si) {}
 
     unsigned int energyIndex() const { return indices_ >> energyOffset; }
     unsigned int sampleIndex() const { return indices_ & sampleMask; }
     unsigned int data() const { return data_ & dataMask; }
 
   private:
-    unsigned char indices_;
     unsigned short data_;
+    unsigned char indices_;
   };
 
   PMTDSimAccumulator() = default;
