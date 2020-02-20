@@ -5,6 +5,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <cmath>
+#include <cstdlib>
+
 BCToEFilterAlgo::BCToEFilterAlgo(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     :  //set constants
       FILTER_ETA_MAX_(2.5),
@@ -24,7 +27,8 @@ bool BCToEFilterAlgo::filter(const edm::Event& iEvent) const {
 
   for (uint32_t ig = 0; ig < genPars.size(); ig++) {
     reco::GenParticle gp = genPars.at(ig);
-    if (gp.status() == 1 && abs(gp.pdgId()) == 11 && gp.et() > eTThreshold_ && fabs(gp.eta()) < FILTER_ETA_MAX_) {
+    if (gp.status() == 1 && std::abs(gp.pdgId()) == 11 && gp.et() > eTThreshold_ &&
+        std::fabs(gp.eta()) < FILTER_ETA_MAX_) {
       if (hasBCAncestors(gp)) {
         result = true;
       }
@@ -54,7 +58,7 @@ bool BCToEFilterAlgo::hasBCAncestors(const reco::GenParticle& gp) const {
 bool BCToEFilterAlgo::isBCHadron(const reco::GenParticle& gp) const { return isBCMeson(gp) || isBCBaryon(gp); }
 
 bool BCToEFilterAlgo::isBCMeson(const reco::GenParticle& gp) const {
-  uint32_t pdgid = abs(gp.pdgId());
+  uint32_t pdgid = std::abs(gp.pdgId());
   uint32_t hundreds = pdgid % 1000;
   if (hundreds >= 400 && hundreds < 600) {
     return true;
@@ -64,7 +68,7 @@ bool BCToEFilterAlgo::isBCMeson(const reco::GenParticle& gp) const {
 }
 
 bool BCToEFilterAlgo::isBCBaryon(const reco::GenParticle& gp) const {
-  uint32_t pdgid = abs(gp.pdgId());
+  uint32_t pdgid = std::abs(gp.pdgId());
   uint32_t thousands = pdgid % 10000;
   if (thousands >= 4000 && thousands < 6000) {
     return true;

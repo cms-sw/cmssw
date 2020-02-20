@@ -26,6 +26,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <vector>
 
 //

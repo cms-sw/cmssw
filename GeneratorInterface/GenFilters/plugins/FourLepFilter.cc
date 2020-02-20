@@ -30,6 +30,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <string>
 
 //
@@ -77,9 +78,9 @@ bool FourLepFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSe
        ++p) {
     if ((*p)->status() != 1)
       continue;
-    if ((*p)->momentum().perp() > minPt && fabs((*p)->momentum().eta()) < maxEta && (*p)->momentum().perp() < maxPt &&
-        fabs((*p)->momentum().eta()) > minEta) {
-      if (abs((*p)->pdg_id()) == particleID)
+    if ((*p)->momentum().perp() > minPt && std::fabs((*p)->momentum().eta()) < maxEta &&
+        (*p)->momentum().perp() < maxPt && std::fabs((*p)->momentum().eta()) > minEta) {
+      if (std::abs((*p)->pdg_id()) == particleID)
         nLeptons++;
     }
     if (nLeptons >= 4) {

@@ -27,6 +27,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
+#include <cmath>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -49,6 +51,8 @@ private:
   enum Logic { LT, GT, EQ, NE };
   Logic whichlogic;
 };
+
+using namespace std;
 
 LHEGenericFilter::LHEGenericFilter(const edm::ParameterSet& iConfig)
     : src_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"))),
