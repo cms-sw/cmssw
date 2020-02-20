@@ -1,15 +1,55 @@
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterGammaJetWithBg.h"
+/** \class PythiaFilterGammaJetWithBg
+ *
+ *  PythiaFilterGammaJet filter implements generator-level preselections
+ *  for photon+jet like events to be used in jet energy calibration.
+ *  Ported from fortran code written by V.Konoplianikov.
+ *
+ * \author A.Ulyanov, ITEP
+ *
+ ************************************************************/
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include <iostream>
-#include <list>
-#include <vector>
-#include <cmath>
+#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
-//using namespace edm;
-//using namespace std;
+#include <cmath>
+#include <cstdlib>
+#include <list>
+#include <string>
+
+class PythiaFilterGammaJetWithBg : public edm::global::EDFilter<> {
+public:
+  explicit PythiaFilterGammaJetWithBg(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const edm::ESGetToken<ParticleDataTable, PDTRecord> particleDataTableToken_;
+
+  const double etaMax;
+  const double ptSeed;
+  const double ptMin;
+  const double ptMax;
+  const double dphiMin;
+  const double detaMax;
+  const double etaPhotonCut2;
+
+  const double cone;
+  const double ebEtaMax;
+  const double deltaEB;
+  const double deltaEE;
+};
 
 namespace {
 
@@ -42,6 +82,7 @@ namespace {
 PythiaFilterGammaJetWithBg::PythiaFilterGammaJetWithBg(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
           edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
+      particleDataTableToken_(esConsumes<ParticleDataTable, PDTRecord>()),
       etaMax(iConfig.getUntrackedParameter<double>("MaxPhotonEta", 2.8)),
       ptSeed(iConfig.getUntrackedParameter<double>("PhotonSeedPt", 5.)),
       ptMin(iConfig.getUntrackedParameter<double>("MinPhotonPt")),
@@ -51,23 +92,10 @@ PythiaFilterGammaJetWithBg::PythiaFilterGammaJetWithBg(const edm::ParameterSet& 
       etaPhotonCut2(iConfig.getUntrackedParameter<double>("MinPhotonEtaForwardJet", 1.3)),
       cone(0.5),
       ebEtaMax(1.479),
-      maxnumberofeventsinrun(iConfig.getUntrackedParameter<int>("MaxEvents", 10)) {
-  deltaEB = 0.01745 / 2 * 5;     // delta_eta, delta_phi
-  deltaEE = 2.93 / 317 / 2 * 5;  // delta_x/z, delta_y/z
-  theNumberOfSelected = 0;
-}
+      deltaEB(0.01745 / 2 * 5),       // delta_eta, delta_phi
+      deltaEE(2.93 / 317 / 2 * 5) {}  // delta_x/z, delta_y/z
 
-PythiaFilterGammaJetWithBg::~PythiaFilterGammaJetWithBg() {}
-
-// ------------ method called to produce the data  ------------
-bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // <<<<<<< PythiaFilterGammaJetWithBg.cc
-  //  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
-  //    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
-  //  }
-  // =======
-  // >>>>>>> 1.4
-
+bool PythiaFilterGammaJetWithBg::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
@@ -96,13 +124,12 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
     double phiPhoton = (*is)->momentum().phi();
 
     /*
-    double dphi7=std::abs(deltaPhi(phiPhoton, 
+    double dphi7=std::abs(deltaPhi(phiPhoton,
 			       myGenEvent->particle(7)->momentum().phi()));
-    double dphi=std::abs(deltaPhi(phiPhoton, 
+    double dphi=std::abs(deltaPhi(phiPhoton,
 			      myGenEvent->particle(8)->momentum().phi()));
     */
 
-    //***
     HepMC::GenEvent::particle_const_iterator ppp = myGenEvent->particles_begin();
     for (int i = 0; i < 6; ++i)
       ppp++;
@@ -112,7 +139,6 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
 
     double dphi7 = std::abs(deltaPhi(phiPhoton, particle7->momentum().phi()));
     double dphi = std::abs(deltaPhi(phiPhoton, particle8->momentum().phi()));
-    //***
 
     int jetline = 8;
     if (dphi7 > dphi) {
@@ -127,13 +153,11 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
     //    }
 
     //double etaJet= myGenEvent->particle(jetline)->momentum().eta();
-    //***
     double etaJet = 0.0;
     if (jetline == 8)
       etaJet = particle8->momentum().eta();
     else
       etaJet = particle7->momentum().eta();
-    //***
 
     double eta1 = etaJet - detaMax;
     double eta2 = etaJet + detaMax;
@@ -176,15 +200,12 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
         continue;
       double pt = (*p)->momentum().perp();
 
-      //***
-      edm::ESHandle<ParticleDataTable> pdt;
-      iSetup.getData(pdt);
+      ParticleDataTable const& pdt = iSetup.getData(particleDataTableToken_);
 
       // double charge=(*p)->particledata().charge();
       // int charge3=(*p)->particleID().threeCharge();
 
-      int charge3 = ((pdt->particle((*p)->pdg_id()))->ID().threeCharge());
-      //***
+      int charge3 = ((pdt.particle((*p)->pdg_id()))->ID().threeCharge());
 
       etCone += pt;
       if (charge3 && pt < 2)
@@ -239,12 +260,7 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
     break;
 
   }  //loop over seeds
-
-  if (accepted) {
-    theNumberOfSelected++;
-    std::cout << " Event preselected " << theNumberOfSelected << " Proccess ID " << myGenEvent->signal_process_id()
-              << std::endl;
-    return true;
-  } else
-    return false;
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(PythiaFilterGammaJetWithBg);

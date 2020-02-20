@@ -1,10 +1,44 @@
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterZJetWithOutBg.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+/** \class PythiaFilterZJetWithOutBg
+ *
+ *  PythiaFilterZJetWithOutBg filter implements generator-level preselections
+ *  for photon+jet like events to be used in jet energy calibration.
+ *  Ported from fortran code written by V.Konoplianikov.
+ *
+ * \author A.Ulyanov, ITEP
+ *
+ ************************************************************/
+
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include <iostream>
-#include <list>
-#include <vector>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include <cmath>
+#include <cstdlib>
+#include <string>
+#include <vector>
+
+class PythiaFilterZJetWithOutBg : public edm::global::EDFilter<> {
+public:
+  explicit PythiaFilterZJetWithOutBg(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const double etaMuMax;
+  const double ptMuMin;
+  const double ptZMin;
+  const double ptZMax;
+  const double m_z;
+  const double dm_z;
+};
 
 PythiaFilterZJetWithOutBg::PythiaFilterZJetWithOutBg(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
@@ -13,20 +47,10 @@ PythiaFilterZJetWithOutBg::PythiaFilterZJetWithOutBg(const edm::ParameterSet& iC
       ptMuMin(iConfig.getUntrackedParameter<double>("MinMuonPt", 3.5)),
       ptZMin(iConfig.getUntrackedParameter<double>("MinZPt")),
       ptZMax(iConfig.getUntrackedParameter<double>("MaxZPt")),
-      maxnumberofeventsinrun(iConfig.getUntrackedParameter<int>("MaxEvents", 10000)) {
-  m_z = 91.19;
-  dm_z = 10.;
-  theNumberOfSelected = 0;
-}
+      m_z(91.19),
+      dm_z(10.) {}
 
-PythiaFilterZJetWithOutBg::~PythiaFilterZJetWithOutBg() {}
-
-// ------------ method called to produce the data  ------------
-bool PythiaFilterZJetWithOutBg::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
-  //    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
-  //  }
-
+bool PythiaFilterZJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
@@ -74,10 +98,10 @@ bool PythiaFilterZJetWithOutBg::filter(edm::Event& iEvent, const edm::EventSetup
                  mu[0]->momentum().z() * mu[0]->momentum().z();
   double pmum2 = mu[1]->momentum().x() * mu[1]->momentum().x() + mu[1]->momentum().y() * mu[1]->momentum().y() +
                  mu[1]->momentum().z() * mu[1]->momentum().z();
-  double emup = sqrt(pmup2 + mmup * mmup);
-  double emum = sqrt(pmum2 + mmum * mmum);
+  double emup = std::sqrt(pmup2 + mmup * mmup);
+  double emum = std::sqrt(pmum2 + mmum * mmum);
 
-  double massZ = sqrt((emup + emum) * (emup + emum) - pxZ * pxZ - pyZ * pyZ - pzZ * pzZ);
+  double massZ = std::sqrt((emup + emum) * (emup + emum) - pxZ * pxZ - pyZ * pyZ - pzZ * pzZ);
 
   //    std::cout<<" Muons eta accept "<<massZ<<std::endl;
 
@@ -96,10 +120,7 @@ bool PythiaFilterZJetWithOutBg::filter(edm::Event& iEvent, const edm::EventSetup
   if (ptZ > ptZMin && ptZ < ptZMax)
     accepted = true;
 
-  if (accepted) {
-    theNumberOfSelected++;
-    std::cout << " Event accept " << theNumberOfSelected << std::endl;
-    return true;
-  } else
-    return false;
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(PythiaFilterZJetWithOutBg);

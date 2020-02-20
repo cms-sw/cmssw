@@ -1,19 +1,61 @@
+// -*- C++ -*-
+//
+// Package:    MCZll
+// Class:      MCZll
+//
+/*
 
-#include "GeneratorInterface/GenFilters/plugins/MCZll.h"
+ Description: filter events based on the Pythia ProcessID and the Pt_hat
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include <iostream>
+ Implementation: inherits from generic EDFilter
 
+*/
+//
+// Original Author:  Paolo Meridiani
+//
+//
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include <cmath>
+#include <cstdlib>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
+
+class MCZll : public edm::global::EDFilter<> {
+public:
+  explicit MCZll(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  int leptonFlavour_;
+  double leptonPtMin_;
+  double leptonPtMax_;
+  double leptonEtaMin_;
+  double leptonEtaMax_;
+  std::pair<double, double> zMassRange_;
+  bool filter_;
+};
 
 using namespace edm;
 using namespace std;
 
 MCZll::MCZll(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
-          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
-      nEvents_(0),
-      nAccepted_(0) {
+          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))) {
   leptonFlavour_ = iConfig.getUntrackedParameter<int>("leptonFlavour", 11);
   leptonPtMin_ = iConfig.getUntrackedParameter<double>("leptonPtMin", 5.);
   leptonPtMax_ = iConfig.getUntrackedParameter<double>("leptonPtMax", 99999.);
@@ -33,25 +75,9 @@ MCZll::MCZll(const edm::ParameterSet& iConfig)
     produces<HepMCProduct>();
 }
 
-MCZll::~MCZll() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-void MCZll::endJob() {
-  edm::LogVerbatim("MCZllInfo") << "================MCZll report========================================\n"
-                                << "Events read " << nEvents_ << " Events accepted " << nAccepted_ << "\nEfficiency "
-                                << ((double)nAccepted_) / ((double)nEvents_)
-                                << "\n===================================================================="
-                                << std::endl;
-}
-
-// ------------ method called to skim the data  ------------
-bool MCZll::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool MCZll::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
 
-  nEvents_++;
-  using namespace edm;
   bool accepted = false;
   Handle<HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
@@ -112,11 +138,7 @@ bool MCZll::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       bare_product->addHepMCData(zEvent);
     if (filter_)
       iEvent.put(std::move(bare_product));
-    nAccepted_++;
-    //      std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++"<< std::endl;
     LogDebug("MCZll") << "Event " << iEvent.id().event() << " accepted" << std::endl;
-    //      std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++"<< std::endl;
-    //       myGenEvent->print();
     delete myGenEvent;
     return true;
   }
@@ -125,3 +147,5 @@ bool MCZll::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   delete zEvent;
   return false;
 }
+
+DEFINE_FWK_MODULE(MCZll);

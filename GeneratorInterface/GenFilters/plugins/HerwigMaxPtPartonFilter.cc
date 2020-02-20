@@ -1,17 +1,33 @@
+// -*- C++ -*-
+//
+// Package:    HerwigMaxPtPartonFilter
+// Class:      HerwigMaxPtPartonFilter
+//
+/**\class HerwigMaxPtPartonFilter HerwigMaxPtPartonFilter.cc IOMC/HerwigMaxPtPartonFilter/src/HerwigMaxPtPartonFilter.cc
+
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Brian Dorney
+//         Created:  July 27th 2010
+// $Id: HerwigMaxPtPartonFilter.h v1.0
+//
+// Modified From: PythiaFilter.cc
+//
+// Special Thanks to Filip Moortgat
+//
 /*
-Author: Brian L. Dorney
 Date: July 29th 2010
 Version: 2.2
 First Release In: CMSSW_3_8_X
 
-Modified From: PythiaFilter.cc
-
-Special Thanks to Filip Moortgat
-
 PURPOSE: This Filter is designed to run on Herwig Monte Carlo Event Files
 (Pythia status codes are assumed to NOT BE EMULATED!!!!)
 
-For a description of Herwig Status Codes, See: 
+For a description of Herwig Status Codes, See:
 https://arxiv.org/abs/hep-ph/0011363
 (Section 8.3.1)
 
@@ -35,10 +51,35 @@ minptcut <= Highest Pt "Jet" < maxptcut
 If this is true, the event is accepted.
 */
 
-#include "GeneratorInterface/GenFilters/plugins/HerwigMaxPtPartonFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+#include "TH2.h"
+
 #include <cmath>
+#include <cstdlib>
+
+class HerwigMaxPtPartonFilter : public edm::stream::EDFilter<> {
+public:
+  explicit HerwigMaxPtPartonFilter(const edm::ParameterSet&);
+
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+
+  const double minptcut;
+  const double maxptcut;
+  const int processID;
+
+  TH2D hFSPartons_JS_PtWgting;
+};
 
 using namespace edm;
 using namespace std;
@@ -48,29 +89,14 @@ HerwigMaxPtPartonFilter::HerwigMaxPtPartonFilter(const edm::ParameterSet& iConfi
           iConfig.getUntrackedParameter("moduleLabel", edm::InputTag("generator", "unsmeared")))),
       minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
       maxptcut(iConfig.getUntrackedParameter("MaxPt", 10000.)),
-      processID(iConfig.getUntrackedParameter("ProcessID", 0)) {
-  //now do what ever initialization is needed
-
-  hFSPartons_JS_PtWgting = new TH2D(
-      "hFSPartons_JS_PtWgting", "#phi-#eta Space of FS Partons (p_{T} wgt'ing)", 20, -5.205, 5.205, 32, -M_PI, M_PI);
+      processID(iConfig.getUntrackedParameter("ProcessID", 0)),
+      hFSPartons_JS_PtWgting(
+          "hFSPartons_JS_PtWgting", "#phi-#eta Space of FS Partons (p_{T} wgt'ing)", 20, -5.205, 5.205, 32, -M_PI, M_PI) {
 }
 
-HerwigMaxPtPartonFilter::~HerwigMaxPtPartonFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-
-  if (hFSPartons_JS_PtWgting)
-    delete hFSPartons_JS_PtWgting;
-}
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
-bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup&) {
   //Histogram, reset each event
-  hFSPartons_JS_PtWgting->Reset();
+  hFSPartons_JS_PtWgting.Reset();
 
   bool accepted = false;     //The Accept/Reject Variable
   bool isFSQuark = false;    //Keeps track of whether a particle is a Final State Quark
@@ -114,7 +140,7 @@ bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       }    //End "Garbage" Cut
 
       if (isFSQuark) {
-        hFSPartons_JS_PtWgting->Fill(
+        hFSPartons_JS_PtWgting.Fill(
             (*p)->momentum().eta(), (*p)->momentum().phi(), (*p)->momentum().perp());  //weighted by Particle Pt
       }
 
@@ -122,7 +148,7 @@ bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       isFSQuark = false;
     }  //end all particles loop
 
-    maxPartonPt = hFSPartons_JS_PtWgting->GetMaximum();
+    maxPartonPt = hFSPartons_JS_PtWgting.GetMaximum();
 
     //The Actual Filtering Process
     if (maxPartonPt >= minptcut && maxPartonPt < maxptcut) {
@@ -134,10 +160,7 @@ bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   else {
     accepted = true;
   }
-
-  if (accepted) {
-    return true;
-  } else {
-    return false;
-  }
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(HerwigMaxPtPartonFilter);

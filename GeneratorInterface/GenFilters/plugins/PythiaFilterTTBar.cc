@@ -1,16 +1,53 @@
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterTTBar.h"
+// -*- C++ -*-
+//
+// Package:    PythiaFilterTTBar
+// Class:      PythiaFilterTTBar
+//
+/**\class PythiaFilterTTBar PythiaFilterTTBar.cc GeneratorInterface/GenFilter/src/PythiaFilterTTBar.cc
 
+ Description: edmFilter to select a TTBar decay channel
+
+ Implementation:
+    decayType: 1 + leptonFlavour: 0 -> Semi-leptonic
+                   leptonFlavour: 1 -> Semi-e
+		   leptonFlavour: 2 -> Semi-mu
+		   leptonFlavour: 3 -> Semi-tau
+    decayType: 2 -> di-leptonic (no seperate channels implemented yet)
+
+    decayType: 3 -> fully-hadronic
+
+*/
 //
-// constants, enums and typedefs
+// Original Author:  Michael Maes
+//         Created:  Wed Dec  3 12:07:13 CET 2009
+//
 //
 
-//
-// static data member definitions
-//
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-//
-// constructors and destructor
-//
+#include <cmath>
+#include <cstdlib>
+#include <string>
+
+class PythiaFilterTTBar : public edm::global::EDFilter<> {
+public:
+  explicit PythiaFilterTTBar(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const unsigned int decayType_;
+  const unsigned int leptonFlavour_;
+};
 
 PythiaFilterTTBar::PythiaFilterTTBar(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
@@ -18,19 +55,8 @@ PythiaFilterTTBar::PythiaFilterTTBar(const edm::ParameterSet& iConfig)
       decayType_(iConfig.getUntrackedParameter("decayType", 1)),
       leptonFlavour_(iConfig.getUntrackedParameter("leptonFlavour", 0)) {}
 
-PythiaFilterTTBar::~PythiaFilterTTBar() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
-// ------------ method called on each new Event  ------------
-bool PythiaFilterTTBar::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool PythiaFilterTTBar::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accept = false;
-
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
 
@@ -118,3 +144,5 @@ bool PythiaFilterTTBar::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   return accept;
 }
+
+DEFINE_FWK_MODULE(PythiaFilterTTBar);
