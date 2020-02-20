@@ -1,4 +1,4 @@
-#include <iomanip>   
+#include <iomanip>
 
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
 
@@ -45,22 +45,17 @@
 
 #include "G4ProcessManager.hh"
 
-CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int)
-  : CMSHadronPhysicsFTFP_BERT(3., 6.)
-{}
+CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int) : CMSHadronPhysicsFTFP_BERT(3., 6.) {}
 
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2)
-    :  G4VPhysicsConstructor("hInelastic FTFP_BERT") 
-{
+    : G4VPhysicsConstructor("hInelastic FTFP_BERT") {
   minFTFP_ = e1;
   maxBERT_ = e2;
 }
 
-CMSHadronPhysicsFTFP_BERT::~CMSHadronPhysicsFTFP_BERT()
-{}
+CMSHadronPhysicsFTFP_BERT::~CMSHadronPhysicsFTFP_BERT() {}
 
-void CMSHadronPhysicsFTFP_BERT::ConstructParticle()
-{
+void CMSHadronPhysicsFTFP_BERT::ConstructParticle() {
   G4MesonConstructor pMesonConstructor;
   pMesonConstructor.ConstructParticle();
 
@@ -71,14 +66,12 @@ void CMSHadronPhysicsFTFP_BERT::ConstructParticle()
   pShortLivedConstructor.ConstructParticle();
 }
 
-void CMSHadronPhysicsFTFP_BERT::DumpBanner()
-{
-  G4cout << "### FTFP_BERT : transition between BERT and FTFP is over the interval " 
-      << minFTFP_/CLHEP::GeV << " to " << maxBERT_/CLHEP::GeV  << " GeV" << G4endl;
+void CMSHadronPhysicsFTFP_BERT::DumpBanner() {
+  G4cout << "### FTFP_BERT : transition between BERT and FTFP is over the interval " << minFTFP_ / CLHEP::GeV << " to "
+         << maxBERT_ / CLHEP::GeV << " GeV" << G4endl;
 }
 
-void CMSHadronPhysicsFTFP_BERT::CreateModels()
-{
+void CMSHadronPhysicsFTFP_BERT::CreateModels() {
   Neutron();
   Proton();
   Pion();
@@ -86,8 +79,7 @@ void CMSHadronPhysicsFTFP_BERT::CreateModels()
   Others();
 }
 
-void CMSHadronPhysicsFTFP_BERT::Neutron()
-{
+void CMSHadronPhysicsFTFP_BERT::Neutron() {
   //General schema:
   // 1) Create a builder
   // 2) Call AddBuilder
@@ -96,7 +88,7 @@ void CMSHadronPhysicsFTFP_BERT::Neutron()
   auto neu = new G4NeutronBuilder;
   AddBuilder(neu);
   auto ftfpn = new G4FTFPNeutronBuilder(false);
-  AddBuilder( ftfpn );
+  AddBuilder(ftfpn);
   neu->RegisterMe(ftfpn);
   ftfpn->SetMinEnergy(minFTFP_);
   auto bertn = new G4BertiniNeutronBuilder;
@@ -107,8 +99,7 @@ void CMSHadronPhysicsFTFP_BERT::Neutron()
   neu->Build();
 }
 
-void CMSHadronPhysicsFTFP_BERT::Proton()
-{
+void CMSHadronPhysicsFTFP_BERT::Proton() {
   auto pro = new G4ProtonBuilder;
   AddBuilder(pro);
   auto ftfpp = new G4FTFPProtonBuilder(false);
@@ -122,8 +113,7 @@ void CMSHadronPhysicsFTFP_BERT::Proton()
   pro->Build();
 }
 
-void CMSHadronPhysicsFTFP_BERT::Pion()
-{
+void CMSHadronPhysicsFTFP_BERT::Pion() {
   auto pi = new G4PionBuilder;
   AddBuilder(pi);
   auto ftfppi = new G4FTFPPionBuilder(false);
@@ -137,26 +127,24 @@ void CMSHadronPhysicsFTFP_BERT::Pion()
   pi->Build();
 }
 
-void CMSHadronPhysicsFTFP_BERT::Kaon()
-{
+void CMSHadronPhysicsFTFP_BERT::Kaon() {
   auto k = new G4KaonBuilder;
   AddBuilder(k);
   auto ftfpk = new G4FTFPKaonBuilder(false);
   AddBuilder(ftfpk);
   k->RegisterMe(ftfpk);
   ftfpk->SetMinEnergy(minFTFP_);
-  auto bertk  = new G4BertiniKaonBuilder;
+  auto bertk = new G4BertiniKaonBuilder;
   AddBuilder(bertk);
   k->RegisterMe(bertk);
   bertk->SetMaxEnergy(maxBERT_);
   k->Build();
 }
 
-void CMSHadronPhysicsFTFP_BERT::Others()
-{
+void CMSHadronPhysicsFTFP_BERT::Others() {
   //===== Hyperons ====== //
   auto hyp = new G4HyperonFTFPBuilder;
-  AddBuilder( hyp );
+  AddBuilder(hyp);
   hyp->Build();
 
   ///===== Anti-barions==== //
@@ -168,26 +156,26 @@ void CMSHadronPhysicsFTFP_BERT::Others()
   abar->Build();
 }
 
-void CMSHadronPhysicsFTFP_BERT::ConstructProcess()
-{
-  if(G4Threading::IsMasterThread()) {
+void CMSHadronPhysicsFTFP_BERT::ConstructProcess() {
+  if (G4Threading::IsMasterThread()) {
     DumpBanner();
   }
   CreateModels();
   ExtraConfiguration();
 }
 
-void CMSHadronPhysicsFTFP_BERT::ExtraConfiguration()
-{
+void CMSHadronPhysicsFTFP_BERT::ExtraConfiguration() {
   const G4ParticleDefinition* neutron = G4Neutron::Neutron();
   G4HadronicProcess* inel = G4PhysListUtil::FindInelasticProcess(neutron);
-  if(inel) { inel->AddDataSet(new G4NeutronInelasticXS()); }
-  
+  if (inel) {
+    inel->AddDataSet(new G4NeutronInelasticXS());
+  }
+
   G4HadronicProcess* capture = nullptr;
-  G4ProcessVector*  pvec = neutron->GetProcessManager()->GetProcessList();
+  G4ProcessVector* pvec = neutron->GetProcessManager()->GetProcessList();
   size_t n = pvec->size();
-  for(size_t i=0; i<n; ++i) {
-    if(fCapture == ((*pvec)[i])->GetProcessSubType()) {
+  for (size_t i = 0; i < n; ++i) {
+    if (fCapture == ((*pvec)[i])->GetProcessSubType()) {
       capture = static_cast<G4HadronicProcess*>((*pvec)[i]);
       break;
     }
