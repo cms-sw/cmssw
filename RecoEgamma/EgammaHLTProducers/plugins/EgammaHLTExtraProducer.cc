@@ -41,10 +41,10 @@ private:
   static void setSeeds(reco::EgTrigSumObj& egTrigObj,edm::Handle<reco::ElectronSeedCollection>& eleSeedsHandle);
 
   template<typename RecHitCollection>
-  static std::unique_ptr<RecHitCollection> 
+  std::unique_ptr<RecHitCollection> 
   filterRecHits(const reco::EgTrigSumObjCollection& egTrigObjs,
 		const edm::Handle<RecHitCollection>& recHits,
-		const CaloGeometry& geom,float maxDR2=0.4*0.4);
+		const CaloGeometry& geom,float maxDR2=0.4*0.4)const;
  
 
   struct Tokens {
@@ -63,6 +63,10 @@ private:
     
   };
   const Tokens tokens_;
+
+  float minPtToSaveHits_;
+  bool saveHitsPlusPi_;
+  bool saveHitsPlusHalfPi_;
   
 };
 
@@ -77,7 +81,10 @@ EgammaHLTExtraProducer::Tokens::Tokens(const edm::ParameterSet& pset,edm::Consum
 }
 
 EgammaHLTExtraProducer::EgammaHLTExtraProducer(const edm::ParameterSet& pset):
-  tokens_(pset,consumesCollector())
+  tokens_(pset,consumesCollector()),
+  minPtToSaveHits_(pset.getParameter<double>("minPtToSaveHits")),
+  saveHitsPlusPi_(pset.getParameter<bool>("saveHitsPlusPi")),
+  saveHitsPlusHalfPi_(pset.getParameter<bool>("saveHitsPlusHalfPi"))
 {
   consumesMany<reco::RecoEcalCandidateIsolationMap>();
 
@@ -95,6 +102,9 @@ void EgammaHLTExtraProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("hbheRecHits", edm::InputTag("hbheRecHits"));
   desc.add<edm::InputTag>("pixelSeeds", edm::InputTag("pixelSeeds"));
   desc.add<edm::InputTag>("gsfTracks", edm::InputTag("gsfTracks"));
+  desc.add<double>("minPtToSaveHits",0.);
+  desc.add<bool>("saveHitsPlusPi",true);
+  desc.add<bool>("saveHitsPlusHalfPi",true);
 
   descriptions.add(("hltEgammaHLTExtraProducer"), desc);
 }
@@ -200,15 +210,18 @@ void EgammaHLTExtraProducer::setSeeds(reco::EgTrigSumObj& egTrigObj,edm::Handle<
 
 
 template<typename RecHitCollection>
-std::unique_ptr<RecHitCollection> EgammaHLTExtraProducer::filterRecHits(const reco::EgTrigSumObjCollection& egTrigObjs,const edm::Handle<RecHitCollection>& recHits,const CaloGeometry& geom,float maxDR2)
+std::unique_ptr<RecHitCollection> EgammaHLTExtraProducer::filterRecHits(const reco::EgTrigSumObjCollection& egTrigObjs,const edm::Handle<RecHitCollection>& recHits,const CaloGeometry& geom,float maxDR2)const
 {
   auto filteredHits = std::make_unique<RecHitCollection>();
   if(!recHits.isValid()) return filteredHits;
 
   std::vector<std::pair<float,float> > etaPhis;
   for(const auto& egTrigObj : egTrigObjs){
-    etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()});
-    etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()+3.14159});
+    if(egTrigObj.pt()>=minPtToSaveHits_){
+      etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()});
+      if(saveHitsPlusPi_) etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()+3.14159});
+      if(saveHitsPlusHalfPi_) etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()+3.14159/2.});
+    }
   }
   auto deltaR2Match = [&etaPhis,&maxDR2](const GlobalPoint& pos){
     float eta = pos.eta();
