@@ -66,7 +66,7 @@ namespace mtd_digitizer {
 
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
     const float maxPackChargeLog = std::log(maxCharge);
-    constexpr uint16_t base = PMTDSimAccumulator::Data::dataMask + 1;
+    constexpr uint16_t base = PMTDSimAccumulator::Data::dataMask;
 
     simResult.reserve(simData.size());
     // mimicking the digitization
@@ -96,7 +96,7 @@ namespace mtd_digitizer {
                                     const float maxCharge) {
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
     const float maxPackChargeLog = std::log(maxCharge);
-    constexpr uint16_t base = PMTDSimAccumulator::Data::dataMask + 1;
+    constexpr uint16_t base = PMTDSimAccumulator::Data::dataMask;
 
     for (const auto& detIdIndexHitInfo : simAccumulator) {
       auto foo = simData.emplace(
