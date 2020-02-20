@@ -64,7 +64,7 @@ public:
     std::vector<float> vals_mass;
     std::vector<float> vals_pz;
     std::vector<int> vals_pid;
-    std::vector<uint8_t> vals_status;
+    std::vector<int> vals_status;
     std::vector<int> vals_spin;
     alphaS = hepeup.AQCDUP;
     for (unsigned int i = 0, n = pup.size(); i < n; ++i) {
@@ -74,20 +74,19 @@ public:
         TLorentzVector p4(pup[i][0], pup[i][1], pup[i][2], pup[i][3]);  // x,y,z,t
         vals_pid.push_back(hepeup.IDUP[i]);
         vals_spin.push_back(hepeup.SPINUP[i]);
+        vals_status.push_back(status);
         if (status == -1) {
           vals_pt.push_back(0);
           vals_eta.push_back(0);
           vals_phi.push_back(0);
           vals_mass.push_back(0);
           vals_pz.push_back(p4.Pz());
-          vals_status.push_back(1);
         } else {
           vals_pt.push_back(p4.Pt());
           vals_eta.push_back(p4.Eta());
           vals_phi.push_back(p4.Phi());
           vals_mass.push_back(p4.M());
           vals_pz.push_back(0);
-          vals_status.push_back(0);
         }
       }
       if ((status == 1) && ((idabs == 21) || (idabs > 0 && idabs < 7))) {  //# gluons and quarks
@@ -161,8 +160,8 @@ public:
     outPart->addColumn<float>(
         "incomingpz", vals_pz, "Pz of incoming LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
     outPart->addColumn<int>("pdgId", vals_pid, "PDG ID of LHE particles", nanoaod::FlatTable::IntColumn);
-    outPart->addColumn<uint8_t>(
-        "isIncoming", vals_status, "LHE particle status; 1:incoming, 0:outgoing", nanoaod::FlatTable::BoolColumn);
+    outPart->addColumn<int>(
+        "status", vals_status, "LHE particle status; -1:incoming, 1:outgoing", nanoaod::FlatTable::IntColumn);
     outPart->addColumn<int>("spin", vals_spin, "Spin of LHE particles", nanoaod::FlatTable::IntColumn);
 
     return outPart;
