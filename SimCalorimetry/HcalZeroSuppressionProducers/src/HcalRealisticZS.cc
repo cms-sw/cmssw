@@ -23,6 +23,8 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const &conf)
   tok_hbheQIE11_ =
       consumes<QIE11DigiCollection>(edm::InputTag(inputLabel_, useInstanceLabels ? "HBHEQIE11DigiCollection" : ""));
 
+  bool use1ts_ = conf.getParameter<bool>("use1ts");
+
   std::vector<int> tmp = conf.getParameter<std::vector<int>>("HBregion");
 
   if (tmp[0] < 0 || tmp[0] > 9 || tmp[1] < 0 || tmp[1] > 9 || tmp[0] > tmp[1]) {
@@ -62,6 +64,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const &conf)
   // which means that channel-by-channel ZS thresholds from DB will NOT be used
   if (conf.getParameter<int>("useConfigZSvalues")) {
     algo_.reset(new HcalZSAlgoRealistic(markAndPass,
+                                        use1ts_,
                                         conf.getParameter<int>("HBlevel"),
                                         conf.getParameter<int>("HElevel"),
                                         conf.getParameter<int>("HOlevel"),
@@ -72,7 +75,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const &conf)
                                         HFsearchTS));
 
   } else {
-    algo_.reset(new HcalZSAlgoRealistic(markAndPass, HBsearchTS, HEsearchTS, HOsearchTS, HFsearchTS));
+    algo_.reset(new HcalZSAlgoRealistic(markAndPass, use1ts_, HBsearchTS, HEsearchTS, HOsearchTS, HFsearchTS));
   }
 
   produces<HBHEDigiCollection>();
