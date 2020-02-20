@@ -165,7 +165,7 @@ namespace edm {
                                          typename T::Context const* context);
 
     void callWhenDoneAsync(WaitingTask* task) { waitingTasks_.add(task); }
-    void skipOnPath();
+    void skipOnPath(EventPrincipal const& iEvent);
     void beginJob();
     void endJob();
     void beginStream(StreamID id, StreamContext& streamContext);

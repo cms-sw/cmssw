@@ -573,7 +573,6 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
     def label_(self):
         return self._operand.label_()
 
-
 class _SequenceNegation(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '!' operator"""
     def __init__(self, operand):
@@ -602,10 +601,45 @@ class _SequenceIgnore(_UnarySequenceOperator):
     def decoration(self):
         return '-'
 
+class _SequenceWait(_UnarySequenceOperator):
+    """Used in the expression tree for a sequence as a stand in for the '|' operator"""
+    def __init__(self, operand):
+        super(_SequenceWait,self).__init__(operand)
+    def __str__(self):
+        return 'wait(%s)' %self._operand
+    def dumpSequenceConfig(self):
+        return '|%s' %self._operand.dumpSequenceConfig()
+    def dumpSequencePython(self, options=PrintOptions()):
+        return 'cms.wait(%s)' %self._operand.dumpSequencePython(options)
+    def decoration(self):
+        return '|'
+
+class _SequenceWaitAndIgnore(_UnarySequenceOperator):
+    """Used in the expression tree for a sequence as a stand in for the '+' operator"""
+    def __init__(self, operand):
+        super(_SequenceWaitAndIgnore,self).__init__(operand)
+    def __str__(self):
+        return 'wait(ignore(%s))' %self._operand
+    def dumpSequenceConfig(self):
+        return '+%s' %self._operand.dumpSequenceConfig()
+    def dumpSequencePython(self, options=PrintOptions()):
+        return 'cms.wait(cms.ignore(%s))' %self._operand.dumpSequencePython(options)
+    def decoration(self):
+        return '+'
+
 def ignore(seq):
     """The EDFilter passed as an argument will be run but its filter value will be ignored
     """
+    if isinstance(seq,_SequenceWait):
+        return _SequenceWaitAndIgnore(seq._operand)
     return _SequenceIgnore(seq)
+
+def wait(seq):
+    """All modules after this module in the sequence will wait for this module to finish before being scheduled to run.
+    """
+    if isinstance(seq,_SequenceIgnore):
+        return _SequenceWaitAndIgnore(seq._operand)
+    return _SequenceWait(seq)
 
 class Path(_ModuleSequenceType):
     def __init__(self,*arg,**argv):
@@ -1679,6 +1713,21 @@ if __name__=="__main__":
             l[:]=[]
             p6.visit(namesVisitor)
             self.assertEqual(l,['&','a','-b','@'])
+            p6 = Path( a & wait(b))
+            self.assertEqual(p6.dumpPython(),"cms.Path(process.a&(cms.wait(process.b)))\n")
+            l[:]=[]
+            p6.visit(namesVisitor)
+            self.assertEqual(l,['&','a','|b','@'])
+            p6 = Path( a & wait(ignore(b)))
+            self.assertEqual(p6.dumpPython(),"cms.Path(process.a&(cms.wait(cms.ignore(process.b))))\n")
+            l[:]=[]
+            p6.visit(namesVisitor)
+            self.assertEqual(l,['&','a','+b','@'])
+            p6 = Path( a & ignore(wait(b)))
+            self.assertEqual(p6.dumpPython(),"cms.Path(process.a&(cms.wait(cms.ignore(process.b))))\n")
+            l[:]=[]
+            p6.visit(namesVisitor)
+            self.assertEqual(l,['&','a','+b','@'])
             p6 = Path(~(a&b))
             self.assertEqual(p6.dumpPython(),"cms.Path(~(process.a&process.b))\n")
             l[:]=[]
@@ -1704,6 +1753,12 @@ if __name__=="__main__":
             p5 = Path(a+ignore(b))
             #print p5.dumpConfig('')
             self.assertEqual(p5.dumpPython(),"cms.Path(process.a+cms.ignore(process.b))\n")
+            p5a = Path(a+wait(b))
+            self.assertEqual(p5a.dumpPython(),"cms.Path(process.a+cms.wait(process.b))\n")
+            p5b = Path(a+ignore(wait(b)))
+            self.assertEqual(p5b.dumpPython(),"cms.Path(process.a+cms.wait(cms.ignore(process.b)))\n")
+            p5c = Path(a+wait(ignore(b)))
+            self.assertEqual(p5c.dumpPython(),"cms.Path(process.a+cms.wait(cms.ignore(process.b)))\n")
             p6 = Path(c+a*b)
             #print p6.dumpConfig('')
             self.assertEqual(p6.dumpPython(),"cms.Path(process.c+process.a+process.b)\n")
@@ -1734,6 +1789,15 @@ if __name__=="__main__":
             l[:] = []
             p5.visit(namesVisitor)
             self.assertEqual(l, ['a', '-b'])
+            l[:] = []
+            p5a.visit(namesVisitor)
+            self.assertEqual(l, ['a', '|b'])
+            l[:] = []
+            p5b.visit(namesVisitor)
+            self.assertEqual(l, ['a', '+b'])
+            l[:] = []
+            p5c.visit(namesVisitor)
+            self.assertEqual(l, ['a', '+b'])
             l[:] = []
             p7.visit(namesVisitor)
             self.assertEqual(l, ['a', '!b'])
