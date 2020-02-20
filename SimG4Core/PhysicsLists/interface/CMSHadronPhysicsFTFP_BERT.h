@@ -1,6 +1,15 @@
+//---------------------------------------------------------------------------
+// Author: Vladimir Ivanchenko
+// Date:   March 2018
 //
-#ifndef CMSHadronPhysicsFTFP_BERT_h
-#define CMSHadronPhysicsFTFP_BERT_h 1
+// Hadron physics for the new CMS physics list FTFP_BERT_EMM_TRK.
+// The hadron physics of FTFP_BERT has the transition between Bertini
+// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model in the
+// energy region [4, 5] GeV (instead of the default for Geant4 10.4).
+//---------------------------------------------------------------------------
+//
+#ifndef SimG4Core_PhysicsLists_CMSHadronPhysicsFTFP_BERT_h
+#define SimG4Core_PhysicsLists_CMSHadronPhysicsFTFP_BERT_h
 
 #include "globals.hh"
 #include "G4ios.hh"
