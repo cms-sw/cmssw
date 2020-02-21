@@ -1,4 +1,3 @@
-//
 #include <iomanip>
 
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
@@ -33,36 +32,28 @@
 #include "G4BaryonConstructor.hh"
 #include "G4ShortLivedConstructor.hh"
 
-#include "G4ComponentGGHadronNucleusXsc.hh"
-#include "G4CrossSectionInelastic.hh"
 #include "G4HadronCaptureProcess.hh"
 #include "G4NeutronRadCapture.hh"
 #include "G4NeutronInelasticXS.hh"
 #include "G4NeutronCaptureXS.hh"
 
-#include "G4CrossSectionDataSetRegistry.hh"
-
 #include "G4PhysListUtil.hh"
-#include "G4ProcessManager.hh"
 #include "G4Threading.hh"
 
-CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int)
-    : G4VPhysicsConstructor("hInelastic CMS FTFP_BERT"), QuasiElastic(false) {
-  minFTFP_pion = 4.0 * GeV;
-  maxBERT_pion = 5.0 * GeV;
-  minFTFP_kaon = 4.0 * GeV;
-  maxBERT_kaon = 5.0 * GeV;
-  minFTFP_proton = 4.0 * GeV;
-  maxBERT_proton = 5.0 * GeV;
-  minFTFP_neutron = 4.0 * GeV;
-  maxBERT_neutron = 5.0 * GeV;
+#include "G4DeexPrecoParameters.hh"
+#include "G4NuclearLevelData.hh"
+
+#include "G4ProcessManager.hh"
+
+CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int) : CMSHadronPhysicsFTFP_BERT(3., 6.) {}
+
+CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2)
+    : G4VPhysicsConstructor("hInelastic FTFP_BERT") {
+  minFTFP_ = e1;
+  maxBERT_ = e2;
 }
 
-CMSHadronPhysicsFTFP_BERT::~CMSHadronPhysicsFTFP_BERT() {
-  //Detele master-owned stuff
-  delete xs_k.Get();
-  std::for_each(xs_ds.Begin(), xs_ds.End(), [](G4VCrossSectionDataSet* el) { delete el; });
-}
+CMSHadronPhysicsFTFP_BERT::~CMSHadronPhysicsFTFP_BERT() {}
 
 void CMSHadronPhysicsFTFP_BERT::ConstructParticle() {
   G4MesonConstructor pMesonConstructor;
@@ -75,19 +66,9 @@ void CMSHadronPhysicsFTFP_BERT::ConstructParticle() {
   pShortLivedConstructor.ConstructParticle();
 }
 
-void CMSHadronPhysicsFTFP_BERT::TerminateWorker() {
-  delete xs_k.Get();
-  std::for_each(xs_ds.Begin(), xs_ds.End(), [](G4VCrossSectionDataSet* el) { delete el; });
-  xs_ds.Clear();
-  G4VPhysicsConstructor::TerminateWorker();
-}
-
 void CMSHadronPhysicsFTFP_BERT::DumpBanner() {
-  G4cout << G4endl << " FTFP_BERT : new threshold between BERT and FTFP is over the interval " << G4endl
-         << " for pions :   " << minFTFP_pion / GeV << " to " << maxBERT_pion / GeV << " GeV" << G4endl
-         << " for kaons :   " << minFTFP_kaon / GeV << " to " << maxBERT_kaon / GeV << " GeV" << G4endl
-         << " for proton :  " << minFTFP_proton / GeV << " to " << maxBERT_proton / GeV << " GeV" << G4endl
-         << " for neutron : " << minFTFP_neutron / GeV << " to " << maxBERT_neutron / GeV << " GeV" << G4endl << G4endl;
+  G4cout << "### FTFP_BERT : transition between BERT and FTFP is over the interval " << minFTFP_ / CLHEP::GeV << " to "
+         << maxBERT_ / CLHEP::GeV << " GeV" << G4endl;
 }
 
 void CMSHadronPhysicsFTFP_BERT::CreateModels() {
@@ -106,57 +87,57 @@ void CMSHadronPhysicsFTFP_BERT::Neutron() {
   // 4) Call builder->Build()
   auto neu = new G4NeutronBuilder;
   AddBuilder(neu);
-  auto ftfpn = new G4FTFPNeutronBuilder(QuasiElastic);
+  auto ftfpn = new G4FTFPNeutronBuilder(false);
   AddBuilder(ftfpn);
   neu->RegisterMe(ftfpn);
-  ftfpn->SetMinEnergy(minFTFP_neutron);
+  ftfpn->SetMinEnergy(minFTFP_);
   auto bertn = new G4BertiniNeutronBuilder;
   AddBuilder(bertn);
   neu->RegisterMe(bertn);
-  bertn->SetMinEnergy(0. * GeV);
-  bertn->SetMaxEnergy(maxBERT_neutron);
+  bertn->SetMinEnergy(0.0);
+  bertn->SetMaxEnergy(maxBERT_);
   neu->Build();
 }
 
 void CMSHadronPhysicsFTFP_BERT::Proton() {
   auto pro = new G4ProtonBuilder;
   AddBuilder(pro);
-  auto ftfpp = new G4FTFPProtonBuilder(QuasiElastic);
+  auto ftfpp = new G4FTFPProtonBuilder(false);
   AddBuilder(ftfpp);
   pro->RegisterMe(ftfpp);
-  ftfpp->SetMinEnergy(minFTFP_proton);
+  ftfpp->SetMinEnergy(minFTFP_);
   auto bertp = new G4BertiniProtonBuilder;
   AddBuilder(bertp);
   pro->RegisterMe(bertp);
-  bertp->SetMaxEnergy(maxBERT_proton);
+  bertp->SetMaxEnergy(maxBERT_);
   pro->Build();
 }
 
 void CMSHadronPhysicsFTFP_BERT::Pion() {
   auto pi = new G4PionBuilder;
   AddBuilder(pi);
-  auto ftfppi = new G4FTFPPionBuilder(QuasiElastic);
+  auto ftfppi = new G4FTFPPionBuilder(false);
   AddBuilder(ftfppi);
   pi->RegisterMe(ftfppi);
-  ftfppi->SetMinEnergy(minFTFP_pion);
+  ftfppi->SetMinEnergy(minFTFP_);
   auto bertpi = new G4BertiniPionBuilder;
   AddBuilder(bertpi);
   pi->RegisterMe(bertpi);
-  bertpi->SetMaxEnergy(maxBERT_pion);
+  bertpi->SetMaxEnergy(maxBERT_);
   pi->Build();
 }
 
 void CMSHadronPhysicsFTFP_BERT::Kaon() {
   auto k = new G4KaonBuilder;
   AddBuilder(k);
-  auto ftfpk = new G4FTFPKaonBuilder(QuasiElastic);
+  auto ftfpk = new G4FTFPKaonBuilder(false);
   AddBuilder(ftfpk);
   k->RegisterMe(ftfpk);
-  ftfpk->SetMinEnergy(minFTFP_kaon);
+  ftfpk->SetMinEnergy(minFTFP_);
   auto bertk = new G4BertiniKaonBuilder;
   AddBuilder(bertk);
   k->RegisterMe(bertk);
-  bertk->SetMaxEnergy(maxBERT_kaon);
+  bertk->SetMaxEnergy(maxBERT_);
   k->Build();
 }
 
@@ -169,7 +150,7 @@ void CMSHadronPhysicsFTFP_BERT::Others() {
   ///===== Anti-barions==== //
   auto abar = new G4AntiBarionBuilder;
   AddBuilder(abar);
-  auto ftfpabar = new G4FTFPAntiBarionBuilder(QuasiElastic);
+  auto ftfpabar = new G4FTFPAntiBarionBuilder(false);
   AddBuilder(ftfpabar);
   abar->RegisterMe(ftfpabar);
   abar->Build();
@@ -184,36 +165,23 @@ void CMSHadronPhysicsFTFP_BERT::ConstructProcess() {
 }
 
 void CMSHadronPhysicsFTFP_BERT::ExtraConfiguration() {
-  //Modify XS for kaons
-  auto xsk = new G4ComponentGGHadronNucleusXsc();
-  xs_k.Put(xsk);
-  G4VCrossSectionDataSet* kaonxs = new G4CrossSectionInelastic(xsk);
-  xs_ds.Push_back(kaonxs);
-  G4PhysListUtil::FindInelasticProcess(G4KaonMinus::KaonMinus())->AddDataSet(kaonxs);
-  G4PhysListUtil::FindInelasticProcess(G4KaonPlus::KaonPlus())->AddDataSet(kaonxs);
-  G4PhysListUtil::FindInelasticProcess(G4KaonZeroShort::KaonZeroShort())->AddDataSet(kaonxs);
-  G4PhysListUtil::FindInelasticProcess(G4KaonZeroLong::KaonZeroLong())->AddDataSet(kaonxs);
+  const G4ParticleDefinition* neutron = G4Neutron::Neutron();
+  G4HadronicProcess* inel = G4PhysListUtil::FindInelasticProcess(neutron);
+  if (inel) {
+    inel->AddDataSet(new G4NeutronInelasticXS());
+  }
 
-  //Modify Neutrons
-  auto xs_n_in = (G4NeutronInelasticXS*)G4CrossSectionDataSetRegistry::Instance()->GetCrossSectionDataSet(
-      G4NeutronInelasticXS::Default_Name());
-  xs_ds.Push_back(xs_n_in);  //TODO: Is this needed? Who owns the pointer?
-  G4PhysListUtil::FindInelasticProcess(G4Neutron::Neutron())->AddDataSet(xs_n_in);
   G4HadronicProcess* capture = nullptr;
-  G4ProcessManager* pmanager = G4Neutron::Neutron()->GetProcessManager();
-  G4ProcessVector* pv = pmanager->GetProcessList();
-  for (size_t i = 0; i < static_cast<size_t>(pv->size()); ++i) {
-    if (fCapture == ((*pv)[i])->GetProcessSubType()) {
-      capture = static_cast<G4HadronicProcess*>((*pv)[i]);
+  G4ProcessVector* pvec = neutron->GetProcessManager()->GetProcessList();
+  size_t n = pvec->size();
+  for (size_t i = 0; i < n; ++i) {
+    if (fCapture == ((*pvec)[i])->GetProcessSubType()) {
+      capture = static_cast<G4HadronicProcess*>((*pvec)[i]);
+      break;
     }
   }
-  if (!capture) {
-    capture = new G4HadronCaptureProcess("nCapture");
-    pmanager->AddDiscreteProcess(capture);
+  if (capture) {
+    capture->RegisterMe(new G4NeutronRadCapture());
+    capture->AddDataSet(new G4NeutronCaptureXS());
   }
-  auto xs_n_c = (G4NeutronCaptureXS*)G4CrossSectionDataSetRegistry::Instance()->GetCrossSectionDataSet(
-      G4NeutronCaptureXS::Default_Name());
-  xs_ds.Push_back(xs_n_c);
-  capture->AddDataSet(xs_n_c);
-  capture->RegisterMe(new G4NeutronRadCapture());
 }
