@@ -518,7 +518,7 @@ void HGCalCLUEAlgoT<T>::computeThreshold() {
 
   std::vector<double> dummy;
   const unsigned maxNumberOfThickIndices = 3;
-  dummy.resize(maxNumberOfThickIndices + 1, 0);  // +1 to accomodate for the Scintillators
+  dummy.resize(maxNumberOfThickIndices + !isNose_, 0);  // +1 to accomodate for the Scintillators
   thresholds_.resize(maxlayer_, dummy);
   v_sigmaNoise_.resize(maxlayer_, dummy);
 
@@ -533,11 +533,14 @@ void HGCalCLUEAlgoT<T>::computeThreshold() {
                                 << " noiseMip: " << fcPerEle_ * nonAgedNoises_[ithick] / fcPerMip_[ithick]
                                 << " sigmaNoise: " << sigmaNoise << "\n";
     }
-    float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer];
-    thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
-    v_sigmaNoise_[ilayer - 1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
-    LogDebug("HGCalCLUEAlgo") << "ilayer: " << ilayer << " noiseMip: " << noiseMip_
-                              << " scintillators_sigmaNoise: " << scintillators_sigmaNoise << "\n";
+
+    if (!isNose_) {
+      float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer];
+      thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
+      v_sigmaNoise_[ilayer - 1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
+      LogDebug("HGCalCLUEAlgo") << "ilayer: " << ilayer << " noiseMip: " << noiseMip_
+                                << " scintillators_sigmaNoise: " << scintillators_sigmaNoise << "\n";
+    }
   }
 }
 
