@@ -1,3 +1,5 @@
+#include <typeinfo>
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DQMOffline/PFTau/interface/Matchers.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -148,10 +150,15 @@ void PFJetAnalyzerDQM::prepareJetResponsePlots(const std::vector<edm::ParameterS
     const auto name = pset.getParameter<std::string>("name");
     const auto title = pset.getParameter<std::string>("title");
 
+    // for title of raw jet response histograms
+    auto rawTitle = title;
+    rawTitle = rawTitle.replace(rawTitle.begin(), rawTitle.begin(), "Raw ");
+
     jetResponsePlots.push_back(Plot1DInBin(
         name, title, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high));
+
     jetResponsePlots_noJEC.push_back(Plot1DInBin(
-        name, title, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high));
+        name, rawTitle, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high));
   }
   if (jetResponsePlots.size() > 200) {
     throw std::runtime_error("Requested too many jet response plots, aborting as this seems unusual.");
