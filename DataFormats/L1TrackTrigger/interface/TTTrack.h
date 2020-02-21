@@ -133,10 +133,14 @@ public:
   unsigned int trackSeedType() const { return theTrackSeedType; }
   void setTrackSeedType(int aSeed) { theTrackSeedType = aSeed; }
 
+  /// Hit Pattern
+  unsigned int hitPattern() const { return theHitPattern; }
+
   /// Chi2
   double chi2() const;
   double chi2Red() const;
   double chi2z() const;
+  double chi2xy() const;
 
   /// Stub Pt consistency
   double stubPtConsistency() const;
@@ -231,6 +235,8 @@ TTTrack<T>::TTTrack(double aRinv,
   theEtaSector = 0;      // must be set externally
   theTrackSeedType = 0;  // must be set externally
   theChi2 = aChi2;
+  theChi2XY = -1;
+  theChi2Z = -1;
   theTrkMVA1 = trkMVA1;
   theTrkMVA2 = trkMVA2;
   theTrkMVA3 = trkMVA3;
@@ -341,16 +347,22 @@ double TTTrack<T>::chi2() const {
   return theChi2;
 }
 
+/// Chi2 reduced
+template <typename T>
+double TTTrack<T>::chi2Red() const {
+  return theChi2 / (2 * theStubRefs.size() - numFitPars);
+}
+
 /// Chi2z
 template <typename T>
 double TTTrack<T>::chi2z() const {
   return theChi2Z;
 }
 
-/// Chi2 reduced
+/// Chi2xy
 template <typename T>
-double TTTrack<T>::chi2Red() const {
-  return theChi2 / (2 * theStubRefs.size() - numFitPars);
+double TTTrack<T>::chi2xy() const {
+  return theChi2XY;
 }
 
 /// MVA quality variables
