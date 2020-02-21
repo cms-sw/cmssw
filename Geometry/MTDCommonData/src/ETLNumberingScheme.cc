@@ -41,13 +41,14 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   std::string baseName = ringName.substr(ringName.find(":") + 1);
   int ringCopy(::atoi(baseName.c_str() + 4));
 
+  uint32_t discN, sectorS, sectorN;
   if (!preTDR) {
-    uint32_t discN = (baseNumber.getLevelName(4).find("Disc1") != std::string::npos) ? 0 : 1;
-    uint32_t quarterS = (baseNumber.getLevelName(3).find("Front") != std::string::npos) ? 0 : 1;
-    uint32_t quarterN = baseNumber.getCopyNumber(3);
-    const uint32_t quarterOffset = 4;
+    discN = (baseNumber.getLevelName(4).find("Disc1") != std::string::npos) ? 0 : 1;
+    sectorS = (baseNumber.getLevelName(3).find("Front") != std::string::npos) ? 0 : 1;
+    sectorN = baseNumber.getCopyNumber(3);
 
-    ringCopy = quarterN + quarterS * quarterOffset + 2 * quarterOffset * discN;
+    ETLDetId tmpId;
+    ringCopy = static_cast<int>(tmpId.encodeSector(discN, sectorS, sectorN));
 
     modtyp = (baseNumber.getLevelName(2).find("_Left") != std::string::npos) ? 2 : 1;
   }
@@ -104,7 +105,17 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "ETL Numbering scheme: "
                           << " ring = " << ringCopy << " zside = " << zside << " module = " << modCopy
-                          << " modtyp = " << modtyp << " Raw Id = " << intindex << thisETLdetid;
+                          << " modtyp = " << modtyp << " Raw Id = " << intindex << "\n"
+                          << thisETLdetid;
+  if (!preTDR) {
+    ETLDetId altETLdetid(zside, discN, sectorS, sectorN, modCopy, modtyp);
+    const int32_t altintindex = altETLdetid.rawId();
+    if (intindex != altintindex) {
+      edm::LogWarning("MTDGeom") << "Incorrect alternative construction \n"
+                                 << "disc = " << discN << " disc side = " << sectorS << " sector = " << sectorN << "\n"
+                                 << altETLdetid;
+    }
+  }
 #endif
 
   return intindex;

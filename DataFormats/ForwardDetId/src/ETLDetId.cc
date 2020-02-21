@@ -11,7 +11,7 @@ std::ostream& operator<<(std::ostream& os, const ETLDetId& id) {
   os << " ETL " << std::endl
      << " Side        : " << id.mtdSide() << std::endl
      << " Ring        : " << id.mtdRR() << "    "
-     << " Disc/Side/Quarter = " << id.nDisc() << " " << id.discSide() << " " << id.quarter() << std::endl
+     << " Disc/Side/Sector = " << id.nDisc() << " " << id.discSide() << " " << id.sector() << std::endl
      << " Module      : " << id.module() << std::endl
      << " Module type : " << id.modType() << std::endl;
   return os;
