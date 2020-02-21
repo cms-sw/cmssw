@@ -2352,6 +2352,13 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   mySmallText(0.52,0.82,1,ctxt);
   c.SaveAs(DIR+type+"_trk_chi2rz_dof.pdf");
 
+  h_trk_chi2->Write();
+  h_trk_chi2rphi->Write();
+  h_trk_chi2rz->Write();
+  h_match_trk_chi2->Write();
+  h_match_trk_chi2rphi->Write();
+  h_match_trk_chi2rz->Write();
+
   if (doDetailedPlots) {
     h_match_trk_chi2_C_L->Write();
     h_match_trk_chi2_I_L->Write();
