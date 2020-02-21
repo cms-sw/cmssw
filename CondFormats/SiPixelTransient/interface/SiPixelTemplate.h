@@ -700,7 +700,7 @@ private:
   float cota_current_;  //!< current cot alpha
   float cotb_current_;  //!< current cot beta
   float abs_cotb_;      //!< absolute value of cot beta
-  int Dtype_;           //!< flags BPix (=0) or FPix (=1)
+  int dtype_;           //!< flags BPix (=0) or FPix (=1)
   bool flip_y_;         //!< flip y sign-sensitive quantities
   bool flip_x_;         //!< flip x sign-sensitive quantities
   bool success_;        //!< true if cotalpha, cotbeta are inside of the acceptance (dynamically loaded)
