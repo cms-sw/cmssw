@@ -27,10 +27,12 @@ public:
   static const uint32_t kETLnDiscMask = 0x1;
   static const uint32_t kETLdiscSideOffset = 2;
   static const uint32_t kETLdiscSideMask = 0x1;
-  static const uint32_t kETLquarterMask = 0x3;
+  static const uint32_t kETLsectorMask = 0x3;
 
   static constexpr int kETLv2maxRing = 16;
   static constexpr int kETLv2maxModule = 292;
+
+  static constexpr uint32_t kSoff = 4;
 
   // ---------- Constructors, enumerated types ----------
 
@@ -53,6 +55,19 @@ public:
            (modtyp & kETLmodTypeMask) << kETLmodTypeOffset;
   }
 
+  /** ETL TDR Construct and fill only the det and sub-det fields. */
+
+  inline uint32_t encodeSector(uint32_t& disc, uint32_t& discside, uint32_t& sector) const {
+    return (sector + discside * kSoff + 2 * kSoff * disc);
+  }
+
+  ETLDetId(uint32_t zside, uint32_t disc, uint32_t discside, uint32_t sector, uint32_t module, uint32_t modtyp)
+      : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
+    id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
+           (encodeSector(disc, discside, sector) & kRodRingMask) << kRodRingOffset |
+           (module & kETLmoduleMask) << kETLmoduleOffset | (modtyp & kETLmodTypeMask) << kETLmodTypeOffset;
+  }
+
   // ---------- Common methods ----------
 
   /** Returns ETL module number. */
@@ -67,7 +82,7 @@ public:
   // meaningless for TP model
 
   // starting from 1
-  inline int quarter() const { return ((((id_ >> kRodRingOffset) & kRodRingMask) - 1) & kETLquarterMask) + 1; }
+  inline int sector() const { return ((((id_ >> kRodRingOffset) & kRodRingMask) - 1) & kETLsectorMask) + 1; }
 
   // 0 = front, 1 = back
   inline int discSide() const {

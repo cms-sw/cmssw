@@ -95,7 +95,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "BTL Numbering scheme: "
                           << " rod = " << rodCopy << " zside = " << zside << " module = " << modCopy
-                          << " modtyp = " << modtyp << " crystal = " << crystal << " Raw Id = " << intindex
+                          << " modtyp = " << modtyp << " crystal = " << crystal << " Raw Id = " << intindex << "\n"
                           << thisBTLdetid;
 #endif
 
