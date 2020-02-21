@@ -6,7 +6,7 @@
   <Constant name="dyBy2BeamPipe" value="100.0*cm"/>
   <Constant name="dzBy2BeamPipe" value="16.5*m"/>
   <Constant name="zBeamPipe"     value="([cms:zCaloFront]-[dzBy2BeamPipe])"/>
-  <Constant name="zFrontHGCal"   value="605.782*m"/>
+  <Constant name="zFrontHGCal"   value="606.332*m"/>
   <Constant name="zFrontScint1"  value="578.900*m"/>
   <Constant name="zFrontScint2"  value="605.282*m"/>
   <Constant name="zFrontScint3"  value="605.782*m"/>
@@ -31,23 +31,23 @@
   <Constant name="dzBy2PETape"   value="0.05*mm"/>
   <Constant name="dzBy2Mylar"    value="0.06*mm"/>
   <Constant name="rBeamTube"     value="25.0*cm"/>
-  <Constant name="dzBy2Tube1"    value="([zFrontPE1]+2*[dzBy2PETape]-
-					 [zFrontTube1])"/>
-  <Constant name="dzBy2Tube2"    value="([zFrontPE2]+2*[dzBy2PETape]-
-					 [zFrontTube2])"/>
-  <Constant name="dzBy2Tube3"    value="([zFrontPE3]+2*[dzBy2PETape]-
-					 [zFrontTube3])"/>
+  <Constant name="dzBy2Tube1"    value="0.5*([zFrontPE1]+2*[dzBy2PETape]-
+					[zFrontTube1])"/>
+  <Constant name="dzBy2Tube2"    value="0.5*([zFrontPE2]+2*[dzBy2PETape]-
+					[zFrontTube2])"/>
+  <Constant name="dzBy2Tube3"    value="0.5*([zFrontPE3]+2*[dzBy2PETape]-
+					[zFrontTube3])"/>
   <Constant name="dzBy2Mylar1"   value="([dzBy2Tube1]-2*[dzBy2PETape])"/>
   <Constant name="dzBy2Mylar2"   value="([dzBy2Tube2]-2*[dzBy2PETape])"/>
   <Constant name="dzBy2Mylar3"   value="([dzBy2Tube3]-2*[dzBy2PETape])"/>
   <Constant name="dzBy2Vacuum1"  value="([dzBy2Mylar1]-2*[dzBy2Mylar])"/>
   <Constant name="dzBy2Vacuum2"  value="([dzBy2Mylar2]-2*[dzBy2Mylar])"/>
   <Constant name="dzBy2Vacuum3"  value="([dzBy2Mylar3]-2*[dzBy2Mylar])"/>
-  <Constant name="zTube1"        value="([dzBy2BeamPipe]+[zFrontPE1]+
+  <Constant name="zTube1"        value="([dzBy2BeamPipe]+[zFrontTube1]+
                                          [dzBy2Tube1]-[zFrontHGCal])"/>
-  <Constant name="zTube2"        value="([dzBy2BeamPipe]+[zFrontPE2]+
+  <Constant name="zTube2"        value="([dzBy2BeamPipe]+[zFrontTube2]+
                                          [dzBy2Tube2]-[zFrontHGCal])"/>
-  <Constant name="zTube3"        value="([dzBy2BeamPipe]+[zFrontPE3]+
+  <Constant name="zTube3"        value="([dzBy2BeamPipe]+[zFrontTube3]+
                                          [dzBy2Tube3]-[zFrontHGCal])"/>
   <Constant name="dxBy2Chamber"  value="11.0*cm"/>
   <Constant name="dzBy2Chamber"  value="30.0*mm"/>
@@ -153,7 +153,7 @@
     <rMaterial name="materials:Vacuum"/>
   </LogicalPart>
   <LogicalPart name="HGCalBeamTube2" category="unspecified">
-    <rSolid name="HGCalBeamTube1"/>
+    <rSolid name="HGCalBeamTube2"/>
     <rMaterial name="materials:Polyethylene"/>
   </LogicalPart>
   <LogicalPart name="HGCalBeamMylar2" category="unspecified">
