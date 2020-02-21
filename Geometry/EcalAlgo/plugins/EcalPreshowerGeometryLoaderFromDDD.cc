@@ -9,7 +9,7 @@ void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
                        const EcalPGL::ParmVec& pv,
                        const HepGeom::Transform3D& tr,
                        const DetId& id,
-		       const double& scale);
+                       const double& scale);
 template <>
 void EcalPGL::fillNamedParams(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/);
 template <>
@@ -26,7 +26,7 @@ void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
                        const EcalPGL::ParmVec& pv,
                        const HepGeom::Transform3D& tr,
                        const DetId& id,
-		       const double& scale) {
+                       const double& scale) {
   std::vector<CCGFloat> vv;
   vv.reserve(pv.size() + 1);
   for (unsigned int i(0); i != pv.size(); ++i) {

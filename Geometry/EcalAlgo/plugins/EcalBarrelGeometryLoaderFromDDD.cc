@@ -11,7 +11,7 @@ void EcalBGL::fillGeom(EcalBarrelGeometry* geom,
                        const EcalBGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
                        const DetId& id,
-		       const double& scale);
+                       const double& scale);
 template <>
 void EcalBGL::fillNamedParams(const DDFilteredView& fv, EcalBarrelGeometry* geom);
 template <>
@@ -27,7 +27,7 @@ void EcalBGL::fillGeom(EcalBarrelGeometry* geom,
                        const EcalBGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
                        const DetId& id,
-		       const double& scale) {
+                       const double& scale) {
   std::vector<CCGFloat> pv;
   pv.reserve(vv.size());
   for (unsigned int i(0); i != vv.size(); ++i) {

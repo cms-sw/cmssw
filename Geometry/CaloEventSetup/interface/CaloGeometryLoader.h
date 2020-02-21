@@ -33,7 +33,9 @@ public:
   virtual ~CaloGeometryLoader<T>() = default;
 
   PtrType load(const DDCompactView* cpv, const Alignments* alignments = nullptr, const Alignments* globals = nullptr);
-  PtrType load(const cms::DDCompactView* cpv, const Alignments* alignments = nullptr, const Alignments* globals = nullptr);
+  PtrType load(const cms::DDCompactView* cpv,
+               const Alignments* alignments = nullptr,
+               const Alignments* globals = nullptr);
 
 private:
   void makeGeometry(const DDCompactView* cpv, T* geom, const Alignments* alignments, const Alignments* globals);
