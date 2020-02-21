@@ -121,15 +121,28 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       h_genjet_pt = (TH1F*)me->getTH1F();
 
       stitle = "presponse_eta" + seta(etaBins[ieta]);
-      sprintf(ctitle, "Jet pT response, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      // adding "Raw" to the title of raw jet response histograms
+      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+        sprintf(ctitle, "Raw Jet pT response, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      } else {
+        sprintf(ctitle, "Jet pT response, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      }
       TH1F* h_presponse = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
       stitle = "preso_eta" + seta(etaBins[ieta]);
-      sprintf(ctitle, "Jet pT resolution, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+        sprintf(ctitle, "Raw Jet pT resolution, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      } else {
+        sprintf(ctitle, "Jet pT resolution, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      }
       TH1F* h_preso = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
       stitle = "preso_eta" + seta(etaBins[ieta]) + "_rms";
-      sprintf(ctitle, "Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+        sprintf(ctitle, "Raw Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      } else {
+        sprintf(ctitle, "Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
+      }
       TH1F* h_preso_rms = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
       for (unsigned int ipt = 0; ipt < ptBins.size() - 1; ++ipt) {
