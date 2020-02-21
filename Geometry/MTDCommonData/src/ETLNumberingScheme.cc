@@ -100,7 +100,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   // all inputs are fine. Go ahead and decode
 
   ETLDetId thisETLdetid(zside, ringCopy, modCopy, modtyp);
-  const int32_t intindex = thisETLdetid.rawId();
+  const uint32_t intindex = thisETLdetid.rawId();
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "ETL Numbering scheme: "
@@ -109,7 +109,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
                           << thisETLdetid;
   if (!preTDR) {
     ETLDetId altETLdetid(zside, discN, sectorS, sectorN, modCopy, modtyp);
-    const int32_t altintindex = altETLdetid.rawId();
+    const uint32_t altintindex = altETLdetid.rawId();
     if (intindex != altintindex) {
       edm::LogWarning("MTDGeom") << "Incorrect alternative construction \n"
                                  << "disc = " << discN << " disc side = " << sectorS << " sector = " << sectorN << "\n"
