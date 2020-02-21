@@ -53,7 +53,7 @@ CastorSD::CastorSD(const std::string& name,
   }
   setNumberingScheme(new CastorNumberingScheme());
 
-  edm::LogInfo("ForwardSim") << "********************************************************\n"
+  edm::LogVerbatim("ForwardSim") << "********************************************************\n"
                              << "* Constructing a CastorSD  with name " << GetName() << "\n"
                              << "* Using Castor Shower Library: " << useShowerLibrary << "\n"
                              << "********************************************************";
@@ -79,7 +79,7 @@ CastorSD::CastorSD(const std::string& name,
       break;
     }
   }
-  edm::LogInfo("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
+  LogDebug("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
                              << lvC3EF << " for C3EF; " << lvC3HF << " for C3HF; " << lvC4EF << " for C4EF; " << lvC4HF
                              << " for C4HF; " << lvCAST << " for CAST. ";
 }
@@ -102,7 +102,7 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
   auto const currentLV = currentPV->GetLogicalVolume();
 
 #ifdef debugLog
-  edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit:"
+  edm::LogVerbatim("ForwardSim") << "CastorSD::getEnergyDeposit:"
                              << "\n CurrentStepNumber , TrackID , ParentID, Particle , VertexPosition ,"
                              << " LogicalVolumeAtVertex , PV, Time"
                              << "\n  TRACKINFO: " << theTrack->GetCurrentStepNumber() << " , " << theTrack->GetTrackID()
@@ -162,7 +162,7 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
         C3TF, C4TF - for third release of CASTOR
   */
 #ifdef debugLog
-  edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit: for ID=" << theTrack->GetTrackID()
+  edm::LogVerbatim("ForwardSim") << "CastorSD::getEnergyDeposit: for ID=" << theTrack->GetTrackID()
                              << " LV: " << currentLV->GetName() << " isHad:" << isHad << " pdg=" << parCode
                              << " castorPID=" << trkInfo.getCastorHitPID() << " sl= " << stepl
                              << " Edep= " << aStep->GetTotalEnergyDeposit();
@@ -266,7 +266,7 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
     double proba = d_qz + (1 - d_qz) * ReflPower;
     NCherPhot = poissNCherPhot * effPMTandTransport * proba * 0.307;
 #ifdef debugLog
-    edm::LogInfo("ForwardSim") << " Nph= " << NCherPhot << " Np= " << poissNCherPhot << " eff= " << effPMTandTransport
+    edm::LogVerbatim("ForwardSim") << " Nph= " << NCherPhot << " Np= " << poissNCherPhot << " eff= " << effPMTandTransport
                                << " pb= " << proba << " Nmean= " << meanNCherPhot << " q=" << charge << " beta=" << beta
                                << " nMedium= " << nMedium << " sl= " << stepl << " Nde=" << photEnSpectrDE;
 #endif
@@ -284,7 +284,7 @@ uint32_t CastorSD::setDetUnitId(const G4Step* aStep) {
 
 void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
   if (scheme != nullptr) {
-    edm::LogInfo("ForwardSim") << "CastorSD: updates numbering scheme for " << GetName();
+    edm::LogVerbatim("ForwardSim") << "CastorSD: updates numbering scheme for " << GetName();
     delete numberingScheme;
     numberingScheme = scheme;
   }
@@ -384,7 +384,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   auto const currentLV = currentPV->GetLogicalVolume();
 
 #ifdef debugLog
-  edm::LogInfo("ForwardSim") << "CastorSD::getFromLibrary: for ID=" << theTrack->GetTrackID()
+  edm::LogVerbatim("ForwardSim") << "CastorSD::getFromLibrary: for ID=" << theTrack->GetTrackID()
                              << " parentID= " << theTrack->GetParentID() << " "
                              << theTrack->GetDefinition()->GetParticleName() << " LV: " << currentLV->GetName()
                              << " PV: " << currentPV->GetName() << "\n eta= " << theTrack->GetPosition().eta()
@@ -426,7 +426,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
       aboveThreshold && (isEM || isHad) && (!backward) && inRange && !dot && angleok && currentLV == lvCAST;
 
 #ifdef debugLog
-  edm::LogInfo("ForwardSim") << "CastorSD::getFromLibrary: ID= " << theTrack->GetTrackID() << " E>E0 " << aboveThreshold
+  edm::LogVerbatim("ForwardSim") << "CastorSD::getFromLibrary: ID= " << theTrack->GetTrackID() << " E>E0 " << aboveThreshold
                              << " isEM " << isEM << " isHad " << isHad << " backword " << backward << " Ok "
                              << (inRange && !dot) << " angle " << angleok << " LV: " << currentLV->GetName() << "  "
                              << (currentLV == lvCAST) << " " << particleWithinShowerLibrary
@@ -450,7 +450,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   resetForNewPrimary(aStep);
 
 #ifdef debugLog
-  edm::LogInfo("ForwardSim") << "CastorSD::getFromLibrary:  " << hits.getNhit() << " hits for " << GetName() << " from "
+  edm::LogVerbatim("ForwardSim") << "CastorSD::getFromLibrary:  " << hits.getNhit() << " hits for " << GetName() << " from "
                              << theTrack->GetDefinition()->GetParticleName() << " of "
                              << preStepPoint->GetKineticEnergy() / GeV << " GeV and trackID " << theTrack->GetTrackID()
                              << " isHad: " << isHad;
