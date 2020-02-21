@@ -10,7 +10,7 @@ void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
                        const EcalEGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
                        const DetId& id,
-		       const double& scale);
+                       const double& scale);
 template <>
 void EcalEGL::fillNamedParams(const DDFilteredView& fv, EcalEndcapGeometry* geom);
 template <>
@@ -26,7 +26,7 @@ void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
                        const EcalEGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
                        const DetId& id,
-		       const double& scale) {
+                       const double& scale) {
   std::vector<CCGFloat> pv;
   pv.reserve(vv.size());
   for (unsigned int i(0); i != vv.size(); ++i) {
@@ -86,5 +86,4 @@ void EcalEGL::fillNamedParams(const DDFilteredView& _fv, EcalEndcapGeometry* geo
 }
 
 template <>
-void EcalEGL::fillNamedParams(const cms::DDFilteredView& _fv, EcalEndcapGeometry* geom) {
-}
+void EcalEGL::fillNamedParams(const cms::DDFilteredView& _fv, EcalEndcapGeometry* geom) {}
