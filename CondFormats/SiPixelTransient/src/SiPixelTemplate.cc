@@ -1332,7 +1332,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
   int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
   float yratio, yxratio, xxratio, sxmax, qcorrect, qxtempcor, symax, chi2xavgone, chi2xminone, cota, cotb, cotalpha0,
       cotbeta0;
-  //	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4);
   float chi2xavg[4], chi2xmin[4], chi2xavgc2m[4], chi2xminc2m[4];
 
   // If the sideloading is turned on, xtemp_ and ytemp_ are already set to what they need to be.
@@ -1361,7 +1360,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
           // Copy the detector type to the private variable
 
-          Dtype_ = thePixelTemp_[index_id_].head.Dtype;
+          dtype_ = thePixelTemp_[index_id_].head.Dtype;
 
           // Copy the charge scaling factor to the private variable
 
@@ -1409,7 +1408,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     cotb = abs_cotb_ = std::abs(cotbeta);
     flip_x_ = false;
     flip_y_ = false;
-    switch (Dtype_) {
+    switch (dtype_) {
       case 0:
         if (cotbeta < 0.f) {
           flip_y_ = true;
@@ -1440,9 +1439,9 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
         break;
       default:
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-        throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << Dtype_ << std::endl;
+        throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << dtype_ << std::endl;
 #else
-        std::cout << "SiPixelTemplate::illegal subdetector ID = " << Dtype_ << std::endl;
+        std::cout << "SiPixelTemplate::illegal subdetector ID = " << dtype_ << std::endl;
 #endif
     }
 
@@ -1559,11 +1558,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
         yavg_[i] = -yavg_[i];
       }
       yrms_[i] = (1.f - yratio) * enty0_->yrms[i] + yratio * enty1_->yrms[i];
-      //	      ygx0_[i]=(1.f - yratio)*enty0_->ygx0[i] + yratio*enty1_->ygx0[i];
-      //	      if(flip_y_) {ygx0_[i] = -ygx0_[i];}
-      //	      ygsig_[i]=(1.f - yratio)*enty0_->ygsig[i] + yratio*enty1_->ygsig[i];
-      //	      xrms[i]=(1.f - yratio)*enty0_->xrms[i] + yratio*enty1_->xrms[i];
-      //	      xgsig[i]=(1.f - yratio)*enty0_->xgsig[i] + yratio*enty1_->xgsig[i];
       chi2yavg_[i] = (1.f - yratio) * enty0_->chi2yavg[i] + yratio * enty1_->chi2yavg[i];
       chi2ymin_[i] = (1.f - yratio) * enty0_->chi2ymin[i] + yratio * enty1_->chi2ymin[i];
       chi2xavg[i] = (1.f - yratio) * enty0_->chi2xavg[i] + yratio * enty1_->chi2xavg[i];
@@ -1601,6 +1595,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
     fracyone_ = (1.f - yratio) * enty0_->fracyone + yratio * enty1_->fracyone;
     fracytwo_ = (1.f - yratio) * enty0_->fracytwo + yratio * enty1_->fracytwo;
+    //       If using y-spares 
     //       for(i=0; i<10; ++i) {
     //		    pyspare[i]=(1.f - yratio)*enty0_->yspare[i] + yratio*enty1_->yspare[i];
     //       }
@@ -1744,11 +1739,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       xrms_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xrms[i] + xxratio * entx02_->xrms[i]) +
                  yxratio * ((1.f - xxratio) * entx20_->xrms[i] + xxratio * entx22_->xrms[i]);
 
-      //	      xgx0_[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->xgx0[i] + xxratio*entx02_->xgx0[i])
-      //		          +yxratio*((1.f - xxratio)*entx20_->xgx0[i] + xxratio*entx22_->xgx0[i]);
-
-      //	      xgsig_[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->xgsig[i] + xxratio*entx02_->xgsig[i])
-      //		          +yxratio*((1.f - xxratio)*entx20_->xgsig[i] + xxratio*entx22_->xgsig[i]);
 
       xavgc2m_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xavgc2m[i] + xxratio * entx02_->xavgc2m[i]) +
                     yxratio * ((1.f - xxratio) * entx20_->xavgc2m[i] + xxratio * entx22_->xavgc2m[i]);
@@ -1758,13 +1748,15 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
       xrmsc2m_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xrmsc2m[i] + xxratio * entx02_->xrmsc2m[i]) +
                     yxratio * ((1.f - xxratio) * entx20_->xrmsc2m[i] + xxratio * entx22_->xrmsc2m[i]);
+      //
+      //  Try new interpolation scheme instead
+      //
+      //
       //	      chi2xavgc2m_[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->chi2xavgc2m[i] + xxratio*entx02_->chi2xavgc2m[i])
       //		          +yxratio*((1.f - xxratio)*entx20_->chi2xavgc2m[i] + xxratio*entx22_->chi2xavgc2m[i]);
 
       //	      chi2xminc2m_[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->chi2xminc2m[i] + xxratio*entx02_->chi2xminc2m[i])
       //		          +yxratio*((1.f - xxratio)*entx20_->chi2xminc2m[i] + xxratio*entx22_->chi2xminc2m[i]);
-      //
-      //  Try new interpolation scheme
       //
       //	      chi2xavg_[i]=((1.f - xxratio)*thePixelTemp_[index_id_].entx[imaxx][ilow].chi2xavg[i] + xxratio*thePixelTemp_[index_id_].entx[imaxx][ihigh].chi2xavg[i]);
       //		  if(thePixelTemp_[index_id_].entx[imaxx][imidy].chi2xavg[i] != 0.f) {chi2xavg_[i]=chi2xavg_[i]/thePixelTemp_[index_id_].entx[imaxx][imidy].chi2xavg[i]*chi2xavg[i];}
@@ -1824,6 +1816,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     fracxtwo_ = (1.f - yxratio) * ((1.f - xxratio) * entx00_->fracxtwo + xxratio * entx02_->fracxtwo) +
                 yxratio * ((1.f - xxratio) * entx20_->fracxtwo + xxratio * entx22_->fracxtwo);
 
+    //       If using x-spares
     //       for(i=0; i<10; ++i) {
     //	      pxspare[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->xspare[i] + xxratio*entx02_->xspare[i])
     //		          +yxratio*((1.f - xxratio)*entx20_->xspare[i] + xxratio*entx22_->xspare[i]);
@@ -1940,7 +1933,7 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry,
   entx22_ = entry;
   entx21_ = entry;
 
-  Dtype_ = iDtype;
+  dtype_ = iDtype;
   lorywidth_ = lorwdy;
   lorxwidth_ = lorwdx;
   xsize_ = xsize;
@@ -1953,9 +1946,6 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry,
   }
 
   // Set other class variables
-
-  // adcota_ = 0.f;
-  // adcotb_ = 0.f;
 
   yratio_ = 0.f;
   yxratio_ = 0.f;
@@ -2021,7 +2011,7 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry,
   flip_x_ = false;
   flip_y_ = false;
   float cotbeta = entry->cotbeta;
-  switch (Dtype_) {
+  switch (dtype_) {
     case 0:
       if (cotbeta < 0.f) {
         flip_y_ = true;
@@ -2044,11 +2034,7 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry,
       }
       break;
     default:
-      // #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-      //         throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << Dtype_ << std::endl;
-      //#else
-      std::cout << "SiPixelTemplate:illegal subdetector ID = " << Dtype_ << std::endl;
-      //#endif
+      std::cout << "SiPixelTemplate:illegal subdetector ID = " << dtype_ << std::endl;
   }
 
   //  Calculate signed quantities
@@ -3139,8 +3125,6 @@ int SiPixelTemplate::qbin(int id,
       yratio = (cotb - (*(j - 1))) / ((*j) - (*(j - 1)));
     }
 
-    ihigh = j - templ.cotbetaY;
-    ilow = ihigh - 1;
   }
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
@@ -3608,18 +3592,15 @@ void SiPixelTemplate::temperrors(int id,
 
   // next, loop over all y-angle entries
 
-  ilow = 0;
   yratio = 0.f;
 
   if (cotb >= thePixelTemp_[index].enty[Ny - 1].cotbeta) {
-    ilow = Ny - 2;
     yratio = 1.f;
 
   } else {
     if (cotb >= thePixelTemp_[index].enty[0].cotbeta) {
       for (i = 0; i < Ny - 1; ++i) {
         if (thePixelTemp_[index].enty[i].cotbeta <= cotb && cotb < thePixelTemp_[index].enty[i + 1].cotbeta) {
-          ilow = i;
           yratio = (cotb - thePixelTemp_[index].enty[i].cotbeta) /
                    (thePixelTemp_[index].enty[i + 1].cotbeta - thePixelTemp_[index].enty[i].cotbeta);
           break;
@@ -3628,7 +3609,6 @@ void SiPixelTemplate::temperrors(int id,
     }
   }
 
-  ihigh = ilow + 1;
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
 
@@ -3792,18 +3772,15 @@ void SiPixelTemplate::qbin_dist(int id,
 
   // next, loop over all y-angle entries
 
-  ilow = 0;
   yratio = 0.f;
 
   if (cotb >= thePixelTemp_[index].enty[Ny - 1].cotbeta) {
-    ilow = Ny - 2;
     yratio = 1.f;
 
   } else {
     if (cotb >= thePixelTemp_[index].enty[0].cotbeta) {
       for (i = 0; i < Ny - 1; ++i) {
         if (thePixelTemp_[index].enty[i].cotbeta <= cotb && cotb < thePixelTemp_[index].enty[i + 1].cotbeta) {
-          ilow = i;
           yratio = (cotb - thePixelTemp_[index].enty[i].cotbeta) /
                    (thePixelTemp_[index].enty[i + 1].cotbeta - thePixelTemp_[index].enty[i].cotbeta);
           break;
@@ -3812,7 +3789,6 @@ void SiPixelTemplate::qbin_dist(int id,
     }
   }
 
-  ihigh = ilow + 1;
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
   ny1_frac = (1.f - yratio) * enty0_->fracyone + yratio * enty1_->fracyone;
