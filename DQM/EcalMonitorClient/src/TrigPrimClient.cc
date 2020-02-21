@@ -31,7 +31,6 @@ namespace ecaldqm {
   void TrigPrimClient::producePlots(ProcessType) {
     MESet* meNonSingleSummary = nullptr;
     MESet* meTimingSummary = nullptr;
-    ;
     MESet* sEtEmulError = nullptr;
     MESet* sMatchedIndex = nullptr;
 
