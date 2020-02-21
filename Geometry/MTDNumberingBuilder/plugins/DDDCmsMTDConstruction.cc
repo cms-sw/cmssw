@@ -81,7 +81,8 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
   do {
     GeometricTimingDet::GeometricTimingEnumType fullNode = theCmsMTDStringToEnum.type(fv.name());
-    GeometricTimingDet::GeometricTimingEnumType thisNode = theCmsMTDStringToEnum.type(fv.name().substr(0, 7));
+    GeometricTimingDet::GeometricTimingEnumType thisNode =
+        theCmsMTDStringToEnum.type(fv.name().substr(0, CmsMTDStringToEnum::kModStrLen));
     size_t num = fv.geoHistory().size();
 
 #ifdef EDM_ML_DEBUG
@@ -147,7 +148,7 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   for (const auto& it : comp) {
     after << "ORDER2 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
   }
-  edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order before sorting \n" << after.str();
+  edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
 #endif
 
   return mtd;

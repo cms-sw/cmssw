@@ -25,7 +25,8 @@ bool CmsMTDConstruction::mtdOrderPhi(const GeometricTimingDet* a, const Geometri
 }
 
 void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* mother, const std::string& attribute) {
-  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name().substr(0, 7)));
+  GeometricTimingDet* det =
+      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name().substr(0, CmsMTDStringToEnum::kModStrLen)));
 
   const auto& copyNumbers = fv.copyNumbers();
   auto module_number = copyNumbers[copyNumbers.size() - 2];
@@ -36,7 +37,7 @@ void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* 
   const std::string modname = fv.name();
   size_t delim1 = modname.find("BModule");
   size_t delim2 = modname.find("Layer");
-  module_number += atoi(modname.substr(delim1 + 7, delim2).c_str()) - 1;
+  module_number += atoi(modname.substr(delim1 + CmsMTDStringToEnum::kModStrLen, delim2).c_str()) - 1;
 
   if (modname.find(positive) != std::string::npos) {
     det->setGeographicalID(BTLDetId(1, copyNumbers[copyNumbers.size() - 3], module_number, 0, 1));
@@ -51,7 +52,8 @@ void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* 
 }
 
 void CmsMTDConstruction::buildETLModule(DDFilteredView& fv, GeometricTimingDet* mother, const std::string& attribute) {
-  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name().substr(0, 7)));
+  GeometricTimingDet* det =
+      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name().substr(0, CmsMTDStringToEnum::kModStrLen)));
 
   const auto& copyNumbers = fv.copyNumbers();
   auto module_number = copyNumbers[copyNumbers.size() - 2];
@@ -59,7 +61,7 @@ void CmsMTDConstruction::buildETLModule(DDFilteredView& fv, GeometricTimingDet* 
   size_t delim_ring = det->name().find("EModule");
   size_t delim_disc = det->name().find("Disc");
 
-  std::string ringN = det->name().substr(delim_ring + 7, delim_disc);
+  std::string ringN = det->name().substr(delim_ring + CmsMTDStringToEnum::kModStrLen, delim_disc);
 
   const uint32_t side = det->translation().z() > 0 ? 1 : 0;
 
