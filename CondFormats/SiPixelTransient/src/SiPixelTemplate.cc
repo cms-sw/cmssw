@@ -1330,8 +1330,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
   // Local variables
   int i, j;
   int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
-  float yxratio, xxratio, sxmax, qcorrect, qxtempcor, symax, chi2xavgone, chi2xminone, cota, cotb, cotalpha0,
-      cotbeta0;
+  float yxratio, xxratio, sxmax, qcorrect, qxtempcor, symax, chi2xavgone, chi2xminone, cota, cotb, cotalpha0, cotbeta0;
   float chi2xavg[4], chi2xmin[4], chi2xavgc2m[4], chi2xminc2m[4];
 
   // If the sideloading is turned on, xtemp_ and ytemp_ are already set to what they need to be.
@@ -1477,7 +1476,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
           if (thePixelTemp_[index_id_].enty[i].cotbeta <= cotb && cotb < thePixelTemp_[index_id_].enty[i + 1].cotbeta) {
             ilow = i;
             yratio_ = (cotb - thePixelTemp_[index_id_].enty[i].cotbeta) /
-                     (thePixelTemp_[index_id_].enty[i + 1].cotbeta - thePixelTemp_[index_id_].enty[i].cotbeta);
+                      (thePixelTemp_[index_id_].enty[i + 1].cotbeta - thePixelTemp_[index_id_].enty[i].cotbeta);
             break;
           }
         }
@@ -1594,7 +1593,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
     fracyone_ = (1.f - yratio_) * enty0_->fracyone + yratio_ * enty1_->fracyone;
     fracytwo_ = (1.f - yratio_) * enty0_->fracytwo + yratio_ * enty1_->fracytwo;
-    //       If using y-spares 
+    //       If using y-spares
     //       for(i=0; i<10; ++i) {
     //		    pyspare[i]=(1.f - yratio_)*enty0_->yspare[i] + yratio_*enty1_->yspare[i];
     //       }
@@ -1737,7 +1736,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
       xrms_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xrms[i] + xxratio * entx02_->xrms[i]) +
                  yxratio * ((1.f - xxratio) * entx20_->xrms[i] + xxratio * entx22_->xrms[i]);
-
 
       xavgc2m_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xavgc2m[i] + xxratio * entx02_->xavgc2m[i]) +
                     yxratio * ((1.f - xxratio) * entx20_->xavgc2m[i] + xxratio * entx22_->xavgc2m[i]);
@@ -3043,7 +3041,7 @@ int SiPixelTemplate::qbin(int id,
 
   float cota = cotalpha;
   bool flip_x = false;
-  //y flipping already taken care of by interpolate 
+  //y flipping already taken care of by interpolate
   switch (dtype_) {
     case 0:
     case 1:
@@ -3087,7 +3085,6 @@ int SiPixelTemplate::qbin(int id,
 #else
   assert(Ny > 1 && Nyx > 0 && Nxx > 1);
 #endif
-
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
 
@@ -3521,7 +3518,6 @@ void SiPixelTemplate::temperrors(int id,
 
   acotb = std::abs(cotbeta);
 
-
   // Copy the charge scaling factor to the private variable
 
   Ny = thePixelTemp_[index].head.NTy;
@@ -3538,7 +3534,6 @@ void SiPixelTemplate::temperrors(int id,
 #endif
 
   // next, loop over all y-angle entries
-
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
 
@@ -3682,8 +3677,6 @@ void SiPixelTemplate::qbin_dist(int id,
 #else
   assert(Ny > 1 && Nyx > 0 && Nxx > 1);
 #endif
-
-
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
   ny1_frac = (1.f - yratio_) * enty0_->fracyone + yratio_ * enty1_->fracyone;
