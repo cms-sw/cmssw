@@ -1,4 +1,3 @@
-<use   name="DataFormats/EgammaReco"/>
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="CommonTools/MVAUtils"/>
