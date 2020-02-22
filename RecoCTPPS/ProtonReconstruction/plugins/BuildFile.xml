@@ -1,7 +1,8 @@
 <use name="FWCore/Framework"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/DataRecord"/>
-
+<use name="Geometry/Records"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="RecoCTPPS/ProtonReconstruction"/>
 <use name="rootcore"/>
 
