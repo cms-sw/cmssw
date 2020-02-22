@@ -15,7 +15,7 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi              
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA6_cfi              import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronDeadECAL_cfi          import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon2_cfi                     import *
+from RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstMuon2Container_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuonMVA_cfi                   import *
 
 from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import *
@@ -175,7 +175,7 @@ hpsPFTauBasicDiscriminatorsdR03Task = cms.Task(
 
 # define helper function to read indices of basic IDs or antimuon
 ## MuonRejection3
-hpsPFTauDiscriminationByMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2.clone(
+hpsPFTauDiscriminationByMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2Container.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = noPrediscriminants,
     IDWPdefinitions = cms.VPSet(

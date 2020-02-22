@@ -2,10 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
+from RecoTauTag.RecoTau.pfRecoTauDiscriminationByIsolationContainer_cfi import pfRecoTauDiscriminationByIsolationContainer
 
-pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIsolationContainer",
-    PFTauProducer = cms.InputTag('pfRecoTauProducer'), #tau collection to discriminate
-
+pfRecoTauDiscriminationByIsolation = pfRecoTauDiscriminationByIsolationContainer.clone(
     # Require leading pion ensures that:
     # 1) these is at least one track above threshold (0.5 GeV) in the signal cone
     # 2) a track in the signal cone has pT > 5 GeV
@@ -66,16 +65,6 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     rhoProducer = cms.InputTag("fixedGridRhoFastjetAll"),
     rhoConeSize = cms.double(0.5),
     rhoUEOffsetCorrection = cms.double(1.0),
-
-    IDdefinitions = cms.VPSet(),
-    IDWPdefinitions = cms.VPSet(
-        cms.PSet(
-            IDname = cms.string("pfRecoTauDiscriminationByIsolation"),
-            maximumOccupancy = cms.int32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True), # use PFGammas when isolating
-            ApplyDiscriminationByECALIsolation = cms.bool(True), # use PFChargedHadr when isolating
-            )
-        ),
 
     verbosity = cms.int32(0),
 )

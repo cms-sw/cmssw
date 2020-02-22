@@ -98,10 +98,10 @@ public:
     else
       assert(0);
 
-    TauTransverseImpactParameters_token =
+    tauTransverseImpactParameters_token_ =
         consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
 
-    basicTauDiscriminators_token =
+    basicTauDiscriminators_token_ =
         consumes<reco::TauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
     chargedIsoPtSum_index_ = cfg.getParameter<int>("srcChargedIsoPtSumIndex");
     neutralIsoPtSum_index_ = cfg.getParameter<int>("srcNeutralIsoPtSumIndex");
@@ -138,10 +138,10 @@ private:
 
   typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >
       PFTauTIPAssociationByRef;
-  edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
-  edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
+  edm::EDGetTokenT<PFTauTIPAssociationByRef> tauTransverseImpactParameters_token_;
+  edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos_;
 
-  edm::EDGetTokenT<reco::TauDiscriminatorContainer> basicTauDiscriminators_token;
+  edm::EDGetTokenT<reco::TauDiscriminatorContainer> basicTauDiscriminators_token_;
   edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
   int chargedIsoPtSum_index_;
   int neutralIsoPtSum_index_;
@@ -163,9 +163,9 @@ void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, c
     }
   }
 
-  evt.getByToken(TauTransverseImpactParameters_token, tauLifetimeInfos);
+  evt.getByToken(tauTransverseImpactParameters_token_, tauLifetimeInfos_);
 
-  evt.getByToken(basicTauDiscriminators_token, basicTauDiscriminators_);
+  evt.getByToken(basicTauDiscriminators_token_, basicTauDiscriminators_);
 
   evt.getByToken(Tau_token, taus_);
 }
@@ -190,7 +190,7 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationMVA2::di
     double neutralIsoPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(neutralIsoPtSum_index_);
     double puCorrPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(pucorrPtSum_index_);
 
-    const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[tau];
+    const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos_)[tau];
 
     double decayDistX = tauLifetimeInfo.flightLength().x();
     double decayDistY = tauLifetimeInfo.flightLength().y();

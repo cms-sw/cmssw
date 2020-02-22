@@ -153,7 +153,7 @@ void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::Configu
                                  0,
                                  0,
                                  0,
-                             });
+                             })->setComment("flags to mask/unmask DT, CSC and RPC chambers in individual muon stations. Segments and hits that are present in that muon station are ignored in case the 'mask' is set to 1. Per default only the innermost CSC chamber is ignored, as it is affected by spurious hits in high pile-up events.");
   desc.add<std::vector<int>>("maskHitsCSC",
                              {
                                  0,
@@ -203,15 +203,15 @@ void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::Configu
                                  0,
                              });
   desc.add<double>("dRmuonMatch", 0.3);
-  desc.add<edm::InputTag>("srcMuons", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("srcMuons", edm::InputTag("muons"))->setComment("optional collection of muons to check for overlap with taus");
 
   edm::ParameterSetDescription desc_wp;
   desc_wp.add<std::string>("IDname");
-  desc_wp.add<std::string>("discriminatorOption");
+  desc_wp.add<std::string>("discriminatorOption")->setComment("available options are: 'loose', 'medium', 'tight' and 'custom'");
   desc_wp.add<double>("HoPMin");
-  desc_wp.add<int>("maxNumberOfMatches");
+  desc_wp.add<int>("maxNumberOfMatches")->setComment("negative value would turn off this cut in case of 'custom' discriminator");
   desc_wp.add<bool>("doCaloMuonVeto");
-  desc_wp.add<int>("maxNumberOfHitsLast2Stations");
+  desc_wp.add<int>("maxNumberOfHitsLast2Stations")->setComment("negative value would turn off this cut in case of 'custom' discriminator");
   edm::ParameterSet pset_wp;
   pset_wp.addParameter<std::string>("IDname", "pfRecoTauDiscriminationAgainstMuon2Container");
   pset_wp.addParameter<std::string>("discriminatorOption", "loose");
