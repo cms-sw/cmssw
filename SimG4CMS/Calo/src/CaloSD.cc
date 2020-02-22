@@ -101,7 +101,7 @@ CaloSD::CaloSD(const std::string& name,
                               << eminHit / MeV << " MeV (for depth 0) or " << eminHitD / MeV
                               << " MeV (for nonzero depths);\n"
                               << "        Time Slice Unit " << timeSlice << "\nIgnore TrackID Flag " << ignoreTrackID
-			      << " UseFineCaloID flag " << useFineCaloID_;
+                              << " UseFineCaloID flag " << useFineCaloID_;
 }
 
 CaloSD::~CaloSD() {}
