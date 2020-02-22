@@ -60,7 +60,7 @@ CaloSD::CaloSD(const std::string& name,
   corrTOFBeam = m_CaloSD.getParameter<bool>("CorrectTOFBeam");
   double beamZ = m_CaloSD.getParameter<double>("BeamPosition") * cm;
   correctT = beamZ / c_light / nanosecond;
-  useFineCaloID_ = m_CaloSD.getUntrackedParameter<bool>("UseFineCaloID", true);
+  useFineCaloID_ = m_CaloSD.getParameter<bool>("UseFineCaloID");
 
   SetVerboseLevel(verbn);
   meanResponse.reset(nullptr);
@@ -100,7 +100,8 @@ CaloSD::CaloSD(const std::string& name,
                               << "        Save hits recorded before " << tmaxHit << " ns and if energy is above "
                               << eminHit / MeV << " MeV (for depth 0) or " << eminHitD / MeV
                               << " MeV (for nonzero depths);\n"
-                              << "        Time Slice Unit " << timeSlice << " Ignore TrackID Flag " << ignoreTrackID;
+                              << "        Time Slice Unit " << timeSlice << "\nIgnore TrackID Flag " << ignoreTrackID
+			      << " UseFineCaloID flag " << useFineCaloID_;
 }
 
 CaloSD::~CaloSD() {}
