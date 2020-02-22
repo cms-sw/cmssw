@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTauTag.RecoTau.TauDiscriminatorTools import *
+from RecoTauTag.RecoTau.pfRecoTauDiscriminationByMVAIsolationRun2_cfi import pfRecoTauDiscriminationByMVAIsolationRun2
 from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import *
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauBasicDiscriminators
 
-discriminationByIsolationMVArun2v1raw = cms.EDProducer("PFRecoTauDiscriminationByMVAIsolationRun2",
+discriminationByIsolationMVArun2v1raw = pfRecoTauDiscriminationByMVAIsolationRun2.clone(
 
     # tau collection to discriminate
     PFTauProducer = cms.InputTag('pfTauProducer'),
@@ -13,16 +15,8 @@ discriminationByIsolationMVArun2v1raw = cms.EDProducer("PFRecoTauDiscriminationB
     #  2) a track OR a pi-zero in the signal cone has pT > 5 GeV
     Prediscriminants = requireLeadTrack,
     loadMVAfromDB = cms.bool(True),
-    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"), # the filename for MVA if it is not loaded from DB
-    mvaName = cms.string("tauIdMVAnewDMwLT"),
-    mvaOpt = cms.string("newDMwLT"),
-
-    # NOTE: tau lifetime reconstruction sequence needs to be run before
-    srcTauTransverseImpactParameters = cms.InputTag(''),
-    
-    srcBasicTauDiscriminators = cms.InputTag('hpsPFTauBasicDiscriminators'),
-
-    verbosity = cms.int32(0)
+        
+    srcBasicTauDiscriminators = cms.InputTag('hpsPFTauBasicDiscriminators')
 )
 
 discriminationByIsolationMVArun2v1 = recoTauDiscriminantCutMultiplexer.clone(
