@@ -66,16 +66,6 @@ requireDecayMode = cms.PSet(
 )
 
 ## Cut based isolations dR=0.5
-combinedIsoDefinition =  cms.PSet(
-            IDname = cms.string("ByLooseCombinedIsolationDBSumPtCorr3Hits"),
-            maximumSumPtCut = cms.double(2.5),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-            ApplyDiscriminationByECALIsolation = cms.bool(True),
-            applyDeltaBetaCorrection = cms.bool(True),
-            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
-            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
-            )
 hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
     PFTauProducer = cms.InputTag("hpsPFTauProducer"),
     Prediscriminants = requireDecayMode.clone(),
@@ -124,29 +114,33 @@ hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
             )
         ),
     IDWPdefinitions = cms.VPSet(
-        combinedIsoDefinition.clone(
+        cms.PSet(
             IDname = cms.string("ByLooseCombinedIsolationDBSumPtCorr3Hits"),
-            maximumSumPtCut = cms.double(2.5)
+            referenceRawIDNames = cms.vstring("ByRawCombinedIsolationDBSumPtCorr3Hits", "PhotonPtSumOutsideSignalCone"),
+            maximumAbsoluteValues = cms.vdouble(2.5, 1.e+9),
+            maximumRelativeValues = cms.vdouble(-1.0, 0.10)
             ),
-        combinedIsoDefinition.clone(
+        cms.PSet(
             IDname = cms.string("ByMediumCombinedIsolationDBSumPtCorr3Hits"),
-            maximumSumPtCut = cms.double(1.5)
+            referenceRawIDNames = cms.vstring("ByRawCombinedIsolationDBSumPtCorr3Hits", "PhotonPtSumOutsideSignalCone"),
+            maximumAbsoluteValues = cms.vdouble(1.5, 1.e+9),
+            maximumRelativeValues = cms.vdouble(-1.0, 0.10)
             ),
-        combinedIsoDefinition.clone(
+        cms.PSet(
             IDname = cms.string("ByTightCombinedIsolationDBSumPtCorr3Hits"),
-            maximumSumPtCut = cms.double(0.8)
+            referenceRawIDNames = cms.vstring("ByRawCombinedIsolationDBSumPtCorr3Hits", "PhotonPtSumOutsideSignalCone"),
+            maximumAbsoluteValues = cms.vdouble(0.8, 1.e+9),
+            maximumRelativeValues = cms.vdouble(-1.0, 0.10)
             ),
         cms.PSet(
             IDname = cms.string("ByLooseChargedIsolation"),
-            maximumSumPtCut = cms.double(2.5),
-            ApplyDiscriminationByTrackerIsolation = cms.bool(True)
+            referenceRawIDNames = cms.vstring("ChargedIsoPtSum"),
+            maximumAbsoluteValues = cms.vdouble(2.5)
             ),
         cms.PSet(
             IDname = cms.string("ByPhotonPtSumOutsideSignalCone"),
-            maximumSumPtCut = cms.double(-1.0),
-            applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
-            maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-            maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10)
+            referenceRawIDNames = cms.vstring("PhotonPtSumOutsideSignalCone"),
+            maximumRelativeValues = cms.vdouble(0.10)
             )
         )
 )
@@ -162,13 +156,13 @@ hpsPFTauBasicDiscriminatorsdR03 = hpsPFTauBasicDiscriminators.clone(
     deltaBetaFactor = '0.0720', # 0.2*(0.3/0.5)^2
     customOuterCone = 0.3
 )
-del hpsPFTauBasicDiscriminatorsdR03.IDdefinitions[-1] # ByRawCombinedIsolationDBSumPtCorr3Hits not defined for dR03
 del hpsPFTauBasicDiscriminatorsdR03.IDWPdefinitions[-1] # ByPhotonPtSumOutsideSignalCone not defined for dR03
 del hpsPFTauBasicDiscriminatorsdR03.IDWPdefinitions[-1] # ByLooseChargedIsolation not defined for dR03
 for pset in hpsPFTauBasicDiscriminatorsdR03.IDdefinitions:
     pset.IDname = pset.IDname.value() + "dR03"
 for pset in hpsPFTauBasicDiscriminatorsdR03.IDWPdefinitions:
     pset.IDname = pset.IDname.value() + "dR03"
+    pset.referenceRawIDNames = [name + "dR03" for name in pset.referenceRawIDNames.value()]
 hpsPFTauBasicDiscriminatorsdR03Task = cms.Task(
     hpsPFTauBasicDiscriminatorsdR03
 )
