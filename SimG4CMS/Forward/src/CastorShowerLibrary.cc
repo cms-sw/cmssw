@@ -114,8 +114,8 @@ void CastorShowerLibrary::initFile(edm::ParameterSet const& p) {
   if (verbose)
     hadBranch->Print();
   edm::LogVerbatim("CastorShower") << "CastorShowerLibrary: Branch " << branchEM << " has " << emBranch->GetEntries()
-                               << " entries and Branch " << branchHAD << " has " << hadBranch->GetEntries()
-                               << " entries";
+                                   << " entries and Branch " << branchHAD << " has " << hadBranch->GetEntries()
+                                   << " entries";
 }
 
 //=============================================================================================
@@ -152,28 +152,34 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
   }
 
   edm::LogVerbatim("CastorShower") << " CastorShowerLibrary::loadEventInfo : "
-                               << "\n \n Total number of events     :  " << totEvents
-                               << "\n   Number of bins  (E)       :  " << nBinsE
-                               << "\n   Number of events/bin (E)  :  " << nEvtPerBinE
-                               << "\n   Number of bins  (Eta)       :  " << nBinsEta
-                               << "\n   Number of events/bin (Eta)  :  " << nEvtPerBinEta
-                               << "\n   Number of bins  (Phi)       :  " << nBinsPhi
-                               << "\n   Number of events/bin (Phi)  :  " << nEvtPerBinPhi << "\n";
+                                   << "\n \n Total number of events     :  " << totEvents
+                                   << "\n   Number of bins  (E)       :  " << nBinsE
+                                   << "\n   Number of events/bin (E)  :  " << nEvtPerBinE
+                                   << "\n   Number of bins  (Eta)       :  " << nBinsEta
+                                   << "\n   Number of events/bin (Eta)  :  " << nEvtPerBinEta
+                                   << "\n   Number of bins  (Phi)       :  " << nBinsPhi
+                                   << "\n   Number of events/bin (Phi)  :  " << nEvtPerBinPhi << "\n";
 
   std::stringstream ss1;
   ss1 << "CastorShowerLibrary: energies in GeV:\n";
   for (unsigned int i = 0; i < nBinsE; ++i) {
-    if(i > 0 && i/10*10 == i) { ss1 <<"\n"; }
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
     ss1 << " " << SLenergies[i] / CLHEP::GeV;
   }
   ss1 << "\nCastorShowerLibrary: etas:\n";
   for (unsigned int i = 0; i < nBinsEta; ++i) {
-    if(i > 0 && i/10*10 == i) { ss1 <<"\n"; }
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
     ss1 << " " << SLetas[i];
   }
   ss1 << "\nCastorShowerLibrary: phis:\n";
   for (unsigned int i = 0; i < nBinsPhi; ++i) {
-    if(i > 0 && i/10*10 == i) { ss1 <<"\n"; }
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
     ss1 << " " << SLphis[i];
   }
   edm::LogVerbatim("CastorShower") << ss1.str();
