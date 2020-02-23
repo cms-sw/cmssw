@@ -40,13 +40,13 @@ ZdcSD::ZdcSD(const std::string& name,
   setNumberingScheme(new ZdcNumberingScheme(verbn));
 
   edm::LogVerbatim("ZdcSD") << "***************************************************\n"
-                             << "*                                                 *\n"
-                             << "* Constructing a ZdcSD  with name " << name << "   *\n"
-                             << "*                                                 *\n"
-                             << "***************************************************";
+                            << "*                                                 *\n"
+                            << "* Constructing a ZdcSD  with name " << name << "   *\n"
+                            << "*                                                 *\n"
+                            << "***************************************************";
 
   edm::LogVerbatim("ZdcSD") << "\nUse of shower library is set to " << useShowerLibrary
-                             << "\nUse of Shower hits method is set to " << useShowerHits;
+                            << "\nUse of Shower hits method is set to " << useShowerHits;
 
   edm::LogVerbatim("ZdcSD") << "\nEnergy Threshold Cut set to " << zdcHitEnergyCut / GeV << " (GeV)";
 
