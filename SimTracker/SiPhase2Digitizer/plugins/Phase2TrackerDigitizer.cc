@@ -269,7 +269,6 @@ namespace cms {
         edm::LogError("Phase2TrackerDigitizer") << "ERROR - Wrong Detector Type, No Algorithm available ";
     }
 
-
     return algotype;
   }
   void Phase2TrackerDigitizer::addPixelCollection(edm::Event& iEvent,
@@ -287,10 +286,8 @@ namespace cms {
         continue;
 
       //Decide if we want analog readout for Outer Tracker.
-      if (!ot_analog 
-              && (algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D) )
-      {
-          continue;
+      if (!ot_analog && (algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D)) {
+        continue;
       }
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
       fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo);
@@ -353,11 +350,9 @@ namespace cms {
       uint32_t rawId = det_u->geographicalId().rawId();
       auto algotype = getAlgoType(rawId);
 
-      if (algomap_.find(algotype) == algomap_.end() 
-              || algotype == AlgorithmType::InnerPixel 
-              || algotype == AlgorithmType::InnerPixel3D )
-      {
-          continue;
+      if (algomap_.find(algotype) == algomap_.end() || algotype == AlgorithmType::InnerPixel ||
+          algotype == AlgorithmType::InnerPixel3D) {
+        continue;
       }
 
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
