@@ -323,7 +323,7 @@ trackdnn.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
 (trackdnn & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 pp_on_AA_2018.toModify(initialStep, 
-        mva = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),
+        #mva = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),
         qualityCuts = [-0.9, -0.5, 0.2],
 )
 
