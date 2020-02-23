@@ -13,6 +13,7 @@
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoHGCal/TICL/plugins/GlobalCache.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
@@ -45,6 +46,7 @@ private:
   const edm::EDGetTokenT<std::vector<Trackster>> trackstershad_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seedingTrk_token_;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
   const bool oneTracksterPerTrackSeed_;
   const bool optimiseAcrossTracksters_;
   const int eta_bin_window_;
@@ -76,6 +78,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
   trackstershad_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstershad"))),
   seedingTrk_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seedingTrk"))),
   clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
+  tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
   oneTracksterPerTrackSeed_(ps.getParameter<bool>("oneTracksterPerTrackSeed")),
   optimiseAcrossTracksters_(ps.getParameter<bool>("optimiseAcrossTracksters")),
   eta_bin_window_(ps.getParameter<int>("eta_bin_window")),
@@ -180,6 +183,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   std::vector<bool> usedTrackstersHAD;
   std::vector<bool> usedSeeds;
 
+  edm::Handle<std::vector<reco::Track>> track_h;
+  evt.getByToken(tracks_token_, track_h);
+  const auto& tracks = *track_h;
+
   edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
   evt.getByToken(clusters_token_, cluster_h);
   const auto& layerClusters = *cluster_h;
@@ -257,6 +264,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
           << std::endl;
       }
       auto const & original_seed = seedingTrk[t.seedIndex];
+      auto const & track = tracks[t.seedIndex];
       auto trk_pt = std::sqrt(original_seed.directionAtOrigin.perp2());
       auto diff_pt = t.raw_pt - trk_pt;
       auto pt_err = trk_pt*resol_calo_scale_ + resol_calo_offset_;
@@ -271,118 +279,50 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
           << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(original_seed.directionAtOrigin.unit()))
           << std::endl;
       }
-      if (diff_pt_sigmas < -pt_sigma_low_) {
-        auto startEtaBin = std::max(entryEtaBin - eta_bin_window_, 0);
-        auto endEtaBin = std::min(entryEtaBin + eta_bin_window_ + 1, ticl::TileConstants::nEtaBins);
-        auto startPhiBin = entryPhiBin - phi_bin_window_;
-        auto endPhiBin = entryPhiBin + phi_bin_window_ + 1;
-        bool recoverEM = (e_over_h < e_over_h_threshold_);
-        for (int ieta = startEtaBin; ieta < endEtaBin; ++ieta) {
-          auto offset = ieta * ticl::TileConstants::nPhiBins;
-          for (int iphi_it = startPhiBin; iphi_it < endPhiBin; ++iphi_it) {
-            int iphi = ((iphi_it % ticl::TileConstants::nPhiBins + ticl::TileConstants::nPhiBins) % ticl::TileConstants::nPhiBins);
-            auto ibin = offset + iphi;
-            auto const & searchable = recoverEM ? tracksterTile[0][ibin] : tracksterTile[2][ibin];
-            auto const & searchableTracksters = recoverEM ? trackstersEM : trackstersHAD;
-            auto & searchableUsed = recoverEM ? usedTrackstersEM : usedTrackstersHAD;
-            if (debug_) {
-              LogDebug("TrackstersMergeProducer") << "Trying to recover energy (EM?):" << recoverEM << std::endl;
-              LogDebug("TrackstersMergeProducer") << "Candidates in bin " << ibin << " are: " << searchable.size() << std::endl;
-            }
-            for (auto const & s : searchable) {
-              auto const & st = searchableTracksters[s];
-              auto cos_angle = std::abs(t.eigenvectors[0].Dot(st.eigenvectors[0]));
-              if (cos_angle > cosangle_align_) {
-                usedTrackstersTRK[tracksterTRK_idx] = 1;
-                searchableUsed[s] = 1;
-                auto combined = t;
-                std::copy(std::begin(st.vertices), std::end(st.vertices),
-                    std::back_inserter(combined.vertices));
-                std::copy(std::begin(st.vertex_multiplicity), std::end(st.vertex_multiplicity),
-                    std::back_inserter(combined.vertex_multiplicity));
-                result->push_back(combined);
-                if (debug_) {
-                  LogDebug("TrackstersMergeProducer") << " linked to st obj: " << st.barycenter
-                    << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(st.eigenvectors[0]))
-                    << std::endl
-                    << " regressed energy: " << st.regressed_energy
-                    << " raw_energy: " << st.raw_energy
-                    << " cumulative: " << (t.raw_energy+st.raw_energy)
-                    << " (trk+st)/seed: " << (t.raw_energy+st.raw_energy)/original_seed.directionAtOrigin.mag()
-                    << std::endl;
-                }
-              } else {
-                if (debug_) {
-                  LogDebug("TrackstersMergeProducer") << " Missed link to st obj: " << st.barycenter
-                    << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(st.eigenvectors[0]))
-                    << std::endl
-                    << " regressed energy: " << st.regressed_energy
-                    << " raw_energy: " << st.raw_energy
-                    << " cumulative: " << (t.raw_energy+st.raw_energy)
-                    << " (trk+st)/seed: " << (t.raw_energy+st.raw_energy)/original_seed.directionAtOrigin.mag()
-                    << std::endl;
-                }
-              }
-            }
-          }
-        }
-      } else if (diff_pt_sigmas > pt_sigma_high_) {
-        if (debug_) {
-          LogDebug("TrackstersMergeProducer") << "Object should be split" << std::endl;
-        }
-      } else {
-        result->push_back(t);
-        usedTrackstersTRK[tracksterTRK_idx] = 1;
-      }
-      tracksterTRK_idx++;
-    }
-
-    for (auto const & t : trackstersHAD) {
-      int bin = tracksterTile[2].globalBin(t.barycenter.eta(), t.barycenter.phi());
-      if (debug_) {
-        LogDebug("TrackstersMergeProducer") << "TrackstersMergeProducer HAD obj: " << t.barycenter
-          << " regressed energy: " << t.regressed_energy
-          << " raw_energy: " << t.raw_energy
-          << std::endl;
-        LogDebug("TrackstersMergeProducer") << "Trying to associate closeby em energy" << std::endl;
-      }
-      auto const & ems = tracksterTile[0][bin];
-      auto tracksterEM_idx = 0;
-      for (auto const & e : ems) {
-        auto const & em = trackstersEM[e];
-        auto cos_angle = std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]));
-        if (cos_angle > cosangle_align_) {
-          usedTrackstersHAD[tracksterHAD_idx] = 1;
-          usedTrackstersEM[tracksterEM_idx] = 1;
-          auto combined = t;
-          std::copy(std::begin(em.vertices), std::end(em.vertices),
-              std::back_inserter(combined.vertices));
-          std::copy(std::begin(em.vertex_multiplicity), std::end(em.vertex_multiplicity),
-              std::back_inserter(combined.vertex_multiplicity));
-          result->push_back(combined);
-          if (debug_) {
-            LogDebug("TrackstersMergeProducer") << " linked to em obj: " << em.barycenter
-              << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]))
-              << std::endl
-              << " regressed energy: " << em.regressed_energy
-              << " raw_energy: " << em.raw_energy
-              << " cumulative: " << (t.raw_energy+em.raw_energy)
-              << std::endl;
+      // If the energy is unbalanced and higher in Calo ==> balance it by emitting gammas/neutrals
+      if (diff_pt_sigmas > pt_sigma_high_) {
+        if (e_over_h > 1.) {
+          auto gamma_pt = std::min(diff_pt, t.raw_em_pt);
+          // Create gamma with calo direction
+          LogDebug("TrackstersMergeProducer") << " Creating a photon from TRK Trackster with energy "
+            << gamma_pt << " and direction " << t.eigenvectors[0].eta() << ", "
+            << t.eigenvectors[0].phi() << std::endl;
+          diff_pt -= gamma_pt;
+          if (diff_pt > 2.) {
+          // Create also a neutral on top, with calo direction and diff_pt as energy
+            LogDebug("TrackstersMergeProducer") << " Adding also a neutral hadron from TRK Trackster with energy "
+              << diff_pt << " and direction " << t.eigenvectors[0].eta() << ", "
+              << t.eigenvectors[0].phi() << std::endl;
           }
         } else {
-          if (debug_) {
-            LogDebug("TrackstersMergeProducer") << " Missed link to em obj: " << em.barycenter
-              << " abs(alignemnt): " << std::abs(t.eigenvectors[0].Dot(em.eigenvectors[0]))
-              << std::endl
-              << " regressed energy: " << em.regressed_energy
-              << " raw_energy: " << em.raw_energy
-              << " cumulative: " << (t.raw_energy+em.raw_energy)
-              << std::endl;
-          }
+          // Create neutral with calo direction
+          LogDebug("TrackstersMergeProducer") << " Creating a neutral hadron from TRK Trackster with energy "
+            << diff_pt << " and direction " << t.eigenvectors[0].eta() << ", "
+            << t.eigenvectors[0].phi() << std::endl;
         }
-        tracksterEM_idx++;
       }
-      tracksterHAD_idx++;
+      // If the energy is in the correct ball-park (this also covers the previous case after the neutral emission), use weighted averages
+      if (diff_pt_sigmas > -pt_sigma_low_) {
+        // Create either an electron or a charged hadron, using the weighted average information between the track and the cluster for the energy, the direction of the track at the vertex.
+        // The PID is simply passed over to the final trackster, while the energy is changed.
+        auto w_calo = 1./pow(pt_err, 2);
+        auto w_trk = 1./pow(track.ptError(), 2);
+        auto average_pt = (w_calo*t.raw_pt + track.pt()*w_trk)/(w_calo+w_trk);
+        LogDebug("TrackstersMergeProducer") << " Creating electron/charged hadron from TRK Trackster with weighted p_t "
+          << average_pt << " and direction " << t.eigenvectors[0].eta() << ", "
+            << t.eigenvectors[0].phi() << std::endl;
+
+      }
+      // If the energy of the calo is too low, just use track-only information
+      else {
+        // Create either an electron or a charged hadron, using the track information only.
+        LogDebug("TrackstersMergeProducer") << " Creating electron/charged hadron from TRK Trackster with track p_t "
+          << trk_pt << " and direction " << track.eta() << ", "
+            << track.phi() << std::endl;
+      }
+      result->push_back(t);
+      usedTrackstersTRK[tracksterTRK_idx] = 1;
+      tracksterTRK_idx++;
     }
   }
 
@@ -394,7 +334,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
         << usedTrackstersTRK[tracksterTRK_idx] << std::endl;
     }
     if (! usedTrackstersTRK[tracksterTRK_idx]) {
-      result->push_back(t);
+        LogDebug("TrackstersMergeProducer") << " Creating a charge hadron from TRK Trackster with track energy "
+          << t.raw_energy << " and direction " << t.eigenvectors[0].eta() << ", "
+          << t.eigenvectors[0].phi() << std::endl;
+        result->push_back(t);
     }
     tracksterTRK_idx++;
   }
@@ -407,7 +350,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
         << usedTrackstersEM[tracksterEM_idx] << std::endl;
     }
     if (! usedTrackstersEM[tracksterEM_idx]) {
-      result->push_back(t);
+        LogDebug("TrackstersMergeProducer") << " Creating a photon from EM Trackster with track energy "
+          << t.raw_energy << " and direction " << t.eigenvectors[0].eta() << ", "
+          << t.eigenvectors[0].phi() << std::endl;
+        result->push_back(t);
     }
     tracksterEM_idx++;
   }
@@ -420,6 +366,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
         << usedTrackstersHAD[tracksterHAD_idx] << std::endl;
     }
     if (! usedTrackstersHAD[tracksterHAD_idx]) {
+      LogDebug("TrackstersMergeProducer") << " Creating a neutral hadron from HAD Trackster with track energy "
+        << t.raw_energy << " and direction " << t.eigenvectors[0].eta() << ", "
+        << t.eigenvectors[0].phi() << std::endl;
       result->push_back(t);
     }
     tracksterHAD_idx++;
@@ -632,6 +581,7 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<edm::InputTag>("trackstershad", edm::InputTag("trackstersHAD"));
   desc.add<edm::InputTag>("seedingTrk", edm::InputTag("ticlSeedingTrk"));
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<bool>("oneTracksterPerTrackSeed", true);
   desc.add<bool>("optimiseAcrossTracksters", false);
   desc.add<int>("eta_bin_window", 1);
