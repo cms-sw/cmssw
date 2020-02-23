@@ -48,7 +48,9 @@ public:
     gammasNeeded_ = false;
     storeRawValue_.clear();
     auto const& rawDefs = pset.getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
+    std::vector<std::string> idnames;
     for (auto const& rawDefsEntry : rawDefs) {
+      idnames.push_back(rawDefsEntry.getParameter<std::string>("IDname"));
       // Can only store one type
       int numStoreOptions = 0;
       if (rawDefsEntry.getParameter<bool>("storeRawSumPt")) {
@@ -94,7 +96,7 @@ public:
 
       // sanity check2 - can't use weighted and unweighted iso at the same time
       if (includeGammas_.back() && calculateWeights_.back()) {
-        throw cms::Exception("BasIsoConfig")
+        throw cms::Exception("BadIsoConfig")
             << "Both 'ApplyDiscriminationByECALIsolation' and 'ApplyDiscriminationByWeightedECALIsolation' "
             << "have been set to true. These options are mutually exclusive.";
       }
@@ -104,39 +106,26 @@ public:
     std::vector<edm::ParameterSet> wpDefs = pset.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
     for (std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs.begin(); wpDefsEntry != wpDefs.end();
          ++wpDefsEntry) {
-      maximumSumPtCut_.push_back(wpDefsEntry->getParameter<double>("maximumSumPtCut"));
-      applySumPtCut_.push_back(maximumSumPtCut_.back() >= 0.0);
-      maximumOccupancy_.push_back(wpDefsEntry->getParameter<int>("maximumOccupancy"));
-      applyOccupancyCut_.push_back(maximumOccupancy_.back() >= 0);
-      maximumRelativeSumPt_.push_back(wpDefsEntry->getParameter<double>("relativeSumPtCut"));
-      offsetRelativeSumPt_.push_back(wpDefsEntry->getParameter<double>("relativeSumPtOffset"));
-      applyRelativeSumPtCut_.push_back(maximumRelativeSumPt_.back() >= 0.0);
-      applyPhotonPtSumOutsideSignalConeCut_.push_back(
-          wpDefsEntry->getParameter<bool>("applyPhotonPtSumOutsideSignalConeCut"));
-      maxAbsPhotonSumPt_outsideSignalCone_.push_back(
-          wpDefsEntry->getParameter<double>("maxAbsPhotonSumPt_outsideSignalCone"));
-      maxRelPhotonSumPt_outsideSignalCone_.push_back(
-          wpDefsEntry->getParameter<double>("maxRelPhotonSumPt_outsideSignalCone"));
-
-      includeGammas_.push_back(wpDefsEntry->getParameter<bool>("ApplyDiscriminationByECALIsolation"));
-      if (includeGammas_.back())
-        gammasNeeded_ = true;
-      calculateWeights_.push_back(wpDefsEntry->getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation"));
-      if (calculateWeights_.back())
-        weightsNeeded_ = true;
-      includeTracks_.push_back(wpDefsEntry->getParameter<bool>("ApplyDiscriminationByTrackerIsolation"));
-      if (includeTracks_.back())
-        tracksNeeded_ = true;
-      applyDeltaBetaCorrection_.push_back(wpDefsEntry->getParameter<bool>("applyDeltaBetaCorrection"));
-      if (applyDeltaBetaCorrection_.back())
-        deltaBetaNeeded_ = true;
-      useAllPFCandsForWeights_.push_back(wpDefsEntry->getParameter<bool>("UseAllPFCandsForWeights"));
-
-      // sanity check2 - can't use weighted and unweighted iso at the same time
-      if (includeGammas_.back() && calculateWeights_.back()) {
-        throw cms::Exception("BasIsoConfig")
-            << "Both 'ApplyDiscriminationByECALIsolation' and 'ApplyDiscriminationByWeightedECALIsolation' "
-            << "have been set to true. These options are mutually exclusive.";
+      
+      maxAbsValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("maximumAbsoluteValues"));
+      maxRelValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("maximumRelativeValues"));
+      offsetRelValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("relativeValueOffsets"));
+      auto refRawIDNames = wpDefsEntry->getParameter<std::vector<std::string>>("referenceRawIDNames");
+      if (!maxAbsValue_.back().empty() && maxAbsValue_.back().size()!=refRawIDNames.size()) throw cms::Exception("BadIsoConfig") << "WP configuration: Length of 'maximumAbsoluteValues' does not match length of 'referenceRawIDNames'!";
+      if (!maxRelValue_.back().empty() && maxRelValue_.back().size()!=refRawIDNames.size()) throw cms::Exception("BadIsoConfig") << "WP configuration: Length of 'maximumRelativeValues' does not match length of 'referenceRawIDNames'!";
+      if (!offsetRelValue_.back().empty() && offsetRelValue_.back().size()!=refRawIDNames.size()) throw cms::Exception("BadIsoConfig") << "WP configuration: Length of 'relativeValueOffsets' does not match length of 'referenceRawIDNames'!";
+      else if (offsetRelValue_.back().empty()) offsetRelValue_.back().assign(refRawIDNames.size(), 0.0);
+      rawValue_reference_.push_back(std::vector<int>(refRawIDNames.size()));
+      for (size_t i = 0; i < refRawIDNames.size(); i++){
+        bool found = false;
+        for (size_t j = 0; j < idnames.size(); j++){
+          if (refRawIDNames[i]==idnames[j]){
+            rawValue_reference_.back()[i] = j;
+            found = true;
+            break;
+          }
+        }
+        if (!found) throw cms::Exception("BadIsoConfig") << "WP configuration: Requested raw ID '" << refRawIDNames[i] << "' not defined!";
       }
     }
 
@@ -255,16 +244,10 @@ private:
   // Options to store the raw value in the discriminator instead of boolean pass/fail flag
   std::vector<StoredRawType> storeRawValue_;
   // Options to store the boolean pass/fail flag
-  std::vector<bool> applySumPtCut_;
-  std::vector<double> maximumSumPtCut_;
-  std::vector<bool> applyOccupancyCut_;
-  std::vector<int> maximumOccupancy_;
-  std::vector<bool> applyRelativeSumPtCut_;
-  std::vector<double> maximumRelativeSumPt_;
-  std::vector<double> offsetRelativeSumPt_;
-  std::vector<bool> applyPhotonPtSumOutsideSignalConeCut_;
-  std::vector<double> maxAbsPhotonSumPt_outsideSignalCone_;
-  std::vector<double> maxRelPhotonSumPt_outsideSignalCone_;
+  std::vector<std::vector<int>> rawValue_reference_;
+  std::vector<std::vector<double>> maxAbsValue_;
+  std::vector<std::vector<double>> maxRelValue_;
+  std::vector<std::vector<double>> offsetRelValue_;
   // Options used for both raw and WP definitions
   std::vector<bool> includeGammas_;
   std::vector<bool> calculateWeights_;
@@ -526,15 +509,7 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
 
   //Now all needed incredients are ready. Loop over all ID configurations and produce output
   reco::SingleTauDiscriminatorContainer result;
-  const size_t n_raws = storeRawValue_.size();
   for (size_t i = 0; i < includeGammas_.size(); i++) {
-    //determine number of raw values (needed to apply correct indices) and check whether a raw value or a flag is calculated
-    const bool output_is_raw = (i < n_raws);
-    const size_t iwp = i - n_raws;
-
-    bool failsOccupancyCut = false;
-    bool failsSumPtCut = false;
-    bool failsRelativeSumPtCut = false;
 
     //--- nObjects requirement
     int neutrals = isoNeutral_.size();
@@ -548,11 +523,8 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
 
     int nOccupants = isoCharged_.size() + neutrals;
 
-    if (!output_is_raw)
-      failsOccupancyCut = (nOccupants > maximumOccupancy_.at(iwp));
-
     double footprintCorrection_value = 0.;
-    if (applyFootprintCorrection_ || (output_is_raw && storeRawValue_.at(i) == FootPrintCorrection)) {
+    if (applyFootprintCorrection_ || storeRawValue_.at(i) == FootPrintCorrection) {
       for (std::vector<std::unique_ptr<FootprintCorrection>>::const_iterator footprintCorrection =
                footprintCorrections_.begin();
            footprintCorrection != footprintCorrections_.end();
@@ -566,8 +538,7 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
     double totalPt = 0.;
     double puPt = 0.;
     //--- Sum PT requirement
-    if ((!output_is_raw && (applySumPtCut_.at(iwp) || applyRelativeSumPtCut_.at(iwp))) ||
-        (output_is_raw && (storeRawValue_.at(i) == SumPt || storeRawValue_.at(i) == PUsumPt))) {
+    if (storeRawValue_.at(i) == SumPt || storeRawValue_.at(i) == PUsumPt) {
       double chargedPt = 0.;
       double neutralPt = 0.;
       double weightedNeutralPt = 0.;
@@ -622,21 +593,10 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
       }
 
       totalPt = chargedPt + weightGammas_ * neutralPt;
-
-      if (!output_is_raw) {
-        LogTrace("discriminate") << "totalPt = " << totalPt << " (cut = " << maximumSumPtCut_.at(iwp) << ")";
-        failsSumPtCut = (totalPt > maximumSumPtCut_.at(iwp));
-
-        //--- Relative Sum PT requirement
-        failsRelativeSumPtCut =
-            (totalPt > ((pfTau->pt() - offsetRelativeSumPt_.at(iwp)) * maximumRelativeSumPt_.at(iwp)));
-      }
     }
 
-    bool failsPhotonPtSumOutsideSignalConeCut = false;
     double photonSumPt_outsideSignalCone = 0.;
-    if ((!output_is_raw && applyPhotonPtSumOutsideSignalConeCut_.at(iwp)) ||
-        (output_is_raw && storeRawValue_.at(i) == PhotonSumPt)) {
+    if (storeRawValue_.at(i) == PhotonSumPt) {
       const std::vector<reco::CandidatePtr>& signalGammas = pfTau->signalGammaCands();
       for (std::vector<reco::CandidatePtr>::const_iterator signalGamma = signalGammas.begin();
            signalGamma != signalGammas.end();
@@ -645,45 +605,39 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
         if (dR > pfTau->signalConeSize())
           photonSumPt_outsideSignalCone += (*signalGamma)->pt();
       }
-      if (!output_is_raw &&
-          (photonSumPt_outsideSignalCone > maxAbsPhotonSumPt_outsideSignalCone_.at(iwp) ||
-           photonSumPt_outsideSignalCone > (maxRelPhotonSumPt_outsideSignalCone_.at(iwp) * pfTau->pt()))) {
-        failsPhotonPtSumOutsideSignalConeCut = true;
-      }
-    }
-
-    bool fails = !output_is_raw &&
-                 ((applyOccupancyCut_.at(iwp) && failsOccupancyCut) || (applySumPtCut_.at(iwp) && failsSumPtCut) ||
-                  (applyRelativeSumPtCut_.at(iwp) && failsRelativeSumPtCut) ||
-                  (applyPhotonPtSumOutsideSignalConeCut_.at(iwp) && failsPhotonPtSumOutsideSignalConeCut));
-
-    if (!output_is_raw && pfTau->pt() > minPtForNoIso_ && minPtForNoIso_ > 0.) {
-      LogDebug("discriminate") << "tau pt = " << pfTau->pt() << "\t  min cutoff pt = " << minPtForNoIso_;
-      result.workingPoints.push_back(true);
-      continue;
     }
 
     // We did error checking in the constructor, so this is safe.
-    if (output_is_raw) {
-      if (storeRawValue_.at(i) == SumPt) {
-        result.rawValues.push_back(totalPt);
-      } else if (storeRawValue_.at(i) == PUsumPt) {
-        if (applyDeltaBetaCorrection_.at(i))
-          result.rawValues.push_back(puPt);
-        else if (applyRhoCorrection_)
-          result.rawValues.push_back(rhoThisEvent_);
-        else
-          result.rawValues.push_back(0.);
-      } else if (storeRawValue_.at(i) == Occupancy) {
-        result.rawValues.push_back(nOccupants);
-      } else if (storeRawValue_.at(i) == FootPrintCorrection) {
-        result.rawValues.push_back(footprintCorrection_value);
-      } else if (storeRawValue_.at(i) == PhotonSumPt) {
-        result.rawValues.push_back(photonSumPt_outsideSignalCone);
-      }
-    } else {
-      result.workingPoints.push_back(!fails);
+    if (storeRawValue_.at(i) == SumPt) {
+      result.rawValues.push_back(totalPt);
+    } else if (storeRawValue_.at(i) == PUsumPt) {
+      if (applyDeltaBetaCorrection_.at(i))
+        result.rawValues.push_back(puPt);
+      else if (applyRhoCorrection_)
+        result.rawValues.push_back(rhoThisEvent_);
+      else
+        result.rawValues.push_back(0.);
+    } else if (storeRawValue_.at(i) == Occupancy) {
+      result.rawValues.push_back(nOccupants);
+    } else if (storeRawValue_.at(i) == FootPrintCorrection) {
+      result.rawValues.push_back(footprintCorrection_value);
+    } else if (storeRawValue_.at(i) == PhotonSumPt) {
+      result.rawValues.push_back(photonSumPt_outsideSignalCone);
     }
+  }
+  for (size_t i=0; i < rawValue_reference_.size(); i++){
+    bool pass = true;
+    if (minPtForNoIso_ > 0. && pfTau->pt() > minPtForNoIso_) LogDebug("discriminate") << "tau pt = " << pfTau->pt() << "\t  min cutoff pt = " << minPtForNoIso_;
+    else {
+      for (size_t j=0; j < rawValue_reference_[i].size(); j++){
+        double rawValue = result.rawValues[rawValue_reference_[i][j]];
+        LogTrace("discriminate") << "Iso sum = " << rawValue << " (max_abs = " << maxAbsValue_[i][j] << ", max_rel = " << maxRelValue_[i][j] << ", offset_rel = " << offsetRelValue_[i][j] << ")";
+        if (!maxAbsValue_[i].empty() && maxAbsValue_[i][j] >= 0.0) pass = rawValue <= maxAbsValue_[i][j];
+        if (!maxRelValue_[i].empty() && maxRelValue_[i][j] >= 0.0) pass = rawValue <= maxRelValue_[i][j] * (pfTau->pt() - offsetRelValue_[i][j]);
+        if (!pass) break; // do not pass if one of the conditions in the j list fails
+      }
+    }
+    result.workingPoints.push_back(pass);
   }
   return result;
 }
@@ -820,40 +774,15 @@ void PFRecoTauDiscriminationByIsolationContainer::fillDescriptions(edm::Configur
   desc_idlist.add<bool>("ApplyDiscriminationByTrackerIsolation", false);
   desc_idlist.add<bool>("applyDeltaBetaCorrection", false);
   desc_idlist.add<bool>("UseAllPFCandsForWeights", false);
-  std::vector<edm::ParameterSet> vpsd_idlist;  //by default, don't store any raw value
-  desc.addVPSet("IDdefinitions", desc_idlist, vpsd_idlist);
+  desc.addVPSet("IDdefinitions", desc_idlist, {});
   // options for various stored ID WPs
   edm::ParameterSetDescription desc_idwplist;
   desc_idwplist.add<string>("IDname");  //not needed by producer but required for mapping at PAT level
-  desc_idwplist.add<double>("maximumSumPtCut", -1.0);
-  desc_idwplist.add<int>("maximumOccupancy", -1);
-  desc_idwplist.add<double>("relativeSumPtCut", -1.0);
-  desc_idwplist.add<double>("relativeSumPtOffset", 0.0);
-  desc_idwplist.add<bool>("applyPhotonPtSumOutsideSignalConeCut", false);
-  desc_idwplist.add<double>("maxAbsPhotonSumPt_outsideSignalCone", 1000000000.0);
-  desc_idwplist.add<double>("maxRelPhotonSumPt_outsideSignalCone", 0.1);
-  desc_idwplist.add<bool>("ApplyDiscriminationByECALIsolation", false);
-  desc_idwplist.add<bool>("ApplyDiscriminationByWeightedECALIsolation", false);
-  desc_idwplist.add<bool>("ApplyDiscriminationByTrackerIsolation", false);
-  desc_idwplist.add<bool>("applyDeltaBetaCorrection", false);
-  desc_idwplist.add<bool>("UseAllPFCandsForWeights", false);
-  edm::ParameterSet pset_idwplist;  //define default pset for WP
-  pset_idwplist.addParameter<string>("IDname", "pfRecoTauDiscriminationByIsolationContainer");
-  pset_idwplist.addParameter<double>("maximumSumPtCut", -1.0);
-  pset_idwplist.addParameter<int>("maximumOccupancy", 0);
-  pset_idwplist.addParameter<double>("relativeSumPtCut", -1.0);
-  pset_idwplist.addParameter<double>("relativeSumPtOffset", 0.0);
-  pset_idwplist.addParameter<bool>("applyPhotonPtSumOutsideSignalConeCut", false);
-  pset_idwplist.addParameter<double>("maxAbsPhotonSumPt_outsideSignalCone", 1000000000.0);
-  pset_idwplist.addParameter<double>("maxRelPhotonSumPt_outsideSignalCone", 0.1);
-  pset_idwplist.addParameter<bool>("ApplyDiscriminationByECALIsolation", true);
-  pset_idwplist.addParameter<bool>("ApplyDiscriminationByWeightedECALIsolation", false);
-  pset_idwplist.addParameter<bool>("ApplyDiscriminationByTrackerIsolation", true);
-  pset_idwplist.addParameter<bool>("applyDeltaBetaCorrection", false);
-  pset_idwplist.addParameter<bool>("UseAllPFCandsForWeights", false);
-  std::vector<edm::ParameterSet> vpsd_idwplist;
-  vpsd_idwplist.push_back(pset_idwplist);
-  desc.addVPSet("IDWPdefinitions", desc_idwplist, vpsd_idwplist);
+  desc_idwplist.add<std::vector<string>>("referenceRawIDNames")->setComment("List of raw IDs defined in 'IDdefinitions' to pass all respective conditions defined in 'maximumAbsoluteValues', 'maximumRelativeValues' , and 'relativeValueOffsets'");
+  desc_idwplist.add<std::vector<double>>("maximumAbsoluteValues", {});
+  desc_idwplist.add<std::vector<double>>("maximumRelativeValues", {});
+  desc_idwplist.add<std::vector<double>>("relativeValueOffsets", {});
+  desc.addVPSet("IDWPdefinitions", desc_idwplist, {});
 
   descriptions.add("pfRecoTauDiscriminationByIsolationContainer", desc);
 }
