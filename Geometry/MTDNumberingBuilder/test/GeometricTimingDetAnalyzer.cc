@@ -107,7 +107,6 @@ void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     for (const auto& lay : layer) {
       dumpGeometricTimingDet(lay);
     }
-
   }
   det.clear();
 
