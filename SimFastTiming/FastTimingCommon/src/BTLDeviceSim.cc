@@ -7,7 +7,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
-#include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 

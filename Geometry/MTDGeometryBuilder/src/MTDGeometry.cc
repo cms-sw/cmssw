@@ -79,7 +79,7 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd) : theTrackerDet(gd) {
   LogDebug("ThicknessAndType") << "MTD Total Number of Detectors " << deepcomp.size() << std::endl;
   LogDebug("ThicknessAndType") << "MTD Dump of sensors names and bounds" << std::endl;
   LogDebug("ThicknessAndType").log([&](auto& debugstr) {
-    for (auto det : deepcomp) {
+    for (const auto& det : deepcomp) {
       fillTestMap(det);
       debugstr << std::hex << det->geographicalId().rawId() << std::dec << " " << det->name() << " "
                << det->bounds()->thickness() << "\n";
@@ -87,7 +87,7 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd) : theTrackerDet(gd) {
   });
   LogDebug("DetTypeList").log([&](auto& debugstr) {
     debugstr << "MTD Content of DetTypeList : size " << theDetTypetList.size() << "\n";
-    for (auto iVal : theDetTypetList) {
+    for (const auto& iVal : theDetTypetList) {
       debugstr << " DetId " << std::get<0>(iVal).rawId() << " Type "
                << static_cast<std::underlying_type<MTDGeometry::ModuleType>::type>(std::get<1>(iVal)) << " Thickness "
                << std::get<2>(iVal) << "\n";
@@ -211,7 +211,7 @@ void MTDGeometry::fillTestMap(const GeometricTimingDet* gd) {
 }
 
 MTDGeometry::ModuleType MTDGeometry::getDetectorType(DetId detid) const {
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
     MTDGeometry::ModuleType mtype = std::get<1>(iVal);
     if (detid.rawId() <= detid_max.rawId())
@@ -221,7 +221,7 @@ MTDGeometry::ModuleType MTDGeometry::getDetectorType(DetId detid) const {
 }
 
 float MTDGeometry::getDetectorThickness(DetId detid) const {
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
     if (detid.rawId() <= detid_max.rawId())
       return std::get<2>(iVal);
