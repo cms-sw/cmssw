@@ -30,7 +30,6 @@ V00-03-25
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include <numeric>
 #include <cmath>
 #include <memory>
@@ -111,6 +110,7 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
       dzMax_(ps.getParameter<double>("dzMax")),
 
       recordName_(ps.getParameter<string>("recordName")),
+      targetIOV_(ps.getParameter<cond::Time_t>("targetIOV")),
 
       countEvt_(0),
       countLumi_(0),
@@ -1364,8 +1364,16 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       {
         edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] poolDBService available \n" << std::endl;
 
-        cond::Time_t valid_time = poolDbService->currentTime();
         cond::Time_t end_of_time = poolDbService->endOfTime();
+        cond::Time_t valid_time;
+        if (targetIOV_ < 1)
+        {
+          valid_time = poolDbService->currentTime();
+        }
+        else
+        {
+          valid_time = targetIOV_;
+        }
 
         if (poolDbService->isNewTagRequest(recordName_))
         {
