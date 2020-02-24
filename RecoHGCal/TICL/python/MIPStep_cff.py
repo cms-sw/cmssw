@@ -24,7 +24,9 @@ trackstersMIP = _trackstersProducer.clone(
     min_clusters_per_ntuplet = 10,
     min_cos_theta = 0.99, # ~10 degrees
     min_cos_pointing = 0.5,
-    out_in_dfs = False
+    out_in_dfs = False,
+    itername = "MIP",
+    max_delta_time = -1
 )
 
 # MULTICLUSTERS

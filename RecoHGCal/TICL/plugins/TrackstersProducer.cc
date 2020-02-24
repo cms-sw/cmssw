@@ -52,6 +52,7 @@ private:
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
   const std::vector<int> filter_on_categories_;
   const double pid_threshold_;
+  const std::string itername_;
 
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
@@ -84,7 +85,8 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
     layer_clusters_tiles_token_(consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"))),
     seeding_regions_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
     filter_on_categories_(ps.getParameter<std::vector<int>>("filter_on_categories")),
-    pid_threshold_(ps.getParameter<double>("pid_threshold")) {
+    pid_threshold_(ps.getParameter<double>("pid_threshold")),
+    itername_(ps.getParameter<std::string>("itername")) {
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
 }
@@ -112,6 +114,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("eid_input_name", "input");
   desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
   desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
+  desc.add<std::string>("itername", "unknown");
   desc.add<double>("eid_min_cluster_energy", 1.);
   desc.add<int>("eid_n_layers", 50);
   desc.add<int>("eid_n_clusters", 10);

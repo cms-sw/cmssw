@@ -29,7 +29,8 @@ trackstersHAD = _trackstersProducer.clone(
     min_clusters_per_ntuplet = 12,
     min_cos_theta = 0.866,    # ~30 degrees
     min_cos_pointing = 0.819, # ~35 degrees
-    max_delta_time = -1
+    max_delta_time = -1,
+    itername = "HADRONIC"
     )
 
 # MULTICLUSTERS
