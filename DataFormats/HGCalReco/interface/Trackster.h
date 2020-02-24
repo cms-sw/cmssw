@@ -37,6 +37,9 @@ namespace ticl {
     // created the trackster. For track-based seeding the pointer to the track
     // can be cooked using the previous ProductID and this index.
     int seedIndex;
+    // We also need the pointer to the original seeding region ??
+    // something like:
+    // int seedingRegionIdx;
 
     // -99, -1 if not available. ns units otherwise
     float time;
