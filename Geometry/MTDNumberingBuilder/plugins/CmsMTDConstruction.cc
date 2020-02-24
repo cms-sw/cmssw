@@ -90,3 +90,18 @@ GeometricTimingDet* CmsMTDConstruction::buildSubdet(DDFilteredView& fv,
 
   return subdet;
 }
+
+GeometricTimingDet* CmsMTDConstruction::buildLayer(DDFilteredView& fv,
+                                                   GeometricTimingDet* mother,
+                                                   const std::string& attribute) {
+  auto thisDet = theCmsMTDStringToEnum.type(fv.name());
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, thisDet);
+
+  if (thisDet != GeometricTimingDet::BTLLayer && thisDet != GeometricTimingDet::ETLDisc) {
+    throw cms::Exception("CmsMTDConstruction") << " ERROR - I was expecting a SubDet, I got a " << fv.name();
+  }
+
+  mother->addComponent(subdet);
+
+  return subdet;
+}

@@ -20,6 +20,7 @@ public:
   void buildETLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
 
   GeometricTimingDet* buildSubdet(DDFilteredView&, GeometricTimingDet*, const std::string&);
+  GeometricTimingDet* buildLayer(DDFilteredView&, GeometricTimingDet*, const std::string&);
 
 protected:
   CmsMTDStringToEnum theCmsMTDStringToEnum;
