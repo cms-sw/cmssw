@@ -26,7 +26,8 @@ trackstersTrk = _trackstersProducer.clone(
   min_cos_theta = 0.866, # ~30 degrees
   min_cos_pointing = 0.798, # ~ 37 degrees
   max_delta_time = -1.,
-  algo_verbosity = 0
+  algo_verbosity = 0,
+  itername = "TRK"
 )
 
 # MULTICLUSTERS
