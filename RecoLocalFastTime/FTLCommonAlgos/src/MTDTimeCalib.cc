@@ -6,7 +6,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
-#include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 
 MTDTimeCalib::MTDTimeCalib(edm::ParameterSet const& conf, const MTDGeometry* geom, const MTDTopology* topo)
     : geom_(geom),
