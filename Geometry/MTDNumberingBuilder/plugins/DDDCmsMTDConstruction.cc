@@ -98,7 +98,7 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
       subdet.emplace_back(theCmsMTDConstruction.buildSubdet(fv, mtd.get(), attribute));
     }
-    if ( fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc ) {
+    if (fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc) {
       layer.emplace_back(theCmsMTDConstruction.buildLayer(fv, subdet.back(), attribute));
     }
     //
