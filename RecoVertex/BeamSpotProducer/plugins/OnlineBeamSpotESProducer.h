@@ -27,9 +27,10 @@ public:
 private:
   const BeamSpotOnlineObjects* theHLTBS_;
   const BeamSpotOnlineObjects* theLegacyBS_;
+  const BeamSpotOnlineObjects* transientBS_;
   bool newHLT_;
   bool newLegacy_;
-  std::string label_HLT_;
+  //  std::string label_HLT_;
     
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotTransientObjectsRcd> const bsToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;

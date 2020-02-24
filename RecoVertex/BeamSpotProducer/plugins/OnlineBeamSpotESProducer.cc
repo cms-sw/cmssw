@@ -15,24 +15,25 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p){
 
 //label_HLT_ = p.getParameter<std::string>("HLTLabel");
 
-setWhatProduced(this);
+auto cc = setWhatProduced(this);
 newHLT_ = false;
 newLegacy_ = false;
 
-
+transientBS_ = new BeamSpotOnlineObjects;
 theHLTBS_ = new BeamSpotOnlineObjects;
 theLegacyBS_ = new BeamSpotOnlineObjects;
 
-bsHLTToken_ = setWhatProduced(this).consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>();
-bsLegacyToken_ = setWhatProduced(this).consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
+bsHLTToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>();
+bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
 
 
           
 }
 
 OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
-delete theHLTBS_;
-delete theLegacyBS_;
+  delete theHLTBS_;
+  delete theLegacyBS_;
+  delete transientBS_;
 }
 
 
@@ -52,13 +53,15 @@ std::shared_ptr<const BeamSpotOnlineObjects> OnlineBeamSpotESProducer::produce(c
       theLegacyBS_ = &rec.get(bsLegacyToken_);
       });
 
+
    if (newHLT_ || newLegacy_){
     //compare the HLT with Legacy BS values to choose what to use:
-
+    //sofar passing the HLT one
+     transientBS_ = theHLTBS_;
    };
 
     
-  return std::shared_ptr<const BeamSpotOnlineObjects>(&(*theHLTBS_), edm::do_nothing_deleter());
+  return std::shared_ptr<const BeamSpotOnlineObjects>(&(*transientBS_), edm::do_nothing_deleter());
 
  };
 
