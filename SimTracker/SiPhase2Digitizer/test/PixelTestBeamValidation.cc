@@ -28,7 +28,7 @@
 #include "PixelTestBeamValidation.h"
 
 const double unit_um = 1e-4;  // [cm]
-// NOT USED 
+// NOT USED
 // const double unit_mm = 1e-1;  // [cm]
 
 const double unit_degree = 0.017453292519943295;  // [rad]
