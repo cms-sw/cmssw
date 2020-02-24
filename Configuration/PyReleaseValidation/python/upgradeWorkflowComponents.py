@@ -49,6 +49,8 @@ upgradeKeys[2026] = [
     '2026D51PU',
     '2026D52',
     '2026D52PU',
+    '2026D53',
+    '2026D53PU',
     '2026D60',
     '2026D60PU',
 ]
@@ -741,6 +743,13 @@ upgradeProperties[2026] = {
     },
     '2026D52' : {
         'Geom' : 'Extended2026D52',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D53' : {
+        'Geom' : 'Extended2026D53',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C9',
