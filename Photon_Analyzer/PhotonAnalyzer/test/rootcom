@@ -1,0 +1,2 @@
+g++ -Wno-deprecated ${1}.C -o ${2} -I$ROOTSYS/include -L$ROOTSYS/lib `root-config --cflags` `root-config --libs` -lFoam -lMathMore
+rm -f ${1}.o

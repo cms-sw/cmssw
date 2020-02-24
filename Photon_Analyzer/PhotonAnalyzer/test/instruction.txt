@@ -1,0 +1,32 @@
+The MyClass.C file just makes the various histograms needed for fitting with roofit using fits_.C
+The histograms inside MyClass.C are named accordingly so hopefully you can understand how they are filled.
+TO run it:
+
+Inside CMSSW/src do:
+
+
+1)cmsenv
+2) root -l  /hdfs/store/user/gomber/Monophoton_2017_data_94X/SinglePhoton/crab_sPho_dataset2/181023_204241/0000/ggtree_data_104.root
+3) Inside root do these steps
+[0] _file0->cd("ggNtuplizer")
+[1] EventTree->MakeClass("nour1")
+[2] .q
+
+4) after excuting root commands you will get two files nour1.C and nour1.h
+5) replace // Declaration of leaf types and // List of branche together with "// Set object pointer in the MyClass::Init function " from Mycl\
+ass.h by that found in nour1.h
+
+6)make - this will produce a MyClass.exe executable file
+7)./MyClass.exe /hdfs/store/user/gomber/Monophoton_2017_data_94X/SinglePhoton/crab_sPho_dataset1/181023_204043/0000/ Bh_2017_set1_0000.root -\
+1 10000
+
+-1 is running on all events inside the INPUTFILE directory - you can modify this
+10000 is giving a printout after 10000 events - you can modify this
+
+8) Run for all input folders in the tuples
+9) hadd Attia_NV_2017.root *.root
+Once you have the output file, then you can use the fits_test.C file which will do Z invariant mass fit for failing and passing probes and gi\
+ve you their numbers inside the range of interest (for eg under Z peak 80-100).
+
+10) to get the fitted plots do
+  root -l -q fits_sayed.C

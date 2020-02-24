@@ -1,0 +1,7 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="RecoEcal/EgammaCoreTools"/>
+<use name="EgammaAnalysis/ElectronTools"/>
+<use name="RecoEgamma/PhotonIdentification"/>
+<flags EDM_PLUGIN="1"/>
