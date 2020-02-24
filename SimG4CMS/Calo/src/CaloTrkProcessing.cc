@@ -247,8 +247,10 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
     if (isItCalo(touch, fineDetectors_) >= 0) {
       int pdg = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
       double cut = (pdg == 22) ? eMinFinePhoton_ : eMinFine_;
-      if (aStep->GetTrack()->GetKineticEnergy() / MeV > cut)
+      if (aStep->GetTrack()->GetKineticEnergy() / MeV > cut) {
         trkInfo->putInHistory();
+        trkInfo->setIDfineCalo(id);
+      }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: the track with PDGID " << pdg << " and kinetic energy "
                                   << aStep->GetTrack()->GetKineticEnergy() / MeV << " is tested against " << cut
