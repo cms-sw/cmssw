@@ -10,16 +10,15 @@ for lxplus with SLC7 (default since April 2019)
 ~~~
 export SCRAM_ARCH=slc7_amd64_gcc700
 # for SLC6 use 'slc6_amd64_gcc700' instead above
-cmsrel CMSSW_10_6_0
-cd CMSSW_10_6_0
+cmsrel _11_0_0
+cd CMSSW_11_0_0
 cmsenv
 ~~~
 
 Get the code and compile
 
 ~~~
-git cms-checkout-topic jpata:pfvalidation-10_6_X-master
-# 'git cms-rebase-topic jpata:pfvalidation-10_6_X-master' might be better when using 10_6_0_patchX or higher version
+git cms-addpkg Validation/RecoParticleFlow
 scram b -j4
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow
 ~~~
@@ -149,13 +148,13 @@ make -p tmp/NuGunPU; cd tmp/NuGunPU
 # Make a text file for input files. For example:
 
 ~~~
-dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_11_0_0-106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
 #(or
-dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
-dasgoclient --query="file dataset=/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
-dasgoclient --query="file dataset=/RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_10_6_0-106X_upgrade2023_realistic_v2_2023D41noPU-v2/MINIAODSIM" > step3_filelist.txt
-dasgoclient --query="file dataset=/RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_10_6_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/MINIAODSIM" > step3_filelist.txt
-dasgoclient --query="file dataset=/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/MINIAODSIM"  > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_11_0_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValNuGun/CMSSW_11_0_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_11_0_0-106X_upgrade2023_realistic_v2_2023D41noPU-v2/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_11_0_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValNuGun/CMSSW_11_0_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/MINIAODSIM"  > step3_filelist.txt
 or using the list of files from your crab output areas.
 #)
 cat step3_filelist.txt
