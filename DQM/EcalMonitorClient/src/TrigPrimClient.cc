@@ -19,16 +19,24 @@ namespace ecaldqm {
     minEntries_ = _params.getUntrackedParameter<int>("minEntries");
     errorFractionThreshold_ = _params.getUntrackedParameter<double>("errorFractionThreshold");
     TTF4MaskingAlarmThreshold_ = _params.getUntrackedParameter<double>("TTF4MaskingAlarmThreshold");
+    sourceFromEmul_ = _params.getUntrackedParameter<bool>("sourceFromEmul");
+    if (!sourceFromEmul_) {
+      MEs_.erase(std::string("NonSingleSummary"));
+      MEs_.erase(std::string("TimingSummary"));
+      sources_.erase(std::string("EtEmulError"));
+      sources_.erase(std::string("MatchedIndex"));
+    }
   }
 
   void TrigPrimClient::producePlots(ProcessType) {
-    MESet& meTimingSummary(MEs_.at("TimingSummary"));
-    MESet& meNonSingleSummary(MEs_.at("NonSingleSummary"));
+    MESet* meNonSingleSummary = nullptr;
+    MESet* meTimingSummary = nullptr;
+    MESet* sEtEmulError = nullptr;
+    MESet* sMatchedIndex = nullptr;
+
     MESet& meEmulQualitySummary(MEs_.at("EmulQualitySummary"));
     MESet& meTrendTTF4Flags(MEs_.at("TrendTTF4Flags"));
 
-    MESet const& sEtEmulError(sources_.at("EtEmulError"));
-    MESet const& sMatchedIndex(sources_.at("MatchedIndex"));
     MESet const& sTPDigiThrAll(sources_.at("TPDigiThrAll"));
     MESetNonObject const& sLHCStatusByLumi(static_cast<MESetNonObject&>(sources_.at("LHCStatusByLumi")));
 
@@ -47,35 +55,41 @@ namespace ecaldqm {
 
       bool doMask(meEmulQualitySummary.maskMatches(ttid, mask, statusManager_));
 
-      float towerEntries(0.);
-      float tMax(0.5);
-      float nMax(0.);
-      for (int iBin(0); iBin < 6; iBin++) {
-        float entries(sMatchedIndex.getBinContent(ttid, iBin + 1));
-        towerEntries += entries;
+      if (sourceFromEmul_) {
+        sEtEmulError = &sources_.at("EtEmulError");
+        sMatchedIndex = &sources_.at("MatchedIndex");
+        meNonSingleSummary = &MEs_.at("NonSingleSummary");
+        meTimingSummary = &MEs_.at("TimingSummary");
+        float towerEntries(0.);
+        float tMax(0.5);
+        float nMax(0.);
+        for (int iBin(0); iBin < 6; iBin++) {
+          float entries(sMatchedIndex->getBinContent(ttid, iBin + 1));
+          towerEntries += entries;
 
-        if (entries > nMax) {
-          nMax = entries;
-          tMax = iBin == 0 ? -0.5 : iBin + 0.5;  // historical reasons.. much clearer to say "no entry = -0.5"
+          if (entries > nMax) {
+            nMax = entries;
+            tMax = iBin == 0 ? -0.5 : iBin + 0.5;  // historical reasons.. much clearer to say "no entry = -0.5"
+          }
+        }
+        meTimingSummary->setBinContent(ttid, tMax);
+        if (towerEntries < minEntries_) {
+          meEmulQualitySummary.setBinContent(ttid, doMask ? kMUnknown : kUnknown);
+          continue;
+        }
+
+        float nonsingleFraction(1. - nMax / towerEntries);
+
+        if (nonsingleFraction > 0.) {
+          meNonSingleSummary->setBinContent(ttid, nonsingleFraction);
+        }
+
+        if (sEtEmulError->getBinContent(ttid) / towerEntries > errorFractionThreshold_) {
+          meEmulQualitySummary.setBinContent(ttid, doMask ? kMBad : kBad);
+        } else {
+          meEmulQualitySummary.setBinContent(ttid, doMask ? kMGood : kGood);
         }
       }
-
-      meTimingSummary.setBinContent(ttid, tMax);
-
-      if (towerEntries < minEntries_) {
-        meEmulQualitySummary.setBinContent(ttid, doMask ? kMUnknown : kUnknown);
-        continue;
-      }
-
-      float nonsingleFraction(1. - nMax / towerEntries);
-
-      if (nonsingleFraction > 0.)
-        meNonSingleSummary.setBinContent(ttid, nonsingleFraction);
-
-      if (sEtEmulError.getBinContent(ttid) / towerEntries > errorFractionThreshold_)
-        meEmulQualitySummary.setBinContent(ttid, doMask ? kMBad : kBad);
-      else
-        meEmulQualitySummary.setBinContent(ttid, doMask ? kMGood : kGood);
 
       // Keep count for Occupancy analysis
       unsigned iDCC(dccId(ttid) - 1);
