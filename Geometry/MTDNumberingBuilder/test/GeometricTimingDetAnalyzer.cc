@@ -94,13 +94,20 @@ void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   const auto& top = rDD.product();
   dumpGeometricTimingDet(top);
 
-  edm::LogVerbatim("GeometricTimingDetAnalyzer") << " SubDetectors:";
+  edm::LogVerbatim("GeometricTimingDetAnalyzer") << " SubDetectors and layers:";
 
   std::vector<const GeometricTimingDet*> det;
 
   det = rDD->components();
   for (const auto& it : det) {
     dumpGeometricTimingDet(it);
+
+    std::vector<const GeometricTimingDet*> layer;
+    layer = it->components();
+    for (const auto& lay : layer) {
+      dumpGeometricTimingDet(lay);
+    }
+
   }
   det.clear();
 
