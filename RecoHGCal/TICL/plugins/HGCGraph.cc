@@ -60,8 +60,11 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
             int iphi = ((iphi_it % nPhiBins + nPhiBins) % nPhiBins);
             for (auto innerClusterId : innerLayerHisto[offset + iphi]) {
               // Skip masked clusters
-              if (mask[innerClusterId] == 0.)
+              if (mask[innerClusterId] == 0.) {
+                if (verbosity_ > Advanced)
+                  LogDebug("HGCGraph") << "Skipping inner masked cluster " << innerClusterId << std::endl;
                 continue;
+              }
               const auto etaRangeMin = std::max(0, ieta - deltaIEta);
               const auto etaRangeMax = std::min(ieta + deltaIEta + 1, nEtaBins);
 
@@ -76,12 +79,18 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                   auto ophi = ((iphi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
                   for (auto outerClusterId : outerLayerHisto[oeta * nPhiBins + ophi]) {
                     // Skip masked clusters
-                    if (mask[outerClusterId] == 0.)
+                    if (mask[outerClusterId] == 0.) {
+                      if (verbosity_ > Advanced)
+                        LogDebug("HGCGraph") << "Skipping outer masked cluster " << outerClusterId << std::endl;
                       continue;
+                    }
                     auto doubletId = allDoublets_.size();
                     if (maxDeltaTime != -1 &&
-                        !areTimeCompatible(innerClusterId, outerClusterId, layerClustersTime, maxDeltaTime))
+                        !areTimeCompatible(innerClusterId, outerClusterId, layerClustersTime, maxDeltaTime)) {
+                      if (verbosity_ > Advanced)
+                        LogDebug("HGCGraph") << "Rejecting doublets due to timing!" << std::endl;
                       continue;
+                    }
                     allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters, r.index);
                     if (verbosity_ > Advanced) {
                       LogDebug("HGCGraph")
