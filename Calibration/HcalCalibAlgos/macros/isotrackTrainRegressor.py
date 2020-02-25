@@ -2,6 +2,7 @@
 # Trains regressor and saves model for evaluation
 # Usage:
 # python3 isotrackTrainRegressor.py -I isotk_relval_hi.pkl  -V 1 
+# python3 isotrackTrainRegressor.py -I isotk_relval_lo.pkl  -V 2
 ######################################################################################
 
 
@@ -141,10 +142,18 @@ model.compile(loss='logcosh',optimizer='adam')
 model.summary()
 #fitting
 print ("fitting now=========>")
-history = model.fit(X_train,Y_train , batch_size=5000, epochs=1000, validation_split=0.2, verbose=1,sample_weight=propweights(Y_train))
+history = model.fit(X_train,Y_train , batch_size=5000, epochs=100, validation_split=0.2, verbose=1,sample_weight=propweights(Y_train))
 
 
 # In[7]:
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+plt.savefig(modv+'_loss_distributions.png')
+plt.close()
 
 
 preds = model.predict(X_test[:,0:12])
@@ -158,8 +167,8 @@ plt.hist(uncorrected, bins =100, range=(0,200),label='uncorrected',alpha=0.6)
 plt.yscale('log')
 plt.title("Energy distribution")
 plt.legend(loc='upper right')
-plt.savefig('energy_distributions.png')
-
+plt.savefig(modv+'_energy_distributions.png')
+plt.close()
 
 preds = preds.reshape(preds.shape[0])
 print (preds.shape)
@@ -175,8 +184,8 @@ plt.hist(100*abs(preds -targets)/targets, bins =100, range=(0,100),label='PU cor
 #plt.yscale('log')
 plt.title("error distribution")
 plt.legend(loc='upper right')
-plt.savefig('errors.png')
-
+plt.savefig(modv+'_errors.png')
+plt.close()
 
 #plt.scatter(targets, marinascorr,alpha=0.3,label='marinascorr')
 plt.scatter(targets, uncorrected,alpha=0.3,label='uncorr')
@@ -187,9 +196,9 @@ plt.legend(loc='upper right')
 lims = [0, 200]
 plt.xlim(lims)
 plt.ylim(lims)
-#_ = plt.plot(lims, lims)
-plt.savefig('energyscatt.png')
-
+_ = plt.plot(lims, lims)
+plt.savefig(modv+'_energyscatt.png')
+plt.close()
 
 
 
@@ -204,8 +213,8 @@ plt.hist(marinascorr/pmom, bins =100, range=(0,5),label='E/p marina corr',alpha=
 plt.legend(loc='upper right')
 plt.yscale('log')
 plt.title("E/p distributions") 
-plt.savefig('eopdist.png')
-
+plt.savefig(modv+'_eopdist.png')
+plt.close()
 
 # In[8]:
 
