@@ -263,10 +263,13 @@ trackdnn.toReplaceWith(highPtTripletStep, TrackLwtnnClassifier.clone(
 
 highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
 pp_on_AA_2018.toModify(highPtTripletStep, 
-        #mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1'),
+        mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1'),
         qualityCuts = [-0.9, -0.3, 0.85],
 )
-
+from Configuration.Eras.Modifier_pbpb_run3_cff import pbpb_run3
+pbpb_run3.toModify(highPtTripletStep,
+                   mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1')
+)
 fastSim.toModify(highPtTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # For Phase2PU140
