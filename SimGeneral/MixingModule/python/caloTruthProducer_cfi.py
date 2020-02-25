@@ -9,6 +9,7 @@ caloParticles = cms.PSet(
         MinEnergy = cms.double(0.5),
         MaxPseudoRapidity = cms.double(5.0),
         premixStage1 = cms.bool(False),
+        doHGCAL = cms.bool(True),
 	maximumPreviousBunchCrossing = cms.uint32(0),
 	maximumSubsequentBunchCrossing = cms.uint32(0),
 	simHitCollections = cms.PSet(
