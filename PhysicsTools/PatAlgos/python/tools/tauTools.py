@@ -25,7 +25,8 @@ def _buildIDSourcePSet(tauType, idSources, postfix =""):
             wp = int(wp_str)
         id = cms.PSet()
         id.inputTag = cms.InputTag(discriminator.replace(":", postfix + ":"))
-        id.workingPointIndex=cms.int32(wp)
+        id.provenanceConfigLabel=cms.string("")
+        id.idLabel=cms.string("")
         setattr(output, label, id)
     return output
 

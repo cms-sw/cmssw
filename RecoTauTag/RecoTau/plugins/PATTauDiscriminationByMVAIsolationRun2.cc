@@ -181,8 +181,7 @@ namespace reco {
       evt.getByToken(Tau_token, taus_);
     }
 
-    reco::SingleTauDiscriminatorContainer PATTauDiscriminationByMVAIsolationRun2::discriminate(
-        const TauRef& tau) const {
+    reco::SingleTauDiscriminatorContainer PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) const {
       // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
       reco::SingleTauDiscriminatorContainer result;
       result.rawValues = {-1.};

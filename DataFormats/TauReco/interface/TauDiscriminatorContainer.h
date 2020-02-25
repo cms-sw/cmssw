@@ -7,8 +7,8 @@
 
 namespace reco {
   struct SingleTauDiscriminatorContainer {
-    std::vector<float> rawValues; // stores floating point discriminators, like MVA raw values or pt sums.
-    std::vector<bool> workingPoints; // stores boolean discriminators computed with the raw values.
+    std::vector<float> rawValues;     // stores floating point discriminators, like MVA raw values or pt sums.
+    std::vector<bool> workingPoints;  // stores boolean discriminators computed with the raw values.
 
     SingleTauDiscriminatorContainer() {}
     SingleTauDiscriminatorContainer(float rawInit) { rawValues.push_back(rawInit); }

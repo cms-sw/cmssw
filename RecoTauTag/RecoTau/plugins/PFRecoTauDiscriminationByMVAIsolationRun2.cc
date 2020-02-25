@@ -153,18 +153,18 @@ namespace reco {
       int mvaOpt_;
       float* mvaInput_;
 
-      typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >
+      typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>
           PFTauTIPAssociationByRef;
       edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
       edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
 
       edm::EDGetTokenT<reco::TauDiscriminatorContainer> basicTauDiscriminators_token;
       edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
-      int chargedIsoPtSum_index_=0;
-      int neutralIsoPtSum_index_=0;
-      int pucorrPtSum_index_=0;
-      int photonPtSumOutsideSignalCone_index_=0;
-      int footprintCorrection_index_=0;
+      int chargedIsoPtSum_index_ = 0;
+      int neutralIsoPtSum_index_ = 0;
+      int pucorrPtSum_index_ = 0;
+      int photonPtSumOutsideSignalCone_index_ = 0;
+      int footprintCorrection_index_ = 0;
       std::string input_id_name_suffix_;
       edm::ProcessHistoryID phID_;
 
@@ -189,18 +189,29 @@ namespace reco {
       evt.getByToken(basicTauDiscriminators_token, basicTauDiscriminators_);
 
       evt.getByToken(Tau_token, taus_);
-      
+
       // load indices from input provenance config if process history changed, in particular for the first event
-      if(evt.processHistoryID()!=phID_){
+      // skip missing IDs and leave treatment to produce/discriminate function
+      if (evt.processHistoryID() != phID_ && basicTauDiscriminators_.isValid()) {
         phID_ = evt.processHistoryID();
         const edm::Provenance* prov = basicTauDiscriminators_.provenance();
-        const std::vector<edm::ParameterSet> psetsFromProvenance = edm::parameterSet(*prov, evt.processHistory()).getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
-        for (uint i = 0; i < psetsFromProvenance.size(); i++){
-            if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="ChargedIsoPtSum"+input_id_name_suffix_) chargedIsoPtSum_index_ = i;
-            else if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="NeutralIsoPtSum"+input_id_name_suffix_) neutralIsoPtSum_index_ = i;
-            else if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="PUcorrPtSum"+input_id_name_suffix_) pucorrPtSum_index_ = i;
-            else if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="PhotonPtSumOutsideSignalCone"+input_id_name_suffix_) photonPtSumOutsideSignalCone_index_ = i;
-            else if (psetsFromProvenance[i].getParameter<std::string>("IDname")=="TauFootprintCorrection"+input_id_name_suffix_) footprintCorrection_index_ = i;
+        const std::vector<edm::ParameterSet> psetsFromProvenance =
+            edm::parameterSet(*prov, evt.processHistory())
+                .getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          if (psetsFromProvenance[i].getParameter<std::string>("IDname") == "ChargedIsoPtSum" + input_id_name_suffix_)
+            chargedIsoPtSum_index_ = i;
+          else if (psetsFromProvenance[i].getParameter<std::string>("IDname") ==
+                   "NeutralIsoPtSum" + input_id_name_suffix_)
+            neutralIsoPtSum_index_ = i;
+          else if (psetsFromProvenance[i].getParameter<std::string>("IDname") == "PUcorrPtSum" + input_id_name_suffix_)
+            pucorrPtSum_index_ = i;
+          else if (psetsFromProvenance[i].getParameter<std::string>("IDname") ==
+                   "PhotonPtSumOutsideSignalCone" + input_id_name_suffix_)
+            photonPtSumOutsideSignalCone_index_ = i;
+          else if (psetsFromProvenance[i].getParameter<std::string>("IDname") ==
+                   "TauFootprintCorrection" + input_id_name_suffix_)
+            footprintCorrection_index_ = i;
         }
       }
     }
@@ -379,13 +390,13 @@ namespace reco {
       // pfRecoTauDiscriminationByMVAIsolationRun2
       edm::ParameterSetDescription desc;
 
-      desc.add<std::string>("mvaName");
-      desc.add<bool>("loadMVAfromDB");
+      desc.add<std::string>("mvaName", "tauIdMVAnewDMwLT");
+      desc.add<bool>("loadMVAfromDB", true);
       desc.addOptional<edm::FileInPath>("inputFileName");
-      desc.add<std::string>("mvaOpt");
+      desc.add<std::string>("mvaOpt", "newDMwLT");
 
-      desc.add<edm::InputTag>("srcTauTransverseImpactParameters");
-      desc.add<edm::InputTag>("srcBasicTauDiscriminators");
+      desc.add<edm::InputTag>("srcTauTransverseImpactParameters", edm::InputTag(""));
+      desc.add<edm::InputTag>("srcBasicTauDiscriminators", edm::InputTag("hpsPFTauBasicDiscriminators"));
       desc.add<std::string>("inputIDNameSuffix", "");
 
       desc.add<int>("verbosity", 0);

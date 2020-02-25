@@ -126,7 +126,7 @@ private:
   edm::ESHandle<Propagator> m_propagatorOpposite;
 
   edm::ProcessHistoryID phID_;
-  
+
   // variables from config file
   edm::EDGetTokenT<reco::PFTauCollection> theTauCollection_;
   edm::EDGetTokenT<reco::TauDiscriminatorContainer> AntiMuInputTag_;

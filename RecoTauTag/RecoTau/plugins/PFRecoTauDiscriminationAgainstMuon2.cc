@@ -35,7 +35,6 @@
 namespace {
 
   class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProducerBase {
-
   public:
     explicit PFRecoTauDiscriminationAgainstMuon2(const edm::ParameterSet& cfg)
         : PFTauDiscriminationProducerBase(cfg), moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
@@ -52,12 +51,12 @@ namespace {
       else
         throw edm::Exception(edm::errors::UnimplementedFeature)
             << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
-      wpDef_ = std::make_unique<PFRecoTauDiscriminationAgainstMuonConfigSet>(discOption,
-                                                                     cfg.getParameter<double>("HoPMin"),
-                                                                     cfg.getParameter<int>("maxNumberOfMatches"),
-                                                                     cfg.getParameter<bool>("doCaloMuonVeto"),
-                                                                     cfg.getParameter<int>("maxNumberOfHitsLast2Stations")
-                                                                    );
+      wpDef_ = std::make_unique<PFRecoTauDiscriminationAgainstMuonConfigSet>(
+          discOption,
+          cfg.getParameter<double>("HoPMin"),
+          cfg.getParameter<int>("maxNumberOfMatches"),
+          cfg.getParameter<bool>("doCaloMuonVeto"),
+          cfg.getParameter<int>("maxNumberOfHitsLast2Stations"));
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
       Muons_token = consumes<reco::MuonCollection>(srcMuons_);
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
@@ -109,8 +108,24 @@ namespace {
   }
 
   double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau) const {
-    auto helper = PFRecoTauDiscriminationAgainstMuon2Helper(verbosity_, moduleLabel_, srcMuons_.label().empty(), minPtMatchedMuon_, dRmuonMatch_,
-      dRmuonMatchLimitedToJetArea_, numWarnings_, maxWarnings_, maskMatchesDT_, maskMatchesCSC_, maskMatchesRPC_, maskHitsDT_, maskHitsCSC_, maskHitsRPC_, muons_, pfTau);
+    const reco::PFCandidatePtr& pfCand = pfTau->leadPFChargedHadrCand();
+    auto helper = PFRecoTauDiscriminationAgainstMuon2Helper(verbosity_,
+                                                            moduleLabel_,
+                                                            srcMuons_.label().empty(),
+                                                            minPtMatchedMuon_,
+                                                            dRmuonMatch_,
+                                                            dRmuonMatchLimitedToJetArea_,
+                                                            numWarnings_,
+                                                            maxWarnings_,
+                                                            maskMatchesDT_,
+                                                            maskMatchesCSC_,
+                                                            maskMatchesRPC_,
+                                                            maskHitsDT_,
+                                                            maskHitsCSC_,
+                                                            maskHitsRPC_,
+                                                            muons_,
+                                                            pfTau,
+                                                            pfCand);
     double discriminatorValue = helper.eval(*wpDef_, pfTau);
     if (verbosity_)
       edm::LogPrint("PFTauAgainstMuon2") << "--> returning discriminatorValue = " << discriminatorValue;
@@ -202,4 +217,3 @@ void PFRecoTauDiscriminationAgainstMuon2::fillDescriptions(edm::ConfigurationDes
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon2);
-

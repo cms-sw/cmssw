@@ -164,8 +164,7 @@ namespace {
     }
   }  // namespace
 
-  reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuonMVA::discriminate(
-      const PFTauRef& tau) const {
+  reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) const {
     if (verbosity_) {
       edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:";
       edm::LogPrint("PFTauAgainstMuonMVA") << " moduleLabel = " << moduleLabel_;

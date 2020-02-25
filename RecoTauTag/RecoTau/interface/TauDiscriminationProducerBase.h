@@ -111,10 +111,16 @@ private:
   uint8_t andPrediscriminants_;
 
   template <class ResultType = TauDiscriminator>
-  std::unique_ptr<TauDiscriminator> init_result_object(edm::Handle<TauCollection> taus, typename std::enable_if<!std::is_same<ResultType, reco::TauDiscriminatorContainer>::value, std::nullptr_t>::type = nullptr);
+  std::unique_ptr<TauDiscriminator> init_result_object(
+      edm::Handle<TauCollection> taus,
+      typename std::enable_if<!std::is_same<ResultType, reco::TauDiscriminatorContainer>::value, std::nullptr_t>::type =
+          nullptr);
 
   template <class ResultType = TauDiscriminator>
-  std::unique_ptr<TauDiscriminator> init_result_object(edm::Handle<TauCollection> taus, typename std::enable_if<std::is_same<ResultType, reco::TauDiscriminatorContainer>::value, std::nullptr_t>::type = nullptr);
+  std::unique_ptr<TauDiscriminator> init_result_object(
+      edm::Handle<TauCollection> taus,
+      typename std::enable_if<std::is_same<ResultType, reco::TauDiscriminatorContainer>::value, std::nullptr_t>::type =
+          nullptr);
 };
 
 // define our implementations

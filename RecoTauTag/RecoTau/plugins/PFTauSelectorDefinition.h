@@ -32,7 +32,7 @@ struct PFTauSelectorDefinition {
     edm::Handle<reco::TauDiscriminatorContainer> handle;
     edm::EDGetTokenT<reco::TauDiscriminatorContainer> inputToken;
     std::vector<std::string> rawLabels;
-    std::vector<std::pair<int, double> > rawCuts;
+    std::vector<std::pair<int, double>> rawCuts;
     std::vector<std::string> wpLabels;
     std::vector<int> wpCuts;
   };
@@ -40,9 +40,8 @@ struct PFTauSelectorDefinition {
   typedef std::vector<DiscContainerCutPair> DiscContainerCutPairVec;
 
   PFTauSelectorDefinition(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) {
-    auto const& discriminators = cfg.getParameter<std::vector<edm::ParameterSet> >("discriminators");
-    auto const& discriminatorContainers =
-        cfg.getParameter<std::vector<edm::ParameterSet> >("discriminatorContainers");
+    auto const& discriminators = cfg.getParameter<std::vector<edm::ParameterSet>>("discriminators");
+    auto const& discriminatorContainers = cfg.getParameter<std::vector<edm::ParameterSet>>("discriminatorContainers");
     // Build each of our cuts
     for (auto const& pset : discriminators) {
       DiscCutPair newCut;
@@ -54,8 +53,8 @@ struct PFTauSelectorDefinition {
       DiscContainerCutPair newCut;
       newCut.inputToken =
           iC.consumes<reco::TauDiscriminatorContainer>(pset.getParameter<edm::InputTag>("discriminator"));
-      auto const rawLabels = pset.getParameter<std::vector<std::string> >("rawValues");
-      auto const rawCutValues = pset.getParameter<std::vector<double> >("selectionCuts");
+      auto const& rawLabels = pset.getParameter<std::vector<std::string>>("rawValues");
+      auto const& rawCutValues = pset.getParameter<std::vector<double>>("selectionCuts");
       if (rawLabels.size() != rawCutValues.size()) {
         throw cms::Exception("PFTauSelectorBadHandle")
             << "unequal number of TauIDContainer raw value indices and cut values given to PFTauSelector.";
@@ -64,7 +63,7 @@ struct PFTauSelectorDefinition {
         newCut.rawCuts.push_back(std::pair<int, double>(-99, rawCutValues[i]));
         newCut.rawLabels.push_back(rawLabels[i]);
       }
-      newCut.wpLabels = pset.getParameter<std::vector<std::string> >("workingPoints");
+      newCut.wpLabels = pset.getParameter<std::vector<std::string>>("workingPoints");
       newCut.wpCuts.resize(newCut.wpLabels.size());
       discriminatorContainers_.push_back(newCut);
     }
@@ -94,66 +93,72 @@ struct PFTauSelectorDefinition {
       e.getByToken(disc.inputToken, disc.handle);
     }
     // Retrieve ID container indices if config history changes, in particular for the first event.
-    if (phID_ != e.processHistoryID()){
+    if (phID_ != e.processHistoryID()) {
       phID_ = e.processHistoryID();
       for (auto& disc : discriminatorContainers_) {
-        const auto psetsFromProvenance = edm::parameterSet(*disc.handle.provenance(), e.processHistory());
+        auto const& psetsFromProvenance = edm::parameterSet(*disc.handle.provenance(), e.processHistory());
         // find raw value indices
-        if (psetsFromProvenance.exists("rawValues")){
+        if (psetsFromProvenance.exists("rawValues")) {
           auto const idlist = psetsFromProvenance.getParameter<std::vector<std::string>>("rawValues");
-          for (size_t i = 0; i < disc.rawLabels.size(); ++i){
+          for (size_t i = 0; i < disc.rawLabels.size(); ++i) {
             bool found = false;
-            for (size_t j = 0; j < idlist.size(); ++j){
-              if (disc.rawLabels[i]==idlist[j]){
+            for (size_t j = 0; j < idlist.size(); ++j) {
+              if (disc.rawLabels[i] == idlist[j]) {
                 found = true;
                 disc.rawCuts[i].first = j;
               }
             }
-            if (!found) throw cms::Exception("Configuration") << "PFTauSelector: Requested working point '" << disc.rawLabels[i] << "' not found!\n";
+            if (!found)
+              throw cms::Exception("Configuration")
+                  << "PFTauSelector: Requested working point '" << disc.rawLabels[i] << "' not found!\n";
           }
-        }
-        else if (psetsFromProvenance.exists("IDdefinitions")){
+        } else if (psetsFromProvenance.exists("IDdefinitions")) {
           auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
-          for (size_t i = 0; i < disc.rawLabels.size(); ++i){
+          for (size_t i = 0; i < disc.rawLabels.size(); ++i) {
             bool found = false;
-            for (size_t j = 0; j < idlist.size(); ++j){
-              if (disc.rawLabels[i]==idlist[j].getParameter<std::string>("IDname")){
+            for (size_t j = 0; j < idlist.size(); ++j) {
+              if (disc.rawLabels[i] == idlist[j].getParameter<std::string>("IDname")) {
                 found = true;
                 disc.rawCuts[i].first = j;
               }
             }
-            if (!found) throw cms::Exception("Configuration") << "PFTauSelector: Requested working point '" << disc.rawLabels[i] << "' not found!\n";
+            if (!found)
+              throw cms::Exception("Configuration")
+                  << "PFTauSelector: Requested working point '" << disc.rawLabels[i] << "' not found!\n";
           }
-        }
-        else throw cms::Exception("Configuration") << "PFTauSelector: No suitable ID list found in provenace config!\n";
+        } else
+          throw cms::Exception("Configuration") << "PFTauSelector: No suitable ID list found in provenace config!\n";
         // find working point indices
-        if (psetsFromProvenance.exists("workingPoints")){
+        if (psetsFromProvenance.exists("workingPoints")) {
           auto const idlist = psetsFromProvenance.getParameter<std::vector<std::string>>("workingPoints");
-          for (size_t i = 0; i < disc.wpLabels.size(); ++i){
+          for (size_t i = 0; i < disc.wpLabels.size(); ++i) {
             bool found = false;
-            for (size_t j = 0; j < idlist.size(); ++j){
-              if (disc.wpLabels[i]==idlist[j]){
+            for (size_t j = 0; j < idlist.size(); ++j) {
+              if (disc.wpLabels[i] == idlist[j]) {
                 found = true;
                 disc.wpCuts[i] = j;
               }
             }
-            if (!found) throw cms::Exception("Configuration") << "PFTauSelector: Requested working point '" << disc.wpLabels[i] << "' not found!\n";
+            if (!found)
+              throw cms::Exception("Configuration")
+                  << "PFTauSelector: Requested working point '" << disc.wpLabels[i] << "' not found!\n";
           }
-        }
-        else if (psetsFromProvenance.exists("IDWPdefinitions")){
+        } else if (psetsFromProvenance.exists("IDWPdefinitions")) {
           auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
-          for (size_t i = 0; i < disc.wpLabels.size(); ++i){
+          for (size_t i = 0; i < disc.wpLabels.size(); ++i) {
             bool found = false;
-            for (size_t j = 0; j < idlist.size(); ++j){
-              if (disc.wpLabels[i]==idlist[j].getParameter<std::string>("IDname")){
+            for (size_t j = 0; j < idlist.size(); ++j) {
+              if (disc.wpLabels[i] == idlist[j].getParameter<std::string>("IDname")) {
                 found = true;
                 disc.wpCuts[i] = j;
               }
             }
-            if (!found) throw cms::Exception("Configuration") << "PFTauSelector: Requested working point '" << disc.wpLabels[i] << "' not found!\n";
+            if (!found)
+              throw cms::Exception("Configuration")
+                  << "PFTauSelector: Requested working point '" << disc.wpLabels[i] << "' not found!\n";
           }
-        }
-        else throw cms::Exception("Configuration") << "PFTauSelector: No suitable ID list found in provenace config!\n";
+        } else
+          throw cms::Exception("Configuration") << "PFTauSelector: No suitable ID list found in provenace config!\n";
       }
     }
 
@@ -206,8 +211,8 @@ private:
   DiscCutPairVec discriminators_;
   DiscContainerCutPairVec discriminatorContainers_;
   edm::ProcessHistoryID phID_;
-  
-  std::unique_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
+
+  std::unique_ptr<StringCutObjectSelector<reco::PFTau>> cut_;
 };
 
 #endif

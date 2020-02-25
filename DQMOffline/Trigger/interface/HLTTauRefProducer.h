@@ -50,16 +50,16 @@
 #include <vector>
 #include <string>
 
-typedef std::pair<edm::ProcessHistoryID, std::vector<int> > TauIDConfigCache;
+typedef std::pair<edm::ProcessHistoryID, std::vector<int>> TauIDConfigCache;
 
 class HLTTauRefProducer : public edm::global::EDProducer<edm::StreamCache<TauIDConfigCache>> {
 public:
   explicit HLTTauRefProducer(const edm::ParameterSet&);
 
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
-  
-  std::unique_ptr<TauIDConfigCache> beginStream(edm::StreamID) const {
-       return std::unique_ptr<TauIDConfigCache>(new TauIDConfigCache());
+
+  std::unique_ptr<TauIDConfigCache> beginStream(edm::StreamID) const override {
+    return std::unique_ptr<TauIDConfigCache>(new TauIDConfigCache());
   }
 
 private:

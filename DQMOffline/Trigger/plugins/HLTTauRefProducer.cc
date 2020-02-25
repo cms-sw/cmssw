@@ -34,7 +34,9 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
     auto discs = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminators");
     auto discConts = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminatorContainers");
     PFTauDisContWPs_ = pfTau.getUntrackedParameter<vector<std::string>>("PFTauDiscriminatorContainerWPs");
-    if (discConts.size()!=PFTauDisContWPs_.size()) throw cms::Exception("Configuration") << "HLTTauRefProducer: Input parameters PFTauDiscriminatorContainers and PFTauDiscriminatorContainerWPs must have the same number of entries!\n";
+    if (discConts.size() != PFTauDisContWPs_.size())
+      throw cms::Exception("Configuration") << "HLTTauRefProducer: Input parameters PFTauDiscriminatorContainers and "
+                                               "PFTauDiscriminatorContainerWPs must have the same number of entries!\n";
     for (auto const& tag : discs) {
       PFTauDis_.push_back(consumes<reco::PFTauDiscriminator>(tag));
     }
@@ -139,34 +141,39 @@ void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
   edm::Handle<PFTauCollection> pftaus;
   if (iEvent.getByToken(PFTaus_, pftaus)) {
     // Retrieve ID container indices if config history changes, in particular for the first event.
-    if (streamCache(iID)->first != iEvent.processHistoryID()){
+    if (streamCache(iID)->first != iEvent.processHistoryID()) {
       streamCache(iID)->first = iEvent.processHistoryID();
       streamCache(iID)->second.resize(PFTauDisContWPs_.size());
       for (size_t i = 0; i < PFTauDisCont_.size(); ++i) {
-        const auto psetsFromProvenance = edm::parameterSet(*(iEvent.getHandle(PFTauDisCont_[i]).provenance()), iEvent.processHistory());
-        if (psetsFromProvenance.exists("workingPoints")){
+        const auto psetsFromProvenance =
+            edm::parameterSet(*(iEvent.getHandle(PFTauDisCont_[i]).provenance()), iEvent.processHistory());
+        if (psetsFromProvenance.exists("workingPoints")) {
           auto const idlist = psetsFromProvenance.getParameter<std::vector<std::string>>("workingPoints");
           bool found = false;
-          for (size_t j = 0; j < idlist.size(); ++j){
-            if (PFTauDisContWPs_[i]==idlist[j]){
+          for (size_t j = 0; j < idlist.size(); ++j) {
+            if (PFTauDisContWPs_[i] == idlist[j]) {
               found = true;
               streamCache(iID)->second[i] = j;
             }
           }
-          if (!found) throw cms::Exception("Configuration") << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
-        }
-        else if (psetsFromProvenance.exists("IDWPdefinitions")){
+          if (!found)
+            throw cms::Exception("Configuration")
+                << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
+        } else if (psetsFromProvenance.exists("IDWPdefinitions")) {
           auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
           bool found = false;
-          for (size_t j = 0; j < idlist.size(); ++j){
-            if (PFTauDisContWPs_[i]==idlist[j].getParameter<std::string>("IDname")){
+          for (size_t j = 0; j < idlist.size(); ++j) {
+            if (PFTauDisContWPs_[i] == idlist[j].getParameter<std::string>("IDname")) {
               found = true;
               streamCache(iID)->second[i] = j;
             }
           }
-          if (!found) throw cms::Exception("Configuration") << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
-        }
-        else throw cms::Exception("Configuration") << "HLTTauRefProducer: No suitable ID list found in provenace config!\n";
+          if (!found)
+            throw cms::Exception("Configuration")
+                << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
+        } else
+          throw cms::Exception("Configuration")
+              << "HLTTauRefProducer: No suitable ID list found in provenace config!\n";
       }
     }
     for (unsigned int i = 0; i < pftaus->size(); ++i) {
@@ -193,8 +200,7 @@ void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
           if (iEvent.getByToken(token, pftaudis)) {
             //WP vector not filled if prediscriminator in RecoTauDiscriminator failed.
             if ((*pftaudis)[thePFTau].workingPoints.empty() ||
-                !(*pftaudis)[thePFTau].workingPoints.at(
-                    streamCache(iID)->second[idx])) {
+                !(*pftaudis)[thePFTau].workingPoints.at(streamCache(iID)->second[idx])) {
               passAll = false;
               break;
             }
