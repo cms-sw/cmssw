@@ -1,0 +1,6 @@
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/L1TVertex"/>
+<use   name="DataFormats/Phase2L1ParticleFlow"/>
+<export>
+  <lib   name="1"/>
+</export>

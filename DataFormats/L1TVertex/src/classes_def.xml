@@ -1,0 +1,6 @@
+<lcgdict>
+ <class name="l1t::Vertex"/>
+ <class name="std::vector<l1t::Vertex>"/>
+ <class name="edm::Wrapper<std::vector<l1t::Vertex> >"/>
+ <class name="edm::Ref<std::vector<l1t::Vertex> >"/>  
+</lcgdict>
