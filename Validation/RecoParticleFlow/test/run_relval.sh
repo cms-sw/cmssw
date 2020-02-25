@@ -19,8 +19,9 @@ if [ -z "$PERJOB" ]; then
 fi
 
 #
-#set default conditions - 2018
-CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB:Extended
+#set default conditions - phase1 run3 
+CONDITIONS=auto:phase1_2021_realistic ERA=Run3
+#CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB:Extended
 #
 #conditions - 2017
 #CONDITIONS=auto:phase1_2017_realistic ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1 GEOM=DB.Extended
