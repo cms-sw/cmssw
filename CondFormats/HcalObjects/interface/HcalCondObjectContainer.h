@@ -1,9 +1,6 @@
 #ifndef HcalCondObjectContainer_h
 #define HcalCondObjectContainer_h
 
-#include <vector>
-#include <string>
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 
@@ -12,6 +9,9 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <vector>
+#include <string>
 
 class HcalTopology;
 
