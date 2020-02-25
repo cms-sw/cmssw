@@ -17,9 +17,8 @@ MuonGEMDigisHarvestor::~MuonGEMDigisHarvestor() {}
 void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker,
                                       DQMStore::IGetter& getter) {
 
-  const char* occ_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Occupancy/";
-  const char* eff_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Efficiency/";
-  booker.setCurrentFolder(eff_folder);
+  TString occ_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Occupancy/";
+  TString eff_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Efficiency/";
 
   for (Int_t region_id : region_ids_) {
     TString name_suffix_re = GEMUtils::getSuffixName(region_id);

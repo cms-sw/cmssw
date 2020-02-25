@@ -30,19 +30,19 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
       Int_t num_pads = station->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
-      ME2IdsKey key2(region_id, station_id);
+      ME2IdsKey key2{region_id, station_id};
 
       me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "copad", "CoPad");
 
       if (detail_plot_) {
-        me_detail_occ_xy_[key2] = bookXYOccupancy(booker, key2, "copad","CoPad Digi");
+        me_detail_occ_xy_[key2] = bookXYOccupancy(booker, key2, "copad","CoPad");
 
         me_detail_occ_phi_pad_[key2] = bookHist2D(
-            booker, key2, "copad_digi_occ_phi_pad", "CoPad Digi Occupancy",
+            booker, key2, "copad_occ_phi_pad", "CoPad Occupancy",
             280, -M_PI, M_PI, num_pads / 2, 0, num_pads, "#phi [rad]", "Pad number");
 
         me_detail_occ_pad_[key2] = bookHist1D(
-            booker, key2, "copad_digi_occ_pad", "CoPad Digi Ocupancy per pad number",
+            booker, key2, "copad_occ_pad", "CoPad Ocupancy per pad number",
             num_pads, 0.5, num_pads + 0.5, "Pad number");
       }
     } // station loop
@@ -56,10 +56,10 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
       Int_t region_id = region->region();
       for (const auto& station : region->stations()) {
         Int_t station_id = station->station();
-        ME2IdsKey key2(region_id, station_id);
+        ME2IdsKey key2{region_id, station_id};
 
         me_detail_bx_[key2] = bookHist1D(
-            booker, key2, "copad_digi_bx", "CoPad Digi Bunch Crossing",
+            booker, key2, "copad_bx", "CoPad Bunch Crossing",
             5, -2.5, 2.5, "Bunch crossing");
       } // station loop
     } // region loop
@@ -92,17 +92,16 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event,
     Int_t layer_id = gemid.layer();
     Int_t chamber_id = gemid.chamber();
 
-    ME2IdsKey key2(region_id, station_id);
+    ME2IdsKey key2{region_id, station_id};
 
     for (auto digi = range.first; digi != range.second; ++digi) {
       // GEM copads are stored per super chamber!
       // layer_id = 0, roll_id = 0
-      GEMDetId super_chamber_id = GEMDetId(region_id, ring_id, station_id, 0, chamber_id, 0);
+      GEMDetId super_chamber_id{region_id, ring_id, station_id, 0, chamber_id, 0};
       Int_t roll_id = (*digi).roll();
 
       const GeomDet* geom_det = gem->idToDet(super_chamber_id);
       if (geom_det == nullptr) {
-        // FIXME clean up
         edm::LogError(kLogCategory_)
             << super_chamber_id << " : This detId cannot be "
             << "loaded from GEMGeometry // Original" << gemid

@@ -13,7 +13,10 @@ class GEMPadDigiValidation : public GEMBaseValidation {
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
  private:
-  // MonitorElemnt
+  // NOTE Parameters
+  edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
+
+  // NOTE MonitorElemnts
   MEMap2Ids me_occ_det_;
   MEMap1Ids me_occ_zr_;
   MEMap3Ids me_detail_occ_xy_;
@@ -21,7 +24,6 @@ class GEMPadDigiValidation : public GEMBaseValidation {
   MEMap3Ids me_detail_occ_pad_;
   MEMap3Ids me_detail_bx_;
 
-  edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
 };
 
 #endif // Validation_MuonGEMDigis_GEMPadDigiValidation_h

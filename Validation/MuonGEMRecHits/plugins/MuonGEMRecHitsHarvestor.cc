@@ -17,19 +17,14 @@ MuonGEMRecHitsHarvestor::~MuonGEMRecHitsHarvestor() {}
 
 void MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& booker,
                                         DQMStore::IGetter& getter) {
-  // FIXME member?
-  const char* occ_folder = "MuonGEMRecHitsV/GEMRecHitsTask/Occupancy/";
-  const char* eff_folder = "MuonGEMRecHitsV/GEMRecHitsTask/Efficiency/";
-
-  // FIXME check if the following line is meaningful.
-  booker.setCurrentFolder(eff_folder);
+  TString occ_folder = "MuonGEMRecHitsV/GEMRecHitsTask/Occupancy/";
+  TString eff_folder = "MuonGEMRecHitsV/GEMRecHitsTask/Efficiency/";
 
   for (const auto& region_id : region_ids_) {
     TString name_suf_re = GEMUtils::getSuffixName(region_id);
     TString title_suf_re = GEMUtils::getSuffixTitle(region_id);
 
     // NOTE Eta
-    // FIXME are these lines too long?
     TString rechit_eta_path = occ_folder + "matched_rechit_occ_eta" + name_suf_re;
     TString simhit_eta_path = occ_folder + "muon_simhit_occ_eta" + name_suf_re;
 
