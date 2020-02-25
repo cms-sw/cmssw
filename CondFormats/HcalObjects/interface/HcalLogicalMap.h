@@ -3,7 +3,10 @@
 
 #include "CondFormats/HcalObjects/interface/HcalMappingEntry.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
 #include <vector>
+#include <memory>
+
 class HcalTopology;
 
 class HcalLogicalMap {

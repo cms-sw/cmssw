@@ -4,7 +4,9 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <map>
 
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 

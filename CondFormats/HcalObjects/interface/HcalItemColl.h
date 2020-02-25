@@ -2,6 +2,7 @@
 #define CondFormats_HcalObjects_HcalItemColl_h
 
 #include <memory>
+#include <vector>
 
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"

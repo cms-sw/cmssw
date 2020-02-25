@@ -20,6 +20,7 @@ Implementation:
 //
 
 #include <cstdint>
+#include <functional>
 #include <limits>
 
 #include "CondFormats/Serialization/interface/Serializable.h"

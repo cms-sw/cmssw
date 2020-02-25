@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <climits>
+#include <vector>
 
 #include "FWCore/Utilities/interface/Exception.h"
 

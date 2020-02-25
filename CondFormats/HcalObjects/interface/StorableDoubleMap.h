@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <map>
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/serialization/map.hpp"
