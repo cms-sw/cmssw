@@ -98,6 +98,7 @@ def parse_args():
     if args.doResponsePlots:
         # Needs to add extra folders here if the DQM files have other folders of histograms
         folderDirs = ["JetResponse/slimmedJets/JEC", "JetResponse/slimmedJets/noJEC", "JetResponse/slimmedJetsPuppi/JEC", "JetResponse/slimmedJetsPuppi/noJEC"]
+
         for folderDir in folderDirs:
             plots += [(folderDir, "reso_pt", ["preso_eta05", "preso_eta13",
                                                   "preso_eta21","preso_eta25","preso_eta30","preso_eta50"])]
