@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import *
+from RecoTauTag.RecoTau.recoTauDiscriminantCutMultiplexerDefault_cfi import recoTauDiscriminantCutMultiplexerDefault
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauBasicDiscriminators
 
 discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsolationMVA2",
@@ -28,7 +28,7 @@ discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsol
     verbosity = cms.int32(0)
 )
 
-discriminationByIsolationMVA2 = recoTauDiscriminantCutMultiplexer.clone(
+discriminationByIsolationMVA2 = recoTauDiscriminantCutMultiplexerDefault.clone(
     PFTauProducer = cms.InputTag('pfTauProducer'),    
     Prediscriminants = requireLeadTrack,
     toMultiplex = cms.InputTag('discriminationByIsolationMVA2raw'),

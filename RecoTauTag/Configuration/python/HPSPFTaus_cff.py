@@ -18,7 +18,7 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                  
 from RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstMuon2Container_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuonMVA_cfi                   import *
 
-from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import *
+from RecoTauTag.RecoTau.recoTauDiscriminantCutMultiplexerDefault_cfi import recoTauDiscriminantCutMultiplexerDefault
 ## Helper functions to change the source of the discriminants
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 ## PFjet input parameters
@@ -233,7 +233,7 @@ hpsPFTauDiscriminationByMVA6rawElectronRejection = pfRecoTauDiscriminationAgains
     mvaName_wGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA_wGwGSF_EC")
 )
 ## ByMVA6ElectronRejection
-hpsPFTauDiscriminationByMVA6ElectronRejection = recoTauDiscriminantCutMultiplexer.clone(
+hpsPFTauDiscriminationByMVA6ElectronRejection = recoTauDiscriminantCutMultiplexerDefault.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
     toMultiplex = cms.InputTag('hpsPFTauDiscriminationByMVA6rawElectronRejection'),

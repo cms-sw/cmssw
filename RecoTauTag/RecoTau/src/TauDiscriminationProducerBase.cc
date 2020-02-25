@@ -150,15 +150,19 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDa
 
 template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType, class ConsumeType>
 template <class ResultType>
-std::unique_ptr<TauDiscriminator> TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::
-    init_result_object(edm::Handle<TauCollection> taus, typename std::enable_if<!std::is_same<ResultType, TauDiscriminatorContainer>::value, std::nullptr_t>::type) {
+std::unique_ptr<TauDiscriminator>
+TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::init_result_object(
+    edm::Handle<TauCollection> taus,
+    typename std::enable_if<!std::is_same<ResultType, TauDiscriminatorContainer>::value, std::nullptr_t>::type) {
   return std::make_unique<ResultType>(TauRefProd(taus));
 }
 
 template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType, class ConsumeType>
 template <class ResultType>
-std::unique_ptr<TauDiscriminator> TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::
-    init_result_object(edm::Handle<TauCollection> taus, typename std::enable_if<std::is_same<ResultType, TauDiscriminatorContainer>::value, std::nullptr_t>::type) {
+std::unique_ptr<TauDiscriminator>
+TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::init_result_object(
+    edm::Handle<TauCollection> taus,
+    typename std::enable_if<std::is_same<ResultType, TauDiscriminatorContainer>::value, std::nullptr_t>::type) {
   auto result_object = std::make_unique<TauDiscriminatorContainer>();
   TauDiscriminatorContainer::Filler filler(*result_object);
   std::vector<SingleTauDiscriminatorContainer> placeholder(taus->size());

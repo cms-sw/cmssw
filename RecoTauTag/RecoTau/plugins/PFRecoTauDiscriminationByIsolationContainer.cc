@@ -106,26 +106,34 @@ public:
     std::vector<edm::ParameterSet> wpDefs = pset.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
     for (std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs.begin(); wpDefsEntry != wpDefs.end();
          ++wpDefsEntry) {
-      
       maxAbsValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("maximumAbsoluteValues"));
       maxRelValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("maximumRelativeValues"));
       offsetRelValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("relativeValueOffsets"));
       auto refRawIDNames = wpDefsEntry->getParameter<std::vector<std::string>>("referenceRawIDNames");
-      if (!maxAbsValue_.back().empty() && maxAbsValue_.back().size()!=refRawIDNames.size()) throw cms::Exception("BadIsoConfig") << "WP configuration: Length of 'maximumAbsoluteValues' does not match length of 'referenceRawIDNames'!";
-      if (!maxRelValue_.back().empty() && maxRelValue_.back().size()!=refRawIDNames.size()) throw cms::Exception("BadIsoConfig") << "WP configuration: Length of 'maximumRelativeValues' does not match length of 'referenceRawIDNames'!";
-      if (!offsetRelValue_.back().empty() && offsetRelValue_.back().size()!=refRawIDNames.size()) throw cms::Exception("BadIsoConfig") << "WP configuration: Length of 'relativeValueOffsets' does not match length of 'referenceRawIDNames'!";
-      else if (offsetRelValue_.back().empty()) offsetRelValue_.back().assign(refRawIDNames.size(), 0.0);
+      if (!maxAbsValue_.back().empty() && maxAbsValue_.back().size() != refRawIDNames.size())
+        throw cms::Exception("BadIsoConfig")
+            << "WP configuration: Length of 'maximumAbsoluteValues' does not match length of 'referenceRawIDNames'!";
+      if (!maxRelValue_.back().empty() && maxRelValue_.back().size() != refRawIDNames.size())
+        throw cms::Exception("BadIsoConfig")
+            << "WP configuration: Length of 'maximumRelativeValues' does not match length of 'referenceRawIDNames'!";
+      if (!offsetRelValue_.back().empty() && offsetRelValue_.back().size() != refRawIDNames.size())
+        throw cms::Exception("BadIsoConfig")
+            << "WP configuration: Length of 'relativeValueOffsets' does not match length of 'referenceRawIDNames'!";
+      else if (offsetRelValue_.back().empty())
+        offsetRelValue_.back().assign(refRawIDNames.size(), 0.0);
       rawValue_reference_.push_back(std::vector<int>(refRawIDNames.size()));
-      for (size_t i = 0; i < refRawIDNames.size(); i++){
+      for (size_t i = 0; i < refRawIDNames.size(); i++) {
         bool found = false;
-        for (size_t j = 0; j < idnames.size(); j++){
-          if (refRawIDNames[i]==idnames[j]){
+        for (size_t j = 0; j < idnames.size(); j++) {
+          if (refRawIDNames[i] == idnames[j]) {
             rawValue_reference_.back()[i] = j;
             found = true;
             break;
           }
         }
-        if (!found) throw cms::Exception("BadIsoConfig") << "WP configuration: Requested raw ID '" << refRawIDNames[i] << "' not defined!";
+        if (!found)
+          throw cms::Exception("BadIsoConfig")
+              << "WP configuration: Requested raw ID '" << refRawIDNames[i] << "' not defined!";
       }
     }
 
@@ -510,7 +518,6 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
   //Now all needed incredients are ready. Loop over all ID configurations and produce output
   reco::SingleTauDiscriminatorContainer result;
   for (size_t i = 0; i < includeGammas_.size(); i++) {
-
     //--- nObjects requirement
     int neutrals = isoNeutral_.size();
 
@@ -625,16 +632,22 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
       result.rawValues.push_back(photonSumPt_outsideSignalCone);
     }
   }
-  for (size_t i=0; i < rawValue_reference_.size(); i++){
+  for (size_t i = 0; i < rawValue_reference_.size(); i++) {
     bool pass = true;
-    if (minPtForNoIso_ > 0. && pfTau->pt() > minPtForNoIso_) LogDebug("discriminate") << "tau pt = " << pfTau->pt() << "\t  min cutoff pt = " << minPtForNoIso_;
+    if (minPtForNoIso_ > 0. && pfTau->pt() > minPtForNoIso_)
+      LogDebug("discriminate") << "tau pt = " << pfTau->pt() << "\t  min cutoff pt = " << minPtForNoIso_;
     else {
-      for (size_t j=0; j < rawValue_reference_[i].size(); j++){
+      for (size_t j = 0; j < rawValue_reference_[i].size(); j++) {
         double rawValue = result.rawValues[rawValue_reference_[i][j]];
-        LogTrace("discriminate") << "Iso sum = " << rawValue << " (max_abs = " << maxAbsValue_[i][j] << ", max_rel = " << maxRelValue_[i][j] << ", offset_rel = " << offsetRelValue_[i][j] << ")";
-        if (!maxAbsValue_[i].empty() && maxAbsValue_[i][j] >= 0.0) pass = rawValue <= maxAbsValue_[i][j];
-        if (!maxRelValue_[i].empty() && maxRelValue_[i][j] >= 0.0) pass = rawValue <= maxRelValue_[i][j] * (pfTau->pt() - offsetRelValue_[i][j]);
-        if (!pass) break; // do not pass if one of the conditions in the j list fails
+        LogTrace("discriminate") << "Iso sum = " << rawValue << " (max_abs = " << maxAbsValue_[i][j]
+                                 << ", max_rel = " << maxRelValue_[i][j] << ", offset_rel = " << offsetRelValue_[i][j]
+                                 << ")";
+        if (!maxAbsValue_[i].empty() && maxAbsValue_[i][j] >= 0.0)
+          pass = rawValue <= maxAbsValue_[i][j];
+        if (!maxRelValue_[i].empty() && maxRelValue_[i][j] >= 0.0)
+          pass = rawValue <= maxRelValue_[i][j] * (pfTau->pt() - offsetRelValue_[i][j]);
+        if (!pass)
+          break;  // do not pass if one of the conditions in the j list fails
       }
     }
     result.workingPoints.push_back(pass);
@@ -703,7 +716,7 @@ void PFRecoTauDiscriminationByIsolationContainer::fillDescriptions(edm::Configur
     edm::ParameterSetDescription vpsd1;
     vpsd1.add<std::string>("selection");
     vpsd1.add<std::string>("offset");
-    desc.addVPSet("footprintCorrections", vpsd1);
+    desc.addVPSet("footprintCorrections", vpsd1, {});
   }
 
   desc.add<std::string>("deltaBetaFactor", "0.38");
@@ -713,37 +726,20 @@ void PFRecoTauDiscriminationByIsolationContainer::fillDescriptions(edm::Configur
     pset_Prediscriminants.add<std::string>("BooleanOperator", "and");
     {
       edm::ParameterSetDescription psd1;
-      psd1.add<double>("cut");
-      psd1.add<edm::InputTag>("Producer");
+      psd1.add<double>("cut", 0.5);
+      psd1.add<edm::InputTag>("Producer", edm::InputTag("pfRecoTauDiscriminationByLeadingTrackFinding"));
       pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
     }
     {
-      // encountered this at
-      // RecoTauTag/Configuration/python/HPSPFTaus_cff.py
-      // Prediscriminants = requireDecayMode.clone(),
-      // requireDecayMode = cms.PSet(
-      //     BooleanOperator = cms.string("and"),
-      //     decayMode = cms.PSet(
-      //         Producer = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs'),
-      //         cut = cms.double(0.5)
-      //     )
-      // )
       edm::ParameterSetDescription psd1;
-      psd1.add<double>("cut");
-      psd1.add<edm::InputTag>("Producer");
+      psd1.add<double>("cut", 0.5);
+      psd1.add<edm::InputTag>("Producer", edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs"));
       pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("decayMode", psd1);
     }
     {
-      // encountered this at
-      // RecoTauTag/Configuration/python/HPSPFTaus_cff.py
-      // Prediscriminants = requireDecayMode.clone(),
-      // hpsPFTauDiscriminationByLooseIsolation.Prediscriminants.preIso = cms.PSet(
-      //     Producer = cms.InputTag("hpsPFTauDiscriminationByLooseChargedIsolation"),
-      //     cut = cms.double(0.5)
-      // )
       edm::ParameterSetDescription psd1;
-      psd1.add<double>("cut");
-      psd1.add<edm::InputTag>("Producer");
+      psd1.add<double>("cut", 0.5);
+      psd1.add<edm::InputTag>("Producer", edm::InputTag("hpsPFTauDiscriminationByLooseChargedIsolation"));
       pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("preIso", psd1);
     }
     desc.add<edm::ParameterSetDescription>("Prediscriminants", pset_Prediscriminants);
@@ -778,7 +774,10 @@ void PFRecoTauDiscriminationByIsolationContainer::fillDescriptions(edm::Configur
   // options for various stored ID WPs
   edm::ParameterSetDescription desc_idwplist;
   desc_idwplist.add<string>("IDname");  //not needed by producer but required for mapping at PAT level
-  desc_idwplist.add<std::vector<string>>("referenceRawIDNames")->setComment("List of raw IDs defined in 'IDdefinitions' to pass all respective conditions defined in 'maximumAbsoluteValues', 'maximumRelativeValues' , and 'relativeValueOffsets'");
+  desc_idwplist.add<std::vector<string>>("referenceRawIDNames")
+      ->setComment(
+          "List of raw IDs defined in 'IDdefinitions' to pass all respective conditions defined in "
+          "'maximumAbsoluteValues', 'maximumRelativeValues' , and 'relativeValueOffsets'");
   desc_idwplist.add<std::vector<double>>("maximumAbsoluteValues", {});
   desc_idwplist.add<std::vector<double>>("maximumRelativeValues", {});
   desc_idwplist.add<std::vector<double>>("relativeValueOffsets", {});

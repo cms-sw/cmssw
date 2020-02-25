@@ -661,33 +661,41 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
     TLorentzVector mymu;
     mymu.SetPtEtaPhiE(m_TightMuons[0]->pt(), m_TightMuons[0]->eta(), m_TightMuons[0]->phi(), m_TightMuons[0]->energy());
     int iTau = 0;
-    
+
     // load indices from input provenance config if process history changed, in particular for the first event
-    if(iEvent.processHistoryID()!=phID_){
+    if (iEvent.processHistoryID() != phID_) {
       phID_ = iEvent.processHistoryID();
       {
         const edm::Provenance* prov = antimu.provenance();
-        const std::vector<edm::ParameterSet> psetsFromProvenance = edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
-        for (uint i = 0; i < psetsFromProvenance.size(); i++){
-          if (psetsFromProvenance[i].getParameter<std::string>("IDname")==AntiMuWP_) AntiMuWPIndex_ = i;
+        const std::vector<edm::ParameterSet> psetsFromProvenance =
+            edm::parameterSet(*prov, iEvent.processHistory())
+                .getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          if (psetsFromProvenance[i].getParameter<std::string>("IDname") == AntiMuWP_)
+            AntiMuWPIndex_ = i;
         }
       }
       {
         const edm::Provenance* prov = antiele.provenance();
-        const std::vector<std::string> psetsFromProvenance = edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<std::string>>("workingsPoints");
-        for (uint i = 0; i < psetsFromProvenance.size(); i++){
-          if (psetsFromProvenance[i]==AntiEleWP_) AntiEleWPIndex_ = i;
+        const std::vector<std::string> psetsFromProvenance =
+            edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<std::string>>("workingsPoints");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          if (psetsFromProvenance[i] == AntiEleWP_)
+            AntiEleWPIndex_ = i;
         }
       }
       {
         const edm::Provenance* prov = comb3T.provenance();
-        const std::vector<edm::ParameterSet> psetsFromProvenance = edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
-        for (uint i = 0; i < psetsFromProvenance.size(); i++){
-          if (psetsFromProvenance[i].getParameter<std::string>("IDname")==comb3TWP_) comb3TWPIndex_ = i;
+        const std::vector<edm::ParameterSet> psetsFromProvenance =
+            edm::parameterSet(*prov, iEvent.processHistory())
+                .getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          if (psetsFromProvenance[i].getParameter<std::string>("IDname") == comb3TWP_)
+            comb3TWPIndex_ = i;
         }
       }
     }
-    
+
     for (auto tauIt = taus->begin(); tauIt != taus->end(); ++tauIt, ++iTau) {
       reco::PFTauRef tauCandidate(taus, iTau);
       TLorentzVector mytau;

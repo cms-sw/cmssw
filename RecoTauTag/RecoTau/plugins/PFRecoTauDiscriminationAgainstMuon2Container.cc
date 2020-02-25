@@ -35,11 +35,9 @@
 namespace {
 
   class PFRecoTauDiscriminationAgainstMuon2Container final : public PFTauDiscriminationContainerProducerBase {
-      
   public:
     explicit PFRecoTauDiscriminationAgainstMuon2Container(const edm::ParameterSet& cfg)
-        : PFTauDiscriminationContainerProducerBase(cfg),
-          moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
+        : PFTauDiscriminationContainerProducerBase(cfg), moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
       auto const wpDefs = cfg.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
       // check content of discriminatorOption and add as enum to avoid string comparison per event
       for (auto& wpDefsEntry : wpDefs) {
@@ -56,12 +54,12 @@ namespace {
         else
           throw edm::Exception(edm::errors::UnimplementedFeature)
               << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
-        wpDefs_.push_back(PFRecoTauDiscriminationAgainstMuonConfigSet(discOption,
-                                                                     wpDefsEntry.getParameter<double>("HoPMin"),
-                                                                     wpDefsEntry.getParameter<int>("maxNumberOfMatches"),
-                                                                     wpDefsEntry.getParameter<bool>("doCaloMuonVeto"),
-                                                                     wpDefsEntry.getParameter<int>("maxNumberOfHitsLast2Stations")
-                                                                    ));
+        wpDefs_.push_back(
+            PFRecoTauDiscriminationAgainstMuonConfigSet(discOption,
+                                                        wpDefsEntry.getParameter<double>("HoPMin"),
+                                                        wpDefsEntry.getParameter<int>("maxNumberOfMatches"),
+                                                        wpDefsEntry.getParameter<bool>("doCaloMuonVeto"),
+                                                        wpDefsEntry.getParameter<int>("maxNumberOfHitsLast2Stations")));
       }
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
       muons_token = consumes<reco::MuonCollection>(srcMuons_);
@@ -115,10 +113,25 @@ namespace {
 
   reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuon2Container::discriminate(
       const reco::PFTauRef& pfTau) const {
-    
-    auto helper = PFRecoTauDiscriminationAgainstMuon2Helper(verbosity_, moduleLabel_, srcMuons_.label().empty(), minPtMatchedMuon_, dRmuonMatch_,
-      dRmuonMatchLimitedToJetArea_, numWarnings_, maxWarnings_, maskMatchesDT_, maskMatchesCSC_, maskMatchesRPC_, maskHitsDT_, maskHitsCSC_, maskHitsRPC_, muons_, pfTau);
-    
+    const reco::PFCandidatePtr& pfCand = pfTau->leadPFChargedHadrCand();
+    auto helper = PFRecoTauDiscriminationAgainstMuon2Helper(verbosity_,
+                                                            moduleLabel_,
+                                                            srcMuons_.label().empty(),
+                                                            minPtMatchedMuon_,
+                                                            dRmuonMatch_,
+                                                            dRmuonMatchLimitedToJetArea_,
+                                                            numWarnings_,
+                                                            maxWarnings_,
+                                                            maskMatchesDT_,
+                                                            maskMatchesCSC_,
+                                                            maskMatchesRPC_,
+                                                            maskHitsDT_,
+                                                            maskHitsCSC_,
+                                                            maskHitsRPC_,
+                                                            muons_,
+                                                            pfTau,
+                                                            pfCand);
+
     reco::SingleTauDiscriminatorContainer result;
     for (auto const& wpDefsEntry : wpDefs_) {
       result.workingPoints.push_back(helper.eval(wpDefsEntry, pfTau));
@@ -153,7 +166,11 @@ void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::Configu
                                  0,
                                  0,
                                  0,
-                             })->setComment("flags to mask/unmask DT, CSC and RPC chambers in individual muon stations. Segments and hits that are present in that muon station are ignored in case the 'mask' is set to 1. Per default only the innermost CSC chamber is ignored, as it is affected by spurious hits in high pile-up events.");
+                             })
+      ->setComment(
+          "flags to mask/unmask DT, CSC and RPC chambers in individual muon stations. Segments and hits that are "
+          "present in that muon station are ignored in case the 'mask' is set to 1. Per default only the innermost CSC "
+          "chamber is ignored, as it is affected by spurious hits in high pile-up events.");
   desc.add<std::vector<int>>("maskHitsCSC",
                              {
                                  0,
@@ -177,8 +194,8 @@ void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::Configu
     psd0.add<std::string>("BooleanOperator", "and");
     {
       edm::ParameterSetDescription psd1;
-      psd1.add<double>("cut");              //, 0.5);
-      psd1.add<edm::InputTag>("Producer");  //, edm::InputTag("pfRecoTauDiscriminationByLeadingTrackFinding"));
+      psd1.add<double>("cut", 0.5);
+      psd1.add<edm::InputTag>("Producer", edm::InputTag("pfRecoTauDiscriminationByLeadingTrackFinding"));
       psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);  // optional with default?
     }
     // Prediscriminants can be
@@ -203,15 +220,19 @@ void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::Configu
                                  0,
                              });
   desc.add<double>("dRmuonMatch", 0.3);
-  desc.add<edm::InputTag>("srcMuons", edm::InputTag("muons"))->setComment("optional collection of muons to check for overlap with taus");
+  desc.add<edm::InputTag>("srcMuons", edm::InputTag("muons"))
+      ->setComment("optional collection of muons to check for overlap with taus");
 
   edm::ParameterSetDescription desc_wp;
   desc_wp.add<std::string>("IDname");
-  desc_wp.add<std::string>("discriminatorOption")->setComment("available options are: 'loose', 'medium', 'tight' and 'custom'");
+  desc_wp.add<std::string>("discriminatorOption")
+      ->setComment("available options are: 'loose', 'medium', 'tight' and 'custom'");
   desc_wp.add<double>("HoPMin");
-  desc_wp.add<int>("maxNumberOfMatches")->setComment("negative value would turn off this cut in case of 'custom' discriminator");
+  desc_wp.add<int>("maxNumberOfMatches")
+      ->setComment("negative value would turn off this cut in case of 'custom' discriminator");
   desc_wp.add<bool>("doCaloMuonVeto");
-  desc_wp.add<int>("maxNumberOfHitsLast2Stations")->setComment("negative value would turn off this cut in case of 'custom' discriminator");
+  desc_wp.add<int>("maxNumberOfHitsLast2Stations")
+      ->setComment("negative value would turn off this cut in case of 'custom' discriminator");
   edm::ParameterSet pset_wp;
   pset_wp.addParameter<std::string>("IDname", "pfRecoTauDiscriminationAgainstMuon2Container");
   pset_wp.addParameter<std::string>("discriminatorOption", "loose");

@@ -110,7 +110,7 @@ void PATTauIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
             tauIds[nEmbeddedIDs + j].second = tauDiscrCont[inputTauRef].rawValues.at(0);
           else
             //uses negative indices to access rawValues. In most cases only one rawValue at WPIdx=-1 exists.
-            tauIds[nEmbeddedIDs + j].second = tauDiscrCont[inputTauRef].rawValues.at(-1-wpIdx);
+            tauIds[nEmbeddedIDs + j].second = tauDiscrCont[inputTauRef].rawValues.at(-1 - wpIdx);
         } else {
           if (tauDiscrCont[inputTauRef].workingPoints.empty())
             //WP vector not filled if prediscriminor in PatTauDiscriminator failed. Set PAT output to false in this case
