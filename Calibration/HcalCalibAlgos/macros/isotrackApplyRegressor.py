@@ -1,7 +1,8 @@
 ######################################################################################
 # Evaluates regressor from loaded model
 # Usage:
-# python3 isotrackApplyRegressor.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -M ./models/model1.h5 -O corrfac_regression.txt
+# python3 isotrackApplyRegressor.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -M ./models/model1.h5 -O corrfac1.txt
+# python3 isotrackApplyRegressor.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -M ./models/model2.h5 -O corrfac2.txt
 ######################################################################################
 # coding: utf-8
 
@@ -30,6 +31,7 @@ import uproot
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-PU", "--filePU",help="input PU file",default="root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root")
+#parser.add_argument("-PU", "--filePU",help="input PU file",default="/eos/uscms/store/user/sghosh/ISOTRACK/DIPI_2021_noPU.root")
 
 parser.add_argument("-M", "--modelname",help="model file name",default="./models/model.h5")
 parser.add_argument("-O", "--opfilename",help="output text file name",default="corrfac_regression.txt")
@@ -47,6 +49,7 @@ print ("loaded files")
 
 branchespu = ['t_Run','t_Event','t_nVtx','t_ieta','t_iphi','t_p','t_pt','t_gentrackP','t_eMipDR','t_eHcal','t_eHcal10','t_eHcal30','t_hmaxNearP','t_emaxNearP','t_hAnnular','t_eAnnular','t_rhoh']
 dictpu = tree1.arrays(branches=branchespu)
+#dictpu = tree1.arrays(branches=branchespu,entrystart=0, entrystop=300)
 dfspu = pd.DataFrame.from_dict(dictpu)
 dfspu.columns=branchespu
 print ("sample size:",dfspu.shape[0])
@@ -69,7 +72,7 @@ cols_to_minmax = ['t_delta', 't_hmaxNearP','t_emaxNearP', 't_hAnnular', 't_eAnnu
 #df[cols_to_stand] = df[cols_to_stand].apply(lambda x: (x - x.mean()) /(x.std()))
 #df[cols_to_minmax] = df[cols_to_minmax].apply(lambda x: (x - x.mean()) /  (x.max() - x.min()))
 #                                            #(x.max() - x.min()))
-df[cols_to_minmax] = df[cols_to_minmax].apply(lambda x: (x - x.min()) /  (x.max() - x.min()))
+df[cols_to_minmax] = df[cols_to_minmax].apply(lambda x: (x - x.min()) /  (x.max() - x.min())  if (x.max() - x.min() > 0) else 1.0/200.0)
 
 
 uncorrected_values = df['t_eHcal_xun'].values
