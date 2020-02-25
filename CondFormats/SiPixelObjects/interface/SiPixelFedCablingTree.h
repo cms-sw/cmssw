@@ -1,14 +1,14 @@
 #ifndef SiPixelFedCablingTree_H
 #define SiPixelFedCablingTree_H
 
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+
 #include <vector>
 #include <unordered_map>
 #include <string>
 #include <map>
-
-#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
 class SiPixelFedCablingTree final : public SiPixelFedCabling {
 public:

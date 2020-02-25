@@ -1,10 +1,6 @@
 #ifndef CondFormats_HcalObjects_HcalItemArrayColl_h
 #define CondFormats_HcalObjects_HcalItemArrayColl_h
 
-#include <memory>
-#include <array>
-#include <vector>
-
 #include "boost/array.hpp"
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"
@@ -16,6 +12,10 @@
 #else
 #include "boost/serialization/boost_array.hpp"
 #endif
+
+#include <memory>
+#include <array>
+#include <vector>
 
 //
 // This collection manages arrays of pointers and references.
