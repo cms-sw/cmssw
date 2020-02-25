@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <array>
+#include <vector>
 
 #include "boost/array.hpp"
 #include "boost/serialization/access.hpp"
