@@ -976,7 +976,7 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
         temp_signal = std::floor((temp_signal - kink_point) / (pow(2, dualslope_param - 1))) + kink_point;
     }
     signal_in_adc = std::min(temp_signal, theAdcFullScale_);
-    LogInfo("Phase2TrackerDigitizerAlgorithm")
+    LogTrace("Phase2TrackerDigitizerAlgorithm")
         << " DetId " << detID << " signal_in_elec " << signal_in_elec << " threshold " << threshold
         << " signal_above_thr " << signal_in_elec - threshold << " temp conversion "
         << std::floor((signal_in_elec - threshold) / theElectronPerADC_) + 1 << " signal after slope correction "
