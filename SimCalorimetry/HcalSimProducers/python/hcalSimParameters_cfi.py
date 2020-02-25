@@ -164,6 +164,19 @@ run3_HB.toModify( hcalSimParameters,
     )
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( hcalSimParameters, 
+    hb = dict(
+               readoutFrameSize = cms.int32(10), 
+               binOfMaximum     = cms.int32(6)
+              ),
+    he = dict(
+               readoutFrameSize = cms.int32(10), 
+               binOfMaximum     = cms.int32(6)
+              )
+) 
+
+
 _newFactors = cms.vdouble(
     210.55, 197.93, 186.12, 189.64, 189.63,
     189.96, 190.03, 190.11, 190.18, 190.25,
