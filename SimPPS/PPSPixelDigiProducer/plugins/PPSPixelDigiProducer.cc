@@ -50,7 +50,7 @@
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
+#include "RecoPPS/Local/interface/CTPPSPixelGainCalibrationDBService.h"
 
 // user include files
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
