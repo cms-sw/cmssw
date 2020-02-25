@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-RecoPPSAOD = cms.PSet(
+RecoCTPPSAOD = cms.PSet(
   outputCommands = cms.untracked.vstring(
     # trigger counters
     'keep TotemTriggerCounters_totemTriggerRawToDigi_*_*',
@@ -40,14 +40,14 @@ RecoPPSAOD = cms.PSet(
 )
 
 
-RecoPPSRECO = cms.PSet(
+RecoCTPPSRECO = cms.PSet(
   outputCommands = cms.untracked.vstring()
 )
 
 
-RecoPPSFEVT = cms.PSet(
+RecoCTPPSFEVT = cms.PSet(
   outputCommands = cms.untracked.vstring()
 )
 
-RecoPPSRECO.outputCommands.extend(RecoPPSAOD.outputCommands)
-RecoPPSFEVT.outputCommands.extend(RecoPPSRECO.outputCommands)
+RecoCTPPSRECO.outputCommands.extend(RecoCTPPSAOD.outputCommands)
+RecoCTPPSFEVT.outputCommands.extend(RecoCTPPSRECO.outputCommands)
