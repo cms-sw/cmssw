@@ -5,6 +5,8 @@
 
 #include <memory>
 
+using namespace dqm::impl;
+
 GEMBaseValidation::GEMBaseValidation(const edm::ParameterSet& ps, std::string log_category)
     : kLogCategory_(log_category) {
   zr_occ_num_bins_ = ps.getUntrackedParameter<std::vector<Int_t> >("ZROccNumBins");
