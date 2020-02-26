@@ -1,5 +1,4 @@
-<use name="FWCore/Utilities"/>
-<use name="RecoBTag/FeatureTools"/>
+<use name="DataFormats/BTauReco"/>
 <use name="PhysicsTools/TensorFlow"/>
 <export>
   <lib name="1"/>
