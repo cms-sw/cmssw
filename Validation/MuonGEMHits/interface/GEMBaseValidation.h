@@ -16,8 +16,6 @@
 
 #include "TMath.h"
 
-using namespace dqm::impl;  // MonitorElement
-
 class GEMBaseValidation : public DQMEDAnalyzer {
 public:
   explicit GEMBaseValidation(const edm::ParameterSet&, std::string);
@@ -29,38 +27,38 @@ protected:
   Int_t getDetOccBinX(Int_t chamber_id, Int_t layer_id);
   Bool_t isMuonSimHit(const PSimHit&);
 
-  MonitorElement* bookZROccupancy(DQMStore::IBooker& booker,
+  dqm::impl::MonitorElement* bookZROccupancy(DQMStore::IBooker& booker,
                                   Int_t region_id,
                                   const char* name_prfix,
                                   const char* title_prefix);
 
   template <typename T>
-  MonitorElement* bookZROccupancy(DQMStore::IBooker& booker,
+  dqm::impl::MonitorElement* bookZROccupancy(DQMStore::IBooker& booker,
                                   const T& key,
                                   const char* name_prfix,
                                   const char* title_prefix);
 
   template <typename T>
-  MonitorElement* bookXYOccupancy(DQMStore::IBooker& booker,
+  dqm::impl::MonitorElement* bookXYOccupancy(DQMStore::IBooker& booker,
                                   const T& key,
                                   const char* name_prefix,
                                   const char* title_prefix);
 
   template <typename T>
-  MonitorElement* bookPolarOccupancy(DQMStore::IBooker& booker,
+  dqm::impl::MonitorElement* bookPolarOccupancy(DQMStore::IBooker& booker,
                                      const T& key,
                                      const char* name_prefix,
                                      const char* title_prefix);
 
   template <typename T>
-  MonitorElement* bookDetectorOccupancy(DQMStore::IBooker& booker,
+  dqm::impl::MonitorElement* bookDetectorOccupancy(DQMStore::IBooker& booker,
                                         const T& key,
                                         const GEMStation* station,
                                         const char* name_prfix,
                                         const char* title_prefix);
 
   template <typename T>
-  MonitorElement* bookHist1D(DQMStore::IBooker& booker,
+  dqm::impl::MonitorElement* bookHist1D(DQMStore::IBooker& booker,
                              const T& key,
                              const char* name,
                              const char* title,
@@ -71,7 +69,7 @@ protected:
                              const char* y_title = "Entries");
 
   template <typename T>
-  MonitorElement* bookHist2D(DQMStore::IBooker& booker,
+  dqm::impl::MonitorElement* bookHist2D(DQMStore::IBooker& booker,
                              const T& key,
                              const char* name,
                              const char* title,
@@ -97,7 +95,7 @@ protected:
 };
 
 template <typename T>
-MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker& booker,
+dqm::impl::MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker& booker,
                                                    const T& key,
                                                    const char* name_prefix,
                                                    const char* title_prefix) {
@@ -133,7 +131,7 @@ MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker& booker,
 }
 
 template <typename T>
-MonitorElement* GEMBaseValidation::bookXYOccupancy(DQMStore::IBooker& booker,
+dqm::impl::MonitorElement* GEMBaseValidation::bookXYOccupancy(DQMStore::IBooker& booker,
                                                    const T& key,
                                                    const char* name_prefix,
                                                    const char* title_prefix) {
@@ -145,7 +143,7 @@ MonitorElement* GEMBaseValidation::bookXYOccupancy(DQMStore::IBooker& booker,
 }
 
 template <typename T>
-MonitorElement* GEMBaseValidation::bookPolarOccupancy(DQMStore::IBooker& booker,
+dqm::impl::MonitorElement* GEMBaseValidation::bookPolarOccupancy(DQMStore::IBooker& booker,
                                                       const T& key,
                                                       const char* name_prefix,
                                                       const char* title_prefix) {
@@ -155,12 +153,12 @@ MonitorElement* GEMBaseValidation::bookPolarOccupancy(DQMStore::IBooker& booker,
   TString title = TString::Format("%s Polar Occupancy :%s", title_prefix, title_suffix);
   // TODO # of bins
   // TODO the x-axis lies in the cnter of Ch1
-  MonitorElement* me = booker.book2D(name, title, 108, -M_PI, M_PI, 108, 0.0, 360.0);
+  dqm::impl::MonitorElement* me = booker.book2D(name, title, 108, -M_PI, M_PI, 108, 0.0, 360.0);
   return me;
 }
 
 template <typename T>
-MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IBooker& booker,
+dqm::impl::MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IBooker& booker,
                                                          const T& key,
                                                          const GEMStation* station,
                                                          const char* name_prefix,
@@ -201,7 +199,7 @@ MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IBooker& book
 }
 
 template <typename T>
-MonitorElement* GEMBaseValidation::bookHist1D(DQMStore::IBooker& booker,
+dqm::impl::MonitorElement* GEMBaseValidation::bookHist1D(DQMStore::IBooker& booker,
                                               const T& key,
                                               const char* name,
                                               const char* title,
@@ -218,7 +216,7 @@ MonitorElement* GEMBaseValidation::bookHist1D(DQMStore::IBooker& booker,
 }
 
 template <typename T>
-MonitorElement* GEMBaseValidation::bookHist2D(DQMStore::IBooker& booker,
+dqm::impl::MonitorElement* GEMBaseValidation::bookHist2D(DQMStore::IBooker& booker,
                                               const T& key,
                                               const char* name,
                                               const char* title,

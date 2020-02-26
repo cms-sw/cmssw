@@ -11,8 +11,6 @@
 #include <map>
 #include <tuple>
 
-using namespace dqm::impl;
-
 class TH1F;
 class TH2F;
 class TProfile;
@@ -21,10 +19,10 @@ typedef std::tuple<Int_t, Int_t> ME2IdsKey;
 typedef std::tuple<Int_t, Int_t, Int_t> ME3IdsKey;
 typedef std::tuple<Int_t, Int_t, Int_t, Int_t> ME4IdsKey;
 
-typedef std::map<Int_t, MonitorElement*> MEMap1Ids;
-typedef std::map<ME2IdsKey, MonitorElement*> MEMap2Ids;
-typedef std::map<ME3IdsKey, MonitorElement*> MEMap3Ids;
-typedef std::map<ME4IdsKey, MonitorElement*> MEMap4Ids;
+typedef std::map<Int_t, dqm::impl::MonitorElement*> MEMap1Ids;
+typedef std::map<ME2IdsKey, dqm::impl::MonitorElement*> MEMap2Ids;
+typedef std::map<ME3IdsKey, dqm::impl::MonitorElement*> MEMap3Ids;
+typedef std::map<ME4IdsKey, dqm::impl::MonitorElement*> MEMap4Ids;
 
 namespace GEMUtils {
   TString getSuffixName(Int_t region_id);
