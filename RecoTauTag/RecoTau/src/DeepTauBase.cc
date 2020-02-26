@@ -133,7 +133,7 @@ namespace deep_tau {
   DeepTauCache::DeepTauCache(const std::map<std::string, std::string>& graph_names, bool mem_mapped) {
     for (const auto& graph_entry : graph_names) {
       tensorflow::SessionOptions options;
-      tensorflow::setThreading(options, 1, "no_threads");
+      tensorflow::setThreading(options, 1);
 
       const std::string& entry_name = graph_entry.first;
       const std::string& graph_file = graph_entry.second;
@@ -153,7 +153,8 @@ namespace deep_tau {
                             graphs_.at(entry_name).get());
         if (!load_graph_status.ok())
           throw cms::Exception("DeepTauCache: unable to load graph from ") << graph_file << ". \n"
-                                                                           << mmap_status.ToString();
+                                                                           << load_graph_status.ToString();
+
         options.config.mutable_graph_options()->mutable_optimizer_options()->set_opt_level(
             ::tensorflow::OptimizerOptions::L0);
         options.env = memmappedEnv_.at(entry_name).get();
