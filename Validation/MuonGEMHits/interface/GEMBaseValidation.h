@@ -28,59 +28,59 @@ protected:
   Bool_t isMuonSimHit(const PSimHit&);
 
   dqm::impl::MonitorElement* bookZROccupancy(DQMStore::IBooker& booker,
-                                  Int_t region_id,
-                                  const char* name_prfix,
-                                  const char* title_prefix);
+                                             Int_t region_id,
+                                             const char* name_prfix,
+                                             const char* title_prefix);
 
   template <typename T>
   dqm::impl::MonitorElement* bookZROccupancy(DQMStore::IBooker& booker,
-                                  const T& key,
-                                  const char* name_prfix,
-                                  const char* title_prefix);
+                                             const T& key,
+                                             const char* name_prfix,
+                                             const char* title_prefix);
 
   template <typename T>
   dqm::impl::MonitorElement* bookXYOccupancy(DQMStore::IBooker& booker,
-                                  const T& key,
-                                  const char* name_prefix,
-                                  const char* title_prefix);
+                                             const T& key,
+                                             const char* name_prefix,
+                                             const char* title_prefix);
 
   template <typename T>
   dqm::impl::MonitorElement* bookPolarOccupancy(DQMStore::IBooker& booker,
-                                     const T& key,
-                                     const char* name_prefix,
-                                     const char* title_prefix);
+                                                const T& key,
+                                                const char* name_prefix,
+                                                const char* title_prefix);
 
   template <typename T>
   dqm::impl::MonitorElement* bookDetectorOccupancy(DQMStore::IBooker& booker,
-                                        const T& key,
-                                        const GEMStation* station,
-                                        const char* name_prfix,
-                                        const char* title_prefix);
+                                                   const T& key,
+                                                   const GEMStation* station,
+                                                   const char* name_prfix,
+                                                   const char* title_prefix);
 
   template <typename T>
   dqm::impl::MonitorElement* bookHist1D(DQMStore::IBooker& booker,
-                             const T& key,
-                             const char* name,
-                             const char* title,
-                             Int_t nbinsx,
-                             Double_t xlow,
-                             Double_t xup,
-                             const char* x_title = "",
-                             const char* y_title = "Entries");
+                                        const T& key,
+                                        const char* name,
+                                        const char* title,
+                                        Int_t nbinsx,
+                                        Double_t xlow,
+                                        Double_t xup,
+                                        const char* x_title = "",
+                                        const char* y_title = "Entries");
 
   template <typename T>
   dqm::impl::MonitorElement* bookHist2D(DQMStore::IBooker& booker,
-                             const T& key,
-                             const char* name,
-                             const char* title,
-                             Int_t nbinsx,
-                             Double_t xlow,
-                             Double_t xup,
-                             Int_t nbinsy,
-                             Double_t ylow,
-                             Double_t yup,
-                             const char* x_title = "",
-                             const char* y_title = "");
+                                        const T& key,
+                                        const char* name,
+                                        const char* title,
+                                        Int_t nbinsx,
+                                        Double_t xlow,
+                                        Double_t xup,
+                                        Int_t nbinsy,
+                                        Double_t ylow,
+                                        Double_t yup,
+                                        const char* x_title = "",
+                                        const char* y_title = "");
 
   // NOTE Parameters
   Int_t xy_occ_num_bins_;
@@ -96,9 +96,9 @@ protected:
 
 template <typename T>
 dqm::impl::MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker& booker,
-                                                   const T& key,
-                                                   const char* name_prefix,
-                                                   const char* title_prefix) {
+                                                              const T& key,
+                                                              const char* name_prefix,
+                                                              const char* title_prefix) {
   if (std::tuple_size<T>::value < 2) {
     edm::LogError(kLogCategory_) << "Wrong T" << std::endl;
     return nullptr;
@@ -132,9 +132,9 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker&
 
 template <typename T>
 dqm::impl::MonitorElement* GEMBaseValidation::bookXYOccupancy(DQMStore::IBooker& booker,
-                                                   const T& key,
-                                                   const char* name_prefix,
-                                                   const char* title_prefix) {
+                                                              const T& key,
+                                                              const char* name_prefix,
+                                                              const char* title_prefix) {
   const char* name_suffix = GEMUtils::getSuffixName(key);
   const char* title_suffix = GEMUtils::getSuffixTitle(key);
   TString name = TString::Format("%s_occ_xy%s", name_prefix, name_suffix);
@@ -144,9 +144,9 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookXYOccupancy(DQMStore::IBooker&
 
 template <typename T>
 dqm::impl::MonitorElement* GEMBaseValidation::bookPolarOccupancy(DQMStore::IBooker& booker,
-                                                      const T& key,
-                                                      const char* name_prefix,
-                                                      const char* title_prefix) {
+                                                                 const T& key,
+                                                                 const char* name_prefix,
+                                                                 const char* title_prefix) {
   const char* name_suffix = GEMUtils::getSuffixName(key);
   const char* title_suffix = GEMUtils::getSuffixTitle(key);
   TString name = TString::Format("%s_occ_polar%s", name_prefix, name_suffix);
@@ -159,10 +159,10 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookPolarOccupancy(DQMStore::IBook
 
 template <typename T>
 dqm::impl::MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IBooker& booker,
-                                                         const T& key,
-                                                         const GEMStation* station,
-                                                         const char* name_prefix,
-                                                         const char* title_prefix) {
+                                                                    const T& key,
+                                                                    const GEMStation* station,
+                                                                    const char* name_prefix,
+                                                                    const char* title_prefix) {
   const char* name_suffix = GEMUtils::getSuffixName(key).Data();
   const char* title_suffix = GEMUtils::getSuffixTitle(key).Data();
 
@@ -200,14 +200,14 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IB
 
 template <typename T>
 dqm::impl::MonitorElement* GEMBaseValidation::bookHist1D(DQMStore::IBooker& booker,
-                                              const T& key,
-                                              const char* name,
-                                              const char* title,
-                                              Int_t nbinsx,
-                                              Double_t xlow,
-                                              Double_t xup,
-                                              const char* x_title,
-                                              const char* y_title) {
+                                                         const T& key,
+                                                         const char* name,
+                                                         const char* title,
+                                                         Int_t nbinsx,
+                                                         Double_t xlow,
+                                                         Double_t xup,
+                                                         const char* x_title,
+                                                         const char* y_title) {
   const char* name_suffix = GEMUtils::getSuffixName(key);
   const char* title_suffix = GEMUtils::getSuffixTitle(key);
   TString hist_name = TString::Format("%s%s", name, name_suffix);
@@ -217,17 +217,17 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookHist1D(DQMStore::IBooker& book
 
 template <typename T>
 dqm::impl::MonitorElement* GEMBaseValidation::bookHist2D(DQMStore::IBooker& booker,
-                                              const T& key,
-                                              const char* name,
-                                              const char* title,
-                                              Int_t nbinsx,
-                                              Double_t xlow,
-                                              Double_t xup,
-                                              Int_t nbinsy,
-                                              Double_t ylow,
-                                              Double_t yup,
-                                              const char* x_title,
-                                              const char* y_title) {
+                                                         const T& key,
+                                                         const char* name,
+                                                         const char* title,
+                                                         Int_t nbinsx,
+                                                         Double_t xlow,
+                                                         Double_t xup,
+                                                         Int_t nbinsy,
+                                                         Double_t ylow,
+                                                         Double_t yup,
+                                                         const char* x_title,
+                                                         const char* y_title) {
   const char* name_suffix = GEMUtils::getSuffixName(key);
   const char* title_suffix = GEMUtils::getSuffixTitle(key);
   TString hist_name = TString::Format("%s%s", name, name_suffix);
