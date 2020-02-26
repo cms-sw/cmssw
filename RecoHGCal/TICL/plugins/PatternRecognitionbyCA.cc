@@ -49,7 +49,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   theGraph_->setVerbosity(algo_verbosity_);
   theGraph_->clear();
   if (algo_verbosity_ > None) {
-    LogDebug("HGCPatterRecoByCA") << "Making Tracksters with CA" << std::endl;
+    LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   std::vector<int> seedIndices;
@@ -104,7 +104,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       }
 
       if (algo_verbosity_ > Advanced) {
-        LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
+        LogDebug("HGCPatternRecoByCA") << " New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
                                       << innerCluster << " " << input.layerClusters[innerCluster].x() << " "
                                       << input.layerClusters[innerCluster].y() << " "
                                       << input.layerClusters[innerCluster].z() << " OuterCl " << outerCluster << " "
@@ -115,7 +115,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     }
     for (auto const i : effective_cluster_idx) {
       layer_cluster_usage[i]++;
-      LogDebug("HGCPatterRecoByCA") << "LayerID: " << i << " count: " << (int)layer_cluster_usage[i] << std::endl;
+      if (algo_verbosity_ > Basic)
+        LogDebug("HGCPatternRecoByCA") << "LayerID: " << i << " count: " << (int)layer_cluster_usage[i] << std::endl;
     }
     // Put back indices, in the form of a Trackster, into the results vector
     Trackster tmp;

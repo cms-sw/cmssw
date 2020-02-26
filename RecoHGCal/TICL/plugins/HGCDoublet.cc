@@ -27,7 +27,7 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
       zi[j] = otherDoublet.innerZ();
       seedi[j] = otherDoublet.seedIndex();
       if (debug) {
-        std::cout << i + j << " is doublet " << otherDoubletId << std::endl;
+        LogDebug("HGCDoublet") << i + j << " is doublet " << otherDoubletId << std::endl;
       }
     }
     for (int j = 0; j < vs; ++j) {
