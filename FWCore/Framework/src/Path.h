@@ -116,8 +116,8 @@ namespace edm {
 
     int const bitpos_;
     TrigResPtr const trptr_;
-    std::shared_ptr<ActivityRegistry> const
-        actReg_;  // We do not use propagate_const because the registry itself is mutable.
+    // We do not use propagate_const because the registry itself is mutable.
+    std::shared_ptr<ActivityRegistry> const actReg_;
     ExceptionToActionTable const* const act_table_;
 
     WorkersInPath workers_;
