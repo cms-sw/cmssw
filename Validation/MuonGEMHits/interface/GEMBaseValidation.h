@@ -16,16 +16,15 @@
 
 #include "TMath.h"
 
-using namespace dqm::impl; // MonitorElement
-
+using namespace dqm::impl;  // MonitorElement
 
 class GEMBaseValidation : public DQMEDAnalyzer {
- public:
+public:
   explicit GEMBaseValidation(const edm::ParameterSet&, std::string);
   ~GEMBaseValidation() override = 0;
   void analyze(const edm::Event& e, const edm::EventSetup&) override = 0;
 
- protected:
+protected:
   const GEMGeometry* initGeometry(const edm::EventSetup&);
   Int_t getDetOccBinX(Int_t chamber_id, Int_t layer_id);
   Bool_t isMuonSimHit(const PSimHit&);
@@ -94,9 +93,8 @@ class GEMBaseValidation : public DQMEDAnalyzer {
 
   // NOTE Constants
   const Int_t kMuonPDGId_ = 13;
-  const std::string kLogCategory_; // see member initializer list
+  const std::string kLogCategory_;  // see member initializer list
 };
-
 
 template <typename T>
 MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker& booker,
@@ -134,7 +132,6 @@ MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker& booker,
   return booker.book2D(name, title, nbinsx, xlow, xup, nbinsy, ylow, yup);
 }
 
-
 template <typename T>
 MonitorElement* GEMBaseValidation::bookXYOccupancy(DQMStore::IBooker& booker,
                                                    const T& key,
@@ -146,7 +143,6 @@ MonitorElement* GEMBaseValidation::bookXYOccupancy(DQMStore::IBooker& booker,
   TString title = TString::Format("%s XY Occupancy :%s;X [cm];Y [cm]", title_prefix, title_suffix);
   return booker.book2D(name, title, xy_occ_num_bins_, -360.0, 360.0, xy_occ_num_bins_, -360.0f, 360.0);
 }
-
 
 template <typename T>
 MonitorElement* GEMBaseValidation::bookPolarOccupancy(DQMStore::IBooker& booker,
@@ -162,7 +158,6 @@ MonitorElement* GEMBaseValidation::bookPolarOccupancy(DQMStore::IBooker& booker,
   MonitorElement* me = booker.book2D(name, title, 108, -M_PI, M_PI, 108, 0.0, 360.0);
   return me;
 }
-
 
 template <typename T>
 MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IBooker& booker,
@@ -205,7 +200,6 @@ MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IBooker& book
   return booker.book2D(name, hist);
 }
 
-
 template <typename T>
 MonitorElement* GEMBaseValidation::bookHist1D(DQMStore::IBooker& booker,
                                               const T& key,
@@ -222,7 +216,6 @@ MonitorElement* GEMBaseValidation::bookHist1D(DQMStore::IBooker& booker,
   TString hist_title = TString::Format("%s :%s;%s;%s", title, title_suffix, x_title, y_title);
   return booker.book1D(hist_name, hist_title, nbinsx, xlow, xup);
 }
-
 
 template <typename T>
 MonitorElement* GEMBaseValidation::bookHist2D(DQMStore::IBooker& booker,
@@ -244,5 +237,4 @@ MonitorElement* GEMBaseValidation::bookHist2D(DQMStore::IBooker& booker,
   return booker.book2D(hist_name, hist_title, nbinsx, xlow, xup, nbinsy, ylow, yup);
 }
 
-
-#endif // Validation_MuonGEMHits_GEMBaseValidation_h
+#endif  // Validation_MuonGEMHits_GEMBaseValidation_h

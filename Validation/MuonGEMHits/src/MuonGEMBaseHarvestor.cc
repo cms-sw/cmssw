@@ -2,22 +2,14 @@
 
 #include "TEfficiency.h"
 
-
-MuonGEMBaseHarvestor::MuonGEMBaseHarvestor(const edm::ParameterSet& pset,
-                                           std::string log_category)
-    : kLogCategory_(log_category) {
-}
-
+MuonGEMBaseHarvestor::MuonGEMBaseHarvestor(const edm::ParameterSet& pset, std::string log_category)
+    : kLogCategory_(log_category) {}
 
 TProfile* MuonGEMBaseHarvestor::computeEfficiency(
-    const TH1F& passed, const TH1F& total,
-    const char* name, const char* title,
-    Double_t confidence_level) {
-
+    const TH1F& passed, const TH1F& total, const char* name, const char* title, Double_t confidence_level) {
   const TAxis* total_x = total.GetXaxis();
 
-  TProfile* eff_profile = new TProfile(name, title, total_x->GetNbins(),
-                                       total_x->GetXmin(), total_x->GetXmax());
+  TProfile* eff_profile = new TProfile(name, title, total_x->GetNbins(), total_x->GetXmin(), total_x->GetXmax());
   eff_profile->GetXaxis()->SetTitle(total_x->GetTitle());
   eff_profile->GetYaxis()->SetTitle("#epsilon");
 
@@ -52,7 +44,6 @@ TProfile* MuonGEMBaseHarvestor::computeEfficiency(
   return eff_profile;
 }
 
-
 TH2F* MuonGEMBaseHarvestor::computeEfficiency(const TH2F& passed,
                                               const TH2F& total,
                                               const char* name,
@@ -81,7 +72,6 @@ TH2F* MuonGEMBaseHarvestor::computeEfficiency(const TH2F& passed,
   return eff_hist;
 }
 
-
 void MuonGEMBaseHarvestor::bookEff1D(DQMStore::IBooker& booker,
                                      DQMStore::IGetter& getter,
                                      const TString& passed_path,
@@ -106,7 +96,6 @@ void MuonGEMBaseHarvestor::bookEff1D(DQMStore::IBooker& booker,
   booker.setCurrentFolder(folder.Data());
   booker.bookProfile(eff_name, eff);
 }
-
 
 void MuonGEMBaseHarvestor::bookEff2D(DQMStore::IBooker& booker,
                                      DQMStore::IGetter& getter,

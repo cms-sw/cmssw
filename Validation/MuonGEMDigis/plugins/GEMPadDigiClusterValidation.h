@@ -4,7 +4,6 @@
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 
-
 class GEMPadDigiClusterValidation : public GEMBaseValidation {
 public:
   explicit GEMPadDigiClusterValidation(const edm::ParameterSet&);
@@ -24,4 +23,4 @@ private:
   edm::EDGetTokenT<GEMPadDigiClusterCollection> pad_cluster_token_;
 };
 
-#endif // Validation_MuonGEMDigis_GEMPadDigiClusterValidation_h
+#endif  // Validation_MuonGEMDigis_GEMPadDigiClusterValidation_h

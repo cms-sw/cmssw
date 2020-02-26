@@ -4,15 +4,14 @@
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
-
 class GEMRecHitValidation : public GEMBaseValidation {
- public:
+public:
   explicit GEMRecHitValidation(const edm::ParameterSet&);
   ~GEMRecHitValidation() override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   Bool_t matchRecHitAgainstSimHit(GEMRecHitCollection::const_iterator, Int_t);
 
   // Parameter
@@ -46,7 +45,6 @@ class GEMRecHitValidation : public GEMBaseValidation {
   MEMap1Ids me_rechit_occ_eta_;
   MEMap2Ids me_rechit_occ_phi_;
   MEMap2Ids me_rechit_occ_det_;
-
 };
 
-#endif // Validation_MuonGEMRecHits_GEMRecHitValidation_h
+#endif  // Validation_MuonGEMRecHits_GEMRecHitValidation_h

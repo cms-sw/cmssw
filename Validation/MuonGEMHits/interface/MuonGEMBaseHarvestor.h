@@ -11,23 +11,20 @@
 #include "TSystem.h"
 #include "TString.h"
 
-
 class MuonGEMBaseHarvestor : public DQMEDHarvester {
- public:
+public:
   explicit MuonGEMBaseHarvestor(const edm::ParameterSet&, std::string);
 
- protected:
+protected:
   // FIXME typename
   template <typename T>
   T* getElement(DQMStore::IGetter& getter, const TString& path);
 
   // 0.683 means 1 standard deviation of the normal distribution.
-  TProfile* computeEfficiency(const TH1F& passed, const TH1F& total,
-                              const char* name, const char* title,
-                              Double_t confidence_level = 0.683);
+  TProfile* computeEfficiency(
+      const TH1F& passed, const TH1F& total, const char* name, const char* title, Double_t confidence_level = 0.683);
 
-  TH2F* computeEfficiency(const TH2F& passed, const TH2F& total,
-                          const char* name, const char* title);
+  TH2F* computeEfficiency(const TH2F& passed, const TH2F& total, const char* name, const char* title);
 
   void bookEff1D(DQMStore::IBooker& ibooker,
                  DQMStore::IGetter& getter,
@@ -45,17 +42,14 @@ class MuonGEMBaseHarvestor : public DQMEDHarvester {
                  const TString& eff_name,
                  const TString& eff_title = "Efficiency");
 
-
   // Constnats
-  const std::string kLogCategory_; // see member initializer list
+  const std::string kLogCategory_;  // see member initializer list
 };
 
-#endif // Validation_MuonGEMHits_MuonGEMBaseHarvestor_h
-
+#endif  // Validation_MuonGEMHits_MuonGEMBaseHarvestor_h
 
 template <typename T>
-T* MuonGEMBaseHarvestor::getElement(DQMStore::IGetter& getter,
-                                    const TString& path) {
+T* MuonGEMBaseHarvestor::getElement(DQMStore::IGetter& getter, const TString& path) {
   std::string folder = gSystem->DirName(path);
   std::string name = gSystem->BaseName(path);
 
@@ -69,7 +63,6 @@ T* MuonGEMBaseHarvestor::getElement(DQMStore::IGetter& getter,
 
   T* hist = nullptr;
   if (auto tmp_me = getter.get(path.Data())) {
-
     if (auto tmp_hist = dynamic_cast<T*>(tmp_me->getRootObject()->Clone())) {
       hist = tmp_hist;
       hist->Sumw2();
