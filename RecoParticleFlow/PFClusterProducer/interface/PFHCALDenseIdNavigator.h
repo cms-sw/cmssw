@@ -35,17 +35,17 @@ public:
   }
 
   void init(const edm::EventSetup& iSetup) override {
-
     /*
     if (!neighboursHcal_.empty())
       return;  // neighboursHcal_ is already defined. No need to redefine it.
     */
     bool check = theRecNumberWatcher_.check(iSetup);
     std::cout << "check: " << check << " " << neighboursHcal_.size() << std::endl;
-    if (!check) return;
+    if (!check)
+      return;
 
     //std::cout << "checking" << std::endl;
-    
+
     edm::ESHandle<HcalTopology> hcalTopology;
     iSetup.get<HcalRecNumberingRecord>().get(hcalTopology);
     topology_.release();
