@@ -1,7 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Validation/MuonGEMDigis/plugins/MuonGEMDigisHarvestor.h"
 
-
 MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& pset)
     : MuonGEMBaseHarvestor(pset, "MuonGEMDigisHarvestor") {
   // to make it compatible to both full geometry and slice test
@@ -10,13 +9,9 @@ MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& pset)
   layer_ids_ = pset.getUntrackedParameter<std::vector<Int_t> >("layerIds");
 }
 
-
 MuonGEMDigisHarvestor::~MuonGEMDigisHarvestor() {}
 
-
-void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker,
-                                      DQMStore::IGetter& getter) {
-
+void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   TString occ_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Occupancy/";
   TString eff_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Efficiency/";
 
@@ -32,8 +27,7 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker,
     TString eff_eta_name = "eff_eta" + name_suffix_re;
     TString eff_eta_title = "Eta Efficiency (Muon Only) :" + title_suffix_re;
 
-    bookEff1D(booker, getter, strip_eta_path, simhit_eta_path,
-              eff_folder, eff_eta_name, eff_eta_title);
+    bookEff1D(booker, getter, strip_eta_path, simhit_eta_path, eff_folder, eff_eta_name, eff_eta_title);
 
     for (Int_t station_id : station_ids_) {
       TString name_suffix_re_st = GEMUtils::getSuffixName(region_id, station_id);
@@ -47,8 +41,7 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker,
       TString eff_phi_name = "eff_phi" + name_suffix_re_st;
       TString eff_phi_title = "Phi Efficiency (Muon Only) :" + title_suffix_re;
 
-      bookEff1D(booker, getter, strip_phi_path, simhit_phi_path,
-                eff_folder, eff_phi_name, eff_phi_title);
+      bookEff1D(booker, getter, strip_phi_path, simhit_phi_path, eff_folder, eff_phi_name, eff_phi_title);
 
       // NOTE Detector Component efficiency
       TString strip_det_name = "matched_strip_occ_det" + name_suffix_re_st;
@@ -58,10 +51,8 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker,
       TString eff_det_name = "eff_det" + name_suffix_re_st;
       TString eff_det_title = "Detector Component Efficiency (Muon Only) :" + title_suffix_re_st;
 
-      bookEff2D(booker, getter, strip_det_path, simhit_det_path,
-                eff_folder, eff_det_name, eff_det_title);
+      bookEff2D(booker, getter, strip_det_path, simhit_det_path, eff_folder, eff_det_name, eff_det_title);
 
-    }  // statino loop 
-  } // region loop 
-
+    }  // statino loop
+  }    // region loop
 }

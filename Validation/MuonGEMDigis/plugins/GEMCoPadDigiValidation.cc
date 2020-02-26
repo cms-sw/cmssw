@@ -1,9 +1,7 @@
 #include "Validation/MuonGEMDigis/plugins/GEMCoPadDigiValidation.h"
 
-
 GEMCoPadDigiValidation::GEMCoPadDigiValidation(const edm::ParameterSet& pset)
     : GEMBaseValidation(pset, "GEMCoPadDigiValidation") {
-
   const auto& copad_pset = pset.getParameterSet("gemCoPadDigi");
 
   const auto& copad_tag = copad_pset.getParameter<edm::InputTag>("inputTag");
@@ -12,7 +10,6 @@ GEMCoPadDigiValidation::GEMCoPadDigiValidation(const edm::ParameterSet& pset)
   gem_bx_min_ = copad_pset.getParameter<int>("minBX");
   gem_bx_max_ = copad_pset.getParameter<int>("maxBX");
 }
-
 
 void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                             edm::Run const& run,
@@ -35,18 +32,26 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
       me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "copad", "CoPad");
 
       if (detail_plot_) {
-        me_detail_occ_xy_[key2] = bookXYOccupancy(booker, key2, "copad","CoPad");
+        me_detail_occ_xy_[key2] = bookXYOccupancy(booker, key2, "copad", "CoPad");
 
-        me_detail_occ_phi_pad_[key2] = bookHist2D(
-            booker, key2, "copad_occ_phi_pad", "CoPad Occupancy",
-            280, -M_PI, M_PI, num_pads / 2, 0, num_pads, "#phi [rad]", "Pad number");
+        me_detail_occ_phi_pad_[key2] = bookHist2D(booker,
+                                                  key2,
+                                                  "copad_occ_phi_pad",
+                                                  "CoPad Occupancy",
+                                                  280,
+                                                  -M_PI,
+                                                  M_PI,
+                                                  num_pads / 2,
+                                                  0,
+                                                  num_pads,
+                                                  "#phi [rad]",
+                                                  "Pad number");
 
         me_detail_occ_pad_[key2] = bookHist1D(
-            booker, key2, "copad_occ_pad", "CoPad Ocupancy per pad number",
-            num_pads, 0.5, num_pads + 0.5, "Pad number");
+            booker, key2, "copad_occ_pad", "CoPad Ocupancy per pad number", num_pads, 0.5, num_pads + 0.5, "Pad number");
       }
-    } // station loop
-  } // region loop
+    }  // station loop
+  }    // region loop
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
@@ -58,20 +63,16 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
         Int_t station_id = station->station();
         ME2IdsKey key2{region_id, station_id};
 
-        me_detail_bx_[key2] = bookHist1D(
-            booker, key2, "copad_bx", "CoPad Bunch Crossing",
-            5, -2.5, 2.5, "Bunch crossing");
-      } // station loop
-    } // region loop
-  } // detail plot
+        me_detail_bx_[key2] =
+            bookHist1D(booker, key2, "copad_bx", "CoPad Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
+      }  // station loop
+    }    // region loop
+  }      // detail plot
 }
-
 
 GEMCoPadDigiValidation::~GEMCoPadDigiValidation() {}
 
-
-void GEMCoPadDigiValidation::analyze(const edm::Event& event,
-                                     const edm::EventSetup& setup) {
+void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   const GEMGeometry* gem = initGeometry(setup);
 
   edm::Handle<GEMCoPadDigiCollection> copad_collection;
@@ -81,7 +82,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event,
     return;
   }
 
-  // GEMCoPadDigiCollection::DigiRangeIterator 
+  // GEMCoPadDigiCollection::DigiRangeIterator
   for (auto range_iter = copad_collection->begin(); range_iter != copad_collection->end(); range_iter++) {
     GEMDetId gemid = (*range_iter).first;
     const GEMCoPadDigiCollection::Range& range = (*range_iter).second;
@@ -102,11 +103,10 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event,
 
       const GeomDet* geom_det = gem->idToDet(super_chamber_id);
       if (geom_det == nullptr) {
-        edm::LogError(kLogCategory_)
-            << super_chamber_id << " : This detId cannot be "
-            << "loaded from GEMGeometry // Original" << gemid
-            << " station : " << station_id << std::endl
-            << "Getting DetId failed. Discard this gem copad hit." << std::endl;
+        edm::LogError(kLogCategory_) << super_chamber_id << " : This detId cannot be "
+                                     << "loaded from GEMGeometry // Original" << gemid << " station : " << station_id
+                                     << std::endl
+                                     << "Getting DetId failed. Discard this gem copad hit." << std::endl;
         continue;
       }
 
@@ -155,7 +155,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event,
         me_detail_occ_pad_[key2]->Fill(pad1);
         me_detail_bx_[key2]->Fill(bx1);
         me_detail_bx_[key2]->Fill(bx2);
-      } // detail_plot_
-    } // loop over digis
-  } // loop over range iters
+      }  // detail_plot_
+    }    // loop over digis
+  }      // loop over range iters
 }

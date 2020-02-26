@@ -4,15 +4,14 @@
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
-
 class GEMCoPadDigiValidation : public GEMBaseValidation {
- public:
+public:
   explicit GEMCoPadDigiValidation(const edm::ParameterSet&);
   ~GEMCoPadDigiValidation() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- private:
+private:
   //
   MEMap1Ids me_occ_zr_;
   MEMap2Ids me_occ_det_;
@@ -29,4 +28,4 @@ class GEMCoPadDigiValidation : public GEMBaseValidation {
   int gem_bx_min_, gem_bx_max_;
 };
 
-#endif // Validation_MuonGEMDigis_GEMCoPadDigiValidation_h
+#endif  // Validation_MuonGEMDigis_GEMCoPadDigiValidation_h

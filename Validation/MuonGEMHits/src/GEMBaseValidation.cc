@@ -5,9 +5,7 @@
 
 #include <memory>
 
-
-GEMBaseValidation::GEMBaseValidation(const edm::ParameterSet& ps,
-                                     std::string log_category)
+GEMBaseValidation::GEMBaseValidation(const edm::ParameterSet& ps, std::string log_category)
     : kLogCategory_(log_category) {
   zr_occ_num_bins_ = ps.getUntrackedParameter<std::vector<Int_t> >("ZROccNumBins");
   zr_occ_range_ = ps.getUntrackedParameter<std::vector<Double_t> >("ZROccRange");
@@ -18,9 +16,7 @@ GEMBaseValidation::GEMBaseValidation(const edm::ParameterSet& ps,
   detail_plot_ = ps.getParameter<Bool_t>("detailPlot");
 }
 
-
 GEMBaseValidation::~GEMBaseValidation() {}
-
 
 const GEMGeometry* GEMBaseValidation::initGeometry(edm::EventSetup const& setup) {
   edm::ESHandle<GEMGeometry> geom_handle;
@@ -29,22 +25,14 @@ const GEMGeometry* GEMBaseValidation::initGeometry(edm::EventSetup const& setup)
   return gem;
 }
 
+Int_t GEMBaseValidation::getDetOccBinX(Int_t chamber_id, Int_t layer_id) { return 2 * chamber_id + layer_id - 2; }
 
-Int_t GEMBaseValidation::getDetOccBinX(Int_t chamber_id, Int_t layer_id) {
-  return 2 * chamber_id + layer_id - 2;
-}
-
-
-Bool_t GEMBaseValidation::isMuonSimHit(const PSimHit& simhit) {
-  return std::abs(simhit.particleType()) == kMuonPDGId_;
-}
-
+Bool_t GEMBaseValidation::isMuonSimHit(const PSimHit& simhit) { return std::abs(simhit.particleType()) == kMuonPDGId_; }
 
 MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker& booker,
                                                    Int_t region_id,
                                                    const char* name_prefix,
                                                    const char* title_prefix) {
-
   const char* name_suffix = GEMUtils::getSuffixName(region_id).Data();
   const char* title_suffix = GEMUtils::getSuffixTitle(region_id).Data();
 

@@ -4,7 +4,7 @@
 #include "Validation/MuonGEMHits/interface/MuonGEMBaseHarvestor.h"
 
 class MuonGEMDigisHarvestor : public MuonGEMBaseHarvestor {
- public:
+public:
   /// constructor
   explicit MuonGEMDigisHarvestor(const edm::ParameterSet&);
   /// destructor
@@ -12,8 +12,8 @@ class MuonGEMDigisHarvestor : public MuonGEMBaseHarvestor {
 
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
- private:
+private:
   std::vector<Int_t> region_ids_, station_ids_, layer_ids_;
 };
 
-#endif // Validation_MuonGEMDigis_MuonGEMDigisHarvestor_h
+#endif  // Validation_MuonGEMDigis_MuonGEMDigisHarvestor_h

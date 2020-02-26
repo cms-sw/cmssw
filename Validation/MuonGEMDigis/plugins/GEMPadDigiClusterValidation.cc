@@ -3,8 +3,8 @@
 
 GEMPadDigiClusterValidation::GEMPadDigiClusterValidation(const edm::ParameterSet& pset)
     : GEMBaseValidation(pset, "GEMPadDigiClusterValidation") {
-  const auto & pad_cluster_pset = pset.getParameterSet("gemPadCluster");
-  const auto & pad_cluster_tag = pad_cluster_pset.getParameter<edm::InputTag>("inputTag");
+  const auto& pad_cluster_pset = pset.getParameterSet("gemPadCluster");
+  const auto& pad_cluster_tag = pad_cluster_pset.getParameter<edm::InputTag>("inputTag");
   pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(pad_cluster_tag);
 }
 
@@ -34,17 +34,23 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
         Int_t num_pads = chamber->etaPartitions().front()->npads();
 
         if (detail_plot_) {
-          me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "pad",
-                                                    "Pad Cluster");
+          me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "pad", "Pad Cluster");
 
-          me_detail_occ_phi_pad_[key3] = bookHist2D(
-              booker, key3, "occ_phi_pad", "Pad Cluster Occupancy",
-              280, -M_PI, M_PI, num_pads / 2, 0, num_pads,
-              "#phi [rad]", "Pad number");
+          me_detail_occ_phi_pad_[key3] = bookHist2D(booker,
+                                                    key3,
+                                                    "occ_phi_pad",
+                                                    "Pad Cluster Occupancy",
+                                                    280,
+                                                    -M_PI,
+                                                    M_PI,
+                                                    num_pads / 2,
+                                                    0,
+                                                    num_pads,
+                                                    "#phi [rad]",
+                                                    "Pad number");
 
-          me_detail_occ_pad_[key3] = bookHist1D(
-              booker, key3, "occ_pad", "Pad Cluster Occupancy",
-              num_pads, 0.5, num_pads + 0.5, "Pad number");
+          me_detail_occ_pad_[key3] =
+              bookHist1D(booker, key3, "occ_pad", "Pad Cluster Occupancy", num_pads, 0.5, num_pads + 0.5, "Pad number");
         }
       }  // end loop over layer ids
     }    // end loop over station ids
@@ -63,21 +69,17 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
         for (const auto& chamber : super_chamber->chambers()) {
           Int_t layer_id = chamber->id().layer();
           ME3IdsKey key3(region_id, station_id, layer_id);
-          me_detail_bx_[key3] =  bookHist1D(booker, key3,
-                                            "bx", "Pad Cluster Bunch Crossing",
-                                            5, -2.5, 2.5, "Bunch crossing");
+          me_detail_bx_[key3] =
+              bookHist1D(booker, key3, "bx", "Pad Cluster Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
         }  // chamber loop
       }    // station loop
     }      // region loop
   }        // detail plot
 }
 
-
 GEMPadDigiClusterValidation::~GEMPadDigiClusterValidation() {}
 
-
-void GEMPadDigiClusterValidation::analyze(const edm::Event& event,
-                                          const edm::EventSetup& setup) {
+void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   const GEMGeometry* gem = initGeometry(setup);
 
   edm::Handle<GEMPadDigiClusterCollection> collection;
@@ -92,9 +94,8 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event,
     const auto& range = (*range_iter).second;
 
     if (gem->idToDet(gemid) == nullptr) {
-      edm::LogError(kLogCategory_)
-          << "Getting DetId failed. Discard this gem pad hit. "
-          << "Maybe it comes from unmatched geometry." << std::endl;
+      edm::LogError(kLogCategory_) << "Getting DetId failed. Discard this gem pad hit. "
+                                   << "Maybe it comes from unmatched geometry." << std::endl;
       continue;
     }
 
@@ -124,16 +125,16 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event,
       Float_t g_y = global_pos.y();
       Float_t g_abs_z = std::fabs(global_pos.z());
 
-       me_occ_zr_[region_id]->Fill(g_abs_z, g_r);
+      me_occ_zr_[region_id]->Fill(g_abs_z, g_r);
 
       Int_t bin_x = getDetOccBinX(chamber_id, layer_id);
-       me_occ_det_[key2]->Fill(bin_x, roll_id);
+      me_occ_det_[key2]->Fill(bin_x, roll_id);
 
-       if (detail_plot_) {
-         me_detail_occ_xy_[key3]->Fill(g_x, g_y);
-         me_detail_occ_phi_pad_[key3]->Fill(g_phi, pad);
-         me_detail_occ_pad_[key3]->Fill(pad);
-         me_detail_bx_[key3]->Fill(bx);
+      if (detail_plot_) {
+        me_detail_occ_xy_[key3]->Fill(g_x, g_y);
+        me_detail_occ_phi_pad_[key3]->Fill(g_phi, pad);
+        me_detail_occ_pad_[key3]->Fill(pad);
+        me_detail_bx_[key3]->Fill(bx);
       }  // detail_plot_
     }
   }  // end loop over range iters
