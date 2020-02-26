@@ -5,7 +5,6 @@
 
 #include <cmath>
 
-
 namespace cms_rounding {
 
   template <class valType>
