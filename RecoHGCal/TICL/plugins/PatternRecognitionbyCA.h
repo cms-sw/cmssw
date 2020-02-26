@@ -21,7 +21,10 @@ namespace ticl {
     void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
 
   private:
+    void mergeTrackstersTRK(const std::vector<Trackster> &,
+        const std::vector<reco::CaloCluster>&, std::vector<Trackster> &) const;
     const std::unique_ptr<HGCGraph> theGraph_;
+    const bool oneTracksterPerTrackSeed_;
     const bool out_in_dfs_;
     const unsigned int max_out_in_hops_;
     const float min_cos_theta_;
