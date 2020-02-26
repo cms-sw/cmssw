@@ -5,7 +5,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1TkEmParticle
-// 
+//
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -14,63 +14,47 @@
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
-
 namespace l1t {
-         
-   class L1TkEmParticle : public L1Candidate
-   {     
-         
-      public:
-           
-         L1TkEmParticle();
 
-	 L1TkEmParticle( const LorentzVector& p4,
-			    const edm::Ref< EGammaBxCollection >& egRef,
-			    float tkisol = -999. );
+  class L1TkEmParticle : public L1Candidate {
+  public:
+    L1TkEmParticle();
 
-       L1TkEmParticle( const LorentzVector& p4,
-                      const edm::Ref< EGammaBxCollection >& egRef,
-                      float tkisol = -999. , float tkisolPV = -999);
+    L1TkEmParticle(const LorentzVector& p4, const edm::Ref<EGammaBxCollection>& egRef, float tkisol = -999.);
 
+    L1TkEmParticle(const LorentzVector& p4,
+                   const edm::Ref<EGammaBxCollection>& egRef,
+                   float tkisol = -999.,
+                   float tkisolPV = -999);
 
-	virtual ~L1TkEmParticle() {}
+    virtual ~L1TkEmParticle() {}
 
-         // ---------- const member functions ---------------------
+    // ---------- const member functions ---------------------
 
-	 const edm::Ref< EGammaBxCollection >& getEGRef() const
-	 { return egRef_ ; }
+    const edm::Ref<EGammaBxCollection>& getEGRef() const { return egRef_; }
 
-         const double l1RefEta() const
-         { return egRef_->eta() ; }
+    const double l1RefEta() const { return egRef_->eta(); }
 
-         const double l1RefPhi() const
-         { return egRef_->phi() ; }
+    const double l1RefPhi() const { return egRef_->phi(); }
 
-         const double l1RefEt() const
-         { return egRef_->et() ; }
+    const double l1RefEt() const { return egRef_->et(); }
 
-	 float getTrkIsol() const { return TrkIsol_ ; } // not constrained to the PV, just track ptSum 
+    float getTrkIsol() const { return TrkIsol_; }  // not constrained to the PV, just track ptSum
 
-       float getTrkIsolPV() const { return TrkIsolPV_ ; } // constrained to the PV by DZ
- 
+    float getTrkIsolPV() const { return TrkIsolPV_; }  // constrained to the PV by DZ
 
+    // ---------- member functions ---------------------------
 
-         // ---------- member functions ---------------------------
+    void setTrkIsol(float TrkIsol) { TrkIsol_ = TrkIsol; }
+    void setTrkIsolPV(float TrkIsolPV) { TrkIsolPV_ = TrkIsolPV; }
 
-	 void setTrkIsol(float TrkIsol)  { TrkIsol_ = TrkIsol ; }
-       void setTrkIsolPV(float TrkIsolPV)  { TrkIsolPV_ = TrkIsolPV ; }
+    //	 int bx() const;
 
-     //	 int bx() const;
-
-      private:
-
-	 edm::Ref< EGammaBxCollection > egRef_ ;
-	 float TrkIsol_;
-       float TrkIsolPV_;
-
-    };
-}
+  private:
+    edm::Ref<EGammaBxCollection> egRef_;
+    float TrkIsol_;
+    float TrkIsolPV_;
+  };
+}  // namespace l1t
 
 #endif
-
-

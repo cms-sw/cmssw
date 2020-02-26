@@ -54,74 +54,82 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace 
-{
+namespace {
   struct dictionary1 {
     /// Main template type
-    Ref_Phase2TrackerDigi_  PD;
-    std::vector< Ref_Phase2TrackerDigi_ >                              V_PD;
+    Ref_Phase2TrackerDigi_ PD;
+    std::vector<Ref_Phase2TrackerDigi_> V_PD;
   };
 
   struct dictionary2 {
     /// TTCluster and containers
-    TTCluster< Ref_Phase2TrackerDigi_ >                                               C_PD;
-    std::vector< TTCluster< Ref_Phase2TrackerDigi_ > >                              V_C_PD;
-    edm::Wrapper< std::vector< TTCluster< Ref_Phase2TrackerDigi_ > > >            W_V_C_PD;
-    edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >                   SDV_C_PD;
-    edm::Wrapper< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > W_SDV_C_PD;
+    TTCluster<Ref_Phase2TrackerDigi_> C_PD;
+    std::vector<TTCluster<Ref_Phase2TrackerDigi_> > V_C_PD;
+    edm::Wrapper<std::vector<TTCluster<Ref_Phase2TrackerDigi_> > > W_V_C_PD;
+    edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_> > SDV_C_PD;
+    edm::Wrapper<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_> > > W_SDV_C_PD;
 
     /// edm::Ref to TTCluster in edmNew::DetSetVector and containers
-    edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > >                                    R_C_PD;
-    edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > >                  W_R_C_PD;
-    std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > >                   V_R_C_PD;
-    edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > > > W_V_R_C_PD;
+    edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_> >, TTCluster<Ref_Phase2TrackerDigi_> > R_C_PD;
+    edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_> >, TTCluster<Ref_Phase2TrackerDigi_> > >
+        W_R_C_PD;
+    std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_> >, TTCluster<Ref_Phase2TrackerDigi_> > >
+        V_R_C_PD;
+    edm::Wrapper<std::vector<
+        edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_> >, TTCluster<Ref_Phase2TrackerDigi_> > > >
+        W_V_R_C_PD;
   };
 
   struct dictionary3 {
     /// TTStub and containers
-    TTStub< Ref_Phase2TrackerDigi_ >                                               S_PD;
-    std::vector< TTStub< Ref_Phase2TrackerDigi_ > >                              V_S_PD;
-    edm::Wrapper< std::vector< TTStub< Ref_Phase2TrackerDigi_ > > >            W_V_S_PD;
-    edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >                   SDV_S_PD;
-    edm::Wrapper< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > W_SDV_S_PD;
+    TTStub<Ref_Phase2TrackerDigi_> S_PD;
+    std::vector<TTStub<Ref_Phase2TrackerDigi_> > V_S_PD;
+    edm::Wrapper<std::vector<TTStub<Ref_Phase2TrackerDigi_> > > W_V_S_PD;
+    edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> > SDV_S_PD;
+    edm::Wrapper<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> > > W_SDV_S_PD;
 
     /// edm::Ref to TTStub in edmNew::DetSetVector and containers
-    edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > >                                    R_S_PD;
-    edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >                  W_R_S_PD;
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >                   V_R_S_PD;
-    edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > > W_V_R_S_PD;
+    edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > R_S_PD;
+    edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+        W_R_S_PD;
+    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+        V_R_S_PD;
+    edm::Wrapper<
+        std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > > >
+        W_V_R_S_PD;
   };
-
 
   struct dictionarytrack {
     /// TTTrack and containers
-    TTTrack< Ref_Phase2TrackerDigi_ >                                               T_PD;
-    std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >                              V_T_PD;
-    edm::Wrapper< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >            W_V_T_PD;
-    edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >                   SDV_T_PD;
-    edm::Wrapper< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > > > W_SDV_T_PD;
+    TTTrack<Ref_Phase2TrackerDigi_> T_PD;
+    std::vector<TTTrack<Ref_Phase2TrackerDigi_> > V_T_PD;
+    edm::Wrapper<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > W_V_T_PD;
+    edmNew::DetSetVector<TTTrack<Ref_Phase2TrackerDigi_> > SDV_T_PD;
+    edm::Wrapper<edmNew::DetSetVector<TTTrack<Ref_Phase2TrackerDigi_> > > W_SDV_T_PD;
 
     /// edm::Ref to TTTrack in edmNew::DetSetVector and containers
-    edm::Ref< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >, TTTrack< Ref_Phase2TrackerDigi_ > >                                    R_T_PD;
-    edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >                                                                                               P_T_PD;
-    edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >, TTTrack< Ref_Phase2TrackerDigi_ > > >                  W_R_T_PD;
-    std::vector< edm::Ref< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >, TTTrack< Ref_Phase2TrackerDigi_ > > >                   V_R_T_PD;
-    edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >, TTTrack< Ref_Phase2TrackerDigi_ > > > > W_V_R_T_PD;
+    edm::Ref<edmNew::DetSetVector<TTTrack<Ref_Phase2TrackerDigi_> >, TTTrack<Ref_Phase2TrackerDigi_> > R_T_PD;
+    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > P_T_PD;
+    edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTTrack<Ref_Phase2TrackerDigi_> >, TTTrack<Ref_Phase2TrackerDigi_> > >
+        W_R_T_PD;
+    std::vector<edm::Ref<edmNew::DetSetVector<TTTrack<Ref_Phase2TrackerDigi_> >, TTTrack<Ref_Phase2TrackerDigi_> > >
+        V_R_T_PD;
+    edm::Wrapper<
+        std::vector<edm::Ref<edmNew::DetSetVector<TTTrack<Ref_Phase2TrackerDigi_> >, TTTrack<Ref_Phase2TrackerDigi_> > > >
+        W_V_R_T_PD;
   };
 
-
-//  L1TrackTriggerObjects stuff :
+  //  L1TrackTriggerObjects stuff :
 
   struct dictionaryl1tkobj {
     // L1 Primary Vertex
     l1t::L1TkPrimaryVertex trzvtx;
     edm::Wrapper<l1t::L1TkPrimaryVertexCollection> trzvtxColl;
-    edm::Ref<l1t::L1TkPrimaryVertexCollection > trkvtxRef ;
-    
-    
+    edm::Ref<l1t::L1TkPrimaryVertexCollection> trkvtxRef;
+
     // L1TkEtMiss... following L1EtMiss...
-    l1t::L1TkEtMissParticle TketMiss ;
-    l1t::L1TkEtMissParticleCollection TketMissColl ;
+    l1t::L1TkEtMissParticle TketMiss;
+    l1t::L1TkEtMissParticleCollection TketMissColl;
     edm::Wrapper<l1t::L1TkEtMissParticle> w_TketMiss;
     edm::Wrapper<l1t::L1TkEtMissParticleCollection> w_TketMissColl;
     //l1t::L1TkEtMissParticleRef refTkEtMiss ;
@@ -130,63 +138,63 @@ namespace
     //l1t::L1TkEtMissParticleRefProd refTkProdEtMiss ;
     //edm::reftobase::Holder<reco::Candidate, l1t::L1TkEtMissParticleRef> rtbTkm1;
     //edm::reftobase::Holder<reco::Candidate, l1t::L1TkEtMissParticleRefProd> rtbTkm2;
-    
+
     // L1TkEmParticle
-    l1t::L1TkEmParticleCollection trkemColl ;
+    l1t::L1TkEmParticleCollection trkemColl;
     edm::Wrapper<l1t::L1TkEmParticleCollection> w_trkemColl;
-    l1t::L1TkEmParticleRef reftrkEm ;
+    l1t::L1TkEmParticleRef reftrkEm;
     //l1t::L1TkEmParticleRefVector refVectrkEmColl ;
     //l1t::L1TkEmParticleVectorRef vecReftrkEmColl ;
     //edm::reftobase::Holder<reco::Candidate, l1t::L1TkEmParticleRef> rtbtrke;
 
     // L1TkEGTauParticle
-    l1t::L1TkEGTauParticleCollection trkegColl ;
+    l1t::L1TkEGTauParticleCollection trkegColl;
     edm::Wrapper<l1t::L1TkEGTauParticleCollection> w_trkegColl;
-    l1t::L1TkEGTauParticleRef reftrkEG ;
+    l1t::L1TkEGTauParticleRef reftrkEG;
 
     // L1TrkTauParticle
-    l1t::L1TrkTauParticleCollection tktauColl ;
+    l1t::L1TrkTauParticleCollection tktauColl;
     edm::Wrapper<l1t::L1TrkTauParticleCollection> w_tktauColl;
-    l1t::L1TrkTauParticleRef reftkTau ;
-    
+    l1t::L1TrkTauParticleRef reftkTau;
+
     // L1CaloTkTauParticle
-    l1t::L1CaloTkTauParticleCollection calotrktauColl ;
+    l1t::L1CaloTkTauParticleCollection calotrktauColl;
     edm::Wrapper<l1t::L1CaloTkTauParticleCollection> w_calotrktauColl;
-    l1t::L1CaloTkTauParticleRef refcalotrkTau ;
+    l1t::L1CaloTkTauParticleRef refcalotrkTau;
 
     // L1TkElectronParticle
-    l1t::L1TkElectronParticleCollection trkeleColl ;
+    l1t::L1TkElectronParticleCollection trkeleColl;
     edm::Wrapper<l1t::L1TkElectronParticleCollection> w_trkeleColl;
-    l1t::L1TkElectronParticleRef reftrkEle ;
-    
+    l1t::L1TkElectronParticleRef reftrkEle;
+
     // L1TkJetParticle
-    l1t::L1TkJetParticleCollection trkjetColl ;
+    l1t::L1TkJetParticleCollection trkjetColl;
     edm::Wrapper<l1t::L1TkJetParticleCollection> w_trkjetColl;
-    l1t::L1TkJetParticleRef reftrkJet ;
-    l1t::L1TkJetParticleRefProd refTkProdJet ;
-    
+    l1t::L1TkJetParticleRef reftrkJet;
+    l1t::L1TkJetParticleRefProd refTkProdJet;
+
     // L1TkHTMissParticle
-     l1t::L1TkHTMissParticle TkHTMiss ;
-    l1t::L1TkHTMissParticleCollection TkHTMissColl ;
+    l1t::L1TkHTMissParticle TkHTMiss;
+    l1t::L1TkHTMissParticleCollection TkHTMissColl;
     edm::Wrapper<l1t::L1TkHTMissParticle> w_TkHTMiss;
     edm::Wrapper<l1t::L1TkHTMissParticleCollection> w_TkHTMissColl;
-    
+
     /*
     // L1TkMuonParticle
     l1t::L1TkMuonParticleCollection trkmuColl ;
     edm::Wrapper<l1t::L1TkMuonParticleCollection> w_trkmuColl;
     l1t::L1TkMuonParticleRef reftrkMu ;
     */
-    
+
     // L1TkGlbMuonParticle
-    l1t::L1TkGlbMuonParticleCollection trkglbmuColl ;
+    l1t::L1TkGlbMuonParticleCollection trkglbmuColl;
     edm::Wrapper<l1t::L1TkGlbMuonParticleCollection> w_trkglbmuColl;
-    l1t::L1TkGlbMuonParticleRef reftrkGlbMu ;
-    
+    l1t::L1TkGlbMuonParticleRef reftrkGlbMu;
+
     // L1TkTauParticle
-    l1t::L1TkTauParticleCollection trktauColl ;
+    l1t::L1TkTauParticleCollection trktauColl;
     edm::Wrapper<l1t::L1TkTauParticleCollection> w_trktauColl;
-    l1t::L1TkTauParticleRef reftrkTau ;
+    l1t::L1TkTauParticleRef reftrkTau;
 
     // L1TkPhiCandidate
     l1t::L1TkPhiCandidateCollection trkPhiColl;
@@ -199,8 +207,7 @@ namespace
     edm::Wrapper<l1t::L1TkBsCandidateCollection> w_trkBsColl;
     l1t::L1TkBsCandidateRef reftrkBs;
     //l1t::L1TkBsCandidateRefProd refTkProdBs;
-    
   };
-}
+}  // namespace
 
 #endif

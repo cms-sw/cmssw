@@ -5,7 +5,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1TrkTauParticle
-// 
+//
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -16,56 +16,47 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
-namespace l1t { 
+namespace l1t {
 
-  class L1TrkTauParticle ;
-  
-  typedef std::vector< L1TrkTauParticle > L1TrkTauParticleCollection ;
-  
-  typedef edm::Ref< L1TrkTauParticleCollection > L1TrkTauParticleRef ;
-  typedef edm::RefVector< L1TrkTauParticleCollection > L1TrkTauParticleRefVector ;
-  typedef std::vector< L1TrkTauParticleRef > L1TrkTauParticleVectorRef ;
-  
-  typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
-  typedef std::vector< L1TTTrackType > L1TTTrackCollection;
-  typedef edm::Ptr< L1TTTrackType > L1TTTrackRefPtr;
-  typedef std::vector< L1TTTrackRefPtr > L1TTTrackRefPtr_Collection;
+  class L1TrkTauParticle;
 
-  class L1TrkTauParticle : public L1Candidate
-  {     
-    
+  typedef std::vector<L1TrkTauParticle> L1TrkTauParticleCollection;
+
+  typedef edm::Ref<L1TrkTauParticleCollection> L1TrkTauParticleRef;
+  typedef edm::RefVector<L1TrkTauParticleCollection> L1TrkTauParticleRefVector;
+  typedef std::vector<L1TrkTauParticleRef> L1TrkTauParticleVectorRef;
+
+  typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
+  typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+  typedef edm::Ptr<L1TTTrackType> L1TTTrackRefPtr;
+  typedef std::vector<L1TTTrackRefPtr> L1TTTrackRefPtr_Collection;
+
+  class L1TrkTauParticle : public L1Candidate {
   public:
-    
     L1TrkTauParticle();
-    
 
-    L1TrkTauParticle( const LorentzVector& p4,
-		    const std::vector< L1TTTrackRefPtr >& clustTracks,
-		    float iso = -999. );
+    L1TrkTauParticle(const LorentzVector& p4, const std::vector<L1TTTrackRefPtr>& clustTracks, float iso = -999.);
 
     virtual ~L1TrkTauParticle() {}
-      
+
     // ---------- const member functions ---------------------
 
     const L1TTTrackRefPtr getSeedTrk() const { return clustTracks_.at(0); }
 
-    const std::vector< L1TTTrackRefPtr > getTrks() const { return clustTracks_; }
+    const std::vector<L1TTTrackRefPtr> getTrks() const { return clustTracks_; }
 
-    float getIso() const { return iso_ ; } 
-    
+    float getIso() const { return iso_; }
+
     // ---------- member functions ---------------------------
-    
-    void setIso(float iso)  { iso_ = iso ; }
-    
-    //	 int bx() const;
-    
-  private:
-    std::vector< L1TTTrackRefPtr > clustTracks_;
-    float iso_;
 
+    void setIso(float iso) { iso_ = iso; }
+
+    //	 int bx() const;
+
+  private:
+    std::vector<L1TTTrackRefPtr> clustTracks_;
+    float iso_;
   };
-}
+}  // namespace l1t
 
 #endif
-
-

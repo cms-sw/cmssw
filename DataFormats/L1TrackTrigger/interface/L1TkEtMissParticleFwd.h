@@ -11,11 +11,11 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace l1t {
-   class L1TkEtMissParticle ;
-   typedef std::vector< L1TkEtMissParticle > L1TkEtMissParticleCollection ;
-   //typedef edm::RefProd< L1TkEtMissParticle > L1TkEtMissParticleRefProd ;
-   //typedef edm::Ref< L1TkEtMissParticleCollection > L1TkEtMissParticleRef ;
-   //typedef edm::RefVector< L1TkEtMissParticleCollection > L1TkEtMissParticleRefVector ;
-   //typedef std::vector< L1TkEtMissParticleRef > L1TkEtMissParticleVectorRef ;
-}
+  class L1TkEtMissParticle;
+  typedef std::vector<L1TkEtMissParticle> L1TkEtMissParticleCollection;
+  //typedef edm::RefProd< L1TkEtMissParticle > L1TkEtMissParticleRefProd ;
+  //typedef edm::Ref< L1TkEtMissParticleCollection > L1TkEtMissParticleRef ;
+  //typedef edm::RefVector< L1TkEtMissParticleCollection > L1TkEtMissParticleRefVector ;
+  //typedef std::vector< L1TkEtMissParticleRef > L1TkEtMissParticleVectorRef ;
+}  // namespace l1t
 #endif

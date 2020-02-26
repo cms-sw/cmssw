@@ -5,7 +5,7 @@
 //
 // Package:     DataFormats/L1TrackerTrigger
 // Class:       L1TkBsCandidate
-// 
+//
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -15,20 +15,17 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkPhiCandidateFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
-namespace l1t {         
-  class L1TkBsCandidate: public L1Candidate {
+namespace l1t {
+  class L1TkBsCandidate : public L1Candidate {
   public:
-    
     L1TkBsCandidate();
-    L1TkBsCandidate(const LorentzVector& p4,
-		    L1TkPhiCandidate cand1,
-		    L1TkPhiCandidate cand2);
-    
+    L1TkBsCandidate(const LorentzVector& p4, L1TkPhiCandidate cand1, L1TkPhiCandidate cand2);
+
     virtual ~L1TkBsCandidate() {}
-    
-    // ---------- const member functions ---------------------    
+
+    // ---------- const member functions ---------------------
     const L1TkPhiCandidate& getPhiCandidate(size_t i) const { return phiCandList_.at(i); }
-    
+
     // ---------- member functions ---------------------------
 
     // deltaR between track pair
@@ -39,8 +36,7 @@ namespace l1t {
     double dzPhiPair() const;
 
   private:
-    
     L1TkPhiCandidateCollection phiCandList_;
   };
-}
+}  // namespace l1t
 #endif

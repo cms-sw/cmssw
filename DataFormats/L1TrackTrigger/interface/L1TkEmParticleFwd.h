@@ -5,24 +5,21 @@
 //
 // Package:     L1Trigger
 // Class  :     L1TkEmParticleFwd
-// 
+//
 
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-
 namespace l1t {
 
-   class L1TkEmParticle ;
+  class L1TkEmParticle;
 
-   typedef std::vector< L1TkEmParticle > L1TkEmParticleCollection ;
+  typedef std::vector<L1TkEmParticle> L1TkEmParticleCollection;
 
-   typedef edm::Ref< L1TkEmParticleCollection > L1TkEmParticleRef ;
-   typedef edm::RefVector< L1TkEmParticleCollection > L1TkEmParticleRefVector ;
-   typedef std::vector< L1TkEmParticleRef > L1TkEmParticleVectorRef ;
-}
+  typedef edm::Ref<L1TkEmParticleCollection> L1TkEmParticleRef;
+  typedef edm::RefVector<L1TkEmParticleCollection> L1TkEmParticleRefVector;
+  typedef std::vector<L1TkEmParticleRef> L1TkEmParticleVectorRef;
+}  // namespace l1t
 
 #endif
-
-
