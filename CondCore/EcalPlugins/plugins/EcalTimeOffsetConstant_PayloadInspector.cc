@@ -112,8 +112,8 @@ namespace {
             val[1] = it.getEEValue();
 
           } else {
-	    double row = NbRows - 0.5;
-	    align->Fill(0.5, row, it.getEBValue() - val[0]);
+            double row = NbRows - 0.5;
+            align->Fill(0.5, row, it.getEBValue() - val[0]);
             align->Fill(1.5, row, it.getEEValue() - val[1]);
           }
 
