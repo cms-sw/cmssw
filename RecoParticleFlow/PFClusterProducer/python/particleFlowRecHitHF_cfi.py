@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
 
     navigator = cms.PSet(
-        name = cms.string("PFRecHitHCALNavigator"),
+        name = cms.string("PFRecHitHCALDenseIdNavigator"),
         detectorEnums = cms.vint32(4)
     ),
     producers = cms.VPSet(
@@ -36,9 +36,9 @@ particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
                                  detectorEnum = cms.int32(4))
                       )
                   )
-                      
+
           )
-    )             
+    )
   )
 
 )

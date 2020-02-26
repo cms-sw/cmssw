@@ -30,14 +30,14 @@ PFRecHitProducer::~PFRecHitProducer() = default;
 // member functions
 //
 
-void PFRecHitProducer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
+void PFRecHitProducer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup) {
   for (const auto& creator : creators_) {
     creator->init(iSetup);
   }
   navigator_->init(iSetup);
 }
 
-void PFRecHitProducer::endRun(const edm::Run&, const edm::EventSetup&) {}
+void PFRecHitProducer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup&) {}
 
 // ------------ method called to produce the data  ------------
 void PFRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
