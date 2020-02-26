@@ -1,3 +1,4 @@
+#include "DataFormats/Math/interface/Rounding.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -12,6 +13,7 @@
 using namespace std;
 using namespace cms;
 using namespace edm;
+using namespace cms_rounding;
 
 class DTGeometryTest : public one::EDAnalyzer<> {
 public:
@@ -48,9 +50,9 @@ void DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("DTGeometryTest").log([&](auto& log) {
     for (auto det : pDD->chambers()) {
       const BoundPlane& surf = det->surface();
-      log << "Chamber " << det->id() << " Position " << surf.position() << " normVect " << surf.normalVector()
-          << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
-          << surf.bounds().length() << "\n";
+      log << "Chamber " << det->id() << " Position " << surf.position() << " normVect "
+          << roundVecIfNear0(surf.normalVector()) << " bounds W/H/L: " << surf.bounds().width() << "/"
+          << surf.bounds().thickness() << "/" << surf.bounds().length() << "\n";
     }
   });
   LogVerbatim("DTGeometryTest") << "END " << string(120, '-');
@@ -61,7 +63,7 @@ void DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup) {
     for (auto det : pDD->superLayers()) {
       const BoundPlane& surf = det->surface();
       log << "SuperLayer " << det->id() << " chamber " << det->chamber()->id() << " Position " << surf.position()
-          << " normVect " << surf.normalVector() << " bounds W/H/L: " << surf.bounds().width() << "/"
+          << " normVect " << roundVecIfNear0(surf.normalVector()) << " bounds W/H/L: " << surf.bounds().width() << "/"
           << surf.bounds().thickness() << "/" << surf.bounds().length() << "\n";
     }
   });
@@ -77,7 +79,7 @@ void DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup) {
       log << "Layer " << det->id() << " SL " << det->superLayer()->id() << " chamber " << det->chamber()->id()
           << " Topology W/H/L: " << topo.cellWidth() << "/" << topo.cellHeight() << "/" << topo.cellLenght()
           << " first/last/# wire " << topo.firstChannel() << "/" << topo.lastChannel() << "/" << topo.channels()
-          << " Position " << surf.position() << " normVect " << surf.normalVector()
+          << " Position " << surf.position() << " normVect " << roundVecIfNear0(surf.normalVector())
           << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
           << surf.bounds().length() << "\n";
     }
