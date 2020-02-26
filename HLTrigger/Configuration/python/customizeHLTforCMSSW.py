@@ -177,6 +177,7 @@ def customiseForPFRecHitHcalUpdate(process) :
          pset_navi = prod.navigator
          if hasattr(pset_navi, "sigmaCut"): delattr(pset_navi,'sigmaCut')
          if hasattr(pset_navi, "timeResolutionCalc"): delattr(pset_navi,'timeResolutionCalc')
+         pset_navi.name = cms.string("PFRecHitHCALDenseIdNavigator")
          pset_navi.detectorEnums = cms.vint32(1,2)
 
    listHltPFRecHitHF=['hltParticleFlowRecHitHF',
@@ -187,6 +188,7 @@ def customiseForPFRecHitHcalUpdate(process) :
          pset_navi = prod.navigator
          if hasattr(pset_navi, "barrel"): delattr(pset_navi,'barrel')
          if hasattr(pset_navi, "endcap"): delattr(pset_navi,'endcap')
+         pset_navi.name = cms.string("PFRecHitHCALDenseIdNavigator")
          pset_navi.detectorEnums = cms.vint32(4)
 
    return process
