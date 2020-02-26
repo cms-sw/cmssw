@@ -38,8 +38,6 @@ private:
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, int);
 
   void printTrackstersDebug(const std::vector<Trackster> &, const char * label) const;
-  void mergeTrackstersTRK(const std::vector<Trackster> &,
-      const std::vector<reco::CaloCluster>&, std::vector<Trackster> &) const;
   void dumpTrackster(const Trackster &) const;
 
   const edm::EDGetTokenT<std::vector<Trackster>> trackstersem_token_;
@@ -48,7 +46,6 @@ private:
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seedingTrk_token_;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
-  const bool oneTracksterPerTrackSeed_;
   const bool optimiseAcrossTracksters_;
   const int eta_bin_window_;
   const int phi_bin_window_;
@@ -80,7 +77,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
   seedingTrk_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seedingTrk"))),
   clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
   tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
-  oneTracksterPerTrackSeed_(ps.getParameter<bool>("oneTracksterPerTrackSeed")),
   optimiseAcrossTracksters_(ps.getParameter<bool>("optimiseAcrossTracksters")),
   eta_bin_window_(ps.getParameter<int>("eta_bin_window")),
   phi_bin_window_(ps.getParameter<int>("phi_bin_window")),
@@ -153,59 +149,6 @@ void TrackstersMergeProducer::dumpTrackster(const Trackster & t) const {
   LogDebug("TrackstersMergeProducer") << std::endl;
 }
 
-void TrackstersMergeProducer::mergeTrackstersTRK(const std::vector<Trackster> & input,
-    const std::vector<reco::CaloCluster> &layerClusters,
-    std::vector<Trackster> & output) const {
-
-  std::map<int, int> seedIndices;
-
-  output.reserve(input.size());
-
-  for (auto const  & t : input) {
-    if (debug_) {
-      dumpTrackster(t);
-    }
-
-    if (seedIndices.find(t.seedIndex) != seedIndices.end()) {
-      if (debug_) {
-        LogDebug("TrackstersMergeProducer") << "Seed index: " << t.seedIndex
-          << " already used by trackster: " << seedIndices[t.seedIndex]
-          << std::endl;
-      }
-      auto & old = output[seedIndices[t.seedIndex]];
-      auto updated_size = old.vertices.size();
-      if (debug_){
-        LogDebug("TrackstersMergeProducer") << "Old size: " << updated_size << std::endl;
-      }
-      updated_size += t.vertices.size();
-      if (debug_) {
-        LogDebug("TrackstersMergeProducer") << "Updatd size: " << updated_size << std::endl;
-      }
-      old.vertices.reserve(updated_size);
-      old.vertex_multiplicity.reserve(updated_size);
-      std::copy(std::begin(t.vertices),
-          std::end(t.vertices),
-          std::back_inserter(old.vertices)
-          );
-      std::copy(std::begin(t.vertex_multiplicity),
-          std::end(t.vertex_multiplicity),
-          std::back_inserter(old.vertex_multiplicity)
-          );
-    } else {
-      if (debug_) {
-        LogDebug("TrackstersMergeProducer") << "Passing down trackster " << output.size()
-          << " with seedIndex: " << t.seedIndex << std::endl;
-        seedIndices[t.seedIndex] = output.size();
-        output.push_back(t);
-      }
-    }
-  }
-
-  assignPCAtoTracksters(output, layerClusters,
-      rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
-  energyRegressionAndID(layerClusters, output);
-}
-
 void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   rhtools_.getEventSetup(es);
   auto result = std::make_unique<std::vector<Trackster>>();
@@ -232,8 +175,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   edm::Handle<std::vector<Trackster>> tracksterstrk_h;
   evt.getByToken(tracksterstrk_token_, tracksterstrk_h);
-  const auto &tmp_trackstersTRK = *tracksterstrk_h;
-//  usedTrackstersTRK.resize(trackstersTRK.size(), 0);
+  const auto &trackstersTRK = *tracksterstrk_h;
+  usedTrackstersTRK.resize(trackstersTRK.size(), 0);
 
   edm::Handle<std::vector<Trackster>> trackstershad_h;
   evt.getByToken(trackstershad_token_, trackstershad_h);
@@ -245,14 +188,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   const auto & seedingTrk = * seedingTrk_h;
   usedSeeds.resize(seedingTrk.size(), 0);
 
-  if (oneTracksterPerTrackSeed_) {
-    mergeTrackstersTRK(tmp_trackstersTRK, layerClusters, *mergedTrackstersTRK);
-    if (debug_)
-      printTrackstersDebug(*mergedTrackstersTRK, "tracksterTRKMERGED");
-  }
 
-  const auto &trackstersTRK = *mergedTrackstersTRK;
-  usedTrackstersTRK.resize(trackstersTRK.size(), 0);
 
   int tracksterIteration = 0;
   fillTile(tracksterTile, trackstersEM, tracksterIteration++);
@@ -628,7 +564,6 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<edm::InputTag>("seedingTrk", edm::InputTag("ticlSeedingTrk"));
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-  desc.add<bool>("oneTracksterPerTrackSeed", true);
   desc.add<bool>("optimiseAcrossTracksters", true);
   desc.add<int>("eta_bin_window", 1);
   desc.add<int>("phi_bin_window", 1);
