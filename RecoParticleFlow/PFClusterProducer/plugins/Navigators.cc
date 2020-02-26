@@ -6,7 +6,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitDualNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigatorWithTime.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitHCALCachedNavigator.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFECALHashNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/HGCRecHitNavigator.h"
 
@@ -61,9 +61,21 @@ public:
   void init(const edm::EventSetup& iSetup) override { topology_ = std::make_unique<EcalPreshowerTopology>(); }
 };
 
-class PFRecHitHCALNavigator final : public PFRecHitHCALCachedNavigator<HcalDetId, HcalTopology, false> {
+class PFRecHitHCALDenseIdNavigator final : public PFHCALDenseIdNavigator<HcalDetId, HcalTopology, false> {
 public:
-  PFRecHitHCALNavigator(const edm::ParameterSet& iConfig) : PFRecHitHCALCachedNavigator(iConfig) {}
+  PFRecHitHCALDenseIdNavigator(const edm::ParameterSet& iConfig) : PFHCALDenseIdNavigator(iConfig) {}
+};
+
+class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId, HcalTopology, false> {
+public:
+  PFRecHitHCALNavigator(const edm::ParameterSet& iConfig) {}
+
+  void init(const edm::EventSetup& iSetup) override {
+    edm::ESHandle<HcalTopology> hcalTopology;
+    iSetup.get<HcalRecNumberingRecord>().get(hcalTopology);
+    topology_.release();
+    topology_.reset(hcalTopology.product());
+  }
 };
 
 class PFRecHitHCALNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<HcalDetId, HcalTopology, false> {
@@ -145,6 +157,7 @@ DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigator, "PFRecHitECA
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigatorWithTime, "PFRecHitECALNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitCaloTowerNavigator, "PFRecHitCaloTowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitPreshowerNavigator, "PFRecHitPreshowerNavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALDenseIdNavigator, "PFRecHitHCALDenseIdNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigator, "PFRecHitHCALNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigatorWithTime, "PFRecHitHCALNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCEENavigator, "PFRecHitHGCEENavigator");
