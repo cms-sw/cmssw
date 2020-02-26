@@ -35,7 +35,6 @@ public:
   }
 
   void init(const edm::EventSetup& iSetup) override {
-
     bool check = theRecNumberWatcher_.check(iSetup);
     if (!check)
       return;
