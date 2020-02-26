@@ -25,9 +25,11 @@ public:
   
 
 private:
+  const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
   const BeamSpotOnlineObjects* theHLTBS_;
   const BeamSpotOnlineObjects* theLegacyBS_;
   const BeamSpotOnlineObjects* transientBS_;
+  BeamSpotOnlineObjects* fakeBS_;
   bool newHLT_;
   bool newLegacy_;
   //  std::string label_HLT_;

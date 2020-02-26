@@ -13,55 +13,109 @@ using namespace edm;
 
 OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p){
 
-//label_HLT_ = p.getParameter<std::string>("HLTLabel");
-
 auto cc = setWhatProduced(this);
-newHLT_ = false;
-newLegacy_ = false;
 
 transientBS_ = new BeamSpotOnlineObjects;
 theHLTBS_ = new BeamSpotOnlineObjects;
 theLegacyBS_ = new BeamSpotOnlineObjects;
+fakeBS_ = new BeamSpotOnlineObjects;
+fakeBS_->SetBeamWidthX(0.1);
+fakeBS_->SetBeamWidthY(0.1);
+fakeBS_->SetSigmaZ(15.);
+fakeBS_->SetPosition(0.,0.,0.);
+fakeBS_->SetType(-1);
 
 bsHLTToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>();
-bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
+bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();         
+}
 
 
-          
+const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2){
+//Random logic so far ...
+if (bs1->GetSigmaZ()-0.0001 < bs2->GetSigmaZ()){
+   if(bs1->GetSigmaZ()> 5.){
+     return bs1;
+   }else{
+     return bs2;
+   }
+
+}else{
+  if (bs2->GetSigmaZ()> 5.){
+     return bs2;
+   }else{
+     return bs1;
+   }
+}
+   
+
 }
 
 OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
   delete theHLTBS_;
   delete theLegacyBS_;
   delete transientBS_;
+  delete fakeBS_;
 }
 
 
 std::shared_ptr<const BeamSpotOnlineObjects> OnlineBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {
+  
+  if(!(iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>()) && !(iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>())){
+    return std::shared_ptr<const BeamSpotOnlineObjects>(&(*fakeBS_), edm::do_nothing_deleter());
+  }
+   
   auto host = holder_.makeOrGet([]() {
         return new HostType;
   });
+  
 
-  host->ifRecordChanges<BeamSpotOnlineHLTObjectsRcd>(iRecord,
+  newHLT_ = false;
+  newLegacy_ = false;   
+ if(iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>()){
+    host->ifRecordChanges<BeamSpotOnlineHLTObjectsRcd>(iRecord, 
                                            [this, h=host.get()](auto const& rec) {
-      newHLT_ = true;                                       
+      newHLT_ = true;   
       theHLTBS_ = &rec.get(bsHLTToken_);
-      });
-  host->ifRecordChanges<BeamSpotOnlineLegacyObjectsRcd>(iRecord,
+    });
+ }
+  if(iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>()) {
+    host->ifRecordChanges<BeamSpotOnlineLegacyObjectsRcd>(iRecord,
                                            [this, h=host.get()](auto const& rec) {
       newLegacy_ = true;
       theLegacyBS_ = &rec.get(bsLegacyToken_);
       });
+  }
 
+  //we need to compare the transientBS_ which is the last one put in the event with whatever new one arrives. We cannot exclude we 
+  //have both new records at the same LS
+   if (newHLT_ && !newLegacy_)
+   {
+     std::cout<<"pippo1"<<std::endl;
+     //compare newHLT with transientBS_
+     transientBS_ = compareBS(theHLTBS_, transientBS_);
+   }
 
-   if (newHLT_ || newLegacy_){
-    //compare the HLT with Legacy BS values to choose what to use:
-    //sofar passing the HLT one
-     transientBS_ = theHLTBS_;
+   if (newLegacy_ && ! newHLT_){
+     std::cout<<"pippo2"<<std::endl;
+     //compare newLegacy_ with transientBS_
+     transientBS_ = compareBS(theLegacyBS_, transientBS_);
+
+   }
+   if (newHLT_ && newLegacy_){
+     //compare newHLT_ with transientBS_ and then with newLegacy_
+     std::cout<<"pippo3"<<std::endl;
+
+     transientBS_ = compareBS(theHLTBS_, transientBS_);
+     transientBS_ = compareBS(theLegacyBS_, transientBS_);
+     
    };
 
-    
+  std::cout<<"Transient "<<*transientBS_<<std::endl;
+  std::cout <<"Legacy "<<*theLegacyBS_<<std::endl;
+  std::cout <<"HLT "<<*theHLTBS_<<std::endl;
+  
   return std::shared_ptr<const BeamSpotOnlineObjects>(&(*transientBS_), edm::do_nothing_deleter());
+  
 
  };
 
