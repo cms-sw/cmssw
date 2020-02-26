@@ -9,7 +9,6 @@
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/PatCandidates"/>
-<use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
