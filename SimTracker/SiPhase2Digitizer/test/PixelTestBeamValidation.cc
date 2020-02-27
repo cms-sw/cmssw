@@ -31,7 +31,7 @@
 // Some needed units (um are more suited to the pixel size of the sensors)
 using cms_units::operators::operator""_deg;
 // Analogously to CMSUnits (no um defined, using inverse)
-constexpr double operator""_inv_um(long double length) { return length*1e4; }
+constexpr double operator""_inv_um(long double length) { return length * 1e4; }
 
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 
@@ -321,7 +321,8 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
           // Convert the PSimHit center position to the IxI-cell
           const std::pair<double, double> icell_psh = pixel_cell_transformation_(psh_pos, i, pitch);
           // Efficiency: (PSimHit matched to a digi-cluster)/PSimHit
-          vME_eff_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, is_cluster_present);
+          vME_eff_cell_[me_unit][i]->Fill(
+              icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, is_cluster_present);
           vME_pshpos_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um);
           // Digi clusters related histoos
           if (is_cluster_present) {
@@ -333,9 +334,11 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
             vME_dx_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dx_um);
             vME_dy_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dy_um);
             // Charge
-            vME_charge_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
+            vME_charge_cell_[me_unit][i]->Fill(
+                icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
             // Cluster size
-            vME_clsize_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
+            vME_clsize_cell_[me_unit][i]->Fill(
+                icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
           }
         }
       }
