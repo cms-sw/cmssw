@@ -17,6 +17,7 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 // CMSSW Data formats
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -27,11 +28,10 @@
 // XXX - Be careful the relative position
 #include "PixelTestBeamValidation.h"
 
-const double unit_um = 1e-4;  // [cm]
-// NOT USED
-// const double unit_mm = 1e-1;  // [cm]
-
-const double unit_degree = 0.017453292519943295;  // [rad]
+// Some needed units (um are more suited to the pixel size of the sensors)
+using cms_units::operators::operator""_deg;
+// Analogously to CMSUnits (no um defined, using inverse)
+constexpr double operator""_inv_um(long double length) { return length*1e4; }
 
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 
@@ -79,8 +79,8 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
       std::sort(label_v.second->begin(), label_v.second->end());
     } else if (label_v.second->size() == 1) {
       // Create the range with  a +- 1 deg
-      label_v.second->push_back((*label_v.second)[0] + 1. * unit_degree);
-      (*label_v.second)[0] -= 1. * unit_degree;
+      label_v.second->push_back((*label_v.second)[0] + 1.0_deg);
+      (*label_v.second)[0] -= 1.0_deg;
     } else {
       // Not valid,
       throw cms::Exception("Configuration") << "Setup TrackEntryAngle parameters"
@@ -309,8 +309,8 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
         //-const int n_cols = tkDetUnit->specificTopology().ncolumns();
         const auto pitch = tkDetUnit->specificTopology().pitch();
         // Residuals, convert them to longitud units (so far, in units of row, col)
-        const double dx_um = (psh_pos.x() - cluster_position.first) * pitch.first / unit_um;
-        const double dy_um = (psh_pos.y() - cluster_position.second) * pitch.second / unit_um;
+        const double dx_um = (psh_pos.x() - cluster_position.first) * pitch.first * 1.0_inv_um;
+        const double dy_um = (psh_pos.y() - cluster_position.second) * pitch.second * 1.0_inv_um;
         if (is_cluster_present) {
           vME_charge1D_[me_unit]->Fill(cluster_tot);
           vME_dx1D_[me_unit]->Fill(dx_um);
@@ -321,21 +321,21 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
           // Convert the PSimHit center position to the IxI-cell
           const std::pair<double, double> icell_psh = pixel_cell_transformation_(psh_pos, i, pitch);
           // Efficiency: (PSimHit matched to a digi-cluster)/PSimHit
-          vME_eff_cell_[me_unit][i]->Fill(icell_psh.first / unit_um, icell_psh.second / unit_um, is_cluster_present);
-          vME_pshpos_cell_[me_unit][i]->Fill(icell_psh.first / unit_um, icell_psh.second / unit_um);
+          vME_eff_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, is_cluster_present);
+          vME_pshpos_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um);
           // Digi clusters related histoos
           if (is_cluster_present) {
             // Convert to the i-cell
             //const std::pair<double,double> icell_digi_cluster   = pixel_cell_transformation_(cluster_position,i,pitch);
             // Position
-            vME_position_cell_[me_unit][i]->Fill(icell_psh.first / unit_um, icell_psh.second / unit_um);
+            vME_position_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um);
             // Residuals
-            vME_dx_cell_[me_unit][i]->Fill(icell_psh.first / unit_um, icell_psh.second / unit_um, dx_um);
-            vME_dy_cell_[me_unit][i]->Fill(icell_psh.first / unit_um, icell_psh.second / unit_um, dy_um);
+            vME_dx_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dx_um);
+            vME_dy_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dy_um);
             // Charge
-            vME_charge_cell_[me_unit][i]->Fill(icell_psh.first / unit_um, icell_psh.second / unit_um, cluster_tot);
+            vME_charge_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
             // Cluster size
-            vME_clsize_cell_[me_unit][i]->Fill(icell_psh.first / unit_um, icell_psh.second / unit_um, cluster_size);
+            vME_clsize_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
           }
         }
       }
@@ -443,13 +443,13 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
       // The histos per cell
       // Prepare the ranges: 0- whole sensor, 1- cell 1x1, 2-cell 2x2,
       const std::vector<std::pair<double, double>> xranges = {
-          std::make_pair<double, double>(0, (nrows - 1) * pitch.first / unit_um),
-          std::make_pair<double, double>(0, pitch.first / unit_um),
-          std::make_pair<double, double>(0, 2.0 * pitch.first / unit_um)};
+          std::make_pair<double, double>(0, (nrows - 1) * pitch.first * 1.0_inv_um),
+          std::make_pair<double, double>(0, pitch.first * 1.0_inv_um),
+          std::make_pair<double, double>(0, 2.0 * pitch.first * 1.0_inv_um)};
       const std::vector<std::pair<double, double>> yranges = {
-          std::make_pair<double, double>(0, (ncols - 1) * pitch.second / unit_um),
-          std::make_pair<double, double>(0, pitch.second / unit_um),
-          std::make_pair<double, double>(0, 2.0 * pitch.second / unit_um)};
+          std::make_pair<double, double>(0, (ncols - 1) * pitch.second * 1.0_inv_um),
+          std::make_pair<double, double>(0, pitch.second * 1.0_inv_um),
+          std::make_pair<double, double>(0, 2.0 * pitch.second * 1.0_inv_um)};
       for (unsigned int i = 0; i < xranges.size(); ++i) {
         const std::string cell("Cell " + std::to_string(i) + "x" + std::to_string(i) + ": ");
         vME_pshpos_cell_[me_unit].push_back(
