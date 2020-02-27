@@ -144,8 +144,7 @@ void ParticleNetTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
 void ParticleNetTagInfoProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   auto output_tag_infos = std::make_unique<DeepBoostedJetTagInfoCollection>();
 
-  edm::Handle<edm::View<reco::Jet>> jets;
-  iEvent.getByToken(jet_token_, jets);
+  auto jets = iEvent.getHandle(jet_token_);
 
   iEvent.getByToken(vtx_token_, vtxs_);
   if (vtxs_->empty()) {
@@ -218,7 +217,6 @@ void ParticleNetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures &ft
   GlobalVector jet_ref_track_dir(jet.px(), jet.py(), jet.pz());
   const float etasign = jet.eta() > 0 ? 1 : -1;
 
-  std::map<reco::CandidatePtr::key_type, float> puppi_wgt_cache;
   auto puppiWgt = [&](const reco::CandidatePtr &cand) {
     const auto *pack_cand = dynamic_cast<const pat::PackedCandidate *>(&(*cand));
     const auto *reco_cand = dynamic_cast<const reco::PFCandidate *>(&(*cand));
@@ -235,7 +233,6 @@ void ParticleNetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures &ft
       throw edm::Exception(edm::errors::InvalidReference) << "Cannot convert to either pat::PackedCandidate or "
                                                              "reco::PFCandidate";
     }
-    puppi_wgt_cache[cand.key()] = wgt;
     return wgt;
   };
 

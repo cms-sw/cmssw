@@ -1,25 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.FeatureTools.pfParticleNetTagInfos_cfi import pfParticleNetTagInfos
-from RecoBTag.MXNet.pfParticleNetJetTags_cfi import pfParticleNetJetTags as _pfParticleNetJetTags
+from RecoBTag.MXNet.boostedJetMXNetJetTagsProducer_cfi import boostedJetMXNetJetTagsProducer
 from RecoBTag.MXNet.Parameters.ParticleNet.V00.pfParticleNetPreprocessParams_cfi import pfParticleNetPreprocessParams
 from RecoBTag.MXNet.Parameters.ParticleNet.V00.pfMassDecorrelatedParticleNetPreprocessParams_cfi import pfMassDecorrelatedParticleNetPreprocessParams
 from RecoBTag.MXNet.pfParticleNetDiscriminatorsJetTags_cfi import pfParticleNetDiscriminatorsJetTags
 from RecoBTag.MXNet.pfMassDecorrelatedParticleNetDiscriminatorsJetTags_cfi import pfMassDecorrelatedParticleNetDiscriminatorsJetTags
 
-pfParticleNetJetTags = _pfParticleNetJetTags.clone(
+pfParticleNetJetTags = boostedJetMXNetJetTagsProducer.clone(
     preprocessParams = pfParticleNetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-symbol.json',
     param_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-0000.params',
-    debugMode  = False, # debug
 )
 
-pfMassDecorrelatedParticleNetJetTags = _pfParticleNetJetTags.clone(
+pfMassDecorrelatedParticleNetJetTags = boostedJetMXNetJetTagsProducer.clone(
     preprocessParams = pfMassDecorrelatedParticleNetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V00/ParticleNet-symbol.json',
     param_path = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V00/ParticleNet-0000.params',
-    flav_names = cms.vstring("probXbb", "probXcc", "probXqq", "probQCDbb", "probQCDcc", "probQCDb", "probQCDc", "probQCDothers"),
-    debugMode = False,  # debug
+    flav_names = ["probXbb", "probXcc", "probXqq", "probQCDbb", "probQCDcc", 
+                  "probQCDb", "probQCDc", "probQCDothers"],
 )
 
 from CommonTools.PileupAlgos.Puppi_cff import puppi
