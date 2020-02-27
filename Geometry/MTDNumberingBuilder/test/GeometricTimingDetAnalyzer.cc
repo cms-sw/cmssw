@@ -88,13 +88,31 @@ void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   //
   edm::ESHandle<GeometricTimingDet> rDD;
   iSetup.get<IdealGeometryRecord>().get(rDD);
-  edm::LogInfo("GeometricTimingDetAnalyzer")
-      << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
+  edm::LogVerbatim("GeometricTimingDetAnalyzer")
+      << "\n Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
 
   const auto& top = rDD.product();
   dumpGeometricTimingDet(top);
 
-  std::vector<const GeometricTimingDet*> det = rDD->deepComponents();
+  edm::LogVerbatim("GeometricTimingDetAnalyzer") << " SubDetectors and layers:";
+
+  std::vector<const GeometricTimingDet*> det;
+
+  det = rDD->components();
+  for (const auto& it : det) {
+    dumpGeometricTimingDet(it);
+
+    std::vector<const GeometricTimingDet*> layer;
+    layer = it->components();
+    for (const auto& lay : layer) {
+      dumpGeometricTimingDet(lay);
+    }
+  }
+  det.clear();
+
+  edm::LogVerbatim("GeometricTimingDetAnalyzer") << " Modules:";
+
+  det = rDD->deepComponents();
   for (const auto& it : det) {
     dumpGeometricTimingDet(it);
   }
@@ -112,29 +130,34 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
 
   edm::LogVerbatim("GeometricTimingDetAnalyzer").log([&](auto& log) {
     log << "\n---------------------------------------------------------------------------------------\n";
-    log << "Module = " << det->name() << " type = " << det->type() << " rawId = " << det->geographicalID().rawId()
+    log << "Module = " << det->name() << " rawId = " << det->geographicalID().rawId()
         << " Sub/side/RR = " << thisDet.mtdSubDetector() << " " << thisDet.mtdSide() << " " << thisDet.mtdRR() << "\n\n"
-        << "      shape = " << det->shape() << "\n"
+        << " type  = " << det->type() << "\n"
+        << " shape = " << det->shape() << "\n\n"
         << "    radLength " << det->radLength() << "\n"
         << "           xi " << det->xi() << "\n"
         << " PixelROCRows " << det->pixROCRows() << "\n"
         << "   PixROCCols " << det->pixROCCols() << "\n"
         << "   PixelROC_X " << det->pixROCx() << "\n"
         << "   PixelROC_Y " << det->pixROCy() << "\n"
-        << "TrackerStereoDetectors " << (det->stereo() ? "true" : "false") << "\n"
-        << "SiliconAPVNumber " << det->siliconAPVNum() << "\n"
-        << "Siblings numbers = ";
+        << " TrackerStereoDetectors " << (det->stereo() ? "true" : "false") << "\n"
+        << " SiliconAPVNumber " << det->siliconAPVNum() << "\n\n"
+        << " Siblings numbers = ";
     std::vector<int> nv = det->navType();
-    for (auto sib : nv)
+    for (auto sib : nv) {
       log << sib << ", ";
-    log << " And Contains  Daughters: " << det->deepComponents().size() << "\n\n";
-    log << "Translation = " << std::fixed << std::setw(14) << trans.X() << " " << std::setw(14) << trans.Y() << " "
-        << std::setw(14) << trans.Z() << "\n";
-    log << "Rotation    = " << std::fixed << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
+    }
+    log << "\n"
+        << " And Contains SubDetectors: " << det->components().size() << "\n"
+        << " And Contains Daughters:    " << det->deepComponents().size() << "\n"
+        << " Is leaf: " << det->isLeaf() << "\n\n"
+        << " Translation = " << std::fixed << std::setw(14) << trans.X() << " " << std::setw(14) << trans.Y() << " "
+        << std::setw(14) << trans.Z() << "\n"
+        << " Rotation    = " << std::fixed << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
         << std::setw(14) << x.Z() << " " << std::setw(14) << y.X() << " " << std::setw(14) << y.Y() << " "
         << std::setw(14) << y.Z() << " " << std::setw(14) << z.X() << " " << std::setw(14) << z.Y() << " "
-        << std::setw(14) << z.Z() << "\n";
-    log << "Phi = " << std::fixed << std::setw(14) << det->phi() << " Rho = " << std::fixed << std::setw(14)
+        << std::setw(14) << z.Z() << "\n"
+        << " Phi = " << std::fixed << std::setw(14) << det->phi() << " Rho = " << std::fixed << std::setw(14)
         << det->rho() << "\n";
     log << "\n---------------------------------------------------------------------------------------\n";
   });
