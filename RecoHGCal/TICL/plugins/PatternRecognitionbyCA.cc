@@ -190,7 +190,7 @@ void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> & i
       }
       auto & old = output[seedIndices[t.seedIndex]];
       auto updated_size = old.vertices.size();
-      if (algo_verbosity_ > Basic){
+      if (algo_verbosity_ > Basic) {
         LogDebug("HGCPatternRecoByCA") << "Old size: " << updated_size << std::endl;
       }
       updated_size += t.vertices.size();
@@ -211,11 +211,12 @@ void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> & i
       if (algo_verbosity_ > Basic) {
         LogDebug("HGCPatternRecoByCA") << "Passing down trackster " << output.size()
           << " with seedIndex: " << t.seedIndex << std::endl;
-        seedIndices[t.seedIndex] = output.size();
-        output.push_back(t);
       }
+      seedIndices[t.seedIndex] = output.size();
+      output.push_back(t);
     }
   }
+
   output.shrink_to_fit();
 }
 
