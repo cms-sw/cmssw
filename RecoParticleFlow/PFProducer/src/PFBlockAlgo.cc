@@ -151,8 +151,8 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   QuickUnion qu(elements_.size());
   const auto elem_size = elements_.size();
   for (unsigned i = 0; i < elem_size; ++i) {
-    for (unsigned j = 0; j < elem_size; ++j) {
-      if (qu.connected(i, j) || j == i)
+    for (unsigned j = i + 1; j < elem_size; ++j) {
+      if (qu.connected(i, j))
         continue;
       if (!linkTests_[linkTestSquare_[elements_[i]->type()][elements_[j]->type()]]) {
         j = ranges_[elements_[j]->type()].second;
