@@ -42,7 +42,7 @@ namespace gen {
 
     for (size_t i = 0; i < fPartIDs.size(); i++) {
       int particleID = fPartIDs[i];  // this is PDG - need to convert to Py8 ???
-      if ((particleID <= 6 || particleID == 21) && !(fAddAntiParticle)) {
+      if ((particleID <= 5 || particleID == 21) && !(fAddAntiParticle)) {
         throw cms::Exception("PythiaError") << "Attempting to generate quarks or gluons without setting "
                                                "AddAntiParticle to true. This will not handle color properly."
                                             << std::endl;
@@ -63,15 +63,14 @@ namespace gen {
       if (!((fMasterGen->particleData).isParticle(particleID))) {
         particleID = std::fabs(particleID);
       }
-      if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
+      if (1 <= std::abs(particleID) && std::abs(particleID) <= 5) {  // quarks
         (fMasterGen->event).append(particleID, 23, colorindex, 0, px, py, pz, ee, mass);
         if (!fAddAntiParticle)
-          colorindex++;
+          colorindex += 1;
       } else if (std::abs(particleID) == 21) {  // gluons
         (fMasterGen->event).append(21, 23, colorindex, colorindex + 1, px, py, pz, ee, mass);
         if (!fAddAntiParticle) {
-          colorindex++;
-          colorindex++;
+          colorindex += 2;
         }
       }
       // other
@@ -88,13 +87,12 @@ namespace gen {
       // (for example, gamma)
       //
       if (fAddAntiParticle) {
-        if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
+        if (1 <= std::abs(particleID) && std::abs(particleID) <= 5) {  // quarks
           (fMasterGen->event).append(-particleID, 23, 0, colorindex, -px, -py, -pz, ee, mass);
-          colorindex++;
+          colorindex += 1;
         } else if (std::abs(particleID) == 21) {  // gluons
           (fMasterGen->event).append(21, 23, colorindex + 1, colorindex, -px, -py, -pz, ee, mass);
-          colorindex++;
-          colorindex++;
+          colorindex += 2;
         } else {
           if ((fMasterGen->particleData).isParticle(-particleID)) {
             (fMasterGen->event).append(-particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
