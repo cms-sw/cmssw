@@ -1,21 +1,14 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilter.h"
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterHT.h"
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterMultiMother.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaDauFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaProbeFilter.h"
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterGammaJet.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilterGammaGamma.h"
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterZJet.h"
-#include "GeneratorInterface/GenFilters/plugins/PythiaHLTSoupFilter.h"
-#include "GeneratorInterface/GenFilters/plugins/BsJpsiPhiFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/JetFlavourFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilterGammaJetWithBg.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilterGammaJetWithOutBg.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilterZJetWithOutBg.h"
 #include "GeneratorInterface/GenFilters/plugins/MCDijetResonance.h"
-#include "GeneratorInterface/GenFilters/plugins/MCProcessFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/MCProcessRangeFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/MCPdgIndexFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/MCSingleParticleFilter.h"
@@ -53,21 +46,14 @@
 using cms::BHFilter;
 DEFINE_FWK_MODULE(LQGenFilter);
 DEFINE_FWK_MODULE(PythiaFilter);
-DEFINE_FWK_MODULE(PythiaFilterHT);
-DEFINE_FWK_MODULE(PythiaFilterMultiMother);
 DEFINE_FWK_MODULE(PythiaDauFilter);
 DEFINE_FWK_MODULE(PythiaProbeFilter);
-DEFINE_FWK_MODULE(PythiaFilterGammaJet);
 DEFINE_FWK_MODULE(PythiaFilterGammaGamma);
-DEFINE_FWK_MODULE(PythiaFilterZJet);
-DEFINE_FWK_MODULE(PythiaHLTSoupFilter);
-DEFINE_FWK_MODULE(BsJpsiPhiFilter);
 DEFINE_FWK_MODULE(JetFlavourFilter);
 DEFINE_FWK_MODULE(PythiaFilterGammaJetWithBg);
 DEFINE_FWK_MODULE(PythiaFilterGammaJetWithOutBg);
 DEFINE_FWK_MODULE(PythiaFilterZJetWithOutBg);
 DEFINE_FWK_MODULE(MCDijetResonance);
-DEFINE_FWK_MODULE(MCProcessFilter);
 DEFINE_FWK_MODULE(MCProcessRangeFilter);
 DEFINE_FWK_MODULE(MCPdgIndexFilter);
 DEFINE_FWK_MODULE(MCSingleParticleFilter);
