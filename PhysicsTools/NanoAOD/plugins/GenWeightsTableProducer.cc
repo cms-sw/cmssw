@@ -873,6 +873,7 @@ public:
     if (genLumiInfoHead.isValid()) {
       label = genLumiInfoHead->configDescription();
       boost::replace_all(label, "-", "_");
+      boost::replace_all(label, "/", "_");
     }
     counterMap->setLabel(label);
 
