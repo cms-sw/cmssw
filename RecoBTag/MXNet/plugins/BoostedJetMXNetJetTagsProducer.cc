@@ -49,10 +49,10 @@ struct PreprocessParams {
   }
 };
 
-class ParticleNetJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<MXBlockCache>> {
+class BoostedJetMXNetJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<MXBlockCache>> {
 public:
-  explicit ParticleNetJetTagsProducer(const edm::ParameterSet &, const MXBlockCache *);
-  ~ParticleNetJetTagsProducer() override;
+  explicit BoostedJetMXNetJetTagsProducer(const edm::ParameterSet &, const MXBlockCache *);
+  ~BoostedJetMXNetJetTagsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
@@ -63,9 +63,7 @@ private:
   typedef std::vector<reco::DeepBoostedJetTagInfo> TagInfoCollection;
   typedef reco::JetTagCollection JetTagCollection;
 
-  void beginStream(edm::StreamID) override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
-  void endStream() override {}
 
   std::vector<float> center_norm_pad(const std::vector<float> &input,
                                      float center,
@@ -88,7 +86,8 @@ private:
   bool debug_ = false;
 };
 
-ParticleNetJetTagsProducer::ParticleNetJetTagsProducer(const edm::ParameterSet &iConfig, const MXBlockCache *cache)
+BoostedJetMXNetJetTagsProducer::BoostedJetMXNetJetTagsProducer(const edm::ParameterSet &iConfig,
+                                                               const MXBlockCache *cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       debug_(iConfig.getUntrackedParameter<bool>("debugMode", false)) {
@@ -139,9 +138,9 @@ ParticleNetJetTagsProducer::ParticleNetJetTagsProducer(const edm::ParameterSet &
   }
 }
 
-ParticleNetJetTagsProducer::~ParticleNetJetTagsProducer() {}
+BoostedJetMXNetJetTagsProducer::~BoostedJetMXNetJetTagsProducer() {}
 
-void ParticleNetJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void BoostedJetMXNetJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // pfParticleNetJetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfParticleNetTagInfos"));
@@ -161,10 +160,10 @@ void ParticleNetJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions
       });
   desc.addOptionalUntracked<bool>("debugMode", false);
 
-  descriptions.add("pfParticleNetJetTags", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
-std::unique_ptr<MXBlockCache> ParticleNetJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
+std::unique_ptr<MXBlockCache> BoostedJetMXNetJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
   // get the model files
   std::string model_file = iConfig.getParameter<edm::FileInPath>("model_path").fullPath();
   std::string param_file = iConfig.getParameter<edm::FileInPath>("param_path").fullPath();
@@ -175,13 +174,13 @@ std::unique_ptr<MXBlockCache> ParticleNetJetTagsProducer::initializeGlobalCache(
   return std::unique_ptr<MXBlockCache>(cache);
 }
 
-void ParticleNetJetTagsProducer::globalEndJob(const MXBlockCache *cache) {
+void BoostedJetMXNetJetTagsProducer::globalEndJob(const MXBlockCache *cache) {
   if (cache->block != nullptr) {
     delete cache->block;
   }
 }
 
-void ParticleNetJetTagsProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void BoostedJetMXNetJetTagsProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
@@ -236,13 +235,13 @@ void ParticleNetJetTagsProducer::produce(edm::Event &iEvent, const edm::EventSet
   }
 }
 
-std::vector<float> ParticleNetJetTagsProducer::center_norm_pad(const std::vector<float> &input,
-                                                               float center,
-                                                               float norm_factor,
-                                                               unsigned target_length,
-                                                               float pad_value,
-                                                               float min,
-                                                               float max) {
+std::vector<float> BoostedJetMXNetJetTagsProducer::center_norm_pad(const std::vector<float> &input,
+                                                                   float center,
+                                                                   float norm_factor,
+                                                                   unsigned target_length,
+                                                                   float pad_value,
+                                                                   float min,
+                                                                   float max) {
   // do variable shifting/scaling/padding/clipping in one go
 
   assert(min <= pad_value && pad_value <= max);
@@ -254,7 +253,7 @@ std::vector<float> ParticleNetJetTagsProducer::center_norm_pad(const std::vector
   return out;
 }
 
-void ParticleNetJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
+void BoostedJetMXNetJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
   for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
     const auto &group_name = input_names_[igroup];
     auto &group_values = data_[igroup];
@@ -284,4 +283,4 @@ void ParticleNetJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ParticleNetJetTagsProducer);
+DEFINE_FWK_MODULE(BoostedJetMXNetJetTagsProducer);
