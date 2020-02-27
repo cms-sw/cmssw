@@ -29,7 +29,6 @@
 #include "GeneratorInterface/GenFilters/plugins/CosmicGenFilterLowE.h"
 #include "GeneratorInterface/GenFilters/plugins/BHFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilterIsolatedTrack.h"
-#include "GeneratorInterface/GenFilters/plugins/BCToEFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/EMEnrichingFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/doubleEMEnrichingFilter.h"
 #include "GeneratorInterface/GenFilters/plugins/MCDecayingPionKaonFilter.h"
@@ -82,7 +81,6 @@ DEFINE_FWK_MODULE(CosmicGenFilterHelix);
 DEFINE_FWK_MODULE(CosmicGenFilterLowE);
 DEFINE_FWK_MODULE(BHFilter);
 DEFINE_FWK_MODULE(PythiaFilterIsolatedTrack);
-DEFINE_FWK_MODULE(BCToEFilter);
 DEFINE_FWK_MODULE(EMEnrichingFilter);
 DEFINE_FWK_MODULE(doubleEMEnrichingFilter);
 DEFINE_FWK_MODULE(MCDecayingPionKaonFilter);
