@@ -32,8 +32,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:////afs/cern.ch/user/d/dmf/private/work/private/CMSPhysicsAnalysis/PrivateMCProduction/2019_production_13TeV/EXO-19-009/PPS_MC_Production/CMSSW_10_6_8_patch1/src/output.root'
-	#'file://///eos/cms/store/group/phys_pps/ppxz/version9/Z/m_X_960/xangle_120/2017_postTS2/ntuple.root'
+        'file:////afs/cern.ch/user/d/dmf/private/work/private/CMSPhysicsAnalysis/PrivateMCProduction/2019_production_13TeV/EXO-19-009/PPS_MC_Production/CMSSW_10_6_8_patch1/src/ProtonMonteCarloProduction/Grid/output.root'
     ),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -43,7 +42,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('QCD pthat 470to600 GeV, 13 TeV, TuneCP5'),
+    annotation = cms.untracked.string('Z(ee) + X toy model, 13 TeV'),
     name = cms.untracked.string('\\$Source$'),
     version = cms.untracked.string('\\$Revision$')
 )
