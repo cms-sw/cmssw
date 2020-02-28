@@ -163,6 +163,11 @@ namespace cms {
     template <typename T>
     T get(const std::string&, const std::string&) const;
 
+    //! convert an attribute value from SpecPar
+    //  without passing it through an evaluator,
+    //  e.g. the original values have no units
+    std::vector<double> get(const std::string&, const std::string&) const;
+
     std::string_view getString(const std::string&) const;
 
     //! return the stack of sibling numbers which indicates
