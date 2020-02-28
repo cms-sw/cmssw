@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # load common code
 from direct_simu_reco_cff import *
 process = cms.Process('CTPPSTestAcceptance', era)
-process.load("direct_simu_reco_cff")
+process.load("Validation.CTPPS.settings.2017_postTS2.direct_simu_reco_cff")
 #SetDefaults(process)
 UseCrossingAngle(120, process)
 process.load('Configuration.EventContent.EventContent_cff')
@@ -19,7 +19,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 
 # event source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring("file:miniAOD_SD.root")
+  fileNames = cms.untracked.vstring("file:miniAOD.root")
 )
 
 # number of events
