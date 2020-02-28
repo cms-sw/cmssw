@@ -14,7 +14,7 @@ _chsalgos_81x = cms.VPSet(full_81x_chs,cutbased)
 _chsalgos_94x = cms.VPSet(full_94x_chs,cutbased)
 _chsalgos_102x = cms.VPSet(full_102x_chs,cutbased)
 
-_stdalgos    = _chsalgos_102x
+_stdalgos    = _chsalgos_81x
 
 # Calculate+store variables and run MVAs
 pileupJetId = cms.EDProducer('PileupJetIdProducer',
@@ -29,7 +29,6 @@ pileupJetId = cms.EDProducer('PileupJetIdProducer',
      applyJec = cms.bool(True),
      inputIsCorrected = cms.bool(False),
      residualsFromTxt = cms.bool(False),
-     usePuppi = cms.bool(False),
 #     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
 )
 
