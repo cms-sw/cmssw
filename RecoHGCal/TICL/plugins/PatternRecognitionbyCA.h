@@ -29,6 +29,7 @@ namespace ticl {
     const unsigned int max_out_in_hops_;
     const float min_cos_theta_;
     const float min_cos_pointing_;
+    const float etaLimitIncreaseWindow_;
     const int missing_layers_;
     const int min_clusters_per_ntuplet_;
     const float max_delta_time_;

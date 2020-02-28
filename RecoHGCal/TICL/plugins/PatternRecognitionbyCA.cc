@@ -22,6 +22,7 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, co
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
       min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
       min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
+      etaLimitIncreaseWindow_(conf.getParameter<double>("etaLimitIncreaseWindow")),
       missing_layers_(conf.getParameter<int>("missing_layers")),
       min_clusters_per_ntuplet_(conf.getParameter<int>("min_clusters_per_ntuplet")),
       max_delta_time_(conf.getParameter<double>("max_delta_time")),
@@ -66,6 +67,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
                                     1,
                                     min_cos_theta_,
                                     min_cos_pointing_,
+                                    etaLimitIncreaseWindow_,
                                     missing_layers_,
                                     rhtools_.lastLayerFH(),
                                     max_delta_time_);
