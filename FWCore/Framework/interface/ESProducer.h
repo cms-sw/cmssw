@@ -113,6 +113,19 @@ namespace edm {
       return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESProxyIndex const*>(nullptr)
                                                       : &(itemsToGetFromRecords_[iIndex].front());
     }
+    ESRecordIndex const* getTokenRecordIndices(unsigned int iIndex) const {
+      if (recordsUsedDuringGet_.empty()) {
+        return nullptr;
+      }
+      return (recordsUsedDuringGet_[iIndex].empty()) ? static_cast<ESRecordIndex const*>(nullptr)
+                                                     : &(recordsUsedDuringGet_[iIndex].front());
+    }
+    size_t numberOfTokenIndices(unsigned int iIndex) const {
+      if (itemsToGetFromRecords_.empty()) {
+        return 0;
+      }
+      return itemsToGetFromRecords_[iIndex].size();
+    }
 
     template <typename Record>
     void updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) {
