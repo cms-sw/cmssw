@@ -1,41 +1,89 @@
-#include "GeneratorInterface/GenFilters/plugins/ZgammaMassFilter.h"
+// -*- C++ -*-
+//
+// Package:    ZgammaMassFilter
+// Class:      ZgammaMassFilter
+//
+/*
+
+ Description: filter events based on the Pythia particle information
+
+ Implementation: inherits from generic EDFilter
+
+*/
+//
+// Original Author:  Alexey Ferapontov
+//         Created:  Thu July 26 11:57:54 CDT 2012
+// $Id: ZgammaMassFilter.h,v 1.1 2012/08/10 12:46:29 lenzip Exp $
+//
+//
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include <iostream>
+
 #include "TLorentzVector.h"
 
-// order std::vector of TLorentzVector elements
-class orderByPt {
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+
+class ZgammaMassFilter : public edm::global::EDFilter<> {
 public:
-  bool operator()(TLorentzVector const& a, TLorentzVector const& b) {
-    if (a.Pt() == b.Pt()) {
-      return a.Pt() < b.Pt();
-    } else {
-      return a.Pt() > b.Pt();
-    }
-  }
+  explicit ZgammaMassFilter(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+
+  const double minPhotonPt;
+  const double minLeptonPt;
+
+  const double minPhotonEta;
+  const double minLeptonEta;
+
+  const double maxPhotonEta;
+  const double maxLeptonEta;
+
+  const double minDileptonMass;
+  const double minZgMass;
 };
+
+namespace {
+  // order std::vector of TLorentzVector elements
+  class orderByPt {
+  public:
+    bool operator()(TLorentzVector const& a, TLorentzVector const& b) {
+      if (a.Pt() == b.Pt()) {
+        return a.Pt() < b.Pt();
+      } else {
+        return a.Pt() > b.Pt();
+      }
+    }
+  };
+}  // namespace
 
 using namespace edm;
 using namespace std;
 
-ZgammaMassFilter::ZgammaMassFilter(const edm::ParameterSet& iConfig) {
-  token_ = consumes<edm::HepMCProduct>(iConfig.getParameter<InputTag>("HepMCProduct"));
-  minPhotonPt = iConfig.getParameter<double>("minPhotonPt");
-  minLeptonPt = iConfig.getParameter<double>("minLeptonPt");
-  minPhotonEta = iConfig.getParameter<double>("minPhotonEta");
-  minLeptonEta = iConfig.getParameter<double>("minLeptonEta");
-  maxPhotonEta = iConfig.getParameter<double>("maxPhotonEta");
-  maxLeptonEta = iConfig.getParameter<double>("maxLeptonEta");
-  minDileptonMass = iConfig.getParameter<double>("minDileptonMass");
-  minZgMass = iConfig.getParameter<double>("minZgMass");
-}
+ZgammaMassFilter::ZgammaMassFilter(const edm::ParameterSet& iConfig)
+    : token_(consumes<edm::HepMCProduct>(iConfig.getParameter<InputTag>("HepMCProduct"))),
+      minPhotonPt(iConfig.getParameter<double>("minPhotonPt")),
+      minLeptonPt(iConfig.getParameter<double>("minLeptonPt")),
+      minPhotonEta(iConfig.getParameter<double>("minPhotonEta")),
+      minLeptonEta(iConfig.getParameter<double>("minLeptonEta")),
+      maxPhotonEta(iConfig.getParameter<double>("maxPhotonEta")),
+      maxLeptonEta(iConfig.getParameter<double>("maxLeptonEta")),
+      minDileptonMass(iConfig.getParameter<double>("minDileptonMass")),
+      minZgMass(iConfig.getParameter<double>("minZgMass")) {}
 
-ZgammaMassFilter::~ZgammaMassFilter() {}
-
-// ------------ method called to skim the data  ------------
-bool ZgammaMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
+bool ZgammaMassFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
   Handle<HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
@@ -103,3 +151,5 @@ bool ZgammaMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   return accepted;
 }
+
+DEFINE_FWK_MODULE(ZgammaMassFilter);
