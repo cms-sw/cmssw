@@ -4,7 +4,7 @@ from Validation.CTPPS.simu_config.year_2016_cff import *
 
 # alignment
 from CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi import *
-alignmentFile = "Validation/CTPPS/alignment/2016_preTS2.xml"
+alignmentFile = "Validation/CTPPS/data/2016_preTS2.xml"
 ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = [alignmentFile]
 ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 

@@ -37,7 +37,7 @@ from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import *
 
 # alignment
 from CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi import *
-alignmentFile = "Validation/CTPPS/alignment/2018.xml"
+alignmentFile = "Validation/CTPPS/data/2018.xml"
 ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = [alignmentFile]
 ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 
