@@ -71,7 +71,7 @@ void DTOccupancyEfficiency::bookHistograms(DQMStore::IBooker& ibooker,
   timeBoxesPerEvent  = ibooker.book1D("timeBoxesPerEvent","TDC counts per event",400,0,1600);
 
   // Digis
-  digisPerEvent = ibooker.book1D("digisPerEvent","Number of digis per event",100,0,500);
+  digisPerEvent = ibooker.book1D("digisPerEvent","Number of digis per event",100,0,900);
 
   // RecHits
   recHitsPerEvent = ibooker.book1D("recHitsPerEvent","Number of RecHits per event",100,0,250);
