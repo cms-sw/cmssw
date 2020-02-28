@@ -258,7 +258,7 @@ namespace edm {
         }
       }
     }
-    return runHelper_->nextItemType(state(), itemType);
+    return runHelper_->nextItemType(state(), itemType, run, lumi, event);
   }
 
   std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> PoolSource::resourceSharedWithDelayedReader_() {
