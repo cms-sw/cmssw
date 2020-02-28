@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
 from RecoJets.JetProducers.PileupJetIDParams_cfi import *
 
 #_stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
@@ -15,6 +15,7 @@ _chsalgos_94x = cms.VPSet(full_94x_chs,cutbased)
 _chsalgos_102x = cms.VPSet(full_102x_chs,cutbased)
 
 _stdalgos    = _chsalgos_81x
+run2_miniAOD_devel.toReplaceWith(_stdalgos, _chsalgos_102x)
 
 # Calculate+store variables and run MVAs
 pileupJetId = cms.EDProducer('PileupJetIdProducer',
