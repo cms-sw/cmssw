@@ -28,15 +28,24 @@ namespace callbacktest {
     double value_;
   };
 
-  struct Record {};
+  struct Record {
+    void setImpl(void const* iImpl,
+                 unsigned int transitionID,
+                 void const* getTokenIndices,
+                 void const* iEventSetupImpl,
+                 bool requireTokens) {}
+  };
 
   struct Base {
     template <typename A, typename B>
     void updateFromMayConsumes(A const&, B const&) {}
+    static constexpr edm::ESProxyIndex const* getTokenIndices(unsigned int) { return nullptr; }
+    static constexpr edm::ESRecordIndex const* getTokenRecordIndices(unsigned int) { return nullptr; }
+    static constexpr size_t numberOfTokenIndices(unsigned int) { return 0; }
   };
 
   struct UniquePtrProd : public Base {
-    UniquePtrProd() : value_(0) {}
+    constexpr UniquePtrProd() : value_(0) {}
     std::unique_ptr<Data> method(const Record&) { return std::make_unique<Data>(++value_); }
 
     int value_;
@@ -62,6 +71,7 @@ namespace callbacktest {
       ++double_.value_;
       return products(dataT, doubleT);
     }
+
     Data data_;
     Double double_;
   };
@@ -104,16 +114,17 @@ void testCallback::uniquePtrTest() {
   std::unique_ptr<Data> handle2;
   callback2->holdOntoPointer(&handle2);
 
-  Record record;
   callback.newRecordComing();
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == 1);
   assert(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 
   //since haven't cleared, should not have changed
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(prod.value_ == 1);
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 
@@ -121,24 +132,27 @@ void testCallback::uniquePtrTest() {
 
   callback.newRecordComing();
 
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == 2);
   assert(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 
-  (*callback2)(record);
+  (*callback2)(nullptr, nullptr);
   CPPUNIT_ASSERT(handle2->value_ == 3);
   CPPUNIT_ASSERT(handle->value_ == 2);
 
-  callback(record);
-  (*callback2)(record);
+  callback(nullptr, nullptr);
+  ;
+  (*callback2)(nullptr, nullptr);
   CPPUNIT_ASSERT(handle2->value_ == 3);
   CPPUNIT_ASSERT(handle->value_ == 2);
 
   callback2->newRecordComing();
-  callback(record);
-  (*callback2)(record);
+  callback(nullptr, nullptr);
+  ;
+  (*callback2)(nullptr, nullptr);
   CPPUNIT_ASSERT(handle2->value_ == 4);
   CPPUNIT_ASSERT(handle->value_ == 2);
 }
@@ -153,21 +167,23 @@ void testCallback::sharedPtrTest() {
 
   callback.holdOntoPointer(&handle);
 
-  Record record;
   callback.newRecordComing();
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
 
   //since haven't cleared, should not have changed
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
 
   handle.reset();
   callback.newRecordComing();
 
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
 }
@@ -185,20 +201,22 @@ void testCallback::ptrProductsTest() {
   callback.holdOntoPointer(&handle);
   callback.holdOntoPointer(&doubleHandle);
 
-  Record record;
   callback.newRecordComing();
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 1);
 
   //since haven't cleared, should not have changed
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 1);
 
   callback.newRecordComing();
 
-  callback(record);
+  callback(nullptr, nullptr);
+  ;
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 2);
 }

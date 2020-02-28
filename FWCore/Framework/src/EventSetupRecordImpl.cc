@@ -256,6 +256,30 @@ namespace edm {
       return nullptr != proxy;
     }
 
+    bool EventSetupRecordImpl::doGet(ESProxyIndex iProxyIndex,
+                                     EventSetupImpl const* iEventSetupImpl,
+                                     bool aGetTransiently) const {
+      if
+        UNLIKELY(iProxyIndex.value() == std::numeric_limits<int>::max()) { return false; }
+
+      const DataProxy* proxy = proxies_[iProxyIndex.value()];
+      if (nullptr != proxy) {
+        try {
+          convertException::wrap([&]() {
+            auto const& key = keysForProxies_[iProxyIndex.value()];
+            proxy->doGet(*this, key, aGetTransiently, activityRegistry_, iEventSetupImpl);
+          });
+        } catch (cms::Exception& e) {
+          auto const& key = keysForProxies_[iProxyIndex.value()];
+          addTraceInfoToCmsException(e, key.name().value(), proxy->providerDescription(), key);
+          //NOTE: the above function can't do the 'throw' since it causes the C++ class type
+          // of the throw to be changed, a 'rethrow' does not have that problem
+          throw;
+        }
+      }
+      return nullptr != proxy;
+    }
+
     bool EventSetupRecordImpl::wasGotten(const DataKey& aKey) const {
       const DataProxy* proxy = find(aKey);
       if (nullptr != proxy) {

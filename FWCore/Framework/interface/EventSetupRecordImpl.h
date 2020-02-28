@@ -84,6 +84,7 @@ namespace edm {
 
       ///returns false if no data available for key
       bool doGet(DataKey const& aKey, EventSetupImpl const*, bool aGetTransiently = false) const;
+      bool doGet(ESProxyIndex iProxyIndex, EventSetupImpl const*, bool aGetTransiently = false) const;
 
       /**returns true only if someone has already requested data for this key
           and the data was retrieved

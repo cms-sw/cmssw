@@ -23,11 +23,13 @@
 #include <type_traits>
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 
 namespace edm {
   namespace eventsetup {
+    class EventSetupRecordImpl;
 
     // The default decorator that does nothing
     template <typename TRecord>
@@ -58,13 +60,16 @@ namespace edm {
       Callback(const Callback&) = delete;
       const Callback& operator=(const Callback&) = delete;
 
-      void operator()(const TRecord& iRecord) {
+      void operator()(EventSetupRecordImpl const* iRecord, EventSetupImpl const* iEventSetupImpl) {
         if (!wasCalledForThisRecord_) {
-          producer_->updateFromMayConsumes(id_, iRecord);
-          decorator_.pre(iRecord);
-          storeReturnedValues((producer_->*method_)(iRecord));
+          TRecord rec;
+          rec.setImpl(iRecord, transitionID(), getTokenIndices(), iEventSetupImpl, true);
+          producer_->updateFromMayConsumes(id_, rec);
+          prefetch(iEventSetupImpl);
+          decorator_.pre(rec);
+          storeReturnedValues((producer_->*method_)(rec));
           wasCalledForThisRecord_ = true;
-          decorator_.post(iRecord);
+          decorator_.post(rec);
         }
       }
 
@@ -94,6 +99,17 @@ namespace edm {
       ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
 
     private:
+      void prefetch(EventSetupImpl const* iImpl) const {
+        auto recs = producer_->getTokenRecordIndices(id_);
+        auto proxies = producer_->getTokenIndices(id_);
+        auto n = producer_->numberOfTokenIndices(id_);
+        for (size_t i = 0; i != n; ++i) {
+          auto rec = iImpl->findImpl(recs[i]);
+          if (rec) {
+            rec->doGet(proxies[i], iImpl, true);
+          }
+        }
+      }
       std::array<void*, produce::size<TReturn>::value> proxyData_;
       edm::propagate_const<T*> producer_;
       method_type method_;
