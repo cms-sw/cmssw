@@ -14,9 +14,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Digest.h"
 
-
-class testps: public CppUnit::TestFixture
-{
+class testps : public CppUnit::TestFixture {
   //CPPUNIT_TEST_EXCEPTION(emptyTest,edm::Exception);
   CPPUNIT_TEST_SUITE(testps);
   CPPUNIT_TEST(emptyTest);
@@ -42,8 +40,8 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
 
   void emptyTest();
   void boolTest();
@@ -72,107 +70,86 @@ private:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testps);
 
-void testps::emptyTest()
-{
+void testps::emptyTest() {
   edm::ParameterSet p1;
   std::string p1_encoded = p1.toString();
   edm::ParameterSet p2(p1_encoded);
-  CPPUNIT_ASSERT (p1 == p2);
+  CPPUNIT_ASSERT(p1 == p2);
 }
 
 namespace {
-  bool do_compare(const edm::EventRange& iLHS,
-                  const edm::EventRange& iRHS) {
-    return iLHS.startEventID() == iRHS.startEventID() &&
-    iLHS.endEventID() == iRHS.endEventID();
+  bool do_compare(const edm::EventRange& iLHS, const edm::EventRange& iRHS) {
+    return iLHS.startEventID() == iRHS.startEventID() && iLHS.endEventID() == iRHS.endEventID();
   }
-  
-  template<class T>
-  bool do_compare(const T& iLHS, const T& iRHS){
+
+  template <class T>
+  bool do_compare(const T& iLHS, const T& iRHS) {
     return iLHS == iRHS;
   }
-  
-  template<class T, class A>
-  bool do_compare(const std::vector<T,A>& iLHS,
-                  const std::vector<T,A>& iRHS) {
-    if(iLHS.size() != iRHS.size()) {
+
+  template <class T, class A>
+  bool do_compare(const std::vector<T, A>& iLHS, const std::vector<T, A>& iRHS) {
+    if (iLHS.size() != iRHS.size()) {
       return false;
     }
-    typename std::vector<T,A>::const_iterator itL = iLHS.begin();
-    typename std::vector<T,A>::const_iterator itR = iRHS.begin();
-    typename std::vector<T,A>::const_iterator itLEnd = iLHS.end();
-    for(; itL != itLEnd; ++itL,++itR) {
-      if(!do_compare(*itL,*itR)) {
+    typename std::vector<T, A>::const_iterator itL = iLHS.begin();
+    typename std::vector<T, A>::const_iterator itR = iRHS.begin();
+    typename std::vector<T, A>::const_iterator itLEnd = iLHS.end();
+    for (; itL != itLEnd; ++itL, ++itR) {
+      if (!do_compare(*itL, *itR)) {
         return false;
       }
     }
     return true;
   }
-  
-}
 
+}  // namespace
 
 template <class T>
-void trackedTestbody(const T& value)
-{
+void trackedTestbody(const T& value) {
   try {
     edm::ParameterSet p1;
     p1.template addParameter<T>("x", value);
     p1.registerIt();
-    CPPUNIT_ASSERT(do_compare(p1.template getParameter<T>("x") ,value) );
+    CPPUNIT_ASSERT(do_compare(p1.template getParameter<T>("x"), value));
     std::string p1_encoded = p1.toString();
     edm::ParameterSet p2(p1_encoded);
     CPPUNIT_ASSERT(p1 == p2);
-    CPPUNIT_ASSERT(do_compare(p2.template getParameter<T>("x") , value) );
+    CPPUNIT_ASSERT(do_compare(p2.template getParameter<T>("x"), value));
+  } catch (cms::Exception& x) {
+    std::cerr << "cms Exception caught, message follows\n" << x.what();
+    throw;
+  } catch (std::exception& x) {
+    std::cerr << "std exception caught, message follows\n" << x.what();
+    throw;
+  } catch (...) {
+    std::cerr << "Unrecognized exception type thrown\n"
+              << "no details available\n";
+    throw;
   }
-  catch (cms::Exception& x)
-    {
-      std::cerr << "cms Exception caught, message follows\n"
-		<< x.what();
-      throw;
-    }
-  catch (std::exception& x)
-    {
-      std::cerr << "std exception caught, message follows\n"
-		<< x.what();
-      throw;
-    }
-  catch (...)
-    {
-      std::cerr << "Unrecognized exception type thrown\n"
-		<< "no details available\n";
-      throw;	
-    }
 }
 
 template <class T>
-void
-untrackedTestbody(const T& value)
-{
+void untrackedTestbody(const T& value) {
   edm::ParameterSet p;
   p.template addUntrackedParameter<T>("x", value);
-  CPPUNIT_ASSERT(do_compare(p.template getUntrackedParameter<T>("x") , value));
+  CPPUNIT_ASSERT(do_compare(p.template getUntrackedParameter<T>("x"), value));
 
-  CPPUNIT_ASSERT_THROW(p.template getUntrackedParameter<T>("does not exist"), 
-   		       cms::Exception);
+  CPPUNIT_ASSERT_THROW(p.template getUntrackedParameter<T>("does not exist"), cms::Exception);
 }
 
 template <class T>
-void
-testbody(T value)
-{
+void testbody(T value) {
   trackedTestbody<T>(value);
   untrackedTestbody<T>(value);
 }
 
-void testps::boolTest()
-{
+void testps::boolTest() {
   testbody<bool>(false);
   testbody<bool>(true);
 }
 
-void testps::intTest()
-{
+void testps::intTest() {
   testbody<int>(-std::numeric_limits<int>::max());
   testbody<int>(-2112);
   testbody<int>(-0);
@@ -181,20 +158,17 @@ void testps::intTest()
   testbody<int>(std::numeric_limits<int>::max());
 }
 
-void testps::uintTest()
-{
+void testps::uintTest() {
   testbody<unsigned int>(0);
   testbody<unsigned int>(35621);
   testbody<unsigned int>(std::numeric_limits<unsigned int>::max());
-  
+
   testbody<std::vector<unsigned int> >(std::vector<unsigned int>());
   testbody<std::vector<unsigned int> >(std::vector<unsigned int>(1, 35621));
   testbody<std::vector<unsigned int> >(std::vector<unsigned int>(1, std::numeric_limits<unsigned int>::max()));
-
 }
 
-void testps::doubleTest()
-{
+void testps::doubleTest() {
   testbody<double>(-1.25);
   testbody<double>(-0.0);
   testbody<double>(0.0);
@@ -205,16 +179,15 @@ void testps::doubleTest()
   testbody<double>(-2.3456789e231);
   testbody<double>(2.3456789e-231);
   testbody<double>(2.3456789e231);
-  double oneThird = 1.0/3.0;
+  double oneThird = 1.0 / 3.0;
   testbody<double>(oneThird);
 }
 
-void testps::stringTest()
-{
+void testps::stringTest() {
   testbody<std::string>("");
   testbody<std::string>("Hello there");
   testbody<std::string>("123");
-  testbody<std::string>("This\nis\tsilly\n");  
+  testbody<std::string>("This\nis\tsilly\n");
   std::vector<std::string> vs;
   vs.push_back("");
   vs.push_back("1");
@@ -222,60 +195,54 @@ void testps::stringTest()
   vs.push_back("three");
   testbody<std::vector<std::string> >(vs);
   edm::ParameterSet p1;
-  p1.addParameter<std::vector<std::string> >("vs",vs);
+  p1.addParameter<std::vector<std::string> >("vs", vs);
   p1.registerIt();
   std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string> >("vs");
   //FIXME doesn't count spaces
 }
 
-void testps::eventIDTest()
-{
+void testps::eventIDTest() {
   testbody<edm::EventID>(edm::EventID());
   testbody<edm::EventID>(edm::EventID::firstValidEvent());
-  testbody<edm::EventID>(edm::EventID(2,3,4));
-  testbody<edm::EventID>(edm::EventID(2,3,edm::EventID::maxEventNumber()));
-  testbody<edm::EventID>(edm::EventID(edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()));
+  testbody<edm::EventID>(edm::EventID(2, 3, 4));
+  testbody<edm::EventID>(edm::EventID(2, 3, edm::EventID::maxEventNumber()));
+  testbody<edm::EventID>(edm::EventID(
+      edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()));
 }
 
-void testps::eventRangeTest()
-{
+void testps::eventRangeTest() {
   testbody<edm::EventRange>(edm::EventRange());
-  testbody<edm::EventRange>(edm::EventRange(1,1,1,
-                                            edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()));
-  testbody<edm::EventRange>(edm::EventRange(2,3,4,2,3,10));
+  testbody<edm::EventRange>(edm::EventRange(
+      1, 1, 1, edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()));
+  testbody<edm::EventRange>(edm::EventRange(2, 3, 4, 2, 3, 10));
 
-
-  testbody<edm::EventRange>(edm::EventRange(1,0,1,
-                                            edm::EventID::maxRunNumber(),0,edm::EventID::maxEventNumber()));
-  testbody<edm::EventRange>(edm::EventRange(2,0,4,2,0,10));
+  testbody<edm::EventRange>(edm::EventRange(1, 0, 1, edm::EventID::maxRunNumber(), 0, edm::EventID::maxEventNumber()));
+  testbody<edm::EventRange>(edm::EventRange(2, 0, 4, 2, 0, 10));
 }
 
-void testps::vEventRangeTest()
-{
+void testps::vEventRangeTest() {
   testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>());
-  testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>(1, 
-                                                                       edm::EventRange(1,1,1,
-                                                                                       edm::EventID::maxRunNumber(),
-                                                                                       edm::EventID::maxLuminosityBlockNumber(),
-                                                                                       edm::EventID::maxEventNumber())));
+  testbody<std::vector<edm::EventRange> >(
+      std::vector<edm::EventRange>(1,
+                                   edm::EventRange(1,
+                                                   1,
+                                                   1,
+                                                   edm::EventID::maxRunNumber(),
+                                                   edm::EventID::maxLuminosityBlockNumber(),
+                                                   edm::EventID::maxEventNumber())));
 
-  testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>(1, 
-                                                                       edm::EventRange(1,0,1,
-                                                                                       edm::EventID::maxRunNumber(),
-                                                                                       0,
-                                                                                       edm::EventID::maxEventNumber())));
+  testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>(
+      1, edm::EventRange(1, 0, 1, edm::EventID::maxRunNumber(), 0, edm::EventID::maxEventNumber())));
 
   std::vector<edm::EventRange> er;
   er.reserve(2);
-  er.push_back(edm::EventRange(2,3,4,2,3,10));
-  er.push_back(edm::EventRange(5,1,1,10,3,10));
-  
+  er.push_back(edm::EventRange(2, 3, 4, 2, 3, 10));
+  er.push_back(edm::EventRange(5, 1, 1, 10, 3, 10));
+
   testbody<std::vector<edm::EventRange> >(er);
 }
 
-
-void testps::fileInPathTest()
-{
+void testps::fileInPathTest() {
   edm::ParameterSet p;
   edm::FileInPath fip("FWCore/ParameterSet/python/Config.py");
   p.addParameter<edm::FileInPath>("fip", fip);
@@ -283,12 +250,10 @@ void testps::fileInPathTest()
   CPPUNIT_ASSERT(p.getParameterNamesForType<edm::FileInPath>()[0] == "fip");
 }
 
-
-void testps::doubleEqualityTest()
-{
+void testps::doubleEqualityTest() {
   edm::ParameterSet p1, p2, p3;
   p1.addParameter<double>("x", 0.1);
-  p2.addParameter<double>("x", 1.0e-1);  
+  p2.addParameter<double>("x", 1.0e-1);
   p3.addParameter<double>("x", 0.100);
   p1.registerIt();
   p2.registerIt();
@@ -298,12 +263,11 @@ void testps::doubleEqualityTest()
   CPPUNIT_ASSERT(p2 == p3);
 
   CPPUNIT_ASSERT(p1.toString() == p2.toString());
-  CPPUNIT_ASSERT(p1.toString()  == p3.toString());
+  CPPUNIT_ASSERT(p1.toString() == p3.toString());
   CPPUNIT_ASSERT(p2.toString() == p3.toString());
 }
 
-void testps::negativeZeroTest()
-{
+void testps::negativeZeroTest() {
   edm::ParameterSet a1, a2;
   a1.addParameter<double>("x", 0.0);
   a2.addParameter<double>("x", -0.0);
@@ -316,8 +280,7 @@ void testps::negativeZeroTest()
   CPPUNIT_ASSERT(a1.getParameter<double>("x") == a2.getParameter<double>("x"));
 }
 
-void testps::idTest()
-{
+void testps::idTest() {
   edm::ParameterSet a;
   a.registerIt();
   edm::ParameterSetID a_id = a.id();
@@ -326,41 +289,53 @@ void testps::idTest()
   b.registerIt();
   edm::ParameterSetID b_id = b.id();
 
-  CPPUNIT_ASSERT (a != b); 
-  CPPUNIT_ASSERT (a.id() != b.id());
+  CPPUNIT_ASSERT(a != b);
+  CPPUNIT_ASSERT(a.id() != b.id());
+
+  {
+    //Check that changes to ESInputTag do not affect ID
+    // as that would affect reading back stored PSets
+
+    edm::ParameterSet ps;
+    ps.addParameter<edm::ESInputTag>("default", edm::ESInputTag());
+    ps.addParameter<edm::ESInputTag>("moduleOnly", edm::ESInputTag("Prod", ""));
+    ps.addParameter<edm::ESInputTag>("dataOnly", edm::ESInputTag("", "data"));
+    ps.addParameter<edm::ESInputTag>("allLabels", edm::ESInputTag("Prod", "data"));
+    ps.registerIt();
+
+    std::string stringValue;
+    ps.id().toString(stringValue);
+    CPPUNIT_ASSERT(stringValue == "01642a9a7311dea2df2f9ee430855a99");
+  }
 }
 
-void testps::calculateIDTest()
-{
-  std::vector<int> thousand(1000,0);
-  std::vector<int> hundred(100,0);
+void testps::calculateIDTest() {
+  std::vector<int> thousand(1000, 0);
+  std::vector<int> hundred(100, 0);
   edm::ParameterSet a;
   edm::ParameterSet b;
   edm::ParameterSet c;
-  a.addParameter<double>("pi",3.14);
-  a.addParameter<int>("answer", 42),
-  a.addParameter<std::string>("amiga", "rules");
+  a.addParameter<double>("pi", 3.14);
+  a.addParameter<int>("answer", 42), a.addParameter<std::string>("amiga", "rules");
   a.addParameter<std::vector<int> >("thousands", thousand);
   a.addUntrackedParameter<double>("e", 2.72);
-  a.addUntrackedParameter<int>("question", 41+1);
+  a.addUntrackedParameter<int>("question", 41 + 1);
   a.addUntrackedParameter<std::string>("atari", "too");
   a.addUntrackedParameter<std::vector<int> >("hundred", hundred);
 
-  b.addParameter<double>("pi",3.14);
-  b.addParameter<int>("answer", 42),
-  b.addParameter<std::string>("amiga", "rules");
+  b.addParameter<double>("pi", 3.14);
+  b.addParameter<int>("answer", 42), b.addParameter<std::string>("amiga", "rules");
   b.addParameter<std::vector<int> >("thousands", thousand);
   b.addUntrackedParameter<double>("e", 2.72);
-  b.addUntrackedParameter<int>("question", 41+1);
+  b.addUntrackedParameter<int>("question", 41 + 1);
   b.addUntrackedParameter<std::string>("atari", "too");
   b.addUntrackedParameter<std::vector<int> >("hundred", hundred);
 
-  c.addParameter<double>("pi",3.14);
-  c.addParameter<int>("answer", 42),                                                                                                                                                                                       
-  c.addParameter<std::string>("amiga", "rules");
+  c.addParameter<double>("pi", 3.14);
+  c.addParameter<int>("answer", 42), c.addParameter<std::string>("amiga", "rules");
   c.addParameter<std::vector<int> >("thousands", thousand);
   c.addUntrackedParameter<double>("e", 2.72);
-  c.addUntrackedParameter<int>("question", 41+1);
+  c.addUntrackedParameter<int>("question", 41 + 1);
   c.addUntrackedParameter<std::string>("atari", "too");
   c.addUntrackedParameter<std::vector<int> >("hundred", hundred);
 
@@ -370,26 +345,25 @@ void testps::calculateIDTest()
 
   a.addUntrackedParameter<std::vector<edm::ParameterSet> >("vps", vb);
   std::string stringrep;
-  a.toString(stringrep);                                                                                                                                                                                                
+  a.toString(stringrep);
   cms::Digest md5alg(stringrep);
   cms::Digest newDigest;
   a.toDigest(newDigest);
-  CPPUNIT_ASSERT (md5alg.digest().toString() == newDigest.digest().toString());
+  CPPUNIT_ASSERT(md5alg.digest().toString() == newDigest.digest().toString());
 }
 
-void testps::mapByIdTest()
-{
+void testps::mapByIdTest() {
   // makes parameter sets and ids
   edm::ParameterSet a;
-  a.addParameter<double>("pi",3.14);
+  a.addParameter<double>("pi", 3.14);
   a.addParameter<std::string>("name", "Bub");
   a.registerIt();
-  CPPUNIT_ASSERT( a.exists("pi") );
-  CPPUNIT_ASSERT( !a.exists("pie") );
+  CPPUNIT_ASSERT(a.exists("pi"));
+  CPPUNIT_ASSERT(!a.exists("pie"));
 
   edm::ParameterSet b;
   b.addParameter<bool>("b", false);
-  b.addParameter<std::vector<int> >("three_zeros", std::vector<int>(3,0));
+  b.addParameter<std::vector<int> >("three_zeros", std::vector<int>(3, 0));
   b.registerIt();
 
   edm::ParameterSet c;
@@ -406,12 +380,12 @@ void testps::mapByIdTest()
   edm::ParameterSetID id_d = d.id();
 
   // fill map
-  typedef std::map<edm::ParameterSetID,edm::ParameterSet> map_t;
-  map_t   psets;
+  typedef std::map<edm::ParameterSetID, edm::ParameterSet> map_t;
+  map_t psets;
 
   psets.insert(std::make_pair(id_a, a));
   psets.insert(std::make_pair(id_b, b));
-  psets.insert(std::make_pair(id_c, c));  
+  psets.insert(std::make_pair(id_c, c));
   psets.insert(std::make_pair(id_d, d));
 
   // query map
@@ -423,17 +397,14 @@ void testps::mapByIdTest()
 }
 
 template <class T>
-void 
-test_for_name()
-{
+void test_for_name() {
   edm::ParameterSet preal;
   edm::ParameterSet const& ps = preal;
-  // Use 'ps' to make sure we're only getting 'const' access; 
+  // Use 'ps' to make sure we're only getting 'const' access;
   // use 'preal' when we need to modify the underlying ParameterSet.
 
   std::vector<std::string> names = ps.getParameterNames();
-  CPPUNIT_ASSERT( names.empty() );
-
+  CPPUNIT_ASSERT(names.empty());
 
   // The following causes failure, because of an apparent GCC bug in comparing bools!
   //T value;
@@ -441,27 +412,27 @@ test_for_name()
   T value = T();
   preal.template addParameter<T>("x", value);
   names = ps.getParameterNames();
-  CPPUNIT_ASSERT( names.size() == 1 );
-  CPPUNIT_ASSERT( names[0] == "x" );
+  CPPUNIT_ASSERT(names.size() == 1);
+  CPPUNIT_ASSERT(names[0] == "x");
   T stored_value = ps.template getParameter<T>(names[0]);
-  CPPUNIT_ASSERT( stored_value == value );
+  CPPUNIT_ASSERT(stored_value == value);
 
   preal.template addUntrackedParameter<T>("y", value);
   preal.registerIt();
   names = ps.getParameterNames();
-  CPPUNIT_ASSERT( names.size() == 2 );
+  CPPUNIT_ASSERT(names.size() == 2);
 
   edm::sort_all(names);
-  CPPUNIT_ASSERT( edm::binary_search_all(names, "x") );
-  CPPUNIT_ASSERT( edm::binary_search_all(names, "y") );
+  CPPUNIT_ASSERT(edm::binary_search_all(names, "x"));
+  CPPUNIT_ASSERT(edm::binary_search_all(names, "y"));
   names = ps.template getParameterNamesForType<T>();
-  CPPUNIT_ASSERT( names.size() == 1 );
+  CPPUNIT_ASSERT(names.size() == 1);
   edm::sort_all(names);
-  CPPUNIT_ASSERT( edm::binary_search_all(names, "x") );
+  CPPUNIT_ASSERT(edm::binary_search_all(names, "x"));
   names = ps.template getParameterNamesForType<T>(false);
-  CPPUNIT_ASSERT( names.size() == 1 );
+  CPPUNIT_ASSERT(names.size() == 1);
   edm::sort_all(names);
-  CPPUNIT_ASSERT( edm::binary_search_all(names, "y") );
+  CPPUNIT_ASSERT(edm::binary_search_all(names, "y"));
 
   std::string firstString = ps.toString();
   edm::ParameterSet p2(firstString);
@@ -473,13 +444,12 @@ test_for_name()
   ps.allToString(allString);
   //since have untracked parameter these strings will not be identical
   CPPUNIT_ASSERT(firstString != allString);
-  
+
   edm::ParameterSet pAll(allString);
-  CPPUNIT_ASSERT(pAll.getParameterNames().size()==2);
+  CPPUNIT_ASSERT(pAll.getParameterNames().size() == 2);
 }
 
-void testps::nameAccessTest()
-{
+void testps::nameAccessTest() {
   test_for_name<bool>();
 
   test_for_name<int>();
@@ -494,7 +464,7 @@ void testps::nameAccessTest()
   test_for_name<std::string>();
   test_for_name<std::vector<std::string> >();
   test_for_name<edm::ParameterSet>();
-  test_for_name<std::vector<edm::ParameterSet> >();  
+  test_for_name<std::vector<edm::ParameterSet> >();
 
   // Can't make default FileInPath objects...
 
@@ -505,15 +475,12 @@ void testps::nameAccessTest()
     p.addParameter<double>("a", 2.5);
     p.registerIt();
     const bool tracked = true;
-    std::vector<std::string> names = 
-      p.getParameterNamesForType<int>(tracked);
-    CPPUNIT_ASSERT( names.empty() ); 
+    std::vector<std::string> names = p.getParameterNamesForType<int>(tracked);
+    CPPUNIT_ASSERT(names.empty());
   }
-
 }
 
-void testps::testEmbeddedPSet()
-{
+void testps::testEmbeddedPSet() {
   edm::ParameterSet ps;
   edm::ParameterSet psEmbedded, psDeeper;
   psEmbedded.addUntrackedParameter<std::string>("p1", "wham");
@@ -554,7 +521,8 @@ void testps::testEmbeddedPSet()
   CPPUNIT_ASSERT(trackedPart.exists("psEmbedded"));
   CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").exists("p2"));
   CPPUNIT_ASSERT(!trackedPart.getParameterSet("psEmbedded").exists("p1"));
-  CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").getParameterSet("psDeeper").getParameter<int>("deepest") == 6);
+  CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").getParameterSet("psDeeper").getParameter<int>("deepest") ==
+                 6);
   CPPUNIT_ASSERT(ps.getUntrackedParameter<unsigned long long>("u64") == 64);
   CPPUNIT_ASSERT(!trackedPart.exists("u64"));
   std::vector<edm::ParameterSet> const& vpset1 = trackedPart.getParameterSetVector("psVPset");
@@ -563,8 +531,7 @@ void testps::testEmbeddedPSet()
   CPPUNIT_ASSERT(vpset1[2].getParameter<int>("int3") == 3);
 }
 
-void testps::testRegistration()
-{
+void testps::testRegistration() {
   edm::ParameterSet ps;
   edm::ParameterSet psEmbedded, psDeeper;
   psEmbedded.addUntrackedParameter<std::string>("p1", "wham");
@@ -591,8 +558,7 @@ void testps::testRegistration()
   CPPUNIT_ASSERT(psDeeper.isRegistered());
 }
 
-void testps::testCopyFrom()
-{
+void testps::testCopyFrom() {
   edm::ParameterSet psOld;
   edm::ParameterSet psNew;
   edm::ParameterSet psInternal;
@@ -609,8 +575,7 @@ void testps::testCopyFrom()
   CPPUNIT_ASSERT(psNew.existsAs<std::vector<edm::ParameterSet> >("vps"));
 }
 
-void testps::testGetParameterAsString()
-{
+void testps::testGetParameterAsString() {
   edm::ParameterSet ps;
   edm::ParameterSet psInternal;
   std::vector<edm::ParameterSet> vpset;

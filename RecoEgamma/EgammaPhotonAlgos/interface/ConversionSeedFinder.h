@@ -27,16 +27,12 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 // C/C++ headers
 #include <string>
 #include <vector>
-
-
-
 
 //
 namespace edm {
@@ -48,90 +44,73 @@ class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
 class NavigationSchool;
 
-
 class ConversionSeedFinder {
-
- public:
-  
-
+public:
   ConversionSeedFinder();
-  ConversionSeedFinder( const edm::ParameterSet& config,edm::ConsumesCollector & iC );
-  
-  virtual ~ConversionSeedFinder(){}
+  ConversionSeedFinder(const edm::ParameterSet& config, edm::ConsumesCollector& iC);
 
-  
-  virtual void makeSeeds(const edm::Handle<edm::View<reco::CaloCluster> > & allBc ) =0 ;
- 
+  virtual ~ConversionSeedFinder() {}
 
+  virtual void makeSeeds(const edm::Handle<edm::View<reco::CaloCluster> >& allBc) = 0;
 
-  TrajectorySeedCollection & seeds() {  return theSeeds_;}
-  virtual void setCandidate( float e, GlobalPoint pos ) {  theSCenergy_=e; theSCPosition_= pos; }			       
-  std::vector<const DetLayer*> const & layerList() const { return theLayerList_;}
- 
-  
+  TrajectorySeedCollection& seeds() { return theSeeds_; }
+  virtual void setCandidate(float e, GlobalPoint pos) {
+    theSCenergy_ = e;
+    theSCPosition_ = pos;
+  }
+  std::vector<const DetLayer*> const& layerList() const { return theLayerList_; }
+
   void setMeasurementTracker(const MeasurementTracker* tracker) const { ; }
-  const MeasurementTracker* getMeasurementTracker() const  {return  theMeasurementTracker_;}
+  const MeasurementTracker* getMeasurementTracker() const { return theMeasurementTracker_; }
 
   /// Initialize EventSetup objects at each event
-  void setEventSetup( const edm::EventSetup& es ) ; 
-  void setNavigationSchool(const NavigationSchool *navigation) { theNavigationSchool_ = navigation; }
-  void setEvent( const edm::Event& e ) ; 
+  void setEventSetup(const edm::EventSetup& es);
+  void setNavigationSchool(const NavigationSchool* navigation) { theNavigationSchool_ = navigation; }
+  void setEvent(const edm::Event& e);
 
-  void clear() {
-    theSeeds_.clear();
-  }
+  void clear() { theSeeds_.clear(); }
 
- protected:
-
-
+protected:
   //edm::ParameterSet conf_; found this to be completely unused
   void findLayers();
-  void findLayers(const FreeTrajectoryState & fts); 
+  void findLayers(const FreeTrajectoryState& fts);
 
-  FreeTrajectoryState trackStateFromClusters ( int aCharge,
-					       const GlobalPoint & gpOrigine, 
-					       PropagationDirection dir, 
-					       float scaleFactor ) const;
-  
+  FreeTrajectoryState trackStateFromClusters(int aCharge,
+                                             const GlobalPoint& gpOrigine,
+                                             PropagationDirection dir,
+                                             float scaleFactor) const;
 
-  void printLayer(int i) const ;
+  void printLayer(int i) const;
 
-  
   TrajectorySeedCollection theSeeds_;
   GlobalPoint theSCPosition_;
-    
 
   std::string theMeasurementTrackerName_;
-  const MeasurementTracker*     theMeasurementTracker_;
+  const MeasurementTracker* theMeasurementTracker_;
   const TrackingGeometry* theTrackerGeom_;
-  const NavigationSchool *theNavigationSchool_ = nullptr;
+  const NavigationSchool* theNavigationSchool_ = nullptr;
 
- 
   edm::ESHandle<MagneticField> theMF_;
-  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
+  edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker_;
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkToken_;
 
+  KFUpdator theUpdator_;
+  PropagationDirection dir_;
+  reco::CaloCluster* theSC_;
+  float theSCenergy_;
 
-  KFUpdator                  theUpdator_;
-  PropagationDirection       dir_; 
-  reco::CaloCluster*  theSC_;
-  float theSCenergy_;  
+  std::vector<const DetLayer*> theLayerList_;
 
-  
-  std::vector<const DetLayer *> theLayerList_ ;    
-    
   GlobalPoint theBCPosition_;
-  float       theBCEnergy_; 
+  float theBCEnergy_;
 
-  const Propagator*  thePropagatorAlongMomentum_;
-  const Propagator*  thePropagatorOppositeToMomentum_;
+  const Propagator* thePropagatorAlongMomentum_;
+  const Propagator* thePropagatorOppositeToMomentum_;
 
   reco::BeamSpot theBeamSpot_;
-  edm::Handle<MeasurementTrackerEvent> theTrackerData_; 
-
-
+  edm::Handle<MeasurementTrackerEvent> theTrackerData_;
 };
 
 #endif

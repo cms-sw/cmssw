@@ -10,13 +10,12 @@
   \author   Rick Wilkinson, Caltech
 */
 
-class RPCNeutronWriter : public SubsystemNeutronWriter
-{
- public:
+class RPCNeutronWriter : public SubsystemNeutronWriter {
+public:
   explicit RPCNeutronWriter(edm::ParameterSet const& pset);
   ~RPCNeutronWriter() override;
 
- protected:
+protected:
   int localDetId(int globalDetId) const override;
 
   int chamberType(int globalDetId) const override;
@@ -24,8 +23,7 @@ class RPCNeutronWriter : public SubsystemNeutronWriter
   int chamberId(int globalDetId) const override;
 
   /// decides whether this cluster is good enough to be included
-  bool accept(const edm::PSimHitContainer & cluster) const override {return true;}
-
+  bool accept(const edm::PSimHitContainer& cluster) const override { return true; }
 };
 
 #endif

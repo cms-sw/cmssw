@@ -8,15 +8,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class SimpleCutsIsolator : public muonisolation::MuIsoBaseIsolator {
- public:
- SimpleCutsIsolator(const edm::ParameterSet & par, edm::ConsumesCollector && iC):
-    theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
-	    par.getParameter<std::vector<double> > ("ConeSizes"),
-	    par.getParameter<std::vector<double> > ("Thresholds"))
-    {
-    }
+public:
+  SimpleCutsIsolator(const edm::ParameterSet& par, edm::ConsumesCollector&& iC)
+      : theCuts(par.getParameter<std::vector<double> >("EtaBounds"),
+                par.getParameter<std::vector<double> >("ConeSizes"),
+                par.getParameter<std::vector<double> >("Thresholds")) {}
 
-  ResultType resultType() const override {return ISOL_BOOL_TYPE;}
+  ResultType resultType() const override { return ISOL_BOOL_TYPE; }
 
   Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const override {
     Result answer(ISOL_BOOL_TYPE);
@@ -29,28 +27,25 @@ class SimpleCutsIsolator : public muonisolation::MuIsoBaseIsolator {
     Result answer(ISOL_BOOL_TYPE);
 
     muonisolation::Cuts::CutSpec cuts_here = theCuts(tk.eta());
-    
+
     double conesize = cuts_here.conesize;
     double dephlt = 0;
     unsigned int nDeps = deposits.size();
-    for(unsigned int iDep = 0; iDep < nDeps; ++iDep ){
+    for (unsigned int iDep = 0; iDep < nDeps; ++iDep) {
       dephlt += deposits[iDep].dep->depositWithin(conesize);
     }
     answer.valFloat = dephlt;
-    if (dephlt<cuts_here.threshold) {
+    if (dephlt < cuts_here.threshold) {
       answer.valBool = true;
     } else {
       answer.valBool = false;
     }
     return answer;
   }
-  
- private:
 
+private:
   // Isolation cuts
   muonisolation::Cuts theCuts;
-
-
 };
 
 #endif

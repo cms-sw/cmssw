@@ -4,7 +4,7 @@
 //
 // Package:    TrackAssociator
 // Class:      PreshowerDetIdAssociator
-// 
+//
 /*
 
  Description: <one line class summary>
@@ -20,19 +20,19 @@
 #include "CaloDetIdAssociator.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-class PreshowerDetIdAssociator: public CaloDetIdAssociator{
- public:
-   PreshowerDetIdAssociator():CaloDetIdAssociator(30,60,0.1){};
+class PreshowerDetIdAssociator : public CaloDetIdAssociator {
+public:
+  PreshowerDetIdAssociator() : CaloDetIdAssociator(30, 60, 0.1, nullptr){};
 
-   PreshowerDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
-     
-   const char* name() const override { return "Preshower"; }
- protected:
+  using CaloDetIdAssociator::CaloDetIdAssociator;
 
-   void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const override {
-     if ( subDetectorIndex != 0 ) throw cms::Exception("FatalError") << "Preshower has only one sub-detector for geometry. Abort.";
-     validIds = geometry_->getValidDetIds(DetId::Ecal, EcalPreshower);
-   };
+  const char* name() const override { return "Preshower"; }
 
+protected:
+  void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const override {
+    if (subDetectorIndex != 0)
+      throw cms::Exception("FatalError") << "Preshower has only one sub-detector for geometry. Abort.";
+    validIds = geometry_->getValidDetIds(DetId::Ecal, EcalPreshower);
+  };
 };
 #endif

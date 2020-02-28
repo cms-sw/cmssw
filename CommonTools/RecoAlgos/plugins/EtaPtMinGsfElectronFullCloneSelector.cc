@@ -15,12 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "CommonTools/RecoAlgos/interface/GsfElectronSelector.h"
 
- typedef SingleObjectSelector<
-           reco::GsfElectronCollection,
-           AndSelector<
-	     EtaRangeSelector,
-             PtMinSelector
-           >
-         > EtaPtMinGsfElectronFullCloneSelector;
+typedef SingleObjectSelector<reco::GsfElectronCollection, AndSelector<EtaRangeSelector, PtMinSelector> >
+    EtaPtMinGsfElectronFullCloneSelector;
 
-DEFINE_FWK_MODULE( EtaPtMinGsfElectronFullCloneSelector );
+DEFINE_FWK_MODULE(EtaPtMinGsfElectronFullCloneSelector);

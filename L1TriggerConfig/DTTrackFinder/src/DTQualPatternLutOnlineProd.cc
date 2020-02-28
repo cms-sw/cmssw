@@ -2,7 +2,7 @@
 //
 // Package:    DTQualPatternLutOnlineProd
 // Class:      DTQualPatternLutOnlineProd
-// 
+//
 /**\class DTQualPatternLutOnlineProd DTQualPatternLutOnlineProd.h L1Trigger/DTQualPatternLutProducers/src/DTQualPatternLutOnlineProd.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id$
 //
 //
-
 
 // system include files
 
@@ -32,18 +31,15 @@
 // class declaration
 //
 
-class DTQualPatternLutOnlineProd :
-  public L1ConfigOnlineProdBase< L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut >
-{
-   public:
-      DTQualPatternLutOnlineProd(const edm::ParameterSet&);
-      ~DTQualPatternLutOnlineProd() override;
+class DTQualPatternLutOnlineProd : public L1ConfigOnlineProdBase<L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut> {
+public:
+  DTQualPatternLutOnlineProd(const edm::ParameterSet&);
+  ~DTQualPatternLutOnlineProd() override;
 
-      std::unique_ptr< L1MuDTQualPatternLut > newObject(
-         const std::string& objectKey ) override ;
+  std::unique_ptr<L1MuDTQualPatternLut> newObject(const std::string& objectKey) override;
 
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -57,42 +53,30 @@ class DTQualPatternLutOnlineProd :
 //
 // constructors and destructor
 //
-DTQualPatternLutOnlineProd::DTQualPatternLutOnlineProd(
-  const edm::ParameterSet& iConfig)
-  : L1ConfigOnlineProdBase< L1MuDTQualPatternLutRcd,
-			    L1MuDTQualPatternLut >( iConfig )
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
+DTQualPatternLutOnlineProd::DTQualPatternLutOnlineProd(const edm::ParameterSet& iConfig)
+    : L1ConfigOnlineProdBase<L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut>(iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
-
-DTQualPatternLutOnlineProd::~DTQualPatternLutOnlineProd()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+DTQualPatternLutOnlineProd::~DTQualPatternLutOnlineProd() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
-std::unique_ptr< L1MuDTQualPatternLut >
-DTQualPatternLutOnlineProd::newObject( const std::string& objectKey )
-{
-  edm::LogError( "L1-O2O" ) << "L1MuDTQualPatternLut object with key "
-			    << objectKey << " not in ORCON!" ;
+std::unique_ptr<L1MuDTQualPatternLut> DTQualPatternLutOnlineProd::newObject(const std::string& objectKey) {
+  edm::LogError("L1-O2O") << "L1MuDTQualPatternLut object with key " << objectKey << " not in ORCON!";
 
-  return std::unique_ptr< L1MuDTQualPatternLut >() ;
+  return std::unique_ptr<L1MuDTQualPatternLut>();
 }
 
 //
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
-
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(DTQualPatternLutOnlineProd);

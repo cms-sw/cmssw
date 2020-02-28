@@ -30,7 +30,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -40,53 +39,47 @@
 //              ---------------------
 
 class L1MuBMTrackSegLoc {
+public:
+  /// default constructor
+  L1MuBMTrackSegLoc();
 
-  public:
- 
-    /// default constructor
-    L1MuBMTrackSegLoc();
+  /// constructor
+  L1MuBMTrackSegLoc(int wheel_id, int sector_id, int station_id);
 
-    /// constructor
-    L1MuBMTrackSegLoc(int wheel_id, 
-                      int sector_id,
-                      int station_id); 
-  
-    /// copy constructor
-    L1MuBMTrackSegLoc(const L1MuBMTrackSegLoc&);
+  /// copy constructor
+  L1MuBMTrackSegLoc(const L1MuBMTrackSegLoc&);
 
-    /// destructor
-    virtual ~L1MuBMTrackSegLoc();
+  /// destructor
+  virtual ~L1MuBMTrackSegLoc();
 
-    /// return wheel 
-    inline int wheel() const { return m_wheel; }
-    
-    /// return sector (30 deg)
-    inline int sector() const { return m_sector; }
-    
-    /// return station
-    inline int station() const { return m_station; }
+  /// return wheel
+  inline int wheel() const { return m_wheel; }
 
-    /// assignment operator
-    L1MuBMTrackSegLoc& operator=(const L1MuBMTrackSegLoc&);
+  /// return sector (30 deg)
+  inline int sector() const { return m_sector; }
 
-    /// equal operator
-    bool operator==(const L1MuBMTrackSegLoc&) const;
-    
-    /// unequal operator
-    bool operator!=(const L1MuBMTrackSegLoc&) const;
-    
-    /// less operator
-    bool operator<(const L1MuBMTrackSegLoc&) const;
-  
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const L1MuBMTrackSegLoc&);
+  /// return station
+  inline int station() const { return m_station; }
 
-  private:
- 
-    int m_wheel;
-    int m_sector;
-    int m_station;
-  
+  /// assignment operator
+  L1MuBMTrackSegLoc& operator=(const L1MuBMTrackSegLoc&);
+
+  /// equal operator
+  bool operator==(const L1MuBMTrackSegLoc&) const;
+
+  /// unequal operator
+  bool operator!=(const L1MuBMTrackSegLoc&) const;
+
+  /// less operator
+  bool operator<(const L1MuBMTrackSegLoc&) const;
+
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const L1MuBMTrackSegLoc&);
+
+private:
+  int m_wheel;
+  int m_sector;
+  int m_station;
 };
-  
+
 #endif

@@ -24,9 +24,8 @@
  *  startElement and endElement events.
  *
  */
-class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
-{
- public:
+class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler {
+public:
   using Attributes = XERCES_CPP_NAMESPACE::Attributes;
   using SAXParseException = XERCES_CPP_NAMESPACE::SAXParseException;
 
@@ -34,42 +33,25 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   ~DDLSAX2Handler() override;
 
   /// Get the count of elements processed so far.
-  unsigned int getElementCount() const
-  {
-    return elementCount_;
-  }
+  unsigned int getElementCount() const { return elementCount_; }
   /// Get the count of attributes processed so far.
-  unsigned int getAttrCount() const
-  {
-    return attrCount_;
-  }
+  unsigned int getAttrCount() const { return attrCount_; }
   /// Get the count of characters processed so far.
-  unsigned int getCharacterCount() const
-  {
-    return characterCount_;
-  }
+  unsigned int getCharacterCount() const { return characterCount_; }
   /// Did the XML parser see any errors?
-  bool getSawErrors() const
-  {
-    return sawErrors_;
-  }
+  bool getSawErrors() const { return sawErrors_; }
   /// Get the count of spaces processed so far.
-  unsigned int getSpaceCount() const
-  {
-    return spaceCount_;
-  }
+  unsigned int getSpaceCount() const { return spaceCount_; }
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
 
-  void startElement( const XMLCh* uri, const XMLCh* localname,
-		     const XMLCh* qname, const Attributes& attrs ) override;
-  void endElement( const XMLCh* uri, const XMLCh* localname,
-		   const XMLCh* qname ) override;
-  void characters( const XMLCh* chars, XMLSize_t length ) override;
-  void comment( const XMLCh* chars, XMLSize_t length ) override;
-  void ignorableWhitespace( const XMLCh* chars, XMLSize_t length ) override;
+  void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs) override;
+  void endElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname) override;
+  void characters(const XMLCh* chars, XMLSize_t length) override;
+  void comment(const XMLCh* chars, XMLSize_t length) override;
+  void ignorableWhitespace(const XMLCh* chars, XMLSize_t length) override;
   void resetDocument() override;
 
   // -----------------------------------------------------------------------
@@ -79,9 +61,8 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   void error(const SAXParseException& exception) override;
   void fatalError(const SAXParseException& exception) override;
   virtual void dumpStats(const std::string& fname);
-  
- protected:
 
+protected:
   // -----------------------------------------------------------------------
   //  Protected data members
   //
@@ -96,15 +77,15 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   //      This is set by the error handlers, and is queryable later to
   //      see if any errors occurred.
   // -----------------------------------------------------------------------
-  XMLSize_t       attrCount_;
-  XMLSize_t       characterCount_;
-  XMLSize_t       elementCount_;
-  XMLSize_t       spaceCount_;
-  bool            sawErrors_;
-  bool            userNS_;
-  std::string     nmspace_;
- 
- public:
+  XMLSize_t attrCount_;
+  XMLSize_t characterCount_;
+  XMLSize_t elementCount_;
+  XMLSize_t spaceCount_;
+  bool sawErrors_;
+  bool userNS_;
+  std::string nmspace_;
+
+public:
   /** This allows the DDLSAX2Handler and objects that inherit from it to set
    ** the userNS_ flag to indicate 
    **     false[default] use the filename of the file being handled as the DD namespace

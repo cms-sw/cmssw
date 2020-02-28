@@ -4,7 +4,7 @@
 //
 // Package:     Package
 // Class  :     producer::AbilityToImplementor
-// 
+//
 /**\class producer::AbilityToImplementor producerAbilityToImplementor.h "FWCore/Framework/interface/one/producerAbilityToImplementor.h"
 
  Description: [one line class summary]
@@ -31,61 +31,61 @@
 namespace edm {
   namespace one {
     namespace producer {
-      template<typename T> struct AbilityToImplementor;
-      
-      template<>
+      template <typename T>
+      struct AbilityToImplementor;
+
+      template <>
       struct AbilityToImplementor<edm::one::SharedResources> {
         typedef edm::one::impl::SharedResourcesUser<edm::one::EDProducerBase> Type;
       };
-      
-      template<>
+
+      template <>
       struct AbilityToImplementor<edm::one::WatchRuns> {
         typedef edm::one::impl::RunWatcher<edm::one::EDProducerBase> Type;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
         typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDProducerBase> Type;
       };
-      
-      template<>
+
+      template <>
       struct AbilityToImplementor<edm::BeginRunProducer> {
         typedef edm::one::impl::BeginRunProducer<edm::one::EDProducerBase> Type;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::EndRunProducer> {
         typedef edm::one::impl::EndRunProducer<edm::one::EDProducerBase> Type;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
         typedef edm::one::impl::BeginLuminosityBlockProducer<edm::one::EDProducerBase> Type;
       };
-      
-      template<>
+
+      template <>
       struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
         typedef edm::one::impl::EndLuminosityBlockProducer<edm::one::EDProducerBase> Type;
       };
 
-      template<typename C>
+      template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::one::impl::RunCacheHolder<edm::one::EDProducerBase,C> Type;
-      };
-      
-      template<typename C>
-      struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDProducerBase,C> Type;
+        typedef edm::one::impl::RunCacheHolder<edm::one::EDProducerBase, C> Type;
       };
 
-      template<>
+      template <typename C>
+      struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
+        typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDProducerBase, C> Type;
+      };
+
+      template <>
       struct AbilityToImplementor<edm::Accumulator> {
         typedef edm::one::impl::Accumulator<edm::one::EDProducerBase> Type;
       };
 
-    }
-  }
-}
-
+    }  // namespace producer
+  }    // namespace one
+}  // namespace edm
 
 #endif

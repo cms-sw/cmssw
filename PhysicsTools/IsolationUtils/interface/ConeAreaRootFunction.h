@@ -5,7 +5,7 @@
 //
 // Package:    ConeAreaRootFunction
 // Class:      ConeAreaRootFunction
-// 
+//
 /**\class ConeAreaRootFunction ConeAreaRootFunction.cc PhysicsTools/IsolationUtils/src/ConeAreaRootFunction.cc
 
  Description: low level class to compute three-dimensional opening angle of isolation cone
@@ -26,25 +26,24 @@
 // class declaration
 //
 
-class ConeAreaRootFunction : public ConeAreaFunction
-{
- public:
+class ConeAreaRootFunction : public ConeAreaFunction {
+public:
   ConeAreaRootFunction();
   ConeAreaRootFunction(const ConeAreaRootFunction& bluePrint);
   ~ConeAreaRootFunction() override;
-  
+
   ConeAreaRootFunction& operator=(const ConeAreaRootFunction& bluePrint);
 
   void SetParameterConeArea(double coneArea);
 
-  ROOT::Math::IGenFunction* Clone () const override { return new ConeAreaRootFunction(*this); }
+  ROOT::Math::IGenFunction* Clone() const override { return new ConeAreaRootFunction(*this); }
 
- private:
+private:
   void SetParameters(const double* param) override;
 
   double DoEval(double x) const override;
 
-  double coneArea_; // area covered by cone
+  double coneArea_;  // area covered by cone
 
   static const unsigned int debugLevel_ = 0;
 };

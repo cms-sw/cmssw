@@ -31,49 +31,48 @@
 class FWEventItem;
 class FWModelChangeManager;
 
-class FWSelectionManager
-{
-   //only an item can set the selection
-   friend class FWEventItem;
+class FWSelectionManager {
+  //only an item can set the selection
+  friend class FWEventItem;
+
 public:
-   FWSelectionManager(FWModelChangeManager* iCM);
-   //virtual ~FWSelectionManager();
+  FWSelectionManager(FWModelChangeManager* iCM);
+  //virtual ~FWSelectionManager();
 
-   // ---------- const member functions ---------------------
-   const std::set<FWModelId>& selected() const;
+  // ---------- const member functions ---------------------
+  const std::set<FWModelId>& selected() const;
 
-   const std::set<FWEventItem*>& selectedItems() const;
-   // ---------- static member functions --------------------
+  const std::set<FWEventItem*>& selectedItems() const;
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void clearSelection();
-   void clearItemSelection();
-   void clearModelSelectionLeaveItem();
+  // ---------- member functions ---------------------------
+  void clearSelection();
+  void clearItemSelection();
+  void clearModelSelectionLeaveItem();
 
-   sigc::signal<void, const FWSelectionManager&> selectionChanged_;
-   sigc::signal<void, const FWSelectionManager&> itemSelectionChanged_;
+  sigc::signal<void, const FWSelectionManager&> selectionChanged_;
+  sigc::signal<void, const FWSelectionManager&> itemSelectionChanged_;
 
 private:
-   void finishedAllSelections();
-   void select(const FWModelId& iId);
-   void unselect(const FWModelId& iId);
-   void itemChanged(const FWEventItem*);
+  void finishedAllSelections();
+  void select(const FWModelId& iId);
+  void unselect(const FWModelId& iId);
+  void itemChanged(const FWEventItem*);
 
-   void selectItem(FWEventItem*);
-   void unselectItem(FWEventItem*);
-   
-   FWSelectionManager(const FWSelectionManager&) = delete;    // stop default
+  void selectItem(FWEventItem*);
+  void unselectItem(FWEventItem*);
 
-   const FWSelectionManager& operator=(const FWSelectionManager&) = delete;    // stop default
+  FWSelectionManager(const FWSelectionManager&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   FWModelChangeManager* m_changeManager;
-   std::set<FWModelId> m_selection;
-   std::set<FWModelId> m_newSelection;
-   bool m_wasChanged;
-   std::vector<std::pair<int,sigc::connection> > m_itemConnectionCount;
-   std::set<FWEventItem*> m_itemSelection;
+  const FWSelectionManager& operator=(const FWSelectionManager&) = delete;  // stop default
+
+  // ---------- member data --------------------------------
+  FWModelChangeManager* m_changeManager;
+  std::set<FWModelId> m_selection;
+  std::set<FWModelId> m_newSelection;
+  bool m_wasChanged;
+  std::vector<std::pair<int, sigc::connection> > m_itemConnectionCount;
+  std::set<FWEventItem*> m_itemSelection;
 };
-
 
 #endif

@@ -16,6 +16,7 @@
 # 
 # Full licence is in the file COPYING and at http://www.gnu.org/copyleft/gpl.html
 
+from builtins import range
 import re, codecs, os, platform, copy, itertools, math, cmath, random, sys, copy
 _epsilon = 1e-5
 
@@ -1744,7 +1745,7 @@ class Poly:
       mode = "S"
 
       vx, vy = [0.]*len(self.d), [0.]*len(self.d)
-      for i in xrange(len(self.d)):
+      for i in range(len(self.d)):
         inext = (i+1) % len(self.d)
         iprev = (i-1) % len(self.d)
 
@@ -1757,7 +1758,7 @@ class Poly:
       raise ValueError("mode must be \"lines\", \"bezier\", \"velocity\", \"foreback\", \"smooth\", or an abbreviation")
 
     d = []
-    indexes = range(len(self.d))
+    indexes = list(range(len(self.d)))
     if self.loop and len(self.d) > 0: indexes.append(0)
 
     for i in indexes:
@@ -2611,7 +2612,7 @@ class Ticks:
     if N >= 0:
       output = {}
       x = self.low
-      for i in xrange(N):
+      for i in range(N):
         if format == unumber and abs(x) < eps: label = u"0"
         else: label = format(x)
         output[x] = label
@@ -2681,7 +2682,7 @@ class Ticks:
     """
     output = []
     x = self.low
-    for i in xrange(N):
+    for i in range(N):
       output.append(x)
       x += (self.high - self.low)/(N-1.)
     return output
@@ -2727,7 +2728,7 @@ class Ticks:
     if N >= 0:
       output = {}
       x = self.low
-      for i in xrange(N):
+      for i in range(N):
         if format == unumber and abs(x) < eps: label = u"0"
         else: label = format(x)
         output[x] = label

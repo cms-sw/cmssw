@@ -6,8 +6,8 @@
  <use name="SimDataFormats/Vertex"/>
  <use name="SimDataFormats/TrackingAnalysis"/>
  <use name="SimDataFormats/CaloAnalysis"/>
- <lib name="Eve"/>
- <lib name="EG"/>
- <lib name="Geom"/>
+ <use name="rooteve"/>
+ <use name="rooteg"/>
+ <use name="rootgeom"/>
  <flags EDM_PLUGIN="1"/>
 </library>

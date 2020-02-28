@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import os
 import time
 import sys
@@ -193,7 +194,7 @@ class StandardTester(object):
             os.system(cmd)
 
         import pickle
-        pickle.dump(self.commands, open('logs/addOnTests.pkl', 'w') )
+        pickle.dump(self.commands, open('logs/addOnTests.pkl', 'wb'), protocol=2)
 
         os.chdir(actDir)
 

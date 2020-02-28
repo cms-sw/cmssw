@@ -2,6 +2,5 @@
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
 
 namespace Alignment_CocoaDaq {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace Alignment_CocoaDaq

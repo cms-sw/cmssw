@@ -16,31 +16,28 @@ RandomEngineStateProducer::RandomEngineStateProducer(edm::ParameterSet const&) {
   produces<edm::RandomEngineStates>();
 }
 
-RandomEngineStateProducer::~RandomEngineStateProducer() {
-}
+RandomEngineStateProducer::~RandomEngineStateProducer() {}
 
-void
-RandomEngineStateProducer::produce(edm::StreamID iID, edm::Event& ev, edm::EventSetup const&) const {
+void RandomEngineStateProducer::produce(edm::StreamID iID, edm::Event& ev, edm::EventSetup const&) const {
   edm::Service<edm::RandomNumberGenerator> randomService;
-  if(randomService.isAvailable()) {
+  if (randomService.isAvailable()) {
     auto states = std::make_unique<edm::RandomEngineStates>();
     states->setRandomEngineStates(randomService->getEventCache(ev.streamID()));
     ev.put(std::move(states));
   }
 }
 
-void
-RandomEngineStateProducer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) const {
+void RandomEngineStateProducer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lb,
+                                                                  edm::EventSetup const&) const {
   edm::Service<edm::RandomNumberGenerator> randomService;
-  if(randomService.isAvailable()) {
+  if (randomService.isAvailable()) {
     auto states = std::make_unique<edm::RandomEngineStates>();
     states->setRandomEngineStates(randomService->getLumiCache(lb.index()));
     lb.put(std::move(states), "beginLumi");
   }
 }
 
-void
-RandomEngineStateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void RandomEngineStateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.add("randomEngineStateProducer", desc);
 }

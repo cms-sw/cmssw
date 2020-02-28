@@ -2,7 +2,7 @@
 #define _ClosestApproachInRPhi_H_
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachOnHelices.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 /** Given two trajectory states, computes the two points of closest approach 
  *  in the transverse plane for the helices extrapolated from these states. 
@@ -20,23 +20,20 @@ namespace test {
   namespace ClosestApproachInRPhi_t {
     int test();
   }
-}
+}  // namespace test
 
 class ClosestApproachInRPhi final : public ClosestApproachOnHelices {
   friend int test::ClosestApproachInRPhi_t::test();
 
 public:
+  ClosestApproachInRPhi() { status_ = false; }
+  ~ClosestApproachInRPhi() override {}
 
-  ClosestApproachInRPhi() {status_ = false;}
-  ~ClosestApproachInRPhi() override{}
+  bool calculate(const TrajectoryStateOnSurface& sta, const TrajectoryStateOnSurface& stb) override;
 
-  bool calculate(const TrajectoryStateOnSurface & sta, 
-			 const TrajectoryStateOnSurface & stb) override;
+  bool calculate(const FreeTrajectoryState& sta, const FreeTrajectoryState& stb) override;
 
-  bool calculate(const FreeTrajectoryState & sta,
-			 const FreeTrajectoryState & stb) override;
-
-  bool status() const override {return status_;}
+  bool status() const override { return status_; }
 
   /**
    * Returns the two PCA on the trajectories.
@@ -45,8 +42,7 @@ public:
 
   /** Returns not only the points, but the full GlobalTrajectoryParemeters 
    *  at the points of closest approach */
-  std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
-  trajectoryParameters () const;
+  std::pair<GlobalTrajectoryParameters, GlobalTrajectoryParameters> trajectoryParameters() const;
 
   /** arithmetic mean of the two points of closest approach */
   GlobalPoint crossingPoint() const override;
@@ -57,57 +53,65 @@ public:
   /**
    *  Clone method
    */
-  ClosestApproachInRPhi * clone() const override {
-    return new ClosestApproachInRPhi(* this);
-  }
+  ClosestApproachInRPhi* clone() const override { return new ClosestApproachInRPhi(*this); }
 
 private:
-
-  bool compute(const TrackCharge & chargeA, 
-	       const GlobalVector & momentumA, 
-	       const GlobalPoint & positionA, 
-	       const TrackCharge & chargeB, 
-	       const GlobalVector & momentumB, 
-	       const GlobalPoint & positionB) dso_internal;
+  bool compute(const TrackCharge& chargeA,
+               const GlobalVector& momentumA,
+               const GlobalPoint& positionA,
+               const TrackCharge& chargeB,
+               const GlobalVector& momentumB,
+               const GlobalPoint& positionB) dso_internal;
 
   // given the old Parameters, and a new GlobalPoint,
   // we return the full new GlobalTrajectoryParameters at the
   // Point.
-  static GlobalTrajectoryParameters
-  newTrajectory( const GlobalPoint & newpt,
-		 const GlobalTrajectoryParameters & oldpar, double bz)  dso_internal;
+  static GlobalTrajectoryParameters newTrajectory(const GlobalPoint& newpt,
+                                                  const GlobalTrajectoryParameters& oldpar,
+                                                  double bz) dso_internal;
 
   // Computes center coordinates and unsigned radius of circle;
-  static void circleParameters(const TrackCharge& charge, 
-			       const GlobalVector& momemtum, 
-			       const GlobalPoint& position, 
-			       double& xc, double& yc, double& r,
-			       double bz)  dso_internal;
+  static void circleParameters(const TrackCharge& charge,
+                               const GlobalVector& momemtum,
+                               const GlobalPoint& position,
+                               double& xc,
+                               double& yc,
+                               double& r,
+                               double bz) dso_internal;
 
-  // Computes crossing points of 2 circles with centres (cx_i, cy_i) 
-  // and unsigned radii r_i. 
-  // Two cases: - circles have one or two intersection points; 
-  //              return value = 1; 
-  //            - circles do not cross; computes point of closest approach 
+  // Computes crossing points of 2 circles with centres (cx_i, cy_i)
+  // and unsigned radii r_i.
+  // Two cases: - circles have one or two intersection points;
+  //              return value = 1;
+  //            - circles do not cross; computes point of closest approach
   //              on each circle; return value = 2;
   // if the calculation fails (e.g. concentric circles), return value = 0;
 
-  static int transverseCoord(double cxa, double cya, double ra, 
-			     double cxb, double cyb, double rb, 
-			     double & xg1, double & yg1, 
-			     double & xg2, double & yg2)  dso_internal;
+  static int transverseCoord(double cxa,
+                             double cya,
+                             double ra,
+                             double cxb,
+                             double cyb,
+                             double rb,
+                             double& xg1,
+                             double& yg1,
+                             double& xg2,
+                             double& yg2) dso_internal;
 
   // Computes z-coordinate on helix at given transverse coordinates
-  static double zCoord(const GlobalVector& mom, const GlobalPoint& pos, 
-		       double r, double xc, double yc, double xg, double yg)  dso_internal; 
-
+  static double zCoord(const GlobalVector& mom,
+                       const GlobalPoint& pos,
+                       double r,
+                       double xc,
+                       double yc,
+                       double xg,
+                       double yg) dso_internal;
 
 private:
   GlobalPoint posA, posB;
   GlobalTrajectoryParameters paramA, paramB;
   double bz;
   bool status_;
-  
 };
 
 #endif

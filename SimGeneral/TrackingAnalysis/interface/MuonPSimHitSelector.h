@@ -4,21 +4,17 @@
 #include "SimGeneral/TrackingAnalysis/interface/PSimHitSelector.h"
 
 //! MuonPSimHitSelector class
-class MuonPSimHitSelector : public PSimHitSelector
-{
-
+class MuonPSimHitSelector : public PSimHitSelector {
 public:
+  //! Constructor by pset.
+  /* Creates a MuonPSimHitSelector with association given by pset.
 
-    //! Constructor by pset.
-    /* Creates a MuonPSimHitSelector with association given by pset.
+     /param[in] pset with the configuration values
+  */
+  MuonPSimHitSelector(edm::ParameterSet const &config) : PSimHitSelector(config) {}
 
-       /param[in] pset with the configuration values
-    */
-    MuonPSimHitSelector(edm::ParameterSet const & config) : PSimHitSelector(config) {}
-
-    //! Pre-process event information
-    void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const override;
-
+  //! Pre-process event information
+  void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const override;
 };
 
 #endif

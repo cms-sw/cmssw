@@ -33,7 +33,10 @@ simMuonDTDigis = cms.EDProducer("DTDigitizer",
     IdealModel = cms.bool(False),
     LinksTimeWindow = cms.double(10.0),
     onlyMuHits = cms.bool(False),
-    GeometryType = cms.string('idealForDigi')                          
+    GeometryType = cms.string('idealForDigi'),
+    # Option to write digis in phase2 units (25/30. ns, if True)  
+    # instead than in phase 1 units (25/32.ns )
+    phase2Digis = cms.bool(False)
 )
 
 

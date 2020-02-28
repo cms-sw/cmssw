@@ -18,11 +18,9 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
-
 typedef edm::RangeMap<DTChamberId, edm::OwnVector<DTRecSegment4D> > DTRecSegment4DCollection;
 
 #include "DataFormats/Common/interface/Ref.h"
 typedef edm::Ref<DTRecSegment4DCollection> DTRecSegment4DRef;
 
 #endif
-

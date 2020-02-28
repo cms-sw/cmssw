@@ -14,33 +14,28 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
-class SiPixelDynamicInefficiencyDB : public edm::EDAnalyzer
-{
- public:
-  
+class SiPixelDynamicInefficiencyDB : public edm::EDAnalyzer {
+public:
   explicit SiPixelDynamicInefficiencyDB(const edm::ParameterSet& conf);
-  
-  virtual ~SiPixelDynamicInefficiencyDB();
-  
-  virtual void beginJob();
-  
-  virtual void endJob(); 
-  
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
-  
- private:
 
+  virtual ~SiPixelDynamicInefficiencyDB();
+
+  virtual void beginJob();
+
+  virtual void endJob();
+
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+
+private:
   edm::ParameterSet conf_;
   std::string recordName_;
 
-  typedef std::vector< edm::ParameterSet > Parameters;
+  typedef std::vector<edm::ParameterSet> Parameters;
   Parameters thePixelGeomFactors_;
   Parameters theColGeomFactors_;
   Parameters theChipGeomFactors_;
   Parameters thePUEfficiency_;
   double theInstLumiScaleFactor_;
 };
-
 
 #endif

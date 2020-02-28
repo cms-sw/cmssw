@@ -6,191 +6,190 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-
 //#define debugTSPFSLA
 
 namespace {
-  inline double sqr(double a){return a*a;}
+  inline double sqr(double a) { return a * a; }
+}  // namespace
+
+PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(
+    const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+    : theHitsGenerator(new CombinedHitPairGeneratorForPhotonConversion(
+          conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
+      theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"))),
+      theRegionProducer(
+          new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)),
+      theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
+      theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet")
+                                  .getUntrackedParameter<bool>("silentClusterCheck", false)),
+      _vtxMinDoF(conf.getParameter<double>("vtxMinDoF")),
+      _maxDZSigmas(conf.getParameter<double>("maxDZSigmas")),
+      _maxNumSelVtx(conf.getParameter<uint32_t>("maxNumSelVtx")),
+      _applyTkVtxConstraint(conf.getParameter<bool>("applyTkVtxConstraint")),
+      _countSeedTracks(0),
+      _primaryVtxInputTag(conf.getParameter<edm::InputTag>("primaryVerticesTag")),
+      _beamSpotInputTag(conf.getParameter<edm::InputTag>("beamSpotInputTag")) {
+  token_vertex = iC.consumes<reco::VertexCollection>(_primaryVtxInputTag);
+  token_bs = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
+  token_refitter = iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackRefitter"));
 }
 
-PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet & conf,
-	edm::ConsumesCollector && iC)
-  :
-   theHitsGenerator(new CombinedHitPairGeneratorForPhotonConversion(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
-   theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"))),
-   theRegionProducer(new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)),
-   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
-   theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)),
-   _vtxMinDoF(conf.getParameter<double>("vtxMinDoF")),
-   _maxDZSigmas(conf.getParameter<double>("maxDZSigmas")),
-   _maxNumSelVtx(conf.getParameter<uint32_t>("maxNumSelVtx")),
-   _applyTkVtxConstraint(conf.getParameter<bool>("applyTkVtxConstraint")),
-   _countSeedTracks(0),
-   _primaryVtxInputTag(conf.getParameter<edm::InputTag>("primaryVerticesTag")),
-   _beamSpotInputTag(conf.getParameter<edm::InputTag>("beamSpotInputTag"))
-{
-  token_vertex      = iC.consumes<reco::VertexCollection>(_primaryVtxInputTag);
-  token_bs          = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
-  token_refitter    = iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackRefitter"));
-}
+PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {}
 
-PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {
-}
-
-void 
-PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Event & event, const edm::EventSetup & setup, TrajectorySeedCollection & output) {
-
+void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Event& event,
+                                                                   const edm::EventSetup& setup,
+                                                                   TrajectorySeedCollection& output) {
   myEsetup = &setup;
   myEvent = &event;
 
-  assert(seedCollection==nullptr);
+  assert(seedCollection == nullptr);
 
   seedCollection = &output;
 
-
   size_t clustsOrZero = theClusterCheck.tooManyClusters(event);
-  if (clustsOrZero){
+  if (clustsOrZero) {
     if (!theSilentOnClusterCheck)
       edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
-    seedCollection= nullptr; return ;
+    seedCollection = nullptr;
+    return;
   }
-
 
   edm::ESHandle<MagneticField> handleMagField;
   setup.get<IdealMagneticFieldRecord>().get(handleMagField);
   magField = handleMagField.product();
-  if (UNLIKELY(magField->inTesla(GlobalPoint(0.,0.,0.)).z()<0.01)){seedCollection= nullptr;  return;}
+  if (UNLIKELY(magField->inTesla(GlobalPoint(0., 0., 0.)).z() < 0.01)) {
+    seedCollection = nullptr;
+    return;
+  }
 
   _IdealHelixParameters.setMagnField(magField);
 
-
   event.getByToken(token_vertex, vertexHandle);
-  if (!vertexHandle.isValid() || vertexHandle->empty()){
-      edm::LogError("PhotonConversionFinderFromTracks") << "Error! Can't get the product primary Vertex Collection "<< _primaryVtxInputTag <<  "\n";
-      seedCollection= nullptr; return;
+  if (!vertexHandle.isValid() || vertexHandle->empty()) {
+    edm::LogError("PhotonConversionFinderFromTracks")
+        << "Error! Can't get the product primary Vertex Collection " << _primaryVtxInputTag << "\n";
+    seedCollection = nullptr;
+    return;
   }
 
-  event.getByToken(token_bs,recoBeamSpotHandle);
-  
+  event.getByToken(token_bs, recoBeamSpotHandle);
 
-  regions = theRegionProducer->regions(event,setup);
-  
-
+  regions = theRegionProducer->regions(event, setup);
 
   // find seeds
   loopOnTracks();
 
- 
-#ifdef debugTSPFSLA 
+#ifdef debugTSPFSLA
   std::stringstream ss;
   ss.str("");
   ss << "\n++++++++++++++++++\n";
   ss << "seed collection size " << seedCollection->size();
-  for (auto const & tjS : *seedCollection){
+  for (auto const& tjS : *seedCollection) {
     po.print(ss, tjS);
   }
   edm::LogInfo("debugTrajSeedFromSingleLeg") << ss.str();
   //-------------------------------------------------
 #endif
 
-
-   // clear memory
+  // clear memory
   theHitsGenerator->clearCache();
 
   seedCollection = nullptr;
-
 }
 
-
-void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-loopOnTracks(){
-
+void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::loopOnTracks() {
   //--- Get Tracks
   myEvent->getByToken(token_refitter, trackCollectionH);
 
-  if(trackCollectionH.isValid()==0){
-    edm::LogError("MissingInput")<<" could not find track collecion in PhotonConversionTrajectorySeedProducerFromSingleLegAlgo";
+  if (trackCollectionH.isValid() == 0) {
+    edm::LogError("MissingInput")
+        << " could not find track collecion in PhotonConversionTrajectorySeedProducerFromSingleLegAlgo";
     return;
   }
 
-  size_t idx=0, sel=0;
-  _countSeedTracks=0;
+  size_t idx = 0, sel = 0;
+  _countSeedTracks = 0;
 
 #ifdef debugTSPFSLA
   ss.str("");
 #endif
-  
-  for( reco::TrackCollection::const_iterator tr = trackCollectionH->begin(); 
-       tr != trackCollectionH->end(); tr++, idx++) {
-    
 
-    if(rejectTrack(*tr))  continue;
-    std::vector<reco::Vertex> selectedPriVtxCompatibleWithTrack;  
-    if(!_applyTkVtxConstraint){
-      selectedPriVtxCompatibleWithTrack.push_back(*(vertexHandle->begin())); //Same approach as before
-    }else{
-      if(!selectPriVtxCompatibleWithTrack(*tr,selectedPriVtxCompatibleWithTrack)) continue;
+  for (reco::TrackCollection::const_iterator tr = trackCollectionH->begin(); tr != trackCollectionH->end();
+       tr++, idx++) {
+    if (rejectTrack(*tr))
+      continue;
+    std::vector<reco::Vertex> selectedPriVtxCompatibleWithTrack;
+    if (!_applyTkVtxConstraint) {
+      selectedPriVtxCompatibleWithTrack.push_back(*(vertexHandle->begin()));  //Same approach as before
+    } else {
+      if (!selectPriVtxCompatibleWithTrack(*tr, selectedPriVtxCompatibleWithTrack))
+        continue;
     }
 
     sel++;
-    loopOnPriVtx(*tr,selectedPriVtxCompatibleWithTrack);
+    loopOnPriVtx(*tr, selectedPriVtxCompatibleWithTrack);
   }
-#ifdef debugTSPFSLA 
+#ifdef debugTSPFSLA
   edm::LogInfo("debugTrajSeedFromSingleLeg") << ss.str();
-  edm::LogInfo("debugTrajSeedFromSingleLeg") << "Inspected " << sel << " tracks over " << idx << " tracks. \t # tracks providing at least one seed " << _countSeedTracks ;
+  edm::LogInfo("debugTrajSeedFromSingleLeg") << "Inspected " << sel << " tracks over " << idx
+                                             << " tracks. \t # tracks providing at least one seed " << _countSeedTracks;
 #endif
 }
 
-bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-selectPriVtxCompatibleWithTrack(const reco::Track& tk, std::vector<reco::Vertex>& selectedPriVtxCompatibleWithTrack){
-  
-  std::vector< std::pair< double, short> > idx;
-  short count=-1;
+bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::selectPriVtxCompatibleWithTrack(
+    const reco::Track& tk, std::vector<reco::Vertex>& selectedPriVtxCompatibleWithTrack) {
+  std::vector<std::pair<double, short> > idx;
+  short count = -1;
 
-  double cosPhi=tk.px()/tk.pt();
-  double sinPhi=tk.py()/tk.pt();
-  double sphi2=tk.covariance(2,2);
-  double stheta2=tk.covariance(1,1);
+  double cosPhi = tk.px() / tk.pt();
+  double sinPhi = tk.py() / tk.pt();
+  double sphi2 = tk.covariance(2, 2);
+  double stheta2 = tk.covariance(1, 1);
 
-  for ( const reco::Vertex& vtx :  *vertexHandle){
+  for (const reco::Vertex& vtx : *vertexHandle) {
     count++;
-    if(vtx.ndof()<= _vtxMinDoF) continue;
+    if (vtx.ndof() <= _vtxMinDoF)
+      continue;
 
-    double _dz= tk.dz(vtx.position());
-    double _dzError=tk.dzError();
+    double _dz = tk.dz(vtx.position());
+    double _dzError = tk.dzError();
 
-    double cotTheta=tk.pz()/tk.pt();
+    double cotTheta = tk.pz() / tk.pt();
     double dx = vtx.position().x();
     double dy = vtx.position().y();
-    double sx2=vtx.covariance(0,0);
-    double sy2=vtx.covariance(1,1);
+    double sx2 = vtx.covariance(0, 0);
+    double sy2 = vtx.covariance(1, 1);
 
-    double sxy2= sqr(cosPhi*cotTheta)*sx2+
-      sqr(sinPhi*cotTheta)*sy2+
-      sqr(cotTheta*(-dx*sinPhi+dy*cosPhi))*sphi2+
-      sqr((1+cotTheta*cotTheta)*(dx*cosPhi+dy*sinPhi))*stheta2;
-      
-    _dzError=sqrt(_dzError*_dzError+vtx.covariance(2,2)+sxy2); //there is a missing component, related to the element (vtx.x*px+vtx.y*py)/pt * pz/pt. since the tk ref point is at the point of closest approach, this scalar product should be almost zero.
+    double sxy2 = sqr(cosPhi * cotTheta) * sx2 + sqr(sinPhi * cotTheta) * sy2 +
+                  sqr(cotTheta * (-dx * sinPhi + dy * cosPhi)) * sphi2 +
+                  sqr((1 + cotTheta * cotTheta) * (dx * cosPhi + dy * sinPhi)) * stheta2;
+
+    _dzError = sqrt(
+        _dzError * _dzError + vtx.covariance(2, 2) +
+        sxy2);  //there is a missing component, related to the element (vtx.x*px+vtx.y*py)/pt * pz/pt. since the tk ref point is at the point of closest approach, this scalar product should be almost zero.
 
 #ifdef debugTSPFSLA
-    ss << " primary vtx " << vtx.position()  << " \tk vz " << tk.vz() << " vx " << tk.vx() << " vy " << tk.vy() << " pz/pt " << tk.pz()/tk.pt() << " \t dz " << _dz << " \t " << _dzError << " sxy2 "<< sxy2<< " \t dz/dzErr " << _dz/_dzError<< std::endl;
+    ss << " primary vtx " << vtx.position() << " \tk vz " << tk.vz() << " vx " << tk.vx() << " vy " << tk.vy()
+       << " pz/pt " << tk.pz() / tk.pt() << " \t dz " << _dz << " \t " << _dzError << " sxy2 " << sxy2
+       << " \t dz/dzErr " << _dz / _dzError << std::endl;
 #endif
 
-    if(fabs(_dz)/_dzError > _maxDZSigmas) continue; 
-      
-    idx.push_back(std::pair<double,short>(fabs(_dz),count));
+    if (fabs(_dz) / _dzError > _maxDZSigmas)
+      continue;
+
+    idx.push_back(std::pair<double, short>(fabs(_dz), count));
   }
-  if(idx.empty()) {
+  if (idx.empty()) {
 #ifdef debugTSPFSLA
-    ss << "no vertex selected " << std::endl; 
+    ss << "no vertex selected " << std::endl;
 #endif
     return false;
-}
-  
-  std::stable_sort(idx.begin(),idx.end(), [](std::pair<double,short> a, std::pair<double,short> b) { return a.first<b.first; });
+  }
 
-  for(size_t i=0;i<_maxNumSelVtx && i<idx.size();++i){
+  std::stable_sort(
+      idx.begin(), idx.end(), [](std::pair<double, short> a, std::pair<double, short> b) { return a.first < b.first; });
+
+  for (size_t i = 0; i < _maxNumSelVtx && i < idx.size(); ++i) {
     selectedPriVtxCompatibleWithTrack.push_back((*vertexHandle)[idx[i].second]);
 #ifdef debugTSPFSLA
     ss << "selected vtx dz " << idx[0].first << "  position" << idx[0].second << std::endl;
@@ -200,53 +199,44 @@ selectPriVtxCompatibleWithTrack(const reco::Track& tk, std::vector<reco::Vertex>
   return true;
 }
 
-void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-loopOnPriVtx(const reco::Track& tk, const std::vector<reco::Vertex>& selectedPriVtxCompatibleWithTrack){
+void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::loopOnPriVtx(
+    const reco::Track& tk, const std::vector<reco::Vertex>& selectedPriVtxCompatibleWithTrack) {
+  bool foundAtLeastASeedCand = false;
+  for (auto const& vtx : selectedPriVtxCompatibleWithTrack) {
+    math::XYZPoint primaryVertexPoint = math::XYZPoint(vtx.position());
 
-  bool foundAtLeastASeedCand=false;
-  for (auto const & vtx : selectedPriVtxCompatibleWithTrack){
+    for (IR ir = regions.begin(), irEnd = regions.end(); ir < irEnd; ++ir) {
+      const TrackingRegion& region = **ir;
 
-    math::XYZPoint primaryVertexPoint=math::XYZPoint(vtx.position());
-    
-    for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
-      const TrackingRegion & region = **ir;
-
-#ifdef debugTSPFSLA 
+#ifdef debugTSPFSLA
       ss << "[PrintRegion] " << region.print() << std::endl;
 #endif
-      
-      //This if is just for the _countSeedTracks. otherwise 
+
+      //This if is just for the _countSeedTracks. otherwise
       //inspectTrack(&tk,region, primaryVertexPoint);
       //would be enough
 
-      if(
-	 inspectTrack(&tk,region, primaryVertexPoint)
-	 and
-	 !foundAtLeastASeedCand
-	 ){
-	foundAtLeastASeedCand=true;
-	_countSeedTracks++; 
+      if (inspectTrack(&tk, region, primaryVertexPoint) and !foundAtLeastASeedCand) {
+        foundAtLeastASeedCand = true;
+        _countSeedTracks++;
       }
-
     }
   }
 }
-  
-bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-rejectTrack(const reco::Track& track){
-  
-  math::XYZVector beamSpot;
-  if(recoBeamSpotHandle.isValid()) {
-    beamSpot =  math::XYZVector(recoBeamSpotHandle->position());
 
-    _IdealHelixParameters.setData(&track,beamSpot);   
-    if(_IdealHelixParameters.GetTangentPoint().r()==0){
+bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::rejectTrack(const reco::Track& track) {
+  math::XYZVector beamSpot;
+  if (recoBeamSpotHandle.isValid()) {
+    beamSpot = math::XYZVector(recoBeamSpotHandle->position());
+
+    _IdealHelixParameters.setData(&track, beamSpot);
+    if (_IdealHelixParameters.GetTangentPoint().r() == 0) {
       //this case means a null results on the _IdealHelixParameters side
       return true;
-      }
-      
-    float rMin=2.; //cm
-    if(_IdealHelixParameters.GetTangentPoint().rho()<rMin){
+    }
+
+    float rMin = 2.;  //cm
+    if (_IdealHelixParameters.GetTangentPoint().rho() < rMin) {
       //this case means a track that has the tangent point nearby the primary vertex
       // if the track is primary, this number tends to be the primary vertex itself
       //Rejecting all the potential photon conversions having a "vertex" inside the beampipe
@@ -288,24 +278,22 @@ rejectTrack(const reco::Track& track){
   */
   //-------------------------------------------------------
 
-
   return false;
 }
 
+bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::inspectTrack(const reco::Track* track,
+                                                                           const TrackingRegion& region,
+                                                                           math::XYZPoint& primaryVertexPoint) {
+  _IdealHelixParameters.setData(track, primaryVertexPoint);
 
-bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZPoint& primaryVertexPoint){
-
-  _IdealHelixParameters.setData(track,primaryVertexPoint);   
-    
-  if (edm::isNotFinite(_IdealHelixParameters.GetTangentPoint().r()) || 
-	(_IdealHelixParameters.GetTangentPoint().r()==0)){
+  if (edm::isNotFinite(_IdealHelixParameters.GetTangentPoint().r()) ||
+      (_IdealHelixParameters.GetTangentPoint().r() == 0)) {
     //this case means a null results on the _IdealHelixParameters side
     return false;
   }
 
-  float rMin=3.; //cm
-  if(_IdealHelixParameters.GetTangentPoint().rho()<rMin){
+  float rMin = 3.;  //cm
+  if (_IdealHelixParameters.GetTangentPoint().rho() < rMin) {
     //this case means a track that has the tangent point nearby the primary vertex
     // if the track is primary, this number tends to be the primary vertex itself
     //Rejecting all the potential photon conversions having a "vertex" inside the beampipe
@@ -315,57 +303,54 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
 
   float ptmin = 0.5;
   float originRBound = 3;
-  float originZBound  = 3.;
+  float originZBound = 3.;
 
   GlobalPoint originPos;
   originPos = GlobalPoint(_IdealHelixParameters.GetTangentPoint().x(),
-			  _IdealHelixParameters.GetTangentPoint().y(),
-			  _IdealHelixParameters.GetTangentPoint().z()
-			  );
+                          _IdealHelixParameters.GetTangentPoint().y(),
+                          _IdealHelixParameters.GetTangentPoint().z());
   float cotTheta;
-  if( std::abs(_IdealHelixParameters.GetMomentumAtTangentPoint().rho()) > 1.e-4f ){
-    cotTheta=_IdealHelixParameters.GetMomentumAtTangentPoint().z()/_IdealHelixParameters.GetMomentumAtTangentPoint().rho();
-  }else{
-    if(_IdealHelixParameters.GetMomentumAtTangentPoint().z()>0)
-      cotTheta=99999.f; 
+  if (std::abs(_IdealHelixParameters.GetMomentumAtTangentPoint().rho()) > 1.e-4f) {
+    cotTheta =
+        _IdealHelixParameters.GetMomentumAtTangentPoint().z() / _IdealHelixParameters.GetMomentumAtTangentPoint().rho();
+  } else {
+    if (_IdealHelixParameters.GetMomentumAtTangentPoint().z() > 0)
+      cotTheta = 99999.f;
     else
-      cotTheta=-99999.f; 
+      cotTheta = -99999.f;
   }
-  GlobalVector originBounds(originRBound,originRBound,originZBound);
+  GlobalVector originBounds(originRBound, originRBound, originZBound);
 
-  GlobalPoint pvtxPoint(primaryVertexPoint.x(),
-			primaryVertexPoint.y(),
-			primaryVertexPoint.z()
-			);
+  GlobalPoint pvtxPoint(primaryVertexPoint.x(), primaryVertexPoint.y(), primaryVertexPoint.z());
 
-  ConversionRegion convRegion(originPos, pvtxPoint, cotTheta, track->thetaError(), -1*track->charge());
+  ConversionRegion convRegion(originPos, pvtxPoint, cotTheta, track->thetaError(), -1 * track->charge());
 
-#ifdef debugTSPFSLA 
+#ifdef debugTSPFSLA
   ss << "\nConversion Point " << originPos << " " << originPos.perp() << "\n";
 #endif
 
-  const OrderedSeedingHits & hitss = theHitsGenerator->run(convRegion, region, *myEvent, *myEsetup);
-  
-  unsigned int nHitss =  hitss.size();
+  const OrderedSeedingHits& hitss = theHitsGenerator->run(convRegion, region, *myEvent, *myEsetup);
 
-  if(nHitss==0)
+  unsigned int nHitss = hitss.size();
+
+  if (nHitss == 0)
     return false;
 
-#ifdef debugTSPFSLA 
+#ifdef debugTSPFSLA
   ss << "\n nHitss " << nHitss << "\n";
 #endif
 
-  if (seedCollection->empty()) seedCollection->reserve(nHitss); // don't do multiple reserves in the case of multiple regions: it would make things even worse
-                                                               // as it will cause N re-allocations instead of the normal log(N)/log(2)
-  for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
-
-#ifdef debugTSPFSLA 
+  if (seedCollection->empty())
+    seedCollection->reserve(
+        nHitss);  // don't do multiple reserves in the case of multiple regions: it would make things even worse
+                  // as it will cause N re-allocations instead of the normal log(N)/log(2)
+  for (unsigned int iHits = 0; iHits < nHitss; ++iHits) {
+#ifdef debugTSPFSLA
     ss << "\n iHits " << iHits << "\n";
 #endif
-    const SeedingHitSet & hits =  hitss[iHits];
-    theSeedCreator->trajectorySeed(*seedCollection, hits, originPos, originBounds, ptmin, *myEsetup,convRegion.cotTheta(),ss);
+    const SeedingHitSet& hits = hitss[iHits];
+    theSeedCreator->trajectorySeed(
+        *seedCollection, hits, originPos, originBounds, ptmin, *myEsetup, convRegion.cotTheta(), ss);
   }
   return true;
 }
-
-

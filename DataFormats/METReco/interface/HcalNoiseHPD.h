@@ -30,68 +30,68 @@ namespace reco {
   //
   // forward declarations
   //
-  
+
   class HcalNoiseHPD;
   class RefHBHERecHitEnergyComparison;
-  
+
   //
   // typdefs
   //
-  
+
   typedef std::vector<HcalNoiseHPD> HcalNoiseHPDCollection;
-  
+
   //
   // RefHBHERecHitEnergyComparison is a class functor to compare energies between Ref<HBHERecHitCollection>
   //
   class RefHBHERecHitEnergyComparison {
   public:
-    bool operator()(const edm::Ref<HBHERecHitCollection>& x, const edm::Ref<HBHERecHitCollection>& y) const
-    { return x->energy()>y->energy(); }
+    bool operator()(const edm::Ref<HBHERecHitCollection>& x, const edm::Ref<HBHERecHitCollection>& y) const {
+      return x->energy() > y->energy();
+    }
   };
 
-
-  //  
+  //
   // class definition
   //
-  
+
   class HcalNoiseHPD {
-    friend class HcalNoiseInfoProducer; // allows this class the fill the HPDs with info
-    friend class HcalNoiseRBXArray;     // allows this class to manage the idnumber
-    
+    friend class HcalNoiseInfoProducer;  // allows this class the fill the HPDs with info
+    friend class HcalNoiseRBXArray;      // allows this class to manage the idnumber
+
   public:
     // constructor
     HcalNoiseHPD();
-    
+
     // destructor
     virtual ~HcalNoiseHPD();
 
     //
     // Detector ID accessors
     //
-    
+
     // unique integer specifier for the hpd [0,NUM_HPDS-1]
     // correlates roughly with the detector phi slice
     int idnumber(void) const;
-    
+
     //
     // Digi accessors
     //
-    
+
     // pedestal subtracted fC information for the highest energy pixel in the HPD by timeslice
     const std::vector<float> bigCharge(void) const;
     float bigChargeTotal(void) const;
-    float bigChargeHighest2TS(unsigned int firstts=4) const;
-    float bigChargeHighest3TS(unsigned int firstts=4) const;
-    
+    float bigChargeHighest2TS(unsigned int firstts = 4) const;
+    float bigChargeHighest3TS(unsigned int firstts = 4) const;
+
     // same as above but the integral over the 5 highest energy pixels in the HPD
     const std::vector<float> big5Charge(void) const;
     float big5ChargeTotal(void) const;
-    float big5ChargeHighest2TS(unsigned int firstts=4) const;
-    float big5ChargeHighest3TS(unsigned int firstts=4) const;
-    
+    float big5ChargeHighest2TS(unsigned int firstts = 4) const;
+    float big5ChargeHighest3TS(unsigned int firstts = 4) const;
+
     // total number of adc zeros
     int totalZeros(void) const;
-    
+
     // largest number of adc zeros in a digi in the HPD
     int maxZeros(void) const;
 
@@ -101,23 +101,23 @@ namespace reco {
 
     // returns a reference to a vector of references to the rechits
     const edm::RefVector<HBHERecHitCollection> recHits(void) const;
-    
+
     // integral of rechit energies in the HPD with E>threshold (default is 1.5 GeV)
-    float recHitEnergy(float threshold=1.5) const;
-    float recHitEnergyFailR45(float threshold=1.5) const;
-    
+    float recHitEnergy(float threshold = 1.5) const;
+    float recHitEnergyFailR45(float threshold = 1.5) const;
+
     // minimum and maximum time for rechits with E>threshold (default is 10.0 GeV)
-    float minRecHitTime(float threshold=10.0) const;
-    float maxRecHitTime(float threshold=10.0) const;
-    
+    float minRecHitTime(float threshold = 10.0) const;
+    float maxRecHitTime(float threshold = 10.0) const;
+
     // number of rechits with E>threshold (default is 1.5 GeV)
-    int numRecHits(float threshold=1.5) const;
-    int numRecHitsFailR45(float threshold=1.5) const;
+    int numRecHits(float threshold = 1.5) const;
+    int numRecHitsFailR45(float threshold = 1.5) const;
 
     //
     // CaloTower accessors
     //
-    
+
     // returns a reference to a vector of references to the calotowers
     const edm::RefVector<CaloTowerCollection> caloTowers(void) const;
 
@@ -126,13 +126,11 @@ namespace reco {
     double caloTowerEmE(void) const;
     double caloTowerTotalE(void) const;
     double caloTowerEmFraction(void) const;
-    
-    
-  private:
 
+  private:
     // unique id number specifying the HPD
     int idnumber_;
-    
+
     // digi data members
     int totalZeros_;
     int maxZeros_;
@@ -150,6 +148,6 @@ namespace reco {
     edm::RefVector<CaloTowerCollection> calotowers_;
   };
 
-} // end of namespace
+}  // namespace reco
 
 #endif

@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -60,64 +59,57 @@
 
 using namespace l1t;
 
+class L1TStage2Layer1Producer : public edm::EDProducer {
+public:
+  explicit L1TStage2Layer1Producer(const edm::ParameterSet& ps);
+  ~L1TStage2Layer1Producer() override;
 
-  class L1TStage2Layer1Producer : public edm::EDProducer {
-  public:
-    explicit L1TStage2Layer1Producer(const edm::ParameterSet& ps);
-    ~L1TStage2Layer1Producer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-      ;
+private:
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  private:
-    void beginJob() override;
-    void produce(edm::Event&, const edm::EventSetup&) override;
-    void endJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-    void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    void endRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  // ----------member data ---------------------------
 
-    // ----------member data ---------------------------
+  int verbosity_;
+  bool rctConditions_;
 
-    int verbosity_;
-    bool rctConditions_;
+  int bxFirst_, bxLast_;  // bx range to process
 
-    int bxFirst_, bxLast_; // bx range to process
+  std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
+  std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
 
-    std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
-    std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
+  // parameters
+  unsigned long long paramsCacheId_;
+  unsigned fwv_;
+  CaloParamsHelper* params_;
 
-    // parameters
-    unsigned long long paramsCacheId_;
-    unsigned fwv_;
-    CaloParamsHelper* params_;
+  // the processor
+  Stage2Layer1FirmwareFactory factory_;
+  std::shared_ptr<Stage2PreProcessor> processor_;
+};
 
-    // the processor
-    Stage2Layer1FirmwareFactory factory_;
-    std::shared_ptr<Stage2PreProcessor> processor_;
-
-  };
-
-
-
-L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
-  verbosity_(ps.getParameter<int>("verbosity")),
-  rctConditions_(ps.getParameter<bool>("rctConditions")),
-  bxFirst_(ps.getParameter<int>("bxFirst")),
-  bxLast_(ps.getParameter<int>("bxLast")),
-  ecalToken_(bxLast_+1-bxFirst_),
-  hcalToken_(bxLast_+1-bxFirst_),
-  paramsCacheId_(0),
-  params_(nullptr)
-{
-
+L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps)
+    : verbosity_(ps.getParameter<int>("verbosity")),
+      rctConditions_(ps.getParameter<bool>("rctConditions")),
+      bxFirst_(ps.getParameter<int>("bxFirst")),
+      bxLast_(ps.getParameter<int>("bxLast")),
+      ecalToken_(bxLast_ + 1 - bxFirst_),
+      hcalToken_(bxLast_ + 1 - bxFirst_),
+      paramsCacheId_(0),
+      params_(nullptr) {
   // register what you produce
-  produces<CaloTowerBxCollection> ();
+  produces<CaloTowerBxCollection>();
 
   // register what you consume and keep token for later access:
-  for (int ibx=0; ibx<bxLast_+1-bxFirst_; ibx++) {
+  for (int ibx = 0; ibx < bxLast_ + 1 - bxFirst_; ibx++) {
     ecalToken_[ibx] = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalToken"));
     hcalToken_[ibx] = consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalToken"));
   }
@@ -127,20 +119,12 @@ L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
 
   // set firmware version from python config for now
   fwv_ = ps.getParameter<int>("firmware");
-
 }
 
-L1TStage2Layer1Producer::~L1TStage2Layer1Producer() {
-
-  delete params_;
-
-}
+L1TStage2Layer1Producer::~L1TStage2Layer1Producer() { delete params_; }
 
 // ------------ method called to produce the data  ------------
-void
-L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogDebug("l1t|stage 2") << "L1TStage2Layer1Producer::produce function called..." << std::endl;
 
   // do event setup
@@ -149,27 +133,23 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::ESHandle<L1CaloHcalScale> hcalScale;
 
   edm::ESHandle<CaloTPGTranscoder> decoder;
-  
+
   if (rctConditions_) {
     iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
     iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
-  }
-  else {
+  } else {
     iSetup.get<CaloTPGRecord>().get(decoder);
   }
 
-
-  LogDebug("L1TDebug") << "First BX=" << bxFirst_ << ", last BX=" << bxLast_ << ", LSB(E)=" << params_->towerLsbE() << ", LSB(H)=" << params_->towerLsbH() << std::endl;
-
+  LogDebug("L1TDebug") << "First BX=" << bxFirst_ << ", last BX=" << bxLast_ << ", LSB(E)=" << params_->towerLsbE()
+                       << ", LSB(H)=" << params_->towerLsbH() << std::endl;
 
   // output collection
-  std::unique_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
-
+  std::unique_ptr<CaloTowerBxCollection> towersColl(new CaloTowerBxCollection);
 
   // loop over crossings
-  for (int bx = bxFirst_; bx < bxLast_+1; ++bx) {
-
-    int ibx = bx-bxFirst_;
+  for (int bx = bxFirst_; bx < bxLast_ + 1; ++bx) {
+    int ibx = bx - bxFirst_;
 
     edm::Handle<EcalTrigPrimDigiCollection> ecalTPs;
     edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
@@ -178,49 +158,48 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(ecalToken_[ibx], ecalTPs);
 
     // create input and output tower vectors for this BX
-    std::unique_ptr< std::vector<CaloTower> > localInTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()+1));
-    std::unique_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>()); //this is later filled to the same size as localInTowers
+    std::unique_ptr<std::vector<CaloTower> > localInTowers(
+        new std::vector<CaloTower>(CaloTools::caloTowerHashMax() + 1));
+    std::unique_ptr<std::vector<CaloTower> > localOutTowers(
+        new std::vector<CaloTower>());  //this is later filled to the same size as localInTowers
 
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
-    int nEcal=0;
-    for (ecalItr=ecalTPs->begin(); ecalItr!=ecalTPs->end(); ++ecalItr, ++nEcal) {
-
+    int nEcal = 0;
+    for (ecalItr = ecalTPs->begin(); ecalItr != ecalTPs->end(); ++ecalItr, ++nEcal) {
       int ieta = ecalItr->id().ieta();
       int iphi = ecalItr->id().iphi();
 
       int ietIn = ecalItr->compressedEt();
-      bool ifg  = ecalItr->fineGrain();
+      bool ifg = ecalItr->fineGrain();
 
       // decompress
       double et = 0.;
       if (rctConditions_) {
-	et = ecalScale->et( ietIn, abs(ieta), (ieta>0) );
-      }
-      else {
-	et = 0.5 * ietIn;
+        et = ecalScale->et(ietIn, abs(ieta), (ieta > 0));
+      } else {
+        et = 0.5 * ietIn;
       }
 
-      int ietOut = floor( et / params_->towerLsbE() );
-
+      int ietOut = floor(et / params_->towerLsbE());
 
       int itow = CaloTools::caloTowerHash(ieta, iphi);
       localInTowers->at(itow).setHwEtEm(ietOut);
-      localInTowers->at(itow).setHwQual( localInTowers->at(itow).hwQual() | (ifg ? 0x8 : 0x0) ); //ECAL FG bit is supposed to be on bit 3
-
+      localInTowers->at(itow).setHwQual(localInTowers->at(itow).hwQual() |
+                                        (ifg ? 0x8 : 0x0));  //ECAL FG bit is supposed to be on bit 3
     }
 
     // loop over HCAL TPs
     HcalTrigPrimDigiCollection::const_iterator hcalItr;
-    int nHcal=0;
-    for (hcalItr=hcalTPs->begin(); hcalItr!=hcalTPs->end(); ++hcalItr, ++nHcal) {
-
+    int nHcal = 0;
+    for (hcalItr = hcalTPs->begin(); hcalItr != hcalTPs->end(); ++hcalItr, ++nHcal) {
       int ieta = hcalItr->id().ieta();
       int iphi = hcalItr->id().iphi();
-      int ver  = hcalItr->id().version();
+      int ver = hcalItr->id().version();
 
       // check for old HF TPs
-      if (abs(ieta)>=CaloTools::kHFBegin && ver!=1) continue;
+      if (abs(ieta) >= CaloTools::kHFBegin && ver != 1)
+        continue;
 
       int ietIn = hcalItr->SOI_compressedEt();
       int ifg = hcalItr->SOI_fineGrain();
@@ -229,76 +208,76 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       double et = 0.;
 
       if (rctConditions_) {
-	if (abs(ieta) >= CaloTools::kHFBegin) 
-	  et = hcalScale->et( ietIn, CaloTools::kHFBegin, (ieta>0) );
-	else
-	  et = hcalScale->et( ietIn, abs(ieta), (ieta>0) );
-      }
-      else {
-	et = decoder->hcaletValue(hcalItr->id(), hcalItr->t0());
+        if (abs(ieta) >= CaloTools::kHFBegin)
+          et = hcalScale->et(ietIn, CaloTools::kHFBegin, (ieta > 0));
+        else
+          et = hcalScale->et(ietIn, abs(ieta), (ieta > 0));
+      } else {
+        et = decoder->hcaletValue(hcalItr->id(), hcalItr->t0());
       }
 
-      int ietOut = floor( et / params_->towerLsbH() );
+      int ietOut = floor(et / params_->towerLsbH());
 
       // get tower index
       unsigned itow = CaloTools::caloTowerHash(ieta, iphi);
 
-      if (ietOut>0)
-	LogDebug("L1TDebug") << " HCAL TP : " << ieta << ", " << iphi << ", " << ietIn << ", " << et << ", " << ietOut << ", " << itow << ", " << CaloTools::caloTowerHashMax() << ", " << localInTowers->size() << std::endl;
+      if (ietOut > 0)
+        LogDebug("L1TDebug") << " HCAL TP : " << ieta << ", " << iphi << ", " << ietIn << ", " << et << ", " << ietOut
+                             << ", " << itow << ", " << CaloTools::caloTowerHashMax() << ", " << localInTowers->size()
+                             << std::endl;
 
       localInTowers->at(itow).setHwEtHad(ietOut);
-      localInTowers->at(itow).setHwQual( localInTowers->at(itow).hwQual() | (ifg ? 0x4 : 0x0) ); //HCAL FG bit is supposed to be on bit 2
-
+      localInTowers->at(itow).setHwQual(localInTowers->at(itow).hwQual() |
+                                        (ifg ? 0x4 : 0x0));  //HCAL FG bit is supposed to be on bit 2
     }
 
     // now calculate remaining tower quantities
-    for (int ieta=-1*CaloTools::kHFEnd; ieta<=CaloTools::kHFEnd; ieta++) {
+    for (int ieta = -1 * CaloTools::kHFEnd; ieta <= CaloTools::kHFEnd; ieta++) {
+      for (int iphi = 0; iphi <= CaloTools::kHBHENrPhi; iphi++) {
+        if (!CaloTools::isValidIEtaIPhi(ieta, iphi))
+          continue;
 
-      for (int iphi=0; iphi<=CaloTools::kHBHENrPhi; iphi++) {
+        unsigned itow = CaloTools::caloTowerHash(ieta, iphi);
 
-	if(!CaloTools::isValidIEtaIPhi(ieta,iphi)) continue;
+        // get ECAL/HCAL raw numbers
+        int ietEcal = localInTowers->at(itow).hwEtEm();
+        int ietHcal = localInTowers->at(itow).hwEtHad();
 
-	unsigned itow = CaloTools::caloTowerHash(ieta, iphi);
+        int iet = ietEcal + ietHcal;
 
-	// get ECAL/HCAL raw numbers
-	int ietEcal = localInTowers->at(itow).hwEtEm();
-	int ietHcal = localInTowers->at(itow).hwEtHad();
+        if (ietHcal > 0)
+          LogDebug("L1TDebug") << " L1Tow : " << ieta << ", " << iphi << ", " << itow << ", " << iet << ", " << ietEcal
+                               << ", " << ietHcal << std::endl;
 
-	int iet = ietEcal + ietHcal;
+        localInTowers->at(itow).setHwPt(iet);
+        localInTowers->at(itow).setHwEta(ieta);
+        localInTowers->at(itow).setHwPhi(iphi);
 
-	if (ietHcal>0) 
-	  LogDebug("L1TDebug") << " L1Tow : " << ieta << ", " << iphi << ", " << itow << ", " << iet << ", " << ietEcal << ", " << ietHcal << std::endl;
+        int ietby2 = round(double(ietHcal) / 2.);
+        int ietby4 = round(double(ietHcal) / 4.);
 
-	localInTowers->at(itow).setHwPt(iet);
-	localInTowers->at(itow).setHwEta(ieta);
-	localInTowers->at(itow).setHwPhi(iphi);
+        // if HF, divide energy by two and give half to adjacent tower
+        if (abs(ieta) > 29 && iphi % 2 == 1) {
+          localInTowers->at(itow).setHwPt(ietby2);
+          localInTowers->at(itow).setHwEtHad(ietby2);
+          int itow_next = CaloTools::caloTowerHash(ieta, iphi + 1);
+          localInTowers->at(itow_next).setHwPt(ietby2);
+          localInTowers->at(itow_next).setHwEtHad(ietby2);
+        }
 
-	int ietby2 = round( double(ietHcal) / 2. );
-	int ietby4 = round( double(ietHcal) / 4. );
-
-	// if HF, divide energy by two and give half to adjacent tower
-	if ( abs(ieta)>29 && iphi % 2 == 1) {
-	  localInTowers->at(itow).setHwPt(ietby2);
-	  localInTowers->at(itow).setHwEtHad(ietby2);
-	  int itow_next = CaloTools::caloTowerHash(ieta, iphi+1);
-	  localInTowers->at(itow_next).setHwPt(ietby2);
-	  localInTowers->at(itow_next).setHwEtHad(ietby2);
-	}
-
-	if (abs(ieta)>39 && iphi % 4 == 3) {
-	  localInTowers->at(itow).setHwPt(ietby4);
-	  localInTowers->at(itow).setHwEtHad(ietby4);
-	  int itow_next = CaloTools::caloTowerHash(ieta, iphi+1);
-	  localInTowers->at(itow_next).setHwPt(ietby4);
-	  localInTowers->at(itow_next).setHwEtHad(ietby4);
-	  itow_next = CaloTools::caloTowerHash(ieta, iphi-1);
-	  localInTowers->at(itow_next).setHwPt(ietby4);
-	  localInTowers->at(itow_next).setHwEtHad(ietby4);
-	  itow_next = CaloTools::caloTowerHash(ieta, iphi-2);
-	  localInTowers->at(itow_next).setHwPt(ietby4);
-	  localInTowers->at(itow_next).setHwEtHad(ietby4);
-	}
-
+        if (abs(ieta) > 39 && iphi % 4 == 3) {
+          localInTowers->at(itow).setHwPt(ietby4);
+          localInTowers->at(itow).setHwEtHad(ietby4);
+          int itow_next = CaloTools::caloTowerHash(ieta, iphi + 1);
+          localInTowers->at(itow_next).setHwPt(ietby4);
+          localInTowers->at(itow_next).setHwEtHad(ietby4);
+          itow_next = CaloTools::caloTowerHash(ieta, iphi - 1);
+          localInTowers->at(itow_next).setHwPt(ietby4);
+          localInTowers->at(itow_next).setHwEtHad(ietby4);
+          itow_next = CaloTools::caloTowerHash(ieta, iphi - 2);
+          localInTowers->at(itow_next).setHwPt(ietby4);
+          localInTowers->at(itow_next).setHwEtHad(ietby4);
+        }
       }
     }
 
@@ -308,41 +287,30 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //      if (tower->hwEta()>30) std::cout << "HF in : " << tower->hwEta() << "," << tower->hwPhi() << "," << tower->hwPt() << "," << tower->hwEtHad() << std::endl;
     //    }
 
-
     // do the decompression
     processor_->processEvent(*localInTowers, *localOutTowers);
 
     // copy towers to output collection
-    for(std::vector<CaloTower>::const_iterator tower = localOutTowers->begin();
-	tower != localOutTowers->end();
-	++tower) {
+    for (std::vector<CaloTower>::const_iterator tower = localOutTowers->begin(); tower != localOutTowers->end();
+         ++tower) {
       //     if (tower->hwEta()>30) std::cout << "HF out : " << tower->hwEta() << "," << tower->hwPhi() << "," << tower->hwPt() << "," << tower->etHad() << std::endl;
       towersColl->push_back(ibx, *tower);
     }
-    LogDebug("L1TDebug") << "BX=" << ibx << ", N(Tower in)=" << localInTowers->size() << ", N(Tower out)=" << localOutTowers->size() << std::endl;
-
+    LogDebug("L1TDebug") << "BX=" << ibx << ", N(Tower in)=" << localInTowers->size()
+                         << ", N(Tower out)=" << localOutTowers->size() << std::endl;
   }
 
   iEvent.put(std::move(towersColl));
-
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-L1TStage2Layer1Producer::beginJob()
-{
-}
+void L1TStage2Layer1Producer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-L1TStage2Layer1Producer::endJob() {
-}
+void L1TStage2Layer1Producer::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
-void
-L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
-{
-
+void L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   // update parameters and algorithms at run start, if they have changed
   // update params first because the firmware factory relies on pointer to params
 
@@ -351,7 +319,6 @@ L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
   unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();
 
   if (id != paramsCacheId_) {
-
     paramsCacheId_ = id;
 
     edm::ESHandle<CaloParams> paramsHandle;
@@ -363,39 +330,31 @@ L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
     LogDebug("L1TDebug") << *params_ << std::endl;
 
-    if (! params_){
+    if (!params_) {
       edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;
     }
-
   }
 
   // firmware
 
-  if ( !processor_ ) { // in future, also check if the firmware cache ID has changed !
+  if (!processor_) {  // in future, also check if the firmware cache ID has changed !
 
     //     m_fwv = ; // get new firmware version in future
 
     // Set the current algorithm version based on DB pars from database:
     processor_ = factory_.create(fwv_, params_);
 
-    LogDebug("L1TDebug") << "Processor object : " << (processor_?1:0) << std::endl;
+    LogDebug("L1TDebug") << "Processor object : " << (processor_ ? 1 : 0) << std::endl;
 
-    if (! processor_) {
+    if (!processor_) {
       // we complain here once per run
       edm::LogError("l1t|caloStage2") << "Layer 1 firmware could not be configured.\n";
     }
-
   }
-
-
 }
-
 
 // ------------ method called when ending the processing of a run  ------------
-void
-L1TStage2Layer1Producer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
+void L1TStage2Layer1Producer::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
@@ -416,8 +375,7 @@ L1TStage2Layer1Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-L1TStage2Layer1Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TStage2Layer1Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

@@ -10,33 +10,30 @@
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisRecoTauDataFormat
-  {
-    L1AnalysisRecoTauDataFormat(){Reset();};
-    ~L1AnalysisRecoTauDataFormat(){Reset();};
+namespace L1Analysis {
+  struct L1AnalysisRecoTauDataFormat {
+    L1AnalysisRecoTauDataFormat() { Reset(); };
+    ~L1AnalysisRecoTauDataFormat() { Reset(); };
 
-    void Reset()
-    {
-    nTaus=0;
+    void Reset() {
+      nTaus = 0;
 
-    e.clear();
-    et.clear();
-    pt.clear();
-    eta.clear();
-    phi.clear();
-    TightIsoFlag.clear();
-    RawIso.clear();
-    LooseIsoFlag.clear();
-    LooseAntiMuonFlag.clear();
-    TightAntiMuonFlag.clear();
-    VLooseAntiElectronFlag.clear();
-    LooseAntiElectronFlag.clear();
-    TightAntiElectronFlag.clear();
-    DMFindingNewDMs.clear();
-    DMFindingOldDMs.clear();
-    charge.clear();
+      e.clear();
+      et.clear();
+      pt.clear();
+      eta.clear();
+      phi.clear();
+      TightIsoFlag.clear();
+      RawIso.clear();
+      LooseIsoFlag.clear();
+      LooseAntiMuonFlag.clear();
+      TightAntiMuonFlag.clear();
+      VLooseAntiElectronFlag.clear();
+      LooseAntiElectronFlag.clear();
+      TightAntiElectronFlag.clear();
+      DMFindingNewDMs.clear();
+      DMFindingOldDMs.clear();
+      charge.clear();
     }
 
     unsigned nTaus;
@@ -55,10 +52,7 @@ namespace L1Analysis
     std::vector<float> VLooseAntiElectronFlag;
     std::vector<float> LooseAntiElectronFlag;
     std::vector<float> TightAntiElectronFlag;
-    std::vector<int>   charge;
-
+    std::vector<int> charge;
   };
-}
+}  // namespace L1Analysis
 #endif
-
-

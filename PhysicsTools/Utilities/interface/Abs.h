@@ -4,25 +4,25 @@
 
 namespace funct {
 
-  template<typename T> 
+  template <typename T>
   struct AbsStruct {
-    AbsStruct(const T& t) : _(t) { }
+    AbsStruct(const T& t) : _(t) {}
     inline double operator()() const { return ::fabs(_()); }
     inline operator double() const { return ::fabs(_()); }
-    T _; 
+    T _;
   };
 
-  template<typename T> 
+  template <typename T>
   struct Abs {
     typedef AbsStruct<T> type;
     inline static type compose(const T& t) { return type(t); }
   };
 
-  template<typename T>
-  inline typename Abs<T>::type abs(const T & t) { 
-    return Abs<T>::compose(t); 
+  template <typename T>
+  inline typename Abs<T>::type abs(const T& t) {
+    return Abs<T>::compose(t);
   }
 
-}
+}  // namespace funct
 
 #endif

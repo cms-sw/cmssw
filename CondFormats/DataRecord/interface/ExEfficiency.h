@@ -8,6 +8,4 @@ class ExDwarfRcd : public edm::eventsetup::EventSetupRecordImplementation<ExDwar
 
 class ExDwarfListRcd : public edm::eventsetup::EventSetupRecordImplementation<ExDwarfListRcd> {};
 
-
-
 #endif

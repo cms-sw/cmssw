@@ -1,3 +1,4 @@
+from builtins import range
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 from PhysicsTools.HeppyCore.utils.deltar import deltaPhi
 import math

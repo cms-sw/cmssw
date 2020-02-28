@@ -3,13 +3,13 @@
 
 #include "G4Track.hh"
 
-class BeginOfTrack
-{
+class BeginOfTrack {
 public:
-    BeginOfTrack(const G4Track * tTrack) : aTrack(tTrack) {}
-    const G4Track * operator()() const { return aTrack; }
+  BeginOfTrack(const G4Track* tTrack) : aTrack(tTrack) {}
+  const G4Track* operator()() const { return aTrack; }
+
 private:
-    const G4Track * aTrack;
+  const G4Track* aTrack;
 };
 
 #endif

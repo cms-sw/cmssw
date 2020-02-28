@@ -3,21 +3,25 @@
 
 #include "MESet.h"
 
-namespace ecaldqm
-{
-  class MESetNonObject : public MESet
-  {
-  public :
-    MESetNonObject(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = nullptr, binning::AxisSpecs const* = nullptr, binning::AxisSpecs const* = nullptr);
-    MESetNonObject(MESetNonObject const&);
+namespace ecaldqm {
+  class MESetNonObject : public MESet {
+  public:
+    MESetNonObject(std::string const &,
+                   binning::ObjectType,
+                   binning::BinningType,
+                   MonitorElement::Kind,
+                   binning::AxisSpecs const * = nullptr,
+                   binning::AxisSpecs const * = nullptr,
+                   binning::AxisSpecs const * = nullptr);
+    MESetNonObject(MESetNonObject const &);
     ~MESetNonObject() override;
 
-    MESet& operator=(MESet const&) override;
+    MESet &operator=(MESet const &) override;
 
-    MESet* clone(std::string const& = "") const override;
+    MESet *clone(std::string const & = "") const override;
 
-    void book(DQMStore::IBooker&) override;
-    bool retrieve(DQMStore::IGetter&, std::string* = nullptr) const override;
+    void book(DQMStore::IBooker &) override;
+    bool retrieve(DQMStore::IGetter &, std::string * = nullptr) const override;
 
     void fill(double, double = 1., double = 1.) override;
 
@@ -40,11 +44,10 @@ namespace ecaldqm
     bool isVariableBinning() const override;
 
   protected:
-    binning::AxisSpecs const* xaxis_;
-    binning::AxisSpecs const* yaxis_;
-    binning::AxisSpecs const* zaxis_;
+    binning::AxisSpecs const *xaxis_;
+    binning::AxisSpecs const *yaxis_;
+    binning::AxisSpecs const *zaxis_;
   };
-}
-
+}  // namespace ecaldqm
 
 #endif

@@ -18,18 +18,16 @@
 
 using namespace edm;
 
-class TestProductResolverIndexHelper: public CppUnit::TestFixture
-{
-  CPPUNIT_TEST_SUITE(TestProductResolverIndexHelper);  
+class TestProductResolverIndexHelper : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(TestProductResolverIndexHelper);
   CPPUNIT_TEST(testCreateEmpty);
   CPPUNIT_TEST(testOneEntry);
   CPPUNIT_TEST(testManyEntries);
   CPPUNIT_TEST_SUITE_END();
-  
+
 public:
-  
   void setUp();
-  void tearDown() { }
+  void tearDown() {}
 
   void testCreateEmpty();
   void testOneEntry();
@@ -48,37 +46,43 @@ void TestProductResolverIndexHelper::setUp() {
 }
 
 void TestProductResolverIndexHelper::testCreateEmpty() {
-
   edm::ProductResolverIndexHelper helper;
   helper.setFrozen();
 
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") == ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") ==
+                 ProductResolverIndexInvalid);
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA") == ProductResolverIndexInvalid);
 
-  edm::ProductResolverIndexHelper::Matches matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID, "label_A", "instance_A");
+  edm::ProductResolverIndexHelper::Matches matches =
+      helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID, "label_A", "instance_A");
   CPPUNIT_ASSERT(matches.numberOfMatches() == 0);
   matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 0);
 
   TypeID typeID(typeid(ProductID));
-  CPPUNIT_ASSERT_THROW( helper.insert(typeID, "labelA", "instanceA", "processA") , cms::Exception);
+  CPPUNIT_ASSERT_THROW(helper.insert(typeID, "labelA", "instanceA", "processA"), cms::Exception);
 }
 
 void TestProductResolverIndexHelper::testOneEntry() {
-
   edm::ProductResolverIndexHelper helper;
 
   TypeID typeIDProductID(typeid(ProductID));
   helper.insert(typeIDProductID, "labelA", "instanceA", "processA");
 
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") == ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") ==
+                 ProductResolverIndexInvalid);
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA") == ProductResolverIndexInvalid);
 
-  edm::ProductResolverIndexHelper::Matches matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID, "label_A", "instance_A");
+  edm::ProductResolverIndexHelper::Matches matches =
+      helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID, "label_A", "instance_A");
   CPPUNIT_ASSERT(matches.numberOfMatches() == 0);
   matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 0);
@@ -99,16 +103,24 @@ void TestProductResolverIndexHelper::testOneEntry() {
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", 0) == indexEmptyProcess);
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == indexWithProcess);
 
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instance", "processA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceAX", "processA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "label", "instanceA", "processA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelAX", "instanceA", "processA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "process") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processAX") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_EventID, "labelA", "instanceA", "processA") == ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instance", "processA") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceAX", "processA") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "label", "instanceA", "processA") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelAX", "instanceA", "processA") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "process") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processAX") ==
+                 ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_EventID, "labelA", "instanceA", "processA") ==
+                 ProductResolverIndexInvalid);
 
   CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA") == ProductResolverIndexInvalid);
-  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") ==
+                 ProductResolverIndexInvalid);
 
   matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 2);
@@ -131,18 +143,16 @@ void TestProductResolverIndexHelper::testOneEntry() {
     CPPUNIT_ASSERT(indexToModules.size() == 1);
     CPPUNIT_ASSERT(indexToModules.count("labelA") == 1);
     auto const& range = indexToModules.equal_range("labelA");
-    CPPUNIT_ASSERT( std::get<2>(range.first->second) == indexWithProcess);
+    CPPUNIT_ASSERT(std::get<2>(range.first->second) == indexWithProcess);
   }
-  
+
   {
     auto indexToModules = helper.indiciesForModulesInProcess("processNotHere");
     CPPUNIT_ASSERT(indexToModules.size() == 0);
   }
-
 }
 
 void TestProductResolverIndexHelper::testManyEntries() {
-
   edm::ProductResolverIndexHelper helper;
 
   TypeID typeIDProductID(typeid(ProductID));
@@ -151,32 +161,34 @@ void TestProductResolverIndexHelper::testManyEntries() {
   TypeID typeIDSetInt(typeid(std::set<int>));
   TypeID typeIDVSimpleDerived(typeid(std::vector<edmtest::SimpleDerived>));
 
-  helper.insert(typeIDVectorInt, "labelC", "instanceC", "processC"); // 0, 1, 2
-  helper.insert(typeIDVectorInt, "label",  "instance",  "process");  // 3, 4, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB");   // 6, 7
-  helper.insert(typeIDEventID, "label",  "instanceB", "processB");   // 8, 9
-  helper.insert(typeIDEventID, "labelX", "instanceB", "processB");   // 10, 11
-  helper.insert(typeIDEventID, "labelB", "instance",  "processB");   // 12, 13
-  helper.insert(typeIDEventID, "labelB", "instanceX", "processB");   // 14, 15
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB1");  // 16, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB3");  // 17, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB2");  // 18, 5
-  helper.insert(typeIDProductID, "label",  "instance",  "process");  // 19, 20
-  helper.insert(typeIDEventID, "label",  "instance",  "process");    // 21, 22
-  helper.insert(typeIDProductID, "labelA", "instanceA", "processA"); // 23, 24
-  CPPUNIT_ASSERT_THROW(helper.insert(typeIDProductID, "labelA", "instanceA", "processA"), cms::Exception); // duplicate
+  helper.insert(typeIDVectorInt, "labelC", "instanceC", "processC");                                        // 0, 1, 2
+  helper.insert(typeIDVectorInt, "label", "instance", "process");                                           // 3, 4, 5
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB");                                          // 6, 7
+  helper.insert(typeIDEventID, "label", "instanceB", "processB");                                           // 8, 9
+  helper.insert(typeIDEventID, "labelX", "instanceB", "processB");                                          // 10, 11
+  helper.insert(typeIDEventID, "labelB", "instance", "processB");                                           // 12, 13
+  helper.insert(typeIDEventID, "labelB", "instanceX", "processB");                                          // 14, 15
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB1");                                         // 16, 5
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB3");                                         // 17, 5
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB2");                                         // 18, 5
+  helper.insert(typeIDProductID, "label", "instance", "process");                                           // 19, 20
+  helper.insert(typeIDEventID, "label", "instance", "process");                                             // 21, 22
+  helper.insert(typeIDProductID, "labelA", "instanceA", "processA");                                        // 23, 24
+  CPPUNIT_ASSERT_THROW(helper.insert(typeIDProductID, "labelA", "instanceA", "processA"), cms::Exception);  // duplicate
 
-  helper.insert(typeIDSetInt, "labelC", "instanceC", "processC"); // 25, 26
+  helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");  // 25, 26
 
-  helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC"); // 27, 28, 29, 30
+  helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
 
   // helper.print(std::cout);
   helper.setFrozen();
   // helper.print(std::cout);
 
   TypeID typeID_int(typeid(int));
-  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_int, "labelC", "instanceC", "processC") == ProductResolverIndexAmbiguous);
-  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_int, "labelC", "instanceC", "processQ") == ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_int, "labelC", "instanceC", "processC") ==
+                 ProductResolverIndexAmbiguous);
+  CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_int, "labelC", "instanceC", "processQ") ==
+                 ProductResolverIndexInvalid);
   CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_int, "labelC", "instanceC") == 2);
   edm::ProductResolverIndexHelper::Matches matches = helper.relatedIndexes(ELEMENT_TYPE, typeID_int);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 4);
@@ -228,7 +240,7 @@ void TestProductResolverIndexHelper::testManyEntries() {
   ProductResolverIndex indexC = matches.index(1);
   CPPUNIT_ASSERT_THROW(matches.index(2), cms::Exception);
   CPPUNIT_ASSERT(indexC == 27);
-  
+
   {
     auto indexToModules = helper.indiciesForModulesInProcess("processA");
     CPPUNIT_ASSERT(indexToModules.size() == 1);
@@ -236,7 +248,6 @@ void TestProductResolverIndexHelper::testManyEntries() {
   {
     auto indexToModules = helper.indiciesForModulesInProcess("processB");
     CPPUNIT_ASSERT(indexToModules.size() == 5);
-    
   }
   {
     auto indexToModules = helper.indiciesForModulesInProcess("processB1");
@@ -254,5 +265,4 @@ void TestProductResolverIndexHelper::testManyEntries() {
     auto indexToModules = helper.indiciesForModulesInProcess("processC");
     CPPUNIT_ASSERT(indexToModules.size() == 3);
   }
-
 }

@@ -14,7 +14,7 @@
 #include <vector>
 
 class EcalSamplesCorrelation {
- public:
+public:
   EcalSamplesCorrelation();
   EcalSamplesCorrelation(const EcalSamplesCorrelation& aset);
   ~EcalSamplesCorrelation();
@@ -29,7 +29,7 @@ class EcalSamplesCorrelation {
 
   void print(std::ostream& o) const;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

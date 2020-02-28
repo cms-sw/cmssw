@@ -2,7 +2,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     CPUServiceBase
-// 
+//
 // Implementation:
 //     Stub class information for CPU service.
 //
@@ -23,10 +23,6 @@ using namespace edm;
 //
 // constructors and destructor
 //
-CPUServiceBase::CPUServiceBase()
-{
-}
+CPUServiceBase::CPUServiceBase() {}
 
-CPUServiceBase::~CPUServiceBase()
-{
-}
+CPUServiceBase::~CPUServiceBase() {}

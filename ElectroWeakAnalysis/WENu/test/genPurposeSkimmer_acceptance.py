@@ -32,7 +32,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Load necessary stuff for tcMET
 # tracking geometry
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 
 # load the necessary pat sequences
 process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")

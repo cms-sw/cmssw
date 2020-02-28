@@ -2,30 +2,25 @@
 #define DQM_L1TMONITORCLIENT_L1TStage2CaloLayer2DECLIENT_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
-
- public:
-
+class L1TStage2CaloLayer2DEClient : public DQMEDHarvester {
+public:
   L1TStage2CaloLayer2DEClient(const edm::ParameterSet&);
 
   ~L1TStage2CaloLayer2DEClient() override;
 
- protected:
+protected:
+  void dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
+                             DQMStore::IGetter& igetter,
+                             const edm::LuminosityBlock& lumiSeg,
+                             const edm::EventSetup& c) override;
 
-  void dqmEndJob(DQMStore::IBooker &ibooker,
-			 DQMStore::IGetter &igetter) override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
-				     DQMStore::IGetter &igetter,
-				     const edm::LuminosityBlock& lumiSeg,
-				     const edm::EventSetup& c) override;
-
- private:
-
-  void book(DQMStore::IBooker &ibooker);
-  void processHistograms(DQMStore::IGetter &igetter);
+private:
+  void book(DQMStore::IBooker& ibooker);
+  void processHistograms(DQMStore::IGetter& igetter);
 
   std::string monitor_dir_;
   std::string input_dir_data_;
@@ -66,7 +61,6 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   MonitorElement* MinBiasHFM1Comp_;
   MonitorElement* ETTEMComp_;
   MonitorElement* TowerCountComp_;
-
 };
 
 #endif

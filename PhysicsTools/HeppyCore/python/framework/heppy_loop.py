@@ -3,6 +3,7 @@
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 from __future__ import print_function
+from builtins import range
 import os
 import shutil
 import glob
@@ -99,7 +100,7 @@ def split(comps):
     splitComps = []
     for comp in comps:
         if hasattr( comp, 'fineSplitFactor') and comp.fineSplitFactor>1:
-            subchunks = range(comp.fineSplitFactor)
+            subchunks = list(range(comp.fineSplitFactor))
             for ichunk, chunk in enumerate([(f,i) for f in comp.files for i in subchunks]):
                 newComp = copy.deepcopy(comp)
                 newComp.files = [chunk[0]]

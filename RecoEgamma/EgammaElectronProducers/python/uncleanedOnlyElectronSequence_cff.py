@@ -6,7 +6,7 @@
 # Tracking
 #
 
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 uncleanedOnlyElectronSeeds = ecalDrivenElectronSeeds.clone(
     barrelSuperClusters = cms.InputTag("uncleanedOnlyCorrectedHybridSuperClusters"),
     endcapSuperClusters = cms.InputTag("uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower")
@@ -134,7 +134,8 @@ uncleanedOnlyPfTracking = cms.Sequence(uncleanedOnlyPfTrackingTask)
 # Electrons
 #
 
-from RecoEgamma.EgammaElectronProducers.gsfElectronCores_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCores_cfi import ecalDrivenGsfElectronCores
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCoresFromMultiCl_cff import ecalDrivenGsfElectronCoresFromMultiCl
 uncleanedOnlyGsfElectronCores = ecalDrivenGsfElectronCores.clone(
     gsfTracks = cms.InputTag("uncleanedOnlyElectronGsfTracks"),
     gsfPfRecTracks = cms.InputTag("uncleanedOnlyPfTrackElec")

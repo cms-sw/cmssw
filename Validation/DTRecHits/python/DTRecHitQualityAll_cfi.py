@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-rechivalidation = cms.EDAnalyzer("DTRecHitQuality",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+rechivalidation = DQMEDAnalyzer("DTRecHitQuality",
     doStep2 = cms.untracked.bool(False),
     # Switches for analysis at various steps
     doStep1 = cms.untracked.bool(True),
@@ -16,7 +17,7 @@ rechivalidation = cms.EDAnalyzer("DTRecHitQuality",
 
 )
 
-seg2dvalidation = cms.EDAnalyzer("DTSegment2DQuality",
+seg2dvalidation = DQMEDAnalyzer("DTSegment2DQuality",
     sigmaResPos = cms.double(0.013),
     simHitLabel = cms.untracked.InputTag('g4SimHits',"MuonDTHits"),
     segment2DLabel = cms.untracked.InputTag('dt2DSegments'),
@@ -24,7 +25,7 @@ seg2dvalidation = cms.EDAnalyzer("DTSegment2DQuality",
     sigmaResAngle = cms.double(0.008)
 )
 
-seg2dsuperphivalidation = cms.EDAnalyzer("DTSegment2DSLPhiQuality",
+seg2dsuperphivalidation = DQMEDAnalyzer("DTSegment2DSLPhiQuality",
     sigmaResPos = cms.double(0.013),
     simHitLabel = cms.untracked.InputTag('g4SimHits',"MuonDTHits"),
     sigmaResAngle = cms.double(0.008),
@@ -34,7 +35,7 @@ seg2dsuperphivalidation = cms.EDAnalyzer("DTSegment2DSLPhiQuality",
     local = cms.untracked.bool(False)
  )
 
-seg4dvalidation = cms.EDAnalyzer("DTSegment4DQuality",
+seg4dvalidation = DQMEDAnalyzer("DTSegment4DQuality",
     #resolution on angle
     sigmaResAlpha = cms.double(0.001),
     sigmaResBeta = cms.double(0.007),

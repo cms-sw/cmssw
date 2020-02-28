@@ -7,7 +7,7 @@
 #include "RecoTracker/TrackProducer/plugins/GsfTrackRefitter.h"
 #include "RecoTracker/TrackProducer/plugins/ExtraFromSeeds.h"
 
-// 
+//
 DEFINE_FWK_MODULE(DAFTrackProducer);
 DEFINE_FWK_MODULE(TrackProducer);
 DEFINE_FWK_MODULE(TrackRefitter);

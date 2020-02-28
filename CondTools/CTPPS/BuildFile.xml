@@ -3,6 +3,8 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="root"/>
 <use   name="rootcore"/>
 <flags EDM_PLUGIN="1"/>

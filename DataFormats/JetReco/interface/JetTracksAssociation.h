@@ -28,39 +28,39 @@ namespace reco {
     typedef edm::AssociationVector<reco::JetRefBaseProd, Values> Container;
     typedef Container::value_type value_type;
     typedef Container::transient_vector_type transient_vector_type;
-    typedef edm::Ref <Container> Ref;
-    typedef edm::RefProd <Container> RefProd;
-    typedef edm::RefVector <Container> RefVector;
+    typedef edm::Ref<Container> Ref;
+    typedef edm::RefProd<Container> RefProd;
+    typedef edm::RefVector<Container> RefVector;
 
     /// Get number of tracks associated with jet
-    int tracksNumber (const Container&, const reco::JetBaseRef);
+    int tracksNumber(const Container&, const reco::JetBaseRef);
     /// Get number of tracks associated with jet
-    int tracksNumber (const Container&, const reco::Jet&);
+    int tracksNumber(const Container&, const reco::Jet&);
     /// Get LorentzVector as sum of all tracks associated with jet.
-    LorentzVector tracksP4 (const Container&, const reco::JetBaseRef);
+    LorentzVector tracksP4(const Container&, const reco::JetBaseRef);
     /// Get LorentzVector as sum of all tracks associated with jet.
-    LorentzVector tracksP4 (const Container&, const reco::Jet&);
+    LorentzVector tracksP4(const Container&, const reco::Jet&);
 
     /// associate jet with value. Returns false and associate nothing if jet is already associated
-    bool setValue (Container&, const reco::JetBaseRef&, reco::TrackRefVector);
+    bool setValue(Container&, const reco::JetBaseRef&, reco::TrackRefVector);
     /// associate jet with value. Returns false and associate nothing if jet is already associated
-    bool setValue (Container*, const reco::JetBaseRef&, reco::TrackRefVector);
+    bool setValue(Container*, const reco::JetBaseRef&, reco::TrackRefVector);
     /// get value for the association. Throw exception if no association found
-    const reco::TrackRefVector& getValue (const Container&, const reco::JetBaseRef&);
+    const reco::TrackRefVector& getValue(const Container&, const reco::JetBaseRef&);
     /// get value for the association. Throw exception if no association found
-    const reco::TrackRefVector& getValue (const Container&, const reco::Jet&);
+    const reco::TrackRefVector& getValue(const Container&, const reco::Jet&);
     /// fill list of all jets associated with values. Return # of jets in the list
-    std::vector<reco::JetBaseRef > allJets (const Container&);
+    std::vector<reco::JetBaseRef> allJets(const Container&);
     /// check if jet is associated
-    bool hasJet (const Container&, const reco::JetBaseRef&);
+    bool hasJet(const Container&, const reco::JetBaseRef&);
     /// check if jet is associated
-    bool hasJet (const Container&, const reco::Jet&);
-  }
+    bool hasJet(const Container&, const reco::Jet&);
+  }  // namespace JetTracksAssociation
   /// typedefs for backward compatibility
   typedef JetTracksAssociation::Container JetTracksAssociationCollection;
   typedef JetTracksAssociation::Ref JetTracksAssociationRef;
   typedef JetTracksAssociation::RefProd JetTracksAssociationRefProd;
-  typedef JetTracksAssociation::RefVector JetTracksAssociationRefVector; 
-}
+  typedef JetTracksAssociation::RefVector JetTracksAssociationRefVector;
+}  // namespace reco
 
 #endif

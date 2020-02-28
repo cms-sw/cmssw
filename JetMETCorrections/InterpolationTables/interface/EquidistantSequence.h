@@ -14,38 +14,33 @@
 #include <vector>
 
 namespace npstat {
-    /**
+  /**
     // A sequence of points equidistant in linear space. Note that
     // std::vector destructor is not virtual, so do not destroy this
     // class by base pointer or reference.
     */
-    class EquidistantInLinearSpace : public std::vector<double>
-    {
-    public:
-        EquidistantInLinearSpace(double minScale, double maxScale,
-                                 unsigned nScales);
-        virtual ~EquidistantInLinearSpace() {}
+  class EquidistantInLinearSpace : public std::vector<double> {
+  public:
+    EquidistantInLinearSpace(double minScale, double maxScale, unsigned nScales);
+    virtual ~EquidistantInLinearSpace() {}
 
-    private:
-        EquidistantInLinearSpace() = delete;
-    };
+  private:
+    EquidistantInLinearSpace() = delete;
+  };
 
-    /**
+  /**
     // A sequence of points equidistant in log space. Note that
     // std::vector destructor is not virtual, so do not destroy this
     // class by base pointer or reference.
     */
-    class EquidistantInLogSpace : public std::vector<double>
-    {
-    public:
-        EquidistantInLogSpace(double minScale, double maxScale,
-                              unsigned nScales);
-        virtual ~EquidistantInLogSpace() {}
+  class EquidistantInLogSpace : public std::vector<double> {
+  public:
+    EquidistantInLogSpace(double minScale, double maxScale, unsigned nScales);
+    virtual ~EquidistantInLogSpace() {}
 
-    private:
-        EquidistantInLogSpace() = delete;
-    };
-}
+  private:
+    EquidistantInLogSpace() = delete;
+  };
+}  // namespace npstat
 
-#endif // NPSTAT_EQUIDISTANTSEQUENCE_HH_
-
+#endif  // NPSTAT_EQUIDISTANTSEQUENCE_HH_

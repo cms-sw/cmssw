@@ -8,16 +8,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class L1TMuonBarrelKalmanTrackFinder {
- public:
+public:
   L1TMuonBarrelKalmanTrackFinder(const edm::ParameterSet&);
   ~L1TMuonBarrelKalmanTrackFinder();
 
-  L1MuKBMTrackCollection process(L1TMuonBarrelKalmanAlgo*,const L1MuKBMTCombinedStubRefVector& stubs,int bx);
- private:
+  L1MuKBMTrackCollection process(L1TMuonBarrelKalmanAlgo*, const L1MuKBMTCombinedStubRefVector& stubs, int bx);
+
+private:
   int verbose_;
   std::vector<L1TMuonBarrelKalmanSectorProcessor> sectors_;
 };
-
-
 
 #endif

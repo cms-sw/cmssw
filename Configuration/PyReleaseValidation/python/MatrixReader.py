@@ -49,7 +49,7 @@ class MatrixReader(object):
                              'relval_ged': 'ged-',
                              'relval_upgrade':'upg-',
                              'relval_2017':'2017-',
-                             'relval_2023':'2023-',
+                             'relval_2026':'2026-',
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
                              'relval_unsch': 'unsch-',
@@ -65,7 +65,7 @@ class MatrixReader(object):
                       'relval_ged',
                       'relval_upgrade',
                       'relval_2017',
-                      'relval_2023',
+                      'relval_2026',
                       'relval_identity',
                       'relval_machine',
                       'relval_unsch',
@@ -80,7 +80,7 @@ class MatrixReader(object):
                              'relval_ged':True,
                              'relval_upgrade':False,
                              'relval_2017':True,
-                             'relval_2023':True,
+                             'relval_2026':True,
                              'relval_identity':False,
                              'relval_machine':True,
                              'relval_unsch':True,
@@ -234,12 +234,11 @@ class MatrixReader(object):
                                                     
             for (stepI,step) in enumerate(stepList):
                 stepName=step
+                if self.relvalModule.steps[stepName] is None:
+                    continue
                 if self.wm:
                     #cannot put a certain number of things in wm
-                    if stepName in [
-                        #'HARVEST','HARVESTD','HARVESTDreHLT',
-                        'RECODFROMRAWRECO','SKIMD','SKIMCOSD','SKIMDreHLT'
-                        ]:
+                    if stepName in ['SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
                     
                 #replace stepName is needed
@@ -336,7 +335,6 @@ class MatrixReader(object):
                 
                 wfName,stepNames= name.split('+',1)
                 
-                stepNames=stepNames.replace('+RECODFROMRAWRECO','')
                 stepNames=stepNames.replace('+SKIMCOSD','')
                 stepNames=stepNames.replace('+SKIMD','')
                 if 'HARVEST' in stepNames:
@@ -414,7 +412,7 @@ class MatrixReader(object):
         return workflows
 
     def showWorkFlows(self, selected=None, extended=True, cafVeto=True):
-        if selected: selected = map(float,selected)
+        if selected: selected = list(map(float,selected))
         wfs = self.workFlowsByLocation(cafVeto)
         maxLen = 100 # for summary, limit width of output
         fmt1   = "%-6s %-35s [1]: %s ..."

@@ -16,40 +16,40 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace reco {class Track;}
+namespace reco {
+  class Track;
+}
 
 class TFile;
 class TH1F;
 class TH2F;
 class Trajectory;
 
-
 #include <vector>
 
-class TrackReader: public edm::EDAnalyzer {
-
- public:
+class TrackReader : public edm::EDAnalyzer {
+public:
   typedef std::vector<Trajectory> Trajectories;
 
- public:
+public:
   /// Constructor
   TrackReader(const edm::ParameterSet& pset);
 
   /// Destructor
   virtual ~TrackReader();
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
   // Operations
   void beginJob();
   void endJob();
-  
+
 protected:
   //  void printTrackRecHits(const reco::Track &, edm::ESHandle<GlobalTrackingGeometry>) const;
-  
- private:
+
+private:
   edm::InputTag theInputLabel;
 
   std::string theTrackerRecHitBuilderName;

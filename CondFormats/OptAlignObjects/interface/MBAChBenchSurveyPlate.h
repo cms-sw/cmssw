@@ -15,9 +15,8 @@
 
 /* class MBAChBenchSurveyPlate; */
 
-
 class MBAChBenchSurveyPlateData {
- public:
+public:
   int edmsID_;
   int surveyCode_;
   int line_;
@@ -29,19 +28,19 @@ class MBAChBenchSurveyPlateData {
   float posZ_;
   long long measDateTime_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 /**
    Description: Class for MBAChBenchSurveyPlate for use as calibration.
  **/
 class MBAChBenchSurveyPlate {
- public:
+public:
   MBAChBenchSurveyPlate() {}
   virtual ~MBAChBenchSurveyPlate() {}
   std::vector<MBAChBenchSurveyPlateData> mbaChBenchSurveyPlate_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-#endif // MBAChBenchSurveyPlate_H
+#endif  // MBAChBenchSurveyPlate_H

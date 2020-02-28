@@ -15,38 +15,33 @@
 #include <vector>
 
 class MaterialBudgetCastorHistos {
-
 public:
-  
   MaterialBudgetCastorHistos(const edm::ParameterSet &p);
   virtual ~MaterialBudgetCastorHistos();
-  
-  void fillStartTrack(const G4Track*);
+
+  void fillStartTrack(const G4Track *);
   void fillPerStep(const G4Step *);
   void fillEndTrack();
-  
+
 private:
-  
-  void book(); 
+  void book();
   void fillHisto(int id, int ix);
-  
+
 private:
-
-  static const int         maxSet = 20;
-  bool                     fillHistos, printSum;
-  int                      binEta, binPhi;
-  double                   etaLow, etaHigh;
+  static const int maxSet = 20;
+  bool fillHistos, printSum;
+  int binEta, binPhi;
+  double etaLow, etaHigh;
   std::vector<std::string> matList;
-  std::vector<double>      stepLength, radLength, intLength;
-  TH1F                     *me400[maxSet], *me800[maxSet];
-  TH2F                     *me1200[maxSet];
-  TProfile                 *me100[maxSet], *me200[maxSet], *me300[maxSet];
-  TProfile                 *me500[maxSet], *me600[maxSet], *me700[maxSet];
-  TProfile2D               *me900[maxSet], *me1000[maxSet],*me1100[maxSet];
-  int                      id1, id2, steps;
-  double                   radLen, intLen, stepLen;
-  double                   eta, phi;
+  std::vector<double> stepLength, radLength, intLength;
+  TH1F *me400[maxSet], *me800[maxSet];
+  TH2F *me1200[maxSet];
+  TProfile *me100[maxSet], *me200[maxSet], *me300[maxSet];
+  TProfile *me500[maxSet], *me600[maxSet], *me700[maxSet];
+  TProfile2D *me900[maxSet], *me1000[maxSet], *me1100[maxSet];
+  int id1, id2, steps;
+  double radLen, intLen, stepLen;
+  double eta_, phi_;
 };
-
 
 #endif

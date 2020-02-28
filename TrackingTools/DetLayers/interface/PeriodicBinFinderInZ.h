@@ -12,38 +12,28 @@
 template <class T>
 class PeriodicBinFinderInZ : public BaseBinFinder<T> {
 public:
-
   PeriodicBinFinderInZ() : theNbins(0), theZStep(0), theZOffset(0) {}
 
   PeriodicBinFinderInZ(std::vector<const GeomDet*>::const_iterator first,
-		       std::vector<const GeomDet*>::const_iterator last) :
-    theNbins( last-first) 
-  {
+                       std::vector<const GeomDet*>::const_iterator last)
+      : theNbins(last - first) {
     float zFirst = (**first).surface().position().z();
-    theZStep = ((**(last-1)).surface().position().z() - zFirst) / (theNbins-1);
-    theZOffset = zFirst - 0.5*theZStep;
+    theZStep = ((**(last - 1)).surface().position().z() - zFirst) / (theNbins - 1);
+    theZOffset = zFirst - 0.5 * theZStep;
   }
 
   /// returns an index in the valid range for the bin that contains Z
-  int binIndex( T z) const override {
-    return binIndex( int((z-theZOffset)/theZStep));
-  }
+  int binIndex(T z) const override { return binIndex(int((z - theZOffset) / theZStep)); }
 
   /// returns an index in the valid range
-  int binIndex( int i) const override {
-    return std::min( std::max( i, 0), theNbins-1);
-  }
-   
-  /// the middle of the bin 
-  T binPosition( int ind) const override {
-    return theZOffset + theZStep * ( ind + 0.5);
-  }
+  int binIndex(int i) const override { return std::min(std::max(i, 0), theNbins - 1); }
+
+  /// the middle of the bin
+  T binPosition(int ind) const override { return theZOffset + theZStep * (ind + 0.5); }
 
 private:
-
   int theNbins;
   T theZStep;
   T theZOffset;
-
 };
 #endif

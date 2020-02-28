@@ -30,29 +30,22 @@
 
 #include <string>
 
-
 namespace pat {
 
-
   class PATConversionProducer : public edm::global::EDProducer<> {
+  public:
+    explicit PATConversionProducer(const edm::ParameterSet& iConfig);
+    ~PATConversionProducer() override;
 
-    public:
+    void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-      explicit PATConversionProducer(const edm::ParameterSet & iConfig);
-      ~PATConversionProducer() override;
-
-      void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
-
-    private:
-
-      // configurables
-      const edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronToken_;
-      const edm::EDGetTokenT<reco::BeamSpot>                bsToken_;
-      const edm::EDGetTokenT<reco::ConversionCollection>    conversionsToken_;
-
+  private:
+    // configurables
+    const edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronToken_;
+    const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+    const edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
   };
 
-
-}
+}  // namespace pat
 
 #endif

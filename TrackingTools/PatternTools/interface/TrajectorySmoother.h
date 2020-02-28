@@ -11,24 +11,22 @@ class TkCloner;
  */
 class TrajectorySmoother {
 public:
-
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
 
   virtual ~TrajectorySmoother() {}
 
   virtual TrajectoryContainer trajectories(const Trajectory& traj) const {
-    Trajectory && nt = trajectory(traj);
-    if (nt.isValid()) return TrajectoryContainer(1,std::move(nt));
+    Trajectory&& nt = trajectory(traj);
+    if (nt.isValid())
+      return TrajectoryContainer(1, std::move(nt));
     return TrajectoryContainer();
   }
-  virtual Trajectory trajectory(const Trajectory&) const =0;
+  virtual Trajectory trajectory(const Trajectory&) const = 0;
 
   virtual TrajectorySmoother* clone() const = 0;
   // FIXME a prototype: final inplementaiton may differ
-  virtual void setHitCloner(TkCloner const *)=0;
-
-
+  virtual void setHitCloner(TkCloner const*) = 0;
 };
 
 #endif

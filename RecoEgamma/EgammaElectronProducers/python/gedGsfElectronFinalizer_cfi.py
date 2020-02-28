@@ -5,7 +5,7 @@ from RecoEgamma.EgammaTools.regressionModifier_cfi import *
 gedGsfElectrons = cms.EDProducer("GEDGsfElectronFinalizer",
                                  previousGsfElectronsTag = cms.InputTag("gedGsfElectronsTmp"),
                                  pfCandidatesTag = cms.InputTag("particleFlowTmp"),
-                                 regressionConfig = regressionModifier.clone(rhoCollection=cms.InputTag("fixedGridRhoFastjetAllTmp")),
+                                 regressionConfig = regressionModifier.clone(),
                                  pfIsolationValues = cms.PSet(
                                        pfSumChargedHadronPt = cms.InputTag('egmElectronIsolationCITK:h+-DR030-'),
                                        pfSumPhotonEt = cms.InputTag('egmElectronIsolationCITK:gamma-DR030-'),

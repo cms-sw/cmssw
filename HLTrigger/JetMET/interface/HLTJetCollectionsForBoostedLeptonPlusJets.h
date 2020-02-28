@@ -16,7 +16,6 @@
  *
  */
 
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -30,29 +29,30 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 //
 // class declaration
 //
 
-template <typename jetType> class HLTJetCollectionsForBoostedLeptonPlusJets: public edm::stream::EDProducer<> {
-  public:
-    explicit HLTJetCollectionsForBoostedLeptonPlusJets(const edm::ParameterSet&);
-    ~HLTJetCollectionsForBoostedLeptonPlusJets() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+template <typename jetType>
+class HLTJetCollectionsForBoostedLeptonPlusJets : public edm::stream::EDProducer<> {
+public:
+  explicit HLTJetCollectionsForBoostedLeptonPlusJets(const edm::ParameterSet&);
+  ~HLTJetCollectionsForBoostedLeptonPlusJets() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  private:
-    void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theLeptonToken;
-    edm::EDGetTokenT<std::vector<jetType>> m_theJetToken;
-    edm::InputTag hltLeptonTag;
-    edm::InputTag sourceJetTag;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theLeptonToken;
+  edm::EDGetTokenT<std::vector<jetType>> m_theJetToken;
+  edm::InputTag hltLeptonTag;
+  edm::InputTag sourceJetTag;
 
-    double minDeltaR_; //min dR to consider cleaning
+  double minDeltaR_;  //min dR to consider cleaning
 
-    // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
-#endif //HLTJetCollectionsForBoostedLeptonPlusJets_h
+#endif  //HLTJetCollectionsForBoostedLeptonPlusJets_h

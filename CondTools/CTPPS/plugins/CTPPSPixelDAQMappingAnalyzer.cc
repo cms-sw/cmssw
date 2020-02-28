@@ -16,65 +16,58 @@
 using namespace std;
 
 class CTPPSPixelDAQMappingAnalyzer : public edm::one::EDAnalyzer<> {
-   public:
+public:
+  string label_;
+  cond::Time_t daqmappingiov_;
+  cond::Time_t analysismaskiov_;
 
-    string label_;
-    cond::Time_t daqmappingiov_;
-    cond::Time_t analysismaskiov_;
+  explicit CTPPSPixelDAQMappingAnalyzer(edm::ParameterSet const& iConfig)
+      : label_(iConfig.getUntrackedParameter<string>("label", "RPix")),
+        daqmappingiov_(iConfig.getParameter<unsigned long long>("daqmappingiov")),
+        analysismaskiov_(iConfig.getParameter<unsigned long long>("analysismaskiov")) {}
+  explicit CTPPSPixelDAQMappingAnalyzer(int i) {}
+  ~CTPPSPixelDAQMappingAnalyzer() override {}
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+};
 
-    explicit  CTPPSPixelDAQMappingAnalyzer(edm::ParameterSet const& iConfig):
-    label_(iConfig.getUntrackedParameter<string>("label", "RPix")),
-    daqmappingiov_(iConfig.getParameter<unsigned long long>("daqmappingiov")),
-    analysismaskiov_(iConfig.getParameter<unsigned long long>("analysismaskiov"))
-    {}
-    explicit  CTPPSPixelDAQMappingAnalyzer(int i) {}
-    ~CTPPSPixelDAQMappingAnalyzer() override {}
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  };
+void CTPPSPixelDAQMappingAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+  using namespace edm;
 
-
-  void
-  CTPPSPixelDAQMappingAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
-
-    using namespace edm;
-
-    /*edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("CTPPSPixelDAQMappingRcd"));
+  /*edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("CTPPSPixelDAQMappingRcd"));
     if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
       //record not found
       std::cout <<"Record \"CTPPSPixelDAQMappingRcd"<<"\" does not exist "<<std::endl;
     }*/
 
+  //this part gets the handle of the event source and the record (i.e. the Database)
+  if (e.id().run() == daqmappingiov_) {
+    ESHandle<CTPPSPixelDAQMapping> mapping;
+    context.get<CTPPSPixelDAQMappingRcd>().get("RPix", mapping);
 
-    //this part gets the handle of the event source and the record (i.e. the Database)
-    if (e.id().run() == daqmappingiov_){
-      ESHandle<CTPPSPixelDAQMapping> mapping;
-      context.get<CTPPSPixelDAQMappingRcd>().get("RPix", mapping);
-
-      // print mapping
-      /*printf("* DAQ mapping\n");
+    // print mapping
+    /*printf("* DAQ mapping\n");
       for (const auto &p : mapping->ROCMapping)
       std::cout << "    " << p.first << " -> " << p.second << std::endl;*/
-    }
+  }
 
-    //edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("CTPPSPixelAnalysisMaskRcd"));
-    //if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-      //record not found
-      //std::cout <<"Record \"CTPPSPixelAnalysisMaskRcd"<<"\" does not exist "<<std::endl;
-    //}
+  //edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("CTPPSPixelAnalysisMaskRcd"));
+  //if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+  //record not found
+  //std::cout <<"Record \"CTPPSPixelAnalysisMaskRcd"<<"\" does not exist "<<std::endl;
+  //}
 
-	  if (e.id().run() == analysismaskiov_){
-      // get analysis mask to mask channels
-      ESHandle<CTPPSPixelAnalysisMask> analysisMask;
-      context.get<CTPPSPixelAnalysisMaskRcd>().get(label_, analysisMask);
+  if (e.id().run() == analysismaskiov_) {
+    // get analysis mask to mask channels
+    ESHandle<CTPPSPixelAnalysisMask> analysisMask;
+    context.get<CTPPSPixelAnalysisMaskRcd>().get(label_, analysisMask);
 
-      // print mask
-      /*printf("* mask\n");
+    // print mask
+    /*printf("* mask\n");
       for (const auto &p : analysisMask->analysisMask)
         cout << "    " << p.first
         << ": fullMask=" << p.second.fullMask
         << ", number of masked channels " << p.second.maskedPixels.size() << endl;
       */
-	  }
-
   }
-  DEFINE_FWK_MODULE(CTPPSPixelDAQMappingAnalyzer);
+}
+DEFINE_FWK_MODULE(CTPPSPixelDAQMappingAnalyzer);

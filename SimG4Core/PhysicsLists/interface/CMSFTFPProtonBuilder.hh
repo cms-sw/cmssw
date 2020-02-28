@@ -1,5 +1,5 @@
 #ifndef SimG4Core_PhysicsLists_CMSFTFPProtonBuilder_h
-#define SimG4Core_PhysicsLists_CMSFTFPProtonBuilder_h 
+#define SimG4Core_PhysicsLists_CMSFTFPProtonBuilder_h
 
 #include "globals.hh"
 
@@ -18,33 +18,30 @@
 #include "G4ExcitedStringDecay.hh"
 #include "G4QuasiElasticChannel.hh"
 
-class CMSFTFPProtonBuilder : public G4VProtonBuilder
-{
-  public: 
-    CMSFTFPProtonBuilder(G4bool quasiElastic=false);
-    ~CMSFTFPProtonBuilder() override;
+class CMSFTFPProtonBuilder : public G4VProtonBuilder {
+public:
+  CMSFTFPProtonBuilder(G4bool quasiElastic = false);
+  ~CMSFTFPProtonBuilder() override;
 
-  public: 
-    void Build(G4HadronElasticProcess * aP) override;
-    void Build(G4ProtonInelasticProcess * aP) override;
-    
-    void SetMinEnergy(G4double aM) override {theMin = aM;}
-    void SetMaxEnergy(G4double aM) override {theMax = aM;}
+public:
+  void Build(G4HadronElasticProcess* aP) override;
+  void Build(G4ProtonInelasticProcess* aP) override;
 
-  private:
-    G4TheoFSGenerator * theModel;
-    G4PreCompoundModel * thePreEquilib;
-    G4GeneratorPrecompoundInterface * theCascade;
-    G4FTFModel * theStringModel;
-    G4ExcitedStringDecay * theStringDecay;
-    G4QuasiElasticChannel * theQuasiElastic;
+  void SetMinEnergy(G4double aM) override { theMin = aM; }
+  void SetMaxEnergy(G4double aM) override { theMax = aM; }
 
-    G4double theMin;
-    G4double theMax;
+private:
+  G4TheoFSGenerator* theModel;
+  G4PreCompoundModel* thePreEquilib;
+  G4GeneratorPrecompoundInterface* theCascade;
+  G4FTFModel* theStringModel;
+  G4ExcitedStringDecay* theStringDecay;
+  G4QuasiElasticChannel* theQuasiElastic;
 
+  G4double theMin;
+  G4double theMax;
 };
 
 // 2002 by J.P. Wellisch
 
 #endif
-

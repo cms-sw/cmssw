@@ -26,8 +26,14 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-namespace edm {class ParameterSet; class EventSetup; class ParameterSetDescription;}
-namespace reco {class TransientTrack;}
+namespace edm {
+  class ParameterSet;
+  class EventSetup;
+  class ParameterSetDescription;
+}  // namespace edm
+namespace reco {
+  class TransientTrack;
+}
 
 class TrajectoryFitter;
 class TrajectorySmoother;
@@ -35,10 +41,8 @@ class Propagator;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
 
-class TrackTransformer final : public TrackTransformerBase{
-
+class TrackTransformer final : public TrackTransformerBase {
 public:
-
   /// Constructor
   explicit TrackTransformer(const edm::ParameterSet&);
 
@@ -47,16 +51,16 @@ public:
 
   /// fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& descriptions,
-				  bool DoPredictionsOnly=false,
-				  const std::string& Fitter="KFFitterForRefitInsideOut",
-				  const std::string& Smoother="KFSmootherForRefitInsideOut",
-				  const std::string& Propagator="SmartPropagatorAnyRK",
-				  const std::string& RefitDirection="alongMomentum",
-				  bool RefitRPCHits=true,
-				  const std::string& TrackerRecHitBuilder="WithTrackAngle",
-				  const std::string& MuonRecHitBuilder="MuonRecHitBuilder",
-				  const std::string& MTDRecHitBuilder="MTDRecHitBuilder");
-  
+                                  bool DoPredictionsOnly = false,
+                                  const std::string& Fitter = "KFFitterForRefitInsideOut",
+                                  const std::string& Smoother = "KFSmootherForRefitInsideOut",
+                                  const std::string& Propagator = "SmartPropagatorAnyRK",
+                                  const std::string& RefitDirection = "alongMomentum",
+                                  bool RefitRPCHits = true,
+                                  const std::string& TrackerRecHitBuilder = "WithTrackAngle",
+                                  const std::string& MuonRecHitBuilder = "MuonRecHitBuilder",
+                                  const std::string& MTDRecHitBuilder = "MTDRecHitBuilder");
+
   // Operations
 
   /// Convert a reco::Track into Trajectory
@@ -66,38 +70,33 @@ public:
   std::vector<Trajectory> transform(const reco::TrackRef&) const;
 
   /// Convert a reco::TrackRef into Trajectory, refit with a new set of hits
-  std::vector<Trajectory> transform(const reco::TransientTrack&,
-                                    TransientTrackingRecHit::ConstRecHitContainer&) const;
+  std::vector<Trajectory> transform(const reco::TransientTrack&, TransientTrackingRecHit::ConstRecHitContainer&) const;
 
   /// the magnetic field
-  const MagneticField* magneticField() const {return &*theMGField;}
-  
+  const MagneticField* magneticField() const { return &*theMGField; }
+
   /// the tracking geometry
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const {return theTrackingGeometry;}
+  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const { return theTrackingGeometry; }
 
   /// set the services needed by the TrackTransformer
   void setServices(const edm::EventSetup&) override;
 
   /// the refitter used to refit the reco::Track
-  std::unique_ptr<TrajectoryFitter> const & refitter() const {return theFitter;}
-  
+  std::unique_ptr<TrajectoryFitter> const& refitter() const { return theFitter; }
+
   /// the smoother used to smooth the trajectory which came from the refitting step
-  std::unique_ptr<TrajectorySmoother> const &  smoother() const {return theSmoother;}
+  std::unique_ptr<TrajectorySmoother> const& smoother() const { return theSmoother; }
 
-  TransientTrackingRecHit::ConstRecHitContainer
-    getTransientRecHits(const reco::TransientTrack& track) const;
-  
- private:
+  TransientTrackingRecHit::ConstRecHitContainer getTransientRecHits(const reco::TransientTrack& track) const;
 
- RefitDirection::GeometricalDirection
-    checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer const&) const;
+private:
+  RefitDirection::GeometricalDirection checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer const&) const;
 
-  
-  unsigned long long theCacheId_TC=0;
-  unsigned long long theCacheId_GTG=0;
-  unsigned long long theCacheId_MG=0;
-  unsigned long long theCacheId_TRH=0;
-  
+  unsigned long long theCacheId_TC = 0;
+  unsigned long long theCacheId_GTG = 0;
+  unsigned long long theCacheId_MG = 0;
+  unsigned long long theCacheId_TRH = 0;
+
   const bool theRPCInTheFit;
 
   const bool theDoPredictionsOnly;
@@ -105,21 +104,21 @@ public:
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
-  
+
   const std::string theFitterName;
   std::unique_ptr<TrajectoryFitter> theFitter;
-  
+
   const std::string theSmootherName;
   std::unique_ptr<TrajectorySmoother> theSmoother;
- 
+
   const std::string thePropagatorName;
-  edm::ESHandle<Propagator> const & propagator() const {return thePropagator;}
+  edm::ESHandle<Propagator> const& propagator() const { return thePropagator; }
   edm::ESHandle<Propagator> thePropagator;
 
   const std::string theTrackerRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
   TkClonerImpl hitCloner;
-  
+
   const std::string theMuonRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
@@ -128,4 +127,3 @@ public:
   edm::ESHandle<TransientTrackingRecHitBuilder> theMTDRecHitBuilder;
 };
 #endif
-

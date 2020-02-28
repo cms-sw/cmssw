@@ -25,50 +25,36 @@ class FWEventItem;
 
 // forward declarations
 
-class FWModelId
-{
-
+class FWModelId {
 public:
-   enum { kContainerIndex=-1};
-   FWModelId(const FWEventItem* iItem=nullptr,
-             int iIndex=kContainerIndex) : m_item(iItem),m_index(iIndex) {
-   }
-   //virtual ~FWModelId();
+  enum { kContainerIndex = -1 };
+  FWModelId(const FWEventItem* iItem = nullptr, int iIndex = kContainerIndex) : m_item(iItem), m_index(iIndex) {}
+  //virtual ~FWModelId();
 
-   // ---------- const member functions ---------------------
-   bool operator<(const FWModelId& iRHS) const
-   {
-      return m_item == iRHS.m_item ? m_index<iRHS.m_index : m_item<iRHS.m_item;
-   }
+  // ---------- const member functions ---------------------
+  bool operator<(const FWModelId& iRHS) const {
+    return m_item == iRHS.m_item ? m_index < iRHS.m_index : m_item < iRHS.m_item;
+  }
 
-   const FWEventItem* item() const
-   {
-      return m_item;
-   }
+  const FWEventItem* item() const { return m_item; }
 
-   int index() const
-   {
-      return m_index;
-   }
-   // ---------- static member functions --------------------
+  int index() const { return m_index; }
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void unselect() const ;
-   void select() const;
-   void toggleSelect() const;
-   void setIndex(int iIndex) {
-      m_index=iIndex;
-   }
+  // ---------- member functions ---------------------------
+  void unselect() const;
+  void select() const;
+  void toggleSelect() const;
+  void setIndex(int iIndex) { m_index = iIndex; }
+
 private:
-   //FWModelId(const FWModelId&); // stop default
+  //FWModelId(const FWModelId&); // stop default
 
-   //const FWModelId& operator=(const FWModelId&); // stop default
+  //const FWModelId& operator=(const FWModelId&); // stop default
 
-   // ---------- member data --------------------------------
-   const FWEventItem* m_item;
-   int m_index;
-
+  // ---------- member data --------------------------------
+  const FWEventItem* m_item;
+  int m_index;
 };
-
 
 #endif

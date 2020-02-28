@@ -3,9 +3,9 @@
 
 // -*- C++ -*-
 //
-// Package:    DetectorDescription/DDFilteredView
+// Package:    DetectorDescription/Core
 // Class:      DDFilteredView
-// 
+//
 /**\class DDFilteredView
 
  Description: Filtered View of a Tree
@@ -18,89 +18,174 @@
 //         Created:  Wed, 30 Jan 2019 09:24:30 GMT
 //
 //
-#include "DetectorDescription/DDCMS/interface/DDExpandedNode.h"
-
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
+#include "DetectorDescription/DDCMS/interface/ExpandedNodes.h"
+#include "DetectorDescription/DDCMS/interface/Filter.h"
+#include <DD4hep/Volumes.h>
+#include <memory>
 #include <vector>
 
 namespace cms {
 
-  class DDDetector;
+  struct DDSolid {
+    explicit DDSolid(dd4hep::Solid s) : solid_(s) {}
+    dd4hep::Solid solid() const { return solid_; }
+    dd4hep::Solid solidA() const;
+    dd4hep::Solid solidB() const;
+    const std::vector<double> parameters() const;
 
-  //! Geometrical 'path' of the current node up to the root-node
-  using DDGeoHistory = std::vector<DDExpandedNode>;
+  private:
+    dd4hep::Solid solid_;
+  };
+
+  class DDDetector;
+  class DDCompactView;
+
   using Volume = dd4hep::Volume;
-    
-  struct DDFilteredView {
-    
-    struct ExpandedNodes {
-      std::vector<double> tags;
-      std::vector<double> offsets;
-      std::vector<int> copyNos;
-    } nodes;
-    
-    DDFilteredView(const DDDetector*);
-    
-    //! The logical-part of the current node in the filtered-view
-    const DDVolume & volume() const;
-    
+  using PlacedVolume = dd4hep::PlacedVolume;
+  using ExpandedNodes = cms::ExpandedNodes;
+  using Filter = cms::Filter;
+  using Iterator = TGeoIterator;
+  using Node = TGeoNode;
+  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+  using RotationMatrix = ROOT::Math::Rotation3D;
+  using DDFilter = std::string_view;
+
+  class DDFilteredView {
+  public:
+    using nav_type = std::vector<int>;
+
+    DDFilteredView(const DDDetector*, const Volume);
+    DDFilteredView(const DDCompactView&, const DDFilter& = "");
+    DDFilteredView() = delete;
+
+    //! The numbering history of the current node
+    const ExpandedNodes& history();
+
+    //! The physical volume of the current node
+    const PlacedVolume volume() const;
+
+    //! The full path to the current node
+    const std::string path() const;
+
+    //! The list of the volume copy numbers
+    //  along the full path to the current node
+    const std::vector<int> copyNos() const;
+
+    const std::vector<int> copyNumbers() { return copyNos(); }
+
     //! The absolute translation of the current node
-    const DDTranslation & translation() const;
-    
+    // Return value is Double_t translation[3] with x, y, z elements.
+    const Double_t* trans() const;
+    const Translation translation() const;
+
     //! The absolute rotation of the current node
-    const DDRotationMatrix & rotation() const;
+    const Double_t* rot() const;
+    const RotationMatrix rotation() const;
+    void rot(dd4hep::Rotation3D& matrixOut) const;
 
     //! User specific data
     void mergedSpecifics(DDSpecParRefs const&);
-    
+
     //! set the current node to the first child
     bool firstChild();
 
     //! set the current node to the next sibling
     bool nextSibling();
 
+    //! set the current node to the next sub sibling
+    bool sibling();
+
+    //! count the number of children matching selection
+    bool checkChild();
+
+    //! set the current node to the parent node ...
+    bool parent();
+
     //! set current node to the next node in the filtered tree
-    bool next();
-    
-    //! The list of ancestors up to the root-node of the current node
-    const DDGeoHistory & geoHistory() const;
+    bool next(int);
 
-    bool accepted(std::string_view, std::string_view) const;
-    bool accepted(std::vector<std::string_view> const&, std::string_view) const;
-    bool acceptedM(std::vector<std::string_view>&, std::string_view) const;
-    std::vector<std::string_view> const& topNodes() const { return topNodes_; }
-    std::vector<std::string_view> const& nextNodes() const { return nextNodes_; }
-    std::vector<std::string_view> const& afterNextNodes() const { return afterNextNodes_; }
-    
-    std::vector<double> extractParameters() const;
-    std::vector<std::string_view> paths(const char*) const;
-    bool checkPath(std::string_view, TGeoNode *);
-    bool checkNode(TGeoNode *);
-    void unCheckNode();
-    void filter(DDSpecParRefs&, std::string_view, std::string_view) const;
-    std::vector<std::string_view> vPathsTo(const DDSpecPar&, unsigned int) const;
-    std::vector<std::string_view> tails(const std::vector<std::string_view>& fullPath) const;
+    //! set current node to the child node in the filtered tree
+    void down();
 
-    DDGeoHistory parents_;
-    
+    //! set current node to the parent node in the filtered tree
+    void up();
+
+    // Shape of current node
+    bool isABox() const;
+    bool isAConeSeg() const;
+    bool isAPseudoTrap() const;
+    bool isATrapezoid() const;
+    bool isATruncTube() const;
+    bool isATubeSeg() const;
+    bool isASubtraction() const;
+
+    // Get shape pointer of current node.
+    // Caller must check that current node matches desired type
+    // before calling this function.
+
+    template <class Shape>
+    const Shape* getShapePtr() const {
+      Volume currVol = node_->GetVolume();
+      return (dynamic_cast<Shape*>(currVol->GetShape()));
+    }
+
+    template <class Shape>
+    bool isA() const {
+      return dd4hep::isA<Shape>(solid());
+    }
+
+    dd4hep::Solid solid() const;
+
+    // Name of current node
+    std::string_view name() const;
+
+    // Copy number of current node
+    unsigned short copyNum() const;
+
+    // Material name of current node
+    std::string_view materialName() const;
+
+    //! extract shape parameters
+    const std::vector<double> parameters() const;
+
+    const cms::DDSolidShape shape() const;
+
+    // Convert new DD4hep shape id to an old DD one
+    LegacySolidShape legacyShape(const cms::DDSolidShape shape) const;
+
+    //! extract attribute value
+    template <typename T>
+    T get(const std::string&) const;
+
+    //! extract attribute value in SpecPar
+    template <typename T>
+    T get(const std::string&, const std::string&) const;
+
+    std::string_view getString(const std::string&) const;
+
+    //! return the stack of sibling numbers which indicates
+    //  the current position in the DDFilteredView
+    nav_type navPos() const;
+
   private:
-    const DDSpecParRegistry* registry_;
-    
-    bool isRegex(std::string_view) const;
-    int contains(std::string_view, std::string_view) const;
-    std::string_view realTopName(std::string_view input) const;
-    int copyNo(std::string_view input) const;
-    std::string_view noCopyNo(std::string_view input) const;
-    std::string_view noNamespace(std::string_view input) const;
-    std::vector<std::string_view> split(std::string_view, const char*) const;
-    bool acceptRegex(std::string_view, std::string_view) const;
-    
-    std::vector<std::string_view> topNodes_;
-    std::vector<std::string_view> nextNodes_;
-    std::vector<std::string_view> afterNextNodes_;
+    bool accept(std::string_view);
+    bool addPath(Node* const);
+    bool addNode(Node* const);
+    const TClass* getShape() const;
 
-    TGeoVolume *topVolume_ = nullptr;
-    TGeoNode *node_ = nullptr;
+    //! set the current node to the first sibling
+    bool firstSibling();
+
+    ExpandedNodes nodes_;
+    std::vector<Iterator> it_;
+    std::vector<std::unique_ptr<Filter>> filters_;
+    Filter* currentFilter_ = nullptr;
+    Node* node_ = nullptr;
+    const DDSpecParRegistry* registry_;
+    DDSpecParRefs refs_;
   };
-}
+}  // namespace cms
 
 #endif

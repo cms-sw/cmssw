@@ -11,7 +11,6 @@ hlxdqmsource = DQMEDAnalyzer('HLXMonitor',
 
     outputFile = cms.untracked.string('DQM'),
     # 2 random data
-    NewRun_Reset = cms.untracked.bool(True),
     HLXDAQIP = cms.untracked.string('vmepcs2f17-19'),
     subSystemName = cms.untracked.string('HLX'),
     XMIN = cms.untracked.double(100.0),

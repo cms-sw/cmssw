@@ -18,29 +18,26 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-
 class CTPPSPixelRawToDigi : public edm::stream::EDProducer<> {
 public:
-
-  explicit CTPPSPixelRawToDigi( const edm::ParameterSet& );
+  explicit CTPPSPixelRawToDigi(const edm::ParameterSet&);
 
   ~CTPPSPixelRawToDigi() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// get data, convert to digis attach againe to Event
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-
   edm::ParameterSet config_;
 
-  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_; 
+  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
 
   std::set<unsigned int> fedIds_;
 
   edm::InputTag label_;
- 
+
   std::string mappingLabel_;
 
   bool includeErrors_;

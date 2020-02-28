@@ -1,3 +1,4 @@
+from builtins import range
 import os
 import FWCore.ParameterSet.Config as cms
 
@@ -10,7 +11,7 @@ def checked_out_MPS():
     git_initialized = False
     try:
         with open(checked_out_packages, "r") as f:
-            packages = ("/Alignment/", "/Alignment/MillePedeAlignmentAlgorithm/")
+            packages = ("/Alignment/", "/Alignment/MillePedeAlignmentAlgorithm/","/*/")
             for line in f:
                 if line.strip() in packages:
                     checked_out = True
@@ -34,7 +35,7 @@ def set_pede_option(process, option, drop = False):
     existing_options = process.AlignmentProducer.algoConfig.pedeSteerer.options
 
     exists = False
-    for i in xrange(len(existing_options)):
+    for i in range(len(existing_options)):
         if existing_options[i].split()[0] == option.split()[0]:
            existing_options[i] = option.strip()
            exists = True

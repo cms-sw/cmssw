@@ -28,33 +28,28 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
 class DetId;
 
 class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
- public:
+public:
   explicit PFCTRecHitProducer(const edm::ParameterSet&);
   ~PFCTRecHitProducer() override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
-				    const edm::EventSetup & es) override;
-  
-  void produce(edm::Event& iEvent, 
-	       const edm::EventSetup& iSetup) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) override;
 
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
-				     double energy,
-				     PFLayer::Layer layer,
-				     const CaloSubdetectorGeometry* geom,
-				     const CaloTowerDetId& newDetId);
+  reco::PFRecHit* createHcalRecHit(const DetId& detid,
+                                   double energy,
+                                   PFLayer::Layer layer,
+                                   const CaloSubdetectorGeometry* geom,
+                                   const CaloTowerDetId& newDetId);
 
-
- protected:
-  double  thresh_Barrel_;
-  double  thresh_Endcap_;
+protected:
+  double thresh_Barrel_;
+  double thresh_Endcap_;
   const HcalChannelQuality* theHcalChStatus;
   const EcalChannelStatus* theEcalChStatus;
   const CaloTowerConstituentsMap* theTowerConstituentsMap;
@@ -64,12 +59,12 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<HBHERecHitCollection> hcalToken_;
   edm::EDGetTokenT<HFRecHitCollection> hfToken_;
   edm::EDGetTokenT<CaloTowerCollection> towersToken_;
-  
-  /// threshold for HF
-  double           thresh_HF_;
 
-  // Navigation in HF:  False = no real clustering in HF; True  = do clustering 
-  bool   navigation_HF_;
+  /// threshold for HF
+  double thresh_HF_;
+
+  // Navigation in HF:  False = no real clustering in HF; True  = do clustering
+  bool navigation_HF_;
   double weight_HFem_;
   double weight_HFhad_;
 
@@ -80,18 +75,18 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
   float HF_Calib_29;
 
   // Don't allow large energy in short fibres if there is no energy in long fibres
-  double shortFibre_Cut;  
+  double shortFibre_Cut;
   double longFibre_Fraction;
 
   // Don't allow large energy in long fibres if there is no energy in short fibres
-  double longFibre_Cut;  
+  double longFibre_Cut;
   double shortFibre_Fraction;
 
   // Also apply HCAL DPG cleaning
   bool applyLongShortDPG_;
 
   // Don't allow too large timing excursion if energy in long/short fibres is large enough
-  double longShortFibre_Cut;  
+  double longShortFibre_Cut;
   double minShortTiming_Cut;
   double maxShortTiming_Cut;
   double minLongTiming_Cut;
@@ -99,10 +94,10 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
 
   bool applyTimeDPG_;
   bool applyPulseDPG_;
-  int  HcalMaxAllowedHFLongShortSev_;
-  int  HcalMaxAllowedHFDigiTimeSev_;
-  int  HcalMaxAllowedHFInTimeWindowSev_;
-  int  HcalMaxAllowedChannelStatusSev_;
+  int HcalMaxAllowedHFLongShortSev_;
+  int HcalMaxAllowedHFDigiTimeSev_;
+  int HcalMaxAllowedHFInTimeWindowSev_;
+  int HcalMaxAllowedChannelStatusSev_;
 
   int hcalHFLongShortFlagValue_;
   int hcalHFDigiTimeFlagValue_;
@@ -118,13 +113,10 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
   double EM_Depth_;
   double HAD_Depth_;
 
-
   int m_maxDepthHB;
   int m_maxDepthHE;
 
   std::unique_ptr<PFRecHitNavigatorBase> navigator_;
-
-
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

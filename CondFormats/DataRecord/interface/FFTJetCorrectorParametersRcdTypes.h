@@ -5,7 +5,7 @@
 //
 // Package:     DataRecord
 // Class  :     FFTJetCorrectorParametersRcdTypes
-// 
+//
 /**\class FFTJetCorrectorParametersRcdTypes FFTJetCorrectorParametersRcdTypes.h CondFormats/DataRecord/interface/FFTJetCorrectorParametersRcdTypes.h
 
  Description: typedefs for FFTJetCorrectorParametersRcd
@@ -25,24 +25,24 @@
 #include "CondFormats/JetMETObjects/interface/FFTJetLUTTypes.h"
 
 typedef FFTJetCorrectorParametersRcd<fftcorrtypes::BasicJet> FFTBasicJetCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::GenJet>   FFTGenJetCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::CaloJet>  FFTCaloJetCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFJet>    FFTPFJetCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::GenJet> FFTGenJetCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::CaloJet> FFTCaloJetCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFJet> FFTPFJetCorrectorParametersRcd;
 typedef FFTJetCorrectorParametersRcd<fftcorrtypes::TrackJet> FFTTrackJetCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::JPTJet>   FFTJPTJetCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS0>   FFTPFCHS0CorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS1>   FFTPFCHS1CorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS2>   FFTPFCHS2CorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::JPTJet> FFTJPTJetCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS0> FFTPFCHS0CorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS1> FFTPFCHS1CorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS2> FFTPFCHS2CorrectorParametersRcd;
 
 typedef FFTJetCorrectorParametersRcd<fftcorrtypes::BasicJetSys> FFTBasicJetSysCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::GenJetSys>   FFTGenJetSysCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::CaloJetSys>  FFTCaloJetSysCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFJetSys>    FFTPFJetSysCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::GenJetSys> FFTGenJetSysCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::CaloJetSys> FFTCaloJetSysCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFJetSys> FFTPFJetSysCorrectorParametersRcd;
 typedef FFTJetCorrectorParametersRcd<fftcorrtypes::TrackJetSys> FFTTrackJetSysCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::JPTJetSys>   FFTJPTJetSysCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS0Sys>   FFTPFCHS0SysCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS1Sys>   FFTPFCHS1SysCorrectorParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS2Sys>   FFTPFCHS2SysCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::JPTJetSys> FFTJPTJetSysCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS0Sys> FFTPFCHS0SysCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS1Sys> FFTPFCHS1SysCorrectorParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftcorrtypes::PFCHS2Sys> FFTPFCHS2SysCorrectorParametersRcd;
 
 typedef FFTJetCorrectorParametersRcd<fftcorrtypes::Gen0> FFTGen0CorrectorParametersRcd;
 typedef FFTJetCorrectorParametersRcd<fftcorrtypes::Gen1> FFTGen1CorrectorParametersRcd;
@@ -100,16 +100,16 @@ typedef FFTJetCorrectorParametersRcd<fftcorrtypes::CHS9Sys> FFTCHS9SysCorrectorP
 typedef FFTJetCorrectorParametersRcd<fftluttypes::EtaFlatteningFactors> FFTEtaFlatteningFactorsParametersRcd;
 typedef FFTJetCorrectorParametersRcd<fftluttypes::PileupRhoCalibration> FFTPileupRhoCalibrationParametersRcd;
 typedef FFTJetCorrectorParametersRcd<fftluttypes::PileupRhoEtaDependence> FFTPileupRhoEtaDependenceParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT0>  FFTLUT0ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT1>  FFTLUT1ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT2>  FFTLUT2ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT3>  FFTLUT3ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT4>  FFTLUT4ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT5>  FFTLUT5ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT6>  FFTLUT6ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT7>  FFTLUT7ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT8>  FFTLUT8ParametersRcd;
-typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT9>  FFTLUT9ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT0> FFTLUT0ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT1> FFTLUT1ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT2> FFTLUT2ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT3> FFTLUT3ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT4> FFTLUT4ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT5> FFTLUT5ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT6> FFTLUT6ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT7> FFTLUT7ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT8> FFTLUT8ParametersRcd;
+typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT9> FFTLUT9ParametersRcd;
 typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT10> FFTLUT10ParametersRcd;
 typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT11> FFTLUT11ParametersRcd;
 typedef FFTJetCorrectorParametersRcd<fftluttypes::LUT12> FFTLUT12ParametersRcd;

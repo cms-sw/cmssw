@@ -9,8 +9,8 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MonPedestalsDat : public IDataItem {
- public:
-  friend class EcalCondDBInterface; // XXX temp should not need
+public:
+  friend class EcalCondDBInterface;  // XXX temp should not need
   MonPedestalsDat();
   ~MonPedestalsDat() override;
 
@@ -38,20 +38,14 @@ class MonPedestalsDat : public IDataItem {
   inline void setTaskStatus(bool status) { m_taskStatus = status; }
   inline bool getTaskStatus() const { return m_taskStatus; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MonPedestalsDat* item, MonRunIOV* iov)
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MonPedestalsDat* item, MonRunIOV* iov) noexcept(false);
 
+  void writeArrayDB(const std::map<EcalLogicID, MonPedestalsDat>* data, MonRunIOV* iov) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, MonPedestalsDat>* data, MonRunIOV* iov)
-  noexcept(false);
-
-
-  void fetchData(std::map< EcalLogicID, MonPedestalsDat >* fillMap, MonRunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, MonPedestalsDat>* fillMap, MonRunIOV* iov) noexcept(false);
 
   // User data
   float m_pedMeanG1;

@@ -50,76 +50,71 @@ class L1MuBMLUTHandler;
 //              ---------------------
 
 class L1MuBMAssignmentUnit : public L1AbstractProcessor {
+public:
+  /// constructor
+  L1MuBMAssignmentUnit(L1MuBMSectorProcessor& sp, int id);
 
-  public:
+  /// destructor
+  ~L1MuBMAssignmentUnit() override;
 
-    /// constructor
-    L1MuBMAssignmentUnit(L1MuBMSectorProcessor& sp, int id );
+  /// run Assignment Unit
+  void run(const edm::EventSetup& c) override;
 
-    /// destructor
-    ~L1MuBMAssignmentUnit() override;
+  /// reset Assignment Unit
+  void reset() override;
 
-    /// run Assignment Unit
-    void run(const edm::EventSetup& c) override;
+  /// assign phi
+  void PhiAU(const edm::EventSetup& c);
 
-    /// reset Assignment Unit
-    void reset() override;
+  /// assign pt and charge
+  void PtAU(const edm::EventSetup& c);
 
-    /// assign phi
-    void PhiAU(const edm::EventSetup& c);
+  /// assign quality
+  void QuaAU();
+  unsigned int Quality();
 
-    /// assign pt and charge
-    void PtAU(const edm::EventSetup& c);
+  /// set precision of phi and phib
+  static void setPrecision();
 
-    /// assign quality
-    void QuaAU();
-    unsigned int Quality();
+private:
+  /// Track Segment Router
+  void TSR();
 
-    /// set precision of phi and phib
-    static void setPrecision();
+  /// get track segment from a given station
+  const L1MuBMTrackSegPhi* getTSphi(int station) const;
 
-  private:
+  /// convert sector Id to 8 bit code (= sector center)
+  static int convertSector(int);
 
-    /// Track Segment Router
-    void TSR();
+  /// determine charge
+  static int getCharge(L1MuBMLUTHandler::PtAssMethod);
 
-    /// get track segment from a given station
-    const L1MuBMTrackSegPhi* getTSphi(int station) const;
+  /// determine pt assignment method
+  L1MuBMLUTHandler::PtAssMethod getPtMethod() const;
+  L1MuBMLUTHandler::PtAssMethod getPt1Method(L1MuBMLUTHandler::PtAssMethod) const;
+  L1MuBMLUTHandler::PtAssMethod getPt2Method(L1MuBMLUTHandler::PtAssMethod) const;
 
-    /// convert sector Id to 8 bit code (= sector center)
-    static int convertSector(int);
+  /// calculate bend angle
+  int getPtAddress(L1MuBMLUTHandler::PtAssMethod, int bendcharge = 0) const;
+  int getPt1Address(L1MuBMLUTHandler::PtAssMethod) const;
+  int getPt2Address(L1MuBMLUTHandler::PtAssMethod) const;
 
-    /// determine charge
-    static int getCharge(L1MuBMLUTHandler::PtAssMethod);
+  /// build difference of two phi values
+  int phiDiff(int stat1, int stat2) const;
 
-    /// determine pt assignment method
-    L1MuBMLUTHandler::PtAssMethod getPtMethod() const;
-    L1MuBMLUTHandler::PtAssMethod getPt1Method(L1MuBMLUTHandler::PtAssMethod) const;
-    L1MuBMLUTHandler::PtAssMethod getPt2Method(L1MuBMLUTHandler::PtAssMethod) const;
+private:
+  L1MuBMSectorProcessor& m_sp;
+  int m_id;
 
-    /// calculate bend angle
-    int getPtAddress(L1MuBMLUTHandler::PtAssMethod, int bendcharge=0) const;
-    int getPt1Address(L1MuBMLUTHandler::PtAssMethod) const;
-    int getPt2Address(L1MuBMLUTHandler::PtAssMethod) const;
+  L1MuBMAddressArray m_addArray;
+  std::vector<const L1MuBMTrackSegPhi*> m_TSphi;
+  L1MuBMLUTHandler::PtAssMethod m_ptAssMethod;
 
-    /// build difference of two phi values
-    int phiDiff(int stat1, int stat2) const;
-
-  private:
-
-    L1MuBMSectorProcessor& m_sp;
-    int                    m_id;
-
-    L1MuBMAddressArray                    m_addArray;
-    std::vector<const L1MuBMTrackSegPhi*> m_TSphi;
-    L1MuBMLUTHandler::PtAssMethod         m_ptAssMethod;
-
-    edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
-    L1MuBMLUTHandler  *thePtaLUTs;  ///< pt-assignment look-up tables
-    L1MuBMLUTHandler  *thePhiLUTs;  ///< phi-assignment look-up tables
-    static unsigned short      nbit_phi;       ///< # of bits used for pt-assignment
-    static unsigned short      nbit_phib;      ///< # of bits used for pt-assignment
-
+  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle;
+  L1MuBMLUTHandler* thePtaLUTs;     ///< pt-assignment look-up tables
+  L1MuBMLUTHandler* thePhiLUTs;     ///< phi-assignment look-up tables
+  static unsigned short nbit_phi;   ///< # of bits used for pt-assignment
+  static unsigned short nbit_phib;  ///< # of bits used for pt-assignment
 };
 
 #endif

@@ -1,11 +1,13 @@
 ### THIS CFF IS DEPRECATED!!!! ###
 # please use MagneticField_cff.py instead
 
-# Run 2 field map configuration for 3.8T, version 120812.
-import FWCore.ParameterSet.Config as cms
-from MagneticField.Engine.volumeBasedMagneticField_120812_largeYE4_cfi import *
+from __future__ import print_function
+print(" ##################################################################### ")  
+print(" # WARNING: the module                                               # ")
+print(" #  Configuration.StandardSequences.MagneticField_38T_PostLS1_cff    # ")
+print(" # is deprecated. Please import                                      # ")
+print(" #  Configuration.StandardSequences.MagneticField_cff                # ")                                                                             
+print(" ##################################################################### ")
 
-# Parabolic parametrized magnetic field used for track building
-from MagneticField.ParametrizedEngine.ParabolicParametrizedField_cfi import ParametrizedMagneticFieldProducer as ParabolicParametrizedMagneticFieldProducer
-ParabolicParametrizedMagneticFieldProducer.label = "ParabolicMf"
+from Configuration.StandardSequences.MagneticField_38T_cff import *
 

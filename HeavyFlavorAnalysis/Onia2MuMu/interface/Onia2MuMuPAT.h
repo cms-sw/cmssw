@@ -1,7 +1,6 @@
 #ifndef HeavyFlavorAnalysis_Onia2MuMu_Onia2MuMuPAT_h
 #define HeavyFlavorAnalysis_Onia2MuMu_Onia2MuMuPAT_h
 
-
 // system include files
 #include <memory>
 
@@ -22,41 +21,37 @@
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-template<typename T>
+template <typename T>
 struct GreaterByVProb {
-  bool operator()( const T & t1, const T & t2 ) const {
-    return t1.userFloat("vProb") > t2.userFloat("vProb");
-  }
+  bool operator()(const T& t1, const T& t2) const { return t1.userFloat("vProb") > t2.userFloat("vProb"); }
 };
-
 
 //
 // class decleration
 //
 
 class Onia2MuMuPAT : public edm::EDProducer {
- public:
+public:
   explicit Onia2MuMuPAT(const edm::ParameterSet&);
   ~Onia2MuMuPAT() override;
 
- private:
-  void beginJob() override ;
+private:
+  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
   bool isAbHadron(int pdgID);
   bool isAMixedbHadron(int pdgID, int momPdgID);
   std::pair<int, float> findJpsiMCInfo(reco::GenParticleRef genJpsi);
 
   // ----------member data ---------------------------
- private:
-  
+private:
   edm::EDGetTokenT<edm::View<pat::Muon>> muons_;
   edm::EDGetTokenT<reco::BeamSpot> thebeamspot_;
   edm::EDGetTokenT<reco::VertexCollection> thePVs_;
   edm::EDGetTokenT<reco::TrackCollection> revtxtrks_;
   edm::EDGetTokenT<reco::BeamSpot> revtxbs_;
   StringCutObjectSelector<pat::Muon> higherPuritySelection_;
-  StringCutObjectSelector<pat::Muon> lowerPuritySelection_; 
+  StringCutObjectSelector<pat::Muon> lowerPuritySelection_;
   StringCutObjectSelector<reco::Candidate, true> dimuonSelection_;
   bool addCommonVertex_, addMuonlessPrimaryVertex_;
   bool resolveAmbiguity_;
@@ -64,13 +59,11 @@ class Onia2MuMuPAT : public edm::EDProducer {
   GreaterByVProb<pat::CompositeCandidate> vPComparator_;
 
   InvariantMassFromVertex massCalculator;
-
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions

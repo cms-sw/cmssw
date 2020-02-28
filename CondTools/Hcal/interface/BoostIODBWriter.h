@@ -5,7 +5,7 @@
 //
 // Package:    CondTools/Hcal
 // Class:      BoostIODBWriter
-// 
+//
 /**\class BoostIODBWriter BoostIODBWriter.h CondTools/Hcal/interface/BoostIODBWriter.h
 
  Description: writes a boost I/O blob from a file into a database
@@ -40,51 +40,41 @@
 //
 // class declaration
 //
-template<class DataType>
-class BoostIODBWriter : public edm::EDAnalyzer
-{
+template <class DataType>
+class BoostIODBWriter : public edm::EDAnalyzer {
 public:
-    typedef DataType data_type;
+  typedef DataType data_type;
 
-    explicit BoostIODBWriter(const edm::ParameterSet&);
-    inline ~BoostIODBWriter() override {}
+  explicit BoostIODBWriter(const edm::ParameterSet&);
+  inline ~BoostIODBWriter() override {}
 
 private:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    std::string inputFile_;
-    std::string record_;
+  std::string inputFile_;
+  std::string record_;
 };
 
-template<class DataType>
+template <class DataType>
 BoostIODBWriter<DataType>::BoostIODBWriter(const edm::ParameterSet& ps)
-    : inputFile_(ps.getParameter<std::string>("inputFile")),
-      record_(ps.getParameter<std::string>("record"))
-{
+    : inputFile_(ps.getParameter<std::string>("inputFile")), record_(ps.getParameter<std::string>("record")) {}
+
+template <class DataType>
+void BoostIODBWriter<DataType>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::ifstream is(inputFile_.c_str(), std::ios_base::binary);
+  if (!is.is_open())
+    throw cms::Exception("InvalidArgument") << "Failed to open file \"" << inputFile_ << '"' << std::endl;
+
+  std::unique_ptr<DataType> datum(new DataType());
+  eos::portable_iarchive ar(is);
+  ar&* datum;
+
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if (poolDbService.isAvailable())
+    poolDbService->writeOne(datum.release(), poolDbService->currentTime(), record_);
+  else
+    throw cms::Exception("ConfigurationError") << "PoolDBOutputService is not available, "
+                                               << "please configure it properly" << std::endl;
 }
 
-template<class DataType>
-void BoostIODBWriter<DataType>::analyze(const edm::Event& iEvent,
-                                        const edm::EventSetup& iSetup)
-{
-    std::ifstream is(inputFile_.c_str(), std::ios_base::binary);
-    if (!is.is_open())
-        throw cms::Exception("InvalidArgument")
-            << "Failed to open file \"" << inputFile_ << '"' << std::endl;
-
-    std::unique_ptr<DataType> datum(new DataType());
-    eos::portable_iarchive ar(is);
-    ar & *datum;
-
-    edm::Service<cond::service::PoolDBOutputService> poolDbService;
-    if (poolDbService.isAvailable())
-        poolDbService->writeOne(datum.release(),
-                                poolDbService->currentTime(),
-                                record_);
-    else
-        throw cms::Exception("ConfigurationError")
-            << "PoolDBOutputService is not available, "
-            << "please configure it properly" << std::endl;
-}
-
-#endif // CondTools_Hcal_BoostIODBWriter_h
+#endif  // CondTools_Hcal_BoostIODBWriter_h

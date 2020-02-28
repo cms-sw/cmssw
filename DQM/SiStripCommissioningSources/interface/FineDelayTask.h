@@ -9,23 +9,17 @@
    @class FineDelayTask
 */
 class FineDelayTask : public CommissioningTask {
-
- public:
-  
-  FineDelayTask( DQMStore*, const FedChannelConnection& );
+public:
+  FineDelayTask(DQMStore*, const FedChannelConnection&);
   ~FineDelayTask() override;
-  
- private:
 
+private:
   void book() override;
-  void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) override;
+  void fill(const SiStripEventSummary&, const edm::DetSet<SiStripRawDigi>&) override;
   void update() override;
-  
-  static HistoSet timing_;
-  static MonitorElement * mode_;
 
+  static HistoSet timing_;
+  static MonitorElement* mode_;
 };
 
-#endif // DQM_SiStripCommissioningSources_FineDelayTask_h
-
+#endif  // DQM_SiStripCommissioningSources_FineDelayTask_h

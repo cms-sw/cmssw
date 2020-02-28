@@ -26,34 +26,26 @@
 // forward declarations
 
 class FWExpressionException {
-
 public:
-   FWExpressionException(const std::string& iWhat, long iColumn) :
-      m_what(iWhat), m_column(iColumn) {
-   }
-   //virtual ~FWExpressionException();
+  FWExpressionException(const std::string& iWhat, long iColumn) : m_what(iWhat), m_column(iColumn) {}
+  //virtual ~FWExpressionException();
 
-   // ---------- const member functions ---------------------
-   const std::string& what() const {
-      return m_what;
-   }
+  // ---------- const member functions ---------------------
+  const std::string& what() const { return m_what; }
 
-   long column() const {
-      return m_column;
-   }
-   // ---------- static member functions --------------------
+  long column() const { return m_column; }
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
 private:
-   //FWExpressionException(const FWExpressionException&); // stop default
+  //FWExpressionException(const FWExpressionException&); // stop default
 
-   //const FWExpressionException& operator=(const FWExpressionException&); // stop default
+  //const FWExpressionException& operator=(const FWExpressionException&); // stop default
 
-   // ---------- member data --------------------------------
-   std::string m_what;
-   long m_column;
+  // ---------- member data --------------------------------
+  std::string m_what;
+  long m_column;
 };
-
 
 #endif

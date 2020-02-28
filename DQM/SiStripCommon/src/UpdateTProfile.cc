@@ -3,42 +3,40 @@
 #include <iostream>
 #include <cmath>
 
+// -----------------------------------------------------------------------------
+/** */
+UpdateTProfile::UpdateTProfile() { ; }
 
 // -----------------------------------------------------------------------------
 /** */
-UpdateTProfile::UpdateTProfile() {;}
+UpdateTProfile::~UpdateTProfile() { ; }
 
 // -----------------------------------------------------------------------------
 /** */
-UpdateTProfile::~UpdateTProfile() {;}
-
-// -----------------------------------------------------------------------------
-/** */
-void UpdateTProfile::setBinContents( TProfile* const prof,
-				     const uint32_t& bin, 
-				     const double& num_of_entries, 
-				     const double& sum_of_contents,
-				     const double& sum_of_squares ) {
+void UpdateTProfile::setBinContents(TProfile* const prof,
+                                    const uint32_t& bin,
+                                    const double& num_of_entries,
+                                    const double& sum_of_contents,
+                                    const double& sum_of_squares) {
   //   std::cout << "[UpdateTProfile::setBinContents]" << std::endl;
-  
+
   double mean = 0.;
   double spread = 0.;
-  if ( num_of_entries ) { 
+  if (num_of_entries) {
     mean = sum_of_contents / num_of_entries;
-    spread = sqrt( sum_of_squares/ num_of_entries - mean * mean ); 
+    spread = sqrt(sum_of_squares / num_of_entries - mean * mean);
   }
-   
-//   LogTrace("TEST")
-//     << "[UpdateTProfile::setBinContents]"
-//     << " bin: " << bin
-//     << " entries: " << num_of_entries
-//     << " contents: " << sum_of_contents
-//     << " squared: " << sum_of_squares
-//     << " mean: " << mean
-//     << " spread: " << spread;
-  
-  UpdateTProfile::setBinContent( prof, bin, num_of_entries, mean, spread );
-  
+
+  //   LogTrace("TEST")
+  //     << "[UpdateTProfile::setBinContents]"
+  //     << " bin: " << bin
+  //     << " entries: " << num_of_entries
+  //     << " contents: " << sum_of_contents
+  //     << " squared: " << sum_of_squares
+  //     << " mean: " << mean
+  //     << " spread: " << spread;
+
+  UpdateTProfile::setBinContent(prof, bin, num_of_entries, mean, spread);
 }
 
 // -----------------------------------------------------------------------------
@@ -79,31 +77,30 @@ void UpdateTProfile::setBinContents( TProfile* const prof,
     and "mean" = sum / num
 
 */
-void UpdateTProfile::setBinContent( TProfile* const prof,
-				    const uint32_t& bin, 
-				    const double& num_of_entries, 
-				    const double& mean,
-				    const double& spread ) {
+void UpdateTProfile::setBinContent(
+    TProfile* const prof, const uint32_t& bin, const double& num_of_entries, const double& mean, const double& spread) {
   //   std::cout << "[UpdateTProfile::setBinContents]" << std::endl;
 
   // Check histo exists
-  if ( !prof ) {
+  if (!prof) {
     std::cerr << "[UpdateTProfile::setBinContents]"
-	 << " NULL pointer to TProfile object!" << std::endl;
+              << " NULL pointer to TProfile object!" << std::endl;
     return;
   }
 
   // Check bin number is valid
-  if ( bin == 0 || bin > static_cast<uint32_t>(prof->GetNbinsX()) ) {
+  if (bin == 0 || bin > static_cast<uint32_t>(prof->GetNbinsX())) {
     std::cerr << "[UpdateTProfile::setBinContents]"
-	 << " Unexpected bin number!" << std::endl;
+              << " Unexpected bin number!" << std::endl;
     return;
   }
 
   // Check entries are present
-  if ( num_of_entries <= 0. ) { return; } //@@ what about negative weights???
+  if (num_of_entries <= 0.) {
+    return;
+  }  //@@ what about negative weights???
   double entries = num_of_entries;
-  
+
   // Check error option
   const char* spread_option = "s";
   const char* default_option = "";
@@ -117,34 +114,34 @@ void UpdateTProfile::setBinContent( TProfile* const prof,
 
   // Calculate "weight" used for SetBinError() method
   double weight;
-  if ( error_option[0] == spread_option[0] ) {
-    weight = sqrt( mean*mean*entries + spread*spread*entries  );
-  } else if (error_option[0] == default_option[0] ) {
-    weight = sqrt( mean*mean*entries + spread*spread*entries*entries );
-  } else { 
+  if (error_option[0] == spread_option[0]) {
+    weight = sqrt(mean * mean * entries + spread * spread * entries);
+  } else if (error_option[0] == default_option[0]) {
+    weight = sqrt(mean * mean * entries + spread * spread * entries * entries);
+  } else {
     std::cerr << "[UpdateTProfile::setBinContents]"
-	 << " Unexpected error option for TProfile!" << std::endl;
-    weight = 0.; 
+              << " Unexpected error option for TProfile!" << std::endl;
+    weight = 0.;
   }
-  
+
   // Set bin entries, contents and error
-  prof->SetBinEntries( bin, entries );
-  prof->SetBinContent( bin, mean * entries );
-  prof->SetBinError( bin, weight );
- 
-//   LogTrace("TEST")
-//     << "[UpdateTProfile::" << __func__ << "]"
-//     << " bin/entries/mean/content/error: " 
-//     << bin << "/"
-//     << entries << "/"
-//     << mean << "/"
-//     << mean*entries << "/"
-//     << weight;
+  prof->SetBinEntries(bin, entries);
+  prof->SetBinContent(bin, mean * entries);
+  prof->SetBinError(bin, weight);
 
-  // Set total number of entries 
-  if ( bin == 1 ) { prof->SetEntries( entries ); }
-  else { prof->SetEntries( prof->GetEntries() + entries ); }
-  
+  //   LogTrace("TEST")
+  //     << "[UpdateTProfile::" << __func__ << "]"
+  //     << " bin/entries/mean/content/error: "
+  //     << bin << "/"
+  //     << entries << "/"
+  //     << mean << "/"
+  //     << mean*entries << "/"
+  //     << weight;
+
+  // Set total number of entries
+  if (bin == 1) {
+    prof->SetEntries(entries);
+  } else {
+    prof->SetEntries(prof->GetEntries() + entries);
+  }
 }
-
-

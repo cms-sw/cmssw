@@ -3,13 +3,13 @@
 
 // -*- C++ -*-
 //
-// 
+//
 /*
  Description: This is a CaloTowers client meant to plot calotowers quantities 
 */
 
 //
-// Originally create by: Hongxuan Liu 
+// Originally create by: Hongxuan Liu
 //                        May 2010
 //
 
@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -28,15 +28,11 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-class MonitorElement;
-
 class CaloTowersClient : public DQMEDHarvester {
- 
- private:
+private:
   std::string outputFile_;
 
   edm::ParameterSet conf_;
@@ -48,15 +44,14 @@ class CaloTowersClient : public DQMEDHarvester {
   std::string dirNameJet_;
   std::string dirNameMET_;
 
- public:
-  explicit CaloTowersClient(const edm::ParameterSet& );
+public:
+  explicit CaloTowersClient(const edm::ParameterSet &);
   ~CaloTowersClient() override;
-  
+
   void beginJob(void) override;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
-  int CaloTowersEndjob(const std::vector<MonitorElement*> &hcalMEs);
-
+  int CaloTowersEndjob(const std::vector<MonitorElement *> &hcalMEs);
 };
- 
+
 #endif

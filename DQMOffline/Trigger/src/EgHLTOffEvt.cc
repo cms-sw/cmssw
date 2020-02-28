@@ -2,8 +2,7 @@
 
 using namespace egHLT;
 
-void OffEvt::clear()
-{
+void OffEvt::clear() {
   jets_.clear();
   eles_.clear();
   phos_.clear();

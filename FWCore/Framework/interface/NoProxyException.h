@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Module:      NoProxyException
-// 
+//
 /**\class NoProxyException NoProxyException.h FWCore/Framework/interface/NoProxyException.h
 
  Description: An exception that is thrown whenever proxy was not available
@@ -26,25 +26,21 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-template <class T>
-class NoProxyException : public NoDataException<T>
-{
+  namespace eventsetup {
+    template <class T>
+    class NoProxyException : public NoDataException<T> {
       // ---------- friend classes and functions ---------------
 
-   public:
+    public:
       // ---------- constants, enums and typedefs --------------
 
       // ---------- Constructors and destructor ----------------
-      NoProxyException(const EventSetupRecordKey& iKey,
-			  const DataKey& iDataKey) :
-       NoDataException<T>(iKey, iDataKey,"NoProxyException",NoDataExceptionBase::noProxyMessage()) 
-       {
-       }
+      NoProxyException(const EventSetupRecordKey& iKey, const DataKey& iDataKey)
+          : NoDataException<T>(iKey, iDataKey, "NoProxyException", NoDataExceptionBase::noProxyMessage()) {}
 
       // ---------- member functions ---------------------------
 
-   private:
+    private:
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
@@ -54,10 +50,10 @@ class NoProxyException : public NoDataException<T>
 
       //const NoProxyException& operator=(const NoProxyException&); // allow default
 
-      // ---------- data members -------------------------------      
-};
-   }
-}
+      // ---------- data members -------------------------------
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 // inline function definitions
 
 #endif

@@ -39,10 +39,8 @@ namespace edm {
   class TriggerResults;
 
   namespace service {
-    class TriggerNamesService
-    {
+    class TriggerNamesService {
     public:
-
       typedef std::vector<std::string> Strings;
       typedef std::map<std::string, unsigned int> PosMap;
       typedef PosMap::size_type size_type;
@@ -55,8 +53,8 @@ namespace edm {
       // Return the number of trigger paths in the current process.
       size_type size() const { return trignames_.size(); }
       Strings const& getTrigPaths() const { return trignames_; }
-      std::string const&  getTrigPath(size_type const i) const { return trignames_.at(i);}
-      size_type  findTrigPath(std::string const& name) const { return find(trigpos_,name);}
+      std::string const& getTrigPath(size_type const i) const { return trignames_.at(i); }
+      size_type findTrigPath(std::string const& name) const { return find(trigpos_, name); }
 
       // Get the ordered vector of trigger names that corresponds to the bits
       // in the TriggerResults object.  Unlike the other functions in this class,
@@ -65,54 +63,45 @@ namespace edm {
       // works for modules in end paths, because the TriggerResults object is
       // not created until the normal paths complete execution.
       // Returns false if it fails to find the trigger path names.
-      bool getTrigPaths(TriggerResults const& triggerResults,
-                        Strings& trigPaths);
+      bool getTrigPaths(TriggerResults const& triggerResults, Strings& trigPaths);
 
       // This is the same as the previous function except the value returned in
       // the last argument indicates whether the results were retrieved from the
       // ParameterSet registry.  This will always be true except in old data where
       // the trigger names were stored inside of the TriggerResults object.
-      bool getTrigPaths(TriggerResults const& triggerResults,
-                        Strings& trigPaths,
-                        bool& fromPSetRegistry);
+      bool getTrigPaths(TriggerResults const& triggerResults, Strings& trigPaths, bool& fromPSetRegistry);
 
       Strings const& getEndPaths() const { return end_names_; }
-      std::string const&  getEndPath(size_type const i) const { return end_names_.at(i);}
-      size_type  findEndPath(std::string const& name) const { return find(end_pos_,name);}
+      std::string const& getEndPath(size_type const i) const { return end_names_.at(i); }
+      size_type findEndPath(std::string const& name) const { return find(end_pos_, name); }
 
-      Strings const& getTrigPathModules(std::string const& name) const {
-	return modulenames_.at(find(trigpos_,name));
+      Strings const& getTrigPathModules(std::string const& name) const { return modulenames_.at(find(trigpos_, name)); }
+      Strings const& getTrigPathModules(size_type const i) const { return modulenames_.at(i); }
+      std::string const& getTrigPathModule(std::string const& name, size_type const j) const {
+        return (modulenames_.at(find(trigpos_, name))).at(j);
       }
-      Strings const& getTrigPathModules(size_type const i) const {
-	return modulenames_.at(i);
-      }
-      std::string const&  getTrigPathModule (std::string const& name, size_type const j) const {
-	return (modulenames_.at(find(trigpos_,name))).at(j);
-      }
-      std::string const&  getTrigPathModule (size_type const i, size_type const j) const {
-	return (modulenames_.at(i)).at(j);
+      std::string const& getTrigPathModule(size_type const i, size_type const j) const {
+        return (modulenames_.at(i)).at(j);
       }
 
       Strings const& getEndPathModules(std::string const& name) const {
-	return end_modulenames_.at(find(end_pos_,name));
+        return end_modulenames_.at(find(end_pos_, name));
       }
-      Strings const& getEndPathModules(size_type const i) const {
-	return end_modulenames_.at(i);
+      Strings const& getEndPathModules(size_type const i) const { return end_modulenames_.at(i); }
+      std::string const& getEndPathModule(std::string const& name, size_type const j) const {
+        return (end_modulenames_.at(find(end_pos_, name))).at(j);
       }
-      std::string const&  getEndPathModule (std::string const& name, size_type const j) const {
-	return (end_modulenames_.at(find(end_pos_,name))).at(j);
-      }
-      std::string const&  getEndPathModule (size_type const i, size_type const j) const {
-	return (end_modulenames_.at(i)).at(j);
+      std::string const& getEndPathModule(size_type const i, size_type const j) const {
+        return (end_modulenames_.at(i)).at(j);
       }
 
-      size_type find (PosMap const& posmap, std::string const& name) const {
-	PosMap::const_iterator const pos(posmap.find(name));
+      size_type find(PosMap const& posmap, std::string const& name) const {
+        PosMap::const_iterator const pos(posmap.find(name));
         if (pos == posmap.end()) {
-	  return posmap.size();
-	} else {
+          return posmap.size();
+        } else {
           return pos->second;
-	}
+        }
       }
 
       std::string const& getProcessName() const { return process_name_; }
@@ -122,28 +111,27 @@ namespace edm {
       edm::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
 
     private:
-
       void loadPosMap(PosMap& posmap, Strings const& names) {
         size_type const n(names.size());
-	for (size_type i = 0; i != n; ++i) {
-	  posmap[names[i]] = i;
-	}
+        for (size_type i = 0; i != n; ++i) {
+          posmap[names[i]] = i;
+        }
       }
 
       edm::ParameterSet trigger_pset_;
 
       Strings trignames_;
-      PosMap  trigpos_;
+      PosMap trigpos_;
       Strings end_names_;
-      PosMap  end_pos_;
+      PosMap end_pos_;
 
-      std::vector<Strings> modulenames_;        // modules on trigger paths
-      std::vector<Strings> end_modulenames_;    // modules on endpaths
+      std::vector<Strings> modulenames_;      // modules on trigger paths
+      std::vector<Strings> end_modulenames_;  // modules on endpaths
 
       std::string process_name_;
       bool wantSummary_;
     };
-  }
-}
+  }  // namespace service
+}  // namespace edm
 
 #endif

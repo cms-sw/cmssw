@@ -31,49 +31,43 @@
 // forward declarations
 
 // constructor(s)
-L1GtBoardMapsTester::L1GtBoardMapsTester(const edm::ParameterSet& parSet)
-{
-    // empty
+L1GtBoardMapsTester::L1GtBoardMapsTester(const edm::ParameterSet& parSet) {
+  // empty
 }
 
 // destructor
-L1GtBoardMapsTester::~L1GtBoardMapsTester()
-{
-    // empty
+L1GtBoardMapsTester::~L1GtBoardMapsTester() {
+  // empty
 }
 
 // loop over events
-void L1GtBoardMapsTester::analyze(
-    const edm::Event& iEvent, const edm::EventSetup& evSetup)
-{
+void L1GtBoardMapsTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1GtBoardMaps> l1GtBM;
+  evSetup.get<L1GtBoardMapsRcd>().get(l1GtBM);
 
+  l1GtBM->print(std::cout);
+  std::cout << std::endl;
 
-    edm::ESHandle< L1GtBoardMaps > l1GtBM ;
-    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM ) ;
+  // print for simplicity the individual maps
 
-    l1GtBM->print(std::cout);
-    std::cout << std::endl;
+  l1GtBM->printGtDaqRecordMap(std::cout);
+  std::cout << std::endl;
 
-    // print for simplicity the individual maps
+  l1GtBM->printGtEvmRecordMap(std::cout);
+  std::cout << std::endl;
 
-    l1GtBM->printGtDaqRecordMap(std::cout);
-    std::cout << std::endl;
+  l1GtBM->printGtDaqActiveBoardsMap(std::cout);
+  std::cout << std::endl;
 
-    l1GtBM->printGtEvmRecordMap(std::cout);
-    std::cout << std::endl;
+  l1GtBM->printGtEvmActiveBoardsMap(std::cout);
+  std::cout << std::endl;
 
-    l1GtBM->printGtDaqActiveBoardsMap(std::cout);
-    std::cout << std::endl;
+  l1GtBM->printGtBoardSlotMap(std::cout);
+  std::cout << std::endl;
 
-    l1GtBM->printGtEvmActiveBoardsMap(std::cout);
-    std::cout << std::endl;
+  l1GtBM->printGtBoardHexNameMap(std::cout);
+  std::cout << std::endl;
 
-    l1GtBM->printGtBoardSlotMap(std::cout);
-    std::cout << std::endl;
-
-    l1GtBM->printGtBoardHexNameMap(std::cout);
-    std::cout << std::endl;
-
-    l1GtBM->printGtQuadToPsbMap(std::cout);
-    std::cout << std::endl;
+  l1GtBM->printGtQuadToPsbMap(std::cout);
+  std::cout << std::endl;
 }

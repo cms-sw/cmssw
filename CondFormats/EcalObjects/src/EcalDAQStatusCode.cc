@@ -6,16 +6,11 @@
 
 #include "CondFormats/EcalObjects/interface/EcalDAQStatusCode.h"
 
-EcalDAQStatusCode::EcalDAQStatusCode() {
-  status_ = 0;
-}
+EcalDAQStatusCode::EcalDAQStatusCode() { status_ = 0; }
 
-EcalDAQStatusCode::EcalDAQStatusCode(const EcalDAQStatusCode & ratio) {
-  status_ = ratio.status_;
-}
+EcalDAQStatusCode::EcalDAQStatusCode(const EcalDAQStatusCode& ratio) { status_ = ratio.status_; }
 
-EcalDAQStatusCode::~EcalDAQStatusCode() {
-}
+EcalDAQStatusCode::~EcalDAQStatusCode() {}
 
 EcalDAQStatusCode& EcalDAQStatusCode::operator=(const EcalDAQStatusCode& rhs) {
   status_ = rhs.status_;

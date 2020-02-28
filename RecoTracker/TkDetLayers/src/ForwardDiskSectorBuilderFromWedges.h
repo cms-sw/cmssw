@@ -14,19 +14,15 @@
 #pragma GCC visibility push(hidden)
 class ForwardDiskSectorBuilderFromWedges {
 public:
-
   /// Warning, remember to assign this pointer to a ReferenceCountingPointer!
   /// Should be changed to return a ReferenceCountingPointer<BoundDisk>
-  BoundDiskSector* operator()( const std::vector<const TECWedge*>& wedges) const;
+  BoundDiskSector* operator()(const std::vector<const TECWedge*>& wedges) const;
 
-private:  
-  std::pair<DiskSectorBounds*, GlobalVector>
-  computeBounds( const std::vector<const TECWedge*>& wedges) const;
+private:
+  std::pair<DiskSectorBounds*, GlobalVector> computeBounds(const std::vector<const TECWedge*>& wedges) const;
 
-  Surface::RotationType
-  computeRotation( const std::vector<const TECWedge*>& wedges, Surface::PositionType pos) const;
-
+  Surface::RotationType computeRotation(const std::vector<const TECWedge*>& wedges, Surface::PositionType pos) const;
 };
- 
+
 #pragma GCC visibility pop
 #endif

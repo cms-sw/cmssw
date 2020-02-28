@@ -4,7 +4,7 @@
 //
 // Package:     Utilities
 // Class  :     WallclockTimer
-// 
+//
 /**\class WallclockTimer WallclockTimer.h FWCore/Utilities/interface/WallclockTimer.h
 
  Description: Timer which measures the CPU and wallclock time
@@ -34,43 +34,41 @@
 
 // forward declarations
 namespace edm {
-  class WallclockTimer
-  {
-    
+  class WallclockTimer {
   public:
     WallclockTimer();
     ~WallclockTimer();
     WallclockTimer(WallclockTimer&&) = default;
-    
+
     // ---------- const member functions ---------------------
-    double realTime() const ;
-    
+    double realTime() const;
+
     // ---------- static member functions --------------------
-    
+
     // ---------- member functions ---------------------------
     void start();
-    double stop(); //returns delta time
+    double stop();  //returns delta time
     void reset();
-    
+
     void add(double t);
+
   private:
-    WallclockTimer(const WallclockTimer&) = delete; // stop default
-    
-    const WallclockTimer& operator=(const WallclockTimer&) = delete; // stop default
-    
+    WallclockTimer(const WallclockTimer&) = delete;  // stop default
+
+    const WallclockTimer& operator=(const WallclockTimer&) = delete;  // stop default
+
     double calculateDeltaTime() const;
-    
+
     // ---------- member data --------------------------------
-    enum State {kRunning, kStopped} state_;
+    enum State { kRunning, kStopped } state_;
 #ifdef USE_CLOCK_GETTIME
     struct timespec startRealTime_;
 #else
     struct timeval startRealTime_;
 #endif
-    
+
     double accumulatedRealTime_;
-    
   };
-}
+}  // namespace edm
 
 #endif

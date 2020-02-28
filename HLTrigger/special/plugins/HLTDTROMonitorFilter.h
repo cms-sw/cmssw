@@ -31,13 +31,11 @@ public:
 
   // Operations
   bool filter(edm::Event& event, const edm::EventSetup& setup) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
-  
-protected:
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+protected:
 private:
   edm::InputTag inputLabel;
   edm::EDGetTokenT<FEDRawDataCollection> inputToken;
 };
 #endif
-

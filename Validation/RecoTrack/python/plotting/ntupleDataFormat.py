@@ -1,3 +1,4 @@
+from builtins import range
 import math
 import collections
 
@@ -40,7 +41,7 @@ class _Collection(object):
 
     def __iter__(self):
         """Returns generator for the objects."""
-        for index in xrange(self.size()):
+        for index in range(self.size()):
             yield self._objclass(self._tree, index)
 
 class _Object(object):
@@ -291,7 +292,7 @@ class _SimHitMatchAdaptor(object):
         The generator returns SimHitMatchInfo objects.
         """
         self._checkIsValid()
-        for imatch in xrange(self._nMatchedSimHits()):
+        for imatch in range(self._nMatchedSimHits()):
             yield SimHitMatchInfo(self._tree, self._index, imatch, self._prefix)
 
 class _TrackingParticleMatchAdaptor(object):
@@ -315,7 +316,7 @@ class _TrackingParticleMatchAdaptor(object):
 
         """
         self._checkIsValid()
-        for imatch in xrange(self._nMatchedTrackingParticles()):
+        for imatch in range(self._nMatchedTrackingParticles()):
             yield TrackingParticleMatchInfo(self._tree, self._index, imatch, self._prefix)
 
     def bestMatchingTrackingParticle(self):
@@ -423,7 +424,7 @@ class TrackingNtuple(object):
         Generator returns Event objects.
 
         """
-        for jentry in xrange(self._entries):
+        for jentry in range(self._entries):
             # get the next tree in the chain and verify
             ientry = self._tree.LoadTree( jentry )
             if ientry < 0: break
@@ -937,7 +938,7 @@ class Seeds(_Collection):
         Generator returns Seed object.
         """
         (offset, next_offset) = _seedOffsetForAlgo(self._tree, algo)
-        for isee in xrange(offset, next_offset):
+        for isee in range(offset, next_offset):
             yield Seed(self._tree, isee)
 
     def seedForAlgo(self, algo, iseed):
@@ -994,7 +995,7 @@ class TrackingParticle(_Object):
         The generator returns TrackMatchInfo objects.
         """
         self._checkIsValid()
-        for imatch in xrange(self._nMatchedTracks()):
+        for imatch in range(self._nMatchedTracks()):
             yield TrackMatchInfo(self._tree, self._index, imatch, self._prefix)
 
     def bestMatchingTrack(self):
@@ -1041,7 +1042,7 @@ class TrackingParticle(_Object):
         The generator returns SeedMatchInfo objects.
         """
         self._checkIsValid()
-        for imatch in xrange(self._nMatchedSeeds()):
+        for imatch in range(self._nMatchedSeeds()):
             yield SeedMatchInfo(self._tree, self._index, imatch, self._prefix)
 
     def nSimHits(self):

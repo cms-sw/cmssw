@@ -15,6 +15,13 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#if defined __has_feature
+#if __has_feature(modules)
+// Workaround the missing CLHEP.modulemap
+#include "CLHEP/Vector/LorentzVector.h"
+#include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
+#endif
+#endif
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -22,13 +29,11 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
@@ -52,18 +57,18 @@
 #include "DataFormats/BTauReco/interface/ShallowTagInfoFeatures.h"
 #include "DataFormats/BTauReco/interface/NeutralCandidateFeatures.h"
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
+#include "DataFormats/BTauReco/interface/TrackPairFeatures.h"
+#include "DataFormats/BTauReco/interface/SeedingTrackFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleXFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
-
-
+#include "DataFormats/BTauReco/interface/PixelClusterTagInfo.h"
 
 namespace reco {
-    typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
-    typedef TrackTauImpactParameterAssociationCollection::ref_type          TrackTauImpactParameterAssociationRefType;
-    typedef TauMassTagInfo::ClusterTrackAssociationCollection::map_type     TauMassTagInfo_ClusterTrackAssociationMapType;
-    typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type     TauMassTagInfo_ClusterTrackAssociationRefType;
-}
-
+  typedef TrackTauImpactParameterAssociationCollection::map_type TrackTauImpactParameterAssociationMapType;
+  typedef TrackTauImpactParameterAssociationCollection::ref_type TrackTauImpactParameterAssociationRefType;
+  typedef TauMassTagInfo::ClusterTrackAssociationCollection::map_type TauMassTagInfo_ClusterTrackAssociationMapType;
+  typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type TauMassTagInfo_ClusterTrackAssociationRefType;
+}  // namespace reco

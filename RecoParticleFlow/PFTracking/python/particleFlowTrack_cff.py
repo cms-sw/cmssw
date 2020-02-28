@@ -6,7 +6,14 @@ from RecoParticleFlow.PFTracking.pfV0_cfi import *
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 from RecoParticleFlow.PFTracking.particleFlowTrackWithDisplacedVertex_cff import *
 
-particleFlowTrack = cms.Sequence(pfTrack*pfTrackElec)
-particleFlowTrackWithNuclear = cms.Sequence(pfTrack*pfTrackElec*pfNuclear)
-particleFlowTrackWithV0 = cms.Sequence(pfTrack*pfTrackElec*pfV0)
-pfTrackingGlobalReco = cms.Sequence(particleFlowTrackWithDisplacedVertex)
+particleFlowTrackTask = cms.Task(pfTrack, pfTrackElec)
+particleFlowTrack = cms.Sequence(particleFlowTrackTask)
+
+particleFlowTrackWithNuclearTask = cms.Task(pfTrack, pfTrackElec, pfNuclear)
+particleFlowTrackWithNuclear = cms.Sequence(particleFlowTrackWithNuclearTask)
+
+particleFlowTrackWithV0Task = cms.Task(pfTrack, pfTrackElec, pfV0)
+particleFlowTrackWithV0 = cms.Sequence(particleFlowTrackWithV0Task)
+
+pfTrackingGlobalRecoTask = cms.Task(particleFlowTrackWithDisplacedVertexTask)
+pfTrackingGlobalReco = cms.Sequence(pfTrackingGlobalRecoTask)

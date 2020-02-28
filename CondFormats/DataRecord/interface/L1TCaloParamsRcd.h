@@ -4,7 +4,7 @@
 /// Description: Record for CaloParams
 ///
 /// Implementation:
-///    
+///
 ///
 /// \author: Jim Brooke, University of Bristol
 ///

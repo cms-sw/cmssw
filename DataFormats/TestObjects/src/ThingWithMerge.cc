@@ -11,7 +11,5 @@ namespace edmtest {
     return true;
   }
 
-  void ThingWithMerge::swap(ThingWithMerge& iOther) {
-    std::swap(a, iOther.a);
-  }
-}
+  void ThingWithMerge::swap(ThingWithMerge& iOther) { std::swap(a, iOther.a); }
+}  // namespace edmtest

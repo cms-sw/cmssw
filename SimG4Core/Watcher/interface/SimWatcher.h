@@ -4,22 +4,23 @@
 //
 // Package:     Watcher
 // Class  :     SimWatcher
-// 
+//
 /**\class SimWatcher SimWatcher.h SimG4Core/Watcher/interface/SimWatcher.h
 
- Description: Base class for classes that 'watch' what OscarProducer does internally
+ Description: Base class for classes that 'watch' what OscarProducer does
+internally
 
  Usage:
     By itself, this class actually does nothing except allow dynamic loading
 into the OscarProducer.  To do useful work, one must inherit from this class
-and one or more 'Observer<T>' classes.  
+and one or more 'Observer<T>' classes.
 
     A class that inherits from OscarProducer must have a constructor that takes
 a 'const edm::ParameterSet&' as its only argument.  This constructor will be
 called by the dynamic loading code.
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue Nov 22 15:35:11 EST 2005
 //
 
@@ -29,27 +30,23 @@ called by the dynamic loading code.
 
 // forward declarations
 
-class SimWatcher
-{
+class SimWatcher {
+public:
+  SimWatcher() {}
+  virtual ~SimWatcher() {}
 
-   public:
-      SimWatcher() {}
-      virtual ~SimWatcher() {}
+  // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
 
-      // ---------- member functions ---------------------------
+private:
+  SimWatcher(const SimWatcher &) = delete;  // stop default
 
-   private:
-      SimWatcher(const SimWatcher&) = delete; // stop default
+  const SimWatcher &operator=(const SimWatcher &) = delete;  // stop default
 
-      const SimWatcher& operator=(const SimWatcher&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif

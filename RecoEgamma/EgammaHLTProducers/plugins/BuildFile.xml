@@ -1,0 +1,18 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/TrackingRecHit"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="TrackingTools/GsfTools"/>
+<library   file="*.cc" name="RecoEgammaEgammaHLTProducersPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

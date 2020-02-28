@@ -101,8 +101,6 @@ RecoJetsAOD = cms.PSet(
                                            'keep *_cmsTopTagPFJetsCHS_*_*',
                                            'keep *_ak4PFJets_*_*',
                                            'keep *_JetPlusTrackZSPCorJetAntiKt4_*_*',    
-                                           'keep *_ak4TrackJets_*_*',
-                                           'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',                                             
                                            'keep *_caloTowers_*_*', 
                                            'keep *_CastorTowerReco_*_*',                                           
                                            'keep *_ak4JetTracksAssociatorAtVertex_*_*',

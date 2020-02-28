@@ -26,18 +26,16 @@
 // forward declarations
 namespace edm {
   struct StoredProductProvenance {
-    StoredProductProvenance():branchID_(0), parentageIDIndex_(0) {}
+    StoredProductProvenance() : branchID_(0), parentageIDIndex_(0) {}
     unsigned int branchID_;
     unsigned int parentageIDIndex_;
   };
 
   typedef std::vector<StoredProductProvenance> StoredProductProvenanceVector;
 
-  inline
-  bool
-  operator<(StoredProductProvenance const& a, StoredProductProvenance const& b) {
+  inline bool operator<(StoredProductProvenance const& a, StoredProductProvenance const& b) {
     return a.branchID_ < b.branchID_;
   }
-}
+}  // namespace edm
 
 #endif

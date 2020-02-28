@@ -13,6 +13,6 @@ November. 2, 2005
 #include "Particle.h"
 
 double GetDecayTime(const Particle &p, double weakDecayLimit);
-void Decay(List_t &output, Particle &p, ParticleAllocator &allocator, DatabasePDG* database);
+void Decay(List_t &output, Particle &p, ParticleAllocator &allocator, DatabasePDG *database);
 
 #endif

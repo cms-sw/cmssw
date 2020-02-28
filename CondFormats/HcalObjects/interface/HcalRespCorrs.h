@@ -14,19 +14,17 @@ POOL object to store Hcal Response Corrections
 
 //typedef HcalCondObjectContainer<HcalRespCorr> HcalRespCorrs;
 
-class HcalRespCorrs: public HcalCondObjectContainer<HcalRespCorr>
-{
- public:
+class HcalRespCorrs : public HcalCondObjectContainer<HcalRespCorr> {
+public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalRespCorrs():HcalCondObjectContainer<HcalRespCorr>(nullptr) {}
+  HcalRespCorrs() : HcalCondObjectContainer<HcalRespCorr>(nullptr) {}
 #endif
-  HcalRespCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalRespCorr>(topo) {}
+  HcalRespCorrs(const HcalTopology* topo) : HcalCondObjectContainer<HcalRespCorr>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalRespCorrs";}
+  std::string myname() const override { return (std::string) "HcalRespCorrs"; }
 
- private:
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 
 #endif

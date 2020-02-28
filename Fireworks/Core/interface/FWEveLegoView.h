@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWEveLegoView
-// 
+//
 /**\class FWEveLegoView FWEveLegoView.h Fireworks/Core/interface/FWEveLegoView.h
 
  Description: [one line class summary]
@@ -22,29 +22,27 @@
 
 class TEveStraightLineSet;
 
-class FWEveLegoView: public FWLegoViewBase
-{
+class FWEveLegoView : public FWLegoViewBase {
 public:
-   FWEveLegoView(TEveWindowSlot*, FWViewType::EType);
-   ~FWEveLegoView() override;
+  FWEveLegoView(TEveWindowSlot*, FWViewType::EType);
+  ~FWEveLegoView() override;
 
-   void setContext(const fireworks::Context&) override;
-   void setBackgroundColor(Color_t) override;
+  void setContext(const fireworks::Context&) override;
+  void setBackgroundColor(Color_t) override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
 private:
-   FWEveLegoView(const FWEveLegoView&) = delete; // stop default
+  FWEveLegoView(const FWEveLegoView&) = delete;  // stop default
 
-   const FWEveLegoView& operator=(const FWEveLegoView&) = delete; // stop default
+  const FWEveLegoView& operator=(const FWEveLegoView&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   TEveStraightLineSet* m_boundaries;
+  // ---------- member data --------------------------------
+  TEveStraightLineSet* m_boundaries;
 };
-
 
 #endif

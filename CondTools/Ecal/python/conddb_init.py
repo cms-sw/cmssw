@@ -36,4 +36,19 @@ options.register('currentThreshold',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.float,
                 "the threshold on the magnet current for considering a switch of the magnetic field.")
+options.register('ESGain',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "Preshower gain : HIGH or LOW")
+options.register('ESLowGainTag',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "the tag name used to retrieve the reference payload for preshower in Low Gain.")
+options.register('ESHighGainTag',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "the tag name used to retrieve the reference payload for preshower in High Gain.")
 options.parseArguments()

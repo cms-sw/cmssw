@@ -2,7 +2,7 @@
 //
 // Package:     EEGeometry
 // Class  :     EEAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

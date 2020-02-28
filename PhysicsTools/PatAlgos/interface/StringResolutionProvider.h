@@ -41,8 +41,7 @@
 */
 
 class StringResolutionProvider : public KinematicResolutionProvider {
-
- public:
+public:
   /// short cut within the common namespace
   typedef StringObjectFunction<reco::Candidate> Function;
 
@@ -50,11 +49,11 @@ class StringResolutionProvider : public KinematicResolutionProvider {
   StringResolutionProvider(const edm::ParameterSet& cfg);
   /// default destructor
   ~StringResolutionProvider() override;
-  /// get a CandKinResolution object from the service 
+  /// get a CandKinResolution object from the service
   pat::CandKinResolution getResolution(const reco::Candidate& cand) const override;
 
- private:
-  /// a vector of constrtaints for the CanKinResolution 
+private:
+  /// a vector of constrtaints for the CanKinResolution
   /// object
   std::vector<pat::CandKinResolution::Scalar> constraints_;
   /// a parametrization for the CanKinResolution object

@@ -14,11 +14,10 @@
   */
 class HcalUMNioDigi {
 public:
-
   HcalUMNioDigi();
   HcalUMNioDigi(const uint16_t* ptr, int words);
   HcalUMNioDigi(const std::vector<uint16_t>& words);
-  
+
   uint32_t runNumber() const;
   uint32_t orbitNumber() const;
   uint16_t bunchNumber() const;
@@ -28,20 +27,19 @@ public:
   uint16_t spillCounter() const;
   bool isSpill() const;
 
-  bool invalid() const { return (payload_.size()<16) || (payload_[6]&0xF000)!=0x2000; }
-  
+  bool invalid() const { return (payload_.size() < 16) || (payload_[6] & 0xF000) != 0x2000; }
+
   int numberUserWords() const;
   uint16_t idUserWord(int iword) const;
   uint32_t valueUserWord(int iword) const;
   bool hasUserWord(int id) const;
   uint32_t getUserWord(int id) const;
   bool getUserWord(int id, uint32_t& value) const;
-  
+
 private:
   std::vector<uint16_t> payload_;
 };
 
 std::ostream& operator<<(std::ostream&, const HcalUMNioDigi&);
-
 
 #endif

@@ -1,7 +1,6 @@
 #include "L1Trigger/L1TMuon/interface/MicroGMTCaloIndexSelectionLUT.h"
 
-l1t::MicroGMTCaloIndexSelectionLUT::MicroGMTCaloIndexSelectionLUT (const std::string& fname, int type) : MicroGMTLUT()
-{
+l1t::MicroGMTCaloIndexSelectionLUT::MicroGMTCaloIndexSelectionLUT(const std::string& fname, int type) : MicroGMTLUT() {
   if (type == MicroGMTConfiguration::ETA) {
     m_angleInWidth = 9;
     m_outWidth = 5;
@@ -16,11 +15,10 @@ l1t::MicroGMTCaloIndexSelectionLUT::MicroGMTCaloIndexSelectionLUT (const std::st
 
   if (fname != std::string("")) {
     load(fname);
-  } 
+  }
 }
 
-l1t::MicroGMTCaloIndexSelectionLUT::MicroGMTCaloIndexSelectionLUT (l1t::LUT* lut, int type) : MicroGMTLUT(lut)
-{
+l1t::MicroGMTCaloIndexSelectionLUT::MicroGMTCaloIndexSelectionLUT(l1t::LUT* lut, int type) : MicroGMTLUT(lut) {
   if (type == MicroGMTConfiguration::ETA) {
     m_angleInWidth = 9;
     m_outWidth = 5;
@@ -36,8 +34,4 @@ l1t::MicroGMTCaloIndexSelectionLUT::MicroGMTCaloIndexSelectionLUT (l1t::LUT* lut
   m_initialized = true;
 }
 
-int 
-l1t::MicroGMTCaloIndexSelectionLUT::lookup(int angle) const 
-{
-  return lookupPacked(angle);
-}
+int l1t::MicroGMTCaloIndexSelectionLUT::lookup(int angle) const { return lookupPacked(angle); }

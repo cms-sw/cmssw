@@ -25,64 +25,54 @@
 class MagneticField;
 class FastHelix {
 public:
-
   //Original constructor (no basis vertex)
   FastHelix(const GlobalPoint& oHit,
-	    const GlobalPoint& mHit,
-	    const GlobalPoint& aVertex,
-	    double nomField, MagneticField const * ibField) :
-    bField(ibField),
-    theCircle(oHit,
-	      mHit,
-	      aVertex) {
-    tesla0=0.1*nomField;
-    maxRho = maxPt/(0.01 * 0.3*tesla0);
+            const GlobalPoint& mHit,
+            const GlobalPoint& aVertex,
+            double nomField,
+            MagneticField const* ibField)
+      : bField(ibField), theCircle(oHit, mHit, aVertex) {
+    tesla0 = 0.1 * nomField;
+    maxRho = maxPt / (0.01 * 0.3 * tesla0);
     useBasisVertex = false;
     compute();
   }
 
   //New constructor (with basis vertex)
   FastHelix(const GlobalPoint& oHit,
-	    const GlobalPoint& mHit,
-	    const GlobalPoint& aVertex,
-	    double nomField, MagneticField const * ibField,
-	    const GlobalPoint& bVertex) : 
-    bField(ibField),
-    basisVertex(bVertex),
-    theCircle(oHit,
-	      mHit,
-	      aVertex) {
-    tesla0=0.1*nomField;
-    maxRho = maxPt/(0.01 * 0.3*tesla0);
+            const GlobalPoint& mHit,
+            const GlobalPoint& aVertex,
+            double nomField,
+            MagneticField const* ibField,
+            const GlobalPoint& bVertex)
+      : bField(ibField), basisVertex(bVertex), theCircle(oHit, mHit, aVertex) {
+    tesla0 = 0.1 * nomField;
+    maxRho = maxPt / (0.01 * 0.3 * tesla0);
     useBasisVertex = true;
     compute();
   }
 
   ~FastHelix() {}
-  
-  bool isValid() const {return theCircle.isValid();}
+
+  bool isValid() const { return theCircle.isValid(); }
 
   GlobalTrajectoryParameters stateAtVertex() const { return atVertex; }
 
-  const FastCircle & circle() const { return theCircle; }
+  const FastCircle& circle() const { return theCircle; }
 
 private:
-
-  GlobalPoint const & outerHit() const { return theCircle.outerPoint();} 
-  GlobalPoint const & middleHit() const { return theCircle.innerPoint();} 
-  GlobalPoint const & vertex() const { return theCircle.vertexPoint();} 
-
+  GlobalPoint const& outerHit() const { return theCircle.outerPoint(); }
+  GlobalPoint const& middleHit() const { return theCircle.innerPoint(); }
+  GlobalPoint const& vertex() const { return theCircle.vertexPoint(); }
 
   void compute();
   void helixStateAtVertex() dso_hidden;
   void straightLineStateAtVertex() dso_hidden;
 
-
 private:
+  static constexpr float maxPt = 10000;  // 10Tev
 
-  static constexpr float maxPt = 10000; // 10Tev
-
-  MagneticField const * bField; // needed to construct GlobalTrajectoryParameters
+  MagneticField const* bField;  // needed to construct GlobalTrajectoryParameters
   GlobalTrajectoryParameters atVertex;
   GlobalPoint basisVertex;
   FastCircle theCircle;
@@ -91,5 +81,4 @@ private:
   bool useBasisVertex;
 };
 
-#endif //TR_FastHelix_H_
-
+#endif  //TR_FastHelix_H_

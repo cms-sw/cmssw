@@ -35,44 +35,38 @@
 // forward declarations
 
 // class declaration
-class L1GtCastorTemplate : public L1GtCondition
-{
+class L1GtCastorTemplate : public L1GtCondition {
+public:
+  // constructor
+  L1GtCastorTemplate();
+
+  // constructor
+  L1GtCastorTemplate(const std::string&);
+
+  // constructor
+  L1GtCastorTemplate(const std::string&, const L1GtConditionType&);
+
+  // copy constructor
+  L1GtCastorTemplate(const L1GtCastorTemplate&);
+
+  // destructor
+  ~L1GtCastorTemplate() override;
+
+  // assign operator
+  L1GtCastorTemplate& operator=(const L1GtCastorTemplate&);
 
 public:
+  /// print the condition
+  void print(std::ostream& myCout) const override;
 
-    // constructor
-    L1GtCastorTemplate();
-
-    // constructor
-    L1GtCastorTemplate(const std::string&);
-
-    // constructor
-    L1GtCastorTemplate(const std::string&, const L1GtConditionType&);
-
-    // copy constructor
-    L1GtCastorTemplate(const L1GtCastorTemplate&);
-
-    // destructor
-    ~L1GtCastorTemplate() override;
-
-    // assign operator
-    L1GtCastorTemplate& operator=(const L1GtCastorTemplate&);
-
-public:
-
-    /// print the condition
-    void print(std::ostream& myCout) const override;
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const L1GtCastorTemplate&);
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const L1GtCastorTemplate&);
 
 private:
+  /// copy function for copy constructor and operator=
+  void copy(const L1GtCastorTemplate& cp);
 
-    /// copy function for copy constructor and operator=
-    void copy(const L1GtCastorTemplate& cp);
-
-
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

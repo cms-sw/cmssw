@@ -33,18 +33,15 @@ namespace coral {
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
-
- public:
-
+class DTHVStatusHandler : public popcon::PopConSourceHandler<DTHVStatus> {
+public:
   /** Constructor
    */
-  DTHVStatusHandler( const edm::ParameterSet& ps );
+  DTHVStatusHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -52,14 +49,13 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects() override;
   std::string id() const override;
 
- private:
-
+private:
   typedef DTHVAbstractCheck::timedMeasurement timedMeasurement;
-  typedef std::pair<int,float> channelValue;
+  typedef std::pair<int, float> channelValue;
 
   void checkNewData();
 
@@ -71,29 +67,23 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
   void createSnapshot();
   int recoverSnapshot();
   cond::Time_t recoverLastTime();
-  void   dumpSnapshot( const coral::TimeStamp& time );
+  void dumpSnapshot(const coral::TimeStamp& time);
   void updateHVStatus();
-  int  checkForPeriod( cond::Time_t condSince,
-                       cond::Time_t condUntil,
-                       int& missingChannels,
-                       bool copyOffline );
+  int checkForPeriod(cond::Time_t condSince, cond::Time_t condUntil, int& missingChannels, bool copyOffline);
 
   void copyHVData();
   DTHVStatus* offlineList();
-  void getLayerValues( int rawId, int type,
-                       float& valueL, float& valueR,
-                       float& valueS, float& valueC );
-  void setChannelFlag( DTHVStatus* hv,
-                       int whe, int sta, int sec, int qua, int lay, int l_p,
-                       const DTHVAbstractCheck::flag& flag );
+  void getLayerValues(int rawId, int type, float& valueL, float& valueR, float& valueS, float& valueC);
+  void setChannelFlag(
+      DTHVStatus* hv, int whe, int sta, int sec, int qua, int lay, int l_p, const DTHVAbstractCheck::flag& flag);
 
-  int checkStatusChange( int type, float oldValue, float newValue );
+  int checkStatusChange(int type, float oldValue, float newValue);
   void filterData();
 
-  static DTWireId layerId( int rawId, int l_p );
-  static coral::TimeStamp coralTime( const  cond::Time_t&    time );
-  static  cond::Time_t     condTime( const coral::TimeStamp& time );
-  static  cond::Time_t     condTime( long long int           time );
+  static DTWireId layerId(int rawId, int l_p);
+  static coral::TimeStamp coralTime(const cond::Time_t& time);
+  static cond::Time_t condTime(const coral::TimeStamp& time);
+  static cond::Time_t condTime(long long int time);
 
   std::string dataTag;
   std::string onlineConnect;
@@ -120,7 +110,7 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
   long long int fwdTime;
   long long int minTime;
 
-  std::map<int,timedMeasurement> snapshotValues;
+  std::map<int, timedMeasurement> snapshotValues;
   DTHVAbstractCheck* hvChecker;
 
   cond::Time_t procSince;
@@ -137,20 +127,12 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
 
   std::string mapVersion;
   std::string splitVersion;
-  std::map<int,int> aliasMap;
-  std::map<int,int> layerMap;
-  std::map<int,int> laySplit;
-  std::map< int, std::vector<int>* > channelSplit;
-  std::vector< std::pair<DTHVStatus*, cond::Time_t> > tmpContainer;
+  std::map<int, int> aliasMap;
+  std::map<int, int> layerMap;
+  std::map<int, int> laySplit;
+  std::map<int, std::vector<int>*> channelSplit;
+  std::vector<std::pair<DTHVStatus*, cond::Time_t> > tmpContainer;
   bool switchOff;
-
 };
 
-
-#endif // DTHVStatusHandler_H
-
-
-
-
-
-
+#endif  // DTHVStatusHandler_H

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-   
+
 #  Tracking Geometry
-from Geometry.CommonDetUnit.globalTrackingGeometryDB_cfi import *
+from Geometry.CommonTopologies.globalTrackingGeometryDB_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *

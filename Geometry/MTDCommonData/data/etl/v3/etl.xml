@@ -1,0 +1,1682 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="etl.xml" eval="true">
+    <Constant name="ETLrmin" value="[caloBase:Rmin100]"/>
+    <Constant name="ETLrmax" value="[caloBase:Rmax100]"/>
+    <Constant name="ETLzmin" value="-0.5*([caloBase:Zpos110]-[caloBase:Zpos100])"/>
+    <Constant name="ETLzmax" value="0.5*([caloBase:Zpos110]-[caloBase:Zpos100])"/>
+  </ConstantsSection>
+
+  <SolidSection label="etl.xml">
+    <Polycone name="EndcapTimingLayer" startPhi="0*deg" deltaPhi="360*deg">
+      <ZSection z="[ETLzmin]"         rMin="[ETLrmin]"          rMax="[ETLrmax]" />
+      <ZSection z="[ETLzmax]"         rMin="[ETLrmin]"          rMax="[ETLrmax]" />
+    </Polycone>
+    <Box name="EModule1Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule1Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule1Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule1Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule1Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule1Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule1Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule1Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule1Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule2Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule2Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule2Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule2Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule2Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule2Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule2Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule2Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule2Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule3Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule3Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule3Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule3Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule3Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule3Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule3Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule3Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule3Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule4Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule4Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule4Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule4Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule4Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule4Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule4Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule4Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule4Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule5Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule5Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule5Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule5Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule5Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule5Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule5Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule5Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule5Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule6Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule6Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule6Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule6Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule6Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule6Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule6Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule6Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule6Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule7Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule7Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule7Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule7Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule7Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule7Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule7Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule7Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule7Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule8Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule8Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule8Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule8Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule8Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule8Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule8Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule8Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule8Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule9Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule9Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule9Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule9Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule9Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule9Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule9Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule9Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule9Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule10Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule10Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule10Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule10Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule10Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule10Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule10Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule10Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule10Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Box name="EModule11Disc1" dx="25.5*mm" dy="48.5*mm" dz="1.15*mm"/>
+    <Box name="EModule11Disc1Timingwafer" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule11Disc1Timingactive" dx="24.5*mm" dy="47.5*mm" dz="0.15*mm"/>
+    <Box name="EModule11Disc1FSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule11Disc1BSide" dx="0.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule11Disc1LSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule11Disc1RSide" dx="25.5*mm" dy="0.5*mm" dz="0.5*mm"/>
+    <Box name="EModule11Disc1Between" dx="24.5*mm" dy="47.5*mm" dz="0.5*mm"/>
+    <Box name="EModule11Disc1SupportPlate" dx="25.5*mm" dy="48.5*mm" dz="0.5*mm"/>
+    <Tubs name="Disc1_support2" rMin="362.907*mm" rMax="441.37*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support4" rMin="538.994*mm" rMax="616.62*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support6" rMin="714.095*mm" rMax="790.68*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support8" rMin="888.066*mm" rMax="963.49*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support10" rMin="1060.82*mm" rMax="1134.99*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support1" rMin="264.99*mm" rMax="356.18*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support11" rMin="453.917*mm" rMax="533.1*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support3" rMin="630.636*mm" rMax="708.85*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support5" rMin="806.273*mm" rMax="883.37*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support7" rMin="980.722*mm" rMax="1056.6*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1_support9" rMin="1153.9*mm" rMax="1232.27*mm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring1Disc1_support" rMin="264.99*mm" rMax="362.907*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring1Disc1" rMin="264.99*mm" rMax="362.907*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring2Disc1_support" rMin="356.18*mm" rMax="453.917*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring2Disc1" rMin="356.18*mm" rMax="453.917*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring3Disc1_support" rMin="441.37*mm" rMax="538.994*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring3Disc1" rMin="441.37*mm" rMax="538.994*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring4Disc1_support" rMin="533.1*mm" rMax="630.636*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring4Disc1" rMin="533.1*mm" rMax="630.636*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring5Disc1_support" rMin="616.62*mm" rMax="714.095*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring5Disc1" rMin="616.62*mm" rMax="714.095*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring6Disc1_support" rMin="708.85*mm" rMax="806.273*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring6Disc1" rMin="708.85*mm" rMax="806.273*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring7Disc1_support" rMin="790.68*mm" rMax="888.066*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring7Disc1" rMin="790.68*mm" rMax="888.066*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring8Disc1_support" rMin="883.37*mm" rMax="980.722*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring8Disc1" rMin="883.37*mm" rMax="980.722*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring9Disc1_support" rMin="963.49*mm" rMax="1060.82*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring9Disc1" rMin="963.49*mm" rMax="1060.82*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring10Disc1_support" rMin="1056.6*mm" rMax="1153.9*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring10Disc1" rMin="1056.6*mm" rMax="1153.9*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring11Disc1_support" rMin="1134.99*mm" rMax="1232.27*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Ring11Disc1" rMin="1134.99*mm" rMax="1232.27*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1" rMin="264.98*mm" rMax="1232.28*mm" dz="13.52*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR264Z2666" rMin="264.999*mm" rMax="361.73*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR361Z2666" rMin="361.83*mm" rMax="452.753*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR452Z2666" rMin="452.853*mm" rMax="537.838*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR537Z2666" rMin="537.938*mm" rMax="629.486*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR629Z2666" rMin="629.586*mm" rMax="712.951*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR713Z2666" rMin="713.051*mm" rMax="805.132*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR805Z2666" rMin="805.232*mm" rMax="886.928*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR887Z2666" rMin="887.028*mm" rMax="979.586*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR979Z2666" rMin="979.686*mm" rMax="1059.68*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="serviceR1059Z2666" rMin="1059.78*mm" rMax="1152.77*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  </SolidSection>
+
+  <LogicalPartSection label="etl.xml">                                 
+    <LogicalPart name="EndcapTimingLayer" category="unspecified">      
+      <rSolid name="EndcapTimingLayer"/>                               
+      <rMaterial name="materials:Air"/>                                
+    </LogicalPart>                                                     
+    <LogicalPart name="EModule1Disc1" category="unspecified">
+      <rSolid name="etl:EModule1Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule1Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule1Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule1Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule1Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule1Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule1Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule1Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule1Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule1Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule1Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule1Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule1Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule1Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule1Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule1Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule1Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1" category="unspecified">
+      <rSolid name="etl:EModule2Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule2Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule2Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule2Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule2Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule2Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule2Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule2Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule2Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule2Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1" category="unspecified">
+      <rSolid name="etl:EModule3Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule3Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule3Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule3Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule3Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule3Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule3Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule3Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule3Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule3Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1" category="unspecified">
+      <rSolid name="etl:EModule4Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule4Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule4Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule4Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule4Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule4Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule4Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule4Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule4Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule4Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1" category="unspecified">
+      <rSolid name="etl:EModule5Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule5Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule5Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule5Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule5Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule5Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule5Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule5Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule5Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule5Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1" category="unspecified">
+      <rSolid name="etl:EModule6Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule6Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule6Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule6Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule6Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule6Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule6Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule6Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule6Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule6Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1" category="unspecified">
+      <rSolid name="etl:EModule7Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule7Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule7Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule7Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule7Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule7Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule7Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule7Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule7Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule7Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1" category="unspecified">
+      <rSolid name="etl:EModule8Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule8Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule8Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule8Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule8Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule8Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule8Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule8Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule8Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule8Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1" category="unspecified">
+      <rSolid name="etl:EModule9Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule9Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule9Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule9Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule9Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule9Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule9Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule9Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule9Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule9Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1" category="unspecified">
+      <rSolid name="etl:EModule10Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule10Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule10Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule10Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule10Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule10Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule10Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule10Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule10Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule10Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1" category="unspecified">
+      <rSolid name="etl:EModule11Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1Timingwafer" category="unspecified">
+      <rSolid name="etl:EModule11Disc1Timingwafer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1Timingactive" category="unspecified">
+      <rSolid name="etl:EModule11Disc1Timingactive"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_SenSi"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1FSide" category="unspecified">
+      <rSolid name="etl:EModule11Disc1FSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1FSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1BSide" category="unspecified">
+      <rSolid name="etl:EModule11Disc1BSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1BSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1LSide" category="unspecified">
+      <rSolid name="etl:EModule11Disc1LSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1RSide" category="unspecified">
+      <rSolid name="etl:EModule11Disc1RSide"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1LSide"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1Between" category="unspecified">
+      <rSolid name="etl:EModule11Disc1Between"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1Between"/>
+    </LogicalPart>
+    <LogicalPart name="EModule11Disc1SupportPlate" category="unspecified">
+      <rSolid name="etl:EModule11Disc1SupportPlate"/>
+      <rMaterial name="mtdMaterial:mtdhybridcompositeEModule1Disc1SupportPlate"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support2" category="unspecified">
+      <rSolid name="etl:Disc1_support2"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support4" category="unspecified">
+      <rSolid name="etl:Disc1_support4"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support6" category="unspecified">
+      <rSolid name="etl:Disc1_support6"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support8" category="unspecified">
+      <rSolid name="etl:Disc1_support8"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support10" category="unspecified">
+      <rSolid name="etl:Disc1_support10"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support1" category="unspecified">
+      <rSolid name="etl:Disc1_support1"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support11" category="unspecified">
+      <rSolid name="etl:Disc1_support11"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support3" category="unspecified">
+      <rSolid name="etl:Disc1_support3"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support5" category="unspecified">
+      <rSolid name="etl:Disc1_support5"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support7" category="unspecified">
+      <rSolid name="etl:Disc1_support7"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1_support9" category="unspecified">
+      <rSolid name="etl:Disc1_support9"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring1Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring1Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring1Disc1" category="unspecified">
+      <rSolid name="etl:Ring1Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring2Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring2Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring2Disc1" category="unspecified">
+      <rSolid name="etl:Ring2Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring3Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring3Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring3Disc1" category="unspecified">
+      <rSolid name="etl:Ring3Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring4Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring4Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring4Disc1" category="unspecified">
+      <rSolid name="etl:Ring4Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring5Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring5Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring5Disc1" category="unspecified">
+      <rSolid name="etl:Ring5Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring6Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring6Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring6Disc1" category="unspecified">
+      <rSolid name="etl:Ring6Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring7Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring7Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring7Disc1" category="unspecified">
+      <rSolid name="etl:Ring7Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring8Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring8Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring8Disc1" category="unspecified">
+      <rSolid name="etl:Ring8Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring9Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring9Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring9Disc1" category="unspecified">
+      <rSolid name="etl:Ring9Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring10Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring10Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring10Disc1" category="unspecified">
+      <rSolid name="etl:Ring10Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Ring11Disc1_support" category="unspecified">
+      <rSolid name="etl:Ring11Disc1_support"/>
+      <rMaterial name="mtdMaterial:mtdtkLayout_Al"/>
+    </LogicalPart>
+    <LogicalPart name="Ring11Disc1" category="unspecified">
+      <rSolid name="etl:Ring11Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Disc1" category="unspecified">
+      <rSolid name="etl:Disc1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR264Z2666" category="unspecified">
+      <rSolid name="etl:serviceR264Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR264Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR361Z2666" category="unspecified">
+      <rSolid name="etl:serviceR361Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR361Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR452Z2666" category="unspecified">
+      <rSolid name="etl:serviceR452Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR452Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR537Z2666" category="unspecified">
+      <rSolid name="etl:serviceR537Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR537Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR629Z2666" category="unspecified">
+      <rSolid name="etl:serviceR629Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR629Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR713Z2666" category="unspecified">
+      <rSolid name="etl:serviceR713Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR713Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR805Z2666" category="unspecified">
+      <rSolid name="etl:serviceR805Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR805Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR887Z2666" category="unspecified">
+      <rSolid name="etl:serviceR887Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR887Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR979Z2666" category="unspecified">
+      <rSolid name="etl:serviceR979Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR979Z2666"/>
+    </LogicalPart>
+    <LogicalPart name="serviceR1059Z2666" category="unspecified">
+      <rSolid name="etl:serviceR1059Z2666"/>
+      <rMaterial name="mtdMaterial:servicecompositeR1059Z2666"/>
+    </LogicalPart>
+  </LogicalPartSection>                                                
+  
+  <PosPartSection label="etl.xml">                                     
+    <PosPart copyNumber="1">                                           
+      <rParent name="caloBase:CALOECFront"/>                         
+      <rChild name="etl:EndcapTimingLayer"/>  
+      <Translation x="0." y="0." z="0.5*([caloBase:Zpos110]+[caloBase:Zpos100])" />
+    </PosPart>                                                         
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule1Disc1"/>
+      <rChild name="etl:EModule1Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule1Disc1Timingwafer"/>
+      <rChild name="etl:EModule1Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule1Disc1"/>
+      <rChild name="etl:EModule1Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule1Disc1"/>
+      <rChild name="etl:EModule1Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule1Disc1"/>
+      <rChild name="etl:EModule1Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule1Disc1"/>
+      <rChild name="etl:EModule1Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule1Disc1"/>
+      <rChild name="etl:EModule1Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule1Disc1"/>
+      <rChild name="etl:EModule1Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule2Disc1"/>
+      <rChild name="etl:EModule2Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule2Disc1Timingwafer"/>
+      <rChild name="etl:EModule2Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule2Disc1"/>
+      <rChild name="etl:EModule2Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule2Disc1"/>
+      <rChild name="etl:EModule2Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule2Disc1"/>
+      <rChild name="etl:EModule2Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule2Disc1"/>
+      <rChild name="etl:EModule2Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule2Disc1"/>
+      <rChild name="etl:EModule2Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule2Disc1"/>
+      <rChild name="etl:EModule2Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule3Disc1"/>
+      <rChild name="etl:EModule3Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule3Disc1Timingwafer"/>
+      <rChild name="etl:EModule3Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule3Disc1"/>
+      <rChild name="etl:EModule3Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule3Disc1"/>
+      <rChild name="etl:EModule3Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule3Disc1"/>
+      <rChild name="etl:EModule3Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule3Disc1"/>
+      <rChild name="etl:EModule3Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule3Disc1"/>
+      <rChild name="etl:EModule3Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule3Disc1"/>
+      <rChild name="etl:EModule3Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule4Disc1"/>
+      <rChild name="etl:EModule4Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule4Disc1Timingwafer"/>
+      <rChild name="etl:EModule4Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule4Disc1"/>
+      <rChild name="etl:EModule4Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule4Disc1"/>
+      <rChild name="etl:EModule4Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule4Disc1"/>
+      <rChild name="etl:EModule4Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule4Disc1"/>
+      <rChild name="etl:EModule4Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule4Disc1"/>
+      <rChild name="etl:EModule4Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule4Disc1"/>
+      <rChild name="etl:EModule4Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule5Disc1"/>
+      <rChild name="etl:EModule5Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule5Disc1Timingwafer"/>
+      <rChild name="etl:EModule5Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule5Disc1"/>
+      <rChild name="etl:EModule5Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule5Disc1"/>
+      <rChild name="etl:EModule5Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule5Disc1"/>
+      <rChild name="etl:EModule5Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule5Disc1"/>
+      <rChild name="etl:EModule5Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule5Disc1"/>
+      <rChild name="etl:EModule5Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule5Disc1"/>
+      <rChild name="etl:EModule5Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule6Disc1"/>
+      <rChild name="etl:EModule6Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule6Disc1Timingwafer"/>
+      <rChild name="etl:EModule6Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule6Disc1"/>
+      <rChild name="etl:EModule6Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule6Disc1"/>
+      <rChild name="etl:EModule6Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule6Disc1"/>
+      <rChild name="etl:EModule6Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule6Disc1"/>
+      <rChild name="etl:EModule6Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule6Disc1"/>
+      <rChild name="etl:EModule6Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule6Disc1"/>
+      <rChild name="etl:EModule6Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule7Disc1"/>
+      <rChild name="etl:EModule7Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule7Disc1Timingwafer"/>
+      <rChild name="etl:EModule7Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule7Disc1"/>
+      <rChild name="etl:EModule7Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule7Disc1"/>
+      <rChild name="etl:EModule7Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule7Disc1"/>
+      <rChild name="etl:EModule7Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule7Disc1"/>
+      <rChild name="etl:EModule7Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule7Disc1"/>
+      <rChild name="etl:EModule7Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule7Disc1"/>
+      <rChild name="etl:EModule7Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule8Disc1"/>
+      <rChild name="etl:EModule8Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule8Disc1Timingwafer"/>
+      <rChild name="etl:EModule8Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule8Disc1"/>
+      <rChild name="etl:EModule8Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule8Disc1"/>
+      <rChild name="etl:EModule8Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule8Disc1"/>
+      <rChild name="etl:EModule8Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule8Disc1"/>
+      <rChild name="etl:EModule8Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule8Disc1"/>
+      <rChild name="etl:EModule8Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule8Disc1"/>
+      <rChild name="etl:EModule8Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule9Disc1"/>
+      <rChild name="etl:EModule9Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule9Disc1Timingwafer"/>
+      <rChild name="etl:EModule9Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule9Disc1"/>
+      <rChild name="etl:EModule9Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule9Disc1"/>
+      <rChild name="etl:EModule9Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule9Disc1"/>
+      <rChild name="etl:EModule9Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule9Disc1"/>
+      <rChild name="etl:EModule9Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule9Disc1"/>
+      <rChild name="etl:EModule9Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule9Disc1"/>
+      <rChild name="etl:EModule9Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule10Disc1"/>
+      <rChild name="etl:EModule10Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule10Disc1Timingwafer"/>
+      <rChild name="etl:EModule10Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule10Disc1"/>
+      <rChild name="etl:EModule10Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule10Disc1"/>
+      <rChild name="etl:EModule10Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule10Disc1"/>
+      <rChild name="etl:EModule10Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule10Disc1"/>
+      <rChild name="etl:EModule10Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule10Disc1"/>
+      <rChild name="etl:EModule10Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule10Disc1"/>
+      <rChild name="etl:EModule10Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule11Disc1"/>
+      <rChild name="etl:EModule11Disc1Timingwafer"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule11Disc1Timingwafer"/>
+      <rChild name="etl:EModule11Disc1Timingactive"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule11Disc1"/>
+      <rChild name="etl:EModule11Disc1FSide"/>
+      <Translation x="25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule11Disc1"/>
+      <rChild name="etl:EModule11Disc1BSide"/>
+      <Translation x="-25*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule11Disc1"/>
+      <rChild name="etl:EModule11Disc1LSide"/>
+      <Translation x="0*mm" y="48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule11Disc1"/>
+      <rChild name="etl:EModule11Disc1RSide"/>
+      <Translation x="0*mm" y="-48*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule11Disc1"/>
+      <rChild name="etl:EModule11Disc1Between"/>
+      <Translation x="0*mm" y="0*mm" z="0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EModule11Disc1"/>
+      <rChild name="etl:EModule11Disc1SupportPlate"/>
+      <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support2"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support4"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support6"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support8"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support10"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support1"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support11"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support3"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support5"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support7"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Disc1_support9"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring1Disc1"/>
+      <rChild name="etl:Ring1Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring1Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring2Disc1"/>
+      <rChild name="etl:Ring2Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring2Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring3Disc1"/>
+      <rChild name="etl:Ring3Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring3Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring4Disc1"/>
+      <rChild name="etl:Ring4Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring4Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring5Disc1"/>
+      <rChild name="etl:Ring5Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring5Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring6Disc1"/>
+      <rChild name="etl:Ring6Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring6Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring7Disc1"/>
+      <rChild name="etl:Ring7Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring7Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring8Disc1"/>
+      <rChild name="etl:Ring8Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring8Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring9Disc1"/>
+      <rChild name="etl:Ring9Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring9Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring10Disc1"/>
+      <rChild name="etl:Ring10Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring10Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Ring11Disc1"/>
+      <rChild name="etl:Ring11Disc1_support"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1"/>
+      <rChild name="etl:Ring11Disc1"/>
+      <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:Disc1"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR264Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR361Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR452Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR537Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR629Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR713Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR805Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR887Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR979Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:serviceR1059Z2666"/>
+      <Translation x="0*mm" y="0*mm" z="16.65*mm"/>
+    </PosPart>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring1Disc1"/>
+      <String name="ChildName" value="etl:EModule1Disc1"/>
+      <Numeric name="N" value="27"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="313.5*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring1Disc1"/>
+      <String name="ChildName" value="etl:EModule1Disc1"/>
+      <Numeric name="N" value="27"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="6.54545*deg"/>
+      <Numeric name="Radius" value="313.5*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring2Disc1"/>
+      <String name="ChildName" value="etl:EModule2Disc1"/>
+      <Numeric name="N" value="35"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="404.69*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring2Disc1"/>
+      <String name="ChildName" value="etl:EModule2Disc1"/>
+      <Numeric name="N" value="35"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="5.07042*deg"/>
+      <Numeric name="Radius" value="404.69*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring3Disc1"/>
+      <String name="ChildName" value="etl:EModule3Disc1"/>
+      <Numeric name="N" value="36"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="489.88*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring3Disc1"/>
+      <String name="ChildName" value="etl:EModule3Disc1"/>
+      <Numeric name="N" value="36"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="5*deg"/>
+      <Numeric name="Radius" value="489.88*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring4Disc1"/>
+      <String name="ChildName" value="etl:EModule4Disc1"/>
+      <Numeric name="N" value="44"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="581.61*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring4Disc1"/>
+      <String name="ChildName" value="etl:EModule4Disc1"/>
+      <Numeric name="N" value="44"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="4.09091*deg"/>
+      <Numeric name="Radius" value="581.61*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring5Disc1"/>
+      <String name="ChildName" value="etl:EModule5Disc1"/>
+      <Numeric name="N" value="51"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="665.13*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring5Disc1"/>
+      <String name="ChildName" value="etl:EModule5Disc1"/>
+      <Numeric name="N" value="51"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="3.49515*deg"/>
+      <Numeric name="Radius" value="665.13*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring6Disc1"/>
+      <String name="ChildName" value="etl:EModule6Disc1"/>
+      <Numeric name="N" value="52"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="757.36*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring6Disc1"/>
+      <String name="ChildName" value="etl:EModule6Disc1"/>
+      <Numeric name="N" value="52"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="3.46154*deg"/>
+      <Numeric name="Radius" value="757.36*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring7Disc1"/>
+      <String name="ChildName" value="etl:EModule7Disc1"/>
+      <Numeric name="N" value="60"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="839.19*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring7Disc1"/>
+      <String name="ChildName" value="etl:EModule7Disc1"/>
+      <Numeric name="N" value="60"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="3*deg"/>
+      <Numeric name="Radius" value="839.19*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring8Disc1"/>
+      <String name="ChildName" value="etl:EModule8Disc1"/>
+      <Numeric name="N" value="68"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="931.88*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring8Disc1"/>
+      <String name="ChildName" value="etl:EModule8Disc1"/>
+      <Numeric name="N" value="68"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="2.64706*deg"/>
+      <Numeric name="Radius" value="931.88*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring9Disc1"/>
+      <String name="ChildName" value="etl:EModule9Disc1"/>
+      <Numeric name="N" value="76"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="1012*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring9Disc1"/>
+      <String name="ChildName" value="etl:EModule9Disc1"/>
+      <Numeric name="N" value="76"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="2.36842*deg"/>
+      <Numeric name="Radius" value="1012*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring10Disc1"/>
+      <String name="ChildName" value="etl:EModule10Disc1"/>
+      <Numeric name="N" value="76"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="1105.11*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring10Disc1"/>
+      <String name="ChildName" value="etl:EModule10Disc1"/>
+      <Numeric name="N" value="76"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="2.36842*deg"/>
+      <Numeric name="Radius" value="1105.11*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring11Disc1"/>
+      <String name="ChildName" value="etl:EModule11Disc1"/>
+      <Numeric name="N" value="84"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="0*deg"/>
+      <Numeric name="Radius" value="1183.5*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="0"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerRingAlgo">
+      <rParent name="etl:Ring11Disc1"/>
+      <String name="ChildName" value="etl:EModule11Disc1"/>
+      <Numeric name="N" value="84"/>
+      <Numeric name="StartCopyNo" value="2"/>
+      <Numeric name="IncrCopyNo" value="2"/>
+      <Numeric name="RangeAngle" value="360*deg"/>
+      <Numeric name="StartAngle" value="2.14286*deg"/>
+      <Numeric name="Radius" value="1183.5*mm"/>
+      <Vector name="Center" type="numeric" nEntries="3">0*mm,0*mm,-2.85*mm</Vector>
+      <Numeric name="IsZPlus" value="1"/>
+      <Numeric name="TiltAngle" value="90*deg"/>
+      <Numeric name="IsFlipped" value="1"/>
+    </Algorithm>
+  </PosPartSection>                                                    
+
+</DDDefinition>

@@ -55,9 +55,9 @@ def customisePostLS1(process,displayDeprecationWarning=True):
         #       2) add the option "--era Run2_25ns" 
         #   If using a pre-made configuration file:
         #       1) remove or comment out the "process = customisePostLS1(process)" line.
-        #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+        #       2) add "from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns" to the TOP of the config file (above
         #          the process declaration).
-        #       3) add "eras.Run2_25ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_25ns)" 
+        #       3) add "Run2_25ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',Run2_25ns)" 
         #
         # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
         #
@@ -99,9 +99,9 @@ def customisePostLS1_50ns(process,displayDeprecationWarning=True):
         #       2) add the option "--era Run2_50ns"
         #   If using a pre-made configuration file:
         #       1) remove or comment out the "process = customisePostLS1_50ns(process)" line.
-        #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+        #       2) add "from Configuration.Eras.Era_Run2_50ns_cff import Run2_50ns" to the TOP of the config file (above
         #          the process declaration).
-        #       3) add "eras.Run2_50ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_50ns)"
+        #       3) add "Run2_50ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',Run2_50ns)"
         #
         # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
         #
@@ -130,9 +130,9 @@ def customisePostLS1_HI(process,displayDeprecationWarning=True):
         #       2) add the option "--era Run2_HI"
         #   If using a pre-made configuration file:
         #       1) remove or comment out the "process = customisePostLS1_HI(process)" line.
-        #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+        #       2) add "from Configuration.Eras.Era_Run2_HI_cff import Run2_HI" to the TOP of the config file (above
         #          the process declaration).
-        #       3) add "eras.Run2_HI" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_HI)"
+        #       3) add "Run2_HI" as a parameter to the process object, e.g. "process = cms.Process('HLT',Run2_HI)"
         #
         # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
         #

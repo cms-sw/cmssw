@@ -9,18 +9,13 @@ date: 28-Dec-2010
 */
 
 #include "DataFormats/METReco/interface/MET.h"
-namespace reco
-{
-  class PFClusterMET:  public MET {
+namespace reco {
+  class PFClusterMET : public MET {
   public:
-    PFClusterMET() ;
-    PFClusterMET( double sumet_,
-		  const LorentzVector& fP4, const Point& fVertex )
-      : MET( sumet_, fP4, fVertex )  {}
+    PFClusterMET();
+    PFClusterMET(double sumet_, const LorentzVector& fP4, const Point& fVertex) : MET(sumet_, fP4, fVertex) {}
 
     ~PFClusterMET() override {}
-    
-
   };
-}
+}  // namespace reco
 #endif

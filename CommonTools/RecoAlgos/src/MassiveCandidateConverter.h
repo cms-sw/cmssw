@@ -4,17 +4,19 @@
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include <string>
 
-namespace edm { class EventSetup; }
+namespace edm {
+  class EventSetup;
+}
 
 namespace converter {
   struct MassiveCandidateConverter {
-    MassiveCandidateConverter( const edm::ParameterSet & );
-    void beginFirstRun( const edm::EventSetup & );
+    MassiveCandidateConverter(const edm::ParameterSet&);
+    void beginFirstRun(const edm::EventSetup&);
 
   protected:
     double massSqr_;
     PdtEntry particle_;
   };
-}
+}  // namespace converter
 
 #endif

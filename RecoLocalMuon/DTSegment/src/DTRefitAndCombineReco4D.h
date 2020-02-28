@@ -20,7 +20,7 @@
 namespace edm {
   class ParameterSet;
   class EventSetup;
-}
+}  // namespace edm
 class DTSegmentUpdator;
 //class DTSegmentCleaner;
 
@@ -31,37 +31,33 @@ class DTSegmentUpdator;
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-// ====================================================================== 
+// ======================================================================
 //#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
 
-// Class DTRefitAndCombineReco4D Interface 
+// Class DTRefitAndCombineReco4D Interface
 
 class DTRefitAndCombineReco4D : public DTRecSegment4DBaseAlgo {
-
- public:
-
+public:
   /// Constructor
-  DTRefitAndCombineReco4D(const edm::ParameterSet& pset) ;
-  
+  DTRefitAndCombineReco4D(const edm::ParameterSet &pset);
+
   /// Destructor
   ~DTRefitAndCombineReco4D() override{};
-    
-  /// Operations  
-  edm::OwnVector<DTRecSegment4D>
-    reconstruct() override;
-    
-  std::string algoName() const override { return theAlgoName; }
-    
-  void setES(const edm::EventSetup& setup) override;
 
-  void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) override {};
+  /// Operations
+  edm::OwnVector<DTRecSegment4D> reconstruct() override;
+
+  std::string algoName() const override { return theAlgoName; }
+
+  void setES(const edm::EventSetup &setup) override;
+
+  void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) override{};
   void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments) override;
   void setChamber(const DTChamberId &chId) override;
-  bool wants2DSegments() override{return true;}
+  bool wants2DSegments() override { return true; }
 
- protected:
-
- private:
+protected:
+private:
   std::vector<DTChamberRecSegment2D> refitSuperSegments();
 
   std::string theAlgoName;
@@ -71,19 +67,18 @@ class DTRefitAndCombineReco4D : public DTRecSegment4DBaseAlgo {
   bool debug;
   // DTSegmentUpdator* theUpdator; // the updator and fitter
   // DTSegmentCleaner* theCleaner; // the cleaner
-    
-  edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
 
-  //   // The reconstruction 2D algorithm 
-  // DTRecSegment2DBaseAlgo* the2DAlgo; 
+  edm::ESHandle<DTGeometry> theDTGeometry;  // the DT geometry
+
+  //   // The reconstruction 2D algorithm
+  // DTRecSegment2DBaseAlgo* the2DAlgo;
 
   // the updator
   DTSegmentUpdator *theUpdator;
-  
+
   const DTChamber *theChamber;
   std::vector<DTSLRecSegment2D> theSegments2DPhi1;
-  std::vector<DTSLRecSegment2D> theSegments2DTheta; 
+  std::vector<DTSLRecSegment2D> theSegments2DTheta;
   std::vector<DTSLRecSegment2D> theSegments2DPhi2;
-  
 };
 #endif

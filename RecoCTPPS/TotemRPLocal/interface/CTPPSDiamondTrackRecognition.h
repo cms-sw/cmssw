@@ -23,20 +23,19 @@
  * \brief Class performing smart reconstruction for PPS Diamond Detectors.
  * \date Jan 2017
 **/
-class CTPPSDiamondTrackRecognition : public CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>
-{
-  public:
-    CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig );
+class CTPPSDiamondTrackRecognition : public CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit> {
+public:
+  CTPPSDiamondTrackRecognition(const edm::ParameterSet& iConfig);
 
-    void clear() override;
-    /// Feed a new hit to the tracks recognition algorithm
-    void addHit( const CTPPSDiamondRecHit& recHit ) override;
-    /// Produce a collection of tracks for the current station, given its hits collection
-    int produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>& tracks ) override;
+  void clear() override;
+  /// Feed a new hit to the tracks recognition algorithm
+  void addHit(const CTPPSDiamondRecHit& recHit) override;
+  /// Produce a collection of tracks for the current station, given its hits collection
+  int produceTracks(edm::DetSet<CTPPSDiamondLocalTrack>& tracks) override;
 
-  private:
-    std::unordered_map<int,int> mhMap_;
+private:
+  std::unordered_map<int, int> mhMap_;
+  bool excludeSingleEdgeHits_;
 };
 
 #endif
-

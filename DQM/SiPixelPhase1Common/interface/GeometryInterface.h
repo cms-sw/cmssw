@@ -6,15 +6,25 @@
 // Class:      GeometryInterface
 //
 // The histogram manager uses this class to gather information about a sample.
-// All geometry dependence goes here. 
+// All geometry dependence goes here.
 //
 // Original Author: Marcel Schneider
 //
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Transition.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <functional>
 #include <map>
@@ -22,10 +32,10 @@
 #include <array>
 
 class GeometryInterface {
- public:
+public:
   // an ID is produced by interning a string name.
   typedef int ID;
-  // A column could have multiple IDs if it is a or-form. 
+  // A column could have multiple IDs if it is a or-form.
   // Not used atm, makes many things much easier.
   typedef ID Column;
   typedef double Value;
@@ -35,7 +45,9 @@ class GeometryInterface {
   // this should always be faster). Most ops turned out to be not needed.
   typedef std::vector<std::pair<Column, Value>> Values;
 
-  GeometryInterface(const edm::ParameterSet& conf) : iConfig(conf){};
+  GeometryInterface(const edm::ParameterSet&,
+                    edm::ConsumesCollector&&,
+                    edm::Transition transition = edm::Transition::BeginRun);
 
   bool loaded() { return is_loaded; };
 
@@ -51,8 +63,7 @@ class GeometryInterface {
   };
 
   // This has to be fast, _should_ not malloc.
-  void extractColumns(std::vector<Column> const& names,
-                      InterestingQuantities const& iq, Values& out) {
+  void extractColumns(std::vector<Column> const& names, InterestingQuantities const& iq, Values& out) {
     out.clear();
     for (Column const& col : names) {
       auto val = extract(col, iq);
@@ -68,9 +79,7 @@ class GeometryInterface {
     assert(ID(extractors.size()) > id || !"extractors vector too small!");
     auto& ex = extractors[id];
     if (!ex) {  // we have never heard about this. This is a typo for sure.
-      edm::LogError("GeometryInterface")
-          << "Undefined column used: " << unintern(id)
-          << ". Check your spelling.\n";
+      edm::LogError("GeometryInterface") << "Undefined column used: " << unintern(id) << ". Check your spelling.\n";
     } else {
       auto val = ex(iq);
       if (val != UNDEFINED) {
@@ -80,17 +89,14 @@ class GeometryInterface {
     return std::make_pair(col, UNDEFINED);
   }
 
-  Value extract(ID id, DetId did, edm::Event* ev = nullptr, int16_t col = 0,
-                int16_t row = 0) {
+  Value extract(ID id, DetId did, edm::Event* ev = nullptr, int16_t col = 0, int16_t row = 0) {
     InterestingQuantities iq = {ev, did, col, row};
     return extractors[id](iq);
   }
 
   // TODO: for Phase0 (and maybe also Phase2) this should include the 4 corners
   // of each ROC (or the *correct* corners of the respective modules).
-  std::vector<InterestingQuantities> const& allModules() {
-    return all_modules;
-  }
+  std::vector<InterestingQuantities> const& allModules() { return all_modules; }
 
   Value maxValue(ID id) { return max_value[id]; };
   Value minValue(ID id) { return min_value[id]; };
@@ -111,29 +117,39 @@ class GeometryInterface {
   // either).
   std::string unintern(ID id) {
     for (auto& e : ids)
-      if (e.second == id) return e.first;
+      if (e.second == id)
+        return e.first;
     return "INVALID";
   }
 
-  std::string pretty(Column col) {
-    return unintern(col);
-  }
+  std::string pretty(Column col) { return unintern(col); }
 
   std::string formatValue(Column, Value);
 
- private:
-  void loadFromTopology(edm::EventSetup const& iSetup,
-                        const edm::ParameterSet& iConfig);
-  void loadFromSiPixelCoordinates(edm::EventSetup const& iSetup,
-                        const edm::ParameterSet& iConfig);
-  void loadTimebased(edm::EventSetup const& iSetup,
-                     const edm::ParameterSet& iConfig);
-  void loadModuleLevel(edm::EventSetup const& iSetup,
-                       const edm::ParameterSet& iConfig);
-  void loadFEDCabling(edm::EventSetup const& iSetup,
-                      const edm::ParameterSet& iConfig);
+private:
+  void loadFromTopology(const TrackerGeometry&, const TrackerTopology&, const edm::ParameterSet&);
+  void loadFromSiPixelCoordinates(const TrackerGeometry&,
+                                  const TrackerTopology&,
+                                  const SiPixelFedCablingMap&,
+                                  const edm::ParameterSet&);
+  void loadTimebased(const edm::ParameterSet& iConfig);
+  void loadModuleLevel(const edm::ParameterSet& iConfig);
+  void loadFEDCabling(const SiPixelFedCablingMap*);
 
   const edm::ParameterSet iConfig;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  // When converting this module to use esConsumes I preserved the previous behavior.
+  // In one place a configurable label is allowed when getting SiPixelFedCablingMap
+  // and in another place it always assumes an empty label. I am not sure if this is
+  // actually correct (seems strange). Maybe it does not matter as in all the configurations
+  // I could find in the repository the parameter was an empty string... An expert who
+  // understands this might want to fix this or eliminate this comment if the behavior is
+  // correct.
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingMapToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> labeledSiPixelFedCablingMapToken_;
+  std::string cablingMapLabel_;
 
   bool is_loaded = false;
 
@@ -152,7 +168,9 @@ class GeometryInterface {
 
   void addExtractor(ID id,
                     std::function<Value(InterestingQuantities const& iq)> func,
-                    Value min = UNDEFINED, Value max = UNDEFINED, Value binwidth = 1) {
+                    Value min = UNDEFINED,
+                    Value max = UNDEFINED,
+                    Value binwidth = 1) {
     max_value[id] = max;
     min_value[id] = min;
     bin_width[id] = binwidth;

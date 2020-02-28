@@ -11,7 +11,6 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
-
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class FreeTrajectoryState;
@@ -19,62 +18,56 @@ class FreeTrajectoryState;
 //
 // this class need to be cleaned and optimized as those in RecoTracker/TkSeedGenerator
 //
-class dso_hidden SeedForPhotonConversion1Leg  {
+class dso_hidden SeedForPhotonConversion1Leg {
 public:
-  static const int cotTheta_Max=99999;
-  
-  SeedForPhotonConversion1Leg( const edm::ParameterSet & cfg):
-    thePropagatorLabel (cfg.getParameter<std::string>("propagator"))
-    ,theBOFFMomentum   (cfg.getParameter<double>("SeedMomentumForBOFF"))
-    ,TTRHBuilder       (cfg.getParameter<std::string>("TTRHBuilder"))
-      {}
+  static const int cotTheta_Max = 99999;
+
+  SeedForPhotonConversion1Leg(const edm::ParameterSet& cfg)
+      : thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
+        theBOFFMomentum(cfg.getParameter<double>("SeedMomentumForBOFF")),
+        TTRHBuilder(cfg.getParameter<std::string>("TTRHBuilder")) {}
 
   //dtor
-  ~SeedForPhotonConversion1Leg(){}
+  ~SeedForPhotonConversion1Leg() {}
 
-  const TrajectorySeed * trajectorySeed( TrajectorySeedCollection & seedCollection,
-						 const SeedingHitSet & hits,
-						 const GlobalPoint & vertex,
-						 const GlobalVector & vertexBounds,
-						 float ptmin,
-						 const edm::EventSetup& es,
-						 float cotTheta,
-						 std::stringstream& ss);
+  const TrajectorySeed* trajectorySeed(TrajectorySeedCollection& seedCollection,
+                                       const SeedingHitSet& hits,
+                                       const GlobalPoint& vertex,
+                                       const GlobalVector& vertexBounds,
+                                       float ptmin,
+                                       const edm::EventSetup& es,
+                                       float cotTheta,
+                                       std::stringstream& ss);
 
-  
- protected:
+protected:
+  bool checkHit(const TrajectoryStateOnSurface&,
+                const SeedingHitSet::ConstRecHitPointer& hit,
+                const edm::EventSetup& es) const {
+    return true;
+  }
 
-  bool checkHit(
-			const TrajectoryStateOnSurface &,
-			const SeedingHitSet::ConstRecHitPointer &hit,
-			const edm::EventSetup& es) const { return true; }
+  GlobalTrajectoryParameters initialKinematic(const SeedingHitSet& hits,
+                                              const GlobalPoint& vertexPos,
+                                              const edm::EventSetup& es,
+                                              const float cotTheta) const;
 
-  GlobalTrajectoryParameters initialKinematic(
-						      const SeedingHitSet & hits, 
-						      const GlobalPoint & vertexPos, 
-						      const edm::EventSetup& es,
-						      const float cotTheta) const;
-  
-  CurvilinearTrajectoryError initialError(
-						  const GlobalVector& vertexBounds, 
-						  float ptMin,  
-						  float sinTheta) const;
-  
-  const TrajectorySeed * buildSeed(
-					   TrajectorySeedCollection & seedCollection,
-					   const SeedingHitSet & hits,
-					   const FreeTrajectoryState & fts,
-					   const edm::EventSetup& es) const;
+  CurvilinearTrajectoryError initialError(const GlobalVector& vertexBounds, float ptMin, float sinTheta) const;
 
-  SeedingHitSet::RecHitPointer refitHit( SeedingHitSet::ConstRecHitPointer hit, 
-					 const TrajectoryStateOnSurface &state, const TkClonerImpl& cloner) const;
-  
+  const TrajectorySeed* buildSeed(TrajectorySeedCollection& seedCollection,
+                                  const SeedingHitSet& hits,
+                                  const FreeTrajectoryState& fts,
+                                  const edm::EventSetup& es) const;
+
+  SeedingHitSet::RecHitPointer refitHit(SeedingHitSet::ConstRecHitPointer hit,
+                                        const TrajectoryStateOnSurface& state,
+                                        const TkClonerImpl& cloner) const;
+
 protected:
   std::string thePropagatorLabel;
   double theBOFFMomentum;
   std::string TTRHBuilder;
 
-  std::stringstream * pss;
+  std::stringstream* pss;
   PrintRecoObjects po;
 };
-#endif 
+#endif

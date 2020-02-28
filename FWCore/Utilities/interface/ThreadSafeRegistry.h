@@ -33,10 +33,10 @@ namespace edm {
     template <typename KEY, typename T>
     class ThreadSafeRegistry {
     public:
-      typedef KEY   key_type;
-      typedef T     value_type;
+      typedef KEY key_type;
+      typedef T value_type;
       typedef typename std::map<key_type, value_type> collection_type;
-      typedef typename collection_type::size_type      size_type;
+      typedef typename collection_type::size_type size_type;
 
       typedef typename std::vector<value_type> vector_type;
 
@@ -48,7 +48,7 @@ namespace edm {
       /// If we return 'false, no matching key was found, and
       /// the value of 'result' is undefined.
       bool getMapped(key_type const& k, value_type& result) const;
-      
+
       /** Retrieve a pointer to the value_type object with the given key.
        If there is no object associated with the given key 0 is returned.
        */
@@ -85,83 +85,67 @@ namespace edm {
       ~ThreadSafeRegistry();
 
       // The following two are not implemented.
-      ThreadSafeRegistry(ThreadSafeRegistry<KEY,T> const&) = delete; 
-    
-      ThreadSafeRegistry<KEY,T>& 
-      operator= (ThreadSafeRegistry<KEY,T> const&) = delete;
+      ThreadSafeRegistry(ThreadSafeRegistry<KEY, T> const&) = delete;
+
+      ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
 
       mutable std::mutex mutex_;
       collection_type data_;
     };
 
     template <typename KEY, typename T, typename E>
-    inline
-    std::ostream&
-    operator<< (std::ostream& os, ThreadSafeRegistry<KEY,T> const& reg) {
+    inline std::ostream& operator<<(std::ostream& os, ThreadSafeRegistry<KEY, T> const& reg) {
       reg.print(os);
       return os;
     }
 
     template <typename KEY, typename T>
-    void 
-    ThreadSafeRegistry<KEY,T>::insertCollection(collection_type const& c) {
-      for (auto const& item: c ) {
-	insertMapped(item.second);
+    void ThreadSafeRegistry<KEY, T>::insertCollection(collection_type const& c) {
+      for (auto const& item : c) {
+        insertMapped(item.second);
       }
     }
 
     template <typename KEY, typename T>
-    void 
-    ThreadSafeRegistry<KEY,T>::insertCollection(vector_type const& c) {
-      for (auto const& item: c) {
-	insertMapped(item);
+    void ThreadSafeRegistry<KEY, T>::insertCollection(vector_type const& c) {
+      for (auto const& item : c) {
+        insertMapped(item);
       }
     }
 
     template <typename KEY, typename T>
-    inline
-    bool
-    ThreadSafeRegistry<KEY,T>::empty() const {
+    inline bool ThreadSafeRegistry<KEY, T>::empty() const {
       std::lock_guard<std::mutex> guard(mutex_);
       return data_.empty();
     }
-    
+
     template <typename KEY, typename T>
-    inline
-    bool
-    ThreadSafeRegistry<KEY,T>::notEmpty() const {
+    inline bool ThreadSafeRegistry<KEY, T>::notEmpty() const {
       return !empty();
     }
 
     template <typename KEY, typename T>
-    inline
-    typename ThreadSafeRegistry<KEY,T>::size_type
-    ThreadSafeRegistry<KEY,T>::size() const {
+    inline typename ThreadSafeRegistry<KEY, T>::size_type ThreadSafeRegistry<KEY, T>::size() const {
       std::lock_guard<std::mutex> guard(mutex_);
       return data_.size();
     }
 
     template <typename KEY, typename T>
-    void
-    ThreadSafeRegistry<KEY,T>::print(std::ostream& os) const {
+    void ThreadSafeRegistry<KEY, T>::print(std::ostream& os) const {
       std::lock_guard<std::mutex> guard(mutex_);
       os << "Registry with " << size() << " entries\n";
-      for (auto const& item: data_) {
-	  os << item.first << " " << item.second << '\n';
+      for (auto const& item : data_) {
+        os << item.first << " " << item.second << '\n';
       }
     }
 
-    template <typename KEY, typename T> 
-    ThreadSafeRegistry<KEY,T>::ThreadSafeRegistry() : 
-      data_()
-    { }
+    template <typename KEY, typename T>
+    ThreadSafeRegistry<KEY, T>::ThreadSafeRegistry() : data_() {}
 
+    template <typename KEY, typename T>
+    ThreadSafeRegistry<KEY, T>::~ThreadSafeRegistry() {}
 
-    template <typename KEY, typename T> 
-    ThreadSafeRegistry<KEY,T>::~ThreadSafeRegistry() 
-    { }
-
-  } // namespace detail
-} // namespace edm
+  }  // namespace detail
+}  // namespace edm
 #pragma GCC visibility pop
-#endif //  FWCore_Utilities_ThreadSafeRegistry_h
+#endif  //  FWCore_Utilities_ThreadSafeRegistry_h

@@ -6,4 +6,7 @@
 <use   name="CommonTools/TrackerMap"/>
 <use   name="CalibTracker/StandaloneTrackerTopology"/>
 <bin   file="testSiStripPayloadInspector.cpp" name="testSiStripPayloadInspector">
+  <ifrelease name="_PY3_">
+    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
+  </ifrelease>
 </bin>

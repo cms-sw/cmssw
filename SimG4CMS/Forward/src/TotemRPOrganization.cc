@@ -6,7 +6,7 @@
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
 
@@ -18,41 +18,36 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VPhysicalVolume.hh"
-#include "G4VTouchable.hh" 
+#include "G4VTouchable.hh"
 
 //
 // constructors and destructor
 //
-TotemRPOrganization :: TotemRPOrganization() {
+TotemRPOrganization ::TotemRPOrganization() { edm::LogInfo("ForwardSim") << "Creating TotemRPOrganization"; }
 
-  edm::LogInfo("ForwardSim") << "Creating TotemRPOrganization";
-}
-
-TotemRPOrganization :: ~TotemRPOrganization() {
-}
+TotemRPOrganization ::~TotemRPOrganization() {}
 
 //
 // member functions
 //
 
-uint32_t TotemRPOrganization :: getUnitID(const G4Step* aStep) const {
-
+uint32_t TotemRPOrganization ::getUnitID(const G4Step* aStep) const {
   G4VPhysicalVolume* physVol;
-  int32_t UNITA=0;
+  int32_t UNITA = 0;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  int ii =0;
-  for( ii = 0; ii < touch->GetHistoryDepth(); ii++ ){
+  int ii = 0;
+  for (ii = 0; ii < touch->GetHistoryDepth(); ii++) {
     physVol = touch->GetVolume(ii);
-   
+
 #ifdef SCRIVI
-    LogDebug("ForwardSim") << "physVol=" << physVol->GetName() << ", level="
-			   << ii  << ", physVol->GetCopyNo()=" 
-			   << physVol->GetCopyNo();
+    LogDebug("ForwardSim") << "physVol=" << physVol->GetName() << ", level=" << ii
+                           << ", physVol->GetCopyNo()=" << physVol->GetCopyNo();
 #endif
   }
-  physVol= touch->GetVolume(0);//aStep->GetPreStepPoint()->GetPhysicalVolume();
-  
-  if(physVol->GetName() == "myRP") UNITA=(touch->GetVolume(5)->GetCopyNo())*1111;
+  physVol = touch->GetVolume(0);  //aStep->GetPreStepPoint()->GetPhysicalVolume();
+
+  if (physVol->GetName() == "myRP")
+    UNITA = (touch->GetVolume(5)->GetCopyNo()) * 1111;
 
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "\nUNITA-RP " << UNITA << "\n\n";

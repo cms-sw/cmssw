@@ -32,17 +32,16 @@
 /**
  *\brief Prints the Analysis Mask loaded by TotemDAQMappingESSourceXML.
  **/
-class WriteCTPPSPixelAnalysisMask : public edm::one::EDAnalyzer<>
-{
-  public:
-    WriteCTPPSPixelAnalysisMask(const edm::ParameterSet &ps);
-    ~WriteCTPPSPixelAnalysisMask() override {}
+class WriteCTPPSPixelAnalysisMask : public edm::one::EDAnalyzer<> {
+public:
+  WriteCTPPSPixelAnalysisMask(const edm::ParameterSet &ps);
+  ~WriteCTPPSPixelAnalysisMask() override {}
 
-  private:
-    void analyze(const edm::Event &e, const edm::EventSetup &es) override;
-    cond::Time_t analysismaskiov_;
-    std::string record_;
-    std::string label_;
+private:
+  void analyze(const edm::Event &e, const edm::EventSetup &es) override;
+  cond::Time_t analysismaskiov_;
+  std::string record_;
+  std::string label_;
 };
 
 using namespace std;
@@ -50,16 +49,12 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-WriteCTPPSPixelAnalysisMask::WriteCTPPSPixelAnalysisMask(const edm::ParameterSet &ps) :
-analysismaskiov_(ps.getParameter<unsigned long long>("analysismaskiov")),
-record_(ps.getParameter<string>("record")),
-label_(ps.getParameter<string>("label"))
-{}
+WriteCTPPSPixelAnalysisMask::WriteCTPPSPixelAnalysisMask(const edm::ParameterSet &ps)
+    : analysismaskiov_(ps.getParameter<unsigned long long>("analysismaskiov")),
+      record_(ps.getParameter<string>("record")),
+      label_(ps.getParameter<string>("label")) {}
 
-
-void WriteCTPPSPixelAnalysisMask::analyze(const edm::Event&, edm::EventSetup const& es)
-{
-
+void WriteCTPPSPixelAnalysisMask::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get analysis mask to mask channels
   ESHandle<CTPPSPixelAnalysisMask> analysisMask;
   es.get<CTPPSPixelAnalysisMaskRcd>().get(label_, analysisMask);
@@ -73,13 +68,11 @@ void WriteCTPPSPixelAnalysisMask::analyze(const edm::Event&, edm::EventSetup con
   */
 
   // Write Analysis Mask to sqlite file:
-  const CTPPSPixelAnalysisMask* pCTPPSPixelAnalysisMask = analysisMask.product(); // Analysis Mask
+  const CTPPSPixelAnalysisMask *pCTPPSPixelAnalysisMask = analysisMask.product();  // Analysis Mask
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( poolDbService.isAvailable() ){
-    poolDbService->writeOne( pCTPPSPixelAnalysisMask, analysismaskiov_, /*m_record*/ record_  );
+  if (poolDbService.isAvailable()) {
+    poolDbService->writeOne(pCTPPSPixelAnalysisMask, analysismaskiov_, /*m_record*/ record_);
   }
-
-
 }
 
 //----------------------------------------------------------------------------------------------------

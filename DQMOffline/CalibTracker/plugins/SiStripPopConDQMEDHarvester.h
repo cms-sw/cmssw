@@ -11,21 +11,16 @@
 // Compared to popCon::SourceHandler, the concrete types should additionally implement
 // the `void initES(const edm::EventSetup&)` and
 // `void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&)` methods
-template<class SourceHandler>
-class SiStripPopConDQMEDHarvester : public DQMEDHarvester
-{
+template <class SourceHandler>
+class SiStripPopConDQMEDHarvester : public DQMEDHarvester {
 public:
-  SiStripPopConDQMEDHarvester(const edm::ParameterSet& pset) :
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  SiStripPopConDQMEDHarvester(const edm::ParameterSet& pset)
+      : m_populator(pset), m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
   ~SiStripPopConDQMEDHarvester() override {}
 
 private:
-  void beginRun(const edm::Run&, const edm::EventSetup& setup) override
-  {
-    m_source.initES(setup);
-  }
+  void beginRun(const edm::Run&, const edm::EventSetup& setup) override { m_source.initES(setup); }
 
   void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override {
     m_source.dqmEndJob(booker, getter);
@@ -37,4 +32,4 @@ private:
   SourceHandler m_source;
 };
 
-#endif // DQMOffline_CalibTracker_SiStripPopConDQMEDHarvester_H
+#endif  // DQMOffline_CalibTracker_SiStripPopConDQMEDHarvester_H

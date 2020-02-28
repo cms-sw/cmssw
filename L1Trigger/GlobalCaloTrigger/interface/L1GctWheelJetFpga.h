@@ -12,7 +12,7 @@
 * 
 * \author Jim Brooke & Robert Frazier
 * \date May 2006
-*/ 
+*/
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
@@ -26,11 +26,10 @@ class L1GctJetSorter;
 
 #include <vector>
 
-class L1GctWheelJetFpga : public L1GctProcessor
-{
+class L1GctWheelJetFpga : public L1GctProcessor {
 public:
   typedef std::vector<L1GctJetCand> JetVector;
-  typedef L1GctTwosComplement< L1GctInternHtMiss::kMissHxOrHyNBits > htComponentType;
+  typedef L1GctTwosComplement<L1GctInternHtMiss::kMissHxOrHyNBits> htComponentType;
   typedef L1GctJetLeafCard::hfTowerSumsType hfTowerSumsType;
 
   /// Max number of jets of each type we output.
@@ -43,14 +42,13 @@ public:
   static const unsigned int MAX_JETS_PER_LEAF;
 
   /// id must be 0 / 1 for -ve/+ve eta halves of CMS
-  L1GctWheelJetFpga(int id,
-		    const std::vector<L1GctJetLeafCard*>& inputLeafCards);
+  L1GctWheelJetFpga(int id, const std::vector<L1GctJetLeafCard*>& inputLeafCards);
 
   /// destructor
   ~L1GctWheelJetFpga() override;
 
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);
+  friend std::ostream& operator<<(std::ostream& os, const L1GctWheelJetFpga& fpga);
 
   /// get input data from sources
   void fetchInput() override;
@@ -58,16 +56,16 @@ public:
   /// process the data, fill output buffers
   void process() override;
 
-  /// set input data      
-  void setInputJet(int i, const L1GctJetCand& jet); 
-    
+  /// set input data
+  void setInputJet(int i, const L1GctJetCand& jet);
+
   /// get the input jets. Jets 0-5 from leaf card 0, jetfinderA.  Jets 6-11 from leaf card 0, jetfinder B... etc.
   JetVector getInputJets() const { return m_inputJets; }
-    
+
   /// get the input Ht components
   htComponentType inputHx(unsigned leafnum) const { return m_inputHx.at(leafnum); }
   htComponentType inputHy(unsigned leafnum) const { return m_inputHy.at(leafnum); }
-    
+
   /// get the input Hf Sums
   hfTowerSumsType inputHfSums(unsigned leafnum) const { return m_inputHfSums.at(leafnum); }
 
@@ -91,10 +89,9 @@ public:
   bool setupOk() const { return checkSetup(); }
 
   /// get the Et sums in internal component format
-  std::vector< L1GctInternHtMiss > getInternalHtMiss() const;
+  std::vector<L1GctInternHtMiss> getInternalHtMiss() const;
 
- protected:
-
+protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
   void resetProcessor() override;
   void resetPipelines() override;
@@ -103,9 +100,8 @@ public:
   void setupObjects() override;
 
 private:
+  static const int MAX_JETS_IN;  ///< Maximum number of jets we can have as input
 
-  static const int MAX_JETS_IN;    ///< Maximum number of jets we can have as input
-    
   /// algo ID
   int m_id;
 
@@ -119,36 +115,36 @@ private:
 
   /// input data. Jets 0-5 from leaf card 0, jetfinderA.  Jets 6-11 from leaf card 0, jetfinder B... etc.
   JetVector m_inputJets;
-    
+
   // Holds the all the various inputted jets, re-addressed using proper GCT->GT jet addressing
-  JetVector m_rawCentralJets; 
-  JetVector m_rawForwardJets; 
-  JetVector m_rawTauJets; 
+  JetVector m_rawCentralJets;
+  JetVector m_rawForwardJets;
+  JetVector m_rawTauJets;
 
   // input Ht component sums from each leaf card
-  std::vector< htComponentType > m_inputHx;
-  std::vector< htComponentType > m_inputHy;
+  std::vector<htComponentType> m_inputHx;
+  std::vector<htComponentType> m_inputHy;
 
   // input Hf Et sums from each leaf card
-  std::vector< hfTowerSumsType > m_inputHfSums;
+  std::vector<hfTowerSumsType> m_inputHfSums;
 
   // output data
   JetVector m_centralJets;
   JetVector m_forwardJets;
   JetVector m_tauJets;
-    
+
   // data sent to GlobalEnergyAlgos
   htComponentType m_outputHx;
   htComponentType m_outputHy;
   hfTowerSumsType m_outputHfSums;
-      
-  Pipeline< htComponentType > m_outputHxPipe;
-  Pipeline< htComponentType > m_outputHyPipe;
+
+  Pipeline<htComponentType> m_outputHxPipe;
+  Pipeline<htComponentType> m_outputHyPipe;
 
   //PRIVATE METHODS
   /// Check the setup, independently of how we have been constructed
   bool checkSetup() const;
-  /// Puts the output from a jetfinder into the correct index range of the m_inputJets array. 
+  /// Puts the output from a jetfinder into the correct index range of the m_inputJets array.
   void storeJets(const JetVector& jets, unsigned short iLeaf, unsigned short offset);
   /// Classifies jets into central, forward or tau.
   void classifyJets();
@@ -156,6 +152,6 @@ private:
   void setupJetsVectors(const int16_t bx);
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);
+std::ostream& operator<<(std::ostream& os, const L1GctWheelJetFpga& fpga);
 
 #endif /*L1GCTWHEELJETFPGA_H_*/

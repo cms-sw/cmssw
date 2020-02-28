@@ -2,7 +2,7 @@
 //
 // Package:    METAlgorithms
 // Class:      CaloSpecificAlgo
-// 
+//
 /**\class CaloSpecificAlgo CaloSpecificAlgo.h RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h
 
  Description: Adds Calorimeter specific information to MET base class
@@ -34,28 +34,51 @@ class CaloTower;
 struct SpecificCaloMETData;
 
 //____________________________________________________________________________||
-class CaloSpecificAlgo 
-{
+class CaloSpecificAlgo {
+public:
+  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers,
+                        const CommonMETData &met,
+                        bool noHF,
+                        double globalThreshold);
 
- public:
-  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, const CommonMETData& met, bool noHF, double globalThreshold);
-
- private:
+private:
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
-  void update_totalEt_totalEm(double &totalEt, double& totalEm, const CaloTower* calotower, bool noHF);
-  void update_MaxTowerEm_MaxTowerHad(float &MaxTowerEm, float &MaxTowerHad, const CaloTower* calotower, bool noHF);
-  void update_EmEtInEB_EmEtInEE(float &EmEtInEB, float &EmEtInEE, const CaloTower* calotower);
-  void update_HadEtInHB_HadEtInHE_HadEtInHO_HadEtInHF_EmEtInHF(float &HadEtInHB, float &HadEtInHE, float &HadEtInHO, float &HadEtInHF, float &EmEtInHF, const CaloTower* calotower, bool noHF);
-  void update_sumEtInpHF_MExInpHF_MEyInpHF_sumEtInmHF_MExInmHF_MEyInmHF(double &sumEtInpHF, double &MExInpHF, double &MEyInpHF, double &sumEtInmHF, double &MExInmHF, double &MEyInmHF, const CaloTower* calotower);
-  void remove_HF_from_MET(CommonMETData &met, double sumEtInpHF, double MExInpHF, double MEyInpHF, double sumEtInmHF, double MExInmHF, double MEyInmHF);
-  void add_MET_in_HF(SpecificCaloMETData &specific, double sumEtInpHF, double MExInpHF, double MEyInpHF, double sumEtInmHF, double MExInmHF, double MEyInmHF);
+  void update_totalEt_totalEm(double &totalEt, double &totalEm, const CaloTower *calotower, bool noHF);
+  void update_MaxTowerEm_MaxTowerHad(float &MaxTowerEm, float &MaxTowerHad, const CaloTower *calotower, bool noHF);
+  void update_EmEtInEB_EmEtInEE(float &EmEtInEB, float &EmEtInEE, const CaloTower *calotower);
+  void update_HadEtInHB_HadEtInHE_HadEtInHO_HadEtInHF_EmEtInHF(float &HadEtInHB,
+                                                               float &HadEtInHE,
+                                                               float &HadEtInHO,
+                                                               float &HadEtInHF,
+                                                               float &EmEtInHF,
+                                                               const CaloTower *calotower,
+                                                               bool noHF);
+  void update_sumEtInpHF_MExInpHF_MEyInpHF_sumEtInmHF_MExInmHF_MEyInmHF(double &sumEtInpHF,
+                                                                        double &MExInpHF,
+                                                                        double &MEyInpHF,
+                                                                        double &sumEtInmHF,
+                                                                        double &MExInmHF,
+                                                                        double &MEyInmHF,
+                                                                        const CaloTower *calotower);
+  void remove_HF_from_MET(CommonMETData &met,
+                          double sumEtInpHF,
+                          double MExInpHF,
+                          double MEyInpHF,
+                          double sumEtInmHF,
+                          double MExInmHF,
+                          double MEyInmHF);
+  void add_MET_in_HF(SpecificCaloMETData &specific,
+                     double sumEtInpHF,
+                     double MExInpHF,
+                     double MEyInpHF,
+                     double sumEtInmHF,
+                     double MExInmHF,
+                     double MEyInmHF);
 
-  DetId find_DetId_of_HCAL_cell_in_constituent_of(const CaloTower* calotower);
-  DetId find_DetId_of_ECAL_cell_in_constituent_of(const CaloTower* calotower);
-
+  DetId find_DetId_of_HCAL_cell_in_constituent_of(const CaloTower *calotower);
+  DetId find_DetId_of_ECAL_cell_in_constituent_of(const CaloTower *calotower);
 };
 
 //____________________________________________________________________________||
-#endif // METProducers_CaloMETInfo_h
-
+#endif  // METProducers_CaloMETInfo_h

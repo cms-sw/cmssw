@@ -11,29 +11,21 @@
 //--------------------------------------------------
 #include "L1TriggerConfig/GMTConfigProducers/interface/L1MuGMTParametersProducer.h"
 
-L1MuGMTParametersProducer::L1MuGMTParametersProducer(const edm::ParameterSet& ps)
-{
- 
+L1MuGMTParametersProducer::L1MuGMTParametersProducer(const edm::ParameterSet& ps) {
   m_ps = new edm::ParameterSet(ps);
   setWhatProduced(this, &L1MuGMTParametersProducer::produceL1MuGMTParameters);
   setWhatProduced(this, &L1MuGMTParametersProducer::produceL1MuGMTChannelMask);
-  
 }
 
-
-L1MuGMTParametersProducer::~L1MuGMTParametersProducer() {
-  delete m_ps;
-}
-
+L1MuGMTParametersProducer::~L1MuGMTParametersProducer() { delete m_ps; }
 
 //
 // member functions
 //
 
 // ------------ methods called to produce the data  ------------
-std::unique_ptr<L1MuGMTParameters> 
-L1MuGMTParametersProducer::produceL1MuGMTParameters(const L1MuGMTParametersRcd& iRecord)
-{
+std::unique_ptr<L1MuGMTParameters> L1MuGMTParametersProducer::produceL1MuGMTParameters(
+    const L1MuGMTParametersRcd& iRecord) {
   auto gmtparams = std::make_unique<L1MuGMTParameters>();
 
   gmtparams->setEtaWeight_barrel(m_ps->getParameter<double>("EtaWeight_barrel"));
@@ -79,16 +71,14 @@ L1MuGMTParametersProducer::produceL1MuGMTParameters(const L1MuGMTParametersRcd& 
   gmtparams->setVersionSortRankEtaQLUT(m_ps->getParameter<unsigned>("VersionSortRankEtaQLUT"));
   gmtparams->setVersionLUTs(m_ps->getParameter<unsigned>("VersionLUTs"));
 
-  return gmtparams ;
+  return gmtparams;
 }
 
-std::unique_ptr<L1MuGMTChannelMask> 
-L1MuGMTParametersProducer::produceL1MuGMTChannelMask(const L1MuGMTChannelMaskRcd& iRecord)
-{
+std::unique_ptr<L1MuGMTChannelMask> L1MuGMTParametersProducer::produceL1MuGMTChannelMask(
+    const L1MuGMTChannelMaskRcd& iRecord) {
   auto gmtchanmask = std::make_unique<L1MuGMTChannelMask>();
 
   gmtchanmask->setSubsystemMask(m_ps->getParameter<unsigned>("SubsystemMask"));
 
-  return gmtchanmask ;
+  return gmtchanmask;
 }
-

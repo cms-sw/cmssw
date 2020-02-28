@@ -8,20 +8,19 @@ class AnnealingSchedule {
    *  annealing schedules.
    */
 public:
-
-  virtual ~AnnealingSchedule() {};
-  virtual void anneal() = 0; //< One annealing step.
+  virtual ~AnnealingSchedule(){};
+  virtual void anneal() = 0;  //< One annealing step.
   virtual void resetAnnealing() = 0;
 
   /**
    *  phi ( chi2 ) = e^( -.5*chi2 / T )
    */
-  virtual double phi ( double chi2 ) const = 0;
+  virtual double phi(double chi2) const = 0;
 
   /**
    *  Returns phi(chi2) / ( phi(cutoff^2) + phi(chi2) ),
    */
-  virtual double weight ( double chi2 ) const = 0;
+  virtual double weight(double chi2) const = 0;
 
   /**
    *  Returns phi(chi2) / ( phi(cutoff^2) + sum_i { phi(chi2s[i]) } )
@@ -39,7 +38,7 @@ public:
 
   virtual void debug() const = 0;
 
-  virtual AnnealingSchedule * clone() const = 0;
+  virtual AnnealingSchedule* clone() const = 0;
 };
 
 #endif

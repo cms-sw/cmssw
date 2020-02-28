@@ -30,7 +30,6 @@ namespace edm {
   template <typename T>
   class ThreadSafeAddOnlyContainer {
   public:
-
     ThreadSafeAddOnlyContainer();
 
     ~ThreadSafeAddOnlyContainer();
@@ -39,10 +38,8 @@ namespace edm {
     T* makeAndHold(Args&&... args);
 
   private:
-
     class Node {
     public:
-
       template <typename... Args>
       Node(Node* iNext, Args&&... args);
       Node const* next() const { return next_; }
@@ -50,7 +47,6 @@ namespace edm {
       T* address() { return &data_; }
 
     private:
-
       Node* next_;
       T data_;
     };
@@ -59,9 +55,7 @@ namespace edm {
   };
 
   template <typename T>
-  ThreadSafeAddOnlyContainer<T>::ThreadSafeAddOnlyContainer() :
-      front_(nullptr) {
-  }
+  ThreadSafeAddOnlyContainer<T>::ThreadSafeAddOnlyContainer() : front_(nullptr) {}
 
   template <typename T>
   ThreadSafeAddOnlyContainer<T>::~ThreadSafeAddOnlyContainer() {
@@ -87,10 +81,8 @@ namespace edm {
 
   template <typename T>
   template <typename... Args>
-  ThreadSafeAddOnlyContainer<T>::Node::Node(Node* iNext, Args&&... args) :
-    next_(iNext),
-    data_(std::forward<Args>(args)...) {
-  }
-}
+  ThreadSafeAddOnlyContainer<T>::Node::Node(Node* iNext, Args&&... args)
+      : next_(iNext), data_(std::forward<Args>(args)...) {}
+}  // namespace edm
 
 #endif

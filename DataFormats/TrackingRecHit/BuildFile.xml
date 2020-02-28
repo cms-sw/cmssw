@@ -2,6 +2,7 @@
 <use   name="DataFormats/CLHEP"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="Geometry/CommonDetUnit"/>
+<use   name="DataFormats/GeometryCommonDetAlgo"/>
 <use   name="FWCore/Utilities"/>
 <use   name="clhep"/>
 

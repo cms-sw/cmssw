@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,18 +26,14 @@
 //
 // constructors and destructor
 //
-CmsShowTaskExecutor::CmsShowTaskExecutor()
-{
-}
+CmsShowTaskExecutor::CmsShowTaskExecutor() {}
 
 // CmsShowTaskExecutor::CmsShowTaskExecutor(const CmsShowTaskExecutor& rhs)
 // {
 //    // do actual copying here;
 // }
 
-CmsShowTaskExecutor::~CmsShowTaskExecutor()
-{
-}
+CmsShowTaskExecutor::~CmsShowTaskExecutor() {}
 
 //
 // assignment operators
@@ -55,33 +50,21 @@ CmsShowTaskExecutor::~CmsShowTaskExecutor()
 //
 // member functions
 //
-void
-CmsShowTaskExecutor::addTask(const TaskFunctor& iTask)
-{
-   m_tasks.push_back(iTask);
+void CmsShowTaskExecutor::addTask(const TaskFunctor& iTask) { m_tasks.push_back(iTask); }
+
+void CmsShowTaskExecutor::startDoingTasks() {
+  if (!m_tasks.empty()) {
+    requestNextTask();
+  }
 }
 
-void
-CmsShowTaskExecutor::startDoingTasks()
-{
-   if(!m_tasks.empty()) {
-      requestNextTask();
-   }
+void CmsShowTaskExecutor::doNextTaskImp() {
+  TaskFunctor f = m_tasks.front();
+  m_tasks.pop_front();
+  f();
 }
 
-void
-CmsShowTaskExecutor::doNextTaskImp()
-{
-   TaskFunctor f = m_tasks.front();
-   m_tasks.pop_front();
-   f();
-}
-
-bool
-CmsShowTaskExecutor::moreTasksAvailable()
-{
-   return !m_tasks.empty();
-}
+bool CmsShowTaskExecutor::moreTasksAvailable() { return !m_tasks.empty(); }
 
 //
 // const member functions

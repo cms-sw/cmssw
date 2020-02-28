@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class SiStripDeDxElectron_3D_Rcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDeDxElectron_3D_Rcd> {};
+class SiStripDeDxElectron_3D_Rcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDeDxElectron_3D_Rcd> {
+};
 
 #endif

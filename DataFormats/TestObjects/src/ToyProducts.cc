@@ -8,9 +8,9 @@ Toy EDProducts for testing purposes only.
 
 namespace edmtest {
 
-    Simple::~Simple() {}
-    Simple* Simple::clone() const { return new Simple(*this); }
+  Simple::~Simple() {}
+  Simple* Simple::clone() const { return new Simple(*this); }
 
-    SimpleDerived::~SimpleDerived() {}
-    SimpleDerived* SimpleDerived::clone() const { return new SimpleDerived(*this); }
-}
+  SimpleDerived::~SimpleDerived() {}
+  SimpleDerived* SimpleDerived::clone() const { return new SimpleDerived(*this); }
+}  // namespace edmtest

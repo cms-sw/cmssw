@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelLorentzAngleRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Mon Jun 25 15:48:11 CEST 2007
 // $Id$
 

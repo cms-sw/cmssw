@@ -14,14 +14,13 @@
 #include <sstream>
 #include <cassert>
 
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "TClass.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-
 
 //
 // constants, enums and typedefs
@@ -34,11 +33,7 @@
 //
 // constructors and destructor
 //
-FWSimpleProxyHelper::FWSimpleProxyHelper(const std::type_info& iType) :
-   m_itemType(&iType),
-   m_objectOffset(0)
-{
-}
+FWSimpleProxyHelper::FWSimpleProxyHelper(const std::type_info& iType) : m_itemType(&iType), m_objectOffset(0) {}
 
 // FWSimpleProxyHelper::FWSimpleProxyHelper(const FWSimpleProxyHelper& rhs)
 // {
@@ -64,15 +59,13 @@ FWSimpleProxyHelper::FWSimpleProxyHelper(const std::type_info& iType) :
 //
 // member functions
 //
-void
-FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem)
-{
-   if(nullptr!=iItem) {
-      edm::TypeWithDict baseType(*m_itemType);
-      edm::TypeWithDict mostDerivedType(*(iItem->modelType()->GetTypeInfo()));
-      // The - sign is there because this is the address of a derived object minus the address of the base object.
-      m_objectOffset = -mostDerivedType.getBaseClassOffset(baseType);
-   }
+void FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem) {
+  if (nullptr != iItem) {
+    edm::TypeWithDict baseType(*m_itemType);
+    edm::TypeWithDict mostDerivedType(*(iItem->modelType()->GetTypeInfo()));
+    // The - sign is there because this is the address of a derived object minus the address of the base object.
+    m_objectOffset = -mostDerivedType.getBaseClassOffset(baseType);
+  }
 }
 
 //

@@ -9,4 +9,4 @@ namespace CondFormats_RunInfo {
     MixingModuleConfig mmc;
     MixingInputConfig mic;
   };
-}
+}  // namespace CondFormats_RunInfo

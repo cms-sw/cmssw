@@ -31,11 +31,10 @@ namespace cscdqm {
    * Temperature measurement
    */
   struct TempMeasType {
-        
     DCSAddressType adr;
-    DCSBoardType   board;
+    DCSBoardType board;
     unsigned short boardId;
-    int            value;
+    int value;
 
     friend std::ostream& operator<<(std::ostream& out, const TempMeasType& m) {
       std::ostringstream os;
@@ -56,18 +55,16 @@ namespace cscdqm {
       return *this;
     }
 
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
   /**
    * HV V measurement
    */
   struct HVVMeasType {
-        
     DCSAddressType adr;
-    unsigned int   position;
-    int            value;
+    unsigned int position;
+    int value;
 
     friend std::ostream& operator<<(std::ostream& out, const HVVMeasType& m) {
       std::ostringstream os;
@@ -84,19 +81,17 @@ namespace cscdqm {
       return *this;
     }
 
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
   /**
    * LV V measurement
    */
   struct LVVMeasType {
-        
     DCSAddressType adr;
-    DCSBoardType   board;
-    unsigned int   boardId;
-    float          nominal_v;
+    DCSBoardType board;
+    unsigned int boardId;
+    float nominal_v;
 
     friend std::ostream& operator<<(std::ostream& out, const LVVMeasType& m) {
       std::ostringstream os;
@@ -117,20 +112,18 @@ namespace cscdqm {
       return *this;
     }
 
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
   /**
    * LV I measurement
    */
   struct LVIMeasType {
-        
     DCSAddressType adr;
-    DCSBoardType   board;
-    unsigned int   boardId;
-    float          nominal_v;
-    float          value;
+    DCSBoardType board;
+    unsigned int boardId;
+    float nominal_v;
+    float value;
 
     friend std::ostream& operator<<(std::ostream& out, const LVIMeasType& m) {
       std::ostringstream os;
@@ -153,70 +146,65 @@ namespace cscdqm {
       return *this;
     }
 
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
   /**
    * @class DCSData
    * @brief CSC DCS Data type
    */
   class DCSData {
+  public:
+    DCSData();
+    virtual ~DCSData();
 
-    public:
+    /** Temperature exceptions */
+    std::vector<TempMeasType> temp_meas;
 
-      DCSData();
-      virtual ~DCSData();
+    /** HV V exceptions */
+    std::vector<HVVMeasType> hvv_meas;
 
-      /** Temperature exceptions */
-      std::vector<TempMeasType> temp_meas;
+    /** LV V exceptions */
+    std::vector<LVVMeasType> lvv_meas;
 
-      /** HV V exceptions */
-      std::vector<HVVMeasType>  hvv_meas;
+    /** LV I exceptions */
+    std::vector<LVIMeasType> lvi_meas;
 
-      /** LV V exceptions */
-      std::vector<LVVMeasType>  lvv_meas;
+    /** Temperature mode (most frequent value) */
+    int temp_mode;
 
-      /** LV I exceptions */
-      std::vector<LVIMeasType>  lvi_meas;
+    /** HV V mode (most frequent value) */
+    int hvv_mode;
 
-      /** Temperature mode (most frequent value) */
-      int  temp_mode;
+    /** LV V mode (most frequent value) */
+    bool lvv_mode;
 
-      /** HV V mode (most frequent value) */
-      int  hvv_mode;
+    /** LV I mode (most frequent value) */
+    float lvi_mode;
 
-      /** LV V mode (most frequent value) */
-      bool lvv_mode;
+    /** This payload IOV value: timestamp since */
+    TimeType iov;
 
-      /** LV I mode (most frequent value) */
-      float lvi_mode;
+    /** This payload last DCS data change value */
+    TimeType last_change;
 
-      /** This payload IOV value: timestamp since */
-      TimeType iov;
-  
-      /** This payload last DCS data change value */
-      TimeType last_change;
+    DCSData& operator=(const DCSData& m) {
+      iov = m.iov;
+      last_change = m.last_change;
+      temp_meas = m.temp_meas;
+      hvv_meas = m.hvv_meas;
+      lvv_meas = m.lvv_meas;
+      lvi_meas = m.lvi_meas;
+      temp_mode = m.temp_mode;
+      hvv_mode = m.hvv_mode;
+      lvv_mode = m.lvv_mode;
+      lvi_mode = m.lvi_mode;
+      return *this;
+    }
 
-      DCSData& operator=(const DCSData& m) {
-        iov = m.iov;
-        last_change = m.last_change;
-        temp_meas = m.temp_meas;
-        hvv_meas = m.hvv_meas;
-        lvv_meas = m.lvv_meas;
-        lvi_meas = m.lvi_meas;
-        temp_mode = m.temp_mode;
-        hvv_mode = m.hvv_mode;
-        lvv_mode = m.lvv_mode;
-        lvi_mode = m.lvi_mode;
-        return *this;
-      }
+    COND_SERIALIZABLE;
+  };
 
-  
-  COND_SERIALIZABLE;
-};
-
-}
+}  // namespace cscdqm
 
 #endif
-

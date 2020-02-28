@@ -21,14 +21,12 @@ class DDLElementRegistry;
  *  This is the RotationSequence processor.
  *
  */
-class DDLRotationSequence final : public DDLRotationByAxis
-{
- public:
+class DDLRotationSequence final : public DDLRotationByAxis {
+public:
+  DDLRotationSequence(DDLElementRegistry* myreg);
 
-  DDLRotationSequence( DDLElementRegistry* myreg );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

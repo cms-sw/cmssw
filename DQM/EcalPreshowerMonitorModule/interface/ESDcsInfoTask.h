@@ -6,57 +6,48 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
-class DQMStore;
+class ESDcsInfoTask : public edm::EDAnalyzer {
+public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
 
-class ESDcsInfoTask: public edm::EDAnalyzer{
+  /// Constructor
+  ESDcsInfoTask(const edm::ParameterSet& ps);
 
-   public:
+  /// Destructor
+  ~ESDcsInfoTask() override;
 
-      /// Constructor
-      ESDcsInfoTask(const edm::ParameterSet& ps);
+protected:
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-      /// Destructor
-      ~ESDcsInfoTask() override;
+  /// BeginJob
+  void beginJob(void) override;
 
-   protected:
+  /// EndJob
+  void endJob(void) override;
 
-      /// Analyze
-      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  /// BeginLuminosityBlock
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
 
-      /// BeginJob
-      void beginJob(void) override;
+  /// Reset
+  void reset(void);
 
-      /// EndJob
-      void endJob(void) override;
+private:
+  DQMStore* dqmStore_;
 
-      /// BeginLuminosityBlock
-      void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) override;
+  std::string prefixME_;
 
-      /// Reset
-      void reset(void);
+  bool mergeRuns_;
 
-      /// Cleanup
-      void cleanup(void);
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatustoken_;
 
-   private:
+  MonitorElement* meESDcsFraction_;
+  MonitorElement* meESDcsActiveMap_;
 
-      DQMStore* dqmStore_;
-
-      std::string prefixME_;
-
-      bool enableCleanup_;
-
-      bool mergeRuns_;
-
-      edm::EDGetTokenT<DcsStatusCollection> dcsStatustoken_;
-
-      MonitorElement* meESDcsFraction_;
-      MonitorElement* meESDcsActiveMap_;
-
-      int ievt_;
-
+  int ievt_;
 };
 
 #endif

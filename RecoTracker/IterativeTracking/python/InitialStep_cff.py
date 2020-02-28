@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+
 ### STEP 0 ###
 
 # hit building
@@ -221,6 +224,22 @@ initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
     useHitsSplitting = True
     )
 
+from Configuration.ProcessModifiers.trackingMkFit_cff import trackingMkFit
+import RecoTracker.MkFit.mkFitInputConverter_cfi as mkFitInputConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+initialStepTrackCandidatesMkFitInput = mkFitInputConverter_cfi.mkFitInputConverter.clone(
+    seeds = "initialStepSeeds",
+)
+initialStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    hitsSeeds = "initialStepTrackCandidatesMkFitInput",
+)
+trackingMkFit.toReplaceWith(initialStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = "initialStepSeeds",
+    hitsSeeds = "initialStepTrackCandidatesMkFitInput",
+    tracks = "initialStepTrackCandidatesMkFit",
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(initialStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -290,19 +309,23 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 initialStep = ClassifierMerger.clone()
 initialStep.inputClassifiers=['initialStepClassifier1','initialStepClassifier2','initialStepClassifier3']
 
-#LWTNN selector
+trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
+     mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
+     qualityCuts = [-0.95,-0.85,-0.75]
+))
+
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
-	src = 'initialStepTracks',
-	qualityCuts = [0.0, 0.3, 0.6],
+trackdnn.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
+        src = 'initialStepTracks',
+        qualityCuts = [0.0, 0.3, 0.6]
 ))
-(trackingPhase1 & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+(trackdnn & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
-pp_on_AA_2018.toReplaceWith(initialStep, initialStepClassifier1.clone( 
-     qualityCuts = [-0.9, -0.5, 0.2],
-     mva = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1') 
-))
+pp_on_AA_2018.toModify(initialStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),
+        qualityCuts = [-0.9, -0.5, 0.2],
+)
 
 # For LowPU and Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -356,6 +379,8 @@ trackingPhase2PU140.toModify(initialStepSelector,
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'initialStep',
             preFilterName = 'initialStepTight',
+            min_eta = -4.1,
+            max_eta = 4.1,            
             chi2n_par = 1.2,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
@@ -385,6 +410,10 @@ InitialStepTask = cms.Task(initialStepSeedLayers,
                            initialStepClassifier1,initialStepClassifier2,initialStepClassifier3,
                            initialStep,caloJetsForTrkTask)
 InitialStep = cms.Sequence(InitialStepTask)
+
+_InitialStepTask_trackingMkFit = InitialStepTask.copy()
+_InitialStepTask_trackingMkFit.add(initialStepTrackCandidatesMkFitInput, initialStepTrackCandidatesMkFit)
+trackingMkFit.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFit)
 
 _InitialStepTask_LowPU = InitialStepTask.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrkTask, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStepTask_LowPU.replace(initialStep, initialStepSelector)

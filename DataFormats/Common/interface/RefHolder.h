@@ -15,22 +15,20 @@ namespace edm {
       typedef typename RefHolderToRefVectorTrait<REF>::type helper;
       return helper::makeVectorHolder();
     }
-  }
-}
+  }  // namespace reftobase
+}  // namespace edm
 
 #include "DataFormats/Common/interface/RefKeyTrait.h"
 
 namespace edm {
   namespace reftobase {
     template <class REF>
-    size_t
-    RefHolder<REF>::key() const 
-    {
+    size_t RefHolder<REF>::key() const {
       typedef typename RefKeyTrait<REF>::type helper;
-      return helper::key( ref_ );
+      return helper::key(ref_);
     }
 
-  }
-}
+  }  // namespace reftobase
+}  // namespace edm
 
 #endif

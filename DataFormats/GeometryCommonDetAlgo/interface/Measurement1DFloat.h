@@ -7,48 +7,33 @@
  */
 
 class Measurement1DFloat {
-
 public:
-// construct
+  // construct
 
-Measurement1DFloat() : theValue(0.) , theError(0.) {}
+  Measurement1DFloat() : theValue(0.), theError(0.) {}
 
-Measurement1DFloat( const float& aValue) : 
-  theValue(aValue) , theError(0.) {}
+  Measurement1DFloat(const float& aValue) : theValue(aValue), theError(0.) {}
 
-Measurement1DFloat( const float& aValue, const float& aError) 
-  : theValue(aValue) , theError(aError) {} 
+  Measurement1DFloat(const float& aValue, const float& aError) : theValue(aValue), theError(aError) {}
 
-//destruct
+  //destruct
 
-~Measurement1DFloat() {} ;
+  ~Measurement1DFloat(){};
 
-float value() const { return theValue; }
+  float value() const { return theValue; }
 
-float error() const { return theError; }
+  float error() const { return theError; }
 
-float significance() const {
-  if (theError == 0) return 0;
-  else return theValue/theError;
-}
+  float significance() const {
+    if (theError == 0)
+      return 0;
+    else
+      return theValue / theError;
+  }
 
 private:
-
-float  theValue;
-float  theError;
-
+  float theValue;
+  float theError;
 };
 
-
-
 #endif
-
-
-
-
-
-
-
-
-
-

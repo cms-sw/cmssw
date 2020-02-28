@@ -6,4 +6,4 @@
 
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(DTVDriftPluginFactory,"DTVDriftPluginFactory");
+EDM_REGISTER_PLUGINFACTORY(DTVDriftPluginFactory, "DTVDriftPluginFactory");

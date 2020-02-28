@@ -4,7 +4,7 @@
 //
 // Package:     L1ScalesProducers
 // Class  :     L1CaloInputScalesProducer
-// 
+//
 /**\class L1CaloInputScalesProducer L1CaloInputScalesProducer.h L1TriggerConfig/L1ScalesProducers/interface/L1CaloInputScalesProducer.h
 
  Description: <one line class summary>
@@ -30,27 +30,24 @@
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 
-
 // forward declarations
 
 class L1CaloInputScalesProducer : public edm::ESProducer {
-   public:
-      L1CaloInputScalesProducer(const edm::ParameterSet&);
-      ~L1CaloInputScalesProducer() override;
+public:
+  L1CaloInputScalesProducer(const edm::ParameterSet&);
+  ~L1CaloInputScalesProducer() override;
 
-      //typedef std::shared_ptr<L1CaloInputScale> ReturnType;
+  //typedef std::shared_ptr<L1CaloInputScale> ReturnType;
 
-      std::unique_ptr<L1CaloEcalScale>
-	produceEcalScale(const L1CaloEcalScaleRcd&);
-      std::unique_ptr<L1CaloHcalScale>
-	produceHcalScale(const L1CaloHcalScaleRcd&);
-   private:
-      // ----------member data ---------------------------
+  std::unique_ptr<L1CaloEcalScale> produceEcalScale(const L1CaloEcalScaleRcd&);
+  std::unique_ptr<L1CaloHcalScale> produceHcalScale(const L1CaloHcalScaleRcd&);
+
+private:
+  // ----------member data ---------------------------
   std::vector<double> m_ecalEtThresholdsPosEta;
   std::vector<double> m_ecalEtThresholdsNegEta;
   std::vector<double> m_hcalEtThresholdsPosEta;
   std::vector<double> m_hcalEtThresholdsNegEta;
-
 };
 
 #endif

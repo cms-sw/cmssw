@@ -13,11 +13,16 @@ class HcalPatternXMLParser {
 public:
   HcalPatternXMLParser();
   ~HcalPatternXMLParser();
-  void parse(const std::string& xmlDocument, std::map<std::string,std::string>& parameters, std::vector<std::string>& items, std::string& encoding);
-  void parse(const std::string& xmlDocument, std::map<std::string,std::string>& parameters, std::vector<uint32_t>& items);
+  void parse(const std::string& xmlDocument,
+             std::map<std::string, std::string>& parameters,
+             std::vector<std::string>& items,
+             std::string& encoding);
+  void parse(const std::string& xmlDocument,
+             std::map<std::string, std::string>& parameters,
+             std::vector<uint32_t>& items);
+
 private:
   HcalPatternXMLParserImpl* m_parser;
 };
 
-
-#endif // HcalPatternXMLParser_hh_included
+#endif  // HcalPatternXMLParser_hh_included

@@ -39,6 +39,9 @@ pushd ${LOCAL_TMP_DIR}
   echo "testGetByPlaceholder"
   cmsRun -p ${LOCAL_TEST_DIR}/${test}Placeholder_cfg.py || die "cmsRun ${test}Placeholder_cfg.py" $?
 
+  echo "testProducesCollector"
+  cmsRun -p ${LOCAL_TEST_DIR}/testProducesCollector_cfg.py || die "cmsRun testProducesCollector_cfg.py" $?
+
 popd
 
 exit 0

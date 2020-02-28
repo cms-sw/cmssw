@@ -8,33 +8,28 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class ESPedestalTask : public DQMEDAnalyzer {
+public:
+  ESPedestalTask(const edm::ParameterSet& ps);
+  ~ESPedestalTask() override {}
 
-   public:
+private:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob(void) override;
 
-      ESPedestalTask(const edm::ParameterSet& ps);
-      ~ESPedestalTask() override {}
+  edm::EDGetTokenT<ESDigiCollection> digitoken_;
+  edm::FileInPath lookup_;
+  std::string outputFile_;
+  std::string prefixME_;
 
-   private:
+  MonitorElement* meADC_[4288][32];
 
-      void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob(void) override;
-
-      edm::EDGetTokenT<ESDigiCollection> digitoken_;
-      edm::FileInPath lookup_;
-      std::string outputFile_;
-      std::string prefixME_;
-
-      MonitorElement* meADC_[4288][32];
-
-      int nLines_, runNum_, ievt_, senCount_[2][2][40][40]; 
-      int runtype_, seqtype_, dac_, gain_, precision_;
-      int firstDAC_, nDAC_, isPed_, vDAC_[5];
-
+  int nLines_, runNum_, ievt_, senCount_[2][2][40][40];
+  int runtype_, seqtype_, dac_, gain_, precision_;
+  int firstDAC_, nDAC_, isPed_, vDAC_[5];
 };
 
 #endif

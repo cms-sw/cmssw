@@ -12,42 +12,31 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
-namespace edm { class ParameterSet; class EventSetup; }
+namespace edm {
+  class ParameterSet;
+  class EventSetup;
+}  // namespace edm
 
 class AlignmentParameterStore;
 class AlignableMuon;
 class AlignableTracker;
 class AlignableExtras;
 
-class SurveyAlignmentAlgorithm : public AlignmentAlgorithmBase
-{
-  public:
-
-  SurveyAlignmentAlgorithm(
-			   const edm::ParameterSet&
-			   );
+class SurveyAlignmentAlgorithm : public AlignmentAlgorithmBase {
+public:
+  SurveyAlignmentAlgorithm(const edm::ParameterSet&);
 
   /// call at start of job
   void initialize(
-			  const edm::EventSetup&,
-			  AlignableTracker*,
-			  AlignableMuon*,
-			  AlignableExtras*,
-			  AlignmentParameterStore*
-			  ) override;
+      const edm::EventSetup&, AlignableTracker*, AlignableMuon*, AlignableExtras*, AlignmentParameterStore*) override;
 
   /// call at end of job
   void terminate(const edm::EventSetup& iSetup) override {}
 
   /// run for every event
-  void run(
-		   const edm::EventSetup&,
-		   const AlignmentAlgorithmBase::EventInfo &
-		   ) override {}
+  void run(const edm::EventSetup&, const AlignmentAlgorithmBase::EventInfo&) override {}
 
-
-  private:
-
+private:
   std::string theOutfile;
 
   unsigned int theIterations;

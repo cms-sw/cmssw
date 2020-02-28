@@ -6,31 +6,24 @@
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-StGenEvent::StGenEvent()
-{
-}
+StGenEvent::StGenEvent() {}
 
-StGenEvent::StGenEvent(reco::GenParticleRefProd & parts, reco::GenParticleRefProd & inits)
-{
+StGenEvent::StGenEvent(reco::GenParticleRefProd& parts, reco::GenParticleRefProd& inits) {
   parts_ = parts;
-  initPartons_= inits;
+  initPartons_ = inits;
 }
 
-StGenEvent::~StGenEvent()
-{
-}
+StGenEvent::~StGenEvent() {}
 
-const reco::GenParticle* 
-StGenEvent::decayB() const 
-{
-  const reco::GenParticle* cand=nullptr;
+const reco::GenParticle* StGenEvent::decayB() const {
+  const reco::GenParticle* cand = nullptr;
   if (singleLepton()) {
-    const reco::GenParticleCollection & partsColl = *parts_;
-    const reco::GenParticle & singleLep = *singleLepton();
+    const reco::GenParticleCollection& partsColl = *parts_;
+    const reco::GenParticle& singleLep = *singleLepton();
     for (unsigned int i = 0; i < parts_->size(); ++i) {
-      if (std::abs(partsColl[i].pdgId())==TopDecayID::bID && 
-	  reco::flavour(singleLep)== - reco::flavour(partsColl[i])) { 
-	// ... but it should be the opposite!
+      if (std::abs(partsColl[i].pdgId()) == TopDecayID::bID &&
+          reco::flavour(singleLep) == -reco::flavour(partsColl[i])) {
+        // ... but it should be the opposite!
         cand = &partsColl[i];
       }
     }
@@ -38,17 +31,15 @@ StGenEvent::decayB() const
   return cand;
 }
 
-const reco::GenParticle* 
-StGenEvent::associatedB() const 
-{
-  const reco::GenParticle* cand=nullptr;
+const reco::GenParticle* StGenEvent::associatedB() const {
+  const reco::GenParticle* cand = nullptr;
   if (singleLepton()) {
-    const reco::GenParticleCollection & partsColl = *parts_;
-    const reco::GenParticle & singleLep = *singleLepton();
+    const reco::GenParticleCollection& partsColl = *parts_;
+    const reco::GenParticle& singleLep = *singleLepton();
     for (unsigned int i = 0; i < parts_->size(); ++i) {
-      if (std::abs(partsColl[i].pdgId())==TopDecayID::bID && 
-	  reco::flavour(singleLep)== reco::flavour(partsColl[i])) { 
-	// ... but it should be the opposite!
+      if (std::abs(partsColl[i].pdgId()) == TopDecayID::bID &&
+          reco::flavour(singleLep) == reco::flavour(partsColl[i])) {
+        // ... but it should be the opposite!
         cand = &partsColl[i];
       }
     }
@@ -56,45 +47,39 @@ StGenEvent::associatedB() const
   return cand;
 }
 
-const reco::GenParticle* 
-StGenEvent::singleLepton() const 
-{
+const reco::GenParticle* StGenEvent::singleLepton() const {
   const reco::GenParticle* cand = nullptr;
   const reco::GenParticleCollection& partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isLepton(partsColl[i]) && partsColl[i].mother() &&
-	std::abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
+        std::abs(partsColl[i].mother()->pdgId()) == TopDecayID::WID) {
       cand = &partsColl[i];
     }
   }
   return cand;
 }
 
-const reco::GenParticle* 
-StGenEvent::singleNeutrino() const 
-{
-  const reco::GenParticle* cand=nullptr;
-  const reco::GenParticleCollection & partsColl = *parts_;
+const reco::GenParticle* StGenEvent::singleNeutrino() const {
+  const reco::GenParticle* cand = nullptr;
+  const reco::GenParticleCollection& partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isNeutrino(partsColl[i]) && partsColl[i].mother() &&
-	std::abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
+        std::abs(partsColl[i].mother()->pdgId()) == TopDecayID::WID) {
       cand = &partsColl[i];
     }
   }
   return cand;
 }
 
-const reco::GenParticle* 
-StGenEvent::singleW() const 
-{
-  const reco::GenParticle* cand=nullptr;
+const reco::GenParticle* StGenEvent::singleW() const {
+  const reco::GenParticle* cand = nullptr;
   if (singleLepton()) {
-    const reco::GenParticleCollection & partsColl = *parts_;
-    const reco::GenParticle & singleLep = *singleLepton();
+    const reco::GenParticleCollection& partsColl = *parts_;
+    const reco::GenParticle& singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (std::abs(partsColl[i].pdgId())==TopDecayID::WID &&
-          reco::flavour(singleLep) == - reco::flavour(partsColl[i])){ 
-	// PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
+      if (std::abs(partsColl[i].pdgId()) == TopDecayID::WID &&
+          reco::flavour(singleLep) == -reco::flavour(partsColl[i])) {
+        // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
         cand = &partsColl[i];
       }
     }
@@ -102,16 +87,14 @@ StGenEvent::singleW() const
   return cand;
 }
 
-const reco::GenParticle* 
-StGenEvent::singleTop() const 
-{
-  const reco::GenParticle* cand=nullptr;
+const reco::GenParticle* StGenEvent::singleTop() const {
+  const reco::GenParticle* cand = nullptr;
   if (singleLepton()) {
-    const reco::GenParticleCollection & partsColl = *parts_;
-    const reco::GenParticle & singleLep = *singleLepton();
+    const reco::GenParticleCollection& partsColl = *parts_;
+    const reco::GenParticle& singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (std::abs(partsColl[i].pdgId())==TopDecayID::tID &&
-          reco::flavour(singleLep)!=reco::flavour(partsColl[i])) {
+      if (std::abs(partsColl[i].pdgId()) == TopDecayID::tID &&
+          reco::flavour(singleLep) != reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }
     }

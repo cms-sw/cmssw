@@ -1,7 +1,7 @@
 #ifndef HcalGainsCheck_h
 #define HcalGainsCheck_h
 
-// 
+//
 // R.Ofierzynski 9.12.2007
 //
 // Code to check pedestals for completeness and to compare to previous pedestals
@@ -44,35 +44,34 @@
 #include "TH1.h"
 #include "TH2.h"
 
-class HcalGainsCheck: public edm::EDAnalyzer
-{
- public:
+class HcalGainsCheck : public edm::EDAnalyzer {
+public:
   HcalGainsCheck(edm::ParameterSet const& ps);
 
   ~HcalGainsCheck() override {}
 
-  void beginJob() override ;
+  void beginJob() override;
   void endJob() override;
- 
+
   void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
- private:
+private:
   //  std::string front;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestals> &);
   std::string dumpupdate;
-  std::string dumprefs; 
+  std::string dumprefs;
   std::string rootfile;
   std::string outfile;
   bool emapflag;
   bool validategainsflag;
   double epsilon;
 
-  TFile * f;
+  TFile* f;
   //plots:
-  TH2F * ocMapUp;
-  TH2F * ocMapRef;
-//  TH2F* valMapUp;
-//  TH2F* valMapRef;
+  TH2F* ocMapUp;
+  TH2F* ocMapRef;
+  //  TH2F* valMapUp;
+  //  TH2F* valMapRef;
 
   TH1F* diffUpRefCap0;
   TH1F* diffUpRefCap1;
@@ -98,6 +97,5 @@ class HcalGainsCheck: public edm::EDAnalyzer
   TH1F* gainsRefCap1vsEta;
   TH1F* gainsRefCap2vsEta;
   TH1F* gainsRefCap3vsEta;
-
 };
 #endif

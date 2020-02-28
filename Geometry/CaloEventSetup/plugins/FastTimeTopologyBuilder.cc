@@ -2,7 +2,7 @@
 //
 // Package:    CaloEventSetup
 // Class:      FastTimeTopologyBuilder
-// 
+//
 /**\class FastTimeTopologyBuilder FastTimeTopologyBuilder.h 
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -23,8 +22,8 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
@@ -39,10 +38,9 @@
 //
 
 class FastTimeTopologyBuilder : public edm::ESProducer {
-
 public:
-  FastTimeTopologyBuilder( const edm::ParameterSet& iP );
-  ~FastTimeTopologyBuilder() override ;
+  FastTimeTopologyBuilder(const edm::ParameterSet& iP);
+  ~FastTimeTopologyBuilder() override;
 
   using ReturnType = std::unique_ptr<FastTimeTopology>;
 
@@ -50,39 +48,30 @@ public:
 
 private:
   // ----------member data ---------------------------
-  std::string        name_;
-  int                type_;
+  edm::ESGetToken<FastTimeDDDConstants, IdealGeometryRecord> ftlToken_;
+  int type_;
   ForwardSubdetector subdet_;
 };
 
-
 FastTimeTopologyBuilder::FastTimeTopologyBuilder(const edm::ParameterSet& iConfig) {
-
-  name_     = iConfig.getUntrackedParameter<std::string>("Name");
-  type_     = iConfig.getUntrackedParameter<int>("Type");
-  subdet_   = FastTime;
+  auto name = iConfig.getUntrackedParameter<std::string>("Name");
+  type_ = iConfig.getUntrackedParameter<int>("Type");
+  subdet_ = FastTime;
 #ifdef EDM_ML_DEBUG
-  std::cout <<"constructing FastTimeTopology for " << name_ << " Type "
-	    << type_ << std::endl;
+  std::cout << "constructing FastTimeTopology for " << name << " Type " << type_ << std::endl;
 #endif
-  setWhatProduced(this, name_);
+  ftlToken_ = setWhatProduced(this, name).consumes<FastTimeDDDConstants>(edm::ESInputTag{"", name});
 }
 
-
-FastTimeTopologyBuilder::~FastTimeTopologyBuilder() { }
-
+FastTimeTopologyBuilder::~FastTimeTopologyBuilder() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-FastTimeTopologyBuilder::ReturnType
-FastTimeTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
-
-  edm::ESHandle<FastTimeDDDConstants>  pHGDC;
-  iRecord.get(pHGDC) ;
-  const FastTimeDDDConstants & hgdc = (*pHGDC);
+FastTimeTopologyBuilder::ReturnType FastTimeTopologyBuilder::produce(const IdealGeometryRecord& iRecord) {
+  const FastTimeDDDConstants& hgdc = iRecord.get(ftlToken_);
 
 #ifdef EDM_ML_DEBUG
   std::cout << "Create FastTimeTopology(hgdc,subdet,type)" << std::endl;

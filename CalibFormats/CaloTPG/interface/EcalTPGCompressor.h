@@ -12,8 +12,11 @@ class CaloTPGTranscoder;
 class EcalTPGCompressor {
 public:
   EcalTPGCompressor(const CaloTPGTranscoder* coder);
-  void compress(const IntegerCaloSamples& ics, const std::vector<bool>& fineGrain, EcalTriggerPrimitiveDigi& digi) const;
+  void compress(const IntegerCaloSamples& ics,
+                const std::vector<bool>& fineGrain,
+                EcalTriggerPrimitiveDigi& digi) const;
   EcalTriggerPrimitiveSample compress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const;
+
 private:
   const CaloTPGTranscoder* coder_;
 };

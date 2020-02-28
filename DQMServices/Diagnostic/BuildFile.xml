@@ -1,7 +1,0 @@
-<use   name="CondCore/Utilities"/>
-<use   name="CondFormats/DQMObjects"/>
-<use   name="DQMServices/Core"/>
-<use   name="rootgraphics"/>
-<export>
-  <lib   name="1"/>
-</export>

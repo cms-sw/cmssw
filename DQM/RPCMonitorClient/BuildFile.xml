@@ -3,7 +3,6 @@
 <use   name="rootcore"/>
 <use   name="rootgraphics"/>
 <use   name="DQMServices/Core"/>
-<use   name="DQMServices/ClientConfig"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>

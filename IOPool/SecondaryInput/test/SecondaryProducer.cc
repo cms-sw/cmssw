@@ -47,8 +47,8 @@ namespace edm {
 
   // Constructor
   // make secondary input source
-  SecondaryProducer::SecondaryProducer(ParameterSet const& pset) :
-        productRegistry_(new SignallingProductRegistry),
+  SecondaryProducer::SecondaryProducer(ParameterSet const& pset)
+      : productRegistry_(new SignallingProductRegistry),
         secInput_(makeSecInput(pset)),
         processConfiguration_(new ProcessConfiguration(std::string("PROD"), getReleaseVersion(), getPassID())),
         eventPrincipal_(),
@@ -56,10 +56,11 @@ namespace edm {
         specified_(pset.getUntrackedParameter<bool>("specified", false)),
         firstEvent_(true),
         firstLoop_(true),
-        expectedEventNumber_(sequential_ ? pset.getParameterSet("input").getUntrackedParameter<unsigned int>("skipEvents", 0) + 1 : 1) {
+        expectedEventNumber_(
+            sequential_ ? pset.getParameterSet("input").getUntrackedParameter<unsigned int>("skipEvents", 0) + 1 : 1) {
     processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
     processConfiguration_->setProcessConfigurationID();
- 
+
     productRegistry_->setFrozen();
 
     produces<edmtest::ThingCollection>();
@@ -69,13 +70,11 @@ namespace edm {
 
   void SecondaryProducer::beginJob() {
     // propagate_const<T> has no reset() function
-    eventPrincipal_ = std::make_unique<EventPrincipal>(
-                                             secInput_->productRegistry(),
-                                             std::make_shared<BranchIDListHelper>(),
-                                             std::make_shared<ThinnedAssociationsHelper>(),
-                                             *processConfiguration_,
-                                             nullptr);
-
+    eventPrincipal_ = std::make_unique<EventPrincipal>(secInput_->productRegistry(),
+                                                       std::make_shared<BranchIDListHelper>(),
+                                                       std::make_shared<ThinnedAssociationsHelper>(),
+                                                       *processConfiguration_,
+                                                       nullptr);
   }
 
   // Virtual destructor needed.
@@ -86,25 +85,34 @@ namespace edm {
     using std::placeholders::_1;
     size_t fileNameHash = 0U;
 
-    if(specified_) {
+    if (specified_) {
       // Just for simplicity, we use the event ID from the primary to read the secondary.
       std::vector<SecondaryEventIDAndFileInfo> events(1, SecondaryEventIDAndFileInfo(e.id(), fileNameHash));
-      secInput_->loopSpecified(*eventPrincipal_, fileNameHash, events.begin(), events.end(), std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
+      secInput_->loopSpecified(*eventPrincipal_,
+                               fileNameHash,
+                               events.begin(),
+                               events.end(),
+                               std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
     } else {
       CLHEP::HepRandomEngine* engine = nullptr;
       if (!sequential_) {
         edm::Service<edm::RandomNumberGenerator> rng;
         if (!rng.isAvailable()) {
           throw cms::Exception("Configuration")
-            << "SecondaryProducer requires the RandomNumberGeneratorService,\n"
-               "which is not present in the configuration file.  You must add the service\n"
-               "in the configuration file or remove the modules that require it.";
+              << "SecondaryProducer requires the RandomNumberGeneratorService,\n"
+                 "which is not present in the configuration file.  You must add the service\n"
+                 "in the configuration file or remove the modules that require it.";
         }
         engine = &rng->getEngine(e.streamID());
       }
       // Just for simplicity, we use the event ID from the primary to read the secondary.
       EventID id = e.id();
-      secInput_->loopOverEvents(*eventPrincipal_, fileNameHash, 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)), engine, &id);
+      secInput_->loopOverEvents(*eventPrincipal_,
+                                fileNameHash,
+                                1,
+                                std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)),
+                                engine,
+                                &id);
     }
   }
 
@@ -114,13 +122,8 @@ namespace edm {
 
     EventNumber_t en = eventPrincipal.id().event();
     // Check that secondary source products are retrieved from the same event as the EventAuxiliary
-    BasicHandle bhandle = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::UInt64Product)),
-                                                    "EventNumber",
-                                                    "",
-                                                    "",
-                                                    nullptr,
-                                                    nullptr,
-                                                    nullptr);
+    BasicHandle bhandle = eventPrincipal.getByLabel(
+        PRODUCT_TYPE, TypeID(typeid(edmtest::UInt64Product)), "EventNumber", "", "", nullptr, nullptr, nullptr);
     assert(bhandle.isValid());
     Handle<edmtest::UInt64Product> handle = convert_handle<edmtest::UInt64Product>(std::move(bhandle));
     assert(static_cast<EventNumber_t>(handle->value) == en);
@@ -129,13 +132,9 @@ namespace edm {
     e.getByLabel<edmtest::UInt64Product>("EventNumber", handle);
     assert(static_cast<EventNumber_t>(handle->value) == e.id().event());
 
-    WrapperBase const* ep = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),
-                                               "Thing",
-                                               "",
-                                               "",
-                                               nullptr,
-                                               nullptr,
-                                               nullptr).wrapper();
+    WrapperBase const* ep =
+        eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)), "Thing", "", "", nullptr, nullptr, nullptr)
+            .wrapper();
     assert(ep != nullptr);
     WTC const* wtp = static_cast<WTC const*>(ep);
     assert(wtp);
@@ -145,17 +144,17 @@ namespace edm {
     // Put output into event
     e.put(std::move(thing));
 
-    if(!sequential_ && !specified_ && firstLoop_ && en == 1) {
+    if (!sequential_ && !specified_ && firstLoop_ && en == 1) {
       expectedEventNumber_ = 1;
       firstLoop_ = false;
     }
-    if(firstEvent_) {
+    if (firstEvent_) {
       firstEvent_ = false;
-      if(!sequential_ && !specified_) {
+      if (!sequential_ && !specified_) {
         expectedEventNumber_ = en;
       }
     }
-    assert (expectedEventNumber_ == en);
+    assert(expectedEventNumber_ == en);
     ++expectedEventNumber_;
 
     return true;
@@ -165,15 +164,13 @@ namespace edm {
     ParameterSet const& sec_input = ps.getParameterSet("input");
     PreallocationConfiguration dummy;
     VectorInputSourceDescription desc(productRegistry(), dummy);
-    std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
-      (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input, desc).release()));
+    std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource*>(
+        VectorInputSourceFactory::get()->makeVectorInputSource(sec_input, desc).release()));
     return input_;
   }
 
-  void SecondaryProducer::endJob() {
-    secInput_->doEndJob();
-  }
+  void SecondaryProducer::endJob() { secInput_->doEndJob(); }
 
-} //edm
+}  // namespace edm
 using edm::SecondaryProducer;
 DEFINE_FWK_MODULE(SecondaryProducer);

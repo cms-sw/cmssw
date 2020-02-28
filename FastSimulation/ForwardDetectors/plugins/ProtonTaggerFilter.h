@@ -31,13 +31,10 @@
 
 #include "TFile.h"
 
-class ProtonTaggerFilter : public edm::stream::EDFilter <>
-{
-
- public:
-
+class ProtonTaggerFilter : public edm::stream::EDFilter<> {
+public:
   /// default constructor
-  explicit ProtonTaggerFilter(edm::ParameterSet const & p);
+  explicit ProtonTaggerFilter(edm::ParameterSet const& p);
 
   /// empty destructor
   ~ProtonTaggerFilter() override;
@@ -49,10 +46,9 @@ class ProtonTaggerFilter : public edm::stream::EDFilter <>
   virtual void endJob();
 
   /// decide if the event is accepted by the proton taggers
-  bool filter(edm::Event & e, const edm::EventSetup & c) override;
+  bool filter(edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
+private:
   /// choose which of the detectors (FP420/TOTEM/both) will be used for beam 1
   unsigned int beam1mode;
 
@@ -69,7 +65,6 @@ class ProtonTaggerFilter : public edm::stream::EDFilter <>
   AcceptanceTableHelper helper220beam2;
   AcceptanceTableHelper helper420a220beam1;
   AcceptanceTableHelper helper420a220beam2;
-  
 };
 
 #endif

@@ -3,15 +3,14 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 
 namespace edm {
-  void
-  BranchChildren::append_(map_t const& lookup,
-                          BranchID item,
-                          BranchIDSet& itemSet,
-                          std::map<BranchID, BranchID> const& droppedToKeptAlias) const {
+  void BranchChildren::append_(map_t const& lookup,
+                               BranchID item,
+                               BranchIDSet& itemSet,
+                               std::map<BranchID, BranchID> const& droppedToKeptAlias) const {
     auto const iter = lookup.find(item);
-    if(iter != lookup.end()) {
+    if (iter != lookup.end()) {
       BranchIDSet const& branchIDs = iter->second;
-      for(BranchID const& branchID : branchIDs) {
+      for (BranchID const& branchID : branchIDs) {
         auto it = droppedToKeptAlias.find(branchID);
         // Insert the BranchID of the children into the set of descendants.
         // If the insert succeeds, append recursively.
@@ -34,29 +33,19 @@ namespace edm {
     }
   }
 
-  void
-  BranchChildren::clear() {
-    childLookup_.clear();
-  }
+  void BranchChildren::clear() { childLookup_.clear(); }
 
-  void
-  BranchChildren::insertEmpty(BranchID parent) {
-    childLookup_.insert(std::make_pair(parent, BranchIDSet()));
-  }
+  void BranchChildren::insertEmpty(BranchID parent) { childLookup_.insert(std::make_pair(parent, BranchIDSet())); }
 
-  void
-  BranchChildren::insertChild(BranchID parent, BranchID child) {
-    childLookup_[parent].insert(child);
-  }
+  void BranchChildren::insertChild(BranchID parent, BranchID child) { childLookup_[parent].insert(child); }
 
-  void
-  BranchChildren::appendToDescendants(BranchDescription const& parent,
-                                      BranchIDSet& descendants,
-                                      std::map<BranchID, BranchID> const& droppedToKeptAlias) const {
+  void BranchChildren::appendToDescendants(BranchDescription const& parent,
+                                           BranchIDSet& descendants,
+                                           std::map<BranchID, BranchID> const& droppedToKeptAlias) const {
     descendants.insert(parent.branchID());
     // A little tricky here. The child lookup map is filled with the
     // BranchID of the original product even if there was an EDAlias
     // and the EDAlias was saved and the original branch dropped.
     append_(childLookup_, parent.originalBranchID(), descendants, droppedToKeptAlias);
   }
-}
+}  // namespace edm

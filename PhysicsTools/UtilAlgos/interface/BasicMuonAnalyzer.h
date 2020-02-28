@@ -18,8 +18,7 @@
 */
 
 class BasicMuonAnalyzer : public edm::BasicAnalyzer {
-
- public:
+public:
   /// default constructor
   BasicMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs);
   BasicMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs, edm::ConsumesCollector&& iC);
@@ -32,7 +31,7 @@ class BasicMuonAnalyzer : public edm::BasicAnalyzer {
   /// everything that needs to be done during the event loop
   void analyze(const edm::EventBase& event) override;
 
- private:
+private:
   /// input tag for mouns
   edm::InputTag muons_;
   edm::EDGetTokenT<std::vector<reco::Muon> > muonsToken_;

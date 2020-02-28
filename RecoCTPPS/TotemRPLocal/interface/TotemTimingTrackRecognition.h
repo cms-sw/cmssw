@@ -21,20 +21,15 @@
  * Class intended to perform general CTPPS timing detectors track recognition,
  * as well as construction of specialized classes (for now CTPPSDiamond and TotemTiming local tracks).
 **/
-class TotemTimingTrackRecognition : public CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit>
-{
-  public:
-    TotemTimingTrackRecognition( const edm::ParameterSet& iConfig );
+class TotemTimingTrackRecognition : public CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit> {
+public:
+  TotemTimingTrackRecognition(const edm::ParameterSet& iConfig);
 
-    // Adds new hit to the set from which the tracks are reconstructed.
-    void addHit( const TotemTimingRecHit& recHit ) override;
+  // Adds new hit to the set from which the tracks are reconstructed.
+  void addHit(const TotemTimingRecHit& recHit) override;
 
-    /// Produces a collection of tracks for the current station, given its hits collection
-    int produceTracks( edm::DetSet<TotemTimingLocalTrack>& tracks ) override;
-
-  private:
-    float tolerance_;
+  /// Produces a collection of tracks for the current station, given its hits collection
+  int produceTracks(edm::DetSet<TotemTimingLocalTrack>& tracks) override;
 };
 
 #endif
-

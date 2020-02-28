@@ -13,10 +13,7 @@
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemAnalysisMask::insert(const TotemSymbID &sid, const TotemVFATAnalysisMask &vam)
-{
-  analysisMask[sid] = vam;
-}
+void TotemAnalysisMask::insert(const TotemSymbID &sid, const TotemVFATAnalysisMask &vam) { analysisMask[sid] = vam; }
 
 //----------------------------------------------------------------------------------------------------
 

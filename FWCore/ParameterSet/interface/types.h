@@ -5,10 +5,8 @@
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
 
-
 // ----------------------------------------------------------------------
 // prolog
-
 
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
@@ -140,7 +138,7 @@ namespace edm {
   bool decode(std::vector<ParameterSet>&, std::string const&);
   bool encode(std::string&, std::vector<ParameterSet> const&);
 
-} // namespace edm
+}  // namespace edm
 
 // ----------------------------------------------------------------------
 // epilog

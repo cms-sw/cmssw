@@ -20,21 +20,22 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class PixelClusterSelectorTopBottom : public edm::global::EDProducer<> {
+public:
+  explicit PixelClusterSelectorTopBottom(const edm::ParameterSet& cfg)
+      : token_(consumes<SiPixelClusterCollectionNew>(cfg.getParameter<edm::InputTag>("label"))),
+        y_(cfg.getParameter<double>("y")) {
+    produces<SiPixelClusterCollectionNew>();
+  }
 
- public:
-  explicit PixelClusterSelectorTopBottom( const edm::ParameterSet& cfg) :
-    token_( consumes<SiPixelClusterCollectionNew>(cfg.getParameter<edm::InputTag>( "label" )) ),
-    y_( cfg.getParameter<double>( "y" ) ) { produces<SiPixelClusterCollectionNew>(); }
-  
-  void produce( edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
-  
- private:
+  void produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
+
+private:
   edm::EDGetTokenT<SiPixelClusterCollectionNew> token_;
   double y_;
 };

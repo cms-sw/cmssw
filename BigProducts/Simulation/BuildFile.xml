@@ -1,6 +1,8 @@
 <use name="SimG4CMS/Calo"/>
 <use name="SimG4CMS/FP420"/>
 <use name="SimG4CMS/Forward"/>
+<use name="SimG4CMS/HcalTestBeam"/>
+<use name="SimG4CMS/HGCalTestBeam"/>
 <use name="SimG4CMS/Muon"/>
 <use name="SimG4CMS/Tracker"/>
 <use name="SimG4Core/Application"/>
@@ -15,8 +17,10 @@
 <use name="SimG4Core/SensitiveDetector"/>
 <use name="SimG4Core/PrintGeomInfo"/>
 <use name="SimRomanPot/SimFP420"/>
+<use name="SimG4Core/DD4hepGeometry"/>
 <use name="Validation/HcalHits"/>
 <use name="Validation/EcalHits"/>
+<use name="Validation/HGCalValidation"/>
 <use name="SimDataFormats/ValidationFormats"/>
 <use name="geant4static"/>
 <flags DROP_DEP="geant4core"/>

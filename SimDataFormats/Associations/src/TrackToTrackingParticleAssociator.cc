@@ -2,7 +2,7 @@
 //
 // Package:     SimDataFormats/Associations
 // Class  :     TrackToTrackingParticleAssociator
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
-reco::TrackToTrackingParticleAssociator::TrackToTrackingParticleAssociator(std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> iImpl):
-  m_impl{std::move(iImpl)}
-{
-}
+reco::TrackToTrackingParticleAssociator::TrackToTrackingParticleAssociator(
+    std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> iImpl)
+    : m_impl{std::move(iImpl)} {}

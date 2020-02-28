@@ -8,22 +8,14 @@
 //
 // defualt ctor creates vectors of length EBDataFrame::MAXSAMPLES==10
 //
-EcalTBWeights::EcalTBWeights() {
+EcalTBWeights::EcalTBWeights() {}
 
+EcalTBWeights::~EcalTBWeights() {}
+
+void EcalTBWeights::setValue(const EcalXtalGroupId& groupId, const EcalTDCId& tdcId, const EcalWeightSet& weight) {
+  setValue(std::make_pair(groupId, tdcId), weight);
 }
 
-EcalTBWeights::~EcalTBWeights() {
+void EcalTBWeights::setValue(const std::pair<EcalXtalGroupId, EcalTDCId>& keyPair, const EcalWeightSet& weight) {
+  map_.insert(std::make_pair(keyPair, weight));
 }
-
-void
-EcalTBWeights::setValue(const EcalXtalGroupId& groupId,
-                        const EcalTDCId& tdcId,
-                        const EcalWeightSet& weight) {
-  setValue( std::make_pair(groupId,tdcId), weight);
-}
-
-void
-EcalTBWeights::setValue(const std::pair<EcalXtalGroupId,EcalTDCId >& keyPair, const EcalWeightSet& weight) {
-  map_.insert( std::make_pair(keyPair,weight) );
-}
-

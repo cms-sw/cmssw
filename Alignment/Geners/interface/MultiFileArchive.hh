@@ -7,71 +7,68 @@
 #include "Alignment/Geners/interface/CatalogIO.hh"
 
 namespace gs {
-    class MultiFileArchive : public BinaryArchiveBase
-    {
-    public:
-        // See the note inside the "BinaryArchiveBase.hh" header
-        // for the meaning of the "mode" argument
-        MultiFileArchive(const char* basename, const char* mode,
-                         const char* annotation = 0,
-                         unsigned typicalFileSizeInMB = 1000U,
-                         unsigned dataFileBufferSize = 1048576U,
-                         unsigned catalogFileBufferSize = 131072U);
-        virtual ~MultiFileArchive();
+  class MultiFileArchive : public BinaryArchiveBase {
+  public:
+    // See the note inside the "BinaryArchiveBase.hh" header
+    // for the meaning of the "mode" argument
+    MultiFileArchive(const char *basename,
+                     const char *mode,
+                     const char *annotation = nullptr,
+                     unsigned typicalFileSizeInMB = 1000U,
+                     unsigned dataFileBufferSize = 1048576U,
+                     unsigned catalogFileBufferSize = 131072U);
+    ~MultiFileArchive() override;
 
-        void flush();
+    void flush() override;
 
-    private:
-        void writeCatalog();
-        void openWriteStream();
-        void setupWriteStream();
-        void updateReadStream(const std::string& uri);
-        void releaseBuffers();
+  private:
+    void writeCatalog();
+    void openWriteStream();
+    void setupWriteStream();
+    void updateReadStream(const std::string &uri);
+    void releaseBuffers();
 
-        template<class Catalog>
-        void readCatalog()
-        {
-            assert(!catalog());
-            unsigned compressionMode;
-            setCatalog(readBinaryCatalog<Catalog>(
-                           catStream_, &compressionMode, &catalogMergeLevel_,
-                           &catalogAnnotations_, true));
-            assert(catalog());
-            setCompressionMode(compressionMode);
-        }
+    template <class Catalog>
+    void readCatalog() {
+      assert(!catalog());
+      unsigned compressionMode;
+      setCatalog(
+          readBinaryCatalog<Catalog>(catStream_, &compressionMode, &catalogMergeLevel_, &catalogAnnotations_, true));
+      assert(catalog());
+      setCompressionMode(compressionMode);
+    }
 
-        // The following methods have to be overriden from the base
-        std::ostream& plainOutputStream();
-        std::istream& plainInputStream(unsigned long long id,
-                                       unsigned* compressionCode,
-                                       unsigned long long* length);
+    // The following methods have to be overriden from the base
+    std::ostream &plainOutputStream() override;
+    std::istream &plainInputStream(unsigned long long id,
+                                   unsigned *compressionCode,
+                                   unsigned long long *length) override;
 
-        unsigned long long addToCatalog(
-            const AbsRecord& record, unsigned compressionCode,
-            unsigned long long itemLength);
+    unsigned long long addToCatalog(const AbsRecord &record,
+                                    unsigned compressionCode,
+                                    unsigned long long itemLength) override;
 
-        char* filebuf_;
-        char* readbuf_;
-        char* catabuf_;
-        std::string annotation_;
-        std::string catalogFileName_;
-        std::string writeFileName_;
-        std::string writeFileURI_;
-        std::string readFileName_;
-        std::string readFileURI_;
-        std::fstream writeStream_;
-        std::fstream catStream_;
-        std::fstream separateReadStream_;
-        std::streampos lastpos_;
-        std::streampos jumppos_;
-        std::streampos maxpos_;
-        std::vector<std::string> catalogAnnotations_;
-        unsigned long writeFileNumber_;
-        unsigned catalogMergeLevel_;
-        bool annotationsMerged_;
-        bool streamFlushed_;
-    };
-}
+    char *filebuf_;
+    char *readbuf_;
+    char *catabuf_;
+    std::string annotation_;
+    std::string catalogFileName_;
+    std::string writeFileName_;
+    std::string writeFileURI_;
+    std::string readFileName_;
+    std::string readFileURI_;
+    std::fstream writeStream_;
+    std::fstream catStream_;
+    std::fstream separateReadStream_;
+    std::streampos lastpos_;
+    std::streampos jumppos_;
+    std::streampos maxpos_;
+    std::vector<std::string> catalogAnnotations_;
+    unsigned long writeFileNumber_;
+    unsigned catalogMergeLevel_;
+    bool annotationsMerged_;
+    bool streamFlushed_;
+  };
+}  // namespace gs
 
-#endif // GENERS_MULTIFILEARCHIVE_HH_
-
+#endif  // GENERS_MULTIFILEARCHIVE_HH_

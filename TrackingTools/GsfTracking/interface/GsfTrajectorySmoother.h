@@ -19,41 +19,35 @@ class MultiTrajectoryStateMerger;
  */
 
 class GsfTrajectorySmoother final : public TrajectorySmoother {
-
 private:
-
   typedef TrajectoryStateOnSurface TSOS;
   typedef TrajectoryMeasurement TM;
 
 public:
-
   /** Constructor with explicit components for propagation, update,
    *  chi2 calculation, merging and flag for merging before / after
    *  the update (i.e. fully configured). It clones the algorithms. */
   GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aPropagator,
-			const TrajectoryStateUpdator& aUpdator,
-			const MeasurementEstimator& aEstimator,
-			const MultiTrajectoryStateMerger& merger,
-			float errorRescaling,
-			const bool materialBeforeUpdate = true,
-			const DetLayerGeometry* detLayerGeometry=nullptr);
+                        const TrajectoryStateUpdator& aUpdator,
+                        const MeasurementEstimator& aEstimator,
+                        const MultiTrajectoryStateMerger& merger,
+                        float errorRescaling,
+                        const bool materialBeforeUpdate = true,
+                        const DetLayerGeometry* detLayerGeometry = nullptr);
 
   ~GsfTrajectorySmoother() override;
 
   Trajectory trajectory(const Trajectory& aTraj) const override;
 
-  const TrajectoryStateUpdator* updator() const {return theUpdator;}
-  const MeasurementEstimator* estimator() const {return theEstimator;}
+  const TrajectoryStateUpdator* updator() const { return theUpdator; }
+  const MeasurementEstimator* estimator() const { return theEstimator; }
 
-  GsfTrajectorySmoother* clone() const override
-  {
-    return new GsfTrajectorySmoother(*theAlongPropagator,*theUpdator,*theEstimator,
-				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
+  GsfTrajectorySmoother* clone() const override {
+    return new GsfTrajectorySmoother(
+        *theAlongPropagator, *theUpdator, *theEstimator, *theMerger, theErrorRescaling, theMatBeforeUpdate, theGeometry);
   }
 
-  void setHitCloner(TkCloner const * hc)  override{
-  }
-
+  void setHitCloner(TkCloner const* hc) override {}
 
 private:
   const GsfPropagatorWithMaterial* theAlongPropagator;
@@ -63,14 +57,13 @@ private:
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   const MultiTrajectoryStateMerger* theMerger;
-  
+
   bool theTiming;
   bool theMatBeforeUpdate;
   float theErrorRescaling;
 
   const DetLayerGeometry dummyGeometry;
   const DetLayerGeometry* theGeometry;
-
 };
 
-#endif //TR_GsfTrajectorySmoother_H_
+#endif  //TR_GsfTrajectorySmoother_H_

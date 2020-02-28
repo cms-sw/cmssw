@@ -114,27 +114,28 @@ elPFIsoValuePU04NoPFId          =  elPFIsoValuePU04PFId.clone()
 #elPFIsoValuePU04NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:ConeVeto(0.015)','EcalEndcaps:ConeVeto(0.015)') 
 #elPFIsoValueGamma04NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)','EcalEndcaps:ConeVeto(0.08)')
 
-electronPFIsolationValuesSequence = (
-    elPFIsoValueCharged03PFId+
-    elPFIsoValueChargedAll03PFId+
-    elPFIsoValueGamma03PFId+
-    elPFIsoValueNeutral03PFId+
-    elPFIsoValuePU03PFId+
+electronPFIsolationValuesTask = cms.Task(
+    elPFIsoValueCharged03PFId,
+    elPFIsoValueChargedAll03PFId,
+    elPFIsoValueGamma03PFId,
+    elPFIsoValueNeutral03PFId,
+    elPFIsoValuePU03PFId,
     ############################## 
-    elPFIsoValueCharged04PFId+
-    elPFIsoValueChargedAll04PFId+
-    elPFIsoValueGamma04PFId+
-    elPFIsoValueNeutral04PFId+
-    elPFIsoValuePU04PFId+
+    elPFIsoValueCharged04PFId,
+    elPFIsoValueChargedAll04PFId,
+    elPFIsoValueGamma04PFId,
+    elPFIsoValueNeutral04PFId,
+    elPFIsoValuePU04PFId,
     ############################## 
-    elPFIsoValueCharged03NoPFId+
-    elPFIsoValueChargedAll03NoPFId+
-    elPFIsoValueGamma03NoPFId+
-    elPFIsoValueNeutral03NoPFId+
-    elPFIsoValuePU03NoPFId+
+    elPFIsoValueCharged03NoPFId,
+    elPFIsoValueChargedAll03NoPFId,
+    elPFIsoValueGamma03NoPFId,
+    elPFIsoValueNeutral03NoPFId,
+    elPFIsoValuePU03NoPFId,
     ############################## 
-    elPFIsoValueCharged04NoPFId+
-    elPFIsoValueChargedAll04NoPFId+
-    elPFIsoValueGamma04NoPFId+
-    elPFIsoValueNeutral04NoPFId+
+    elPFIsoValueCharged04NoPFId,
+    elPFIsoValueChargedAll04NoPFId,
+    elPFIsoValueGamma04NoPFId,
+    elPFIsoValueNeutral04NoPFId,
     elPFIsoValuePU04NoPFId)
+electronPFIsolationValuesSequence = (electronPFIsolationValuesTask)

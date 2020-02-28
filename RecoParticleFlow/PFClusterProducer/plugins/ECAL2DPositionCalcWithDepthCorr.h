@@ -15,27 +15,26 @@
 
 /// This is EGM version of the ECAL position + depth correction calculation
 class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
- public:
-  ECAL2DPositionCalcWithDepthCorr(const edm::ParameterSet& conf) :
-    PFCPositionCalculatorBase(conf), 
-    _param_T0_EB(conf.getParameter<double>("T0_EB")),
-    _param_T0_EE(conf.getParameter<double>("T0_EE")),
-    _param_T0_ES(conf.getParameter<double>("T0_ES")),
-    _param_W0(conf.getParameter<double>("W0")),
-    _param_X0(conf.getParameter<double>("X0")),
-    _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")),
-    _ebGeom(nullptr),
-    _eeGeom(nullptr),
-    _esGeom(nullptr),
-    _esPlus(false),
-    _esMinus(false) {
-        _timeResolutionCalc.reset(nullptr);
-    if( conf.exists("timeResolutionCalc") ) {
-      const edm::ParameterSet& timeResConf = 
-        conf.getParameterSet("timeResolutionCalc");
-        _timeResolutionCalc.reset(new CaloRecHitResolutionProvider(timeResConf)); 
-      }
+public:
+  ECAL2DPositionCalcWithDepthCorr(const edm::ParameterSet& conf)
+      : PFCPositionCalculatorBase(conf),
+        _param_T0_EB(conf.getParameter<double>("T0_EB")),
+        _param_T0_EE(conf.getParameter<double>("T0_EE")),
+        _param_T0_ES(conf.getParameter<double>("T0_ES")),
+        _param_W0(conf.getParameter<double>("W0")),
+        _param_X0(conf.getParameter<double>("X0")),
+        _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")),
+        _ebGeom(nullptr),
+        _eeGeom(nullptr),
+        _esGeom(nullptr),
+        _esPlus(false),
+        _esMinus(false) {
+    _timeResolutionCalc.reset(nullptr);
+    if (conf.exists("timeResolutionCalc")) {
+      const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalc");
+      _timeResolutionCalc.reset(new CaloRecHitResolutionProvider(timeResConf));
     }
+  }
   ECAL2DPositionCalcWithDepthCorr(const ECAL2DPositionCalcWithDepthCorr&) = delete;
   ECAL2DPositionCalcWithDepthCorr& operator=(const ECAL2DPositionCalcWithDepthCorr&) = delete;
 
@@ -44,7 +43,7 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
   void calculateAndSetPosition(reco::PFCluster&) override;
   void calculateAndSetPositions(reco::PFClusterCollection&) override;
 
- private:  
+private:
   const double _param_T0_EB;
   const double _param_T0_EE;
   const double _param_T0_ES;
@@ -52,7 +51,6 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
   const double _param_X0;
   const double _minAllowedNorm;
 
-  
   //const CaloGeometryRecord  _caloGeom;
   const CaloSubdetectorGeometry* _ebGeom;
   const CaloSubdetectorGeometry* _eeGeom;
@@ -60,12 +58,10 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
   bool _esPlus, _esMinus;
 
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalc;
-  
+
   void calculateAndSetPositionActual(reco::PFCluster&) const;
 };
 
-DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory,
-		  ECAL2DPositionCalcWithDepthCorr,
-		  "ECAL2DPositionCalcWithDepthCorr");
+DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory, ECAL2DPositionCalcWithDepthCorr, "ECAL2DPositionCalcWithDepthCorr");
 
 #endif

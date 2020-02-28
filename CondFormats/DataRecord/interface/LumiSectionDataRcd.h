@@ -4,5 +4,3 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 class LumiSectionDataRcd : public edm::eventsetup::EventSetupRecordImplementation<LumiSectionDataRcd> {};
 #endif
-
-

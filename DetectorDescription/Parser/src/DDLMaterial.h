@@ -26,13 +26,11 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLMaterial : public DDXMLElement
-{
+class DDLMaterial : public DDXMLElement {
 public:
+  DDLMaterial(DDLElementRegistry* myreg);
 
-  DDLMaterial( DDLElementRegistry* myreg );
-
-  virtual void setReference( const std::string& nmspace, DDCompactView& cpv );
+  virtual void setReference(const std::string& nmspace, DDCompactView& cpv);
 };
 
 #endif

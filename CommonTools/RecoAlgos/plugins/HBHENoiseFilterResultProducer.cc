@@ -39,42 +39,40 @@
 //
 
 class HBHENoiseFilterResultProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit HBHENoiseFilterResultProducer(const edm::ParameterSet&);
-      ~HBHENoiseFilterResultProducer() override;
+public:
+  explicit HBHENoiseFilterResultProducer(const edm::ParameterSet&);
+  ~HBHENoiseFilterResultProducer() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      // parameters
-      edm::EDGetTokenT<HcalNoiseSummary> noisetoken_;
-      int minHPDHits_;
-      int minHPDNoOtherHits_;
-      int minZeros_;
+  // parameters
+  edm::EDGetTokenT<HcalNoiseSummary> noisetoken_;
+  int minHPDHits_;
+  int minHPDNoOtherHits_;
+  int minZeros_;
 
-      bool IgnoreTS4TS5ifJetInLowBVRegion_;
-      std::string defaultDecision_;
+  bool IgnoreTS4TS5ifJetInLowBVRegion_;
+  std::string defaultDecision_;
 
-      int minNumIsolatedNoiseChannels_;
-      double minIsolatedNoiseSumE_;
-      double minIsolatedNoiseSumEt_;
+  int minNumIsolatedNoiseChannels_;
+  double minIsolatedNoiseSumE_;
+  double minIsolatedNoiseSumEt_;
 
-      edm::EDGetTokenT<unsigned int> bunchSpacing_;
-      bool useBunchSpacingProducer_;
+  edm::EDGetTokenT<unsigned int> bunchSpacing_;
+  bool useBunchSpacingProducer_;
 
-      // other members
-      std::map<std::string, bool> decisionMap_;
+  // other members
+  std::map<std::string, bool> decisionMap_;
 };
-
 
 //
 // constructors and destructor
 //
 
-HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::ParameterSet& iConfig)
-{
+HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
   noisetoken_ = consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("noiselabel"));
   minHPDHits_ = iConfig.getParameter<int>("minHPDHits");
@@ -88,7 +86,7 @@ HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::Paramete
   minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
   minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");
 
-  // parameters needed for bunch-spacing check 
+  // parameters needed for bunch-spacing check
   bunchSpacing_ = consumes<unsigned int>(edm::InputTag("bunchSpacingProducer"));
   useBunchSpacingProducer_ = iConfig.getParameter<bool>("useBunchSpacingProducer");
 
@@ -99,27 +97,20 @@ HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::Paramete
   produces<bool>("HBHEIsoNoiseFilterResult");
 }
 
-
-HBHENoiseFilterResultProducer::~HBHENoiseFilterResultProducer()
-{
-
-}
-
+HBHENoiseFilterResultProducer::~HBHENoiseFilterResultProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-void
-HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
   // get the Noise summary object
   edm::Handle<HcalNoiseSummary> summary_h;
   iEvent.getByToken(noisetoken_, summary_h);
-  if(!summary_h.isValid()) {
+  if (!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return;
   }
@@ -127,52 +118,46 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   bool goodJetFoundInLowBVRegion = false;
   if (IgnoreTS4TS5ifJetInLowBVRegion_)
-      goodJetFoundInLowBVRegion = summary.goodJetFoundInLowBVRegion();
+    goodJetFoundInLowBVRegion = summary.goodJetFoundInLowBVRegion();
 
-  const bool failCommon = summary.maxHPDHits() >= minHPDHits_ ||
-                          summary.maxHPDNoOtherHits() >= minHPDNoOtherHits_ ||
+  const bool failCommon = summary.maxHPDHits() >= minHPDHits_ || summary.maxHPDNoOtherHits() >= minHPDNoOtherHits_ ||
                           summary.maxZeros() >= minZeros_;
 
-  const bool failRun1 = failCommon || (summary.HasBadRBXTS4TS5() &&
-                                       !goodJetFoundInLowBVRegion);
+  const bool failRun1 = failCommon || (summary.HasBadRBXTS4TS5() && !goodJetFoundInLowBVRegion);
   decisionMap_["HBHENoiseFilterResultRun1"] = failRun1;
 
-  const bool failRun2Loose = failCommon || (summary.HasBadRBXRechitR45Loose() &&
-                                            !goodJetFoundInLowBVRegion);
+  const bool failRun2Loose = failCommon || (summary.HasBadRBXRechitR45Loose() && !goodJetFoundInLowBVRegion);
   decisionMap_["HBHENoiseFilterResultRun2Loose"] = failRun2Loose;
 
-  const bool failRun2Tight = failCommon || (summary.HasBadRBXRechitR45Tight() &&
-                                            !goodJetFoundInLowBVRegion);
+  const bool failRun2Tight = failCommon || (summary.HasBadRBXRechitR45Tight() && !goodJetFoundInLowBVRegion);
   decisionMap_["HBHENoiseFilterResultRun2Tight"] = failRun2Tight;
 
   // Write out the standard flags
   std::unique_ptr<bool> pOut;
-  for (std::map<std::string, bool>::const_iterator it = decisionMap_.begin();
-       it != decisionMap_.end(); ++it)
-  {
-      pOut = std::unique_ptr<bool>(new bool(!it->second));
-      iEvent.put(std::move(pOut), it->first);
+  for (std::map<std::string, bool>::const_iterator it = decisionMap_.begin(); it != decisionMap_.end(); ++it) {
+    pOut = std::unique_ptr<bool>(new bool(!it->second));
+    iEvent.put(std::move(pOut), it->first);
   }
 
   // Overwrite defaultDecision_ dynamically based on bunchSpacingProducer
-  if( useBunchSpacingProducer_ ){
+  if (useBunchSpacingProducer_) {
     edm::Handle<unsigned int> bunchSpacingH;
-    iEvent.getByToken(bunchSpacing_,bunchSpacingH);
+    iEvent.getByToken(bunchSpacing_, bunchSpacingH);
     unsigned int bunchspacing = 0;
-    if( bunchSpacingH.isValid() ){
+    if (bunchSpacingH.isValid()) {
       bunchspacing = *bunchSpacingH;
-      if( bunchspacing == 50 ){
-	defaultDecision_ = "HBHENoiseFilterResultRun1";
-      } else{
-	defaultDecision_ = "HBHENoiseFilterResultRun2Loose";
-      } 
+      if (bunchspacing == 50) {
+        defaultDecision_ = "HBHENoiseFilterResultRun1";
+      } else {
+        defaultDecision_ = "HBHENoiseFilterResultRun2Loose";
+      }
     }
   }
-  
+
   // Write out the default flag
   std::map<std::string, bool>::const_iterator it = decisionMap_.find(defaultDecision_);
   if (it == decisionMap_.end())
-      throw cms::Exception("Invalid HBHENoiseFilterResultProducer parameter \"defaultDecision\"");
+    throw cms::Exception("Invalid HBHENoiseFilterResultProducer parameter \"defaultDecision\"");
   pOut = std::unique_ptr<bool>(new bool(!it->second));
   iEvent.put(std::move(pOut), "HBHENoiseFilterResult");
 
@@ -182,7 +167,7 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
                              summary.isolatedNoiseSumEt() >= minIsolatedNoiseSumEt_;
   pOut = std::unique_ptr<bool>(new bool(!failIsolation));
   iEvent.put(std::move(pOut), "HBHEIsoNoiseFilterResult");
-  
+
   return;
 }
 

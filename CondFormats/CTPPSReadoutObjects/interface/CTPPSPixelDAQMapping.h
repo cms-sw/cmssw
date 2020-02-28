@@ -21,15 +21,14 @@
 /**
  *\brief Contains mappind data related to a ROC.
  */
-class CTPPSPixelROCInfo
-{
+class CTPPSPixelROCInfo {
 public:
   /// the symbolic id
   uint32_t iD;
 
   unsigned int roc;
-    
-  friend std::ostream& operator << (std::ostream& s, const CTPPSPixelROCInfo &fp);
+
+  friend std::ostream &operator<<(std::ostream &s, const CTPPSPixelROCInfo &fp);
 
   COND_SERIALIZABLE;
 };
@@ -39,17 +38,15 @@ public:
 /**
  *\brief The mapping between FramePosition and ROCInfo.
  */
-class CTPPSPixelDAQMapping
-{
+class CTPPSPixelDAQMapping {
 public:
   std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> ROCMapping;
-    
+
   void insert(const CTPPSPixelFramePosition &fp, const CTPPSPixelROCInfo &vi);
 
   std::set<unsigned int> fedIds() const;
 
   COND_SERIALIZABLE;
-
 };
 
 #endif

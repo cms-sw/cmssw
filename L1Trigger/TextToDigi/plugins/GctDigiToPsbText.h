@@ -8,29 +8,27 @@
  */
 
 // system include files
-#include <memory>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 // gct
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 class GctDigiToPsbText : public edm::EDAnalyzer {
-
- public:
-  explicit GctDigiToPsbText(const edm::ParameterSet&);
+public:
+  explicit GctDigiToPsbText(const edm::ParameterSet &);
   ~GctDigiToPsbText() override;
-  
-  
- private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  
+
+private:
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
   /// label for input digis
   edm::InputTag m_gctInputLabel;
 
@@ -45,7 +43,6 @@ class GctDigiToPsbText : public edm::EDAnalyzer {
 
   /// handle for debug file
   std::ofstream fdebug;
-
 };
 
 #endif

@@ -7,58 +7,49 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include <vector>
 #include <typeindex>
 
 namespace edm {
-  ProductRegistryHelper::~ProductRegistryHelper() noexcept(false) { }
+  ProductRegistryHelper::~ProductRegistryHelper() noexcept(false) {}
 
-  ProductRegistryHelper::TypeLabelList const& ProductRegistryHelper::typeLabelList() const {
-    return typeLabelList_;
-  }
+  ProductRegistryHelper::TypeLabelList const& ProductRegistryHelper::typeLabelList() const { return typeLabelList_; }
 
   namespace {
-    void throwProducesWithoutAbility(const char* runOrLumi,
-                                     std::string const& productTypeName) {
-
+    void throwProducesWithoutAbility(const char* runOrLumi, std::string const& productTypeName) {
       throw edm::Exception(edm::errors::LogicError)
-        << "Module declares it can produce a product of type \'" << productTypeName
-        << "\'\nin a " << runOrLumi << ", but does not have the ability to produce in "
-        << runOrLumi << "s.\n"
-        << "You must add a template parameter of type Begin" << runOrLumi << "Producer\n"
-        << "or End" << runOrLumi << "Producer to the EDProducer or EDFilter base class\n"
-        << "of the module. Or you could remove the call to the function \'produces\'\n"
-        << "(Note legacy modules are not ever allowed to produce in Runs or Lumis)\n";
+          << "Module declares it can produce a product of type \'" << productTypeName << "\'\nin a " << runOrLumi
+          << ", but does not have the ability to produce in " << runOrLumi << "s.\n"
+          << "You must add a template parameter of type Begin" << runOrLumi << "Producer\n"
+          << "or End" << runOrLumi << "Producer to the EDProducer or EDFilter base class\n"
+          << "of the module. Or you could remove the call to the function \'produces\'\n"
+          << "(Note legacy modules are not ever allowed to produce in Runs or Lumis)\n";
     }
-  }
+  }  // namespace
 
-  void
-  ProductRegistryHelper::addToRegistry(TypeLabelList::const_iterator const& iBegin,
-                                       TypeLabelList::const_iterator const& iEnd,
-                                       ModuleDescription const& iDesc,
-                                       ProductRegistry& iReg,
-                                       ProductRegistryHelper* iProd,
-                                       bool iIsListener) {
-
+  void ProductRegistryHelper::addToRegistry(TypeLabelList::const_iterator const& iBegin,
+                                            TypeLabelList::const_iterator const& iEnd,
+                                            ModuleDescription const& iDesc,
+                                            ProductRegistry& iReg,
+                                            ProductRegistryHelper* iProd,
+                                            bool iIsListener) {
     std::vector<std::string> missingDictionaries;
     std::vector<std::string> producedTypes;
-    std::set<std::tuple<BranchType,std::type_index,std::string>> registeredProducts;
+    std::set<std::tuple<BranchType, std::type_index, std::string>> registeredProducts;
 
-    for(TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
-      if (p->transition_ == Transition::BeginRun ||
-          p->transition_ == Transition::EndRun) {
-        if (not iProd->hasAbilityToProduceInRuns()) {
-          throwProducesWithoutAbility("Run", p->typeID_.userClassName());
-        }
-      } else if (p->transition_ == Transition::BeginLuminosityBlock ||
-                 p->transition_ == Transition::EndLuminosityBlock) {
-        if (not iProd->hasAbilityToProduceInLumis()) {
-          throwProducesWithoutAbility("LuminosityBlock", p->typeID_.userClassName());
-        }
+    for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
+      if (p->transition_ == Transition::BeginRun && not iProd->hasAbilityToProduceInBeginRuns()) {
+        throwProducesWithoutAbility("BeginRun", p->typeID_.userClassName());
+      } else if (p->transition_ == Transition::EndRun && not iProd->hasAbilityToProduceInEndRuns()) {
+        throwProducesWithoutAbility("EndRun", p->typeID_.userClassName());
+      } else if (p->transition_ == Transition::BeginLuminosityBlock && not iProd->hasAbilityToProduceInBeginLumis()) {
+        throwProducesWithoutAbility("BeginLuminosityBlock", p->typeID_.userClassName());
+      } else if (p->transition_ == Transition::EndLuminosityBlock && not iProd->hasAbilityToProduceInEndLumis()) {
+        throwProducesWithoutAbility("EndLuminosityBlock", p->typeID_.userClassName());
       }
       if (!checkDictionary(missingDictionaries, p->typeID_)) {
         checkDictionaryOfWrappedType(missingDictionaries, p->typeID_);
@@ -66,9 +57,10 @@ namespace edm {
         continue;
       }
       auto branchType = convertToBranchType(p->transition_);
-      if(branchType != InEvent) {
-        std::tuple<BranchType, std::type_index, std::string> entry{ branchType,p->typeID_.typeInfo(),p->productInstanceName_};
-        if(registeredProducts.end() != registeredProducts.find(entry) ) {
+      if (branchType != InEvent) {
+        std::tuple<BranchType, std::type_index, std::string> entry{
+            branchType, p->typeID_.typeInfo(), p->productInstanceName_};
+        if (registeredProducts.end() != registeredProducts.find(entry)) {
           //ignore registration of items if in both begin and end transitions for now
           // This is to work around ExternalLHEProducer
           continue;
@@ -89,10 +81,11 @@ namespace edm {
                               type,
                               true,
                               isEndTransition(p->transition_));
-      if(p->aliasType_ == TypeLabelItem::AliasType::kSwitchAlias) {
-        if(p->branchAlias_.empty()) {
-          throw edm::Exception(edm::errors::LogicError) << "Branch alias type has been set to SwitchAlias, but the alias content is empty.\n"
-                                                        << "Please report this error to the FWCore developers";
+      if (p->aliasType_ == TypeLabelItem::AliasType::kSwitchAlias) {
+        if (p->branchAlias_.empty()) {
+          throw edm::Exception(edm::errors::LogicError)
+              << "Branch alias type has been set to SwitchAlias, but the alias content is empty.\n"
+              << "Please report this error to the FWCore developers";
         }
         pdesc.setSwitchAliasModuleLabel(p->branchAlias_);
       }
@@ -113,7 +106,8 @@ namespace edm {
           continue;
         }
       }
-      if (!p->branchAlias_.empty()) pdesc.insertBranchAlias(p->branchAlias_);
+      if (!p->branchAlias_.empty())
+        pdesc.insertBranchAlias(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);
     }
 
@@ -122,4 +116,4 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes);
     }
   }
-}
+}  // namespace edm

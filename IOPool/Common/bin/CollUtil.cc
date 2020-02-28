@@ -21,7 +21,7 @@
 namespace edm {
 
   // Get a file handler
-  TFile* openFileHdl(std::string const& fname) {
+  TFile *openFileHdl(std::string const &fname) {
     TFile *hdl = TFile::Open(fname.c_str(), "read");
 
     if (nullptr == hdl) {
@@ -37,7 +37,7 @@ namespace edm {
     TList *keylist = hdl->GetListOfKeys();
     TIterator *iter = keylist->MakeIterator();
     TKey *key = nullptr;
-    while ((key = (TKey*)iter->Next())) {
+    while ((key = (TKey *)iter->Next())) {
       TObject *obj = hdl->Get(key->GetName());
       if (obj->IsA() == TTree::Class()) {
         obj->Print();
@@ -47,20 +47,19 @@ namespace edm {
   }
 
   // number of entries in a tree
-  Long64_t numEntries(TFile *hdl, std::string const& trname) {
-    TTree *tree = (TTree*)hdl->Get(trname.c_str());
+  Long64_t numEntries(TFile *hdl, std::string const &trname) {
+    TTree *tree = (TTree *)hdl->Get(trname.c_str());
     if (tree) {
       return tree->GetEntries();
     } else {
-      std::cout << "ERR cannot find a TTree named \"" << trname << "\""
-                << std::endl;
+      std::cout << "ERR cannot find a TTree named \"" << trname << "\"" << std::endl;
       return -1;
     }
   }
 
   namespace {
-    void addBranchSizes(TBranch *branch, Long64_t& size) {
-      size += branch->GetTotalSize(); // Includes size of branch metadata
+    void addBranchSizes(TBranch *branch, Long64_t &size) {
+      size += branch->GetTotalSize();  // Includes size of branch metadata
       // Now recurse through any subbranches.
       Long64_t nB = branch->GetListOfBranches()->GetEntries();
       for (Long64_t i = 0; i < nB; ++i) {
@@ -68,7 +67,7 @@ namespace edm {
         addBranchSizes(btemp, size);
       }
     }
-  }
+  }  // namespace
 
   void printBranchNames(TTree *tree) {
     if (tree != nullptr) {
@@ -77,7 +76,8 @@ namespace edm {
         Long64_t size = 0LL;
         TBranch *btemp = (TBranch *)tree->GetListOfBranches()->At(i);
         addBranchSizes(btemp, size);
-        std::cout << "Branch " << i << " of " << tree->GetName() << " tree: " << btemp->GetName() << " Total size = " << size << std::endl;
+        std::cout << "Branch " << i << " of " << tree->GetName() << " tree: " << btemp->GetName()
+                  << " Total size = " << size << std::endl;
       }
     } else {
       std::cout << "Missing Events tree?\n";
@@ -112,7 +112,9 @@ namespace edm {
     std::cout << "UUID: " << fid.fid() << std::endl;
   }
 
-  static void preIndexIntoFilePrintEventLists(TFile*, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
+  static void preIndexIntoFilePrintEventLists(TFile *,
+                                              FileFormatVersion const &fileFormatVersion,
+                                              TTree *metaDataTree) {
     FileIndex fileIndex;
     FileIndex *findexPtr = &fileIndex;
     if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != nullptr) {
@@ -122,15 +124,17 @@ namespace edm {
     } else {
       std::cout << "FileIndex not found.  If this input file was created with release 1_8_0 or later\n"
                    "this indicates a problem with the file.  This condition should be expected with\n"
-        "files created with earlier releases and printout of the event list will fail.\n";
+                   "files created with earlier releases and printout of the event list will fail.\n";
       return;
     }
 
     std::cout << "\n" << fileIndex;
 
     std::cout << "\nFileFormatVersion = " << fileFormatVersion << ".  ";
-    if (fileFormatVersion.fastCopyPossible()) std::cout << "This version supports fast copy\n";
-    else std::cout << "This version does not support fast copy\n";
+    if (fileFormatVersion.fastCopyPossible())
+      std::cout << "This version supports fast copy\n";
+    else
+      std::cout << "This version does not support fast copy\n";
 
     if (fileIndex.allEventsInEntryOrder()) {
       std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort = False\" mode\n";
@@ -147,7 +151,9 @@ namespace edm {
     std::cout << "(Note that other factors can prevent fast copy from occurring)\n\n";
   }
 
-  static void postIndexIntoFilePrintEventLists(TFile* tfl, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
+  static void postIndexIntoFilePrintEventLists(TFile *tfl,
+                                               FileFormatVersion const &fileFormatVersion,
+                                               TTree *metaDataTree) {
     IndexIntoFile indexIntoFile;
     IndexIntoFile *findexPtr = &indexIntoFile;
     if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
@@ -161,54 +167,56 @@ namespace edm {
       return;
     }
     //need to read event # from the EventAuxiliary branch
-    TTree* eventsTree = dynamic_cast<TTree*>(tfl->Get(poolNames::eventTreeName().c_str()));
-    TBranch* eventAuxBranch = nullptr;
+    TTree *eventsTree = dynamic_cast<TTree *>(tfl->Get(poolNames::eventTreeName().c_str()));
+    TBranch *eventAuxBranch = nullptr;
     assert(nullptr != eventsTree);
-    char const* const kEventAuxiliaryBranchName = "EventAuxiliary";
-    if(eventsTree->FindBranch(kEventAuxiliaryBranchName) != nullptr){
+    char const *const kEventAuxiliaryBranchName = "EventAuxiliary";
+    if (eventsTree->FindBranch(kEventAuxiliaryBranchName) != nullptr) {
       eventAuxBranch = eventsTree->GetBranch(kEventAuxiliaryBranchName);
     } else {
-      std::cout << "Failed to find " << kEventAuxiliaryBranchName << " branch in Events TTree.  Something is wrong with this file." << std::endl;
+      std::cout << "Failed to find " << kEventAuxiliaryBranchName
+                << " branch in Events TTree.  Something is wrong with this file." << std::endl;
       return;
     }
     EventAuxiliary eventAuxiliary;
-    EventAuxiliary* eAPtr = &eventAuxiliary;
+    EventAuxiliary *eAPtr = &eventAuxiliary;
     eventAuxBranch->SetAddress(&eAPtr);
     std::cout << "\nPrinting IndexIntoFile contents.  This includes a list of all Runs, LuminosityBlocks\n"
-       << "and Events stored in the root file.\n\n";
-    std::cout << std::setw(15) << "Run"
-       << std::setw(15) << "Lumi"
-       << std::setw(15) << "Event"
-       << std::setw(15) << "TTree Entry"
-       << "\n";
+              << "and Events stored in the root file.\n\n";
+    std::cout << std::setw(15) << "Run" << std::setw(15) << "Lumi" << std::setw(15) << "Event" << std::setw(15)
+              << "TTree Entry"
+              << "\n";
 
-    for(IndexIntoFile::IndexIntoFileItr it = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder),
-                                        itEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
-                                        it != itEnd; ++it) {
+    for (IndexIntoFile::IndexIntoFileItr it = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder),
+                                         itEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
+         it != itEnd;
+         ++it) {
       IndexIntoFile::EntryType t = it.getEntryType();
       std::cout << std::setw(15) << it.run() << std::setw(15) << it.lumi();
       EventNumber_t eventNum = 0;
       std::string type;
-      switch(t) {
+      switch (t) {
         case IndexIntoFile::kRun:
           type = "(Run)";
-        break;
+          break;
         case IndexIntoFile::kLumi:
           type = "(Lumi)";
-        break;
+          break;
         case IndexIntoFile::kEvent:
           eventAuxBranch->GetEntry(it.entry());
           eventNum = eventAuxiliary.id().event();
-        break;
+          break;
         default:
-        break;
+          break;
       }
       std::cout << std::setw(15) << eventNum << std::setw(15) << it.entry() << " " << type << std::endl;
     }
 
     std::cout << "\nFileFormatVersion = " << fileFormatVersion << ".  ";
-    if (fileFormatVersion.fastCopyPossible()) std::cout << "This version supports fast copy\n";
-    else std::cout << "This version does not support fast copy\n";
+    if (fileFormatVersion.fastCopyPossible())
+      std::cout << "This version supports fast copy\n";
+    else
+      std::cout << "This version does not support fast copy\n";
 
     if (indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::firstAppearanceOrder)) {
       std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort = false\" mode\n";
@@ -237,14 +245,16 @@ namespace edm {
       fft->SetAddress(&fftPtr);
       fft->GetEntry(0);
     }
-    if(fileFormatVersion.hasIndexIntoFile()) {
+    if (fileFormatVersion.hasIndexIntoFile()) {
       postIndexIntoFilePrintEventLists(tfl, fileFormatVersion, metaDataTree);
     } else {
       preIndexIntoFilePrintEventLists(tfl, fileFormatVersion, metaDataTree);
     }
   }
 
-  static void preIndexIntoFilePrintEventsInLumis(TFile*, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
+  static void preIndexIntoFilePrintEventsInLumis(TFile *,
+                                                 FileFormatVersion const &fileFormatVersion,
+                                                 TTree *metaDataTree) {
     FileIndex fileIndex;
     FileIndex *findexPtr = &fileIndex;
     if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != nullptr) {
@@ -253,47 +263,44 @@ namespace edm {
       fndx->GetEntry(0);
     } else {
       std::cout << "FileIndex not found.  If this input file was created with release 1_8_0 or later\n"
-      "this indicates a problem with the file.  This condition should be expected with\n"
-      "files created with earlier releases and printout of the event list will fail.\n";
+                   "this indicates a problem with the file.  This condition should be expected with\n"
+                   "files created with earlier releases and printout of the event list will fail.\n";
       return;
     }
 
-    std::cout <<"\n"<< std::setw(15) << "Run"
-    << std::setw(15) << "Lumi"
-    << std::setw(15) << "# Events"
-    << "\n";
+    std::cout << "\n"
+              << std::setw(15) << "Run" << std::setw(15) << "Lumi" << std::setw(15) << "# Events"
+              << "\n";
     unsigned long nEvents = 0;
     unsigned long runID = 0;
     unsigned long lumiID = 0;
-    for(std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd; ++it) {
-      if(it->getEntryType() == FileIndex::kEvent) {
+    for (std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd;
+         ++it) {
+      if (it->getEntryType() == FileIndex::kEvent) {
         ++nEvents;
-      }
-      else if(it->getEntryType() == FileIndex::kLumi) {
-        if(runID !=it->run_ || lumiID !=it->lumi_) {
+      } else if (it->getEntryType() == FileIndex::kLumi) {
+        if (runID != it->run_ || lumiID != it->lumi_) {
           //print the previous one
-          if(lumiID !=0) {
-            std::cout << std::setw(15) << runID
-            << std::setw(15) << lumiID
-            << std::setw(15) << nEvents<<"\n";
+          if (lumiID != 0) {
+            std::cout << std::setw(15) << runID << std::setw(15) << lumiID << std::setw(15) << nEvents << "\n";
           }
-          nEvents=0;
+          nEvents = 0;
           runID = it->run_;
           lumiID = it->lumi_;
         }
       }
     }
     //print the last one
-    if(lumiID !=0) {
-      std::cout << std::setw(15) << runID
-      << std::setw(15) << lumiID
-      << std::setw(15) << nEvents<<"\n";
+    if (lumiID != 0) {
+      std::cout << std::setw(15) << runID << std::setw(15) << lumiID << std::setw(15) << nEvents << "\n";
     }
 
     std::cout << "\n";
   }
 
-  static void postIndexIntoFilePrintEventsInLumis(TFile* tfl, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
+  static void postIndexIntoFilePrintEventsInLumis(TFile *tfl,
+                                                  FileFormatVersion const &fileFormatVersion,
+                                                  TTree *metaDataTree) {
     IndexIntoFile indexIntoFile;
     IndexIntoFile *findexPtr = &indexIntoFile;
     if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
@@ -302,35 +309,33 @@ namespace edm {
       fndx->GetEntry(0);
     } else {
       std::cout << "IndexIntoFile not found.  If this input file was created with release 1_8_0 or later\n"
-      "this indicates a problem with the file.  This condition should be expected with\n"
-      "files created with earlier releases and printout of the event list will fail.\n";
+                   "this indicates a problem with the file.  This condition should be expected with\n"
+                   "files created with earlier releases and printout of the event list will fail.\n";
       return;
     }
-    std::cout <<"\n"<< std::setw(15) << "Run"
-    << std::setw(15) << "Lumi"
-    << std::setw(15) << "# Events"
-    << "\n";
+    std::cout << "\n"
+              << std::setw(15) << "Run" << std::setw(15) << "Lumi" << std::setw(15) << "# Events"
+              << "\n";
 
     unsigned long nEvents = 0;
     unsigned long runID = 0;
     unsigned long lumiID = 0;
 
-    for(IndexIntoFile::IndexIntoFileItr it = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder),
-        itEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
-        it != itEnd; ++it) {
+    for (IndexIntoFile::IndexIntoFileItr it = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder),
+                                         itEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
+         it != itEnd;
+         ++it) {
       IndexIntoFile::EntryType t = it.getEntryType();
-      switch(t) {
+      switch (t) {
         case IndexIntoFile::kRun:
           break;
         case IndexIntoFile::kLumi:
-          if(runID != it.run() || lumiID != it.lumi()) {
+          if (runID != it.run() || lumiID != it.lumi()) {
             //print the previous one
-            if(lumiID !=0) {
-              std::cout << std::setw(15) << runID
-              << std::setw(15) << lumiID
-              << std::setw(15) << nEvents<<"\n";
+            if (lumiID != 0) {
+              std::cout << std::setw(15) << runID << std::setw(15) << lumiID << std::setw(15) << nEvents << "\n";
             }
-            nEvents=0;
+            nEvents = 0;
             runID = it.run();
             lumiID = it.lumi();
           }
@@ -343,10 +348,8 @@ namespace edm {
       }
     }
     //print the last one
-    if(lumiID !=0) {
-      std::cout << std::setw(15) << runID
-      << std::setw(15) << lumiID
-      << std::setw(15) << nEvents<<"\n";
+    if (lumiID != 0) {
+      std::cout << std::setw(15) << runID << std::setw(15) << lumiID << std::setw(15) << nEvents << "\n";
     }
     std::cout << "\n";
   }
@@ -362,10 +365,10 @@ namespace edm {
       fft->SetAddress(&fftPtr);
       fft->GetEntry(0);
     }
-    if(fileFormatVersion.hasIndexIntoFile()) {
+    if (fileFormatVersion.hasIndexIntoFile()) {
       postIndexIntoFilePrintEventsInLumis(tfl, fileFormatVersion, metaDataTree);
     } else {
       preIndexIntoFilePrintEventsInLumis(tfl, fileFormatVersion, metaDataTree);
     }
   }
-}
+}  // namespace edm

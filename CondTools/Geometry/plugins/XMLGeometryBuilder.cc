@@ -14,11 +14,9 @@
 #include <vector>
 #include <fstream>
 
-class XMLGeometryBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns>
-{
+class XMLGeometryBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  
-  XMLGeometryBuilder( const edm::ParameterSet& );
+  XMLGeometryBuilder(const edm::ParameterSet&);
 
   void beginJob() override;
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
@@ -31,30 +29,27 @@ private:
   std::string m_record;
 };
 
-XMLGeometryBuilder::XMLGeometryBuilder(const edm::ParameterSet& iConfig)
-{
-  m_fname = iConfig.getUntrackedParameter<std::string>("XMLFileName","test.xml");
-  m_zip = iConfig.getUntrackedParameter<bool>("ZIP",true);
-  m_record = iConfig.getUntrackedParameter<std::string>("record","GeometryFileRcd");
+XMLGeometryBuilder::XMLGeometryBuilder(const edm::ParameterSet& iConfig) {
+  m_fname = iConfig.getUntrackedParameter<std::string>("XMLFileName", "test.xml");
+  m_zip = iConfig.getUntrackedParameter<bool>("ZIP", true);
+  m_record = iConfig.getUntrackedParameter<std::string>("record", "GeometryFileRcd");
 }
 
-void
-XMLGeometryBuilder::beginJob() 
-{
-  edm::LogInfo("XMLGeometryBuilder")<<"XMLGeometryBuilder::beginJob";
+void XMLGeometryBuilder::beginJob() {
+  edm::LogInfo("XMLGeometryBuilder") << "XMLGeometryBuilder::beginJob";
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( !mydbservice.isAvailable() ){
-    edm::LogError("XMLGeometryBuilder")<<"PoolDBOutputService unavailable";
+  if (!mydbservice.isAvailable()) {
+    edm::LogError("XMLGeometryBuilder") << "PoolDBOutputService unavailable";
     return;
   }
 
-  FileBlob* pgf= new FileBlob(m_fname, m_zip);
+  FileBlob* pgf = new FileBlob(m_fname, m_zip);
 
-  if ( mydbservice->isNewTagRequest(m_record) ) {
-    mydbservice->createNewIOV<FileBlob>( pgf,mydbservice->beginOfTime(),mydbservice->endOfTime(),m_record);
+  if (mydbservice->isNewTagRequest(m_record)) {
+    mydbservice->createNewIOV<FileBlob>(pgf, mydbservice->beginOfTime(), mydbservice->endOfTime(), m_record);
   } else {
-    edm::LogError("XMLGeometryBuilder")<<"GeometryFileRcd Tag already exist";
+    edm::LogError("XMLGeometryBuilder") << "GeometryFileRcd Tag already exist";
   }
 }
-  
+
 DEFINE_FWK_MODULE(XMLGeometryBuilder);

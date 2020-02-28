@@ -22,34 +22,29 @@
 //
 // constructors and destructor
 //
-template<typename T>
-HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-  inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  inputToken_  (consumes<std::vector<T> >(inputTag_)),
-  triggerType_ (iConfig.template getParameter<int>("triggerType")),
-  cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
-  min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
-  select_   (cut_                                                    )
-{
-  LogDebug("") << "Input/tyre/cut/ncut : "
-	       << inputTag_.encode() << " "
-	       << triggerType_ << " "
-	       << cut_<< " "
-	       << min_N_ ;
+template <typename T>
+HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      inputTag_(iConfig.template getParameter<edm::InputTag>("inputTag")),
+      inputToken_(consumes<std::vector<T>>(inputTag_)),
+      triggerType_(iConfig.template getParameter<int>("triggerType")),
+      cut_(iConfig.template getParameter<std::string>("cut")),
+      min_N_(iConfig.template getParameter<int>("MinN")),
+      select_(cut_) {
+  LogDebug("") << "Input/tyre/cut/ncut : " << inputTag_.encode() << " " << triggerType_ << " " << cut_ << " " << min_N_;
 }
 
-template<typename T>
+template <typename T>
 HLTSmartSinglet<T>::~HLTSmartSinglet() = default;
 
-template<typename T>
-void
-HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename T>
+void HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
-  desc.add<int>("triggerType",0);
-  desc.add<std::string>("cut","1>0");
-  desc.add<int>("MinN",1);
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("hltCollection"));
+  desc.add<int>("triggerType", 0);
+  desc.add<std::string>("cut", "1>0");
+  desc.add<int>("MinN", 1);
   descriptions.add(defaultModuleLabel<HLTSmartSinglet<T>>(), desc);
 }
 
@@ -58,45 +53,46 @@ HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T>
-bool
-HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
-   using namespace std;
-   using namespace edm;
-   using namespace reco;
-   using namespace trigger;
+template <typename T>
+bool HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent,
+                                   const edm::EventSetup& iSetup,
+                                   trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace trigger;
 
-   typedef vector<T> TCollection;
-   typedef Ref<TCollection> TRef;
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
 
-   // All HLT filters must create and fill an HLT filter object,
-   // recording any reconstructed physics objects satisfying (or not)
-   // this HLT filter, and place it in the Event.
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
 
-   // The filter object
-   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
+  // The filter object
+  if (saveTags())
+    filterproduct.addCollectionTag(inputTag_);
 
-   // Ref to Candidate object to be recorded in filter object
-   TRef ref;
+  // Ref to Candidate object to be recorded in filter object
+  TRef ref;
 
-   // get hold of collection of objects
-   Handle<TCollection> objects;
-   iEvent.getByToken (inputToken_,objects);
+  // get hold of collection of objects
+  Handle<TCollection> objects;
+  iEvent.getByToken(inputToken_, objects);
 
-   // look at all objects, check cuts and add to filter object
-   int n(0);
-   typename TCollection::const_iterator i ( objects->begin() );
-   for (; i!=objects->end(); i++) {
-     if (select_(*i)) {
-       n++;
-       ref=TRef(objects,distance(objects->begin(),i));
-       filterproduct.addObject(triggerType_,ref);
-     }
-   }
+  // look at all objects, check cuts and add to filter object
+  int n(0);
+  typename TCollection::const_iterator i(objects->begin());
+  for (; i != objects->end(); i++) {
+    if (select_(*i)) {
+      n++;
+      ref = TRef(objects, distance(objects->begin(), i));
+      filterproduct.addObject(triggerType_, ref);
+    }
+  }
 
-   // filter decision
-   bool accept(n>=min_N_);
+  // filter decision
+  bool accept(n >= min_N_);
 
-   return accept;
+  return accept;
 }

@@ -4,15 +4,11 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-namespace heppy{
+namespace heppy {
 
-  struct JetUtils{
-
-    static const pat::Jet 
-    copyJet(const pat::Jet& ijet);
-
+  struct JetUtils {
+    static const pat::Jet copyJet(const pat::Jet& ijet);
   };
-};
-
+};  // namespace heppy
 
 #endif

@@ -16,56 +16,53 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class BeamProfileVtxGenerator : public BaseEvtVtxGenerator
-{
+class BeamProfileVtxGenerator : public BaseEvtVtxGenerator {
 public:
-  BeamProfileVtxGenerator(const edm::ParameterSet & p);
+  BeamProfileVtxGenerator(const edm::ParameterSet& p);
   ~BeamProfileVtxGenerator() override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
   HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-  TMatrixD const* GetInvLorentzBoost() const override {
-	  return nullptr;
-  }
+  TMatrixD const* GetInvLorentzBoost() const override { return nullptr; }
 
-    
   /// set resolution in X in cm
-  void sigmaX(double s=1.0);
+  void sigmaX(double s = 1.0);
   /// set resolution in Y in cm
-  void sigmaY(double s=1.0);
+  void sigmaY(double s = 1.0);
 
   /// set mean in X in cm
-  void meanX(double m=0)   {fMeanX=m;}
+  void meanX(double m = 0) { fMeanX = m; }
   /// set mean in Y in cm
-  void meanY(double m=0)   {fMeanY=m;}
+  void meanY(double m = 0) { fMeanY = m; }
   /// set mean in Z in cm
-  void beamPos(double m=0) {fMeanZ=m;}
+  void beamPos(double m = 0) { fMeanZ = m; }
 
   /// set eta
-  void eta(double m=0);
+  void eta(double m = 0);
   /// set phi in radian
-  void phi(double m=0)     {fPhi=m;}
+  void phi(double m = 0) { fPhi = m; }
   /// set psi in radian
-  void psi(double m=999)     {fPsi=m;}
+  void psi(double m = 999) { fPsi = m; }
   /// set type
-  void setType(bool m=true);
-  
+  void setType(bool m = true);
+
 private:
   /** Copy constructor */
-  BeamProfileVtxGenerator(const BeamProfileVtxGenerator &p) = delete;
+  BeamProfileVtxGenerator(const BeamProfileVtxGenerator& p) = delete;
   /** Copy assignment operator */
-  BeamProfileVtxGenerator& operator = (const BeamProfileVtxGenerator& rhs) = delete;
+  BeamProfileVtxGenerator& operator=(const BeamProfileVtxGenerator& rhs) = delete;
+
 private:
-  double      fSigmaX, fSigmaY;
-  double      fMeanX,  fMeanY, fMeanZ;
-  double      fEta,    fPhi,   fTheta;
+  double fSigmaX, fSigmaY;
+  double fMeanX, fMeanY, fMeanZ;
+  double fEta, fPhi, fTheta;
 
-  double      fPsi;
+  double fPsi;
 
-  bool        fType,   ffile;
-  int         nBinx,   nBiny;
+  bool fType, ffile;
+  int nBinx, nBiny;
   std::vector<double> fdistn;
   double fTimeOffset;
 };

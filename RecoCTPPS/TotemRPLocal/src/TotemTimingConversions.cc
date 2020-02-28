@@ -11,65 +11,38 @@
 #include "RecoCTPPS/TotemRPLocal/interface/TotemTimingConversions.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <boost/exception/exception.hpp>
+//----------------------------------------------------------------------------------------------------
+
+TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const PPSTimingCalibration& calibration)
+    : calibration_(calibration), mergeTimePeaks_(mergeTimePeaks), calibrationFunction_(calibration_.formula()) {}
 
 //----------------------------------------------------------------------------------------------------
 
-const float TotemTimingConversions::SAMPIC_SAMPLING_PERIOD_NS = 1. / 7.695;
-const float TotemTimingConversions::SAMPIC_ADC_V = 1. / 256;
-const int TotemTimingConversions::SAMPIC_MAX_NUMBER_OF_SAMPLES = 64;
-const int TotemTimingConversions::SAMPIC_DEFAULT_OFFSET = 30;
-const int TotemTimingConversions::ACCEPTED_TIME_RADIUS = 4;
-const unsigned long TotemTimingConversions::CELL0_MASK = 0xfffffff000;
-
-//----------------------------------------------------------------------------------------------------
-
-TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const std::string& calibrationFile) :
-  calibrationFileOpened_(false),
-  mergeTimePeaks_(mergeTimePeaks)
-{
-  if (!calibrationFile.empty())
-    try {
-      parsedData_.parseFile(calibrationFile);
-      calibrationFunction_ = std::make_unique<reco::FormulaEvaluator>(parsedData_.getFormula());
-      calibrationFileOpened_ = true;
-    } catch (const boost::exception& e) {
-      throw cms::Exception("TotemTimingConversions")
-        << "Failed to open calibration file \"" << calibrationFile << "\" for parsing!";
-    }
-}
-
-//----------------------------------------------------------------------------------------------------
-
-float
-TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi) const
-{
-  unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
+float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) const {
+  unsigned int offsetOfSamples = digi.eventInfo().offsetOfSamples();
   if (offsetOfSamples == 0)
-    offsetOfSamples = SAMPIC_DEFAULT_OFFSET; // FW 0 is not sending this, FW > 0 yes
+    offsetOfSamples = SAMPIC_DEFAULT_OFFSET;  // FW 0 is not sending this, FW > 0 yes
 
-  unsigned int timestamp = (digi.getCellInfo() <= SAMPIC_MAX_NUMBER_OF_SAMPLES/2)
-    ? digi.getTimestampA()
-    : digi.getTimestampB();
+  unsigned int timestamp =
+      (digi.cellInfo() <= SAMPIC_MAX_NUMBER_OF_SAMPLES / 2) ? digi.timestampA() : digi.timestampB();
 
-  int cell0TimeClock = timestamp +
-    ((digi.getFPGATimestamp()-timestamp) & CELL0_MASK)
-    - digi.getEventInfo().getL1ATimestamp()
-    + digi.getEventInfo().getL1ALatency();
+  int cell0TimeClock = timestamp + ((digi.fpgaTimestamp() - timestamp) & CELL0_MASK) - digi.eventInfo().l1ATimestamp() +
+                       digi.eventInfo().l1ALatency();
 
   // time of first cell
   float cell0TimeInstant = SAMPIC_MAX_NUMBER_OF_SAMPLES * SAMPIC_SAMPLING_PERIOD_NS * cell0TimeClock;
 
   // time of triggered cell
-  float firstCellTimeInstant = (digi.getCellInfo() < offsetOfSamples)
-    ? cell0TimeInstant + digi.getCellInfo() * SAMPIC_SAMPLING_PERIOD_NS
-    : cell0TimeInstant - (SAMPIC_MAX_NUMBER_OF_SAMPLES - digi.getCellInfo())*SAMPIC_SAMPLING_PERIOD_NS;
+  float firstCellTimeInstant =
+      (digi.cellInfo() < offsetOfSamples)
+          ? cell0TimeInstant + digi.cellInfo() * SAMPIC_SAMPLING_PERIOD_NS
+          : cell0TimeInstant - (SAMPIC_MAX_NUMBER_OF_SAMPLES - digi.cellInfo()) * SAMPIC_SAMPLING_PERIOD_NS;
 
-  int db = digi.getHardwareBoardId();
-  int sampic = digi.getHardwareSampicId();
-  int channel = digi.getHardwareChannelId();
-  float t = firstCellTimeInstant + parsedData_.getTimeOffset(db, sampic, channel);
-  //NOTE: If no time offset is set, getTimeOffset returns 0
+  int db = digi.hardwareBoardId();
+  int sampic = digi.hardwareSampicId();
+  int channel = digi.hardwareChannelId();
+  float t = firstCellTimeInstant + calibration_.timeOffset(db, sampic, channel);
+  //NOTE: If no time offset is set, timeOffset returns 0
 
   if (mergeTimePeaks_) {
     if (t < -ACCEPTED_TIME_RADIUS)
@@ -82,64 +55,55 @@ TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi) const
 
 //----------------------------------------------------------------------------------------------------
 
-float
-TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi) const
-{
-  unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
+float TotemTimingConversions::triggerTime(const TotemTimingDigi& digi) const {
+  unsigned int offsetOfSamples = digi.eventInfo().offsetOfSamples();
   if (offsetOfSamples == 0)
-    offsetOfSamples = 30; // FW 0 is not sending this, FW > 0 yes
+    offsetOfSamples = 30;  // FW 0 is not sending this, FW > 0 yes
 
-  return getTimeOfFirstSample(digi) + (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) * SAMPIC_SAMPLING_PERIOD_NS;
+  return timeOfFirstSample(digi) + (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) * SAMPIC_SAMPLING_PERIOD_NS;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-float
-TotemTimingConversions::getTimePrecision(const TotemTimingDigi& digi) const
-{
-  int db = digi.getHardwareBoardId();
-  int sampic = digi.getHardwareSampicId();
-  int channel = digi.getHardwareChannelId();
-  return parsedData_.getTimePrecision(db, sampic, channel);
+float TotemTimingConversions::timePrecision(const TotemTimingDigi& digi) const {
+  int db = digi.hardwareBoardId();
+  int sampic = digi.hardwareSampicId();
+  int channel = digi.hardwareChannelId();
+  return calibration_.timePrecision(db, sampic, channel);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::vector<float>
-TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi) const
-{
-  std::vector<float> time(digi.getNumberOfSamples());
+std::vector<float> TotemTimingConversions::timeSamples(const TotemTimingDigi& digi) const {
+  std::vector<float> time(digi.numberOfSamples());
   for (unsigned int i = 0; i < time.size(); ++i)
-    time.at(i) = getTimeOfFirstSample(digi) + i * SAMPIC_SAMPLING_PERIOD_NS;
+    time.at(i) = timeOfFirstSample(digi) + i * SAMPIC_SAMPLING_PERIOD_NS;
   return time;
 }
 
 //----------------------------------------------------------------------------------------------------
 // NOTE: If no proper file is specified, calibration is not applied
 
-std::vector<float>
-TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi) const
-{
+std::vector<float> TotemTimingConversions::voltSamples(const TotemTimingDigi& digi) const {
   std::vector<float> data;
-  if (!calibrationFileOpened_ || !calibrationFunction_)
-    for (const auto& sample : digi.getSamples())
+  if (calibrationFunction_.numberOfVariables() != 1)
+    for (const auto& sample : digi.samples())
       data.emplace_back(SAMPIC_ADC_V * sample);
   else {
-    unsigned int db = digi.getHardwareBoardId();
-    unsigned int sampic = digi.getHardwareSampicId();
-    unsigned int channel = digi.getHardwareChannelId();
-    unsigned int cell = digi.getCellInfo();
-    for (const auto& sample : digi.getSamples()) {
+    unsigned int db = digi.hardwareBoardId();
+    unsigned int sampic = digi.hardwareSampicId();
+    unsigned int channel = digi.hardwareChannelId();
+    unsigned int cell = digi.cellInfo();
+    for (const auto& sample : digi.samples()) {
       // ring buffer on Sampic, so accounting for samples register boundary
       const unsigned short sample_cell = (cell++) % SAMPIC_MAX_NUMBER_OF_SAMPLES;
-      auto parameters = parsedData_.getParameters(db, sampic, channel, sample_cell);
-      if (parameters.empty())
-        throw cms::Exception("TotemTimingConversions:getVoltSamples")
-          << "Invalid calibrations retrieved for Sampic digi"
-          << " (" << db << ", " << sampic << ", " << channel << ", " << sample_cell << ")!";
-      data.emplace_back(calibrationFunction_->evaluate(std::vector<double>{(double)sample}, parameters));
+      auto parameters = calibration_.parameters(db, sampic, channel, sample_cell);
+      if (parameters.empty() || parameters.size() != calibrationFunction_.numberOfParameters())
+        throw cms::Exception("TotemTimingConversions:voltSamples")
+            << "Invalid calibrations retrieved for Sampic digi"
+            << " (" << db << ", " << sampic << ", " << channel << ", " << sample_cell << ")!";
+      data.emplace_back(calibrationFunction_.evaluate(std::vector<double>{(double)sample}, parameters));
     }
   }
   return data;
 }
-

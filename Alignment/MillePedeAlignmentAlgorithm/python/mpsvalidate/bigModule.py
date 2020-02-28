@@ -3,6 +3,7 @@
 # a list of PlotData objects.
 ##
 
+from builtins import range
 import logging
 
 import ROOT

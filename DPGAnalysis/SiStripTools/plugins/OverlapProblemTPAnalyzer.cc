@@ -2,7 +2,7 @@
 //
 // Package:    OverlapProblemTPAnalyzer
 // Class:      OverlapProblemTPAnalyzer
-// 
+//
 /**\class OverlapProblemTPAnalyzer OverlapProblemTPAnalyzer.cc DebugTools/OverlapProblem/plugins/OverlapProblemTPAnalyzer.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id: OverlapProblemTPAnalyzer.cc,v 1.1 2011/01/22 17:59:36 venturia Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -56,18 +55,17 @@
 // class decleration
 //
 
-
 class OverlapProblemTPAnalyzer : public edm::EDAnalyzer {
 public:
   explicit OverlapProblemTPAnalyzer(const edm::ParameterSet&);
   ~OverlapProblemTPAnalyzer() override;
-  
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  
-      // ----------member data ---------------------------
+
+  // ----------member data ---------------------------
 
   TH1F* m_ptp;
   TH1F* m_etatp;
@@ -81,7 +79,6 @@ private:
 
   std::vector<TH1F*> m_simhitytecr;
   std::vector<TH1F*> m_assosimhitytecr;
-
 
   edm::EDGetTokenT<TrackingParticleCollection> m_tpcollToken;
   edm::EDGetTokenT<edm::View<reco::Track> > m_trkcollToken;
@@ -99,170 +96,143 @@ private:
 //
 // constructors and destructor
 //
-OverlapProblemTPAnalyzer::OverlapProblemTPAnalyzer(const edm::ParameterSet& iConfig):
-  m_simhitytecr(),  m_assosimhitytecr(),
-  m_tpcollToken(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticlesCollection"))),
-  m_trkcollToken(consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("trackCollection"))),
-  m_associatorToken(consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits")))
-{
-   //now do what ever initialization is needed
-
-
+OverlapProblemTPAnalyzer::OverlapProblemTPAnalyzer(const edm::ParameterSet& iConfig)
+    : m_simhitytecr(),
+      m_assosimhitytecr(),
+      m_tpcollToken(
+          consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticlesCollection"))),
+      m_trkcollToken(consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("trackCollection"))),
+      m_associatorToken(consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits"))) {
+  //now do what ever initialization is needed
 
   edm::Service<TFileService> tfserv;
 
-  m_ptp = tfserv->make<TH1F>("tpmomentum","Tracking Particle momentum",100,0.,200.);
-  m_etatp = tfserv->make<TH1F>("tpeta","Tracking Particle pseudorapidity",100,-4.,4.);
-  m_nhits = tfserv->make<TH1F>("nhits","Tracking Particle associated hits",100,-0.5,99.5);
-  m_nrechits = tfserv->make<TH1F>("nrechits","Tracking Particle associated rec hits",100,-0.5,99.5);
-  m_nrecvssimhits = tfserv->make<TH2F>("nrecvssimhits","Tracking Particle associated rec hits vs sim hits",
-				       100,-0.5,99.5,100,-0.5,99.5);
-  m_nassotk = tfserv->make<TH1F>("nassotk","Number of assocated reco tracks",10,-0.5,9.5);
+  m_ptp = tfserv->make<TH1F>("tpmomentum", "Tracking Particle momentum", 100, 0., 200.);
+  m_etatp = tfserv->make<TH1F>("tpeta", "Tracking Particle pseudorapidity", 100, -4., 4.);
+  m_nhits = tfserv->make<TH1F>("nhits", "Tracking Particle associated hits", 100, -0.5, 99.5);
+  m_nrechits = tfserv->make<TH1F>("nrechits", "Tracking Particle associated rec hits", 100, -0.5, 99.5);
+  m_nrecvssimhits = tfserv->make<TH2F>(
+      "nrecvssimhits", "Tracking Particle associated rec hits vs sim hits", 100, -0.5, 99.5, 100, -0.5, 99.5);
+  m_nassotk = tfserv->make<TH1F>("nassotk", "Number of assocated reco tracks", 10, -0.5, 9.5);
 
-  m_pdgid = tfserv->make<TH1F>("pdgid","Tracking Particle PDG id",1000,-500.5,499.5);
-  m_llbit = tfserv->make<TH1F>("llbit","Tracking Particle LongLived bit",2,-0.5,1.5);
-  m_statustp = tfserv->make<TH1F>("statustp","Tracking Particle status",2000,-1000.5,999.5);
+  m_pdgid = tfserv->make<TH1F>("pdgid", "Tracking Particle PDG id", 1000, -500.5, 499.5);
+  m_llbit = tfserv->make<TH1F>("llbit", "Tracking Particle LongLived bit", 2, -0.5, 1.5);
+  m_statustp = tfserv->make<TH1F>("statustp", "Tracking Particle status", 2000, -1000.5, 999.5);
 
-  for(unsigned int ring=0;ring<7;++ring) {
-
+  for (unsigned int ring = 0; ring < 7; ++ring) {
     char name[100];
     char title[100];
 
-    sprintf(name,"simytecr_%d",ring+1);
-    sprintf(title,"SimHit local Y TEC ring %d",ring+1);
+    sprintf(name, "simytecr_%d", ring + 1);
+    sprintf(title, "SimHit local Y TEC ring %d", ring + 1);
 
-    m_simhitytecr.push_back(tfserv->make<TH1F>(name,title,200,-20.,20.));
+    m_simhitytecr.push_back(tfserv->make<TH1F>(name, title, 200, -20., 20.));
 
-    sprintf(name,"assosimytecr_%d",ring+1);
-    sprintf(title,"SimHit local Y TEC ring %d with associated RecHit",ring+1);
+    sprintf(name, "assosimytecr_%d", ring + 1);
+    sprintf(title, "SimHit local Y TEC ring %d with associated RecHit", ring + 1);
 
-    m_assosimhitytecr.push_back(tfserv->make<TH1F>(name,title,200,-20.,20.));
-
+    m_assosimhitytecr.push_back(tfserv->make<TH1F>(name, title, 200, -20., 20.));
   }
-
 }
 
-
-OverlapProblemTPAnalyzer::~OverlapProblemTPAnalyzer()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+OverlapProblemTPAnalyzer::~OverlapProblemTPAnalyzer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-   // reco track Handle
+  // reco track Handle
 
-   //   Handle<reco::TrackCollection> trkcoll;
+  //   Handle<reco::TrackCollection> trkcoll;
   Handle<edm::View<reco::Track> > trkcoll;
-  iEvent.getByToken(m_trkcollToken,trkcoll);
-  
+  iEvent.getByToken(m_trkcollToken, trkcoll);
+
   Handle<TrackingParticleCollection> tpcoll;
-  iEvent.getByToken(m_tpcollToken,tpcoll);
-    
+  iEvent.getByToken(m_tpcollToken, tpcoll);
+
   Handle<reco::TrackToTrackingParticleAssociator> tahandle;
-  iEvent.getByToken(m_associatorToken,tahandle);
-  
+  iEvent.getByToken(m_associatorToken, tahandle);
+
   // associate reco to sim tracks
-  
-  reco::SimToRecoCollection srcoll = tahandle->associateSimToReco(trkcoll,tpcoll);
-  
+
+  reco::SimToRecoCollection srcoll = tahandle->associateSimToReco(trkcoll, tpcoll);
+
   // loop on Handle with index and use find
-  
-  for(unsigned int index=0 ; index != tpcoll->size() ; ++index) {
-    
+
+  for (unsigned int index = 0; index != tpcoll->size(); ++index) {
     // get TrackingParticleRef
-    
-    const TrackingParticleRef tp(tpcoll,index);
-    
-    if(std::abs(tp->pdgId())!=13) continue;
-    
+
+    const TrackingParticleRef tp(tpcoll, index);
+
+    if (std::abs(tp->pdgId()) != 13)
+      continue;
+
     // get the SimHIt from tracker only
-    
+
     // Commented since the new TP's do not have this method
     //    std::vector<PSimHit> tksimhits = tp->trackPSimHit(DetId::Tracker);
-    
-    
+
     m_ptp->Fill(tp->p());
     m_etatp->Fill(tp->eta());
     //     m_nhits->Fill(tp->matchedHit());
     // With the new Tracking Particles I have to use a different method
     //    m_nhits->Fill(tksimhits.size());
     m_nhits->Fill(tp->numberOfTrackerHits());
-    
-    
+
     m_pdgid->Fill(tp->pdgId());
     m_llbit->Fill(tp->longLived());
     m_statustp->Fill(tp->status());
-    
+
     // prepare a vector of TrackingRecHit from the associated reco tracks
-    
+
     std::vector<DetId> rechits;
-    
+
     // look at associated tracks
-    
-    if(srcoll.find(tp) != srcoll.end()) {
+
+    if (srcoll.find(tp) != srcoll.end()) {
       reco::SimToRecoCollection::result_type trks = srcoll[tp];
       m_nassotk->Fill(trks.size());
-      
+
       // loop on associated tracks and fill TrackingRecHit vector
-      for(reco::SimToRecoCollection::result_type::const_iterator trk = trks.begin();trk!=trks.end();++trk) {
-	for(trackingRecHit_iterator rh = trk->first->recHitsBegin() ; rh!=trk->first->recHitsEnd() ; ++rh) {
-	  rechits.push_back((*rh)->geographicalId());
-	}
-	
+      for (reco::SimToRecoCollection::result_type::const_iterator trk = trks.begin(); trk != trks.end(); ++trk) {
+        for (trackingRecHit_iterator rh = trk->first->recHitsBegin(); rh != trk->first->recHitsEnd(); ++rh) {
+          rechits.push_back((*rh)->geographicalId());
+        }
       }
-      
-    }
-    else {
+
+    } else {
       m_nassotk->Fill(0.);
-      edm::LogInfo("NoAssociatedRecoTrack") << "No associated reco track for TP with p = " << tp->p() 
-					    << " and eta = " << tp->eta() ; 
+      edm::LogInfo("NoAssociatedRecoTrack")
+          << "No associated reco track for TP with p = " << tp->p() << " and eta = " << tp->eta();
     }
-    
+
     m_nrechits->Fill(rechits.size());
     // new method used to be compliant with the new TP's
-    m_nrecvssimhits->Fill(tp->numberOfTrackerHits(),rechits.size());
-    
-    LogDebug("RecHitDetId") << "List of " << rechits.size() << " rechits detid from muon with p = " << tp->p() 
-			    << "and eta = " << tp->eta();
-    for(unsigned int i=0;i<rechits.size();++i) {
+    m_nrecvssimhits->Fill(tp->numberOfTrackerHits(), rechits.size());
+
+    LogDebug("RecHitDetId") << "List of " << rechits.size() << " rechits detid from muon with p = " << tp->p()
+                            << "and eta = " << tp->eta();
+    for (unsigned int i = 0; i < rechits.size(); ++i) {
       LogTrace("RecHitDetId") << rechits[i].rawId();
     }
-    
-    
+
     // loop on sim hits
-    
-    
-    LogDebug("SimHitDetId") << "List of " << tp->numberOfTrackerHits() << " simhits detid from muon with p = " << tp->p() 
-			    << "and eta = " << tp->eta();
-    
+
+    LogDebug("SimHitDetId") << "List of " << tp->numberOfTrackerHits()
+                            << " simhits detid from muon with p = " << tp->p() << "and eta = " << tp->eta();
   }
-  
 }
 
-void 
-OverlapProblemTPAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
+void OverlapProblemTPAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&) {}
 
-void 
-OverlapProblemTPAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-
+void OverlapProblemTPAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&) {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OverlapProblemTPAnalyzer);

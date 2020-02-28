@@ -7,18 +7,12 @@
 #include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 
+class HGCalTowerMap3DImpl {
+public:
+  HGCalTowerMap3DImpl();
 
-class HGCalTowerMap3DImpl{
-
- public:
-
-  HGCalTowerMap3DImpl( );
-
-  void buildTowerMap3D(const std::vector<edm::Ptr<l1t::HGCalTowerMap>> & towerMaps2D,
-                       l1t::HGCalTowerBxCollection & towerMap);
-
+  void buildTowerMap3D(const std::vector<edm::Ptr<l1t::HGCalTowerMap>>& towerMaps2D,
+                       l1t::HGCalTowerBxCollection& towerMap);
 };
-
-
 
 #endif

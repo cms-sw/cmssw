@@ -13,7 +13,7 @@
 #define BUFSIZE 200;
 
 class ODTTCFConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODTTCFConfig();
   ~ODTTCFConfig() override;
@@ -32,25 +32,23 @@ class ODTTCFConfig : public IODConfig {
   inline void setTTCFClob(unsigned char* x) { m_ttcf_clob = x; }
   inline unsigned char* getTTCFClob() const { return m_ttcf_clob; }
 
-  inline void setRxBC0Delay( int x ) { m_rxbc0_delay = x; } 
-  inline int getRxBC0Delay( ) { return m_rxbc0_delay; } 
-  inline void setReg30( int x ) { m_reg_30 = x; } 
-  inline int getReg30( ) { return m_reg_30; } 
+  inline void setRxBC0Delay(int x) { m_rxbc0_delay = x; }
+  inline int getRxBC0Delay() { return m_rxbc0_delay; }
+  inline void setReg30(int x) { m_reg_30 = x; }
+  inline int getReg30() { return m_reg_30; }
 
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
-  
- private:
-  void prepareWrite()  noexcept(false) override;
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
-  void writeDB()       noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
+
+  void writeDB() noexcept(false);
 
   void clear();
 
-  void fetchData(ODTTCFConfig * result)     noexcept(false);
+  void fetchData(ODTTCFConfig* result) noexcept(false);
 
-  int fetchID()  noexcept(false);
-
-
+  int fetchID() noexcept(false);
 
   int fetchNextId() noexcept(false);
 
@@ -62,7 +60,6 @@ class ODTTCFConfig : public IODConfig {
 
   int m_rxbc0_delay;
   int m_reg_30;
-  
 };
 
 #endif

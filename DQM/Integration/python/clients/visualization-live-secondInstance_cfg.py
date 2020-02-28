@@ -11,7 +11,7 @@ from DQM.Integration.config.inputsource_cfi import options,runType,source
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
 #scenarios = {'pp_run': 'ppEra_Run2_2016','pp_run_stage1': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','cosmic_run_stage1':'cosmicsEra_Run2_2016','hi_run':'HeavyIonsEra_Run2_HI'}
-scenarios = {'pp_run': 'ppEra_Run2_2018','cosmic_run':'cosmicsEra_Run2_2018','hi_run':'ppEra_Run2_2018_pp_on_AA'}
+scenarios = {'pp_run': 'ppEra_Run3','cosmic_run':'cosmicsEra_Run3','hi_run':'ppEra_Run2_2016_pA'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
@@ -81,7 +81,6 @@ oldo = process._Process__outputmodules["FEVToutput"]
 del process._Process__outputmodules["FEVToutput"]
 
 process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
-    SelectEvents = oldo.SelectEvents,
     splitLevel = oldo.splitLevel,
     outputCommands = oldo.outputCommands,
     fileName = oldo.fileName,
@@ -91,6 +90,9 @@ process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
     # output path must exist!
     outputPath = cms.untracked.string(outDir),
 )
+
+if hasattr(oldo, 'SelectEvents'):
+    process.FEVToutput.SelectEvents = oldo.SelectEvents
 
 process.DQMMonitoringService = cms.Service("DQMMonitoringService")
 

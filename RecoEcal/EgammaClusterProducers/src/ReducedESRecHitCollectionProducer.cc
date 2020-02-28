@@ -17,159 +17,135 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::ParameterSet& ps):
-  geometry_p(nullptr),
-  topology_p(nullptr)
-{
+ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::ParameterSet& ps)
+    : geometry_p(nullptr) {
+  scEtThresh_ = ps.getParameter<double>("scEtThreshold");
 
- scEtThresh_          = ps.getParameter<double>("scEtThreshold");
+  InputRecHitES_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollectionES"));
+  InputSuperClusterEE_ =
+      consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("EndcapSuperClusterCollection"));
 
- InputRecHitES_       = 
-	 consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollectionES"));
- InputSuperClusterEE_ = 
-	 consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("EndcapSuperClusterCollection")); 
+  OutputLabelES_ = ps.getParameter<std::string>("OutputLabel_ES");
 
- OutputLabelES_       = ps.getParameter<std::string>("OutputLabel_ES");
- 
- interestingDetIdCollections_  = 
-	 edm::vector_transform(
-		   ps.getParameter<std::vector<edm::InputTag>>("interestingDetIds"),
-           [this](edm::InputTag const & tag) { 
-			   return consumes<DetIdCollection>(tag); 
-		   }
-		   );
+  interestingDetIdCollections_ =
+      edm::vector_transform(ps.getParameter<std::vector<edm::InputTag>>("interestingDetIds"),
+                            [this](edm::InputTag const& tag) { return consumes<DetIdCollection>(tag); });
 
- interestingDetIdCollectionsNotToClean_ = edm::vector_transform(ps.getParameter<std::vector<edm::InputTag>>("interestingDetIdsNotToClean"),
-								[this](edm::InputTag const & tag) 
-								{ return consumes<DetIdCollection>(tag); }
-								);
+  interestingDetIdCollectionsNotToClean_ =
+      edm::vector_transform(ps.getParameter<std::vector<edm::InputTag>>("interestingDetIdsNotToClean"),
+                            [this](edm::InputTag const& tag) { return consumes<DetIdCollection>(tag); });
 
- produces< EcalRecHitCollection > (OutputLabelES_);
- 
+  produces<EcalRecHitCollection>(OutputLabelES_);
 }
 
-ReducedESRecHitCollectionProducer::~ReducedESRecHitCollectionProducer() {
-  if (topology_p) delete topology_p;
-}
+ReducedESRecHitCollectionProducer::~ReducedESRecHitCollectionProducer() = default;
 
-void ReducedESRecHitCollectionProducer::beginRun (edm::Run const&, const edm::EventSetup&iSetup){
+void ReducedESRecHitCollectionProducer::beginRun(edm::Run const&, const edm::EventSetup& iSetup) {
   ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  geometry_p = dynamic_cast<const EcalPreshowerGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
-  if (!geometry_p){
-    edm::LogError("WrongGeometry")<<
-      "could not cast the subdet geometry to preshower geometry";
+  geometry_p =
+      dynamic_cast<const EcalPreshowerGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
+  if (!geometry_p) {
+    edm::LogError("WrongGeometry") << "could not cast the subdet geometry to preshower geometry";
   }
-  
-  if (geometry_p) topology_p = new EcalPreshowerTopology(geoHandle);
-  
+
+  if (geometry_p)
+    topology_p = std::make_unique<EcalPreshowerTopology>();
 }
 
-void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::EventSetup& iSetup){
-
-
+void ReducedESRecHitCollectionProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) {
   edm::Handle<ESRecHitCollection> ESRecHits_;
   e.getByToken(InputRecHitES_, ESRecHits_);
-  
+
   auto output = std::make_unique<EcalRecHitCollection>();
 
   edm::Handle<reco::SuperClusterCollection> pEndcapSuperClusters;
   e.getByToken(InputSuperClusterEE_, pEndcapSuperClusters);
   {
     const reco::SuperClusterCollection* eeSuperClusters = pEndcapSuperClusters.product();
-    
-    for (reco::SuperClusterCollection::const_iterator isc = eeSuperClusters->begin(); isc != eeSuperClusters->end(); ++isc) {
 
-      if (isc->energy() < scEtThresh_) continue;
-      if (fabs(isc->eta()) < 1.65 || fabs(isc->eta()) > 2.6) continue;
+    for (reco::SuperClusterCollection::const_iterator isc = eeSuperClusters->begin(); isc != eeSuperClusters->end();
+         ++isc) {
+      if (isc->energy() < scEtThresh_)
+        continue;
+      if (fabs(isc->eta()) < 1.65 || fabs(isc->eta()) > 2.6)
+        continue;
       //cout<<"SC energy : "<<isc->energy()<<" "<<isc->eta()<<endl;
 
       //Int_t nBC = 0;
       reco::CaloCluster_iterator ibc = isc->clustersBegin();
-      for ( ; ibc != isc->clustersEnd(); ++ibc ) {  
+      for (; ibc != isc->clustersEnd(); ++ibc) {
+        //cout<<"BC : "<<nBC<<endl;
 
-	//cout<<"BC : "<<nBC<<endl;
+        const GlobalPoint point((*ibc)->x(), (*ibc)->y(), (*ibc)->z());
 
-	const GlobalPoint point((*ibc)->x(),(*ibc)->y(),(*ibc)->z());
+        ESDetId esId1 = geometry_p->getClosestCellInPlane(point, 1);
+        ESDetId esId2 = geometry_p->getClosestCellInPlane(point, 2);
 
-	ESDetId esId1 = geometry_p->getClosestCellInPlane(point, 1);
-	ESDetId esId2 = geometry_p->getClosestCellInPlane(point, 2);
-	
-	collectIds(esId1, esId2, 0);
-	collectIds(esId1, esId2, 1);
-	collectIds(esId1, esId2, -1);
+        collectIds(esId1, esId2, 0);
+        collectIds(esId1, esId2, 1);
+        collectIds(esId1, esId2, -1);
 
-	//nBC++;
+        //nBC++;
       }
-      
     }
-    
   }
 
-
-  edm::Handle<DetIdCollection > detId;
-  for( unsigned int t = 0; t < interestingDetIdCollections_.size(); ++t )
-    {
-      e.getByToken(interestingDetIdCollections_[t],detId);    
-      if(!detId.isValid())
-      {
-          Labels labels;
-          labelsForToken(interestingDetIdCollections_[t], labels);
-          edm::LogError("MissingInput")<<"no reason to skip detid from : (" << labels.module << ", "
-                                                                            << labels.productInstance << ", "
-                                                                            << labels.process << ")" << std::endl;
-          continue;
-      }
-      collectedIds_.insert(detId->begin(),detId->end());
+  edm::Handle<DetIdCollection> detId;
+  for (unsigned int t = 0; t < interestingDetIdCollections_.size(); ++t) {
+    e.getByToken(interestingDetIdCollections_[t], detId);
+    if (!detId.isValid()) {
+      Labels labels;
+      labelsForToken(interestingDetIdCollections_[t], labels);
+      edm::LogError("MissingInput") << "no reason to skip detid from : (" << labels.module << ", "
+                                    << labels.productInstance << ", " << labels.process << ")" << std::endl;
+      continue;
     }
-
+    collectedIds_.insert(detId->begin(), detId->end());
+  }
 
   //screw it, cant think of a better solution, not the best but lets run over all the rec hits, remove the ones failing cleaning
   //and then merge in the collection not to be cleaned
   //mainly as I suspect its more efficient to find an object in the DetIdSet rather than the rec-hit in the rec-hit collecition
   //with only a det id
   //if its a CPU issues then revisit
-  for(const auto& hit : *ESRecHits_) {
-    if(hit.recoFlag()==1 || hit.recoFlag()==14 || (hit.recoFlag()<=10 && hit.recoFlag()>=5)){ //right we might need to erase it from the collection
+  for (const auto& hit : *ESRecHits_) {
+    if (hit.recoFlag() == 1 || hit.recoFlag() == 14 ||
+        (hit.recoFlag() <= 10 && hit.recoFlag() >= 5)) {  //right we might need to erase it from the collection
       auto idIt = collectedIds_.find(hit.id());
-      if(idIt!=collectedIds_.end()) collectedIds_.erase(idIt);
+      if (idIt != collectedIds_.end())
+        collectedIds_.erase(idIt);
     }
   }
-   
-  
-  for(const auto& token : interestingDetIdCollectionsNotToClean_) {
-    e.getByToken(token,detId);    
-    if(!detId.isValid()){ //meh might as well keep the warning
+
+  for (const auto& token : interestingDetIdCollectionsNotToClean_) {
+    e.getByToken(token, detId);
+    if (!detId.isValid()) {  //meh might as well keep the warning
       Labels labels;
       labelsForToken(token, labels);
-      edm::LogError("MissingInput")<<"no reason to skip detid from : (" << labels.module << ", "
-				   << labels.productInstance << ", "
-				   << labels.process << ")" << std::endl;
+      edm::LogError("MissingInput") << "no reason to skip detid from : (" << labels.module << ", "
+                                    << labels.productInstance << ", " << labels.process << ")" << std::endl;
       continue;
     }
-    collectedIds_.insert(detId->begin(),detId->end());
+    collectedIds_.insert(detId->begin(), detId->end());
   }
-  
 
-  output->reserve( collectedIds_.size());
+  output->reserve(collectedIds_.size());
   EcalRecHitCollection::const_iterator it;
   for (it = ESRecHits_->begin(); it != ESRecHits_->end(); ++it) {
-    if (collectedIds_.find(it->id())!=collectedIds_.end()){
+    if (collectedIds_.find(it->id()) != collectedIds_.end()) {
       output->push_back(*it);
     }
   }
   collectedIds_.clear();
 
   e.put(std::move(output), OutputLabelES_);
-
 }
 
-
-void ReducedESRecHitCollectionProducer::collectIds(const ESDetId esDetId1, const ESDetId esDetId2, const int & row) {
-
+void ReducedESRecHitCollectionProducer::collectIds(const ESDetId esDetId1, const ESDetId esDetId2, const int& row) {
   //cout<<row<<endl;
-  
-  map<DetId,const EcalRecHit*>::iterator it;
+
+  map<DetId, const EcalRecHit*>::iterator it;
   map<DetId, int>::iterator itu;
   ESDetId next;
   ESDetId strip1;
@@ -178,79 +154,80 @@ void ReducedESRecHitCollectionProducer::collectIds(const ESDetId esDetId1, const
   strip1 = esDetId1;
   strip2 = esDetId2;
 
-  EcalPreshowerNavigator theESNav1(strip1, topology_p);
+  EcalPreshowerNavigator theESNav1(strip1, topology_p.get());
   theESNav1.setHome(strip1);
-  
-  EcalPreshowerNavigator theESNav2(strip2, topology_p);
+
+  EcalPreshowerNavigator theESNav2(strip2, topology_p.get());
   theESNav2.setHome(strip2);
 
   if (row == 1) {
-    if (strip1 != ESDetId(0)) strip1 = theESNav1.north();
-    if (strip2 != ESDetId(0)) strip2 = theESNav2.east();
+    if (strip1 != ESDetId(0))
+      strip1 = theESNav1.north();
+    if (strip2 != ESDetId(0))
+      strip2 = theESNav2.east();
   } else if (row == -1) {
-    if (strip1 != ESDetId(0)) strip1 = theESNav1.south();
-    if (strip2 != ESDetId(0)) strip2 = theESNav2.west();
+    if (strip1 != ESDetId(0))
+      strip1 = theESNav1.south();
+    if (strip2 != ESDetId(0))
+      strip2 = theESNav2.west();
   }
 
-  // Plane 1 
+  // Plane 1
   if (strip1 == ESDetId(0)) {
   } else {
     collectedIds_.insert(strip1);
     //cout<<"center : "<<strip1<<endl;
-    // east road 
-    for (int i=0; i<15; ++i) {
+    // east road
+    for (int i = 0; i < 15; ++i) {
       next = theESNav1.east();
       //cout<<"east : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
-	collectedIds_.insert(next);
+        collectedIds_.insert(next);
       } else {
-	break;
+        break;
       }
     }
 
-    // west road 
+    // west road
     theESNav1.setHome(strip1);
     theESNav1.home();
-    for (int i=0; i<15; ++i) {
+    for (int i = 0; i < 15; ++i) {
       next = theESNav1.west();
       //cout<<"west : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
-	collectedIds_.insert(next);
+        collectedIds_.insert(next);
       } else {
-	break;
+        break;
       }
     }
-
   }
 
   if (strip2 == ESDetId(0)) {
   } else {
     collectedIds_.insert(strip2);
     //cout<<"center : "<<strip2<<endl;
-    // north road 
-    for (int i=0; i<15; ++i) {
+    // north road
+    for (int i = 0; i < 15; ++i) {
       next = theESNav2.north();
       //cout<<"north : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
-	collectedIds_.insert(next);
+        collectedIds_.insert(next);
       } else {
-	break;
-      } 
+        break;
+      }
     }
 
-    // south road 
+    // south road
     theESNav2.setHome(strip2);
     theESNav2.home();
-    for (int i=0; i<15; ++i) {
+    for (int i = 0; i < 15; ++i) {
       next = theESNav2.south();
       //cout<<"south : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
-	collectedIds_.insert(next);
+        collectedIds_.insert(next);
       } else {
-	break;
+        break;
       }
     }
   }
 }
-
-

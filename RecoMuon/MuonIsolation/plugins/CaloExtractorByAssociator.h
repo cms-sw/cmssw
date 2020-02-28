@@ -32,27 +32,26 @@ class MuonServiceProxy;
 namespace muonisolation {
 
   class CaloExtractorByAssociator : public reco::isodeposit::IsoDepositExtractor {
-
   public:
-
     //! constructors
     CaloExtractorByAssociator(){};
-    CaloExtractorByAssociator(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+    CaloExtractorByAssociator(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
     //! destructor
     ~CaloExtractorByAssociator() override;
 
     //! allows to set extra vetoes (in addition to the muon) -- no-op at this point
-    void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) override;
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override;
     //! no-op: by design of this extractor the deposits are pulled out all at a time
-    reco::IsoDeposit
-      deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override;
     //! return deposits for 3 calorimeter subdetectors (ecal, hcal, ho) -- in this order
-    std::vector<reco::IsoDeposit>
-      deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
+    std::vector<reco::IsoDeposit> deposits(const edm::Event& ev,
+                                           const edm::EventSetup& evSetup,
+                                           const reco::Track& track) const override;
 
   private:
-
     //! use towers or rec hits
     bool theUseRecHitsFlag;
 
@@ -97,7 +96,6 @@ namespace muonisolation {
     //! the event setup proxy, it takes care the services update
     MuonServiceProxy* theService;
 
-
     //! associator, its' parameters and the propagator
     TrackAssociatorParameters* theAssociatorParameters;
     TrackDetectorAssociator* theAssociator;
@@ -110,9 +108,8 @@ namespace muonisolation {
     double noiseHcal(const CaloTower& tower) const;
     double noiseHOcal(const CaloTower& tower) const;
     double noiseRecHit(const DetId& detId) const;
-
   };
 
-}
+}  // namespace muonisolation
 
 #endif

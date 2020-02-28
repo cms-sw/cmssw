@@ -1,6 +1,7 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DetectorDescription/Core"/>
+<use   name="DetectorDescription/DDCMS"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
 <use   name="MagneticField/Engine"/>

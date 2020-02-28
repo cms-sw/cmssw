@@ -10,4 +10,5 @@
 <use   name="hepmc"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/BeamSpotObjects"/>
+<use   name="CondFormats/CTPPSReadoutObjects"/>
 <use   name="CondCore/DBOutputService"/>

@@ -4,12 +4,11 @@
 #include "Validation/MuonGEMHits/interface/GEMTrackMatch.h"
 #include "Validation/MuonGEMHits/interface/SimHitMatcher.h"
 
-class GEMSimTrackMatch : public GEMTrackMatch 
-{
+class GEMSimTrackMatch : public GEMTrackMatch {
 public:
   explicit GEMSimTrackMatch(const edm::ParameterSet& ps);
   ~GEMSimTrackMatch() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
 
 private:

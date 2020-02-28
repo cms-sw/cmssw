@@ -47,93 +47,88 @@ class L1MuBMSectorProcessor;
 //              ---------------------
 
 class L1MuBMTrackAssembler : public L1AbstractProcessor {
+public:
+  /// constructor
+  L1MuBMTrackAssembler(const L1MuBMSectorProcessor&);
 
-  public:
+  /// destructor
+  ~L1MuBMTrackAssembler() override;
 
-    /// constructor
-    L1MuBMTrackAssembler(const L1MuBMSectorProcessor& );
+  /// run Track Assembler
+  void run() override;
 
-    /// destructor
-    ~L1MuBMTrackAssembler() override;
+  /// reset Track Assembler
+  void reset() override;
 
-    /// run Track Assembler
-    void run() override;
+  /// print result of Track Assembler
+  void print() const;
 
-    /// reset Track Assembler
-    void reset() override;
+  /// return Track Class of found track
+  inline TrackClass trackClass(int id) const { return m_theTCs[id]; }
 
-    /// print result of Track Assembler
-    void print() const;
+  /// return bitmap of found track
+  inline const std::bitset<4>& trackBitMap(int id) const { return m_theBitMaps[id]; }
 
-    /// return Track Class of found track
-    inline TrackClass trackClass(int id) const { return m_theTCs[id]; }
+  /// is it a valid Track Class?
+  inline bool isEmpty(int id) const { return (m_theTCs[id] == UNDEF); }
 
-    /// return bitmap of found track
-    inline const std::bitset<4>& trackBitMap(int id) const { return m_theBitMaps[id]; }
+  /// get address of a single station of selected track candidate
+  inline int address(int id, int stat) const { return m_theAddresses[id].station(stat); }
 
-    /// is it a valid Track Class?
-    inline bool isEmpty(int id) const { return (m_theTCs[id] == UNDEF); }
+  /// get address-array of selected track candidate
+  inline L1MuBMAddressArray address(int id) const { return m_theAddresses[id]; }
 
-    /// get address of a single station of selected track candidate
-    inline int address(int id, int stat) const { return m_theAddresses[id].station(stat); }
+private:
+  /// run the first Priority Encoder Sub-Unit
+  void runEncoderSubUnit1(unsigned& global, unsigned& group, unsigned& priority);
 
-    /// get address-array of selected track candidate
-    inline L1MuBMAddressArray address(int id) const { return m_theAddresses[id]; }
+  /// run the second Priority Encoder Sub-Unit
+  void runEncoderSubUnit2(unsigned& global, unsigned& group, unsigned& priority);
 
-  private:
+  /// run the first Address Assignment Sub-Unit
+  void runAddressAssignment1(int global, int group);
 
-    /// run the first Priority Encoder Sub-Unit
-    void runEncoderSubUnit1(unsigned& global, unsigned& group, unsigned& priority);
+  /// run the second Address Assignment Sub-Unit
+  void runAddressAssignment2(int global, int group);
 
-    /// run the second Priority Encoder Sub-Unit
-    void runEncoderSubUnit2(unsigned& global, unsigned& group, unsigned& priority);
+  /// 12 bit priority encoder
+  static unsigned int priorityEncoder12(const std::bitset<12>& input);
 
-    /// run the first Address Assignment Sub-Unit
-    void runAddressAssignment1(int global, int group);
+  /// 4 bit priority encoder
+  static unsigned int priorityEncoder4(const std::bitset<4>& input);
 
-    /// run the second Address Assignment Sub-Unit
-    void runAddressAssignment2(int global, int group);
+  /// 22 bit priority encoder
+  static unsigned int priorityEncoder22(const std::bitset<22>& input);
 
-    /// 12 bit priority encoder
-    static unsigned int priorityEncoder12(const std::bitset<12>& input);
+  /// 21 bit priority encoder
+  static unsigned int priorityEncoder21(const std::bitset<21>& input);
 
-    /// 4 bit priority encoder
-    static unsigned int priorityEncoder4(const std::bitset<4>& input);
+  /// 12 bit address encoder
+  static unsigned int addressEncoder12(const std::bitset<12>& input);
 
-    /// 22 bit priority encoder
-    static unsigned int priorityEncoder22(const std::bitset<22>& input);
+  /// special 12 bit address encoder
+  static unsigned int addressEncoder12s(const std::bitset<12>& input);
 
-    /// 21 bit priority encoder
-    static unsigned int priorityEncoder21(const std::bitset<21>& input);
+  /// get sub-bitmap of a 68-bit word
+  static unsigned long subBitset68(const std::bitset<68>& input, int pos, int length);
 
-    /// 12 bit address encoder
-    static unsigned int addressEncoder12(const std::bitset<12>& input);
+  /// get sub-bitmap of a 56-bit word
+  static unsigned long subBitset56(const std::bitset<56>& input, int pos, int length);
 
-    /// special 12 bit address encoder
-    static unsigned int addressEncoder12s(const std::bitset<12>& input);
+  /// cancel Out Table
+  static std::bitset<56> getCancelationTable(unsigned int);
 
-    /// get sub-bitmap of a 68-bit word
-    static unsigned long subBitset68(const std::bitset<68>& input, int pos, int length);
+private:
+  const L1MuBMSectorProcessor& m_sp;
 
-    /// get sub-bitmap of a 56-bit word
-    static unsigned long subBitset56(const std::bitset<56>& input, int pos, int length);
+  std::bitset<68> m_thePriorityTable1;
+  std::bitset<56> m_thePriorityTable2;
+  unsigned int m_theLastAddress[68];
+  unsigned int m_theLastAddressI[12];
 
-    /// cancel Out Table
-    static std::bitset<56> getCancelationTable(unsigned int);
-
-  private:
-
-    const L1MuBMSectorProcessor& m_sp;
-
-    std::bitset<68>              m_thePriorityTable1;
-    std::bitset<56>              m_thePriorityTable2;
-    unsigned int                 m_theLastAddress[68];
-    unsigned int                 m_theLastAddressI[12];
-
-    TrackClass                   m_theTCs[2];        // Track Classes of the 2 candidates
-    std::bitset<4>               m_theBitMaps[2];    // bitmaps of Track Class
-    L1MuBMAddressArray           m_theAddresses[2];  // relative addresses of the 2 candidates
-
+  TrackClass m_theTCs[2];                // Track Classes of the 2 candidates
+  std::bitset<4> m_theBitMaps[2];        // bitmaps of Track Class
+  L1MuBMAddressArray m_theAddresses[2];  // relative addresses of the 2 candidates
 };
 
 #endif

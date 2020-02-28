@@ -4,10 +4,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4NavigationHistory.hh"
@@ -18,178 +14,109 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <sstream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
-HFShowerFibreBundle::HFShowerFibreBundle(const std::string & name, 
-                                         const DDCompactView & cpv,
-                                         edm::ParameterSet const & p) {
-
+HFShowerFibreBundle::HFShowerFibreBundle(const std::string& name,
+                                         const HcalDDDSimConstants* hcons,
+                                         const HcalSimulationParameters* hps,
+                                         edm::ParameterSet const& p)
+    : hcalConstant_(hcons), hcalsimpar_(hps) {
   edm::ParameterSet m_HF1 = p.getParameter<edm::ParameterSet>("HFShowerStraightBundle");
-  facTube                 = m_HF1.getParameter<double>("FactorBundle");
-  cherenkov1              = new HFCherenkov(m_HF1);
+  facTube = m_HF1.getParameter<double>("FactorBundle");
+  cherenkov1_ = std::make_unique<HFCherenkov>(m_HF1);
   edm::ParameterSet m_HF2 = p.getParameter<edm::ParameterSet>("HFShowerConicalBundle");
-  facCone                 = m_HF2.getParameter<double>("FactorBundle");
-  cherenkov2              = new HFCherenkov(m_HF2);
-  edm::LogInfo("HFShower") << "HFShowerFibreBundle intialized with factors: "
-                           << facTube << " for the straight portion and "
-                           << facCone << " for the curved portion";
+  facCone = m_HF2.getParameter<double>("FactorBundle");
+  cherenkov2_ = std::make_unique<HFCherenkov>(m_HF2);
+  edm::LogVerbatim("HFShower") << "HFShowerFibreBundle intialized with factors: " << facTube
+                               << " for the straight portion and " << facCone << " for the curved portion";
 
   //Special Geometry parameters
-  std::string attribute = "Volume";
-  std::string value     = "HFPMT";
-  DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
-  DDFilteredView fv1(cpv,filter1);
-  if (fv1.firstChild()) {
-    DDsvalues_type sv1(fv1.mergedSpecifics());
-    std::vector<double> neta;
-    neta = getDDDArray("indexPMTR",sv1);
-    for (unsigned int ii=0; ii<neta.size(); ii++) {
-      int index = static_cast<int>(neta[ii]);
-      int ir=-1, ifib=-1;
-      if (index >= 0) {
-        ir   = index/10; ifib = index%10;
-      }
-      pmtR1.push_back(ir);
-      pmtFib1.push_back(ifib);
-    }
-    neta = getDDDArray("indexPMTL",sv1);
-    for (unsigned int ii=0; ii<neta.size(); ii++) {
-      int index = static_cast<int>(neta[ii]);
-      int ir=-1, ifib=-1;
-      if (index >= 0) {
-        ir   = index/10; ifib = index%10;
-      }
-      pmtR2.push_back(ir);
-      pmtFib2.push_back(ifib);
-    }
-    edm::LogInfo("HFShower") << "HFShowerFibreBundle: gets the Index matches "
-                             << "for " << neta.size() << " PMTs";
-    for (unsigned int ii=0; ii<neta.size(); ii++) 
-      edm::LogInfo("HFShower") << "HFShowerFibreBundle: rIndexR[" << ii 
-                               << "] = " << pmtR1[ii] << " fibreR[" << ii 
-                               << "] = " << pmtFib1[ii] << " rIndexL[" << ii 
-                               << "] = " << pmtR2[ii] << " fibreL[" << ii 
-                               << "] = " << pmtFib2[ii];
-  } else {
-    edm::LogWarning("HFShower") << "HFShowerFibreBundle: cannot get filtered "
-                                << " view for " << attribute << " matching "
-                                << value;
+  pmtR1 = hcalsimpar_->pmtRight_;
+  pmtFib1 = hcalsimpar_->pmtFiberRight_;
+  pmtR2 = hcalsimpar_->pmtLeft_;
+  pmtFib2 = hcalsimpar_->pmtFiberLeft_;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HFShower") << "HFShowerPMT: gets the Index matches for " << pmtR1.size() << " PMTs";
+  for (unsigned int ii = 0; ii < pmtR1.size(); ii++) {
+    edm::LogVerbatim("HFShower") << "HFShowerPMT: rIndexR[" << ii << "] = " << pmtR1[ii] << " fibreR[" << ii
+                                 << "] = " << pmtFib1[ii] << " rIndexL[" << ii << "] = " << pmtR2[ii] << " fibreL["
+                                 << ii << "] = " << pmtFib2[ii];
   }
-  
-}
+#endif
 
-HFShowerFibreBundle::~HFShowerFibreBundle() {
-  delete cherenkov1;
-  delete cherenkov2;
-}
-
-void HFShowerFibreBundle::initRun(const HcalDDDSimConstants* hcons) {
-
-  // Special Geometry parameters
-  rTable   = hcons->getRTableHF();
+  // Other Geometry parameters
+  rTable = hcalConstant_->getRTableHF();
+#ifdef EDM_ML_DEBUG
   std::stringstream sss;
-  for (unsigned int ig=0; ig<rTable.size(); ig++) {
-    if(ig/10*10 == ig) { sss << "\n"; }
-    sss << "  " << rTable[ig]/cm;
+  for (unsigned int ig = 0; ig < rTable.size(); ig++) {
+    if (ig / 10 * 10 == ig) {
+      sss << "\n";
+    }
+    sss << "  " << rTable[ig] / CLHEP::cm;
   }
-  edm::LogInfo("HFShower") << "HFShowerFibreBundle: " << rTable.size() 
-                           << " rTable(cm):" << sss.str();
+  edm::LogVerbatim("HFShower") << "HFShowerFibreBundle: " << rTable.size() << " rTable(cm):" << sss.str();
+#endif
 }
 
-double HFShowerFibreBundle::getHits(const G4Step * aStep, bool type) {
+HFShowerFibreBundle::~HFShowerFibreBundle() {}
 
+double HFShowerFibreBundle::getHits(const G4Step* aStep, bool type) {
   indexR = indexF = -1;
 
-  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  const G4VTouchable* touch   = preStepPoint->GetTouchable();
-  int                 boxNo   = touch->GetReplicaNumber(1);
-  int                 pmtNo   = touch->GetReplicaNumber(0);
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+  const G4VTouchable* touch = preStepPoint->GetTouchable();
+  int boxNo = touch->GetReplicaNumber(1);
+  int pmtNo = touch->GetReplicaNumber(0);
   if (boxNo <= 1) {
-    indexR = pmtR1[pmtNo-1];
-    indexF = pmtFib1[pmtNo-1];
+    indexR = pmtR1[pmtNo - 1];
+    indexF = pmtFib1[pmtNo - 1];
   } else {
-    indexR = pmtR2[pmtNo-1];
-    indexF = pmtFib2[pmtNo-1];
+    indexR = pmtR2[pmtNo - 1];
+    indexF = pmtFib2[pmtNo - 1];
   }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   double edep = aStep->GetTotalEnergyDeposit();
-  LogDebug("HFShower") << "HFShowerFibreBundle: Box " << boxNo << " PMT "
-                       << pmtNo << " Mapped Indices " << indexR << ", "
-                       << indexF << " Edeposit " << edep/MeV << " MeV";
+  edm::LogVerbatim("HFShower") << "HFShowerFibreBundle: Box " << boxNo << " PMT " << pmtNo << " Mapped Indices "
+                               << indexR << ", " << indexF << " Edeposit " << edep / MeV << " MeV";
 #endif
 
   double photons = 0;
   if (indexR >= 0 && indexF > 0) {
-    const G4Track *aTrack = aStep->GetTrack();
-    const G4ParticleDefinition *particleDef = aTrack->GetDefinition();
+    const G4Track* aTrack = aStep->GetTrack();
+    const G4ParticleDefinition* particleDef = aTrack->GetDefinition();
     double stepl = aStep->GetStepLength();
-    double beta  = preStepPoint->GetBeta();
+    double beta = preStepPoint->GetBeta();
     G4ThreeVector pDir = aTrack->GetDynamicParticle()->GetMomentumDirection();
-    G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->
-      GetTopTransform().TransformAxis(pDir);
+    G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformAxis(pDir);
     if (type) {
-      photons = facCone*cherenkov2->computeNPEinPMT(particleDef, beta,
-                                                    localMom.x(), localMom.y(),
-                                                    localMom.z(), stepl);
+      photons =
+          facCone * cherenkov2_->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
     } else {
-      photons = facTube*cherenkov1->computeNPEinPMT(particleDef, beta,
-                                                    localMom.x(), localMom.y(),
-                                                    localMom.z(), stepl);
+      photons =
+          facTube * cherenkov1_->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
     }
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerFibreBundle::getHits: for particle " 
-                       << particleDef->GetParticleName() << " Step " << stepl
-                       << " Beta " << beta << " Direction " << pDir
-                       << " Local " << localMom << " p.e. " << photons;
-#endif 
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HFShower") << "HFShowerFibreBundle::getHits: for particle " << particleDef->GetParticleName()
+                                 << " Step " << stepl << " Beta " << beta << " Direction " << pDir << " Local "
+                                 << localMom << " p.e. " << photons;
+#endif
   }
   return photons;
 }
- 
+
 double HFShowerFibreBundle::getRadius() {
-   
   double r = 0.;
-  if (indexR >= 0 && indexR+1 < (int)(rTable.size()))
-    r = 0.5*(rTable[indexR]+rTable[indexR+1]);
-#ifdef DebugLog
+  if (indexR >= 0 && indexR + 1 < (int)(rTable.size()))
+    r = 0.5 * (rTable[indexR] + rTable[indexR + 1]);
+#ifdef EDM_ML_DEBUG
   else
-    LogDebug("HFShower") << "HFShowerFibreBundle::getRadius: R " << indexR
-                         << " F " << indexF;
+    edm::LogVerbatim("HFShower") << "HFShowerFibreBundle::getRadius: R " << indexR << " F " << indexF;
 #endif
-  if (indexF == 2)  r =-r;
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerFibreBundle: Radius (" << indexR << "/" 
-                       << indexF << ") " << r;
+  if (indexF == 2)
+    r = -r;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HFShower") << "HFShowerFibreBundle: Radius (" << indexR << "/" << indexF << ") " << r;
 #endif
   return r;
-}
-
-std::vector<double> HFShowerFibreBundle::getDDDArray(const std::string & str, 
-                                                     const DDsvalues_type& sv){
-
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerFibreBundle:getDDDArray called for " << str;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv,value)) {
-#ifdef DebugLog
-    LogDebug("HFShower") << value;
-#endif
-    const std::vector<double> & fvec = value.doubles();
-    int nval = fvec.size();
-    if (nval < 2) {
-      edm::LogError("HFShower") << "HFShowerFibreBundle: # of " << str 
-                                << " bins " << nval << " < 2 ==> illegal";
-      throw cms::Exception("Unknown", "HFShowerFibreBundle")
-        << "nval < 2 for array " << str << "\n";
-    }
-
-    return fvec;
-  } else {
-    edm::LogError("HFShower") <<"HFShowerFibreBundle: cannot get array " <<str;
-    throw cms::Exception("Unknown", "HFShowerFibreBundle") 
-      << "cannot get array " << str << "\n";
-  }
 }

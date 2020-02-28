@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCNoiseStripsObjectRcd
-// 
+//
 /**\class RPCNoiseStripsObjectRcd RPCNoiseStripsObjectRcd.h CondFormats/DataRecord/interface/RPCNoiseStripsObjectRcd.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Wed Nov  2 17:46:33 CET 2011
 // $Id$
 //

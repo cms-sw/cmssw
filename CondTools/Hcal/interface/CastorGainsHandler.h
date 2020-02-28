@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +21,19 @@
 #include "CondFormats/DataRecord/interface/CastorGainsRcd.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 
-
-class CastorGainsHandler : public popcon::PopConSourceHandler<CastorGains>
-{
- public:
+class CastorGainsHandler : public popcon::PopConSourceHandler<CastorGains> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~CastorGainsHandler() override;
-  CastorGainsHandler(edm::ParameterSet const &);
+  CastorGainsHandler(edm::ParameterSet const&);
 
   void initObject(CastorGains*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   CastorGains* myDBObject;
   std::string m_name;
-
 };
 #endif

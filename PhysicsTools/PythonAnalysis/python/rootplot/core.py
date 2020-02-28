@@ -4,6 +4,7 @@ An API and a CLI for quickly building complex figures.
 from __future__ import absolute_import
 from __future__ import print_function
 
+from builtins import range
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
 
@@ -1723,7 +1724,7 @@ def process_options(options):
         elif options.histfill: plot_style = 'histfill'
         if options.stack: plot_style = 'stack'
     if not options.markers and use_mpl:
-        options.marker_styles = ['o' for i in xrange(nhists)]
+        options.marker_styles = ['o' for i in range(nhists)]
     if not options.line_colors:
         options.line_colors = options.colors
     if not options.fill_colors:
@@ -1732,38 +1733,38 @@ def process_options(options):
         options.marker_colors = options.colors
     if use_mpl:
         if not options.line_styles:
-            options.line_styles = ['solid' for i in xrange(nhists)]
+            options.line_styles = ['solid' for i in range(nhists)]
         if not options.plot_styles:
-            options.plot_styles = [plot_style for i in xrange(nhists)]
+            options.plot_styles = [plot_style for i in range(nhists)]
         if not options.errorbar_colors:
-            options.errorbar_colors = [None for i in xrange(nhists)]
+            options.errorbar_colors = [None for i in range(nhists)]
         if not options.alphas:
-            options.alphas = [options.alpha for i in xrange(nhists)]
+            options.alphas = [options.alpha for i in range(nhists)]
     else:
         if not options.line_styles:
-            options.line_styles = [1 for i in xrange(nhists)]
+            options.line_styles = [1 for i in range(nhists)]
         if not options.draw_commands:
             if options.stack:
                 options.draw_commands = ['stack ' + options.draw
-                                         for i in xrange(nhists)]
+                                         for i in range(nhists)]
             else:
                 options.draw_commands = [options.draw
-                                         for i in xrange(nhists)]
+                                         for i in range(nhists)]
     if not options.fill_styles:
         if use_mpl:
-            options.fill_styles = [None for i in xrange(nhists)]
+            options.fill_styles = [None for i in range(nhists)]
         else:
             if options.fill:
-                options.fill_styles = [1001 for i in xrange(nhists)]
+                options.fill_styles = [1001 for i in range(nhists)]
             else:
-                options.fill_styles = [0 for i in xrange(nhists)]
+                options.fill_styles = [0 for i in range(nhists)]
     if not options.marker_sizes:
         if options.markers:
             if use_mpl: size = mpl.rcParams['lines.markersize']
             else: size = ROOT.gStyle.GetMarkerSize()
         else:
             size = 0
-        options.marker_sizes = [size for i in xrange(nhists)]
+        options.marker_sizes = [size for i in range(nhists)]
     if options.data:
         i = options.data - 1
         options.line_styles[i] = options.data_linestyle

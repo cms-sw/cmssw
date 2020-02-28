@@ -13,28 +13,29 @@ fixedGridRhoFastjetCentralCalo = fixedGridRhoFastjetAllCalo.clone(
     maxRapidity = cms.double(2.5)
     )
 
-recoJets   =cms.Sequence(fixedGridRhoFastjetAllCalo+
-                         fixedGridRhoFastjetCentralCalo+
-                         ak4CaloJets
-                         )
+recoJetsTask   =cms.Task(fixedGridRhoFastjetAllCalo,
+                         fixedGridRhoFastjetCentralCalo,
+                         ak4CaloJets)
+recoJets   =cms.Sequence(recoJetsTask)
 
-recoAllJets=cms.Sequence(fixedGridRhoFastjetAllCalo+
-                         fixedGridRhoFastjetCentralCalo+                         
-                         fixedGridRhoFastjetAllCalo+
-                         ak4CaloJets
-			 )
+recoAllJetsTask=cms.Task(fixedGridRhoFastjetAllCalo,
+                         fixedGridRhoFastjetCentralCalo,                         
+                         fixedGridRhoFastjetAllCalo,
+                         ak4CaloJets)
+recoAllJets=cms.Sequence(recoAllJetsTask)
 
-
-recoAllJetsPUOffsetCorr=cms.Sequence(fixedGridRhoFastjetAllCalo+
-                                     fixedGridRhoFastjetCentralCalo+
+recoAllJetsPUOffsetCorrTask=cms.Task(fixedGridRhoFastjetAllCalo,
+                                     fixedGridRhoFastjetCentralCalo,
                                      ak4CaloJetsPUCorr)
+recoAllJetsPUOffsetCorr=cms.Sequence(recoAllJetsPUOffsetCorrTask)
 
-from RecoHI.HiJetAlgos.HiRecoJets_cff import caloTowersRec, caloTowers, akPu4CaloJets
+from RecoHI.HiJetAlgos.HiRecoJets_cff import caloTowersRecTask, caloTowers, akPu4CaloJets
 
-recoJetsHI =cms.Sequence(fixedGridRhoFastjetAllCalo+
-                         fixedGridRhoFastjetCentralCalo+
-                         ak4CaloJets+
-                         caloTowersRec+
-                         caloTowers+
+recoJetsHITask =cms.Task(fixedGridRhoFastjetAllCalo,
+                         fixedGridRhoFastjetCentralCalo,
+                         ak4CaloJets,
+                         caloTowersRecTask,
+                         caloTowers,
                          akPu4CaloJets
                          )
+recoJetsHI =cms.Sequence(recoJetsHITask)

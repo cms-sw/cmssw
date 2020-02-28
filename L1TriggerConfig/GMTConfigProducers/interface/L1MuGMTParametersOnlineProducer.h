@@ -26,21 +26,20 @@
 // class declaration
 //
 
-
 class L1MuGMTParametersOnlineProducer : public L1ConfigOnlineProdBase<L1MuGMTParametersRcd, L1MuGMTParameters> {
 public:
   L1MuGMTParametersOnlineProducer(const edm::ParameterSet&);
   ~L1MuGMTParametersOnlineProducer() override;
-  
-  /// The method that actually implements the production of the parameter objects
-  std::unique_ptr<L1MuGMTParameters> newObject( const std::string& objectKey ) override;
- protected:
 
+  /// The method that actually implements the production of the parameter objects
+  std::unique_ptr<L1MuGMTParameters> newObject(const std::string& objectKey) override;
+
+protected:
   void checkCMSSWVersion(const coral::AttributeList& configRecord);
+
 private:
   std::string lookupSoftwareConfigKey(const std::string& globalKey);
-  bool ignoreVersionMismatch_;  
+  bool ignoreVersionMismatch_;
 };
 
 #endif
-

@@ -1,0 +1,8 @@
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/HGCalReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="RecoLocalCalo/HGCalRecProducers"/>
+<export>
+    <lib   name="1"/>
+</export>

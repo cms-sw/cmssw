@@ -1,12 +1,11 @@
 #ifndef PhysicsTools_HepMCCandAlgos_interface_FlavorHistorySelectorUtil_h
 #define PhysicsTools_HepMCCandAlgos_interface_FlavorHistorySelectorUtil_h
 
-
 // -*- C++ -*-
 //
 // Package:    FlavorHistorySelectorUtil
 // Class:      FlavorHistorySelectorUtil
-// 
+//
 /**\class FlavorHistorySelectorUtil FlavorHistorySelectorUtil.cc PhysicsTools/FlavorHistorySelectorUtil/src/FlavorHistorySelectorUtil.cc
 
  Description: <one line class summary>
@@ -19,7 +18,6 @@
 //         Created:  Sat Jun 28 00:41:21 CDT 2008
 //
 //
-
 
 //---------------------------------------------------------------------------
 //   FlavorHistorySelectorUtil
@@ -49,39 +47,37 @@
 // class declaration
 //
 
-namespace reco { 
+namespace reco {
 
-class FlavorHistorySelectorUtil {
-   public:
-     typedef reco::FlavorHistory::FLAVOR_T flavor_type;
-     typedef std::vector<int>              flavor_vector;
+  class FlavorHistorySelectorUtil {
+  public:
+    typedef reco::FlavorHistory::FLAVOR_T flavor_type;
+    typedef std::vector<int> flavor_vector;
 
-     FlavorHistorySelectorUtil( unsigned int flavor,
-				unsigned int noutput,
-				flavor_vector const & flavorSource,
-				double minDR,
-				double maxDR,
-				bool verbose );
-     ~FlavorHistorySelectorUtil() {} 
+    FlavorHistorySelectorUtil(unsigned int flavor,
+                              unsigned int noutput,
+                              flavor_vector const& flavorSource,
+                              double minDR,
+                              double maxDR,
+                              bool verbose);
+    ~FlavorHistorySelectorUtil() {}
 
-     bool select(unsigned int nb,
-		 unsigned int nc,
-		 unsigned int highestFlavor,
-		 FlavorHistory::FLAVOR_T flavorSource,
-		 double dr ) const;
+    bool select(unsigned int nb,
+                unsigned int nc,
+                unsigned int highestFlavor,
+                FlavorHistory::FLAVOR_T flavorSource,
+                double dr) const;
 
-   private:
-      // ----------member data ---------------------------
-      int             flavor_;         // Flavor to examine
-      int             noutput_;        // Required number of output HF jets
-      flavor_vector   flavorSource_;   // which type to filter on
-      double          minDR_;          // For deltaR scheme
-      double          maxDR_;          // For deltaR scheme
-      bool            verbose_;        // verbosity
+  private:
+    // ----------member data ---------------------------
+    int flavor_;                  // Flavor to examine
+    int noutput_;                 // Required number of output HF jets
+    flavor_vector flavorSource_;  // which type to filter on
+    double minDR_;                // For deltaR scheme
+    double maxDR_;                // For deltaR scheme
+    bool verbose_;                // verbosity
+  };
 
-      
-};
+}  // namespace reco
 
-}
-
-#endif 
+#endif

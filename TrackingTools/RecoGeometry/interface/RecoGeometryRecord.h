@@ -12,11 +12,12 @@
 
 #include "boost/mpl/vector.hpp"
 
+class RecoGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          RecoGeometryRecord,
+          boost::mpl::vector<TrackerRecoGeometryRecord, MuonRecoGeometryRecord, MTDRecoGeometryRecord
+                             //,NavigationSchoolRecord,
+                             //IdealMagneticFieldRecord
+                             > > {};
 
-class RecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<RecoGeometryRecord,
-  boost::mpl::vector<TrackerRecoGeometryRecord,MuonRecoGeometryRecord,MTDRecoGeometryRecord
-			   //,NavigationSchoolRecord,
-			   //IdealMagneticFieldRecord
-  > > {};
-
-#endif 
+#endif

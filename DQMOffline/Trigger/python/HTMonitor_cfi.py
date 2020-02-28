@@ -34,4 +34,4 @@ hltHTmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 
 hltHTmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltHTmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltHTmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
-hltHTmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*","HLT_IsoTkMu27_v*");
+hltHTmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*")

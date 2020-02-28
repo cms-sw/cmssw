@@ -13,18 +13,15 @@ class VertexDistance;
  */
 
 class VertexCompatibleWithBeam {
-
 public:
+  VertexCompatibleWithBeam(const VertexDistance &dist, float cut);
+  VertexCompatibleWithBeam(const VertexDistance &dist, float cut, const reco::BeamSpot &beamSpot);
 
-  VertexCompatibleWithBeam(const VertexDistance & dist, float cut);
-  VertexCompatibleWithBeam(const VertexDistance & dist, float cut, 
-			   const reco::BeamSpot & beamSpot);
-
-  VertexCompatibleWithBeam(const VertexCompatibleWithBeam & other);
-  VertexCompatibleWithBeam & operator=(const VertexCompatibleWithBeam & other);
+  VertexCompatibleWithBeam(const VertexCompatibleWithBeam &other);
+  VertexCompatibleWithBeam &operator=(const VertexCompatibleWithBeam &other);
   virtual ~VertexCompatibleWithBeam();
 
-  void setBeamSpot(const reco::BeamSpot & beamSpot);
+  void setBeamSpot(const reco::BeamSpot &beamSpot);
   virtual bool operator()(const reco::Vertex &) const;
   virtual bool operator()(const reco::Vertex &, const VertexState &) const;
 
@@ -33,11 +30,9 @@ public:
   float distanceToBeam(const reco::Vertex &, const VertexState &) const;
 
 private:
-
-  VertexDistance * theDistance;
+  VertexDistance *theDistance;
   float theCut;
   VertexState theBeam;
-
 };
 
 #endif

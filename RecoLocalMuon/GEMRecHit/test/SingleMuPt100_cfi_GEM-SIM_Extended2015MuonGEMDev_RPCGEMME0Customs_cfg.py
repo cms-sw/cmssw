@@ -5,9 +5,9 @@
 # with command line options: SingleMuPt100_cfi -s GEN,SIM --conditions auto:run2_mc --magField 38T_PostLS1 --datatier GEN-SIM --geometry Extended2015MuonGEMDev,Extended2015MuonGEMDevReco --eventcontent FEVTDEBUGHLT --era Run2_25ns --customise=SLHCUpgradeSimulations/Configuration/me0Customs.customise -n 100 --no_exec --fileout out_sim.root --python_filename SingleMuPt100_cfi_GEM-SIM_Extended2015MuonGEMDev_RPCGEMME0Customs_cfg.py
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('SIM',eras.Run2_25ns)
+from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+process = cms.Process('SIM',Run2_25ns)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -17,7 +17,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')

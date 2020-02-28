@@ -21,7 +21,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -38,24 +37,21 @@ class L1MuBMTrackFinder;
 //              ---------------------
 
 class L1MuBMTFSetup {
+public:
+  /// constructor
+  L1MuBMTFSetup(const edm::ParameterSet& ps, edm::ConsumesCollector&& ix);
 
-  public:
+  /// destructor
+  virtual ~L1MuBMTFSetup();
 
-    /// constructor
-    L1MuBMTFSetup(const edm::ParameterSet & ps,edm::ConsumesCollector && ix);
+  /// perform action per run
 
-    /// destructor
-    virtual ~L1MuBMTFSetup();
+  /// return the main trigger object
+  L1MuBMTrackFinder* TrackFinder() { return m_tf; }
 
-    /// perform action per run
-
-    /// return the main trigger object
-    L1MuBMTrackFinder* TrackFinder() { return m_tf; }
-
-  private:
-
-    L1MuBMTrackFinder* m_tf;
-    const edm::EventSetup* m_es;
+private:
+  L1MuBMTrackFinder* m_tf;
+  const edm::EventSetup* m_es;
 };
 
 #endif

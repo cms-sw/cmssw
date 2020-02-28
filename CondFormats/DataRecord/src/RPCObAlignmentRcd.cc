@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObAlignmentRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Mar 24 11:26:21 CET 2009
 // $Id$
 

@@ -10,37 +10,27 @@
 using namespace std;
 
 /*****************************************************************************/
-HitInfo::HitInfo()
-{
-}
+HitInfo::HitInfo() {}
 
 /*****************************************************************************/
-HitInfo::~HitInfo()
-{
-}
+HitInfo::~HitInfo() {}
 
 /*****************************************************************************/
-string HitInfo::getInfo(const DetId & id, const TrackerTopology *tTopo)
-{
+string HitInfo::getInfo(const DetId &id, const TrackerTopology *tTopo) {
   string info;
 
-  if(id.subdetId() == int(PixelSubdetector::PixelBarrel))
-  {
+  if (id.subdetId() == int(PixelSubdetector::PixelBarrel)) {
     // 0 + (layer-1)<<1 + (ladder-1)%2 : 0-5
-    
+
     ostringstream o;
-    o << " (" << tTopo->pxbLayer(id)  << "|" << tTopo->pxbLadder(id)
-      <<  "|" << tTopo->pxbModule(id) << ")";
+    o << " (" << tTopo->pxbLayer(id) << "|" << tTopo->pxbLadder(id) << "|" << tTopo->pxbModule(id) << ")";
     info += o.str();
-  }
-  else
-  {
+  } else {
     // 6 + (disk-1)<<1 + (panel-1)%2
-    
+
     ostringstream o;
-    o << " (" << tTopo->pxfSide(id)   << "|" << tTopo->pxfDisk(id)
-      <<  "|" << tTopo->pxfBlade(id)  << "|" << tTopo->pxfPanel(id)
-      <<  "|" << tTopo->pxfModule(id) << ")";
+    o << " (" << tTopo->pxfSide(id) << "|" << tTopo->pxfDisk(id) << "|" << tTopo->pxfBlade(id) << "|"
+      << tTopo->pxfPanel(id) << "|" << tTopo->pxfModule(id) << ")";
     info += o.str();
   }
 
@@ -48,29 +38,24 @@ string HitInfo::getInfo(const DetId & id, const TrackerTopology *tTopo)
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const TrackingRecHit & recHit, const TrackerTopology *tTopo)
-{
+string HitInfo::getInfo(const TrackingRecHit &recHit, const TrackerTopology *tTopo) {
   DetId id(recHit.geographicalId());
 
   return getInfo(id, tTopo);
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const vector<const TrackingRecHit *>& recHits, const TrackerTopology *tTopo)
-{
+string HitInfo::getInfo(const vector<const TrackingRecHit *> &recHits, const TrackerTopology *tTopo) {
   string info;
 
-  for(vector<const TrackingRecHit *>::const_iterator
-        recHit = recHits.begin();
-        recHit!= recHits.end(); recHit++)
+  for (vector<const TrackingRecHit *>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++)
     info += getInfo(**recHit, tTopo);
 
   return info;
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const PSimHit & simHit, const TrackerTopology *tTopo)
-{
+string HitInfo::getInfo(const PSimHit &simHit, const TrackerTopology *tTopo) {
   string info;
 
   DetId id = DetId(simHit.detUnitId());
@@ -91,4 +76,3 @@ string HitInfo::getInfo(const PSimHit & simHit, const TrackerTopology *tTopo)
 
   return info + getInfo(id, tTopo);
 }
-

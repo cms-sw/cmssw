@@ -27,30 +27,25 @@
 // forward declarations
 class FWEventItem;
 
-class FWModelExpressionSelector
-{
-
+class FWModelExpressionSelector {
 public:
-   FWModelExpressionSelector() {
-   }
-   //virtual ~FWModelExpressionSelector();
+  FWModelExpressionSelector() {}
+  //virtual ~FWModelExpressionSelector();
 
-   // ---------- const member functions ---------------------
-   /** Throws an FWExpressionException if there is a problem */
-   void select(FWEventItem* iItem, const std::string& iExpression, Color_t  iColor= -1) const;
+  // ---------- const member functions ---------------------
+  /** Throws an FWExpressionException if there is a problem */
+  void select(FWEventItem* iItem, const std::string& iExpression, Color_t iColor = -1) const;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
 private:
-   FWModelExpressionSelector(const FWModelExpressionSelector&) = delete;    // stop default
+  FWModelExpressionSelector(const FWModelExpressionSelector&) = delete;  // stop default
 
-   const FWModelExpressionSelector& operator=(const FWModelExpressionSelector&) = delete;    // stop default
+  const FWModelExpressionSelector& operator=(const FWModelExpressionSelector&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif

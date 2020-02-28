@@ -1,8 +1,7 @@
 // include header for VectorFieldInterpolation
 #include "VectorFieldInterpolation.h"
 
-
-void VectorFieldInterpolation::defineCellPoint000(double X1, double X2, double X3, double F1, double F2, double F3){
+void VectorFieldInterpolation::defineCellPoint000(double X1, double X2, double X3, double F1, double F2, double F3) {
   CellPoint000[0] = X1;
   CellPoint000[1] = X2;
   CellPoint000[2] = X3;
@@ -12,8 +11,7 @@ void VectorFieldInterpolation::defineCellPoint000(double X1, double X2, double X
   return;
 }
 
-
-void VectorFieldInterpolation::defineCellPoint100(double X1, double X2, double X3, double F1, double F2, double F3){
+void VectorFieldInterpolation::defineCellPoint100(double X1, double X2, double X3, double F1, double F2, double F3) {
   CellPoint100[0] = X1;
   CellPoint100[1] = X2;
   CellPoint100[2] = X3;
@@ -23,8 +21,7 @@ void VectorFieldInterpolation::defineCellPoint100(double X1, double X2, double X
   return;
 }
 
-
-void VectorFieldInterpolation::defineCellPoint010(double X1, double X2, double X3, double F1, double F2, double F3){
+void VectorFieldInterpolation::defineCellPoint010(double X1, double X2, double X3, double F1, double F2, double F3) {
   CellPoint010[0] = X1;
   CellPoint010[1] = X2;
   CellPoint010[2] = X3;
@@ -34,8 +31,7 @@ void VectorFieldInterpolation::defineCellPoint010(double X1, double X2, double X
   return;
 }
 
-
-void VectorFieldInterpolation::defineCellPoint110(double X1, double X2, double X3, double F1, double F2, double F3){
+void VectorFieldInterpolation::defineCellPoint110(double X1, double X2, double X3, double F1, double F2, double F3) {
   CellPoint110[0] = X1;
   CellPoint110[1] = X2;
   CellPoint110[2] = X3;
@@ -45,8 +41,7 @@ void VectorFieldInterpolation::defineCellPoint110(double X1, double X2, double X
   return;
 }
 
-
-void VectorFieldInterpolation::defineCellPoint001(double X1, double X2, double X3, double F1, double F2, double F3){
+void VectorFieldInterpolation::defineCellPoint001(double X1, double X2, double X3, double F1, double F2, double F3) {
   CellPoint001[0] = X1;
   CellPoint001[1] = X2;
   CellPoint001[2] = X3;
@@ -56,8 +51,7 @@ void VectorFieldInterpolation::defineCellPoint001(double X1, double X2, double X
   return;
 }
 
-
-void VectorFieldInterpolation::defineCellPoint101(double X1, double X2, double X3, double F1, double F2, double F3){
+void VectorFieldInterpolation::defineCellPoint101(double X1, double X2, double X3, double F1, double F2, double F3) {
   CellPoint101[0] = X1;
   CellPoint101[1] = X2;
   CellPoint101[2] = X3;
@@ -67,8 +61,7 @@ void VectorFieldInterpolation::defineCellPoint101(double X1, double X2, double X
   return;
 }
 
-
-void VectorFieldInterpolation::defineCellPoint011(double X1, double X2, double X3, double F1, double F2, double F3){
+void VectorFieldInterpolation::defineCellPoint011(double X1, double X2, double X3, double F1, double F2, double F3) {
   CellPoint011[0] = X1;
   CellPoint011[1] = X2;
   CellPoint011[2] = X3;
@@ -78,8 +71,7 @@ void VectorFieldInterpolation::defineCellPoint011(double X1, double X2, double X
   return;
 }
 
-
-void VectorFieldInterpolation::defineCellPoint111(double X1, double X2, double X3, double F1, double F2, double F3){
+void VectorFieldInterpolation::defineCellPoint111(double X1, double X2, double X3, double F1, double F2, double F3) {
   CellPoint111[0] = X1;
   CellPoint111[1] = X2;
   CellPoint111[2] = X3;
@@ -89,8 +81,7 @@ void VectorFieldInterpolation::defineCellPoint111(double X1, double X2, double X
   return;
 }
 
-
-void VectorFieldInterpolation::putSCoordGetVField(double X1, double X2, double X3, double &F1, double &F2, double &F3){
+void VectorFieldInterpolation::putSCoordGetVField(double X1, double X2, double X3, double &F1, double &F2, double &F3) {
   SC[0] = X1;
   SC[1] = X2;
   SC[2] = X3;
@@ -98,7 +89,7 @@ void VectorFieldInterpolation::putSCoordGetVField(double X1, double X2, double X
   // values describing 4 help points after interpolation step of variables X1
   // 5 dimensions: 2 space dimensions + 3 field dimensions
   //                        X2' , X3' , F1' , F2' , F3'
-  double HelpPoint00[5]; // {0.0 , 0.0 , 0.0 , 0.0 , 0.0};
+  double HelpPoint00[5];  // {0.0 , 0.0 , 0.0 , 0.0 , 0.0};
   double HelpPoint10[5];
   double HelpPoint01[5];
   double HelpPoint11[5];
@@ -106,33 +97,36 @@ void VectorFieldInterpolation::putSCoordGetVField(double X1, double X2, double X
   // values describing 2 help points after interpolation step of variables X2'
   // 4 dimensions: 1 space dimensions + 3 field dimensions
   //                       X3" , F1" , F2" , F3"
-  double HelpPoint0[4]; // {0.0 , 0.0 , 0.0 , 0.0};
+  double HelpPoint0[4];  // {0.0 , 0.0 , 0.0 , 0.0};
   double HelpPoint1[4];
-
 
   // 1. iteration *****
   // prepare interpolation between CellPoint000 and CellPoint100
   double DeltaX100X000 = CellPoint100[0] - CellPoint000[0];
   double DeltaSC0X000overDeltaX100X000 = 0.;
-  if (DeltaX100X000 != 0.) DeltaSC0X000overDeltaX100X000 = (SC[0] - CellPoint000[0]) / DeltaX100X000;
+  if (DeltaX100X000 != 0.)
+    DeltaSC0X000overDeltaX100X000 = (SC[0] - CellPoint000[0]) / DeltaX100X000;
 
   // prepare interpolation between CellPoint010 and CellPoint110
   double DeltaX110X010 = CellPoint110[0] - CellPoint010[0];
   double DeltaSC0X010overDeltaX110X010 = 0.;
-  if (DeltaX110X010 != 0.) DeltaSC0X010overDeltaX110X010 = (SC[0] - CellPoint010[0]) / DeltaX110X010;
+  if (DeltaX110X010 != 0.)
+    DeltaSC0X010overDeltaX110X010 = (SC[0] - CellPoint010[0]) / DeltaX110X010;
 
   // prepare interpolation between CellPoint001 and CellPoint101
   double DeltaX101X001 = CellPoint101[0] - CellPoint001[0];
   double DeltaSC0X001overDeltaX101X001 = 0.;
-  if (DeltaX101X001 != 0.) DeltaSC0X001overDeltaX101X001 = (SC[0] - CellPoint001[0]) / DeltaX101X001;
+  if (DeltaX101X001 != 0.)
+    DeltaSC0X001overDeltaX101X001 = (SC[0] - CellPoint001[0]) / DeltaX101X001;
 
   // prepare interpolation between CellPoint011 and CellPoint111
   double DeltaX111X011 = CellPoint111[0] - CellPoint011[0];
   double DeltaSC0X011overDeltaX111X011 = 0.;
-  if (DeltaX111X011 != 0.) DeltaSC0X011overDeltaX111X011 = (SC[0] - CellPoint011[0]) / DeltaX111X011;
+  if (DeltaX111X011 != 0.)
+    DeltaSC0X011overDeltaX111X011 = (SC[0] - CellPoint011[0]) / DeltaX111X011;
 
-  for (int i=0; i<5; ++i){
-    int ip = i+1; 
+  for (int i = 0; i < 5; ++i) {
+    int ip = i + 1;
 
     // interpolate between CellPoint000 and CellPoint100
     HelpPoint00[i] = CellPoint000[ip] + DeltaSC0X000overDeltaX100X000 * (CellPoint100[ip] - CellPoint000[ip]);
@@ -151,14 +145,16 @@ void VectorFieldInterpolation::putSCoordGetVField(double X1, double X2, double X
   // prepare interpolation between HelpPoint00 and HelpPoint10
   double DeltaX10X00 = HelpPoint10[0] - HelpPoint00[0];
   double DeltaSC1X00overDeltaX10X00 = 0.;
-  if (DeltaX10X00 != 0.) DeltaSC1X00overDeltaX10X00 = (SC[1] - HelpPoint00[0]) / DeltaX10X00;
+  if (DeltaX10X00 != 0.)
+    DeltaSC1X00overDeltaX10X00 = (SC[1] - HelpPoint00[0]) / DeltaX10X00;
   // prepare interpolation between HelpPoint01 and HelpPoint11
   double DeltaX11X01 = HelpPoint11[0] - HelpPoint01[0];
   double DeltaSC1X01overDeltaX11X01 = 0.;
-  if (DeltaX11X01 != 0.) DeltaSC1X01overDeltaX11X01 = (SC[1] - HelpPoint01[0]) / DeltaX11X01;
+  if (DeltaX11X01 != 0.)
+    DeltaSC1X01overDeltaX11X01 = (SC[1] - HelpPoint01[0]) / DeltaX11X01;
 
-  for (int i=0; i<4; ++i){
-    int ip = i+1; 
+  for (int i = 0; i < 4; ++i) {
+    int ip = i + 1;
 
     // interpolate between HelpPoint00 and HelpPoint10
     HelpPoint0[i] = HelpPoint00[ip] + DeltaSC1X00overDeltaX10X00 * (HelpPoint10[ip] - HelpPoint00[ip]);
@@ -171,10 +167,11 @@ void VectorFieldInterpolation::putSCoordGetVField(double X1, double X2, double X
   // prepare interpolation between HelpPoint0 and HelpPoint1
   double DeltaX1X0 = HelpPoint1[0] - HelpPoint0[0];
   double DeltaSC2X0overDeltaX1X0 = 0.;
-  if (DeltaX1X0 != 0.) DeltaSC2X0overDeltaX1X0 = (SC[2] - HelpPoint0[0]) / DeltaX1X0;
+  if (DeltaX1X0 != 0.)
+    DeltaSC2X0overDeltaX1X0 = (SC[2] - HelpPoint0[0]) / DeltaX1X0;
 
-  for (int i=0; i<3; ++i){
-    int ip = i+1; 
+  for (int i = 0; i < 3; ++i) {
+    int ip = i + 1;
 
     // interpolate between HelpPoint0 and HelpPoint1
     VF[i] = HelpPoint0[ip] + DeltaSC2X0overDeltaX1X0 * (HelpPoint1[ip] - HelpPoint0[ip]);

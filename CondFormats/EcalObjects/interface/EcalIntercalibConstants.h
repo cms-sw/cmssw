@@ -11,5 +11,4 @@ typedef float EcalIntercalibConstant;
 typedef EcalFloatCondObjectContainer EcalIntercalibConstantMap;
 typedef EcalIntercalibConstantMap EcalIntercalibConstants;
 
-
 #endif

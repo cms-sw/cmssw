@@ -2,13 +2,13 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
 
-class CSCTFConfigOnlineProd : public L1ConfigOnlineProdBase< L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration > {
-   public:
-      CSCTFConfigOnlineProd(const edm::ParameterSet& iConfig)
-         : L1ConfigOnlineProdBase< L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration >( iConfig ) {}
-      ~CSCTFConfigOnlineProd() override {}
+class CSCTFConfigOnlineProd : public L1ConfigOnlineProdBase<L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration> {
+public:
+  CSCTFConfigOnlineProd(const edm::ParameterSet& iConfig)
+      : L1ConfigOnlineProdBase<L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration>(iConfig) {}
+  ~CSCTFConfigOnlineProd() override {}
 
-      std::unique_ptr< L1MuCSCTFConfiguration > newObject( const std::string& objectKey ) override ;
-   private:
+  std::unique_ptr<L1MuCSCTFConfiguration> newObject(const std::string& objectKey) override;
+
+private:
 };
-

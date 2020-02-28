@@ -5,109 +5,11 @@
 
 class G4Track;
 
-class KillSecondariesStackingAction : public G4UserStackingAction 
-{
+class KillSecondariesStackingAction : public G4UserStackingAction {
 public:
-    KillSecondariesStackingAction() {}
-    ~KillSecondariesStackingAction() override {}	
-    G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track *) override;
+  KillSecondariesStackingAction() {}
+  ~KillSecondariesStackingAction() override {}
+  G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track *) override;
 };
 
-#endif 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif

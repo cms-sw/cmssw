@@ -3,7 +3,9 @@
 // Package:    L1RCTRelValAnalyzer
 // Class:      L1RCTRelValAnalyzer
 //
-/**\class L1RCTRelValAnalyzer L1Trigger/RegionalCaloTrigger/interface/L1RCTRelValAnalyzer.h L1Trigger/RegionalCaloTrigger/plugins/L1RCTRelValAnalyzer.cc
+/**\class L1RCTRelValAnalyzer
+ L1Trigger/RegionalCaloTrigger/interface/L1RCTRelValAnalyzer.h
+ L1Trigger/RegionalCaloTrigger/plugins/L1RCTRelValAnalyzer.cc
 
  Description: <one line class summary>
 
@@ -16,19 +18,18 @@
 //
 //
 
-
 // system include files
-#include <memory>
 #include <iostream>
+#include <memory>
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -43,25 +44,25 @@
 
 class L1RCTRelValAnalyzer : public edm::EDAnalyzer {
 public:
-  explicit L1RCTRelValAnalyzer(const edm::ParameterSet&);
+  explicit L1RCTRelValAnalyzer(const edm::ParameterSet &);
   ~L1RCTRelValAnalyzer() override;
-  
-  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
 private:
   // ----------member data ---------------------------
   edm::InputTag rctEmCandsLabel;
   edm::InputTag rctRegionsLabel;
 
-  TH1F * h_emRank;
-  TH1F * h_emIeta;
-  TH1F * h_emIphi;
-  TH2F * h_emIsoOccIetaIphi;
-  TH2F * h_emNonIsoOccIetaIphi;
+  TH1F *h_emRank;
+  TH1F *h_emIeta;
+  TH1F *h_emIphi;
+  TH2F *h_emIsoOccIetaIphi;
+  TH2F *h_emNonIsoOccIetaIphi;
 
-  TH1F * h_regionSum;
-  TH2F * h_regionSumIetaIphi;
-  TH2F * h_regionOccIetaIphi;
+  TH1F *h_regionSum;
+  TH2F *h_regionSumIetaIphi;
+  TH2F *h_regionOccIetaIphi;
 };
 
 //

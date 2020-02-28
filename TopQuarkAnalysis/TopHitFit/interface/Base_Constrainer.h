@@ -37,42 +37,38 @@
 #ifndef HITFIT_BASE_CONSTRAINER_H
 #define HITFIT_BASE_CONSTRAINER_H
 
-
 #include "TopQuarkAnalysis/TopHitFit/interface/matutil.h"
 #include <iosfwd>
 
-
 namespace hitfit {
 
-class Defaults;
+  class Defaults;
 
+  //*************************************************************************
 
-//*************************************************************************
-
-
-/**
+  /**
     @class Base_Constrainer_Args
 
     @brief Hold on to parameters for the Base_Constrainer class.
  */
-class Base_Constrainer_Args
-//
-// Purpose: Hold on to parameters for the Base_Constrainer class.
-//
-// Parameters:
-//   bool test_gradient - If true, check the constraint gradient calculations
-//                        by also doing them numerically.
-//   float test_step    - When test_gradient is true, the step size to use
-//                        for numeric differentiation.
-//   float test_eps     - When test_gradient is true, the maximum relative
-//                        difference permitted between returned and
-//                        numerically calculated gradients.
-//
-{
-public:
-  // Constructor.  Initialize from a Defaults object.
+  class Base_Constrainer_Args
+  //
+  // Purpose: Hold on to parameters for the Base_Constrainer class.
+  //
+  // Parameters:
+  //   bool test_gradient - If true, check the constraint gradient calculations
+  //                        by also doing them numerically.
+  //   float test_step    - When test_gradient is true, the step size to use
+  //                        for numeric differentiation.
+  //   float test_eps     - When test_gradient is true, the maximum relative
+  //                        difference permitted between returned and
+  //                        numerically calculated gradients.
+  //
+  {
+  public:
+    // Constructor.  Initialize from a Defaults object.
 
-  /**
+    /**
      Instantiate Base_Constrainer_Args from an instance of Defaults object.
 
      @param defs An instance of Defaults object. The instance must contain the
@@ -81,54 +77,49 @@ public:
      - double <i>test_step</i>.
      - double <i>test_eps</i>.
    */
-  Base_Constrainer_Args (const Defaults& defs);
+    Base_Constrainer_Args(const Defaults& defs);
 
-  // Retrieve parameter values.
-  /**
+    // Retrieve parameter values.
+    /**
      Return the <i>_test_gradient</i> parameter.
    */
-  bool test_gradient () const;
+    bool test_gradient() const;
 
-  /**
+    /**
      Return the <i>_test_step</i> parameter.
    */
-  double test_step () const;
+    double test_step() const;
 
-  /**
+    /**
      Return the <i>_test_eps</i> parameter.
    */
-  double test_eps () const;
+    double test_eps() const;
 
+  private:
+    // Hold on to parameter values.
 
-private:
-
-  // Hold on to parameter values.
-
-  /**
+    /**
      If true, check constraint gradient calculation by also doing
      them numerically.
    */
-  bool _test_gradient;
+    bool _test_gradient;
 
-  /**
+    /**
      When <i>_test_gradient</i> is true, the step size use for numerical
      differentation.
    */
-  double _test_step;
+    double _test_step;
 
-  /**
+    /**
      When <i>_test_gradient</i> is true, the maximum relative difference
      permitted between returned and numerically calculated gradients.
    */
-  double _test_eps;
+    double _test_eps;
+  };
 
-};
+  //*************************************************************************
 
-
-//*************************************************************************
-
-
-/**
+  /**
 
    @class Constraint_Calculator
 
@@ -136,42 +127,42 @@ private:
    from this class and implement the eval() method.
 
  */
-class Constraint_Calculator
-//
-// Purpose: Abstract base class for evaluating constraints.
-//          Derive from this and implement the eval() method.
-//
-{
-public:
-  // Constructor, destructor.  Pass in the number of constraints.
+  class Constraint_Calculator
+  //
+  // Purpose: Abstract base class for evaluating constraints.
+  //          Derive from this and implement the eval() method.
+  //
+  {
+  public:
+    // Constructor, destructor.  Pass in the number of constraints.
 
-  /**
+    /**
      Constructor.
      @param nconstraints Number of constraint equations.
    */
-  Constraint_Calculator (int nconstraints);
+    Constraint_Calculator(int nconstraints);
 
-  /**
+    /**
      Destructor.
    */
-  virtual ~Constraint_Calculator () {}
+    virtual ~Constraint_Calculator() {}
 
-  // Get back the number of constraints.
-  /**
+    // Get back the number of constraints.
+    /**
      Return the number of constraints.
    */
-  int nconstraints () const;
+    int nconstraints() const;
 
-  // Evaluate constraints at the point described by X and Y (well-measured
-  // and poorly-measured variables, respectively).  The results should
-  // be stored in F.  BX and BY should be set to the gradients of F with
-  // respect to X and Y, respectively.
-  //
-  // Return true if the point X, Y is accepted.
-  // Return false if it is rejected (i.e., in an unphysical region).
-  // The constraints need not be evaluated in that case.
+    // Evaluate constraints at the point described by X and Y (well-measured
+    // and poorly-measured variables, respectively).  The results should
+    // be stored in F.  BX and BY should be set to the gradients of F with
+    // respect to X and Y, respectively.
+    //
+    // Return true if the point X, Y is accepted.
+    // Return false if it is rejected (i.e., in an unphysical region).
+    // The constraints need not be evaluated in that case.
 
-  /**
+    /**
     @brief Evaluate constraints at the point described by <i>x</i> and
     <i>y</i>
     (well-measured and poorly-measured variables, respectively).  The results
@@ -201,72 +192,64 @@ public:
     evaluated in that case.
 
    */
-  virtual bool eval (const Column_Vector& x,
-                     const Column_Vector& y,
-                     Row_Vector& F,
-                     Matrix& Bx,
-                     Matrix& By) = 0;
+    virtual bool eval(const Column_Vector& x, const Column_Vector& y, Row_Vector& F, Matrix& Bx, Matrix& By) = 0;
 
-
-private:
-  // The number of constraint functions.
-  /**
+  private:
+    // The number of constraint functions.
+    /**
      Number of constraints functions.
    */
-  int _nconstraints;
+    int _nconstraints;
+  };
 
-};
+  //*************************************************************************
 
-
-//*************************************************************************
-
-
-/**
+  /**
     @class Base_Constrainer
     @brief Base class for \f$\chi^{2}\f$ constrained fitter.
  */
-class Base_Constrainer
-//
-// Purpose: Base class for chisq constrained fitter.
-//
-{
-public:
-  // Constructor, destructor.
-  // ARGS holds the parameter settings for this instance.
+  class Base_Constrainer
+  //
+  // Purpose: Base class for chisq constrained fitter.
+  //
+  {
+  public:
+    // Constructor, destructor.
+    // ARGS holds the parameter settings for this instance.
 
-  /**
+    /**
      Constructor.
      @param args Contains the parameter settings for this instance.
    */
-  Base_Constrainer (const Base_Constrainer_Args& args);
+    Base_Constrainer(const Base_Constrainer_Args& args);
 
-  /**
+    /**
      Destructor.
    */
-  virtual ~Base_Constrainer () {}
+    virtual ~Base_Constrainer() {}
 
-  // Do the fit.
-  // Call the number of well-measured variables Nw, the number of
-  // poorly-measured variables Np, and the number of constraints Nc.
-  // Inputs:
-  //   CONSTRAINT_CALCULATOR is the object that will be used to evaluate
-  //     the constraints.
-  //   XM(Nw) and YM(Np) are the measured values of the well- and
-  //     poorly-measured variables, respectively.
-  //   X(Nw) and Y(Np) are the starting values for the fit.
-  //   G_I(Nw,Nw) is the error matrix for the well-measured variables.
-  //   Y(Np,Np) is the inverse error matrix for the poorly-measured variables.
-  //
-  // Outputs:
-  //   X(Nw) and Y(Np) is the point at the minimum.
-  //   PULLX(Nw) and PULLY(Np) are the pull quantities.
-  //   Q(Nw,Nw), R(Np,Np), and S(Nw,Np) are the final error matrices
-  //     between all the variables.
-  //
-  // The return value is the final chisq.  Returns a value < 0 if the
-  // fit failed to converge.
+    // Do the fit.
+    // Call the number of well-measured variables Nw, the number of
+    // poorly-measured variables Np, and the number of constraints Nc.
+    // Inputs:
+    //   CONSTRAINT_CALCULATOR is the object that will be used to evaluate
+    //     the constraints.
+    //   XM(Nw) and YM(Np) are the measured values of the well- and
+    //     poorly-measured variables, respectively.
+    //   X(Nw) and Y(Np) are the starting values for the fit.
+    //   G_I(Nw,Nw) is the error matrix for the well-measured variables.
+    //   Y(Np,Np) is the inverse error matrix for the poorly-measured variables.
+    //
+    // Outputs:
+    //   X(Nw) and Y(Np) is the point at the minimum.
+    //   PULLX(Nw) and PULLY(Np) are the pull quantities.
+    //   Q(Nw,Nw), R(Np,Np), and S(Nw,Np) are the final error matrices
+    //     between all the variables.
+    //
+    // The return value is the final chisq.  Returns a value < 0 if the
+    // fit failed to converge.
 
-  /**
+    /**
      @brief Perform the \f$\chi^{2}\f$ constrained fit.
 
 
@@ -317,21 +300,21 @@ public:
      \f$\chi^{2}\f$ of the fit.  Should returns a negative value if the fit
      does not converge.
    */
-  virtual double fit (Constraint_Calculator& constraint_calculator,
-                      const Column_Vector& xm,
-                      Column_Vector& x,
-                      const Column_Vector& ym,
-                      Column_Vector& y,
-                      const Matrix& G_i,
-                      const Diagonal_Matrix& Y,
-                      Column_Vector& pullx,
-                      Column_Vector& pully,
-                      Matrix& Q,
-                      Matrix& R,
-                      Matrix& S) = 0;
+    virtual double fit(Constraint_Calculator& constraint_calculator,
+                       const Column_Vector& xm,
+                       Column_Vector& x,
+                       const Column_Vector& ym,
+                       Column_Vector& y,
+                       const Matrix& G_i,
+                       const Diagonal_Matrix& Y,
+                       Column_Vector& pullx,
+                       Column_Vector& pully,
+                       Matrix& Q,
+                       Matrix& R,
+                       Matrix& S) = 0;
 
-  // Print out any internal state to S.
-  /**
+    // Print out any internal state to S.
+    /**
     @brief Print out internal state to output stream.
 
     @param s Output stream to which to write.
@@ -340,27 +323,25 @@ public:
     The stream <i>s</i>;
 
    */
-  virtual std::ostream& print (std::ostream& s) const;
+    virtual std::ostream& print(std::ostream& s) const;
 
-  // Print out internal state to S.
-  friend std::ostream& operator<< (std::ostream& s, const Base_Constrainer& f);
+    // Print out internal state to S.
+    friend std::ostream& operator<<(std::ostream& s, const Base_Constrainer& f);
 
+  private:
+    // Parameter settings.
 
-private:
-  // Parameter settings.
-
-  /**
+    /**
      Parameter settings for this instance of Base_Constrainer.
    */
-  const Base_Constrainer_Args _args;
+    const Base_Constrainer_Args _args;
 
+  protected:
+    // Helper function to evaluate the constraints.
+    // This takes care of checking what the user function returns against
+    // numerical derivatives, if that was requested.
 
-protected:
-  // Helper function to evaluate the constraints.
-  // This takes care of checking what the user function returns against
-  // numerical derivatives, if that was requested.
-
-  /**
+    /**
      @brief Helper function to evaluate constraints.  This takes care of
      checking what the user function returns againts numerical
      derivatives, it that was requested.
@@ -399,17 +380,14 @@ protected:
      <b>false</b> if the point <i>(x,y)</i> is rejected
 
    */
-  bool call_constraint_fcn (Constraint_Calculator& constraint_calculator,
-                            const Column_Vector& x,
-                            const Column_Vector& y,
-                            Row_Vector& F,
-                            Matrix& Bx,
-                            Matrix& By) const;
-};
+    bool call_constraint_fcn(Constraint_Calculator& constraint_calculator,
+                             const Column_Vector& x,
+                             const Column_Vector& y,
+                             Row_Vector& F,
+                             Matrix& Bx,
+                             Matrix& By) const;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_BASE_CONSTRAINER_H
-
+#endif  // not HITFIT_BASE_CONSTRAINER_H

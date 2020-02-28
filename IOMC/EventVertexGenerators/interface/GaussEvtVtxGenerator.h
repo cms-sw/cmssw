@@ -13,43 +13,40 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class GaussEvtVtxGenerator : public BaseEvtVtxGenerator 
-{
+class GaussEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
-  GaussEvtVtxGenerator(const edm::ParameterSet & p);
+  GaussEvtVtxGenerator(const edm::ParameterSet& p);
   ~GaussEvtVtxGenerator() override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
   HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-  TMatrixD const* GetInvLorentzBoost() const override {
-	  return nullptr;
-  }
+  TMatrixD const* GetInvLorentzBoost() const override { return nullptr; }
 
-   
   /// set resolution in X in cm
-  void sigmaX(double s=1.0);
+  void sigmaX(double s = 1.0);
   /// set resolution in Y in cm
-  void sigmaY(double s=1.0);
+  void sigmaY(double s = 1.0);
   /// set resolution in Z in cm
-  void sigmaZ(double s=1.0);
+  void sigmaZ(double s = 1.0);
 
   /// set mean in X in cm
-  void meanX(double m=0) { fMeanX=m; }
+  void meanX(double m = 0) { fMeanX = m; }
   /// set mean in Y in cm
-  void meanY(double m=0) { fMeanY=m; }
+  void meanY(double m = 0) { fMeanY = m; }
   /// set mean in Z in cm
-  void meanZ(double m=0) { fMeanZ=m; }
-  
+  void meanZ(double m = 0) { fMeanZ = m; }
+
 private:
   /** Copy constructor */
-  GaussEvtVtxGenerator(const GaussEvtVtxGenerator &p) = delete;
+  GaussEvtVtxGenerator(const GaussEvtVtxGenerator& p) = delete;
   /** Copy assignment operator */
-  GaussEvtVtxGenerator&  operator = (const GaussEvtVtxGenerator & rhs ) = delete;
+  GaussEvtVtxGenerator& operator=(const GaussEvtVtxGenerator& rhs) = delete;
+
 private:
   double fSigmaX, fSigmaY, fSigmaZ;
-  double fMeanX,  fMeanY,  fMeanZ;
+  double fMeanX, fMeanY, fMeanZ;
   double fTimeOffset;
 };
 

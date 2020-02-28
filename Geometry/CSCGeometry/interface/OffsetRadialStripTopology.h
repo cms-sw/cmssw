@@ -14,23 +14,25 @@
 #include "Geometry/CommonTopologies/interface/CSCRadialStripTopology.h"
 #include <iosfwd>
 
-class OffsetRadialStripTopology : public CSCRadialStripTopology
-{
+class OffsetRadialStripTopology : public CSCRadialStripTopology {
 public:
-
   /** Constructor
    *  Note that yCentre is local y of symmetry centre of strip plane
    *  _before_ the rotation shift: it is passed directly to RST base.
    */
-  OffsetRadialStripTopology( int numberOfStrips, float stripPhiPitch,
-     float detectorHeight, float radialDistance, float stripOffset, float yCentre);
+  OffsetRadialStripTopology(int numberOfStrips,
+                            float stripPhiPitch,
+                            float detectorHeight,
+                            float radialDistance,
+                            float stripOffset,
+                            float yCentre);
 
   ~OffsetRadialStripTopology() override{};
 
   /** Fraction of a strip offset of layer relative to
    *  symmetry axis (local y). (This is an _angular_ value)
    */
-  virtual float stripOffset( void ) const { return theStripOffset; }
+  virtual float stripOffset(void) const { return theStripOffset; }
 
   /** LocalPoint for a given strip
    */
@@ -38,7 +40,7 @@ public:
     // Pass through to base class since otherwise it is shadowed by the localPosition(const MP&).
     // Note that base class version is OK because it uses stripAngle() which is overridden in ORST!
     // Also note that xOfStrip from base class RST also works for ORST for the same reason.
-    return CSCRadialStripTopology::localPosition( strip );
+    return CSCRadialStripTopology::localPosition(strip);
   }
 
   /** LocalPoint for a given MeasurementPoint <BR>
@@ -63,7 +65,7 @@ public:
   /**
    * MeasurementPoint corresponding to given LocalPoint
    */
-  MeasurementPoint measurementPosition( const LocalPoint& ) const override;
+  MeasurementPoint measurementPosition(const LocalPoint&) const override;
 
   /** Strip in which a given LocalPoint lies. This is a float which
    * represents the fractional strip position within the detector.<BR>
@@ -85,9 +87,9 @@ public:
   virtual int channel(int strip) const = 0;
   int channel(const LocalPoint& lp) const override = 0;
 
-  friend std::ostream & operator<<(std::ostream &, const OffsetRadialStripTopology &);
+  friend std::ostream& operator<<(std::ostream&, const OffsetRadialStripTopology&);
 
- private:
+private:
   /**
    * Transform from coordinates wrt strip plane symmetry axes to
    * local coordinates
@@ -99,10 +101,9 @@ public:
    */
   LocalPoint toPrime(const LocalPoint&) const;
 
-  float theStripOffset; // fraction of a strip offset from sym about y
-  float theCosOff; // cosine of angular offset
-  float theSinOff; // sine of angular offset
+  float theStripOffset;  // fraction of a strip offset from sym about y
+  float theCosOff;       // cosine of angular offset
+  float theSinOff;       // sine of angular offset
 };
 
 #endif
-

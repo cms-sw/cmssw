@@ -23,25 +23,22 @@
  *
  *******/
 
-class HGCalTriggerFECodecBase { 
- public:  
-  HGCalTriggerFECodecBase(const edm::ParameterSet& conf) : 
-    geometry_(nullptr),
-    name_(conf.getParameter<std::string>("CodecName")),
-    codec_idx_(static_cast<unsigned char>(conf.getParameter<uint32_t>("CodecIndex")))
-    {}
+class HGCalTriggerFECodecBase {
+public:
+  HGCalTriggerFECodecBase(const edm::ParameterSet& conf)
+      : geometry_(nullptr),
+        name_(conf.getParameter<std::string>("CodecName")),
+        codec_idx_(static_cast<unsigned char>(conf.getParameter<uint32_t>("CodecIndex"))) {}
   virtual ~HGCalTriggerFECodecBase() {}
 
-  const std::string& name() const { return name_; } 
-  
+  const std::string& name() const { return name_; }
+
   const unsigned char getCodecType() const { return codec_idx_; }
-  void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom;}
-  
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom; }
+
   // give the FECodec the input digis and it sets itself
   // with the approprate data
-  virtual void setDataPayload(const HGCalDigiCollection&,
-                              const HGCalDigiCollection&,
-                              const HGCalDigiCollection& ) = 0;
+  virtual void setDataPayload(const HGCalDigiCollection&, const HGCalDigiCollection&, const HGCalDigiCollection&) = 0;
   virtual void setDataPayload(const l1t::HGCFETriggerDigi&) = 0;
   virtual void unSetDataPayload() = 0;
   // get the set data out for your own enjoyment
@@ -51,73 +48,65 @@ class HGCalTriggerFECodecBase {
   // these will yell at you if you haven't set the data in the Codec class
   virtual void encode(l1t::HGCFETriggerDigi&) = 0;
   virtual void decode(const l1t::HGCFETriggerDigi&) = 0;
-  virtual void print(const l1t::HGCFETriggerDigi& digi,
-                     std::ostream& out = std::cout) const = 0;
+  virtual void print(const l1t::HGCFETriggerDigi& digi, std::ostream& out = std::cout) const = 0;
 
- protected:
+protected:
   const HGCalTriggerGeometryBase* geometry_;
 
- private:
+private:
   const std::string name_;
-  unsigned char codec_idx_; // I hope we never come to having 256 FE codecs :-)
+  unsigned char codec_idx_;  // I hope we never come to having 256 FE codecs :-)
 };
 
 // ----> all codec classes derive from this <----
 // inheritance looks like class MyCodec : public HGCalTriggerFE::Codec<MyCodec,MyData>
 namespace HGCalTriggerFE {
-  template<typename Impl,typename DATA>
-  class Codec : public HGCalTriggerFECodecBase { 
+  template <typename Impl, typename DATA>
+  class Codec : public HGCalTriggerFECodecBase {
   public:
-    Codec(const edm::ParameterSet& conf) :  
-    HGCalTriggerFECodecBase(conf),
-    dataIsSet_(false) {
-    }
-    
-    // mark these as final since at this level we know 
+    Codec(const edm::ParameterSet& conf) : HGCalTriggerFECodecBase(conf), dataIsSet_(false) {}
+
+    // mark these as final since at this level we know
     // the implementation of the codec
     void encode(l1t::HGCFETriggerDigi& digi) final {
-      if( !dataIsSet_ ) {
+      if (!dataIsSet_) {
         edm::LogWarning("HGCalTriggerFECodec|NoDataPayload")
-          << "No data payload was set for HGCTriggerFECodec: "
-          << this->name();
+            << "No data payload was set for HGCTriggerFECodec: " << this->name();
       }
-      digi.encode(static_cast<const Impl&>(*this),data_);      
+      digi.encode(static_cast<const Impl&>(*this), data_);
     }
     void decode(const l1t::HGCFETriggerDigi& digi) final {
-      if( dataIsSet_ ) {
+      if (dataIsSet_) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
-          << "Data payload was already set for HGCTriggerFECodec: "
-          << this->name() << " overwriting current data!";
+            << "Data payload was already set for HGCTriggerFECodec: " << this->name() << " overwriting current data!";
       }
-      digi.decode(static_cast<const Impl&>(*this),data_);
+      digi.decode(static_cast<const Impl&>(*this), data_);
       dataIsSet_ = true;
-    }  
-    
-    void setDataPayload(const HGCalDigiCollection& ee, 
-                                const HGCalDigiCollection& fh,
-                                const HGCalDigiCollection& bh ) final {
-      if( dataIsSet_ ) {
+    }
+
+    void setDataPayload(const HGCalDigiCollection& ee,
+                        const HGCalDigiCollection& fh,
+                        const HGCalDigiCollection& bh) final {
+      if (dataIsSet_) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
-          << "Data payload was already set for HGCTriggerFECodec: "
-          << this->name() << " overwriting current data!";
+            << "Data payload was already set for HGCTriggerFECodec: " << this->name() << " overwriting current data!";
       }
-      if(geometry_==nullptr) {
+      if (geometry_ == nullptr) {
         throw cms::Exception("HGCTriggerBadInitialization")
-          << "The HGC trigger geometry has not been passed to the front-end codec\n";
+            << "The HGC trigger geometry has not been passed to the front-end codec\n";
       }
-      static_cast<Impl&>(*this).setDataPayloadImpl(ee,fh,bh);
+      static_cast<Impl&>(*this).setDataPayloadImpl(ee, fh, bh);
       dataIsSet_ = true;
     }
 
     void setDataPayload(const l1t::HGCFETriggerDigi& digi) final {
-      if( dataIsSet_ ) {
+      if (dataIsSet_) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
-          << "Data payload was already set for HGCTriggerFECodec: "
-          << this->name() << " overwriting current data!";
+            << "Data payload was already set for HGCTriggerFECodec: " << this->name() << " overwriting current data!";
       }
-      if(geometry_==nullptr) {
+      if (geometry_ == nullptr) {
         throw cms::Exception("HGCTriggerBadInitialization")
-          << "The HGC trigger geometry has not been passed to the front-end codec\n";
+            << "The HGC trigger geometry has not been passed to the front-end codec\n";
       }
       static_cast<Impl&>(*this).setDataPayloadImpl(digi);
       dataIsSet_ = true;
@@ -127,39 +116,37 @@ namespace HGCalTriggerFE {
       data_.reset();
       dataIsSet_ = false;
     }
-    std::vector<bool> getDataPayload() const final { 
-      return this->encode(data_); 
-    }
-        
-    void print(const l1t::HGCFETriggerDigi& digi,
-                       std::ostream& out = std::cout) const final {
-      digi.print(static_cast<const Impl&>(*this),out);
+    std::vector<bool> getDataPayload() const final { return this->encode(data_); }
+
+    void print(const l1t::HGCFETriggerDigi& digi, std::ostream& out = std::cout) const final {
+      digi.print(static_cast<const Impl&>(*this), out);
     }
 
     std::vector<bool> encode(const DATA& data) const {
-      if(geometry_==nullptr) {
+      if (geometry_ == nullptr) {
         throw cms::Exception("HGCTriggerBadInitialization")
-          << "The HGC trigger geometry has not been passed to the front-end codec\n";
+            << "The HGC trigger geometry has not been passed to the front-end codec\n";
       }
       return static_cast<const Impl&>(*this).encodeImpl(data);
     }
 
-    DATA decode(const std::vector<bool>& data, const uint32_t module=0) const {
-      if(geometry_==nullptr) {
+    DATA decode(const std::vector<bool>& data, const uint32_t module = 0) const {
+      if (geometry_ == nullptr) {
         throw cms::Exception("HGCTriggerBadInitialization")
-          << "The HGC trigger geometry has not been passed to the front-end codec\n";
+            << "The HGC trigger geometry has not been passed to the front-end codec\n";
       }
       return static_cast<const Impl&>(*this).decodeImpl(data, module);
-    }    
+    }
 
-  protected:    
+  protected:
     DATA data_;
+
   private:
     bool dataIsSet_;
   };
-}
+}  // namespace HGCalTriggerFE
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< HGCalTriggerFECodecBase* (const edm::ParameterSet&) > HGCalTriggerFECodecFactory;
+typedef edmplugin::PluginFactory<HGCalTriggerFECodecBase*(const edm::ParameterSet&)> HGCalTriggerFECodecFactory;
 
 #endif

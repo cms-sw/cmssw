@@ -30,14 +30,11 @@
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuDTTrackContainer {
-
- public:
-
-  typedef std::vector<L1MuDTTrackCand>    TrackContainer;
-  typedef TrackContainer::const_iterator  Trackiterator;
-  typedef TrackContainer::iterator        TrackIterator;
+public:
+  typedef std::vector<L1MuDTTrackCand> TrackContainer;
+  typedef TrackContainer::const_iterator Trackiterator;
+  typedef TrackContainer::iterator TrackIterator;
 
   //  Constructors
   L1MuDTTrackContainer();
@@ -57,11 +54,8 @@ class L1MuDTTrackContainer {
 
   L1MuDTTrackCand const* dtTrackCand2(int wheel, int sect, int bx) const;
 
-
- private:
-
-  TrackContainer dtTracks; 
-
+private:
+  TrackContainer dtTracks;
 };
 
 #endif

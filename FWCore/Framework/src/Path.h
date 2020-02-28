@@ -46,10 +46,11 @@ namespace edm {
     typedef hlt::HLTState State;
 
     typedef std::vector<WorkerInPath> WorkersInPath;
-    typedef WorkersInPath::size_type        size_type;
+    typedef WorkersInPath::size_type size_type;
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
-    Path(int bitpos, std::string const& path_name,
+    Path(int bitpos,
+         std::string const& path_name,
          WorkersInPath const& workers,
          TrigResPtr trptr,
          ExceptionToActionTable const& actions,
@@ -63,14 +64,18 @@ namespace edm {
     template <typename T>
     void runAllModulesAsync(WaitingTask*,
                             typename T::MyPrincipal const&,
-                            EventSetupImpl  const&,
+                            EventSetupImpl const&,
                             ServiceToken const&,
                             StreamID const&,
                             typename T::Context const*);
 
-    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetupImpl const&,
-                                   ServiceToken const&, StreamID const&, StreamContext const*);
-    
+    void processOneOccurrenceAsync(WaitingTask*,
+                                   EventPrincipal const&,
+                                   EventSetupImpl const&,
+                                   ServiceToken const&,
+                                   StreamID const&,
+                                   StreamContext const*);
+
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
 
@@ -81,125 +86,130 @@ namespace edm {
     int timesFailed() const { return timesFailed_; }
     int timesExcept() const { return timesExcept_; }
     //int abortWorker() const { return abortWorker_; }
-    State state() const { return state_; }
 
     size_type size() const { return workers_.size(); }
     int timesVisited(size_type i) const { return workers_.at(i).timesVisited(); }
-    int timesPassed (size_type i) const { return workers_.at(i).timesPassed() ; }
-    int timesFailed (size_type i) const { return workers_.at(i).timesFailed() ; }
-    int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
+    int timesPassed(size_type i) const { return workers_.at(i).timesPassed(); }
+    int timesFailed(size_type i) const { return workers_.at(i).timesFailed(); }
+    int timesExcept(size_type i) const { return workers_.at(i).timesExcept(); }
     Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
-    
-    void setEarlyDeleteHelpers(std::map<const Worker*,EarlyDeleteHelper*> const&);
 
-    void setPathStatusInserter(PathStatusInserter* pathStatusInserter,
-                               Worker* pathStatusInserterWorker);
+    void setEarlyDeleteHelpers(std::map<const Worker*, EarlyDeleteHelper*> const&);
+
+    void setPathStatusInserter(PathStatusInserter* pathStatusInserter, Worker* pathStatusInserterWorker);
 
   private:
-
     // If you define this be careful about the pointer in the
     // PlaceInPathContext object in the contained WorkerInPath objects.
-    Path const& operator=(Path const&) = delete; // stop default
+    Path const& operator=(Path const&) = delete;  // stop default
 
     int timesRun_;
     int timesPassed_;
     int timesFailed_;
     int timesExcept_;
     //int abortWorker_;
-    State state_;
+    //When an exception happens, it is possible for multiple modules in a path to fail
+    // and then try to change the state concurrently.
+    std::atomic<bool> stateLock_ = false;
+    CMS_THREAD_GUARD(stateLock_) int failedModuleIndex_;
+    CMS_THREAD_GUARD(stateLock_) State state_;
 
-    int bitpos_;
-    TrigResPtr trptr_;
-    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
-    ExceptionToActionTable const* act_table_;
+    int const bitpos_;
+    TrigResPtr const trptr_;
+    // We do not use propagate_const because the registry itself is mutable.
+    std::shared_ptr<ActivityRegistry> const actReg_;
+    ExceptionToActionTable const* const act_table_;
 
     WorkersInPath workers_;
-    std::vector<EarlyDeleteHelper*> earlyDeleteHelpers_;
 
     PathContext pathContext_;
     WaitingTaskList waitingTasks_;
-    std::atomic<bool>* stopProcessingEvent_;
+    std::atomic<bool>* const stopProcessingEvent_;
+    std::atomic<unsigned int> modulesToRun_;
 
     PathStatusInserter* pathStatusInserter_;
     Worker* pathStatusInserterWorker_;
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-    bool handleWorkerFailure(cms::Exception & e,
+    bool handleWorkerFailure(cms::Exception& e,
                              int nwrwue,
                              bool isEvent,
                              bool begin,
                              BranchType branchType,
                              ModuleDescription const&,
-                             std::string const& id);
-    static void exceptionContext(cms::Exception & ex,
+                             std::string const& id) const;
+    static void exceptionContext(cms::Exception& ex,
                                  bool isEvent,
                                  bool begin,
                                  BranchType branchType,
                                  ModuleDescription const&,
                                  std::string const& id,
                                  PathContext const&);
-    void recordStatus(int nwrwue, bool isEvent);
-    void updateCounters(bool succeed, bool isEvent);
-    
-    void finished(int iModuleIndex, bool iSucceeded, std::exception_ptr,
+    void threadsafe_setFailedModuleInfo(int nwrwue, std::exception_ptr);
+    void recordStatus(int nwrwue, hlt::HLTState state);
+    void updateCounters(hlt::HLTState state);
+
+    void finished(std::exception_ptr,
                   StreamContext const*,
                   EventPrincipal const& iEP,
                   EventSetupImpl const& iES,
                   StreamID const& streamID);
 
-    void handleEarlyFinish(EventPrincipal const&);
-    void handleEarlyFinish(RunPrincipal const&) {}
-    void handleEarlyFinish(LuminosityBlockPrincipal const&) {}
-    
     //Handle asynchronous processing
     void workerFinished(std::exception_ptr const* iException,
                         unsigned int iModuleIndex,
-                        EventPrincipal const& iEP, EventSetupImpl const& iES,
+                        EventPrincipal const& iEP,
+                        EventSetupImpl const& iES,
                         ServiceToken const& iToken,
-                        StreamID const& iID, StreamContext const* iContext);
+                        StreamID const& iID,
+                        StreamContext const* iContext);
     void runNextWorkerAsync(unsigned int iNextModuleIndex,
-                            EventPrincipal const&, EventSetupImpl const&,
+                            EventPrincipal const&,
+                            EventSetupImpl const&,
                             ServiceToken const&,
-                            StreamID const&, StreamContext const*);
-
+                            StreamID const&,
+                            StreamContext const*);
   };
 
   namespace {
     template <typename T>
     class PathSignalSentry {
     public:
-      PathSignalSentry(ActivityRegistry *a,
+      PathSignalSentry(ActivityRegistry* a,
                        int const& nwrwue,
                        hlt::HLTState const& state,
-                       PathContext const* pathContext) :
-        a_(a), nwrwue_(nwrwue), state_(state), pathContext_(pathContext) {
-        if (a_) T::prePathSignal(a_, pathContext_);
+                       PathContext const* pathContext)
+          : a_(a), nwrwue_(nwrwue), state_(state), pathContext_(pathContext) {
+        if (a_)
+          T::prePathSignal(a_, pathContext_);
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-        if(a_) T::postPathSignal(a_, status, pathContext_);
+        if (a_)
+          T::postPathSignal(a_, status, pathContext_);
       }
+
     private:
-      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
+      ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
       int const& nwrwue_;
       hlt::HLTState const& state_;
       PathContext const* pathContext_;
     };
-  }
+  }  // namespace
 
   template <typename T>
   void Path::runAllModulesAsync(WaitingTask* task,
                                 typename T::MyPrincipal const& p,
-                                EventSetupImpl  const& es,
+                                EventSetupImpl const& es,
                                 ServiceToken const& token,
                                 StreamID const& streamID,
                                 typename T::Context const* context) {
-    for(auto& worker: workers_) {
-      worker.runWorkerAsync<T>(task,p,es,token,streamID,context);
+    for (auto& worker : workers_) {
+      worker.runWorkerAsync<T>(task, p, es, token, streamID, context);
     }
   }
 
-}
+}  // namespace edm
 
 #endif

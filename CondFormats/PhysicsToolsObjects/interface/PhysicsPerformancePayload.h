@@ -10,30 +10,26 @@
 
 #include <vector>
 
-class PhysicsPerformancePayload
-{
- public:
-  PhysicsPerformancePayload(){}
+class PhysicsPerformancePayload {
+public:
+  PhysicsPerformancePayload() {}
   PhysicsPerformancePayload(int stride, const std::vector<float>& table);
-  int stride(){return stride_;}
+  int stride() { return stride_; }
 
   typedef std::vector<float> Row;
-  
-  Row getRow(int n) const;
-  int nRows() const ;
-  
-  std::vector<float> payload() const {return table_;}
 
+  Row getRow(int n) const;
+  int nRows() const;
+
+  std::vector<float> payload() const { return table_; }
 
   virtual ~PhysicsPerformancePayload() {}
 
-  
- protected:
+protected:
   int stride_;
   std::vector<float> table_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
-

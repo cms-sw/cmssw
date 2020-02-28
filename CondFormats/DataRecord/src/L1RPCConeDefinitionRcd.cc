@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats
 // Class  :     L1RPCConeDefinitionRcd.cc
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

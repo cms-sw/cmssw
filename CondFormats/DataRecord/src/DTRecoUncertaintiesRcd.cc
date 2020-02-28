@@ -2,11 +2,11 @@
 //
 // Package:     CondFormats
 // Class  :     DTRecoUncertaintiesRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Author:      
+// Author:
 // Created:     Wed Feb 23 11:26:01 CET 2011
 // $Id: DTRecoUncertaintiesRcd.cc,v 1.1 2011/02/25 14:20:28 cerminar Exp $
 

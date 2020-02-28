@@ -3,22 +3,13 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDRoot::DDRoot()
-{ }
+DDRoot::DDRoot() {}
 
-DDRoot::~DDRoot()
-{ }
+DDRoot::~DDRoot() {}
 
-void DDRoot::set(const DDName & name)
-{
-   root_ = DDLogicalPart(name);
-}
+void DDRoot::set(const DDName& name) { root_ = DDLogicalPart(name); }
 
-void
-DDRoot::set(const DDLogicalPart & root)
-{
-   root_ = root;
-}
+void DDRoot::set(const DDLogicalPart& root) { root_ = root; }
 
 /**
   To find out, whether the root was already defined or not:
@@ -31,5 +22,5 @@ DDRoot::set(const DDLogicalPart & root)
       // do something else
     }      
    \endcode 
-*/ 
-DDLogicalPart DDRoot::root() const { return root_; } 
+*/
+DDLogicalPart DDRoot::root() const { return root_; }

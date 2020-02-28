@@ -4,9 +4,9 @@
 <use name="Fireworks/Candidates"/>
 <use name="Fireworks/Core"/>
 <use name="Fireworks/Tracks"/>
-<lib name="Eve"/>
-<lib name="Geom"/>
-<lib name="GeomPainter"/>
+<use name="rooteve"/>
+<use name="rootgeom"/>
+<use name="rootgeompainter"/>
 <export>
   <lib name="1"/>
 </export>

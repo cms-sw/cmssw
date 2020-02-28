@@ -22,44 +22,45 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include <memory>
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonTrackFinder;
 class MuonServiceProxy;
 
 class L3MuonProducer : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   /// constructor with config
   L3MuonProducer(const edm::ParameterSet&);
-  
+
   /// destructor
-  ~L3MuonProducer() override; 
-  
+  ~L3MuonProducer() override;
+
   /// reconstruct muons
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
- private:
-    
+
+private:
   /// Seed STA Label
   edm::InputTag theL2CollectionLabel;
-  
+
   /// Label for L2SeededTracks
-  std::string theL2SeededTkLabel; 
+  std::string theL2SeededTkLabel;
 
   edm::EDGetTokenT<reco::TrackCollection> l2MuonToken_;
   edm::EDGetTokenT<std::vector<Trajectory> > l2MuonTrajToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> l2AssoMapToken_;
   edm::EDGetTokenT<reco::TrackToTrackMap> updatedL2AssoMapToken_;
 
-  MuonTrackFinder* theTrackFinder;
-    
+  std::unique_ptr<MuonTrackFinder> theTrackFinder;
+
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy *theService;
-    
+  std::unique_ptr<MuonServiceProxy> theService;
 };
 
 #endif

@@ -28,14 +28,12 @@ public:
   // Operations
 
   void beginJob() override {}
-  void beginRun( const edm::Run& run, const edm::EventSetup& setup ) override;
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) override{}
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
   void endJob() override;
 
 protected:
-
 private:
-
   const DTT0* t0Map_;
   edm::ESHandle<DTGeometry> muonGeom_;
 

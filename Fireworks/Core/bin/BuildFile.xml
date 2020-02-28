@@ -2,7 +2,7 @@
  <use name="FWCore/MessageLogger"/>
  <use name="Fireworks/Core"/>
  <use name="rootinteractive"/>
- <lib name="Eve"/>
+ <use name="rooteve"/>
 </bin>
 <bin name="cmsShowSendReport" file="cmsShowSendReport.cc">
  <use name="zlib"/>

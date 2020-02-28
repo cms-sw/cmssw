@@ -14,9 +14,7 @@
 
 namespace emtf {
 
-struct Event
-{
-
+  struct Event {
     double trueValue;
     double predictedValue;
     double DTPt;
@@ -30,27 +28,21 @@ struct Event
     int id;
     std::vector<double> data;
 
-    bool operator< (const Event &rhs) const
-    {
-        return data[sortingIndex] < rhs.data[sortingIndex];
+    bool operator<(const Event &rhs) const { return data[sortingIndex] < rhs.data[sortingIndex]; }
+
+    void outputEvent() {
+      std::cout << "trueValue = " << trueValue << std::endl;
+      std::cout << "predictedValue = " << predictedValue << std::endl;
+      std::cout << "id = " << id << std::endl;
+      for (unsigned int i = 0; i < data.size(); i++) {
+        std::cout << "x" << i << "=" << data[i] << ", ";
+      }
+      std::cout << std::endl;
     }
 
-    void outputEvent()
-    {
-        std::cout << "trueValue = " << trueValue << std::endl;
-        std::cout << "predictedValue = " << predictedValue << std::endl;
-        std::cout << "id = " << id << std::endl;
-        for(unsigned int i=0; i<data.size(); i++)
-        {
-            std::cout << "x"<< i << "=" << data[i] << ", ";
-        }
-        std::cout << std::endl;
+    void resetPredictedValue() { predictedValue = 0; }
+  };
 
-    }
-
-    void resetPredictedValue(){ predictedValue = 0; }
-};
-
-} // end of emtf namespace
+}  // namespace emtf
 
 #endif

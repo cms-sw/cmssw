@@ -5,7 +5,6 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/TauReco"/>
-<use   name="DataFormats/Math"/>
 <use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="RecoParticleFlow/PFTracking"/>

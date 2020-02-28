@@ -6,19 +6,18 @@
 #include <unordered_map>
 
 class PassThruSeedFinder : public SeedFinderBase {
- public:
+public:
   PassThruSeedFinder(const edm::ParameterSet& conf);
   PassThruSeedFinder(const PassThruSeedFinder&) = delete;
   PassThruSeedFinder& operator=(const PassThruSeedFinder&) = delete;
 
-  void findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
-		  const std::vector<bool>& mask,
-		  std::vector<bool>& seedable ) override;
+  void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
+                 const std::vector<bool>& mask,
+                 std::vector<bool>& seedable) override;
 
- private:  
+private:
 };
 
-DEFINE_EDM_PLUGIN(SeedFinderFactory,
-		  PassThruSeedFinder,"PassThruSeedFinder");
+DEFINE_EDM_PLUGIN(SeedFinderFactory, PassThruSeedFinder, "PassThruSeedFinder");
 
 #endif

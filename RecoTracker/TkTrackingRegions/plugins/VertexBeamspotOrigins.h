@@ -14,11 +14,11 @@
 
 class VertexBeamspotOrigins {
 public:
+  using Origins = std::vector<std::pair<GlobalPoint, float> >;  // (origin, half-length in z)
+  enum class OperationMode { BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA };
 
-  using Origins = std::vector< std::pair< GlobalPoint, float > >; // (origin, half-length in z)
-  enum class OperationMode {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA};
-
-  VertexBeamspotOrigins(const edm::ParameterSet& regPSet, edm::ConsumesCollector&& iC): VertexBeamspotOrigins(regPSet, iC) {}
+  VertexBeamspotOrigins(const edm::ParameterSet& regPSet, edm::ConsumesCollector&& iC)
+      : VertexBeamspotOrigins(regPSet, iC) {}
   VertexBeamspotOrigins(const edm::ParameterSet& regPSet, edm::ConsumesCollector& iC);
   ~VertexBeamspotOrigins() = default;
 
@@ -42,6 +42,5 @@ private:
   float m_nSigmaZVertex;
   float m_zErrorVertex;
 };
-
 
 #endif

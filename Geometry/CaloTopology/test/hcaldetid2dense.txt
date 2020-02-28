@@ -1,0 +1,91 @@
+      HB   -10    14      4
+      HB    -9    14      4
+      HB   -12    14      4
+      HB   -11    14      4
+      HB     4    11      1
+      HB     3    11      1
+      HB     2    11      1
+      HB     1    11      1
+      HB     7    14      1
+      HB     6    14      3
+      HB     5    14      3
+      HB     8    14      3
+      HE   -29    13      1
+      HE   -18    14      2
+      HE   -17    14      2
+      HE   -24    15      3
+      HE   -26    15      2
+      HE    29    11      1
+      HE    28    11      1
+      HE    18    11      2
+      HE    26    11      7
+      HE    28    11      6
+      HE    18    11      3
+      HE    28    11      4
+      HF   -34     5      1
+      HF   -34     5      4
+      HF   -32     5      1
+      HF   -32     5      4
+      HF   -30     5      1
+      HF   -30     5      4
+      HF    38     5      3
+      HF    36     5      3
+      HF    39     5      2
+      HF    39     5      3
+      HF    37     5      2
+      HF    37     5      3
+      HO    15     4      4
+      HO    14     4      4
+      HO    12     2      4
+      HO    11     3      4
+      HO    10    71      4
+      HO     9    72      4
+      HO     4    71      4
+      HO   -15     3      4
+      HO    -2     6      4
+      HO     1     5      4
+      HO   -10    11      4
+      HO    -9    12      4
+CALIB_HB    -1    11      0
+CALIB_HB    -1    11      1
+CALIB_HB     1    15      2
+CALIB_HB    -1    19      0
+CALIB_HB     1     7      1
+CALIB_HB     1     7      2
+CALIB_HE    -1    11      6
+CALIB_HE    -1    15      0
+CALIB_HE     1    15      1
+CALIB_HE    -1     7      3
+CALIB_HE     1    27      5
+CALIB_HE     1    27      6
+CALIB_HO     0    47      0
+CALIB_HO     1    47      1
+CALIB_HO     1    47      7
+CALIB_HO    -2    59      1
+CALIB_HO     2    71      0
+CALIB_HO    -1    11      1
+CALIB_HF     1    55      1
+CALIB_HF     1     1      0
+CALIB_HF    -1     1      8
+CALIB_HF    -1     1      1
+CALIB_HF    -1    19      8
+CALIB_HF    -1    19      0
+     HOX     4    71   -999
+     HOX   -15     4   -999
+     HOX   -15     3   -999
+     HOX    -4    19   -999
+     HOX    -4    17   -999
+     HOX    15    51   -999
+     HBX   -16    16   -999
+     HBX   -16    15   -999
+     HBX    16    11   -999
+     HBX    16    12   -999
+     HBX    16    34   -999
+     HBX   -16    70   -999
+     HEX    27    13   -999
+     HEX    25    15   -999
+     HEX    27    15   -999
+     HEX    25    17   -999
+     HEX    27    17   -999
+     HEX   -25    21   -999
+

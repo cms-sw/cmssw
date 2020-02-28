@@ -5,10 +5,9 @@
 #include "FWCore/Utilities/interface/getAnyPtr.h"
 
 namespace edm {
-  inline
-  std::unique_ptr<WrapperBase> getWrapperBasePtr(void* p, int offset) {
+  inline std::unique_ptr<WrapperBase> getWrapperBasePtr(void* p, int offset) {
     return getAnyPtr<WrapperBase>(p, offset);
   }
-}
+}  // namespace edm
 
 #endif

@@ -16,22 +16,18 @@ class MuRingForwardDoubleLayer;
 class MuDetRing;
 
 class MuonCSCDetLayerGeometryBuilder {
- public:
-
+public:
   /// return.first=forward (+Z), return.second=backward (-Z)
   /// both vectors are sorted inside-out
   static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildLayers(const CSCGeometry& geo);
- private:
+
+private:
   // Disable constructor - only static access is allowed.
-  MuonCSCDetLayerGeometryBuilder(){}
+  MuonCSCDetLayerGeometryBuilder() {}
 
-  static MuRingForwardDoubleLayer* buildLayer(int endcap,
-					int station,
-					std::vector<int>& rings,
-					const CSCGeometry& geo);
+  static MuRingForwardDoubleLayer* buildLayer(int endcap, int station, std::vector<int>& rings, const CSCGeometry& geo);
 
-  static MuDetRing * makeDetRing(std::vector<const GeomDet*> & geomDets);
+  static MuDetRing* makeDetRing(std::vector<const GeomDet*>& geomDets);
   static bool isFront(int station, int ring, int chamber);
 };
 #endif
-

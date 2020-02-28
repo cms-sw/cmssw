@@ -5,21 +5,14 @@
 #include "globals.hh"
 
 class CMSThermalNeutrons : public G4VHadronPhysics {
-
-public: 
+public:
   CMSThermalNeutrons(G4int ver);
   ~CMSThermalNeutrons() override;
 
   void ConstructProcess() override;
 
 private:
-  G4int               verbose;
+  G4int verbose;
 };
 
 #endif
-
-
-
-
-
-

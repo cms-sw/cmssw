@@ -15,7 +15,7 @@
 
 class OpticalAlignInfo;
 
-std::ostream & operator<<(std::ostream &, const OpticalAlignInfo &);
+std::ostream &operator<<(std::ostream &, const OpticalAlignInfo &);
 
 /**
    easy output...
@@ -23,8 +23,7 @@ std::ostream & operator<<(std::ostream &, const OpticalAlignInfo &);
 
 class OpticalAlignParam;
 
-std::ostream & operator<<(std::ostream &, const OpticalAlignParam &);
-
+std::ostream &operator<<(std::ostream &, const OpticalAlignParam &);
 
 /** a Class holding data for each parameter, the value, error and whether
     it is an unknown, calibrated or fixed parameter.
@@ -33,9 +32,9 @@ std::ostream & operator<<(std::ostream &, const OpticalAlignParam &);
     Date:    Dec. 19, 2005
  **/
 class OpticalAlignParam {
- public:
+public:
   OpticalAlignParam();
-  OpticalAlignParam( const OpticalAlignParam &rhs );
+  OpticalAlignParam(const OpticalAlignParam &rhs);
 
   std::string name() const { return name_; }
   double value() const { return value_; }
@@ -43,21 +42,21 @@ class OpticalAlignParam {
   int quality() const { return quality_; }
   std::string dimType() const { return dim_type_; }
 
- public:
+public:
   double value_;
   double error_;
-  int quality_; // f = fixed, c = calibrated, u = unknown.
+  int quality_;  // f = fixed, c = calibrated, u = unknown.
   std::string name_;
   std::string dim_type_;
 
   void clear() {
     value_ = 0.0;
     error_ = 0.0;
-    quality_ = int( oa_unknown );
+    quality_ = int(oa_unknown);
     name_.clear();
   }
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 // a Class holding data for an Optical Alignment transformation
@@ -69,8 +68,8 @@ class OpticalAlignParam {
     has a position in space and possible other parameters such as
     
  **/
-class  OpticalAlignInfo {
- public:  
+class OpticalAlignInfo {
+public:
   /*
   OpticalAlignParam x() const { return x_; }
   OpticalAlignParam y() const { return y_; }
@@ -84,9 +83,9 @@ class  OpticalAlignInfo {
   std::string parentName() const { return parentObjectName_; }
   unsigned int ID() const { return ID_; }
   */
-  OpticalAlignParam* findExtraEntry( std::string& name );
+  OpticalAlignParam *findExtraEntry(std::string &name);
 
- public:
+public:
   OpticalAlignParam x_, y_, z_, angx_, angy_, angz_;
   std::vector<OpticalAlignParam> extraEntries_;
   std::string type_;
@@ -105,9 +104,8 @@ class  OpticalAlignInfo {
     ID_ = 0;
   }
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-
 
 /**
     Author:  Michael Case
@@ -126,4 +124,4 @@ class  OpticalAlignInfo {
 /*   OpticalAlignParam rightCCDtoDowel2X_, rightCCDtoDowel2Y_; */
 /* }; */
 
-#endif //OpticalAlignInfo_H
+#endif  //OpticalAlignInfo_H

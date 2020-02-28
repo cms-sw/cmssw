@@ -1,5 +1,5 @@
 from __future__ import print_function
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 from FWCore.ParameterSet.Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
 from FWCore.ParameterSet.SequenceTypes import *
@@ -592,6 +592,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource),
                                     process, task)
+            if btagInfo == 'pixelClusterTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
+                                    process, task)
 
             if 'DeepFlavourTagInfos' in btagInfo:
                 svUsed = svSource
@@ -634,27 +638,15 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             if btagInfo == 'pfDeepBoostedJetTagInfos':
                 if pfCandidates.value() == 'packedPFCandidates':
                     # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
-                    jetSrcName = jetSource.value().lower()
-                    if 'updated' in jetSrcName:
-                        puppi_value_map = ""
-                        vertex_associator = ""
-                        if 'withpuppidaughter' in jetSrcName:
-                            # special case for Puppi jets reclustered from MiniAOD by analyzers
-                            # need to specify 'WithPuppiDaughters' in the postfix when calling updateJetCollection
-                            # daughters of these jets are already scaled by their puppi weights
-                            has_puppi_weighted_daughters = True
-                        else:
-                            # default case for updating jet collection stored in MiniAOD, e.g., slimmedJetsAK8
-                            # daughters are links to the original PackedCandidates, so NOT scaled by their puppi weights yet
-                            has_puppi_weighted_daughters = False
-                    else:
+                    if 'updated' not in jetSource.value().lower():
                         raise ValueError("Invalid jet collection: %s. pfDeepBoostedJetTagInfos only supports running via updateJetCollection." % jetSource.value())
+                    puppi_value_map = ""
+                    vertex_associator = ""
                 elif pfCandidates.value() == 'particleFlow':
                     raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
                     # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
                     # daughters are the particles used in jet clustering, so already scaled by their puppi weights
                     # Uncomment the lines below after running pfDeepBoostedJetTagInfos with reco::PFCandidates becomes supported
-#                     has_puppi_weighted_daughters = True
 #                     puppi_value_map = "puppi"
 #                     vertex_associator = "primaryVertexAssociation:original"
                 else:
@@ -664,7 +656,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       jets = jetSource,
                                       vertices = pvSource,
                                       secondary_vertices = svSource,
-                                      has_puppi_weighted_daughters = has_puppi_weighted_daughters,
+                                      pf_candidates = pfCandidates,
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
                                       ),
@@ -868,7 +860,7 @@ class AddJetCollection(ConfigToolBase):
         and \'type-2\' are not case sensitive.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging, in most cases just the labels of the btag discriminators that \
         you are interested in is all relevant information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. \
-        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(list(set().union(supportedBtagDiscr.keys(),supportedMetaDiscr.keys()))),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects contain all relevant information from which all discriminators of a certain \
         type have been calculated. You might be interested in keeping this information for low level tests or to re-calculate some discriminators from hand. Note that this information \
         on the one hand can be very space consuming and that it is not necessary to access the pre-calculated btag discriminator information that has been derived from it. Only in very \
@@ -1274,7 +1266,7 @@ class SwitchJetCollection(ConfigToolBase):
         applied. If you are not interested in MET(Type1) corrections to this new patJet collection pass None as third argument of the python tuple.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging in general the btag discriminators is all relevant \
         information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. If this list is empty no btag \
-        discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        discriminator information will be added to your new patJet collection.", allowedValues=(list(set().union(supportedBtagDiscr.keys(),supportedMetaDiscr.keys()))),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects conatin all relevant information from which all discriminators of a certain \
         type have been calculated. Note that this information on the one hand can be very space consuming and on the other hand is not necessary to access the btag discriminator \
         information that has been derived from it. Only in very special cases the btagInfos might really be needed in your analysis. Add here all btagInfos, that you are interested \
@@ -1487,7 +1479,7 @@ class UpdateJetCollection(ConfigToolBase):
         and \'type-2\' are not case sensitive.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging, in most cases just the labels of the btag discriminators that \
         you are interested in is all relevant information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. \
-        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(list(set().union(supportedBtagDiscr.keys(),supportedMetaDiscr.keys()))),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects contain all relevant information from which all discriminators of a certain \
         type have been calculated. You might be interested in keeping this information for low level tests or to re-calculate some discriminators from hand. Note that this information \
         on the one hand can be very space consuming and that it is not necessary to access the pre-calculated btag discriminator information that has been derived from it. Only in very \

@@ -13,22 +13,17 @@
 // user include files
 #include "DataFormats/FWLite/interface/RunHistoryGetter.h"
 
-
 namespace fwlite {
 
-    //
-    // constructors and destructor
-    //
-    RunHistoryGetter::RunHistoryGetter(const Run* run) {
-        run_ = run;
-    }
+  //
+  // constructors and destructor
+  //
+  RunHistoryGetter::RunHistoryGetter(const Run* run) { run_ = run; }
 
-    RunHistoryGetter::~RunHistoryGetter() {}
+  RunHistoryGetter::~RunHistoryGetter() {}
 
-    //
-    // const member functions
-    //
-    const edm::ProcessHistory& RunHistoryGetter::history() const {
-        return run_->history();
-    }
-}
+  //
+  // const member functions
+  //
+  const edm::ProcessHistory& RunHistoryGetter::history() const { return run_->history(); }
+}  // namespace fwlite

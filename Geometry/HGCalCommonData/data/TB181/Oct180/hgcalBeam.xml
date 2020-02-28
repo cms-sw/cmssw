@@ -1,0 +1,311 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalBeam.xml" eval="true">
+  <Constant name="dxBy2BeamPipe" value="100.0*cm"/>
+  <Constant name="dyBy2BeamPipe" value="100.0*cm"/>
+  <Constant name="dzBy2BeamPipe" value="16.5*m"/>
+  <Constant name="zBeamPipe"     value="([cms:zCaloFront]-[dzBy2BeamPipe])"/>
+  <Constant name="zFrontHGCal"   value="606.332*m"/>
+  <Constant name="zFrontScint1"  value="578.900*m"/>
+  <Constant name="zFrontScint2"  value="605.282*m"/>
+  <Constant name="zFrontScint3"  value="605.782*m"/>
+  <Constant name="dxBy2Scint"    value="10.0*cm"/>
+  <Constant name="dzBy2ScintB1"  value="5.5*mm"/>
+  <Constant name="dzBy2Scint1"   value="5.0*mm"/>
+  <Constant name="dzBy2ScintB2"  value="15.0*mm"/>
+  <Constant name="dzBy2ScintM2"  value="13.0*mm"/>
+  <Constant name="dzBy2Scint2"   value="10.0*mm"/>
+  <Constant name="zScint1"       value="([dzBy2BeamPipe]+[zFrontScint1]+
+                                         [dzBy2ScintB1]-[zFrontHGCal])"/>
+  <Constant name="zScint2"       value="([dzBy2BeamPipe]+[zFrontScint2]+
+                                         [dzBy2ScintB2]-[zFrontHGCal])"/>
+  <Constant name="zScint3"       value="([dzBy2BeamPipe]+[zFrontScint3]+
+                                         [dzBy2ScintB2]-[zFrontHGCal])"/>
+  <Constant name="zFrontTube1"   value="574.028*m"/>
+  <Constant name="zFrontPE1"     value="576.513*m"/>
+  <Constant name="zFrontTube2"   value="579.205*m"/>
+  <Constant name="zFrontPE2"     value="593.382*m"/>
+  <Constant name="zFrontTube3"   value="598.836*m"/>
+  <Constant name="zFrontPE3"     value="604.438*m"/>
+  <Constant name="dzBy2PETape"   value="0.05*mm"/>
+  <Constant name="dzBy2Mylar"    value="0.06*mm"/>
+  <Constant name="rBeamTube"     value="25.0*cm"/>
+  <Constant name="dzBy2Tube1"    value="0.5*([zFrontPE1]+2*[dzBy2PETape]-
+					[zFrontTube1])"/>
+  <Constant name="dzBy2Tube2"    value="0.5*([zFrontPE2]+2*[dzBy2PETape]-
+					[zFrontTube2])"/>
+  <Constant name="dzBy2Tube3"    value="0.5*([zFrontPE3]+2*[dzBy2PETape]-
+					[zFrontTube3])"/>
+  <Constant name="dzBy2Mylar1"   value="([dzBy2Tube1]-2*[dzBy2PETape])"/>
+  <Constant name="dzBy2Mylar2"   value="([dzBy2Tube2]-2*[dzBy2PETape])"/>
+  <Constant name="dzBy2Mylar3"   value="([dzBy2Tube3]-2*[dzBy2PETape])"/>
+  <Constant name="dzBy2Vacuum1"  value="([dzBy2Mylar1]-2*[dzBy2Mylar])"/>
+  <Constant name="dzBy2Vacuum2"  value="([dzBy2Mylar2]-2*[dzBy2Mylar])"/>
+  <Constant name="dzBy2Vacuum3"  value="([dzBy2Mylar3]-2*[dzBy2Mylar])"/>
+  <Constant name="zTube1"        value="([dzBy2BeamPipe]+[zFrontTube1]+
+                                         [dzBy2Tube1]-[zFrontHGCal])"/>
+  <Constant name="zTube2"        value="([dzBy2BeamPipe]+[zFrontTube2]+
+                                         [dzBy2Tube2]-[zFrontHGCal])"/>
+  <Constant name="zTube3"        value="([dzBy2BeamPipe]+[zFrontTube3]+
+                                         [dzBy2Tube3]-[zFrontHGCal])"/>
+  <Constant name="dxBy2Chamber"  value="11.0*cm"/>
+  <Constant name="dzBy2Chamber"  value="30.0*mm"/>
+  <Constant name="dzBy2Gas"      value="27.5*mm"/>
+  <Constant name="dzBy2Be"       value="(0.0015*mm+[dzBy2Gas])"/>
+  <Constant name="dzBy2Kapton"   value="(0.1*mm+[dzBy2Be])"/>
+  <Constant name="zFrontChamb1"  value="573.572*m"/>
+  <Constant name="zFrontChamb2"  value="576.977*m"/>
+  <Constant name="zFrontChamb3"  value="598.610*m"/>
+  <Constant name="zChamber1"     value="([dzBy2BeamPipe]+[zFrontChamb1]+
+                                         [dzBy2Chamber]-[zFrontHGCal])"/>
+  <Constant name="zChamber2"     value="([dzBy2BeamPipe]+[zFrontChamb2]+
+                                         [dzBy2Chamber]-[zFrontHGCal])"/>
+  <Constant name="zChamber3"     value="([dzBy2BeamPipe]+[zFrontChamb3]+
+                                         [dzBy2Chamber]-[zFrontHGCal])"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalBeam.xml">
+  <Box name="HGCalBeam" dx="[dxBy2BeamPipe]" dy="[dyBy2BeamPipe]" dz="[dzBy2BeamPipe]"/>
+  <Box name="HGCalBeamAl1" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2ScintB1]"/>
+  <Box name="HGCalBeamS1" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2Scint1]"/>
+  <Box name="HGCalBeamAl2" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2ScintB2]"/>
+  <Box name="HGCalBeamMy2" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2ScintM2]"/>
+  <Box name="HGCalBeamS2" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2Scint2]"/>
+  <Tubs name="HGCalBeamTube1" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Tube1]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HGCalBeamMylar1" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Mylar1]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HGCalBeamVacuum1" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Vacuum1]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HGCalBeamTube2" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Tube2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HGCalBeamMylar2" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Mylar2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HGCalBeamVacuum2" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Vacuum2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HGCalBeamTube3" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Tube3]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HGCalBeamMylar3" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Mylar3]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HGCalBeamVacuum3" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Vacuum3]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Box name="HGCalBeamWChamb" dx="[dxBy2Chamber]" dy="[dxBy2Chamber]" dz="[dzBy2Chamber]"/>
+  <Box name="HGCalBeamWChambKap" dx="[dxBy2Chamber]" dy="[dxBy2Chamber]" dz="[dzBy2Kapton]"/>
+  <Box name="HGCalBeamWChambBe" dx="[dxBy2Chamber]" dy="[dxBy2Chamber]" dz="[dzBy2Be]"/>
+  <Box name="HGCalBeamWChambGas" dx="[dxBy2Chamber]" dy="[dxBy2Chamber]" dz="[dzBy2Gas]"/>
+</SolidSection>
+
+<LogicalPartSection label="hgcalBeam.xml">
+  <LogicalPart name="HGCalBeam" category="unspecified">
+    <rSolid name="HGCalBeam"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamWChamb" category="unspecified">
+    <rSolid name="HGCalBeamWChamb"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamWChambKap" category="unspecified">
+    <rSolid name="HGCalBeamWChambKap"/>
+    <rMaterial name="materials:Kapton"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamWChambBe" category="unspecified">
+    <rSolid name="HGCalBeamWChambBe"/>
+    <rMaterial name="materials:Beryllium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamWChambGas" category="unspecified">
+    <rSolid name="HGCalBeamWChambGas"/>
+    <rMaterial name="materials:80pct Argon plus 20pct CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamAl1" category="unspecified">
+    <rSolid name="HGCalBeamAl1"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamS1" category="unspecified">
+    <rSolid name="HGCalBeamS1"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamAl2" category="unspecified">
+    <rSolid name="HGCalBeamAl2"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamMy2" category="unspecified">
+    <rSolid name="HGCalBeamMy2"/>
+    <rMaterial name="materials:Mylar"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamS2" category="unspecified">
+    <rSolid name="HGCalBeamS2"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamAl3" category="unspecified">
+    <rSolid name="HGCalBeamAl2"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamMy3" category="unspecified">
+    <rSolid name="HGCalBeamMy2"/>
+    <rMaterial name="materials:Mylar"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamS3" category="unspecified">
+    <rSolid name="HGCalBeamS2"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamTube1" category="unspecified">
+    <rSolid name="HGCalBeamTube1"/>
+    <rMaterial name="materials:Polyethylene"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamMylar1" category="unspecified">
+    <rSolid name="HGCalBeamMylar1"/>
+    <rMaterial name="materials:Mylar"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamVacuum1" category="unspecified">
+    <rSolid name="HGCalBeamVacuum1"/>
+    <rMaterial name="materials:Vacuum"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamTube2" category="unspecified">
+    <rSolid name="HGCalBeamTube2"/>
+    <rMaterial name="materials:Polyethylene"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamMylar2" category="unspecified">
+    <rSolid name="HGCalBeamMylar2"/>
+    <rMaterial name="materials:Mylar"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamVacuum2" category="unspecified">
+    <rSolid name="HGCalBeamVacuum2"/>
+    <rMaterial name="materials:Vacuum"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamTube3" category="unspecified">
+    <rSolid name="HGCalBeamTube3"/>
+    <rMaterial name="materials:Polyethylene"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamMylar3" category="unspecified">
+    <rSolid name="HGCalBeamMylar3"/>
+    <rMaterial name="materials:Mylar"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamVacuum3" category="unspecified">
+    <rSolid name="HGCalBeamVacuum3"/>
+    <rMaterial name="materials:Vacuum"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalBeam.xml">
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeamWChamb"/>
+    <rChild name="hgcalBeam:HGCalBeamWChambKap"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeamWChambKap"/>
+    <rChild name="hgcalBeam:HGCalBeamWChambBe"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeamWChambBe"/>
+    <rChild name="hgcalBeam:HGCalBeamWChambGas"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChamb"/>
+    <Translation x="0*fm" y="0*fm" z="[zChamber1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChamb"/>
+    <Translation x="0*fm" y="0*fm" z="[zChamber2]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChamb"/>
+    <Translation x="0*fm" y="0*fm" z="[zChamber3]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeamAl1"/>
+    <rChild name="hgcalBeam:HGCalBeamS1"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamAl1"/>
+    <Translation x="0*fm" y="0*fm" z="[zScint1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeamAl2"/>
+    <rChild name="hgcalBeam:HGCalBeamMy2"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeamMy2"/>
+    <rChild name="hgcalBeam:HGCalBeamS2"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamAl2"/>
+    <Translation x="0*fm" y="0*fm" z="[zScint2]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeamAl3"/>
+    <rChild name="hgcalBeam:HGCalBeamMy3"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeamMy3"/>
+    <rChild name="hgcalBeam:HGCalBeamS3"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamAl3"/>
+    <Translation x="0*fm" y="0*fm" z="[zScint3]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeamTube1"/>
+    <rChild name="hgcalBeam:HGCalBeamMylar1"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeamMylar1"/>
+    <rChild name="hgcalBeam:HGCalBeamVacuum1"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamTube1"/>
+    <Translation x="0*fm" y="0*fm" z="[zTube1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeamTube2"/>
+    <rChild name="hgcalBeam:HGCalBeamMylar2"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeamMylar2"/>
+    <rChild name="hgcalBeam:HGCalBeamVacuum2"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamTube2"/>
+    <Translation x="0*fm" y="0*fm" z="[zTube2]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeamTube3"/>
+    <rChild name="hgcalBeam:HGCalBeamMylar3"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeamMylar3"/>
+    <rChild name="hgcalBeam:HGCalBeamVacuum3"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamTube3"/>
+    <Translation x="0*fm" y="0*fm" z="[zTube3]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalBeam:HGCalBeam"/>
+    <Translation x="0*fm" y="0*fm" z="[zBeamPipe]"/>
+  </PosPart>
+</PosPartSection>
+
+<SpecParSection label="hgcalBeam.xml" eval="true">
+  <SpecPar name="hgcalbeam">
+    <PartSelector path="//HGCalBeamS.*"/>
+    <PartSelector path="//HGCalBeamWChambGas"/>
+    <Parameter name="SensitiveDetector" value="HcalTB06BeamDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalTB06BeamHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgcalbeamWC">
+    <PartSelector path="//HGCalBeamWChambGas"/>
+    <Parameter name="Volume" value="WireChamber" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgcProdCutsBeam">
+    <PartSelector path="//HGCalBeam"/>
+    <Parameter name="CMSCutsRegion" value="HGCalBeamRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForProtons"   value="1.0*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForGamma"     value="1.0*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

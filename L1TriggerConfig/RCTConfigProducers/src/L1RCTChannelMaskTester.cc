@@ -39,35 +39,31 @@
 // class declaration
 //
 
-class L1RCTChannelMaskTester: public edm::EDAnalyzer {
+class L1RCTChannelMaskTester : public edm::EDAnalyzer {
 public:
-    explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {
-    }
-    ~L1RCTChannelMaskTester() override {
-    }
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-
+  explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {}
+  ~L1RCTChannelMaskTester() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
-void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup) {
+void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  //
+  edm::ESHandle<L1RCTChannelMask> rctChanMask;
+  evSetup.get<L1RCTChannelMaskRcd>().get(rctChanMask);
 
-    //
-    edm::ESHandle<L1RCTChannelMask> rctChanMask;
-    evSetup.get<L1RCTChannelMaskRcd>().get(rctChanMask);
+  rctChanMask->print(std::cout);
 
-    rctChanMask->print(std::cout);
+  if (auto maskRecord = evSetup.tryToGet<L1RCTNoisyChannelMaskRcd>()) {
+    edm::ESHandle<L1RCTNoisyChannelMask> rctNoisyChanMask;
+    maskRecord->get(rctNoisyChanMask);
 
-    if (auto maskRecord = evSetup.tryToGet<L1RCTNoisyChannelMaskRcd>()) {
-        edm::ESHandle<L1RCTNoisyChannelMask> rctNoisyChanMask;
-        maskRecord->get(rctNoisyChanMask);
-
-        rctNoisyChanMask->print(std::cout);
-    } else {
-        std::cout << "\nRecord \"" << "L1RCTNoisyChannelMaskRcd"
-                  << "\" does not exist.\n" << std::endl;
-    }
-
+    rctNoisyChanMask->print(std::cout);
+  } else {
+    std::cout << "\nRecord \""
+              << "L1RCTNoisyChannelMaskRcd"
+              << "\" does not exist.\n"
+              << std::endl;
+  }
 }
 
-DEFINE_FWK_MODULE( L1RCTChannelMaskTester);
+DEFINE_FWK_MODULE(L1RCTChannelMaskTester);

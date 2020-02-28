@@ -40,7 +40,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -52,68 +51,62 @@
 
 class L1MuGlobalMuonTrigger;
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuGMTMerger {
+public:
+  /// constructor
+  L1MuGMTMerger(const L1MuGlobalMuonTrigger& gmt, int id);
 
-  public:  
+  /// destructor
+  virtual ~L1MuGMTMerger();
 
-    /// constructor
-    L1MuGMTMerger(const L1MuGlobalMuonTrigger& gmt, int id);
+  /// run GMT Merger
+  void run();
 
-    /// destructor
-    virtual ~L1MuGMTMerger();
+  /// clear Merger
+  void reset();
 
-    /// run GMT Merger
-    void run();
-    
-    /// clear Merger
-    void reset();
-        
-    /// print results after selection 
-    void print() const;
-    
-    /// return identifier
-    inline int id() const { return m_id; }
-   
-    /// return std::vector with all muon candidates
-    inline const std::vector<L1MuGMTExtendedCand*>& Cands() const { return m_MuonCands; }
-     
-   private:
+  /// print results after selection
+  void print() const;
 
-    void load();
-    void merge();
+  /// return identifier
+  inline int id() const { return m_id; }
 
-    void createMergedCand(int idx_dtcsc, int idx_rpc);
-    void createDTCSCCand(int idx_dtcsc);
-    void createRPCCand(int idx_rpc);
+  /// return std::vector with all muon candidates
+  inline const std::vector<L1MuGMTExtendedCand*>& Cands() const { return m_MuonCands; }
 
-    int doSpecialMerge(unsigned MMconfig) const;
-    int doANDMerge(unsigned MMconfig) const;
-    int selectDTCSC(unsigned MMconfig, int by_rank, int by_pt, int by_combi) const;
+private:
+  void load();
+  void merge();
 
-    unsigned convertedEta(const L1MuRegionalCand* mu) const;
-    unsigned projectedPhi(const L1MuRegionalCand* mu) const;
-    unsigned sysign(const L1MuRegionalCand* mu) const;
- 
-    /// Merge Rank Table
-    int merge_rank(const L1MuRegionalCand*) const; 
-    
-  private:
+  void createMergedCand(int idx_dtcsc, int idx_rpc);
+  void createDTCSCCand(int idx_dtcsc);
+  void createRPCCand(int idx_rpc);
 
-    const L1MuGlobalMuonTrigger& m_gmt;
-    int m_id;
-    
-    std::vector<const L1MuRegionalCand*> dtcsc_mu; 
-    std::vector<const L1MuRegionalCand*> rpc_mu;
-    
-    std::vector<L1MuGMTExtendedCand*> m_MuonCands; // up to eight
+  int doSpecialMerge(unsigned MMconfig) const;
+  int doANDMerge(unsigned MMconfig) const;
+  int selectDTCSC(unsigned MMconfig, int by_rank, int by_pt, int by_combi) const;
 
-    std::vector<int> singleRank;              //@ 8 bits
+  unsigned convertedEta(const L1MuRegionalCand* mu) const;
+  unsigned projectedPhi(const L1MuRegionalCand* mu) const;
+  unsigned sysign(const L1MuRegionalCand* mu) const;
+
+  /// Merge Rank Table
+  int merge_rank(const L1MuRegionalCand*) const;
+
+private:
+  const L1MuGlobalMuonTrigger& m_gmt;
+  int m_id;
+
+  std::vector<const L1MuRegionalCand*> dtcsc_mu;
+  std::vector<const L1MuRegionalCand*> rpc_mu;
+
+  std::vector<L1MuGMTExtendedCand*> m_MuonCands;  // up to eight
+
+  std::vector<int> singleRank;  //@ 8 bits
 };
-  
+
 #endif

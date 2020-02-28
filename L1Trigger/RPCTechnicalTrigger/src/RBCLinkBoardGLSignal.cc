@@ -1,6 +1,4 @@
-// Include files 
-
-
+// Include files
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
@@ -14,18 +12,10 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RBCLinkBoardGLSignal::RBCLinkBoardGLSignal( std::map< int, RBCInput* >  * in ) {
-  
-  m_linkboardin = in;
-  
-}
+RBCLinkBoardGLSignal::RBCLinkBoardGLSignal(std::map<int, RBCInput*>* in) { m_linkboardin = in; }
 //=============================================================================
 // Destructor
 //=============================================================================
-RBCLinkBoardGLSignal::~RBCLinkBoardGLSignal() {
-
-  m_linkboardin = nullptr;
-    
-} 
+RBCLinkBoardGLSignal::~RBCLinkBoardGLSignal() { m_linkboardin = nullptr; }
 
 //=============================================================================

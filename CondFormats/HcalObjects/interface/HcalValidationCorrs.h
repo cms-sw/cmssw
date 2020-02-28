@@ -14,19 +14,17 @@ POOL object to store HCAL validation corrections
 
 //typedef HcalCondObjectContainer<HcalValidationCorr> HcalValidationCorrs;
 
-class HcalValidationCorrs: public HcalCondObjectContainer<HcalValidationCorr>
-{
- public:
+class HcalValidationCorrs : public HcalCondObjectContainer<HcalValidationCorr> {
+public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalValidationCorrs():HcalCondObjectContainer<HcalValidationCorr>(nullptr) {}
+  HcalValidationCorrs() : HcalCondObjectContainer<HcalValidationCorr>(nullptr) {}
 #endif
-  HcalValidationCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalValidationCorr>(topo) {}
+  HcalValidationCorrs(const HcalTopology* topo) : HcalCondObjectContainer<HcalValidationCorr>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalValidationCorrs";}
+  std::string myname() const override { return (std::string) "HcalValidationCorrs"; }
 
- private:
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 
 #endif

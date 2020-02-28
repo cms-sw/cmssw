@@ -10,23 +10,18 @@
  *
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
-class DTLocalTrigger{
-
+class DTLocalTrigger {
 public:
-
-
   /// Constructor
-  explicit DTLocalTrigger (int eventBx, int bx, int data);
-
+  explicit DTLocalTrigger(int eventBx, int bx, int data);
 
   /// Default construction.
-  DTLocalTrigger ();
+  DTLocalTrigger();
 
   /// triggers are equal if they are in the same chamber and have same BX count (??)
   bool operator==(const DTLocalTrigger& trig) const;
-
 
   uint16_t eventBx() const;
   uint16_t bx() const;
@@ -35,22 +30,17 @@ public:
   bool secondTrack() const;
   bool trOut() const;
 
-
   /// Print content of trigger
   void print() const;
 
-
- private:
-
+private:
   uint16_t theEventBX;
   uint16_t theBX;
   uint16_t theData;
 };
 
-#include<iostream>
-inline std::ostream & operator<<(std::ostream & o, const DTLocalTrigger& trig) {
-  return o << " BX: "      << trig.bx()
-	   << " quality: " << trig.quality();
+#include <iostream>
+inline std::ostream& operator<<(std::ostream& o, const DTLocalTrigger& trig) {
+  return o << " BX: " << trig.bx() << " quality: " << trig.quality();
 }
 #endif
-

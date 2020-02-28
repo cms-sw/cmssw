@@ -5,7 +5,7 @@
  *
  * Cluster of maximal 8 adjacent GEM pad digis
  * with the same BX
- *  
+ *
  * \author Sven Dildick
  *
  */
@@ -14,15 +14,15 @@
 #include <iosfwd>
 #include <vector>
 
-class GEMPadDigiCluster{
-
+class GEMPadDigiCluster {
 public:
-  explicit GEMPadDigiCluster (std::vector<uint16_t> pads, int bx);
-  GEMPadDigiCluster ();
+  explicit GEMPadDigiCluster(std::vector<uint16_t> pads, int bx);
+  GEMPadDigiCluster();
 
   bool operator==(const GEMPadDigiCluster& digi) const;
   bool operator!=(const GEMPadDigiCluster& digi) const;
   bool operator<(const GEMPadDigiCluster& digi) const;
+  bool isValid() const;
 
   const std::vector<uint16_t>& pads() const { return v_; }
   int bx() const { return bx_; }
@@ -31,10 +31,9 @@ public:
 
 private:
   std::vector<uint16_t> v_;
-  int32_t  bx_;
+  int32_t bx_;
 };
 
-std::ostream & operator<<(std::ostream & o, const GEMPadDigiCluster& digi);
+std::ostream& operator<<(std::ostream& o, const GEMPadDigiCluster& digi);
 
 #endif
-

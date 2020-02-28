@@ -27,7 +27,7 @@
 
 #include "CondCore/CondDB/interface/Serialization.h"
 
-REGISTER_PLUGIN(DropBoxMetadataRcd,DropBoxMetadata);
+REGISTER_PLUGIN(DropBoxMetadataRcd, DropBoxMetadata);
 
 REGISTER_PLUGIN(SiStripDeDxMipRcd, PhysicsTools::Calibration::HistogramD2D);
 REGISTER_PLUGIN(SiStripDeDxMip_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
@@ -37,4 +37,3 @@ REGISTER_PLUGIN(SiStripDeDxKaon_3D_Rcd, PhysicsTools::Calibration::HistogramD3D)
 REGISTER_PLUGIN(SiStripDeDxElectron_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
 REGISTER_PLUGIN(PhysicsTFormulaPayloadRcd, PhysicsTFormulaPayload);
 REGISTER_PLUGIN(PhysicsTGraphPayloadRcd, PhysicsTGraphPayload);
-

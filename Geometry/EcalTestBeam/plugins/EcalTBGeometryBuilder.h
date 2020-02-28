@@ -2,7 +2,7 @@
 //
 // Package:    EcalTBGeometryBuilder
 // Class:      EcalTBGeometryBuilder
-// 
+//
 /**\class EcalTBGeometryBuilder EcalTBGeometryBuilder.h tmp/EcalTBGeometryBuilder/interface/EcalTBGeometryBuilder.h
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -25,22 +24,26 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 //
 // class decleration
 //
 
 class EcalTBGeometryBuilder : public edm::ESProducer {
-   public:
+public:
   EcalTBGeometryBuilder(const edm::ParameterSet&);
   ~EcalTBGeometryBuilder() override;
 
   typedef std::unique_ptr<CaloGeometry> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
-private:
-      // ----------member data ---------------------------
-};
 
+private:
+  // ----------member data ---------------------------
+  edm::ESGetToken<CaloSubdetectorGeometry, IdealGeometryRecord> barrelToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, IdealGeometryRecord> hodoscopeToken_;
+};

@@ -12,19 +12,17 @@
 
 namespace edm {
 
-  template<class T, std::size_t N>
-  std::array<T, N>
-  getFixedSizeArray(ParameterSet const& pset, std::string const& name) {
+  template <class T, std::size_t N>
+  std::array<T, N> getFixedSizeArray(ParameterSet const& pset, std::string const& name) {
     std::vector<T> vec = pset.getParameter<std::vector<T>>(name);
     if (vec.size() != N) {
       throw Exception(errors::Configuration)
-        << "The parameter '" << name
-        << "' should have " << N << " elements, but has " << vec.size()
-        << " elements in the configuration.\n";
+          << "The parameter '" << name << "' should have " << N << " elements, but has " << vec.size()
+          << " elements in the configuration.\n";
     }
-    std::array<T, N> a {};
+    std::array<T, N> a{};
     std::copy_n(vec.begin(), N, a.begin());
     return a;
   }
-}
+}  // namespace edm
 #endif

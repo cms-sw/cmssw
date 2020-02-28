@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -28,7 +27,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -69,24 +67,24 @@ using namespace susybsm;
 using namespace edm;
 
 class ProduceIsolationMap : public edm::EDProducer {
-   public:
-      explicit ProduceIsolationMap(const edm::ParameterSet&);
-      ~ProduceIsolationMap() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-   private:
-      edm::EDGetTokenT<reco::TrackCollection> TKToken_;
-      edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken_;
-      double  TKIsolationPtcut_;
-      double  IsolationConeDR_;
-      TrackDetectorAssociator trackAssociator_;
-      TrackAssociatorParameters parameters_;
-      // ----------member data ---------------------------
+public:
+  explicit ProduceIsolationMap(const edm::ParameterSet&);
+  ~ProduceIsolationMap() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::EDGetTokenT<reco::TrackCollection> TKToken_;
+  edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken_;
+  double TKIsolationPtcut_;
+  double IsolationConeDR_;
+  TrackDetectorAssociator trackAssociator_;
+  TrackAssociatorParameters parameters_;
+  // ----------member data ---------------------------
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -95,80 +93,83 @@ class ProduceIsolationMap : public edm::EDProducer {
 //
 // constructors and destructor
 //
-ProduceIsolationMap::ProduceIsolationMap(const edm::ParameterSet& iConfig)
-{
-   TKToken_          = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("TKLabel"));
-   inputCollectionToken_  = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputCollection"));
-   TKIsolationPtcut_ = iConfig.getParameter< double >        ("TkIsolationPtCut");
-   IsolationConeDR_  = iConfig.getParameter< double >        ("IsolationConeDR");
+ProduceIsolationMap::ProduceIsolationMap(const edm::ParameterSet& iConfig) {
+  TKToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TKLabel"));
+  inputCollectionToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputCollection"));
+  TKIsolationPtcut_ = iConfig.getParameter<double>("TkIsolationPtCut");
+  IsolationConeDR_ = iConfig.getParameter<double>("IsolationConeDR");
 
+  // TrackAssociator parameters
+  edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  edm::ConsumesCollector iC = consumesCollector();
+  parameters_.loadParameters(parameters, iC);
+  trackAssociator_.useDefaultPropagator();
 
-   // TrackAssociator parameters
-   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-   edm::ConsumesCollector iC = consumesCollector();
-   parameters_.loadParameters( parameters, iC );
-   trackAssociator_.useDefaultPropagator();
-
-   //register your products
-    produces<ValueMap<HSCPIsolation> >();
+  //register your products
+  produces<ValueMap<HSCPIsolation> >();
 }
 
+ProduceIsolationMap::~ProduceIsolationMap() {}
 
-ProduceIsolationMap::~ProduceIsolationMap()
-{
-}
+void ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  using namespace std;
 
-void
-ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   using namespace std;
+  using reco::TrackCollection;
 
-   using reco::TrackCollection;
+  Handle<TrackCollection> TKHandle;
+  iEvent.getByToken(TKToken_, TKHandle);
+  if (!TKHandle.isValid()) {
+    edm::LogError("ProduceIsolationMap") << "TK Tracks collection not found";
+    return;
+  }
 
-   Handle<TrackCollection> TKHandle;
-   iEvent.getByToken(TKToken_,TKHandle);
-   if(!TKHandle.isValid() ){  edm::LogError("ProduceIsolationMap") << "TK Tracks collection not found";    return;   }
+  //Create empty output collections
+  unique_ptr<ValueMap<HSCPIsolation> > trackHSCPIsolMap(new ValueMap<HSCPIsolation>);
+  ValueMap<HSCPIsolation>::Filler filler(*trackHSCPIsolMap);
 
-   //Create empty output collections
-   unique_ptr<ValueMap<HSCPIsolation> > trackHSCPIsolMap(new ValueMap<HSCPIsolation> );
-   ValueMap<HSCPIsolation>::Filler    filler(*trackHSCPIsolMap);
+  //loop through tracks.
+  Handle<TrackCollection> tkTracks;
+  iEvent.getByToken(inputCollectionToken_, tkTracks);
+  std::vector<HSCPIsolation> IsolationInfoColl(tkTracks->size());
 
-   //loop through tracks.
-   Handle<TrackCollection> tkTracks;
-   iEvent.getByToken(inputCollectionToken_,tkTracks);
-   std::vector<HSCPIsolation> IsolationInfoColl(tkTracks->size());
+  int TkIndex = 0;
+  for (TrackCollection::const_iterator itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack, TkIndex++) {
+    TrackDetMatchInfo info =
+        trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
-   int TkIndex=0;
-   for(TrackCollection::const_iterator itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack, TkIndex++) {
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
+    if (!info.ecalRecHits.empty()) {
+      IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::EcalRecHits));
+    }
+    if (!info.hcalRecHits.empty()) {
+      IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::HcalRecHits));
+    }
+    //      if(info.hcalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.hcalConeEnergy());}
+    //      if(info.ecalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.ecalConeEnergy());}
 
+    double SumPt = 0;
+    double Count = 0;
+    double CountHighPt = 0;
+    for (TrackCollection::const_iterator itTrack2 = TKHandle->begin(); itTrack2 != TKHandle->end(); ++itTrack2) {
+      if (fabs(itTrack->pt() - itTrack2->pt()) < 0.1 && fabs(itTrack->eta() - itTrack2->eta()) < 0.05)
+        continue;
+      float dR = deltaR(itTrack->momentum(), itTrack2->momentum());
+      if (dR > IsolationConeDR_)
+        continue;
+      SumPt += itTrack2->pt();
+      Count++;
+      if (itTrack2->pt() < TKIsolationPtcut_)
+        continue;
+      CountHighPt++;
+    }
+    IsolationInfoColl[TkIndex].Set_TK_CountHighPt(CountHighPt);
+    IsolationInfoColl[TkIndex].Set_TK_Count(Count);
+    IsolationInfoColl[TkIndex].Set_TK_SumEt(SumPt);
+  }
 
-      if(!info.ecalRecHits.empty()){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::EcalRecHits));}
-      if(!info.hcalRecHits.empty()){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::HcalRecHits));}
-//      if(info.hcalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.hcalConeEnergy());}
-//      if(info.ecalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.ecalConeEnergy());}
-
-      double SumPt       = 0;
-      double Count       = 0;
-      double CountHighPt = 0;
-      for(TrackCollection::const_iterator itTrack2 = TKHandle->begin(); itTrack2 != TKHandle->end(); ++itTrack2){
-         if(fabs(itTrack->pt()-itTrack2->pt())<0.1 && fabs(itTrack->eta()-itTrack2->eta())<0.05)continue;
-         float dR = deltaR(itTrack->momentum(), itTrack2->momentum());
-         if(dR>IsolationConeDR_)continue;
-         SumPt+= itTrack2->pt();
-         Count++;
-         if(itTrack2->pt()<TKIsolationPtcut_)continue;
-         CountHighPt++;
-      }
-      IsolationInfoColl[TkIndex].Set_TK_CountHighPt(CountHighPt);
-      IsolationInfoColl[TkIndex].Set_TK_Count      (Count);
-      IsolationInfoColl[TkIndex].Set_TK_SumEt      (SumPt);
-   }
-
-   filler.insert(tkTracks, IsolationInfoColl.begin(), IsolationInfoColl.end());
-   filler.fill();
-   iEvent.put(std::move(trackHSCPIsolMap));
+  filler.insert(tkTracks, IsolationInfoColl.begin(), IsolationInfoColl.end());
+  filler.fill();
+  iEvent.put(std::move(trackHSCPIsolMap));
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(ProduceIsolationMap);

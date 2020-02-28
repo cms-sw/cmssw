@@ -7,7 +7,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-
 #include "TH1D.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -17,43 +16,38 @@ class AlignableNavigator;
 class TFile;
 class TTree;
 
-class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
-{
-
- public:
-  
+class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase {
+public:
   /// Constructor
   MuonMillepedeAlgorithm(const edm::ParameterSet& cfg);
 
   /// Destructor
-  ~MuonMillepedeAlgorithm() override {};
+  ~MuonMillepedeAlgorithm() override{};
 
   /// Call at beginning of job
-  void initialize( const edm::EventSetup& setup, 
-                   AlignableTracker* tracker, AlignableMuon* muon,
-		   AlignableExtras* extras,
-                   AlignmentParameterStore* store) override;
+  void initialize(const edm::EventSetup& setup,
+                  AlignableTracker* tracker,
+                  AlignableMuon* muon,
+                  AlignableExtras* extras,
+                  AlignmentParameterStore* store) override;
 
   /// Call at end of job
   void terminate(const edm::EventSetup& setup) override;
 
-
-
   /// Run the algorithm
-  void run(const edm::EventSetup& setup, const EventInfo &eventInfo) override;
+  void run(const edm::EventSetup& setup, const EventInfo& eventInfo) override;
 
   void updateInfo(const AlgebraicMatrix&, const AlgebraicMatrix&, const AlgebraicMatrix&, std::string);
- 
-  void toTMat(AlgebraicMatrix *, TMatrixD *);
+
+  void toTMat(AlgebraicMatrix*, TMatrixD*);
 
   void collect();
- 
- private:
 
+private:
   // private data members
- 
-  void printM(const AlgebraicMatrix& ); 
-  
+
+  void printM(const AlgebraicMatrix&);
+
   AlignmentParameterStore* theAlignmentParameterStore;
   align::Alignables theAlignables;
   AlignableNavigator* theAlignableDetAccessor;
@@ -62,27 +56,22 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
   bool verbose;
 
   //Store residuals
-  std::map<std::string, TH1D *> histoMap;
-  
-  std::map<std::string, AlgebraicMatrix *> map_invCov;
-  std::map<std::string, AlgebraicMatrix *> map_weightRes;
-  std::map<std::string, AlgebraicMatrix *> map_N;
+  std::map<std::string, TH1D*> histoMap;
+
+  std::map<std::string, AlgebraicMatrix*> map_invCov;
+  std::map<std::string, AlgebraicMatrix*> map_weightRes;
+  std::map<std::string, AlgebraicMatrix*> map_N;
 
   double ptCut, chi2nCut;
-
 
   //Service for histograms
   edm::Service<TFileService> fs;
 
-
   std::string collec_f;
   std::string outputCollName;
   bool isCollectionJob;
-  std::string collec_path; 
+  std::string collec_path;
   int collec_number;
-
-  
-
 };
 
 #endif

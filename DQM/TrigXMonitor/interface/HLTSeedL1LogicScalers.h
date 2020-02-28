@@ -32,7 +32,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -44,24 +43,21 @@
 // class declaration
 //
 class HLTSeedL1LogicScalers : public DQMEDAnalyzer {
- public:
-  explicit HLTSeedL1LogicScalers(const edm::ParameterSet&);
+public:
+  explicit HLTSeedL1LogicScalers(const edm::ParameterSet &);
   ~HLTSeedL1LogicScalers() override;
 
- private:
+private:
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  bool analyzeL1GtUtils(const edm::Event&, const edm::EventSetup&,
-                        const std::string&);
+  bool analyzeL1GtUtils(const edm::Event &, const edm::EventSetup &, const std::string &);
 
   // ----------member data ---------------------------
   bool fL1BeforeMask;
   std::string fDQMFolder;
   std::string fProcessname;
-
 
   HLTConfigProvider fHLTConfig;
   edm::InputTag fL1GtDaqReadoutRecordInputTag;
@@ -69,9 +65,8 @@ class HLTSeedL1LogicScalers : public DQMEDAnalyzer {
   L1GtUtils m_l1GtUtils;
 
   std::vector<std::string> fMonitorPaths;
-  std::vector<MonitorElement*> fMonitorPathsME;
-  std::vector<std::pair<MonitorElement*, std::vector<std::string> > >
-      fMapMEL1Algos;
+  std::vector<MonitorElement *> fMonitorPathsME;
+  std::vector<std::pair<MonitorElement *, std::vector<std::string> > > fMapMEL1Algos;
 };
 
 #endif  // HLTSEEDSCALERS_H

@@ -2,10 +2,11 @@
 
 #include "FWCore/Utilities/interface/IndexSet.h"
 
-class testIndexSet: public CppUnit::TestFixture {
+class testIndexSet : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testIndexSet);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
+
 public:
   void setUp() {}
   void tearDown() {}
@@ -15,7 +16,6 @@ public:
   void testIterators(T& array);
   template <typename T>
   void testIterator(T iter, T end);
-
 };
 
 ///registration of the test so that the runner can find it

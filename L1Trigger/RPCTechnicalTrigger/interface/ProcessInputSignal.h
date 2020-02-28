@@ -1,4 +1,4 @@
-#ifndef INTERFACE_PROCESSINPUTSIGNAL_H 
+#ifndef INTERFACE_PROCESSINPUTSIGNAL_H
 #define INTERFACE_PROCESSINPUTSIGNAL_H 1
 
 // Include files
@@ -16,17 +16,14 @@
  *  @date   2008-10-10
  */
 class ProcessInputSignal {
-public: 
-  
-  virtual ~ProcessInputSignal() {};
-  
-  virtual int  next()  = 0;
-  
-  virtual RPCInputSignal * retrievedata() = 0;
-  
+public:
+  virtual ~ProcessInputSignal(){};
+
+  virtual int next() = 0;
+
+  virtual RPCInputSignal* retrievedata() = 0;
+
 protected:
-  
 private:
-  
 };
-#endif // INTERFACE_PROCESSINPUTSIGNAL_H
+#endif  // INTERFACE_PROCESSINPUTSIGNAL_H

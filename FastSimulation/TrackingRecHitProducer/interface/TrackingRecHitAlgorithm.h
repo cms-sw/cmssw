@@ -15,68 +15,58 @@
 #include <string>
 #include <memory>
 
-namespace edm
-{
-    class Event;
-    class EventSetup;
-    class ParameterSet;
-    class ConsumesCollector;
-    class Stream;
-}
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class ConsumesCollector;
+  class Stream;
+}  // namespace edm
 
-class TrackingRecHitAlgorithm
-{
-    private:
-        const std::string _name;
-        const std::string _selectionString;
-        const TrackerTopology* _trackerTopology;
-        const TrackerGeometry* _trackerGeometry;
-        const TrackerGeometry* _misalignedTrackerGeometry;
-        std::shared_ptr<RandomEngineAndDistribution> _randomEngine;
+class TrackingRecHitAlgorithm {
+private:
+  const std::string _name;
+  const std::string _selectionString;
+  const TrackerTopology* _trackerTopology;
+  const TrackerGeometry* _trackerGeometry;
+  const TrackerGeometry* _misalignedTrackerGeometry;
+  std::shared_ptr<RandomEngineAndDistribution> _randomEngine;
 
-    public:
-        TrackingRecHitAlgorithm(const std::string& name,
-            const edm::ParameterSet& config,
-            edm::ConsumesCollector& consumesCollector);
-            
-        inline const std::string& getName() const
-        {
-            return _name;
-        }
-        inline const std::string& getSelectionString() const
-        {
-            return _selectionString;
-        }
-        
-        const TrackerTopology& getTrackerTopology() const;
-        const TrackerGeometry& getTrackerGeometry() const;
-        const TrackerGeometry& getMisalignedGeometry() const;
-        const RandomEngineAndDistribution& getRandomEngine() const;
+public:
+  TrackingRecHitAlgorithm(const std::string& name,
+                          const edm::ParameterSet& config,
+                          edm::ConsumesCollector& consumesCollector);
 
-        //this function will only be called once per stream
-        virtual void beginStream(const edm::StreamID& id);
-        
-        //this function will only be called once per run
-	virtual void beginRun(edm::Run const& run, const edm::EventSetup& eventSetup,
-			      const SiPixelTemplateDBObject * pixelTemplateDBObjectPtr,
-			      std::vector< SiPixelTemplateStore > & tempStoreRef );
+  inline const std::string& getName() const { return _name; }
+  inline const std::string& getSelectionString() const { return _selectionString; }
 
-        //this function will only be called once per event
-        virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
+  const TrackerTopology& getTrackerTopology() const;
+  const TrackerGeometry& getTrackerGeometry() const;
+  const TrackerGeometry& getMisalignedGeometry() const;
+  const RandomEngineAndDistribution& getRandomEngine() const;
 
-	//the main action is here
-        virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const;
+  //this function will only be called once per stream
+  virtual void beginStream(const edm::StreamID& id);
 
-        //this function will only be called once per event
-        virtual void endEvent(edm::Event& event, const edm::EventSetup& eventSetup);
-        
-        //this function will only be called once per stream
-        virtual void endStream();
+  //this function will only be called once per run
+  virtual void beginRun(edm::Run const& run,
+                        const edm::EventSetup& eventSetup,
+                        const SiPixelTemplateDBObject* pixelTemplateDBObjectPtr,
+                        std::vector<SiPixelTemplateStore>& tempStoreRef);
 
-        virtual ~TrackingRecHitAlgorithm();
-        
+  //this function will only be called once per event
+  virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
 
+  //the main action is here
+  virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const;
+
+  //this function will only be called once per event
+  virtual void endEvent(edm::Event& event, const edm::EventSetup& eventSetup);
+
+  //this function will only be called once per stream
+  virtual void endStream();
+
+  virtual ~TrackingRecHitAlgorithm();
 };
-
 
 #endif

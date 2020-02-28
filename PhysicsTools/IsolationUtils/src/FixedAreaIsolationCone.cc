@@ -2,9 +2,9 @@
 
 // -*- C++ -*-
 //
-// Package:    
+// Package:
 // Class:      FixedAreaIsolationCone
-// 
+//
 /**\class FixedAreaIsolationCone FixedAreaIsolationCone.cc PhysicsTools/IsolationUtils/src/FixedAreaIsolationCone.cc
 
  Description: highest level class to compute size of isolation cone 
@@ -30,31 +30,26 @@
 // CMSSW include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-FixedAreaIsolationCone::FixedAreaIsolationCone()
-  : areaFunctionSignalCone_(), areaRootFunctionIsolationCone_()
-{
-//--- nothing to be done yet
-//
-//    WARNING: do NOT call ROOT::Math::RootFinder<ROOT::Math::Roots::Brent>::SetFunction here;
-//             this will cause the function to be evaluated before all function parameters are set,
-//             leading to an error message first and erroneous behaviour of the root-finding later on !!!
-//
+FixedAreaIsolationCone::FixedAreaIsolationCone() : areaFunctionSignalCone_(), areaRootFunctionIsolationCone_() {
+  //--- nothing to be done yet
+  //
+  //    WARNING: do NOT call ROOT::Math::RootFinder<ROOT::Math::Roots::Brent>::SetFunction here;
+  //             this will cause the function to be evaluated before all function parameters are set,
+  //             leading to an error message first and erroneous behaviour of the root-finding later on !!!
+  //
 }
 
-FixedAreaIsolationCone::~FixedAreaIsolationCone()
-{
-//--- nothing to be done yet
+FixedAreaIsolationCone::~FixedAreaIsolationCone() {
+  //--- nothing to be done yet
 }
 
-void FixedAreaIsolationCone::setAcceptanceLimit(double etaMaxTrackingAcceptance)
-{
+void FixedAreaIsolationCone::setAcceptanceLimit(double etaMaxTrackingAcceptance) {
   areaFunctionSignalCone_.SetAcceptanceLimit(etaMaxTrackingAcceptance);
   areaRootFunctionIsolationCone_.SetAcceptanceLimit(etaMaxTrackingAcceptance);
 }
 
-double FixedAreaIsolationCone::operator() (double coneAxisTheta, double coneAxisPhi,
-					   double openingAngleSignalCone, double areaIsolationCone, int& error)
-{
+double FixedAreaIsolationCone::operator()(
+    double coneAxisTheta, double coneAxisPhi, double openingAngleSignalCone, double areaIsolationCone, int& error) {
   areaFunctionSignalCone_.SetParameterTheta0(coneAxisTheta);
   areaFunctionSignalCone_.SetParameterPhi0(coneAxisPhi);
   double areaSignalCone = areaFunctionSignalCone_(openingAngleSignalCone);
@@ -62,11 +57,11 @@ double FixedAreaIsolationCone::operator() (double coneAxisTheta, double coneAxis
   areaRootFunctionIsolationCone_.SetParameterTheta0(coneAxisTheta);
   areaRootFunctionIsolationCone_.SetParameterPhi0(coneAxisPhi);
   areaRootFunctionIsolationCone_.SetParameterConeArea(areaIsolationCone + areaSignalCone);
-  areaRootFinderIsolationCone_.SetFunction(areaRootFunctionIsolationCone_, 0. , TMath::Pi());
+  areaRootFinderIsolationCone_.SetFunction(areaRootFunctionIsolationCone_, 0., TMath::Pi());
   int statusIsolationCone = areaRootFinderIsolationCone_.Solve();
   double openingAngleIsolationCone = areaRootFinderIsolationCone_.Root();
 
-  if ( debugLevel_ > 0 ) {
+  if (debugLevel_ > 0) {
     const std::string category = "FixedAreaIsolationCone::operator()";
     edm::LogVerbatim(category) << "openingAngleSignalCone = " << openingAngleSignalCone << std::endl;
     edm::LogVerbatim(category) << "areaSignalCone = " << areaSignalCone << std::endl;
@@ -75,7 +70,7 @@ double FixedAreaIsolationCone::operator() (double coneAxisTheta, double coneAxis
     edm::LogVerbatim(category) << "statusIsolationCone = " << statusIsolationCone << std::endl;
   }
 
-  if ( statusIsolationCone == 0 ) { 
+  if (statusIsolationCone == 0) {
     error = 0;
     return openingAngleIsolationCone;
   } else {

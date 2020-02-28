@@ -7,5 +7,4 @@
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(DTTTrigSyncFactory,"DTTTrigSyncFactory");
-
+EDM_REGISTER_PLUGINFACTORY(DTTTrigSyncFactory, "DTTTrigSyncFactory");

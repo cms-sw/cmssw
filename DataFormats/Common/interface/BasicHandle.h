@@ -38,7 +38,8 @@ namespace cms {
 
 namespace edm {
   class WrapperBase;
-  template <typename T> class Wrapper;
+  template <typename T>
+  class Wrapper;
 
   class BasicHandle {
   public:
@@ -46,62 +47,41 @@ namespace edm {
 
     BasicHandle(BasicHandle const& h) = default;
 
-    BasicHandle(BasicHandle &&h) = default;
+    BasicHandle(BasicHandle&& h) = default;
 
-    BasicHandle(WrapperBase const* iProd, Provenance const* iProv) noexcept(true):
-      product_(iProd),
-      prov_(iProv) {
-    }
+    BasicHandle(WrapperBase const* iProd, Provenance const* iProv) noexcept(true) : product_(iProd), prov_(iProv) {}
 
     ///Used when the attempt to get the data failed
-    BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) noexcept(true) : 
-    product_(),
-    prov_(nullptr),
-    whyFailedFactory_(iWhyFailed) {}
+    BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) noexcept(true)
+        : product_(), prov_(nullptr), whyFailedFactory_(iWhyFailed) {}
 
     ~BasicHandle() = default;
 
-    void swap(BasicHandle& other) noexcept(true){
+    void swap(BasicHandle& other) noexcept(true) {
       using std::swap;
       swap(product_, other.product_);
       std::swap(prov_, other.prov_);
-      swap(whyFailedFactory_,other.whyFailedFactory_);
+      swap(whyFailedFactory_, other.whyFailedFactory_);
     }
 
     BasicHandle& operator=(BasicHandle&& rhs) = default;
     BasicHandle& operator=(BasicHandle const& rhs) = default;
 
-    bool isValid() const noexcept(true) {
-      return product_ && prov_;
-    }
+    bool isValid() const noexcept(true) { return product_ && prov_; }
 
-    bool failedToGet() const noexcept(true) {
-      return bool(whyFailedFactory_);
-    }
+    bool failedToGet() const noexcept(true) { return bool(whyFailedFactory_); }
 
-    WrapperBase const* wrapper() const noexcept(true) {
-      return product_;
-    }
+    WrapperBase const* wrapper() const noexcept(true) { return product_; }
 
-    Provenance const* provenance() const noexcept(true) {
-      return prov_;
-    }
+    Provenance const* provenance() const noexcept(true) { return prov_; }
 
-    ProductID id() const noexcept(true) {
-      return prov_->productID();
-    }
+    ProductID id() const noexcept(true) { return prov_->productID(); }
 
-    std::shared_ptr<cms::Exception> whyFailed() const {
-      return whyFailedFactory_->make();
-    }
-    
-    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const noexcept(true) {
-      return whyFailedFactory_;
-    }
-    
-    std::shared_ptr<HandleExceptionFactory>& whyFailedFactory()  noexcept(true) {
-      return whyFailedFactory_;
-    }
+    std::shared_ptr<cms::Exception> whyFailed() const { return whyFailedFactory_->make(); }
+
+    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const noexcept(true) { return whyFailedFactory_; }
+
+    std::shared_ptr<HandleExceptionFactory>& whyFailedFactory() noexcept(true) { return whyFailedFactory_; }
 
     void clear() noexcept(true) {
       product_ = nullptr;
@@ -109,21 +89,18 @@ namespace edm {
       whyFailedFactory_.reset();
     }
 
-    static BasicHandle makeInvalid() { return BasicHandle(true);}
+    static BasicHandle makeInvalid() { return BasicHandle(true); }
+
   private:
     //This is used to create a special invalid BasicHandle
-    explicit BasicHandle(bool):product_(nullptr) {}
+    explicit BasicHandle(bool) : product_(nullptr) {}
     WrapperBase const* product_;
     Provenance const* prov_;
     std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };
 
   // Free swap function
-  inline
-  void
-  swap(BasicHandle& a, BasicHandle& b) noexcept(true) {
-    a.swap(b);
-  }
-}
+  inline void swap(BasicHandle& a, BasicHandle& b) noexcept(true) { a.swap(b); }
+}  // namespace edm
 
 #endif

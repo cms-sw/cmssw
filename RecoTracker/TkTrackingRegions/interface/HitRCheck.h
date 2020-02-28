@@ -9,45 +9,41 @@
 
 class HitRCheck final : public HitRZCompatibility {
 public:
-  static constexpr Algo me =rAlgo;
+  static constexpr Algo me = rAlgo;
 
   typedef TkTrackingRegionsMargin<float> Margin;
 
-  HitRCheck()  : HitRZCompatibility(me) { }
-  HitRCheck(const HitRZConstraint & rz, Margin margin = Margin(0,0)) 
-    :  HitRZCompatibility(me), theRZ(rz), theTolerance(margin) { } 
+  HitRCheck() : HitRZCompatibility(me) {}
+  HitRCheck(const HitRZConstraint& rz, Margin margin = Margin(0, 0))
+      : HitRZCompatibility(me), theRZ(rz), theTolerance(margin) {}
 
-  bool operator() (const float & r, const float & z) const override
-    { return range(z).inside(r); }
+  bool operator()(const float& r, const float& z) const override { return range(z).inside(r); }
 
-  inline Range range(const float & z) const override;
+  inline Range range(const float& z) const override;
 
-  HitRCheck * clone() const override { return new HitRCheck(*this); }
+  HitRCheck* clone() const override { return new HitRCheck(*this); }
 
-  void setTolerance(const Margin & tolerance) { theTolerance = tolerance; }
+  void setTolerance(const Margin& tolerance) { theTolerance = tolerance; }
 
 private:
   HitRZConstraint theRZ;
   Margin theTolerance;
 };
 
+HitRCheck::Range HitRCheck::range(const float& z) const {
+  constexpr float rBig = 150.;  //something above the detector ranges
+  const auto& lineLeft = theRZ.lineLeft();
+  const auto& lineRight = theRZ.lineRight();
 
-
-HitRCheck::Range HitRCheck::range(const float & z) const
-{
-  constexpr float rBig = 150.; //something above the detector ranges
-  const auto & lineLeft =  theRZ.lineLeft();
-  const auto & lineRight = theRZ.lineRight();
-  
   float rR = lineRight.rAtZ(z);
   float rL = lineLeft.rAtZ(z);
-  float rMin = (rR<rL) ? rR : rL;  
-  float rMax = (rR<rL) ? rL : rR;
+  float rMin = (rR < rL) ? rR : rL;
+  float rMax = (rR < rL) ? rL : rR;
   // in reality all this never happens!
-  float aMin = (rMin>0) ? rMin : rMax;
-  float aMax = (rMin>0) ? rMax : rBig;
-  aMin = (rMax>0) ? aMin : rBig;
-  return Range(aMin-theTolerance.left(),aMax+theTolerance.right());
+  float aMin = (rMin > 0) ? rMin : rMax;
+  float aMax = (rMin > 0) ? rMax : rBig;
+  aMin = (rMax > 0) ? aMin : rBig;
+  return Range(aMin - theTolerance.left(), aMax + theTolerance.right());
 
   /* check
   Range v(aMin-theTolerance.left(),aMax+theTolerance.right());

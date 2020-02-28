@@ -3,12 +3,10 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-class MuonSeedVCleaner
-{
+class MuonSeedVCleaner {
 public:
   virtual ~MuonSeedVCleaner() {}
-  virtual void clean(TrajectorySeedCollection & seeds) = 0;
+  virtual void clean(TrajectorySeedCollection& seeds) = 0;
 };
 
 #endif
-

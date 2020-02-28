@@ -2,20 +2,16 @@
 #define DQM_SiStripCommissioningClients_PedsOnlyHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-
-class DQMStore;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class PedsOnlyHistograms : public virtual CommissioningHistograms {
-
- public:
-  
-  PedsOnlyHistograms( const edm::ParameterSet& pset, DQMStore* );
+public:
+  PedsOnlyHistograms(const edm::ParameterSet& pset, DQMStore*);
   ~PedsOnlyHistograms() override;
-  
-  void histoAnalysis( bool debug ) override;
 
-  void printAnalyses() override; // override
+  void histoAnalysis(bool debug) override;
 
+  void printAnalyses() override;  // override
 };
 
-#endif // DQM_SiStripCommissioningClients_PedsOnlyHistograms_H
+#endif  // DQM_SiStripCommissioningClients_PedsOnlyHistograms_H

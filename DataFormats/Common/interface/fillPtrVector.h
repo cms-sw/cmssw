@@ -34,87 +34,79 @@
 namespace edm {
   namespace detail {
     template <typename COLLECTION>
-    void
-    reallyfillPtrVector(COLLECTION const& coll,
-                        std::type_info const& iToType,
-                        std::vector<unsigned long> const& iIndicies,
-                        std::vector<void const*>& oPtr)
-    {
-      typedef COLLECTION                            product_type;
-      typedef typename GetProduct<product_type>::element_type     element_type;
+    void reallyfillPtrVector(COLLECTION const& coll,
+                             std::type_info const& iToType,
+                             std::vector<unsigned long> const& iIndicies,
+                             std::vector<void const*>& oPtr) {
+      typedef COLLECTION product_type;
+      typedef typename GetProduct<product_type>::element_type element_type;
       typedef typename product_type::const_iterator iter;
 
       oPtr.reserve(iIndicies.size());
-      if(iToType == typeid(element_type)) {
-        for(std::vector<unsigned long>::const_iterator itIndex = iIndicies.begin(),
-            itEnd = iIndicies.end();
-            itIndex != itEnd;
-            ++itIndex) {
+      if (iToType == typeid(element_type)) {
+        for (std::vector<unsigned long>::const_iterator itIndex = iIndicies.begin(), itEnd = iIndicies.end();
+             itIndex != itEnd;
+             ++itIndex) {
           iter it = coll.begin();
           std::advance(it, *itIndex);
           element_type const* address = GetProduct<product_type>::address(it);
           oPtr.push_back(address);
         }
       } else {
-        for(std::vector<unsigned long>::const_iterator itIndex = iIndicies.begin(),
-            itEnd = iIndicies.end();
-            itIndex != itEnd;
-            ++itIndex) {
+        for (std::vector<unsigned long>::const_iterator itIndex = iIndicies.begin(), itEnd = iIndicies.end();
+             itIndex != itEnd;
+             ++itIndex) {
           iter it = coll.begin();
           std::advance(it, *itIndex);
           element_type const* address = GetProduct<product_type>::address(it);
-          void const* ptr = pointerToBase(iToType,address);
-          if(nullptr != ptr) {
+          void const* ptr = pointerToBase(iToType, address);
+          if (nullptr != ptr) {
             oPtr.push_back(ptr);
           } else {
             Exception::throwThis(errors::LogicError,
-            "TypeConversionError "
-            "edm::PtrVector<> : unable to convert type ",
-            typeid(element_type).name(),
-            " to ",
-            iToType.name(),
-            "\n");
+                                 "TypeConversionError "
+                                 "edm::PtrVector<> : unable to convert type ",
+                                 typeid(element_type).name(),
+                                 " to ",
+                                 iToType.name(),
+                                 "\n");
           }
         }
       }
     }
-  }
+  }  // namespace detail
 
   template <typename T, typename A>
-  void
-  fillPtrVector(std::vector<T, A> const& obj,
-                std::type_info const& iToType,
-                std::vector<unsigned long> const& iIndicies,
-                std::vector<void const*>& oPtr) {
+  void fillPtrVector(std::vector<T, A> const& obj,
+                     std::type_info const& iToType,
+                     std::vector<unsigned long> const& iIndicies,
+                     std::vector<void const*>& oPtr) {
     detail::reallyfillPtrVector(obj, iToType, iIndicies, oPtr);
   }
 
   template <typename T, typename A>
-  void
-  fillPtrVector(std::list<T, A> const& obj,
-                std::type_info const& iToType,
-                std::vector<unsigned long> const& iIndicies,
-                std::vector<void const*>& oPtr) {
+  void fillPtrVector(std::list<T, A> const& obj,
+                     std::type_info const& iToType,
+                     std::vector<unsigned long> const& iIndicies,
+                     std::vector<void const*>& oPtr) {
     detail::reallyfillPtrVector(obj, iToType, iIndicies, oPtr);
   }
 
   template <typename T, typename A>
-  void
-  fillPtrVector(std::deque<T, A> const& obj,
-                std::type_info const& iToType,
-                std::vector<unsigned long> const& iIndicies,
-                std::vector<void const*>& oPtr) {
+  void fillPtrVector(std::deque<T, A> const& obj,
+                     std::type_info const& iToType,
+                     std::vector<unsigned long> const& iIndicies,
+                     std::vector<void const*>& oPtr) {
     detail::reallyfillPtrVector(obj, iToType, iIndicies, oPtr);
   }
 
   template <typename T, typename A, typename Comp>
-  void
-  fillPtrVector(std::set<T, A, Comp> const& obj,
-                std::type_info const& iToType,
-                std::vector<unsigned long> const& iIndicies,
-                std::vector<void const*>& oPtr) {
+  void fillPtrVector(std::set<T, A, Comp> const& obj,
+                     std::type_info const& iToType,
+                     std::vector<unsigned long> const& iIndicies,
+                     std::vector<void const*>& oPtr) {
     detail::reallyfillPtrVector(obj, iToType, iIndicies, oPtr);
   }
-}
+}  // namespace edm
 
 #endif

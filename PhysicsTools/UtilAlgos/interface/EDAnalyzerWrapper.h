@@ -1,13 +1,10 @@
 #ifndef PhysicsTools_UtilAlgos_interface_EDAnalyzerWrapper_h
 #define PhysicsTools_UtilAlgos_interface_EDAnalyzerWrapper_h
 
-#include <boost/shared_ptr.hpp>
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 
 /**
    \class    EDAnalyzerWrapper EDAnalyzerWrapper.h "PhysicsTools/UtilAlgos/interface/EDAnalyzerWrapper.h"
@@ -41,12 +38,10 @@
    very beginning and just to stay within the full framework.
 */
 
-
 namespace edm {
 
-  template<class T>
+  template <class T>
   class AnalyzerWrapper : public EDAnalyzer {
-
   public:
     /// default contructor
     AnalyzerWrapper(const edm::ParameterSet& cfg);
@@ -55,24 +50,24 @@ namespace edm {
     /// everything which has to be done before the event loop
     void beginJob() override { analyzer_->beginJob(); }
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
-    void analyze(edm::Event const & event, const edm::EventSetup& eventSetup) override{ analyzer_->analyze(event); }
+    void analyze(edm::Event const& event, const edm::EventSetup& eventSetup) override { analyzer_->analyze(event); }
     /// everything which has to be done after the event loop
     void endJob() override { analyzer_->endJob(); }
 
   protected:
     /// shared pointer to analysis class of type BasicAnalyzer
-    boost::shared_ptr<T> analyzer_;
+    std::shared_ptr<T> analyzer_;
   };
 
   /// default contructor
-  template<class T>
-  AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg){
+  template <class T>
+  AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg) {
     // defined TFileService
     edm::Service<TFileService> fileService;
     // create analysis class of type BasicAnalyzer
-    analyzer_ = boost::shared_ptr<T>( new T( cfg, fileService->tFileDirectory(), consumesCollector()) );
+    analyzer_ = std::shared_ptr<T>(new T(cfg, fileService->tFileDirectory(), consumesCollector()));
   }
 
-}
+}  // namespace edm
 
 #endif

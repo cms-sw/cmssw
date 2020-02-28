@@ -29,3 +29,9 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(RecoLocalTrackerFEVT, outputCommands = RecoLocalTrackerFEVT.outputCommands + ['keep *_siPhase2Clusters_*_*'] )
 phase2_tracker.toModify(RecoLocalTrackerRECO, outputCommands = RecoLocalTrackerRECO.outputCommands + ['keep *_siPhase2Clusters_*_*'] )
 
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify( RecoLocalTrackerAOD,
+    outputCommands = RecoLocalTrackerAOD.outputCommands + ['keep *_siPixelRecHits_*_*', 
+							   'keep *_siPixelClusters_*_*'])
+
+

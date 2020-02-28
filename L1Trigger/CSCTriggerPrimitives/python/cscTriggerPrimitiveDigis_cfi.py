@@ -13,15 +13,26 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # Name of digi producer module(s)
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    GEMPadDigiProducer = cms.InputTag(""),
+    GEMPadDigiClusterProducer = cms.InputTag(""),
 
     # If True, output collections will only be built for good chambers
     checkBadChambers = cms.bool(True),
+
+    # Write out all CLCTs
+    writeOutAllCLCTs = cms.bool(False),
+
+    # Write out all ALCTs
+    writeOutAllALCTs = cms.bool(False),
+
+    # Write out pre-triggers
+    savePreTriggers = cms.bool(False),
 
     # Parameters common for all boards
     commonParam = cms.PSet(
         # Master flag for SLHC studies
         isSLHC = cms.bool(False),
-        
+
         # Debug
         verbosity = cms.int32(0),
 
@@ -45,6 +56,10 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         runME21Up = cms.bool(False),
         runME31Up = cms.bool(False),
         runME41Up = cms.bool(False),
+
+        runME11ILT = cms.bool(False),
+        runME21ILT = cms.bool(False),
+        useClusters = cms.bool(False),
     ),
 
     # Parameters for ALCT processors: 2007 and later
@@ -304,14 +319,14 @@ copadParamGE11 = cms.PSet(
      verbosity = cms.uint32(0),
      maxDeltaPad = cms.uint32(2),
      maxDeltaRoll = cms.uint32(1),
-     maxDeltaBX = cms.uint32(1)
+     maxDeltaBX = cms.uint32(0)
  )
 
 copadParamGE21 = cms.PSet(
      verbosity = cms.uint32(0),
      maxDeltaPad = cms.uint32(2),
      maxDeltaRoll = cms.uint32(1),
-     maxDeltaBX = cms.uint32(1)
+     maxDeltaBX = cms.uint32(0)
  )
 
 # to be used by ME11 chambers with GEM-CSC ILT
@@ -353,10 +368,10 @@ me11tmbSLHCGEM = cms.PSet(
     dropLowQualityCLCTsNoGEMs_ME1b = cms.bool(True),
     dropLowQualityALCTsNoGEMs_ME1a = cms.bool(False),
     dropLowQualityALCTsNoGEMs_ME1b = cms.bool(False),
-    buildLCTfromALCTandGEM_ME1a = cms.bool(True),
+    buildLCTfromALCTandGEM_ME1a = cms.bool(False),
     buildLCTfromALCTandGEM_ME1b = cms.bool(True),
     buildLCTfromCLCTandGEM_ME1a = cms.bool(False),
-    buildLCTfromCLCTandGEM_ME1b = cms.bool(False),
+    buildLCTfromCLCTandGEM_ME1b = cms.bool(True),
     doLCTGhostBustingWithGEMs = cms.bool(False),
     promoteALCTGEMpattern = cms.bool(True),
     promoteALCTGEMquality = cms.bool(True),
@@ -393,16 +408,16 @@ me21tmbSLHCGEM = cms.PSet(
     ## matching to pads
     maxDeltaBXPad = cms.int32(1),
     maxDeltaBXCoPad = cms.int32(1),
-    maxDeltaPadL1Even = cms.int32(6),
-    maxDeltaPadL1Odd = cms.int32(12),
-    maxDeltaPadL2Even = cms.int32(6),
-    maxDeltaPadL2Odd = cms.int32(12),
+    maxDeltaPadL1Even = cms.int32(12),
+    maxDeltaPadL1Odd = cms.int32(24),
+    maxDeltaPadL2Even = cms.int32(12),
+    maxDeltaPadL2Odd = cms.int32(24),
 
     ## efficiency recovery switches
-    dropLowQualityALCTsNoGEMs = cms.bool(False),
+    dropLowQualityALCTsNoGEMs = cms.bool(True),
     dropLowQualityCLCTsNoGEMs = cms.bool(True),
     buildLCTfromALCTandGEM = cms.bool(True),
-    buildLCTfromCLCTandGEM = cms.bool(False),
+    buildLCTfromCLCTandGEM = cms.bool(True),
     doLCTGhostBustingWithGEMs = cms.bool(False),
     promoteALCTGEMpattern = cms.bool(True),
     promoteALCTGEMquality = cms.bool(True),
@@ -463,7 +478,7 @@ phase2_muon.toModify( cscTriggerPrimitiveDigis,
                                          runME21ILT = cms.bool(True),
                                          runME31Up = cms.bool(True),
                                          runME41Up = cms.bool(True)),
-                      tmbSLHC = dict(ignoreAlctCrossClct = cms.bool(True)),
+                      tmbSLHC = dict(ignoreAlctCrossClct = cms.bool(False)),
                       clctSLHC = dict(useDynamicStateMachineZone = cms.bool(True)),
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),

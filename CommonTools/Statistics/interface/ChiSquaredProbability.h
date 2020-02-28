@@ -7,7 +7,7 @@
  *  it is to observe as high (or higher) a chi-squared. 
  *  source: Numerical Recipes
  */
-float ChiSquaredProbability( double chiSquared, double nrDOF );
-float LnChiSquaredProbability( double chiSquared, double nrDOF );
+float ChiSquaredProbability(double chiSquared, double nrDOF);
+float LnChiSquaredProbability(double chiSquared, double nrDOF);
 
 #endif

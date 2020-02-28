@@ -5,7 +5,6 @@
 #include <memory>
 #endif
 
-
 #include "Rtypes.h"
 #include "TGFrame.h"
 #include "TGButton.h"
@@ -20,7 +19,6 @@
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 #endif
-
 
 class TGeoNode;
 class TGeoVolume;
@@ -42,123 +40,123 @@ class FWParameterBase;
 
 class FWGeometryTableViewBase
 #ifndef __CINT__
-   : public  FWViewBase,
-     public  FWParameterSetterEditorBase
+    : public FWViewBase,
+      public FWParameterSetterEditorBase
 #endif
 {
 public:
-   class FWViewCombo : public TGTextButton
-   {
-   private:
-      FWGeometryTableViewBase* m_tableView;
-      TEveElement* m_el;
-   public:
-      FWViewCombo(const TGWindow *p, FWGeometryTableViewBase* t): 
-         TGTextButton(p, "Select Views", -1, TGButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame | kDoubleBorder  ), m_tableView(t), m_el(nullptr) {}
-      ~FWViewCombo() override {}
-      void setElement(TEveElement* x) {m_el = x;}
-      Bool_t  HandleButton(Event_t* event) override;
-   };
+  class FWViewCombo : public TGTextButton {
+  private:
+    FWGeometryTableViewBase* m_tableView;
+    TEveElement* m_el;
 
+  public:
+    FWViewCombo(const TGWindow* p, FWGeometryTableViewBase* t)
+        : TGTextButton(p,
+                       "Select Views",
+                       -1,
+                       TGButton::GetDefaultGC()(),
+                       TGTextButton::GetDefaultFontStruct(),
+                       kRaisedFrame | kDoubleBorder),
+          m_tableView(t),
+          m_el(nullptr) {}
+    ~FWViewCombo() override {}
+    void setElement(TEveElement* x) { m_el = x; }
+    Bool_t HandleButton(Event_t* event) override;
+  };
 
-   FWGeometryTableViewBase(TEveWindowSlot*, FWViewType::EType, FWColorManager*);
-   ~FWGeometryTableViewBase() override;
-  
-   virtual  void cellClicked(Int_t iRow, Int_t iColumn, 
-                             Int_t iButton, Int_t iKeyMod, 
-                             Int_t iGlobalX, Int_t iGlobalY);
-  
-   // void chosenItemFrom3DView(int);
-   virtual void chosenItem(int);
-   void selectView(int);
- 
-   bool getEnableHighlight() { return m_enableHighlight.value(); } 
-   virtual  FWGeometryTableManagerBase*  getTableManager() { return nullptr; }
+  FWGeometryTableViewBase(TEveWindowSlot*, FWViewType::EType, FWColorManager*);
+  ~FWGeometryTableViewBase() override;
 
-   // ---------- const member functions --------------------- 
+  virtual void cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
 
-   void addTo(FWConfiguration&) const override;
-   void saveImageTo( const std::string& iName ) const override {}
-   void nodeColorChangeRequested(Color_t);
+  // void chosenItemFrom3DView(int);
+  virtual void chosenItem(int);
+  void selectView(int);
 
-   void setBackgroundColor();
-   void populate3DViewsFromConfig();
-   virtual void refreshTable3D();
+  bool getEnableHighlight() { return m_enableHighlight.value(); }
+  virtual FWGeometryTableManagerBase* getTableManager() { return nullptr; }
 
+  // ---------- const member functions ---------------------
 
-   void cdNode(int);
-   virtual void cdTop();
-   virtual void cdUp();
-   virtual void setPath(int, std::string&);
+  void addTo(FWConfiguration&) const override;
+  void saveImageTo(const std::string& iName) const override {}
+  void nodeColorChangeRequested(Color_t);
 
-   void checkExpandLevel();
+  void setBackgroundColor();
+  void populate3DViewsFromConfig();
+  virtual void refreshTable3D();
 
-   int getTopNodeIdx() const { return TMath::Max((int)m_topNodeIdx.value(), 0); }
-  
-   FWEveDigitSetScalableMarker* getMarker()  {return m_marker;}
-   void transparencyChanged();
-   
-   void  reloadColors();
-   
-   long getParentTransparencyFactor() const { return m_parentTransparencyFactor.value(); }
-   long getLeafTransparencyFactor()   const { return m_leafTransparencyFactor.value(); }
-   long getMinParentTransparency() const { return m_minParentTransparency.value(); }
-   long getMinLeafTransparency()   const { return m_minLeafTransparency.value(); }
-   
+  void cdNode(int);
+  virtual void cdTop();
+  virtual void cdUp();
+  virtual void setPath(int, std::string&);
+
+  void checkExpandLevel();
+
+  int getTopNodeIdx() const { return TMath::Max((int)m_topNodeIdx.value(), 0); }
+
+  FWEveDigitSetScalableMarker* getMarker() { return m_marker; }
+  void transparencyChanged();
+
+  void reloadColors();
+
+  long getParentTransparencyFactor() const { return m_parentTransparencyFactor.value(); }
+  long getLeafTransparencyFactor() const { return m_leafTransparencyFactor.value(); }
+  long getMinParentTransparency() const { return m_minParentTransparency.value(); }
+  long getMinLeafTransparency() const { return m_minLeafTransparency.value(); }
+
 protected:
+#ifndef __CINT__
+  FWLongParameter m_topNodeIdx;
+  FWLongParameter m_autoExpand;
+  FWBoolParameter m_enableHighlight;
 
-#ifndef __CINT__      
-   FWLongParameter         m_topNodeIdx; 
-   FWLongParameter         m_autoExpand;
-   FWBoolParameter         m_enableHighlight;
-   
-   FWLongParameter         m_parentTransparencyFactor;
-   FWLongParameter         m_leafTransparencyFactor;
-   FWLongParameter         m_minParentTransparency;
-   FWLongParameter         m_minLeafTransparency;
+  FWLongParameter m_parentTransparencyFactor;
+  FWLongParameter m_leafTransparencyFactor;
+  FWLongParameter m_minParentTransparency;
+  FWLongParameter m_minLeafTransparency;
 #endif
 
-   FWColorManager         *m_colorManager;
-   FWTableWidget          *m_tableWidget;
+  FWColorManager* m_colorManager;
+  FWTableWidget* m_tableWidget;
 
-   //  TGCompositeFrame       *m_settersFrame;
+  //  TGCompositeFrame       *m_settersFrame;
 
-   FWColorPopup           *m_colorPopup;
+  FWColorPopup* m_colorPopup;
 
-   TEveWindowFrame*        m_eveWindow;
-   TGCompositeFrame*       m_frame;
+  TEveWindowFrame* m_eveWindow;
+  TGCompositeFrame* m_frame;
 
-   FWViewCombo*            m_viewBox;
+  FWViewCombo* m_viewBox;
 
+  const FWConfiguration* m_viewersConfig;
 
-   const FWConfiguration*  m_viewersConfig;
-  
-   bool m_enableRedraw;
-   
-   FWEveDigitSetScalableMarker* m_marker;
-   FWGeoTopNode* m_eveTopNode;
-   TEveScene*    m_eveScene;
+  bool m_enableRedraw;
+
+  FWEveDigitSetScalableMarker* m_marker;
+  FWGeoTopNode* m_eveTopNode;
+  TEveScene* m_eveScene;
 
 #ifndef __CINT__
-   // std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
+  // std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
-   //   void resetSetters();
-   //   void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
+  //   void resetSetters();
+  //   void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
 
-   void postConst();
-   
-   void setTopNodePathFromConfig(const FWConfiguration& iFrom);
+  void postConst();
 
-   void populateController(ViewerParameterGUI&) const override;
+  void setTopNodePathFromConfig(const FWConfiguration& iFrom);
+
+  void populateController(ViewerParameterGUI&) const override;
 
 private:
-   int m_tableRowIndexForColorPopup;
+  int m_tableRowIndexForColorPopup;
 
-   FWGeometryTableViewBase(const FWGeometryTableViewBase&);                  // stop default
-   const FWGeometryTableViewBase& operator=(const FWGeometryTableViewBase&); // stop default
-   void setColumnSelected(int idx);
-   ClassDef(FWGeometryTableViewBase, 0);
+  FWGeometryTableViewBase(const FWGeometryTableViewBase&);                   // stop default
+  const FWGeometryTableViewBase& operator=(const FWGeometryTableViewBase&);  // stop default
+  void setColumnSelected(int idx);
+  ClassDef(FWGeometryTableViewBase, 0);
 };
 
 #endif
-

@@ -16,37 +16,35 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
-
 namespace edm {
   class ConsumesCollector;
-  template<typename T> class Handle;
-  class ProducerBase;
+  template <typename T>
+  class Handle;
   class StreamID;
-}
+}  // namespace edm
 
-
-class RecoTrackAccumulator : public DigiAccumulatorMixMod 
-{
- public:
-  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+class RecoTrackAccumulator : public DigiAccumulatorMixMod {
+public:
+  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::ProducesCollector, edm::ConsumesCollector& iC);
   ~RecoTrackAccumulator() override;
-  
+
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
   void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
   void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
-  
- private:
-  template<class T> void accumulateEvent(const T& e, edm::EventSetup const& c,const edm::InputTag & label);
+private:
+  template <class T>
+  void accumulateEvent(const T& e, edm::EventSetup const& c, const edm::InputTag& label);
 
-  std::unique_ptr<reco::TrackCollection>  newTracks_;
+  std::unique_ptr<reco::TrackCollection> newTracks_;
   std::unique_ptr<reco::TrackExtraCollection> newTrackExtras_;
   std::unique_ptr<TrackingRecHitCollection> newHits_;
 
@@ -58,8 +56,6 @@ class RecoTrackAccumulator : public DigiAccumulatorMixMod
   edm::InputTag pileUpTracksTag;
 
   std::string outputLabel;
-  
 };
-
 
 #endif

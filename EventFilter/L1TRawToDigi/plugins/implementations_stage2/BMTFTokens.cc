@@ -5,18 +5,15 @@
 #include "BMTFTokens.h"
 
 namespace l1t {
-   namespace stage2 {
-      BMTFTokens::BMTFTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
-      {
+  namespace stage2 {
+    BMTFTokens::BMTFTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) {
+      auto ouputTag = cfg.getParameter<edm::InputTag>("InputLabel");
+      auto inputTagPh = cfg.getParameter<edm::InputTag>("InputLabel2");
+      auto inputTagTh = cfg.getParameter<edm::InputTag>("InputLabel2");
 
-	auto ouputTag = cfg.getParameter<edm::InputTag>("InputLabel");
-	auto inputTagPh = cfg.getParameter<edm::InputTag>("InputLabel2");
-	auto inputTagTh = cfg.getParameter<edm::InputTag>("InputLabel2");
-	 
-	outputMuonToken_ = cc.consumes<RegionalMuonCandBxCollection>(ouputTag);
-	inputMuonTokenPh_ = cc.consumes<L1MuDTChambPhContainer>(inputTagPh);
-	inputMuonTokenTh_ = cc.consumes<L1MuDTChambThContainer>(inputTagTh);
-         
-      }
-   }
-}
+      outputMuonToken_ = cc.consumes<RegionalMuonCandBxCollection>(ouputTag);
+      inputMuonTokenPh_ = cc.consumes<L1MuDTChambPhContainer>(inputTagPh);
+      inputMuonTokenTh_ = cc.consumes<L1MuDTChambThContainer>(inputTagTh);
+    }
+  }  // namespace stage2
+}  // namespace l1t

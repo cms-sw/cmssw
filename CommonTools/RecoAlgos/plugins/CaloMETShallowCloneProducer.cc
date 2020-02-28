@@ -7,4 +7,4 @@ typedef ShallowCloneProducer<reco::CaloMETCollection> CaloMETShallowCloneProduce
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( CaloMETShallowCloneProducer );
+DEFINE_FWK_MODULE(CaloMETShallowCloneProducer);

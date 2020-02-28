@@ -7,9 +7,10 @@
 class MagException : public std::exception {
 public:
   MagException() throw() {}
-  MagException( const char *message);
+  MagException(const char *message);
   ~MagException() throw() override;
-  const char* what() const throw() override;
+  const char *what() const throw() override;
+
 private:
   std::string theMessage;
 };
@@ -30,12 +31,11 @@ public:
 
 class GridInterpolator3DException : public std::exception {
 public:
-
-  GridInterpolator3DException(double a1, double b1, double c1,
-			      double a2, double b2, double c2)  throw();
+  GridInterpolator3DException(double a1, double b1, double c1, double a2, double b2, double c2) throw();
   ~GridInterpolator3DException() throw() override;
-  const char* what() const throw() override;
-  double  *limits(void) {return limits_;}
+  const char *what() const throw() override;
+  double *limits(void) { return limits_; }
+
 protected:
   double limits_[6];
 };

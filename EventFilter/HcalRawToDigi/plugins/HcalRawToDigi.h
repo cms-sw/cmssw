@@ -26,13 +26,13 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-class HcalRawToDigi : public edm::stream::EDProducer <>
-{
+class HcalRawToDigi : public edm::stream::EDProducer<> {
 public:
   explicit HcalRawToDigi(const edm::ParameterSet& ps);
   ~HcalRawToDigi() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void produce(edm::Event& , const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;
@@ -54,11 +54,10 @@ private:
   const int unpackerMode_, expectedOrbitMessageTime_;
   std::string electronicsMapLabel_;
 
-  // maps to easily associate nSamples to 
+  // maps to easily associate nSamples to
   // the tag for additional qie10 and qie11 info
   std::unordered_map<int, std::string> saveQIE10Info_;
   std::unordered_map<int, std::string> saveQIE11Info_;
-
 
   struct Statistics {
     int max_hbhe, ave_hbhe;

@@ -3,4 +3,3 @@
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
-

@@ -16,7 +16,6 @@
 
 // system includes
 
-
 // EDM includes
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,12 +24,10 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
-
 class L1GctEmulator : public edm::EDProducer {
- public:
-
+public:
   /// typedefs
-  typedef L1GlobalCaloTrigger::lutPtr       lutPtr;
+  typedef L1GlobalCaloTrigger::lutPtr lutPtr;
   typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
 
   /// constructor
@@ -39,12 +36,12 @@ class L1GctEmulator : public edm::EDProducer {
   /// destructor
   ~L1GctEmulator() override;
 
- private:
-  void beginJob() override ;
+private:
+  void beginJob() override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
-  void endJob() override ;
+  void endJob() override;
 
-  int configureGct(const edm::EventSetup& c) ;
+  int configureGct(const edm::EventSetup& c);
 
   // input label
   std::string m_inputLabel;
@@ -65,7 +62,6 @@ class L1GctEmulator : public edm::EDProducer {
   std::string m_conditionsLabel;
 
   // tracked parameters
-
 };
 
 #endif

@@ -13,7 +13,6 @@
 
 class TrackRefitter : public KfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
-
   /// Constructor
   explicit TrackRefitter(const edm::ParameterSet& iConfig);
 
@@ -25,7 +24,6 @@ private:
   enum Constraint { none, momentum, vertex, trackParameters };
   Constraint constraint_;
   edm::EDGetToken trkconstrcoll_;
-
 };
 
 #endif

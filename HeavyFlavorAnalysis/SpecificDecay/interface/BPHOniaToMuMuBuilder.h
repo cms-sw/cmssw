@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -43,17 +42,14 @@ class BPHVertexSelect;
 //              ---------------------
 
 class BPHOniaToMuMuBuilder {
-
- public:
-
-  enum oniaType { Phi , Psi1, Psi2, Ups , Ups1, Ups2, Ups3 };
+public:
+  enum oniaType { Phi, Psi1, Psi2, Ups, Ups1, Ups2, Ups3 };
 
   /** Constructor
    */
-  BPHOniaToMuMuBuilder(
-    const edm::EventSetup& es,
-    const BPHRecoBuilder::BPHGenericCollection* muPosCollection,
-    const BPHRecoBuilder::BPHGenericCollection* muNegCollection );
+  BPHOniaToMuMuBuilder(const edm::EventSetup& es,
+                       const BPHRecoBuilder::BPHGenericCollection* muPosCollection,
+                       const BPHRecoBuilder::BPHGenericCollection* muNegCollection);
 
   /** Destructor
    */
@@ -66,39 +62,37 @@ class BPHOniaToMuMuBuilder {
 
   /// extract list of candidates of specific type
   /// candidates are rebuilt applying corresponding mass constraint
-  std::vector<BPHPlusMinusConstCandPtr> getList( oniaType type,
-                                        BPHRecoSelect    * dSel = nullptr,
-                                        BPHMomentumSelect* mSel = nullptr,
-                                        BPHVertexSelect  * vSel = nullptr,
-                                        BPHFitSelect     * kSel = nullptr );
+  std::vector<BPHPlusMinusConstCandPtr> getList(oniaType type,
+                                                BPHRecoSelect* dSel = nullptr,
+                                                BPHMomentumSelect* mSel = nullptr,
+                                                BPHVertexSelect* vSel = nullptr,
+                                                BPHFitSelect* kSel = nullptr);
 
   /// retrieve original candidate from a copy with the same daughters
   /// obtained through "getList"
-  BPHPlusMinusConstCandPtr getOriginalCandidate( 
-                           const BPHRecoCandidate& cand );
+  BPHPlusMinusConstCandPtr getOriginalCandidate(const BPHRecoCandidate& cand);
 
   /// set cuts
-  void setPtMin  ( oniaType type, double pt  );
-  void setEtaMax ( oniaType type, double eta );
-  void setMassMin( oniaType type, double m   );
-  void setMassMax( oniaType type, double m   );
-  void setProbMin( oniaType type, double p   );
-  void setConstr ( oniaType type, double mass, double sigma );
+  void setPtMin(oniaType type, double pt);
+  void setEtaMax(oniaType type, double eta);
+  void setMassMin(oniaType type, double m);
+  void setMassMax(oniaType type, double m);
+  void setProbMin(oniaType type, double p);
+  void setConstr(oniaType type, double mass, double sigma);
 
   /// get current cuts
-  double getPtMin  ( oniaType type ) const;
-  double getEtaMax ( oniaType type ) const;
-  double getMassMin( oniaType type ) const;
-  double getMassMax( oniaType type ) const;
-  double getProbMin( oniaType type ) const;
-  double getConstrMass ( oniaType type ) const;
-  double getConstrSigma( oniaType type ) const;
+  double getPtMin(oniaType type) const;
+  double getEtaMax(oniaType type) const;
+  double getMassMin(oniaType type) const;
+  double getMassMax(oniaType type) const;
+  double getProbMin(oniaType type) const;
+  double getConstrMass(oniaType type) const;
+  double getConstrSigma(oniaType type) const;
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHOniaToMuMuBuilder           ( const BPHOniaToMuMuBuilder& x ) = delete;
-  BPHOniaToMuMuBuilder& operator=( const BPHOniaToMuMuBuilder& x ) = delete;
+  BPHOniaToMuMuBuilder(const BPHOniaToMuMuBuilder& x) = delete;
+  BPHOniaToMuMuBuilder& operator=(const BPHOniaToMuMuBuilder& x) = delete;
 
   std::string muPosName;
   std::string muNegName;
@@ -108,30 +102,30 @@ class BPHOniaToMuMuBuilder {
   const BPHRecoBuilder::BPHGenericCollection* negCollection;
 
   struct OniaParameters {
-    BPHMuonPtSelect *   ptSel;
-    BPHMuonEtaSelect*  etaSel;
-    BPHMassSelect   * massSel;
-    BPHChi2Select   * chi2Sel;
+    BPHMuonPtSelect* ptSel;
+    BPHMuonEtaSelect* etaSel;
+    BPHMassSelect* massSel;
+    BPHChi2Select* chi2Sel;
     double mass;
     double sigma;
     bool updated;
   };
   bool updated;
 
-  std::map< oniaType, OniaParameters > oniaPar;
-  std::map< oniaType, std::vector<BPHPlusMinusConstCandPtr> > oniaList;
+  std::map<oniaType, OniaParameters> oniaPar;
+  std::map<oniaType, std::vector<BPHPlusMinusConstCandPtr> > oniaList;
   std::vector<BPHPlusMinusConstCandPtr> fullList;
 
   void setNotUpdated();
-  void setParameters( oniaType type,
-                      double ptMin, double etaMax,
-                      double massMin, double massMax,
-                      double probMin,
-                      double mass, double sigma );
-  void extractList( oniaType type );
-
+  void setParameters(oniaType type,
+                     double ptMin,
+                     double etaMax,
+                     double massMin,
+                     double massMax,
+                     double probMin,
+                     double mass,
+                     double sigma);
+  void extractList(oniaType type);
 };
 
-
 #endif
-

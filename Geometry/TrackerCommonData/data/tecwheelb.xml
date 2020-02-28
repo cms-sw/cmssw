@@ -3,7 +3,7 @@
 	<ConstantsSection label="tecwheelb.xml" eval="true">
 		<Constant name="zero" value="0.0*fm"/>
 		<Constant name="FixSuppRmax" value="[tecpetal3:PetalContRmin]+            [tecwheel:FixSuppR]"/>
-		<Constant name="FixSuppW" value="2*[tecwheel:FixSuppA]/([FixSuppRmax]*[FixSuppRmax]-[tecpetal3:PetalContRmin]*[tecpetal3:PetalContRmin])"/>
+		<Constant name="FixSuppW" value="2*mm*[tecwheel:FixSuppA]/([FixSuppRmax]*[FixSuppRmax]-[tecpetal3:PetalContRmin]*[tecpetal3:PetalContRmin])"/>
 		<!-- calculate the width to fit the area at this specific radius! thus the volume will be constant!-->
 		<Constant name="CableL" value="([tecwheel:CableRmax]-[tecring1:Rin])"/>
 		<Constant name="CableR" value="([tecwheel:CableRmax]+[tecring1:Rin])/2"/>

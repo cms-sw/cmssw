@@ -64,29 +64,91 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug=false){
   return id;
 }
 
-double puFactor(int type, int ieta, double pmom, double eHcal, double ediff) {
+double puFactor(int type, int ieta, double pmom, double eHcal, double ediff,
+		bool debug=false) {
 
   double fac(1.0);
-  double frac = (type == 1) ? 0.02 : 0.03;
-  if (pmom > 0 && ediff >  frac*pmom) {
-    double a1(0), a2(0);
-    if (type == 1) {
-      a1 = -0.35; a2 = -0.65;
-      if (std::abs(ieta) == 25) {
-	a2 = -0.30;
-      } else if (std::abs(ieta) > 25) {
-	a1 = -0.45; a2 = -0.10;
+  if (debug) std::cout << "Input Type " << type << " ieta " << ieta
+		       << " pmon " << pmom << " E " << eHcal << ":" << ediff;
+  if (type <=2) {
+    double frac = (type == 1) ? 0.02 : 0.03;
+    if (pmom > 0 && ediff >  frac*pmom) {
+      double a1(0), a2(0);
+      if (type == 1) {
+	a1 = -0.35; a2 = -0.65;
+	if (std::abs(ieta) == 25) {
+	  a2 = -0.30;
+	} else if (std::abs(ieta) > 25) {
+	  a1 = -0.45; a2 = -0.10;
+	}
+      } else {
+	a1 = -0.39; a2 = -0.59;
+	if (std::abs(ieta) >= 25) {
+	  a1 = -0.283; a2 = -0.272;
+	} else if (std::abs(ieta) > 22) {
+	  a1 = -0.238; a2 = -0.241;
+	}
       }
-    } else {
-      a1 = -0.39; a2 = -0.59;
-      if (std::abs(ieta) >= 25) {
-	a1 = -0.283; a2 = -0.272;
-      } else if (std::abs(ieta) > 22) {
-	a1 = -0.238; a2 = -0.241;
-      }
+      fac = (1.0+a1*(eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
+      if (debug) std::cout << " coeff " << a1 << ":" << a2 << " Fac " << fac;
     }
-    fac = (1.0+a1*(eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
+  } else {
+    int    jeta = std::abs(ieta);
+    double d2p  = (ediff/pmom);
+    const double DELTA_CUT = 0.03;
+    const int    PU_IETA_3 = 25;
+    if (type == 3) {           // 16pu
+      const double CONST_COR_COEF[4]  = { 0.971, 1.008,  0.985,  1.086 };
+      const double LINEAR_COR_COEF[4] = { 0,    -0.359, -0.251, -0.535 };
+      const double SQUARE_COR_COEF[4] = { 0,     0,      0.048,  0.143 };
+      const int    PU_IETA_1          = 9;
+      const int    PU_IETA_2          = 16;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + 
+		       unsigned(jeta >= PU_IETA_2) +
+		       unsigned(jeta >= PU_IETA_3));
+      if (d2p > DELTA_CUT) fac = (CONST_COR_COEF[icor] + 
+				  LINEAR_COR_COEF[icor]*d2p + 
+				  SQUARE_COR_COEF[icor]*d2p*d2p);
+      if (debug) std::cout << " d2p " << d2p << ":"  << DELTA_CUT << " coeff " 
+			   << icor << ":"  << CONST_COR_COEF[icor] << ":" 
+			   << LINEAR_COR_COEF[icor] << ":"
+			   << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else if (type == 4) {    // 17pu
+      const double CONST_COR_COEF[4]  = { 0.974, 1.023,  0.989,  1.077 };
+      const double LINEAR_COR_COEF[4] = { 0,    -0.524, -0.268, -0.584 };
+      const double SQUARE_COR_COEF[4] = { 0,     0,      0.053,  0.170 };
+      const int PU_IETA_1             = 9;
+      const int PU_IETA_2             = 18;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + 
+		       unsigned(jeta >= PU_IETA_2) +
+		       unsigned(jeta >= PU_IETA_3));
+      if (d2p > DELTA_CUT) fac = (CONST_COR_COEF[icor] + 
+				  LINEAR_COR_COEF[icor]*d2p + 
+				  SQUARE_COR_COEF[icor]*d2p*d2p);
+      if (debug) std::cout << " d2p " << d2p << ":"  << DELTA_CUT << " coeff " 
+			   << icor << ":"  << CONST_COR_COEF[icor] << ":" 
+			   << LINEAR_COR_COEF[icor] << ":"
+			   << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else {                   // 18pu
+      const double CONST_COR_COEF[4]  = { 0.973, 0.998,  0.992,  0.965 };
+      const double LINEAR_COR_COEF[4] = { 0,    -0.318, -0.261, -0.406 };
+      const double SQUARE_COR_COEF[4] = { 0,     0,      0.047,  0.089 };
+      const int PU_IETA_1      = 7;
+      const int PU_IETA_2      = 16;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + 
+		       unsigned(jeta >= PU_IETA_2) +
+		       unsigned(jeta >= PU_IETA_3));
+      if (d2p > DELTA_CUT) fac = (CONST_COR_COEF[icor] + 
+				  LINEAR_COR_COEF[icor]*d2p + 
+				  SQUARE_COR_COEF[icor]*d2p*d2p);
+      if (debug) std::cout << " d2p " << d2p << ":"  << DELTA_CUT << " coeff " 
+			   << icor << ":"  << CONST_COR_COEF[icor] << ":" 
+			   << LINEAR_COR_COEF[icor] << ":"
+			   << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    }
   }
+  if (fac < 0 || fac > 1) fac = 0;
+  if (debug) std::cout << " Final factor " << fac << std::endl;
   return fac;
 }
 
@@ -194,10 +256,12 @@ public :
   ~CalibCorr() {}
 
   float getCorr(int run, unsigned int id);
+  double getCorr(const Long64_t& entry);
 private:
   void                     readCorrRun(const char* infile);
   void                     readCorrDepth(const char* infile);
   void                     readCorrResp(const char* infile);
+  void                     readCorrPU(const char* infile);
   unsigned int getDetIdHE(int ieta, int iphi, int depth);
   unsigned int getDetId(int subdet, int ieta, int iphi, int depth);
   unsigned int correctDetId(const unsigned int& detId);
@@ -206,6 +270,7 @@ private:
   int                           flag_;
   bool                          debug_;
   std::map<unsigned int,float>  corrFac_[nmax_], corrFacDepth_, corrFacResp_;
+  std::map<Long64_t,double>     cfactors_;
   std::vector<int>              runlow_;
 };
 
@@ -320,6 +385,7 @@ CalibCorr::CalibCorr(const char* infile, int flag, bool debug) :
 	    << " for i/p file " << infile << std::endl;
   if      (flag == 1) readCorrDepth(infile);
   else if (flag == 2) readCorrResp(infile);
+  else if (flag == 3) readCorrPU(infile);
   else                readCorrRun(infile);
 }
 
@@ -355,6 +421,13 @@ float CalibCorr::getCorr(int run, unsigned int id) {
 	      << " eta " << zside*ieta << " phi " << iphi << " depth " << depth
 	      << ")  Factor " << cfac << std::endl;
   }
+  return cfac;
+}
+
+double CalibCorr::getCorr(const Long64_t& entry) {
+  double cfac(-1.0);
+  std::map<Long64_t,double>::iterator itr = cfactors_.find(entry);
+  if (itr != cfactors_.end()) cfac = itr->second;
   return cfac;
 }
 
@@ -510,6 +583,28 @@ void CalibCorr::readCorrResp(const char* infile) {
 	      << other << " detector records of depth dependent factors from "
 	      << infile << std::endl;
   }
+}
+
+void CalibCorr::readCorrPU(const char* infile) {
+
+  if (std::string(infile) != "") {
+    std::ifstream fInput(infile);
+    if (!fInput.good()) {
+      std::cout << "Cannot open file " << infile << std::endl;
+    } else {
+      double val1, val2;
+      cfactors_.clear();
+      while (1) {
+	fInput >> val1 >> val2;
+	if (!fInput.good()) break;
+	Long64_t entry = (Long64_t)(val1);
+	cfactors_[entry] = val2;
+      }
+      fInput.close();
+    }
+  }
+  std::cout << "Reads " << cfactors_.size() << " PU correction factors from " 
+	    << infile << std::endl;
 }
 
 unsigned int CalibCorr::getDetIdHE(int ieta, int iphi, int depth) {

@@ -7,8 +7,9 @@
 
 class IntermediateTrajectoryCleaner {
   typedef BaseCkfTrajectoryBuilder::TempTrajectoryContainer TempTrajectoryContainer;
-  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer; 
+  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+
 public:
-  static void clean(TempTrajectoryContainer &tracks) ;
+  static void clean(TempTrajectoryContainer &tracks);
 };
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     CastorGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -20,18 +20,13 @@
 #include "Geometry/Records/interface/PCastorRcd.h"
 #include "boost/mpl/vector.hpp"
 
-
-class CastorGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   CastorGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		CastorAlignmentRcd, 
-		CastorAlignmentErrorRcd,
-                CastorAlignmentErrorExtendedRcd,
-		GlobalPositionRcd,
-		PCastorRcd
-		> > {};
+class CastorGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<CastorGeometryRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               CastorAlignmentRcd,
+                                                                               CastorAlignmentErrorRcd,
+                                                                               CastorAlignmentErrorExtendedRcd,
+                                                                               GlobalPositionRcd,
+                                                                               PCastorRcd> > {};
 
 #endif /* RECORDS_CastorGEOMETRYRECORD_H */
-

@@ -8,20 +8,21 @@
  *           D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
 
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-namespace edm {class ParameterSet;}
+namespace edm {
+  class ParameterSet;
+}
 class MuonServiceProxy;
 class TrajectoryFitter;
 class Trajectory;
 
 class StandAloneMuonRefitter {
- public:
+public:
   typedef std::pair<bool, Trajectory> RefitResult;
 
- public:
+public:
   /// Constructor
   StandAloneMuonRefitter(const edm::ParameterSet& par, const MuonServiceProxy* service);
 
@@ -35,15 +36,13 @@ class StandAloneMuonRefitter {
   RefitResult refit(const Trajectory&);
 
 protected:
-
 private:
   const MuonServiceProxy* theService;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  std::string  theFitterName;
+  std::string theFitterName;
   unsigned int theNumberOfIterations;
   bool isForceAllIterations;
   double theMaxFractionOfLostHits;
   double errorRescale;
 };
 #endif
-

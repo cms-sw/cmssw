@@ -5,4 +5,4 @@
 
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 
-#endif 
+#endif

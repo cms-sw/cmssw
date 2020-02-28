@@ -4,5 +4,3 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRawInfo.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRecInfo.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
-

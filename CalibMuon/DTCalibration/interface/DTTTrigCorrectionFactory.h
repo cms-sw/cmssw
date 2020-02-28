@@ -16,5 +16,6 @@ namespace dtCalibration {
   class DTTTrigBaseCorrection;
 }
 
-typedef edmplugin::PluginFactory<dtCalibration::DTTTrigBaseCorrection *(const edm::ParameterSet &)> DTTTrigCorrectionFactory;
+typedef edmplugin::PluginFactory<dtCalibration::DTTTrigBaseCorrection *(const edm::ParameterSet &)>
+    DTTTrigCorrectionFactory;
 #endif

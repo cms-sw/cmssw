@@ -13,12 +13,8 @@
 
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
-
-class L1aInfo
-{
-
+class L1aInfo {
 public:
-
   L1aInfo();
 
   L1aInfo(const tcds::L1aInfo_v1&);
@@ -35,17 +31,14 @@ public:
   // The event type of the L1 accept corresponding to edm::EventAuxiliary::ExperimentType
   uint8_t getEventType() const { return eventType_; }
 
-
 private:
-
   uint64_t orbitNr_;
   uint16_t bxid_;
   int16_t index_;
   uint8_t eventType_;
-
 };
 
 /// Pretty-print operator for L1aInfo
 std::ostream& operator<<(std::ostream&, const L1aInfo&);
 
-#endif // DATAFORMATS_TCDS_L1AINFO_H
+#endif  // DATAFORMATS_TCDS_L1AINFO_H

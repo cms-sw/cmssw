@@ -5,26 +5,24 @@
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-
 class TrackingRegion;
 class SeedingHitSet;
 class SeedComparitor;
 
-namespace edm { class Event; class EventSetup; }
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class SeedCreator {
 public:
-
-  virtual ~SeedCreator(){}
+  virtual ~SeedCreator() {}
 
   // initialize the "event dependent state"
-  virtual void init(const TrackingRegion & region,
-		    const edm::EventSetup& es,
-		    const SeedComparitor *filter) = 0;
+  virtual void init(const TrackingRegion& region, const edm::EventSetup& es, const SeedComparitor* filter) = 0;
 
-  // make job 
+  // make job
   // fill seedCollection with the "TrajectorySeed"
-  virtual void makeSeed(TrajectorySeedCollection & seedCollection,
-			const SeedingHitSet & hits) = 0;
+  virtual void makeSeed(TrajectorySeedCollection& seedCollection, const SeedingHitSet& hits) = 0;
 };
-#endif 
+#endif

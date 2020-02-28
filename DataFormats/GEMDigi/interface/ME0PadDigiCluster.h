@@ -14,11 +14,10 @@
 #include <iosfwd>
 #include <vector>
 
-class ME0PadDigiCluster{
-
+class ME0PadDigiCluster {
 public:
-  explicit ME0PadDigiCluster (std::vector<uint16_t> pads, int bx);
-  ME0PadDigiCluster ();
+  explicit ME0PadDigiCluster(std::vector<uint16_t> pads, int bx);
+  ME0PadDigiCluster();
 
   bool operator==(const ME0PadDigiCluster& digi) const;
   bool operator!=(const ME0PadDigiCluster& digi) const;
@@ -31,10 +30,9 @@ public:
 
 private:
   std::vector<uint16_t> v_;
-  int32_t  bx_;
+  int32_t bx_;
 };
 
-std::ostream & operator<<(std::ostream & o, const ME0PadDigiCluster& digi);
+std::ostream& operator<<(std::ostream& o, const ME0PadDigiCluster& digi);
 
 #endif
-

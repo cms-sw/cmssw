@@ -15,17 +15,15 @@
 
 namespace tauImpactParameter {
 
-class TrackTools {
- public:
-  TrackTools(){};
-  virtual ~TrackTools(){};
-  static TVector3 propagateToXPosition(const TrackParticle& p, double x);
-  static TVector3 propagateToYPosition(const TrackParticle& p, double y);
-  static TVector3 propagateToZPosition(const TrackParticle& p, double z);
-  static LorentzVectorParticle lorentzParticleAtPosition(const TrackParticle& p, const TVector3& v);
-};
+  class TrackTools {
+  public:
+    TrackTools(){};
+    virtual ~TrackTools(){};
+    static TVector3 propagateToXPosition(const TrackParticle& p, double x);
+    static TVector3 propagateToYPosition(const TrackParticle& p, double y);
+    static TVector3 propagateToZPosition(const TrackParticle& p, double z);
+    static LorentzVectorParticle lorentzParticleAtPosition(const TrackParticle& p, const TVector3& v);
+  };
 
-}
+}  // namespace tauImpactParameter
 #endif
-
-

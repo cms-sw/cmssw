@@ -40,120 +40,113 @@ using namespace edm;
 //
 // inizialization
 //
-void TrackerSeedCleaner::init(const MuonServiceProxy *service){
-
+void TrackerSeedCleaner::init(const MuonServiceProxy* service) {
   theProxyService = service;
-  
+
   theRedundantCleaner = new RedundantSeedCleaner();
 }
 
 //
 //
 //
-void TrackerSeedCleaner::setEvent(const edm::Event& event)
-{
- event.getByToken(beamspotToken_, bsHandle_);
-}
+void TrackerSeedCleaner::setEvent(const edm::Event& event) { event.getByToken(beamspotToken_, bsHandle_); }
 
 //
 // clean seeds
 //
-void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaPhiTrackingRegion& region, tkSeeds& seeds ) {
+void TrackerSeedCleaner::clean(const reco::TrackRef& muR,
+                               const RectangularEtaPhiTrackingRegion& region,
+                               tkSeeds& seeds) {
+  // call the shared input cleaner
+  if (cleanBySharedHits)
+    theRedundantCleaner->define(seeds);
 
+  theProxyService->eventSetup().get<TransientRecHitRecord>().get(builderName_, theTTRHBuilder);
 
- // call the shared input cleaner
- if(cleanBySharedHits) theRedundantCleaner->define(seeds);
+  LogDebug("TrackerSeedCleaner") << seeds.size() << " trajectory seeds to the events before cleaning" << endl;
 
- theProxyService->eventSetup().get<TransientRecHitRecord>().get(builderName_,theTTRHBuilder);
+  //check the validity otherwise vertexing
+  const reco::BeamSpot& bs = *bsHandle_;
+  /*reco track and seeds as arguments. Seeds eta and phi are checked and 
+   based on deviation from L2 eta and phi seed is accepted or not*/
 
- LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events before cleaning"<<endl; 
+  std::vector<TrajectorySeed> result;
 
- //check the validity otherwise vertexing
- const reco::BeamSpot & bs = *bsHandle_;
- /*reco track and seeds as arguments. Seeds eta and phi are checked and 
-   based on deviation from L2 eta and phi seed is accepted or not*/  
+  TSCBLBuilderNoMaterial tscblBuilder;
+  // PerigeeConversions tspConverter;
+  for (TrajectorySeedCollection::iterator seed = seeds.begin(); seed < seeds.end(); ++seed) {
+    if (seed->nHits() < 2)
+      continue;
+    //get parameters and errors from the seed state
+    TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second - 1));
+    TrajectoryStateOnSurface state = trajectoryStateTransform::transientState(
+        seed->startingState(), recHit->surface(), theProxyService->magneticField().product());
 
- std::vector<TrajectorySeed > result;
+    TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed =
+        tscblBuilder(*state.freeState(), bs);  //as in TrackProducerAlgorithms
+    if (!tsAtClosestApproachSeed.isValid())
+      continue;
+    GlobalPoint vSeed1 = tsAtClosestApproachSeed.trackStateAtPCA().position();
+    GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
+    GlobalPoint vSeed(vSeed1.x() - bs.x0(), vSeed1.y() - bs.y0(), vSeed1.z() - bs.z0());
 
- 
- TSCBLBuilderNoMaterial tscblBuilder;
- // PerigeeConversions tspConverter;
- for(TrajectorySeedCollection::iterator seed = seeds.begin(); seed<seeds.end(); ++seed){
-        if(seed->nHits() < 2) continue; 
-	//get parameters and errors from the seed state
-	TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
-	TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( seed->startingState(), recHit->surface(), theProxyService->magneticField().product());
+    //eta,phi info from seeds
+    double etaSeed = state.globalMomentum().eta();
+    double phiSeed = pSeed.phi();
 
-	TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithms
-	if (!tsAtClosestApproachSeed.isValid()) continue;
-	GlobalPoint vSeed1 = tsAtClosestApproachSeed.trackStateAtPCA().position();
-	GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
-	GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
+    //if the limits are too stringent rescale limits
+    typedef PixelRecoRange<float> Range;
+    typedef TkTrackingRegionsMargin<float> Margin;
 
+    Range etaRange = region.etaRange();
+    double etaLimit = (fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) < 0.1)
+                          ? 0.1
+                          : fabs(fabs(etaRange.max()) - fabs(etaRange.mean()));
 
-        //eta,phi info from seeds 
-	double etaSeed = state.globalMomentum().eta();
-	double phiSeed = pSeed.phi(); 
+    Margin phiMargin = region.phiMargin();
+    double phiLimit = (phiMargin.right() < 0.1) ? 0.1 : phiMargin.right();
 
-        //if the limits are too stringent rescale limits
-	typedef PixelRecoRange< float > Range;
-	typedef TkTrackingRegionsMargin< float > Margin;
+    double ptSeed = pSeed.perp();
+    double ptMin = (region.ptMin() > 3.5) ? 3.5 : region.ptMin();
+    // Clean
+    bool inEtaRange = etaSeed >= (etaRange.mean() - etaLimit) && etaSeed <= (etaRange.mean() + etaLimit);
+    bool inPhiRange = (fabs(deltaPhi(phiSeed, double(region.direction().phi()))) < phiLimit);
+    // pt cleaner
+    bool inPtRange = ptSeed >= ptMin && ptSeed <= 2 * (muR->pt());
 
-	Range etaRange   = region.etaRange();
-	double etaLimit  = (fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) <0.1) ? 0.1 : fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) ;
+    // save efficiency don't clean triplets with pt cleaner
+    if (seed->nHits() == 3)
+      inPtRange = true;
 
-	Margin phiMargin = region.phiMargin();
-	double phiLimit  = (phiMargin.right() < 0.1 ) ? 0.1 : phiMargin.right(); 
+    // use pt and angle cleaners
+    if (inPtRange && usePt_Cleaner && !useDirection_Cleaner) {
+      result.push_back(*seed);
+      LogDebug("TrackerSeedCleaner") << " Keeping the seed : this seed passed pt selection";
+    }
 
-        double ptSeed  = pSeed.perp();
-        double ptMin   = (region.ptMin()>3.5) ? 3.5: region.ptMin();
-        // Clean  
-	bool inEtaRange = etaSeed >= (etaRange.mean() - etaLimit) && etaSeed <= (etaRange.mean() + etaLimit) ;
-	bool inPhiRange = (fabs(deltaPhi(phiSeed,double(region.direction().phi()))) < phiLimit );
-        // pt cleaner
-        bool inPtRange = ptSeed >= ptMin &&  ptSeed<= 2*(muR->pt());
-        
-        // save efficiency don't clean triplets with pt cleaner 
-        if(seed->nHits()==3) inPtRange = true;
+    // use only angle default option
+    if (inEtaRange && inPhiRange && !usePt_Cleaner && useDirection_Cleaner) {
+      result.push_back(*seed);
+      LogDebug("TrackerSeedCleaner") << " Keeping the seed : this seed passed direction selection";
+    }
 
-        // use pt and angle cleaners
-        if(inPtRange  && usePt_Cleaner && !useDirection_Cleaner) {
+    // use all the cleaners
+    if (inEtaRange && inPhiRange && inPtRange && usePt_Cleaner && useDirection_Cleaner) {
+      result.push_back(*seed);
+      LogDebug("TrackerSeedCleaner") << " Keeping the seed : this seed passed direction and pt selection";
+    }
 
-            result.push_back(*seed);
-            LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed pt selection";
-        }
-        
-        // use only angle default option
-        if( inEtaRange && inPhiRange && !usePt_Cleaner && useDirection_Cleaner) {
-
-            result.push_back(*seed);
-            LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed direction selection";
-
-        }
-
-        // use all the cleaners
-        if( inEtaRange && inPhiRange && inPtRange && usePt_Cleaner && useDirection_Cleaner) {
-
-            result.push_back(*seed);
-            LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed direction and pt selection";
-
-        }
-
-	
-        LogDebug("TrackerSeedCleaner")<<" eta for current seed "<<etaSeed<<"\n"
-                                      <<" phi for current seed "<<phiSeed<<"\n"
-                                      <<" eta for L2 track  "<<muR->eta()<<"\n"
-                                      <<" phi for L2 track  "<<muR->phi()<<"\n";
-
-
+    LogDebug("TrackerSeedCleaner") << " eta for current seed " << etaSeed << "\n"
+                                   << " phi for current seed " << phiSeed << "\n"
+                                   << " eta for L2 track  " << muR->eta() << "\n"
+                                   << " phi for L2 track  " << muR->phi() << "\n";
   }
 
-   //the new seeds collection
-   if(!result.empty() && (useDirection_Cleaner || usePt_Cleaner)) seeds.swap(result);
+  //the new seeds collection
+  if (!result.empty() && (useDirection_Cleaner || usePt_Cleaner))
+    seeds.swap(result);
 
-   LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events after cleaning"<<endl;
- 
-   return;
+  LogDebug("TrackerSeedCleaner") << seeds.size() << " trajectory seeds to the events after cleaning" << endl;
 
+  return;
 }
-

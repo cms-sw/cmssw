@@ -30,15 +30,13 @@
 // class declaration
 //
 
-
 class SelectHFMinBias : public edm::EDFilter {
 public:
-  explicit SelectHFMinBias( const edm::ParameterSet & );
+  explicit SelectHFMinBias(const edm::ParameterSet &);
   ~SelectHFMinBias() override;
-  
-private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
 
+private:
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 };
 
 #endif

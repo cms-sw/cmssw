@@ -28,14 +28,13 @@ namespace edmtest {
 
   class ThinningThingSelector {
   public:
-
     ThinningThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
 
-    static void fillDescription(edm::ParameterSetDescription & desc);
+    static void fillDescription(edm::ParameterSetDescription& desc);
 
     void preChoose(edm::Handle<edmtest::ThingCollection> tc, edm::Event const& event, edm::EventSetup const& es);
 
-    bool choose( unsigned int iIndex, edmtest::Thing const& iItem);
+    bool choose(unsigned int iIndex, edmtest::Thing const& iItem);
 
   private:
     edm::EDGetTokenT<TrackOfThingsCollection> trackToken_;
@@ -50,13 +49,15 @@ namespace edmtest {
     expectedCollectionSize_ = pset.getParameter<unsigned int>("expectedCollectionSize");
   }
 
-  void ThinningThingSelector::fillDescription(edm::ParameterSetDescription & desc) {
+  void ThinningThingSelector::fillDescription(edm::ParameterSetDescription& desc) {
     desc.add<edm::InputTag>("trackTag");
     desc.add<unsigned int>("offsetToThinnedKey");
     desc.add<unsigned int>("expectedCollectionSize");
   }
 
-  void ThinningThingSelector::preChoose(edm::Handle<edmtest::ThingCollection> tc, edm::Event const& event, edm::EventSetup const& es) {
+  void ThinningThingSelector::preChoose(edm::Handle<edmtest::ThingCollection> tc,
+                                        edm::Event const& event,
+                                        edm::EventSetup const& es) {
     for (auto const& track : event.get(trackToken_)) {
       keysToSave_.insert(track.ref1.key() - offsetToThinnedKey_);
       keysToSave_.insert(track.ref2.key() - offsetToThinnedKey_);
@@ -65,8 +66,9 @@ namespace edmtest {
     }
 
     // Just checking to see if the collection got passed in. Not really using it for anything.
-    if(tc->size() != expectedCollectionSize_) {
-      throw cms::Exception("TestFailure") << "ThinningThingSelector::preChoose, collection size = " << tc->size() << " expected size = " << expectedCollectionSize_;
+    if (tc->size() != expectedCollectionSize_) {
+      throw cms::Exception("TestFailure") << "ThinningThingSelector::preChoose, collection size = " << tc->size()
+                                          << " expected size = " << expectedCollectionSize_;
     }
 
     // Just checking to see the EventSetup works from here. Not really using it for anything.
@@ -75,19 +77,20 @@ namespace edmtest {
     pSetup.isValid();
   }
 
-  bool ThinningThingSelector::choose( unsigned int iIndex, edmtest::Thing const& iItem) {
-
+  bool ThinningThingSelector::choose(unsigned int iIndex, edmtest::Thing const& iItem) {
     // Just checking to see the element in the container got passed in OK. Not really using it.
     // Just using %10 because it coincidentally works with the arbitrary numbers I picked, no meaning really.
-    if(static_cast<unsigned>(iItem.a % 10) != iIndex % 10) {
-      throw cms::Exception("TestFailure") << "ThinningThingSelector::choose, item content = " << iItem.a << " index = " << iIndex;
+    if (static_cast<unsigned>(iItem.a % 10) != iIndex % 10) {
+      throw cms::Exception("TestFailure")
+          << "ThinningThingSelector::choose, item content = " << iItem.a << " index = " << iIndex;
     }
 
     // Save the Things referenced by the Tracks
-    if(keysToSave_.find(iIndex) == keysToSave_.end()) return false;
+    if (keysToSave_.find(iIndex) == keysToSave_.end())
+      return false;
     return true;
   }
-}
+}  // namespace edmtest
 
 typedef edm::ThinningProducer<edmtest::ThingCollection, edmtest::ThinningThingSelector> ThinningThingProducer;
 DEFINE_FWK_MODULE(ThinningThingProducer);

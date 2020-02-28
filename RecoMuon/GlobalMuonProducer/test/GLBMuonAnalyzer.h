@@ -18,31 +18,31 @@ class TFile;
 class TH1F;
 class TH2F;
 
-class GLBMuonAnalyzer: public edm::EDAnalyzer {
+class GLBMuonAnalyzer : public edm::EDAnalyzer {
 public:
   /// Constructor
-  GLBMuonAnalyzer(const edm::ParameterSet& pset);
+  GLBMuonAnalyzer(const edm::ParameterSet &pset);
 
   /// Destructor
   virtual ~GLBMuonAnalyzer();
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  virtual void beginJob();
+  virtual void endJob();
+
 protected:
-
 private:
   edm::InputTag theGLBMuonLabel;
-  
+
   std::string theRootFileName;
-  TFile* theFile;
-  
+  TFile *theFile;
+
   // Histograms
   TH1F *hPtRec;
-  TH1F *hPtSim; 
+  TH1F *hPtSim;
   TH1F *hPres;
   TH1F *h1_Pres;
   TH1F *hPTDiff;
@@ -55,7 +55,5 @@ private:
   int numberOfRecTracks;
 
   std::string theDataType;
-  
 };
 #endif
-

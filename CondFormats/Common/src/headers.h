@@ -12,5 +12,4 @@
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 #include "CondFormats/Common/interface/BasicPayload.h"
 
-
 #include <vector>

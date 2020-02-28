@@ -27,20 +27,19 @@ class DTRecoConditions;
 class DumpDBToFile : public edm::EDAnalyzer {
 public:
   /// Constructor
-  DumpDBToFile(const edm::ParameterSet& pset);
+  DumpDBToFile(const edm::ParameterSet &pset);
 
   /// Destructor
   virtual ~DumpDBToFile();
 
   // Operations
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
+  virtual void beginRun(const edm::Run &run, const edm::EventSetup &setup);
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
+  virtual void analyze(const edm::Event &event, const edm::EventSetup &setup) {}
 
   virtual void endJob();
 
 protected:
-
 private:
   const DTMtime *mTimeMap;
   const DTTtrig *tTrigMap;
@@ -58,7 +57,5 @@ private:
   std::string dbToDump;
   std::string dbLabel;
   std::string format;
-
 };
 #endif
-

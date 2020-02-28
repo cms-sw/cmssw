@@ -24,61 +24,58 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 class FWTrackProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track> {
-
 public:
-   FWTrackProxyBuilder();
-   ~FWTrackProxyBuilder() override;
+  FWTrackProxyBuilder();
+  ~FWTrackProxyBuilder() override;
 
-   REGISTER_PROXYBUILDER_METHODS();
-  
-   void setItem(const FWEventItem* iItem) override;
+  REGISTER_PROXYBUILDER_METHODS();
+
+  void setItem(const FWEventItem* iItem) override;
+
 private:
-   FWTrackProxyBuilder(const FWTrackProxyBuilder&) = delete; // stop default
+  FWTrackProxyBuilder(const FWTrackProxyBuilder&) = delete;  // stop default
 
-   const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&) = delete; // stop default
+  const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&) = delete;  // stop default
 
-   using FWSimpleProxyBuilderTemplate<reco::Track>::build;
-   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
+  using FWSimpleProxyBuilderTemplate<reco::Track>::build;
+  void build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
-FWTrackProxyBuilder::FWTrackProxyBuilder()
-{
+FWTrackProxyBuilder::FWTrackProxyBuilder() {}
+
+FWTrackProxyBuilder::~FWTrackProxyBuilder() {}
+
+void FWTrackProxyBuilder::setItem(const FWEventItem* iItem) {
+  FWProxyBuilderBase::setItem(iItem);
+
+  if (iItem) {
+    iItem->getConfig()->assertParam("LineWidth", long(1), long(1), long(4));
+  }
 }
 
-FWTrackProxyBuilder::~FWTrackProxyBuilder()
-{
-}
+void FWTrackProxyBuilder::build(const reco::Track& iData,
+                                unsigned int iIndex,
+                                TEveElement& oItemHolder,
+                                const FWViewContext*) {
+  if (context().getField()->getSource() == FWMagField::kNone) {
+    if (fabs(iData.eta()) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30) {
+      double estimate = fw::estimate_field(iData, true);
+      if (estimate >= 0)
+        context().getField()->guessField(estimate);
+    }
+  }
 
-void
-FWTrackProxyBuilder::setItem(const FWEventItem* iItem)
-{
-   FWProxyBuilderBase::setItem(iItem);
-   
-   if (iItem) {
-      iItem->getConfig()->assertParam("LineWidth", long(1), long(1), long(4));
-   }
-}
+  TEveTrackPropagator* propagator =
+      (!iData.extra().isAvailable()) ? context().getTrackerTrackPropagator() : context().getTrackPropagator();
 
-void
-FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder , const FWViewContext*) 
-{
-   if( context().getField()->getSource() == FWMagField::kNone ) {
-      if( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 ) {
-	 double estimate = fw::estimate_field( iData, true );
-         if( estimate >= 0 ) context().getField()->guessField( estimate );
-      }
-   }
+  TEveTrack* trk = fireworks::prepareTrack(iData, propagator);
+  trk->MakeTrack();
 
-   TEveTrackPropagator* propagator = ( !iData.extra().isAvailable() ) ?  context().getTrackerTrackPropagator() : context().getTrackPropagator();
+  // Line width can be cached as a member. Set in virtual builder::itemChanged()
+  int width = item()->getConfig()->value<long>("LineWidth");
+  trk->SetLineWidth(width);
 
-   TEveTrack* trk = fireworks::prepareTrack( iData, propagator );
-   trk->MakeTrack();
-
-   // Line width can be cached as a member. Set in virtual builder::itemChanged()
-   int width = item()->getConfig()->value<long>("LineWidth");
-   trk->SetLineWidth(width);
-
-   setupAddElement(trk, &oItemHolder);
+  setupAddElement(trk, &oItemHolder);
 }
 
 //

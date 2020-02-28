@@ -6,4 +6,5 @@
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/L1TCalorimeter"/>
 <use name="DataFormats/L1TMuon"/>
+<use name="DataFormats/L1TGlobal"/>
 <flags EDM_PLUGIN="1"/>

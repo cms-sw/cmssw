@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     makeRefToBaseProdFrom
-// 
+//
 /**\class makeRefToBaseProdFrom makeRefToBaseProdFrom.h "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 
  Description: [one line class summary]
@@ -30,12 +30,12 @@
 // forward declarations
 
 namespace edm {
-  template<typename T>
-    RefToBaseProd<T> makeRefToBaseProdFrom(RefToBase<T> const& iRef, Event const& iEvent) {
+  template <typename T>
+  RefToBaseProd<T> makeRefToBaseProdFrom(RefToBase<T> const& iRef, Event const& iEvent) {
     Handle<View<T>> view;
-    iEvent.get(iRef.id(),view);
+    iEvent.get(iRef.id(), view);
 
     return RefToBaseProd<T>(view);
   }
-}
+}  // namespace edm
 #endif

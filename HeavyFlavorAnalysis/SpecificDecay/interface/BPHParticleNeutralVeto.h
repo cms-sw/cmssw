@@ -23,15 +23,12 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHParticleNeutralVeto: public BPHRecoSelect {
-
- public:
-
+class BPHParticleNeutralVeto : public BPHRecoSelect {
+public:
   /** Constructor
    */
   BPHParticleNeutralVeto() {}
@@ -43,18 +40,12 @@ class BPHParticleNeutralVeto: public BPHRecoSelect {
   /** Operations
    */
   /// select charged particles
-  bool accept( const reco::Candidate& cand ) const override {
-    return ( cand.charge() != 0 );
-  }
+  bool accept(const reco::Candidate& cand) const override { return (cand.charge() != 0); }
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHParticleNeutralVeto           ( const BPHParticleNeutralVeto& x ) = delete;
-  BPHParticleNeutralVeto& operator=( const BPHParticleNeutralVeto& x ) = delete;
-
+  BPHParticleNeutralVeto(const BPHParticleNeutralVeto& x) = delete;
+  BPHParticleNeutralVeto& operator=(const BPHParticleNeutralVeto& x) = delete;
 };
 
-
 #endif
-

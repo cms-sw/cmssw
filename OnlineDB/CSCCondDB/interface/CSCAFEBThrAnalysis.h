@@ -17,23 +17,21 @@
   */
 class CSCAFEBThrAnalysis {
 public:
-  CSCAFEBThrAnalysis(); 
+  CSCAFEBThrAnalysis();
   void setup(const std::string& histoFileName);
-  void analyze(const CSCWireDigiCollection& wirecltn); 
+  void analyze(const CSCWireDigiCollection& wirecltn);
   void done();
 
 private:
-  void bookForId(int flag, const int& idint,const std::string& ids);
-  void hf1ForId(std::map<int, TH1*>& mp, int flag, const int& id, 
-                                         float& x, float w);
-  void hf2ForId(std::map<int, TH2*>& mp, int flag, const int& id,
-                                         float& x, float& y, float w);
+  void bookForId(int flag, const int& idint, const std::string& ids);
+  void hf1ForId(std::map<int, TH1*>& mp, int flag, const int& id, float& x, float w);
+  void hf2ForId(std::map<int, TH2*>& mp, int flag, const int& id, float& x, float& y, float w);
   /// Statistics
   int nmbev;
   int nmbev_no_wire;
 
   /// DAC info
-  int npulses; 
+  int npulses;
   int unsigned indDac;
   int BegDac;
   int EndDac;
@@ -41,17 +39,17 @@ private:
   int StepDac;
   std::vector<float> vecDac;
   std::vector<int> vecDacOccup;
-  
+
   /// Maps - per event, threshold curve, fit results
-  std::map<int, std::vector<int> >                 m_wire_ev;
-  std::map<int, std::vector<std::vector<int> > >   m_wire_dac;
+  std::map<int, std::vector<int> > m_wire_ev;
+  std::map<int, std::vector<std::vector<int> > > m_wire_dac;
   std::map<int, std::vector<std::vector<float> > > m_res_for_db;
 
   /// Layer, wire to AFEB, channel conversion
   const CSCToAFEB csctoafeb;
 
   /// ROOT hist file
-  TFile* hist_file; 
+  TFile* hist_file;
 
   /// Histogram maps
   std::map<int, TH1*> mh_ChanEff;

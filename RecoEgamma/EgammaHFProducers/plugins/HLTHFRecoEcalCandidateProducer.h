@@ -1,9 +1,9 @@
 #ifndef RECOLOCALCALO_HFCLUSTERPRODUCER_HLTHFRECOECALCANDIDATEPRODUCER_H
-#define RECOLOCALCALO_HFCLUSTERPRODUCER_HLTHFRECOECALCANDIDATEPRODUCER_H 1// -*- C++ -*-
+#define RECOLOCALCALO_HFCLUSTERPRODUCER_HLTHFRECOECALCANDIDATEPRODUCER_H 1  // -*- C++ -*-
 //
 // Package:    EgammaHFProducers
 // Class:      HFRecoEcalCandidateProducers
-// 
+//
 /**\class HFRecoEcalCandidateProducers.h HFRecoEcalCandidateProducers.cc  
 */
 //
@@ -22,11 +22,12 @@
 #include "HFValueStruct.h"
 
 class HLTHFRecoEcalCandidateProducer : public edm::global::EDProducer<> {
- public:
+public:
   explicit HLTHFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
- private:
-  const edm::InputTag hfclusters_,vertices_;
+
+private:
+  const edm::InputTag hfclusters_, vertices_;
   const int HFDBversion_;
   const std::vector<double> HFDBvector_;
   const double Cut2D_;

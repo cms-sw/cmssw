@@ -8,10 +8,6 @@
 
 #include "FWCore/Framework/interface/ESHandleExceptionFactory.h"
 
-edm::ESHandleExceptionFactory::ESHandleExceptionFactory()
-{
-}
+edm::ESHandleExceptionFactory::ESHandleExceptionFactory() {}
 
-edm::ESHandleExceptionFactory::~ESHandleExceptionFactory()
-{
-}
+edm::ESHandleExceptionFactory::~ESHandleExceptionFactory() {}

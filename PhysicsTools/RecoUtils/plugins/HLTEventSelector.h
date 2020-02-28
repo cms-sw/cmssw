@@ -24,13 +24,13 @@
 
 class HLTEventSelector : public EventSelector {
 public:
-  HLTEventSelector (const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
-    HLTEventSelector(pset, iC) {}
-  HLTEventSelector (const edm::ParameterSet& pset, edm::ConsumesCollector & iC);
-  bool select (const edm::Event&) const override;
-  ~HLTEventSelector () override {}
+  HLTEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC) : HLTEventSelector(pset, iC) {}
+  HLTEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
+  bool select(const edm::Event&) const override;
+  ~HLTEventSelector() override {}
+
 private:
-  edm::InputTag triggerResults_;        ///< tag for input collection
+  edm::InputTag triggerResults_;  ///< tag for input collection
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   std::vector<std::string> pathNames_;  ///< trigger path names (ORed)
 };

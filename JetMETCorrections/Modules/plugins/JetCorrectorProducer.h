@@ -4,7 +4,7 @@
 //
 // Package:     JetMETCorrections/Modules
 // Class  :     JetCorrectorProducer
-// 
+//
 /**\class JetCorrectorProducer JetCorrectorProducer.h "JetCorrectorProducer.h"
 
  Description: [one line class summary]
@@ -30,35 +30,31 @@
 
 // forward declarations
 
-template<typename T>
-class JetCorrectorProducer : public edm::stream::EDProducer<>
-{
- public:
- JetCorrectorProducer(edm::ParameterSet const& iPSet):
-  maker_{iPSet,consumesCollector()}
-  {
+template <typename T>
+class JetCorrectorProducer : public edm::stream::EDProducer<> {
+public:
+  JetCorrectorProducer(edm::ParameterSet const& iPSet) : maker_{iPSet, consumesCollector()} {
     produces<reco::JetCorrector>();
   }
-  
+
   // ---------- member functions ---------------------------
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override {
-    auto impl =maker_.make(iEvent,iSetup);
-    std::unique_ptr<reco::JetCorrector> corrector{ new reco::JetCorrector{std::move(impl) } };
+    auto impl = maker_.make(iEvent, iSetup);
+    std::unique_ptr<reco::JetCorrector> corrector{new reco::JetCorrector{std::move(impl)}};
     iEvent.put(std::move(corrector));
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {
     T::Maker::fillDescriptions(iDescriptions);
   }
-  
- private:
-  JetCorrectorProducer(const JetCorrectorProducer&) = delete; // stop default
-  
-  const JetCorrectorProducer& operator=(const JetCorrectorProducer&) = delete; // stop default
-  
-  // ---------- member data --------------------------------
-  typename T::Maker maker_; 
-};
 
+private:
+  JetCorrectorProducer(const JetCorrectorProducer&) = delete;  // stop default
+
+  const JetCorrectorProducer& operator=(const JetCorrectorProducer&) = delete;  // stop default
+
+  // ---------- member data --------------------------------
+  typename T::Maker maker_;
+};
 
 #endif

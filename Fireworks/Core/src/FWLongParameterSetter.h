@@ -28,31 +28,30 @@
 // forward declarations
 class TGNumberEntry;
 
-class FWLongParameterSetter : public FWParameterSetterBase
-{
+class FWLongParameterSetter : public FWParameterSetterBase {
 public:
-   FWLongParameterSetter();
-   ~FWLongParameterSetter() override;
+  FWLongParameterSetter();
+  ~FWLongParameterSetter() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   void     attach(FWParameterBase*) override;
-   TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
+  void attach(FWParameterBase*) override;
+  TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
 
-   void doUpdate(Long_t);
+  void doUpdate(Long_t);
 
 private:
-   FWLongParameterSetter(const FWLongParameterSetter&) = delete;                  // stop default
-   const FWLongParameterSetter& operator=(const FWLongParameterSetter&) = delete; // stop default
+  FWLongParameterSetter(const FWLongParameterSetter&) = delete;                   // stop default
+  const FWLongParameterSetter& operator=(const FWLongParameterSetter&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   FWLongParameter* m_param;
-   TGNumberEntry*   m_widget;
+  FWLongParameter* m_param;
+  TGNumberEntry* m_widget;
 };
 
 #endif

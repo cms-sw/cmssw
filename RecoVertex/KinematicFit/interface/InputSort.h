@@ -11,19 +11,16 @@
  * only top tree particles are used in the fit.
  */
 
-class InputSort{
-
+class InputSort {
 public:
+  InputSort() {}
+  ~InputSort() {}
 
- InputSort(){}
- ~InputSort(){}
- 
- std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> > 
-                          sort(const std::vector<RefCountedKinematicParticle> &particles) const;
+  std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> > sort(
+      const std::vector<RefCountedKinematicParticle> &particles) const;
 
- std::vector<RefCountedKinematicParticle> sort(const std::vector<RefCountedKinematicTree> &trees) const;
- 
+  std::vector<RefCountedKinematicParticle> sort(const std::vector<RefCountedKinematicTree> &trees) const;
+
 private:
-
 };
 #endif

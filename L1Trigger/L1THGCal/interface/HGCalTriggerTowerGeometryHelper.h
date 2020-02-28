@@ -12,6 +12,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1THGCal/interface/HGCalTowerID.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 #include <vector>
 #include <unordered_map>
@@ -19,35 +20,35 @@
 namespace l1t {
   class HGCalTowerID;
   struct HGCalTowerCoord;
-}
-
+}  // namespace l1t
 
 class HGCalTriggerTowerGeometryHelper {
-  public:
-    HGCalTriggerTowerGeometryHelper(const edm::ParameterSet& conf);
+public:
+  HGCalTriggerTowerGeometryHelper(const edm::ParameterSet& conf);
 
-    ~HGCalTriggerTowerGeometryHelper() {}
+  ~HGCalTriggerTowerGeometryHelper() {}
 
-    const std::vector<l1t::HGCalTowerCoord>& getTowerCoordinates() const;
+  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
 
-    unsigned short getTriggerTowerFromTriggerCell(const unsigned tcId, const float& eta, const float& phi) const;
+  const std::vector<l1t::HGCalTowerCoord>& getTowerCoordinates() const;
 
-  private:
+  unsigned short getTriggerTowerFromTriggerCell(const unsigned tcId, const float& eta, const float& phi) const;
 
-    std::vector<l1t::HGCalTowerCoord> tower_coords_;
-    std::unordered_map<unsigned, short> cells_to_trigger_towers_;
+private:
+  std::vector<l1t::HGCalTowerCoord> tower_coords_;
+  std::unordered_map<unsigned, short> cells_to_trigger_towers_;
 
-    double minEta_;
-    double maxEta_;
-    double minPhi_;
-    double maxPhi_;
-    unsigned int nBinsEta_;
-    unsigned int nBinsPhi_;
+  double minEta_;
+  double maxEta_;
+  double minPhi_;
+  double maxPhi_;
+  unsigned int nBinsEta_;
+  unsigned int nBinsPhi_;
 
-    std::vector<double> binsEta_;
-    std::vector<double> binsPhi_;
+  std::vector<double> binsEta_;
+  std::vector<double> binsPhi_;
 
-  };
-
+  HGCalTriggerTools triggerTools_;
+};
 
 #endif

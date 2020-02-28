@@ -5,6 +5,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 
-typedef edmplugin::PluginFactory< EcalUncalibRecHitWorkerBaseClass*() > EcalUncalibRecHitFillDescriptionWorkerFactory;
+typedef edmplugin::PluginFactory<EcalUncalibRecHitWorkerBaseClass*()> EcalUncalibRecHitFillDescriptionWorkerFactory;
 
 #endif

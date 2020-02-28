@@ -30,7 +30,7 @@ namespace reco {
     typedef size_t size_type;
     typedef candidate::const_iterator const_iterator;
     typedef candidate::iterator iterator;
- 
+
     /// electric charge type
     typedef int Charge;
     /// Lorentz vector
@@ -46,38 +46,38 @@ namespace reco {
     /// covariance error matrix (3x3)
     typedef math::Error<dimension>::type CovarianceMatrix;
     /// matix size
-    enum { size = dimension * (dimension + 1)/2 };
+    enum { size = dimension * (dimension + 1) / 2 };
     /// index type
     typedef unsigned int index;
 
     /// default constructor
-    Candidate() {};
+    Candidate(){};
     /// destructor
     virtual ~Candidate();
     /// electric charge
     virtual int charge() const = 0;
     /// set electric charge
-    virtual void setCharge( Charge q ) = 0;
+    virtual void setCharge(Charge q) = 0;
     /// electric charge
     virtual int threeCharge() const = 0;
     /// set electric charge
-    virtual void setThreeCharge( Charge qx3 ) = 0;
+    virtual void setThreeCharge(Charge qx3) = 0;
     /// four-momentum Lorentz vector
-    virtual const LorentzVector & p4() const = 0;
+    virtual const LorentzVector& p4() const = 0;
     /// four-momentum Lorentz vector
-    virtual const PolarLorentzVector & polarP4() const = 0;
+    virtual const PolarLorentzVector& polarP4() const = 0;
     /// spatial momentum vector
     virtual Vector momentum() const = 0;
-    /// boost vector to boost a Lorentz vector 
+    /// boost vector to boost a Lorentz vector
     /// to the particle center of mass system
     virtual Vector boostToCM() const = 0;
     /// magnitude of momentum vector
     virtual double p() const = 0;
     /// energy
     virtual double energy() const = 0;
-    /// transverse energy 
+    /// transverse energy
     virtual double et() const = 0;
-    /// transverse energy squared (use this for cut!)                                                                 
+    /// transverse energy squared (use this for cut!)
     virtual double et2() const = 0;
     /// mass
     virtual double mass() const = 0;
@@ -106,80 +106,78 @@ namespace reco {
     /// rapidity
     virtual double y() const = 0;
     /// set 4-momentum
-    virtual void setP4( const LorentzVector & p4 ) = 0;
+    virtual void setP4(const LorentzVector& p4) = 0;
     /// set 4-momentum
-    virtual void setP4( const PolarLorentzVector & p4 )  = 0;
+    virtual void setP4(const PolarLorentzVector& p4) = 0;
     /// set particle mass
-    virtual void setMass( double m )  = 0;
-    virtual void setPz( double pz )  = 0;
+    virtual void setMass(double m) = 0;
+    virtual void setPz(double pz) = 0;
     /// vertex position
-    virtual const Point & vertex() const  = 0;
+    virtual const Point& vertex() const = 0;
     /// x coordinate of vertex position
-    virtual double vx() const  = 0;
+    virtual double vx() const = 0;
     /// y coordinate of vertex position
-    virtual double vy() const  = 0;
+    virtual double vy() const = 0;
     /// z coordinate of vertex position
-    virtual double vz() const  = 0;
+    virtual double vz() const = 0;
     /// set vertex
-    virtual void setVertex( const Point & vertex )  = 0;
+    virtual void setVertex(const Point& vertex) = 0;
     /// PDG identifier
-    virtual int pdgId() const  = 0;
+    virtual int pdgId() const = 0;
     // set PDG identifier
-    virtual void setPdgId( int pdgId )  = 0;
+    virtual void setPdgId(int pdgId) = 0;
     /// status word
-    virtual int status() const  = 0;
+    virtual int status() const = 0;
     /// set status word
-    virtual void setStatus( int status )  = 0;
+    virtual void setStatus(int status) = 0;
     /// set long lived flag
-    virtual void setLongLived()  = 0;
+    virtual void setLongLived() = 0;
     /// is long lived?
-    virtual bool longLived() const  = 0;
+    virtual bool longLived() const = 0;
     /// set mass constraint flag
     virtual void setMassConstraint() = 0;
     /// do mass constraint?
     virtual bool massConstraint() const = 0;
     /// returns a clone of the Candidate object
-    virtual Candidate * clone() const = 0;
+    virtual Candidate* clone() const = 0;
     /// first daughter const_iterator
-    const_iterator begin() const { return const_iterator(this,0);} 
+    const_iterator begin() const { return const_iterator(this, 0); }
     /// last daughter const_iterator
-    const_iterator end() const  { return const_iterator(this,numberOfDaughters());}
+    const_iterator end() const { return const_iterator(this, numberOfDaughters()); }
     /// first daughter iterator
-    iterator begin()  { return iterator(this,0);}  
+    iterator begin() { return iterator(this, 0); }
     /// last daughter iterator
-    iterator end()  { return iterator(this,numberOfDaughters());}
+    iterator end() { return iterator(this, numberOfDaughters()); }
     /// number of daughters
     virtual size_type numberOfDaughters() const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    virtual const Candidate * daughter( size_type i ) const = 0;
+    virtual const Candidate* daughter(size_type i) const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    virtual Candidate * daughter( size_type i ) = 0;
+    virtual Candidate* daughter(size_type i) = 0;
     /// return daughter with a specified role name
-    virtual Candidate * daughter(const std::string& s ) = 0;
+    virtual Candidate* daughter(const std::string& s) = 0;
     /// return daughter with a specified role name
-    virtual const Candidate * daughter(const std::string& s ) const = 0;
+    virtual const Candidate* daughter(const std::string& s) const = 0;
     /// number of mothers (zero or one in most of but not all the cases)
     virtual size_type numberOfMothers() const = 0;
     /// return pointer to mother
-    virtual const Candidate * mother( size_type i = 0 ) const = 0;
-    /// return the number of source Candidates 
+    virtual const Candidate* mother(size_type i = 0) const = 0;
+    /// return the number of source Candidates
     /// ( the candidates used to construct this Candidate)
-    virtual size_t numberOfSourceCandidatePtrs() const  = 0;
-    /// return a Ptr to one of the source Candidates 
+    virtual size_t numberOfSourceCandidatePtrs() const = 0;
+    /// return a Ptr to one of the source Candidates
     /// ( the candidates used to construct this Candidate)
-    virtual CandidatePtr sourceCandidatePtr( size_type i ) const {
-      return CandidatePtr();
-    }
-    /// \brief Set the ptr to the source Candidate. 
-    /// 
-    /// necessary, to allow a parallel treatment of all candidates 
-    /// in PF2PAT. Does nothing for most Candidate classes, including 
+    virtual CandidatePtr sourceCandidatePtr(size_type i) const { return CandidatePtr(); }
+    /// \brief Set the ptr to the source Candidate.
+    ///
+    /// necessary, to allow a parallel treatment of all candidates
+    /// in PF2PAT. Does nothing for most Candidate classes, including
     /// CompositePtrCandidates, where the source information is in fact
-    /// the collection of ptrs to daughters. For non-Composite Candidates, 
-    /// this function can be used to set the ptr to the source of the 
-    /// Candidate, which will allow to keep track 
-    /// of the reconstruction history. 
-    virtual void setSourceCandidatePtr( const CandidatePtr& ptr ) {};
+    /// the collection of ptrs to daughters. For non-Composite Candidates,
+    /// this function can be used to set the ptr to the source of the
+    /// Candidate, which will allow to keep track
+    /// of the reconstruction history.
+    virtual void setSourceCandidatePtr(const CandidatePtr& ptr){};
 
     /// chi-squares
     virtual double vertexChi2() const = 0;
@@ -195,61 +193,89 @@ namespace reco {
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
     virtual double vertexCovariance(int i, int j) const = 0;
     /// fill SMatrix
-    virtual CovarianceMatrix vertexCovariance() const { CovarianceMatrix m; fillVertexCovariance(m); return m; }  //TODO
-    virtual void fillVertexCovariance(CovarianceMatrix & v) const = 0;
+    virtual CovarianceMatrix vertexCovariance() const {
+      CovarianceMatrix m;
+      fillVertexCovariance(m);
+      return m;
+    }  //TODO
+    virtual void fillVertexCovariance(CovarianceMatrix& v) const = 0;
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
     virtual bool hasMasterClone() const = 0;
     /// returns ptr to master clone, if existing.
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate
-    virtual const CandidateBaseRef & masterClone() const = 0;
+    virtual const CandidateBaseRef& masterClone() const = 0;
     /// returns true if this candidate has a ptr to a master clone.
     /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate
     virtual bool hasMasterClonePtr() const = 0;
     /// returns ptr to master clone, if existing.
     /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate
-    virtual const CandidatePtr & masterClonePtr() const = 0;
+    virtual const CandidatePtr& masterClonePtr() const = 0;
     /// cast master clone reference to a concrete type
-    template<typename Ref>
-    Ref masterRef() const { return masterClone().template castTo<Ref>(); }
+    template <typename Ref>
+    Ref masterRef() const {
+      return masterClone().template castTo<Ref>();
+    }
     /// get a component
 
-    template<typename T> T get() const { 
-      if ( hasMasterClone() ) return masterClone()->get<T>();
-      else return reco::get<T>( * this ); 
+    template <typename T>
+    T get() const {
+      if (hasMasterClone())
+        return masterClone()->get<T>();
+      else
+        return reco::get<T>(*this);
     }
     /// get a component
-    template<typename T, typename Tag> T get() const { 
-      if ( hasMasterClone() ) return masterClone()->get<T, Tag>();
-      else return reco::get<T, Tag>( * this ); 
+    template <typename T, typename Tag>
+    T get() const {
+      if (hasMasterClone())
+        return masterClone()->get<T, Tag>();
+      else
+        return reco::get<T, Tag>(*this);
     }
     /// get a component
-    template<typename T> T get( size_type i ) const { 
-      if ( hasMasterClone() ) return masterClone()->get<T>( i );
-      else return reco::get<T>( * this, i ); 
+    template <typename T>
+    T get(size_type i) const {
+      if (hasMasterClone())
+        return masterClone()->get<T>(i);
+      else
+        return reco::get<T>(*this, i);
     }
     /// get a component
-    template<typename T, typename Tag> T get( size_type i ) const { 
-      if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i );
-      else return reco::get<T, Tag>( * this, i ); 
+    template <typename T, typename Tag>
+    T get(size_type i) const {
+      if (hasMasterClone())
+        return masterClone()->get<T, Tag>(i);
+      else
+        return reco::get<T, Tag>(*this, i);
     }
     /// number of components
-    template<typename T> size_type numberOf() const { 
-      if ( hasMasterClone() ) return masterClone()->numberOf<T>();
-      else return reco::numberOf<T>( * this ); 
+    template <typename T>
+    size_type numberOf() const {
+      if (hasMasterClone())
+        return masterClone()->numberOf<T>();
+      else
+        return reco::numberOf<T>(*this);
     }
     /// number of components
-    template<typename T, typename Tag> size_type numberOf() const { 
-      if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
-      else return reco::numberOf<T, Tag>( * this ); 
+    template <typename T, typename Tag>
+    size_type numberOf() const {
+      if (hasMasterClone())
+        return masterClone()->numberOf<T, Tag>();
+      else
+        return reco::numberOf<T, Tag>(*this);
     }
 
-    virtual const Track * bestTrack() const {return nullptr;}	
- 
-    /// uncertainty on dz 
-    virtual float dzError() const {return 0;} // { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
+    virtual const Track* bestTrack() const { return nullptr; }
+
+    /// uncertainty on dz
+    virtual float dzError() const {
+      return 0;
+    }  // { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
     /// uncertainty on dxy
-    virtual float dxyError() const {return 0;} // { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
+    virtual float dxyError() const {
+      return 0;
+    }  // { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
 
     virtual bool isElectron() const = 0;
     virtual bool isMuon() const = 0;
@@ -263,22 +289,21 @@ namespace reco {
 
   protected:
     /// check overlap with another Candidate
-    virtual bool overlap( const Candidate & ) const = 0;
-    template<typename, typename, typename> friend struct component; 
+    virtual bool overlap(const Candidate&) const = 0;
+    template <typename, typename, typename>
+    friend struct component;
     friend class ::OverlapChecker;
     friend class ShallowCloneCandidate;
     friend class ShallowClonePtrCandidate;
-
   };
 
-namespace candidate {
+  namespace candidate {
 
-const_iterator::reference const_iterator::operator*() const { return *(me->daughter(i));}
-iterator::reference iterator::operator*() const { return *(me->daughter(i));}
+    const_iterator::reference const_iterator::operator*() const { return *(me->daughter(i)); }
+    iterator::reference iterator::operator*() const { return *(me->daughter(i)); }
 
+  }  // namespace candidate
 
-}
-
-}
+}  // namespace reco
 
 #endif

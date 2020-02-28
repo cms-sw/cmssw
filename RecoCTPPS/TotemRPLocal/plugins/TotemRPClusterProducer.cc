@@ -19,32 +19,30 @@
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 
 #include "RecoCTPPS/TotemRPLocal/interface/TotemRPClusterProducerAlgorithm.h"
- 
+
 //----------------------------------------------------------------------------------------------------
 
 /**
  * Merges neighbouring active TOTEM RP strips into clusters.
  **/
-class TotemRPClusterProducer : public edm::stream::EDProducer<>
-{
-  public:
-  
-    explicit TotemRPClusterProducer(const edm::ParameterSet& conf);
-  
-    ~TotemRPClusterProducer() override {}
-  
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
-    static void fillDescriptions( edm::ConfigurationDescriptions& );
-  
-  private:
-    edm::ParameterSet conf_;
-    int verbosity_;
-    edm::InputTag digiInputTag_;
-    edm::EDGetTokenT<edm::DetSetVector<TotemRPDigi>> digiInputTagToken_;
+class TotemRPClusterProducer : public edm::stream::EDProducer<> {
+public:
+  explicit TotemRPClusterProducer(const edm::ParameterSet& conf);
 
-    TotemRPClusterProducerAlgorithm algorithm_;
+  ~TotemRPClusterProducer() override {}
 
-    void run(const edm::DetSetVector<TotemRPDigi> &input, edm::DetSetVector<TotemRPCluster> &output);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+private:
+  edm::ParameterSet conf_;
+  int verbosity_;
+  edm::InputTag digiInputTag_;
+  edm::EDGetTokenT<edm::DetSetVector<TotemRPDigi>> digiInputTagToken_;
+
+  TotemRPClusterProducerAlgorithm algorithm_;
+
+  void run(const edm::DetSetVector<TotemRPDigi>& input, edm::DetSetVector<TotemRPCluster>& output);
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -55,28 +53,25 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-TotemRPClusterProducer::TotemRPClusterProducer(edm::ParameterSet const& conf) :
-  conf_(conf), algorithm_(conf)
-{
+TotemRPClusterProducer::TotemRPClusterProducer(edm::ParameterSet const& conf) : conf_(conf), algorithm_(conf) {
   verbosity_ = conf.getParameter<int>("verbosity");
 
   digiInputTag_ = conf.getParameter<edm::InputTag>("tagDigi");
-  digiInputTagToken_ = consumes<edm::DetSetVector<TotemRPDigi> >(digiInputTag_);
+  digiInputTagToken_ = consumes<edm::DetSetVector<TotemRPDigi>>(digiInputTag_);
 
-  produces< edm::DetSetVector<TotemRPCluster> > ();
+  produces<edm::DetSetVector<TotemRPCluster>>();
 }
 
 //----------------------------------------------------------------------------------------------------
- 
-void TotemRPClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
-{
+
+void TotemRPClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // get input
-  edm::Handle< edm::DetSetVector<TotemRPDigi> > input;
+  edm::Handle<edm::DetSetVector<TotemRPDigi>> input;
   e.getByToken(digiInputTagToken_, input);
 
   // prepare output
   DetSetVector<TotemRPCluster> output;
-  
+
   // run clusterisation
   if (!input->empty())
     run(*input, output);
@@ -87,11 +82,10 @@ void TotemRPClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPClusterProducer::run(const edm::DetSetVector<TotemRPDigi>& input, edm::DetSetVector<TotemRPCluster> &output)
-{
-  for (const auto &ds_digi : input)
-  {
-    edm::DetSet<TotemRPCluster> &ds_cluster = output.find_or_insert(ds_digi.id);
+void TotemRPClusterProducer::run(const edm::DetSetVector<TotemRPDigi>& input,
+                                 edm::DetSetVector<TotemRPCluster>& output) {
+  for (const auto& ds_digi : input) {
+    edm::DetSet<TotemRPCluster>& ds_cluster = output.find_or_insert(ds_digi.id);
 
     algorithm_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data);
   }
@@ -99,16 +93,14 @@ void TotemRPClusterProducer::run(const edm::DetSetVector<TotemRPDigi>& input, ed
 
 //----------------------------------------------------------------------------------------------------
 
-void
-TotemRPClusterProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
-{
+void TotemRPClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descr) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>( "tagDigi", edm::InputTag( "totemRPRawToDigi", "TrackingStrip" ) )
-    ->setComment( "input digis collection to retrieve" );
-  desc.add<int>( "verbosity", 0 );
+  desc.add<edm::InputTag>("tagDigi", edm::InputTag("totemRPRawToDigi", "TrackingStrip"))
+      ->setComment("input digis collection to retrieve");
+  desc.add<int>("verbosity", 0);
 
-  descr.add( "totemRPClusterProducer", desc );
+  descr.add("totemRPClusterProducer", desc);
 }
 
 //----------------------------------------------------------------------------------------------------

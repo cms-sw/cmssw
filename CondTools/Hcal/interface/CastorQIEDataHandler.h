@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +21,19 @@
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 
-
-class CastorQIEDataHandler : public popcon::PopConSourceHandler<CastorQIEData>
-{
- public:
+class CastorQIEDataHandler : public popcon::PopConSourceHandler<CastorQIEData> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~CastorQIEDataHandler() override;
-  CastorQIEDataHandler(edm::ParameterSet const &);
+  CastorQIEDataHandler(edm::ParameterSet const&);
 
   void initObject(CastorQIEData*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   CastorQIEData* myDBObject;
   std::string m_name;
-
 };
 #endif

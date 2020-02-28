@@ -4,8 +4,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # Run with the 2017 detector
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('SKIM',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('SKIM',Run2_2017)
 
 # Import the standard packages for reconstruction and digitization
 process.load('Configuration.StandardSequences.Services_cff')

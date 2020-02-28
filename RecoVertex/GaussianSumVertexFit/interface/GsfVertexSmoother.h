@@ -1,7 +1,6 @@
 #ifndef _GsfVertexSmoother_H_
 #define _GsfVertexSmoother_H_
 
-
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoother.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexUpdator.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexMerger.h"
@@ -13,7 +12,6 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
-
 /**
  *  The class which handles the track-refit and smoothed chi**2 calculations
  *  for the Gaussian Sum vertex fit. 
@@ -21,16 +19,14 @@
  */
 
 class GsfVertexSmoother : public VertexSmoother<5> {
-
 public:
-
   /**
    *  The constructor
    *  \param limit Specifies whether the number of components of the vertex
    *			 should be limited
    */
 
-  GsfVertexSmoother(bool limit, const GsfVertexMerger * merger);
+  GsfVertexSmoother(bool limit, const GsfVertexMerger* merger);
 
   ~GsfVertexSmoother() override {}
 
@@ -41,25 +37,20 @@ public:
    *	last update.
    *  \return the final vertex estimate, with all the supplementary information
    */
-  CachingVertex<5> smooth(const CachingVertex<5> & vertex) const override;
+  CachingVertex<5> smooth(const CachingVertex<5>& vertex) const override;
 
   /**
    *  Access methods
    */
 
-  const VertexUpdator<5> * vertexUpdator() const
-  {return &theUpdator;}
+  const VertexUpdator<5>* vertexUpdator() const { return &theUpdator; }
 
   /**
    * Clone method 
    */
-  VertexSmoother<5> * clone() const override 
-  {
-    return new GsfVertexSmoother(* this);
-  }
-  
-private:
+  VertexSmoother<5>* clone() const override { return new GsfVertexSmoother(*this); }
 
+private:
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
   typedef VertexTrack<5>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
@@ -73,18 +64,18 @@ private:
   typedef std::pair<RefCountedRefittedTrackState, VtxTrkChi2Pair> TrackChi2Pair;
   typedef std::pair<TrackWeightPair, VtxTrkChi2Pair> RefittedTrackComponent;
 
-  VertexState meanVertex(const VertexState & vertexA,
-			 const VertexState & vertexB) const;
+  VertexState meanVertex(const VertexState& vertexA, const VertexState& vertexB) const;
 
-  TrackChi2Pair vertexAndTrackUpdate(const VertexState & oldVertex,
-	const RefCountedVertexTrack track, const GlobalPoint & referencePosition) const;
+  TrackChi2Pair vertexAndTrackUpdate(const VertexState& oldVertex,
+                                     const RefCountedVertexTrack track,
+                                     const GlobalPoint& referencePosition) const;
 
-  RefittedTrackComponent createNewComponent(const VertexState & oldVertex,
-	 const RefCountedLinearizedTrackState linTrack, float weight) const;
+  RefittedTrackComponent createNewComponent(const VertexState& oldVertex,
+                                            const RefCountedLinearizedTrackState linTrack,
+                                            float weight) const;
 
-  TrackChi2Pair assembleTrackComponents(
-	const std::vector<RefittedTrackComponent> & trackComponents,
-	const GlobalPoint & referencePosition) const;
+  TrackChi2Pair assembleTrackComponents(const std::vector<RefittedTrackComponent>& trackComponents,
+                                        const GlobalPoint& referencePosition) const;
 
   /**
    *  Methode which calculates the chi**2 between the prior and the fitted 
@@ -93,15 +84,14 @@ private:
    *  \param priorVertex The prior vertex state
    *  \param fittedVertex The fitted vertex state
    */
-  double priorVertexChi2(const VertexState priorVertex, 
-	const VertexState fittedVertex) const;
+  double priorVertexChi2(const VertexState priorVertex, const VertexState fittedVertex) const;
 
   bool limitComponents;
   DeepCopyPointerByClone<GsfVertexMerger> theMerger;
   GsfVertexUpdator theUpdator;
   KalmanVertexUpdator<5> kalmanVertexUpdator;
   KalmanSmoothedVertexChi2Estimator<5> smoothedChi2Estimator;
-  KalmanVertexTrackUpdator<5> theVertexTrackUpdator;       
+  KalmanVertexTrackUpdator<5> theVertexTrackUpdator;
   GsfVertexWeightCalculator theWeightCalculator;
   VertexTrackFactory<5> theVTFactory;
   KVFHelper<5> helper;

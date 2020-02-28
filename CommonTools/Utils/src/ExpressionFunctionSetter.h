@@ -15,14 +15,15 @@
 namespace reco {
   namespace parser {
     struct ExpressionFunctionSetter {
-      ExpressionFunctionSetter( ExpressionStack & expStack, FunctionStack & funStack ) : 
-	expStack_( expStack ), funStack_( funStack ) { }
-      void operator()( const char *, const char * ) const;
+      ExpressionFunctionSetter(ExpressionStack &expStack, FunctionStack &funStack)
+          : expStack_(expStack), funStack_(funStack) {}
+      void operator()(const char *, const char *) const;
+
     private:
-      ExpressionStack & expStack_;
-      FunctionStack & funStack_;
+      ExpressionStack &expStack_;
+      FunctionStack &funStack_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

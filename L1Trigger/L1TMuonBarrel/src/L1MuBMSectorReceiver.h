@@ -51,47 +51,42 @@ class L1MuDTTFMasks;
 //              ---------------------
 
 class L1MuBMSectorReceiver {
+public:
+  /// constructor
+  L1MuBMSectorReceiver(L1MuBMSectorProcessor&, edm::ConsumesCollector&& iC);
 
-  public:
+  /// destructor
+  virtual ~L1MuBMSectorReceiver();
 
-    /// constructor
-    L1MuBMSectorReceiver(L1MuBMSectorProcessor& , edm::ConsumesCollector&& iC);
+  /// receive track segment data from the BBMX and CSC chamber triggers
+  void run(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-    /// destructor
-    virtual ~L1MuBMSectorReceiver();
+  /// clear Sector Receiver
+  void reset();
 
-    /// receive track segment data from the BBMX and CSC chamber triggers
-    void run(int bx, const edm::Event& e, const edm::EventSetup& c);
+private:
+  /// receive track segment data from BBMX chamber trigger
+  void receiveBBMXData(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-    /// clear Sector Receiver
-    void reset();
+  /// receive track segment data from CSC chamber trigger
+  void receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-  private:
+  /// find the right sector for a given address
+  int address2sector(int adr) const;
 
-    /// receive track segment data from BBMX chamber trigger
-    void receiveBBMXData(int bx, const edm::Event& e, const edm::EventSetup& c);
+  /// find the right wheel for a given address
+  int address2wheel(int adr) const;
 
-    /// receive track segment data from CSC chamber trigger
-    void receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c);
+private:
+  L1MuBMSectorProcessor& m_sp;
 
-    /// find the right sector for a given address
-    int address2sector(int adr) const;
+  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle;
+  L1MuDTTFMasks msks;
+  L1MuDTTFParameters pars;
 
-    /// find the right wheel for a given address
-    int address2wheel(int adr) const;
-
-  private:
-
-    L1MuBMSectorProcessor& m_sp;
-
-    edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
-    L1MuDTTFMasks       msks;
-    L1MuDTTFParameters  pars;
-
-    //edm::ESHandle< L1MuDTTFParameters > pars;
-    //edm::ESHandle< L1MuDTTFMasks >      msks;
-    edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
-
+  //edm::ESHandle< L1MuDTTFParameters > pars;
+  //edm::ESHandle< L1MuDTTFMasks >      msks;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
 };
 
 #endif

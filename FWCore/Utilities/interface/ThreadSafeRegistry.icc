@@ -9,15 +9,13 @@ namespace edm {
   namespace detail {
     // ----------------------------------------------------------------------
     template <typename KEY, typename T>
-    ThreadSafeRegistry<KEY,T>*
-    ThreadSafeRegistry<KEY,T>::instance() {
-      CMS_THREAD_SAFE static ThreadSafeRegistry<KEY,T> me;
+    ThreadSafeRegistry<KEY, T>* ThreadSafeRegistry<KEY, T>::instance() {
+      CMS_THREAD_SAFE static ThreadSafeRegistry<KEY, T> me;
       return &me;
     }
 
     template <typename KEY, typename T>
-    bool
-    ThreadSafeRegistry<KEY,T>::getMapped(key_type const& k, value_type& result) const {
+    bool ThreadSafeRegistry<KEY, T>::getMapped(key_type const& k, value_type& result) const {
       bool found;
       typename collection_type::const_iterator i;
       {
@@ -27,52 +25,56 @@ namespace edm {
         i = data_.find(k);
         found = (i != data_.end());
       }
-      if (found) result = i->second;
+      if (found)
+        result = i->second;
       return found;
     }
 
     template <typename KEY, typename T>
-    typename ThreadSafeRegistry<KEY,T>::value_type const*
-    ThreadSafeRegistry<KEY,T>::getMapped(key_type const& k) const {
+    typename ThreadSafeRegistry<KEY, T>::value_type const* ThreadSafeRegistry<KEY, T>::getMapped(
+        key_type const& k) const {
       bool found;
       typename collection_type::const_iterator i;
       {
-         // This scope limits the lifetime of the lock to the shorted
-         // required interval.
-         std::lock_guard<std::mutex> lock(mutex_);
-         i = data_.find(k);
-         found = (i != data_.end());
+        // This scope limits the lifetime of the lock to the shorted
+        // required interval.
+        std::lock_guard<std::mutex> lock(mutex_);
+        i = data_.find(k);
+        found = (i != data_.end());
       }
-      return found ? &(i->second) : static_cast<value_type const*> (nullptr);
+      return found ? &(i->second) : static_cast<value_type const*>(nullptr);
     }
 
     template <typename KEY, typename T>
-    bool
-    ThreadSafeRegistry<KEY,T>::insertMapped(value_type const& v) {
+    bool ThreadSafeRegistry<KEY, T>::insertMapped(value_type const& v) {
       bool newly_added = false;
       std::lock_guard<std::mutex> lock(mutex_);
 
       key_type id = v.id();
       if (data_.find(id) == data_.end()) {
-          data_[id] = v;
-          newly_added = true;
+        data_[id] = v;
+        newly_added = true;
       }
       return newly_added;
     }
 
-  } // namespace detail
-} // namespace edm
+  }  // namespace detail
+}  // namespace edm
 
 // To be used to explicitly instanciate the template code and
 // static variables, so that they work even in the case of hidden symbol visibility
 // in plugins.
-#define DEFINE_THREAD_SAFE_REGISTRY_INSTANCE(X) \
-  namespace edm { namespace detail { \
-  template ThreadSafeRegistry<X::key_type,X::value_type> *\
-             ThreadSafeRegistry<X::key_type,X::value_type>::instance(); \
-  template bool ThreadSafeRegistry<X::key_type,X::value_type>::getMapped(X::key_type const &, X::value_type &) const;\
-  template X::value_type const *ThreadSafeRegistry<X::key_type,X::value_type>::getMapped(X::key_type const &) const;\
-  template bool ThreadSafeRegistry<X::key_type,X::value_type>::insertMapped(X::value_type const &); \
-  }}
+#define DEFINE_THREAD_SAFE_REGISTRY_INSTANCE(X)                                                         \
+  namespace edm {                                                                                       \
+    namespace detail {                                                                                  \
+      template ThreadSafeRegistry<X::key_type, X::value_type>*                                          \
+      ThreadSafeRegistry<X::key_type, X::value_type>::instance();                                       \
+      template bool ThreadSafeRegistry<X::key_type, X::value_type>::getMapped(X::key_type const&,       \
+                                                                              X::value_type&) const;    \
+      template X::value_type const* ThreadSafeRegistry<X::key_type, X::value_type>::getMapped(          \
+          X::key_type const&) const;                                                                    \
+      template bool ThreadSafeRegistry<X::key_type, X::value_type>::insertMapped(X::value_type const&); \
+    }                                                                                                   \
+  }
 
-#endif //  FWCore_Utilities_ThreadSafeRegistry_icc
+#endif  //  FWCore_Utilities_ThreadSafeRegistry_icc

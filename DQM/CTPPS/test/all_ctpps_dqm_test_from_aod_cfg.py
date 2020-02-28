@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('ctppsDQMfromAOD', eras.ctpps_2016)
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+process = cms.Process('ctppsDQMfromAOD', ctpps_2016)
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
   statistics = cms.untracked.vstring(),
-  destinations = cms.untracked.vstring('cerr'),
-  cerr = cms.untracked.PSet(
+  destinations = cms.untracked.vstring('cout'),
+  cout = cms.untracked.PSet(
       threshold = cms.untracked.string('WARNING')
   )
 )
@@ -26,7 +26,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 # raw data source
 process.source = cms.Source("PoolSource",
@@ -40,14 +40,18 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
 )
 
-# geometry definition
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
+# geometry definition and reco modules
+process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")
 
 process.path = cms.Path(
-  process.ctppsDQMElastic
+  process.ctppsPixelLocalReconstruction
+  * process.ctppsLocalTrackLiteProducer
+  * process.ctppsProtons
+
+  * process.ctppsDQMElastic
 )
 
 process.end_path = cms.EndPath(

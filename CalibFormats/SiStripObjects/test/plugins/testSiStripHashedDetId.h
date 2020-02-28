@@ -6,22 +6,18 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 /**
-   @class test_SiStripHashedDetId 
+   @class test_SiStripHashedDetId
    @author R.Bainbridge
    @brief Simple class that tests SiStripHashedDetId.
 */
 class testSiStripHashedDetId : public edm::EDAnalyzer {
-
- public:
-  
-  testSiStripHashedDetId( const edm::ParameterSet& );
+public:
+  testSiStripHashedDetId(const edm::ParameterSet &);
   ~testSiStripHashedDetId();
-  
-  void initialize( edm::EventSetup const& );
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
-  
+
+  void initialize(edm::EventSetup const &);
+  void analyze(const edm::Event &, const edm::EventSetup &);
+  void endJob() { ; }
 };
 
-#endif // CalibFormats_SiStripObjects_test_SiStripHashedDetId_H
-
+#endif  // CalibFormats_SiStripObjects_test_SiStripHashedDetId_H

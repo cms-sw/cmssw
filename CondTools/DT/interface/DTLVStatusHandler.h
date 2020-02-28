@@ -24,23 +24,19 @@
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include <string>
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTLVStatusHandler: public popcon::PopConSourceHandler<DTLVStatus> {
-
- public:
-
+class DTLVStatusHandler : public popcon::PopConSourceHandler<DTLVStatus> {
+public:
   /** Constructor
    */
-  DTLVStatusHandler( const edm::ParameterSet& ps );
+  DTLVStatusHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -48,12 +44,11 @@ class DTLVStatusHandler: public popcon::PopConSourceHandler<DTLVStatus> {
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects() override;
   std::string id() const override;
 
- private:
-
+private:
   std::string dataTag;
   std::string onlineConnect;
   std::string onlineAuthentication;
@@ -62,14 +57,6 @@ class DTLVStatusHandler: public popcon::PopConSourceHandler<DTLVStatus> {
 
   cond::persistency::Session omds_session;
   cond::persistency::Session buff_session;
-
 };
 
-
-#endif // DTLVStatusHandler_H
-
-
-
-
-
-
+#endif  // DTLVStatusHandler_H

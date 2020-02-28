@@ -4,6 +4,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 class AlignmentClusterFlag;
 
-typedef edm::ValueMap<AlignmentClusterFlag>   AliClusterValueMap; 
+typedef edm::ValueMap<AlignmentClusterFlag> AliClusterValueMap;
 
 #endif

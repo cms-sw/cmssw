@@ -30,36 +30,35 @@
 
 namespace edm {
   class PtrVectorBase {
-
   public:
     typedef unsigned long key_type;
     typedef key_type size_type;
 
-    explicit PtrVectorBase(ProductID const& productID, void const* prodPtr = nullptr,
+    explicit PtrVectorBase(ProductID const& productID,
+                           void const* prodPtr = nullptr,
                            EDProductGetter const* prodGetter = nullptr)
-    :
-      core_(productID, prodPtr, prodGetter, false), indicies_(), cachedItems_(nullptr) {}
-    
-    PtrVectorBase( const PtrVectorBase&);
+        : core_(productID, prodPtr, prodGetter, false), indicies_(), cachedItems_(nullptr) {}
+
+    PtrVectorBase(const PtrVectorBase&);
 
     virtual ~PtrVectorBase();
 
     // ---------- const member functions ---------------------
     /// Checks for null
-    bool isNull() const {return !isNonnull(); }
+    bool isNull() const { return !isNonnull(); }
 
     /// Checks for non-null
     //bool isNonnull() const {return id().isValid(); }
     bool isNonnull() const { return core_.isNonnull(); }
 
     /// Checks for null
-    bool operator!() const {return isNull();}
+    bool operator!() const { return isNull(); }
 
     /// Accessor for product ID.
-    ProductID id() const {return core_.id();}
+    ProductID id() const { return core_.id(); }
 
     /// Accessor for product getter.
-    EDProductGetter const* productGetter() const {return core_.productGetter();}
+    EDProductGetter const* productGetter() const { return core_.productGetter(); }
 
     bool hasCache() const { return cachedItems_; }
 
@@ -68,33 +67,41 @@ namespace edm {
     bool isAvailable() const;
 
     /// Is the RefVector empty
-    bool empty() const {return indicies_.empty();}
+    bool empty() const { return indicies_.empty(); }
 
     /// Size of the RefVector
-    size_type size() const {return indicies_.size();}
+    size_type size() const { return indicies_.size(); }
 
     /// Capacity of the RefVector
-    size_type capacity() const {return indicies_.capacity();}
+    size_type capacity() const { return indicies_.capacity(); }
 
     /// Clear the PtrVector
-    void clear()
-    { core_ = RefCore(); indicies_.clear(); if(cachedItems_) { delete cachedItems_.load(); cachedItems_.store(nullptr); } }
-  
+    void clear() {
+      core_ = RefCore();
+      indicies_.clear();
+      if (cachedItems_) {
+        delete cachedItems_.load();
+        cachedItems_.store(nullptr);
+      }
+    }
+
     bool operator==(PtrVectorBase const& iRHS) const;
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
     /// Reserve space for RefVector
-    void reserve(size_type n) {indicies_.reserve(n);
-      if(cachedItems_) {(*cachedItems_).reserve(n);} }
+    void reserve(size_type n) {
+      indicies_.reserve(n);
+      if (cachedItems_) {
+        (*cachedItems_).reserve(n);
+      }
+    }
 
     void setProductGetter(EDProductGetter* iGetter) const { core_.setProductGetter(iGetter); }
 
-    bool isTransient() const {return core_.isTransient();}
+    bool isTransient() const { return core_.isTransient(); }
 
-    void const* product() const {
-      return nullptr;
-    }
+    void const* product() const { return nullptr; }
 
   protected:
     PtrVectorBase();
@@ -106,43 +113,40 @@ namespace edm {
 
     std::vector<void const*>::const_iterator void_begin() const {
       getProduct_();
-      if(not checkCachedItems()) {
+      if (not checkCachedItems()) {
         return emptyCache().begin();
       }
       return (*cachedItems_).begin();
     }
     std::vector<void const*>::const_iterator void_end() const {
       getProduct_();
-      if(not checkCachedItems()) {
+      if (not checkCachedItems()) {
         return emptyCache().end();
       }
       return (*cachedItems_).end();
     }
 
-    template<typename TPtr>
+    template <typename TPtr>
     TPtr makePtr(unsigned long iIndex) const {
       if (isTransient()) {
-        return TPtr(reinterpret_cast<typename TPtr::value_type const*>((*cachedItems_)[iIndex]),
-                  indicies_[iIndex]);
+        return TPtr(reinterpret_cast<typename TPtr::value_type const*>((*cachedItems_)[iIndex]), indicies_[iIndex]);
       }
       if (hasCache() && ((*cachedItems_)[iIndex] != nullptr || productGetter() == nullptr)) {
-        return TPtr(this->id(),
-                  reinterpret_cast<typename TPtr::value_type const*>((*cachedItems_)[iIndex]),
-                  indicies_[iIndex]);
+        return TPtr(
+            this->id(), reinterpret_cast<typename TPtr::value_type const*>((*cachedItems_)[iIndex]), indicies_[iIndex]);
       }
       return TPtr(this->id(), indicies_[iIndex], productGetter());
     }
 
-    template<typename TPtr>
+    template <typename TPtr>
     TPtr makePtr(std::vector<void const*>::const_iterator const iIt) const {
       if (isTransient()) {
-        return TPtr(reinterpret_cast<typename TPtr::value_type const*>(*iIt),
-                  indicies_[iIt - (*cachedItems_).begin()]);
+        return TPtr(reinterpret_cast<typename TPtr::value_type const*>(*iIt), indicies_[iIt - (*cachedItems_).begin()]);
       }
       if (hasCache() && (*iIt != nullptr || productGetter() == nullptr)) {
         return TPtr(this->id(),
-                  reinterpret_cast<typename TPtr::value_type const*>(*iIt),
-                  indicies_[iIt - (*cachedItems_).begin()]);
+                    reinterpret_cast<typename TPtr::value_type const*>(*iIt),
+                    indicies_[iIt - (*cachedItems_).begin()]);
       }
       return TPtr(this->id(), indicies_[iIt - (*cachedItems_).begin()], productGetter());
     }
@@ -154,21 +158,20 @@ namespace edm {
       assert(false);
       return typeid(void);
     }
-    
+
     //returns false if the cache is not yet set
     bool checkCachedItems() const;
-    
+
     PtrVectorBase& operator=(const PtrVectorBase&) = delete;
 
     //Used when we need an iterator but cache is not yet set
     static const std::vector<void const*>& emptyCache();
-    
+
     // ---------- member data --------------------------------
     RefCore core_;
     std::vector<key_type> indicies_;
-    mutable std::atomic<std::vector<void const*>*> cachedItems_; //! transient
-
+    mutable std::atomic<std::vector<void const*>*> cachedItems_;  //! transient
   };
-}
+}  // namespace edm
 
 #endif

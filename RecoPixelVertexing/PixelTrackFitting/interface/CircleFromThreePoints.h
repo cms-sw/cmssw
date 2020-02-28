@@ -17,11 +17,10 @@
 
 class CircleFromThreePoints {
 public:
-
   /// dummy
-  CircleFromThreePoints(){}
+  CircleFromThreePoints() {}
 
-  typedef Basic2DVector<float>   Vector2D;
+  typedef Basic2DVector<float> Vector2D;
 
   /** Construct from three points (see class description).
    *  The order of points is not essential, but accuracy should be better if
@@ -30,18 +29,17 @@ public:
    *  straight line check has to be satisfied for setting the curvature
    *  to zero and the center position to "undefined".
    */
-  CircleFromThreePoints( const GlobalPoint& inner,
-			 const GlobalPoint& mid,
-			 const GlobalPoint& outer,
-			 double precision = 1.e-7);
-
+  CircleFromThreePoints(const GlobalPoint& inner,
+                        const GlobalPoint& mid,
+                        const GlobalPoint& outer,
+                        double precision = 1.e-7);
 
   /** Returns the curvature (1/radius), in cm^(-1).
    *  The curvature is precomputed, this is just access method (takes no time).
    *  If curvature is zero the center is undefined
    *  (see description of presicion above).
    */
-  float curvature() const { return theCurvature;}
+  float curvature() const { return theCurvature; }
 
   /** returns the position of the center of the circle.
    *  If curvature is zero, center() throws an exception to avoid use of
@@ -52,12 +50,10 @@ public:
   Vector2D center() const { return theCenter; }
 
 private:
-
-  float    theCurvature;
+  float theCurvature;
   Vector2D theCenter;
 
-  void init( const Vector2D& b, const Vector2D& c,
-	     const Vector2D& offset, double precision);
+  void init(const Vector2D& b, const Vector2D& c, const Vector2D& offset, double precision);
 };
 
 #endif  // RecoPixelVertexing_PixelTrackFitting_interface_CircleFromThreePoints_h

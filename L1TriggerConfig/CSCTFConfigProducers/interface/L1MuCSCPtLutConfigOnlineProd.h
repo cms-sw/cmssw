@@ -2,13 +2,13 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
 
-class L1MuCSCPtLutConfigOnlineProd : public L1ConfigOnlineProdBase< L1MuCSCPtLutRcd, L1MuCSCPtLut > {
-   public:
-      L1MuCSCPtLutConfigOnlineProd(const edm::ParameterSet& iConfig)
-         : L1ConfigOnlineProdBase< L1MuCSCPtLutRcd, L1MuCSCPtLut >( iConfig ) {}
-      ~L1MuCSCPtLutConfigOnlineProd() override {}
+class L1MuCSCPtLutConfigOnlineProd : public L1ConfigOnlineProdBase<L1MuCSCPtLutRcd, L1MuCSCPtLut> {
+public:
+  L1MuCSCPtLutConfigOnlineProd(const edm::ParameterSet& iConfig)
+      : L1ConfigOnlineProdBase<L1MuCSCPtLutRcd, L1MuCSCPtLut>(iConfig) {}
+  ~L1MuCSCPtLutConfigOnlineProd() override {}
 
-      std::unique_ptr< L1MuCSCPtLut > newObject( const std::string& objectKey ) override ;
-   private:
+  std::unique_ptr<L1MuCSCPtLut> newObject(const std::string& objectKey) override;
+
+private:
 };
-

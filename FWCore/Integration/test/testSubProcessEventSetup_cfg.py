@@ -4,7 +4,7 @@ process = cms.Process("TEST")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.cerr.INFO.limit = 100
+process.MessageLogger.cerr.INFO.limit = 200
 
 #process.options = cms.untracked.PSet(forceEventSetupCacheClearOnNewRun = cms.untracked.bool(True))
 

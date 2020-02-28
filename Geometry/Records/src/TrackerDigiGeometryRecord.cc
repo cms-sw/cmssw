@@ -2,11 +2,11 @@
 //
 // Package:     Records
 // Class  :     IdealGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Mon Jul 25 11:05:09 EDT 2005
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

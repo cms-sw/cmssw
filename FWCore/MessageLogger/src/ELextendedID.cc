@@ -9,53 +9,48 @@
 //
 // ----------------------------------------------------------------------
 
-
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 
+namespace edm {
 
-namespace edm
-{
+  // ----------------------------------------------------------------------
+  // Comparator:
+  // ----------------------------------------------------------------------
 
+  bool ELextendedID::operator<(const ELextendedID& xid) const {
+    return (severity < xid.severity)
+               ? true
+               : (severity > xid.severity)
+                     ? false
 
-// ----------------------------------------------------------------------
-// Comparator:
-// ----------------------------------------------------------------------
+                     : (id < xid.id)
+                           ? true
+                           : (id > xid.id) ? false
 
-bool ELextendedID::operator<( const ELextendedID & xid ) const  {
+                                           : (module < xid.module)
+                                                 ? true
+                                                 : (module > xid.module) ? false
 
-  return
-          ( severity   < xid.severity   )  ?  true
-        : ( severity   > xid.severity   )  ?  false
+                                                                         : (subroutine < xid.subroutine)
+                                                                               ? true
+                                                                               : (subroutine > xid.subroutine) ? false
 
-        : ( id         < xid.id         )  ?  true
-        : ( id         > xid.id         )  ?  false
+                                                                                                               : false;
 
-        : ( module     < xid.module     )  ?  true
-        : ( module     > xid.module     )  ?  false
+  }  // ELextendedID::operator<()
 
-        : ( subroutine < xid.subroutine )  ?  true
-        : ( subroutine > xid.subroutine )  ?  false
+  // ----------------------------------------------------------------------
+  // (Re)initializer:
+  // ----------------------------------------------------------------------
 
-        :                                     false
-        ;
+  void ELextendedID::clear() {
+    id = "";
+    severity = ELunspecified;
+    module = "";
+    subroutine = "";
 
-}  // ELextendedID::operator<()
+  }  // clear()
 
+  // ----------------------------------------------------------------------
 
-// ----------------------------------------------------------------------
-// (Re)initializer:
-// ----------------------------------------------------------------------
-
-void ELextendedID::clear()  {
-
-  id         = "";
-  severity   = ELunspecified;
-  module     = "";
-  subroutine = "";
-
-}  // clear()
-
-
-// ----------------------------------------------------------------------
-
-} // end of namespace edm  */
+}  // end of namespace edm  */

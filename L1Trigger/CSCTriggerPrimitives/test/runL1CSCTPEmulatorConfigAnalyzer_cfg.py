@@ -18,9 +18,9 @@ else:
     sys.exit(1)
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("TEST",eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("TEST",Run2_2018)
 
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi')

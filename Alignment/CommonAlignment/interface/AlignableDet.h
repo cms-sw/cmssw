@@ -5,15 +5,12 @@
 
 /// An AlignableComposite corresponding to a composite GeomDet
 /// direct components are AlignableDetUnits or AlignableDets.
-class AlignableDet: public AlignableComposite 
-{
-
+class AlignableDet : public AlignableComposite {
 public:
-  
   /// Constructor: If addComponents = true, creates components for
   /// geomDet's components, assuming they are GeomDetUnits
-  AlignableDet( const GeomDet* geomDet, bool addComponents = true );
-  
+  AlignableDet(const GeomDet* geomDet, bool addComponents = true);
+
   /// Destructor
   ~AlignableDet() override;
 
@@ -22,16 +19,16 @@ public:
   void update(const GeomDet* geomDet, bool updateComponents = true);
 
   /// Set the AlignmentPositionError and, if (propagateDown), to all components
-  void setAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown) override;
+  void setAlignmentPositionError(const AlignmentPositionError& ape, bool propagateDown) override;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError,
   /// if (propagateDown), add also to all components
-  void addAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown) override;
+  void addAlignmentPositionError(const AlignmentPositionError& ape, bool propagateDown) override;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the global reference frame,
   /// if (propagateDown), add also to all components
-  void addAlignmentPositionErrorFromRotation(const RotationType &rot, bool propagateDown) override;
+  void addAlignmentPositionErrorFromRotation(const RotationType& rot, bool propagateDown) override;
 
   // No need to overwrite, version from AlignableComposite is just fine:
   // virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType &rot,
@@ -43,13 +40,11 @@ public:
   /// Return vector of alignment errors
   AlignmentErrorsExtended* alignmentErrors() const override;
 
-  /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
-  const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+  /// alignment position error - for checking only, otherwise use alignmentErrors() above!
+  const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError; }
 
 private:
-
   AlignmentPositionError* theAlignmentPositionError;
-
 };
 
-#endif // ALIGNABLE_DET_H
+#endif  // ALIGNABLE_DET_H

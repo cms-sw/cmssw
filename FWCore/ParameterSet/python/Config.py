@@ -2,24 +2,26 @@
 
 ### command line options helper
 from __future__ import print_function
+from __future__ import absolute_import
 import six
-from  Options import Options
+import os
+from  .Options import Options
 options = Options()
 
 
 ## imports
 import sys
-from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
-from Mixins import *
-from Types import *
-from Modules import *
-from Modules import _Module
-from SequenceTypes import *
-from SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
-from SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
-import DictTypes
+from .Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
+from .Mixins import *
+from .Types import *
+from .Modules import *
+from .Modules import _Module
+from .SequenceTypes import *
+from .SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
+from .SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
+from . import DictTypes
 
-from ExceptionHandling import *
+from .ExceptionHandling import *
 
 #when building RECO paths we have hit the default recursion limit
 if sys.getrecursionlimit()<5000:
@@ -39,7 +41,7 @@ def checkImportPermission(minLevel = 2, allowedPatterns = []):
     import inspect
     import os
 
-    ignorePatterns = ['FWCore/ParameterSet/Config.py','<string>']
+    ignorePatterns = ['FWCore/ParameterSet/Config.py','<string>','<frozen ']
     CMSSWPath = [os.environ['CMSSW_BASE'],os.environ['CMSSW_RELEASE_BASE']]
 
     # Filter the stack to things in CMSSWPath and not in ignorePatterns
@@ -133,6 +135,9 @@ class Process(object):
         self.__dict__['_Process__partialschedules'] = {}
         self.__isStrict = False
         self.__dict__['_Process__modifiers'] = Mods
+        self.options = Process.defaultOptions_()
+        self.maxEvents = Process.defaultMaxEvents_()
+        self.maxLuminosityBlocks = Process.defaultMaxLuminosityBlocks_()
         for m in self.__modifiers:
             m._setChosen()
 
@@ -205,6 +210,58 @@ class Process(object):
     def setLooper_(self,lpr):
         self._placeLooper('looper',lpr)
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
+    @staticmethod
+    def defaultOptions_():
+        return untracked.PSet(numberOfThreads = untracked.uint32(1),
+                              numberOfStreams = untracked.uint32(0),
+                              numberOfConcurrentRuns = untracked.uint32(1),
+                              numberOfConcurrentLuminosityBlocks = untracked.uint32(1),
+                              eventSetup = untracked.PSet(
+                                  numberOfConcurrentIOVs = untracked.uint32(1),
+                                  forceNumberOfConcurrentIOVs = untracked.PSet(
+                                      allowAnyLabel_ = required.untracked.uint32
+                                  )
+                              ),
+                              wantSummary = untracked.bool(False),
+                              fileMode = untracked.string('FULLMERGE'),
+                              forceEventSetupCacheClearOnNewRun = untracked.bool(False),
+                              throwIfIllegalParameter = untracked.bool(True),
+                              printDependencies = untracked.bool(False),
+                              sizeOfStackForThreadsInKB = optional.untracked.uint32,
+                              Rethrow = untracked.vstring(),
+                              SkipEvent = untracked.vstring(),
+                              FailPath = untracked.vstring(),
+                              IgnoreCompletely = untracked.vstring(),
+                              canDeleteEarly = untracked.vstring(),
+                              allowUnscheduled = obsolete.untracked.bool,
+                              emptyRunLumiMode = obsolete.untracked.string,
+                              makeTriggerResults = obsolete.untracked.bool
+                              )
+    def __updateOptions(self,opt):
+        newOpts = self.defaultOptions_()
+        if isinstance(opt,dict):
+            for k,v in six.iteritems(opt):
+                setattr(newOpts,k,v)
+        else:
+            for p in opt.parameters_():
+                setattr(newOpts, p, getattr(opt,p))
+        return newOpts
+    @staticmethod
+    def defaultMaxEvents_():
+        return untracked.PSet(input=optional.untracked.int32,
+                              output=optional.untracked.allowed(int32,PSet))
+    def __updateMaxEvents(self,ps):
+        newMax = self.defaultMaxEvents_()
+        if isinstance(ps,dict):
+            for k,v in six.iteritems(ps):
+                setattr(newMax,k,v)
+        else:
+            for p in ps.parameters_():
+                setattr(newMax, p, getattr(ps,p))
+        return newMax
+    @staticmethod
+    def defaultMaxLuminosityBlocks_():
+        return untracked.PSet(input=untracked.int32(-1))
     def subProcesses_(self):
         """returns a list of the subProcesses that have been added to the Process"""
         return self.__subProcesses
@@ -283,7 +340,7 @@ class Process(object):
 
     def isUsingModifier(self,mod):
         """returns True if the Modifier is in used by this Process"""
-        if mod.isChosen():
+        if mod._isChosen():
             for m in self.__modifiers:
                 if m._isOrContains(mod):
                     return True
@@ -320,6 +377,11 @@ class Process(object):
         # check if the name is well-formed (only _ and alphanumerics are allowed)
         if not name.replace('_','').isalnum():
             raise ValueError('The label '+name+' contains forbiden characters')
+
+        if name == 'options':
+            value = self.__updateOptions(value)
+        if name == 'maxEvents':
+            value = self.__updateMaxEvents(value)
 
         # private variable exempt from all this
         if name.startswith('_Process__'):
@@ -408,6 +470,33 @@ class Process(object):
                     s = self.__findFirstUsingModule(self.endpaths,oldValue)
                     if s is not None:
                         raise ValueError(msg1+"endpath "+s.label_()+msg2)
+
+            # In case of EDAlias, raise Exception always to avoid surprises
+            if isinstance(newValue, EDAlias):
+                oldValue = getattr(self, name)
+                #should check to see if used in task/sequence before complaining
+                newFile='top level config'
+                if hasattr(value,'_filename'):
+                    newFile = value._filename
+                oldFile='top level config'
+                if hasattr(oldValue,'_filename'):
+                    oldFile = oldValue._filename
+                msg1 = "Trying to override definition of "+name+" with an EDAlias while it is used by the "
+                msg2 = "\n new object defined in: "+newFile
+                msg2 += "\n existing object defined in: "+oldFile
+                s = self.__findFirstUsingModule(self.tasks,oldValue)
+                if s is not None:
+                    raise ValueError(msg1+"task "+s.label_()+msg2)
+                s = self.__findFirstUsingModule(self.sequences,oldValue)
+                if s is not None:
+                    raise ValueError(msg1+"sequence "+s.label_()+msg2)
+                s = self.__findFirstUsingModule(self.paths,oldValue)
+                if s is not None:
+                    raise ValueError(msg1+"path "+s.label_()+msg2)
+                s = self.__findFirstUsingModule(self.endpaths,oldValue)
+                if s is not None:
+                    raise ValueError(msg1+"endpath "+s.label_()+msg2)
+
             self._delattrFromSetattr(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -628,10 +717,7 @@ class Process(object):
                 self.extend(item)
 
         #now create a sequence that uses the newly made items
-        for name in seqs.iterkeys():
-            seq = seqs[name]
-            #newSeq = seq.copy()
-            #
+        for name,seq in six.iteritems(seqs):
             if id(seq) not in self._cloneToObjectDict:
                 self.__setattr__(name,seq)
             else:
@@ -641,8 +727,7 @@ class Process(object):
                 #now put in proper bucket
                 newSeq._place(name,self)
 
-        for name in tasksToAttach.iterkeys():
-            task = tasksToAttach[name]
+        for name, task in six.iteritems(tasksToAttach):
             self.__setattr__(name, task)
 
         #apply modifiers now that all names have been added
@@ -656,11 +741,13 @@ class Process(object):
         for name,item in items:
             returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
         return returnValue
+
     def _dumpConfigUnnamedList(self,items,typeName,options):
         returnValue = ''
         for name,item in items:
             returnValue +=options.indentation()+typeName+' = '+item.dumpConfig(options)
         return returnValue
+
     def _dumpConfigOptionallyNamedList(self,items,typeName,options):
         returnValue = ''
         for name,item in items:
@@ -668,6 +755,7 @@ class Process(object):
                 name = ''
             returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
         return returnValue
+
     def dumpConfig(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using the old configuration language"""
         config = "process "+self.__name+" = {\n"
@@ -733,16 +821,19 @@ class Process(object):
         config += "}\n"
         options.unindent()
         return config
+
     def _dumpConfigESPrefers(self, options):
         result = ''
         for item in six.itervalues(self.es_prefers_()):
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
+
     def _dumpPythonSubProcesses(self, l, options):
         returnValue = ''
         for item in l:
             returnValue += item.dumpPython(options)+'\n\n'
         return returnValue
+
     def _dumpPythonList(self, d, options):
         returnValue = ''
         if isinstance(d, DictTypes.SortedKeysDict):
@@ -752,6 +843,28 @@ class Process(object):
             for name,item in sorted(d.items()):
                 returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
+
+    def _splitPythonList(self, subfolder, d, options):
+        parts = DictTypes.SortedKeysDict()
+        for name, item in d.items() if isinstance(d, DictTypes.SortedKeysDict) else sorted(d.items()):
+            code = ''
+            dependencies = item.directDependencies()
+            for module_subfolder, module in dependencies:
+                module = module + '_cfi'
+                if options.useSubdirectories and module_subfolder:
+                    module = module_subfolder + '.' + module
+                if options.targetDirectory is not None:
+                    if options.useSubdirectories and subfolder:
+                      module = '..' + module
+                    else:
+                      module = '.' + module
+                code += 'from ' + module + ' import *\n'
+            if dependencies:
+                code += '\n'
+            code += name + ' = ' + item.dumpPython(options)
+            parts[name] = subfolder, code
+        return parts
+
     def _validateSequence(self, sequence, label):
         # See if every module has been inserted into the process
         try:
@@ -760,6 +873,7 @@ class Process(object):
             sequence.visit(visitor)
         except:
             raise RuntimeError("An entry in sequence "+label + ' has no label')
+
     def _validateTask(self, task, label):
         # See if every module and service has been inserted into the process
         try:
@@ -768,6 +882,7 @@ class Process(object):
             task.visit(visitor)
         except:
             raise RuntimeError("An entry in task " + label + ' has not been attached to the process')
+
     def _itemsInDependencyOrder(self, processDictionaryOfItems):
         # The items can be Sequences or Tasks and the input
         # argument should either be the dictionary of sequences
@@ -824,11 +939,19 @@ class Process(object):
                         while deps2.count(label):
                             deps2.remove(label)
         return returnValue
+
     def _dumpPython(self, d, options):
         result = ''
         for name, value in sorted(six.iteritems(d)):
             result += value.dumpPythonAs(name,options)+'\n'
         return result
+
+    def _splitPython(self, subfolder, d, options):
+        result = {}
+        for name, value in sorted(six.iteritems(d)):
+            result[name] = subfolder, value.dumpPythonAs(name, options) + '\n'
+        return result
+
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using python"""
         specialImportRegistry._reset()
@@ -862,9 +985,83 @@ class Process(object):
             header += "\n" + "\n".join(imports)
         header += "\n\n"
         return header+result
+
+    def splitPython(self, options = PrintOptions()):
+        """return a map of file names to python configuration fragments"""
+        specialImportRegistry._reset()
+        # extract individual fragments
+        options.isCfg = False
+        header = "import FWCore.ParameterSet.Config as cms"
+        result = ''
+        parts = {}
+        files = {}
+
+        result = 'process = cms.Process("' + self.__name + '")\n\n'
+
+        if self.source_():
+            parts['source'] = (None, 'source = ' + self.source_().dumpPython(options))
+
+        if self.looper_():
+            parts['looper'] = (None, 'looper = ' + self.looper_().dumpPython())
+
+        parts.update(self._splitPythonList('psets', self.psets, options))
+        parts.update(self._splitPythonList('psets', self.vpsets, options))
+        # FIXME
+        #parts.update(self._splitPythonSubProcesses(self.subProcesses_(), options))
+        if len(self.subProcesses_()):
+          sys.stderr.write("error: subprocesses are not supported yet\n\n")
+        parts.update(self._splitPythonList('modules', self.producers_(), options))
+        parts.update(self._splitPythonList('modules', self.switchProducers_(), options))
+        parts.update(self._splitPythonList('modules', self.filters_() , options))
+        parts.update(self._splitPythonList('modules', self.analyzers_(), options))
+        parts.update(self._splitPythonList('modules', self.outputModules_(), options))
+        parts.update(self._splitPythonList('services', self.services_(), options))
+        parts.update(self._splitPythonList('eventsetup', self.es_producers_(), options))
+        parts.update(self._splitPythonList('eventsetup', self.es_sources_(), options))
+        parts.update(self._splitPython('eventsetup', self.es_prefers_(), options))
+        parts.update(self._splitPythonList('tasks', self._itemsInDependencyOrder(self.tasks), options))
+        parts.update(self._splitPythonList('sequences', self._itemsInDependencyOrder(self.sequences), options))
+        parts.update(self._splitPythonList('paths', self.paths_(), options))
+        parts.update(self._splitPythonList('paths', self.endpaths_(), options))
+        parts.update(self._splitPythonList('modules', self.aliases_(), options))
+
+        if options.targetDirectory is not None:
+            files[options.targetDirectory + '/__init__.py'] = ''
+
+        if options.useSubdirectories:
+          for sub in 'psets', 'modules', 'services', 'eventsetup', 'tasks', 'sequences', 'paths':
+            if options.targetDirectory is not None:
+                sub = options.targetDirectory + '/' + sub
+            files[sub + '/__init__.py'] = ''
+
+        for (name, (subfolder, code)) in six.iteritems(parts):
+            filename = name + '_cfi'
+            if options.useSubdirectories and subfolder:
+                filename = subfolder + '/' + filename
+            if options.targetDirectory is not None:
+                filename = options.targetDirectory + '/' + filename
+            result += 'process.load("%s")\n' % filename
+            files[filename + '.py'] = header + '\n\n' + code
+
+        if self.schedule_() is not None:
+            options.isCfg = True
+            result += 'process.schedule = ' + self.schedule.dumpPython(options)
+
+        imports = specialImportRegistry.getSpecialImports()
+        if len(imports) > 0:
+            header += '\n' + '\n'.join(imports)
+        files['-'] = header + '\n\n' + result
+        return files
+
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
+        #to ovoid dependency problems between sequences, first modify
+        # process known sequences to do a non-recursive change. Then do
+        # a recursive change to get cases where a sub-sequence unknown to
+        # the process has the item to be replaced
+        for sequenceable in six.itervalues(self.sequences):
+            sequenceable._replaceIfHeldDirectly(old,new)
         for sequenceable in six.itervalues(self.sequences):
             sequenceable.replace(old,new)
         for sequenceable in six.itervalues(self.paths):
@@ -994,7 +1191,7 @@ class Process(object):
         """ Remove clutter from the process that we think is unnecessary:
         tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
         not in the schedule will also be removed, along with an modules and sequences used only by
-        those removed Paths and EndPaths."""
+        those removed Paths and EndPaths. The keepUnresolvedSequencePlaceholders keeps also unresolved TaskPlaceholders."""
 # need to update this to only prune psets not on refToPSets
 # but for now, remove the delattr
 #        for name in self.psets_():
@@ -1006,6 +1203,8 @@ class Process(object):
         self.resolve(keepUnresolvedSequencePlaceholders)
         usedModules = set()
         unneededPaths = set()
+        tasks = list()
+        tv = TaskVisitor(tasks)
         if self.schedule_():
             usedModules=set(self.schedule_().moduleNames())
             #get rid of unused paths
@@ -1015,6 +1214,10 @@ class Process(object):
             unneededPaths = names - schedNames
             for n in unneededPaths:
                 delattr(self,n)
+            for t in self.schedule_().tasks():
+                tv.enter(t)
+                t.visit(tv)
+                tv.leave(t)
         else:
             pths = list(six.itervalues(self.paths))
             pths.extend(six.itervalues(self.endpaths))
@@ -1024,23 +1227,30 @@ class Process(object):
         unneededModules.update(self._pruneModules(self.switchProducers_(), usedModules))
         unneededModules.update(self._pruneModules(self.filters_(), usedModules))
         unneededModules.update(self._pruneModules(self.analyzers_(), usedModules))
-        #remove sequences that do not appear in remaining paths and endpaths
+        #remove sequences and tasks that do not appear in remaining paths and endpaths
         seqs = list()
         sv = SequenceVisitor(seqs)
         for p in six.itervalues(self.paths):
             p.visit(sv)
+            p.visit(tv)
         for p in six.itervalues(self.endpaths):
             p.visit(sv)
-        keepSeqSet = set(( s for s in seqs if s.hasLabel_()))
-        availableSeqs = set(six.itervalues(self.sequences))
-        unneededSeqs = availableSeqs-keepSeqSet
-        unneededSeqLabels = []
-        for s in unneededSeqs:
-            unneededSeqLabels.append(s.label_())
-            delattr(self,s.label_())
+            p.visit(tv)
+        def removeUnneeded(seqOrTasks, allSequencesOrTasks):
+            _keepSet = set(( s for s in seqOrTasks if s.hasLabel_()))
+            _availableSet = set(six.itervalues(allSequencesOrTasks))
+            _unneededSet = _availableSet-_keepSet
+            _unneededLabels = []
+            for s in _unneededSet:
+                _unneededLabels.append(s.label_())
+                delattr(self,s.label_())
+            return _unneededLabels
+        unneededSeqLabels = removeUnneeded(seqs, self.sequences)
+        unneededTaskLabels = removeUnneeded(tasks, self.tasks)
         if verbose:
             print("prune removed the following:")
             print("  modules:"+",".join(unneededModules))
+            print("  tasks:"+",".join(unneededTaskLabels))
             print("  sequences:"+",".join(unneededSeqLabels))
             print("  paths/endpaths:"+",".join(unneededPaths))
     def _pruneModules(self, d, scheduledNames):
@@ -1192,6 +1402,10 @@ class ProcessFragment(object):
             self.__process = process
         elif isinstance(process, str):
             self.__process = Process(process)
+            #make sure we do not override the defaults
+            del self.__process.options
+            del self.__process.maxEvents
+            del self.__process.maxLuminosityBlocks
         else:
             raise TypeError('a ProcessFragment can only be constructed from an existig Process or from process name')
     def __dir__(self):
@@ -1261,7 +1475,7 @@ class SubProcess(_Unlabelable):
         self.__process = process
         self.__SelectEvents = SelectEvents
         self.__outputCommands = outputCommands
-    def dumpPython(self,options=PrintOptions()):
+    def dumpPython(self, options=PrintOptions()):
         out = "parentProcess"+str(hash(self))+" = process\n"
         out += self.__process.dumpPython()
         out += "childProcess = process\n"
@@ -1297,11 +1511,11 @@ class _ParameterModifier(object):
         self.__args = args
     def __call__(self,obj):
         params = {}
-        for k in self.__args.iterkeys():
+        for k in six.iterkeys(self.__args):
             if hasattr(obj,k):
                 params[k] = getattr(obj,k)
         _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
-        for k in self.__args.iterkeys():
+        for k in six.iterkeys(self.__args):
             if k in params:
                 setattr(obj,k,params[k])
             else:
@@ -1319,12 +1533,12 @@ class _BoolModifierBase(object):
             self._rhs = rhs
     def toModify(self,obj, func=None,**kw):
         Modifier._toModifyCheck(obj,func,**kw)
-        if not self.isChosen():
+        if not self._isChosen():
             return
         Modifier._toModify(obj,func,**kw)
     def toReplaceWith(self,toObj,fromObj):
         Modifier._toReplaceWithCheck(toObj,fromObj)
-        if not self.isChosen():
+        if not self._isChosen():
             return
         Modifier._toReplaceWith(toObj,fromObj)
     def makeProcessModifier(self,func):
@@ -1343,22 +1557,22 @@ class _AndModifier(_BoolModifierBase):
     """A modifier which only applies if multiple Modifiers are chosen"""
     def __init__(self, lhs, rhs):
         super(_AndModifier,self).__init__(lhs, rhs)
-    def isChosen(self):
-        return self._lhs.isChosen() and self._rhs.isChosen()
+    def _isChosen(self):
+        return self._lhs._isChosen() and self._rhs._isChosen()
 
 class _InvertModifier(_BoolModifierBase):
     """A modifier which only applies if a Modifier is not chosen"""
     def __init__(self, lhs):
         super(_InvertModifier,self).__init__(lhs)
-    def isChosen(self):
-        return not self._lhs.isChosen()
+    def _isChosen(self):
+        return not self._lhs._isChosen()
 
 class _OrModifier(_BoolModifierBase):
     """A modifier which only applies if at least one of multiple Modifiers is chosen"""
     def __init__(self, lhs, rhs):
         super(_OrModifier,self).__init__(lhs, rhs)
-    def isChosen(self):
-        return self._lhs.isChosen() or self._rhs.isChosen()
+    def _isChosen(self):
+        return self._lhs._isChosen() or self._rhs._isChosen()
 
 
 class Modifier(object):
@@ -1397,7 +1611,7 @@ class Modifier(object):
             mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
         """
         Modifier._toModifyCheck(obj,func,**kw)
-        if not self.isChosen():
+        if not self._isChosen():
             return
         Modifier._toModify(obj,func,**kw)
     @staticmethod
@@ -1415,7 +1629,7 @@ class Modifier(object):
         """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
         """
         Modifier._toReplaceWithCheck(toObj,fromObj)
-        if not self.isChosen():
+        if not self._isChosen():
             return
         Modifier._toReplaceWith(toObj,fromObj)
     @staticmethod
@@ -1440,7 +1654,7 @@ class Modifier(object):
     def _setChosen(self):
         """Should only be called by cms.Process instances"""
         self.__chosen = True
-    def isChosen(self):
+    def _isChosen(self):
         return self.__chosen
     def __and__(self, other):
         return _AndModifier(self,other)
@@ -1468,7 +1682,7 @@ class ModifierChain(object):
         self.__chosen = True
         for m in self.__chain:
             m._setChosen()
-    def isChosen(self):
+    def _isChosen(self):
         return self.__chosen
     def copyAndExclude(self, toExclude):
         """Creates a new ModifierChain which is a copy of
@@ -1512,7 +1726,7 @@ class ProcessModifier(object):
         self.__func = func
         self.__seenProcesses = set()
     def apply(self,process):
-        if self.__modifier.isChosen():
+        if self.__modifier._isChosen():
             if process not in self.__seenProcesses:
                 self.__func(process)
                 self.__seenProcesses.add(process)
@@ -1520,6 +1734,21 @@ class ProcessModifier(object):
 if __name__=="__main__":
     import unittest
     import copy
+
+    def _lineDiff(newString, oldString):
+        newString = ( x for x in newString.split('\n') if len(x) > 0)
+        oldString = [ x for x in oldString.split('\n') if len(x) > 0]
+        diff = []
+        oldStringLine = 0
+        for l in newString:
+            if oldStringLine >= len(oldString):
+                diff.append(l)
+                continue
+            if l == oldString[oldStringLine]:
+                oldStringLine +=1
+                continue
+            diff.append(l)
+        return "\n".join( diff )
 
     class TestMakePSet(object):
         """Has same interface as the C++ object that creates PSets
@@ -1611,27 +1840,27 @@ if __name__=="__main__":
             p = _Parameterizable()
             self.assertEqual(len(p.parameterNames_()),0)
             p.a = int32(1)
-            self.assert_('a' in p.parameterNames_())
+            self.assertTrue('a' in p.parameterNames_())
             self.assertEqual(p.a.value(), 1)
             p.a = 10
             self.assertEqual(p.a.value(), 10)
             p.a = untracked(int32(1))
             self.assertEqual(p.a.value(), 1)
-            self.failIf(p.a.isTracked())
+            self.assertFalse(p.a.isTracked())
             p.a = untracked.int32(1)
             self.assertEqual(p.a.value(), 1)
-            self.failIf(p.a.isTracked())
+            self.assertFalse(p.a.isTracked())
             p = _Parameterizable(foo=int32(10), bar = untracked(double(1.0)))
             self.assertEqual(p.foo.value(), 10)
             self.assertEqual(p.bar.value(),1.0)
-            self.failIf(p.bar.isTracked())
+            self.assertFalse(p.bar.isTracked())
             self.assertRaises(TypeError,setattr,(p,'c',1))
             p = _Parameterizable(a=PSet(foo=int32(10), bar = untracked(double(1.0))))
             self.assertEqual(p.a.foo.value(),10)
             self.assertEqual(p.a.bar.value(),1.0)
             p.b = untracked(PSet(fii = int32(1)))
             self.assertEqual(p.b.fii.value(),1)
-            self.failIf(p.b.isTracked())
+            self.assertFalse(p.b.isTracked())
             #test the fact that values can be shared
             v = int32(10)
             p=_Parameterizable(a=v)
@@ -1650,32 +1879,32 @@ if __name__=="__main__":
         def testProcessInsertion(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
-            self.assert_( 'a' in p.analyzers_() )
-            self.assert_( 'a' in p.analyzers)
+            self.assertTrue( 'a' in p.analyzers_() )
+            self.assertTrue( 'a' in p.analyzers)
             p.add_(Service("MessageLogger"))
-            self.assert_('MessageLogger' in p.services_())
+            self.assertTrue('MessageLogger' in p.services_())
             self.assertEqual(p.MessageLogger.type_(), "MessageLogger")
             p.Tracer = Service("Tracer")
-            self.assert_('Tracer' in p.services_())
+            self.assertTrue('Tracer' in p.services_())
             self.assertRaises(TypeError, setattr, *(p,'b',"this should fail"))
             self.assertRaises(TypeError, setattr, *(p,'bad',Service("MessageLogger")))
             self.assertRaises(ValueError, setattr, *(p,'bad',Source("PoolSource")))
             p.out = OutputModule("Outer")
             self.assertEqual(p.out.type_(), 'Outer')
-            self.assert_( 'out' in p.outputModules_() )
+            self.assertTrue( 'out' in p.outputModules_() )
 
             p.geom = ESSource("GeomProd")
-            self.assert_('geom' in p.es_sources_())
+            self.assertTrue('geom' in p.es_sources_())
             p.add_(ESSource("ConfigDB"))
-            self.assert_('ConfigDB' in p.es_sources_())
+            self.assertTrue('ConfigDB' in p.es_sources_())
 
             p.aliasfoo1 = EDAlias(foo1 = VPSet(PSet(type = string("Foo1"))))
-            self.assert_('aliasfoo1' in p.aliases_())
+            self.assertTrue('aliasfoo1' in p.aliases_())
 
         def testProcessExtend(self):
             class FromArg(object):
                 def __init__(self,*arg,**args):
-                    for name in args.iterkeys():
+                    for name in six.iterkeys(args):
                         self.__dict__[name]=args[name]
 
             a=EDAnalyzer("MyAnalyzer")
@@ -1742,7 +1971,64 @@ if __name__=="__main__":
             p2._Process__setObjectLabel(p2.s4, None)
             p2._Process__setObjectLabel(p2.s4, "bar")
 
+
+            p = Process('test')
+            p.a = EDProducer("MyProducer")
+            p.t = Task(p.a)
+            p.p = Path(p.t)
+            self.assertRaises(ValueError, p.extend, FromArg(a = EDProducer("YourProducer")))
+            self.assertRaises(ValueError, p.extend, FromArg(a = EDAlias()))
+            self.assertRaises(ValueError, p.__setattr__, "a", EDAlias())
+
+            p = Process('test')
+            p.a = EDProducer("MyProducer")
+            p.s = Sequence(p.a)
+            p.p = Path(p.s)
+            self.assertRaises(ValueError, p.extend, FromArg(a = EDProducer("YourProducer")))
+            self.assertRaises(ValueError, p.extend, FromArg(a = EDAlias()))
+            self.assertRaises(ValueError, p.__setattr__, "a", EDAlias())
+
         def testProcessDumpPython(self):
+            self.assertEqual(Process("test").dumpPython(),
+"""import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.optional.untracked.int32,
+    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
+)
+
+process.maxLuminosityBlocks = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
+process.options = cms.untracked.PSet(
+    FailPath = cms.untracked.vstring(),
+    IgnoreCompletely = cms.untracked.vstring(),
+    Rethrow = cms.untracked.vstring(),
+    SkipEvent = cms.untracked.vstring(),
+    allowUnscheduled = cms.obsolete.untracked.bool,
+    canDeleteEarly = cms.untracked.vstring(),
+    emptyRunLumiMode = cms.obsolete.untracked.string,
+    eventSetup = cms.untracked.PSet(
+        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
+
+        ),
+        numberOfConcurrentIOVs = cms.untracked.uint32(1)
+    ),
+    fileMode = cms.untracked.string('FULLMERGE'),
+    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    makeTriggerResults = cms.obsolete.untracked.bool,
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+    printDependencies = cms.untracked.bool(False),
+    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
+    throwIfIllegalParameter = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(False)
+)
+
+""")
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
             p.p = Path(p.a)
@@ -1751,28 +2037,13 @@ if __name__=="__main__":
             p.p2 = Path(p.s)
             p.schedule = Schedule(p.p2,p.p)
             d=p.dumpPython()
-            self.assertEqual(d,
-"""import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.a = cms.EDAnalyzer("MyAnalyzer")
-
-
+            self.assertEqual(_lineDiff(d,Process("test").dumpPython()),
+"""process.a = cms.EDAnalyzer("MyAnalyzer")
 process.s = cms.Sequence(process.a)
-
-
 process.r = cms.Sequence(process.s)
-
-
 process.p = cms.Path(process.a)
-
-
 process.p2 = cms.Path(process.s)
-
-
-process.schedule = cms.Schedule(*[ process.p2, process.p ])
-""")
+process.schedule = cms.Schedule(*[ process.p2, process.p ])""")
             #Reverse order of 'r' and 's'
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -1783,31 +2054,14 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ])
             p.schedule = Schedule(p.p2,p.p)
             p.b = EDAnalyzer("YourAnalyzer")
             d=p.dumpPython()
-            self.assertEqual(d,
-"""import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.a = cms.EDAnalyzer("MyAnalyzer")
-
-
+            self.assertEqual(_lineDiff(d,Process("test").dumpPython()),
+"""process.a = cms.EDAnalyzer("MyAnalyzer")
 process.b = cms.EDAnalyzer("YourAnalyzer")
-
-
 process.r = cms.Sequence(process.a)
-
-
 process.s = cms.Sequence(process.r)
-
-
 process.p = cms.Path(process.a)
-
-
 process.p2 = cms.Path(process.r)
-
-
-process.schedule = cms.Schedule(*[ process.p2, process.p ])
-""")
+process.schedule = cms.Schedule(*[ process.p2, process.p ])""")
         #use an anonymous sequence
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -1817,25 +2071,12 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ])
             p.p2 = Path(p.r)
             p.schedule = Schedule(p.p2,p.p)
             d=p.dumpPython()
-            self.assertEqual(d,
-            """import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.a = cms.EDAnalyzer("MyAnalyzer")
-
-
+            self.assertEqual(_lineDiff(d,Process("test").dumpPython()),
+"""process.a = cms.EDAnalyzer("MyAnalyzer")
 process.r = cms.Sequence((process.a))
-
-
 process.p = cms.Path(process.a)
-
-
 process.p2 = cms.Path(process.r)
-
-
-process.schedule = cms.Schedule(*[ process.p2, process.p ])
-""")
+process.schedule = cms.Schedule(*[ process.p2, process.p ])""")
 
             # include some tasks
             p = Process("test")
@@ -1858,58 +2099,23 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ])
             p.p2 = Path(p.r, p.task1, p.task2)
             p.schedule = Schedule(p.p2,p.p,tasks=[p.task3,p.task4, p.task5])
             d=p.dumpPython()
-            self.assertEqual(d,
-            """import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.b = cms.EDProducer("bProducer")
-
-
+            self.assertEqual(_lineDiff(d,Process("test").dumpPython()),
+"""process.b = cms.EDProducer("bProducer")
 process.c = cms.EDProducer("cProducer")
-
-
 process.d = cms.EDProducer("dProducer")
-
-
 process.e = cms.EDProducer("eProducer")
-
-
 process.f = cms.EDProducer("fProducer")
-
-
 process.g = cms.EDProducer("gProducer")
-
-
 process.a = cms.EDAnalyzer("MyAnalyzer")
-
-
 process.task5 = cms.Task()
-
-
 process.task1 = cms.Task(process.task5)
-
-
 process.task3 = cms.Task(process.task1)
-
-
 process.task2 = cms.Task(process.c, process.task3)
-
-
 process.task4 = cms.Task(process.f, process.task2)
-
-
 process.r = cms.Sequence((process.a))
-
-
 process.p = cms.Path(process.a)
-
-
 process.p2 = cms.Path(process.r, process.task1, process.task2)
-
-
-process.schedule = cms.Schedule(*[ process.p2, process.p ], tasks=[process.task3, process.task4, process.task5])
-""")
+process.schedule = cms.Schedule(*[ process.p2, process.p ], tasks=[process.task3, process.task4, process.task5])""")
             # only tasks
             p = Process("test")
             p.d = EDProducer("dProducer")
@@ -1920,39 +2126,19 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ], tasks=[process.task3
             task2 = Task(p.f, p.g)
             p.schedule = Schedule(tasks=[p.task1,task2])
             d=p.dumpPython()
-            self.assertEqual(d,
-            """import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.d = cms.EDProducer("dProducer")
-
-
+            self.assertEqual(_lineDiff(d,Process("test").dumpPython()),
+"""process.d = cms.EDProducer("dProducer")
 process.e = cms.EDProducer("eProducer")
-
-
 process.f = cms.EDProducer("fProducer")
-
-
 process.g = cms.EDProducer("gProducer")
-
-
 process.task1 = cms.Task(process.d, process.e)
-
-
-process.schedule = cms.Schedule(tasks=[cms.Task(process.f, process.g), process.task1])
-""")
+process.schedule = cms.Schedule(tasks=[cms.Task(process.f, process.g), process.task1])""")
             # empty schedule
             p = Process("test")
             p.schedule = Schedule()
             d=p.dumpPython()
-            self.assertEqual(d,
-            """import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.schedule = cms.Schedule()
-""")
+            self.assertEqual(_lineDiff(d,Process('test').dumpPython()),
+"""process.schedule = cms.Schedule()""")
 
             s = Sequence()
             a = EDProducer("A")
@@ -1962,18 +2148,9 @@ process.schedule = cms.Schedule()
             process.a = a
             process.s2 = s2
             d=process.dumpPython()
-            self.assertEqual(d,
-            """import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("DUMP")
-
-process.a = cms.EDProducer("A")
-
-
-process.s2 = cms.Sequence(process.a)
-
-
-""")
+            self.assertEqual(_lineDiff(d,Process('DUMP').dumpPython()),
+"""process.a = cms.EDProducer("A")
+process.s2 = cms.Sequence(process.a)""")
             s = Sequence()
             s1 = Sequence(s)
             a = EDProducer("A")
@@ -1984,23 +2161,14 @@ process.s2 = cms.Sequence(process.a)
             process.a = a
             process.s2 = s2
             d=process.dumpPython()
-            self.assertEqual(d,
-            """import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("DUMP")
-
-process.a = cms.EDProducer("A")
-
-
-process.s2 = cms.Sequence(process.a+(process.a+process.a))
-
-
-""")
+            self.assertEqual(_lineDiff(d,Process('DUMP').dumpPython()),
+"""process.a = cms.EDProducer("A")
+process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
 
         def testSecSource(self):
             p = Process('test')
             p.a = SecSource("MySecSource")
-            self.assertEqual(p.dumpPython().replace('\n',''),'import FWCore.ParameterSet.Config as cmsprocess = cms.Process("test")process.a = cms.SecSource("MySecSource")')
+            self.assertEqual(_lineDiff(p.dumpPython(),Process('test').dumpPython()),'process.a = cms.SecSource("MySecSource")')
 
         def testGlobalReplace(self):
             p = Process('test')
@@ -2021,6 +2189,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             s.associate(t2)
             p.s4.associate(t2)
             p.p = Path(p.c+s+p.a)
+            p.p2 = Path(p.c+p.s4+p.a)
             p.e3 = EndPath(p.c+s+p.a)
             new = EDAnalyzer("NewAnalyzer")
             new2 = EDProducer("NewProducer")
@@ -2033,12 +2202,18 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             visitor2 = NodeVisitor()
             p.p.visit(visitor2)
             self.assertTrue(visitor2.modules == set([new,new2,p.b,p.c]))
+            self.assertEqual(p.p.dumpPython()[:-1], "cms.Path(process.c+process.a+process.b+process.a, cms.Task(process.d))")
+            visitor_p2 = NodeVisitor()
+            p.p2.visit(visitor_p2)
+            self.assertTrue(visitor_p2.modules == set([new,new2,p.b,p.c]))
+            self.assertEqual(p.p2.dumpPython()[:-1], "cms.Path(process.c+process.s4+process.a)")
             visitor3 = NodeVisitor()
             p.e3.visit(visitor3)
             self.assertTrue(visitor3.modules == set([new,new2,p.b,p.c]))
             visitor4 = NodeVisitor()
             p.s4.visit(visitor4)
             self.assertTrue(visitor4.modules == set([new,new2,p.b]))
+            self.assertEqual(p.s4.dumpPython()[:-1],"cms.Sequence(process.a+process.b, cms.Task(process.d))")
             visitor5 = NodeVisitor()
             p.t1.visit(visitor5)
             self.assertTrue(visitor5.modules == set([new2]))
@@ -2182,10 +2357,9 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             l = list()
             visitor1 = ModuleNodeVisitor(l)
             testTask1.visit(visitor1)
-            l.sort()
-            expectedList = sorted([edproducer,essource,esproducer,service,edfilter,edproducer,edproducer4])
+            l.sort(key=lambda mod: mod.__str__())
+            expectedList = sorted([edproducer,essource,esproducer,service,edfilter,edproducer,edproducer4],key=lambda mod: mod.__str__())
             self.assertTrue(expectedList == l)
-
             process.myTask6 = Task()
             process.myTask7 = Task()
             process.mproducer8 = edproducer8
@@ -2265,23 +2439,23 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             process.g = ESProducer("g")
             process.path24 = Path(process.a+process.b+process.c+process.d)
             process.path25 = process.path24.copyAndExclude([process.a,process.b,process.c])
-            self.assertTrue(process.path25.dumpPython(None) == 'cms.Path(process.d)\n')
+            self.assertTrue(process.path25.dumpPython() == 'cms.Path(process.d)\n')
             #print process.path3
             #print process.dumpPython()
 
             process.path200 = EndPath(Sequence(process.c,Task(process.e)))
             process.path200.replace(process.c,process.b)
             process.path200.replace(process.e,process.f)
-            self.assertEqual(process.path200.dumpPython(None), "cms.EndPath(process.b, cms.Task(process.f))\n")
+            self.assertEqual(process.path200.dumpPython(), "cms.EndPath(process.b, cms.Task(process.f))\n")
             process.path200.replace(process.b,process.c)
             process.path200.replace(process.f,process.e)
-            self.assertEqual(process.path200.dumpPython(None), "cms.EndPath(process.c, cms.Task(process.e))\n")
+            self.assertEqual(process.path200.dumpPython(), "cms.EndPath(process.c, cms.Task(process.e))\n")
             process.path200.replace(process.c,process.a)
             process.path200.replace(process.e,process.g)
-            self.assertEqual(process.path200.dumpPython(None), "cms.EndPath(process.a, cms.Task(process.g))\n")
+            self.assertEqual(process.path200.dumpPython(), "cms.EndPath(process.a, cms.Task(process.g))\n")
             process.path200.replace(process.a,process.c)
             process.path200.replace(process.g,process.e)
-            self.assertEqual(process.path200.dumpPython(None), "cms.EndPath(process.c, cms.Task(process.e))\n")
+            self.assertEqual(process.path200.dumpPython(), "cms.EndPath(process.c, cms.Task(process.e))\n")
 
 
         def testPath(self):
@@ -2412,21 +2586,21 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             self.assertEqual(s[0],p.path1)
             self.assertEqual(s[1],p.path2)
             p.schedule = s
-            self.assert_('b' in p.schedule.moduleNames())
-            self.assert_(hasattr(p, 'b'))
-            self.assert_(hasattr(p, 'c'))
-            self.assert_(hasattr(p, 'd'))
-            self.assert_(hasattr(p, 'path1'))
-            self.assert_(hasattr(p, 'path2'))
-            self.assert_(hasattr(p, 'path3'))
+            self.assertTrue('b' in p.schedule.moduleNames())
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(hasattr(p, 'c'))
+            self.assertTrue(hasattr(p, 'd'))
+            self.assertTrue(hasattr(p, 'path1'))
+            self.assertTrue(hasattr(p, 'path2'))
+            self.assertTrue(hasattr(p, 'path3'))
             p.prune()
-            self.assert_('b' in p.schedule.moduleNames())
-            self.assert_(hasattr(p, 'b'))
-            self.assert_(not hasattr(p, 'c'))
-            self.assert_(not hasattr(p, 'd'))
-            self.assert_(hasattr(p, 'path1'))
-            self.assert_(hasattr(p, 'path2'))
-            self.assert_(not hasattr(p, 'path3'))
+            self.assertTrue('b' in p.schedule.moduleNames())
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(not hasattr(p, 'c'))
+            self.assertTrue(not hasattr(p, 'd'))
+            self.assertTrue(hasattr(p, 'path1'))
+            self.assertTrue(hasattr(p, 'path2'))
+            self.assertTrue(not hasattr(p, 'path3'))
 
             self.assertTrue(len(p.schedule._tasks) == 0)
 
@@ -2454,7 +2628,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             self.assertTrue(p.task1 == listOfTasks[0])
             self.assertTrue(p.task2 == listOfTasks[1])
             p.schedule = s
-            self.assert_('b' in p.schedule.moduleNames())
+            self.assertTrue('b' in p.schedule.moduleNames())
 
             process2 = Process("test")
             process2.a = EDAnalyzer("MyAnalyzer")
@@ -2493,15 +2667,15 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.c = EDProducer("MyProd")
             path1 = Path(p.c*Sequence(p.a+p.b))
             s = Schedule(path1)
-            self.assert_('a' in s.moduleNames())
-            self.assert_('b' in s.moduleNames())
-            self.assert_('c' in s.moduleNames())
+            self.assertTrue('a' in s.moduleNames())
+            self.assertTrue('b' in s.moduleNames())
+            self.assertTrue('c' in s.moduleNames())
             p.path1 = path1
             p.schedule = s
             p.prune()
-            self.assert_('a' in s.moduleNames())
-            self.assert_('b' in s.moduleNames())
-            self.assert_('c' in s.moduleNames())
+            self.assertTrue('a' in s.moduleNames())
+            self.assertTrue('b' in s.moduleNames())
+            self.assertTrue('c' in s.moduleNames())
 
         def testImplicitSchedule(self):
             p = Process("test")
@@ -2510,17 +2684,17 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.c = EDAnalyzer("OurAnalyzer")
             p.path1 = Path(p.a)
             p.path2 = Path(p.b)
-            self.assert_(p.schedule is None)
+            self.assertTrue(p.schedule is None)
             pths = p.paths
             keys = pths.keys()
             self.assertEqual(pths[keys[0]],p.path1)
             self.assertEqual(pths[keys[1]],p.path2)
             p.prune()
-            self.assert_(hasattr(p, 'a'))
-            self.assert_(hasattr(p, 'b'))
-            self.assert_(not hasattr(p, 'c'))
-            self.assert_(hasattr(p, 'path1'))
-            self.assert_(hasattr(p, 'path2'))
+            self.assertTrue(hasattr(p, 'a'))
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(not hasattr(p, 'c'))
+            self.assertTrue(hasattr(p, 'path1'))
+            self.assertTrue(hasattr(p, 'path2'))
 
 
             p = Process("test")
@@ -2529,7 +2703,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.c = EDAnalyzer("OurAnalyzer")
             p.path2 = Path(p.b)
             p.path1 = Path(p.a)
-            self.assert_(p.schedule is None)
+            self.assertTrue(p.schedule is None)
             pths = p.paths
             keys = pths.keys()
             self.assertEqual(pths[keys[1]],p.path1)
@@ -2546,9 +2720,9 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
         def testOverride(self):
             p = Process('test')
             a = EDProducer("A", a1=int32(0))
-            self.assert_(not a.isModified())
+            self.assertTrue(not a.isModified())
             a.a1 = 1
-            self.assert_(a.isModified())
+            self.assertTrue(a.isModified())
             p.a = a
             self.assertEqual(p.a.a1.value(), 1)
             # try adding an unmodified module.
@@ -2565,7 +2739,34 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             ps2 = PSet(a = int32(2))
             self.assertRaises(ValueError, EDProducer, 'C', ps1, ps2)
             self.assertRaises(ValueError, EDProducer, 'C', ps1, a=int32(3))
+        
+        def testOptions(self):
+            p = Process('test')
+            self.assertEqual(p.options.numberOfThreads.value(),1)
+            p.options.numberOfThreads = 8
+            self.assertEqual(p.options.numberOfThreads.value(),8)
+            p.options = PSet()
+            self.assertEqual(p.options.numberOfThreads.value(),1)
+            p.options = dict(numberOfStreams =2,
+                             numberOfThreads =2)
+            self.assertEqual(p.options.numberOfThreads.value(),2)
+            self.assertEqual(p.options.numberOfStreams.value(),2)
 
+        def testMaxEvents(self):
+            p = Process("Test")
+            p.maxEvents.input = 10
+            self.assertEqual(p.maxEvents.input.value(),10)
+            p = Process("Test")
+            p.maxEvents.output = 10
+            self.assertEqual(p.maxEvents.output.value(),10)
+            p = Process("Test")
+            p.maxEvents.output = PSet(out=untracked.int32(10))
+            self.assertEqual(p.maxEvents.output.out.value(), 10)
+            p = Process("Test")
+            p.maxEvents = untracked.PSet(input = untracked.int32(5))
+            self.assertEqual(p.maxEvents.input.value(), 5)
+
+        
         def testExamples(self):
             p = Process("Test")
             p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))
@@ -2584,53 +2785,19 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.juicer = ESProducer("JuicerProducer")
             p.prefer("ForceSource")
             p.prefer("juicer")
-            self.assertEqual(p.dumpConfig(),
-"""process Test = {
-    es_module juicer = JuicerProducer { 
-    }
-    es_source  = ForceSource { 
-    }
-    es_prefer  = ForceSource { 
-    }
-    es_prefer juicer = JuicerProducer { 
-    }
-}
-""")
-            p.prefer("juicer",fooRcd=vstring("Foo"))
-            self.assertEqual(p.dumpConfig(),
-"""process Test = {
-    es_module juicer = JuicerProducer { 
-    }
-    es_source  = ForceSource { 
-    }
-    es_prefer  = ForceSource { 
-    }
-    es_prefer juicer = JuicerProducer { 
-        vstring fooRcd = {
-            'Foo'
-        }
-
-    }
-}
-""")
-            self.assertEqual(p.dumpPython(),
-"""import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("Test")
-
-process.juicer = cms.ESProducer("JuicerProducer")
-
-
+            self.assertEqual(_lineDiff(p.dumpPython(), Process('Test').dumpPython()),
+"""process.juicer = cms.ESProducer("JuicerProducer")
 process.ForceSource = cms.ESSource("ForceSource")
-
-
 process.prefer("ForceSource")
-
+process.prefer("juicer")""")
+            p.prefer("juicer",fooRcd=vstring("Foo"))
+            self.assertEqual(_lineDiff(p.dumpPython(), Process('Test').dumpPython()),
+"""process.juicer = cms.ESProducer("JuicerProducer")
+process.ForceSource = cms.ESSource("ForceSource")
+process.prefer("ForceSource")
 process.prefer("juicer",
     fooRcd = cms.vstring('Foo')
-)
-
-""")
+)""")
 
         def testFreeze(self):
             process = Process("Freeze")
@@ -2658,33 +2825,16 @@ process.prefer("juicer",
             subProcess.add_(Service("Foo"))
             process.addSubProcess(SubProcess(subProcess))
             d = process.dumpPython()
-            equalD ="""import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("Parent")
-
-parentProcess = process
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("Child")
-
+            equalD ="""parentProcess = process
 process.a = cms.EDProducer("A")
-
-
 process.Foo = cms.Service("Foo")
-
-
 process.p = cms.Path(process.a)
-
-
 childProcess = process
 process = parentProcess
 process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.untracked.PSet(
-
-), outputCommands = cms.untracked.vstring()))
-
-"""
+), outputCommands = cms.untracked.vstring()))"""
             equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcesses_()[0])))
-            self.assertEqual(d,equalD)
+            self.assertEqual(_lineDiff(d,Process('Parent').dumpPython()+Process('Child').dumpPython()),equalD)
             p = TestMakePSet()
             process.fillProcessDesc(p)
             self.assertEqual((True,['a']),p.values["subProcesses"][1][0].values["process"][1].values['@all_modules'])
@@ -2724,7 +2874,9 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
             self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
             self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
-            self.assertEqual((True, ["sp@test1", "sp@test2"]), p.values["sp"][1].values["@all_cases"])
+            all_cases = copy.deepcopy(p.values["sp"][1].values["@all_cases"])
+            all_cases[1].sort() # names of all cases come via dict, i.e. their order is undefined
+            self.assertEqual((True, ["sp@test1", "sp@test2"]), all_cases)
             self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
             self.assertEqual(["a", "sp", "sp@test1", "sp@test2"], p.values["@all_modules"][1])
             self.assertEqual((True,"EDProducer"), p.values["sp@test1"][1].values["@module_edm_type"])
@@ -2752,7 +2904,9 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
             self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
             self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
-            self.assertEqual((True, ["sp@test1", "sp@test2"]), p.values["sp"][1].values["@all_cases"])
+            all_cases = copy.deepcopy(p.values["sp"][1].values["@all_cases"])
+            all_cases[1].sort()
+            self.assertEqual((True, ["sp@test1", "sp@test2"]), all_cases)
             self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
             self.assertEqual(["a", "sp", "sp@test2"], p.values["@all_modules"][1])
             self.assertEqual(["sp@test1"], p.values["@all_aliases"][1])
@@ -2792,10 +2946,16 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.b = EDAnalyzer("YourAnalyzer")
             p.c = EDAnalyzer("OurAnalyzer")
             p.d = EDAnalyzer("OurAnalyzer")
+            p.e = EDProducer("MyProducer")
+            p.f = EDProducer("YourProducer")
+            p.g = EDProducer("TheirProducer")
             p.s = Sequence(p.d)
-            p.path1 = Path(p.a)
+            p.t1 = Task(p.e)
+            p.t2 = Task(p.f)
+            p.t3 = Task(p.g, p.t1)
+            p.path1 = Path(p.a, p.t3)
             p.path2 = Path(p.b)
-            self.assert_(p.schedule is None)
+            self.assertTrue(p.schedule is None)
             pths = p.paths
             keys = pths.keys()
             self.assertEqual(pths[keys[0]],p.path1)
@@ -2805,17 +2965,23 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.vpset1 = VPSet()
             p.vpset2 = untracked.VPSet()
             p.prune()
-            self.assert_(hasattr(p, 'a'))
-            self.assert_(hasattr(p, 'b'))
-            self.assert_(not hasattr(p, 'c'))
-            self.assert_(not hasattr(p, 'd'))
-            self.assert_(not hasattr(p, 's'))
-            self.assert_(hasattr(p, 'path1'))
-            self.assert_(hasattr(p, 'path2'))
-#            self.assert_(not hasattr(p, 'pset1'))
-#            self.assert_(hasattr(p, 'pset2'))
-#            self.assert_(not hasattr(p, 'vpset1'))
-#            self.assert_(not hasattr(p, 'vpset2'))
+            self.assertTrue(hasattr(p, 'a'))
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(not hasattr(p, 'c'))
+            self.assertTrue(not hasattr(p, 'd'))
+            self.assertTrue(hasattr(p, 'e'))
+            self.assertTrue(not hasattr(p, 'f'))
+            self.assertTrue(hasattr(p, 'g'))
+            self.assertTrue(not hasattr(p, 's'))
+            self.assertTrue(hasattr(p, 't1'))
+            self.assertTrue(not hasattr(p, 't2'))
+            self.assertTrue(hasattr(p, 't3'))
+            self.assertTrue(hasattr(p, 'path1'))
+            self.assertTrue(hasattr(p, 'path2'))
+#            self.assertTrue(not hasattr(p, 'pset1'))
+#            self.assertTrue(hasattr(p, 'pset2'))
+#            self.assertTrue(not hasattr(p, 'vpset1'))
+#            self.assertTrue(not hasattr(p, 'vpset2'))
 
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -2823,31 +2989,48 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.c = EDAnalyzer("OurAnalyzer")
             p.d = EDAnalyzer("OurAnalyzer")
             p.e = EDAnalyzer("OurAnalyzer")
-            p.s = Sequence(p.d)
-            p.s2 = Sequence(p.b)
+            p.f = EDProducer("MyProducer")
+            p.g = EDProducer("YourProducer")
+            p.h = EDProducer("TheirProducer")
+            p.i = EDProducer("OurProducer")
+            p.t1 = Task(p.f)
+            p.t2 = Task(p.g)
+            p.t3 = Task(p.h)
+            p.t4 = Task(p.i)
+            p.s = Sequence(p.d, p.t1)
+            p.s2 = Sequence(p.b, p.t2)
             p.s3 = Sequence(p.e)
-            p.path1 = Path(p.a)
+            p.path1 = Path(p.a, p.t3)
             p.path2 = Path(p.b)
             p.path3 = Path(p.b+p.s2)
             p.path4 = Path(p.b+p.s3)
             p.schedule = Schedule(p.path1,p.path2,p.path3)
+            p.schedule.associate(p.t4)
             pths = p.paths
             keys = pths.keys()
             self.assertEqual(pths[keys[0]],p.path1)
             self.assertEqual(pths[keys[1]],p.path2)
             p.prune()
-            self.assert_(hasattr(p, 'a'))
-            self.assert_(hasattr(p, 'b'))
-            self.assert_(not hasattr(p, 'c'))
-            self.assert_(not hasattr(p, 'd'))
-            self.assert_(not hasattr(p, 'e'))
-            self.assert_(not hasattr(p, 's'))
-            self.assert_(hasattr(p, 's2'))
-            self.assert_(not hasattr(p, 's3'))
-            self.assert_(hasattr(p, 'path1'))
-            self.assert_(hasattr(p, 'path2'))
-            self.assert_(hasattr(p, 'path3'))
-            self.assert_(not hasattr(p, 'path4'))
+            self.assertTrue(hasattr(p, 'a'))
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(not hasattr(p, 'c'))
+            self.assertTrue(not hasattr(p, 'd'))
+            self.assertTrue(not hasattr(p, 'e'))
+            self.assertTrue(not hasattr(p, 'f'))
+            self.assertTrue(hasattr(p, 'g'))
+            self.assertTrue(hasattr(p, 'h'))
+            self.assertTrue(hasattr(p, 'i'))
+            self.assertTrue(not hasattr(p, 't1'))
+            self.assertTrue(hasattr(p, 't2'))
+            self.assertTrue(hasattr(p, 't3'))
+            self.assertTrue(hasattr(p, 't4'))
+            self.assertTrue(not hasattr(p, 's'))
+            self.assertTrue(hasattr(p, 's2'))
+            self.assertTrue(not hasattr(p, 's3'))
+            self.assertTrue(hasattr(p, 'path1'))
+            self.assertTrue(hasattr(p, 'path2'))
+            self.assertTrue(hasattr(p, 'path3'))
+            self.assertTrue(not hasattr(p, 'path4'))
             #test SequencePlaceholder
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -2855,20 +3038,41 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.s = Sequence(SequencePlaceholder("a")+p.b)
             p.pth = Path(p.s)
             p.prune()
-            self.assert_(hasattr(p, 'a'))
-            self.assert_(hasattr(p, 'b'))
-            self.assert_(hasattr(p, 's'))
-            self.assert_(hasattr(p, 'pth'))
+            self.assertTrue(hasattr(p, 'a'))
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(hasattr(p, 's'))
+            self.assertTrue(hasattr(p, 'pth'))
             #test unresolved SequencePlaceholder
             p = Process("test")
             p.b = EDAnalyzer("YourAnalyzer")
             p.s = Sequence(SequencePlaceholder("a")+p.b)
             p.pth = Path(p.s)
             p.prune(keepUnresolvedSequencePlaceholders=True)
-            self.assert_(hasattr(p, 'b'))
-            self.assert_(hasattr(p, 's'))
-            self.assert_(hasattr(p, 'pth'))
-            self.assertEqual(p.s.dumpPython(''),'cms.Sequence(cms.SequencePlaceholder("a")+process.b)\n')
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(hasattr(p, 's'))
+            self.assertTrue(hasattr(p, 'pth'))
+            self.assertEqual(p.s.dumpPython(),'cms.Sequence(cms.SequencePlaceholder("a")+process.b)\n')
+            #test TaskPlaceholder
+            p = Process("test")
+            p.a = EDProducer("MyProducer")
+            p.b = EDProducer("YourProducer")
+            p.s = Task(TaskPlaceholder("a"),p.b)
+            p.pth = Path(p.s)
+            p.prune()
+            self.assertTrue(hasattr(p, 'a'))
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(hasattr(p, 's'))
+            self.assertTrue(hasattr(p, 'pth'))
+            #test unresolved SequencePlaceholder
+            p = Process("test")
+            p.b = EDProducer("YourAnalyzer")
+            p.s = Task(TaskPlaceholder("a"),p.b)
+            p.pth = Path(p.s)
+            p.prune(keepUnresolvedSequencePlaceholders=True)
+            self.assertTrue(hasattr(p, 'b'))
+            self.assertTrue(hasattr(p, 's'))
+            self.assertTrue(hasattr(p, 'pth'))
+            self.assertEqual(p.s.dumpPython(),'cms.Task(cms.TaskPlaceholder("a"), process.b)\n')
         def testTaskPlaceholder(self):
             p = Process("test")
             p.a = EDProducer("ma")
@@ -2892,141 +3096,51 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.h = EDProducer("mh")
             p.i = EDProducer("mi")
             p.j = EDProducer("mj")
-            self.assertEqual(p.dumpPython(),
-"""import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.a = cms.EDProducer("ma")
-
-
+            self.assertEqual(_lineDiff(p.dumpPython(),Process('test').dumpPython()),
+"""process.a = cms.EDProducer("ma")
 process.c = cms.EDProducer("mc")
-
-
 process.d = cms.EDProducer("md")
-
-
 process.e = cms.EDProducer("me")
-
-
 process.f = cms.EDProducer("mf")
-
-
 process.g = cms.EDProducer("mg")
-
-
 process.h = cms.EDProducer("mh")
-
-
 process.i = cms.EDProducer("mi")
-
-
 process.j = cms.EDProducer("mj")
-
-
 process.b = cms.EDAnalyzer("mb")
-
-
 process.t8 = cms.Task(cms.TaskPlaceholder("j"))
-
-
 process.t6 = cms.Task(cms.TaskPlaceholder("h"))
-
-
 process.t7 = cms.Task(cms.TaskPlaceholder("i"), process.a, process.t6)
-
-
 process.t4 = cms.Task(cms.TaskPlaceholder("f"))
-
-
 process.t5 = cms.Task(cms.TaskPlaceholder("g"), cms.TaskPlaceholder("t4"), process.a)
-
-
 process.t3 = cms.Task(cms.TaskPlaceholder("e"))
-
-
 process.t1 = cms.Task(cms.TaskPlaceholder("c"))
-
-
 process.t2 = cms.Task(cms.TaskPlaceholder("d"), process.a, process.t1)
-
-
 process.path1 = cms.Path(process.b, process.t2, process.t3)
-
-
 process.endpath1 = cms.EndPath(process.b, process.t5)
-
-
-process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])
-""")
+process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])""")
             p.resolve()
-            self.assertEqual(p.dumpPython(),
-"""import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.a = cms.EDProducer("ma")
-
-
+            self.assertEqual(_lineDiff(p.dumpPython(),Process('test').dumpPython()),
+"""process.a = cms.EDProducer("ma")
 process.c = cms.EDProducer("mc")
-
-
 process.d = cms.EDProducer("md")
-
-
 process.e = cms.EDProducer("me")
-
-
 process.f = cms.EDProducer("mf")
-
-
 process.g = cms.EDProducer("mg")
-
-
 process.h = cms.EDProducer("mh")
-
-
 process.i = cms.EDProducer("mi")
-
-
 process.j = cms.EDProducer("mj")
-
-
 process.b = cms.EDAnalyzer("mb")
-
-
 process.t8 = cms.Task(process.j)
-
-
 process.t6 = cms.Task(process.h)
-
-
 process.t7 = cms.Task(process.a, process.i, process.t6)
-
-
 process.t4 = cms.Task(process.f)
-
-
 process.t5 = cms.Task(process.a, process.g, process.t4)
-
-
 process.t3 = cms.Task(process.e)
-
-
 process.t1 = cms.Task(process.c)
-
-
 process.t2 = cms.Task(process.a, process.d, process.t1)
-
-
 process.path1 = cms.Path(process.b, process.t2, process.t3)
-
-
 process.endpath1 = cms.EndPath(process.b, process.t5)
-
-
-process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])
-""")
+process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])""")
 
         def testDelete(self):
             p = Process("test")
@@ -3052,13 +3166,13 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             del p.g
             self.assertFalse(hasattr(p, 'f'))
             self.assertFalse(hasattr(p, 'g'))
-            self.assertTrue(p.t1.dumpPython(None) == 'cms.Task(process.h)\n')
-            self.assertTrue(p.s.dumpPython(None) == 'cms.Sequence(process.d)\n')
-            self.assertTrue(p.path1.dumpPython(None) == 'cms.Path(process.a+process.s, cms.Task(process.h))\n')
-            self.assertTrue(p.endpath1.dumpPython(None) == 'cms.EndPath(process.b)\n')
+            self.assertTrue(p.t1.dumpPython() == 'cms.Task(process.h)\n')
+            self.assertTrue(p.s.dumpPython() == 'cms.Sequence(process.d)\n')
+            self.assertTrue(p.path1.dumpPython() == 'cms.Path(process.a+process.s, cms.Task(process.h))\n')
+            self.assertTrue(p.endpath1.dumpPython() == 'cms.EndPath(process.b)\n')
             del p.s
-            self.assertTrue(p.path1.dumpPython(None) == 'cms.Path(process.a+(process.d), cms.Task(process.h))\n')
-            self.assertTrue(p.schedule_().dumpPython(None) == 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
+            self.assertTrue(p.path1.dumpPython() == 'cms.Path(process.a+(process.d), cms.Task(process.h))\n')
+            self.assertTrue(p.schedule_().dumpPython() == 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
         def testModifier(self):
             m1 = Modifier()
             p = Process("test",m1)
@@ -3070,7 +3184,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.b = EDAnalyzer("YourAnalyzer", wilma = int32(1))
             m1.toModify(p.b, wilma = 2)
             self.assertEqual(p.b.wilma.value(),2)
-            self.assert_(p.isUsingModifier(m1))
+            self.assertTrue(p.isUsingModifier(m1))
             #check that Modifier not attached to a process doesn't run
             m1 = Modifier()
             p = Process("test")
@@ -3161,40 +3275,40 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
                     self.a = EDAnalyzer("Dummy")
             testMod = DummyMod()
             p.extend(testMod)
-            self.assert_(hasattr(p,"a"))
+            self.assertTrue(hasattr(p,"a"))
             m1 = Modifier()
             p = Process("test",m1)
             testProcMod = ProcModifierMod(m1,_rem_a)
             p.extend(testMod)
             p.extend(testProcMod)
-            self.assert_(not hasattr(p,"a"))
+            self.assertTrue(not hasattr(p,"a"))
             #test ModifierChain
             m1 = Modifier()
             mc = ModifierChain(m1)
             p = Process("test",mc)
-            self.assert_(p.isUsingModifier(m1))
-            self.assert_(p.isUsingModifier(mc))
+            self.assertTrue(p.isUsingModifier(m1))
+            self.assertTrue(p.isUsingModifier(mc))
             testMod = DummyMod()
             p.b = EDAnalyzer("Dummy2", fred = int32(1))
             m1.toModify(p.b, fred = int32(3))
             p.extend(testMod)
             testProcMod = ProcModifierMod(m1,_rem_a)
             p.extend(testProcMod)
-            self.assert_(not hasattr(p,"a"))
+            self.assertTrue(not hasattr(p,"a"))
             self.assertEqual(p.b.fred.value(),3)
             #check cloneAndExclude
             m1 = Modifier()
             m2 = Modifier()
             mc = ModifierChain(m1,m2)
             mclone = mc.copyAndExclude([m2])
-            self.assert_(not mclone._isOrContains(m2))
-            self.assert_(mclone._isOrContains(m1))
+            self.assertTrue(not mclone._isOrContains(m2))
+            self.assertTrue(mclone._isOrContains(m1))
             m3 = Modifier()
             mc2 = ModifierChain(mc,m3)
             mclone = mc2.copyAndExclude([m2])
-            self.assert_(not mclone._isOrContains(m2))
-            self.assert_(mclone._isOrContains(m1))
-            self.assert_(mclone._isOrContains(m3))
+            self.assertTrue(not mclone._isOrContains(m2))
+            self.assertTrue(mclone._isOrContains(m1))
+            self.assertTrue(mclone._isOrContains(m3))
             #check combining
             m1 = Modifier()
             m2 = Modifier()
@@ -3286,7 +3400,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             self.assertEqual(p.a.wilma.value(),3)
             self.assertEqual(p.a.type_(),"YourAnalyzer")
             self.assertEqual(hasattr(p,"fred"),False)
-            self.assertTrue(p.s.dumpPython("") == "cms.Sequence(process.a+process.b, process.td)\n")
+            self.assertTrue(p.s.dumpPython() == "cms.Sequence(process.a+process.b, process.td)\n")
             p.e =EDProducer("e")
             m1.toReplaceWith(p.td, Task(p.e))
             self.assertTrue(p.td._collection == OrderedSet([p.e]))
@@ -3392,6 +3506,22 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             # Replace an alias with EDProducer
             self.assertRaises(TypeError, lambda: m.toReplaceWith(sp.test2, EDProducer("Foo")))
             m.toModify(sp, test2 = EDProducer("Foo"))
-
+        def testProcessFragment(self):
+            #check defaults are not overwritten
+            f = ProcessFragment('Fragment')
+            p = Process('PROCESS')
+            p.maxEvents.input = 10
+            p.options.numberOfThreads = 4
+            p.maxLuminosityBlocks.input = 2
+            p.extend(f)
+            self.assertEqual(p.maxEvents.input.value(),10)
+            self.assertEqual(p.options.numberOfThreads.value(), 4)
+            self.assertEqual(p.maxLuminosityBlocks.input.value(),2)
+            #general checks
+            f = ProcessFragment("Fragment")
+            f.fltr = EDFilter("Foo")
+            p = Process('PROCESS')
+            p.extend(f)
+            self.assertTrue(hasattr(p,'fltr'))
 
     unittest.main()

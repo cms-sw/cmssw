@@ -4,6 +4,7 @@
 <use   name="SimMuon/MCTruth"/>
 <use   name="SimTracker/Records"/>
 <use   name="SimTracker/TrackAssociation"/>
+<use   name="SimDataFormats/Associations"/>
 <use   name="MuonAnalysis/MuonAssociators"/>
 <export>
 </export>

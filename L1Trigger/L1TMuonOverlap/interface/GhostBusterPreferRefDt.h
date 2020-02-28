@@ -13,15 +13,15 @@
 #include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 
-class GhostBusterPreferRefDt: public IGhostBuster {
+class GhostBusterPreferRefDt : public IGhostBuster {
 private:
   const OMTFConfiguration* omtfConfig;
+
 public:
-  GhostBusterPreferRefDt(OMTFConfiguration* omtfConfig):omtfConfig(omtfConfig) {};
+  GhostBusterPreferRefDt(OMTFConfiguration* omtfConfig) : omtfConfig(omtfConfig){};
 
-  ~GhostBusterPreferRefDt() override {};
+  ~GhostBusterPreferRefDt() override{};
 
-  std::vector<AlgoMuon> select(std::vector<AlgoMuon> refHitCands, int charge=0) override;
-
+  std::vector<AlgoMuon> select(std::vector<AlgoMuon> refHitCands, int charge = 0) override;
 };
 #endif

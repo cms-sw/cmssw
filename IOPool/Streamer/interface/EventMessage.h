@@ -58,8 +58,7 @@ Protocol Version 11: identical to version 10, except event changed from 4 bytes 
 
 // ----------------------- event message ------------------------
 
-struct EventHeader
-{
+struct EventHeader {
   Header header_;
   uint8 protocolVersion_;
   char_uint32 run_;
@@ -70,10 +69,8 @@ struct EventHeader
   char_uint32 droppedEventsCount_;
 };
 
-class EventMsgView
-{
+class EventMsgView {
 public:
-
   EventMsgView(void* buf);
 
   uint32 code() const { return head_.code(); }
@@ -82,7 +79,7 @@ public:
   const uint8* eventData() const { return event_start_; }
   uint8* startAddress() const { return buf_; }
   uint32 eventLength() const { return event_len_; }
-  uint32 headerSize() const {return event_start_-buf_;}
+  uint32 headerSize() const { return event_start_ - buf_; }
   uint32 protocolVersion() const;
   uint32 run() const;
   uint64 event() const;
@@ -94,11 +91,11 @@ public:
   void l1TriggerBits(std::vector<bool>& put_here) const;
   void hltTriggerBits(uint8* put_here) const;
 
-  uint32 hltCount() const {return hlt_bits_count_;}
-  uint32 l1Count() const {return l1_bits_count_;}
-  uint32 adler32_chksum() const {return adler32_chksum_;}
+  uint32 hltCount() const { return hlt_bits_count_; }
+  uint32 l1Count() const { return l1_bits_count_; }
+  uint32 adler32_chksum() const { return adler32_chksum_; }
   std::string hostName() const;
-  uint32 hostName_len() const {return host_name_len_;}
+  uint32 hostName_len() const { return host_name_len_; }
 
 private:
   uint8* buf_;

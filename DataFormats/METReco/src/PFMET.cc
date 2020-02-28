@@ -11,8 +11,7 @@ using namespace reco;
 //---------------------------------------------------------------------------
 // Default Constructor;
 //-----------------------------------
-PFMET::PFMET()
-{
+PFMET::PFMET() {
   // Initialize the container
   pf_data.NeutralEMFraction = 0.0;
   pf_data.NeutralHadFraction = 0.0;
@@ -21,8 +20,4 @@ PFMET::PFMET()
   pf_data.MuonFraction = 0.0;
   pf_data.Type6Fraction = 0.0;
   pf_data.Type7Fraction = 0.0;
-
-
-
 }
-

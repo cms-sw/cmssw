@@ -15,55 +15,52 @@
  *     2. Return these Pedestals on demand
  *   Note: no additional calculations performed
  */
-class TT6NTPedestalCalculator: public TkPedestalCalculator
-{
-  public:
-    TT6NTPedestalCalculator();
-    ~TT6NTPedestalCalculator() override {}
+class TT6NTPedestalCalculator : public TkPedestalCalculator {
+public:
+  TT6NTPedestalCalculator();
+  ~TT6NTPedestalCalculator() override {}
 
-    /*
+  /*
      * @brief
      *   Celar all Pedestals
      */
-    inline void resetPedestals() override { pedestals_.empty(); }
+  inline void resetPedestals() override { pedestals_.clear(); }
 
-    /*
+  /*
      * @brief
      *   Set Pedestals
      */
-    inline void setPedestals( ApvAnalysis::PedestalType &rInput) override 
-      { pedestals_ = rInput; }
+  inline void setPedestals(ApvAnalysis::PedestalType &rInput) override { pedestals_ = rInput; }
 
-    /*
+  /*
      * @brief
      *   Update Pedestals with set of Raw Signals: plug
      */
-    inline void updatePedestal( ApvAnalysis::RawSignalType &rInput) override {}
+  inline void updatePedestal(ApvAnalysis::RawSignalType &rInput) override {}
 
-    /*
+  /*
      * @brief
      *   Retrieve Pedestals
      */
-    inline ApvAnalysis::PedestalType pedestal() const override { return pedestals_; }
+  inline ApvAnalysis::PedestalType pedestal() const override { return pedestals_; }
 
-    /*
+  /*
      * @brief
      *   Retrieve Raw Noise
      */
-    inline ApvAnalysis::PedestalType rawNoise() const override { return rawNoise_; }
+  inline ApvAnalysis::PedestalType rawNoise() const override { return rawNoise_; }
 
-    inline void setNoise( ApvAnalysis::PedestalType &rInput) override
-      { rawNoise_ = rInput; }
+  inline void setNoise(ApvAnalysis::PedestalType &rInput) override { rawNoise_ = rInput; }
 
-    /*
+  /*
      * @brief
      *   Request status flag update: plug
      */
-    inline void updateStatus() override {}
+  inline void updateStatus() override {}
 
-  private:
-    ApvAnalysis::PedestalType pedestals_;
-    ApvAnalysis::PedestalType rawNoise_;
+private:
+  ApvAnalysis::PedestalType pedestals_;
+  ApvAnalysis::PedestalType rawNoise_;
 };
 
-#endif // APVANALYSIS_TT6NTPEDESTALCALCULATOR_H
+#endif  // APVANALYSIS_TT6NTPEDESTALCALCULATOR_H

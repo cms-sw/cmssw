@@ -8,7 +8,6 @@
 #include <cassert>
 
 int main() {
-
   L1GlobalTriggerObjectMaps objMaps1;
   L1GlobalTriggerObjectMaps objMaps2;
 
@@ -43,7 +42,7 @@ int main() {
   assert(psetID == objMaps2.namesParameterSetID());
 
   std::vector<int> algoBitNumbers;
-  algoBitNumbers.push_back(11); // should get erased
+  algoBitNumbers.push_back(11);  // should get erased
   objMaps1.getAlgorithmBitNumbers(algoBitNumbers);
   std::vector<int> expected;  // empty at this point
   assert(expected == algoBitNumbers);
@@ -107,15 +106,13 @@ int main() {
   assert(operandTokenVector.at(0).tokenResult == true);
   assert(operandTokenVector.at(1).tokenResult == false);
 
-  L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = 
-    objMaps2.getConditionsInAlgorithm(2);
+  L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = objMaps2.getConditionsInAlgorithm(2);
 
-  assert(conditions.nConditions() == 2);  
+  assert(conditions.nConditions() == 2);
   assert(conditions.getConditionResult(0) == true);
   assert(conditions.getConditionResult(1) == false);
 
-  L1GlobalTriggerObjectMaps::CombinationsInCondition combinations
-    = objMaps2.getCombinationsInCondition(2, 0);
+  L1GlobalTriggerObjectMaps::CombinationsInCondition combinations = objMaps2.getCombinationsInCondition(2, 0);
 
   assert(combinations.nCombinations() == 2);
   assert(combinations.nObjectsPerCombination() == 3);
@@ -126,20 +123,16 @@ int main() {
   assert(combinations.getObjectIndex(1, 1) == 11);
   assert(combinations.getObjectIndex(1, 2) == 31);
 
-  L1GlobalTriggerObjectMaps::CombinationsInCondition combinations1
-    = objMaps2.getCombinationsInCondition(3, 0);
+  L1GlobalTriggerObjectMaps::CombinationsInCondition combinations1 = objMaps2.getCombinationsInCondition(3, 0);
 
   assert(combinations1.nCombinations() == 1);
   assert(combinations1.nObjectsPerCombination() == 1);
   assert(combinations1.getObjectIndex(0, 0) == 11);
 
-  L1GlobalTriggerObjectMaps::CombinationsInCondition combinations2
-    = objMaps2.getCombinationsInCondition(2, 1);
+  L1GlobalTriggerObjectMaps::CombinationsInCondition combinations2 = objMaps2.getCombinationsInCondition(2, 1);
 
   assert(combinations2.nCombinations() == 0);
   assert(combinations2.nObjectsPerCombination() == 0);
-
-
 
   return 0;
 }

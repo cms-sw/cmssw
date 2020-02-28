@@ -8,5 +8,3 @@ TYPELOOKUP_DATA_REG(GeometricDet);
 TYPELOOKUP_DATA_REG(GeometricDetExtra);
 TYPELOOKUP_DATA_REG(std::vector<GeometricDetExtra>);
 TYPELOOKUP_DATA_REG(TrackerTopology);
-
-

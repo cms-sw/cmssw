@@ -12,50 +12,47 @@
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include <vector>
-#include <utility> // for std::pair
+#include <utility>  // for std::pair
 
 class CSCWireGeometry {
- public:
+public:
   virtual ~CSCWireGeometry() {}
 
   /**
    * Constructor from wire spacing (in cm)
    */
-  CSCWireGeometry( double wireSpacing, double yOfFirstWire, 
-     double narrowWidthOfPlane, double wideWidthOfPlane, double lengthOfPlane ) :
-     theWireSpacing( wireSpacing ), theYOfFirstWire( yOfFirstWire ),
-     theNarrowWidthOfPlane( narrowWidthOfPlane ), theWideWidthOfPlane( wideWidthOfPlane ),
-     theLengthOfPlane( lengthOfPlane ) {}
+  CSCWireGeometry(
+      double wireSpacing, double yOfFirstWire, double narrowWidthOfPlane, double wideWidthOfPlane, double lengthOfPlane)
+      : theWireSpacing(wireSpacing),
+        theYOfFirstWire(yOfFirstWire),
+        theNarrowWidthOfPlane(narrowWidthOfPlane),
+        theWideWidthOfPlane(wideWidthOfPlane),
+        theLengthOfPlane(lengthOfPlane) {}
 
   /**
    * The spacing between wires (cm)
    */
-  double wireSpacing() const {
-    return theWireSpacing; }
+  double wireSpacing() const { return theWireSpacing; }
 
   /** 
    * The local y of the first wire
    */
-  double yOfFirstWire() const {
-    return theYOfFirstWire; }
+  double yOfFirstWire() const { return theYOfFirstWire; }
 
   /** 
    * Extent of wire plane at narrow end of trapezoid
    */
-  double narrowWidthOfPlane() const {
-    return theNarrowWidthOfPlane; }
+  double narrowWidthOfPlane() const { return theNarrowWidthOfPlane; }
 
   /** 
    * Extent of wire plane at wide end of trapezoid
    */
-  double wideWidthOfPlane() const {
-    return theWideWidthOfPlane; }
+  double wideWidthOfPlane() const { return theWideWidthOfPlane; }
 
   /** 
    * Extent of wire plane along long axis of trapezoid
    */
-  double lengthOfPlane() const {
-    return theLengthOfPlane; }
+  double lengthOfPlane() const { return theLengthOfPlane; }
 
   /**
    * The angle of the wires w.r.t local x axis (in radians)
@@ -71,7 +68,7 @@ class CSCWireGeometry {
   /**
    * Local y of a given wire 'number' (float) at given x
    */
-  virtual float yOfWire(float wire, float x=0.) const = 0;
+  virtual float yOfWire(float wire, float x = 0.) const = 0;
 
   /**
    * Allow proper copying of derived classes via base pointer
@@ -82,25 +79,25 @@ class CSCWireGeometry {
    *  y = m1*x + c1 and y = m2*x + c2 <BR>
    *  (in local coordinates x, y)
    */
-  LocalPoint intersection( float m1, float c1, float m2, float c2) const;
-  
+  LocalPoint intersection(float m1, float c1, float m2, float c2) const;
+
   /** Return 2-dim local coords of the two ends of a wire
    *
    *  The returned value is a pair of LocalPoints. 
    */
-  std::pair< LocalPoint, LocalPoint > wireEnds( float wire ) const;
+  std::pair<LocalPoint, LocalPoint> wireEnds(float wire) const;
 
   /** Return mid-point of a wire in local coordinates, and its length
    *  across the chamber volume, in a vector as x, y, length
    */
-  std::vector<float> wireValues( float wire ) const;
+  std::vector<float> wireValues(float wire) const;
 
   /**
    * Return slope and intercept of straight line representing a wire in 2-dim local coordinates.
    *
    * The return value is a pair p with p.first = m, p.second = c, where y=mx+c.
    */
-  std::pair<float, float> equationOfWire( float wire ) const;
+  std::pair<float, float> equationOfWire(float wire) const;
 
   /**
    * Return pair containing y extremes of wire-plane: p.first = low y, p.second= high y
@@ -111,9 +108,9 @@ class CSCWireGeometry {
    */
   std::pair<float, float> yLimitsOfWirePlane() const;
 
- private:
+private:
   double theWireSpacing;
-  double theYOfFirstWire; // local y
+  double theYOfFirstWire;  // local y
   double theNarrowWidthOfPlane;
   double theWideWidthOfPlane;
   double theLengthOfPlane;

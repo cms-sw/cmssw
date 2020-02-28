@@ -21,14 +21,22 @@ public:
     const HcalTrigPrimDigiCollection* tpCont;
   };
 
-  void pack(int fedid, int dccnumber,
-	    int nl1a, int orbitn, int bcn,
-	    const Collections& inputs, 
-	    const HcalElectronicsMap& emap,
-	    FEDRawData& output) const;
+  void pack(int fedid,
+            int dccnumber,
+            int nl1a,
+            int orbitn,
+            int bcn,
+            const Collections& inputs,
+            const HcalElectronicsMap& emap,
+            FEDRawData& output) const;
+
 private:
-  int findSamples(const DetId& did, const Collections& inputs,
-		  unsigned short* buffer, int &presamples, bool& zsUS, bool& zsMP) const;
+  int findSamples(const DetId& did,
+                  const Collections& inputs,
+                  unsigned short* buffer,
+                  int& presamples,
+                  bool& zsUS,
+                  bool& zsMP) const;
 };
 
 #endif

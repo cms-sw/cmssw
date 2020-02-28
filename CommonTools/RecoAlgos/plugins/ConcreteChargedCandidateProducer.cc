@@ -14,9 +14,6 @@
 #include "CommonTools/RecoAlgos/src/TrackToCandidate.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef CandidateProducer<
-          reco::TrackCollection, 
-          reco::RecoChargedCandidateCollection
-        > ConcreteChargedCandidateProducer;
+typedef CandidateProducer<reco::TrackCollection, reco::RecoChargedCandidateCollection> ConcreteChargedCandidateProducer;
 
 DEFINE_FWK_MODULE(ConcreteChargedCandidateProducer);

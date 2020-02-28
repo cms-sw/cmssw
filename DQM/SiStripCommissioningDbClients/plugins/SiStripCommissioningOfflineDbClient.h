@@ -15,29 +15,22 @@
    creates summary histograms, and uploads to DB.
 */
 class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineClient {
-
- public:
-  
-  SiStripCommissioningOfflineDbClient( const edm::ParameterSet& );
+public:
+  SiStripCommissioningOfflineDbClient(const edm::ParameterSet&);
 
   ~SiStripCommissioningOfflineDbClient() override;
-  
- protected:
-  
-  void createHistos( const edm::ParameterSet&, const edm::EventSetup& ) override;
-  
-  void uploadToConfigDb() override;
-  
- private:
-  
-  bool uploadToDb_;
-  
-  bool uploadAnal_;
-  
-  bool uploadConf_;
-  
 
+protected:
+  void createHistos(const edm::ParameterSet&, const edm::EventSetup&) override;
+
+  void uploadToConfigDb() override;
+
+private:
+  bool uploadToDb_;
+
+  bool uploadAnal_;
+
+  bool uploadConf_;
 };
 
-#endif // DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
-
+#endif  // DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H

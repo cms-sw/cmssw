@@ -12,4 +12,4 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_dummy();
 
 std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test();
 
-#endif // CONDTOOLS_HCAL_MAKE_HFPHASE1PMTPARAMS_H_
+#endif  // CONDTOOLS_HCAL_MAKE_HFPHASE1PMTPARAMS_H_

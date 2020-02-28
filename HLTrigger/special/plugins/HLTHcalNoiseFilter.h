@@ -16,24 +16,26 @@ namespace edm {
 }
 
 class HLTHcalNoiseFilter : public HLTFilter {
-   public:
-      explicit HLTHcalNoiseFilter(const edm::ParameterSet&);
-      ~HLTHcalNoiseFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+public:
+  explicit HLTHcalNoiseFilter(const edm::ParameterSet&);
+  ~HLTHcalNoiseFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      edm::EDGetTokenT<reco::CaloJetCollection> JetSourceToken_;
-      edm::EDGetTokenT<reco::CaloMETCollection> MetSourceToken_;
-      edm::EDGetTokenT<CaloTowerCollection> TowerSourceToken_;
-      edm::InputTag JetSource_;
-      edm::InputTag MetSource_;
-      edm::InputTag TowerSource_;
-      bool useMet_;
-      bool useJet_;
-      double MetCut_;
-      double JetMinE_;
-      double JetHCALminEnergyFraction_;
+private:
+  edm::EDGetTokenT<reco::CaloJetCollection> JetSourceToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> MetSourceToken_;
+  edm::EDGetTokenT<CaloTowerCollection> TowerSourceToken_;
+  edm::InputTag JetSource_;
+  edm::InputTag MetSource_;
+  edm::InputTag TowerSource_;
+  bool useMet_;
+  bool useJet_;
+  double MetCut_;
+  double JetMinE_;
+  double JetHCALminEnergyFraction_;
 };
 
 #endif

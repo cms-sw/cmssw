@@ -4,7 +4,7 @@
 #include <memory>
 template <class T>
 class BPHGenericPtr {
- public:
+public:
   typedef typename std::shared_ptr<T> type;
 };
 

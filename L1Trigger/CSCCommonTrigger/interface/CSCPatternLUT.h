@@ -11,17 +11,14 @@
  */
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
-class CSCPatternLUT
-{
- public:
-
+class CSCPatternLUT {
+public:
   static int getBendValue(int pattern);
   static double getPosition(int pattern);
 
   static double get2007Position(int pattern);
 
- private:
-
+private:
   /** 
    * Fill the pattern lookup table. This table holds the average position
    * and bend for each pattern. The position is used to further improve
@@ -32,7 +29,7 @@ class CSCPatternLUT
    * Note that the positions are unitless-- they are in "pattern widths"
    * meaning that they are in 1/2 strips for high pt patterns and distrips
    * for low pt patterns. BHT 26 June 2001
-   */  
+   */
 };
 
 #endif

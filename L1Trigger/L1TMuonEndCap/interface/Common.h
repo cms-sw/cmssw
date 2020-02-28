@@ -21,34 +21,34 @@
 
 // Resolve namespaces
 
-typedef l1t::EMTFHit             EMTFHit;
-typedef l1t::EMTFHitCollection   EMTFHitCollection;
-typedef l1t::EMTFRoad            EMTFRoad;
-typedef l1t::EMTFRoadCollection  EMTFRoadCollection;
-typedef l1t::EMTFTrack           EMTFTrack;
+typedef l1t::EMTFHit EMTFHit;
+typedef l1t::EMTFHitCollection EMTFHitCollection;
+typedef l1t::EMTFRoad EMTFRoad;
+typedef l1t::EMTFRoadCollection EMTFRoadCollection;
+typedef l1t::EMTFTrack EMTFTrack;
 typedef l1t::EMTFTrackCollection EMTFTrackCollection;
-typedef l1t::EMTFPtLUT           EMTFPtLUT;
+typedef l1t::EMTFPtLUT EMTFPtLUT;
 
-typedef L1TMuon::GeometryTranslator         GeometryTranslator;
-typedef L1TMuon::TriggerPrimitive           TriggerPrimitive;
+typedef L1TMuon::GeometryTranslator GeometryTranslator;
+typedef L1TMuon::TriggerPrimitive TriggerPrimitive;
 typedef L1TMuon::TriggerPrimitiveCollection TriggerPrimitiveCollection;
 
-typedef L1TMuon::TTGeometryTranslator         TTGeometryTranslator;
-typedef L1TMuon::TTTriggerPrimitive           TTTriggerPrimitive;
+typedef L1TMuon::TTGeometryTranslator TTGeometryTranslator;
+typedef L1TMuon::TTTriggerPrimitive TTTriggerPrimitive;
 typedef L1TMuon::TTTriggerPrimitiveCollection TTTriggerPrimitiveCollection;
 
-typedef TriggerPrimitive::CSCData   CSCData;
-typedef TriggerPrimitive::RPCData   RPCData;
-typedef TriggerPrimitive::GEMData   GEMData;
-typedef TTTriggerPrimitive::TTData  TTData;
+typedef TriggerPrimitive::CSCData CSCData;
+typedef TriggerPrimitive::RPCData RPCData;
+typedef TriggerPrimitive::GEMData GEMData;
+typedef TTTriggerPrimitive::TTData TTData;
 
-typedef emtf::CSCTag  CSCTag;
-typedef emtf::RPCTag  RPCTag;
+typedef emtf::CSCTag CSCTag;
+typedef emtf::RPCTag RPCTag;
 typedef emtf::CPPFTag CPPFTag;
-typedef emtf::GEMTag  GEMTag;
+typedef emtf::GEMTag GEMTag;
 typedef emtf::IRPCTag IRPCTag;
-typedef emtf::ME0Tag  ME0Tag;
-typedef emtf::TTTag   TTTag;
+typedef emtf::ME0Tag ME0Tag;
+typedef emtf::TTTag TTTag;
 
 namespace emtf {
 
@@ -72,12 +72,11 @@ namespace emtf {
   constexpr int NUM_STATION_PAIRS = 6;
 
   // Fixed-size arrays
-  template<typename T>
+  template <typename T>
   using sector_array = std::array<T, NUM_SECTORS>;
-  template<typename T>
+  template <typename T>
   using zone_array = std::array<T, NUM_ZONES>;
 
-} // namespace emtf
+}  // namespace emtf
 
 #endif
-

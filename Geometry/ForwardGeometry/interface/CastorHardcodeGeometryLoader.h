@@ -8,25 +8,22 @@ class CaloCellGeometry;
 class CaloSubdetectorGeometry;
 class HcalCastorDetId;
 
-
 class CastorHardcodeGeometryLoader {
 public:
   CastorHardcodeGeometryLoader();
   explicit CastorHardcodeGeometryLoader(const CastorTopology& ht);
-  virtual ~CastorHardcodeGeometryLoader() { delete theTopology ; };
-  
+  virtual ~CastorHardcodeGeometryLoader() { delete theTopology; };
+
   virtual std::unique_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet);
   std::unique_ptr<CaloSubdetectorGeometry> load();
-  
+
 private:
   void init();
-  void fill(HcalCastorDetId::Section section,CaloSubdetectorGeometry* cg);
-  void makeCell( const HcalCastorDetId &  detId ,
-		 CaloSubdetectorGeometry* geom   ) const;
+  void fill(HcalCastorDetId::Section section, CaloSubdetectorGeometry* cg);
+  void makeCell(const HcalCastorDetId& detId, CaloSubdetectorGeometry* geom) const;
 
-      CastorTopology* theTopology;
-      const CastorTopology* extTopology;
-
+  CastorTopology* theTopology;
+  const CastorTopology* extTopology;
 
   float theEMSectiondX;
   float theEMSectiondY;
@@ -34,7 +31,6 @@ private:
   float theHADSectiondX;
   float theHADSectiondY;
   float theHADSectiondZ;
-  
 };
 
 #endif

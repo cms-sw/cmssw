@@ -14,32 +14,26 @@ class TH1;
    @brief Histogram-based analysis for VPSP scan.
 */
 class VpspScanAlgorithm : public CommissioningAlgorithm {
-  
- public:
+public:
+  VpspScanAlgorithm(const edm::ParameterSet& pset, VpspScanAnalysis* const);
 
-  VpspScanAlgorithm( const edm::ParameterSet & pset, VpspScanAnalysis* const );
-
-  ~VpspScanAlgorithm() override {;}
+  ~VpspScanAlgorithm() override { ; }
 
   /** Histogram pointer and title. */
-  const Histo& histo( const uint16_t& apv ) const;
-  
- private:
+  const Histo& histo(const uint16_t& apv) const;
 
-  VpspScanAlgorithm() {;}
+private:
+  VpspScanAlgorithm() { ; }
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract(const std::vector<TH1*>&) override;
 
   /** Performs histogram anaysis. */
   void analyse() override;
-  
- private:
-  
+
+private:
   /** Pointers and titles for histograms. */
   std::vector<Histo> histos_;
-  
 };
 
-#endif // DQM_SiStripCommissioningAnalysis_VpspScanAlgorithm_H
-
+#endif  // DQM_SiStripCommissioningAnalysis_VpspScanAlgorithm_H
