@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class TrackerTopology;
@@ -32,6 +33,7 @@ private:
 
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusToken_;
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
+  edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
 };
