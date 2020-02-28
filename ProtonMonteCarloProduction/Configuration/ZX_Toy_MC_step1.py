@@ -3,6 +3,7 @@
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: Configuration/GenProduction/python/BTV-RunIISummer19UL17GEN-00015-fragment.py --fileout file:BTV-RunIISummer19UL17SIM-00009.root --mc --eventcontent RAWSIM --runUnscheduled --datatier GEN-SIM --conditions 106X_mc2017_realistic_v6 --beamspot Realistic25ns13TeVEarly2017Collision --step GEN,SIM --nThreads 8 --geometry DB:Extended --era Run2_2017 --python_filename BTV-RunIISummer19UL17SIM-00009_1_cfg.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n 1476
+
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
@@ -42,7 +43,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('Z(ee) + X toy model, 13 TeV'),
+    annotation = cms.untracked.string('Z + X toy model, 13 TeV'),
     name = cms.untracked.string('\\$Source$'),
     version = cms.untracked.string('\\$Revision$')
 )
