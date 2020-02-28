@@ -16,57 +16,40 @@
 //
 //
 
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <string>
 
-//
-// class declaration
-//
-
-class DJpsiFilter : public edm::EDFilter {
+class DJpsiFilter : public edm::global::EDFilter<> {
 public:
   explicit DJpsiFilter(const edm::ParameterSet&);
-  ~DJpsiFilter() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  // ----------member data ---------------------------
-
-  edm::EDGetToken token_;
-  double minPt;
-  double maxY;
-  double maxPt;
-  double minY;
-  int status;
-  int particleID;
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const double minPt;
+  const double maxY;
+  const double maxPt;
+  const double minY;
+  const int status;
+  const int particleID;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 DJpsiFilter::DJpsiFilter(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
           edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
@@ -75,30 +58,12 @@ DJpsiFilter::DJpsiFilter(const edm::ParameterSet& iConfig)
       maxPt(iConfig.getUntrackedParameter("MaxPt", 1000.)),
       minY(iConfig.getUntrackedParameter("MinY", 0.)),
       status(iConfig.getUntrackedParameter("Status", 0)),
-      particleID(iConfig.getUntrackedParameter("ParticleID", 0)) {
-  //now do what ever initialization is needed
-}
+      particleID(iConfig.getUntrackedParameter("ParticleID", 0)) {}
 
-DJpsiFilter::~DJpsiFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
-// ------------ method called on each new Event  ------------
-bool DJpsiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-  //   DJpsiInput++;
-  //   std::cout<<"NumberofInputEvent "<<DJpsiInput<<std::endl;
-
+bool DJpsiFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
   int n2jpsi = 0;
-  //   int n2hadron = 0;
-  double energy, pz, momentumY;
-  Handle<HepMCProduct> evt;
+  edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
 
@@ -106,13 +71,12 @@ bool DJpsiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        ++p) {
     if ((*p)->status() != status)
       continue;
-    //      if ( abs((*p)->pdg_id()) == particleID  )n2hadron++;
-    energy = (*p)->momentum().e();
-    pz = (*p)->momentum().pz();
-    momentumY = 0.5 * log((energy + pz) / (energy - pz));
-    if ((*p)->momentum().perp() > minPt && fabs(momentumY) < maxY && (*p)->momentum().perp() < maxPt &&
-        fabs(momentumY) > minY) {
-      if (abs((*p)->pdg_id()) == particleID)
+    double energy = (*p)->momentum().e();
+    double pz = (*p)->momentum().pz();
+    double momentumY = 0.5 * std::log((energy + pz) / (energy - pz));
+    if ((*p)->momentum().perp() > minPt && std::fabs(momentumY) < maxY && (*p)->momentum().perp() < maxPt &&
+        std::fabs(momentumY) > minY) {
+      if (std::abs((*p)->pdg_id()) == particleID)
         n2jpsi++;
     }
     if (n2jpsi >= 2) {
@@ -120,12 +84,7 @@ bool DJpsiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       break;
     }
   }
-
-  if (accepted) {
-    return true;
-  } else {
-    return false;
-  }
+  return accepted;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

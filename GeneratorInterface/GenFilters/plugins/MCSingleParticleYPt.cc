@@ -1,18 +1,63 @@
+// -*- C++ -*-
+//
+// Package:    MCSingleParticleYPt
+// Class:      MCSingleParticleYPt
+//
+/*
+
+ Description: filter events based on the Pythia particleID, Pt, Y and status. It is based on MCSingleParticleFilter.
+              It will used to filter a b-hadron with the given kinematics, only one b-hadron is required to match.
+ Implementation: inherits from generic EDFilter
+
+*/
+//
+// Author: Alberto Sanchez-Hernandez
+// Adapted on: August 2016
+//
+//
 // Filter based on MCSingleParticleFilter.cc, but using rapidity instead of eta
 
-#include "GeneratorInterface/GenFilters/plugins/MCSingleParticleYPt.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include <iostream>
+
+#include <cmath>
+#include <ostream>
+#include <string>
+#include <vector>
+
+class MCSingleParticleYPt : public edm::global::EDFilter<> {
+public:
+  explicit MCSingleParticleYPt(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const int fVerbose;
+  const bool fchekantiparticle;
+  std::vector<int> particleID;
+  std::vector<double> ptMin;
+  std::vector<double> rapMin;
+  std::vector<double> rapMax;
+  std::vector<int> status;
+};
 
 using namespace edm;
 using namespace std;
 
 MCSingleParticleYPt::MCSingleParticleYPt(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
-          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))) {
-  fVerbose = iConfig.getUntrackedParameter("verbose", 0);
-  fchekantiparticle = iConfig.getUntrackedParameter("CheckAntiparticle", true);
-  //here do whatever other initialization is needed
+          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
+      fVerbose(iConfig.getUntrackedParameter("verbose", 0)),
+      fchekantiparticle(iConfig.getUntrackedParameter("CheckAntiparticle", true)) {
   vector<int> defpid;
   defpid.push_back(0);
   particleID = iConfig.getUntrackedParameter<vector<int> >("ParticleID", defpid);
@@ -86,14 +131,7 @@ MCSingleParticleYPt::MCSingleParticleYPt(const edm::ParameterSet& iConfig)
   }
 }
 
-MCSingleParticleYPt::~MCSingleParticleYPt() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-// ------------ method called to skim the data  ------------
-bool MCSingleParticleYPt::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
+bool MCSingleParticleYPt::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
   Handle<HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
@@ -109,10 +147,10 @@ bool MCSingleParticleYPt::filter(edm::Event& iEvent, const edm::EventSetup& iSet
       if (particleID[i] == (*p)->pdg_id() || (fchekantiparticle && (-particleID[i] == (*p)->pdg_id())) ||
           particleID[i] == 0) {
         // calculate rapidity just for the desired particle and make sure, this particles has enough energy
-        rapidity = ((*p)->momentum().e() - (*p)->momentum().pz()) > 0.
-                       ? 0.5 * log(((*p)->momentum().e() + (*p)->momentum().pz()) /
-                                   ((*p)->momentum().e() - (*p)->momentum().pz()))
-                       : rapMax[i] + .1;
+        double rapidity = ((*p)->momentum().e() - (*p)->momentum().pz()) > 0.
+                              ? 0.5 * log(((*p)->momentum().e() + (*p)->momentum().pz()) /
+                                          ((*p)->momentum().e() - (*p)->momentum().pz()))
+                              : rapMax[i] + .1;
         if (fVerbose > 2)
           edm::LogInfo("MCSingleParticleYPt")
               << "Testing particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity
@@ -131,10 +169,7 @@ bool MCSingleParticleYPt::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     if (accepted)
       break;
   }
-
-  if (accepted) {
-    return true;
-  } else {
-    return false;
-  }
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(MCSingleParticleYPt);

@@ -1,36 +1,36 @@
-#include "GeneratorInterface/GenFilters/plugins/EMEnrichingFilter.h"
+/** \class EMEnrichingFilter
+ *
+ *  EMEnrichingFilter
+ *
+ * \author J Lamb, UCSB
+ * this is just the wrapper around the filtering algorithm
+ * found in EMEnrichingFilterAlgo
+ *
+ *
+ ************************************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "GeneratorInterface/GenFilters/plugins/EMEnrichingFilterAlgo.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+class EMEnrichingFilter : public edm::global::EDFilter<> {
+public:
+  explicit EMEnrichingFilter(const edm::ParameterSet&);
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+private:
+  EMEnrichingFilterAlgo EMEAlgo_;
+};
 
-#include "CLHEP/Vector/LorentzVector.h"
+EMEnrichingFilter::EMEnrichingFilter(const edm::ParameterSet& iConfig)
+    : EMEAlgo_(iConfig.getParameter<edm::ParameterSet>("filterAlgoPSet"), consumesCollector()) {}
 
-using namespace edm;
-using namespace std;
-
-EMEnrichingFilter::EMEnrichingFilter(const edm::ParameterSet& iConfig) {
-  ParameterSet filterPSet = iConfig.getParameter<edm::ParameterSet>("filterAlgoPSet");
-
-  EMEAlgo_ = new EMEnrichingFilterAlgo(filterPSet, consumesCollector());
+bool EMEnrichingFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  return EMEAlgo_.filter(iEvent, iSetup);
 }
 
-EMEnrichingFilter::~EMEnrichingFilter() {}
-
-bool EMEnrichingFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  bool result = EMEAlgo_->filter(iEvent, iSetup);
-
-  return result;
-}
+DEFINE_FWK_MODULE(EMEnrichingFilter);
