@@ -80,6 +80,7 @@ class Dataset:
         Returns:
             TYPE: Description
         """
+
         return os.path.join(self.tmpdir, "das_cache", self.process + ".txt")
         #return os.path.join(self.tmpdir, "das_cache", self.process + ".txt", self.escape_name() + ".txt")
     
@@ -136,9 +137,7 @@ CD_noPU", prefix, None, False, tmpdir),
         Dataset("/RelValZMM_13/CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "ZMM", prefix, None, False, tmpdir),
         Dataset("/RelValMinBias_13/CMSSW_10_6_0-106X_upgrade2018_design_v3-v1/GEN-SIM-DIGI-RAW", "MinBias", prefix, None, False, tmpdir),
         #Dataset("/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "NuGun_PU", prefix, None, False, tmpdir)
-        Dataset("/RelValNuGun/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "NuGun_PU", p\
-refix, None, False, tmpdir)   
-    ]
+        Dataset("/RelValNuGun/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "NuGun_PU", prefix, None, False, tmpdir)]
     
     for ds in datasets:
         ds.cache_das_filenames()
