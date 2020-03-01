@@ -10,7 +10,7 @@ for lxplus with SLC7 (default since April 2019)
 ~~~
 export SCRAM_ARCH=slc7_amd64_gcc700
 # for SLC6 use 'slc6_amd64_gcc700' instead above
-cmsrel _11_0_0
+cmsrel CMSSW_11_0_0
 cd CMSSW_11_0_0
 cmsenv
 ~~~
