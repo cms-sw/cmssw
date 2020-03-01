@@ -1,5 +1,3 @@
-#include <typeinfo>
-
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DQMOffline/PFTau/interface/Matchers.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -177,8 +175,7 @@ void PFJetAnalyzerDQM::prepareGenJetPlots(const std::vector<edm::ParameterSet>& 
     const auto etabin_low = pset.getParameter<double>("etaBinLow");
     const auto etabin_high = pset.getParameter<double>("etaBinHigh");
 
-    /*
-        for (auto v : ptbins) {
+    /*  for (auto v : ptbins) {
             std::cout << " " << v;
         }
         std::cout << std::endl;

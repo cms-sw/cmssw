@@ -46,7 +46,7 @@ def parse_plot_string(ss):
     name = spl[1]
     histograms = spl[2:]
 
-    return folder, name,
+    return folder, name, histograms
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -135,7 +135,7 @@ def addPlots(plotter, folder, name, section, histograms, opts, offset=False):
     if offset :
         plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
     else :
-        plotter.append("ParticleFlow/"+section, folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
+        plotter.append("ParticleFlow/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
         for plot in plots:
             plot.setProperties(ncols=3)
 	    plot.setProperties(legendDw=-0.68)
@@ -165,10 +165,9 @@ def main():
 
     samples, plots, doOffsetPlots, offsetVar, offsetDR = parse_args()
 
-
     plotter = Plotter()
 
-    for folder, name, histograms in plots: # so this loop goes too many times and I don't know why
+    for folder, name, histograms in plots:
         opts = plot_opts.get(name, {})
 
         #fullfolder =  "DQMData/Run 1/Physics/Run summary/{0}".format(folder)
@@ -191,7 +190,7 @@ def main():
 
 
     val = SimpleValidation(samples, outputDir)
-    report = val.createHtmlReport()
+    report = val.createHtmlReport(validationName=description)
     val.doPlots([plotter], plotterDrawArgs=plotterDrawArgs)
 
     report.write()
