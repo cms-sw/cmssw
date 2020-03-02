@@ -391,6 +391,15 @@ std::vector<std::string> DDFilteredView::get<std::vector<std::string>>(const str
     return std::vector<std::string>();
 }
 
+std::vector<double> DDFilteredView::get(const string& name, const string& key) const {
+  std::vector<std::string> stringVector = get<std::vector<std::string>>(name, key);
+  std::vector<double> doubleVector(stringVector.size());
+  std::transform(stringVector.begin(), stringVector.end(), doubleVector.begin(), [](const std::string& val) {
+    return std::stod(val);
+  });
+  return doubleVector;
+}
+
 std::string_view DDFilteredView::getString(const std::string& key) const {
   assert(currentFilter_);
   assert(currentFilter_->spec);
