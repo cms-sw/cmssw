@@ -304,6 +304,11 @@ class TableRecoJetAdder(object):
           area      = jetTable.variables.area,
           rawFactor = jetTable.variables.rawFactor,
         )
+    elif "puppi" in recoJetInfo.jet:
+      tableContents = JETVARS.clone(
+        puppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:puppiMultiplicity')",float,doc="Sum of PUPPI weights of particles in the jet", precision= 6),
+        neutralPuppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:neutralPuppiMultiplicity')",float,doc="Sum of PUPPI weights of neutral particles in the jet", precision= 6)
+      )
     else:
       tableContents = JETVARS.clone()
     
@@ -379,7 +384,7 @@ def AddPileUpJetIDVars(proc):
   proc.jetTable.variables.pull     = Var("userFloat('pull')",    float, doc="magnitude of pull vector", precision= 6) 
   proc.jetTable.variables.jetR     = Var("userFloat('jetR')",    float, doc="fraction of jet pT carried by the leading constituent", precision= 6) 
   proc.jetTable.variables.jetRchg  = Var("userFloat('jetRchg')", float, doc="fraction of jet pT carried by the leading charged constituent", precision= 6) 
-  proc.jetTable.variables.nCharged = Var("userInt('nCharged')",  float, doc="number of charged constituents", precision= 6) 
+  proc.jetTable.variables.nCharged = Var("userInt('nCharged')",  int, doc="number of charged constituents")
 
 def PrepJMECustomNanoAOD(process,runOnMC):
   #
@@ -462,7 +467,7 @@ def PrepJMECustomNanoAOD(process,runOnMC):
     cfg = { k : v for k, v in jetConfig.items() if k != "enabled" }
     recoJetInfo = recoJA.addRecoJetCollection(process, **cfg)
     tableRecoJA.addTable(process, recoJetInfo)
-
+    
   if runOnMC:
     process.nanoSequenceMC += genJA.getSequence(process)
     process.nanoSequenceMC += recoJA.getSequence(process)
@@ -477,4 +482,4 @@ def PrepJMECustomNanoAOD_MC(process):
 
 def PrepJMECustomNanoAOD_Data(process):
   PrepJMECustomNanoAOD(process,runOnMC=False)
-
+  
