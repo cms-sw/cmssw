@@ -31,14 +31,14 @@ cd ${workArea}
 set myDir=`pwd`
 echo $myDir
 
-cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/writehelpers/geometryxmlwriter.py .
 echo $geometry
 sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >  GeometryValidation.log
 cmsRun geometryxmlwriter.py >>  GeometryValidation.log
 
 cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrywriter.py .
 sed -i "{s/GeometryExtended/${geometry}/}" geometrywriter.py >>  GeometryValidation.log
-##sed -i "{s/geTagXX.xml/fred.xml/g}" geometrywriter.py >>  GeometryValidation.log
+sed -i "{s/geTagXX.xml/geSingleBigFile.xml/g}" geometrywriter.py >>  GeometryValidation.log
 cmsRun geometrywriter.py >>  GeometryValidation.log
 if ( -e myfile.db ) then
     echo "The local DB file is present" | tee -a GeometryValidation.log
@@ -78,8 +78,8 @@ else
 endif
 
 diff outLocalDB.log outGTDB.log > logDiffLocalvsGT.log
-if ( -s logLocalvsGTDiff.log ) then
-    echo "WARNING THE CONTENT OF GLOBAL TAG IS DIFFERENT WHIT RESPECT TO THE LOCAL DB FILE" | tee -a GeometryValidation.log
+if ( -s logDiffLocalvsGT.log ) then
+    echo "WARNING THE CONTENT OF GLOBAL TAG IS DIFFERENT WITH RESPECT TO THE LOCAL DB FILE" | tee -a GeometryValidation.log
 endif
 
 echo "End compare the content of GT and the local DB" | tee -a GeometryValidation.log
@@ -360,9 +360,9 @@ else
 endif
 cd ${myDir}
 
-less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log | tee -a GeometryValidation.log
-less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log | tee -a GeometryValidation.log
-less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationLocal.log | tee -a GeometryValidation.log
+less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log >> GeometryValidation.log
+less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log >> GeometryValidation.log
+less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationLocal.log >> GeometryValidation.log
 
 grep 'BIG DISAGREEMENT FOUND' $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log > CALODDDError.log 
 grep 'BIG DISAGREEMENT FOUND' $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log > CALODBError.log 
@@ -427,7 +427,7 @@ cmsRun testReadXMLFromDB.py > readXMLfromLocDB.log
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readBigXMLAndDump.py .
 sed -i "{/geomXMLFiles = cms.vstring('GeometryReaders\/XMLIdealGeometryESSource\/test\/fred.xml'),/d}" readBigXMLAndDump.py >> GeometryValidation.log
-sed -i "/XMLIdealGeometryESSource/ a\\t\tgeomXMLFiles=cms.vstring('workArea\/fred.xml')," readBigXMLAndDump.py >>  GeometryValidation.log
+sed -i "/XMLIdealGeometryESSource/ a\\t\tgeomXMLFiles=cms.vstring('${workArea}\/geSingleBigFile.xml')," readBigXMLAndDump.py >>  GeometryValidation.log
 cmsRun readBigXMLAndDump.py > readBigXMLAndDump.log
 
 diff readXMLAndDump.log readXML.expected > diffreadXMLSTD.log
