@@ -117,4 +117,20 @@ void testDDFilteredView::checkFilteredView() {
     CPPUNIT_ASSERT(i.compare(refsLongFL_[count]) == 0);
     count++;
   }
+
+  cout << "Get CSC upar parameters for ChamberSpecs_ME11 as a vector of strings:\n";
+  std::vector<std::string> cscsPars = fview.get<std::vector<std::string>>("ChamberSpecs_ME11", "upar");
+  for (auto const& i : cscsPars) {
+    std::cout << i << ", ";
+    count++;
+  }
+  std::cout << "\n";
+
+  cout << "Get CSC upar parameters for ChamberSpecs_ME11 as a vector of doubles:\n";
+  std::vector<double> upars = fview.get("ChamberSpecs_ME11", "upar");
+  for (auto const& i : upars) {
+    std::cout << i << ", ";
+    count++;
+  }
+  std::cout << "\n";
 }
