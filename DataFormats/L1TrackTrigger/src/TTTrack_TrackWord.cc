@@ -18,12 +18,12 @@
 TTTrack_TrackWord::TTTrack_TrackWord(const GlobalVector& Momentum,
                                      const GlobalPoint& POCA,
                                      double theRinv,
-                                     double theChi2,
+                                     double theChi2XY,
                                      double theChi2Z,
                                      double theBendChi2,
                                      unsigned int theHitPattern,
                                      unsigned int iSpare) {
-  setTrackWord(Momentum, POCA, theRinv, theChi2, theChi2Z, theBendChi2, theHitPattern, iSpare);
+  setTrackWord(Momentum, POCA, theRinv, theChi2XY, theChi2Z, theBendChi2, theHitPattern, iSpare);
 }
 
 TTTrack_TrackWord::TTTrack_TrackWord(unsigned int theRinv,
@@ -31,7 +31,7 @@ TTTrack_TrackWord::TTTrack_TrackWord(unsigned int theRinv,
                                      unsigned int eta,
                                      unsigned int z0,
                                      unsigned int d0,
-                                     unsigned int theChi2,
+                                     unsigned int theChi2XY,
                                      unsigned int theChi2Z,
                                      unsigned int theBendChi2,
                                      unsigned int theHitPattern,
@@ -41,7 +41,7 @@ TTTrack_TrackWord::TTTrack_TrackWord(unsigned int theRinv,
       ieta(eta),
       iz0(z0),
       id0(d0),
-      ichi2(theChi2),          //revert to other packing?  Or will be unpacked wrong
+      ichi2XY(theChi2XY),      //revert to other packing?  Or will be unpacked wrong
       ichi2Z(theChi2Z),        //revert to other packing?  Or will be unpacked wrong
       iBendChi2(theBendChi2),  // revert to ogher packing? Or will be unpacked wrong
       ispare(iSpare),
@@ -56,7 +56,7 @@ void TTTrack_TrackWord::setTrackWord(unsigned int theRinv,
                                      unsigned int eta,
                                      unsigned int z0,
                                      unsigned int d0,
-                                     unsigned int theChi2,
+                                     unsigned int theChi2XY,
                                      unsigned int theChi2Z,
                                      unsigned int theBendChi2,
                                      unsigned int theHitPattern,
@@ -66,7 +66,7 @@ void TTTrack_TrackWord::setTrackWord(unsigned int theRinv,
   ieta = eta;
   iz0 = z0;
   id0 = d0;
-  ichi2 = theChi2;          //revert to other packing?  Or will be unpacked wrong
+  ichi2XY = theChi2XY;      //revert to other packing?  Or will be unpacked wrong
   ichi2Z = theChi2Z;        //revert to other packing?  Or will be unpacked wrong
   iBendChi2 = theBendChi2;  // revert to ogher packing? Or will be unpacked wrong
   ispare = iSpare;
@@ -79,7 +79,7 @@ void TTTrack_TrackWord::setTrackWord(unsigned int theRinv,
 void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
                                      const GlobalPoint& POCA,
                                      double theRinv,
-                                     double theChi2,
+                                     double theChi2XY,
                                      double theChi2Z,
                                      double theBendChi2,
                                      unsigned int theHitPattern,
@@ -109,11 +109,11 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
 
   //chi2 has non-linear bins
 
-  ichi2 = 0;
+  ichi2XY = 0;
 
   for (unsigned int ibin = 0; ibin < Nchi2; ++ibin) {
-    ichi2 = ibin;
-    if (theChi2 < chi2Bins[ibin])
+    ichi2XY = ibin;
+    if (theChi2XY < chi2Bins[ibin])
       break;
   }
 
@@ -166,7 +166,7 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
 
   seg1 = (ieta << 16);  //take care of word packing later...
   seg2 = (iz0 << 4);
-  seg3 = ichi2;
+  seg3 = ichi2XY;
 
   //set bits
 
@@ -232,20 +232,20 @@ unsigned int TTTrack_TrackWord::get_z0Bits() {
   return iz0;
 }
 
-float TTTrack_TrackWord::unpack_ichi2() {
+float TTTrack_TrackWord::unpack_ichi2XY() {
   unsigned int bits = (TrackWord1 & 0x0000000F);
   float unpChi2 = chi2Bins[bits];
   return unpChi2;
 }
 
-float TTTrack_TrackWord::get_ichi2() {
-  float unpChi2 = chi2Bins[ichi2];
+float TTTrack_TrackWord::get_ichi2XY() {
+  float unpChi2 = chi2Bins[ichi2XY];
   return unpChi2;
 }
 
-unsigned int TTTrack_TrackWord::get_chi2Bits() {
+unsigned int TTTrack_TrackWord::get_chi2XYBits() {
   //unsigned int bits = (TrackWord1 & 0x0000000F);
-  return ichi2;
+  return ichi2XY;
 }
 
 float TTTrack_TrackWord::unpack_iphi() {
@@ -321,7 +321,7 @@ float TTTrack_TrackWord::unpack_ichi2Z() {
 }
 
 float TTTrack_TrackWord::get_ichi2Z() {
-  float unpChi2Z = chi2ZBins[ichi2];
+  float unpChi2Z = chi2ZBins[ichi2Z];
   return unpChi2Z;
 }
 

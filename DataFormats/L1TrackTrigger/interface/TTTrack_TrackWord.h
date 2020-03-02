@@ -23,42 +23,42 @@ public:
   TTTrack_TrackWord() {}
   TTTrack_TrackWord(const GlobalVector& Momentum,
                     const GlobalPoint& POCA,
-                    double theRinv,
-                    double theChi2,  // would be xy chisq if chi2Z is non-zero
-                    double theChi2Z,
-                    double theBendChi2,
-                    unsigned int theHitPattern,
+                    double Rinv,
+                    double Chi2,  // would be xy chisq if chi2Z is non-zero
+                    double Chi2Z,
+                    double BendChi2,
+                    unsigned int HitPattern,
                     unsigned int iSpare);
 
-  TTTrack_TrackWord(unsigned int theRinv,
+  TTTrack_TrackWord(unsigned int Rinv,
                     unsigned int phi0,
                     unsigned int tanl,
                     unsigned int z0,
                     unsigned int d0,
-                    unsigned int theChi2,  // would be xy chisq if chi2Z is non-zero
-                    unsigned int theChi2Z,
-                    unsigned int theBendChi2,
-                    unsigned int theHitPattern,
+                    unsigned int Chi2XY,  // would be total chisq if chi2Z is zero
+                    unsigned int Chi2Z,
+                    unsigned int BendChi2,
+                    unsigned int HitPattern,
                     unsigned int iSpare);
 
   void setTrackWord(const GlobalVector& Momentum,
                     const GlobalPoint& POCA,
-                    double theRinv,
-                    double theChi2,  // would be xy chisq if chi2Z is non-zero
-                    double theChi2Z,
-                    double theBendChi2,
-                    unsigned int theHitPattern,
+                    double Rinv,
+                    double Chi2XY,  // would be total chisq if chi2Z is zero
+                    double Chi2Z,
+                    double BendChi2,
+                    unsigned int HitPattern,
                     unsigned int iSpare);
 
-  void setTrackWord(unsigned int theRinv,
+  void setTrackWord(unsigned int Rinv,
                     unsigned int phi0,
                     unsigned int tanl,
                     unsigned int z0,
                     unsigned int d0,
-                    unsigned int theChi2,  // would be xy chisq if chi2Z is non-zero
-                    unsigned int theChi2Z,
-                    unsigned int theBendChi2,
-                    unsigned int theHitPattern,
+                    unsigned int Chi2XY,  // would be total chisq if chi2Z is zero
+                    unsigned int Chi2Z,
+                    unsigned int BendChi2,
+                    unsigned int HitPattern,
                     unsigned int iSpare);
 
   // getters for unpacked and converted values.
@@ -69,7 +69,7 @@ public:
   float get_ieta();
   float get_iz0();
   float get_id0();
-  float get_ichi2();
+  float get_ichi2XY();
   float get_ichi2Z();
   float get_iBendChi2();
 
@@ -80,7 +80,7 @@ public:
   float unpack_ieta();
   float unpack_iz0();
   float unpack_id0();
-  float unpack_ichi2();
+  float unpack_ichi2XY();
   float unpack_ichi2Z();
   float unpack_iBendChi2();
   unsigned int unpack_ispare();
@@ -98,7 +98,7 @@ public:
   unsigned int get_etaBits();
   unsigned int get_z0Bits();
   unsigned int get_d0Bits();
-  unsigned int get_chi2Bits();
+  unsigned int get_chi2XYBits();
   unsigned int get_chi2ZBits();
   unsigned int get_BendChi2Bits();
 
@@ -112,7 +112,7 @@ public:
     ieta = word.ieta;
     iz0 = word.iz0;
     id0 = word.id0;
-    ichi2 = word.ichi2;
+    ichi2XY = word.ichi2XY;
     ichi2Z = word.ichi2Z;
     iBendChi2 = word.iBendChi2;
     ispare = word.ispare;
@@ -131,7 +131,7 @@ public:
     ieta = word.ieta;
     iz0 = word.iz0;
     id0 = word.id0;
-    ichi2 = word.ichi2;
+    ichi2XY = word.ichi2XY;
     ichi2Z = word.ichi2Z;
     iBendChi2 = word.iBendChi2;
     ispare = word.ispare;
@@ -158,7 +158,7 @@ private:
   unsigned int ieta;
   unsigned int iz0;
   unsigned int id0;
-  unsigned int ichi2;
+  unsigned int ichi2XY;
   unsigned int ichi2Z;
   unsigned int iBendChi2;
   unsigned int ispare;
@@ -217,11 +217,11 @@ private:
   const unsigned int NSpareBits = 14;
 
   // establish binning
-  const float maxCurv = 0.5;  // 2 GeV pT
-  const float maxPhi = 0.35;  // relative to the center of the sector
-  const float maxEta = 2.5;
-  const float maxZ0 = 20.;
-  const float maxD0 = 15.;
+  const float maxCurv = 0.00855;  // 2 GeV pT Rinv is in cm
+  const float maxPhi = 0.35;      // relative to the center of the sector
+  const float maxEta = 2.776;
+  const float maxZ0 = 30.;
+  const float maxD0 = 15.4;
 
 };  // end of class def
 
