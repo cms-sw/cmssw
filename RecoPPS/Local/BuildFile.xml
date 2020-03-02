@@ -4,8 +4,10 @@
 <use name="DataFormats/CTPPSReco"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="Geometry/VeryForwardGeometry"/>
+<use name="Geometry/VeryForwardRPTopology"/>
 <use name="CondFormats/PPSObjects"/>
 <use name="DataFormats/CTPPSDetId"/>
+<use name="CommonTools/Utils"/>
 
 <export>
   <lib name="1"/>
