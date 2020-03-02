@@ -34,7 +34,7 @@ class AlcaPCCEventProducer : public edm::stream::EDProducer<> {
 public:
   explicit AlcaPCCEventProducer(const edm::ParameterSet&);
   ~AlcaPCCEventProducer() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -97,12 +97,11 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaPCCEventProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void AlcaPCCEventProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription evtParamDesc;
-  evtParamDesc.add<edm::InputTag>("pixelClusterLabel",edm::InputTag("siPixelClustersForLumi"));
-  evtParamDesc.addUntracked<std::string>("trigstring","alcaPCCEvent");
+  evtParamDesc.add<edm::InputTag>("pixelClusterLabel", edm::InputTag("siPixelClustersForLumi"));
+  evtParamDesc.addUntracked<std::string>("trigstring", "alcaPCCEvent");
   descriptions.add("alcaPCCEventProducer", evtParamDesc);
 }
-
 
 DEFINE_FWK_MODULE(AlcaPCCEventProducer);
