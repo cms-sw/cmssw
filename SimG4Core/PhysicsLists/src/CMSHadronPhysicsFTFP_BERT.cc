@@ -45,14 +45,14 @@
 
 #include "G4ProcessManager.hh"
 
-CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int) 
-    : CMSHadronPhysicsFTFP_BERT(3.*CLHEP::GeV, 6.*CLHEP::GeV) {}
+CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int)
+    : CMSHadronPhysicsFTFP_BERT(3. * CLHEP::GeV, 6. * CLHEP::GeV) {}
 
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2)
     : G4VPhysicsConstructor("hInelastic FTFP_BERT") {
   minFTFP_ = e1;
   maxBERT_ = e2;
-  maxBERTpi_ = 12*CLHEP::GeV;
+  maxBERTpi_ = 12 * CLHEP::GeV;
 }
 
 CMSHadronPhysicsFTFP_BERT::~CMSHadronPhysicsFTFP_BERT() {}
@@ -69,9 +69,8 @@ void CMSHadronPhysicsFTFP_BERT::ConstructParticle() {
 }
 
 void CMSHadronPhysicsFTFP_BERT::DumpBanner() {
-  G4cout << "### FTFP_BERT : transition between BERT and FTFP is over the interval " 
-         << minFTFP_ / CLHEP::GeV << " to "
-         << maxBERT_ / CLHEP::GeV << " GeV" 
+  G4cout << "### FTFP_BERT : transition between BERT and FTFP is over the interval " << minFTFP_ / CLHEP::GeV << " to "
+         << maxBERT_ / CLHEP::GeV << " GeV"
          << " GeV; for pions up to " << maxBERTpi_ / CLHEP::GeV << " GeV" << G4endl;
 }
 
