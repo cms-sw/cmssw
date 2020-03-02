@@ -137,7 +137,9 @@ public:
   double chi2() const;
   double chi2Red() const;
   double chi2Z() const;
+  double chi2ZRed() const;
   double chi2XY() const;
+  double chi2XYRed() const;
 
   /// Stub Pt consistency
   double stubPtConsistency() const;
@@ -336,6 +338,18 @@ double TTTrack<T>::chi2XY() const {
 template <typename T>
 double TTTrack<T>::chi2Red() const {
   return theChi2_ / (2 * theStubRefs.size() - theNumFitPars_);
+}
+
+/// Chi2XY reduced
+template <typename T>
+double TTTrack<T>::chi2XYRed() const {
+  return theChi2_XY_ / (theStubRefs.size() - theNumFitPars_ - 2);
+}
+
+/// Chi2Z reduced
+template <typename T>
+double TTTrack<T>::chi2ZRed() const {
+  return theChi2_Z_ / (theStubRefs.size() - 2.);
 }
 
 /// MVA quality variables
