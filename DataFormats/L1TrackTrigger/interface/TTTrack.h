@@ -63,7 +63,7 @@ public:
           double aChi2,
           double trkMVA1,
           double trkMVA2,
-          double trkMVA3_,
+          double trkMVA3,
           unsigned int aHitpattern,
           unsigned int nPar,
           double Bfield);
@@ -77,7 +77,7 @@ public:
           double aChi2zfit,
           double trkMVA1,
           double trkMVA2,
-          double trkMVA3_,
+          double trkMVA3,
           unsigned int aHitpattern,
           unsigned int nPar,
           double Bfield);
@@ -371,13 +371,13 @@ double TTTrack<T>::stubPtConsistency() const {
   return theStubPtConsistency_;
 }
 
-/// StubPtConsistency
+/// Hit Pattern
 template <typename T>
 unsigned int TTTrack<T>::hitPattern() const {
   return theHitPattern_;
 }
 
-/// StubPtConsistency
+/// set B field if need be
 template <typename T>
 void TTTrack<T>::setBField(double aBField) {
   // if, for some reason, we want to change the value of the B-Field, recompute pT and momentum:
