@@ -1,7 +1,7 @@
-#ifndef GEMValidation_GEMRecHitMatcher_h
-#define GEMValidation_GEMRecHitMatcher_h
+#ifndef Validation_MuonGEMRecHits_GEMRecHitMatcher_h
+#define Validation_MuonGEMRecHits_GEMRecHitMatcher_h
 
-/**\class RecHitMatcher
+/**\class GEMRecHitMatcher
 
  Description: Matching of RecHits for SimTrack in GEM
 
@@ -11,43 +11,36 @@
 */
 
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-
-#include <SimDataFormats/Track/interface/SimTrackContainer.h>
-#include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
-
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
-#include "Validation/MuonGEMDigis/interface/GenericDigi.h"
-#include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
 
+#include <vector>
 #include <map>
 #include <set>
-#include <vector>
 
-class SimHitMatcher;
+typedef std::vector<GEMRecHit> GEMRecHitContainer;
+
 class GEMGeometry;
 class GEMRecHitMatcher {
 public:
-  typedef matching::Digi RecHit;
-  typedef matching::DigiContainer RecHitContainer;
+  // constructor
+  GEMRecHitMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector&& iC);
 
-  GEMRecHitMatcher(const SimHitMatcher &sh,
-                   const edm::Event &,
-                   const GEMGeometry &geom,
-                   const edm::ParameterSet &cfg,
-                   edm::EDGetToken &);
+  // destructor
+  ~GEMRecHitMatcher() {}
 
-  ~GEMRecHitMatcher();
+  // initialize the event
+  void init(const edm::Event& e, const edm::EventSetup& eventSetup);
+
+  // do the matching
+  void match(const SimTrack& t, const SimVertex& v);
 
   // partition GEM detIds with rechits
   std::set<unsigned int> detIds() const;
@@ -59,15 +52,16 @@ public:
   std::set<unsigned int> superChamberIds() const;
 
   // GEM recHits from a particular partition, chamber or superchamber
-  const RecHitContainer &recHitsInDetId(unsigned int) const;
-  const RecHitContainer &recHitsInChamber(unsigned int) const;
-  const RecHitContainer &recHitsInSuperChamber(unsigned int) const;
+  const GEMRecHitContainer& recHits() const { return recHits_; }
+  const GEMRecHitContainer& recHitsInDetId(unsigned int) const;
+  const GEMRecHitContainer& recHitsInChamber(unsigned int) const;
+  const GEMRecHitContainer& recHitsInSuperChamber(unsigned int) const;
 
   // #layers with recHits from this simtrack
   int nLayersWithRecHitsInSuperChamber(unsigned int) const;
 
   /// How many recHits in GEM did this simtrack get in total?
-  int nRecHits() const;
+  int nGEMRecHits() const;
 
   std::set<int> stripNumbersInDetId(unsigned int) const;
 
@@ -77,29 +71,40 @@ public:
   // verbose value
   bool verbose() const { return verbose_; }
 
-  GlobalPoint recHitPosition(const RecHit &rechit) const;
-  GlobalPoint recHitMeanPosition(const RecHitContainer &rechits) const;
+  // global position of the rechit (based on the first strip hit)
+  GlobalPoint recHitPosition(const GEMRecHit& rechit) const;
+
+  // mean position of a rechit collection (all based on the first strip hit)
+  GlobalPoint recHitMeanPosition(const GEMRecHitContainer& rechits) const;
+
+  std::shared_ptr<GEMDigiMatcher> gemDigiMatcher() const { return gemDigiMatcher_; }
+
+  bool recHitInContainer(const GEMRecHit& rh, const GEMRecHitContainer& c) const;
+
+  bool isGEMRecHitMatched(const GEMRecHit& thisRh) const;
+
+  bool areGEMRecHitSame(const GEMRecHit& l, const GEMRecHit& r) const;
 
 private:
-  void init(const edm::Event &);
+  void matchRecHitsToSimTrack(const GEMRecHitCollection& recHits);
 
-  void matchRecHitsToSimTrack(const GEMRecHitCollection &recHits);
+  edm::EDGetTokenT<GEMRecHitCollection> gemRecHitToken_;
+  edm::Handle<GEMRecHitCollection> gemRecHitH_;
 
-  edm::Handle<GEMRecHitCollection> gem_rechits_;
+  edm::ESHandle<GEMGeometry> gem_geom_;
+  const GEMGeometry* gemGeometry_;
 
-  const SimHitMatcher &simhit_matcher_;
-  const GEMGeometry &gem_geo_;
-
-  int minBXGEM_, maxBXGEM_;
+  int minBX_, maxBX_;
   bool verbose_;
 
-  int matchDeltaStrip_;
+  std::map<unsigned int, GEMRecHitContainer> detid_to_recHits_;
+  std::map<unsigned int, GEMRecHitContainer> chamber_to_recHits_;
+  std::map<unsigned int, GEMRecHitContainer> superchamber_to_recHits_;
 
-  std::map<unsigned int, RecHitContainer> detid_to_recHits_;
-  std::map<unsigned int, RecHitContainer> chamber_to_recHits_;
-  std::map<unsigned int, RecHitContainer> superchamber_to_recHits_;
+  const GEMRecHitContainer no_recHits_;
+  GEMRecHitContainer recHits_;
 
-  const RecHitContainer no_recHits_;
+  std::shared_ptr<GEMDigiMatcher> gemDigiMatcher_;
 };
 
 #endif
