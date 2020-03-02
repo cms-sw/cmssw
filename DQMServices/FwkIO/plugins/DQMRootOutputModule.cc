@@ -442,6 +442,8 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& i
     m_indicesTree->Fill();
   }
 
+  dstore->deleteUnusedLumiHistograms(m_enableMultiThread ? m_run : 0, m_lumi);
+
   edm::Service<edm::JobReport> jr;
   jr->reportLumiSection(m_jrToken, m_run, m_lumi);
 }
