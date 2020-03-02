@@ -49,7 +49,7 @@ private:
   double theBField_;  // needed for unpacking
   static constexpr unsigned int Npars4 = 4;
   static constexpr unsigned int Npars5 = 5;
-  static constexpr float MagConstant = CLHEP::c_light/1.0E9;  //0.299792458;
+  static constexpr float MagConstant = CLHEP::c_light / 1.0E9;  //0.299792458;
 
 public:
   /// Constructors
@@ -150,7 +150,7 @@ public:
   unsigned int hitPattern() const;
 
   /// set new Bfield
-  void setBField( double aBField );
+  void setBField(double aBField);
 
   void setTrackWordBits();
   void testTrackWordBits();
@@ -191,7 +191,6 @@ TTTrack<T>::TTTrack() {
   theNumFitPars_ = 0;
 }
 
-
 /// Meant to be default constructor
 template <typename T>
 TTTrack<T>::TTTrack(double aRinv,
@@ -228,7 +227,6 @@ TTTrack<T>::TTTrack(double aRinv,
   theBField_ = aBfield;
   theChi2_XY_ = -999.;
   theChi2_Z_ = -999.;
-
 }
 
 /// Second default constructor with split chi2
@@ -245,23 +243,21 @@ TTTrack<T>::TTTrack(double aRinv,
                     double trkMVA3,
                     unsigned int aHitPattern,
                     unsigned int nPar,
-                    double aBfield):TTTrack( 
-		      aRinv,
-                      aphi0,
-		      aTanlambda,
-		      az0,
-		      ad0,
-		      aChi2XY+aChi2Z, // add chi2 values
-		      trkMVA1,
-		      trkMVA2,
-		      trkMVA3,
-		      aHitPattern,
-		      nPar,
-		      aBfield){  
-
-		      this->theChi2_XY_ = aChi2XY;
-		      this->theChi2_Z_ = aChi2Z;
-
+                    double aBfield)
+    : TTTrack(aRinv,
+              aphi0,
+              aTanlambda,
+              az0,
+              ad0,
+              aChi2XY + aChi2Z,  // add chi2 values
+              trkMVA1,
+              trkMVA2,
+              trkMVA3,
+              aHitPattern,
+              nPar,
+              aBfield) {
+  this->theChi2_XY_ = aChi2XY;
+  this->theChi2_Z_ = aChi2Z;
 }
 
 /// Destructor
@@ -387,7 +383,6 @@ void TTTrack<T>::setBField(double aBField) {
   return;
 }
 
-
 /// Set bits in 96-bit Track word
 template <typename T>
 void TTTrack<T>::setTrackWordBits() {
@@ -401,11 +396,12 @@ void TTTrack<T>::setTrackWordBits() {
 
   // missing conversion of global phi to difference from sector center phi
 
-  if (theChi2_Z_ <0 ) {    
+  if (theChi2_Z_ < 0) {
     setTrackWord(theMomentum_, thePOCA_, theRInv_, theChi2_, 0, theStubPtConsistency_, theHitPattern_, sparebits);
 
   } else {
-    setTrackWord(theMomentum_, thePOCA_, theRInv_, theChi2_XY_, theChi2_Z_, theStubPtConsistency_, theHitPattern_, sparebits);
+    setTrackWord(
+        theMomentum_, thePOCA_, theRInv_, theChi2_XY_, theChi2_Z_, theStubPtConsistency_, theHitPattern_, sparebits);
   }
   return;
 }
