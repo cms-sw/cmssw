@@ -11,9 +11,15 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+
+// Units and Constants
+#include "DataFormats/Math/interface/CMSUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#include <iostream>
 #include <cmath>
@@ -29,9 +35,12 @@ using namespace sipixelobjects;
 // -- Distance, position: cm
 // -- Time: ns
 // -- Angles: radian
-// Some constants
-const double SPEED_OF_LIGHT = 30.0;
-const double unit_um = 1e-4;
+// Some constants in convenient units
+constexpr double c_cm_ns = CLHEP::c_light * CLHEP::ns / CLHEP::cm;
+constexpr double c_inv = 1.0 / c_cm_ns;
+// Analogously to CMSUnits (no um defined)
+constexpr double operator""_um(long double length) { return length * 1e-4; }
+constexpr double operator""_um_inv(long double length) { return length * 1e4; }
 
 void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
   // XXX: Just copied from PixelDigitizer Algorithm
@@ -60,8 +69,8 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<edm::ParameterSet>("AlgorithmCommon"),
                                       conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm")),
       // The size of the column np-junction (XXX: to be included via config)
-      _np_column_radius(5.0 * unit_um),
-      _ohm_column_radius(5.0 * unit_um) {
+      _np_column_radius(5.0_um),
+      _ohm_column_radius(5.0_um) {
   // XXX - NEEDED?
   pixelFlag_ = true;
 
@@ -107,8 +116,8 @@ void Pixel3DDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
     const auto global_hit_position = pix3Ddet->surface().toGlobal(it->localPosition()).mag();
 
     // Only accept those sim hits produced inside a time window (same bunch-crossing)
-    if ((it->tof() - global_hit_position / SPEED_OF_LIGHT >= theTofLowerCut_) &&
-        (it->tof() - global_hit_position / SPEED_OF_LIGHT <= theTofUpperCut_)) {
+    if ((it->tof() - global_hit_position * c_inv >= theTofLowerCut_) &&
+        (it->tof() - global_hit_position * c_inv <= theTofUpperCut_)) {
       // XXX: this vectors are the output of the next methods, the methods should
       // return them, instead of an input argument
       std::vector<DigitizerUtility::EnergyDepositUnit> ionization_points;
@@ -157,7 +166,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   //          With the current sigma, this value is dependent of the thickness,
   //          Note that this formulae is coming from planar sensors, a similar
   //          study with data will be needed to extract the sigma for 3D
-  const float _max_migration_radius = 0.4 * unit_um;
+  const float _max_migration_radius = 0.4_um;
   // Need to know which axis is the relevant one
   int displ_ind = -1;
   float pitch = 0.0;
@@ -180,7 +189,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   std::vector<DigitizerUtility::EnergyDepositUnit> migrated_charge;
 
   // FIXME -- DM
-  const float _diffusion_step = 0.1 * unit_um;
+  const float _diffusion_step = 0.1_um;
 
   // The position while drifting
   std::vector<float> pos_moving({pos.x(), pos.y(), pos.z()});
@@ -193,13 +202,13 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   };
 
   LogDebug("Pixel3DDigitizerAlgorithm::diffusion")
-      << "\nMax. radius from the pixel edge to migrate charge: " << _max_migration_radius / unit_um << " [um]"
+      << "\nMax. radius from the pixel edge to migrate charge: " << _max_migration_radius * 1.0_um_inv << " [um]"
       << "\nMigration axis: " << displ_ind
-      << "\n(super-)Charge distance to the pixel edge: " << (pitch - pos_moving[displ_ind]) / unit_um << " [um]";
+      << "\n(super-)Charge distance to the pixel edge: " << (pitch - pos_moving[displ_ind]) * 1.0_um_inv << " [um]";
 
   // FIXME -- Sigma reference, DM?
-  const float _distance0 = 300.0 * unit_um;
-  const float _sigma0 = 3.4 * unit_um;
+  const float _distance0 = 300.0_um;
+  const float _sigma0 = 3.4_um;
   // FIXME -- Tolerance, DM?
   const float _TOL = 1e-6;
 
@@ -209,7 +218,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   // Some variables needed
   float current_carriers = ncarriers;
   std::vector<float> newpos({pos_moving[0], pos_moving[1], pos_moving[2]});
-  float distance_edge = 0.0 * unit_um;
+  float distance_edge = 0.0_um;
   do {
     std::transform(pos_moving.begin(), pos_moving.end(), do_step(i).begin(), pos_moving.begin(), std::plus<float>());
     distance_edge = std::fabs(pos_moving[displ_ind] - pitch);
@@ -220,8 +229,8 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     float migrated_e = current_carriers * (1.0 - std::erf(distance_edge / sigma));
 
     LogDebug("(super-)charge diffusion") << "step-" << i << ", Initial Ne= " << ncarriers << ", "
-                                         << "r=(" << pos_moving[0] / unit_um << ", " << pos_moving[1] / unit_um << ", "
-                                         << pos_moving[2] / unit_um << ") [um], "
+                                         << "r=(" << pos_moving[0] * 1.0_um_inv << ", " << pos_moving[1] * 1.0_um_inv << ", "
+                                         << pos_moving[2] * 1.0_um_inv << ") [um], "
                                          << "Migrated charge: " << migrated_e;
 
     // No charge was migrated (ignore creation time)
@@ -285,7 +294,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
   LocalPoint center_proxy_cell(half_pitch.first, half_pitch.second, -0.5 * thickness);
 
   LogDebug("Pixel3DDigitizerAlgorithm::drift")
-      << "Pixel pitch:" << pitch.first / unit_um << ", " << pitch.second / unit_um << " [um]";
+      << "Pixel pitch:" << pitch.first * 1.0_um_inv << ", " << pitch.second * 1.0_um_inv << " [um]";
 
   // And the drift direction (assumed same for all the sensor)
   // XXX call the function which will return a functional
@@ -316,13 +325,13 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
                               super_charge.z());
 
     LogDebug("Pixel3DDigitizerAlgorithm::drift")
-        << "(super-)Charge\nlocal position: (" << super_charge.x() / unit_um << ", " << super_charge.y() / unit_um
-        << ", " << super_charge.z() / unit_um << ") [um]"
+        << "(super-)Charge\nlocal position: (" << super_charge.x() * 1.0_um_inv << ", " << super_charge.y() * 1.0_um_inv
+        << ", " << super_charge.z() * 1.0_um_inv << ") [um]"
         << "\nMeasurement Point (row,column) (" << current_pixel.first << ", " << current_pixel.second << ")"
-        << "\nProxy pixel-cell frame (centered at  left-down corner): (" << relative_position_at_pc.first / unit_um
-        << ", " << relative_position_at_pc.second / unit_um << ") [um]"
-        << "\nProxy pixel-cell frame (centered at n-column): (" << position_at_pc.x() / unit_um << ", "
-        << position_at_pc.y() / unit_um << ") [um] "
+        << "\nProxy pixel-cell frame (centered at  left-down corner): (" << relative_position_at_pc.first * 1.0_um_inv
+        << ", " << relative_position_at_pc.second * 1.0_um_inv << ") [um]"
+        << "\nProxy pixel-cell frame (centered at n-column): (" << position_at_pc.x() * 1.0_um_inv << ", "
+        << position_at_pc.y() * 1.0_um_inv << ") [um] "
         << "\nNe=" << super_charge.energy() << " electrons";
 
     // Check if the point is inside any of the column --> no charge was actually created then
@@ -376,7 +385,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
       }
     }
     LogDebug("Pixel3DDigitizerAlgorithm::drift")
-        << "Drift distance = " << drift_distance / unit_um << " [um], "
+        << "Drift distance = " << drift_distance * 1.0_um_inv << " [um], "
         << "Initial electrons = " << super_charge.energy()
         << " [electrons], Electrons after loss/diff= " << energyOnCollector << " [electrons] ";
     //DigitizerUtility::SignalPoint sp(CloudCenterX, CloudCenterY, Sigma_x, Sigma_y, hit.tof(), energyOnCollector);
