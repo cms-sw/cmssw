@@ -269,3 +269,31 @@ pfParticleNetPreprocessParams = cms.PSet(
         )
     )
 )
+
+pfMassDecorrelatedParticleNetPreprocessParams = pfParticleNetPreprocessParams.clone(
+    pf_features = pfParticleNetPreprocessParams.pf_features.clone(
+        input_shape = [1, 20, 100],
+        var_names = [
+            'pfcand_pt_log_nopuppi',
+            'pfcand_e_log_nopuppi',
+            'pfcand_etarel',
+            'pfcand_phirel',
+            'pfcand_abseta',
+            'pfcand_charge',
+            'pfcand_VTX_ass',
+            'pfcand_lostInnerHits',
+            'pfcand_normchi2',
+            'pfcand_quality',
+            'pfcand_dz',
+            'pfcand_dzsig',
+            'pfcand_dxy',
+            'pfcand_dxysig',
+            'pfcand_btagEtaRel',
+            'pfcand_btagPtRatio',
+            'pfcand_btagPParRatio',
+            'pfcand_btagSip3dVal',
+            'pfcand_btagSip3dSig',
+            'pfcand_btagJetDistVal'
+        ]
+    )
+)
