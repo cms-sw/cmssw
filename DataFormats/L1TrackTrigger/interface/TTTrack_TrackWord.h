@@ -66,7 +66,7 @@ public:
 
   float get_iRinv();
   float get_iphi();
-  float get_ieta();
+  float get_itanl();
   float get_iz0();
   float get_id0();
   float get_ichi2XY();
@@ -77,7 +77,7 @@ public:
 
   float unpack_iRinv();
   float unpack_iphi();
-  float unpack_ieta();
+  float unpack_itanl();
   float unpack_iz0();
   float unpack_id0();
   float unpack_ichi2XY();
@@ -95,7 +95,7 @@ public:
 
   unsigned int get_RinvBits();
   unsigned int get_phiBits();
-  unsigned int get_etaBits();
+  unsigned int get_tanlBits();
   unsigned int get_z0Bits();
   unsigned int get_d0Bits();
   unsigned int get_chi2XYBits();
@@ -109,7 +109,7 @@ public:
 
     iRinv = word.iRinv;
     iphi = word.iphi;
-    ieta = word.ieta;
+    itanl = word.itanl;
     iz0 = word.iz0;
     id0 = word.id0;
     ichi2XY = word.ichi2XY;
@@ -128,7 +128,7 @@ public:
     initialize();
     iRinv = word.iRinv;
     iphi = word.iphi;
-    ieta = word.ieta;
+    itanl = word.itanl;
     iz0 = word.iz0;
     id0 = word.id0;
     ichi2XY = word.ichi2XY;
@@ -155,7 +155,7 @@ private:
   // individual data members (not packed into 96 bits)
   unsigned int iRinv;
   unsigned int iphi;
-  unsigned int ieta;
+  unsigned int itanl;
   unsigned int iz0;
   unsigned int id0;
   unsigned int ichi2XY;
@@ -174,7 +174,7 @@ private:
 
   float valLSBCurv;
   float valLSBPhi;
-  float valLSBEta;
+  float valLSBTanl;
   float valLSBZ0;
   float valLSBD0;
 
@@ -190,7 +190,7 @@ private:
 
   q/R = 14+1 
   phi = 11+1  (relative to sector center)
-  eta = 15+1
+  tanl = 15+1
   z0  = 11+1
   d0  = 12+1                                                                                                                                                      
 
@@ -206,7 +206,7 @@ private:
   // signed quantities: total bits are these values plus one
   const unsigned int NCurvBits = 14;
   const unsigned int NPhiBits = 11;
-  const unsigned int NEtaBits = 15;
+  const unsigned int NTanlBits = 15;
   const unsigned int NZ0Bits = 11;
   const unsigned int ND0Bits = 12;
 
@@ -218,8 +218,8 @@ private:
 
   // establish binning
   const float maxCurv = 0.00855;  // 2 GeV pT Rinv is in cm
-  const float maxPhi = 0.35;      // relative to the center of the sector
-  const float maxEta = 2.776;
+  const float maxPhi = 1.026;     // relative to the center of the sector
+  const float maxTanl = 8.0;
   const float maxZ0 = 30.;
   const float maxD0 = 15.4;
 
