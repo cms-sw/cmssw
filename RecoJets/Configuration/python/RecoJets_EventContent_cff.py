@@ -59,9 +59,12 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_ak7CastorJets_*_*',
                                            )
 )
+RecoJetsRECO.outputCommands.extend(RecoJetsAOD.outputCommands)
+
 RecoGenJetsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
+RecoGenJetsRECO.outputCommands.extend(RecoGenJetsAOD.outputCommands)
 #Full Event content 
 RecoJetsFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoCaloJets_*_*_*', 
@@ -89,9 +92,12 @@ RecoJetsFEVT = cms.PSet(
                                            'keep *_ak*Mass_*_*'
         )
 )
+RecoJetsFEVT.outputCommands.extend(RecoJetsRECO.outputCommands)
+
 RecoGenJetsFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring()
+    outputCommands = cms.untracked.vstring('keep recoGenJets_*_*_*')
 )
+RecoGenJetsFEVT.outputCommands.extend(RecoGenJetsRECO.outputCommands)
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
@@ -131,7 +137,3 @@ pp_on_AA_2018.toModify( RecoJetsAOD.outputCommands,
                                                                            'drop *_caloTowers_*_*'
                                                                            ])
                         )
-RecoJetsRECO.outputCommands.extend(RecoJetsAOD.outputCommands)
-RecoJetsFEVT.outputCommands.extend(RecoJetsRECO.outputCommands)
-RecoGenJetsRECO.outputCommands.extend(RecoGenJetsAOD.outputCommands)
-RecoGenJetsFEVT.outputCommands.extend(RecoGenJetsRECO.outputCommands)
