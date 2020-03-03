@@ -23,9 +23,9 @@
 
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelFramePosition.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelFramePosition.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>

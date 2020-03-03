@@ -543,8 +543,8 @@ def miniAOD_customizeOutput(out):
 def miniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
     runOnData( process, outputModules = [] )
-    process.load("RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff")
-    process.load("RecoCTPPS.ProtonReconstruction.ctppsProtons_cff")
+    process.load("RecoPPS.Local.ctppsLocalTrackLiteProducer_cff")
+    process.load("RecoPPS.ProtonReconstruction.ctppsProtons_cff")
     process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
     task = getPatAlgosToolsTask(process)
     from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016

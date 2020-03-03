@@ -50,7 +50,7 @@ process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
 
 
 # local RP reconstruction chain with standard settings
-process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+process.load("RecoPPS.Configuration.recoCTPPS_cff")
 
 # DQM Modules
 process.load("DQM.CTPPS.ctppsDQM_cff")
