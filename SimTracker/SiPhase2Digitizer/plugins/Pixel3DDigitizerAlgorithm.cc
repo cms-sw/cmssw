@@ -1,47 +1,19 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/Pixel3DDigitizerAlgorithm.h"
 
-//#include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
-//#include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
-
-//#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-//#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-//#include "CLHEP/Random/RandGaussQ.h"
-//#include "CLHEP/Random/RandFlat.h"
-
 // Framework infrastructure
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "FWCore/Utilities/interface/Exception.h"
 
 // Calibration & Conditions
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
-//#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
-//#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-//#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-//#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-//#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
-//#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
-//#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
-//#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-//#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 //#include <iostream>
 #include <cmath>
