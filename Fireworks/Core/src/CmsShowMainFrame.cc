@@ -26,7 +26,6 @@
 #include <TGStatusBar.h>
 #include <KeySymbols.h>
 #include <TGSlider.h>
-#include "TVirtualX.h"
 #include <TSystem.h>
 #include <TImage.h>
 #include <TEnv.h>
