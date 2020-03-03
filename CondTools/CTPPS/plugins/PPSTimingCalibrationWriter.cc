@@ -18,7 +18,7 @@
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+#include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 #include <memory>
