@@ -133,6 +133,6 @@ RecoJetsFEVT = cms.PSet(
 RecoJetsFEVT.outputCommands.extend(RecoJetsRECO.outputCommands)
 
 RecoGenJetsFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoGenJets_*_*_*')
+    outputCommands = cms.untracked.vstring('keep recoGenJets_ak*_*_*')
 )
 RecoGenJetsFEVT.outputCommands.extend(RecoGenJetsRECO.outputCommands)
