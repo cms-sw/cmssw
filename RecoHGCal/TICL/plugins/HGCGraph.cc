@@ -51,32 +51,25 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
       if (std::abs(r.origin.eta()) > etaLimitIncreaseWindow) {
         etaWindow++;
         phiWindow++;
-        LogDebug("HGCGraph") << "Limit of Eta for increase: "
-          << etaLimitIncreaseWindow
-          << " reached! Increasing inner search window"
-          << std::endl;
+        LogDebug("HGCGraph") << "Limit of Eta for increase: " << etaLimitIncreaseWindow
+                             << " reached! Increasing inner search window" << std::endl;
       }
       startEtaBin = std::max(entryEtaBin - etaWindow, 0);
       endEtaBin = std::min(entryEtaBin + etaWindow + 1, nEtaBins);
       startPhiBin = entryPhiBin - phiWindow;
       endPhiBin = entryPhiBin + phiWindow + 1;
       if (verbosity_ > Guru) {
-        LogDebug("HGCGraph") << " Entrance eta, phi: " << r.origin.eta()
-          << ", " << r.origin.phi() << " entryEtaBin: " << entryEtaBin
-          << " entryPhiBin: " << entryPhiBin
-          << " globalBin: " << firstLayerHisto.globalBin(r.origin.eta(), r.origin.phi())
-          << " on layer: " << firstLayerOnZSide
-          << " startEtaBin: " << startEtaBin
-          << " endEtaBin: " << endEtaBin
-          << " startPhiBin: " << startPhiBin
-          << " endPhiBin: " << endPhiBin
-          << " phiBin(0): " << firstLayerHisto.phiBin(0.)
-          << " phiBin(" << M_PI/2. << "): " << firstLayerHisto.phiBin(M_PI/2.)
-          << " phiBin(" << M_PI << "): " << firstLayerHisto.phiBin(M_PI)
-          << " phiBin(" << -M_PI/2. << "): " << firstLayerHisto.phiBin(-M_PI/2.)
-          << " phiBin(" << -M_PI << "): " << firstLayerHisto.phiBin(-M_PI)
-          << " phiBin(" << 2.*M_PI << "): " << firstLayerHisto.phiBin(2.*M_PI)
-          << std::endl;
+        LogDebug("HGCGraph") << " Entrance eta, phi: " << r.origin.eta() << ", " << r.origin.phi()
+                             << " entryEtaBin: " << entryEtaBin << " entryPhiBin: " << entryPhiBin
+                             << " globalBin: " << firstLayerHisto.globalBin(r.origin.eta(), r.origin.phi())
+                             << " on layer: " << firstLayerOnZSide << " startEtaBin: " << startEtaBin
+                             << " endEtaBin: " << endEtaBin << " startPhiBin: " << startPhiBin
+                             << " endPhiBin: " << endPhiBin << " phiBin(0): " << firstLayerHisto.phiBin(0.)
+                             << " phiBin(" << M_PI / 2. << "): " << firstLayerHisto.phiBin(M_PI / 2.) << " phiBin("
+                             << M_PI << "): " << firstLayerHisto.phiBin(M_PI) << " phiBin(" << -M_PI / 2.
+                             << "): " << firstLayerHisto.phiBin(-M_PI / 2.) << " phiBin(" << -M_PI
+                             << "): " << firstLayerHisto.phiBin(-M_PI) << " phiBin(" << 2. * M_PI
+                             << "): " << firstLayerHisto.phiBin(2. * M_PI) << std::endl;
       }
     }
 
@@ -88,9 +81,8 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
         auto const &innerLayerHisto = histo[currentInnerLayerId];
         const int etaLimitIncreaseWindowBin = innerLayerHisto.etaBin(etaLimitIncreaseWindow);
         if (verbosity_ > Advanced) {
-          LogDebug("HGCGraph") << "Limit of Eta for increase: "
-            << etaLimitIncreaseWindow << " at etaBin: " << etaLimitIncreaseWindowBin
-            << std::endl;
+          LogDebug("HGCGraph") << "Limit of Eta for increase: " << etaLimitIncreaseWindow
+                               << " at etaBin: " << etaLimitIncreaseWindowBin << std::endl;
         }
 
         for (int ieta = startEtaBin; ieta < endEtaBin; ++ieta) {
@@ -99,10 +91,8 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
             int iphi = ((iphi_it % nPhiBins + nPhiBins) % nPhiBins);
             if (verbosity_ > Guru) {
               LogDebug("HGCGraph") << "Inner Global Bin: " << (offset + iphi)
-                << " on layers I/O: " << currentInnerLayerId
-                << "/" << currentOuterLayerId
-                << " with clusters: " << innerLayerHisto[offset + iphi].size()
-                << std::endl;
+                                   << " on layers I/O: " << currentInnerLayerId << "/" << currentOuterLayerId
+                                   << " with clusters: " << innerLayerHisto[offset + iphi].size() << std::endl;
             }
             for (auto innerClusterId : innerLayerHisto[offset + iphi]) {
               // Skip masked clusters
@@ -140,10 +130,9 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                   auto ophi = ((iphi + phiRange - phiWindow) % nPhiBins + nPhiBins) % nPhiBins;
                   if (verbosity_ > Guru) {
                     LogDebug("HGCGraph") << "Outer Global Bin: " << (oeta * nPhiBins + ophi)
-                      << " on layers I/O: " << currentInnerLayerId
-                      << "/" << currentOuterLayerId
-                      << " with clusters: " << innerLayerHisto[oeta * nPhiBins + ophi].size()
-                      << std::endl;
+                                         << " on layers I/O: " << currentInnerLayerId << "/" << currentOuterLayerId
+                                         << " with clusters: " << innerLayerHisto[oeta * nPhiBins + ophi].size()
+                                         << std::endl;
                   }
                   for (auto outerClusterId : outerLayerHisto[oeta * nPhiBins + ophi]) {
                     // Skip masked clusters

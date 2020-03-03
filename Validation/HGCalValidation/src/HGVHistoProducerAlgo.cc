@@ -2395,9 +2395,9 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
 
   }  //end of loop through multiclusters
 
-  histograms.h_multiclusternum[count]->Fill(tnmclmz+tnmclpz);
-  histograms.h_contmulticlusternum[count]->Fill(tncontmclpz+tncontmclmz);
-  histograms.h_noncontmulticlusternum[count]->Fill(tnnoncontmclpz+tnnoncontmclmz);
+  histograms.h_multiclusternum[count]->Fill(tnmclmz + tnmclpz);
+  histograms.h_contmulticlusternum[count]->Fill(tncontmclpz + tncontmclmz);
+  histograms.h_noncontmulticlusternum[count]->Fill(tnnoncontmclpz + tnnoncontmclmz);
 
   multiClusters_to_CaloParticles(histograms, count, multiClusters, cP, cPIndices, cPSelectedIndices, hitMap, layers);
 }

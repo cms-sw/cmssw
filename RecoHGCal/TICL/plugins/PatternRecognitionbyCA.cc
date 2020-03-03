@@ -107,13 +107,13 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       }
 
       if (algo_verbosity_ > Advanced) {
-        LogDebug("HGCPatternRecoByCA") << " New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
-                                      << innerCluster << " " << input.layerClusters[innerCluster].x() << " "
-                                      << input.layerClusters[innerCluster].y() << " "
-                                      << input.layerClusters[innerCluster].z() << " OuterCl " << outerCluster << " "
-                                      << input.layerClusters[outerCluster].x() << " "
-                                      << input.layerClusters[outerCluster].y() << " "
-                                      << input.layerClusters[outerCluster].z() << " " << tracksterId << std::endl;
+        LogDebug("HGCPatternRecoByCA") << " New doublet " << doublet << " for trackster: " << result.size()
+                                       << " InnerCl " << innerCluster << " " << input.layerClusters[innerCluster].x()
+                                       << " " << input.layerClusters[innerCluster].y() << " "
+                                       << input.layerClusters[innerCluster].z() << " OuterCl " << outerCluster << " "
+                                       << input.layerClusters[outerCluster].x() << " "
+                                       << input.layerClusters[outerCluster].y() << " "
+                                       << input.layerClusters[outerCluster].z() << " " << tracksterId << std::endl;
       }
     }
     for (auto const i : effective_cluster_idx) {
@@ -146,7 +146,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       trackster.vertex_multiplicity[i] = layer_cluster_usage[trackster.vertices[i]];
       if (algo_verbosity_ > Basic)
         LogDebug("HGCPatternRecoByCA") << "LayerID: " << trackster.vertices[i]
-          << " count: " << (int)trackster.vertex_multiplicity[i] << std::endl;
+                                       << " count: " << (int)trackster.vertex_multiplicity[i] << std::endl;
     }
   }
 
@@ -157,8 +157,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     tmp.swap(result);
   }
 
-  ticl::assignPCAtoTracksters(result, input.layerClusters,
-      rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+  ticl::assignPCAtoTracksters(result, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
@@ -167,30 +166,27 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
       LogDebug("HGCPatternRecoByCA") << "Size: " << trackster.vertices.size() << std::endl;
       auto counter = 0;
-      for (auto const & p : trackster.id_probabilities) {
+      for (auto const &p : trackster.id_probabilities) {
         LogDebug("HGCPatternRecoByCA") << counter++ << ": " << p << std::endl;
       }
     }
   }
 }
 
-
-void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> & input,
-    const std::vector<reco::CaloCluster> &layerClusters,
-    std::vector<Trackster> & output) const {
-
+void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> &input,
+                                                const std::vector<reco::CaloCluster> &layerClusters,
+                                                std::vector<Trackster> &output) const {
   std::map<int, int> seedIndices;
 
   output.reserve(input.size());
 
-  for (auto const  & t : input) {
+  for (auto const &t : input) {
     if (seedIndices.find(t.seedIndex) != seedIndices.end()) {
       if (algo_verbosity_ > Basic) {
         LogDebug("HGCPatternRecoByCA") << "Seed index: " << t.seedIndex
-          << " already used by trackster: " << seedIndices[t.seedIndex]
-          << std::endl;
+                                       << " already used by trackster: " << seedIndices[t.seedIndex] << std::endl;
       }
-      auto & old = output[seedIndices[t.seedIndex]];
+      auto &old = output[seedIndices[t.seedIndex]];
       auto updated_size = old.vertices.size();
       if (algo_verbosity_ > Basic) {
         LogDebug("HGCPatternRecoByCA") << "Old size: " << updated_size << std::endl;
@@ -201,18 +197,14 @@ void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> & i
       }
       old.vertices.reserve(updated_size);
       old.vertex_multiplicity.reserve(updated_size);
-      std::copy(std::begin(t.vertices),
-          std::end(t.vertices),
-          std::back_inserter(old.vertices)
-          );
+      std::copy(std::begin(t.vertices), std::end(t.vertices), std::back_inserter(old.vertices));
       std::copy(std::begin(t.vertex_multiplicity),
-          std::end(t.vertex_multiplicity),
-          std::back_inserter(old.vertex_multiplicity)
-          );
+                std::end(t.vertex_multiplicity),
+                std::back_inserter(old.vertex_multiplicity));
     } else {
       if (algo_verbosity_ > Basic) {
         LogDebug("HGCPatternRecoByCA") << "Passing down trackster " << output.size()
-          << " with seedIndex: " << t.seedIndex << std::endl;
+                                       << " with seedIndex: " << t.seedIndex << std::endl;
       }
       seedIndices[t.seedIndex] = output.size();
       output.push_back(t);
