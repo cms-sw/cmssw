@@ -47,6 +47,44 @@ RecoGenJetsAOD = cms.PSet(
                                            'keep *_genParticle_*_*'
                                            )
 )
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+#products from regular pp which does not fit the normal AOD
+for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify( RecoJetsAOD.outputCommands, 
+                func=lambda outputCommands: outputCommands.extend(['keep *_towerMaker_*_*'])
+                )
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify( RecoJetsAOD.outputCommands,
+                func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_hiCentrality_*_*',
+                                                                   'keep recoClusterCompatibility*_hiClusterCompatibility_*_*'
+                                                                   ])
+                )
+#HI-specific products: needed in AOD, propagate to more inclusive tiers as well
+pA_2016.toModify( RecoJetsAOD.outputCommands, 
+                  func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*',
+                                                                     'keep *_hiFJGridEmptyAreaCalculator_*_*',
+                                                                     'keep *_hiFJRhoProducer_*_*'
+                                                                     ])
+                )
+#HI-specific products: needed in AOD, propagate to more inclusive tiers as well
+peripheralPbPb.toModify( RecoJetsAOD.outputCommands, 
+                         func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*'])
+                         )
+
+pp_on_AA_2018.toModify( RecoJetsAOD.outputCommands, 
+                        func=lambda outputCommands: outputCommands.extend(['keep *_hiCentrality_*_*',
+                                                                           'keep *_hiFJRhoProducer_*_*',
+                                                                           'keep *_akPu3PFJets_*_*',
+                                                                           'keep *_akPu4PFJets_*_*',
+                                                                           'keep *_kt4PFJetsForRho_*_*',
+                                                                           'keep *_akCs4PFJets_*_*',
+                                                                           'keep *_akPu4CaloJets_*_*',
+                                                                           'drop *_caloTowers_*_*'
+                                                                           ])
+                        )
 #RECO content
 RecoJetsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_ak4CaloJets_*_*',
@@ -98,42 +136,3 @@ RecoGenJetsFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoGenJets_*_*_*')
 )
 RecoGenJetsFEVT.outputCommands.extend(RecoGenJetsRECO.outputCommands)
-
-from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
-from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-#products from regular pp which does not fit the normal AOD
-for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify( RecoJetsAOD.outputCommands, 
-                func=lambda outputCommands: outputCommands.extend(['keep *_towerMaker_*_*'])
-                )
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify( RecoJetsAOD.outputCommands,
-                func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_hiCentrality_*_*',
-                                                                   'keep recoClusterCompatibility*_hiClusterCompatibility_*_*'
-                                                                   ])
-                )
-#HI-specific products: needed in AOD, propagate to more inclusive tiers as well
-pA_2016.toModify( RecoJetsAOD.outputCommands, 
-                  func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*',
-                                                                     'keep *_hiFJGridEmptyAreaCalculator_*_*',
-                                                                     'keep *_hiFJRhoProducer_*_*'
-                                                                     ])
-                )
-#HI-specific products: needed in AOD, propagate to more inclusive tiers as well
-peripheralPbPb.toModify( RecoJetsAOD.outputCommands, 
-                         func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*'])
-                         )
-
-pp_on_AA_2018.toModify( RecoJetsAOD.outputCommands, 
-                        func=lambda outputCommands: outputCommands.extend(['keep *_hiCentrality_*_*',
-                                                                           'keep *_hiFJRhoProducer_*_*',
-                                                                           'keep *_akPu3PFJets_*_*',
-                                                                           'keep *_akPu4PFJets_*_*',
-                                                                           'keep *_kt4PFJetsForRho_*_*',
-                                                                           'keep *_akCs4PFJets_*_*',
-                                                                           'keep *_akPu4CaloJets_*_*',
-                                                                           'drop *_caloTowers_*_*'
-                                                                           ])
-                        )
