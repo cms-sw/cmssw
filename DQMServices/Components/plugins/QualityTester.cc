@@ -303,7 +303,7 @@ std::unique_ptr<QCriterion> QualityTester::makeQCriterion(boost::property_tree::
                         auto test = std::make_unique<DeadChannel>(name);
                         test->setWarningProb(config.get<float>("warning", QCriterion::WARNING_PROB_THRESHOLD));
                         test->setErrorProb(config.get<float>("error", QCriterion::ERROR_PROB_THRESHOLD));
-                        test->setThreshold(config.get<int>("threshold"));
+                        test->setThreshold(config.get<float>("threshold"));
                         return test;
                       }},
                      {MeanWithinExpected::getAlgoName(),
