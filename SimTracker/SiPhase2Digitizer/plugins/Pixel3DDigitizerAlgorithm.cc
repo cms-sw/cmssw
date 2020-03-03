@@ -388,7 +388,6 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         << "Drift distance = " << drift_distance * 1.0_um_inv << " [um], "
         << "Initial electrons = " << super_charge.energy()
         << " [electrons], Electrons after loss/diff= " << energyOnCollector << " [electrons] ";
-    //DigitizerUtility::SignalPoint sp(CloudCenterX, CloudCenterY, Sigma_x, Sigma_y, hit.tof(), energyOnCollector);
     // Load the Charge distribution parameters
     // XXX -- probably makes no sense the SignalPoint anymore...
     collection_points.push_back(DigitizerUtility::SignalPoint(
