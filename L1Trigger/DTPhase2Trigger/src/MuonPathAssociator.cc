@@ -602,7 +602,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                   best_layer = dtLId.layer();
                   best_lat = lat;
                   matched_digis++;
-                } else if ((fabs(x_inSL1 - x_wire) >= minx) && (fabs(x_inSL1 - x_wire < min2x))) {
+                } else if ((fabs(x_inSL1 - x_wire) >= minx) && (fabs(x_inSL1 - x_wire) < min2x)) {
                   minx = fabs(x_inSL1 - x_wire);
                   next_wire = (*digiIt).wire();
                   next_tdc = (*digiIt).time();
