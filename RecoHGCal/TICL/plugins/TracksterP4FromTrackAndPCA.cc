@@ -1,4 +1,5 @@
-// Plugin for getting the four-vector from a Trackster from the track, if present, of from PCA decomposition
+// Plugin for getting the four-vector of a Trackster from the track, if
+// present, or from PCA decomposition.
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Math/interface/LorentzVector.h"

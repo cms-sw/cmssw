@@ -15,7 +15,7 @@ hgcalValidator = DQMEDAnalyzer(
     #2dlayerclusters, pfclusters, multiclusters
     label_lcl = cms.InputTag("hgcalLayerClusters"),
     label_mcl = cms.VInputTag(
-      cms.InputTag("multiClustersFromTrackstersTrk", "TrkMultiClustersFromTracksterByCA"),
+      cms.InputTag("multiClustersFromTrackstersTrk", "MultiClustersFromTracksterByCA"),
       cms.InputTag("multiClustersFromTrackstersEM", "MultiClustersFromTracksterByCA"),
       cms.InputTag("multiClustersFromTrackstersHAD", "MultiClustersFromTracksterByCA"),
       cms.InputTag("multiClustersFromTrackstersMerge", "MultiClustersFromTracksterByCA")),

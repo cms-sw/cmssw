@@ -28,8 +28,6 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
     float weight = 1.f / N;
     float weights2_sum = 0.f;
     Eigen::Vector3d sigmas; sigmas << 0., 0., 0.;
-    Eigen::Vector3d sigmas_; sigmas_ << 0., 0., 0.;
-    Eigen::Vector3d sigmasPCA; sigmasPCA << 0., 0., 0.;
     Eigen::Vector3d sigmasEigen; sigmasEigen << 0., 0., 0.;
     Eigen::Matrix3d covM = Eigen::Matrix3d::Zero();
 
@@ -40,7 +38,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> & tracksters,
         trackster.raw_em_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
 
       // Compute the weighted barycenter.
-      if (energyWeight && trackster.raw_energy)
+      if (energyWeight)
         weight = layerClusters[trackster.vertices[i]].energy() * fraction;
       fillPoint(layerClusters[trackster.vertices[i]], weight);
       for (size_t j=0; j<3; ++j)
