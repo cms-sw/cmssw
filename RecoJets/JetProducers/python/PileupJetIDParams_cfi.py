@@ -103,6 +103,52 @@ full_81x_chs = cms.PSet(
         JetIdParams = full_81x_chs_wp,
         label = cms.string("full")
 )
+####################################################################################################################
+trainingVariables_102X_Eta0To3 = [
+                            "nvtx"      ,
+                            "beta"      ,
+                            "dR2Mean"   ,
+                            "frac01"    ,
+                            "frac02"    ,
+                            "frac03"    ,
+                            "frac04"    ,
+                            "majW"      ,
+                            "minW"      ,
+                            "jetR"      ,
+                            "jetRchg"   ,
+                            "nParticles",
+                            "nCharged"  ,
+                            "ptD"       ,
+                            "pull"      ,
+                            ]
+trainingVariables_102X_Eta3To5 = list(trainingVariables_102X_Eta0To3)
+trainingVariables_102X_Eta3To5.remove('beta')
+trainingVariables_102X_Eta3To5.remove('jetRchg')
+trainingVariables_102X_Eta3To5.remove('nCharged')
+
+full_102x_chs = full_81x_chs.clone(JetIdParams = full_102x_chs_wp)
+full_102x_chs.trainings[0].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_102X_Eta0p0To2p5_chs_BDT.weights.xml.gz"
+full_102x_chs.trainings[0].tmvaVariables = trainingVariables_102X_Eta0To3
+full_102x_chs.trainings[1].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_102X_Eta2p5To2p75_chs_BDT.weights.xml.gz"
+full_102x_chs.trainings[1].tmvaVariables = trainingVariables_102X_Eta0To3
+full_102x_chs.trainings[2].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_102X_Eta2p75To3p0_chs_BDT.weights.xml.gz"
+full_102x_chs.trainings[2].tmvaVariables = trainingVariables_102X_Eta0To3
+full_102x_chs.trainings[3].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_102X_Eta3p0To5p0_chs_BDT.weights.xml.gz"
+full_102x_chs.trainings[3].tmvaVariables = trainingVariables_102X_Eta3To5
+
+####################################################################################################################
+trainingVariables_94X_Eta0To3 = list(trainingVariables_102X_Eta0To3)
+trainingVariables_94X_Eta3To5 = list(trainingVariables_102X_Eta3To5)
+full_94x_chs = full_81x_chs.clone(JetIdParams = full_94x_chs_wp)
+full_94x_chs.trainings[0].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_94X_Eta0p0To2p5_chs_BDT.weights.xml.gz"
+full_94x_chs.trainings[0].tmvaVariables = trainingVariables_94X_Eta0To3
+full_94x_chs.trainings[1].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_94X_Eta2p5To2p75_chs_BDT.weights.xml.gz"
+full_94x_chs.trainings[1].tmvaVariables = trainingVariables_94X_Eta0To3
+full_94x_chs.trainings[2].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_94X_Eta2p75To3p0_chs_BDT.weights.xml.gz"
+full_94x_chs.trainings[2].tmvaVariables = trainingVariables_94X_Eta0To3
+full_94x_chs.trainings[3].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_94X_Eta3p0To5p0_chs_BDT.weights.xml.gz"
+full_94x_chs.trainings[3].tmvaVariables = trainingVariables_94X_Eta3To5
+
 
 
 ####################################################################################################################
@@ -208,7 +254,7 @@ full_80x_chs = cms.PSet(
         label = cms.string("full")
 )
 
-####################################################################################################################                                                                                      
+####################################################################################################################
 full_76x_chs = cms.PSet(
     impactParTkThreshold = cms.double(1.) ,
     cutBased = cms.bool(False),
@@ -310,7 +356,7 @@ full_76x_chs = cms.PSet(
     JetIdParams = full_76x_chs_wp,
     label = cms.string("full")
  )
-####################################################################################################################                                                                                      
+####################################################################################################################
 full_74x_chs = cms.PSet(
     impactParTkThreshold = cms.double(1.) ,
     cutBased = cms.bool(False),
@@ -416,7 +462,7 @@ full_74x_chs = cms.PSet(
     JetIdParams = full_74x_chs_wp,
     label = cms.string("full")
  )
-####################################################################################################################  
+####################################################################################################################
 full_53x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
@@ -426,18 +472,18 @@ full_53x = cms.PSet(
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
     "nvtx"     ,
-    "dZ"       , 
-    "beta"     , 
-    "betaStar" , 
-    "nCharged" , 
-    "nNeutrals", 
-    "dR2Mean"  , 
-    "ptD"      , 
-    "frac01"   , 
-    "frac02"   , 
-    "frac03"   , 
-    "frac04"   , 
-    "frac05"   , 
+    "dZ"       ,
+    "beta"     ,
+    "betaStar" ,
+    "nCharged" ,
+    "nNeutrals",
+    "dR2Mean"  ,
+    "ptD"      ,
+    "frac01"   ,
+    "frac02"   ,
+    "frac03"   ,
+    "frac04"   ,
+    "frac05"   ,
     ),
  tmvaSpectators = cms.vstring(
     "jetPt",
@@ -447,7 +493,7 @@ full_53x = cms.PSet(
  JetIdParams = full_53x_wp,
  label = cms.string("full53x")
  )
-####################################################################################################################  
+####################################################################################################################
 full_53x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
@@ -458,18 +504,18 @@ full_53x_chs = cms.PSet(
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
     "nvtx"     ,
-    "dZ"       , 
-    "beta"     , 
-    "betaStar" , 
-    "nCharged" , 
-    "nNeutrals", 
-    "dR2Mean"  , 
-    "ptD"      , 
-    "frac01"   , 
-    "frac02"   , 
-    "frac03"   , 
-    "frac04"   , 
-    "frac05"   , 
+    "dZ"       ,
+    "beta"     ,
+    "betaStar" ,
+    "nCharged" ,
+    "nNeutrals",
+    "dR2Mean"  ,
+    "ptD"      ,
+    "frac01"   ,
+    "frac02"   ,
+    "frac03"   ,
+    "frac04"   ,
+    "frac05"   ,
     ),
  tmvaSpectators = cms.vstring(
     "jetPt",
@@ -479,7 +525,7 @@ full_53x_chs = cms.PSet(
  JetIdParams = full_53x_chs_wp,
  label = cms.string("full")
  )
-####################################################################################################################  
+####################################################################################################################
 met_53x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
@@ -492,24 +538,24 @@ met_53x = cms.PSet(
     "jetPt"    ,
     "jetEta"   ,
     "jetPhi"   ,
-    "dZ"       , 
-    "beta"     , 
-    "betaStar" , 
-    "nCharged" , 
-    "nNeutrals", 
-    "dR2Mean"  , 
-    "ptD"      , 
-    "frac01"   , 
-    "frac02"   , 
-    "frac03"   , 
-    "frac04"   , 
-    "frac05"   , 
+    "dZ"       ,
+    "beta"     ,
+    "betaStar" ,
+    "nCharged" ,
+    "nNeutrals",
+    "dR2Mean"  ,
+    "ptD"      ,
+    "frac01"   ,
+    "frac02"   ,
+    "frac03"   ,
+    "frac04"   ,
+    "frac05"   ,
     ),
  tmvaSpectators = cms.vstring(),
  JetIdParams = met_53x_wp,
  label = cms.string("met53x")
  )
-##################################################################################################################  
+##################################################################################################################
 full_5x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
@@ -539,7 +585,7 @@ full_5x = cms.PSet(
  label = cms.string("full")
  )
 
-##################################################################################################################  
+##################################################################################################################
 full_5x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
@@ -569,15 +615,15 @@ full_5x_chs = cms.PSet(
  label = cms.string("full")
  )
 
-####################################################################################################################  
-cutbased = cms.PSet( 
+####################################################################################################################
+cutbased = cms.PSet(
  impactParTkThreshold = cms.double(1.),
  cutBased = cms.bool(True),
  JetIdParams = PuJetIdCutBased_wp,
  label = cms.string("cutbased")
  )
 
-####################################################################################################################  
+####################################################################################################################
 PhilV1 = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
