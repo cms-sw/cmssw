@@ -7,7 +7,7 @@
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
-class TF1;
+#include <TF1.h>
 
 // -*- C++ -*-
 //
@@ -43,8 +43,6 @@ class PFEnergyCalibration {
 public:
   PFEnergyCalibration();
 
-  ~PFEnergyCalibration();
-
   // ecal calibration for photons
   double energyEm(const reco::PFCluster& clusterEcal, double ePS1, double ePS2, bool crackCorrection = true) const;
 
@@ -70,9 +68,6 @@ public:
   // ECAL+HCAL (abc) calibration, with E and eta dependent coefficients, for hadrons
   void energyEmHad(double t, double& e, double& h, double eta, double phi) const;
 
-  // Initialize default E- and eta-dependent coefficient functional form
-  void initializeCalibrationFunctions();
-
   // Set the run-dependent calibration functions from the global tag
   void setCalibrationFunctions(const PerformancePayloadFromTFormula* thePFCal) { pfCalibrations = thePFCal; }
 
@@ -84,8 +79,8 @@ public:
 
 protected:
   // Calibration functions from global tag
-  const PerformancePayloadFromTFormula* pfCalibrations;
-  const ESEEIntercalibConstants* esEEInterCalib_;
+  const PerformancePayloadFromTFormula* pfCalibrations = nullptr;
+  const ESEEIntercalibConstants* esEEInterCalib_ = nullptr;
 
   // Barrel calibration (eta 0.00 -> 1.48)
   std::unique_ptr<TF1> faBarrel;
@@ -162,7 +157,8 @@ private:
   double dEtaEndcapH(double x) const;
 
   // Threshold correction (offset)
-  double threshE, threshH;
+  const double threshE = 3.5;
+  const double threshH = 2.5;
 };
 
 #endif
