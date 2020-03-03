@@ -17,8 +17,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                             tag = cms.string('XMLFILE_Geometry_TagXX_Extended2015_mc'),
-                                             connect = cms.untracked.string('sqlite_file:./myfile.db')
+                                             tag = cms.string('XMLFILE_Geometry_Extended_TagXX'),
+                                             connect = cms.string('sqlite_file:./myfile.db')
                                              )
                                     )
 
