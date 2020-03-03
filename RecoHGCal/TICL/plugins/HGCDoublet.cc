@@ -87,8 +87,8 @@ int HGCDoublet::areAligned(double xi,
   // angle between the vectors
   auto cosTheta = dot / (mag1 * mag2);
   if (debug) {
-    LogDebug("HGCDoublet") << "-- Are Aligned -- dot: " << dot << " mag1: " << mag1 << " mag2: " << mag2 << " cosTheta: " << cosTheta
-                           << " isWithinLimits: " << (cosTheta > minCosTheta) << std::endl;
+    LogDebug("HGCDoublet") << "-- Are Aligned -- dot: " << dot << " mag1: " << mag1 << " mag2: " << mag2
+                           << " cosTheta: " << cosTheta << " isWithinLimits: " << (cosTheta > minCosTheta) << std::endl;
   }
 
   // Now check the compatibility with the pointing origin.
@@ -105,8 +105,8 @@ int HGCDoublet::areAligned(double xi,
   auto mag_pointing = sqrt(pointingDir.mag2());
   auto cosTheta_pointing = dot_pointing / (mag2 * mag_pointing);
   if (debug) {
-    LogDebug("HGCDoublet") << "-- Are Aligned -- dot_pointing: " << dot_pointing << " mag_pointing: " << mag_pointing << " mag2: " << mag2
-                           << " cosTheta_pointing: " << cosTheta_pointing
+    LogDebug("HGCDoublet") << "-- Are Aligned -- dot_pointing: " << dot_pointing << " mag_pointing: " << mag_pointing
+                           << " mag2: " << mag2 << " cosTheta_pointing: " << cosTheta_pointing
                            << " isWithinLimits: " << (cosTheta_pointing > minCosPointing) << std::endl;
   }
 
