@@ -1,6 +1,6 @@
 #include "SimPPS/RPDigiProducer/plugins/DeadChannelsManager.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemSymbId.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemSymbId.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "SimPPS/RPDigiProducer/plugins/RPDisplacementGenerator.h"
 #include <map>

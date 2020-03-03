@@ -34,7 +34,7 @@
 <use   name="CondFormats/MFObjects"/>
 <use   name="CondFormats/PCLConfig"/>
 <use   name="CondFormats/SiPhase2TrackerObjects"/>
-<use   name="CondFormats/CTPPSReadoutObjects"/>
+<use   name="CondFormats/PPSObjects"/>
 <use   name="rootgraphics"/>
 <export>
   <lib   name="1"/>

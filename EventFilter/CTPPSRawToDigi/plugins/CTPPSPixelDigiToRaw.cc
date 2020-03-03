@@ -49,8 +49,8 @@ Implementation:
 #include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelDataFormatter.h"
 
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelFramePosition.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelFramePosition.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
