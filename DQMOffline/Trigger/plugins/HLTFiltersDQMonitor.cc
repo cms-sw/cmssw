@@ -145,8 +145,14 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
 
   auto const& triggerNames(hltConfigProvider_.triggerNames());
 
-  meMenu_ = iBooker.bookProfile(
-      efficPlotNamePrefix_ + hltMenuName, "Path Efficiency", triggerNames.size(), 0., triggerNames.size(), 0., 1.1);
+  meMenu_ = iBooker.bookProfile(efficPlotNamePrefix_ + hltMenuName,
+                                "Path Efficiency",
+                                triggerNames.size(),
+                                0.,
+                                triggerNames.size(),
+                                -0.1,
+                                1.1,
+                                "");
   if (meMenu_ and meMenu_->getTProfile() and meMenu_->getTProfile()->GetXaxis()) {
     for (size_t idx = 0; idx < triggerNames.size(); ++idx) {
       meMenu_->getTProfile()->GetXaxis()->SetBinLabel(idx + 1, triggerNames.at(idx).c_str());
@@ -167,7 +173,7 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
         LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]   Dataset = \"" << idset << "\"";
         const std::string meDatasetName(efficPlotNamePrefix_ + idset);
         meDatasetMap_[meDatasetName] = iBooker.bookProfile(
-            meDatasetName.c_str(), meDatasetName.c_str(), dsetPathNames.size(), 0., dsetPathNames.size(), 0., 1.1);
+            meDatasetName.c_str(), meDatasetName.c_str(), dsetPathNames.size(), 0., dsetPathNames.size(), -0.1, 1.1, "");
         TProfile* meDatasetTProf(nullptr);
         if (meDatasetMap_.at(meDatasetName)) {
           meDatasetTProf = meDatasetMap_.at(meDatasetName)->getTProfile();
@@ -206,8 +212,14 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
           }
 
           const std::string mePathName(efficPlotNamePrefix_ + idset + "_" + iPathName);
-          mePathMap_[mePathName] = iBooker.bookProfile(
-              mePathName.c_str(), iPathName.c_str(), mePath_binLabels.size(), 0., mePath_binLabels.size(), 0., 1.1);
+          mePathMap_[mePathName] = iBooker.bookProfile(mePathName.c_str(),
+                                                       iPathName.c_str(),
+                                                       mePath_binLabels.size(),
+                                                       0.,
+                                                       mePath_binLabels.size(),
+                                                       -0.1,
+                                                       1.1,
+                                                       "");
 
           if (mePathMap_.at(mePathName)) {
             auto* const mePathTProf(mePathMap_.at(mePathName)->getTProfile());
