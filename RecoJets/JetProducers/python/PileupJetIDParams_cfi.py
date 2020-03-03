@@ -103,6 +103,53 @@ full_81x_chs = cms.PSet(
         JetIdParams = full_81x_chs_wp,
         label = cms.string("full")
 )
+####################################################################################################################
+trainingVariables_102X_Eta0To3 = [
+                            "nvtx"      ,
+                            "beta"      ,
+                            "dR2Mean"   ,
+                            "frac01"    ,
+                            "frac02"    ,
+                            "frac03"    ,
+                            "frac04"    ,
+                            "majW"      ,
+                            "minW"      ,
+                            "jetR"      ,
+                            "jetRchg"   ,
+                            "nParticles",
+                            "nCharged"  ,
+                            "ptD"       ,
+                            "pull"      ,
+                            ]
+trainingVariables_102X_Eta3To5 = list(trainingVariables_102X_Eta0To3)
+trainingVariables_102X_Eta3To5.remove('beta')
+trainingVariables_102X_Eta3To5.remove('jetRchg')
+trainingVariables_102X_Eta3To5.remove('nCharged')
+
+full_102x_chs = full_81x_chs.clone(JetIdParams = full_102x_chs_wp)
+full_102x_chs.trainings[0].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_102X_Eta0p0To2p5_chs_BDT.weights.xml.gz"
+full_102x_chs.trainings[0].tmvaVariables = trainingVariables_102X_Eta0To3
+full_102x_chs.trainings[1].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_102X_Eta2p5To2p75_chs_BDT.weights.xml.gz"
+full_102x_chs.trainings[1].tmvaVariables = trainingVariables_102X_Eta0To3
+full_102x_chs.trainings[2].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_102X_Eta2p75To3p0_chs_BDT.weights.xml.gz"
+full_102x_chs.trainings[2].tmvaVariables = trainingVariables_102X_Eta0To3
+full_102x_chs.trainings[3].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_102X_Eta3p0To5p0_chs_BDT.weights.xml.gz"
+full_102x_chs.trainings[3].tmvaVariables = trainingVariables_102X_Eta3To5
+
+####################################################################################################################
+trainingVariables_94X_Eta0To3 = list(trainingVariables_102X_Eta0To3)
+trainingVariables_94X_Eta3To5 = list(trainingVariables_102X_Eta3To5)
+full_94x_chs = full_81x_chs.clone(JetIdParams = full_94x_chs_wp)
+full_94x_chs.trainings[0].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_94X_Eta0p0To2p5_chs_BDT.weights.xml.gz"
+full_94x_chs.trainings[0].tmvaVariables = trainingVariables_94X_Eta0To3
+full_94x_chs.trainings[1].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_94X_Eta2p5To2p75_chs_BDT.weights.xml.gz"
+full_94x_chs.trainings[1].tmvaVariables = trainingVariables_94X_Eta0To3
+full_94x_chs.trainings[2].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_94X_Eta2p75To3p0_chs_BDT.weights.xml.gz"
+full_94x_chs.trainings[2].tmvaVariables = trainingVariables_94X_Eta0To3
+full_94x_chs.trainings[3].tmvaWeights = "RecoJets/JetProducers/data/pileupJetId_94X_Eta3p0To5p0_chs_BDT.weights.xml.gz"
+full_94x_chs.trainings[3].tmvaVariables = trainingVariables_94X_Eta3To5
+
+
 
 
 ####################################################################################################################
