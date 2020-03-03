@@ -4,7 +4,7 @@
  * \author M. Zanetti - INFN Padova
  *
 */
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -32,7 +32,7 @@
 
 #include <boost/algorithm/string/join.hpp>
 
-class DQMEventInfo : public DQMEDAnalyzer {
+class DQMEventInfo : public DQMOneEDAnalyzer<> {
 public:
   /// Constructor
   DQMEventInfo(const edm::ParameterSet& ps);

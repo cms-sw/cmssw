@@ -61,7 +61,6 @@ public:
 
   // Operations
 
-  void beginJob() override;
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
   void tracksAnalysis(const edm::Event &event,
                       const edm::EventSetup &eventSetup,

@@ -51,8 +51,6 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
 
 SiPixelRecHitsValid::~SiPixelRecHitsValid() {}
 
-void SiPixelRecHitsValid::beginJob() {}
-
 void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
   ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
 
