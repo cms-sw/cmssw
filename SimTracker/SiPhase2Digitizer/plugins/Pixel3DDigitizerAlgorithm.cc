@@ -173,10 +173,10 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
 
   // Check the group is near the edge of the pixel, so diffusion will
   // be relevant in order to migrate between pixel cells
-  if (std::fabs(pos.x() - hpitches.first) < _max_migration_radius) {
+  if (std::abs(pos.x() - hpitches.first) < _max_migration_radius) {
     displ_ind = 0;
     pitch = hpitches.first;
-  } else if (std::fabs(pos.y() - hpitches.second) < _max_migration_radius) {
+  } else if (std::abs(pos.y() - hpitches.second) < _max_migration_radius) {
     displ_ind = 1;
     pitch = hpitches.second;
   } else {
@@ -221,7 +221,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   float distance_edge = 0.0_um;
   do {
     std::transform(pos_moving.begin(), pos_moving.end(), do_step(i).begin(), pos_moving.begin(), std::plus<float>());
-    distance_edge = std::fabs(pos_moving[displ_ind] - pitch);
+    distance_edge = std::abs(pos_moving[displ_ind] - pitch);
     // current diffusion value
     double sigma = std::sqrt(i * _diffusion_step / _distance0) * (_distance0 / thickness) * _sigma0;
     // Get the amount of charge on the neighbor pixel: note the
@@ -252,7 +252,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     }
     // Next step
     ++i;
-  } while (std::fabs(distance_edge) < _max_migration_radius);
+  } while (std::abs(distance_edge) < _max_migration_radius);
 
   return migrated_charge;
 }
