@@ -34,7 +34,6 @@ trackstersTrk = _trackstersProducer.clone(
 # MULTICLUSTERS
 
 multiClustersFromTrackstersTrk = _multiClustersFromTrackstersProducer.clone(
-    label = "TrkMultiClustersFromTracksterByCA",
     Tracksters = "trackstersTrk"
 )
 

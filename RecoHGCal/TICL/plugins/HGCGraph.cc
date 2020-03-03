@@ -58,7 +58,6 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
       }
       startEtaBin = std::max(entryEtaBin - etaWindow, 0);
       endEtaBin = std::min(entryEtaBin + etaWindow + 1, nEtaBins);
-      // TODO(any): review the logic below, could be wrong!!
       startPhiBin = entryPhiBin - phiWindow;
       endPhiBin = entryPhiBin + phiWindow + 1;
       if (verbosity_ > Guru) {
@@ -113,7 +112,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                 continue;
               }
 
-              // For global-seeded iterations, if the inner cluster is below a certain
+              // For global-seeded iterations, if the inner cluster is above a certain
               // eta-threshold, i.e., it has higher eta, make the outer search
               // window bigger in both eta and phi by one bin, to contain better low
               // energy showers. Track-Seeded iterations are excluded since, in

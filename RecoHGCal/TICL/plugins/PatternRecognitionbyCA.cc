@@ -162,13 +162,13 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
-  if (0) {
+  if (algo_verbosity_ > Advanced) {
     for (auto &trackster : result) {
-      std::cout << "Trackster characteristics: " << std::endl;
-      std::cout << "Size: " << trackster.vertices.size() << std::endl;
+      LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
+      LogDebug("HGCPatternRecoByCA") << "Size: " << trackster.vertices.size() << std::endl;
       auto counter = 0;
       for (auto const & p : trackster.id_probabilities) {
-        std::cout << counter++ << ": " << p << std::endl;
+        LogDebug("HGCPatternRecoByCA") << counter++ << ": " << p << std::endl;
       }
     }
   }

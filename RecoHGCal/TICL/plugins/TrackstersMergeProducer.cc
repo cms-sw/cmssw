@@ -1,6 +1,3 @@
-// Author: Marco Rovere, marco.rovere@cern.ch
-// Date: 11/2019
-//
 #include <memory>  // unique_ptr
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -233,11 +230,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
           << std::endl;
         dumpTrackster(t);
       }
-      // The code below is wrong since the seedIndex of a trackster is the index of the track
-      // in the track-collection of the original seeding region
-      //      auto const & original_seed = seedingTrk[t.seedIndex];
       auto const & track = tracks[t.seedIndex];
-      auto trk_pt = (float)track.pt(); //std::sqrt(original_seed.directionAtOrigin.perp2());
+      auto trk_pt = (float)track.pt();
       auto diff_pt = t.raw_pt - trk_pt;
       auto pt_err = trk_pt*resol_calo_scale_ + resol_calo_offset_;
       auto w_cal = 1./(pt_err*pt_err);
