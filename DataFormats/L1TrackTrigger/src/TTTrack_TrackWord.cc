@@ -28,7 +28,7 @@ TTTrack_TrackWord::TTTrack_TrackWord(const GlobalVector& Momentum,
 
 TTTrack_TrackWord::TTTrack_TrackWord(unsigned int theRinv,
                                      unsigned int phi0,
-                                     unsigned int eta,
+                                     unsigned int tanl,
                                      unsigned int z0,
                                      unsigned int d0,
                                      unsigned int theChi2XY,
@@ -38,7 +38,7 @@ TTTrack_TrackWord::TTTrack_TrackWord(unsigned int theRinv,
                                      unsigned int iSpare)
     : iRinv(theRinv),
       iphi(phi0),
-      ieta(eta),
+      itanl(tanl),
       iz0(z0),
       id0(d0),
       ichi2XY(theChi2XY),      //revert to other packing?  Or will be unpacked wrong
@@ -53,7 +53,7 @@ TTTrack_TrackWord::TTTrack_TrackWord(unsigned int theRinv,
 
 void TTTrack_TrackWord::setTrackWord(unsigned int theRinv,
                                      unsigned int phi0,
-                                     unsigned int eta,
+                                     unsigned int tanl,
                                      unsigned int z0,
                                      unsigned int d0,
                                      unsigned int theChi2XY,
@@ -63,7 +63,7 @@ void TTTrack_TrackWord::setTrackWord(unsigned int theRinv,
                                      unsigned int iSpare) {
   iRinv = theRinv;
   iphi = phi0;
-  ieta = eta;
+  itanl = tanl;
   iz0 = z0;
   id0 = d0;
   ichi2XY = theChi2XY;      //revert to other packing?  Or will be unpacked wrong
@@ -89,7 +89,7 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
   // first, derive quantities to be packed
 
   float rPhi = Momentum.phi();  // this needs to be phi relative to center of sector ****
-  float rEta = Momentum.eta();
+  float rTanl = Momentum.z() / Momentum.perp();
   float rZ0 = POCA.z();
   float rD0 = POCA.perp();
 
@@ -100,9 +100,9 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
   seg2 = 0;
   seg3 = 0;
 
-  //eta
+  //tanl
 
-  ieta = digitize_Signed(rEta, NEtaBits, 0, valLSBEta);
+  itanl = digitize_Signed(rTanl, NTanlBits, 0, valLSBTanl);
 
   //z0
   iz0 = digitize_Signed(rZ0, NZ0Bits, 0, valLSBZ0);
@@ -157,14 +157,14 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
   /*
     Current packing scheme. Any changes here ripple everywhere!
     
-    uint word1 = 16 (eta) + 12 (z0) + 4 (chi2) = 32 bits
+    uint word1 = 16 (tanl) + 12 (z0) + 4 (chi2) = 32 bits
     uint word2 = 12 (phi) + 13 (d0) + 7 (hitPattern) = 32 bits
     uint word3 = 15 (pT) + 3 (bend chi2) + 14 (spare/TMVA) = 32 bits
    */
 
   //now pack bits; leave hardcoded for now as am example of how this could work
 
-  seg1 = (ieta << 16);  //take care of word packing later...
+  seg1 = (itanl << 16);  //take care of word packing later...
   seg2 = (iz0 << 4);
   seg3 = ichi2XY;
 
@@ -200,20 +200,20 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
 }
 // unpack
 
-float TTTrack_TrackWord::unpack_ieta() {
+float TTTrack_TrackWord::unpack_itanl() {
   unsigned int bits = (TrackWord1 & 0xFFFF0000) >> 16;
-  float unpEta = unpack_Signed(bits, NEtaBits, valLSBEta);
-  return unpEta;
+  float unpTanl = unpack_Signed(bits, NTanlBits, valLSBTanl);
+  return unpTanl;
 }
 
-float TTTrack_TrackWord::get_ieta() {
-  float unpEta = unpack_Signed(ieta, NEtaBits, valLSBEta);
-  return unpEta;
+float TTTrack_TrackWord::get_itanl() {
+  float unpTanl = unpack_Signed(itanl, NTanlBits, valLSBTanl);
+  return unpTanl;
 }
 
-unsigned int TTTrack_TrackWord::get_etaBits() {
+unsigned int TTTrack_TrackWord::get_tanlBits() {
   //unsigned int bits =  (TrackWord1 & 0xFFFF0000) >> 16;
-  return ieta;
+  return itanl;
 }
 
 float TTTrack_TrackWord::unpack_iz0() {
@@ -363,7 +363,7 @@ void TTTrack_TrackWord::initialize() {
   
   q/R = 14+1
   phi = 11+1  (relative to sector center)
-  eta = 15+1
+  tanl = 15+1
   z0  = 11+1
   d0  = 12+1
 
@@ -381,7 +381,7 @@ void TTTrack_TrackWord::initialize() {
 
   unsigned int CurvBins = (1 << NCurvBits);
   unsigned int phiBins = (1 << NPhiBits);
-  unsigned int etaBins = (1 << NEtaBits);
+  unsigned int tanlBins = (1 << NTanlBits);
   unsigned int z0Bins = (1 << NZ0Bits);
   unsigned int d0Bins = (1 << ND0Bits);
 
@@ -390,7 +390,7 @@ void TTTrack_TrackWord::initialize() {
 
   valLSBCurv = maxCurv / float(CurvBins);
   valLSBPhi = maxPhi / float(phiBins);
-  valLSBEta = maxEta / float(etaBins);
+  valLSBTanl = maxTanl / float(tanlBins);
   valLSBZ0 = maxZ0 / float(z0Bins);
   valLSBD0 = maxD0 / float(d0Bins);
 
