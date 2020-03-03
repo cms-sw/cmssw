@@ -229,8 +229,8 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     float migrated_e = current_carriers * (1.0 - std::erf(distance_edge / sigma));
 
     LogDebug("(super-)charge diffusion") << "step-" << i << ", Initial Ne= " << ncarriers << ", "
-                                         << "r=(" << pos_moving[0] * 1.0_um_inv << ", " << pos_moving[1] * 1.0_um_inv << ", "
-                                         << pos_moving[2] * 1.0_um_inv << ") [um], "
+                                         << "r=(" << pos_moving[0] * 1.0_um_inv << ", " << pos_moving[1] * 1.0_um_inv
+                                         << ", " << pos_moving[2] * 1.0_um_inv << ") [um], "
                                          << "Migrated charge: " << migrated_e;
 
     // No charge was migrated (ignore creation time)
