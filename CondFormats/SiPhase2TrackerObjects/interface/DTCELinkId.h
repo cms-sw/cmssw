@@ -19,10 +19,11 @@ Implementation:
 //
 //
 
-#include <cstdint>
-#include <limits>
-
 #include "CondFormats/Serialization/interface/Serializable.h"
+
+#include <cstdint>
+#include <functional>
+#include <limits>
 
 class DTCELinkId {
 public:

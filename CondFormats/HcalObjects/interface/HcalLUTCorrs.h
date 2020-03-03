@@ -12,6 +12,9 @@ POOL object to store LUT Corrections
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorr.h"
 
+#include <string>
+#include <cstdint>
+
 //typedef HcalCondObjectContainer<HcalLUTCorr> HcalLUTCorrs;
 
 class HcalLUTCorrs : public HcalCondObjectContainer<HcalLUTCorr> {
@@ -21,7 +24,7 @@ public:
 #endif
   HcalLUTCorrs(const HcalTopology* topo) : HcalCondObjectContainer<HcalLUTCorr>(topo) {}
 
-  std::string myname() const override { return (std::string) "HcalLUTCorrs"; }
+  std::string myname() const { return (std::string) "HcalLUTCorrs"; }
 
 private:
   COND_SERIALIZABLE;
