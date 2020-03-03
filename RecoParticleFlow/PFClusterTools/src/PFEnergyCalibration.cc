@@ -7,23 +7,13 @@
 #include <TMath.h>
 #include <cmath>
 #include <vector>
-#include <TF1.h>
 #include <map>
 #include <algorithm>
 #include <numeric>
 
 using namespace std;
 
-PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(nullptr), esEEInterCalib_(nullptr) {
-  initializeCalibrationFunctions();
-}
-
-PFEnergyCalibration::~PFEnergyCalibration() {}
-
-void PFEnergyCalibration::initializeCalibrationFunctions() {
-  threshE = 3.5;
-  threshH = 2.5;
-
+PFEnergyCalibration::PFEnergyCalibration() {
   //calibChrisClean.C calibration parameters bhumika Nov, 2018
   faBarrel = std::make_unique<TF1>(
       "faBarrel", "[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))", 0., 1000.);
@@ -168,46 +158,34 @@ PFEnergyCalibration::CalibratedEndcapPFClusterEnergies PFEnergyCalibration::cali
     bool applyCrackCorrections) const {
   double ps1_energy_sum = 0.;
   double ps2_energy_sum = 0.;
-  double ePS1 = 0.;
-  double ePS2 = 0.;
-  int condP1 = 1;
-  int condP2 = 1;
+  bool condP1 = true;
+  bool condP2 = true;
 
   for (auto const& psclus : psClusterPointers) {
-    auto const& recH_Frac = psclus->recHitFractions();
+    bool cond = true;
+    for (auto const& recH : psclus->recHitFractions()) {
+      auto strip = recH.recHitRef()->detId();
+      if (strip != ESDetId(0)) {
+        //getStatusCode() == 0 => active channel
+        // apply correction if all recHits are dead
+        if (channelStatus.getMap().find(strip)->getStatusCode() == 0) {
+          cond = false;
+          break;
+        }
+      }
+    }
 
-    switch (psclus->layer()) {
-      case PFLayer::PS1:
-        ps1_energy_sum += psclus->energy();
-        for (auto const& recH : recH_Frac) {
-          ESDetId strip1 = recH.recHitRef()->detId();
-          if (strip1 != ESDetId(0)) {
-            //getStatusCode() == 0 => active channel
-            // apply correction if all recHits are dead
-            if (channelStatus.getMap().find(strip1)->getStatusCode() == 0)
-              condP1 = 0;
-          }
-        }
-        break;
-      case PFLayer::PS2:
-        ps2_energy_sum += psclus->energy();
-        for (auto const& recH : recH_Frac) {
-          ESDetId strip2 = recH.recHitRef()->detId();
-          if (strip2 != ESDetId(0)) {
-            if (channelStatus.getMap().find(strip2)->getStatusCode() == 0)
-              condP2 = 0;
-          }
-        }
-        break;
-      default:
-        break;
+    if (psclus->layer() == PFLayer::PS1) {
+      ps1_energy_sum += psclus->energy();
+      condP1 &= cond;
+    } else if (psclus->layer() == PFLayer::PS2) {
+      ps2_energy_sum += psclus->energy();
+      condP2 &= cond;
     }
   }
 
-  if (condP1 == 1)
-    ePS1 = -1.;
-  if (condP2 == 1)
-    ePS2 = -1.;
+  double ePS1 = condP1 ? -1. : 0.;
+  double ePS2 = condP2 ? -1. : 0.;
 
   double cluscalibe = energyEm(eeCluster, ps1_energy_sum, ps2_energy_sum, ePS1, ePS2, applyCrackCorrections);
 
@@ -216,11 +194,9 @@ PFEnergyCalibration::CalibratedEndcapPFClusterEnergies PFEnergyCalibration::cali
 
 void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta, double phi) const {
   // Use calorimetric energy as true energy for neutral particles
-  double tt = t;
-  double ee = e;
-  double hh = h;
-  double a = 1.;
-  double b = 1.;
+  const double tt = t;
+  const double ee = e;
+  const double hh = h;
   double etaCorrE = 1.;
   double etaCorrH = 1.;
   auto absEta = std::abs(eta);
@@ -231,8 +207,8 @@ void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta
   // Barrel calibration
   if (absEta < 1.48) {
     // The energy correction
-    a = e > 0. ? aBarrel(t) : 1.;
-    b = e > 0. ? bBarrel(t) : cBarrel(t);
+    double a = e > 0. ? aBarrel(t) : 1.;
+    double b = e > 0. ? bBarrel(t) : cBarrel(t);
     double thresh = e > 0. ? threshE : threshH;
 
     // Protection against negative calibration
@@ -262,8 +238,8 @@ void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta
     // Endcap calibration
   } else {
     // The energy correction
-    a = e > 0. ? aEndcap(t) : 1.;
-    b = e > 0. ? bEndcap(t) : cEndcap(t);
+    double a = e > 0. ? aEndcap(t) : 1.;
+    double b = e > 0. ? bEndcap(t) : cEndcap(t);
     double thresh = e > 0. ? threshE : threshH;
 
     // Protection against negative calibration
@@ -277,8 +253,8 @@ void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta
     t = min(999.9, max(tt, thresh + a * e + b * h));
 
     // The angular correction
-    double dEta = std::abs(absEta - 1.5);
-    double etaPow = dEta * dEta * dEta * dEta;
+    const double dEta = std::abs(absEta - 1.5);
+    const double etaPow = dEta * dEta * dEta * dEta;
 
     if (e > 0. && thresh > 0.) {
       if (absEta < 2.5) {
@@ -543,16 +519,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
                                      double ePS1,
                                      double ePS2,
                                      bool crackCorrection) const {
-  double eEcal = clusterEcal.energy();
-  //temporaty ugly fix
-  reco::PFCluster myPFCluster = clusterEcal;
-  myPFCluster.calculatePositionREP();
-  double eta = myPFCluster.positionREP().eta();
-  double phi = myPFCluster.positionREP().phi();
-
-  double calibrated = Ecorr(eEcal, ePS1, ePS2, eta, phi, crackCorrection);
-  // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl;
-  return calibrated;
+  return Ecorr(clusterEcal.energy(), ePS1, ePS2, clusterEcal.eta(), clusterEcal.phi(), crackCorrection);
 }
 
 double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
@@ -561,16 +528,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
                                      double& ps1,
                                      double& ps2,
                                      bool crackCorrection) const {
-  double eEcal = clusterEcal.energy();
-  //temporaty ugly fix
-  reco::PFCluster myPFCluster = clusterEcal;
-  myPFCluster.calculatePositionREP();
-  double eta = myPFCluster.positionREP().eta();
-  double phi = myPFCluster.positionREP().phi();
-
-  double calibrated = Ecorr(eEcal, ePS1, ePS2, eta, phi, ps1, ps2, crackCorrection);
-  // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl;
-  return calibrated;
+  return Ecorr(clusterEcal.energy(), ePS1, ePS2, clusterEcal.eta(), clusterEcal.phi(), ps1, ps2, crackCorrection);
 }
 
 std::ostream& operator<<(std::ostream& out, const PFEnergyCalibration& calib) {

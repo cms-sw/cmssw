@@ -320,7 +320,7 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
       energyweighttot(0);
   for (auto& clus : clustered) {
     double ePS1 = 0.0;
-    double ePS2 = 0;
+    double ePS2 = 0.0;
     energyweight = clus->energy_nocalib();
     bare_ptrs.push_back(clus->the_ptr().get());
     // update EE calibrated super cluster energies
