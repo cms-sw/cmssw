@@ -15,16 +15,6 @@
 */
 // Author:  J.Duarte-Campderros (IFCA)
 // Created: 2019-10-02
-//
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "FWCore/Utilities/interface/InputTag.h"
-//#include "DataFormats/Math/interface/deltaPhi.h"
-//#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
-//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-//
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -49,9 +39,6 @@
 #include <map>
 #include <functional>
 #include <cstdint>
-//#inclu de <memory>
-//#include <cmath>
-//
 
 //class MonitorElement;
 class GeomDet;
