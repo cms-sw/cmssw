@@ -333,9 +333,9 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
         // fill MonitorElement: Path (bin: filter)
         auto const mePathName(efficPlotNamePrefix_ + idset + "_" + iPathName);
         if (mePathMap_.find(mePathName) != mePathMap_.end()) {
-          auto* const meTProf_path(mePathMap_.at(mePathName)->getTProfile());
-          if (meTProf_path) {
-            auto* const axis(meTProf_path->GetXaxis());
+          auto* const mePathTProf(mePathMap_.at(mePathName)->getTProfile());
+          if (mePathTProf) {
+            auto* const axis(mePathTProf->GetXaxis());
             if (axis) {
               unsigned indexLastFilterPathModules(triggerResults->index(pathIndex) + 1);
               LogTrace("") << "[HLTFiltersDQMonitor::analyze]         "
@@ -401,7 +401,7 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
                              << ", previousFilterAccept = " << previousFilterAccept;
                 auto const ibin(axis->FindBin(moduleLabel.c_str()));
                 if ((0 < ibin) and (ibin <= axis->GetNbins())) {
-                  meTProf_path->Fill(ibin - 0.5, filterAccept);
+                  mePathTProf->Fill(ibin - 0.5, filterAccept);
                 }
                 previousFilterAccept = filterAccept;
               }
