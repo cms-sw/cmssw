@@ -15,6 +15,7 @@
 #include "TSystem.h"
 #include "TVirtualX.h"
 #include "TPRegexp.h"
+#include "TVirtualX.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"

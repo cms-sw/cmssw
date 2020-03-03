@@ -32,6 +32,7 @@
 #include "TGSlider.h"
 #include "TGMsgBox.h"
 #include "TGComboBox.h"
+#include "TVirtualX.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowEDI.h"

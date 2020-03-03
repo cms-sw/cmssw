@@ -1,5 +1,6 @@
 #include "TGMenu.h"
 #include "KeySymbols.h"
+#include "TVirtualX.h"
 
 class FWPopupMenu : public TGPopupMenu {
 public:
