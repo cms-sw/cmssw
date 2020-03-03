@@ -35,7 +35,6 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
-
 class BtlRecoValidation : public DQMEDAnalyzer {
 public:
   explicit BtlRecoValidation(const edm::ParameterSet&);
@@ -48,7 +47,7 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-// ------------ member data ------------
+  // ------------ member data ------------
 
   const std::string folder_;
   const float hitMinEnergy_;
@@ -109,8 +108,10 @@ void BtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // --- Loop over the BTL RECO tracks ---
   for (const auto& track : *btlRecTrackHandle) {
-    if (fabs(track.eta()) > trackMinEta_) continue;
-    if (track.pt() < trackMinEnergy_) continue;
+    if (fabs(track.eta()) > trackMinEta_)
+      continue;
+    if (track.pt() < trackMinEnergy_)
+      continue;
 
     // --- all BTL tracks (with and without hit in MTD) ---
     meTrackEffEtaTot_->Fill(track.eta());
@@ -120,11 +121,12 @@ void BtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
     bool MTDBtl = false;
     for (const auto hit : track.recHits()) {
       MTDDetId Hit = hit->geographicalId();
-      if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 1) )  MTDBtl = true;
+      if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 1))
+        MTDBtl = true;
     }
-   
+
     // --- keeping only tracks with last hit in MTD ---
-    if (MTDBtl == true)  { 
+    if (MTDBtl == true) {
       meTrackEffEtaMtd_->Fill(track.eta());
       meTrackEffPhiMtd_->Fill(track.phi());
       meTrackEffPtMtd_->Fill(track.pt());
@@ -138,28 +140,29 @@ void BtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (v.isValid()) {
       meVerZ_->Fill(v.z());
       meVerTime_->Fill(v.t());
-      nv++; 
-    }
-    else cout << "The vertex is not valid" << endl;
+      nv++;
+    } else
+      cout << "The vertex is not valid" << endl;
   }
   meVerNumber_->Fill(nv);
 
   // --- Loop over the BTL RECO clusters ---
   for (const auto& DetSetClu : *btlRecCluHandle) {
     for (const auto& cluster : DetSetClu) {
-      if (cluster.energy() < hitMinEnergy_ ) continue;
+      if (cluster.energy() < hitMinEnergy_)
+        continue;
       BTLDetId cluId = cluster.id();
       DetId detIdObject(cluId);
       const auto& genericDet = geom->idToDetUnit(detIdObject);
       if (genericDet == nullptr) {
         throw cms::Exception("BtlRecoValidation")
-            << "GeographicalID: " << std::hex << cluId  << " is invalid!" << std::dec << std::endl;
+            << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
 
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-      Local3DPoint local_point(cluster.x()*5.7, cluster.y()*0.3, 0.);
+      Local3DPoint local_point(cluster.x() * 5.7, cluster.y() * 0.3, 0.);
       local_point = topo.pixelToModuleLocalPoint(local_point, cluId.row(topo.nrows()), cluId.column(topo.ncolumns()));
       const auto& global_point = genericDet->toGlobal(local_point);
 
@@ -174,18 +177,17 @@ void BtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
 }
 
 // ------------ method for histogram booking ------------
-void BtlRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
-                                          edm::Run const& run,
-                                          edm::EventSetup const& iSetup) {
+void BtlRecoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
 
-// histogram booking
+  // histogram booking
   meCluTime_ = ibook.book1D("BtlCluTime", "BTL cluster time ToA;ToA [ns]", 250, 0, 25);
   meCluEnergy_ = ibook.book1D("BtlCluEnergy", "BTL cluster energy;E_{RECO} [MeV]", 100, 0, 20);
   meCluPhi_ = ibook.book1D("BtlCluPhi", "BTL cluster #phi;#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meCluEta_ = ibook.book1D("BtlCluEta", "BTL cluster #eta;#eta_{RECO}", 100, -1.6, 1.6);
   meCluHits_ = ibook.book1D("BtlCluHitNumber", "BTL hits per cluster", 10, 0, 10);
-  meCluZvsPhi_ = ibook.book2D("BtlOccupancy", "BTL cluster Z vs #phi;Z_{RECO} [cm]; #phi_{RECO} [rad]", 100, -260., 260., 100, -3.2, 3.2);
+  meCluZvsPhi_ = ibook.book2D(
+      "BtlOccupancy", "BTL cluster Z vs #phi;Z_{RECO} [cm]; #phi_{RECO} [rad]", 100, -260., 260., 100, -3.2, 3.2);
   meTrackEffEtaTot_ = ibook.book1D("TrackEffEtaTot", "Track efficiency vs eta D;#eta_{RECO}", 100, -1.6, 1.6);
   meTrackEffPhiTot_ = ibook.book1D("TrackEffPhiTot", "Track efficiency vs phi D;#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meTrackEffPtTot_ = ibook.book1D("TrackEffPtTot", "Track efficiency vs pt D;pt_{RECO} [GeV]", 50, 0, 10);
@@ -207,7 +209,7 @@ void BtlRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("inputTagC", edm::InputTag("mtdClusters", "FTLBarrel"));
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD", ""));
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D", ""));
-  desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
+  desc.add<double>("hitMinimumEnergy", 1.);    // [MeV]
   desc.add<double>("trackMinimumEnergy", 1.);  // [GeV]
   desc.add<double>("trackMinimumEta", 1.5);
 

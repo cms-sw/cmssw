@@ -33,7 +33,6 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
-
 class EtlRecoValidation : public DQMEDAnalyzer {
 public:
   explicit EtlRecoValidation(const edm::ParameterSet&);
@@ -46,7 +45,7 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-// ------------ member data ------------
+  // ------------ member data ------------
 
   const std::string folder_;
   const float hitMinEnergy_;
@@ -103,7 +102,8 @@ void EtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // --- Loop over the ETL RECO tracks ---
   for (const auto& track : *etlRecTrackHandle) {
-    if (track.pt() < trackMinEnergy_) continue;
+    if (track.pt() < trackMinEnergy_)
+      continue;
 
     // --- all ETL tracks (with and without hit in MTD) ---
     if ((track.eta() < -trackMinEta_) && (track.eta() > -trackMaxEta_)) {
@@ -111,7 +111,7 @@ void EtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
       meTrackEffPhiTot_[0]->Fill(track.phi());
       meTrackEffPtTot_[0]->Fill(track.pt());
     }
-    
+
     if ((track.eta() > trackMinEta_) && (track.eta() < trackMaxEta_)) {
       meTrackEffEtaTot_[1]->Fill(track.eta());
       meTrackEffPhiTot_[1]->Fill(track.phi());
@@ -122,13 +122,15 @@ void EtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
     bool MTDEtlZpos = false;
     for (const auto hit : track.recHits()) {
       MTDDetId Hit = hit->geographicalId();
-      if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2) && (Hit.zside() == -1) )  MTDEtlZneg = true;
-      if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2) && (Hit.zside() == 1) )  MTDEtlZpos = true;
+      if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2) && (Hit.zside() == -1))
+        MTDEtlZneg = true;
+      if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2) && (Hit.zside() == 1))
+        MTDEtlZpos = true;
     }
-   
+
     // --- keeping only tracks with last hit in MTD ---
     if ((track.eta() < -trackMinEta_) && (track.eta() > -trackMaxEta_)) {
-      if (MTDEtlZneg == true)  { 
+      if (MTDEtlZneg == true) {
         meTrackEffEtaMtd_[0]->Fill(track.eta());
         meTrackEffPhiMtd_[0]->Fill(track.phi());
         meTrackEffPtMtd_[0]->Fill(track.pt());
@@ -136,7 +138,7 @@ void EtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
     }
     if ((track.eta() > trackMinEta_) && (track.eta() < trackMaxEta_)) {
-      if (MTDEtlZpos == true)  {
+      if (MTDEtlZpos == true) {
         meTrackEffEtaMtd_[1]->Fill(track.eta());
         meTrackEffPhiMtd_[1]->Fill(track.phi());
         meTrackEffPtMtd_[1]->Fill(track.pt());
@@ -148,13 +150,14 @@ void EtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // --- Loop over the ETL RECO clusters ---
   for (const auto& DetSetClu : *etlRecCluHandle) {
     for (const auto& cluster : DetSetClu) {
-      if (cluster.energy() < hitMinEnergy_ ) continue;
+      if (cluster.energy() < hitMinEnergy_)
+        continue;
       ETLDetId cluId = cluster.id();
       DetId detIdObject(cluId);
       const auto& genericDet = geom->idToDetUnit(detIdObject);
       if (genericDet == nullptr) {
         throw cms::Exception("EtlRecoValidation")
-            << "GeographicalID: " << std::hex << cluId  << " is invalid!" << std::dec << std::endl;
+            << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
 
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
@@ -176,12 +179,10 @@ void EtlRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
 }
 
 // ------------ method for histogram booking ------------
-void EtlRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
-                                          edm::Run const& run,
-                                          edm::EventSetup const& iSetup) {
+void EtlRecoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
 
-// histogram booking
+  // histogram booking
   meCluTime_[0] = ibook.book1D("EtlCluTimeZneg", "ETL cluster ToA (-Z);ToA [ns]", 250, 0, 25);
   meCluTime_[1] = ibook.book1D("EtlCluTimeZpos", "ETL cluster ToA (+Z);ToA [ns]", 250, 0, 25);
   meCluEnergy_[0] = ibook.book1D("EtlCluEnergyZneg", "ETL cluster energy (-Z);E_{RECO} [MeV]", 100, 0, 10);
@@ -192,20 +193,34 @@ void EtlRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluEta_[1] = ibook.book1D("EtlCluEtaZpos", "ETL cluster #eta (+Z);#eta_{RECO}", 100, 1.4, 3.2);
   meCluHits_[0] = ibook.book1D("EtlCluHitNumberZneg", "ETL hits per cluster (-Z)", 10, 0, 10);
   meCluHits_[1] = ibook.book1D("EtlCluHitNumberZpos", "ETL hits per cluster (+Z)", 10, 0, 10);
-  meCluZvsPhi_[0] = ibook.book2D("EtlOccupancyZneg", "ETL cluster X vs Y (-Z);X_{RECO} [cm]; Y_{RECO} [cm]", 100, -150., 150., 100, -150, 150);
-  meCluZvsPhi_[1] = ibook.book2D("EtlOccupancyZpos", "ETL cluster X vs Y (+Z);X_{RECO} [cm]; Y_{RECO} [cm]", 100, -150., 150., 100, -150, 150);
-  meTrackEffEtaTot_[0] = ibook.book1D("TrackEffEtaTotZneg", "Track efficiency vs eta (Tot) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
-  meTrackEffEtaTot_[1] = ibook.book1D("TrackEffEtaTotZpos", "Track efficiency vs eta (Tot) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
-  meTrackEffPhiTot_[0] = ibook.book1D("TrackEffPhiTotZneg", "Track efficiency vs phi (Tot) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meTrackEffPhiTot_[1] = ibook.book1D("TrackEffPhiTotZpos", "Track efficiency vs phi (Tot) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meTrackEffPtTot_[0] = ibook.book1D("TrackEffPtTotZneg", "Track efficiency vs pt (Tot) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
-  meTrackEffPtTot_[1] = ibook.book1D("TrackEffPtTotZpos", "Track efficiency vs pt (Tot) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
-  meTrackEffEtaMtd_[0] = ibook.book1D("TrackEffEtaMtdZneg", "Track efficiency vs eta (Mtd) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
-  meTrackEffEtaMtd_[1] = ibook.book1D("TrackEffEtaMtdZpos", "Track efficiency vs eta (Mtd) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
-  meTrackEffPhiMtd_[0] = ibook.book1D("TrackEffPhiMtdZneg", "Track efficiency vs phi (Mtd) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meTrackEffPhiMtd_[1] = ibook.book1D("TrackEffPhiMtdZpos", "Track efficiency vs phi (Mtd) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meTrackEffPtMtd_[0] = ibook.book1D("TrackEffPtMtdZneg", "Track efficiency vs pt (Mtd) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
-  meTrackEffPtMtd_[1] = ibook.book1D("TrackEffPtMtdZpos", "Track efficiency vs pt (Mtd) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meCluZvsPhi_[0] = ibook.book2D(
+      "EtlOccupancyZneg", "ETL cluster X vs Y (-Z);X_{RECO} [cm]; Y_{RECO} [cm]", 100, -150., 150., 100, -150, 150);
+  meCluZvsPhi_[1] = ibook.book2D(
+      "EtlOccupancyZpos", "ETL cluster X vs Y (+Z);X_{RECO} [cm]; Y_{RECO} [cm]", 100, -150., 150., 100, -150, 150);
+  meTrackEffEtaTot_[0] =
+      ibook.book1D("TrackEffEtaTotZneg", "Track efficiency vs eta (Tot) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
+  meTrackEffEtaTot_[1] =
+      ibook.book1D("TrackEffEtaTotZpos", "Track efficiency vs eta (Tot) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+  meTrackEffPhiTot_[0] =
+      ibook.book1D("TrackEffPhiTotZneg", "Track efficiency vs phi (Tot) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meTrackEffPhiTot_[1] =
+      ibook.book1D("TrackEffPhiTotZpos", "Track efficiency vs phi (Tot) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meTrackEffPtTot_[0] =
+      ibook.book1D("TrackEffPtTotZneg", "Track efficiency vs pt (Tot) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meTrackEffPtTot_[1] =
+      ibook.book1D("TrackEffPtTotZpos", "Track efficiency vs pt (Tot) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meTrackEffEtaMtd_[0] =
+      ibook.book1D("TrackEffEtaMtdZneg", "Track efficiency vs eta (Mtd) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
+  meTrackEffEtaMtd_[1] =
+      ibook.book1D("TrackEffEtaMtdZpos", "Track efficiency vs eta (Mtd) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+  meTrackEffPhiMtd_[0] =
+      ibook.book1D("TrackEffPhiMtdZneg", "Track efficiency vs phi (Mtd) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meTrackEffPhiMtd_[1] =
+      ibook.book1D("TrackEffPhiMtdZpos", "Track efficiency vs phi (Mtd) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meTrackEffPtMtd_[0] =
+      ibook.book1D("TrackEffPtMtdZneg", "Track efficiency vs pt (Mtd) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meTrackEffPtMtd_[1] =
+      ibook.book1D("TrackEffPtMtdZpos", "Track efficiency vs pt (Mtd) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
   meTrackRPTime_[0] = ibook.book1D("TrackRPTimeZneg", "Track t0 with respect to R.P. (-Z);t0 [ns]", 100, -10, 10);
   meTrackRPTime_[1] = ibook.book1D("TrackRPTimeZpos", "Track t0 with respect to R.P. (+Z);t0 [ns]", 100, -10, 10);
 }
@@ -218,7 +233,7 @@ void EtlRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<std::string>("folder", "MTD/ETL/Reco");
   desc.add<edm::InputTag>("inputTagC", edm::InputTag("mtdClusters", "FTLEndcap"));
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD", ""));
-  desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
+  desc.add<double>("hitMinimumEnergy", 1.);     // [MeV]
   desc.add<double>("trackMinimumEnergy", 0.5);  // [GeV]
   desc.add<double>("trackMinimumEta", 1.4);
   desc.add<double>("trackMaximumEta", 3.2);
