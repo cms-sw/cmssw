@@ -15,6 +15,9 @@ Sequence = namedtuple("Sequence", ["seqname", "step", "era", "scenario", "mc", "
 tp = ThreadPool()
 stp = ThreadPool()
 
+# SQLiteDB to write results to.
+DBFILE = "sequences.db"
+
 # This file will actually be opened, though the content does not matter. Only to make CMSSW start up at all.
 INFILE = "/store/data/Run2018A/EGamma/RAW/v1/000/315/489/00000/004D960A-EA4C-E811-A908-FA163ED1F481.root"
 
@@ -147,7 +150,7 @@ DBSCHEMA = f"""
 """
 
 def storesequenceinfo(seq, modconfig, modclass, plugininfo):
-  with sqlite3.connect("sequences.db") as db:
+  with sqlite3.connect(DBFILE) as db:
     cur = db.cursor()
     cur.executescript(DBSCHEMA)
     # first, check if we already have that one. Ideally we'd check before doing all the work, but then the lru cache will take care of that on a different level.
@@ -173,7 +176,7 @@ def storesequenceinfo(seq, modconfig, modclass, plugininfo):
     cur.execute("COMMIT;")
 
 def storeworkflows(seqs):
-  with sqlite3.connect("sequences.db") as db:
+  with sqlite3.connect(DBFILE) as db:
     cur = db.cursor()
     cur.execute("BEGIN;")
     cur.executescript(DBSCHEMA)
@@ -253,8 +256,166 @@ def processseqs(seqs):
 
 
 def serve():
-  pass
+  import traceback
+  import http.server
 
+  db = sqlite3.connect(DBFILE)
+
+  def formatseq(seq):
+    return seq.step + ":" + seq.seqname + " " + seq.era + " " + seq.scenario + (" --mc" if seq.mc else "") + (" --data" if seq.data else "") + (" --fast" if seq.fast else "")
+
+  def index():
+    out = []
+    cur = db.cursor()
+    out.append("<H2>Sequences</H2><ul>")
+    rows = cur.execute(f"SELECT seqname, step, count(*) FROM sequence GROUP BY seqname, step ORDER BY seqname, step;")
+    for row in rows:
+      seqname, step, count = row
+      out.append(f' <li>')
+      out += showseq(step, seqname)
+      out.append(f' </li>')
+    out.append("</ul>")
+
+    out.append("<H2>Modules</H2><ul>")
+    rows = cur.execute(f"SELECT classname, edmfamily, edmbase FROM plugin ORDER BY edmfamily, edmbase, classname")
+    for row in rows:
+      classname, edmfamily, edmbase = row
+      if not edmfamily: edmfamily = "<em>legacy</em>"
+      out.append(f' <li>{edmfamily}::{edmbase} <a href="/plugin/{classname}/">{classname}</a></li>')
+    out.append("</ul>")
+    return out
+
+  def showseq(step, seqname):
+    out = []
+    cur = db.cursor()
+    out.append(f'   <a href="/seq/{step}:{seqname}/">{step}:{seqname}</a>')
+    rows = cur.execute(f"SELECT {SEQFIELDS}, moduleid, id  FROM sequence INNER JOIN sequencemodule ON sequenceid = id WHERE seqname = ? and step = ?;", (seqname, step))
+    seqs = defaultdict(list)
+    ids = dict()
+    for row in rows:
+      seq = Sequence(*row[:-2])
+      seqs[seq].append(row[-2])
+      ids[seq] = row[-1]
+    variations = defaultdict(list)
+    for seq, mods in seqs.items():
+      variations[tuple(sorted(mods))].append(seq)
+    out.append("    <ul>")
+    for mods, seqs in variations.items():
+      count = len(mods)
+      out.append(f'      <li>({count} modules):')
+      for seq in seqs:
+        seqid = ids[seq]
+        out.append(f'<br><a href="/seqid/{seqid}">' + formatseq(seq) + '</a>')
+        rows = cur.execute("SELECT wfid FROM workflow WHERE sequenceid = ?;", (seqid,))
+        out.append(f'<em>Used on workflows: ' + ", ".join(wfid for wfid, in rows) + "</em>")
+      out.append('      </li>')
+    out.append("    </ul>")
+    return out
+
+  def showseqid(seqid):
+    seqid = int(seqid)
+    out = []
+    cur = db.cursor()
+    rows = cur.execute(f"SELECT {SEQFIELDS} FROM sequence WHERE id = ?;", (seqid,))
+    seq = formatseq(Sequence(*list(rows)[0]))
+    out.append(f"<h2>Modules on {seq}:</h2><ul>")
+    rows = cur.execute("SELECT wfid FROM workflow WHERE sequenceid = ?;", (seqid,))
+    out.append("<p><em>Used on workflows: " + ", ".join(wfid for wfid, in rows) + "</em></p>")
+    rows = cur.execute("""
+      SELECT classname, instancename, variation, moduleid  
+      FROM sequencemodule INNER JOIN module ON moduleid = module.id
+      WHERE sequenceid = ?;""", (seqid,))
+    for row in rows:
+      classname, instancename, variation, moduleid = row
+      out.append(f'<li>{instancename} ' + (f'<sub>{variation}</sub>' if variation else '') + f' : <a href="/plugin/{classname}/">{classname}</a></li>')
+    out.append("</ul>")
+
+    return out
+
+  def showclass(classname):
+    out = []
+    out.append(f"<h2>Plugin {classname}</h2>")
+    cur = db.cursor()
+    rows = cur.execute("SELECT edmfamily, edmbase FROM plugin WHERE classname = ?;", (classname,))
+    edmfamily, edmbase = list(rows)[0]
+    islegcay = not edmfamily
+    if islegcay: edmfamily = "<em>legacy</em>"
+    out.append(f"<p>{classname} is a <b>{edmfamily}::{edmbase}</b></p>")
+    if (edmbase != "EDProducer" and not (islegcay and edmfamily == "EDAnalyzer")) or (islegcay and edmbase == "EDProducer"):
+      out.append(f"<p>This is not a DQM module.</p>")
+
+    rows = cur.execute("""
+      SELECT id, instancename, variation, sequenceid 
+      FROM module INNER JOIN sequencemodule ON moduleid = module.id 
+      WHERE classname = ? ORDER BY instancename, variation, sequenceid;""", (classname,))
+    out.append("<ul>")
+    seqsformod = defaultdict(list)
+    liformod = dict()
+    for row in rows:
+      id, instancename, variation, sequenceid = row
+      liformod[id] = f'<a href="/config/{id}">{instancename}' + (f"<sub>{variation}</sub>" if variation else '') + "</a>"
+      seqsformod[id].append(sequenceid)
+    for id, li in liformod.items():
+      out.append("<li>" + li + ' Used ' + ", ".join(f'<a href="/seqid/{seqid}">here</a>' for seqid in seqsformod[id]) + '.</li>')
+    out.append("</ul>")
+    return out
+
+  def showconfig(modid):
+    modid = int(modid)
+    out = []
+    cur = db.cursor()
+    rows = cur.execute(f"SELECT config FROM module WHERE id = ?;", (modid,))
+    config = list(rows)[0][0]
+    out.append("<pre>")
+    out.append(config.decode().replace(",", ",\n"))
+    out.append("</pre>")
+    return out
+
+
+  ROUTES = [
+    (re.compile('/$'), index),
+    (re.compile('/seq/(\w+):([@\w]*)/$'), showseq),
+    (re.compile('/seqid/(\d+)$'), showseqid),
+    (re.compile('/config/(\d+)$'), showconfig),
+    (re.compile('/plugin/(.*)/$'), showclass),
+  ]
+
+  class Handler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+      try:
+        res = None
+        for pattern, func in ROUTES:
+          m = pattern.match(self.path)
+          if m:
+            res = "\n".join(func(*m.groups())).encode("utf8")
+            break
+
+        if res:
+          self.send_response(200, "Here you go")
+          self.send_header("Content-Type", "text/html; charset=utf-8")
+          self.end_headers()
+          self.wfile.write(b"""<html><style>
+            body {
+              font-family: sans;
+            }
+          </style><body>""")
+          self.wfile.write(res)
+          self.wfile.write(b"</body></html>")
+        else:
+          self.send_response(400, "Something went wrong")
+          self.send_header("Content-Type", "text/plain; charset=utf-8")
+          self.end_headers()
+          self.wfile.write(b"I don't understand this request.")
+      except:
+        trace = traceback.format_exc()
+        self.send_response(500, "Things went very wrong")
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.end_headers()
+        self.wfile.write(trace.encode("utf8"))
+
+  server_address = ('', 8000)
+  httpd = http.server.HTTPServer(server_address, Handler)
+  httpd.serve_forever()
 
 if __name__ == "__main__":
 
@@ -274,10 +435,14 @@ if __name__ == "__main__":
   parser.add_argument("--showplugintype", default=False, action="store_true", help="Print the base class for each plugin.")
   parser.add_argument("--showpluginclass", default=False, action="store_true", help="Print the class name for each plugin.")
   parser.add_argument("--showpluginconfig", default=False, action="store_true", help="Print the config dump for each plugin.")
+  parser.add_argument("--serve", default=False, action="store_true", help="Ignore other options and instead serve HTML UI from SQLite DB.")
 
   args = parser.parse_args()
 
-  if args.workflow:
+
+  if args.serve:
+    serve()
+  elif args.workflow:
     seqs = inspectworkflows(args.workflow)
     seqset = set(sum(seqs.values(), []))
     print("Analyzing %d seqs..." % len(seqset))
