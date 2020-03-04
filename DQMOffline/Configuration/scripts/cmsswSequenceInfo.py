@@ -7,6 +7,7 @@ import tempfile
 import functools
 import subprocess
 from collections import namedtuple
+from collections import defaultdict
 from multiprocessing.pool import ThreadPool
 
 Sequence = namedtuple("Sequence", ["seqname", "step", "era", "scenario", "mc", "data", "fast"])
@@ -141,6 +142,7 @@ DBSCHEMA = f"""
   CREATE TABLE IF NOT EXISTS sequence(id INTEGER PRIMARY KEY, {SEQFIELDS});
   CREATE UNIQUE INDEX IF NOT EXISTS squences ON sequence({SEQFIELDS});
   CREATE TABLE IF NOT EXISTS workflow(wfid, sequenceid);
+  CREATE UNIQUE INDEX IF NOT EXISTS wrokflows ON workflow(sequenceid, wfid);
   CREATE TABLE IF NOT EXISTS sequencemodule(moduleid, sequenceid);
 """
 
@@ -170,15 +172,30 @@ def storesequenceinfo(seq, modconfig, modclass, plugininfo):
     cur.executemany("INSERT INTO sequencemodule SELECT id, ? FROM module WHERE config = ?;", ((seqid, modconfig[label]) for label in modconfig))
     cur.execute("COMMIT;")
 
+def storeworkflows(seqs):
+  with sqlite3.connect("sequences.db") as db:
+    cur = db.cursor()
+    cur.execute("BEGIN;")
+    cur.executescript(DBSCHEMA)
+    pairs = [[wf] + list(seq) for wf, seqlist in seqs.items() for seq in seqlist]
+    cur.executemany(f"INSERT OR IGNORE INTO workflow SELECT ?, (SELECT id FROM sequence WHERE ({SEQFIELDS}) = ({SEQPLACEHOLDER}));", pairs)
+    cur.execute("COMMIT;")
+
 def inspectworkflows(wfnumber):
   # dump steps
-  sequences = []
+  sequences = defaultdict(list)
   if wfnumber:
     stepdump = subprocess.check_output(["runTheMatrix.py", "-l", str(wfnumber), "-ne"])
   else:
     stepdump = subprocess.check_output(["runTheMatrix.py", "-ne"])
   lines = stepdump.splitlines()
+  workflow = ""
+  workflowre = re.compile(b"^([0-9]+.[0-9]+) ")
   for line in lines:
+    m = workflowre.match(line)
+    if m:
+      workflow = m.group(1).decode()
+      continue
     if not b'cmsDriver.py' in line: continue
     args = list(reversed(line.decode().split(" ")))
     step = ""
@@ -208,9 +225,9 @@ def inspectworkflows(wfnumber):
         if ":" in step:
           seqs = step.split(":")[1]
           for seq in seqs.split("+"):
-            sequences.append(Sequence(seq, s, era, scenario, mc, data, fast))
+            sequences[workflow].append(Sequence(seq, s, era, scenario, mc, data, fast))
         else:
-          sequences.append(Sequence("", s, era, scenario, mc, data, fast))
+          sequences[workflow].append(Sequence("", s, era, scenario, mc, data, fast))
   return sequences
 
 def processseqs(seqs):
@@ -262,13 +279,17 @@ if __name__ == "__main__":
 
   if args.workflow:
     seqs = inspectworkflows(args.workflow)
-    print("Analyzing %d seqs..." % len(seqs))
-    processseqs(seqs)
+    seqset = set(sum(seqs.values(), []))
+    print("Analyzing %d seqs..." % len(seqset))
+    processseqs(seqset)
+    storeworkflows(seqs)
 
   elif args.runTheMatrix:
-    seqs = set(inspectworkflows(None))
-    print("Analyzing %d seqs..." % len(seqs))
-    processseqs(seqs)
+    seqs = inspectworkflows(None)
+    seqset = set(sum(seqs.values(), []))
+    print("Analyzing %d seqs..." % len(seqset))
+    processseqs(seqset)
+    storeworkflows(seqs)
 
   else:
     seq = Sequence(args.sequence, args.step, args.era, args.scenario, args.mc, args.data, args.fast)
