@@ -46,16 +46,16 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
-process.load("RecoPPS.Configuration.recoCTPPS_cff")
+process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 # rechits production
-process.load('RecoPPS.Local.ctppsDiamondRecHits_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
 
 # local tracks fitter
-process.load('RecoPPS.Local.ctppsDiamondLocalTracks_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi')
 
 # pixel
-process.load('RecoPPS.Local.ctppsPixelLocalTracks_cfi')
+process.load('RecoCTPPS.PixelLocal.ctppsPixelLocalTracks_cfi')
 
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")
