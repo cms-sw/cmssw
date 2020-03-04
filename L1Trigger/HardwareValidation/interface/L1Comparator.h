@@ -15,9 +15,10 @@
 #include <iomanip>
 #include <vector>
 #include <algorithm>
+#include <atomic>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,39 +40,49 @@
 template <class T>
 class DEcompare;
 
-class L1Comparator : public edm::EDProducer {
+class L1Comparator : public edm::global::EDProducer<edm::RunCache<std::array<bool, dedefs::DEnsys>>> {
 public:
   explicit L1Comparator(const edm::ParameterSet&);
-  ~L1Comparator() override;
 
 private:
-  void beginJob(void) override;
-  void beginRun(edm::Run const&, const edm::EventSetup&) final;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  using RunCache = std::array<bool, dedefs::DEnsys>;
+  std::shared_ptr<RunCache> globalBeginRun(edm::Run const&, const edm::EventSetup&) const final;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const final {}
   void endJob() override;
 
+  struct EventInfo {
+    L1DEDigiCollection m_dedigis;
+    std::array<bool, dedefs::DEnsys> DEmatchEvt = {{true}};
+    std::array<std::array<int, 2>, dedefs::DEnsys> DEncand = {{{{0, 0}}}};
+    std::ostringstream dumpToFile_;
+    int nevt_;
+    int evtNum_;
+    int runNum_;
+    //flag whether event id has already been written to dumpFile
+    bool dumpEvent_ = true;
+  };
+
   template <class T>
-  void process(T const*, T const*, const int, const int);
+  void process(T const*, T const*, const int, const int, EventInfo& eventInfo) const;
   template <class T>
-  void process(const edm::Handle<T> data, const edm::Handle<T> emul, const int sys, const int cid) {
+  void process(
+      const edm::Handle<T> data, const edm::Handle<T> emul, const int sys, const int cid, EventInfo& eventInfo) const {
     if (data.isValid() && emul.isValid())
-      process(data.product(), emul.product(), sys, cid);
+      process(data.product(), emul.product(), sys, cid, eventInfo);
   }
 
   template <class T>
-  bool CompareCollections(edm::Handle<T> data, edm::Handle<T> emul);
+  bool CompareCollections(edm::Handle<T> data, edm::Handle<T> emul, std::ostream&) const;
   template <class T>
-  bool dumpCandidate(const T& dt, const T& em, std::ostream& s);
+  bool dumpCandidate(const T& dt, const T& em, std::ostream& s) const;
 
-  int verbose() { return verbose_; }
-  bool m_stage1_layer2_;
+  int verbose() const { return verbose_; }
+  const bool m_stage1_layer2_;
 
 private:
-  int nevt_;
-  int evtNum_;
-  int runNum_;
-  int verbose_;
-  bool dumpEvent_;
+  mutable std::atomic<int> nevt_;
+  const int verbose_;
 
   edm::EDGetTokenT<L1CaloEmCollection> tokenCaloEm_[2];
   edm::EDGetTokenT<L1CaloRegionCollection> tokenCaloRegion_[2];
@@ -97,14 +108,12 @@ private:
   edm::EDGetTokenT<L1MuGMTCandCollection> tokenMuGMTCand_[2];
   edm::EDGetTokenT<L1MuGMTReadoutCollection> tokenMuReadoutCand_[2];
 
-  bool m_doSys[dedefs::DEnsys];
-  std::string m_dumpFileName;
-  std::ofstream m_dumpFile;
-  int m_dumpMode;
-  bool m_match;
-  bool DEmatchEvt[dedefs::DEnsys];
-  int DEncand[dedefs::DEnsys][2];
-  L1DEDigiCollection m_dedigis;
+  const std::array<bool, dedefs::DEnsys> m_doSys;
+  const std::string m_dumpFileName;
+  CMS_THREAD_GUARD(m_fileGuard) mutable std::ofstream m_dumpFile;
+  const int m_dumpMode;
+  mutable std::mutex m_fileGuard;
+  mutable std::atomic<bool> m_match;
 };
 
 #endif
