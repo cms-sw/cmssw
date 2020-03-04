@@ -53,6 +53,15 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   filter.veto("Between");
   filter.veto("SupportPlate");
   filter.veto("Shield");
+  filter.veto("ThermalScreen");
+  filter.veto("Aluminium_Disk");
+  filter.veto("MIC6_Aluminium_Disk");
+  filter.veto("ThermalPad");
+  filter.veto("AlN_Carrier");
+  filter.veto("LairdFilm");
+  filter.veto("ETROC");
+  filter.veto("SensorModule*");
+
 
   DDFilteredView fv(cpv, filter);
 
