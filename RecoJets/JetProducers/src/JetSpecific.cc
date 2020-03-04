@@ -331,19 +331,19 @@ bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& particles,
   pfJetSpecific->mHFHadronEnergy = HFHadronEnergy;
   pfJetSpecific->mHFEMEnergy = HFEMEnergy;
 
-  pfJetSpecific->mChargedHadronMultiplicity = int(chargedHadronMultiplicity);
-  pfJetSpecific->mNeutralHadronMultiplicity = int(neutralHadronMultiplicity);
-  pfJetSpecific->mPhotonMultiplicity = int(photonMultiplicity);
-  pfJetSpecific->mElectronMultiplicity = int(electronMultiplicity);
-  pfJetSpecific->mMuonMultiplicity = int(muonMultiplicity);
-  pfJetSpecific->mHFHadronMultiplicity = int(HFHadronMultiplicity);
-  pfJetSpecific->mHFEMMultiplicity = int(HFEMMultiplicity);
+  pfJetSpecific->mChargedHadronMultiplicity = std::round(chargedHadronMultiplicity);
+  pfJetSpecific->mNeutralHadronMultiplicity = std::round(neutralHadronMultiplicity);
+  pfJetSpecific->mPhotonMultiplicity = std::round(photonMultiplicity);
+  pfJetSpecific->mElectronMultiplicity = std::round(electronMultiplicity);
+  pfJetSpecific->mMuonMultiplicity = std::round(muonMultiplicity);
+  pfJetSpecific->mHFHadronMultiplicity = std::round(HFHadronMultiplicity);
+  pfJetSpecific->mHFEMMultiplicity = std::round(HFEMMultiplicity);
 
   pfJetSpecific->mChargedEmEnergy = chargedEmEnergy;
   pfJetSpecific->mChargedMuEnergy = chargedMuEnergy;
   pfJetSpecific->mNeutralEmEnergy = neutralEmEnergy;
-  pfJetSpecific->mChargedMultiplicity = int(chargedMultiplicity);
-  pfJetSpecific->mNeutralMultiplicity = int(neutralMultiplicity);
+  pfJetSpecific->mChargedMultiplicity = std::round(chargedMultiplicity);
+  pfJetSpecific->mNeutralMultiplicity = std::round(neutralMultiplicity);
 
   pfJetSpecific->mHOEnergy = HOEnergy;
 
