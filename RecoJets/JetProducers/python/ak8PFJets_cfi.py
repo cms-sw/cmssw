@@ -117,4 +117,6 @@ ak8PFJetsCHSTrimmed = ak8PFJets.clone(
 
 ak8PFJetsPuppiSoftDrop = ak8PFJetsCHSSoftDrop.clone(
     src = cms.InputTag("ak8PFJetsPuppiConstituents", "constituents")
+    srcWeights = cms.InputTag("puppi"),
+    applyPuppiWeight = True
     )
