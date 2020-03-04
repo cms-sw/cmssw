@@ -148,10 +148,11 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   useDeterministicSeed_ = iConfig.getParameter<bool>("useDeterministicSeed");
   minSeed_ = iConfig.getParameter<unsigned int>("minSeed");
   verbosity_ = iConfig.getParameter<int>("verbosity");
-  applyPuppiWeight_ = iConfig.getParameter<bool>("applyPuppiWeight");
-  if ((applyPuppiWeight_) && (iConfig.getParameter<edm::InputTag>("src").label() != "packedPFCandidates")) {
+  applyWeight_ = iConfig.getParameter<bool>("applyWeight");
+  if (applyWeight_) {
     srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
-    input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
+    if (srcWeights_.label() != "")
+      input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
   }
 
   anomalousTowerDef_ = unique_ptr<AnomalousTower>(new AnomalousTower(iConfig));
@@ -285,7 +286,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // Get Weights Collection
-  if ((applyPuppiWeight_) && (!input_weights_token_.isUninitialized())) {
+  if ((applyWeight_) && (!input_weights_token_.isUninitialized())) {
     edm::Handle<edm::ValueMap<float>> weightsHandle;
     iEvent.getByToken(input_weights_token_, weightsHandle);
     weights_ = *weightsHandle.product();
@@ -469,7 +470,7 @@ void VirtualJetProducer::inputTowers() {
 	std::cout << "PF cand:" << pfc << '\n';
       }
       */
-      if (!applyPuppiWeight_) {
+      if (!applyWeight_) {
         fjInputs_.emplace_back(input.px(), input.py(), input.pz(), input.energy());
         fjInputs_.back().set_user_index(i - inBegin);
       } else {
@@ -481,9 +482,11 @@ void VirtualJetProducer::inputTowers() {
           if (pPC) {
             w = pPC->puppiWeight();
             weights_[*i] = w;
-          }
+          } else
+            throw cms::Exception("InvalidInput")
+                << "applyWeight set to True, but no srcWeights given or no PackedCandidates containing puppiWeights "
+                   "given in VirtualJetProducer\n";
         }
-
         if (w > 0) {
           fjInputs_.emplace_back(input.px() * w, input.py() * w, input.pz() * w, input.energy() * w);
           fjInputs_.back().set_user_index(i - inBegin);
@@ -707,7 +710,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
       // write the specifics to the jet (simultaneously sets 4-vector, vertex).
       // These are overridden functions that will call the appropriate
       // specific allocator.
-      if (applyPuppiWeight_)
+      if (applyWeight_)
         writeSpecific(dynamic_cast<reco::PFJet&>(jet),
                       Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
                       vertex_,
@@ -1055,6 +1058,6 @@ void VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(edm::ParameterSe
   desc.add<unsigned int>("maxRecoveredHcalCells", 9999999);
   vector<double> puCentersDefault;
   desc.add<vector<double>>("puCenters", puCentersDefault);
-  desc.add<bool>("applyPuppiWeight", false);
+  desc.add<bool>("applyWeight", false);
   desc.add<edm::InputTag>("srcWeights", edm::InputTag("puppi"));
 }

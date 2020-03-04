@@ -17,8 +17,8 @@ ak8PFJets = ak4PFJets.clone(
 ##############################################################################
 ak8PFJetsPuppi = ak8PFJets.clone(
     src = cms.InputTag("particleFlow"),
-    srcWeights = cms.InputTag("puppi"),
-    applyPuppiWeight = True
+    applyWeight = True,
+    srcWeights = cms.InputTag("puppi")
     )
 
 ak8PFJetsCHS = ak8PFJets.clone(
@@ -116,7 +116,7 @@ ak8PFJetsCHSTrimmed = ak8PFJets.clone(
     )
 
 ak8PFJetsPuppiSoftDrop = ak8PFJetsCHSSoftDrop.clone(
-    src = cms.InputTag("ak8PFJetsPuppiConstituents", "constituents")
-    srcWeights = cms.InputTag("puppi"),
-    applyPuppiWeight = True
+    src = cms.InputTag("ak8PFJetsPuppiConstituents", "constituents"),
+    applyWeight = True,
+    srcWeights = cms.InputTag("puppi")
     )

@@ -147,7 +147,6 @@ protected:
   std::string moduleLabel_;   // label for this module
   edm::InputTag src_;         // input constituent source
   edm::InputTag srcPVs_;      // primary vertex source
-  edm::InputTag srcWeights_;  // weights source
   std::string jetType_;       // type of jet (Calo,PF,Basic,Gen)
   std::string jetAlgorithm_;  // the jet algorithm to use
   double rParam_;             // the R parameter to use
@@ -207,8 +206,9 @@ protected:
 
   int verbosity_;                       // flag to enable/disable debug output
   bool fromHTTTopJetProducer_ = false;  // for running the v2.0 HEPTopTagger
-  bool applyPuppiWeight_;               // Apply weights stored in a value map (e.g. from PUPPI)
-  edm::ValueMap<float> weights_;        // weights per particle (e.g. from PUPPI)
+  bool applyWeight_;              // Apply weights stored in a value map or inside PackedCandidate (e.g. from PUPPI)
+  edm::InputTag srcWeights_;      // weights source
+  edm::ValueMap<float> weights_;  // weights per particle (e.g. from PUPPI)
 
 private:
   std::unique_ptr<AnomalousTower> anomalousTowerDef_;  // anomalous tower definition

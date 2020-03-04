@@ -337,8 +337,8 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if (useWeights_) {
         const auto pf_constit = dynamic_cast<const reco::PFCandidate*>(&*constit);
         double w = (*weights)[constit];
-        double E_w = std::sqrt(pf_constit->p() * w * pf_constit->p() * w + pf_constit->mass() * pf_constit->mass());
-        fjInputs.push_back(fastjet::PseudoJet(pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz() * w, E_w));
+        fjInputs.push_back(fastjet::PseudoJet(
+            pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz() * w, pf_constit->energy() * w));
       } else {
         fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
       }

@@ -13,11 +13,13 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig)
       axesDefinition_(iConfig.getParameter<unsigned>("axesDefinition")),
       nPass_(iConfig.getParameter<int>("nPass")),
       akAxesR0_(iConfig.getParameter<double>("akAxesR0")),
-      applyPuppiWeight_(iConfig.getParameter<bool>("applyPuppiWeight")) {
-  if ((applyPuppiWeight_) && (iConfig.getParameter<edm::InputTag>("src").label() != "packedPFCandidates")) {
+      applyWeight_(iConfig.getParameter<bool>("applyWeight")) {
+  if (applyWeight_) {
     srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
-    input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
+    if (srcWeights_.label() != "")
+      input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
   }
+
   for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
     std::ostringstream tauN_str;
     tauN_str << "tau" << *n;
@@ -114,7 +116,7 @@ void NjettinessAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(src_token_, jets);
 
   // Get Weights Collection
-  if ((applyPuppiWeight_) && (!input_weights_token_.isUninitialized()))
+  if ((applyWeight_) && (!input_weights_token_.isUninitialized()))
     iEvent.getByToken(input_weights_token_, weightsHandle_);
 
   for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
@@ -142,27 +144,49 @@ void NjettinessAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 }
 
+void NjettinessAdder::addFJParticle(std::vector<fastjet::PseudoJet>& FJparticles, const reco::CandidatePtr& dp) const {
+  if (!applyWeight_)
+    FJparticles.push_back(fastjet::PseudoJet(dp->px(), dp->py(), dp->pz(), dp->energy()));
+  else {
+    float w = 0.0;
+    if (!input_weights_token_.isUninitialized())
+      w = (*weightsHandle_)[dp];
+    else {
+      pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(dp.get());
+      if (pPC)
+        w = pPC->puppiWeight();
+      else
+        throw cms::Exception("InvalidInput") << "applyWeight set to True, but no srcWeights given or no "
+                                                "PackedCandidates containing puppiWeights given in NjettinessAdder\n";
+    }
+    if (w > 0)
+      FJparticles.push_back(fastjet::PseudoJet(dp->px() * w, dp->py() * w, dp->pz() * w, dp->energy() * w));
+  }
+}
+
 float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) const {
   std::vector<fastjet::PseudoJet> FJparticles;
   for (unsigned k = 0; k < object->numberOfDaughters(); ++k) {
     const reco::CandidatePtr& dp = object->daughterPtr(k);
     if (dp.isNonnull() && dp.isAvailable()) {
-      if (!applyPuppiWeight_)
-        FJparticles.push_back(fastjet::PseudoJet(dp->px(), dp->py(), dp->pz(), dp->energy()));
-      else {
-        float w = 1.0;
-        if (!input_weights_token_.isUninitialized())
-          w = (*weightsHandle_)[dp];
-        else {
-          pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(dp.get());
-          if (pPC)
-            w = pPC->puppiWeight();
+      // Here, the daughters are the "end" node, so this is a PFJet
+      if (dp->numberOfDaughters() == 0) {
+        addFJParticle(FJparticles, dp);
+      } else {  // Otherwise, this is a BasicJet, so you need to descend further.
+        auto subjet = dynamic_cast<reco::Jet const*>(dp.get());
+        for (unsigned l = 0; l < subjet->numberOfDaughters(); ++l) {
+          if (subjet != nullptr) {
+            const reco::CandidatePtr& ddp = subjet->daughterPtr(l);
+            addFJParticle(FJparticles, ddp);
+          } else {
+            edm::LogWarning("MissingJetConstituent")
+                << "BasicJet constituent required for N-jettiness computation is missing!";
+          }
         }
-        if (w > 0)
-          FJparticles.push_back(fastjet::PseudoJet(dp->px() * w, dp->py() * w, dp->pz() * w, dp->energy() * w));
-      }
-    } else
-      edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
+      }  // end if basic jet
+    }    // end if daughter pointer is nonnull and available
+    else
+      edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-jettiness computation is missing!";
   }
 
   return routine_->getTau(num, FJparticles);

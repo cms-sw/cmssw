@@ -23,6 +23,6 @@ GenJetParameters = cms.PSet(
     Rho_EtaMax = cms.double(4.5),
     useDeterministicSeed= cms.bool( True ),
     minSeed             = cms.uint32( 14327 ), 
-    applyPuppiWeight = cms.bool(False)
+    applyWeight    = cms.bool(False)
     )
 

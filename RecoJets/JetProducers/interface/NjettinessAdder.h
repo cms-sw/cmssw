@@ -45,6 +45,7 @@ public:
   ~NjettinessAdder() override {}
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void addFJParticle(std::vector<fastjet::PseudoJet>& FJparticles, const reco::CandidatePtr& dp) const;
   float getTau(unsigned num, const edm::Ptr<reco::Jet>& object) const;
 
 private:
@@ -63,7 +64,7 @@ private:
   int nPass_;
   double akAxesR0_;
 
-  bool applyPuppiWeight_;
+  bool applyWeight_;
   edm::InputTag srcWeights_;
   edm::EDGetTokenT<edm::ValueMap<float>> input_weights_token_;
   edm::Handle<edm::ValueMap<float>> weightsHandle_;
