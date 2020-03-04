@@ -1,6 +1,6 @@
 <use   name="SimTracker/Common"/>
 <use   name="DataFormats/CTPPSDetId"/>
-<use   name="CondFormats/PPSObjects"/>
+<use   name="CondFormats/CTPPSReadoutObjects"/>
 <use   name="Geometry/VeryForwardGeometryBuilder"/>
 <use   name="Geometry/VeryForwardRPTopology"/>
 

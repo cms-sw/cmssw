@@ -1,5 +1,5 @@
 <use   name="SimTracker/Common"/>
-<use   name="RecoPPS/Local"/>
+<use   name="RecoCTPPS/PixelLocal"/>
 <export>
   <lib name="1"/>
 </export>
