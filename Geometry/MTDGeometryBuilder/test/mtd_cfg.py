@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.INFO.limit = -1
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2023D35_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D50_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi")
 

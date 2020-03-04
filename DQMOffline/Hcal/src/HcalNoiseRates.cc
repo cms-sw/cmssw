@@ -165,16 +165,5 @@ void HcalNoiseRates::analyze(const edm::Event &iEvent, const edm::EventSetup &ev
   }  // done looping over RBXs
 }
 
-// ------------ method called once each job just before starting event loop
-// ------------
-void HcalNoiseRates::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop
-// ------------
-void HcalNoiseRates::endJob() {
-  if (useAllHistos_)
-    hLumiBlockCount_->Fill(0.0, lumiCountMap_.size());
-}
-
 // define this as a plug-in
 DEFINE_FWK_MODULE(HcalNoiseRates);

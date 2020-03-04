@@ -30,6 +30,7 @@
 #include <memory>
 
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // user include files
 
@@ -144,9 +145,8 @@ namespace edm {
       q.push([set_to_run, waitTask, iAction]() mutable {
         bool expected = false;
         if (set_to_run->compare_exchange_strong(expected, true)) {
-          try {
-            iAction();
-          } catch (...) {
+          // Exception needs to be caught in order to decrease the waitTask reference count at the end. The user of SerialTaskQueue should handle exceptions within iAction.
+          CMS_SA_ALLOW try { iAction(); } catch (...) {
           }
           waitTask->decrement_ref_count();
         }

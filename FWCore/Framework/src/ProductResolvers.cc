@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <cassert>
 #include <utility>
@@ -253,7 +254,8 @@ namespace edm {
       auto workToDo = [this, mcc, &principal, token]() {
         //need to make sure Service system is activated on the reading thread
         ServiceRegistry::Operate operate(token);
-        try {
+        // Caught exception is propagated via WaitingTaskList
+        CMS_SA_ALLOW try {
           resolveProductImpl<true>([this, &principal, mcc]() {
             if (principal.branchType() != InEvent) {
               return;
@@ -431,7 +433,8 @@ namespace edm {
       auto t = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iPtr) {
         //The exception is being rethrown because resolveProductImpl sets the ProductResolver to a failed
         // state for the case where an exception occurs during the call to the function.
-        try {
+        // Caught exception is propagated via WaitingTaskList
+        CMS_SA_ALLOW try {
           resolveProductImpl<true>([iPtr]() {
             if (iPtr) {
               std::rethrow_exception(*iPtr);

@@ -137,8 +137,13 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
         ticl_cand.setCharge(charge);
         ticl_cand.setPdgId(pdg_id * charge);
       } else {
-        // FIXME - placeholder for downstream PF code to work, but proper symmetric charge assignment needed
-        ticl_cand.setCharge(1);
+        // Demote them to be neutral, since there's not track associated.
+        ticl_cand.setCharge(0);
+        if (pdg_id == -11) {
+          ticl_cand.setPdgId(22);
+        } else {
+          ticl_cand.setPdgId(130);
+        }
       }
     }
   }

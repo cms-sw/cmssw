@@ -47,7 +47,7 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   edm::ParameterSet trackLoaderParameters = iConfig.getParameter<edm::ParameterSet>("TrackLoaderParameters");
 
   // the services
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
   edm::ConsumesCollector iC = consumesCollector();
   theTrackFinder = std::make_unique<MuonTrackFinder>(
       std::make_unique<GlobalCosmicMuonTrajectoryBuilder>(tbpar, theService.get(), iC),

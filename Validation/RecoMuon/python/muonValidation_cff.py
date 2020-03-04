@@ -4,6 +4,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoMuon.selectors_cff import *
+from Validation.RecoMuon.track_selectors_cff import *
 from Validation.RecoMuon.associators_cff import *
 from Validation.RecoMuon.histoParameters_cff import *
 import Validation.RecoMuon.MuonTrackValidator_cfi
@@ -99,6 +100,21 @@ tevMuonDytTrackVMuonAssoc.associatormap = 'tpToTevDytMuonAssociation'
 tevMuonDytTrackVMuonAssoc.label = ('tevMuons:dyt',)
 tevMuonDytTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
 
+tunepMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+tunepMuonTrackVMuonAssoc.associatormap = 'tpToTunePMuonAssociation'
+tunepMuonTrackVMuonAssoc.label = ('tunepMuonTracks',)
+tunepMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
+
+pfMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+pfMuonTrackVMuonAssoc.associatormap = 'tpToPFMuonAssociation'
+pfMuonTrackVMuonAssoc.label = ('pfMuonTracks',)
+pfMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
+
+recomuMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+recomuMuonTrackVMuonAssoc.associatormap = 'tpTorecoMuonMuonAssociation'
+recomuMuonTrackVMuonAssoc.label = ('recoMuonTracks',)
+recomuMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
+
 gemMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 gemMuonTrackVMuonAssoc.associatormap = 'tpToGEMMuonMuonAssociation'
 gemMuonTrackVMuonAssoc.label = ('extractGemMuons',)
@@ -167,21 +183,15 @@ muonValidation_seq = cms.Sequence(
     +tpToStaMuonAssociation + staMuonTrackVMuonAssoc
     +tpToStaUpdMuonAssociation + staUpdMuonTrackVMuonAssoc
     +tpToGlbMuonAssociation + glbMuonTrackVMuonAssoc
-)
-
-muonValidation_reduced_seq = cms.Sequence(
-    probeTracks_seq + tpToTkMuonAssociation + trkProbeTrackVMuonAssoc
-    +tpToStaUpdMuonAssociation + staUpdMuonTrackVMuonAssoc
-    +tpToGlbMuonAssociation + glbMuonTrackVMuonAssoc
-    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc
-    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc
-    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
+    +pfMuonTracks_seq + tpToPFMuonAssociation + pfMuonTrackVMuonAssoc
+    +recoMuonTracks_seq + tpTorecoMuonMuonAssociation + recomuMuonTrackVMuonAssoc
 )
 
 muonValidationTEV_seq = cms.Sequence(
     tpToTevFirstMuonAssociation + tevMuonFirstTrackVMuonAssoc
     +tpToTevPickyMuonAssociation + tevMuonPickyTrackVMuonAssoc
     +tpToTevDytMuonAssociation + tevMuonDytTrackVMuonAssoc
+    +tunepMuonTracks_seq + tpToTunePMuonAssociation + tunepMuonTrackVMuonAssoc
 )
 
 muonValidationRefit_seq = cms.Sequence(
@@ -205,6 +215,18 @@ muonValidationCosmic_seq = cms.Sequence(
     +tpToGlbCosmic1LegSelMuonAssociation + glbCosmic1LegMuonTrackVSelMuonAssoc
 )
 
+recoMuonValidation_reduced_seq = cms.Sequence(
+    probeTracks_seq + tpToTkMuonAssociation + trkProbeTrackVMuonAssoc
+    +tpToStaUpdMuonAssociation + staUpdMuonTrackVMuonAssoc
+    +tpToGlbMuonAssociation + glbMuonTrackVMuonAssoc
+    +tunepMuonTracks_seq + tpToTunePMuonAssociation + tunepMuonTrackVMuonAssoc
+    +pfMuonTracks_seq + tpToPFMuonAssociation + pfMuonTrackVMuonAssoc
+    +recoMuonTracks_seq + tpTorecoMuonMuonAssociation + recomuMuonTrackVMuonAssoc
+    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc
+    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc
+    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
+)
+
 gemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc)
 me0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq + tpToME0MuonMuonAssociation + me0MuonTrackVMuonAssoc)
 
@@ -226,16 +248,16 @@ recoCosmicMuonValidation = cms.Sequence(
 
 # sequences for muon upgrades
 #
-_run3_muonValidation = muonValidation_seq.copy() #For full validation
-#_run3_muonValidation = muonValidation_reduced_seq.copy()
+_run3_muonValidation = recoMuonValidation.copy()              #For full validation
+#_run3_muonValidation = recoMuonValidation_reduced_seq.copy()
 _run3_muonValidation += gemMuonValidation
 
-_phase2_muonValidation = _run3_muonValidation.copy()
+#_phase2_muonValidation = recoMuonValidation.copy()              #For full validation 
+_phase2_muonValidation = recoMuonValidation_reduced_seq.copy()
+_phase2_muonValidation += gemMuonValidation
 _phase2_muonValidation += me0MuonValidation
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toReplaceWith( muonValidation_seq, _run3_muonValidation ) #For full validation
 run3_GEM.toReplaceWith( recoMuonValidation, _run3_muonValidation )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toReplaceWith( muonValidation_seq, _phase2_muonValidation ) #For full validation
 phase2_muon.toReplaceWith( recoMuonValidation, _phase2_muonValidation )

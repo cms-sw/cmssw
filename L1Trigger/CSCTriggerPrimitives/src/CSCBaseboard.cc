@@ -30,17 +30,13 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
 
   alctClctOffset_ = commonParams_.getParameter<unsigned int>("alctClctOffset");
 
-  runME11Up_ = commonParams_.existsAs<bool>("runME11Up") ? commonParams_.getParameter<bool>("runME11Up") : false;
+  runME11Up_ = commonParams_.getParameter<bool>("runME11Up");
+  runME21Up_ = commonParams_.getParameter<bool>("runME21Up");
+  runME31Up_ = commonParams_.getParameter<bool>("runME31Up");
+  runME41Up_ = commonParams_.getParameter<bool>("runME41Up");
 
-  runME21Up_ = commonParams_.existsAs<bool>("runME21Up") ? commonParams_.getParameter<bool>("runME21Up") : false;
-
-  runME31Up_ = commonParams_.existsAs<bool>("runME31Up") ? commonParams_.getParameter<bool>("runME31Up") : false;
-
-  runME41Up_ = commonParams_.existsAs<bool>("runME41Up") ? commonParams_.getParameter<bool>("runME41Up") : false;
-
-  runME11ILT_ = commonParams_.existsAs<bool>("runME11ILT") ? commonParams_.getParameter<bool>("runME11ILT") : false;
-
-  runME21ILT_ = commonParams_.existsAs<bool>("runME21ILT") ? commonParams_.getParameter<bool>("runME21ILT") : false;
+  runME11ILT_ = commonParams_.getParameter<bool>("runME11ILT");
+  runME21ILT_ = commonParams_.getParameter<bool>("runME21ILT");
 
   if (isSLHC_ and theRing == 1) {
     if (theStation == 1 and runME11Up_) {

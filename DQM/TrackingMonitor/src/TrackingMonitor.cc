@@ -342,6 +342,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   if (doLumiAnalysis) {
     // add by Mia in order to deal with LS transitions
     ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
 
     histname = "NumberOfTracks_lumiFlag_" + CategoryName;
     NumberOfTracks_lumiFlag = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
@@ -577,7 +578,12 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks", 2);
   }
 
-  theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  if (doLumiAnalysis) {
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  } else {
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  }
 
   // book the Seed Property histograms
   // ---------------------------------------------------------------------------------//
@@ -599,6 +605,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     if (doSeedLumiAnalysis_) {
       ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
       histname = "NumberOfSeeds_lumiFlag_" + seedProducer.label() + "_" + CategoryName;
       NumberOfSeeds_lumiFlag = ibooker.book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
       NumberOfSeeds_lumiFlag->setAxisTitle("Number of Seeds per Event", 1);
@@ -665,17 +672,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   }
 
   theTrackBuildingAnalyzer->initHisto(ibooker, *conf);
-
-  if (doLumiAnalysis) {
-    if (NumberOfTracks_lumiFlag)
-      NumberOfTracks_lumiFlag->setLumiFlag();
-    theTrackAnalyzer->setLumiFlag();
-  }
-
-  if (doAllSeedPlots || doSeedNumberPlot) {
-    if (doSeedLumiAnalysis_)
-      NumberOfSeeds_lumiFlag->setLumiFlag();
-  }
 
   if (doTrackerSpecific_ || doAllPlots) {
     ClusterLabels = conf->getParameter<std::vector<std::string> >("ClusterLabels");

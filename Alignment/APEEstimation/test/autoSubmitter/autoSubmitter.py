@@ -1,5 +1,5 @@
 from __future__ import print_function
-import ConfigParser
+import configparser as ConfigParser
 import argparse
 import shelve
 import sys

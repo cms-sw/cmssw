@@ -23,7 +23,7 @@ Original Author:  Mateusz Zarucki
 #include <vector>
 
 //User include files
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,17 +35,16 @@ Original Author:  Mateusz Zarucki
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 //Class declaration
-class GenHTFilter : public edm::EDFilter {
+class GenHTFilter : public edm::global::EDFilter<> {
 public:
   explicit GenHTFilter(const edm::ParameterSet&);
-  ~GenHTFilter() override;
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   //Member data
-  edm::EDGetTokenT<reco::GenJetCollection> token_;
-  double jetPtCut_, jetEtaCut_, genHTcut_;
+  const edm::EDGetTokenT<reco::GenJetCollection> token_;
+  const double jetPtCut_, jetEtaCut_, genHTcut_;
 };
 
 //Constructor
@@ -55,10 +54,7 @@ GenHTFilter::GenHTFilter(const edm::ParameterSet& params)
       jetEtaCut_(params.getParameter<double>("jetEtaCut")),
       genHTcut_(params.getParameter<double>("genHTcut")) {}
 
-//Destructor
-GenHTFilter::~GenHTFilter() {}
-
-bool GenHTFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
+bool GenHTFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& params) const {
   using namespace std;
   using namespace edm;
   using namespace reco;

@@ -4,12 +4,12 @@
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/Math"/>
 <use   name="CondFormats/ESObjects"/>
+<use   name="CondFormats/EgammaObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
-<use   name="RecoEgamma/EgammaTools"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

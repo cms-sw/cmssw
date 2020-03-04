@@ -10,11 +10,8 @@
 #define Validation_RecoTrack_SiPixelTrackingRecHitsValid_h
 
 //DQM services for histogram
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -65,7 +62,7 @@
 class TTree;
 class TFile;
 
-class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer {
+class SiPixelTrackingRecHitsValid : public DQMOneEDAnalyzer<> {
 public:
   explicit SiPixelTrackingRecHitsValid(const edm::ParameterSet& conf);
 

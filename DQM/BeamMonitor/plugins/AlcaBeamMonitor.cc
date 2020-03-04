@@ -17,7 +17,6 @@
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
 #include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
-#include "DQMServices/Core/interface/QReport.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -174,16 +173,18 @@ void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     }
   }
   ibooker.setCurrentFolder(monitorName_ + "Service");
-  theValuesContainer_ = ibooker.bookProfile("hHistoLumiValues",
-                                            "Histo Lumi Values",
-                                            3 * numberOfValuesToSave_,
-                                            0.,
-                                            3 * numberOfValuesToSave_,
-                                            100.,
-                                            -100.,
-                                            9000.,
-                                            " ");
-  theValuesContainer_->setLumiFlag();
+  {
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+    theValuesContainer_ = ibooker.bookProfile("hHistoLumiValues",
+                                              "Histo Lumi Values",
+                                              3 * numberOfValuesToSave_,
+                                              0.,
+                                              3 * numberOfValuesToSave_,
+                                              100.,
+                                              -100.,
+                                              9000.,
+                                              " ");
+  }
 
   // create and cd into new folder
   ibooker.setCurrentFolder(monitorName_ + "Validation");

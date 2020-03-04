@@ -14,17 +14,16 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include <unordered_map>
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // Forward declaration
 namespace CLHEP {
@@ -49,12 +48,13 @@ class TrackerDigiGeometryRecord;
 namespace cms {
   class Phase2TrackerDigitizer : public DigiAccumulatorMixMod {
   public:
-    typedef std::unordered_map<unsigned, TrackerGeometry::ModuleType> ModuleTypeCache;
+    using ModuleTypeCache = std::unordered_map<uint32_t, TrackerGeometry::ModuleType>;
 
     explicit Phase2TrackerDigitizer(const edm::ParameterSet& iConfig,
                                     edm::ProducesCollector,
                                     edm::ConsumesCollector& iC);
     ~Phase2TrackerDigitizer() override;
+
     void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
     void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
@@ -66,16 +66,16 @@ namespace cms {
     void accumulate_local(T const& iEvent, edm::EventSetup const& iSetup);
 
     // For premixing
-    void loadAccumulator(const std::map<unsigned int, std::map<int, float> >& accumulator);
+    void loadAccumulator(const std::map<uint32_t, std::map<int, float> >& accumulator);
 
   private:
     using vstring = std::vector<std::string>;
 
     // constants of different algorithm types
     enum class AlgorithmType { InnerPixel, PixelinPS, StripinPS, TwoStrip, Unknown };
-    AlgorithmType getAlgoType(unsigned int idet);
+    AlgorithmType getAlgoType(uint32_t idet);
 
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, size_t globalSimHitIndex, const unsigned int tofBin);
+    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, size_t globalSimHitIndex, const uint32_t tofBin);
     void addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const bool ot_analog);
 
     // Templated for premixing
@@ -99,10 +99,10 @@ namespace cms {
     const std::string geometryType_;
     edm::ESHandle<TrackerGeometry> pDD_;
     edm::ESHandle<MagneticField> pSetup_;
-    std::map<unsigned int, const Phase2TrackerGeomDetUnit*> detectorUnits_;
-    edm::ESHandle<TrackerTopology> tTopoHand;
-    edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
-    const bool isOuterTrackerReadoutAnalog;
+    std::map<uint32_t, const Phase2TrackerGeomDetUnit*> detectorUnits_;
+    edm::ESHandle<TrackerTopology> tTopoHand_;
+    edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher_;
+    const bool isOuterTrackerReadoutAnalog_;
     const bool premixStage1_;
     const bool makeDigiSimLinks_;
     // cache for detector types

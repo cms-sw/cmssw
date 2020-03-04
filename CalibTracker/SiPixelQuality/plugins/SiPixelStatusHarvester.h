@@ -8,9 +8,19 @@
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
+
 // Pixel quality harvester
 #include "CalibTracker/SiPixelQuality/interface/SiPixelStatusManager.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 // PixelDQM Framework
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 // PixelPhase1 HelperClass
@@ -34,9 +44,9 @@ public:
   // Operations
   void beginJob() override;
   void endJob() override;
-  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup) final;
+  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, const edm::EventSetup&) final;
   void dqmEndRun(const edm::Run&, const edm::EventSetup&) final;
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup&) final;
 
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
   void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
@@ -72,6 +82,11 @@ private:
 
   // pixel online to offline pixel row/column
   std::map<int, std::map<int, std::pair<int, int> > > pixelO2O_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingMapToken_;
+  edm::ESGetToken<SiPixelQuality, SiPixelQualityFromDbRcd> siPixelQualityToken_;
 
   //Helper functions
   std::vector<std::string> substructures;

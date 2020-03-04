@@ -19,8 +19,6 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/RotationInterfaces.h"
 #include "DataFormats/Math/interface/Error.h"
 
 #include <vector>
@@ -32,7 +30,7 @@ public:
   virtual ~RPixDetPatternFinder(){};
 
   typedef struct {
-    CLHEP::Hep3Vector globalPoint;
+    CTPPSGeometry::Vector globalPoint;
     math::Error<3>::type globalError;
     CTPPSPixelRecHit recHit;
     CTPPSPixelDetId detId;

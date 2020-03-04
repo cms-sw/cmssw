@@ -29,6 +29,14 @@ CSCGEMMotherboardME21::~CSCGEMMotherboardME21() {}
 
 void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
                                 const CSCComparatorDigiCollection* compdc,
+                                const GEMPadDigiClusterCollection* gemClusters) {
+  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
+  coPadProcessor->declusterize(gemClusters, *gemPads);
+  run(wiredc, compdc, gemPads.get());
+}
+
+void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
+                                const CSCComparatorDigiCollection* compdc,
                                 const GEMPadDigiCollection* gemPads) {
   CSCGEMMotherboard::clear();
   setupGeometry();

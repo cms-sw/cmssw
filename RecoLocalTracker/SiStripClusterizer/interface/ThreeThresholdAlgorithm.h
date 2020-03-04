@@ -18,27 +18,6 @@ public:
   void stripByStripAdd(State& state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) const override;
   void stripByStripEnd(State& state, std::vector<SiStripCluster>& out) const override;
 
-  void addFed(State& state,
-              sistrip::FEDZSChannelUnpacker& unpacker,
-              uint16_t ipair,
-              std::vector<SiStripCluster>& out) const {
-    while (unpacker.hasData()) {
-      stripByStripAdd(state, unpacker.sampleNumber() + ipair * 256, unpacker.adc(), out);
-      unpacker++;
-    }
-  }
-  using StripClusterizerAlgorithm::addFed;
-  // detset interface
-  void addFed(State& state,
-              sistrip::FEDZSChannelUnpacker& unpacker,
-              uint16_t ipair,
-              output_t::TSFastFiller& out) const override {
-    while (unpacker.hasData()) {
-      stripByStripAdd(state, unpacker.sampleNumber() + ipair * 256, unpacker.adc(), out);
-      unpacker++;
-    }
-  }
-
   void stripByStripAdd(State& state, uint16_t strip, uint8_t adc, output_t::TSFastFiller& out) const override {
     if (candidateEnded(state, strip))
       endCandidate(state, out);

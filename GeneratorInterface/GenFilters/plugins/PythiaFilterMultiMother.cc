@@ -1,11 +1,48 @@
-
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterMultiMother.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "GeneratorInterface/GenFilters/plugins/MCFilterZboostHelper.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include <iostream>
 
-using namespace edm;
+#include <cmath>
+#include <cstdlib>
+#include <string>
+#include <vector>
+
+class PythiaFilterMultiMother : public edm::global::EDFilter<> {
+public:
+  explicit PythiaFilterMultiMother(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  // ----------member data ---------------------------
+
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const int particleID;
+  const double minpcut;
+  const double maxpcut;
+  const double minptcut;
+  const double maxptcut;
+  const double minetacut;
+  const double maxetacut;
+  const double minrapcut;
+  const double maxrapcut;
+  const double minphicut;
+  const double maxphicut;
+
+  const int status;
+  const std::vector<int> motherIDs;
+  const int processID;
+
+  const double betaBoost;
+};
+
 using namespace std;
 
 PythiaFilterMultiMother::PythiaFilterMultiMother(const edm::ParameterSet& iConfig)
@@ -25,24 +62,11 @@ PythiaFilterMultiMother::PythiaFilterMultiMother(const edm::ParameterSet& iConfi
       status(iConfig.getUntrackedParameter("Status", 0)),
       motherIDs(iConfig.getUntrackedParameter("MotherIDs", std::vector<int>{0})),
       processID(iConfig.getUntrackedParameter("ProcessID", 0)),
-      betaBoost(iConfig.getUntrackedParameter("BetaBoost", 0.)) {
-  //now do what ever initialization is needed
-}
+      betaBoost(iConfig.getUntrackedParameter("BetaBoost", 0.)) {}
 
-PythiaFilterMultiMother::~PythiaFilterMultiMother() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
-bool PythiaFilterMultiMother::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
+bool PythiaFilterMultiMother::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
-  Handle<HepMCProduct> evt;
+  edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
@@ -51,7 +75,7 @@ bool PythiaFilterMultiMother::filter(edm::Event& iEvent, const edm::EventSetup& 
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p) {
       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(), betaBoost);
-      rapidity = 0.5 * log((mom.e() + mom.pz()) / (mom.e() - mom.pz()));
+      double rapidity = 0.5 * log((mom.e() + mom.pz()) / (mom.e() - mom.pz()));
 
       if (abs((*p)->pdg_id()) == particleID && mom.rho() > minpcut && mom.rho() < maxpcut &&
           (*p)->momentum().perp() > minptcut && (*p)->momentum().perp() < maxptcut && mom.eta() > minetacut &&
@@ -79,31 +103,12 @@ bool PythiaFilterMultiMother::filter(edm::Event& iEvent, const edm::EventSetup& 
             }
           }
         }
-
-        /*
-	   if (status == 0 && motherID != 0){
-	   if (abs(((*p)->mother())->pdg_id()) == abs(motherID)) {
-	   accepted = true;
-	   }
-	   }
-	   if (status != 0 && motherID != 0){
-
-	   if ((*p)->status() == status && abs(((*p)->mother())->pdg_id()) == abs(motherID)){
-	   accepted = true;
-
-	   }
-	   }
-	 */
       }
     }
-
   } else {
     accepted = true;
   }
-
-  if (accepted) {
-    return true;
-  } else {
-    return false;
-  }
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(PythiaFilterMultiMother);

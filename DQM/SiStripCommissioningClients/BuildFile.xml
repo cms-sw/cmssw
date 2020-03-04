@@ -4,7 +4,6 @@
 <use   name="DQM/SiStripCommissioningSummary"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="DQMServices/Core"/>
-<use   name="DQMServices/ClientConfig"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>

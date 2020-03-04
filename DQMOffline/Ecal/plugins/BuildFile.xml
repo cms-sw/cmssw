@@ -15,7 +15,6 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/JetReco"/>
-<use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use name="rootphysics"/>
 <library file="*.cc" name="DQMOfflineEcalPlugins">

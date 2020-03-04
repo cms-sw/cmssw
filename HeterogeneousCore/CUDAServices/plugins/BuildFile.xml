@@ -1,18 +1,17 @@
-#Skip building plugins by dropping all files for none-AMD64 build
-<architecture match="!_amd64_">
-  <flags SKIP_FILES="*"/>
-</architecture>
-<use   name="DataFormats/Provenance"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/Streamer"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Concurrency"/>
-<use   name="FWCore/Framework"/>
-<use   name="cuda"/>
-<library   file="*.cc" name="HeterogeneousCoreCUDAServicesPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<iftool name="cuda-gcc-support">
+<use name="cuda"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Streamer"/>
+<use name="FWCore/Concurrency"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/CUDAServices"/>
+<library file="*.cc" name="HeterogeneousCoreCUDAServicesPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
+</iftool>

@@ -380,9 +380,9 @@ void CTPPSDirectProtonSimulation::processProton(
 
       // determine the track impact point (in global coordinates)
       // !! this assumes that local axes (1, 0, 0) and (0, 1, 0) describe the sensor surface
-      CLHEP::Hep3Vector gl_o = geometry.localToGlobal(detId, CLHEP::Hep3Vector(0, 0, 0));
-      CLHEP::Hep3Vector gl_a1 = geometry.localToGlobal(detId, CLHEP::Hep3Vector(1, 0, 0)) - gl_o;
-      CLHEP::Hep3Vector gl_a2 = geometry.localToGlobal(detId, CLHEP::Hep3Vector(0, 1, 0)) - gl_o;
+      const auto &gl_o = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 0, 0));
+      const auto &gl_a1 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(1, 0, 0)) - gl_o;
+      const auto &gl_a2 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 1, 0)) - gl_o;
 
       TMatrixD A(3, 3);
       TVectorD B(3);
@@ -404,10 +404,10 @@ void CTPPSDirectProtonSimulation::processProton(
       P = Ai * B;
 
       double ze = P(0);
-      CLHEP::Hep3Vector h_glo(a_x * ze + b_x, a_y * ze + b_y, z_sign * ze + z_scoringPlane);
+      const CTPPSGeometry::Vector h_glo(a_x * ze + b_x, a_y * ze + b_y, z_sign * ze + z_scoringPlane);
 
       // hit in local coordinates
-      CLHEP::Hep3Vector h_loc = geometry.globalToLocal(detId, h_glo);
+      auto h_loc = geometry.globalToLocal(detId, h_glo);
 
       if (verbosity_) {
         ssLog << std::endl
@@ -475,8 +475,8 @@ void CTPPSDirectProtonSimulation::processProton(
           continue;
 
         if (roundToPitch_) {
-          h_loc.setX(pitchPixelsHor_ * floor(h_loc.x() / pitchPixelsHor_ + 0.5));
-          h_loc.setY(pitchPixelsVer_ * floor(h_loc.y() / pitchPixelsVer_ + 0.5));
+          h_loc.SetX(pitchPixelsHor_ * floor(h_loc.x() / pitchPixelsHor_ + 0.5));
+          h_loc.SetY(pitchPixelsVer_ * floor(h_loc.y() / pitchPixelsVer_ + 0.5));
         }
 
         if (verbosity_ > 5)

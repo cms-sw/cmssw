@@ -111,10 +111,12 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.firstMixedLayer_ = static_cast<int>(getDDDValue("FirstMixedLayer", sv));
       php.detectorType_ = static_cast<int>(getDDDValue("DetectorType", sv));
       php.minTileSize_ = 0;
+      php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
-                                    << php.firstMixedLayer_ << " Det Type " << php.detectorType_;
+                                    << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
+                                    << php.waferMaskMode_;
 #endif
       attribute = "OnlyForHGCalNumbering";
       value = namet;
@@ -320,9 +322,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     if (php.mode_ == HGCalGeometryMode::Hexagon) {
       // Load the SpecPars
       php.firstLayer_ = 1;
-      geom->loadSpecParsHexagon(fv, php, cpv, name, namew, namec, name2);
+      geom->loadSpecParsHexagon(fv, php, name, namew, namec, name2);
       // Load the Geometry parameters
-      geom->loadGeometryHexagon(fv, php, name, cpv, namew, namec, mode);
+      geom->loadGeometryHexagon(cpv, php, name, namew, namec, mode);
       // Load cell parameters
       geom->loadCellParsHexagon(vmap, php);
       // Set complete fill mode
@@ -330,9 +332,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     } else if (php.mode_ == HGCalGeometryMode::HexagonFull) {
       // Load the SpecPars
       php.firstLayer_ = 1;
-      geom->loadSpecParsHexagon(fv, php, cpv, name, namew, namec, name2);
+      geom->loadSpecParsHexagon(fv, php, name, namew, namec, name2);
       // Load the Geometry parameters
-      geom->loadGeometryHexagon(fv, php, name, cpv, namew, namec, mode);
+      geom->loadGeometryHexagon(cpv, php, name, namew, namec, mode);
       // Modify some constants
       geom->loadWaferHexagon(php);
       // Load cell parameters
@@ -343,7 +345,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       // Load the SpecPars
       geom->loadSpecParsHexagon8(fv, vmap, php, name);
       // Load Geometry parameters
-      geom->loadGeometryHexagon8(fv, php, 1);
+      geom->loadGeometryHexagon8(cpv, php, name, 1);
       // Set complete fill mode
       php.defineFull_ = false;
       // Load wafer positions
@@ -352,7 +354,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       // Load the SpecPars
       geom->loadSpecParsHexagon8(fv, vmap, php, name);
       // Load Geometry parameters
-      geom->loadGeometryHexagon8(fv, php, 1);
+      geom->loadGeometryHexagon8(cpv, php, name, 1);
       // Set complete fill mode
       php.defineFull_ = true;
       // Load wafer positions
@@ -384,7 +386,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, vmap, php, name);
       // Load Geometry parameters
-      geom->loadGeometryHexagon8(fv, php, php.firstLayer_);
+      geom->loadGeometryHexagon8(cpv, php, name, php.firstLayer_);
       // Load cell positions
       geom->loadCellTrapezoid(php);
     } else {

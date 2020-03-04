@@ -38,10 +38,6 @@ namespace dqm {
       long run_;
       long lumi_;
       std::string child_;  // child of a fork
-
-      // other parameters
-      DQMStore::SaveReferenceTag saveReference_;
-      int saveReferenceQMin_;
     };
 
   protected:

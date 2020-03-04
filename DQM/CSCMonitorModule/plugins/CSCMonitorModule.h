@@ -27,11 +27,9 @@
 #include <set>
 
 /// DQM Framework stuff
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -72,7 +70,7 @@ static const unsigned int MAX_DMB_SLOT = 10;
  * @class CSCMonitorModule
  * @brief Common CSC DQM Module that uses CSCDQM Framework  
  */
-class CSCMonitorModule : public DQMEDAnalyzer, public cscdqm::MonitorObjectProvider {
+class CSCMonitorModule : public DQMOneEDAnalyzer<>, public cscdqm::MonitorObjectProvider {
   /**
    * Global stuff
    */

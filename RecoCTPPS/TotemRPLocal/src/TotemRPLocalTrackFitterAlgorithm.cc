@@ -34,14 +34,7 @@ TotemRPLocalTrackFitterAlgorithm::prepareReconstAlgebraData(unsigned int det_id,
 
   det_algebra_obj.centre_of_det_global_position_ = convert3vector(tot_rp_geom.sensorTranslation(det_id));
 
-  HepMC::ThreeVector rp_topology_stripaxis = rp_topology_.GetStripReadoutAxisDir();
-  CLHEP::Hep3Vector rp_topology_stripaxis_clhep;
-
-  rp_topology_stripaxis_clhep.setX(rp_topology_stripaxis.x());
-  rp_topology_stripaxis_clhep.setY(rp_topology_stripaxis.y());
-  rp_topology_stripaxis_clhep.setZ(rp_topology_stripaxis.z());
-
-  TVector3 rd_dir = convert3vector(tot_rp_geom.localToGlobalDirection(det_id, rp_topology_stripaxis_clhep));
+  TVector3 rd_dir = convert3vector(tot_rp_geom.localToGlobalDirection(det_id, rp_topology_.GetStripReadoutAxisDir()));
 
   TVector2 v(rd_dir.X(), rd_dir.Y());
   det_algebra_obj.readout_direction_ = v.Unit();

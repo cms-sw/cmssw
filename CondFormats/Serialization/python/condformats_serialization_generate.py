@@ -352,7 +352,7 @@ def get_clang_version():
         return clang_version
     command = "clang --version | grep 'clang version' | sed 's/clang version//'"
     logging.debug("Running: {0}".format(command))
-    (clang_version_major, clang_version_minor, clang_version_patchlevel) = subprocess.check_output(command, shell=True).splitlines()[0].decode('ascii').strip().split('.', 3)
+    (clang_version_major, clang_version_minor, clang_version_patchlevel) = subprocess.check_output(command, shell=True).splitlines()[0].decode('ascii').strip().split(" ")[0].split('.', 3)
     clang_version = (int(clang_version_major), int(clang_version_minor), int(clang_version_patchlevel))
     logging.debug("Detected Clang version: {0}".format(clang_version))
     return clang_version

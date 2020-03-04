@@ -31,6 +31,7 @@ private:
   void update(const BeginOfRun *run) override;
   void addSolid(const DDLogicalPart &part);
   void fillLV(G4LogicalVolume *lv);
+  void fillPV(G4VPhysicalVolume *pv);
   void dumpSummary(std::ostream &out, std::string name);
   G4VPhysicalVolume *getTopPV();
   void addName(std::string name);
@@ -43,6 +44,7 @@ private:
   G4VPhysicalVolume *theTopPV_;
   std::vector<G4LogicalVolume *> lvs_, touch_;
   std::vector<G4VSolid *> sls_;
+  std::vector<G4VPhysicalVolume *> pvs_;
   std::map<DDSolidShape, std::pair<int, int> > kount_;
 };
 

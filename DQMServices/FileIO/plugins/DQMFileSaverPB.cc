@@ -13,13 +13,19 @@
 #include <string>
 #include <fstream>
 #include <utility>
-#include <TString.h>
-#include <TSystem.h>
+#include "TString.h"
+#include "TSystem.h"
+#include "TBufferFile.h"
 
 #include <openssl/md5.h>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/gzip_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+#include "DQMServices/Core/src/ROOTFilePB.pb.h"
 
 using namespace dqm;
 
@@ -77,7 +83,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
 
   if (fms ? fms->getEventsProcessedForLumi(fp.lumi_) : true) {
     // Save the file in the open directory.
-    store->savePB(openHistoFilePathName, "", store->mtEnabled() ? fp.run_ : 0, fp.lumi_);
+    this->savePB(&*store, openHistoFilePathName, fp.run_, fp.lumi_);
 
     // Now move the the data and json files into the output directory.
     ::rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
@@ -190,6 +196,70 @@ void DQMFileSaverPB::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   // "saver" which caused conflicting cfi filenames to be generated.
   // add could be used if unique module labels were given.
   descriptions.addDefault(desc);
+}
+
+void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int run, int lumi) const {
+  using google::protobuf::io::FileOutputStream;
+  using google::protobuf::io::GzipOutputStream;
+  using google::protobuf::io::StringOutputStream;
+
+  unsigned int nme = 0;
+
+  dqmstorepb::ROOTFilePB dqmstore_message;
+
+  // TODO: while we still have enableMultiThread, maybe this does the wrong thing.
+  // We save all histograms, indifferent of the lumi flag: even tough we save per lumi, this is a *snapshot*.
+  auto mes = store->getAllContents("");
+  for (auto const me : mes) {
+    TBufferFile buffer(TBufferFile::kWrite);
+    if (me->kind() < MonitorElement::Kind::TH1F) {
+      TObjString object(me->tagString().c_str());
+      buffer.WriteObject(&object);
+    } else {
+      buffer.WriteObject(me->getRootObject());
+    }
+    dqmstorepb::ROOTFilePB::Histo& histo = *dqmstore_message.add_histo();
+    histo.set_full_pathname(me->getFullname());
+    uint32_t flags = 0;
+    flags |= (uint32_t)me->kind();
+    if (me->getLumiFlag())
+      flags |= DQMNet::DQM_PROP_LUMI;
+    if (me->getEfficiencyFlag())
+      flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT;
+    histo.set_flags(flags);
+    histo.set_size(buffer.Length());
+    histo.set_streamed_histo((void const*)buffer.Buffer(), buffer.Length());
+
+    // Save quality reports if this is not in reference section.
+    // XXX not supported by protobuf files.
+
+    // Save efficiency tag, if any.
+    // XXX not supported by protobuf files.
+
+    // Save tag if any.
+    // XXX not supported by protobuf files.
+
+    // Count saved histograms
+    ++nme;
+  }
+
+  int filedescriptor =
+      ::open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+  FileOutputStream file_stream(filedescriptor);
+  GzipOutputStream::Options options;
+  options.format = GzipOutputStream::GZIP;
+  options.compression_level = 1;
+  GzipOutputStream gzip_stream(&file_stream, options);
+  dqmstore_message.SerializeToZeroCopyStream(&gzip_stream);
+
+  // Flush the internal streams before closing the fd.
+  gzip_stream.Close();
+  file_stream.Close();
+  ::close(filedescriptor);
+
+  // Maybe make some noise.
+  edm::LogInfo("DQMFileSaverPB") << "savePB: successfully wrote " << nme << " objects  "
+                                 << "into DQM file '" << filename << "'\n";
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

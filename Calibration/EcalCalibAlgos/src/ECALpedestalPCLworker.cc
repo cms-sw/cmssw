@@ -96,10 +96,6 @@ void ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSe
   }  // ee digis
 }
 
-void ECALpedestalPCLworker::beginJob() {}
-
-void ECALpedestalPCLworker::endJob() {}
-
 void ECALpedestalPCLworker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();

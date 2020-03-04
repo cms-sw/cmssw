@@ -44,6 +44,7 @@
     <Include ref="Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalsens/HGCal/hcalsenspmf.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalSimNumbering.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalRecNumbering.xml"/>
     <Include ref="Geometry/HcalSimData/data/hf.xml"/>
     <Include ref="Geometry/HcalSimData/data/hfpmt.xml"/>
     <Include ref="Geometry/HcalSimData/data/hffibre.xml"/>

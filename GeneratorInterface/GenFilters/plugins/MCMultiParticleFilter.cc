@@ -1,17 +1,72 @@
-#include "GeneratorInterface/GenFilters/plugins/MCMultiParticleFilter.h"
+// -*- C++ -*-
+//
+// Package:    MCMultiParticleFilter
+// Class:      MCMultiParticleFilter
+//
+/*
+
+ Description: Filter to select events with an arbitrary number of given particle(s).
+
+ Implementation: derived from MCSingleParticleFilter
+
+*/
+//
+// Original Author:  Paul Lujan
+//         Created:  Wed Feb 29 04:22:16 CST 2012
+//
+//
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+#include <cmath>
+#include <cstdlib>
+#include <vector>
+
+//
+// class declaration
+//
+
+class MCMultiParticleFilter : public edm::global::EDFilter<> {
+public:
+  explicit MCMultiParticleFilter(const edm::ParameterSet&);
+
+private:
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  // ----------member data ---------------------------
+
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const int numRequired_;              // number of particles required to pass filter
+  const bool acceptMore_;              // if true (default), accept numRequired or more.
+                                       // if false, accept events with exactly equal to numRequired.
+  const std::vector<int> particleID_;  // vector of particle IDs to look for
+  // the four next variables can either be a vector of length 1 (in which case the same
+  // value is used for all particle IDs) or of length equal to the length of ParticleID (in which
+  // case the corresponding value is used for each).
+  std::vector<int> motherID_;   // mother ID of particles (optional)
+  std::vector<double> ptMin_;   // minimum Pt of particles
+  std::vector<double> etaMax_;  // maximum fabs(eta) of particles
+  std::vector<int> status_;     // status of particles
+};
+
 MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig)
-    : src_(iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag(std::string("generator"), "unsmeared"))),
-      token_(consumes<edm::HepMCProduct>(src_)),
+    : token_(consumes<edm::HepMCProduct>(
+          iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generator", "unsmeared")))),
       numRequired_(iConfig.getParameter<int>("NumRequired")),
       acceptMore_(iConfig.getParameter<bool>("AcceptMore")),
       particleID_(iConfig.getParameter<std::vector<int> >("ParticleID")),
       ptMin_(iConfig.getParameter<std::vector<double> >("PtMin")),
       etaMax_(iConfig.getParameter<std::vector<double> >("EtaMax")),
-      status_(iConfig.getParameter<std::vector<int> >("Status")),
-      totalEvents_(0),
-      passedEvents_(0) {
+      status_(iConfig.getParameter<std::vector<int> >("Status")) {
   //here do whatever other initialization is needed
 
   // default pt, eta, status cuts to "don't care"
@@ -43,17 +98,11 @@ MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig)
     motherID_.push_back(defmother[0]);
 }
 
-MCMultiParticleFilter::~MCMultiParticleFilter() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 // ------------ method called to skim the data  ------------
-bool MCMultiParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool MCMultiParticleFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
 
-  totalEvents_++;
   int nFound = 0;
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
@@ -61,8 +110,9 @@ bool MCMultiParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
        ++p) {
     for (unsigned int i = 0; i < particleID_.size(); ++i) {
-      if ((particleID_[i] == 0 || abs(particleID_[i]) == abs((*p)->pdg_id())) && (*p)->momentum().perp() > ptMin_[i] &&
-          fabs((*p)->momentum().eta()) < etaMax_[i] && (status_[i] == 0 || (*p)->status() == status_[i])) {
+      if ((particleID_[i] == 0 || std::abs(particleID_[i]) == std::abs((*p)->pdg_id())) &&
+          (*p)->momentum().perp() > ptMin_[i] && std::fabs((*p)->momentum().eta()) < etaMax_[i] &&
+          (status_[i] == 0 || (*p)->status() == status_[i])) {
         if (motherID_[i] == 0) {  // do not check for mother ID if not sepcified
           nFound++;
           break;  // only match a given particle once!
@@ -89,17 +139,10 @@ bool MCMultiParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   }           // loop over particles
 
   if (nFound == numRequired_) {
-    passedEvents_++;
     return true;
   } else {
     return false;
   }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void MCMultiParticleFilter::endJob() {
-  edm::LogInfo("MCMultiParticleFilter") << "=== Results of MCMultiParticleFilter: passed " << passedEvents_ << "/"
-                                        << totalEvents_ << " events" << std::endl;
 }
 
 //define this as a plug-in

@@ -40,181 +40,125 @@ namespace dqm::impl {
     return h;
   }
 
-  MonitorElement *MonitorElement::initialise(Kind kind) {
-    switch (kind) {
-      case Kind::INT:
-      case Kind::REAL:
-      case Kind::STRING:
-      case Kind::TH1F:
-      case Kind::TH1S:
-      case Kind::TH1D:
-      case Kind::TH2F:
-      case Kind::TH2S:
-      case Kind::TH2D:
-      case Kind::TH3F:
-      case Kind::TPROFILE:
-      case Kind::TPROFILE2D:
-        data_.flags &= ~DQMNet::DQM_PROP_TYPE_MASK;
-        data_.flags |= ((int)kind);
-        break;
+  MonitorElement::MonitorElement(MonitorElementData &&data) {
+    this->mutable_ = new MutableMonitorElementData();
+    this->mutable_->data_ = std::move(data);
+    this->is_owned_ = true;
+    syncCoreObject();
+  }
+  MonitorElement::MonitorElement(MutableMonitorElementData *data) { switchData(data); }
+  MonitorElement::MonitorElement(MonitorElement *me) { switchData(me); }
 
-      default:
-        raiseDQMError("MonitorElement",
-                      "cannot initialise monitor element"
-                      " to invalid type %d",
-                      (int)kind);
+  MonitorElementData MonitorElement::cloneMEData() {
+    MonitorElementData out;
+    auto access = this->access();
+    out.key_ = access.key;
+    out.value_.scalar_ = access.value.scalar_;
+    if (access.value.object_) {
+      out.value_.object_ = std::unique_ptr<TH1>(static_cast<TH1 *>(access.value.object_->Clone()));
+    }
+    return out;
+  }
+
+  MutableMonitorElementData *MonitorElement::release(bool expectOwned) {
+    assert(this->is_owned_ == expectOwned);
+    MutableMonitorElementData *data = this->mutable_;
+    this->mutable_ = nullptr;
+    this->is_owned_ = false;
+    assert(!expectOwned || data);
+    return data;
+  }
+
+  void MonitorElement::switchData(MonitorElement *other) {
+    assert(other);
+    this->mutable_ = other->mutable_;
+    this->is_owned_ = false;
+    syncCoreObject();
+  }
+
+  void MonitorElement::switchData(MutableMonitorElementData *data) {
+    this->mutable_ = data;
+    this->is_owned_ = true;
+    syncCoreObject();
+  }
+
+  void MonitorElement::switchObject(std::unique_ptr<TH1> &&newobject) {
+    auto access = this->accessMut();
+    // Assume kind etc. matches.
+    // This should free the old object.
+    access.value.object_ = std::move(newobject);
+  }
+
+  void MonitorElement::syncCoreObject() {
+    auto access = this->accessMut();
+    syncCoreObject(access);
+  }
+
+  void MonitorElement::syncCoreObject(AccessMut &access) {
+    data_.flags &= ~DQMNet::DQM_PROP_TYPE_MASK;
+    data_.flags |= (int)access.key.kind_;
+
+    // mark as updated.
+    data_.flags |= DQMNet::DQM_PROP_NEW;
+
+    // lumi flag is approximately equivalent to Scope::LUMI.
+    data_.flags &= ~DQMNet::DQM_PROP_LUMI;
+    if (access.key.scope_ == MonitorElementData::Scope::LUMI) {
+      data_.flags |= DQMNet::DQM_PROP_LUMI;
     }
 
-    return this;
-  }
+    // these are unsupported and always off.
+    data_.flags &= ~DQMNet::DQM_PROP_HAS_REFERENCE;
+    data_.flags &= ~DQMNet::DQM_PROP_TAGGED;
+    data_.flags &= ~DQMNet::DQM_PROP_RESET;
+    data_.flags &= ~DQMNet::DQM_PROP_ACCUMULATE;
 
-  MonitorElement *MonitorElement::initialise(Kind kind, TH1 *rootobj) {
-    initialise(kind);
-    auto access = this->accessMut();
-    switch (kind) {
-      case Kind::TH1F:
-        assert(dynamic_cast<TH1F *>(rootobj));
-        assert(!reference_ || dynamic_cast<TH1F *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      case Kind::TH1S:
-        assert(dynamic_cast<TH1S *>(rootobj));
-        assert(!reference_ || dynamic_cast<TH1S *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      case Kind::TH1D:
-        assert(dynamic_cast<TH1D *>(rootobj));
-        assert(!reference_ || dynamic_cast<TH1D *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      case Kind::TH2F:
-        assert(dynamic_cast<TH2F *>(rootobj));
-        assert(!reference_ || dynamic_cast<TH2F *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      case Kind::TH2S:
-        assert(dynamic_cast<TH2S *>(rootobj));
-        assert(!reference_ || dynamic_cast<TH2S *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      case Kind::TH2D:
-        assert(dynamic_cast<TH2D *>(rootobj));
-        assert(!reference_ || dynamic_cast<TH1D *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      case Kind::TH3F:
-        assert(dynamic_cast<TH3F *>(rootobj));
-        assert(!reference_ || dynamic_cast<TH3F *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      case Kind::TPROFILE:
-        assert(dynamic_cast<TProfile *>(rootobj));
-        assert(!reference_ || dynamic_cast<TProfile *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      case Kind::TPROFILE2D:
-        assert(dynamic_cast<TProfile2D *>(rootobj));
-        assert(!reference_ || dynamic_cast<TProfile2D *>(reference_));
-        access.value.object_ = std::unique_ptr<TH1>(rootobj);
-        break;
-
-      default:
-        raiseDQMError("MonitorElement",
-                      "cannot initialise monitor element"
-                      " as a root object with type %d",
-                      (int)kind);
+    // we use ROOT's internal efficiency flag as the truth
+    data_.flags &= ~DQMNet::DQM_PROP_EFFICIENCY_PLOT;
+    if (access.value.object_ && access.value.object_->TestBit(TH1::kIsAverage)) {
+      data_.flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT;
     }
 
-    if (reference_)
-      data_.flags |= DQMNet::DQM_PROP_HAS_REFERENCE;
+    data_.tag = 0;
 
-    return this;
-  }
+    // don't touch version (a timestamp).
 
-  MonitorElement *MonitorElement::initialise(Kind kind, const std::string &value) {
-    initialise(kind);
-    auto access = this->accessMut();
-    if (kind == Kind::STRING)
-      access.value.scalar_.str = value;
-    else
-      raiseDQMError("MonitorElement",
-                    "cannot initialise monitor element"
-                    " as a string with type %d",
-                    (int)kind);
-
-    return this;
-  }
-
-  MonitorElement::MonitorElement()
-      : frozen_(nullptr), mutable_(new MutableMonitorElementData()), reference_(nullptr), refvalue_(nullptr) {
-    data_.version = 0;
-    data_.dirname = nullptr;
+    // we could set proper values here, but nobody should use them.
     data_.run = 0;
     data_.lumi = 0;
+
+    // these are relics from the threaded migration and should not be used anywhere.
     data_.streamId = 0;
     data_.moduleId = 0;
-    data_.tag = 0;
-    data_.flags = ((int)Kind::INVALID) | DQMNet::DQM_PROP_NEW;
-  }
 
-  MonitorElement::MonitorElement(const std::string *path, const std::string &name)
-      : frozen_(nullptr), mutable_(new MutableMonitorElementData()), reference_(nullptr), refvalue_(nullptr) {
-    data_.version = 0;
-    data_.run = 0;
-    data_.lumi = 0;
-    data_.streamId = 0;
-    data_.moduleId = 0;
-    data_.dirname = path;
-    data_.objname = name;
-    data_.tag = 0;
-    data_.flags = ((int)Kind::INVALID) | DQMNet::DQM_PROP_NEW;
-  }
+    // leaking a pointer here, but that should be fine.
+    data_.dirname = access.key.path_.getDirname();
 
-  MonitorElement::MonitorElement(const std::string *path, const std::string &name, uint32_t run, uint32_t moduleId)
-      : frozen_(nullptr), mutable_(new MutableMonitorElementData()), reference_(nullptr), refvalue_(nullptr) {
-    data_.version = 0;
-    data_.run = run;
-    data_.lumi = 0;
-    data_.streamId = 0;
-    data_.moduleId = moduleId;
-    data_.dirname = path;
-    data_.objname = name;
-    data_.tag = 0;
-    data_.flags = ((int)Kind::INVALID) | DQMNet::DQM_PROP_NEW;
-  }
+    data_.objname = access.key.path_.getObjectname();
 
-  MonitorElement::MonitorElement(const MonitorElement &x, MonitorElementNoCloneTag)
-      : data_(x.data_),
-        frozen_(nullptr),
-        mutable_(new MutableMonitorElementData()),
-        reference_(x.reference_),
-        refvalue_(nullptr),
-        qreports_(x.qreports_) {}
-
-  MonitorElement::MonitorElement(const MonitorElement &x)
-      : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag()) {
-    auto access = this->accessMut();
-    auto xaccess = x.access();
-    if (xaccess.value.object_)
-      access.value.object_ = std::unique_ptr<TH1>(static_cast<TH1 *>(xaccess.value.object_->Clone()));
-    access.value.scalar_ = xaccess.value.scalar_;
-
-    if (x.refvalue_)
-      refvalue_ = static_cast<TH1 *>(x.refvalue_->Clone());
+    data_.flags &= ~DQMNet::DQM_PROP_REPORT_ALARM;
+    data_.qreports.clear();
+    for (QReport const &qr : access.value.qreports_) {
+      data_.qreports.push_back(qr.getValue());
+      switch (qr.getStatus()) {
+        case dqm::qstatus::STATUS_OK:
+          break;
+        case dqm::qstatus::WARNING:
+          data_.flags |= DQMNet::DQM_PROP_REPORT_WARN;
+          break;
+        case dqm::qstatus::ERROR:
+          data_.flags |= DQMNet::DQM_PROP_REPORT_ERROR;
+          break;
+        default:
+          data_.flags |= DQMNet::DQM_PROP_REPORT_OTHER;
+          break;
+      }
+    }
   }
 
   MonitorElement::~MonitorElement() {
-    // TODO: this is only as long as we use the edm::Service DQMStore.
-    delete mutable_;
-    delete refvalue_;
+    if (is_owned_)
+      delete mutable_;
   }
 
   //utility function to check the consistency of the axis labels
@@ -540,55 +484,45 @@ namespace dqm::impl {
     return result;
   }
 
-  const QReport *MonitorElement::getQReport(const std::string &qtname) const {
-    QReport *qr;
+  const MonitorElementData::QReport *MonitorElement::getQReport(const std::string &qtname) const {
+    MonitorElementData::MonitorElementData::QReport *qr;
     DQMNet::QValue *qv;
     const_cast<MonitorElement *>(this)->getQReport(false, qtname, qr, qv);
     return qr;
   }
 
-  std::vector<QReport *> MonitorElement::getQReports() const {
-    std::vector<QReport *> result;
-    result.reserve(qreports_.size());
-    for (size_t i = 0, e = qreports_.size(); i != e; ++i) {
-      const_cast<MonitorElement *>(this)->qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-      result.push_back(const_cast<QReport *>(&qreports_[i]));
+  template <typename FILTER>
+  std::vector<MonitorElementData::QReport *> MonitorElement::filterQReports(FILTER filter) const {
+    auto access = this->access();
+    std::vector<MonitorElementData::QReport *> result;
+    for (MonitorElementData::QReport const &qr : access.value.qreports_) {
+      if (filter(qr)) {
+        // const_cast here because this API always violated cons'ness. Should
+        // make the result type const and fix all usages.
+        result.push_back(const_cast<MonitorElementData::QReport *>(&qr));
+      }
     }
     return result;
   }
 
-  std::vector<QReport *> MonitorElement::getQWarnings() const {
-    std::vector<QReport *> result;
-    result.reserve(qreports_.size());
-    for (size_t i = 0, e = qreports_.size(); i != e; ++i)
-      if (data_.qreports[i].code == dqm::qstatus::WARNING) {
-        const_cast<MonitorElement *>(this)->qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<QReport *>(&qreports_[i]));
-      }
-    return result;
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQReports() const {
+    return filterQReports([](MonitorElementData::QReport const &qr) { return true; });
   }
 
-  std::vector<QReport *> MonitorElement::getQErrors() const {
-    std::vector<QReport *> result;
-    result.reserve(qreports_.size());
-    for (size_t i = 0, e = qreports_.size(); i != e; ++i)
-      if (data_.qreports[i].code == dqm::qstatus::ERROR) {
-        const_cast<MonitorElement *>(this)->qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<QReport *>(&qreports_[i]));
-      }
-    return result;
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQWarnings() const {
+    return filterQReports(
+        [](MonitorElementData::QReport const &qr) { return qr.getStatus() == dqm::qstatus::WARNING; });
   }
 
-  std::vector<QReport *> MonitorElement::getQOthers() const {
-    std::vector<QReport *> result;
-    result.reserve(qreports_.size());
-    for (size_t i = 0, e = qreports_.size(); i != e; ++i)
-      if (data_.qreports[i].code != dqm::qstatus::STATUS_OK && data_.qreports[i].code != dqm::qstatus::WARNING &&
-          data_.qreports[i].code != dqm::qstatus::ERROR) {
-        const_cast<MonitorElement *>(this)->qreports_[i].qvalue_ = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
-        result.push_back(const_cast<QReport *>(&qreports_[i]));
-      }
-    return result;
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQErrors() const {
+    return filterQReports([](MonitorElementData::QReport const &qr) { return qr.getStatus() == dqm::qstatus::ERROR; });
+  }
+
+  std::vector<MonitorElementData::QReport *> MonitorElement::getQOthers() const {
+    return filterQReports([](MonitorElementData::QReport const &qr) {
+      return qr.getStatus() != dqm::qstatus::STATUS_OK && qr.getStatus() != dqm::qstatus::WARNING &&
+             qr.getStatus() != dqm::qstatus::ERROR;
+    });
   }
 
   void MonitorElement::incompatible(const char *func) const {
@@ -787,18 +721,24 @@ namespace dqm::impl {
 
   /// set bin label for x, y or z axis (axis=1, 2, 3 respectively)
   void MonitorElement::setBinLabel(int bin, const std::string &label, int axis /* = 1 */) {
-    auto access = this->accessMut();
-    update();
-    if (getAxis(access, __PRETTY_FUNCTION__, axis)->GetNbins() >= bin) {
-      getAxis(access, __PRETTY_FUNCTION__, axis)->SetBinLabel(bin, label.c_str());
-    } else {
-#if WITHOUT_CMS_FRAMEWORK
-      std::cout
-#else
-      edm::LogWarning("MonitorElement")
-#endif
-          << "*** MonitorElement: WARNING:"
-          << "setBinLabel: attempting to set label of non-existent bin number for ME: " << getFullname() << " \n";
+    bool fail = false;
+    {
+      auto access = this->accessMut();
+      update();
+      if (getAxis(access, __PRETTY_FUNCTION__, axis)->GetNbins() >= bin) {
+        getAxis(access, __PRETTY_FUNCTION__, axis)->SetBinLabel(bin, label.c_str());
+      } else {
+        fail = true;
+      }
+    }
+    // do this with the ME lock released to prevent a deadlock
+    if (fail) {
+      // this also takes the lock, make sure to release it before going to edm
+      // (which might take more locks)
+      auto name = getFullname();
+      edm::LogWarning("MonitorElement") << "*** MonitorElement: WARNING:"
+                                        << "setBinLabel: attempting to set label of non-existent bin number for ME: "
+                                        << name << " \n";
     }
   }
 
@@ -824,12 +764,6 @@ namespace dqm::impl {
   void MonitorElement::setAxisTimeFormat(const char *format /* = "" */, int axis /* = 1 */) {
     auto access = this->accessMut();
     getAxis(access, __PRETTY_FUNCTION__, axis)->SetTimeFormat(format);
-  }
-
-  /// set the time offset, if option = "gmt" then the offset is treated as a GMT time
-  void MonitorElement::setAxisTimeOffset(double toffset, const char *option /* ="local" */, int axis /* = 1 */) {
-    auto access = this->accessMut();
-    getAxis(access, __PRETTY_FUNCTION__, axis)->SetTimeOffset(toffset, option);
   }
 
   /// set (ie. change) histogram/profile title
@@ -894,7 +828,9 @@ namespace dqm::impl {
   void MonitorElement::enableSumw2() {
     auto access = this->accessMut();
     update();
-    access.value.object_->Sumw2();
+    if (access.value.object_->GetSumw2() == nullptr) {
+      access.value.object_->Sumw2();
+    }
   }
 
   void MonitorElement::disableAlphanumeric() {
@@ -945,181 +881,35 @@ namespace dqm::impl {
     return access.value.scalar_.str;
   }
 
-  // implementation: Giuseppe.Della-Ricca@ts.infn.it
-  // Can be called with sum = h1 or sum = h2
-  void MonitorElement::addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2) {
-    assert(h1);
-    assert(h2);
-    assert(sum);
-
-    static const Int_t NUM_STAT = 6;
-    Double_t stats1[NUM_STAT];
-    Double_t stats2[NUM_STAT];
-    Double_t stats3[NUM_STAT];
-
-    bool isRebinOn = sum->CanExtendAllAxes();
-    sum->SetCanExtend(TH1::kNoAxis);
-
-    for (Int_t i = 0; i < NUM_STAT; ++i)
-      stats1[i] = stats2[i] = stats3[i] = 0;
-
-    h1->GetStats(stats1);
-    h2->GetStats(stats2);
-
-    for (Int_t i = 0; i < NUM_STAT; ++i)
-      stats3[i] = c1 * stats1[i] + c2 * stats2[i];
-
-    stats3[1] = c1 * TMath::Abs(c1) * stats1[1] + c2 * TMath::Abs(c2) * stats2[1];
-
-    Double_t entries = c1 * h1->GetEntries() + c2 * h2->GetEntries();
-    TArrayD *h1sumw2 = h1->GetSumw2();
-    TArrayD *h2sumw2 = h2->GetSumw2();
-    for (Int_t bin = 0, nbin = sum->GetNbinsX() + 1; bin <= nbin; ++bin) {
-      Double_t entries = c1 * h1->GetBinEntries(bin) + c2 * h2->GetBinEntries(bin);
-      Double_t content =
-          c1 * h1->GetBinEntries(bin) * h1->GetBinContent(bin) + c2 * h2->GetBinEntries(bin) * h2->GetBinContent(bin);
-      Double_t error =
-          TMath::Sqrt(c1 * TMath::Abs(c1) * h1sumw2->fArray[bin] + c2 * TMath::Abs(c2) * h2sumw2->fArray[bin]);
-      sum->SetBinContent(bin, content);
-      sum->SetBinError(bin, error);
-      sum->SetBinEntries(bin, entries);
-    }
-
-    sum->SetEntries(entries);
-    sum->PutStats(stats3);
-    if (isRebinOn)
-      sum->SetCanExtend(TH1::kAllAxes);
-  }
-
-  // implementation: Giuseppe.Della-Ricca@ts.infn.it
-  // Can be called with sum = h1 or sum = h2
-  void MonitorElement::addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2) {
-    assert(h1);
-    assert(h2);
-    assert(sum);
-
-    static const Int_t NUM_STAT = 9;
-    Double_t stats1[NUM_STAT];
-    Double_t stats2[NUM_STAT];
-    Double_t stats3[NUM_STAT];
-
-    bool isRebinOn = sum->CanExtendAllAxes();
-    sum->SetCanExtend(TH1::kNoAxis);
-
-    for (Int_t i = 0; i < NUM_STAT; ++i)
-      stats1[i] = stats2[i] = stats3[i] = 0;
-
-    h1->GetStats(stats1);
-    h2->GetStats(stats2);
-
-    for (Int_t i = 0; i < NUM_STAT; i++)
-      stats3[i] = c1 * stats1[i] + c2 * stats2[i];
-
-    stats3[1] = c1 * TMath::Abs(c1) * stats1[1] + c2 * TMath::Abs(c2) * stats2[1];
-
-    Double_t entries = c1 * h1->GetEntries() + c2 * h2->GetEntries();
-    TArrayD *h1sumw2 = h1->GetSumw2();
-    TArrayD *h2sumw2 = h2->GetSumw2();
-    for (Int_t xbin = 0, nxbin = sum->GetNbinsX() + 1; xbin <= nxbin; ++xbin)
-      for (Int_t ybin = 0, nybin = sum->GetNbinsY() + 1; ybin <= nybin; ++ybin) {
-        Int_t bin = sum->GetBin(xbin, ybin);
-        Double_t entries = c1 * h1->GetBinEntries(bin) + c2 * h2->GetBinEntries(bin);
-        Double_t content =
-            c1 * h1->GetBinEntries(bin) * h1->GetBinContent(bin) + c2 * h2->GetBinEntries(bin) * h2->GetBinContent(bin);
-        Double_t error =
-            TMath::Sqrt(c1 * TMath::Abs(c1) * h1sumw2->fArray[bin] + c2 * TMath::Abs(c2) * h2sumw2->fArray[bin]);
-
-        sum->SetBinContent(bin, content);
-        sum->SetBinError(bin, error);
-        sum->SetBinEntries(bin, entries);
-      }
-    sum->SetEntries(entries);
-    sum->PutStats(stats3);
-    if (isRebinOn)
-      sum->SetCanExtend(TH1::kAllAxes);
-  }
-
-  void MonitorElement::copyFunctions(TH1 *from, TH1 *to) {
-    update();
-    TList *fromf = from->GetListOfFunctions();
-    TList *tof = to->GetListOfFunctions();
-    for (int i = 0, nfuncs = fromf ? fromf->GetSize() : 0; i < nfuncs; ++i) {
-      TObject *obj = fromf->At(i);
-      // not interested in statistics
-      if (!strcmp(obj->IsA()->GetName(), "TPaveStats"))
-        continue;
-
-      if (auto *fn = dynamic_cast<TF1 *>(obj))
-        tof->Add(new TF1(*fn));
-      //else if (dynamic_cast<TPaveStats *>(obj))
-      //  ; // FIXME? tof->Add(new TPaveStats(*stats));
-      else
-        raiseDQMError("MonitorElement",
-                      "Cannot extract function '%s' of type"
-                      " '%s' from monitor element '%s' for a copy",
-                      obj->GetName(),
-                      obj->IsA()->GetName(),
-                      data_.objname.c_str());
-    }
-  }
-
-  void MonitorElement::copyFrom(TH1 *from) {
-    TH1 *orig = getTH1();
-    if (orig->GetTitle() != from->GetTitle())
-      orig->SetTitle(from->GetTitle());
-
-    orig->Add(from);
-
-    copyFunctions(from, orig);
-  }
-
-  // --- Operations on MEs that are normally reset at end of monitoring cycle ---
-  void MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv) {
-    assert(qreports_.size() == data_.qreports.size());
+  void MonitorElement::getQReport(bool create,
+                                  const std::string &qtname,
+                                  MonitorElementData::QReport *&qr,
+                                  DQMNet::QValue *&qv) {
+    auto access = this->accessMut();
+    assert(access.value.qreports_.size() == data_.qreports.size());
 
     qr = nullptr;
     qv = nullptr;
 
-    size_t pos = 0, end = qreports_.size();
+    size_t pos = 0, end = access.value.qreports_.size();
     while (pos < end && data_.qreports[pos].qtname != qtname)
       ++pos;
 
     if (pos == end && !create)
       return;
     else if (pos == end) {
-      data_.qreports.emplace_back();
-      qreports_.push_back(QReport(nullptr));
-
-      DQMNet::QValue &q = data_.qreports.back();
+      DQMNet::QValue q;
       q.code = dqm::qstatus::DID_NOT_RUN;
       q.qtresult = 0;
       q.qtname = qtname;
       q.message = "NO_MESSAGE_ASSIGNED";
       q.algorithm = "UNKNOWN_ALGORITHM";
-      qreports_[pos].qvalue_ = &q;
+      access.value.qreports_.push_back(MonitorElementData::QReport(q));
+      syncCoreObject(access);
     }
 
-    qr = &qreports_[pos];
-    qv = &data_.qreports[pos];
-  }
-
-  /// Refresh QReport stats, usually after MEs were read in from a file.
-  void MonitorElement::updateQReportStats() {
-    data_.flags &= ~DQMNet::DQM_PROP_REPORT_ALARM;
-    for (auto &qreport : data_.qreports)
-      switch (qreport.code) {
-        case dqm::qstatus::STATUS_OK:
-          break;
-        case dqm::qstatus::WARNING:
-          data_.flags |= DQMNet::DQM_PROP_REPORT_WARN;
-          break;
-        case dqm::qstatus::ERROR:
-          data_.flags |= DQMNet::DQM_PROP_REPORT_ERROR;
-          break;
-        default:
-          data_.flags |= DQMNet::DQM_PROP_REPORT_OTHER;
-          break;
-      }
+    qr = &access.value.qreports_[pos];
+    qv = &(qr->getValue());
   }
 
   // -------------------------------------------------------------------

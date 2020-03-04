@@ -10,17 +10,7 @@
 #ifndef Geometry_VeryForwardRPTopology_RPTopology
 #define Geometry_VeryForwardRPTopology_RPTopology
 
-#include <HepMC/SimpleVector.h>
-
-#include "TMath.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
-namespace HepMC {
-  class ThreeVector;
-}
+#include "Math/Vector3D.h"
 
 /**
  *\brief Geometrical and topological information on RP silicon detector.
@@ -28,10 +18,12 @@ namespace HepMC {
  **/
 class RPTopology {
 public:
+  using Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+
   RPTopology();
-  inline const HepMC::ThreeVector& GetStripReadoutAxisDir() const { return strip_readout_direction_; }
-  inline const HepMC::ThreeVector& GetStripDirection() const { return strip_direction_; }
-  inline const HepMC::ThreeVector& GetNormalDirection() const { return normal_direction_; }
+  inline const Vector& GetStripReadoutAxisDir() const { return strip_readout_direction_; }
+  inline const Vector& GetStripDirection() const { return strip_direction_; }
+  inline const Vector& GetNormalDirection() const { return normal_direction_; }
 
   /// method converts strip number to a hit position [mm] in det readout coordinate
   /// in the origin in the middle of the si detector
@@ -65,9 +57,9 @@ public:
   static const double last_strip_to_border_dist_;
   static const double last_strip_to_center_dist_;
 
-  HepMC::ThreeVector strip_readout_direction_;
-  HepMC::ThreeVector strip_direction_;
-  HepMC::ThreeVector normal_direction_;
+  Vector strip_readout_direction_;
+  Vector strip_direction_;
+  Vector normal_direction_;
 };
 
 #endif  //Geometry_VeryForwardRPTopology_RPTopology

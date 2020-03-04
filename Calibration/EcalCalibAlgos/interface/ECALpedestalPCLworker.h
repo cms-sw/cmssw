@@ -37,10 +37,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void beginJob() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
 
   edm::EDGetTokenT<EBDigiCollection> digiTokenEB_;
   edm::EDGetTokenT<EEDigiCollection> digiTokenEE_;
