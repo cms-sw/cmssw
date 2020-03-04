@@ -36,5 +36,5 @@ TrackJetParameters = cms.PSet(
     MaxVtxZ             = cms.double(15.),
     useDeterministicSeed= cms.bool( True ),
     minSeed             = cms.uint32( 14327 ),
-    applyPuppiWeight    = cms.bool( False )
+    applyWeight         = cms.bool( False )
 )

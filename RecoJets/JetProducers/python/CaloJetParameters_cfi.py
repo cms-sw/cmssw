@@ -30,5 +30,5 @@ CaloJetParameters = cms.PSet(
     voronoiRfact        = cms.double(-0.9),
     useDeterministicSeed= cms.bool( True ),
     minSeed             = cms.uint32( 14327 ),
-    applyPuppiWeight    = cms.bool( False )
+    applyWeight         = cms.bool( False )
 )

@@ -11,12 +11,14 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "fastjet/contrib/EnergyCorrelator.hh"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 class ECFAdder : public edm::stream::EDProducer<> {
 public:
   explicit ECFAdder(const edm::ParameterSet& iConfig);
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void addFJParticle(std::vector<fastjet::PseudoJet>& FJparticles, const reco::CandidatePtr& dp) const;
   float getECF(unsigned index, const edm::Ptr<reco::Jet>& object) const;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -33,6 +35,10 @@ private:
 
   std::vector<std::shared_ptr<fastjet::FunctionOfPseudoJet<double>>> routine_;
   std::vector<StringCutObjectSelector<reco::Jet>> selectors_;
+  bool applyWeight_;
+  edm::InputTag srcWeights_;
+  edm::EDGetTokenT<edm::ValueMap<float>> input_weights_token_;
+  edm::Handle<edm::ValueMap<float>> weightsHandle_;
 };
 
 #endif
