@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+    <debug_specpars/>
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <ConstantsSection label="" eval="true">
+    <Constant name="world_x" value="100*m"/>
+    <Constant name="world_y" value="100*m"/>
+    <Constant name="world_z" value="100*m"/>
+    <Constant name="fm"      value="1e-12*m"/>
+    <Constant name="mum"     value="1.e-3*mm"/>
+    <Constant name="Air"     value="materials:Air"     type="string"/>
+    <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
+  </ConstantsSection>
+
+  <IncludeSection>
+    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cms/2026/v2/cms.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/eta3/etaMax.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsTracker.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsCalo.xml'/>
+    <!-- <Include ref='Geometry/CMSCommonData/data/muonBase/2026/v2/muonBase.xml'/> -->
+    <!-- <Include ref='Geometry/CMSCommonData/data/cmsMuon.xml'/> -->
+    <!-- <Include ref='Geometry/CMSCommonData/data/mgnt.xml'/> -->
+    <!-- <Include ref='Geometry/CMSCommonData/data/beampipe/2026/v1/beampipe.xml'/> -->
+    <!-- <Include ref='Geometry/CMSCommonData/data/cmsBeam/2026/v1/cmsBeam.xml'/> -->
+    <!-- <Include ref='Geometry/CMSCommonData/data/muonMB.xml'/> -->
+    <!-- <Include ref='Geometry/CMSCommonData/data/muonMagnet.xml'/> -->
+    <!-- <Include ref='Geometry/CMSCommonData/data/cavern/2017/v2/cavern.xml'/> -->
+    <Include ref='Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml'/>
+    <!-- <Include ref='Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml'/> -->
+    <Include ref='Geometry/CMSCommonData/data/caloBase/2026/v2/caloBase.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial.xml'/>
+    <!-- <Include ref='Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613/pixfwd.xml'/> -->
+    <!-- <Include ref='Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613/tracker.xml'/> -->
+    <!-- <Include ref='Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixbar.xml'/> -->
+    <Include ref='Geometry/MTDCommonData/data/dd4hep/tracker.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdMaterial/v2/mtdMaterial.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/btl/v1/btl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/btl/v1/btlStructureTopology.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/etl/v4/etl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v1/mtdParameters.xml'/>
+    <Include ref='Geometry/MTDSimData/data/v2/mtdsens.xml'/>
+    <Include ref='Geometry/MTDSimData/data/v2/mtdProdCuts.xml'/>
+  </IncludeSection>
+  
+  <!-- <PosPartSection label=""> -->
+  <!--   <PosPart copyNumber="1"> -->
+  <!--     <rParent name=":world_volume"/> -->
+  <!--     <rChild name="cms:OCMS"/> -->
+  <!--   </PosPart> -->
+  <!-- </PosPartSection> -->
+</DDDefinition>

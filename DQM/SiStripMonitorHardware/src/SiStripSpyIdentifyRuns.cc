@@ -104,23 +104,17 @@ namespace sistrip {
       //check on FEDRawData pointer and size
       if (!input.data() || !input.size())
         continue;
-
       //construct FEDBuffer
-      std::unique_ptr<sistrip::FEDSpyBuffer> buffer;
-      try {
-        buffer.reset(new sistrip::FEDSpyBuffer(input.data(), input.size()));
-      } catch (const cms::Exception& e) {
+      const auto st_buffer = preconstructCheckFEDSpyBuffer(input);
+      if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
         edm::LogWarning("SiStripSpyIdentifyRuns")
-            << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": " << e.what();
-        //if (!(buffer->readoutMode() == READOUT_MODE_SPY)) break;
-        std::string lErrStr = e.what();
-        if (lErrStr.find("Buffer is not from spy channel") != lErrStr.npos)
+            << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": "
+            << "An exception of category 'FEDBuffer' occurred.\n"
+            << st_buffer;
+        if (sistrip::FEDBufferStatusCode::EXPECT_SPY == st_buffer)
           break;
-        else {
-          writeRunInFile(lRunNum);
-          break;
-        }
-      }  // end of buffer reset try.
+      }
+      const sistrip::FEDSpyBuffer buffer{input};
       edm::LogWarning("SiStripSpyIdentifyRuns") << " -- this is a spy file, run " << lRunNum << std::endl;
       writeRunInFile(lRunNum);
       break;

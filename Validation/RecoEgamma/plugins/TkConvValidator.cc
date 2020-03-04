@@ -77,8 +77,6 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
-
 //
 //
 #include "TFile.h"
@@ -1354,8 +1352,6 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   //edm::Handle<reco::GenJetCollection> GenJetsHandle;
   //e.getByToken(genjets_Token_, GenJetsHandle);
   //const reco::GenJetCollection &genJetCollection = *(GenJetsHandle.product());
-
-  ConversionHitChecker hitChecker;
 
   // ################  SIM to RECO ######################### //
   std::map<const reco::Track*, TrackingParticleRef> myAss;

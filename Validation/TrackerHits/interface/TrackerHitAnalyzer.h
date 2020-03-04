@@ -33,9 +33,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
-  // EndJob
-  void endJob() override;
-
   // void BookTestHistos(Char_t sname, int nbin, float *xmin, float *xmax);
 
 private:

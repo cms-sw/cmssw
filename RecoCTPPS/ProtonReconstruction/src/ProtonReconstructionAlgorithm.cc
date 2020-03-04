@@ -21,15 +21,28 @@ using namespace edm;
 
 ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y,
                                                              bool improved_estimate,
+                                                             const std::string &multiRPAlgorithm,
                                                              unsigned int verbosity)
     : verbosity_(verbosity),
       fitVtxY_(fit_vtx_y),
       useImprovedInitialEstimate_(improved_estimate),
+      multi_rp_algorithm_(mrpaUndefined),
       initialized_(false),
       fitter_(new ROOT::Fit::Fitter),
       chiSquareCalculator_(new ChiSquareCalculator) {
   // needed for thread safety
   TMinuitMinimizer::UseStaticMinuit(false);
+
+  // check and set multi-RP algorithm
+  if (multiRPAlgorithm == "chi2")
+    multi_rp_algorithm_ = mrpaChi2;
+  else if (multiRPAlgorithm == "newton")
+    multi_rp_algorithm_ = mrpaNewton;
+  else if (multiRPAlgorithm == "anal-iter")
+    multi_rp_algorithm_ = mrpaAnalIter;
+
+  if (multi_rp_algorithm_ == mrpaUndefined)
+    throw cms::Exception("ProtonReconstructionAlgorithm") << "Algorithm '" << multiRPAlgorithm << "' not understood.";
 
   // initialise fitter
   double pStart[] = {0, 0, 0, 0};
@@ -49,6 +62,8 @@ void ProtonReconstructionAlgorithm::init(const LHCInterpolatedOpticalFunctionsSe
     // make record
     RPOpticsData rpod;
     rpod.optics = &p.second;
+    rpod.s_x_d_vs_xi = ofs.splines()[LHCOpticalFunctionsSet::exd];
+    rpod.s_L_x_vs_xi = ofs.splines()[LHCOpticalFunctionsSet::eLx];
     rpod.s_y_d_vs_xi = ofs.splines()[LHCOpticalFunctionsSet::eyd];
     rpod.s_v_y_vs_xi = ofs.splines()[LHCOpticalFunctionsSet::evy];
     rpod.s_L_y_vs_xi = ofs.splines()[LHCOpticalFunctionsSet::eLy];
@@ -142,6 +157,17 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator()(const doub
 
 //----------------------------------------------------------------------------------------------------
 
+double ProtonReconstructionAlgorithm::newtonGoalFcn(double xi,
+                                                    double x_N,
+                                                    double x_F,
+                                                    const ProtonReconstructionAlgorithm::RPOpticsData &i_N,
+                                                    const ProtonReconstructionAlgorithm::RPOpticsData &i_F) {
+  return (x_N - i_N.s_x_d_vs_xi->Eval(xi)) * i_F.s_L_x_vs_xi->Eval(xi) -
+         (x_F - i_F.s_x_d_vs_xi->Eval(xi)) * i_N.s_L_x_vs_xi->Eval(xi);
+}
+
+//----------------------------------------------------------------------------------------------------
+
 reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const CTPPSLocalTrackLiteRefVector &tracks,
                                                                           const LHCInfo &lhcInfo,
                                                                           std::ostream &os) const {
@@ -230,38 +256,138 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
        << "    initial estimate: xi_init = " << xi_init << ", th_x_init = " << th_x_init
        << ", th_y_init = " << th_y_init << ", vtx_y_init = " << vtx_y_init << "." << std::endl;
 
-  // minimisation
-  fitter_->Config().ParSettings(0).Set("xi", xi_init, 0.005);
-  fitter_->Config().ParSettings(1).Set("th_x", th_x_init, 2E-6);
-  fitter_->Config().ParSettings(2).Set("th_y", th_y_init, 2E-6);
-  fitter_->Config().ParSettings(3).Set("vtx_y", vtx_y_init, 10E-6);
+  // prepare result containers
+  bool valid = false;
+  double chi2 = 0.;
+  double xi = 0., th_x = 0., th_y = 0., vtx_y = 0.;
 
-  if (!fitVtxY_)
-    fitter_->Config().ParSettings(3).Fix();
+  using FP = reco::ForwardProton;
+  FP::CovarianceMatrix cm;
 
-  chiSquareCalculator_->tracks = &tracks;
-  chiSquareCalculator_->m_rp_optics = &m_rp_optics_;
+  if (multi_rp_algorithm_ == mrpaChi2) {
+    // minimisation
+    fitter_->Config().ParSettings(0).Set("xi", xi_init, 0.005);
+    fitter_->Config().ParSettings(1).Set("th_x", th_x_init, 2E-6);
+    fitter_->Config().ParSettings(2).Set("th_y", th_y_init, 2E-6);
+    fitter_->Config().ParSettings(3).Set("vtx_y", vtx_y_init, 10E-6);
 
-  fitter_->FitFCN();
-  fitter_->FitFCN();  // second minimisation in case the first one had troubles
+    if (!fitVtxY_)
+      fitter_->Config().ParSettings(3).Fix();
 
-  // extract proton parameters
-  const ROOT::Fit::FitResult &result = fitter_->Result();
-  const double *params = result.GetParams();
+    chiSquareCalculator_->tracks = &tracks;
+    chiSquareCalculator_->m_rp_optics = &m_rp_optics_;
 
+    fitter_->FitFCN();
+    fitter_->FitFCN();  // second minimisation in case the first one had troubles
+
+    // extract proton parameters
+    const ROOT::Fit::FitResult &result = fitter_->Result();
+    const double *params = result.GetParams();
+
+    valid = result.IsValid();
+    chi2 = result.Chi2();
+    xi = params[0];
+    th_x = params[1];
+    th_y = params[2];
+    vtx_y = params[3];
+
+    map<unsigned int, signed int> index_map = {
+        {(unsigned int)FP::Index::xi, 0},
+        {(unsigned int)FP::Index::th_x, 1},
+        {(unsigned int)FP::Index::th_y, 2},
+        {(unsigned int)FP::Index::vtx_y, ((fitVtxY_) ? 3 : -1)},
+        {(unsigned int)FP::Index::vtx_x, -1},
+    };
+
+    for (unsigned int i = 0; i < (unsigned int)FP::Index::num_indices; ++i) {
+      signed int fit_i = index_map[i];
+
+      for (unsigned int j = 0; j < (unsigned int)FP::Index::num_indices; ++j) {
+        signed int fit_j = index_map[j];
+
+        cm(i, j) = (fit_i >= 0 && fit_j >= 0) ? result.CovMatrix(fit_i, fit_j) : 0.;
+      }
+    }
+  }
+
+  else if (multi_rp_algorithm_ == mrpaNewton || multi_rp_algorithm_ == mrpaAnalIter) {
+    // settings
+    const unsigned int maxIterations = 100;
+    const double maxXiDiff = 1E-6;
+    const double xi_ep = 1E-5;
+
+    // collect input
+    double x_N = tracks[0]->x() * 1E-1,  // conversion: mm --> cm
+        x_F = tracks[1]->x() * 1E-1;
+
+    double y_N = tracks[0]->y() * 1E-1,  // conversion: mm --> cm
+        y_F = tracks[1]->y() * 1E-1;
+
+    const RPOpticsData &i_N = m_rp_optics_.find(tracks[0]->rpId())->second,
+                       &i_F = m_rp_optics_.find(tracks[1]->rpId())->second;
+
+    // horizontal reconstruction - run iterations
+    valid = false;
+    double xi_prev = xi_init;
+    for (unsigned int it = 0; it < maxIterations; ++it) {
+      if (multi_rp_algorithm_ == mrpaNewton) {
+        const double g = newtonGoalFcn(xi_prev, x_N, x_F, i_N, i_F);
+        const double gp = (newtonGoalFcn(xi_prev + xi_ep, x_N, x_F, i_N, i_F) - g) / xi_ep;
+
+        xi = xi_prev - g / gp;
+      }
+
+      if (multi_rp_algorithm_ == mrpaAnalIter) {
+        const double d_x_eff_N = i_N.s_x_d_vs_xi->Eval(xi_prev) / xi_prev;
+        const double d_x_eff_F = i_F.s_x_d_vs_xi->Eval(xi_prev) / xi_prev;
+
+        const double l_x_N = i_N.s_L_x_vs_xi->Eval(xi_prev);
+        const double l_x_F = i_F.s_L_x_vs_xi->Eval(xi_prev);
+
+        xi = (l_x_N * x_F - l_x_F * x_N) / (l_x_N * d_x_eff_F - l_x_F * d_x_eff_N);
+      }
+
+      if (abs(xi - xi_prev) < maxXiDiff) {
+        valid = true;
+        break;
+      }
+
+      xi_prev = xi;
+    }
+
+    th_x = (x_F - i_F.s_x_d_vs_xi->Eval(xi)) / i_F.s_L_x_vs_xi->Eval(xi);
+
+    // vertical reconstruction
+    const double y_eff_N = y_N - i_N.s_y_d_vs_xi->Eval(xi);
+    const double y_eff_F = y_F - i_F.s_y_d_vs_xi->Eval(xi);
+
+    const double l_y_N = i_N.s_L_y_vs_xi->Eval(xi);
+    const double l_y_F = i_F.s_L_y_vs_xi->Eval(xi);
+
+    const double v_y_N = i_N.s_v_y_vs_xi->Eval(xi);
+    const double v_y_F = i_F.s_v_y_vs_xi->Eval(xi);
+
+    const double det = l_y_N * v_y_F - l_y_F * v_y_N;
+
+    if (fitVtxY_) {
+      th_y = (y_eff_N * v_y_F - y_eff_F * v_y_N) / det;
+      vtx_y = (l_y_N * y_eff_F - l_y_F * y_eff_N) / det;
+    } else {
+      th_y = (y_eff_N / l_y_N + y_eff_F / l_y_F) / 2.;
+      vtx_y = 0.;
+    }
+
+    // covariance matrix kept empty - not to compromise the speed of these special algorithms
+  }
+
+  // print results
   if (verbosity_)
-    os << "    xi=" << params[0] << " +- " << result.Error(0) << ", th_x=" << params[1] << " +-" << result.Error(1)
-       << ", th_y=" << params[2] << " +-" << result.Error(2) << ", vtx_y=" << params[3] << " +-" << result.Error(3)
-       << ", chiSq = " << result.Chi2() << std::endl;
+    os << "    xi=" << xi << ", th_x=" << th_x << ", th_y=" << th_y << ", vtx_y=" << vtx_y << ", chiSq = " << chi2
+       << std::endl;
 
   // save reco candidate
-  using FP = reco::ForwardProton;
-
   const double sign_z = (armId == 0) ? +1. : -1.;  // CMS convention
-  const FP::Point vertex(0., params[3], 0.);
-  const double xi = params[0];
-  const double th_x = params[1];
-  const double th_y = params[2];
+  const FP::Point vertex(0., vtx_y, 0.);
   const double cos_th = sqrt(1. - th_x * th_x - th_y * th_y);
   const double p = lhcInfo.energy() * (1. - xi);
   const FP::Vector momentum(-p * th_x,  // the signs reflect change LHC --> CMS convention
@@ -269,27 +395,7 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
                             sign_z * p * cos_th);
   signed int ndf = 2. * tracks.size() - ((fitVtxY_) ? 4. : 3.);
 
-  map<unsigned int, signed int> index_map = {
-      {(unsigned int)FP::Index::xi, 0},
-      {(unsigned int)FP::Index::th_x, 1},
-      {(unsigned int)FP::Index::th_y, 2},
-      {(unsigned int)FP::Index::vtx_y, ((fitVtxY_) ? 3 : -1)},
-      {(unsigned int)FP::Index::vtx_x, -1},
-  };
-
-  FP::CovarianceMatrix cm;
-  for (unsigned int i = 0; i < (unsigned int)FP::Index::num_indices; ++i) {
-    signed int fit_i = index_map[i];
-
-    for (unsigned int j = 0; j < (unsigned int)FP::Index::num_indices; ++j) {
-      signed int fit_j = index_map[j];
-
-      cm(i, j) = (fit_i >= 0 && fit_j >= 0) ? result.CovMatrix(fit_i, fit_j) : 0.;
-    }
-  }
-
-  return reco::ForwardProton(
-      result.Chi2(), ndf, vertex, momentum, xi, cm, FP::ReconstructionMethod::multiRP, tracks, result.IsValid());
+  return reco::ForwardProton(chi2, ndf, vertex, momentum, xi, cm, FP::ReconstructionMethod::multiRP, tracks, valid);
 }
 
 //----------------------------------------------------------------------------------------------------

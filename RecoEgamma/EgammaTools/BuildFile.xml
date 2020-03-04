@@ -10,7 +10,6 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="CommonTools/Utils"/>
 <export>

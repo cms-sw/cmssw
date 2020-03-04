@@ -835,3 +835,74 @@ void findDuplicateEvent(std::string infile, std::string outfile,
   sortEvent(records,debug);
   duplicateEvent(outfile, records, debug);
 }
+
+void combine(const std::string fname1, const std::string fname2, 
+	     const std::string fname, const std::string outfile, int debug) {
+  ifstream infile1 (fname1.c_str());
+  ifstream infile2 (fname2.c_str());
+  if ((!infile1.is_open()) || (!infile2.is_open())) {
+    std::cout << "Cannot open " << fname1 << " or " << fname2 << std::endl;
+  } else {
+    std::ofstream file;
+    file.open(fname.c_str(), std::ofstream::out);
+    TH1D* hist0 = new TH1D("W0", "Correction Factor (All)",    100, 0.0, 10.0);
+    TH1D* hist1 = new TH1D("W1", "Correction Factor (Barrel)", 100, 0.0, 10.0);
+    TH1D* hist2 = new TH1D("W2", "Correction Factor (Endcap)", 100, 0.0, 10.0);
+    TProfile* prof = new TProfile("P", "Correction vs i#eta", 60, -30, 30, 0, 100, "");
+    unsigned int kount(0), kout(0);
+    double       wmaxb(0), wmaxe(0);
+    while (1) {
+      double evno1, eta1, phi1, wt1;
+      double evno2, eta2, phi2, wt2;
+      infile1 >> evno1 >> eta1 >> phi1 >> wt1;
+      infile2 >> evno2 >> eta2 >> phi2 >> wt2;
+      if ((!infile1.good()) || (!infile2.good())) break;
+      long int iev1 = evno1;
+      long int iev2 = evno2;
+      if (debug > 1) {
+	int ieta1(eta1), ieta2(eta2), iphi1(phi1), iphi2(phi2);
+	std::cout << kount << " Event " << iev1 << ":" << iev2 << " eta "
+		  <<  ieta1 << ":" << ieta2 << " phi " << iphi1 << ":" << iphi2
+		  << " wt " << wt1 << ":" << wt2 << std::endl;
+      }
+      if (iev1 == iev2) {
+	int ieta = fabs(eta1);
+	double wt = (ieta >= 16) ? wt1 : wt2;
+	file << std::setw(8) << kount << " " << std::setw(12) 
+	     << std::setprecision(8) << wt << std::endl;
+	++kout;
+	hist0->Fill(wt);
+	if (ieta >= 16) {
+	  hist2->Fill(wt);
+	  if (wt > wmaxe) wmaxe = wt;
+	} else {
+	  hist1->Fill(wt);
+	  if (wt > wmaxb) wmaxb = wt;
+	}
+	prof->Fill(eta1, wt);
+      } else if (debug > 0) {
+	int ieta1(eta1), ieta2(eta2), iphi1(phi1), iphi2(phi2);
+	std::cout << kount << " Event " << iev1 << ":" << iev2 << " eta "
+		  <<  ieta1 << ":" << ieta2 << " phi " << iphi1 << ":" << iphi2
+		  << " wt " << wt1 << ":" << wt2 << std::endl;
+      }
+      ++kount;
+    }
+    infile1.close();
+    infile2.close();
+    file.close();
+    std::cout << "Writes " << kout << " entries to " << fname << " from "
+	      << kount << " events from " << fname1 << " and " << fname2
+	      << " maximum correction factor " << wmaxb << " (Barrel) "
+	      << wmaxe << " (Endcap)" << std::endl;
+    if (outfile != "") {
+      TFile* theFile = new TFile(outfile.c_str(), "RECREATE");
+      theFile->cd();
+      hist0->Write();
+      hist1->Write();
+      hist2->Write();
+      prof->Write();
+      theFile->Close();
+    }
+  }
+}

@@ -19,6 +19,5 @@
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="RecoEcal/EgammaCoreTools"/>
-<use name="RecoEgamma/EgammaElectronAlgos"/>
-<use name="RecoEgamma/EgammaTools"/>
+<use name="TrackingTools/TrajectoryState"/>
 <flags EDM_PLUGIN="1"/>

@@ -25,7 +25,6 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity", 0);
   frequency = iPSet.getUntrackedParameter<int>("Frequency", 50);
   path = iPSet.getUntrackedParameter<std::string>("MEPathToSave");
-  enableMultiThread_ = false;
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -82,11 +81,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
 
 MEtoEDMConverter::~MEtoEDMConverter() = default;
 
-void MEtoEDMConverter::beginJob() {
-  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
-  DQMStore* dbe = edm::Service<DQMStore>().operator->();
-  enableMultiThread_ = dbe->enableMultiThread_;
-}
+void MEtoEDMConverter::beginJob() {}
 
 void MEtoEDMConverter::endJob() {}
 
@@ -123,8 +118,7 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
 
   // extract ME information into vectors
   std::vector<MonitorElement*>::iterator mmi, mme;
-  std::vector<MonitorElement*> items(
-      iGetter.getAllContents(path, enableMultiThread_ ? run : 0, enableMultiThread_ ? lumi : 0));
+  std::vector<MonitorElement*> items(iGetter.getAllContents(path, run, lumi));
 
   unsigned int n1F = 0;
   unsigned int n1S = 0;
@@ -224,10 +218,8 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
 
     // store only flagged ME at endLumi transition, and Run-based
     // histo at endRun transition
-    if (iLumiOnly && !me->getLumiFlag())
-      continue;
-    if (!iLumiOnly && me->getLumiFlag())
-      continue;
+    // DQMStore should only hand out matching MEs
+    assert(iLumiOnly == me->getLumiFlag());
 
     // get monitor elements
     switch (me->kind()) {

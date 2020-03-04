@@ -1,5 +1,4 @@
 #include "DQMServices/Core/interface/DQMNet.h"
-#include "DQMServices/Core/interface/DQMDefinitions.h"
 #include "DQMServices/Core/src/DQMError.h"
 #include "classlib/iobase/InetServerSocket.h"
 #include "classlib/iobase/LocalServerSocket.h"
@@ -35,6 +34,15 @@
 using namespace lat;
 
 static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
+
+// TODO: Can't include the header file since that leads to ambiguities.
+namespace dqm {
+  namespace qstatus {
+    static const int STATUS_OK = 100;  //< Test was succesful.
+    static const int WARNING = 200;    //< Test had some problems.
+    static const int ERROR = 300;      //< Test has failed.
+  }                                    // namespace qstatus
+}  // namespace dqm
 
 //////////////////////////////////////////////////////////////////////
 // Generate log prefix.
@@ -273,7 +281,7 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
 
   // Reconstruct the main object
   MonitorElement *obj = 0;
-  store->setCurrentFolder(*o.dirname);
+  store->setCurrentFolder(o.dirname);
   switch (o.flags & DQM_PROP_TYPE_MASK)
   {
   case DQM_PROP_TYPE_INT:
@@ -338,7 +346,7 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
     logme()
       << "ERROR: unexpected monitor element of type "
       << (o.flags & DQM_PROP_TYPE_MASK) << " called '"
-      << *o.dirname << '/' << o.objname << "'\n";
+      << o.dirname << '/' << o.objname << "'\n";
     return false;
   }
 
@@ -388,11 +396,11 @@ void DQMNet::sendObjectToPeer(Bucket *msg, Object &o, bool data) {
     objdata.insert(objdata.end(), &o.rawdata[0], &o.rawdata[0] + o.rawdata.size());
 
   uint32_t words[9];
-  uint32_t namelen = o.dirname->size() + o.objname.size() + 1;
+  uint32_t namelen = o.dirname.size() + o.objname.size() + 1;
   uint32_t datalen = objdata.size();
   uint32_t qlen = o.qdata.size();
 
-  if (o.dirname->empty())
+  if (o.dirname.empty())
     --namelen;
 
   words[0] = 9 * sizeof(uint32_t) + namelen + datalen + qlen;
@@ -408,8 +416,8 @@ void DQMNet::sendObjectToPeer(Bucket *msg, Object &o, bool data) {
   msg->data.reserve(msg->data.size() + words[0]);
   copydata(msg, &words[0], 9 * sizeof(uint32_t));
   if (namelen) {
-    copydata(msg, &(*o.dirname)[0], o.dirname->size());
-    if (!o.dirname->empty())
+    copydata(msg, &(o.dirname)[0], o.dirname.size());
+    if (!o.dirname.empty())
       copydata(msg, "/", 1);
     copydata(msg, &o.objname[0], o.objname.size());
   }
@@ -1206,7 +1214,7 @@ void DQMBasicNet::reserveLocalSpace(uint32_t size) { local_->objs.resize(size); 
 /// Update the network cache for an object.  The caller must call
 /// sendLocalChanges() later to push out the changes.
 void DQMBasicNet::updateLocalObject(Object &o) {
-  o.dirname = &*local_->dirs.insert(*o.dirname).first;
+  o.dirname = *local_->dirs.insert(o.dirname).first;
   std::pair<ObjectMap::iterator, bool> info(local_->objs.insert(o));
   if (!info.second) {
     // Somewhat hackish. Sets are supposedly immutable, but we
@@ -1232,8 +1240,8 @@ bool DQMBasicNet::removeLocalExcept(const std::set<std::string> &known) {
   ObjectMap::iterator i, e;
   for (i = local_->objs.begin(), e = local_->objs.end(); i != e;) {
     path.clear();
-    path.reserve(i->dirname->size() + i->objname.size() + 2);
-    path += *i->dirname;
+    path.reserve(i->dirname.size() + i->objname.size() + 2);
+    path += i->dirname;
     if (!path.empty())
       path += '/';
     path += i->objname;

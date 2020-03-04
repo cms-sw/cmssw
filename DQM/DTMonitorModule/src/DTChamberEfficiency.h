@@ -17,27 +17,21 @@
  *
  */
 
-#include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+
+#include <string>
 #include <vector>
 
 namespace reco {
@@ -95,18 +89,11 @@ private:
 
   std::string theNavigationType;
 
-  edm::ESHandle<DTGeometry> dtGeom;
-
   MuonServiceProxy* theService;
   MuonDetLayerMeasurements* theMeasurementExtractor;
   Chi2MeasurementEstimator* theEstimator;
 
-  edm::ESHandle<MagneticField> magfield;
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-
   std::vector<std::vector<MonitorElement*> > histosPerW;
-
-protected:
 };
 
 #endif  // DTANALYZER_H

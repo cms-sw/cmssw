@@ -40,6 +40,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
                                     pset.getParameter<double>("minRapidityCP"),
                                     pset.getParameter<double>("maxRapidityCP"),
                                     pset.getParameter<int>("minHitCP"),
+                                    pset.getParameter<int>("maxSimClustersCP"),
                                     pset.getParameter<double>("tipCP"),
                                     pset.getParameter<double>("lipCP"),
                                     pset.getParameter<bool>("signalOnlyCP"),
@@ -238,6 +239,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     densities,
                                                     caloParticles,
                                                     cPIndices,
+                                                    selected_cPeff,
                                                     hitMap,
                                                     cummatbudg,
                                                     totallayers_to_monitor_,
@@ -261,8 +263,14 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(label_mclTokens[wml], multiClusterHandle);
       const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
 
-      histoProducerAlgo_->fill_multi_cluster_histos(
-          histograms.histoProducerAlgo, wml, multiClusters, caloParticles, cPIndices, hitMap, totallayers_to_monitor_);
+      histoProducerAlgo_->fill_multi_cluster_histos(histograms.histoProducerAlgo,
+                                                    wml,
+                                                    multiClusters,
+                                                    caloParticles,
+                                                    cPIndices,
+                                                    selected_cPeff,
+                                                    hitMap,
+                                                    totallayers_to_monitor_);
 
       //General Info on multiclusters
       LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":"

@@ -10,6 +10,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
@@ -43,6 +44,7 @@ private:
 
   std::unordered_map<UInt_t, MonitorElement*> Digi_2D_;
   std::unordered_map<UInt_t, MonitorElement*> Digi_1D_;
+  std::unordered_map<UInt_t, MonitorElement*> BxVsVFAT;
 };
 
 using namespace std;
@@ -92,6 +94,13 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
   for (auto sch : superChambers_) {
     int n_lay = sch->nChambers();
     for (int l = 0; l < n_lay; l++) {
+      Bool_t bExist = false;
+      for (auto ch : gemChambers_)
+        if (ch.id() == sch->chamber(l + 1)->id())
+          bExist = true;
+      if (bExist)
+        continue;
+
       gemChambers_.push_back(*sch->chamber(l + 1));
     }
   }
@@ -99,10 +108,22 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
   ibooker.setCurrentFolder("GEM/digi");
   for (auto ch : gemChambers_) {
     GEMDetId gid = ch.id();
-    string hName_digi = "Digi_Strips_Gemini_" + to_string(gid.chamber()) + "_l_" + to_string(gid.layer());
-    string hTitle_digi = "Digi Strip GEMINIm" + to_string(gid.chamber()) + "l" + to_string(gid.layer());
-    Digi_2D_[ch.id()] = ibooker.book2D(hName_digi, hTitle_digi, 384, 1, 385, 8, 0.5, 8.5);
-    Digi_1D_[ch.id()] = ibooker.book1D(hName_digi + "_VFAT", hTitle_digi + " VFAT", 24, 0, 24);
+
+    std::string strIdxName = "Gemini_" + to_string(gid.chamber()) + "_GE" + (gid.region() > 0 ? "p" : "m") +
+                             to_string(gid.station()) + "_" + to_string(gid.layer());
+    std::string strIdxTitle = "GEMINIm" + to_string(gid.chamber()) + " in GE" + (gid.region() > 0 ? "+" : "-") +
+                              to_string(gid.station()) + "/" + to_string(gid.layer());
+
+    string hName_digi = "Digi_Strips_" + strIdxName;
+    string hTitle_digi = "Digi Strip " + strIdxTitle;
+    string hAxis_digi = ";Strip;iEta";
+    Digi_2D_[ch.id()] = ibooker.book2D(hName_digi, hTitle_digi + hAxis_digi, 384, 1, 385, 8, 0.5, 8.5);
+    Digi_1D_[ch.id()] = ibooker.book1D(hName_digi + "_VFAT", hTitle_digi + " VFAT" + hAxis_digi, 24, 0, 24);
+
+    string hNameBx = "bx_vs_VFAT_" + strIdxName;
+    string hTitleBx = "bx vs VFAT " + strIdxTitle;
+    hTitleBx += ";Bunch crossing;VFAT";
+    BxVsVFAT[ch.id()] = ibooker.book2D(hNameBx, hTitleBx, 10, -5, 5, 24, 0, 24);
   }
 }
 
@@ -119,8 +140,10 @@ void GEMDQMSourceDigi::analyze(edm::Event const& event, edm::EventSetup const& e
       GEMDetId rId = roll->id();
       const auto& digis_in_det = gemDigis->get(rId);
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
+        auto nVFAT = findVFAT(1, roll->nstrips(), d->strip(), rId.roll());
         Digi_2D_[cId]->Fill(d->strip(), rId.roll());
-        Digi_1D_[cId]->Fill(findVFAT(1, roll->nstrips(), d->strip(), rId.roll()));
+        Digi_1D_[cId]->Fill(nVFAT);
+        BxVsVFAT[cId]->Fill(d->bx(), nVFAT);
       }
     }
   }

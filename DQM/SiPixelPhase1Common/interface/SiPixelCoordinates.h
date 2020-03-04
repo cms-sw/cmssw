@@ -19,17 +19,18 @@
 //
 // Original Author: Janos Karancsi
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+
+#include <cstdint>
+#include <unordered_map>
+#include <utility>
 
 class SiPixelCoordinates {
 public:
@@ -37,7 +38,7 @@ public:
   SiPixelCoordinates(int);
   virtual ~SiPixelCoordinates();
 
-  void init(edm::EventSetup const&);
+  void init(const TrackerTopology*, const TrackerGeometry*, const SiPixelFedCablingMap*);
 
   // Integers
   int quadrant(const DetId&);

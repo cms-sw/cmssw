@@ -28,8 +28,6 @@
 #include <set>
 #include <map>
 
-using namespace CLHEP;
-
 PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   _dumpSummary = p.getUntrackedParameter<bool>("DumpSummary", true);
   _dumpLVTree = p.getUntrackedParameter<bool>("DumpLVTree", true);
@@ -91,7 +89,8 @@ void PrintGeomInfoAction::update(const BeginOfJob *job) {
         G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
         for (int k = leafDepth - 1; k >= 0; k--)
           G4cout << " " << copy[k];
-        G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / deg << ")" << G4endl;
+        G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
+               << G4endl;
         dodet = fv.next();
       }
     }
@@ -358,7 +357,7 @@ void PrintGeomInfoAction::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDept
   if (lvname == name)
     out << leafDepth << spaces << "### VOLUME = " << lv->GetName() << " Copy No " << pv->GetCopyNo() << " in " << mother
         << " global position of centre " << globalpoint << " (r = " << globalpoint.perp()
-        << ", phi = " << globalpoint.phi() / deg << ")" << G4endl;
+        << ", phi = " << globalpoint.phi() / CLHEP::deg << ")" << G4endl;
 
   int NoDaughters = lv->GetNoDaughters();
   while ((NoDaughters--) > 0) {

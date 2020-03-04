@@ -3,31 +3,34 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-typedef CaloGeometryLoader<EcalEndcapGeometry, DDCompactView> EcalEGL;
+typedef CaloGeometryLoader<EcalEndcapGeometry> EcalEGL;
 
 template <>
 void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
                        const EcalEGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id);
+                       const DetId& id,
+                       const double& scale);
 template <>
+void EcalEGL::fillNamedParams(const DDFilteredView& fv, EcalEndcapGeometry* geom);
 template <>
-void EcalEGL::fillNamedParams<>(const DDFilteredView& fv, EcalEndcapGeometry* geom);
+void EcalEGL::fillNamedParams(const cms::DDFilteredView& fv, EcalEndcapGeometry* geom);
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
-template class CaloGeometryLoader<EcalEndcapGeometry, DDCompactView>;
+template class CaloGeometryLoader<EcalEndcapGeometry>;
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 
 template <>
 void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
                        const EcalEGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id) {
+                       const DetId& id,
+                       const double& scale) {
   std::vector<CCGFloat> pv;
   pv.reserve(vv.size());
   for (unsigned int i(0); i != vv.size(); ++i) {
-    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : k_ScaleFromDDDtoGeant);
+    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : scale);
     pv.emplace_back(factor * vv[i]);
   }
 
@@ -49,8 +52,7 @@ void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
 }
 
 template <>
-template <>
-void EcalEGL::fillNamedParams<>(const DDFilteredView& _fv, EcalEndcapGeometry* geom) {
+void EcalEGL::fillNamedParams(const DDFilteredView& _fv, EcalEndcapGeometry* geom) {
   DDFilteredView fv = _fv;
   bool doSubDets = fv.firstChild();
   while (doSubDets) {
@@ -82,3 +84,6 @@ void EcalEGL::fillNamedParams<>(const DDFilteredView& _fv, EcalEndcapGeometry* g
     doSubDets = fv.nextSibling();  // go to next layer
   }
 }
+
+template <>
+void EcalEGL::fillNamedParams(const cms::DDFilteredView& _fv, EcalEndcapGeometry* geom) {}

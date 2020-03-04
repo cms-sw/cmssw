@@ -73,6 +73,12 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           << " ROCS Y  " << topo.rocsY() << " Rows/ROC " << topo.rowsperroc() << " Cols/ROC " << topo.colsperroc();
     }
   }
+
+  edm::LogInfo("MTDDigiGeometryAnalyzer") << "Additional MTD geometry content:"
+                                          << "\n"
+                                          << " # dets            = " << pDD->dets().size() << "\n"
+                                          << " # detUnitIds      = " << pDD->detUnitIds().size() << "\n"
+                                          << " # detIds          = " << pDD->detIds().size() << "\n";
 }
 void MTDDigiGeometryAnalyzer::analyseRectangle(const GeomDetUnit& det) {
   const double safety = 0.9999;

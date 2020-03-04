@@ -47,8 +47,8 @@ void RPixRoadFinder::findPattern() {
   for (const auto& ds_rh2 : *hitVector_) {
     const auto myid = CTPPSPixelDetId(ds_rh2.id);
     for (const auto& it_rh : ds_rh2.data) {
-      CLHEP::Hep3Vector localV(it_rh.point().x(), it_rh.point().y(), it_rh.point().z());
-      CLHEP::Hep3Vector globalV = geometry_->localToGlobal(ds_rh2.id, localV);
+      CTPPSGeometry::Vector localV(it_rh.point().x(), it_rh.point().y(), it_rh.point().z());
+      const auto& globalV = geometry_->localToGlobal(ds_rh2.id, localV);
       math::Error<3>::type localError;
       localError[0][0] = it_rh.error().xx();
       localError[0][1] = it_rh.error().xy();
@@ -92,7 +92,7 @@ void RPixRoadFinder::findPattern() {
 
     it_gh2 = it_gh1;
 
-    CLHEP::Hep3Vector currPoint = it_gh1->globalPoint;
+    const auto currPoint = it_gh1->globalPoint;
     CTPPSPixelDetId currDet = CTPPSPixelDetId(it_gh1->detId);
 
     while (it_gh2 != temp_all_hits.end()) {
@@ -100,9 +100,9 @@ void RPixRoadFinder::findPattern() {
       CTPPSPixelDetId tmpGh2Id = CTPPSPixelDetId(it_gh2->detId);
       if (currDet.rpId() == tmpGh2Id.rpId())
         same_pot = true;
-      CLHEP::Hep3Vector subtraction = currPoint - it_gh2->globalPoint;
+      const auto subtraction = currPoint - it_gh2->globalPoint;
 
-      if (subtraction.perp() < roadRadius_ && same_pot) {  /// 1mm
+      if (subtraction.Rho() < roadRadius_ && same_pot) {  /// 1mm
         temp_road.push_back(*it_gh2);
         temp_all_hits.erase(it_gh2);
       } else {

@@ -1,0 +1,524 @@
+    ),
+    secondaryFileNames = cms.untracked.vstring()
+)
+
+process.options = cms.untracked.PSet(
+#        SkipEvent = cms.untracked.vstring('ProductNotFound')
+)
+
+# Production Info
+process.configurationMetadata = cms.untracked.PSet(
+    annotation = cms.untracked.string('Reconstruction.py nevts:10'),
+    name = cms.untracked.string('Applications'),
+    version = cms.untracked.string('$Revision: 1.19 $')
+)
+###########################################################################################################3
+process.Analyzer = cms.EDAnalyzer("VeRawAnalyzer",
+                                  #
+                                  Verbosity = cms.untracked.int32(0),
+                                  # HF:
+                                  #Verbosity = cms.untracked.int32(-2323),
+                                  # HE:
+                                  #Verbosity = cms.untracked.int32(-2324),
+                                  #
+                                  #Verbosity = cms.untracked.int32(-7778),
+                                  #Verbosity = cms.untracked.int32(1),
+                                  #Verbosity = cms.untracked.int32(-10234),
+                                  ##Verbosity = cms.untracked.int32(-91),
+                                  #Verbosity = cms.untracked.int32(-51),
+                                  #
+                                  MapCreation = cms.untracked.int32(1),
+                                  #
+                                  recordNtuples = cms.untracked.bool(False),
+                                  #recordNtuples = cms.untracked.bool(True),
+                                  maxNeventsInNtuple = cms.int32(100),
+                                  #
+                                  #recordHistoes = cms.untracked.bool(False),
+                                  recordHistoes = cms.untracked.bool(True),
+                                  #
+                                  ##scripts: zRunRatio34.C, zRunNbadchan.C
+                                  studyRunDependenceHist = cms.untracked.bool(True),
+                                  #studyRunDependenceHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: zerrors.C
+                                  studyCapIDErrorsHist = cms.untracked.bool(True),
+                                  #studyCapIDErrorsHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: zrms.C
+                                  studyRMSshapeHist = cms.untracked.bool(True),
+                                  #studyRMSshapeHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: zratio34.C
+                                  studyRatioShapeHist = cms.untracked.bool(True),
+                                  #studyRatioShapeHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: zadcamplitude.C
+                                  studyADCAmplHist = cms.untracked.bool(True),
+                                  #studyADCAmplHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: ztsmean.C
+                                  studyTSmeanShapeHist = cms.untracked.bool(True),
+                                  #studyTSmeanShapeHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: ztsmaxa.C
+                                  studyTSmaxShapeHist = cms.untracked.bool(True),
+                                  #studyTSmaxShapeHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: zcalib....C
+                                  #studyCalibCellsHist = cms.untracked.bool(True),
+                                  studyCalibCellsHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: zdifampl.C
+                                  studyDiffAmplHist = cms.untracked.bool(True),
+                                  #studyDiffAmplHist = cms.untracked.bool(False),
+                                  #
+                                  ##scripts: zadcamplitude.C
+                                  studyPedestalsHist = cms.untracked.bool(True),
+                                  #studyPedestalsHist = cms.untracked.bool(False),
+                                  #
+                                  #
+                                  ##scripts: zamplpedcorr.C
+                                  studyPedestalCorrelations = cms.untracked.bool(True),
+                                  #studyPedestalsHist = cms.untracked.bool(False),
+                                  #
+                                  #
+                                  ##DigiCollectionLabel = cms.untracked.InputTag("hcalDigis"),
+                                  #Verbosity = cms.untracked.int32(-54),
+                                  #Verbosity = cms.untracked.int32(-22),
+                                  #Verbosity = cms.untracked.int32(-11),
+                                  #Verbosity = cms.untracked.int32(-12),
+                                  #Verbosity = cms.untracked.int32(-13),
+                                  #Verbosity = cms.untracked.int32(-51),
+                                  #Verbosity = cms.untracked.int32(-24),
+                                  #Verbosity = cms.untracked.int32(-244),
+                                  #Verbosity = cms.untracked.int32(-233),
+                                  #
+                                  # Verbosity = cms.untracked.int32(-78),
+                                  #
+                                  #
+                                  #         Normal channels:
+                                  #
+                                  # -53 for  BAD HBHEHF channels from study on shape Ratio
+                                  #Verbosity = cms.untracked.int32(-53),
+                                  ratioHBMin = cms.double(0.10),
+                                  ratioHBMax = cms.double(0.95),
+                                  ratioHEMin = cms.double(0.10),
+                                  ratioHEMax = cms.double(0.98),
+                                  ratioHFMin = cms.double(0.30),
+                                  ratioHFMax = cms.double(1.04),
+                                  ratioHOMin = cms.double(0.18),
+                                  ratioHOMax = cms.double(0.96),
+                                  # -54 for  BAD HBHEHF channels from study on RMS of shapes
+                                  #Verbosity = cms.untracked.int32(-54),
+                                  rmsHBMin = cms.double(1.0),
+                                  rmsHBMax = cms.double(3.9),
+                                  rmsHEMin = cms.double(1.0),
+                                  rmsHEMax = cms.double(3.9),
+                                  rmsHFMin = cms.double(0.1),
+                                  rmsHFMax = cms.double(2.0),
+                                  rmsHOMin = cms.double(0.2),
+                                  rmsHOMax = cms.double(4.4),
+                                  # -55 for  BAD HBHEHF channels from study on TSmean of shapes
+                                  #Verbosity = cms.untracked.int32(-55),
+                                  TSmeanHBMin = cms.double(0.8),
+                                  TSmeanHBMax = cms.double(8.0),
+                                  TSmeanHEMin = cms.double(0.8),
+                                  TSmeanHEMax = cms.double(8.0),
+                                  TSmeanHFMin = cms.double(0.1),
+                                  TSmeanHFMax = cms.double(2.8),
+                                  TSmeanHOMin = cms.double(0.8),
+                                  TSmeanHOMax = cms.double(8.0),
+                                  # -55 for  BAD HBHEHF channels from study on TSmax of shapes
+                                  #Verbosity = cms.untracked.int32(-55),
+                                  TSpeakHBMin = cms.double(-0.5),
+                                  TSpeakHBMax = cms.double(6.5),
+                                  TSpeakHEMin = cms.double(-0.5),
+                                  TSpeakHEMax = cms.double(6.5),
+                                  TSpeakHFMin = cms.double(-0.5),
+                                  TSpeakHFMax = cms.double(3.5),
+                                  TSpeakHOMin = cms.double(-0.5),
+                                  TSpeakHOMax = cms.double(6.5),
+                                  # -56 for  BAD HBHEHOHF channels from study on ADC Amplitude
+                                  #Verbosity = cms.untracked.int32(-56),
+                                  ADCAmplHBMin = cms.double(0.),
+                                  ADCAmplHBMax = cms.double(1000.),
+                                  ADCAmplHEMin = cms.double(0.),
+                                  ADCAmplHEMax = cms.double(100000.),
+                                  ADCAmplHFMin = cms.double(0.),
+                                  ADCAmplHFMax = cms.double(3000.),
+                                  ADCAmplHOMin = cms.double(0.),
+                                  ADCAmplHOMax = cms.double(9000.),
+                                  #
+                                  #
+                                  # to see channels for pedestal tails (& < 1.0 hardcoded)
+                                  pedestalHBMax = cms.double(0.2),
+                                  pedestalHEMax = cms.double(0.9),
+                                  pedestalHFMax = cms.double(0.1),
+                                  pedestalHOMax = cms.double(0.2),
+#                                  pedestalHBMax = cms.double(5.2),
+#                                  pedestalHEMax = cms.double(5.4),
+#                                  pedestalHFMax = cms.double(14.0),
+#                                  pedestalHOMax = cms.double(14.0),
+                                  #
+                                  # to see channels w/ PedestalSigma > mean+5RMS(& < 0.10 hardcoded)
+                                  #Verbosity = cms.untracked.int32(-57),
+                                  #Verbosity = cms.untracked.int32(-57),
+                                  pedestalwHBMax = cms.double(0.2),
+                                  pedestalwHEMax = cms.double(0.2),
+                                  pedestalwHFMax = cms.double(0.1),
+                                  pedestalwHOMax = cms.double(0.16),
+#                                  pedestalwHBMax = cms.double(1.20),
+#                                  pedestalwHEMax = cms.double(1.50),
+#                                  pedestalwHFMax = cms.double(1.30),
+#                                  pedestalwHOMax = cms.double(0.80),
+                                  #
+                                  #
+                                  #
+                                   #             CALIBRATION channels:
+                                  #
+                                  # for  BAD HBHEHOHF CALIBRATION channels from study on ADC amplitude
+                                  # cuts for Laser runs:
+                                  #calibrADCHBMin = cms.double(15.0),
+                                  #calibrADCHEMin = cms.double(15.0),
+                                  #calibrADCHOMin = cms.double(15.0),
+                                  #calibrADCHFMin = cms.double(15.0),
+                                  # cuts for LED runs:
+                                  calibrADCHBMin = cms.double(120.),
+                                  calibrADCHEMin = cms.double(120.),
+                                  calibrADCHOMin = cms.double(120.),
+                                  calibrADCHFMin = cms.double(60.),
+                                  calibrADCHBMax = cms.double(3000.),
+                                  calibrADCHEMax = cms.double(3000.),
+                                  calibrADCHOMax = cms.double(3000.),
+                                  calibrADCHFMax = cms.double(3000.),
+                                  # for  BAD HBHEHOHF CALIBRATION channels from study on shape Ratio
+                                  calibrRatioHBMin = cms.double(0.60),
+                                  calibrRatioHEMin = cms.double(0.64),
+                                  calibrRatioHOMin = cms.double(0.25),
+                                  calibrRatioHFMin = cms.double(0.25),
+                                  calibrRatioHBMax = cms.double(0.99),
+                                  calibrRatioHEMax = cms.double(0.99),
+                                  calibrRatioHOMax = cms.double(0.99),
+                                  calibrRatioHFMax = cms.double(0.99),
+                                  # for  BAD HBHEHOHF CALIBRATION channels from study on TSmax
+                                  calibrTSmaxHBMin = cms.double(0.50),
+                                  calibrTSmaxHBMax = cms.double(8.50),
+                                  calibrTSmaxHEMin = cms.double(0.50),
+                                  calibrTSmaxHEMax = cms.double(8.50),
+                                  calibrTSmaxHOMin = cms.double(0.50),
+                                  calibrTSmaxHOMax = cms.double(8.50),
+                                  calibrTSmaxHFMin = cms.double(0.50),
+                                  calibrTSmaxHFMax = cms.double(9.50),
+                                  # for  BAD HBHEHOHF CALIBRATION channels from study on TSmean
+                                  calibrTSmeanHBMin = cms.double(1.00),
+                                  calibrTSmeanHBMax = cms.double(5.50),
+                                  calibrTSmeanHEMin = cms.double(1.00),
+                                  calibrTSmeanHEMax = cms.double(5.50),
+                                  calibrTSmeanHOMin = cms.double(1.00),
+                                  calibrTSmeanHOMax = cms.double(3.50),
+                                  calibrTSmeanHFMin = cms.double(1.00),
+                                  calibrTSmeanHFMax = cms.double(5.20),
+                                  # for  BAD HBHEHOHF CALIBRATION channels from study on Width
+                                  calibrWidthHBMin = cms.double(1.00),
+                                  calibrWidthHBMax = cms.double(2.30),
+                                  calibrWidthHEMin = cms.double(1.00),
+                                  calibrWidthHEMax = cms.double(2.30),
+                                  calibrWidthHOMin = cms.double(0.50),
+                                  calibrWidthHOMax = cms.double(3.00),
+                                  calibrWidthHFMin = cms.double(0.20),
+                                  calibrWidthHFMax = cms.double(2.30),
+                                  #
+                                  # Special task of run or LS quality:
+                                  #
+                                  # flag for ask runs of LSs:
+                                  #=0-runs, =1-LSs
+                                  flagtoaskrunsorls = cms.int32(1),
+                                  #
+                                  #
+                                  # flag for choise of criterion of bad channels:
+                                  #=0-CapIdErr, =1-Ratio, =2-Width, =3-TSmax, =4-TSmean, =5-adcAmplitud
+                                  flagtodefinebadchannel = cms.int32(0),
+                                  #how many bins you want on the plots:better to choice (#LS+1)
+                                  #howmanybinsonplots = cms.int32(80),
+                                  howmanybinsonplots = cms.int32(2600),
+                                  #
+                                  # ls - range for RBX study (and ??? perhaps for gain stability via abort gap):
+                                  lsmin = cms.int32(1),
+                                  #lsmax = cms.int32(620),
+                                  lsmax = cms.int32(2600),
+                                  #
+                                  # flagabortgaprejected = 0 means, that take only abort gap;
+                                  flagabortgaprejected = cms.int32(0),
+                                  bcnrejectedlow = cms.int32(3446),
+                                  bcnrejectedhigh= cms.int32(3564),
+                                  #
+                                  #
+                                  # flag cpu time reducing
+                                  #=0-all plots, =1-optimized number of plots
+                                  flagcpuoptimization = cms.int32(1),
+                                  #
+                                  # flag for ask type of Normalization for CMT estimators:
+                                  #=0-normalizationOn#evOfLS;   =1-averagedMeanChannelVariable;   =2-averageVariable-normalizationOn#entriesInLS;
+                                  flagestimatornormalization = cms.int32(2),
+                                  #
+                                  #
+                                  # cuts on Nbadchannels to see LS dependences:
+                                  # Verbosity = cms.untracked.int32(-77),
+                                  # to select abnormal events,for which Nbcs > this limits
+                                  lsdep_cut1_peak_HBdepth1 = cms.int32(20),
+                                  lsdep_cut1_peak_HBdepth2 = cms.int32(7),
+                                  lsdep_cut1_peak_HEdepth1 = cms.int32(16),
+                                  lsdep_cut1_peak_HEdepth2 = cms.int32(13),
+                                  lsdep_cut1_peak_HEdepth3 = cms.int32(4),
+                                  lsdep_cut1_peak_HFdepth1 = cms.int32(10),
+                                  lsdep_cut1_peak_HFdepth2 = cms.int32(5),
+                                  lsdep_cut1_peak_HOdepth4 = cms.int32(45),
+                                  # to select events with Nbcs > this limits
+                                  lsdep_cut3_max_HBdepth1 = cms.int32(19),
+                                  lsdep_cut3_max_HBdepth2 = cms.int32(6),
+                                  lsdep_cut3_max_HEdepth1 = cms.int32(15),
+                                  lsdep_cut3_max_HEdepth2 = cms.int32(12),
+                                  lsdep_cut3_max_HEdepth3 = cms.int32(3),
+                                  lsdep_cut3_max_HFdepth1 = cms.int32(9),
+                                  lsdep_cut3_max_HFdepth2 = cms.int32(4),
+                                  lsdep_cut3_max_HOdepth4 = cms.int32(40),
+                                  #
+                                  #old was for runs:
+                                  #                                  nbadchannels1 = cms.int32(7),
+                                  #                                  nbadchannels2 = cms.int32(12),
+                                  #                                  nbadchannels3 = cms.int32(50),
+                                  # to see signal & pedestal in HB TSs
+                                  # Verbosity = cms.untracked.int32(-80),
+                                  #Verbosity = cms.untracked.int32(-79),
+                                  # cuts on Estimator1:A to see bcs & LS dependences:
+                                  lsdep_estimator1_HBdepth1 = cms.double(5500.),
+                                  lsdep_estimator1_HBdepth2 = cms.double(6000.),
+                                  lsdep_estimator1_HBdepth3 = cms.double(7000.),
+                                  lsdep_estimator1_HBdepth4 = cms.double(5500.),
+                                  lsdep_estimator1_HEdepth1 = cms.double(5500.),
+                                  lsdep_estimator1_HEdepth2 = cms.double(6000.),
+                                  lsdep_estimator1_HEdepth3 = cms.double(7000.),
+                                  lsdep_estimator1_HEdepth4 = cms.double(5500.),
+                                  lsdep_estimator1_HEdepth5 = cms.double(6000.),
+                                  lsdep_estimator1_HEdepth6 = cms.double(7000.),
+                                  lsdep_estimator1_HEdepth7 = cms.double(7000.),
+                                  lsdep_estimator1_HFdepth1 = cms.double(1500.),
+                                  lsdep_estimator1_HFdepth2 = cms.double(1200.),
+                                  lsdep_estimator1_HFdepth3 = cms.double(1000.),
+                                  lsdep_estimator1_HFdepth4 = cms.double(1000.),
+                                  lsdep_estimator1_HOdepth4 = cms.double(300.),
+                                  # cuts on Estimator2:Tn to see bcs & LS dependences:
+                                  lsdep_estimator2_HBdepth1 = cms.double(5.),
+                                  lsdep_estimator2_HBdepth2 = cms.double(5.),
+                                  lsdep_estimator2_HEdepth1 = cms.double(5.),
+                                  lsdep_estimator2_HEdepth2 = cms.double(5.),
+                                  lsdep_estimator2_HEdepth3 = cms.double(5.),
+                                  lsdep_estimator2_HFdepth1 = cms.double(1.6),
+                                  lsdep_estimator2_HFdepth2 = cms.double(1.6),
+                                  lsdep_estimator2_HOdepth4 = cms.double(4.5),
+                                  # cuts on Estimator3:Tx to see bcs & LS dependences:
+                                  lsdep_estimator3_HBdepth1 = cms.double(5.5),
+                                  lsdep_estimator3_HBdepth2 = cms.double(5.0),
+                                  lsdep_estimator3_HEdepth1 = cms.double(5.5),
+                                  lsdep_estimator3_HEdepth2 = cms.double(5.5),
+                                  lsdep_estimator3_HEdepth3 = cms.double(5.5),
+                                  lsdep_estimator3_HFdepth1 = cms.double(1.6),
+                                  lsdep_estimator3_HFdepth2 = cms.double(1.6),
+                                  lsdep_estimator3_HOdepth4 = cms.double(4.0),
+                                  # cuts on Estimator4:W to see bcs & LS dependences:
+                                  lsdep_estimator4_HBdepth1 = cms.double(2.8),
+                                  lsdep_estimator4_HBdepth2 = cms.double(2.8),
+                                  lsdep_estimator4_HEdepth1 = cms.double(2.9),
+                                  lsdep_estimator4_HEdepth2 = cms.double(2.9),
+                                  lsdep_estimator4_HEdepth3 = cms.double(2.9),
+                                  lsdep_estimator4_HFdepth1 = cms.double(1.5),
+                                  lsdep_estimator4_HFdepth2 = cms.double(1.5),
+                                  lsdep_estimator4_HOdepth4 = cms.double(3.0),
+                                  # cuts on Estimator5:R to see bcs & LS dependences:
+                                  lsdep_estimator5_HBdepth1 = cms.double(0.55),
+                                  lsdep_estimator5_HBdepth2 = cms.double(0.50),
+                                  lsdep_estimator5_HEdepth1 = cms.double(0.60),
+                                  lsdep_estimator5_HEdepth2 = cms.double(0.64),
+                                  lsdep_estimator5_HEdepth3 = cms.double(0.64),
+                                  lsdep_estimator5_HFdepth1 = cms.double(0.88),
+                                  lsdep_estimator5_HFdepth2 = cms.double(0.88),
+                                  lsdep_estimator5_HOdepth4 = cms.double(0.55),
+                                  #
+                                  # 
+                                  #Verbosity = cms.untracked.int32(-81),
+                                  #Verbosity = cms.untracked.int32(-82),
+                                  #Verbosity = cms.untracked.int32(-83),
+                                  # 
+                                  # use ADC amplitude:
+                                  useADCmassive = cms.untracked.bool(True),
+                                  useADCfC = cms.untracked.bool(False),
+                                  useADCcounts = cms.untracked.bool(False),
+                                  # 
+                                  # Pedestals in fC
+                                  #usePedestalSubtraction = cms.untracked.bool(True),
+                                  usePedestalSubtraction = cms.untracked.bool(False),
+                                  #
+                                  # for possible ignoring of channels w/o signal, apply same cut for
+                                  # HBHEHFHO on Amplitude, usable for all Estimators 1,2,3,4,5:
+                                  # forallestimators_amplitude_bigger = cms.double(10.),
+                                  forallestimators_amplitude_bigger = cms.double(-100.),
+                                  #
+                                  #
+                                  usecontinuousnumbering = cms.untracked.bool(False),
+                                  #usecontinuousnumbering = cms.untracked.bool(True),
+                                  #
+                                  ######### name of DigiCollection for p-p collisions is 'hcalDigis':
+                                  hcalCalibDigiCollectionTag = cms.InputTag('hcalDigis'),
+                                  hbheDigiCollectionTag = cms.InputTag('hcalDigis'),
+                                  hoDigiCollectionTag = cms.InputTag('hcalDigis'),
+                                  hfDigiCollectionTag = cms.InputTag('hcalDigis'),
+                                  ###for upgrade:
+                                  hbheQIE11DigiCollectionTag = cms.InputTag('hcalDigis'),
+                                  hbheQIE10DigiCollectionTag = cms.InputTag('hcalDigis'),
+				  #
+				  #
+                                  # flag to use either only old QIE8 digiCollections or only new QIE10,11 digiCollections
+                                  #=0-all digiCollections(default for normal running), =1-only old QIE8 digiCollections, 
+                                  #=2-only new QIE1011 digiCollections, =3-only new QIE1011 digiCollections w/o new high depthes
+                                  #=4-2016fall, =5-2016fall w/o new high depthes, =6-2017bebin, =7-2017bebin w/o new high depthes in HEonly
+                                  #=8--2017bebin w/o new high depthes, =9-all digiCollections  w/o new high depthes
+                                  # flag   HBHE8    HBHE11   HF8   HF10  comments:
+                                  #  0       +        +       +     +     all
+                                  #  1       +        -       +     -     old
+                                  #  2       -        +       -     +     new 2021
+                                  #  3       -        +       -     +     new w/o high depthes
+                                  #  4       +        -       +     +     2016fall
+                                  #  5       +        -       +     +     2016fall w/o high depthes
+                                  #  6       +        +       -     +     2017begin or 2018 
+                                  #  7       +        +       -     +     2017begin w/o high depthes in HEonly
+                                  #  8       +        +       -     +     2017begin w/o high depthes
+                                  #  9       +        +       +     +     all  w/o high depthes
+                                  # 10       +        -       -     +     2017 w/o HEP17
+                                  # 
+                                  flagupgradeqie1011 = cms.int32(6),
+                                  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+                                  #end upgrade: --------------------------------------------------------- end upgrade
+                                  #
+                                  # flaguseshunt = 1 or 6          (6 is default for global runs) 
+                                  flaguseshunt = cms.int32(6),
+                                  #
+                                  # flagsipmcorrection: != 0 yes,apply; = 0 do not use; (always USE SiPM corrections )
+                                  flagsipmcorrection = cms.int32(1),
+                                  #
+                                  #
+                                  # for local LASER runs ONLY!!! to be > 0    (,else = 0)
+                                  flagLaserRaddam = cms.int32(0),
+                                  # for gaussian fit for local shunt1 (Gsel0) led low-intensity or ped ONLY!!! to be  > 0    (,else = 0)
+                                  flagfitshunt1pedorledlowintensity = cms.int32(0),
+                                  #
+                                  splashesUpperLimit = cms.int32(10000),
+                                  #
+                                  HistOutFile = cms.untracked.string('Global.root'),
+                                  #
+                                  MAPOutFile = cms.untracked.string('LogEleMapdb.h')
+                                  #
+                                  ##OutputFilePath = cms.string('/tmp/zhokin/'),        
+                                  ##OutputFileExt = cms.string(''),
+                                  #
+)		
+
+# Other statements
+process.hcal_db_producer = cms.ESProducer("HcalDbProducer",
+    dump = cms.untracked.vstring(''),
+    file = cms.untracked.string('')
+)
+######################################################################################## Global Tags for 2018 data taking :
+# use twiki site to specify HLT reconstruction Global tags:
+#   https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
+#
+#   103X_dataRun2_HLT_v1 	for CMSSW_10_3_0 onwards 	Heavy Ion 2018 	first HLT GT for Heavy Ion collision in 2018 
+#   101X_dataRun2_HLT_v7 	for CMSSW_10_1_1 onwards 	Collisions 2018 	first HLT GT for collisions 
+#   100X_dataRun2_HLT_v2 	for CMSSW_10_0_3 onwards 	CRUZET 2018 	update of 0T templates for SiPixels
+#   100X_dataRun2_HLT_v1 	for CMSSW_10_0_0 onwards 	MWGRs 2018 	first HLT GT for 2018 
+#
+#
+############################################################################ GlobalTag :
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_HLT_v1', '')
+############################################################################ GlobalTag :
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_HLT_v7', '')
+############################################################################ GlobalTag :1+ good as 5
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, '100X_dataRun2_HLT_v2', '')
+############################################################################ GlobalTag :2- error no running
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data_FULL', '')
+############################################################################ GlobalTag :3- error no running
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag = GlobalTag(process.GlobalTag, '100X_dataRun2_HLT_v2', '')
+############################################################################ GlobalTag :4+ wrong results
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data_FULL', '')
+############################################################################ GlobalTag :5+ good as 1
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = '100X_dataRun2_Prompt_Candidate_2018_01_31_16_01_36'
+###########################################################################
+# V.EPSHTEIN:
+#
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag='103X_dataRun2_Express_v2'
+#
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = '100X_dataRun2_Prompt_Candidate_2018_01_31_16_01_36'
+###
+#process.hcal_db_producer = cms.ESProducer("HcalDbProducer",
+#    dump = cms.untracked.vstring(''),
+#    file = cms.untracked.string('')
+#)
+#
+#process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
+#    toGet = cms.untracked.vstring('QIEShape',
+#        'QIEData',
+#        'ChannelQuality',
+#        'HcalQIEData',
+#        'Pedestals',
+#        'PedestalWidths',
+#        'Gains',
+#        'GainWidths',
+#        'ZSThresholds',
+#        'RespCorrs')
+#)
+###         
+##   FEDRawDataCollection is available
+##   hltHcalCalibrationRaw
+#process.hcalDigis= cms.EDProducer("HcalRawToDigi",
+##   FilterDataQuality = cms.bool(True),
+#    FilterDataQuality = cms.bool(False),
+#    HcalFirstFED = cms.untracked.int32(700),
+#    InputLabel = cms.InputTag("hltHcalCalibrationRaw"),
+##    InputLabel = cms.InputTag("source"),
+##    UnpackCalib = cms.untracked.bool(True),
+## rawDataRepacker is for ions:
+##    InputLabel = cms.InputTag("rawDataRepacker"),
+#    UnpackCalib = cms.untracked.bool(False),
+#    FEDs = cms.untracked.vint32(1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117),
+#)
+###
+###
+############################################################################
+#process.hcalDigis.InputLabel = "hltFEDSelector"
+
+# Path and EndPath definitions
+process.raw2digi_step = cms.Path(process.RawToDigi)
+process.ana = cms.Path(process.Analyzer)
+process.hcalDigis_step = cms.Path(process.hcalDigis)
+process.hcalDigis.FilterDataQuality = cms.bool(False)
+
+# Schedule definition
+process.schedule = cms.Schedule(process.hcalDigis_step,process.ana)
+
+process.MessageLogger = cms.Service("MessageLogger",
+     categories   = cms.untracked.vstring(''),
+     destinations = cms.untracked.vstring('cout'),
+     debugModules = cms.untracked.vstring('*'),
+     cout = cms.untracked.PSet(
+         threshold = cms.untracked.string('WARNING'),
+	 WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0))
+     )
+ )

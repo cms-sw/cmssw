@@ -155,7 +155,7 @@ namespace edm {
     public:
       using Config = TestProcessorConfig;
 
-      TestProcessor(Config const& iConfig);
+      TestProcessor(Config const& iConfig, ServiceToken iToken = ServiceToken());
       ~TestProcessor() noexcept(false);
 
       /** Run the test. The function arguments are the data products to be added to the

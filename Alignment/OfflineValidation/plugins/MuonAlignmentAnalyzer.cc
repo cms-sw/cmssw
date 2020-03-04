@@ -981,7 +981,7 @@ void MuonAlignmentAnalyzer::beginJob() {
     hprofLocalPositionRmsCSC->GetYaxis()->SetLabelSize(labelSize);
     hprofLocalAngleRmsCSC->GetYaxis()->SetLabelSize(labelSize);
 
-    char binLabel[15];
+    char binLabel[32];
     for (int i = 1; i < 15; i++) {
       snprintf(binLabel, sizeof(binLabel), "Sec-%d", i);
       hprofGlobalPositionDT->GetXaxis()->SetBinLabel(i, binLabel);

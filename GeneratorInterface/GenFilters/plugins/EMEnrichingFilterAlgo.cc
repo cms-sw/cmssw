@@ -1,55 +1,52 @@
 #include "GeneratorInterface/GenFilters/plugins/EMEnrichingFilterAlgo.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "CLHEP/Vector/LorentzVector.h"
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
 
 using namespace edm;
 using namespace std;
 
-EMEnrichingFilterAlgo::EMEnrichingFilterAlgo(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iConsumes) {
-  //set constants
-  FILTER_TKISOCUT_ = 4;
-  FILTER_CALOISOCUT_ = 7;
-  FILTER_ETA_MIN_ = 0;
-  FILTER_ETA_MAX_ = 2.4;
-  ECALBARRELMAXETA_ = 1.479;
-  ECALBARRELRADIUS_ = 129.0;
-  ECALENDCAPZ_ = 304.5;
+EMEnrichingFilterAlgo::EMEnrichingFilterAlgo(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iConsumes)
+    //set constants
+    : FILTER_TKISOCUT_(4),
+      FILTER_CALOISOCUT_(7),
+      FILTER_ETA_MIN_(0),
+      FILTER_ETA_MAX_(2.4),
+      ECALBARRELMAXETA_(1.479),
+      ECALBARRELRADIUS_(129.0),
+      ECALENDCAPZ_(304.5),
+      isoGenParETMin_((float)iConfig.getParameter<double>("isoGenParETMin")),
+      isoGenParConeSize_((float)iConfig.getParameter<double>("isoGenParConeSize")),
+      clusterThreshold_((float)iConfig.getParameter<double>("clusterThreshold")),
+      isoConeSize_((float)iConfig.getParameter<double>("isoConeSize")),
+      hOverEMax_((float)iConfig.getParameter<double>("hOverEMax")),
+      tkIsoMax_((float)iConfig.getParameter<double>("tkIsoMax")),
+      caloIsoMax_((float)iConfig.getParameter<double>("caloIsoMax")),
+      requireTrackMatch_(iConfig.getParameter<bool>("requireTrackMatch")),
+      genParSourceToken_(
+          iConsumes.consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParSource"))),
+      magneticFieldToken_(iConsumes.esConsumes<MagneticField, IdealMagneticFieldRecord>()) {}
 
-  isoGenParETMin_ = (float)iConfig.getParameter<double>("isoGenParETMin");
-  isoGenParConeSize_ = (float)iConfig.getParameter<double>("isoGenParConeSize");
-  clusterThreshold_ = (float)iConfig.getParameter<double>("clusterThreshold");
-  isoConeSize_ = (float)iConfig.getParameter<double>("isoConeSize");
-  hOverEMax_ = (float)iConfig.getParameter<double>("hOverEMax");
-  tkIsoMax_ = (float)iConfig.getParameter<double>("tkIsoMax");
-  caloIsoMax_ = (float)iConfig.getParameter<double>("caloIsoMax");
-  requireTrackMatch_ = iConfig.getParameter<bool>("requireTrackMatch");
-  genParSource_ = iConfig.getParameter<edm::InputTag>("genParSource");
-
-  genParSourceToken_ =
-      iConsumes.consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParSource"));
-}
-
-EMEnrichingFilterAlgo::~EMEnrichingFilterAlgo() {}
-
-bool EMEnrichingFilterAlgo::filter(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+bool EMEnrichingFilterAlgo::filter(const edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   Handle<reco::GenParticleCollection> genParsHandle;
-  //iEvent.getByLabel(genParSource_,genParsHandle);
   iEvent.getByToken(genParSourceToken_, genParsHandle);
   reco::GenParticleCollection genPars = *genParsHandle;
 
@@ -78,7 +75,7 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
                                                      float caloIsoMax,
                                                      bool requiretrackmatch,
                                                      const std::vector<reco::GenParticle> &genPars,
-                                                     const std::vector<reco::GenParticle> &genParsCurved) {
+                                                     const std::vector<reco::GenParticle> &genParsCurved) const {
   float seedthreshold = 5;
   float conesizeendcap = 15;
 
@@ -185,11 +182,10 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
 //make new genparticles vector taking into account the bending of charged particles in the b field
 //only stable-final-state (status==1) particles, with ET>=1 GeV, have their trajectories bent
 std::vector<reco::GenParticle> EMEnrichingFilterAlgo::applyBFieldCurv(const std::vector<reco::GenParticle> &genPars,
-                                                                      const edm::EventSetup &iSetup) {
+                                                                      const edm::EventSetup &iSetup) const {
   vector<reco::GenParticle> curvedPars;
 
-  edm::ESHandle<MagneticField> magField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magField);
+  MagneticField const *magField = &iSetup.getData(magneticFieldToken_);
 
   Cylinder::CylinderPointer theBarrel =
       Cylinder::build(Surface::PositionType(0, 0, 0), Surface::RotationType(), ECALBARRELRADIUS_);
@@ -197,7 +193,7 @@ std::vector<reco::GenParticle> EMEnrichingFilterAlgo::applyBFieldCurv(const std:
   Plane::PlanePointer endCapMinus =
       Plane::build(Surface::PositionType(0, 0, -1 * ECALENDCAPZ_), Surface::RotationType());
 
-  AnalyticalPropagator propagator(&(*magField), alongMomentum);
+  AnalyticalPropagator propagator(magField, alongMomentum);
 
   for (uint32_t ig = 0; ig < genPars.size(); ig++) {
     reco::GenParticle gp = genPars.at(ig);
@@ -210,7 +206,7 @@ std::vector<reco::GenParticle> EMEnrichingFilterAlgo::applyBFieldCurv(const std:
     }
     GlobalPoint vertex(gp.vx(), gp.vy(), gp.vz());
     GlobalVector gvect(gp.px(), gp.py(), gp.pz());
-    FreeTrajectoryState fts(vertex, gvect, gp.charge(), &(*magField));
+    FreeTrajectoryState fts(vertex, gvect, gp.charge(), magField);
     TrajectoryStateOnSurface impact;
     //choose to propagate to barrel, +Z endcap, or -Z endcap, according to eta
     if (fabs(gp.eta()) < ECALBARRELMAXETA_) {
@@ -248,7 +244,7 @@ std::vector<reco::GenParticle> EMEnrichingFilterAlgo::applyBFieldCurv(const std:
 
 //calculate the difference in the xy-plane positions of gp1 and gp1 at the ECAL endcap
 //if they go in different z directions returns 9999.
-float EMEnrichingFilterAlgo::deltaRxyAtEE(const reco::GenParticle &gp1, const reco::GenParticle &gp2) {
+float EMEnrichingFilterAlgo::deltaRxyAtEE(const reco::GenParticle &gp1, const reco::GenParticle &gp2) const {
   if (gp1.pz() * gp2.pz() < 0)
     return 9999.;
 
@@ -273,7 +269,7 @@ float EMEnrichingFilterAlgo::deltaRxyAtEE(const reco::GenParticle &gp1, const re
 bool EMEnrichingFilterAlgo::filterIsoGenPar(float etmin,
                                             float conesize,
                                             const reco::GenParticleCollection &gph,
-                                            const reco::GenParticleCollection &gphCurved) {
+                                            const reco::GenParticleCollection &gphCurved) const {
   for (uint32_t ip = 0; ip < gph.size(); ip++) {
     reco::GenParticle gp = gph.at(ip);
     reco::GenParticle gpCurved = gphCurved.at(ip);

@@ -21,6 +21,14 @@ bool DDSpecPar::hasValue(const string& key) const {
     return false;
 }
 
+bool DDSpecPar::hasPath(const string& path) const {
+  auto result = std::find(std::begin(paths), std::end(paths), path);
+  if (result != end(paths))
+    return true;
+  else
+    return false;
+}
+
 template <>
 std::vector<double> DDSpecPar::value<std::vector<double>>(const string& key) const {
   std::vector<double> result;
@@ -70,7 +78,7 @@ double DDSpecPar::dblValue(const string& key) const {
 
 void DDSpecParRegistry::filter(DDSpecParRefs& refs, string_view attribute, string_view value) const {
   bool found(false);
-  for_each(begin(specpars), end(specpars), [&refs, &attribute, &value, &found](const auto& k) {
+  for_each(begin(specpars), end(specpars), [&refs, &attribute, &value, &found](auto& k) {
     found = false;
     for_each(begin(k.second.spars), end(k.second.spars), [&](const auto& l) {
       if (l.first == attribute) {
@@ -81,6 +89,7 @@ void DDSpecParRegistry::filter(DDSpecParRefs& refs, string_view attribute, strin
       }
     });
     if (found) {
+      k.second.name = k.first;
       refs.emplace_back(&k.second);
     }
   });
@@ -88,7 +97,7 @@ void DDSpecParRegistry::filter(DDSpecParRefs& refs, string_view attribute, strin
 
 void DDSpecParRegistry::filter(DDSpecParRefs& refs, string_view attribute) const {
   bool found(false);
-  for_each(begin(specpars), end(specpars), [&refs, &attribute, &found](const auto& k) {
+  for_each(begin(specpars), end(specpars), [&refs, &attribute, &found](auto& k) {
     found = false;
     for_each(begin(k.second.spars), end(k.second.spars), [&](const auto& l) {
       if (l.first == attribute) {
@@ -96,9 +105,19 @@ void DDSpecParRegistry::filter(DDSpecParRefs& refs, string_view attribute) const
       }
     });
     if (found) {
+      k.second.name = k.first;
       refs.emplace_back(&k.second);
     }
   });
+}
+
+std::vector<std::string_view> DDSpecParRegistry::names(const std::string& path) const {
+  std::vector<std::string_view> result;
+  for_each(begin(specpars), end(specpars), [&](const auto& i) {
+    if (i.second.hasPath(path))
+      result.emplace_back(i.first);
+  });
+  return result;
 }
 
 std::vector<std::string_view> DDSpecParRegistry::names() const {

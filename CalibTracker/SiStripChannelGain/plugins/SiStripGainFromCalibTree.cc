@@ -394,7 +394,6 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
   // Gather DQM Service
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(10);
 
   //Set the monitoring element tag and store
   dqm_tag_.reserve(7);

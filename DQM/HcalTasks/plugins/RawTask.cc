@@ -181,7 +181,12 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _cBadQuality_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cBadQuality_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
-  _cBadQuality_depth.book(ib, _emap, _subsystem);
+  if (_ptype == fOffline) {
+    auto scope = DQMStore::IBooker::UseLumiScope(ib);
+    _cBadQuality_depth.book(ib, _emap, _subsystem);
+  } else {
+    _cBadQuality_depth.book(ib, _emap, _subsystem);
+  }
   _cBadQualityvsLS.book(ib, _subsystem);
   _cBadQualityvsBX.book(ib, _subsystem);
 
@@ -197,16 +202,16 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   //	FOR OFFLINE PROCESSING MARK THESE HISTOGRAMS AS LUMI BASED
-  if (_ptype == fOffline) {
-    if (_ptype != fOffline) {  // hidefed2crate
-      // Note that this is deliberately contradictory for the fed2crate fix, so it can be reversed if fed2crate is ever fixed properly,
-      _cEvnMsm_ElectronicsVME.setLumiFlag();
-      _cBcnMsm_ElectronicsVME.setLumiFlag();
-      _cEvnMsm_ElectronicsuTCA.setLumiFlag();
-      _cBcnMsm_ElectronicsuTCA.setLumiFlag();
-    }
-    _cBadQuality_depth.setLumiFlag();
-  }
+  //if (_ptype == fOffline) {
+  //if (_ptype != fOffline) {  // hidefed2crate
+  // Note that this is deliberately contradictory for the fed2crate fix, so it can be reversed if fed2crate is ever fixed properly,
+  // TODO: set LUMI scope while booking.
+  // _cEvnMsm_ElectronicsVME.setLumiFlag();
+  // _cBcnMsm_ElectronicsVME.setLumiFlag();
+  // _cEvnMsm_ElectronicsuTCA.setLumiFlag();
+  // _cBcnMsm_ElectronicsuTCA.setLumiFlag();
+  //}
+  //}
 
   //	initialize hash map
   _ehashmap.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap);

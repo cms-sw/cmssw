@@ -1,5 +1,6 @@
 <library   file="*.cc" name="RecoTauTagRecoTauPlugins">
   <flags   EDM_PLUGIN="1"/>
+  <use   name="TrackingTools/IPTools"/>
   <use   name="TrackingTools/Records"/>
   <use   name="RecoVertex/KalmanVertexFit"/>
   <use   name="CommonTools/CandUtils"/>

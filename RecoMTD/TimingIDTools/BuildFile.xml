@@ -1,0 +1,12 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/BeamSpot"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="CommonTools/MVAUtils"/>
+
+<export>
+  <lib   name="1"/>
+</export>

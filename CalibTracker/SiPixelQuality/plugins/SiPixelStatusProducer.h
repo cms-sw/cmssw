@@ -15,6 +15,8 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 // Pixel data format
 #include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
@@ -26,6 +28,7 @@ ________________________________________________________________**/
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 class SiPixelStatusProducer
@@ -37,10 +40,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-  void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
-  void accumulate(edm::Event const&, const edm::EventSetup& iSetup) final;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup&) final;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup&) final;
+  void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup&) final;
+  void accumulate(edm::Event const&, const edm::EventSetup&) final;
 
   virtual void onlineRocColRow(const DetId& detId, int offlineRow, int offlineCol, int& roc, int& row, int& col) final;
 
@@ -59,14 +62,18 @@ private:
   // condition watchers
   // CablingMaps
   edm::ESWatcher<SiPixelFedCablingMapRcd> siPixelFedCablingMapWatcher_;
-  edm::ESHandle<SiPixelFedCablingMap> fCablingMap;
-  const SiPixelFedCablingMap* fCablingMap_;
+  const SiPixelFedCablingMap* fCablingMap_ = nullptr;
 
   // TrackerDIGIGeo
   edm::ESWatcher<TrackerDigiGeometryRecord> trackerDIGIGeoWatcher_;
-  edm::ESHandle<TrackerGeometry> fTG;
+  const TrackerGeometry* trackerGeometry_ = nullptr;
+
   // TrackerTopology
   edm::ESWatcher<TrackerTopologyRcd> trackerTopoWatcher_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingMapToken_;
 
   // SiPixel offline<->online conversion
   // -- map (for each detid) of the map from offline col/row to the online roc/col/row

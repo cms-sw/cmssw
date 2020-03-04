@@ -9,7 +9,8 @@
   <class name="edm::RefVector<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >,HGCUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >,HGCUncalibratedRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> > >"/>
 
-  <class name="HGCRecHit" ClassVersion="13">
+  <class name="HGCRecHit" ClassVersion="14">
+   <version ClassVersion="14" checksum="1119576013"/>
    <version ClassVersion="13" checksum="311955435"/>
    <version ClassVersion="12" checksum="3568613480"/>
    <version ClassVersion="11" checksum="3873633606"/>

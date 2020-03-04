@@ -16,7 +16,6 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 #include "RecoCTPPS/PixelLocal/interface/RPixDetPatternFinder.h"
 
-#include "CLHEP/Vector/ThreeVector.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include <vector>

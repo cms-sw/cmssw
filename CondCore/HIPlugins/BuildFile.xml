@@ -1,5 +1,5 @@
+<use   name="CondCore/ESSources"/>
 <use   name="CondFormats/HIObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="FWCore/PluginManager"/>
-<use   name="CondCore/PluginSystem"/>
 <flags   EDM_PLUGIN="1"/>
