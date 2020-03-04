@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-#HB HE HO rec hits
-
 particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
 
     navigator = cms.PSet(
         name = cms.string("PFRecHitHCALDenseIdNavigator"),
-        detectorEnums = cms.vint32(4)
+        hcalEnums = cms.vint32(4)
     ),
     producers = cms.VPSet(
            cms.PSet(
