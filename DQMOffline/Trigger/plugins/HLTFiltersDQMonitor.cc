@@ -128,7 +128,7 @@ void HLTFiltersDQMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup cons
 void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
                                          edm::Run const& iRun,
                                          edm::EventSetup const& iSetup) {
-  if (initFailed_ or skipRun_) {
+  if (skipRun_ or initFailed_) {
     return;
   }
 
@@ -202,7 +202,7 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
               LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]       [-] Module = \"" << moduleLabel << "\"";
               continue;
             }
-            LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]       [" << mePath_binLabels.size()
+            LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]       [bin=" << mePath_binLabels.size() + 1
                          << "] Module = \"" << moduleLabel << "\"";
             mePath_binLabels.emplace_back(moduleLabel);
           }
@@ -236,7 +236,7 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
 }
 
 void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  if (initFailed_ or skipRun_) {
+  if (skipRun_ or initFailed_) {
     return;
   }
 
