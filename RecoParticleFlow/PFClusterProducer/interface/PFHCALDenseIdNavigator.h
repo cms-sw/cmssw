@@ -31,7 +31,7 @@ public:
   }
 
   PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig) {
-    vdetectorEnum_ = iConfig.getParameter<std::vector<int>>("detectorEnums");
+    vhcalEnum_ = iConfig.getParameter<std::vector<int>>("hcalEnums");
   }
 
   void init(const edm::EventSetup& iSetup) override {
@@ -52,12 +52,12 @@ public:
     std::vector<DetId> vecHcal;
     std::vector<unsigned int> vDenseIdHcal;
     neighboursHcal_.clear();
-    for (unsigned i = 0; i < vdetectorEnum_.size(); ++i) {
-      std::vector<DetId> vecDetIds(caloGeom.getValidDetIds(DetId::Hcal, vdetectorEnum_.at(i)));
+    for (auto hcalSubdet : vhcalEnum_) {
+      std::vector<DetId> vecDetIds(caloGeom.getValidDetIds(DetId::Hcal, hcalSubdet));
       vecHcal.insert(vecHcal.end(), vecDetIds.begin(), vecDetIds.end());
     }
-    for (unsigned i = 0; i < vecHcal.size(); ++i) {
-      vDenseIdHcal.push_back(topology_.get()->detId2denseId(vecHcal.at(i)));
+    for (auto hDetId : vecHcal) {
+      vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
     }
     std::sort(vDenseIdHcal.begin(), vDenseIdHcal.end());
 
@@ -66,7 +66,7 @@ public:
     denseIdHcalMin_ = *min_element(vDenseIdHcal.begin(), vDenseIdHcal.end());
     neighboursHcal_.resize(denseIdHcalMax_ - denseIdHcalMin_ + 1);
 
-    for (unsigned i = 0; i < vDenseIdHcal.size(); ++i) {
+    for (auto denseid : vDenseIdHcal) {
       DetId N(0);
       DetId E(0);
       DetId S(0);
@@ -78,7 +78,7 @@ public:
       std::vector<DetId> neighbours(9, DetId(0));
 
       // the centre
-      unsigned denseid_c = vDenseIdHcal.at(i);
+      unsigned denseid_c = denseid;
       DetId detid_c = topology_.get()->denseId2detId(denseid_c);
       CaloNavigator<DET> navigator(detid_c, topology_.get());
 
@@ -183,7 +183,7 @@ public:
 protected:
   edm::ESWatcher<HcalRecNumberingRecord> theRecNumberWatcher_;
   std::unique_ptr<const TOPO> topology_;
-  std::vector<int> vdetectorEnum_;
+  std::vector<int> vhcalEnum_;
   std::vector<std::vector<DetId>> neighboursHcal_;
   unsigned int denseIdHcalMax_;
   unsigned int denseIdHcalMin_;

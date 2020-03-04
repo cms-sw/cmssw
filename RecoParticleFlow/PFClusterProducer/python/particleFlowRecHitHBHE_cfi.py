@@ -1,16 +1,14 @@
 import FWCore.ParameterSet.Config as cms
-from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCAL
 
 _thresholdsHB = cms.vdouble(0.8, 0.8, 0.8, 0.8)
 _thresholdsHE = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8)
 _thresholdsHBphase1 = cms.vdouble(0.1, 0.2, 0.3, 0.3)
 _thresholdsHEphase1 = cms.vdouble(0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
 
-
 particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
             name = cms.string("PFRecHitHCALDenseIdNavigator"),
-            detectorEnums = cms.vint32(1,2)
+            hcalEnums = cms.vint32(1,2)
     ),
     producers = cms.VPSet(
            cms.PSet(
