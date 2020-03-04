@@ -294,10 +294,7 @@ pp_on_AA_2018.toModify(lowPtTripletStep,
         mva = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1'),
         qualityCuts = [-0.8, -0.4, 0.5],
 )
-from Configuration.Eras.Modifier_pbpb_run3_cff import pbpb_run3
-pbpb_run3.toModify(lowPtTripletStep, 
-                    mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1')
-)
+
 fastSim.toModify(lowPtTripletStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # For LowPU and Phase2PU140

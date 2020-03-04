@@ -272,10 +272,6 @@ pp_on_AA_2018.toModify(detachedTripletStep,
         mva = dict(GBRForestLabel = 'HIMVASelectorDetachedTripletStep_Phase1'),
         qualityCuts = [-0.2, 0.4, 0.85],
 )
-from Configuration.Eras.Modifier_pbpb_run3_cff import pbpb_run3
-pbpb_run3.toModify(detachedTripletStep, 
-                   mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1')
-)
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

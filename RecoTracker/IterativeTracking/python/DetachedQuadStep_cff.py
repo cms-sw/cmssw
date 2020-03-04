@@ -225,10 +225,6 @@ pp_on_AA_2018.toModify(detachedQuadStep,
         mva = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1'),
         qualityCuts = [-0.2, 0.2, 0.5],
 )
-from Configuration.Eras.Modifier_pbpb_run3_cff import pbpb_run3
-pbpb_run3.toModify(detachedQuadStep, 
-                   mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1')
-)
 
 fastSim.toModify(detachedQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
