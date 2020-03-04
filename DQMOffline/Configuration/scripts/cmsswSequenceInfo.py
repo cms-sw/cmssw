@@ -268,6 +268,10 @@ def serve():
     out = []
     cur = db.cursor()
     out.append("<H2>Sequences</H2><ul>")
+    out.append("""<p> A sequence name, given as <em>STEP:@sequencename</em> here, does not uniquely identify a sequence.
+      The modules on the sequence might depend on other cmsDriver options, such as Era, Scenario, Data vs. MC, etc.
+      This tool lists parameter combinations that were observed. However, sequences with identical contents are grouped
+      on this page. The default sequence, used when no explicit sequence is apssed to cmsDriver, is noted as <em>STEP:</em>.</p>""")
     rows = cur.execute(f"SELECT seqname, step, count(*) FROM sequence GROUP BY seqname, step ORDER BY seqname, step;")
     for row in rows:
       seqname, step, count = row
@@ -340,23 +344,26 @@ def serve():
     edmfamily, edmbase = list(rows)[0]
     islegcay = not edmfamily
     if islegcay: edmfamily = "<em>legacy</em>"
-    out.append(f"<p>{classname} is a <b>{edmfamily}::{edmbase}</b></p>")
+    out.append(f"<p>{classname} is a <b>{edmfamily}::{edmbase}</b>.</p>")
+    out.append("""<p>A module with a given label can have different configuration depending on options such as Era,
+      Scenario, Data vs. MC etc. If multiple configurations for the same name were found, they are listed separately
+      here and denoted using subscripts.</p>""")
     if (edmbase != "EDProducer" and not (islegcay and edmfamily == "EDAnalyzer")) or (islegcay and edmbase == "EDProducer"):
       out.append(f"<p>This is not a DQM module.</p>")
 
     rows = cur.execute("""
-      SELECT id, instancename, variation, sequenceid 
-      FROM module INNER JOIN sequencemodule ON moduleid = module.id 
-      WHERE classname = ? ORDER BY instancename, variation, sequenceid;""", (classname,))
+      SELECT module.id, instancename, variation, sequenceid, step, seqname 
+      FROM module INNER JOIN sequencemodule ON moduleid = module.id INNER JOIN sequence ON sequence.id == sequenceid
+      WHERE classname = ? ORDER BY instancename, variation, step, seqname;""", (classname,))
     out.append("<ul>")
     seqsformod = defaultdict(list)
     liformod = dict()
     for row in rows:
-      id, instancename, variation, sequenceid = row
+      id, instancename, variation, sequenceid, step, seqname = row
       liformod[id] = f'<a href="/config/{id}">{instancename}' + (f"<sub>{variation}</sub>" if variation else '') + "</a>"
-      seqsformod[id].append(sequenceid)
+      seqsformod[id].append((sequenceid, f"{step}:{seqname}"))
     for id, li in liformod.items():
-      out.append("<li>" + li + ' Used ' + ", ".join(f'<a href="/seqid/{seqid}">here</a>' for seqid in seqsformod[id]) + '.</li>')
+      out.append("<li>" + li + ' Used here: ' + ", ".join(f'<a href="/seqid/{seqid}">{name}</a>' for seqid, name in seqsformod[id]) + '.</li>')
     out.append("</ul>")
     return out
 
