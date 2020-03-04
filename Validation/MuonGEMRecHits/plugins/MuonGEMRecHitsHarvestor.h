@@ -1,33 +1,17 @@
-#ifndef MuonGEMDigisHarvestor_H
-#define MuonGEMDigisHarvestor_H
+#ifndef Validation_MuonGEMRecHits_MuonGEMDigisHarvestor_h
+#define Validation_MuonGEMRecHits_MuonGEMDigisHarvestor_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "Validation/MuonGEMHits/interface/MuonGEMBaseHarvestor.h"
 
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "SimMuon/MCTruth/interface/PSimHitMap.h"
-
-#include "Validation/MuonGEMRecHits/interface/GEMRecHitsValidation.h"
-#include <TEfficiency.h>
-#include <TGraphAsymmErrors.h>
-#include <TProfile.h>
-
-class MuonGEMRecHitsHarvestor : public DQMEDHarvester {
+class MuonGEMRecHitsHarvestor : public MuonGEMBaseHarvestor {
 public:
-  /// constructor
-  explicit MuonGEMRecHitsHarvestor(const edm::ParameterSet &);
-  /// destructor
+  explicit MuonGEMRecHitsHarvestor(const edm::ParameterSet&);
   ~MuonGEMRecHitsHarvestor() override;
-
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-  void ProcessBooking(
-      DQMStore::IBooker &, DQMStore::IGetter &, const char *label, TString suffix, TH1F *track_hist, TH1F *sh_hist);
-  TProfile *ComputeEff(TH1F *num, TH1F *denum);
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
-  std::string dbe_path_, outputFile_;
+  // NOTE to make it compatible to both full geometry and slice test
+  std::vector<Int_t> region_ids_, station_ids_, layer_ids_;
 };
-#endif
+
+#endif  // Validation_MuonGEMRecHits_MuonGEMDigisHarvestor_h

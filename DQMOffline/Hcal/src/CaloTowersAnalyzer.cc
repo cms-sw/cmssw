@@ -451,10 +451,6 @@ void CaloTowersAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
 
 CaloTowersAnalyzer::~CaloTowersAnalyzer() {}
 
-void CaloTowersAnalyzer::endJob() {}
-
-void CaloTowersAnalyzer::beginJob() { nevent = 0; }
-
 void CaloTowersAnalyzer::analyze(edm::Event const &event, edm::EventSetup const &) {
   nevent++;
 

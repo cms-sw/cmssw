@@ -8,7 +8,7 @@ from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import *
-from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClusters
+from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClusters, hgcalLayerClustersHFNose
 
 hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        HGCalRecHit,
@@ -17,4 +17,12 @@ hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        particleFlowRecHitHGC,
                                        particleFlowClusterHGCal,
                                        particleFlowClusterHGCalFromMultiCl )
+
+_hfnose_hgcalLocalRecoTask = hgcalLocalRecoTask.copy()
+_hfnose_hgcalLocalRecoTask.add(hgcalLayerClustersHFNose)
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toReplaceWith(
+    hgcalLocalRecoTask, _hfnose_hgcalLocalRecoTask )
+
 hgcalLocalRecoSequence = cms.Sequence(hgcalLocalRecoTask)

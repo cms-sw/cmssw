@@ -8,8 +8,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"

@@ -1,18 +1,8 @@
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/GeometryCommonDetAlgo"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="DataFormats/TrajectorySeed"/>
-<use   name="DataFormats/TrajectoryState"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="MagneticField/Engine"/>
 <use   name="RecoMuon/GlobalTrackingTools"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="RecoTracker/CkfPattern"/>
@@ -21,15 +11,12 @@
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="TrackingTools/DetLayers"/>
-<use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/KalmanUpdators"/>
 <use   name="TrackingTools/MeasurementDet"/>
 <use   name="TrackingTools/PatternTools"/>
-<use   name="TrackingTools/TrackFitters"/>
 <use   name="TrackingTools/TrajectoryCleaning"/>
 <use   name="TrackingTools/TrajectoryFiltering"/>
 <use   name="TrackingTools/TrajectoryState"/>
-<use   name="TrackingTools/TransientTrackingRecHit"/>
 <export>
   <lib   name="1"/>
 </export>

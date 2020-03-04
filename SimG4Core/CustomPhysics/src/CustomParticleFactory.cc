@@ -12,6 +12,9 @@
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
 
+#include "SimG4Core/CustomPhysics/interface/CMSSIMP.h"
+#include "SimG4Core/CustomPhysics/interface/CMSAntiSIMP.h"
+
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -91,6 +94,14 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   if (std::abs(pdgCode) % 100 < 14 && std::abs(pdgCode) / 1000000 == 0) {
     edm::LogError("CustomParticleFactory::addCustomParticle")
         << "Pdg code too low " << pdgCode << " " << std::abs(pdgCode) / 1000000;
+    return;
+  }
+
+  if (CustomPDGParser::s_isSIMP(pdgCode)) {
+    CMSSIMP *simp = CMSSIMP::Definition(mass * GeV);
+    CMSAntiSIMP *antisimp = CMSAntiSIMP::Definition(mass * GeV);
+    m_particles.push_back(simp);
+    m_particles.push_back(antisimp);
     return;
   }
 
@@ -262,7 +273,8 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     edm::LogInfo("SimG4CoreCustomPhysics")
         << "CustomParticleFactory: Calling addCustomParticle for pdgId: " << pdgId << ", mass " << mass << " GeV  "
         << name << ", isRHadron: " << CustomPDGParser::s_isRHadron(pdgId)
-        << ", isstopHadron: " << CustomPDGParser::s_isstopHadron(pdgId);
+        << ", isstopHadron: " << CustomPDGParser::s_isstopHadron(pdgId)
+        << ", isSIMP: " << CustomPDGParser::s_isSIMP(pdgId);
     addCustomParticle(pdgId, mass, name);
 
     ////Find SM particle partner and check for the antiparticle.
@@ -276,7 +288,8 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     }
 
     if (aParticle && !CustomPDGParser::s_isRHadron(pdgId) && !CustomPDGParser::s_isstopHadron(pdgId) &&
-        pdgId != 1000006 && pdgId != -1000006 && pdgId != 25 && pdgId != 35 && pdgId != 36 && pdgId != 37) {
+        !CustomPDGParser::s_isSIMP(pdgId) && pdgId != 1000006 && pdgId != -1000006 && pdgId != 25 && pdgId != 35 &&
+        pdgId != 36 && pdgId != 37) {
       int sign = aParticle->GetAntiPDGEncoding() / pdgIdPartner;
       edm::LogInfo("SimG4CoreCustomPhysics")
           << "CustomParticleFactory: For " << aParticle->GetParticleName() << " pdg= " << pdgIdPartner
@@ -311,6 +324,13 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
         addCustomParticle(-pdgId, mass, tmp);
         theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
       }
+    }
+    if (pdgId == 9000006) {
+      tmp = name + "bar";
+      edm::LogInfo("CustomPhysics") << "Calling addCustomParticle for antiparticle with pdgId: " << -pdgId << ", mass "
+                                    << mass << ", name " << tmp;
+      addCustomParticle(-pdgId, mass, tmp);
+      theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
     }
   }
 }

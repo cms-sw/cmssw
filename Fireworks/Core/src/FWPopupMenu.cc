@@ -72,7 +72,9 @@ public:
         void* dummy = nullptr;
         return EndMenu(dummy);
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     return kTRUE;

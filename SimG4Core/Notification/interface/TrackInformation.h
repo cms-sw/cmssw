@@ -52,6 +52,8 @@ public:
   void setCaloSurfaceParticlePID(int id) { caloSurfaceParticlePID_ = id; }
   double caloSurfaceParticleP() const { return caloSurfaceParticleP_; }
   void setCaloSurfaceParticleP(double p) { caloSurfaceParticleP_ = p; }
+  int getIDfineCalo() const { return ((idFineCalo_ > 0) ? idFineCalo_ : idOnCaloSurface_); }
+  void setIDfineCalo(int id) { idFineCalo_ = id; }
 
   // Generator information
   int genParticlePID() const { return genParticlePID_; }
@@ -81,6 +83,7 @@ private:
   int idCaloVolume_;
   int idLastVolume_;
   bool caloIDChecked_;
+  int idFineCalo_;
   int genParticlePID_, caloSurfaceParticlePID_;
   double genParticleP_, caloSurfaceParticleP_;
 
@@ -100,6 +103,7 @@ private:
         idCaloVolume_(-1),
         idLastVolume_(-1),
         caloIDChecked_(false),
+        idFineCalo_(-1),
         genParticlePID_(-1),
         caloSurfaceParticlePID_(0),
         genParticleP_(0),

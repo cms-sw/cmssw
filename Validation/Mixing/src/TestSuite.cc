@@ -48,7 +48,6 @@ TestSuite::~TestSuite() {
 void TestSuite::beginJob() {
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->();
-  dbe_->showDirStructure();
   dbe_->setCurrentFolder("MixingV/Mixing");
 }
 

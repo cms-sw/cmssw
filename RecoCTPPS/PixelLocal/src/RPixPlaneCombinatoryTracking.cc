@@ -512,7 +512,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
   //The matrices and vector xyCoordinates, varianceMatrix and varianceMatrix are built from the points
   for (uint32_t iHit = 0; iHit < numberOfPlanes; iHit++) {
     if (iHit < pointList.size()) {
-      CLHEP::Hep3Vector globalPoint = pointList[iHit].globalPoint;
+      const auto &globalPoint = pointList[iHit].globalPoint;
       xyCoordinates[2 * iHit] = globalPoint.x();
       xyCoordinates[2 * iHit + 1] = globalPoint.y();
       zMatrix(2 * iHit, 0) = 1.;
@@ -565,7 +565,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
   goodTrack.setValid(true);
 
   for (const auto &hit : pointList) {
-    CLHEP::Hep3Vector globalPoint = hit.globalPoint;
+    const auto &globalPoint = hit.globalPoint;
     GlobalPoint pointOnDet;
     bool foundPoint = calculatePointOnDetector(&goodTrack, hit.detId, pointOnDet);
     if (!foundPoint) {
@@ -601,8 +601,8 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   GlobalVector tmpLineUnitVector = track->directionVector();
   math::Vector<3>::type lineUnitVector(tmpLineUnitVector.x(), tmpLineUnitVector.y(), tmpLineUnitVector.z());
 
-  CLHEP::Hep3Vector tmpPointLocal(0., 0., 0.);
-  CLHEP::Hep3Vector tmpPointOnPlane = geometry_->localToGlobal(planeId, tmpPointLocal);
+  const CTPPSGeometry::Vector tmpPointLocal(0., 0., 0.);
+  const auto &tmpPointOnPlane = geometry_->localToGlobal(planeId, tmpPointLocal);
 
   math::Vector<3>::type pointOnPlane(tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z());
   math::Vector<3>::type planeUnitVector(0., 0., 1.);

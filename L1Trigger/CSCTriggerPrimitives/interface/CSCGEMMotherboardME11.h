@@ -33,6 +33,10 @@ public:
       takes results and correlates into CorrelatedLCT. */
   void run(const CSCWireDigiCollection* wiredc,
            const CSCComparatorDigiCollection* compdc,
+           const GEMPadDigiClusterCollection* gemPads) override;
+
+  void run(const CSCWireDigiCollection* wiredc,
+           const CSCComparatorDigiCollection* compdc,
            const GEMPadDigiCollection* gemPads) override;
 
   /* readout the LCTs in ME1a or ME1b */

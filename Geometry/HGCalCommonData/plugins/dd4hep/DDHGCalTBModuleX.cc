@@ -128,8 +128,7 @@ namespace DDHGCalGeom {
                 if (layerSense[ly] == 1) {
                   dd4hep::Solid solid = ns.solid(covers[0]);
                   std::string name0 = name + "M" + std::to_string(copyx);
-                  if (strchr(name0.c_str(), NAMESPACE_SEP) == nullptr)
-                    name0 = ns.name() + name0;
+                  name0 = ns.prepend(name0);
                   dd4hep::Volume glog1 = dd4hep::Volume(name0, solid, matter);
                   module.placeVolume(glog1, copy, tran);
 #ifdef EDM_ML_DEBUG

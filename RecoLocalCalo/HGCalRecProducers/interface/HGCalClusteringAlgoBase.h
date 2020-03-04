@@ -60,15 +60,18 @@ public:
 
   inline void getEventSetup(const edm::EventSetup &es) {
     rhtools_.getEventSetup(es);
-    maxlayer_ = rhtools_.lastLayerBH();
-    lastLayerEE_ = rhtools_.lastLayerEE();
+    maxlayer_ = rhtools_.lastLayer(isNose_);
+    lastLayerEE_ = rhtools_.lastLayerEE(isNose_);
     lastLayerFH_ = rhtools_.lastLayerFH();
     firstLayerBH_ = rhtools_.firstLayerBH();
     scintMaxIphi_ = rhtools_.getScintMaxIphi();
     getEventSetupPerAlgorithm(es);
   }
   inline void setVerbosity(VerbosityLevel the_verbosity) { verbosity_ = the_verbosity; }
-  inline void setAlgoId(reco::CaloCluster::AlgoId algo) { algoId_ = algo; }
+  inline void setAlgoId(reco::CaloCluster::AlgoId algo, bool isNose = false) {
+    algoId_ = algo;
+    isNose_ = isNose;
+  }
 
   //max number of layers
   unsigned int maxlayer_;
@@ -77,6 +80,7 @@ public:
   unsigned int lastLayerFH_;
   unsigned int firstLayerBH_;
   int scintMaxIphi_;
+  bool isNose_;
 
 protected:
   // The verbosity level

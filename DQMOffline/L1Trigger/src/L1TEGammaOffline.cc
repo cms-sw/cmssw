@@ -572,7 +572,7 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
 // -------------------------------------- endRun --------------------------------------------
 //
 void L1TEGammaOffline::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::endRun" << std::endl;
+  normalise2DHistogramsToBinArea();
 }
 
 //
@@ -581,6 +581,8 @@ void L1TEGammaOffline::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSe
 void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker& ibooker) {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
+  // since there are endRun manipulations.
+  ibooker.setScope(MonitorElementData::Scope::RUN);
 
   dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
   h_nVertex_ = ibooker.book1D(nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax);
@@ -940,8 +942,6 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker& ibooker) {
 
   ibooker.cd();
 }
-
-void L1TEGammaOffline::endJob() { normalise2DHistogramsToBinArea(); }
 
 void L1TEGammaOffline::normalise2DHistogramsToBinArea() {
   std::vector<MonitorElement*> monElementstoNormalize = {h_L1EGammaETvsElectronET_EB_,

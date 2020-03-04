@@ -25,131 +25,84 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // get hold of back-end interface
-  dbe_ = nullptr;
-  dbe_ = edm::Service<DQMStore>().operator->();
-
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
-  menEBHits_ = nullptr;
-  menEBCrystals_ = nullptr;
-  meEBOccupancy_ = nullptr;
-  meEBLongitudinalShower_ = nullptr;
-  meEBhitEnergy_ = nullptr;
-  meEBhitLog10Energy_ = nullptr;
-  meEBhitLog10EnergyNorm_ = nullptr;
-  meEBhitLog10Energy25Norm_ = nullptr;
-  meEBhitEnergy2_ = nullptr;
-  meEBcrystalEnergy_ = nullptr;
-  meEBcrystalEnergy2_ = nullptr;
-
-  meEBe1_ = nullptr;
-  meEBe4_ = nullptr;
-  meEBe9_ = nullptr;
-  meEBe16_ = nullptr;
-  meEBe25_ = nullptr;
-
-  meEBe1oe4_ = nullptr;
-  meEBe1oe9_ = nullptr;
-  meEBe4oe9_ = nullptr;
-  meEBe9oe16_ = nullptr;
-  meEBe1oe25_ = nullptr;
-  meEBe9oe25_ = nullptr;
-  meEBe16oe25_ = nullptr;
-
   myEntries = 0;
   for (int myStep = 0; myStep < 26; myStep++) {
     eRLength[myStep] = 0.0;
   }
-
-  Char_t histo[200];
-
-  if (dbe_) {
-    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
-
-    sprintf(histo, "EB hits multiplicity");
-    menEBHits_ = dbe_->book1D(histo, histo, 50, 0., 5000.);
-
-    sprintf(histo, "EB crystals multiplicity");
-    menEBCrystals_ = dbe_->book1D(histo, histo, 200, 0., 2000.);
-
-    sprintf(histo, "EB occupancy");
-    meEBOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-
-    sprintf(histo, "EB longitudinal shower profile");
-    meEBLongitudinalShower_ = dbe_->bookProfile(histo, histo, 26, 0., 26., 100, 0., 20000.);
-
-    sprintf(histo, "EB hits energy spectrum");
-    meEBhitEnergy_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
-
-    sprintf(histo, "EB hits log10energy spectrum");
-    meEBhitLog10Energy_ = dbe_->book1D(histo, histo, 140, -10., 4.);
-
-    sprintf(histo, "EB hits log10energy spectrum vs normalized energy");
-    meEBhitLog10EnergyNorm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
-
-    sprintf(histo, "EB hits log10energy spectrum vs normalized energy25");
-    meEBhitLog10Energy25Norm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
-
-    sprintf(histo, "EB hits energy spectrum 2");
-    meEBhitEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
-
-    sprintf(histo, "EB crystal energy spectrum");
-    meEBcrystalEnergy_ = dbe_->book1D(histo, histo, 5000, 0., 50.);
-
-    sprintf(histo, "EB crystal energy spectrum 2");
-    meEBcrystalEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
-
-    sprintf(histo, "EB E1");
-    meEBe1_ = dbe_->book1D(histo, histo, 400, 0., 400.);
-
-    sprintf(histo, "EB E4");
-    meEBe4_ = dbe_->book1D(histo, histo, 400, 0., 400.);
-
-    sprintf(histo, "EB E9");
-    meEBe9_ = dbe_->book1D(histo, histo, 400, 0., 400.);
-
-    sprintf(histo, "EB E16");
-    meEBe16_ = dbe_->book1D(histo, histo, 400, 0., 400.);
-
-    sprintf(histo, "EB E25");
-    meEBe25_ = dbe_->book1D(histo, histo, 400, 0., 400.);
-
-    sprintf(histo, "EB E1oE4");
-    meEBe1oe4_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
-
-    sprintf(histo, "EB E1oE9");
-    meEBe1oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
-
-    sprintf(histo, "EB E4oE9");
-    meEBe4oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
-
-    sprintf(histo, "EB E9oE16");
-    meEBe9oe16_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
-
-    sprintf(histo, "EB E1oE25");
-    meEBe1oe25_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
-
-    sprintf(histo, "EB E9oE25");
-    meEBe9oe25_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
-
-    sprintf(histo, "EB E16oE25");
-    meEBe16oe25_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
-  }
 }
 
-EcalBarrelSimHitsValidation::~EcalBarrelSimHitsValidation() {}
+void EcalBarrelSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &, edm::EventSetup const &c) {
+  ib.setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+  ib.setScope(MonitorElementData::Scope::RUN);
 
-void EcalBarrelSimHitsValidation::beginJob() {}
+  std::string histo = "EB hits multiplicity";
+  menEBHits_ = ib.book1D(histo, histo, 50, 0., 5000.);
 
-void EcalBarrelSimHitsValidation::endJob() {
-  // for (int myStep=0; myStep<26; myStep++){
-  //  if (meEBLongitudinalShower_) meEBLongitudinalShower_->Fill(float(myStep),
-  //  eRLength[myStep]/myEntries);
-  //}
+  histo = "EB crystals multiplicity";
+  menEBCrystals_ = ib.book1D(histo, histo, 200, 0., 2000.);
+
+  histo = "EB occupancy";
+  meEBOccupancy_ = ib.book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+
+  histo = "EB longitudinal shower profile";
+  meEBLongitudinalShower_ = ib.bookProfile(histo, histo, 26, 0., 26., 100, 0., 20000.);
+
+  histo = "EB hits energy spectrum";
+  meEBhitEnergy_ = ib.book1D(histo, histo, 4000, 0., 400.);
+
+  histo = "EB hits log10energy spectrum";
+  meEBhitLog10Energy_ = ib.book1D(histo, histo, 140, -10., 4.);
+
+  histo = "EB hits log10energy spectrum vs normalized energy";
+  meEBhitLog10EnergyNorm_ = ib.bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+
+  histo = "EB hits log10energy spectrum vs normalized energy25";
+  meEBhitLog10Energy25Norm_ = ib.bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+
+  histo = "EB hits energy spectrum 2";
+  meEBhitEnergy2_ = ib.book1D(histo, histo, 1000, 0., 0.001);
+
+  histo = "EB crystal energy spectrum";
+  meEBcrystalEnergy_ = ib.book1D(histo, histo, 5000, 0., 50.);
+
+  histo = "EB crystal energy spectrum 2";
+  meEBcrystalEnergy2_ = ib.book1D(histo, histo, 1000, 0., 0.001);
+
+  histo = "EB E1";
+  meEBe1_ = ib.book1D(histo, histo, 400, 0., 400.);
+
+  histo = "EB E4";
+  meEBe4_ = ib.book1D(histo, histo, 400, 0., 400.);
+
+  histo = "EB E9";
+  meEBe9_ = ib.book1D(histo, histo, 400, 0., 400.);
+
+  histo = "EB E16";
+  meEBe16_ = ib.book1D(histo, histo, 400, 0., 400.);
+
+  histo = "EB E25";
+  meEBe25_ = ib.book1D(histo, histo, 400, 0., 400.);
+
+  histo = "EB E1oE4";
+  meEBe1oe4_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
+
+  histo = "EB E1oE9";
+  meEBe1oe9_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
+
+  histo = "EB E4oE9";
+  meEBe4oe9_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
+
+  histo = "EB E9oE16";
+  meEBe9oe16_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
+
+  histo = "EB E1oE25";
+  meEBe1oe25_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
+
+  histo = "EB E9oE25";
+  meEBe9oe25_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
+
+  histo = "EB E16oE25";
+  meEBe16oe25_ = ib.book1D(histo, histo, 100, 0.4, 1.1);
 }
 
 void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &c) {
@@ -199,8 +152,7 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
                         << " Track Id = " << isim->geantTrackId() << "\n"
                         << " Energy = " << isim->energy();
 
-    if (meEBOccupancy_)
-      meEBOccupancy_->Fill(ebid.iphi(), ebid.ieta());
+    meEBOccupancy_->Fill(ebid.iphi(), ebid.ieta());
 
     uint32_t crystid = ebid.rawId();
     ebmap[crystid] += isim->energy();
@@ -217,8 +169,7 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
     meEBhitEnergy2_->Fill(isim->energy());
   }
 
-  if (menEBCrystals_)
-    menEBCrystals_->Fill(ebmap.size());
+  menEBCrystals_->Fill(ebmap.size());
   if (meEBcrystalEnergy_) {
     for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = ebmap.begin(); it != ebmap.end(); ++it)
       meEBcrystalEnergy_->Fill((*it).second);
@@ -228,8 +179,7 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
       meEBcrystalEnergy2_->Fill((*it).second);
   }
 
-  if (menEBHits_)
-    menEBHits_->Fill(nEBHits);
+  menEBHits_->Fill(nEBHits);
 
   if (nEBHits > 0) {
     uint32_t ebcenterid = getUnitWithMaxEnergy(ebmap);
@@ -238,14 +188,11 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
     int by = myEBid.iphi();
     int bz = myEBid.zside();
     eb1 = energyInMatrixEB(1, 1, bx, by, bz, ebmap);
-    if (meEBe1_)
-      meEBe1_->Fill(eb1);
+    meEBe1_->Fill(eb1);
     eb9 = energyInMatrixEB(3, 3, bx, by, bz, ebmap);
-    if (meEBe9_)
-      meEBe9_->Fill(eb9);
+    meEBe9_->Fill(eb9);
     eb25 = energyInMatrixEB(5, 5, bx, by, bz, ebmap);
-    if (meEBe25_)
-      meEBe25_->Fill(eb25);
+    meEBe25_->Fill(eb25);
 
     std::vector<uint32_t> ids25;
     ids25 = getIdsAroundMax(5, 5, bx, by, bz, ebmap);
@@ -263,37 +210,35 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
     MapType newebmap;
     if (fillEBMatrix(3, 3, bx, by, bz, newebmap, ebmap)) {
       eb4 = eCluster2x2(newebmap);
-      if (meEBe4_)
-        meEBe4_->Fill(eb4);
+      meEBe4_->Fill(eb4);
     }
     if (fillEBMatrix(5, 5, bx, by, bz, newebmap, ebmap)) {
       eb16 = eCluster4x4(eb9, newebmap);
-      if (meEBe16_)
-        meEBe16_->Fill(eb16);
+      meEBe16_->Fill(eb16);
     }
 
-    if (meEBe1oe4_ && eb4 > 0.1)
+    if (eb4 > 0.1)
       meEBe1oe4_->Fill(eb1 / eb4);
-    if (meEBe1oe9_ && eb9 > 0.1)
+    if (eb9 > 0.1)
       meEBe1oe9_->Fill(eb1 / eb9);
-    if (meEBe4oe9_ && eb9 > 0.1)
+    if (eb9 > 0.1)
       meEBe4oe9_->Fill(eb4 / eb9);
-    if (meEBe9oe16_ && eb16 > 0.1)
+    if (eb16 > 0.1)
       meEBe9oe16_->Fill(eb9 / eb16);
-    if (meEBe1oe25_ && eb25 > 0.1)
+    if (eb25 > 0.1)
       meEBe1oe25_->Fill(eb1 / eb25);
-    if (meEBe9oe25_ && eb25 > 0.1)
+    if (eb25 > 0.1)
       meEBe9oe25_->Fill(eb9 / eb25);
-    if (meEBe16oe25_ && eb25 > 0.1)
+    if (eb25 > 0.1)
       meEBe16oe25_->Fill(eb16 / eb25);
 
-    if (meEBhitLog10EnergyNorm_ && EBEnergy_ != 0) {
+    if (EBEnergy_ != 0) {
       for (int i = 0; i < 140; i++) {
         meEBhitLog10EnergyNorm_->Fill(-10. + (float(i) + 0.5) / 10., econtr[i] / EBEnergy_);
       }
     }
 
-    if (meEBhitLog10Energy25Norm_ && eb25 != 0) {
+    if (eb25 != 0) {
       for (int i = 0; i < 140; i++) {
         meEBhitLog10Energy25Norm_->Fill(-10. + (float(i) + 0.5) / 10., econtr25[i] / eb25);
       }
@@ -303,12 +248,10 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
   if (MyPEcalValidInfo.isValid()) {
     if (MyPEcalValidInfo->eb1x1() > 0.) {
       std::vector<float> BX0 = MyPEcalValidInfo->bX0();
-      if (meEBLongitudinalShower_)
-        meEBLongitudinalShower_->Reset();
+      meEBLongitudinalShower_->Reset();
       for (int myStep = 0; myStep < 26; myStep++) {
         eRLength[myStep] += BX0[myStep];
-        if (meEBLongitudinalShower_)
-          meEBLongitudinalShower_->Fill(float(myStep), eRLength[myStep] / myEntries);
+        meEBLongitudinalShower_->Fill(float(myStep), eRLength[myStep] / myEntries);
       }
     }
   }

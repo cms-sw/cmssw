@@ -10,8 +10,6 @@
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -29,22 +27,14 @@ SiPixelCoordinates::~SiPixelCoordinates() {}
 
 // _________________________________________________________
 //       init, called in the beginning of each event
-void SiPixelCoordinates::init(edm::EventSetup const& iSetup) {
-  // Get CablingMap (used for ROC number)
-  edm::ESHandle<SiPixelFedCablingMap> cablingMapHandle;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapHandle);
-  cablingMap_ = cablingMapHandle.product();
+void SiPixelCoordinates::init(const TrackerTopology* trackerTopology,
+                              const TrackerGeometry* trackerGeometry,
+                              const SiPixelFedCablingMap* siPixelFedCablingMap) {
+  tTopo_ = trackerTopology;
+  tGeom_ = trackerGeometry;
+  cablingMap_ = siPixelFedCablingMap;
+
   fedid_ = cablingMap_->det2fedMap();
-
-  // Get TrackerTopology
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-  tTopo_ = trackerTopologyHandle.product();
-
-  // Get TrackerGeometry
-  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-  tGeom_ = trackerGeometryHandle.product();
 
   // If not specified, determine from the geometry
   if (phase_ == -1) {

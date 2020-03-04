@@ -16,56 +16,46 @@
 //
 //
 
-// system include files
-#include <memory>
-
 // user include files
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <string>
 
 //
 // class declaration
 //
 
-class FourLepFilter : public edm::EDFilter {
+class FourLepFilter : public edm::global::EDFilter<> {
 public:
   explicit FourLepFilter(const edm::ParameterSet&);
-  ~FourLepFilter() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
-  edm::EDGetToken token_;
-  double minPt;
-  double maxEta;
-  double maxPt;
-  double minEta;
-  int particleID;
+  const edm::EDGetToken token_;
+  const double minPt;
+  const double maxEta;
+  const double maxPt;
+  const double minEta;
+  const int particleID;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 FourLepFilter::FourLepFilter(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
           edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
@@ -75,26 +65,12 @@ FourLepFilter::FourLepFilter(const edm::ParameterSet& iConfig)
       minEta(iConfig.getUntrackedParameter("MinEta", 0.)),
       particleID(iConfig.getUntrackedParameter("ParticleID", 0)) {}
 
-FourLepFilter::~FourLepFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
 // ------------ method called on each new Event  ------------
-bool FourLepFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-  //   FourMuonInput++;
-  //   std::cout<<"NumberofInputEvent "<<FourMuonInput<<std::endl;
-
+bool FourLepFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
-  //   int n4muon = 0;
   int nLeptons = 0;
 
-  Handle<HepMCProduct> evt;
+  edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
 
@@ -102,27 +78,17 @@ bool FourLepFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        ++p) {
     if ((*p)->status() != 1)
       continue;
-    //      if ( abs((*p)->pdg_id()) == particleID  )n4muon++;
-    if ((*p)->momentum().perp() > minPt && fabs((*p)->momentum().eta()) < maxEta && (*p)->momentum().perp() < maxPt &&
-        fabs((*p)->momentum().eta()) > minEta) {
-      if (abs((*p)->pdg_id()) == particleID)
+    if ((*p)->momentum().perp() > minPt && std::fabs((*p)->momentum().eta()) < maxEta &&
+        (*p)->momentum().perp() < maxPt && std::fabs((*p)->momentum().eta()) > minEta) {
+      if (std::abs((*p)->pdg_id()) == particleID)
         nLeptons++;
     }
     if (nLeptons >= 4) {
       accepted = true;
-      //            FourMuonFilter++;
-      //            std::cout<<"NumberofFourMuonFilter "<<FourMuonFilter<<std::endl;
       break;
     }
   }
-
-  //   if(n4muon>=4){FourMuon++; std::cout<<"NumberofFourMuon "<<FourMuon<<std::endl;}
-
-  if (accepted) {
-    return true;
-  } else {
-    return false;
-  }
+  return accepted;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

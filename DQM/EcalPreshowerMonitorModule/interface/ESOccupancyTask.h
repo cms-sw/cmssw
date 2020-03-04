@@ -1,16 +1,13 @@
 #ifndef ESOccupancyTask_H
 #define ESOccupancyTask_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-class ESOccupancyTask : public DQMEDAnalyzer {
+class ESOccupancyTask : public DQMOneEDAnalyzer<> {
 public:
   ESOccupancyTask(const edm::ParameterSet& ps);
   ~ESOccupancyTask() override {}

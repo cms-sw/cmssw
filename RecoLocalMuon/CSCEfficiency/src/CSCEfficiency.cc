@@ -1687,7 +1687,7 @@ CSCEfficiency::CSCEfficiency(const edm::ParameterSet &pset) {
 
   edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   // maybe use the service for getting magnetic field, propagators, etc. ...
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   // Trigger
   useTrigger = pset.getUntrackedParameter<bool>("useTrigger", false);

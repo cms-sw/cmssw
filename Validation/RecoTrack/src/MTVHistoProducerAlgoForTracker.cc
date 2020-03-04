@@ -394,6 +394,7 @@ std::unique_ptr<RecoTrackSelectorBase> MTVHistoProducerAlgoForTracker::makeRecoT
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook, Histograms& histograms) {
   histograms.h_ptSIM = make1DIfLogX(ibook, useLogPt, "ptSIM", "generated p_{t}", nintPt, minPt, maxPt);
   histograms.h_etaSIM = ibook.book1D("etaSIM", "generated pseudorapidity", nintEta, minEta, maxEta);
+  histograms.h_phiSIM = ibook.book1D("phiSIM", "generated phi", nintPhi, minPhi, maxPhi);
   histograms.h_tracksSIM =
       ibook.book1D("tracksSIM", "number of simulated tracks", nintTracks, minTracks, maxTracks * 10);
   histograms.h_vertposSIM =
@@ -1305,6 +1306,17 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook,
                         dxyRes_rangeMin,
                         dxyRes_rangeMax);
 
+  bookResolutionPlots2D(histograms.dxyres_vs_phi,
+                        false,
+                        "dxyres_vs_phi",
+                        "dxyres_vs_phi",
+                        nintPhi,
+                        minPhi,
+                        maxPhi,
+                        dxyRes_nbin,
+                        dxyRes_rangeMin,
+                        dxyRes_rangeMax);
+
   bookResolutionPlots2D(histograms.dzres_vs_eta,
                         false,
                         "dzres_vs_eta",
@@ -1323,6 +1335,17 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook,
                         nintPt,
                         minPt,
                         maxPt,
+                        dzRes_nbin,
+                        dzRes_rangeMin,
+                        dzRes_rangeMax);
+
+  bookResolutionPlots2D(histograms.dzres_vs_phi,
+                        false,
+                        "dzres_vs_phi",
+                        "dzres_vs_phi",
+                        nintPhi,
+                        minPhi,
+                        maxPhi,
                         dzRes_nbin,
                         dzRes_rangeMin,
                         dzRes_rangeMax);
@@ -1752,6 +1775,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_simTrack_histos(const Histogra
   if (bx == 0) {
     histograms.h_ptSIM->Fill(sqrt(momentumTP.perp2()));
     histograms.h_etaSIM->Fill(momentumTP.eta());
+    histograms.h_phiSIM->Fill(momentumTP.phi());
     histograms.h_vertposSIM->Fill(sqrt(vertexTP.perp2()));
   }
   histograms.h_bunchxSIM->Fill(bx);
@@ -2435,8 +2459,11 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(const His
   histograms.ptmean_vs_eta_phi[count]->Fill(phiRec, getEta(track.eta()), ptRec);
   histograms.phimean_vs_eta_phi[count]->Fill(phiRec, getEta(track.eta()), phiRec);
 
+  histograms.dxyres_vs_phi[count]->Fill(phiSim, dxyRes);
   histograms.ptres_vs_phi[count]->Fill(phiSim, ptres / ptRec);
+  histograms.dzres_vs_phi[count]->Fill(phiSim, dzRes);
   histograms.phires_vs_phi[count]->Fill(phiSim, phiRes);
+
   histograms.ptpull_vs_phi[count]->Fill(phiSim, ptres / ptError);
   histograms.phipull_vs_phi[count]->Fill(phiSim, phiPull);
   histograms.thetapull_vs_phi[count]->Fill(phiSim, thetaPull);

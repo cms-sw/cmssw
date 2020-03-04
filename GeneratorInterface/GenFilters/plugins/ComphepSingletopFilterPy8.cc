@@ -18,43 +18,65 @@
 //  ComphepSingletopFilterPy8.cc,v 2.1
 //
 
-// system include files
-#include <vector>
-#include <boost/format.hpp>
-
-// user include files
-#include "GeneratorInterface/GenFilters/plugins/ComphepSingletopFilterPy8.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "CLHEP/Vector/LorentzVector.h"
 
-#include "HepMC/IO_GenEvent.h"
+#include <atomic>
+#include <cmath>
+#include <cstdlib>
+#include <sstream>
+#include <string>
+#include <vector>
+
+class ComphepSingletopFilterPy8 : public edm::global::EDFilter<> {
+public:
+  explicit ComphepSingletopFilterPy8(const edm::ParameterSet &);
+
+private:
+  bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+  void endJob() override;
+
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const double ptsep;
+  mutable std::atomic<int> read22;
+  mutable std::atomic<int> read23;
+  mutable std::atomic<int> pass22;
+  mutable std::atomic<int> pass23;
+  const int hardLep;
+};
 
 using namespace std;
 using namespace HepMC;
 
 ComphepSingletopFilterPy8::ComphepSingletopFilterPy8(const edm::ParameterSet &iConfig)
     : token_(consumes<edm::HepMCProduct>(
-          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))) {
-  ptsep = iConfig.getParameter<double>("pTSep");
-}
-
-ComphepSingletopFilterPy8::~ComphepSingletopFilterPy8() {}
-
-void ComphepSingletopFilterPy8::beginJob() {
-  read22 = read23 = 0;
-  pass22 = pass23 = 0;
-  hardLep = 23;  //identifies the "hard part" in Pythia8
-}
+          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
+      ptsep(iConfig.getParameter<double>("pTSep")),
+      read22(0),
+      read23(0),
+      pass22(0),
+      pass23(0),
+      hardLep(23) {}  //identifies the "hard part" in Pythia8
 
 void ComphepSingletopFilterPy8::endJob() {
-  cout << "Proc:     2-->2     2-->3     Total" << endl;
-  cout << boost::format("Read: %9d %9d %9d") % read22 % read23 % (read22 + read23) << endl;
-  cout << boost::format("Pass: %9d %9d %9d") % pass22 % pass23 % (pass22 + pass23) << endl;
+  std::ostringstream ss;
+  ss << "Proc: " << std::setw(9) << "2-->2" << std::setw(9) << "2-->3" << std::setw(9) << "Total"
+     << "\n"
+     << "Read: " << std::setw(9) << read22 << std::setw(9) << read23 << std::setw(9) << read22 + read23 << "\n"
+     << "Pass: " << std::setw(9) << pass22 << std::setw(9) << pass23 << std::setw(9) << pass22 + pass23 << "\n";
+  edm::LogAbsolute("ComphepSingletopFilterPy8") << ss.str();
 }
 
-bool ComphepSingletopFilterPy8::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+bool ComphepSingletopFilterPy8::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &) const {
   edm::Handle<edm::HepMCProduct> evt;
-  //iEvent.getByLabel("generator","unsmeared", evt);
   iEvent.getByToken(token_, evt);
   const HepMC::GenEvent *myEvt = evt->GetEvent();
 
@@ -117,7 +139,7 @@ bool ComphepSingletopFilterPy8::filter(edm::Event &iEvent, const edm::EventSetup
   gv_hard = gp_clep->production_vertex();
 
   if (!gp_clep) {
-    cout << "ERROR: ComphepSingletopFilterPy8: no charged lepton" << endl;
+    edm::LogError("ComphepSingletopFilterPy8") << "ERROR: ComphepSingletopFilterPy8: no charged lepton" << endl;
     return false;
   }
 
@@ -199,7 +221,8 @@ bool ComphepSingletopFilterPy8::filter(edm::Event &iEvent, const edm::EventSetup
       }
     }
     if (!gv) {
-      cerr << "ERROR: ComphepSingletopFilterPy8: HepMC inconsistency (! gv)" << endl;
+      edm::LogError("ComphepSingletopFilterPy8")
+          << "ERROR: ComphepSingletopFilterPy8: HepMC inconsistency (! gv)" << endl;
       myEvt->print();
       return false;
     }
@@ -230,7 +253,8 @@ bool ComphepSingletopFilterPy8::filter(edm::Event &iEvent, const edm::EventSetup
 
     if (loopCount > 100)  //loop protection, nothing more
     {
-      cerr << "ERROR: ComphepSingletopFilterPy8: HepMC inconsistency (No add b vertex found)" << endl;
+      edm::LogError("ComphepSingletopFilterPy8")
+          << "ERROR: ComphepSingletopFilterPy8: HepMC inconsistency (No add b vertex found)" << endl;
       break;
     }
   }
@@ -255,7 +279,8 @@ bool ComphepSingletopFilterPy8::filter(edm::Event &iEvent, const edm::EventSetup
   }
 
   if (vgp_bsec.empty()) {
-    cerr << "ERROR: ComphepSingletopFilterPy8: HepMC inconsistency (vgp_bsec.size() == 0)" << endl;
+    edm::LogError("ComphepSingletopFilterPy8")
+        << "ERROR: ComphepSingletopFilterPy8: HepMC inconsistency (vgp_bsec.size() == 0)" << endl;
     return false;
   }
 
@@ -263,15 +288,17 @@ bool ComphepSingletopFilterPy8::filter(edm::Event &iEvent, const edm::EventSetup
   // double eta = vgp_bsec.back()->momentum().eta();
   bool pass;
   if (process22) {
-    read22 += 1;
+    ++read22;
     pass = pt < ptsep;
     if (pass)
-      pass22 += 1;
+      ++pass22;
   } else {
-    read23 += 1;
+    ++read23;
     pass = ptsep <= pt;
     if (pass)
-      pass23 += 1;
+      ++pass23;
   }
   return pass;
 }
+
+DEFINE_FWK_MODULE(ComphepSingletopFilterPy8);

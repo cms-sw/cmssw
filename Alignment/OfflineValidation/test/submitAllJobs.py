@@ -17,7 +17,7 @@ import datetime,time
 import os,sys
 import copy
 import string, re
-import ConfigParser, json
+import configparser as ConfigParser, json
 from optparse import OptionParser
 from subprocess import Popen, PIPE
 

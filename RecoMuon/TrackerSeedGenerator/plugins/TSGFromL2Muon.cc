@@ -1,4 +1,5 @@
 #include "TSGFromL2Muon.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
@@ -12,7 +13,8 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg) {
   edm::ConsumesCollector iC = consumesCollector();
 
   edm::ParameterSet serviceParameters = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(
+      serviceParameters, consumesCollector(), MuonServiceProxy::UseEventSetupIn::RunAndEvent);
 
   //Pt and P cuts
   thePtCut = cfg.getParameter<double>("PtCut");
@@ -46,7 +48,8 @@ TSGFromL2Muon::~TSGFromL2Muon() = default;
 
 void TSGFromL2Muon::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   //update muon proxy service
-  theService->update(es);
+  bool duringEvent = false;
+  theService->update(es, duringEvent);
   theTkSeedGenerator->init(theService.get());
   if (theSeedCleaner)
     theSeedCleaner->init(theService.get());

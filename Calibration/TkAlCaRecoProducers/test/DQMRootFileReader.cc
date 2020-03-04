@@ -69,8 +69,6 @@ DQMRootFileReader::~DQMRootFileReader() {
 }
 
 void DQMRootFileReader::endJob(void) {
-  cout << "Dumping DQMStore dir structure:" << endl;
-  dbe->showDirStructure();
   // dbe->save("test.root");
 }
 
@@ -83,7 +81,6 @@ void DQMRootFileReader::analyze(const edm::Event &iEvent, const edm::EventSetup 
   // NOTE: this is here just because we need it after the beginRun of
   // MEtoEDMCoverter which calls a Reset on all MEs.
   dbe->open(filename, false, "", "", DQMStore::OpenRunDirs::StripRunDirs);
-  dbe->showDirStructure();
 }
 
 // define this as a plug-in

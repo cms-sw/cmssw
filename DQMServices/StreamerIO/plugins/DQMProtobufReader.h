@@ -26,6 +26,7 @@ namespace dqmservices {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
+    void load(DQMStore* store, std::string filename);
     edm::InputSource::ItemType getNextItemType() override;
     std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
     std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;

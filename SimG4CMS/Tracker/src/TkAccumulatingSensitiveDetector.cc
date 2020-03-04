@@ -80,7 +80,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
   rotType = "FakeFrameRotation";
 #endif
 
-  edm::LogInfo("TrackerSimInfo") << " TkAccumulatingSensitiveDetector: "
+  edm::LogVerbatim("TrackerSim") << " TkAccumulatingSensitiveDetector: "
                                  << " Criteria for Saving Tracker SimTracks: \n"
                                  << " History: " << energyHistoryCut << " MeV; Persistency: " << energyCut
                                  << " MeV;  TofLimit: " << theTofLimit << " ns"
@@ -130,9 +130,9 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack* bot) {
 
 #ifdef DUMPPROCESSES
   if (gTrack->GetCreatorProcess()) {
-    edm::LogVerbatim("TrackerSimInfo") << " -> PROCESS CREATOR : " << gTrack->GetCreatorProcess()->GetProcessName();
+    edm::LogVerbatim("TrackerSim") << " -> PROCESS CREATOR : " << gTrack->GetCreatorProcess()->GetProcessName();
   } else {
-    edm::LogVerbatim("TrackerSimInfo") << " -> No Creator process";
+    edm::LogVerbatim("TrackerSim") << " -> No Creator process";
   }
 #endif
 

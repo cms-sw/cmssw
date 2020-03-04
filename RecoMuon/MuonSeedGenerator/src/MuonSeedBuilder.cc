@@ -80,13 +80,9 @@ MuonSeedBuilder::MuonSeedBuilder(const edm::ParameterSet& pset, edm::ConsumesCol
   maxEtaResolutionCSC = pset.getParameter<double>("maxEtaResolutionCSC");
   maxPhiResolutionCSC = pset.getParameter<double>("maxPhiResolutionCSC");
 
-  // muon service
-  edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
-
   // Class for forming muon seeds
   muonSeedCreate_ = new MuonSeedCreator(pset);
-  muonSeedClean_ = new MuonSeedCleaner(pset);
+  muonSeedClean_ = new MuonSeedCleaner(pset, edm::ConsumesCollector(iC));
 
   // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
   muonMeasurements = new MuonDetLayerMeasurements(theDTSegmentLabel,
@@ -108,8 +104,6 @@ MuonSeedBuilder::MuonSeedBuilder(const edm::ParameterSet& pset, edm::ConsumesCol
 MuonSeedBuilder::~MuonSeedBuilder() {
   delete muonSeedCreate_;
   delete muonSeedClean_;
-  if (theService)
-    delete theService;
   if (muonMeasurements)
     delete muonMeasurements;
 }

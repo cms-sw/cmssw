@@ -32,22 +32,23 @@ public:
   }
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
+    edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     dqmBeginRun(run, setup);
     edm::Service<DQMStore>()->bookTransaction(
         [this, &run, &setup](DQMStore::IBooker& booker) {
           booker.cd();
           this->bookHistograms(booker, run, setup);
         },
-        run.run(),
         this->moduleDescription().id(),
         this->getCanSaveByLumi());
+    edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
   }
 
   void accumulate(edm::Event const& event, edm::EventSetup const& setup) final { analyze(event, setup); }
 
   void endRunProduce(edm::Run& run, edm::EventSetup const& setup) final {
     dqmEndRun(run, setup);
-    edm::Service<DQMStore>()->cloneRunHistograms(run.run(), this->moduleDescription().id());
+    edm::Service<DQMStore>()->leaveLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     run.emplace<DQMToken>(runToken_);
   }
 
@@ -89,6 +90,8 @@ public:
   }
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
+    edm::Service<dqm::legacy::DQMStore>()->enterLumi(
+        lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
     dqmBeginLuminosityBlock(lumi, setup);
   }
 
@@ -101,7 +104,7 @@ public:
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) final {
     dqmEndLuminosityBlock(lumi, setup);
     // fully qualified name required for... reasons.
-    edm::Service<dqm::legacy::DQMStore>()->cloneLumiHistograms(
+    edm::Service<dqm::legacy::DQMStore>()->leaveLumi(
         lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
     lumi.emplace(lumiToken_);
   }

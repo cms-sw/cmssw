@@ -819,7 +819,7 @@ namespace edm {
     }
     if (entryType == IndexIntoFile::kRun) {
       run = indexIntoFileIter_.run();
-      runHelper_->checkForNewRun(run);
+      runHelper_->checkForNewRun(run, indexIntoFileIter_.peekAheadAtLumi());
       return IndexIntoFile::kRun;
     } else if (processingMode_ == InputSource::Runs) {
       indexIntoFileIter_.advanceToNextRun();

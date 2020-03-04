@@ -3,7 +3,7 @@
 from __future__ import print_function
 import os
 import sys
-import ConfigParser
+import configparser as ConfigParser
 import optparse
 import datetime
 

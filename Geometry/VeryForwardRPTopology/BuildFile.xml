@@ -1,11 +1,8 @@
-<use   name="clhep"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="boost"/>
-<use   name="hepmc"/>
+
+<use   name="root"/>
 
 <export>
   <lib   name="1"/>

@@ -10,7 +10,6 @@
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
-#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "TVector2.h"
 

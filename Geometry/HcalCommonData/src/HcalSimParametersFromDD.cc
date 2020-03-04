@@ -146,10 +146,12 @@ bool HcalSimParametersFromDD::build(const cms::DDCompactView* cpv, HcalSimulatio
   fv2.mergedSpecifics(ref2);
 
   while (fv2.firstChild()) {
-    const std::string name{fv2.name().data(), fv2.name().size()};
     const std::string matName{cms::dd::noNamespace(fv2.materialName()).data(),
                               cms::dd::noNamespace(fv2.materialName()).size()};
-    if (!isItHF(name, php) &&
+    std::vector<int> copy = fv2.copyNos();
+    // idet = 3 for HB and 4 for HE (convention in the ddalgo code for HB/HE)
+    int idet = (copy.size() > 1) ? (copy[1] / 1000) : 0;
+    if (((idet == 3) || (idet == 4)) &&
         std::find(std::begin(php.hcalMaterialNames_), std::end(php.hcalMaterialNames_), matName) ==
             std::end(php.hcalMaterialNames_)) {
       php.hcalMaterialNames_.emplace_back(matName);

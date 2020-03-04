@@ -13,21 +13,17 @@
 
 #include "DTChamberEfficiency.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 
@@ -58,7 +54,7 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet) {
 
   // service parameters
   ParameterSet serviceParameters = pSet.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   theTracksLabel_ = pSet.getParameter<InputTag>("TrackCollection");
   theTracksToken_ = consumes<reco::TrackCollection>(theTracksLabel_);
@@ -91,19 +87,9 @@ DTChamberEfficiency::~DTChamberEfficiency() {
   delete theEstimator;
 }
 
-void DTChamberEfficiency::dqmBeginRun(const Run& run, const EventSetup& setup) {
-  // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+void DTChamberEfficiency::dqmBeginRun(const Run&, const EventSetup&) {}
 
-  setup.get<IdealMagneticFieldRecord>().get(magfield);
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-
-  return;
-}
-
-void DTChamberEfficiency::bookHistograms(DQMStore::IBooker& ibooker,
-                                         edm::Run const& iRun,
-                                         edm::EventSetup const& context) {
+void DTChamberEfficiency::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
   LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency") << "DTChamberEfficiency: booking histos";
 
   // Create the monitor elements
@@ -144,9 +130,12 @@ void DTChamberEfficiency::analyze(const Event& event, const EventSetup& eventSet
 
   if (tracks.isValid()) {  // check the validity of the collection
 
+    const edm::ESHandle<GlobalTrackingGeometry>& globalTrackingGeometry = theService->trackingGeometry();
+    const MagneticField* magneticField = theService->magneticField().product();
+
     //loop over the muons
     for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
-      reco::TransientTrack trans_track(*track, magfield.product(), theTrackingGeometry);
+      reco::TransientTrack trans_track(*track, magneticField, globalTrackingGeometry);
       const int recHitsize = (int)trans_track.recHitsSize();
       if (recHitsize < theMinNrec)
         continue;
