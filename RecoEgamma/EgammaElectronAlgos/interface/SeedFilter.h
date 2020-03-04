@@ -14,7 +14,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"

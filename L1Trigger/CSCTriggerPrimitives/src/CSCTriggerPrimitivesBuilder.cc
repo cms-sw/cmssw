@@ -27,15 +27,15 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
-  runME11Up_ = commonParams.existsAs<bool>("runME11Up") ? commonParams.getParameter<bool>("runME11Up") : false;
-  runME21Up_ = commonParams.existsAs<bool>("runME21Up") ? commonParams.getParameter<bool>("runME21Up") : false;
-  runME31Up_ = commonParams.existsAs<bool>("runME31Up") ? commonParams.getParameter<bool>("runME31Up") : false;
-  runME41Up_ = commonParams.existsAs<bool>("runME41Up") ? commonParams.getParameter<bool>("runME41Up") : false;
+  runME11Up_ = commonParams.getParameter<bool>("runME11Up");
+  runME21Up_ = commonParams.getParameter<bool>("runME21Up");
+  runME31Up_ = commonParams.getParameter<bool>("runME31Up");
+  runME41Up_ = commonParams.getParameter<bool>("runME41Up");
 
-  runME11ILT_ = commonParams.existsAs<bool>("runME11ILT") ? commonParams.getParameter<bool>("runME11ILT") : false;
-  runME21ILT_ = commonParams.existsAs<bool>("runME21ILT") ? commonParams.getParameter<bool>("runME21ILT") : false;
+  runME11ILT_ = commonParams.getParameter<bool>("runME11ILT");
+  runME21ILT_ = commonParams.getParameter<bool>("runME21ILT");
 
-  useClusters_ = commonParams.existsAs<bool>("useClusters") ? commonParams.getParameter<bool>("useClusters") : false;
+  useClusters_ = commonParams.getParameter<bool>("useClusters");
 
   // Initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
@@ -230,7 +230,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               if (infoV > 1)
                 LogTrace("CSCTriggerPrimitivesBuilder")
                     << "CSCTriggerPrimitivesBuilder::build in E:" << endc << " S:" << stat << " R:" << ring;
-              tmb11GEM->run(wiredc, compdc, gemPads);
+
+              if (useClusters_) {
+                tmb11GEM->run(wiredc, compdc, gemClusters);
+              } else {
+                tmb11GEM->run(wiredc, compdc, gemPads);
+              }
 
               // 0th layer means whole chamber.
               GEMDetId gemId(detid.zendcap(), 1, 1, 0, chid, 0);
@@ -287,7 +292,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               CSCGEMMotherboardME21* tmb21GEM = static_cast<CSCGEMMotherboardME21*>(tmb);
               tmb21GEM->setCSCGeometry(csc_g);
               tmb21GEM->setGEMGeometry(gem_g);
-              tmb21GEM->run(wiredc, compdc, gemPads);
+
+              if (useClusters_) {
+                tmb21GEM->run(wiredc, compdc, gemClusters);
+              } else {
+                tmb21GEM->run(wiredc, compdc, gemPads);
+              }
 
               // 0th layer means whole chamber.
               GEMDetId gemId(detid.zendcap(), 1, 2, 0, chid, 0);

@@ -194,7 +194,7 @@ namespace {
             }
             break;
           default:
-            std::cout << "will do nothing" << std::endl;
+            COUT << "will do nothing" << std::endl;
             break;
         }
       }
@@ -375,7 +375,7 @@ namespace {
             0,
             range);
 
-        //std::cout<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
+        //COUT<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
 
         for (int j = begin; j <= end; j++) {
           AlignmentPI::regions part = (AlignmentPI::regions)j;
@@ -506,13 +506,12 @@ namespace {
   // *************************************************/
 
   template <AlignmentPI::index i>
-  class TrackerAlignmentErrorExtendedComparator : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  class TrackerAlignmentErrorExtendedComparatorBase
+      : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
   public:
-    TrackerAlignmentErrorExtendedComparator()
+    TrackerAlignmentErrorExtendedComparatorBase()
         : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>("Summary per Tracker region of sqrt(d_{" +
-                                                                     getStringFromIndex(i) + "}) of APE matrix") {
-      setSingleIov(false);
-    }
+                                                                     getStringFromIndex(i) + "}) of APE matrix") {}
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       gStyle->SetPaintTextFormat(".1f");
@@ -738,6 +737,22 @@ namespace {
     }  // ends fill method
   };
 
+  template <AlignmentPI::index i>
+  class TrackerAlignmentErrorExtendedComparator : public TrackerAlignmentErrorExtendedComparatorBase<i> {
+  public:
+    TrackerAlignmentErrorExtendedComparator() : TrackerAlignmentErrorExtendedComparatorBase<i>() {
+      this->setSingleIov(false);
+    }
+  };
+
+  template <AlignmentPI::index i>
+  class TrackerAlignmentErrorExtendedComparatorTwoTags : public TrackerAlignmentErrorExtendedComparatorBase<i> {
+  public:
+    TrackerAlignmentErrorExtendedComparatorTwoTags() : TrackerAlignmentErrorExtendedComparatorBase<i>() {
+      this->setTwoTags(true);
+    }
+  };
+
   // diagonal elements
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XX> TrackerAlignmentErrorExtendedXXComparator;
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::YY> TrackerAlignmentErrorExtendedYYComparator;
@@ -747,6 +762,22 @@ namespace {
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYComparator;
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZComparator;
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZComparator;
+
+  // diagonal elements
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::XX>
+      TrackerAlignmentErrorExtendedXXComparatorTwoTags;
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::YY>
+      TrackerAlignmentErrorExtendedYYComparatorTwoTags;
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::ZZ>
+      TrackerAlignmentErrorExtendedZZComparatorTwoTags;
+
+  // off-diagonal elements
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::XY>
+      TrackerAlignmentErrorExtendedXYComparatorTwoTags;
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::XZ>
+      TrackerAlignmentErrorExtendedXZComparatorTwoTags;
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::YZ>
+      TrackerAlignmentErrorExtendedYZComparatorTwoTags;
 
 }  // namespace
 
@@ -782,4 +813,10 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended) {
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYComparator);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZComparator);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZComparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXXComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYYComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZZComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZComparatorTwoTags);
 }

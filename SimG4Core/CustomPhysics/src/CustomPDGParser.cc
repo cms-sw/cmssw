@@ -62,6 +62,11 @@ bool CustomPDGParser::s_isChargino(int pdg) {
   return (pdgAbs == 1000024);
 }
 
+bool CustomPDGParser::s_isSIMP(int pdg) {
+  int pdgAbs = abs(pdg);
+  return (pdgAbs == 9000006);
+}
+
 double CustomPDGParser::s_charge(int pdg) {
   float charge = 0, sign = 1;
   int pdgAbs = abs(pdg);
@@ -81,6 +86,9 @@ double CustomPDGParser::s_charge(int pdg) {
   }
   if (s_isChargino(pdg)) {
     return sign;
+  }
+  if (s_isSIMP(pdg)) {
+    return 0;
   }
   if (s_isRMeson(pdg)) {
     std::vector<int> quarks = s_containedQuarks(pdg);

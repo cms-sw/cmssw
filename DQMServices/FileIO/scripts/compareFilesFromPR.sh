@@ -4,12 +4,18 @@ BASELINEURL="$2"
 PRNUMBER=$(date +%s)
 
 fetch() {
-  cern-get-sso-cookie -o cook --url $1
-  for d in $(curl -L -s -k -b cook $1 | grep -oE '"[0-9]+*.[0-9]+_[^"]*"' | tr -d '"'); do
-    for f in $(curl -L -s -k -b cook "$1/$d" | grep -oE '"DQM.*.root"' | tr -d '"'); do
-      (echo "Fetching $d/$f..."; mkdir -p $d; cd $d; curl -O -L -s -k -b ../cook $1/$d/$f )
+  (
+    export PATH=/bin/:/usr/bin/
+    export PERL5LIB=
+    export LD_LIBRARY_PATH=
+
+    cern-get-sso-cookie -o cook --url $1
+    for d in $(curl -L -s -k -b cook $1 | grep -oE '"[0-9]+*.[0-9]+_[^"]*"' | tr -d '"'); do
+      for f in $(curl -L -s -k -b cook "$1/$d" | grep -oE '"DQM.*.root"' | tr -d '"'); do
+        (echo "Fetching $d/$f..."; mkdir -p $d; cd $d; curl -O -L -s -k -b ../cook $1/$d/$f )
+      done
     done
-  done
+  )
 }
 
 if [[ -z $RESULTURL || -z $BASELINEURL ]]; then

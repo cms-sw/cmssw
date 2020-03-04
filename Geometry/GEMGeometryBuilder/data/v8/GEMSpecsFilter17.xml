@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="GEMSpecsFilter.xml">
+    <SpecPar name="MuonGEMTree">
+      <PartSelector path="//GEMBox11L"/>      
+      <PartSelector path="//GEMBox11L/GMAX11L/"/>      
+      <PartSelector path="//GEMBox11L/GMAX11L/GSAX11L"/>      
+      <PartSelector path="//GEMBox11L/GMAX11L/GSAX11L/GHA1..*"/>      
+      <PartSelector path="//GEMBox11S"/>      
+      <PartSelector path="//GEMBox11S/GMAX11S/"/>      
+      <PartSelector path="//GEMBox11S/GMAX11S/GSAX11S"/>      
+      <PartSelector path="//GEMBox11S/GMAX11S/GSAX11S/GHA1..*"/>      
+      <Parameter name="MuStructure" value="MuonEndCapGEM"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

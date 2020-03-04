@@ -1,7 +1,6 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="RecoVertex/KinematicFit"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="MagneticField/Records"/>
 <use   name="RecoTracker/Record" />
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/RecoCandidate"/>
@@ -9,7 +8,6 @@
 <use   name="PhysicsTools/KinFitter"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="boost"/>
-<use   name="DataFormats/VertexReco"/>
 <export>
   <lib   name="1"/>
 </export>

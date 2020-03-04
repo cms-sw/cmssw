@@ -12,7 +12,6 @@
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -49,10 +48,9 @@ struct HCalEndcapModuleAlgo {
   std::vector<std::string> phiName;    //Name of Phi sections
   std::vector<std::string> layerName;  //Layer Names
 
-  std::string idName;       //Name of the "parent" volume.
-  std::string idNameSpace;  //Namespace of this and ALL sub-parts
-  std::string modName;      //Module Name
-  int idOffset;             // Geant4 ID's...    = 4000;
+  std::string idName;   //Name of the "parent" volume.
+  std::string modName;  //Module Name
+  int idOffset;         // Geant4 ID's...    = 4000;
 
   struct HcalEndcapPar {
     double yh1, bl1, tl1, yh2, bl2, tl2, alp, theta, phi, xpos, ypos, zpos;
@@ -154,12 +152,11 @@ struct HCalEndcapModuleAlgo {
       edm::LogVerbatim("HCalGeom") << "LayerName[" << i << "] = " << layerName[i];
 #endif
     idName = args.value<std::string>("MotherName");
-    idNameSpace = static_cast<std::string>(ns.name());
     idOffset = args.value<int>("IdOffset");
     modName = args.value<std::string>("ModName");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapModuleAlgo: Parent " << args.parentName() << "   " << modName
-                                 << " idName " << idName << " NameSpace " << idNameSpace << " Offset " << idOffset;
+                                 << " idName " << idName << " NameSpace " << ns.name() << " Offset " << idOffset;
 #endif
 
 #ifdef EDM_ML_DEBUG

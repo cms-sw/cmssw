@@ -27,6 +27,7 @@
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace {
   std::once_flag pluginFlag;
@@ -66,9 +67,8 @@ PythonEventProcessor::PythonEventProcessor(PyBind11ProcessDesc const& iDesc)
 
 PythonEventProcessor::~PythonEventProcessor() {
   auto gil = PyEval_SaveThread();
-  try {
-    processor_.endJob();
-  } catch (...) {
+  // Protects the destructor from throwing exceptions.
+  CMS_SA_ALLOW try { processor_.endJob(); } catch (...) {
   }
   PyEval_RestoreThread(gil);
 }

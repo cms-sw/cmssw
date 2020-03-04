@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/global/OutputModuleBase.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
 #include "FWCore/Framework/interface/limited/OutputModuleBase.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace {
   template <typename F>
@@ -84,7 +85,8 @@ namespace edm {
               mergeableRunProductMetadata,
               iTask]() mutable {
       std::exception_ptr ex;
-      try {
+      // Caught exception is propagated via WaitingTaskHolder
+      CMS_SA_ALLOW try {
         ServiceRegistry::Operate op(token);
         ParentContext parentContext(&globalContext);
         ModuleCallingContext mcc(desc);
@@ -116,7 +118,8 @@ namespace edm {
                                 processContext);
     auto t = [& mod = module(), &lbp, activityRegistry, token, globalContext, desc = &description(), iTask]() mutable {
       std::exception_ptr ex;
-      try {
+      // Caught exception is propagated via WaitingTaskHolder
+      CMS_SA_ALLOW try {
         ServiceRegistry::Operate op(token);
 
         ParentContext parentContext(&globalContext);

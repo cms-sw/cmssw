@@ -88,6 +88,22 @@ phase2_hgcal.toModify( RecoLocalCaloAOD,
                                                         'keep *_hgcalLayerClusters_*_*',
                                                         'drop DetIdfloatstdmap_hgcalLayerClusters_*_*'])
 
+# mods for HFNOSE
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+
+phase2_hfnose.toModify( RecoLocalCaloRECO,
+                        outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_hgcalLayerClustersHFNose_*_*',
+                                                                             'drop DetIdfloatstdmap_hgcalLayerClustersHFNose_*_*',
+                                                                          ] )
+
+phase2_hfnose.toModify( RecoLocalCaloFEVT,
+                        outputCommands = RecoLocalCaloFEVT.outputCommands + ['keep *_hgcalLayerClustersHFNose_*_*',
+                                                                             'drop DetIdfloatstdmap_hgcalLayerClustersHFNose_*_*'] )
+
+phase2_hfnose.toModify( RecoLocalCaloAOD,
+                        outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_hgcalLayerClustersHFNose_*_*',
+                                                                            'drop DetIdfloatstdmap_hgcalLayerClustersHFNose_*_*'] )
+
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 (pA_2016|pp_on_AA_2018).toModify( RecoLocalCaloAOD.outputCommands,

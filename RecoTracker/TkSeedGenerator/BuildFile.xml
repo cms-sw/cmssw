@@ -8,14 +8,9 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="TrackingTools/PatternTools"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
-<use   name="TrackingTools/KalmanUpdators"/>
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="TrackingTools/Records"/>
 <use   name="CommonTools/Utils"/>

@@ -5,6 +5,7 @@ from __future__ import print_function
 import shutil
 import glob
 import json
+import yaml
 import sys
 import sys
 import os
@@ -61,7 +62,7 @@ def supress_output( f ):
 
 
 @supress_output
-def deserialize_iovs(db, plugin_name, plot_name, tag, time_type, iovs):
+def deserialize_iovs(db, plugin_name, plot_name, tag, time_type, iovs, input_params):
     ''' Deserializes given iovs data and returns plot coordinates '''
     
     output('Starting to deserialize iovs: ', '')
@@ -91,7 +92,8 @@ def deserialize_iovs(db, plugin_name, plot_name, tag, time_type, iovs):
 
     output('full DB name: ', db_name)
 
-
+    if input_params is not None:
+        plot.setInputParamValues( input_params )
     success = plot.process(db_name, tag, time_type, int(iovs['start_iov']), int(iovs['end_iov']))
     output('plot processed data successfully: ', success)
     if not success:
@@ -102,7 +104,7 @@ def deserialize_iovs(db, plugin_name, plot_name, tag, time_type, iovs):
     output('deserialized data: ', result)
     return result
 @supress_output
-def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo):
+def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo, input_params):
     ''' Deserializes given iovs data and returns plot coordinates '''
     #print "Starting to deserialize iovs:"
     #print 'First Iovs',iovs
@@ -130,7 +132,8 @@ def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo):
     db_name = 'oracle://cms_orcon_adg/CMS_CONDITIONS' if db == 'Prod' else 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
     output('full DB name: ', db_name)
 
-
+    if input_params is not None:
+        plot.setInputParamValues( input_params )
     success = plot.processTwoTags(db_name, tag,tagtwo,int(iovs['start_iov']), int(iovstwo['end_iov']))
     #print "All good",success
     output('plot processed data successfully: ', success)
@@ -212,7 +215,9 @@ def discover():
             output(' - is single iov: ', single_iov)
             two_tags = plot_method.isTwoTags()
             output(' - is Two Tags: ', two_tags)
-            result.setdefault(payload_type, []).append({'plot': plot, 'plugin_name': plugin_name, 'title': plot_title, 'plot_type': plot_type, 'single_iov': single_iov, 'two_tags': two_tags})
+            input_params = plot_method.inputParams()
+            output(' - input params: ', len(input_params))
+            result.setdefault(payload_type, []).append({'plot': plot, 'plugin_name': plugin_name, 'title': plot_title, 'plot_type': plot_type, 'single_iov': single_iov, 'two_tags': two_tags, 'input_params': input_params})
             output('currently discovered info: ', result)
     output('*** final output:', '')
     return json.dumps(result)
@@ -267,6 +272,7 @@ if __name__ == '__main__':
     parser.add_argument("-v", "--verbose",    help="verbose mode. Shows more information", action="store_true")
     parser.add_argument("-ip","--image_plot", help="Switch telling the script that this plot type is of type Image", action="store_true")
     parser.add_argument("-s", "--suppress-output", help="Supresses output from so that stdout and stderr can be kept pure for the ssh transmission", action="store_true")
+    parser.add_argument("-is", "--input_params", help="Plot input parameters ( dictionary, JSON serialized into string )" )
 
     # shows help if no arguments are provided
     if len(sys.argv) == 1:
@@ -279,6 +285,10 @@ if __name__ == '__main__':
     if args.discover:
         os.write( 1, discover() )
 
+    input_params = None
+    if args.input_params is not None:
+        input_params = yaml.safe_load(args.input_params)
+
     # Return a plot if iovs are provided
     #print '* getiovs: ',args.iovs
     #print '* getiovstwo: ',args.iovstwo
@@ -290,7 +300,7 @@ if __name__ == '__main__':
         #print 'A',a
         b=json.loads(args.iovstwo)
         #print 'B',b
-        result = deserialize_twoiovs(args.db, args.plugin, args.plot, args.tag,args.tagtwo,a,b)
+        result = deserialize_twoiovs(args.db, args.plugin, args.plot, args.tag,args.tagtwo,a,b, input_params)
         # If test -> output the result as formatted json
         if args.test:
             os.write( 1, json.dumps( json.loads( result ), indent=4 ))
@@ -318,7 +328,7 @@ if __name__ == '__main__':
                         
         # Else -> output result json string with base 64 encoding
     elif args.iovs:
-        result = deserialize_iovs(args.db, args.plugin, args.plot, args.tag, args.time_type, json.loads(args.iovs))
+        result = deserialize_iovs(args.db, args.plugin, args.plot, args.tag, args.time_type, json.loads(args.iovs), input_params)
         
         # If test -> output the result as formatted json
         if args.test:

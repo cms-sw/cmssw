@@ -11,6 +11,8 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/python/list.hpp>
+#include <boost/python/dict.hpp>
 
 namespace cond {
 
@@ -159,6 +161,12 @@ namespace cond {
       // required in the browser
       bool isTwoTags() const;
 
+      // required in the browser
+      boost::python::list inputParams() const;
+
+      // required in the browser
+      void setInputParamValues(const boost::python::dict& values);
+
       // returns the json file with the plot data
       std::string data() const;
 
@@ -189,6 +197,8 @@ namespace cond {
 
       void setTwoTags(bool flag);
 
+      void addInputParam(const std::string& paramName);
+
       // access to the fetch function of the configured reader, to be used in the processData implementations
       template <typename PayloadType>
       std::shared_ptr<PayloadType> fetchPayload(const cond::Hash& payloadHash) {
@@ -197,8 +207,7 @@ namespace cond {
 
       cond::Tag_t getTagInfo(const std::string& tag);
 
-      // access to the timeType of the tag in process
-      //cond::TimeType tagTimeType() const;
+      const std::map<std::string, std::string>& inputParamValues() const;
 
       // access to the underlying db session
       cond::persistency::Session dbSession();
@@ -207,12 +216,14 @@ namespace cond {
       PlotAnnotations m_plotAnnotations;
       std::string m_tag0 = "";
       std::string m_tag1 = "";
+      std::set<std::string> m_inputParams;
 
     private:
       cond::persistency::Session m_dbSession;
       //cond::TimeType m_tagTimeType;
 
       std::string m_data = "";
+      std::map<std::string, std::string> m_inputParamValues;
     };
 
     // Concrete plot-types implementations

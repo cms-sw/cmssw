@@ -20,8 +20,6 @@
 using namespace gen;
 using namespace edm;
 
-CLHEP::HepRandomEngine* decayRandomEngine = nullptr;
-
 ExternalDecayDriver::ExternalDecayDriver(const ParameterSet& pset) : fIsInitialized(false) {
   std::vector<std::string> extGenNames = pset.getParameter<std::vector<std::string> >("parameterSets");
 
@@ -147,7 +145,6 @@ void ExternalDecayDriver::statistics() const {
 }
 
 void ExternalDecayDriver::setRandomEngine(CLHEP::HepRandomEngine* v) {
-  decayRandomEngine = v;
   if (fTauolaInterface)
     fTauolaInterface->setRandomEngine(v);
   if (fEvtGenInterface)

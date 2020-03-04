@@ -58,16 +58,16 @@ namespace {
         if (payload.get()) {
           int i = 0;
           auto listOfItems = payload->items();
-          std::cout << "items size:" << listOfItems.size() << std::endl;
+          COUT << "items size:" << listOfItems.size() << std::endl;
 
           for (const auto &item : listOfItems) {
-            std::cout << i << " " << item.m_rawId << " Det: " << DetId(item.m_rawId).subdetId() << " " << item.m_index
-                      << std::endl;
+            COUT << i << " " << item.m_rawId << " Det: " << DetId(item.m_rawId).subdetId() << " " << item.m_index
+                 << std::endl;
             const auto beginEndPair = payload->parameters(i);
             std::vector<align::Scalar> params(beginEndPair.first, beginEndPair.second);
-            std::cout << "params.size()" << params.size() << std::endl;
+            COUT << "params.size()" << params.size() << std::endl;
             for (const auto &par : params) {
-              std::cout << par << std::endl;
+              COUT << par << std::endl;
             }
             i++;
           }
@@ -506,7 +506,7 @@ namespace {
 
           float delta = (l_entry.second - f_entry.second);
 
-          //std::cout<<" match! subid:" << subid << " rawId:" << f_entry.first << " delta:"<< delta << std::endl;
+          //COUT<<" match! subid:" << subid << " rawId:" << f_entry.first << " delta:"<< delta << std::endl;
 
           if (isPhase0) {
             tmap->addPixel(true);
@@ -671,7 +671,7 @@ namespace {
         DetId detid(it.m_rawId);
         t_info_fromXML.fillGeometryInfo(detid, f_tTopo, isPhase0);
 
-        //std::cout<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl;
+        //COUT<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl;
 
         if (!t_info_fromXML.sanityCheck()) {
           edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector")
@@ -697,7 +697,7 @@ namespace {
           continue;
 
         FirstSurfDef_spectraByRegion[thePart]->Fill(first_params.at(m_par));
-        //std::cout<<  getStringFromRegionEnum(thePart) << " first payload: "<< first_params.at(m_par) << std::endl;
+        //COUT<<  getStringFromRegionEnum(thePart) << " first payload: "<< first_params.at(m_par) << std::endl;
 
       }  // ends loop on the vector of error transforms
 
@@ -732,7 +732,7 @@ namespace {
         DetId detid(it.m_rawId);
         t_info_fromXML.fillGeometryInfo(detid, l_tTopo, isPhase0);
 
-        //std::cout<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl;
+        //COUT<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl;
 
         if (!t_info_fromXML.sanityCheck()) {
           edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector")
@@ -759,7 +759,7 @@ namespace {
           continue;
 
         LastSurfDef_spectraByRegion[thePart]->Fill(last_params.at(m_par));
-        //std::cout<< getStringFromRegionEnum(thePart) <<  " last payload: "<< last_params.at(m_par) << std::endl;
+        //COUT<< getStringFromRegionEnum(thePart) <<  " last payload: "<< last_params.at(m_par) << std::endl;
 
       }  // ends loop on the vector of error transforms
 

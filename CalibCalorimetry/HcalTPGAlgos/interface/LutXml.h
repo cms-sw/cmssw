@@ -28,6 +28,7 @@ class LutXml : public XMLDOMBlock {
 public:
   typedef struct _Config {
     _Config();
+    std::string infotype;
     int ieta, iphi, depth, crate, slot, topbottom, fiber, fiberchan, lut_type;
     std::string creationtag;
     std::string creationstamp;
@@ -53,7 +54,7 @@ public:
   //
   //std::vector<unsigned int> getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel );
 
-  HcalSubdetector subdet_from_crate(int crate, int eta, int depth);
+  HcalSubdetector subdet_from_crate(int crate, int slot, int fiber);
   int a_to_i(char* inbuf);
   int create_lut_map(void);
 

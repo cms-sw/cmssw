@@ -32,6 +32,7 @@ namespace cms {
     explicit DDSolid(dd4hep::Solid s) : solid_(s) {}
     dd4hep::Solid solid() const { return solid_; }
     dd4hep::Solid solidA() const;
+    dd4hep::Solid solidB() const;
     const std::vector<double> parameters() const;
 
   private:
@@ -64,6 +65,15 @@ namespace cms {
 
     //! The physical volume of the current node
     const PlacedVolume volume() const;
+
+    //! The full path to the current node
+    const std::string path() const;
+
+    //! The list of the volume copy numbers
+    //  along the full path to the current node
+    const std::vector<int> copyNos() const;
+
+    const std::vector<int> copyNumbers() { return copyNos(); }
 
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
@@ -152,6 +162,11 @@ namespace cms {
     //! extract attribute value in SpecPar
     template <typename T>
     T get(const std::string&, const std::string&) const;
+
+    //! convert an attribute value from SpecPar
+    //  without passing it through an evaluator,
+    //  e.g. the original values have no units
+    std::vector<double> get(const std::string&, const std::string&) const;
 
     std::string_view getString(const std::string&) const;
 

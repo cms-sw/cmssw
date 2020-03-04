@@ -31,8 +31,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                                << "copy nos " << startCopyNo << ", " << incrCopyNo;
 #endif
   std::string childName = args.value<std::string>("ChildName");
-  if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+  childName = ns.prepend(childName);
   dd4hep::Volume parent = ns.volume(args.parentName());
   dd4hep::Volume child = ns.volume(childName);
 #ifdef EDM_ML_DEBUG

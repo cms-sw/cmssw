@@ -151,13 +151,14 @@ namespace edm {
 
     initFile(input_.skipBadFiles());
 
-    if (rootFile()) {
-      // make sure the new product registry is compatible with the main one
-      std::string mergeInfo =
-          input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileName(), branchesMustMatch_);
-      if (!mergeInfo.empty()) {
-        throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::nextFile()") << mergeInfo;
-      }
+    if (not rootFile()) {
+      return false;
+    }
+    // make sure the new product registry is compatible with the main one
+    std::string mergeInfo =
+        input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileName(), branchesMustMatch_);
+    if (!mergeInfo.empty()) {
+      throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::nextFile()") << mergeInfo;
     }
     return true;
   }

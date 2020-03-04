@@ -77,16 +77,16 @@ private:
   std::unique_ptr<AHCalGeometry> ahcalGeom_;
   const HGCalDDDConstants* hgcons_[2];
   const HGCalGeometry* hgeom_[2];
-  bool ifEE_, ifFH_, ifBH_, ifBeam_;
-  bool doTree_, doTreeCell_;
-  bool doSimHits_, doDigis_, doRecHits_;
-  bool doPassive_, doPassiveEE_, doPassiveHE_, doPassiveBH_;
-  std::string detectorEE_, detectorFH_;
-  std::string detectorBH_, detectorBeam_;
-  double zFrontEE_, zFrontFH_, zFrontBH_;
-  int sampleIndex_;
+  const bool ifEE_, ifFH_, ifBH_, ifBeam_;
+  const bool doSimHits_, doDigis_, doRecHits_;
+  const bool doTree_, doTreeCell_;
+  const bool doPassive_, doPassiveEE_, doPassiveHE_, doPassiveBH_, addP_;
+  const std::string detectorEE_, detectorFH_;
+  const std::string detectorBH_, detectorBeam_;
+  const double zFrontEE_, zFrontFH_, zFrontBH_;
+  const int sampleIndex_;
+  const double gev2mip200_, gev2mip300_, stoc_smear_time_200_, stoc_smear_time_300_;
   std::vector<int> idBeams_;
-  double gev2mip200_, gev2mip300_, stoc_smear_time_200_, stoc_smear_time_300_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsEE_, tok_hitsFH_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsBH_, tok_hitsBeam_;
   edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
@@ -133,42 +133,43 @@ private:
   double thetaBeam_, phiBeam_;
 };
 
-HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
+HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
+    : ifEE_(iConfig.getParameter<bool>("useEE")),
+      ifFH_(iConfig.getParameter<bool>("useFH")),
+      ifBH_(iConfig.getParameter<bool>("useBH")),
+      ifBeam_(iConfig.getParameter<bool>("useBeam")),
+      doSimHits_(iConfig.getParameter<bool>("doSimHits")),
+      doDigis_(iConfig.getParameter<bool>("doDigis")),
+      doRecHits_(iConfig.getParameter<bool>("doRecHits")),
+      doTree_(iConfig.getParameter<bool>("doTree")),
+      doTreeCell_(iConfig.getParameter<bool>("doTreeCell")),
+      doPassive_(iConfig.getParameter<bool>("doPassive")),
+      doPassiveEE_(iConfig.getParameter<bool>("doPassiveEE")),
+      doPassiveHE_(iConfig.getParameter<bool>("doPassiveHE")),
+      doPassiveBH_(iConfig.getParameter<bool>("doPassiveBH")),
+      addP_(iConfig.getParameter<bool>("addP")),
+      detectorEE_(iConfig.getParameter<std::string>("detectorEE")),
+      detectorFH_(iConfig.getParameter<std::string>("detectorFH")),
+      detectorBH_(iConfig.getParameter<std::string>("detectorBH")),
+      detectorBeam_(iConfig.getParameter<std::string>("detectorBeam")),
+      zFrontEE_(iConfig.getParameter<double>("zFrontEE")),
+      zFrontFH_(iConfig.getParameter<double>("zFrontFH")),
+      zFrontBH_(iConfig.getParameter<double>("zFrontBH")),
+      sampleIndex_(iConfig.getParameter<int>("sampleIndex")),
+      gev2mip200_(iConfig.getUntrackedParameter<double>("gev2mip200", 57.0e-6)),
+      gev2mip300_(iConfig.getUntrackedParameter<double>("gev2mip300", 85.5e-6)),
+      stoc_smear_time_200_(iConfig.getUntrackedParameter<double>("stoc_smear_time_200", 10.24)),
+      stoc_smear_time_300_(iConfig.getUntrackedParameter<double>("stoc_smear_time_300", 15.5)) {
   usesResource("TFileService");
   ahcalGeom_.reset(new AHCalGeometry(iConfig));
 
   // now do whatever initialization is needed
-  detectorEE_ = iConfig.getParameter<std::string>("detectorEE");
-  detectorFH_ = iConfig.getParameter<std::string>("detectorFH");
-  detectorBH_ = iConfig.getParameter<std::string>("detectorBH");
-  detectorBeam_ = iConfig.getParameter<std::string>("detectorBeam");
-  ifEE_ = iConfig.getParameter<bool>("useEE");
-  ifFH_ = iConfig.getParameter<bool>("useFH");
-  ifBH_ = iConfig.getParameter<bool>("useBH");
-  ifBeam_ = iConfig.getParameter<bool>("useBeam");
-  zFrontEE_ = iConfig.getParameter<double>("zFrontEE");
-  zFrontFH_ = iConfig.getParameter<double>("zFrontFH");
-  zFrontBH_ = iConfig.getParameter<double>("zFrontBH");
-  idBeams_ = iConfig.getParameter<std::vector<int>>("idBeams");
-  doSimHits_ = iConfig.getParameter<bool>("doSimHits");
-  doDigis_ = iConfig.getParameter<bool>("doDigis");
-  sampleIndex_ = iConfig.getParameter<int>("sampleIndex");
-  doRecHits_ = iConfig.getParameter<bool>("doRecHits");
-  doTree_ = iConfig.getParameter<bool>("doTree");
-  doTreeCell_ = iConfig.getParameter<bool>("doTreeCell");
-  doPassive_ = iConfig.getParameter<bool>("doPassive");
-  doPassiveEE_ = iConfig.getParameter<bool>("doPassiveEE");
-  doPassiveHE_ = iConfig.getParameter<bool>("doPassiveHE");
-  doPassiveBH_ = iConfig.getParameter<bool>("doPassiveBH");
-  gev2mip200_ = iConfig.getUntrackedParameter<double>("gev2mip200", 57.0e-6);
-  gev2mip300_ = iConfig.getUntrackedParameter<double>("gev2mip300", 85.5e-6);
   ///TIME SMEARING
   ///Const = 50ps = 0.05ns
   ///Stochastic is 4ns/Q(fC)
   ////For 300 um, 1MIP = 3.84fC, 200um, it is 3.84*2./3.=2.56fC
   ////This stochastic for 300um = 4*3.84/E_MIP=15.5ns/E_MIP and 200um = 4*2.56/E_MIPs=10.24ns/E_MIP
-  stoc_smear_time_200_ = iConfig.getUntrackedParameter<double>("stoc_smear_time_200", 10.24);
-  stoc_smear_time_300_ = iConfig.getUntrackedParameter<double>("stoc_smear_time_300", 15.5);
+  idBeams_ = (iConfig.getParameter<std::vector<int>>("idBeams"));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: SimHits = " << doSimHits_ << " Digis = " << doDigis_ << ":"
                              << sampleIndex_ << " RecHits = " << doRecHits_ << " useDets " << ifEE_ << ":" << ifFH_
@@ -179,7 +180,8 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: DoPassive " << doPassive_ << ":" << doPassiveEE_ << ":"
                              << doPassiveHE_ << ":" << doPassiveBH_;
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: MIP conversion factors " << gev2mip200_ << ":" << gev2mip300_
-                             << " Time smearing " << stoc_smear_time_200_ << ":" << stoc_smear_time_300_;
+                             << " Time smearing " << stoc_smear_time_200_ << ":" << stoc_smear_time_300_ << " AddP "
+                             << addP_;
 #endif
   if (idBeams_.empty())
     idBeams_.push_back(1001);
@@ -299,6 +301,7 @@ void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("doPassiveEE", false);
   desc.add<bool>("doPassiveHE", false);
   desc.add<bool>("doPassiveBH", false);
+  desc.add<bool>("addP", false);
   desc.addUntracked<double>("gev2mip200", 57.0e-6);
   desc.addUntracked<double>("gev2mip300", 85.5e-6);
   desc.addUntracked<double>("stoc_smear_time_200", 10.24);
@@ -545,15 +548,25 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   } else {
     const HepMC::GenEvent* myGenEvent = evtMC->GetEvent();
     unsigned int k(0);
+    HepMC::FourVector pxyz(0, 0, 0, 0);
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p, ++k) {
-      if (k == 0)
-        hBeam_->Fill((*p)->momentum().rho());
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "Particle[" << k << "] with p " << (*p)->momentum().rho() << " theta "
-                                 << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi();
-#endif
+      edm::LogVerbatim("HGCSim") << "Particle [" << k << "] with p " << (*p)->momentum().rho() << " theta "
+                                 << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi() << " pxyz ("
+                                 << (*p)->momentum().px() << ", " << (*p)->momentum().py() << ", "
+                                 << (*p)->momentum().pz() << ")";
+      if (addP_) {
+        pxyz.setPx(pxyz.px() + (*p)->momentum().px());
+        pxyz.setPy(pxyz.py() + (*p)->momentum().py());
+        pxyz.setPz(pxyz.pz() + (*p)->momentum().pz());
+        pxyz.setE(pxyz.e() + (*p)->momentum().e());
+      } else if (!addP_ && (k == 0)) {
+        pxyz = (*p)->momentum();
+      }
     }
+    hBeam_->Fill(pxyz.rho());
+    edm::LogVerbatim("HGCSim") << "Particle with p " << pxyz.rho() << " theta " << pxyz.theta() << " phi "
+                               << pxyz.phi();
   }
 
   // Now the Simhits
@@ -1112,21 +1125,33 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
   xBeam_ = yBeam_ = zBeam_ = pBeam_ = -1000000;
   thetaBeam_ = phiBeam_ = -100000;
   int vertIndex(-1);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCSim") << "Size of track " << SimTk->size();
+#endif
+  HepMC::FourVector pxyz(0, 0, 0, 0);
   for (const auto& simTrkItr : *SimTk) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "Track " << simTrkItr.trackId() << " Vertex " << simTrkItr.vertIndex() << " Type "
                                << simTrkItr.type() << " Charge " << simTrkItr.charge() << " momentum "
-                               << simTrkItr.momentum() << " " << simTrkItr.momentum().P();
+                               << simTrkItr.momentum() << " " << simTrkItr.momentum().P() << " GenIndex "
+                               << simTrkItr.genpartIndex();
 #endif
-    if (vertIndex == -1) {
-      vertIndex = simTrkItr.vertIndex();
-      pBeam_ = simTrkItr.momentum().P();
-      thetaBeam_ = simTrkItr.momentum().theta();
-      phiBeam_ = simTrkItr.momentum().phi();
-      if (phiBeam_ < 0)
-        phiBeam_ += (2 * M_PI);
+    if (addP_ && !(simTrkItr.noGenpart())) {
+      pxyz.setPx(pxyz.px() + simTrkItr.momentum().px());
+      pxyz.setPy(pxyz.py() + simTrkItr.momentum().py());
+      pxyz.setPz(pxyz.pz() + simTrkItr.momentum().pz());
+      pxyz.setE(pxyz.e() + simTrkItr.momentum().e());
+    } else if (!addP_ && (vertIndex == -1)) {
+      pxyz = simTrkItr.momentum();
     }
+    if (vertIndex == -1)
+      vertIndex = simTrkItr.vertIndex();
   }
+  pBeam_ = pxyz.rho();
+  thetaBeam_ = pxyz.theta();
+  phiBeam_ = pxyz.phi();
+  if (phiBeam_ < 0)
+    phiBeam_ += (2 * M_PI);
   if (vertIndex != -1 && vertIndex < (int)SimVtx->size()) {
     edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
     for (int iv = 0; iv < vertIndex; iv++)

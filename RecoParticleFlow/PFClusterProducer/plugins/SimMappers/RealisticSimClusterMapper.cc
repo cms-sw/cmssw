@@ -11,7 +11,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/RealisticHitToClusterAssociator.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/RealisticCluster.h"
 
 #ifdef PFLOW_DEBUG
@@ -142,8 +142,8 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         }
       }
       //assign time if minimum number of hits
-      if (timeHits.size() >= minNHitsforTiming_)
-        timeRealisticSC = hgcalsimclustertime::fixSizeHighestDensity(timeHits);
+      hgcalsimclustertime::ComputeClusterTime timeEstimator;
+      timeRealisticSC = (timeEstimator.fixSizeHighestDensity(timeHits)).first;
     }
     if (!back.hitsAndFractions().empty()) {
       back.setSeed(seed->detId());

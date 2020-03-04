@@ -65,11 +65,6 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps) {
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
   meEBUncalibRecHitMaxSampleRatio_ = 0;
   meEBUncalibRecHitPedestal_ = 0;
   meEBUncalibRecHitOccupancy_ = 0;

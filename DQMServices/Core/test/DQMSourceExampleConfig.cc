@@ -121,7 +121,6 @@ DQMSourceExampleConfig::DQMSourceExampleConfig(const edm::ParameterSet& iConfig)
                  iConfig.getUntrackedParameter<int>("lDepth", 2),
                  dbe,
                  directories_number);
-  dbe->showDirStructure();
 }
 
 DQMSourceExampleConfig::~DQMSourceExampleConfig() {

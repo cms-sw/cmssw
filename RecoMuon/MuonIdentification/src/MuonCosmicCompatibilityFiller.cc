@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -48,12 +47,7 @@ MuonCosmicCompatibilityFiller::MuonCosmicCompatibilityFiller(const edm::Paramete
     : inputMuonCollections_(iConfig.getParameter<std::vector<edm::InputTag> >("InputMuonCollections")),
       inputTrackCollections_(iConfig.getParameter<std::vector<edm::InputTag> >("InputTrackCollections")),
       inputCosmicMuonCollection_(iConfig.getParameter<edm::InputTag>("InputCosmicMuonCollection")),
-      inputVertexCollection_(iConfig.getParameter<edm::InputTag>("InputVertexCollection")),
-      service_(nullptr) {
-  // service parameters
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  service_ = new MuonServiceProxy(serviceParameters);
-
+      inputVertexCollection_(iConfig.getParameter<edm::InputTag>("InputVertexCollection")) {
   //kinematic vars
   angleThreshold_ = iConfig.getParameter<double>("angleCut");
   deltaPt_ = iConfig.getParameter<double>("deltaPt");
@@ -102,10 +96,7 @@ MuonCosmicCompatibilityFiller::MuonCosmicCompatibilityFiller(const edm::Paramete
   vertexToken_ = iC.consumes<reco::VertexCollection>(inputVertexCollection_);
 }
 
-MuonCosmicCompatibilityFiller::~MuonCosmicCompatibilityFiller() {
-  if (service_)
-    delete service_;
-}
+MuonCosmicCompatibilityFiller::~MuonCosmicCompatibilityFiller() {}
 
 reco::MuonCosmicCompatibility MuonCosmicCompatibilityFiller::fillCompatibility(const reco::Muon& muon,
                                                                                edm::Event& iEvent,
@@ -113,8 +104,6 @@ reco::MuonCosmicCompatibility MuonCosmicCompatibilityFiller::fillCompatibility(c
   const std::string theCategory = "MuonCosmicCompatibilityFiller";
 
   reco::MuonCosmicCompatibility returnComp;
-
-  service_->update(iSetup);
 
   float timeCompatibility = muonTiming(iEvent, muon, false);
   float backToBackCompatibility = backToBack2LegCosmic(iEvent, muon);

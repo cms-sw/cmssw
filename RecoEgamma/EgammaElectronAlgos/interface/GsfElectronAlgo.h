@@ -40,7 +40,6 @@
 #include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
