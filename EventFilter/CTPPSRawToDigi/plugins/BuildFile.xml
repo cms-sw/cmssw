@@ -9,7 +9,7 @@
 	<use name="DataFormats/CTPPSDigi"/>
 	
 	<use name="CondFormats/DataRecord"/>
-	<use name="CondFormats/PPSObjects"/>
+	<use name="CondFormats/CTPPSReadoutObjects"/>
 	
 	<use name="EventFilter/CTPPSRawToDigi"/>
 </library>
