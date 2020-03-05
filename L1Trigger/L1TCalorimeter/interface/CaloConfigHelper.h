@@ -15,7 +15,7 @@ namespace l1t {
     CaloConfigHelper(const CaloConfig& db);
     CaloConfigHelper();
     void UpdatePayload(const CaloConfig* db) { db_ = db; }
-    unsigned fwv() { return db_->uconfig_[0]; }
+    unsigned fwv() const { return db_->uconfig_[0]; }
 
   private:
     const CaloConfig* db_;  // We do not own this pointer...
