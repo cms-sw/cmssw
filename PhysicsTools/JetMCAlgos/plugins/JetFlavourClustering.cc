@@ -242,8 +242,8 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
   if (label.find("Puppi") != std::string::npos) {
     useWeights_ = true;
     // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
+    // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
   }
-
   if (useWeights_)
     weightsToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"));
 
@@ -335,10 +335,9 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
         continue;
       }
       if (useWeights_) {
-        const auto pf_constit = dynamic_cast<const reco::PFCandidate*>(&*constit);
-        double w = (*weights)[constit];
-        fjInputs.push_back(fastjet::PseudoJet(
-            pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz() * w, pf_constit->energy() * w));
+        auto w = (*weights)[constit];
+        fjInputs.push_back(
+            fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
       } else {
         fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
       }

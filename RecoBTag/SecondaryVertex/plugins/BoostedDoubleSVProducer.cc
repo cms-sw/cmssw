@@ -81,7 +81,7 @@ private:
                        std::vector<float>& tau_trackEtaRel) const;
 
   // ----------member data ---------------------------
-  const edm::EDGetTokenT<std::vector<reco::CandSecondaryVertexTagInfo> > svTagInfos_;
+  const edm::EDGetTokenT<std::vector<reco::CandSecondaryVertexTagInfo>> svTagInfos_;
 
   const double beta_;
   const double R0_;
@@ -91,6 +91,10 @@ private:
   const double maxDecayLen_;
   reco::V0Filter trackPairV0Filter;
   reco::TrackSelector trackSelector;
+
+  bool useWeights_;
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
+  edm::Handle<edm::ValueMap<float>> weightsHandle_;
 
   // static variables
   static constexpr float dummyZ_ratio = -3.0f;
@@ -119,7 +123,7 @@ private:
 //
 BoostedDoubleSVProducer::BoostedDoubleSVProducer(const edm::ParameterSet& iConfig)
     : svTagInfos_(
-          consumes<std::vector<reco::CandSecondaryVertexTagInfo> >(iConfig.getParameter<edm::InputTag>("svTagInfos"))),
+          consumes<std::vector<reco::CandSecondaryVertexTagInfo>>(iConfig.getParameter<edm::InputTag>("svTagInfos"))),
       beta_(iConfig.getParameter<double>("beta")),
       R0_(iConfig.getParameter<double>("R0")),
       maxSVDeltaRToJet_(iConfig.getParameter<double>("maxSVDeltaRToJet")),
@@ -127,7 +131,15 @@ BoostedDoubleSVProducer::BoostedDoubleSVProducer(const edm::ParameterSet& iConfi
       maxDecayLen_(iConfig.getParameter<edm::ParameterSet>("trackSelection").getParameter<double>("maxDecayLen")),
       trackPairV0Filter(iConfig.getParameter<edm::ParameterSet>("trackPairV0Filter")),
       trackSelector(iConfig.getParameter<edm::ParameterSet>("trackSelection")) {
-  produces<std::vector<reco::BoostedDoubleSVTagInfo> >();
+  std::string label = iConfig.getParameter<edm::InputTag>("svTagInfos").label();
+  if (label.find("Puppi") != std::string::npos) {
+    useWeights_ = true;
+    // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
+    // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
+  }
+  if (useWeights_)
+    weightsToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"));
+  produces<std::vector<reco::BoostedDoubleSVTagInfo>>();
 }
 
 BoostedDoubleSVProducer::~BoostedDoubleSVProducer() {
@@ -146,11 +158,14 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
 
   // get input secondary vertex TagInfos
-  edm::Handle<std::vector<reco::CandSecondaryVertexTagInfo> > svTagInfos;
+  edm::Handle<std::vector<reco::CandSecondaryVertexTagInfo>> svTagInfos;
   iEvent.getByToken(svTagInfos_, svTagInfos);
 
+  if (useWeights_)
+    iEvent.getByToken(weightsToken_, weightsHandle_);
+
   // create the output collection
-  auto tagInfos = std::make_unique<std::vector<reco::BoostedDoubleSVTagInfo> >();
+  auto tagInfos = std::make_unique<std::vector<reco::BoostedDoubleSVTagInfo>>();
 
   // loop over TagInfos
   for (std::vector<reco::CandSecondaryVertexTagInfo>::const_iterator iterTI = svTagInfos->begin();
@@ -627,7 +642,7 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     vars.finalize();
 
     tagInfos->push_back(reco::BoostedDoubleSVTagInfo(
-        vars, edm::Ref<std::vector<reco::CandSecondaryVertexTagInfo> >(svTagInfos, iterTI - svTagInfos->begin())));
+        vars, edm::Ref<std::vector<reco::CandSecondaryVertexTagInfo>>(svTagInfos, iterTI - svTagInfos->begin())));
   }
 
   // put the output in the event
@@ -648,9 +663,9 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
       if (subjet && daughter->numberOfDaughters() > 1) {
         // loop over subjet constituents and push them in the vector of FastJet constituents
         for (size_t i = 0; i < daughter->numberOfDaughters(); ++i) {
-          const reco::Candidate* constit = daughter->daughter(i);
+          const reco::CandidatePtr& constit = subjet->daughterPtr(i);
 
-          if (constit) {
+          if (constit.isNonnull()) {
             // Check if any values were nan or inf
             float valcheck = constit->px() + constit->py() + constit->pz() + constit->energy();
             if (edm::isNotFinite(valcheck)) {
@@ -658,7 +673,12 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
                   << "Jet constituent required for N-subjettiness computation contains Nan/Inf values!";
               continue;
             }
-            fjParticles.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+            if (useWeights_) {
+              auto w = (*weightsHandle_)[constit];
+              fjParticles.push_back(
+                  fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+            } else
+              fjParticles.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
           } else
             edm::LogWarning("MissingJetConstituent")
                 << "Jet constituent required for N-subjettiness computation is missing!";
@@ -671,7 +691,12 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
               << "Jet constituent required for N-subjettiness computation contains Nan/Inf values!";
           continue;
         }
-        fjParticles.push_back(fastjet::PseudoJet(daughter->px(), daughter->py(), daughter->pz(), daughter->energy()));
+        if (useWeights_) {
+          auto w = (*weightsHandle_)[daughter];
+          fjParticles.push_back(
+              fastjet::PseudoJet(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w));
+        } else
+          fjParticles.push_back(fastjet::PseudoJet(daughter->px(), daughter->py(), daughter->pz(), daughter->energy()));
       }
     } else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";

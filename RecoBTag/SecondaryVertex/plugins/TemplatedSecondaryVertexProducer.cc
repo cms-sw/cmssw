@@ -298,6 +298,8 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
     std::string label = params.getParameter<edm::InputTag>("fatJets").label();
     if (label.find("Puppi") != std::string::npos) {
       useWeights = true;
+      // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
+      // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
     }
   }
   if ((useWeights) || (params.existsAs<edm::InputTag>("weights")))
@@ -333,6 +335,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
       label = psetFromProvenance.getParameter<edm::InputTag>("jets").label();
       if (label.find("Puppi") != std::string::npos) {
         useWeights = true;
+        // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
+        // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
       }
     } else {
       useWeights = false;
@@ -411,10 +415,9 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
             continue;
           }
           if (useWeights) {
-            const reco::PFCandidate *pf_constit = dynamic_cast<const reco::PFCandidate *>(&*constit);
             auto w = (*weightsHandle)[constit];
-            fjInputs.push_back(fastjet::PseudoJet(
-                pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz() * w, pf_constit->energy() * w));
+            fjInputs.push_back(
+                fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
           } else {
             fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
           }
@@ -432,10 +435,10 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
             continue;
           }
           if (useWeights) {
-            const auto *pf_constit = dynamic_cast<const reco::PFCandidate *>(&*constit);
-            auto w = (*weightsHandle)[constit];
-            fjInputs.push_back(fastjet::PseudoJet(
-                pf_constit->px() * w, pf_constit->py() * w, pf_constit->pz() * w, pf_constit->energy() * w));
+            float w = (*weightsHandle)[constit];
+            // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
+            fjInputs.push_back(
+                fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
           } else {
             fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
           }
