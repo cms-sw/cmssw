@@ -22,17 +22,14 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, PreshowerAndECALLinker, "PreshowerA
 
 bool PreshowerAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   bool result = false;
-  switch (elem1->type()) {
-    case reco::PFBlockElement::PS1:
-    case reco::PFBlockElement::PS2:
-      result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());
-      break;
-    case reco::PFBlockElement::ECAL:
-      result = (elem2->isMultilinksValide() && !elem2->getMultilinks().empty());
-      break;
-    default:
-      break;
-  }
+  // PS-ECAL kdtree-based links are stored to pselem
+  const reco::PFBlockElementCluster* pselem(nullptr);
+  if (elem1->type() < elem2->type())
+    pselem = static_cast<const reco::PFBlockElementCluster*>(elem1);
+  else
+    pselem = static_cast<const reco::PFBlockElementCluster*>(elem2);
+  result = (pselem->isMultilinksValide() && !pselem->getMultilinks().empty());
+  //
   return (useKDTree_ ? result : true);
 }
 
