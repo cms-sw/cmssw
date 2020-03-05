@@ -1,0 +1,8 @@
+<use   name="FWCore/Utilities"/>
+<use   name="CalibTracker/SiPixelESProducers"/>
+<use   name="HeterogeneousCore/CUDACore"/>
+<use   name="cuda"/>
+
+<export>
+    <lib name="1"/>
+</export>

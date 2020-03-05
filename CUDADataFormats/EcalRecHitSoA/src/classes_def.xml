@@ -1,0 +1,5 @@
+<lcgdict>
+    <class name="ecal::Tag::soa"/>
+    <class name="ecal::UncalibratedRecHit<ecal::Tag::soa>"/>
+    <class name="edm::Wrapper<ecal::UncalibratedRecHit<ecal::Tag::soa>>"/>
+</lcgdict>
