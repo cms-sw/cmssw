@@ -38,10 +38,8 @@ step1Up2018HiDefaults = merge ([{'--conditions':'auto:phase1_2018_realistic_hi',
 step1Up2018ProdDefaults = merge ([{'--beamspot':'Realistic25ns13TeVEarly2018Collision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018Defaults])
 # step1 gensim: for 2018 HI prod 
 step1Up2018HiProdDefaults = merge ([{'--beamspot':'RealisticPbPbCollision2018','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
-# step1 gensim: for 2021 HI
-step1Up2021HiDefaults = merge ([{'--conditions':'auto:phase1_2021_realistic_hi','--era':'Run3_pp_on_PbPb'},step1Up2017Defaults])
 # step1 gensim: for 2021 HI prod 
-step1Up2021HiProdDefaults = merge ([{'--beamspot':'Run3RoundOptics25ns13TeVLowSigmaZ','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2021HiDefaults])
+step1Up2021HiProdDefaults = merge ([{'--conditions':'auto:phase1_2021_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Run3RoundOptics25ns13TeVLowSigmaZ','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
 
 steps = Steps()
 
@@ -960,9 +958,11 @@ steps['QCD_Pt_80_120_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('QCD_Pt_
 steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
 steps['ZEEMM_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('ZEEMM_13TeV_TuneCUETP8M1_cfi',Kby(18,300))])
 
-steps['QCD_Pt_80_120_13_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
-steps['PhotonJets_Pt_10_13_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
-steps['ZEEMM_13_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('ZEEMM_13TeV_TuneCUETP8M1_cfi',Kby(18,300))])
+steps['QCD_Pt_80_120_14_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('QCD_Pt_80_120_14TeV_TuneCUETP8M1_cfi',Kby(9,150))])
+steps['PhotonJets_Pt_10_14_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('PhotonJet_Pt_10_14TeV_TuneCUETP8M1_cfi',Kby(9,150))])
+#steps['ZEEMM_13_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('ZEEMM_13TeV_TuneCUETP8M1_cfi',Kby(18,300))])
+steps['ZMM_14_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('ZMM_14TeV_TuneCUETP8M1_cfi',Kby(18,300))])
+steps['ZEE_14_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('ZEE_14TeV_TuneCUETP8M1_cfi',Kby(18,300))])
 
 ## pp reference tests
 
@@ -1559,6 +1559,7 @@ PU2={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SI
 PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],)}
 PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],)}
 PUHI={'-n':10,'--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2018/%s/GEN-SIM'%(baseDataSetRelease[9])}
+PUHI2021={'-n':10,'--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2021/%s/GEN-SIM'%(baseDataSetRelease[9])}
 PU25UP17={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[13],)}
 PU25UP18={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[18],)}
 
@@ -1682,7 +1683,7 @@ steps['DIGIHI2018']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefa
 steps['DIGIHI2017']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2017, step2Upg2015Defaults])
 steps['DIGIHI2015']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2015, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2011, {'--pileup':'HiMixNoPU'}, step2Defaults])
-steps['DIGIHI2021MIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2021_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
+steps['DIGIHI2021MIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2021_ppReco, {'--pileup':'HiMix'}, PUHI2021, step2Upg2015Defaults])
 steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2018_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
 
 steps['DIGIPPREF2017']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake2'}, ppRefDefaults2017, step2Upg2015Defaults])
@@ -2104,7 +2105,7 @@ def gen2018HiMix(fragment,howMuch):
     global step1Up2018HiMixDefaults
     return merge([{'cfg':fragment},howMuch,step1Up2018HiMixDefaults])
 
-step1Up2021HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2021_ppReco,PUHI,step1Up2021HiProdDefaults])
+step1Up2021HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2021_ppReco,PUHI2021,step1Up2021HiProdDefaults])
 def gen2021HiMix(fragment,howMuch):
     global step1Up2021HiMixDefaults
     return merge([{'cfg':fragment},howMuch,step1Up2021HiMixDefaults])
