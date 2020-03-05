@@ -97,8 +97,7 @@ private:
 APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::ParameterSet& iConfig)
     : _l1abccollectionToken(
           mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
-      _tcdsRecordToken(
-                       mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
+      _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
       _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
       _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
       _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
@@ -199,10 +198,12 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
     long long orbitoffset = _orbitoffsetSOR;
     int bxoffset = 0;
 
-
-    try{
-      orbitoffset = (long long) tcdsRecord.getOrbitNr() - (long long) iEvent.orbitNumber();
-      bxoffset = iEvent.bunchCrossing() - tcdsRecord.getBXID(); // In EventWithHistoryProducerFromL1ABC, it's -1\times this, following the corresponding L1ABC line below. I keep this difference here, because I am not sure if it should be kept or not
+    try {
+      orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
+      bxoffset =
+          iEvent.bunchCrossing() -
+          tcdsRecord
+              .getBXID();  // In EventWithHistoryProducerFromL1ABC, it's -1\times this, following the corresponding L1ABC line below. I keep this difference here, because I am not sure if it should be kept or not
       // If I understand correctly, tcdsRecord has no eventType thing, so the control done for l1abc can be safely skipped
       if (_wantHistos) {
         if (_hbx && *_hbx)
@@ -212,14 +213,15 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
         if (_hdorbit && *_hdorbit)
           (*_hdorbit)->Fill(orbitoffset);
       }
-    }
-    catch(...){
+    } catch (...) {
       for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
         if (l1abc->l1AcceptOffset() == 0) {
           if (l1abc->eventType() != 0) {
             orbitoffset = (long long)iEvent.orbitNumber() - (long long)l1abc->orbitNumber();
-            bxoffset = iEvent.bunchCrossing() - l1abc->bunchCrossing(); // In EventWithHistoryProducerFromL1ABC, it's l1abc - iEvent. I keep this difference here, because I am not sure if it should be kept or not
-            
+            bxoffset =
+                iEvent.bunchCrossing() -
+                l1abc->bunchCrossing();  // In EventWithHistoryProducerFromL1ABC, it's l1abc - iEvent. I keep this difference here, because I am not sure if it should be kept or not
+
             if (_wantHistos) {
               if (_hbx && *_hbx)
                 (*_hbx)->Fill(l1abc->bunchCrossing());
@@ -237,7 +239,7 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
         }
       }
     }
-    
+
     long long absbxoffset = orbitoffset * 3564 + bxoffset;
 
     if (orbitoffset != _orbitoffsetSOR)
@@ -253,10 +255,9 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
           edm::LogInfo("L1AcceptBunchCrossingAbsoluteBXOffsetChanged")
               << "Absolute BX offset changed from " << _curroffset << " to " << absbxoffset << " at orbit "
               << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
-          try{
-            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord; // Not sure about this
-          }
-          catch(...){
+          try {
+            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord;  // Not sure about this
+          } catch (...) {
             for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
               edm::LogVerbatim("L1AcceptBunchCrossingAbsoluteBXOffsetChanged") << *l1abc;
             }
