@@ -46,13 +46,6 @@ public:
   // ecal calibration for photons
   double energyEm(const reco::PFCluster& clusterEcal, double ePS1, double ePS2, bool crackCorrection = true) const;
 
-  double energyEm(const reco::PFCluster& clusterEcal,
-                  double ePS1,
-                  double ePS2,
-                  double& ps1,
-                  double& ps2,
-                  bool crackCorrection = true) const;
-
   struct CalibratedEndcapPFClusterEnergies {
     double clusterEnergy = 0.;
     double ps1Energy = 0.;
@@ -77,7 +70,15 @@ public:
 
   friend std::ostream& operator<<(std::ostream& out, const PFEnergyCalibration& calib);
 
-protected:
+private:
+  // ecal calibration for photons
+  double energyEm(const reco::PFCluster& clusterEcal,
+                  double ePS1,
+                  double ePS2,
+                  double& ps1,
+                  double& ps2,
+                  bool crackCorrection = true) const;
+
   // Calibration functions from global tag
   const PerformancePayloadFromTFormula* pfCalibrations = nullptr;
   const ESEEIntercalibConstants* esEEInterCalib_ = nullptr;
@@ -108,7 +109,6 @@ protected:
   std::unique_ptr<TF1> fcEtaEndcapH;
   std::unique_ptr<TF1> fdEtaEndcapH;
 
-private:
   double minimum(double a, double b) const;
   double dCrackPhi(double phi, double eta) const;
   double CorrPhi(double phi, double eta) const;

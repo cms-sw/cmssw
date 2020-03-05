@@ -614,7 +614,7 @@ std::ostream& operator<<(std::ostream& out, const PFEnergyCalibration& calib) {
 
 //useful to compute the signed distance to the closest crack in the barrel
 double PFEnergyCalibration::minimum(double a, double b) const {
-  if (TMath::Abs(b) < TMath::Abs(a))
+  if (std::abs(b) < std::abs(a))
     a = b;
   return a;
 }
@@ -711,7 +711,7 @@ double PFEnergyCalibration::CorrEta(double eta) const {
 
   for (unsigned i = 0; i <= 4; i++)
     result += a[i] * TMath::Gaus(eta, m[i], s[i]) *
-              (1 + sa[i] * TMath::Sign(1., eta - m[i]) * TMath::Exp(-TMath::Abs(eta - m[i]) / ss[i]));
+              (1 + sa[i] * TMath::Sign(1., eta - m[i]) * TMath::Exp(-std::abs(eta - m[i]) / ss[i]));
 
   return result;
 }
@@ -929,7 +929,7 @@ double PFEnergyCalibration::EcorrPS_ePSNil(double eEcal, double eta) const {
   //so that <feta()> = 1
   constexpr double norm = (p4 + p5 * (2.6 + 1.656) / 2);
 
-  double result = eEcal * (p0 + p1 * TMath::Exp(-TMath::Abs(eEcal - p3) / p2)) * (p4 + p5 * eta) / norm;
+  double result = eEcal * (p0 + p1 * TMath::Exp(-std::abs(eEcal - p3) / p2)) * (p4 + p5 * eta) / norm;
 
   return result;
 }
@@ -973,7 +973,7 @@ double PFEnergyCalibration::Ecorr(
 
   double result = 0;
 
-  eta = TMath::Abs(eta);
+  eta = std::abs(eta);
 
   if (eEcal > 0) {
     if (eta <= endBarrel)
@@ -1013,7 +1013,7 @@ double PFEnergyCalibration::Ecorr(double eEcal,
 
   double result = 0;
 
-  eta = TMath::Abs(eta);
+  eta = std::abs(eta);
 
   if (eEcal > 0) {
     if (eta <= endBarrel)
