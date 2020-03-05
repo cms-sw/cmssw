@@ -130,6 +130,8 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
           bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
           std::cout << "SCAL: orbit number: " << (long long)l1abc->orbitNumber() << ", bunchcrossing: " << l1abc->bunchCrossing() << std::endl;
         }
+        else { std::cout << "Found event (" << tcdsRecord.getEventNumber() << ") with l1AcceptOffset different than zero (" << l1abc->l1AcceptOffset() << ")" << std::endl;
+        }
       }
     }
 
