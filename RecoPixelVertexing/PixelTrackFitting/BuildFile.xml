@@ -1,5 +1,6 @@
-<use   name="root"/>
+<use   name="cuda"/>
 <use   name="eigen"/>
+<use   name="root"/>
 <use   name="CommonTools/Statistics"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
