@@ -1,9 +1,11 @@
+#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/RegionalMuonGMTUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/IntermediateMuonUnpacker.h"
 
@@ -71,9 +73,15 @@ namespace l1t {
 
       // MP7 input link numbers are represented by even numbers starting from 0 (iLink=link*2)
       // input muons on links 36-71
-      auto gmt_in_unp = UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker");
-      for (int iLink = 72; iLink < 144; iLink += 2)
+      auto gmt_in_unp = static_pointer_cast<l1t::stage2::RegionalMuonGMTUnpacker>(
+          UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker"));
+      if (fw >= 0x6000000) {
+        gmt_in_unp->setKalmanAlgoTrue();
+      }
+
+      for (int iLink = 72; iLink < 144; iLink += 2) {
         res[iLink] = gmt_in_unp;
+      }
 
       // MP7 output link numbers are represented by odd numbers (oLink=link*2+1)
       // internal muons on links 24-31
