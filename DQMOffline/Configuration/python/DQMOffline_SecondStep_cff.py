@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLoggerClient_cff import *
-from DQMServices.Components.DQMDcsInfoClient_cfi import *
 from DQMServices.Components.DQMFastTimerServiceClient_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
@@ -16,8 +15,6 @@ from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMHarvesting_cff import *
-
-DQMOffline_SecondStepDCS = cms.Sequence( dqmDcsInfoClient )
 
 DQMOffline_SecondStepEcal = cms.Sequence( ecal_dqm_client_offline *
 					  es_dqm_client_offline )
@@ -38,7 +35,7 @@ DQMOffline_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
 
 DQMOffline_SecondStepL1T = cms.Sequence( l1TriggerDqmOfflineClient )
 
-DQMOffline_SecondStep_PreDPG = cms.Sequence( DQMOffline_SecondStepDCS *
+DQMOffline_SecondStep_PreDPG = cms.Sequence( 
                                              DQMOffline_SecondStepEcal *
                                              DQMOffline_SecondStepTrackerStrip *
 					     DQMOffline_SecondStepTrackerPixel *
@@ -119,8 +116,6 @@ from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorClient.pixelTrackingEffFromHitPattern_cff import *
 from DQM.TrackingMonitorClient.pixelVertexResolutionClient_cfi import *
 
-DQMHarvestDCS = cms.Sequence ( dqmDcsInfoClient )
-
 DQMHarvestTrackerStrip = cms.Sequence ( SiStripOfflineDQMClient )
 
 DQMHarvestTrackerPixel = cms.Sequence ( PixelOfflineDQMClientNoDataCertification )
@@ -143,7 +138,6 @@ DQMHarvestL1TEgamma = cms.Sequence( l1TriggerEgDqmOfflineClient )
 DQMHarvestL1TMuon = cms.Sequence( l1TriggerMuonDqmOfflineClient )
 
 DQMHarvestCommon = cms.Sequence( DQMMessageLoggerClientSeq *
-                                 DQMHarvestDCS *
                                  DQMHarvestTrackerStrip *
                                  DQMHarvestTrack *
                                  DQMHarvestTrackerPixel *
@@ -159,7 +153,6 @@ DQMHarvestCommonFakeHLT.remove( DQMHarvestTrigger )
 
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(
                                                DQMMessageLoggerClientSeq *
-                                               DQMHarvestDCS *
                                                DQMHarvestTrackerStrip *
                                                DQMHarvestTrack *
                                                DQMHarvestTrackerPixel *
@@ -180,7 +173,6 @@ DQMHarvestPixelTracking = cms.Sequence( pixelTrackingEffFromHitPattern *
                                         pixelVertexResolutionClient )
 
 DQMHarvestOuterTracker = cms.Sequence(
-                                 dqmDcsInfoClient *
                                  OuterTrackerClient *
                                  dqmFEDIntegrityClient *
                                  DQMMessageLoggerClientSeq *
