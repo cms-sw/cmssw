@@ -73,9 +73,8 @@ private:
 //
 EventWithHistoryProducerFromL1ABC::EventWithHistoryProducerFromL1ABC(const edm::ParameterSet& iConfig)
     : _l1abccollectionToken(
-                            mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
-      _tcdsRecordToken(
-                           mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
+          mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
+      _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
       _forceNoOffset(iConfig.getUntrackedParameter<bool>("forceNoOffset", false)),
       _offsets(),
       _curroffset(0),
@@ -115,12 +114,11 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
 
     long long orbitoffset = 0;
     int bxoffset = 0;
-    
-    try{
-      orbitoffset = (long long) tcdsRecord.getOrbitNr() - (long long) iEvent.orbitNumber();
+
+    try {
+      orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
       bxoffset = tcdsRecord.getBXID() - iEvent.bunchCrossing();
-    }
-    catch(...){
+    } catch (...) {
       if (!_forceNoOffset) {
         for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
           if (l1abc->l1AcceptOffset() == 0) {
@@ -130,7 +128,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
         }
       }
     }
-        
+
     std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
     iEvent.put(std::move(pOut));
 
@@ -147,11 +145,10 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
         if (_curroffset != absbxoffset) {
           edm::LogInfo("AbsoluteBXOffsetChanged")
               << "Absolute BX offset changed from " << _curroffset << " to " << absbxoffset << " at orbit "
-              << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();      
-          try{
-            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord; // Not sure about this
-          }
-          catch(...){
+              << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
+          try {
+            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord;  // Not sure about this
+          } catch (...) {
             for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
               edm::LogVerbatim("AbsoluteBXOffsetChanged") << *l1abc;
             }
