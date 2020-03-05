@@ -5,7 +5,6 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include "PrintRecoObjects.h"
 #include "Quad.h"

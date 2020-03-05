@@ -9,6 +9,7 @@
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 namespace {
 

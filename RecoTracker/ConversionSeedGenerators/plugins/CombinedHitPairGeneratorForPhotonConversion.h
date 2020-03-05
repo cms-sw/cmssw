@@ -8,6 +8,7 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 class TrackingRegion;
 class OrderedHitPairs;

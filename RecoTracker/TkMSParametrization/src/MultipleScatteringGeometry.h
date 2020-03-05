@@ -4,8 +4,7 @@
 #include <vector>
 #include "RecoTracker/TkMSParametrization/interface/MSLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 class DetLayer;
 
