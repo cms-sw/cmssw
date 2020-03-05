@@ -105,9 +105,9 @@ namespace edm {
       double mass = pData->mass().value();
       if (fVerbosity > 0)
         edm::LogVerbatim("BeamMomentumGun") << "PDGId: " << partID << "   mass: " << mass;
-      double xp = (xoff_ * cm2mm_ + (-1)*parY_->at(ip)); // 90 degree rotation applied
-      double yp = (yoff_ * cm2mm_ + parX_->at(ip));      // 90 degree rotation applied 
-      double zp =  zpos_ * cm2mm_; 
+      double xp = (xoff_ * cm2mm_ + (-1) * parY_->at(ip));  // 90 degree rotation applied
+      double yp = (yoff_ * cm2mm_ + parX_->at(ip));         // 90 degree rotation applied
+      double zp = zpos_ * cm2mm_;
       HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
       double pxGeV = MeV2GeV_ * parPx_->at(ip);
       double pyGeV = MeV2GeV_ * parPy_->at(ip);
@@ -120,26 +120,26 @@ namespace edm {
       double pphi = pGeV.phi();
       double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
       double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      if (phi > M_PI) phi = -(2 * M_PI - phi);
+      if (phi > M_PI)
+        phi = -(2 * M_PI - phi);
       double newtheta = ptheta + theta;
       if (newtheta > M_PI && newtheta <= 2 * M_PI)
-	newtheta = 2 * M_PI - newtheta; 
+        newtheta = 2 * M_PI - newtheta;
       double newphi = pphi + phi;
-      if (newphi > M_PI && newphi <= 2 * M_PI) 
-	newphi = -(2 * M_PI - newphi); 
+      if (newphi > M_PI && newphi <= 2 * M_PI)
+        newphi = -(2 * M_PI - newphi);
       else if (newphi < -M_PI && newphi >= -2 * M_PI)
-	newphi = 2 * M_PI + newphi; 
+        newphi = 2 * M_PI + newphi;
       double px = mom * sin(newtheta) * cos(newphi);
       double py = mom * sin(newtheta) * sin(newphi);
       double pz = mom * cos(newtheta);
 
       if (fVerbosity > 0) {
-	edm::LogVerbatim("BeamMomentumGun") << "ptheta:pphi " << ptheta << ":" << pphi
-					    << "\ntheta:phi " << theta << ":" << phi 
-					    << "\nnewtheta:newphi " << newtheta << ":" << newphi;
+        edm::LogVerbatim("BeamMomentumGun") << "ptheta:pphi " << ptheta << ":" << pphi << "\ntheta:phi " << theta << ":"
+                                            << phi << "\nnewtheta:newphi " << newtheta << ":" << newphi;
 
-        edm::LogVerbatim("BeamMomentumGun") << "x:y:z [mm] " << xp << ":" << yp << ":" << zpos_
-					    << "\npx:py:pz [GeV] " << px << ":" << py << ":" << pz;
+        edm::LogVerbatim("BeamMomentumGun")
+            << "x:y:z [mm] " << xp << ":" << yp << ":" << zpos_ << "\npx:py:pz [GeV] " << px << ":" << py << ":" << pz;
       }
 
       HepMC::FourVector p(px, py, pz, energy);
