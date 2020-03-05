@@ -13,6 +13,7 @@
 #ifndef L1_TRACK_TRIGGER_TRACK_FORMAT_H
 #define L1_TRACK_TRIGGER_TRACK_FORMAT_H
 
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,34 +27,33 @@ class TTTrack : public TTTrack_TrackWord {
 private:
   /// Data members
   std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > theStubRefs;
-  GlobalVector theMomentum;
-  GlobalPoint thePOCA;
-  double theRInv;
-  double thePhi;
-  double theTanL;
-  double theD0;
-  double theZ0;
-  unsigned int thePhiSector;
-  unsigned int theEtaSector;
-  double theStubPtConsistency;
-  double theChi2;
-  double theChi2XY;
-  double theChi2Z;
-  unsigned int numFitPars;
-  unsigned int theHitPattern;
-  double theTrkMVA1;
-  double theTrkMVA2;
-  double theTrkMVA3;
-  int theTrackSeedType;
-  double theBField;  // needed for unpacking
+  GlobalVector theMomentum_;
+  GlobalPoint thePOCA_;
+  double theRInv_;
+  double thePhi_;
+  double theTanL_;
+  double theD0_;
+  double theZ0_;
+  unsigned int thePhiSector_;
+  unsigned int theEtaSector_;
+  double theStubPtConsistency_;
+  double theChi2_;
+  double theChi2_XY_;
+  double theChi2_Z_;
+  unsigned int theNumFitPars_;
+  unsigned int theHitPattern_;
+  double theTrkMVA1_;
+  double theTrkMVA2_;
+  double theTrkMVA3_;
+  int theTrackSeedType_;
+  double theBField_;  // needed for unpacking
   static constexpr unsigned int Npars4 = 4;
   static constexpr unsigned int Npars5 = 5;
-  static constexpr float MagConstant = 0.299792458;
+  static constexpr float MagConstant = CLHEP::c_light / 1.0E9;  //0.299792458;
 
 public:
   /// Constructors
   TTTrack();
-  TTTrack(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > aStubs);
 
   TTTrack(double aRinv,
           double aphi,
@@ -122,28 +122,37 @@ public:
   double trkMVA3() const;
 
   /// Phi Sector
-  unsigned int phiSector() const { return thePhiSector; }
-  void setPhiSector(unsigned int aSector) { thePhiSector = aSector; }
+  unsigned int phiSector() const { return thePhiSector_; }
+  void setPhiSector(unsigned int aSector) { thePhiSector_ = aSector; }
 
   /// Eta Sector
-  unsigned int etaSector() const { return theEtaSector; }
-  void setEtaSector(unsigned int aSector) { theEtaSector = aSector; }
+  unsigned int etaSector() const { return theEtaSector_; }
+  void setEtaSector(unsigned int aSector) { theEtaSector_ = aSector; }
 
   /// Track seeding (for debugging)
-  unsigned int trackSeedType() const { return theTrackSeedType; }
-  void setTrackSeedType(int aSeed) { theTrackSeedType = aSeed; }
+  unsigned int trackSeedType() const { return theTrackSeedType_; }
+  void setTrackSeedType(int aSeed) { theTrackSeedType_ = aSeed; }
 
   /// Chi2
   double chi2() const;
   double chi2Red() const;
-  double chi2z() const;
+  double chi2Z() const;
+  double chi2ZRed() const;
+  double chi2XY() const;
+  double chi2XYRed() const;
 
   /// Stub Pt consistency
   double stubPtConsistency() const;
   void setStubPtConsistency(double aPtConsistency);
 
   void setFitParNo(unsigned int aFitParNo);
-  int nFitPars() const { return numFitPars; }
+  int nFitPars() const { return theNumFitPars_; }
+
+  /// Hit Pattern
+  unsigned int hitPattern() const;
+
+  /// set new Bfield
+  void setBField(double aBField);
 
   void setTrackWordBits();
   void testTrackWordBits();
@@ -164,44 +173,24 @@ public:
 template <typename T>
 TTTrack<T>::TTTrack() {
   theStubRefs.clear();
-  theMomentum = GlobalVector(0.0, 0.0, 0.0);
-  theRInv = 0.0;
-  thePOCA = GlobalPoint(0.0, 0.0, 0.0);
-  theD0 = 0.;
-  theZ0 = 0.;
-  theTanL = 0;
-  thePhi = 0;
-  theTrkMVA1 = 0;
-  theTrkMVA2 = 0;
-  theTrkMVA3 = 0;
-  thePhiSector = 0;
-  theEtaSector = 0;
-  theTrackSeedType = 0;
-  theChi2 = 0.0;
-  theStubPtConsistency = 0.0;
-  numFitPars = 0;
-}
-
-/// Another Constructor
-template <typename T>
-TTTrack<T>::TTTrack(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > aStubs) {
-  theStubRefs = aStubs;
-  theMomentum = GlobalVector(0.0, 0.0, 0.0);
-  theRInv = 0.0;
-  thePOCA = GlobalPoint(0.0, 0.0, 0.0);
-  theD0 = 0.;
-  theZ0 = 0.;
-  theTanL = 0;
-  thePhi = 0;
-  theTrkMVA1 = 0;
-  theTrkMVA2 = 0;
-  theTrkMVA3 = 0;
-  thePhiSector = 0;
-  theEtaSector = 0;
-  theTrackSeedType = 0;
-  theChi2 = 0.0;
-  theStubPtConsistency = 0.0;
-  numFitPars = 0;
+  theMomentum_ = GlobalVector(0.0, 0.0, 0.0);
+  theRInv_ = 0.0;
+  thePOCA_ = GlobalPoint(0.0, 0.0, 0.0);
+  theD0_ = 0.;
+  theZ0_ = 0.;
+  theTanL_ = 0;
+  thePhi_ = 0;
+  theTrkMVA1_ = 0;
+  theTrkMVA2_ = 0;
+  theTrkMVA3_ = 0;
+  thePhiSector_ = 0;
+  theEtaSector_ = 0;
+  theTrackSeedType_ = 0;
+  theChi2_ = 0.0;
+  theChi2_XY_ = 0.0;
+  theChi2_Z_ = 0.0;
+  theStubPtConsistency_ = 0.0;
+  theNumFitPars_ = 0;
 }
 
 /// Meant to be default constructor
@@ -219,26 +208,27 @@ TTTrack<T>::TTTrack(double aRinv,
                     unsigned int nPar,
                     double aBfield) {
   theStubRefs.clear();
-  double thePT = fabs(MagConstant * 1.0 / aRinv * aBfield / 100.0);  // Rinv is in cm-1
-  theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
-  theRInv = aRinv;
-  thePOCA = GlobalPoint(ad0 * cos(aphi0), ad0 * sin(aphi0), az0);
-  theD0 = ad0;
-  theZ0 = az0;
-  thePhi = aphi0;
-  theTanL = aTanlambda;
-  thePhiSector = 0;      // must be set externally
-  theEtaSector = 0;      // must be set externally
-  theTrackSeedType = 0;  // must be set externally
-  theChi2 = aChi2;
-  theTrkMVA1 = trkMVA1;
-  theTrkMVA2 = trkMVA2;
-  theTrkMVA3 = trkMVA3;
-  theStubPtConsistency = 0.0;  // must be set externally
-  numFitPars = nPar;
-  theHitPattern = aHitPattern;
-  theBField = aBfield;
-  // should probably fill the momentum vectur
+  double thePT = std::abs(MagConstant / aRinv * aBfield / 100.0);  // Rinv is in cm-1
+  theMomentum_ = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
+  theRInv_ = aRinv;
+  thePOCA_ = GlobalPoint(ad0 * cos(aphi0), ad0 * sin(aphi0), az0);
+  theD0_ = ad0;
+  theZ0_ = az0;
+  thePhi_ = aphi0;
+  theTanL_ = aTanlambda;
+  thePhiSector_ = 0;      // must be set externally
+  theEtaSector_ = 0;      // must be set externally
+  theTrackSeedType_ = 0;  // must be set externally
+  theChi2_ = aChi2;
+  theTrkMVA1_ = trkMVA1;
+  theTrkMVA2_ = trkMVA2;
+  theTrkMVA3_ = trkMVA3;
+  theStubPtConsistency_ = 0.0;  // must be set externally
+  theNumFitPars_ = nPar;
+  theHitPattern_ = aHitPattern;
+  theBField_ = aBfield;
+  theChi2_XY_ = -999.;
+  theChi2_Z_ = -999.;
 }
 
 /// Second default constructor with split chi2
@@ -255,29 +245,21 @@ TTTrack<T>::TTTrack(double aRinv,
                     double trkMVA3,
                     unsigned int aHitPattern,
                     unsigned int nPar,
-                    double aBfield) {
-  theStubRefs.clear();
-  double thePT = fabs(MagConstant * 1.0 / aRinv * aBfield / 100.0);  // Rinv is in cm-1
-  theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
-  theRInv = aRinv;
-  thePOCA = GlobalPoint(ad0 * cos(aphi0), ad0 * sin(aphi0), az0);
-  theD0 = ad0;
-  theZ0 = az0;
-  thePhi = aphi0;
-  theTanL = aTanlambda;
-  thePhiSector = 0;      // must be set externally
-  theEtaSector = 0;      // must be set externally
-  theTrackSeedType = 0;  // must be set externally
-  theChi2XY = aChi2XY;
-  theChi2Z = aChi2Z;
-  theTrkMVA1 = trkMVA1;
-  theTrkMVA2 = trkMVA2;
-  theTrkMVA3 = trkMVA3;
-  theStubPtConsistency = 0.0;  // must be set externally
-  numFitPars = nPar;
-  theHitPattern = aHitPattern;
-  theBField = aBfield;
-  // should probably fill the momentum vectur
+                    double aBfield)
+    : TTTrack(aRinv,
+              aphi0,
+              aTanlambda,
+              az0,
+              ad0,
+              aChi2XY + aChi2Z,  // add chi2 values
+              trkMVA1,
+              trkMVA2,
+              trkMVA3,
+              aHitPattern,
+              nPar,
+              aBfield) {
+  this->theChi2_XY_ = aChi2XY;
+  this->theChi2_Z_ = aChi2Z;
 }
 
 /// Destructor
@@ -286,7 +268,7 @@ TTTrack<T>::~TTTrack() {}
 
 template <typename T>
 void TTTrack<T>::setFitParNo(unsigned int nPar) {
-  numFitPars = nPar;
+  theNumFitPars_ = nPar;
 
   return;
 }
@@ -296,96 +278,130 @@ void TTTrack<T>::setFitParNo(unsigned int nPar) {
 
 template <typename T>
 GlobalVector TTTrack<T>::momentum() const {
-  return theMomentum;
+  return theMomentum_;
 }
 
 template <typename T>
 double TTTrack<T>::rInv() const {
-  return theRInv;
+  return theRInv_;
 }
 
 template <typename T>
 double TTTrack<T>::tanL() const {
-  return theTanL;
+  return theTanL_;
 }
 
 template <typename T>
 double TTTrack<T>::eta() const {
-  return theMomentum.eta();
+  return theMomentum_.eta();
 }
 
 template <typename T>
 double TTTrack<T>::phi() const {
-  return thePhi;
+  return thePhi_;
 }
 
 template <typename T>
 double TTTrack<T>::d0() const {
-  return theD0;
+  return theD0_;
 }
 
 template <typename T>
 double TTTrack<T>::z0() const {
-  return theZ0;
+  return theZ0_;
 }
 
 template <typename T>
 GlobalPoint TTTrack<T>::POCA() const {
-  return thePOCA;
+  return thePOCA_;
 }
 
 /// Chi2
 template <typename T>
 double TTTrack<T>::chi2() const {
-  return theChi2;
+  return theChi2_;
 }
 
-/// Chi2z
+/// Chi2Z
 template <typename T>
-double TTTrack<T>::chi2z() const {
-  return theChi2Z;
+double TTTrack<T>::chi2Z() const {
+  return theChi2_Z_;
+}
+
+/// Chi2XY
+template <typename T>
+double TTTrack<T>::chi2XY() const {
+  return theChi2_XY_;
 }
 
 /// Chi2 reduced
 template <typename T>
 double TTTrack<T>::chi2Red() const {
-  return theChi2 / (2 * theStubRefs.size() - numFitPars);
+  return theChi2_ / (2 * theStubRefs.size() - theNumFitPars_);
+}
+
+/// Chi2XY reduced
+template <typename T>
+double TTTrack<T>::chi2XYRed() const {
+  return theChi2_XY_ / (theStubRefs.size() - theNumFitPars_ - 2);
+}
+
+/// Chi2Z reduced
+template <typename T>
+double TTTrack<T>::chi2ZRed() const {
+  return theChi2_Z_ / (theStubRefs.size() - 2.);
 }
 
 /// MVA quality variables
 template <typename T>
 double TTTrack<T>::trkMVA1() const {
-  return theTrkMVA1;
+  return theTrkMVA1_;
 }
 
 template <typename T>
 double TTTrack<T>::trkMVA2() const {
-  return theTrkMVA2;
+  return theTrkMVA2_;
 }
 
 template <typename T>
 double TTTrack<T>::trkMVA3() const {
-  return theTrkMVA3;
+  return theTrkMVA3_;
 }
 
 /// StubPtConsistency
 template <typename T>
 void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
-  theStubPtConsistency = aStubPtConsistency;
+  theStubPtConsistency_ = aStubPtConsistency;
   return;
 }
 
 /// StubPtConsistency
 template <typename T>
 double TTTrack<T>::stubPtConsistency() const {
-  return theStubPtConsistency;
+  return theStubPtConsistency_;
+}
+
+/// Hit Pattern
+template <typename T>
+unsigned int TTTrack<T>::hitPattern() const {
+  return theHitPattern_;
+}
+
+/// set B field if need be
+template <typename T>
+void TTTrack<T>::setBField(double aBField) {
+  // if, for some reason, we want to change the value of the B-Field, recompute pT and momentum:
+  double thePT = std::abs(MagConstant / theRInv_ * aBField / 100.0);  // Rinv is in cm-1
+  theMomentum_ = GlobalVector(GlobalVector::Cylindrical(thePT, thePhi_, thePT * theTanL_));
+
+  return;
 }
 
 /// Set bits in 96-bit Track word
 template <typename T>
 void TTTrack<T>::setTrackWordBits() {
-  if (!(numFitPars == Npars4 || numFitPars == Npars5)) {
-    edm::LogError("TTTrack") << " setTrackWordBits method is called with numFitPars=" << numFitPars
+  if (!(theNumFitPars_ == Npars4 || theNumFitPars_ == Npars5)) {
+    edm::LogError("TTTrack") << " setTrackWordBits method is called with theNumFitPars_=" << theNumFitPars_
                              << " only possible values are 4/5" << std::endl;
     return;
   }
@@ -394,11 +410,12 @@ void TTTrack<T>::setTrackWordBits() {
 
   // missing conversion of global phi to difference from sector center phi
 
-  if (theChi2Z == 0.) {
-    setTrackWord(theMomentum, thePOCA, theRInv, theChi2, theChi2Z, theStubPtConsistency, theHitPattern, sparebits);
+  if (theChi2_Z_ < 0) {
+    setTrackWord(theMomentum_, thePOCA_, theRInv_, theChi2_, 0, theStubPtConsistency_, theHitPattern_, sparebits);
 
   } else {
-    setTrackWord(theMomentum, thePOCA, theRInv, theChi2XY, theChi2Z, theStubPtConsistency, theHitPattern, sparebits);
+    setTrackWord(
+        theMomentum_, thePOCA_, theRInv_, theChi2_XY_, theChi2_Z_, theStubPtConsistency_, theHitPattern_, sparebits);
   }
   return;
 }
@@ -406,10 +423,10 @@ void TTTrack<T>::setTrackWordBits() {
 /// Test bits in 96-bit Track word
 template <typename T>
 void TTTrack<T>::testTrackWordBits() {
-  //  float rPhi = theMomentum.phi();  // this needs to be phi relative to center of sector ****
-  //float rEta = theMomentum.eta();
-  //float rZ0 = thePOCA.z();
-  //float rD0 = thePOCA.perp();
+  //  float rPhi = theMomentum_.phi();  // this needs to be phi relative to center of sector ****
+  //float rEta = theMomentum_.eta();
+  //float rZ0 = thePOCA_.z();
+  //float rD0 = thePOCA_.perp();
 
   //this is meant for debugging only.
 
@@ -417,8 +434,8 @@ void TTTrack<T>::testTrackWordBits() {
   //std::cout << " eta " << rEta << " " << get_ieta() << std::endl;
   //std::cout << " Z0 " << rZ0 << " " << get_iz0() << std::endl;
   //std::cout << " D0 " << rD0 << " " << get_id0() << std::endl;
-  //std::cout << " Rinv " << theRInv << " " << get_iRinv() << std::endl;
-  //std::cout << " chi2 " << theChi2 << " " << get_ichi2() << std::endl;
+  //std::cout << " Rinv " << theRInv_ << " " << get_iRinv() << std::endl;
+  //std::cout << " chi2 " << theChi2_ << " " << get_ichi2() << std::endl;
 
   return;
 }
