@@ -76,7 +76,6 @@ EventWithHistoryProducerFromL1ABC::EventWithHistoryProducerFromL1ABC(const edm::
                             mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
       _tcdsRecordToken(
                            mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
-      
       _forceNoOffset(iConfig.getUntrackedParameter<bool>("forceNoOffset", false)),
       _offsets(),
       _curroffset(0),
@@ -131,8 +130,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
         }
       }
     }
-    
-    
+        
     std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
     iEvent.put(std::move(pOut));
 
@@ -149,8 +147,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
         if (_curroffset != absbxoffset) {
           edm::LogInfo("AbsoluteBXOffsetChanged")
               << "Absolute BX offset changed from " << _curroffset << " to " << absbxoffset << " at orbit "
-              << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
-          
+              << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();      
           try{
             edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord; // Not sure about this
           }
