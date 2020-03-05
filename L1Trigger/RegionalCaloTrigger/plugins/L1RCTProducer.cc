@@ -32,7 +32,7 @@ const int L1RCTProducer::crateFED[18][6] = {{613, 614, 603, 702, 718, 1118},
 
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet &conf)
     : rctLookupTables(new L1RCTLookupTables),
-      rct(new L1RCT(rctLookupTables)),
+      rct(new L1RCT(rctLookupTables.get())),
       useEcal(conf.getParameter<bool>("useEcal")),
       useHcal(conf.getParameter<bool>("useHcal")),
       ecalDigis(conf.getParameter<std::vector<edm::InputTag>>("ecalDigis")),
@@ -55,15 +55,6 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet &conf)
     consumes<edm::SortedCollection<EcalTriggerPrimitiveDigi, edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi>>>(
         ecalDigis[iec]);
   }
-}
-
-L1RCTProducer::~L1RCTProducer() {
-  if (rct != nullptr)
-    delete rct;
-  if (rctLookupTables != nullptr)
-    delete rctLookupTables;
-  if (fedUpdatedMask != nullptr)
-    delete fedUpdatedMask;
 }
 
 void L1RCTProducer::beginRun(edm::Run const &run, const edm::EventSetup &eventSetup) {
@@ -156,10 +147,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup &eventSetup,
   // This is the beginning of run. We delete the old
   // create the new and set it in the LUTs
 
-  if (fedUpdatedMask != nullptr)
-    delete fedUpdatedMask;
-
-  fedUpdatedMask = new L1RCTChannelMask();
+  fedUpdatedMask = std::make_unique<L1RCTChannelMask>();
   // copy a constant object
   for (int i = 0; i < 18; i++) {
     for (int j = 0; j < 2; j++) {
@@ -291,7 +279,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup &eventSetup,
     }
   }
 
-  rctLookupTables->setChannelMask(fedUpdatedMask);
+  rctLookupTables->setChannelMask(fedUpdatedMask.get());
 }
 
 const std::vector<int> L1RCTProducer::getFedVectorFromRunInfo(const edm::EventSetup &eventSetup) {
