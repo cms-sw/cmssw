@@ -10,5 +10,6 @@ APVPhases = cms.EDProducer('APVCyclePhaseProducerFromL1TS',
                            defaultPhases = cms.vint32(48,48,48,48),
                            magicOffset = cms.untracked.int32(11),
                            l1TSCollection = cms.InputTag("scalersRawToDigi"),
+                           tcdsRecordLabel= cms.InputTag("unpackTcds","tcdsRecord"),
                            )
 

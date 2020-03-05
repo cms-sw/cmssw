@@ -152,7 +152,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
               << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
           
           try{
-            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord;
+            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord; // Not sure about this
           }
           catch(...){
             for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
