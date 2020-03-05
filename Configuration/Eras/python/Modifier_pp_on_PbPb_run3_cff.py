@@ -1,4 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-pbpb_run3 =  cms.Modifier()
+pp_on_PbPb_run3 =  cms.Modifier()
 

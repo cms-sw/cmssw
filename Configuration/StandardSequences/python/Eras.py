@@ -32,7 +32,7 @@ class Eras (object):
                  'Run2_2018_pp_on_AA_noHCALmitigation',
                  'Run2_2018_highBetaStar',
                  'Run3',
-                 'Run3_PbPb',
+                 'Run3_pp_on_PbPb',
                  'Phase2',
                  'Phase2C4',
                  'Phase2C6',
