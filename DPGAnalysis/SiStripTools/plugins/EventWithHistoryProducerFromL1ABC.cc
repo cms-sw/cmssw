@@ -19,8 +19,6 @@
 // system include files
 #include <memory>
 #include <map>
-#include <iostream>
-
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -38,9 +36,8 @@
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
-
 //
-// class decleration
+// class declarations
 //
 
 class EventWithHistoryProducerFromL1ABC : public edm::stream::EDProducer<> {
@@ -117,38 +114,25 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
     const auto& tcdsRecord = *tcds_pIn.product();
     // offset computation
 
-    std::cout << "From TCDSRecord: runNumber " << tcdsRecord.getRunNumber() << ", event number " << tcdsRecord.getEventNumber() << ", lumisection " << tcdsRecord.getLumiSection() << std::endl;
-    
     long long orbitoffset = 0;
     int bxoffset = 0;
-    long long tcds_orbitoffset = 0;
-    int tcds_bxoffset = 0;
-    if (!_forceNoOffset) {
-      for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
-        if (l1abc->l1AcceptOffset() == 0) {
-          orbitoffset = (long long)l1abc->orbitNumber() - (long long)iEvent.orbitNumber();
-          bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
-          std::cout << "SCAL: orbit number: " << (long long)l1abc->orbitNumber() << ", bunchcrossing: " << l1abc->bunchCrossing() << std::endl;
-        }
-        else { std::cout << "Found event (" << tcdsRecord.getEventNumber() << ") with l1AcceptOffset different than zero (" << l1abc->l1AcceptOffset() << ")" << std::endl;
+    
+    try{
+      orbitoffset = (long long) tcdsRecord.getOrbitNr() - (long long) iEvent.orbitNumber();
+      bxoffset = tcdsRecord.getBXID() - iEvent.bunchCrossing();
+    }
+    catch(...){
+      if (!_forceNoOffset) {
+        for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
+          if (l1abc->l1AcceptOffset() == 0) {
+            orbitoffset = (long long)l1abc->orbitNumber() - (long long)iEvent.orbitNumber();
+            bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
+          }
         }
       }
     }
-
-    //if( !_forceNoOffset) {
-    //  for (auto& recIt : tcdsRecord){
-    //    if (true /*l1abc->l1AcceptOffset() == 0 Thers is no acceptoffset in tcdsrecord*/) { 
-    //      tcds_orbitoffset = (long long) recIt.getOrbitNr() - (long long) iEvent.orbitNumber();
-    //      tcds_bxoffset = recIt.getBXID() - iEvent.bunchCrossing();
-    //    }
-    //  }
-    //}
-    tcds_orbitoffset = (long long) tcdsRecord.getOrbitNr() - (long long) iEvent.orbitNumber();
-    tcds_bxoffset = tcdsRecord.getBXID() - iEvent.bunchCrossing();
-    std::cout << "TCDS: orbit number: " << (long long)tcdsRecord.getOrbitNr() << ", bunchcrossing: " << tcdsRecord.getBXID() << std::endl;
     
-    std::cout << "SCAL/TCDS: Orbit offset " << orbitoffset << "/" << tcds_orbitoffset << ", bunch crossing offset " << bxoffset << "/" << tcds_bxoffset << std::endl;
-
+    
     std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
     iEvent.put(std::move(pOut));
 
@@ -166,8 +150,14 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
           edm::LogInfo("AbsoluteBXOffsetChanged")
               << "Absolute BX offset changed from " << _curroffset << " to " << absbxoffset << " at orbit "
               << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
-          for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
-            edm::LogVerbatim("AbsoluteBXOffsetChanged") << *l1abc;
+          
+          try{
+            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord;
+          }
+          catch(...){
+            for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
+              edm::LogVerbatim("AbsoluteBXOffsetChanged") << *l1abc;
+            }
           }
         }
 
