@@ -18,13 +18,17 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
       theComparatorDigiValidation(nullptr),
       theALCTDigiValidation(nullptr),
       theCLCTDigiValidation(nullptr) {
-  theStripDigiValidation.reset(new CSCStripDigiValidation(ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector()));
-  theWireDigiValidation.reset(new CSCWireDigiValidation(ps.getParameter<edm::InputTag>("wireDigiTag"), consumesCollector(), doSim_));
+  theStripDigiValidation.reset(
+      new CSCStripDigiValidation(ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector()));
+  theWireDigiValidation.reset(
+      new CSCWireDigiValidation(ps.getParameter<edm::InputTag>("wireDigiTag"), consumesCollector(), doSim_));
   theComparatorDigiValidation.reset(new CSCComparatorDigiValidation(ps.getParameter<edm::InputTag>("comparatorDigiTag"),
                                                                     ps.getParameter<edm::InputTag>("stripDigiTag"),
                                                                     consumesCollector()));
-  theALCTDigiValidation.reset(new CSCALCTDigiValidation(ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector()));
-  theCLCTDigiValidation.reset(new CSCCLCTDigiValidation(ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector()));
+  theALCTDigiValidation.reset(
+      new CSCALCTDigiValidation(ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector()));
+  theCLCTDigiValidation.reset(
+      new CSCCLCTDigiValidation(ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector()));
 
   if (doSim_) {
     theStripDigiValidation->setSimHitMap(&theSimHitMap);
@@ -33,9 +37,7 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
   }
 }
 
-CSCDigiValidation::~CSCDigiValidation()
-{
-}
+CSCDigiValidation::~CSCDigiValidation() {}
 
 void CSCDigiValidation::bookHistograms(DQMStore::IBooker &iBooker,
                                        edm::Run const &iRun,
