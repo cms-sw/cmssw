@@ -685,7 +685,7 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
 
     const CaloGenericDetId cgid(id);
 
-    if (cgid.isCaloTower() == false) { // CaloGenericDetId::denseIndex() not supported for CaloTower
+    if (cgid.isCaloTower() == false) {  // CaloGenericDetId::denseIndex() not supported for CaloTower
       const GlobalPoint ggp(cell->getPosition());
 
       h_dPhi[detIndex]->Fill(cgid.denseIndex(), deltaPhi);
