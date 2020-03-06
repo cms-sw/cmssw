@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DBGeometryTest")
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('CondCore.DBCommon.CondDBSetup_cfi')
+process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
