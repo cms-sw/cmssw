@@ -1,13 +1,13 @@
-#ifndef CSCDigiValidation_H
-#define CSCDigiValidation_H
+#ifndef Validation_MuonCSCDigis_CSCDigiValidation_H
+#define Validation_MuonCSCDigis_CSCDigiValidation_H
 
 // user include files
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include <DQMServices/Core/interface/DQMStore.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
