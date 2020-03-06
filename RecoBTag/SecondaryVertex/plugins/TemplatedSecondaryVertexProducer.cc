@@ -393,15 +393,16 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
             continue;
           }
           if (it->isWeighted()) {
-            pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
+            pat::PackedCandidate const *pPC = dynamic_cast<pat::PackedCandidate const *>(constit.get());
             float w = 0.0;
             if (pPC)
               w = pPC->puppiWeight();
+            else if (!token_weights.isUninitialized())
+              w = (*weightsHandle)[constit];
             else
-              if (!token_weights.isUninitialized())
-                w = (*weightsHandle)[constit];
-              else
-                throw cms::Exception("MissingConstituentWeight") << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+              throw cms::Exception("MissingConstituentWeight")
+                  << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
+                  << std::endl;
             fjInputs.push_back(
                 fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
           } else {
@@ -421,15 +422,16 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
             continue;
           }
           if (it->jet()->isWeighted()) {
-            pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
+            pat::PackedCandidate const *pPC = dynamic_cast<pat::PackedCandidate const *>(constit.get());
             float w = 0.0;
             if (pPC)
               w = pPC->puppiWeight();
+            else if (!token_weights.isUninitialized())
+              w = (*weightsHandle)[constit];
             else
-              if (!token_weights.isUninitialized())
-                w = (*weightsHandle)[constit];
-              else
-                throw cms::Exception("MissingConstituentWeight") << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+              throw cms::Exception("MissingConstituentWeight")
+                  << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
+                  << std::endl;
             fjInputs.push_back(
                 fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
           } else {
