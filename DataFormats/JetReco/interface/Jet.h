@@ -112,12 +112,18 @@ namespace reco {
     ///  number of passes taken by algorithm
     virtual int nPasses() const { return mPassNumber; }
 
+    ///  Set boolean if weights were applied by algorithm (e.g. PUPPI weights)
+    virtual void setIsWeighted(bool isWeighted) { mIsWeighted = isWeighted; }
+    ///  boolean if weights were applied by algorithm (e.g. PUPPI weights)
+    virtual int isWeighted() const { return mIsWeighted; }
+
     bool isJet() const override;
 
   private:
     float mJetArea;
     float mPileupEnergy;
     int mPassNumber;
+    bool mIsWeighted;
   };
 }  // namespace reco
 #endif

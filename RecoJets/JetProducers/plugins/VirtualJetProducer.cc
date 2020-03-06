@@ -700,6 +700,8 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
     // fill jets
     for (unsigned int ijet = 0; ijet < fjJets_.size(); ++ijet) {
       auto& jet = (*jets)[ijet];
+      jet.setIsWeighted(applyWeight_);
+
       // get the fastjet jet
       const fastjet::PseudoJet& fjJet = fjJets_[ijet];
       // get the constituents from fastjet
