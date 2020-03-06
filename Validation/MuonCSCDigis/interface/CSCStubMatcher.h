@@ -19,11 +19,9 @@ typedef std::vector<CSCALCTDigi> CSCALCTDigiContainer;
 typedef std::vector<CSCCLCTDigi> CSCCLCTDigiContainer;
 typedef std::vector<CSCCorrelatedLCTDigi> CSCCorrelatedLCTDigiContainer;
 
-class CSCStubMatcher
-{
+class CSCStubMatcher {
 public:
-
-  CSCStubMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector && iC);
+  CSCStubMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector&& iC);
 
   ~CSCStubMatcher() {}
 
@@ -83,11 +81,10 @@ public:
   // get the position of an LCT in global coordinates
   GlobalPoint getGlobalPosition(unsigned int rawId, const CSCCorrelatedLCTDigi& lct) const;
 
-  std::shared_ptr<CSCDigiMatcher> cscDigiMatcher() {return cscDigiMatcher_;}
-  std::shared_ptr<GEMDigiMatcher> gemDigiMatcher() {return gemDigiMatcher_;}
+  std::shared_ptr<CSCDigiMatcher> cscDigiMatcher() { return cscDigiMatcher_; }
+  std::shared_ptr<GEMDigiMatcher> gemDigiMatcher() { return gemDigiMatcher_; }
 
 private:
-
   void matchCLCTsToSimTrack(const CSCCLCTDigiCollection&);
   void matchALCTsToSimTrack(const CSCALCTDigiCollection&);
   void matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection&);
@@ -121,8 +118,8 @@ private:
   std::map<unsigned int, CSCCorrelatedLCTDigiContainer> chamber_to_lcts_;
   std::map<unsigned int, CSCCorrelatedLCTDigiContainer> chamber_to_mplcts_;
 
-  template<class D>
-  std::set<unsigned int> selectDetIds(D &, int) const;
+  template <class D>
+  std::set<unsigned int> selectDetIds(D&, int) const;
 
   bool hsFromSimHitMean_;
 
@@ -148,19 +145,15 @@ private:
   CSCCorrelatedLCTDigiContainer no_mplcts_;
 };
 
-
-template<class D>
-std::set<unsigned int>
-CSCStubMatcher::selectDetIds(D &digis, int csc_type) const
-{
+template <class D>
+std::set<unsigned int> CSCStubMatcher::selectDetIds(D& digis, int csc_type) const {
   std::set<unsigned int> result;
-  for (auto& p: digis)
-  {
+  for (auto& p : digis) {
     auto id = p.first;
-    if (csc_type > 0)
-    {
+    if (csc_type > 0) {
       CSCDetId detId(id);
-      if (MuonHitHelper::toCSCType(detId.station(), detId.ring()) != csc_type) continue;
+      if (MuonHitHelper::toCSCType(detId.station(), detId.ring()) != csc_type)
+        continue;
     }
     result.insert(p.first);
   }

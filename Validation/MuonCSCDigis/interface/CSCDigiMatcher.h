@@ -22,12 +22,10 @@ typedef std::vector<std::pair<unsigned int, CSCComparatorDigi> > CSCComparatorDi
 typedef std::vector<std::pair<unsigned int, CSCStripDigi> > CSCStripDigiDetIdContainer;
 typedef std::vector<std::pair<unsigned int, CSCWireDigi> > CSCWireDigiDetIdContainer;
 
-class CSCDigiMatcher
-{
+class CSCDigiMatcher {
 public:
-
   // constructor
-  CSCDigiMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector && iC);
+  CSCDigiMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~CSCDigiMatcher() {}
@@ -82,17 +80,16 @@ public:
   std::set<int> stripsInChamber(unsigned int, int max_gap_to_fill = 0) const;
   std::set<int> wiregroupsInChamber(unsigned int, int max_gap_to_fill = 0) const;
 
-  std::shared_ptr<CSCSimHitMatcher> muonSimHitMatcher() const {return muonSimHitMatcher_;}
+  std::shared_ptr<CSCSimHitMatcher> muonSimHitMatcher() const { return muonSimHitMatcher_; }
 
 private:
-
   // match simtracks to digis
   void matchComparatorsToSimTrack(const CSCComparatorDigiCollection& comparators);
   void matchStripsToSimTrack(const CSCStripDigiCollection& strips);
   void matchWiresToSimTrack(const CSCWireDigiCollection& wires);
 
   template <class T>
-  std::set<unsigned int> selectDetIds(const T &digis, int csc_type) const;
+  std::set<unsigned int> selectDetIds(const T& digis, int csc_type) const;
 
   edm::EDGetTokenT<CSCComparatorDigiCollection> comparatorDigiInput_;
   edm::EDGetTokenT<CSCStripDigiCollection> stripDigiInput_;
@@ -131,14 +128,14 @@ private:
 };
 
 template <class T>
-std::set<unsigned int> CSCDigiMatcher::selectDetIds(const T &digis, int csc_type) const
-{
+std::set<unsigned int> CSCDigiMatcher::selectDetIds(const T& digis, int csc_type) const {
   std::set<unsigned int> result;
-  for (const auto& p: digis) {
+  for (const auto& p : digis) {
     const auto& id = p.first;
     if (csc_type > 0) {
       CSCDetId detId(id);
-      if (MuonHitHelper::toCSCType(detId.station(), detId.ring()) != csc_type) continue;
+      if (MuonHitHelper::toCSCType(detId.station(), detId.ring()) != csc_type)
+        continue;
     }
     result.insert(p.first);
   }
