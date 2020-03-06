@@ -1,0 +1,11 @@
+<environment>
+  <bin file="TestIntegration.cpp" name="TestIntegrationSonic">
+    <flags TEST_RUNNER_ARGS=" /bin/bash SonicCMS/Core/test run_sonic_test.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+  <library file="SonicDummyProducer.cc">
+    <flags EDM_PLUGIN="1"/>
+    <use name="SonicCMS/Core"/>
+    <use name="DataFormats/TestObjects"/>
+  </library>
+</environment>
