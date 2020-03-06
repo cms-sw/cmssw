@@ -18,6 +18,5 @@ pfSecondaryVertexTagInfos = cms.EDProducer("CandSecondaryVertexProducer",
         beamSpotTag = cms.InputTag('offlineBeamSpot'),                                        
         useExternalSV       = cms.bool(False),
         extSVCollection     = cms.InputTag('secondaryVertices'),
-        extSVDeltaRToJet    = cms.double(0.3),
-        weights = cms.InputTag('puppi')
+        extSVDeltaRToJet    = cms.double(0.3)
 )
