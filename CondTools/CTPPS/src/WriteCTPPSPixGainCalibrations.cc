@@ -8,9 +8,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //CTPPS Gain Calibration Conditions Object
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibration.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibration.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelIndices.h"
 //CTPPS tracker DetId
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "TFile.h"

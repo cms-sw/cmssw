@@ -1,7 +1,7 @@
 #ifndef Geometry_VeryForwardGeometry_CTPPSPixelTopology_h
 #define Geometry_VeryForwardGeometry_CTPPSPixelTopology_h
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelIndices.h"
 
 /**
  *\brief Geometrical and topological information on RPix silicon detector.

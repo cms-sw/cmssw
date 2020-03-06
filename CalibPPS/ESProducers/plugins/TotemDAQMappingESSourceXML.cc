@@ -25,9 +25,9 @@
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>

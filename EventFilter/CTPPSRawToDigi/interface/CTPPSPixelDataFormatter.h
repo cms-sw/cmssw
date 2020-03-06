@@ -33,12 +33,12 @@
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/RPixErrorChecker.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelIndices.h"
 #include "EventFilter/CTPPSRawToDigi/interface/ElectronicIndex.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
