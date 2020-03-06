@@ -29,7 +29,7 @@ using namespace edm;
 
 CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
     : useDDD_(p.getParameter<bool>("useDDD")),
-      useDD4hep_(p.getParameter<bool>("useDD4hep")),
+      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)},
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
       myLabel_(p.getParameter<std::string>("appendToDataLabel")) {
   auto cc = setWhatProduced(this);
