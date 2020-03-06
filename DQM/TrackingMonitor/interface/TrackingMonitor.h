@@ -22,7 +22,7 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
@@ -59,7 +59,7 @@ class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
-class TrackingMonitor : public DQMOneLumiEDAnalyzer<> {
+class TrackingMonitor : public DQMEDAnalyzer {
 public:
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;
@@ -71,11 +71,9 @@ public:
       std::vector<double>&, std::vector<double>&, std::vector<int>&, double, double, int, double, double, int);
   virtual void setNclus(const edm::Event&, std::vector<int>&);
 
-  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   //        virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   void doProfileX(TH2* th2, MonitorElement* me);
@@ -121,7 +119,7 @@ private:
   std::string Quality_;
   std::string AlgoName_;
 
-  TrackAnalyzer* theTrackAnalyzer;
+  tadqm::TrackAnalyzer* theTrackAnalyzer;
   TrackBuildingAnalyzer* theTrackBuildingAnalyzer;
   std::vector<VertexMonitor*> theVertexMonitor;
   GetLumi* theLumiDetails_;
