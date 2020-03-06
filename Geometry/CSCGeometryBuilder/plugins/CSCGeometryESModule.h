@@ -10,7 +10,7 @@
 // \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
 //         Created:  Thu, 05 March 2020 
 //   
-//         Old DD version author: Tim Cox
+//         Original author: Tim Cox
 */
 
 #include <FWCore/Framework/interface/ESProducer.h>
@@ -21,10 +21,10 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include <DetectorDescription/DDCMS/interface/DDCompactView.h>
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include <Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h>
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"

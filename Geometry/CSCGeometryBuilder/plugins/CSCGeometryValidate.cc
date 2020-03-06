@@ -19,8 +19,8 @@
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
-#include <Geometry/CSCGeometry/interface/CSCStripTopology.h>
-#include <Geometry/CSCGeometry/interface/CSCWireTopology.h>
+#include "Geometry/CSCGeometry/interface/CSCStripTopology.h"
+#include "Geometry/CSCGeometry/interface/CSCWireTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
