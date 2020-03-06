@@ -27,6 +27,7 @@
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -163,7 +164,6 @@ private:
   double ghostRescaling;
   double relPtTolerance;
   bool useFatJets;
-  bool useWeights;
   bool useGroomedFatJets;
   edm::EDGetTokenT<edm::View<reco::Jet> > token_fatJets;
   edm::EDGetTokenT<edm::View<reco::Jet> > token_groomedFatJets;
@@ -267,7 +267,6 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
   }
   useSVClustering = (params.existsAs<bool>("useSVClustering") ? params.getParameter<bool>("useSVClustering") : false);
   useSVMomentum = (params.existsAs<bool>("useSVMomentum") ? params.getParameter<bool>("useSVMomentum") : false);
-  useWeights = false;
   useFatJets = (useExternalSV && params.exists("fatJets"));
   useGroomedFatJets = (useExternalSV && params.exists("groomedFatJets"));
   if (useSVClustering) {
@@ -295,14 +294,8 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
   }
   if (useFatJets) {
     token_fatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("fatJets"));
-    std::string label = params.getParameter<edm::InputTag>("fatJets").label();
-    if (label.find("Puppi") != std::string::npos) {
-      useWeights = true;
-      // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
-      // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
-    }
   }
-  if ((useWeights) || (params.existsAs<edm::InputTag>("weights")))
+  if (params.existsAs<edm::InputTag>("weights"))
     token_weights = consumes<edm::ValueMap<float> >(params.getParameter<edm::InputTag>("weights"));
   if (useGroomedFatJets) {
     token_groomedFatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("groomedFatJets"));
@@ -327,21 +320,6 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
   edm::Handle<std::vector<IPTI> > trackIPTagInfos;
   event.getByToken(token_trackIPTagInfo, trackIPTagInfos);
-  if (!useFatJets) {
-    if constexpr (std::is_same_v<IPTI, CandIPTagInfo>) {
-      const edm::Provenance *prov = trackIPTagInfos.provenance();
-      const edm::ParameterSet &psetFromProvenance = edm::parameterSet(*prov, event.processHistory());
-      std::string label;
-      label = psetFromProvenance.getParameter<edm::InputTag>("jets").label();
-      if (label.find("Puppi") != std::string::npos) {
-        useWeights = true;
-        // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
-        // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
-      }
-    } else {
-      useWeights = false;
-    }
-  }
 
   // External Sec Vertex collection (e.g. for IVF usage)
   edm::Handle<edm::View<VTX> > extSecVertex;
@@ -362,7 +340,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
     }
   }
   edm::Handle<edm::ValueMap<float> > weightsHandle;
-  if (useWeights)
+  if (!token_weights.isUninitialized())
     event.getByToken(token_weights, weightsHandle);
 
   edm::Handle<BeamSpot> beamSpot;
@@ -414,8 +392,16 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
             edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
             continue;
           }
-          if (useWeights) {
-            auto w = (*weightsHandle)[constit];
+          if (it->isWeighted()) {
+            pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
+            float w = 0.0;
+            if (pPC)
+              w = pPC->puppiWeight();
+            else
+              if (!token_weights.isUninitialized())
+                w = (*weightsHandle)[constit];
+              else
+                throw cms::Exception("MissingConstituentWeight") << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
             fjInputs.push_back(
                 fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
           } else {
@@ -434,9 +420,16 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
             edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
             continue;
           }
-          if (useWeights) {
-            float w = (*weightsHandle)[constit];
-            // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
+          if (it->jet()->isWeighted()) {
+            pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
+            float w = 0.0;
+            if (pPC)
+              w = pPC->puppiWeight();
+            else
+              if (!token_weights.isUninitialized())
+                w = (*weightsHandle)[constit];
+              else
+                throw cms::Exception("MissingConstituentWeight") << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
             fjInputs.push_back(
                 fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
           } else {

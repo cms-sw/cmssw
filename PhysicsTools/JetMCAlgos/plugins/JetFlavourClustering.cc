@@ -96,6 +96,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -198,7 +199,6 @@ private:
   const double relPtTolerance_;
   const bool hadronFlavourHasPriority_;
   const bool useSubjets_;
-  bool useWeights_;
 
   const bool useLeptons_;
 
@@ -238,13 +238,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
   // register your products
   produces<reco::JetFlavourInfoMatchingCollection>();
   std::string label = iConfig.getParameter<edm::InputTag>("jets").label();
-  useWeights_ = false;
-  if (label.find("Puppi") != std::string::npos) {
-    useWeights_ = true;
-    // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
-    // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
-  }
-  if (useWeights_)
+  if (iConfig.existsAs<edm::InputTag>("weights"))
     weightsToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"));
 
   if (useSubjets_)
@@ -301,7 +295,7 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(partonsToken_, partons);
 
   edm::Handle<edm::ValueMap<float>> weights;
-  if (useWeights_)
+  if (!weightsToken_.isUninitialized())
     iEvent.getByToken(weightsToken_, weights);
 
   edm::Handle<reco::GenParticleRefVector> leptons;
@@ -334,8 +328,16 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
         edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
         continue;
       }
-      if (useWeights_) {
-        auto w = (*weights)[constit];
+      if (it->isWeighted()) {
+        pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
+        float w = 0.0;
+        if (pPC)
+          w = pPC->puppiWeight();
+        else
+          if (!weightsToken_.isUninitialized())
+            w = (*weights)[constit];
+          else
+            throw cms::Exception("MissingConstituentWeight") << "JetFlavourClustering: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
         fjInputs.push_back(
             fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
       } else {
