@@ -597,6 +597,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
                                     process, task)
 
+            if 'Puppi' in jetSource:
+                _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
+                _btagInfo.weights = cms.InputTag("puppi")
+
             if 'DeepFlavourTagInfos' in btagInfo:
                 svUsed = svSource
                 if btagInfo == 'pfNegativeDeepFlavourTagInfos':
@@ -1150,6 +1154,8 @@ class AddJetCollection(ConfigToolBase):
                                     process, task)
 
                 knownModules.append('patJetFlavourAssociation'+_labelName+postfix)
+            if 'Puppi' in jetSource:
+                _newPatJetFlavourAssociation.weights = cms.InputTag("puppi")
             ## modify new patJets collection accordingly
             _newPatJets.JetFlavourInfoSource.setModuleLabel('patJetFlavourAssociation'+_labelName+postfix)
             ## if the jets is actually a subjet
