@@ -25,8 +25,7 @@
 
 class DD4hep_ListGroups : public edm::one::EDAnalyzer<> {
 public:
-  DD4hep_ListGroups(const edm::ParameterSet& iConfig) :
-    m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")) {};
+  DD4hep_ListGroups(const edm::ParameterSet& iConfig);
   ~DD4hep_ListGroups() override;
 
 private:
@@ -35,7 +34,18 @@ private:
   void endJob() override;
   const edm::ESInputTag m_tag;
 
+  bool m_saveSummaryPlot;
+  std::vector<TH2F *> m_plots;
+  std::set<std::string_view> m_group_names;
+  std::vector<unsigned int> m_color;
+  std::vector<int> m_gradient;
+
 };
+
+DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig) :
+  m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")) {
+  m_saveSummaryPlot = iConfig.getUntrackedParameter<bool>("SaveSummaryPlot");
+}
 
 DD4hep_ListGroups::~DD4hep_ListGroups() {
 
@@ -45,16 +55,16 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
 
   edm::ESTransientHandle<cms::DDCompactView> cpv;
   setup.get<IdealGeometryRecord>().get(m_tag,cpv);
-
   cms::DDFilteredView fv((*cpv).detector(),(*cpv).detector()->worldVolume());
   cms::DDSpecParRefs refs;
+  const std::string_view tmg{"TrackingMaterialGroup"};
   const cms::DDSpecParRegistry& mypar = (*cpv).specpars();
-  mypar.filter(refs, "TrackingMaterialGroup");
+  mypar.filter(refs, tmg);
 
   fv.mergedSpecifics(refs);
 
   for (const auto& t : refs) {
-    std::cout << t->strValue("TrackingMaterialGroup") << std::endl;
+    m_group_names.insert(t->strValue(tmg.data()));
   }
 
 }

@@ -33,7 +33,8 @@ process.DDCompactViewESProducer = cms.ESProducer(
 
 process.test = cms.EDAnalyzer(
     "DD4hep_ListGroups",
-    DDDetector = cms.ESInputTag('','CMS')
+    DDDetector = cms.ESInputTag('','CMS'),
+    SaveSummaryPlot = cms.untracked.bool(True)
 )
 
 process.path = cms.Path(
