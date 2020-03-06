@@ -21,6 +21,8 @@
 // Original Author:  W. David Dagenhart
 //         Created:  7 September 2017
 
+#include <string>
+
 namespace edm {
 
   class ParameterSet;
@@ -28,5 +30,8 @@ namespace edm {
   class ProcessHistory;
 
   ParameterSet const* getProducerParameterSet(Provenance const& provenance, ProcessHistory const&);
+
+  ParameterSet const* getProducerParameterSet(ProcessHistory const&, std::string const& processName, std::string const& moduleLabel);
+
 }  // namespace edm
 #endif
