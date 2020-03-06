@@ -48,10 +48,11 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
+#include "DataFormats/TCDS/interface/TCDSRecord.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class APVCyclePhaseProducerFromL1TS : public edm::stream::EDProducer<> {
@@ -70,6 +71,7 @@ private:
 
   edm::ESWatcher<SiStripConfObjectRcd> m_eswatcher;
   edm::EDGetTokenT<Level1TriggerScalersCollection> _l1tscollectionToken;
+  edm::EDGetTokenT<TCDSRecord> _tcdsRecordToken;
   const bool m_ignoreDB;
   const std::string m_rcdLabel;
   std::vector<std::string> _defpartnames;
@@ -99,24 +101,24 @@ private:
 //
 // constructors and destructor
 //
-APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::ParameterSet& iConfig)
-    : m_eswatcher(),
-      _l1tscollectionToken(
-          consumes<Level1TriggerScalersCollection>(iConfig.getParameter<edm::InputTag>("l1TSCollection"))),
-      m_ignoreDB(iConfig.getUntrackedParameter<bool>("ignoreDB", false)),
-      m_rcdLabel(iConfig.getUntrackedParameter<std::string>("recordLabel", "apvphaseoffsets")),
-      _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
-      _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
-      _useEC0(iConfig.getUntrackedParameter<bool>("useEC0", false)),
-      _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset", 8)),
-      m_badRun(false),
-      m_badruns(),
-      _lastResync(-1),
-      _lastHardReset(-1),
-      _lastStart(-1),
-      _lastEventCounter0(-1),
-      _lastOrbitCounter0(-1),
-      _lastTestEnable(-1) {
+APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::ParameterSet& iConfig):
+  m_eswatcher(),
+  _l1tscollectionToken(consumes<Level1TriggerScalersCollection>(iConfig.getParameter<edm::InputTag>("l1TSCollection"))),
+  _tcdsRecordToken(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
+  m_ignoreDB(iConfig.getUntrackedParameter<bool>("ignoreDB", false)),
+  m_rcdLabel(iConfig.getUntrackedParameter<std::string>("recordLabel", "apvphaseoffsets")),
+  _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
+  _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
+  _useEC0(iConfig.getUntrackedParameter<bool>("useEC0", false)),
+  _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset", 8)),
+  m_badRun(false),
+  m_badruns(),
+  _lastResync(-1),
+  _lastHardReset(-1),
+  _lastStart(-1),
+  _lastEventCounter0(-1),
+  _lastOrbitCounter0(-1),
+  _lastTestEnable(-1) {
   std::stringstream ss;
   printConfiguration(ss);
   edm::LogInfo("ConfigurationAtConstruction") << ss.str();
@@ -185,48 +187,95 @@ void APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::Event
 
   Handle<Level1TriggerScalersCollection> l1ts;
   iEvent.getByToken(_l1tscollectionToken, l1ts);
+  Handle<TCDSRecord> tcds_pIn;
+  iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
+  const auto& tcdsRecord = *tcds_pIn.product();
+  bool useTCDS(tcds_pIn.product());
+
 
   // offset computation
 
   long long orbitoffset = 0;
 
-  if (!l1ts->empty()) {
-    if ((*l1ts)[0].lastResync() != 0) {
-      orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;
+  if(useTCDS){
+    // l1ts->empty() always retuns false (last commit as of today: https://github.com/cms-sw/cmssw/commit/f4694d795d4b268d541c633dfb68283d889264b0 ), so the check is likely not necessary---and TCDSRecord hasn't anything similar
+    if (tcdsRecord.getLastResync() != 0) {
+      orbitoffset = _useEC0 ? tcdsRecord.getLastEventCounter0() + _magicOffset : tcdsRecord.getLastResync() + _magicOffset;
     }
-
-    if (_lastResync != (*l1ts)[0].lastResync()) {
-      _lastResync = (*l1ts)[0].lastResync();
+    
+    if (_lastResync != tcdsRecord.getLastResync()) {
+      _lastResync = tcdsRecord.getLastResync();
       LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync;
     }
-    if (_lastHardReset != (*l1ts)[0].lastHardReset()) {
-      _lastHardReset = (*l1ts)[0].lastHardReset();
+    if (_lastHardReset != tcdsRecord.getLastHardReset()) {
+      _lastHardReset = tcdsRecord.getLastHardReset();
       LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset;
     }
-    if (_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
-      _lastTestEnable = (*l1ts)[0].lastTestEnable();
+    if (_lastTestEnable != tcdsRecord.getLastTestEnable()) {
+      _lastTestEnable = tcdsRecord.getLastTestEnable();
       //      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
     }
-    if (_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
-      _lastOrbitCounter0 = (*l1ts)[0].lastOrbitCounter0();
+    if (_lastOrbitCounter0 != tcdsRecord.getLastOrbitCounter0()) {
+      _lastOrbitCounter0 = tcdsRecord.getLastOrbitCounter0();
       LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0;
     }
-    if (_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
-      _lastEventCounter0 = (*l1ts)[0].lastEventCounter0();
+    if (_lastEventCounter0 != tcdsRecord.getLastEventCounter0()) {
+      _lastEventCounter0 = tcdsRecord.getLastEventCounter0();
       LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0;
     }
-    if (_lastStart != (*l1ts)[0].lastStart()) {
-      _lastStart = (*l1ts)[0].lastStart();
+    if (_lastStart != tcdsRecord.getLastStart()) {
+      _lastStart = tcdsRecord.getLastStart();
       LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart;
     }
-
+    
     if (!isBadRun(iEvent.run())) {
       phasechange = ((long long)(orbitoffset * 3564)) % 70;
-
+      
       for (unsigned int ipart = 0; ipart < phases.size(); ++ipart) {
         phases[ipart] = (_defphases[ipart] + phasechange) % 70;
       }
     }
+    
+  } else{
+    if (!l1ts->empty()) {
+      if ((*l1ts)[0].lastResync() != 0) {
+        orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;
+      }
+      
+      if (_lastResync != (*l1ts)[0].lastResync()) {
+        _lastResync = (*l1ts)[0].lastResync();
+        LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync;
+      }
+      if (_lastHardReset != (*l1ts)[0].lastHardReset()) {
+        _lastHardReset = (*l1ts)[0].lastHardReset();
+        LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset;
+      }
+      if (_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
+        _lastTestEnable = (*l1ts)[0].lastTestEnable();
+        //      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
+      }
+      if (_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
+        _lastOrbitCounter0 = (*l1ts)[0].lastOrbitCounter0();
+        LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0;
+      }
+      if (_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
+        _lastEventCounter0 = (*l1ts)[0].lastEventCounter0();
+        LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0;
+      }
+      if (_lastStart != (*l1ts)[0].lastStart()) {
+        _lastStart = (*l1ts)[0].lastStart();
+        LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart;
+      }
+      
+      if (!isBadRun(iEvent.run())) {
+        phasechange = ((long long)(orbitoffset * 3564)) % 70;
+        
+        for (unsigned int ipart = 0; ipart < phases.size(); ++ipart) {
+          phases[ipart] = (_defphases[ipart] + phasechange) % 70;
+        }
+      }
+    }
+    
   }
 
   if (phases.size() < partnames.size()) {
