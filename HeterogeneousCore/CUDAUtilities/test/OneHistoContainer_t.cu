@@ -10,6 +10,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
+using namespace cms::cuda;
+
 template <typename T, int NBINS, int S, int DELTA>
 __global__ void mykernel(T const* __restrict__ v, uint32_t N) {
   assert(v);
@@ -106,7 +108,7 @@ void go() {
   constexpr int N = 12000;
   T v[N];
 
-  auto v_d = cms::cuda::make_device_unique<T[]>(N, nullptr);
+  auto v_d = make_device_unique<T[]>(N, nullptr);
   assert(v_d.get());
 
   using Hist = HistoContainer<T, NBINS, N, S>;
@@ -125,7 +127,7 @@ void go() {
     assert(v);
     cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
     assert(v_d.get());
-    cms::cuda::launch(mykernel<T, NBINS, S, DELTA>, {1, 256}, v_d.get(), N);
+    launch(mykernel<T, NBINS, S, DELTA>, {1, 256}, v_d.get(), N);
   }
 }
 

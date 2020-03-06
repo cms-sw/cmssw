@@ -6,16 +6,18 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
+using namespace cms::cuda;
+
 template <typename T>
 struct format_traits {
 public:
-  static const constexpr char* failed_msg = "failed %d %d %d: %d %d\n";
+  static const constexpr char *failed_msg = "failed %d %d %d: %d %d\n";
 };
 
-template<>
+template <>
 struct format_traits<float> {
 public:
-  static const constexpr char* failed_msg = "failed %d %d %d: %f %f\n";
+  static const constexpr char *failed_msg = "failed %d %d %d: %f %f\n";
 };
 
 template <typename T>
