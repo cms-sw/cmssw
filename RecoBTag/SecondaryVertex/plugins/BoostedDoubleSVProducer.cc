@@ -92,7 +92,6 @@ private:
   reco::V0Filter trackPairV0Filter;
   reco::TrackSelector trackSelector;
 
-  bool useWeights_;
   edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
   edm::Handle<edm::ValueMap<float>> weightsHandle_;
 
@@ -131,13 +130,7 @@ BoostedDoubleSVProducer::BoostedDoubleSVProducer(const edm::ParameterSet& iConfi
       maxDecayLen_(iConfig.getParameter<edm::ParameterSet>("trackSelection").getParameter<double>("maxDecayLen")),
       trackPairV0Filter(iConfig.getParameter<edm::ParameterSet>("trackPairV0Filter")),
       trackSelector(iConfig.getParameter<edm::ParameterSet>("trackSelection")) {
-  std::string label = iConfig.getParameter<edm::InputTag>("svTagInfos").label();
-  if (label.find("Puppi") != std::string::npos) {
-    useWeights_ = true;
-    // This check will not fire on updatedPatJetsSlimmedDeepFlavour, updatedPatJetsSlimmedAK8DeepTags. Is that what we want?
-    // For backward compatibility PUPPI weight is only applied to particleFlow candidates but not to PackedCandidates.
-  }
-  if (useWeights_)
+  if (iConfig.existsAs<edm::InputTag>("weights"))
     weightsToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"));
   produces<std::vector<reco::BoostedDoubleSVTagInfo>>();
 }
@@ -161,7 +154,7 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<std::vector<reco::CandSecondaryVertexTagInfo>> svTagInfos;
   iEvent.getByToken(svTagInfos_, svTagInfos);
 
-  if (useWeights_)
+  if (!weightsToken_.isUninitialized())
     iEvent.getByToken(weightsToken_, weightsHandle_);
 
   // create the output collection
@@ -673,8 +666,16 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
                   << "Jet constituent required for N-subjettiness computation contains Nan/Inf values!";
               continue;
             }
-            if (useWeights_) {
-              auto w = (*weightsHandle_)[constit];
+            if (subjet->isWeighted()) {
+              pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
+              float w = 0.0;
+              if (pPC)
+                 w = 1.0; // For backward compatibility PUPPI weight is not applied to PackedCandidates.
+              else
+                if (!weightsToken_.isUninitialized())
+                  w = (*weightsHandle_)[constit];
+                else
+                  throw cms::Exception("MissingConstituentWeight") << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
               fjParticles.push_back(
                   fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
             } else
@@ -691,8 +692,16 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
               << "Jet constituent required for N-subjettiness computation contains Nan/Inf values!";
           continue;
         }
-        if (useWeights_) {
-          auto w = (*weightsHandle_)[daughter];
+        if (jet->isWeighted()) {
+          pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(daughter.get());
+          float w = 0.0;
+          if (pPC)
+            w = 1.0; // For backward compatibility PUPPI weight is not applied to PackedCandidates.
+          else
+            if (!weightsToken_.isUninitialized())
+              w = (*weightsHandle_)[daughter];
+            else
+              throw cms::Exception("MissingConstituentWeight") << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
           fjParticles.push_back(
               fastjet::PseudoJet(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w));
         } else
