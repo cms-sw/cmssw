@@ -94,26 +94,25 @@ private:
 //
 // constructors and destructor
 //
-APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::ParameterSet& iConfig)
-    : _l1abccollectionToken(
-          mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
-      _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
-      _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
-      _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
-      _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
-      _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos", false)),
-      m_rhm(consumesCollector()),
-      _hbx(nullptr),
-      _hdbx(nullptr),
-      _hdorbit(nullptr),
+APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::ParameterSet& iConfig):
+  _l1abccollectionToken(mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
+  _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
+  _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
+  _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
+  _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
+  _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos", false)),
+  m_rhm(consumesCollector()),
+  _hbx(nullptr),
+  _hdbx(nullptr),
+  _hdorbit(nullptr),
       _firstgoodrun(110878),
-      _offsets(),
-      _curroffset(0),
-      _curroffevent(0) {
+  _offsets(),
+  _curroffset(0),
+  _curroffevent(0) {
   produces<APVCyclePhaseCollection, edm::InEvent>();
-
+  
   //now do what ever other initialization is needed
-
+  
   if (_wantHistos) {
     _hbx = m_rhm.makeTH1F("l1abcbx", "BX number from TCDS (or L1ABC as fallback)", 4096, -0.5, 4095.5);
     _hdbx = m_rhm.makeTH1F("dbx", "BX number difference", 4096 * 2 - 1, -4095.5, 4095.5);
@@ -187,33 +186,34 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
   int phasechange = 0;
 
   if (iEvent.run() >= _firstgoodrun) {
+    Handle<L1AcceptBunchCrossingCollection> pIn;
+    iEvent.getByToken(_l1abccollectionToken, pIn);
     Handle<TCDSRecord> tcds_pIn;
     iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
     const auto& tcdsRecord = *tcds_pIn.product();
-    Handle<L1AcceptBunchCrossingCollection> pIn;
-    iEvent.getByToken(_l1abccollectionToken, pIn);
-
+    bool useTCDS(tcds_pIn.product());
     // offset computation
 
     long long orbitoffset = _orbitoffsetSOR;
     int bxoffset = 0;
-
-    try {
+    
+    
+    
+    if(useTCDS){
       orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
-      bxoffset =
-          iEvent.bunchCrossing() -
-          tcdsRecord
-              .getBXID();  // In EventWithHistoryProducerFromL1ABC, it's -1\times this, following the corresponding L1ABC line below. I keep this difference here, because I am not sure if it should be kept or not
-      // If I understand correctly, tcdsRecord has no eventType thing, so the control done for l1abc can be safely skipped
-      if (_wantHistos) {
-        if (_hbx && *_hbx)
-          (*_hbx)->Fill(tcdsRecord.getBXID());
-        if (_hdbx && *_hdbx)
-          (*_hdbx)->Fill(bxoffset);
-        if (_hdorbit && *_hdorbit)
-          (*_hdorbit)->Fill(orbitoffset);
+      bxoffset = iEvent.bunchCrossing() - tcdsRecord.getBXID();  // In EventWithHistoryProducerFromL1ABC, it's -1\times this, following the corresponding L1ABC line below. I keep this difference here, because I am not sure if it should be kept or not
+      // If I understand correctly, tcdsRecord has no l1AcceptOffset thing, so the control done for l1abc can be safely skipped
+      if(tcdsRecord.getEventType() !=0){
+        if (_wantHistos) {
+          if (_hbx && *_hbx)
+            (*_hbx)->Fill(tcdsRecord.getBXID());
+          if (_hdbx && *_hdbx)
+            (*_hdbx)->Fill(bxoffset);
+          if (_hdorbit && *_hdorbit)
+            (*_hdorbit)->Fill(orbitoffset);
+        }
       }
-    } catch (...) {
+    } else{
       for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
         if (l1abc->l1AcceptOffset() == 0) {
           if (l1abc->eventType() != 0) {
@@ -255,9 +255,9 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
           edm::LogInfo("L1AcceptBunchCrossingAbsoluteBXOffsetChanged")
               << "Absolute BX offset changed from " << _curroffset << " to " << absbxoffset << " at orbit "
               << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
-          try {
-            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord;  // Not sure about this
-          } catch (...) {
+          if(useTCDS){
+            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord; // Not sure about this
+          } else{
             for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
               edm::LogVerbatim("L1AcceptBunchCrossingAbsoluteBXOffsetChanged") << *l1abc;
             }
