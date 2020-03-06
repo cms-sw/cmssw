@@ -38,7 +38,7 @@ from RecoBTag.Configuration.RecoBTag_cff import *
 #local reconstruction
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
-from RecoCTPPS.Configuration.recoCTPPS_cff import *
+from RecoPPS.Configuration.recoCTPPS_cff import *
 #
 # new tau configuration
 #
