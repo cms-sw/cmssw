@@ -53,7 +53,9 @@ qualityStatistics = DQMEDAnalyzer("SiStripQualityStatistics",
                                   )
 
 # Sequence #
-seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+from Configuration.StandardSequences.SimL1EmulatorRepack_Full_cff import unpackTcds
+
+seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*unpackTcds*consecutiveHEs)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
@@ -68,7 +70,7 @@ HLTPixelActivityFilterForSiStripCalZeroBias = HLTrigger.special.hltPixelActivity
 HLTPixelActivityFilterForSiStripCalZeroBias.maxClusters = 500
 HLTPixelActivityFilterForSiStripCalZeroBias.inputTag    = 'siPixelClusters'
 
-seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*unpackTcds*consecutiveHEs)
 
 #Specify we want to use our other sequence 
 (pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(seqALCARECOSiStripCalZeroBias,

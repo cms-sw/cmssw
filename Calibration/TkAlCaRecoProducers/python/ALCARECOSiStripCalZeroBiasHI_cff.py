@@ -59,4 +59,5 @@ qualityStatistics = DQMEDAnalyzer("SiStripQualityStatistics",
                                   )
 
 # Sequence #
-seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+from Configuration.StandardSequences.SimL1EmulatorRepack_Full_cff import unpackTcds
+seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*unpackTcds*consecutiveHEs)
