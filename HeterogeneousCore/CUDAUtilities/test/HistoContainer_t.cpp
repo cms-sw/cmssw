@@ -7,6 +7,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
+using namespace cms::cuda;
+
 template <typename T, int NBINS = 128, int S = 8 * sizeof(T), int DELTA = 1000>
 void go() {
   std::mt19937 eng;

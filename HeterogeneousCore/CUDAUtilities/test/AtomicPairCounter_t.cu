@@ -3,6 +3,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
+using namespace cms::cuda;
+
 __global__ void update(AtomicPairCounter *dc, uint32_t *ind, uint32_t *cont, uint32_t n) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= n)
