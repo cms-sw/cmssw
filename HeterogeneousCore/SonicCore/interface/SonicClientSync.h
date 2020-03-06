@@ -8,28 +8,26 @@
 
 #include <exception>
 
-template <typename InputT, typename OutputT=InputT>
-class SonicClientSync : public SonicClientBase, public SonicClientTypes<InputT,OutputT> {
-	public:
-		virtual ~SonicClientSync() {}
+template <typename InputT, typename OutputT = InputT>
+class SonicClientSync : public SonicClientBase, public SonicClientTypes<InputT, OutputT> {
+public:
+  virtual ~SonicClientSync() {}
 
-		//main operation
-		void predict(edm::WaitingTaskWithArenaHolder holder) override final {
-			holder_ = std::move(holder);
-			setStartTime();
+  //main operation
+  void predict(edm::WaitingTaskWithArenaHolder holder) override final {
+    holder_ = std::move(holder);
+    setStartTime();
 
-			std::exception_ptr eptr;
-			try {
-				predictImpl();
-			}
-			catch(...) {
-				eptr = std::current_exception();
-			}
+    std::exception_ptr eptr;
+    try {
+      predictImpl();
+    } catch (...) {
+      eptr = std::current_exception();
+    }
 
-			//sync Client calls holder at the end
-			finish(eptr);
-		}		
+    //sync Client calls holder at the end
+    finish(eptr);
+  }
 };
 
 #endif
-
