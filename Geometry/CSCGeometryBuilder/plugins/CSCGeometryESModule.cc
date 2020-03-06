@@ -7,7 +7,7 @@
 // \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
 //         Created:  Thu, 05 March 2020 
 //   
-//         Old DD version author: Tim Cox
+//         Original author: Tim Cox
 */
 #include "CSCGeometryESModule.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"

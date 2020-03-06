@@ -7,7 +7,7 @@
 // \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
 //         Created:  Thu, 05 March 2020 
 //   
-//         Old DD version author: Tim Cox
+//         Original author: Tim Cox
 */
 #include "CSCGeometryParsFromDD.h"
 
@@ -35,6 +35,8 @@
 
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+
+#include "DataFormats/Math/interface/Rounding.h"
 
 using namespace std;
 using namespace cms_units::operators;
@@ -103,7 +105,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
     uparvals.clear();
     LogDebug(myName) << "size of spec=" << spec.size();
 
-    // if the specs are made no need to get all this crap!
+    // if the specs are made no need to get all this stuff!
     int chamberType = CSCChamberSpecs::whatChamberType(jstation, jring);
 
     LogDebug(myName) << "Chamber Type: " << chamberType;
@@ -115,7 +117,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
       }
     }
     if (ct < rdp.pChamberType.size() && rdp.pChamberType[ct] == chamberType) {
-      // it was found, therefore no need to load all the intermediate crap from DD.
+      // it was found, therefore no need to load all the intermediate stuff from DD.
       LogDebug(myName) << "already found a " << chamberType << " at index " << ct;
 
       chSpecsAlreadyExist = true;
@@ -158,7 +160,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
         }
       }
 
-      /** crap: using a constructed wg to deconstruct it and put it in db... alternative?
+      /** stuff: using a constructed wg to deconstruct it and put it in db... alternative?
 	  use temporary (not wg!) storage.
 	  
 	  format as inserted is best documented by the actualy emplace_back statements below.
@@ -184,7 +186,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
         uparvals.emplace_back(*it);
       }
 
-      /** end crap **/
+      /** end stuff **/
     }
 
     fpar.clear();
@@ -194,45 +196,13 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
       const DDSubtraction& second = first.solidA();
       const DDSolid& third = second.solidA();
       dpar = third.parameters();
-      if (std::abs(dpar[0]) < 1.0e-7)
-        dpar[0] = 0;
-      if (std::abs(dpar[1]) < 1.0e-7)
-        dpar[1] = 0;
-      if (std::abs(dpar[2]) < 1.0e-7)
-        dpar[2] = 0;
-      if (std::abs(dpar[3]) < 1.0e-7)
-        dpar[3] = 0;
-      if (std::abs(dpar[4]) < 1.0e-7)
-        dpar[4] = 0;
-      if (std::abs(dpar[5]) < 1.0e-7)
-        dpar[5] = 0;
-      if (std::abs(dpar[6]) < 1.0e-7)
-        dpar[6] = 0;
-      if (std::abs(dpar[7]) < 1.0e-7)
-        dpar[7] = 0;
-      if (std::abs(dpar[8]) < 1.0e-7)
-        dpar[8] = 0;
+      std::transform(
+          dpar.begin(), dpar.end(), dpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
     } else {
       dpar = fv.logicalPart().solid().parameters();
-      if (std::abs(dpar[0]) < 1.0e-7)
-        dpar[0] = 0;
-      if (std::abs(dpar[1]) < 1.0e-7)
-        dpar[1] = 0;
-      if (std::abs(dpar[2]) < 1.0e-7)
-        dpar[2] = 0;
-      if (std::abs(dpar[3]) < 1.0e-7)
-        dpar[3] = 0;
-      if (std::abs(dpar[4]) < 1.0e-7)
-        dpar[4] = 0;
-      if (std::abs(dpar[5]) < 1.0e-7)
-        dpar[5] = 0;
-      if (std::abs(dpar[6]) < 1.0e-7)
-        dpar[6] = 0;
-      if (std::abs(dpar[7]) < 1.0e-7)
-        dpar[7] = 0;
-      if (std::abs(dpar[8]) < 1.0e-7)
-        dpar[8] = 0;
+      std::transform(
+          dpar.begin(), dpar.end(), dpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
     }
 
     LogTrace(myName) << myName << ": noOfAnonParams=" << noOfAnonParams;
@@ -302,38 +272,14 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
 
         // detid is for ME11 and that's what we're using for ME1b in the software
 
-        if (std::abs(gtran[0]) < 1.0e-7)
-          gtran[0] = 0;
-        if (std::abs(gtran[1]) < 1.0e-7)
-          gtran[1] = 0;
-        if (std::abs(gtran[2]) < 1.0e-7)
-          gtran[2] = 0;
-        if (std::abs(grmat[0]) < 1.0e-7)
-          grmat[0] = 0;
-        if (std::abs(grmat[1]) < 1.0e-7)
-          grmat[1] = 0;
-        if (std::abs(grmat[2]) < 1.0e-7)
-          grmat[2] = 0;
-        if (std::abs(grmat[3]) < 1.0e-7)
-          grmat[3] = 0;
-        if (std::abs(grmat[4]) < 1.0e-7)
-          grmat[4] = 0;
-        if (std::abs(grmat[5]) < 1.0e-7)
-          grmat[5] = 0;
-        if (std::abs(grmat[6]) < 1.0e-7)
-          grmat[6] = 0;
-        if (std::abs(grmat[7]) < 1.0e-7)
-          grmat[7] = 0;
-        if (std::abs(grmat[8]) < 1.0e-7)
-          grmat[8] = 0;
-        if (std::abs(fpar[0]) < 1.0e-7)
-          fpar[0] = 0;
-        if (std::abs(fpar[1]) < 1.0e-7)
-          fpar[1] = 0;
-        if (std::abs(fpar[2]) < 1.0e-7)
-          fpar[2] = 0;
-        if (std::abs(fpar[3]) < 1.0e-7)
-          fpar[3] = 0;
+        std::transform(gtran.begin(), gtran.end(), gtran.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+        std::transform(grmat.begin(), grmat.end(), grmat.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+        std::transform(
+            fpar.begin(), fpar.end(), fpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
         rig.insert(id, gtran, grmat, fpar);
         if (!chSpecsAlreadyExist) {
@@ -358,38 +304,15 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
             uparvals.begin() + noOfAnonParams + 1, uparvals.begin() + (2 * noOfAnonParams) + 2, uparvals.begin() + 1);
 
         CSCDetId detid1a = CSCDetId(jendcap, 1, 4, jchamber, 0);  // reset to ME1A
-        if (std::abs(gtran[0]) < 1.0e-7)
-          gtran[0] = 0;
-        if (std::abs(gtran[1]) < 1.0e-7)
-          gtran[1] = 0;
-        if (std::abs(gtran[2]) < 1.0e-7)
-          gtran[2] = 0;
-        if (std::abs(grmat[0]) < 1.0e-7)
-          grmat[0] = 0;
-        if (std::abs(grmat[1]) < 1.0e-7)
-          grmat[1] = 0;
-        if (std::abs(grmat[2]) < 1.0e-7)
-          grmat[2] = 0;
-        if (std::abs(grmat[3]) < 1.0e-7)
-          grmat[3] = 0;
-        if (std::abs(grmat[4]) < 1.0e-7)
-          grmat[4] = 0;
-        if (std::abs(grmat[5]) < 1.0e-7)
-          grmat[5] = 0;
-        if (std::abs(grmat[6]) < 1.0e-7)
-          grmat[6] = 0;
-        if (std::abs(grmat[7]) < 1.0e-7)
-          grmat[7] = 0;
-        if (std::abs(grmat[8]) < 1.0e-7)
-          grmat[8] = 0;
-        if (std::abs(fpar[0]) < 1.0e-7)
-          fpar[0] = 0;
-        if (std::abs(fpar[1]) < 1.0e-7)
-          fpar[1] = 0;
-        if (std::abs(fpar[2]) < 1.0e-7)
-          fpar[2] = 0;
-        if (std::abs(fpar[3]) < 1.0e-7)
-          fpar[3] = 0;
+
+        std::transform(gtran.begin(), gtran.end(), gtran.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+        std::transform(grmat.begin(), grmat.end(), grmat.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+        std::transform(
+            fpar.begin(), fpar.end(), fpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
         rig.insert(detid1a.rawId(), gtran, grmat, fpar);
         int chtypeA = CSCChamberSpecs::whatChamberType(1, 4);
@@ -411,39 +334,14 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
         }
 
       } else {
-        if (std::abs(gtran[0]) < 1.0e-7)
-          gtran[0] = 0;
-        if (std::abs(gtran[1]) < 1.0e-7)
-          gtran[1] = 0;
-        if (std::abs(gtran[2]) < 1.0e-7)
-          gtran[2] = 0;
-        if (std::abs(grmat[0]) < 1.0e-7)
-          grmat[0] = 0;
-        if (std::abs(grmat[1]) < 1.0e-7)
-          grmat[1] = 0;
-        if (std::abs(grmat[2]) < 1.0e-7)
-          grmat[2] = 0;
-        if (std::abs(grmat[3]) < 1.0e-7)
-          grmat[3] = 0;
-        if (std::abs(grmat[4]) < 1.0e-7)
-          grmat[4] = 0;
-        if (std::abs(grmat[5]) < 1.0e-7)
-          grmat[5] = 0;
-        if (std::abs(grmat[6]) < 1.0e-7)
-          grmat[6] = 0;
-        if (std::abs(grmat[7]) < 1.0e-7)
-          grmat[7] = 0;
-        if (std::abs(grmat[8]) < 1.0e-7)
-          grmat[8] = 0;
-        if (std::abs(fpar[0]) < 1.0e-7)
-          fpar[0] = 0;
-        if (std::abs(fpar[1]) < 1.0e-7)
-          fpar[1] = 0;
-        if (std::abs(fpar[2]) < 1.0e-7)
-          fpar[2] = 0;
-        if (std::abs(fpar[3]) < 1.0e-7)
-          fpar[3] = 0;
-
+        std::transform(gtran.begin(), gtran.end(), gtran.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+        std::transform(grmat.begin(), grmat.end(), grmat.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+        std::transform(
+            fpar.begin(), fpar.end(), fpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
         rig.insert(id, gtran, grmat, fpar);
         if (!chSpecsAlreadyExist) {
           LogDebug(myName) << " inserting chamber type " << chamberType;
@@ -501,7 +399,7 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
     CSCWireGroupPackage wg;
     uparvals.clear();
 
-    // if the specs are made no need to get all this crap!
+    // if the specs are made no need to get all this stuff!
     int chamberType = CSCChamberSpecs::whatChamberType(jstation, jring);
 
     size_t ct = 0;
@@ -578,7 +476,7 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
         uparvals.emplace_back(*it);
       }
 
-      /** end crap **/
+      /** end stuff **/
     }
 
     fpar.clear();
@@ -589,24 +487,9 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       cms::DDSolid mysolid(fv.solid());
       auto solidA = mysolid.solidA();
       std::vector<double> dpar = solidA.dimensions();
-      if (std::abs(dpar[0]) < 1.0e-7)
-        dpar[0] = 0;
-      if (std::abs(dpar[1]) < 1.0e-7)
-        dpar[1] = 0;
-      if (std::abs(dpar[2]) < 1.0e-7)
-        dpar[2] = 0;
-      if (std::abs(dpar[3]) < 1.0e-7)
-        dpar[3] = 0;
-      if (std::abs(dpar[4]) < 1.0e-7)
-        dpar[4] = 0;
-      if (std::abs(dpar[5]) < 1.0e-7)
-        dpar[5] = 0;
-      if (std::abs(dpar[6]) < 1.0e-7)
-        dpar[6] = 0;
-      if (std::abs(dpar[7]) < 1.0e-7)
-        dpar[7] = 0;
-      if (std::abs(dpar[8]) < 1.0e-7)
-        dpar[8] = 0;
+
+      std::transform(
+          dpar.begin(), dpar.end(), dpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
       fpar.emplace_back((dpar[1]));
       fpar.emplace_back((dpar[2]));
@@ -614,24 +497,9 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       fpar.emplace_back((dpar[4]));
     } else {
       dpar = fv.parameters();
-      if (std::abs(dpar[0]) < 1.0e-7)
-        dpar[0] = 0;
-      if (std::abs(dpar[1]) < 1.0e-7)
-        dpar[1] = 0;
-      if (std::abs(dpar[2]) < 1.0e-7)
-        dpar[2] = 0;
-      if (std::abs(dpar[3]) < 1.0e-7)
-        dpar[3] = 0;
-      if (std::abs(dpar[4]) < 1.0e-7)
-        dpar[4] = 0;
-      if (std::abs(dpar[5]) < 1.0e-7)
-        dpar[5] = 0;
-      if (std::abs(dpar[6]) < 1.0e-7)
-        dpar[6] = 0;
-      if (std::abs(dpar[7]) < 1.0e-7)
-        dpar[7] = 0;
-      if (std::abs(dpar[8]) < 1.0e-7)
-        dpar[8] = 0;
+
+      std::transform(
+          dpar.begin(), dpar.end(), dpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
       fpar.emplace_back((dpar[0]));
       fpar.emplace_back((dpar[1]));
@@ -670,38 +538,16 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
     if (jlayer == 0) {  // Can only build chambers if we're filtering them
 
       if (jstation == 1 && jring == 1) {
-        if (std::abs(gtran[0]) < 1.0e-7)
-          gtran[0] = 0;
-        if (std::abs(gtran[1]) < 1.0e-7)
-          gtran[1] = 0;
-        if (std::abs(gtran[2]) < 1.0e-7)
-          gtran[2] = 0;
-        if (std::abs(grmat[0]) < 1.0e-7)
-          grmat[0] = 0;
-        if (std::abs(grmat[1]) < 1.0e-7)
-          grmat[1] = 0;
-        if (std::abs(grmat[2]) < 1.0e-7)
-          grmat[2] = 0;
-        if (std::abs(grmat[3]) < 1.0e-7)
-          grmat[3] = 0;
-        if (std::abs(grmat[4]) < 1.0e-7)
-          grmat[4] = 0;
-        if (std::abs(grmat[5]) < 1.0e-7)
-          grmat[5] = 0;
-        if (std::abs(grmat[6]) < 1.0e-7)
-          grmat[6] = 0;
-        if (std::abs(grmat[7]) < 1.0e-7)
-          grmat[7] = 0;
-        if (std::abs(grmat[8]) < 1.0e-7)
-          grmat[8] = 0;
-        if (std::abs(fpar[0]) < 1.0e-7)
-          fpar[0] = 0;
-        if (std::abs(fpar[1]) < 1.0e-7)
-          fpar[1] = 0;
-        if (std::abs(fpar[2]) < 1.0e-7)
-          fpar[2] = 0;
-        if (std::abs(fpar[3]) < 1.0e-7)
-          fpar[3] = 0;
+        std::transform(gtran.begin(), gtran.end(), gtran.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+
+        std::transform(grmat.begin(), grmat.end(), grmat.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+
+        std::transform(
+            fpar.begin(), fpar.end(), fpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
         rig.insert(id, gtran, grmat, fpar);
         if (!chSpecsAlreadyExist) {
@@ -725,38 +571,17 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
             uparvals.begin() + noOfAnonParams + 1, uparvals.begin() + (2 * noOfAnonParams) + 2, uparvals.begin() + 1);
 
         CSCDetId detid1a = CSCDetId(jendcap, 1, 4, jchamber, 0);  // reset to ME1A
-        if (std::abs(gtran[0]) < 1.0e-7)
-          gtran[0] = 0;
-        if (std::abs(gtran[1]) < 1.0e-7)
-          gtran[1] = 0;
-        if (std::abs(gtran[2]) < 1.0e-7)
-          gtran[2] = 0;
-        if (std::abs(grmat[0]) < 1.0e-7)
-          grmat[0] = 0;
-        if (std::abs(grmat[1]) < 1.0e-7)
-          grmat[1] = 0;
-        if (std::abs(grmat[2]) < 1.0e-7)
-          grmat[2] = 0;
-        if (std::abs(grmat[3]) < 1.0e-7)
-          grmat[3] = 0;
-        if (std::abs(grmat[4]) < 1.0e-7)
-          grmat[4] = 0;
-        if (std::abs(grmat[5]) < 1.0e-7)
-          grmat[5] = 0;
-        if (std::abs(grmat[6]) < 1.0e-7)
-          grmat[6] = 0;
-        if (std::abs(grmat[7]) < 1.0e-7)
-          grmat[7] = 0;
-        if (std::abs(grmat[8]) < 1.0e-7)
-          grmat[8] = 0;
-        if (std::abs(fpar[0]) < 1.0e-7)
-          fpar[0] = 0;
-        if (std::abs(fpar[1]) < 1.0e-7)
-          fpar[1] = 0;
-        if (std::abs(fpar[2]) < 1.0e-7)
-          fpar[2] = 0;
-        if (std::abs(fpar[3]) < 1.0e-7)
-          fpar[3] = 0;
+
+        std::transform(gtran.begin(), gtran.end(), gtran.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+
+        std::transform(grmat.begin(), grmat.end(), grmat.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+
+        std::transform(
+            fpar.begin(), fpar.end(), fpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
         rig.insert(detid1a.rawId(), gtran, grmat, fpar);
         int chtypeA = CSCChamberSpecs::whatChamberType(1, 4);
@@ -777,38 +602,17 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
         }
 
       } else {
-        if (std::abs(gtran[0]) < 1.0e-7)
-          gtran[0] = 0;
-        if (std::abs(gtran[1]) < 1.0e-7)
-          gtran[1] = 0;
-        if (std::abs(gtran[2]) < 1.0e-7)
-          gtran[2] = 0;
-        if (std::abs(grmat[0]) < 1.0e-7)
-          grmat[0] = 0;
-        if (std::abs(grmat[1]) < 1.0e-7)
-          grmat[1] = 0;
-        if (std::abs(grmat[2]) < 1.0e-7)
-          grmat[2] = 0;
-        if (std::abs(grmat[3]) < 1.0e-7)
-          grmat[3] = 0;
-        if (std::abs(grmat[4]) < 1.0e-7)
-          grmat[4] = 0;
-        if (std::abs(grmat[5]) < 1.0e-7)
-          grmat[5] = 0;
-        if (std::abs(grmat[6]) < 1.0e-7)
-          grmat[6] = 0;
-        if (std::abs(grmat[7]) < 1.0e-7)
-          grmat[7] = 0;
-        if (std::abs(grmat[8]) < 1.0e-7)
-          grmat[8] = 0;
-        if (std::abs(fpar[0]) < 1.0e-7)
-          fpar[0] = 0;
-        if (std::abs(fpar[1]) < 1.0e-7)
-          fpar[1] = 0;
-        if (std::abs(fpar[2]) < 1.0e-7)
-          fpar[2] = 0;
-        if (std::abs(fpar[3]) < 1.0e-7)
-          fpar[3] = 0;
+        std::transform(gtran.begin(), gtran.end(), gtran.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+
+        std::transform(grmat.begin(), grmat.end(), grmat.begin(), [](double i) -> double {
+          return cms_rounding::roundIfNear0(i);
+        });
+
+        std::transform(
+            fpar.begin(), fpar.end(), fpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
+
         rig.insert(id, gtran, grmat, fpar);
         if (!chSpecsAlreadyExist) {
           rdp.pChamberType.emplace_back(chamberType);
