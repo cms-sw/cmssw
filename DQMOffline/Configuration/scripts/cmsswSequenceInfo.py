@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import re
 import time
 import shutil
@@ -12,6 +13,7 @@ from multiprocessing.pool import ThreadPool
 
 Sequence = namedtuple("Sequence", ["seqname", "step", "era", "scenario", "mc", "data", "fast"])
 
+# We use two global thread pools, to avoid submitting from one Pool into itself.
 tp = ThreadPool()
 stp = ThreadPool()
 
@@ -24,8 +26,8 @@ INFILE = "/store/data/Run2018A/EGamma/RAW/v1/000/315/489/00000/004D960A-EA4C-E81
 # Modules that will be loaded but do not come from the DQM Sequence.
 BLACKLIST='^(TriggerResults|.*_step|DQMoutput|siPixelDigis)$'
 
-# HARVESTING does not work for now, since the jobs crash at the end. this should be easy to work around, somehow.
-RELEVANTSTEPS = ["DQM", "VALIDATION"]
+# Set later from commandline args
+RELEVANTSTEPS = []
 
 @functools.lru_cache(maxsize=None)
 def inspectsequence(seq):
@@ -34,10 +36,18 @@ def inspectsequence(seq):
     sep = ""
   otherstep = ""
   if seq.step != "HARVESTING":
+    # cmsDriver refuses to run some steps on their own, so we add this to them
+    # only loading a single module that we can blacklist later
     otherstep = "RAW2DIGI:siPixelDigis,"
 
   wd = tempfile.mkdtemp()
 
+  # Provide a fake GDB to prevent it from running if cmsRun crashes. It would not hurt to have it run but it takes forever.
+  with open(wd + "/gdb", "w"):
+    pass
+  os.chmod(wd + "/gdb", 0o700)
+  env = os.environ.copy()
+  env["PATH"] = wd + ":" + env["PATH"]
 
   # run cmsdriver
   driverargs = [
@@ -60,7 +70,13 @@ def inspectsequence(seq):
   subprocess.check_call(driverargs, cwd=wd, stdout=2) # 2: STDERR
 
   # run cmsRun to get module list
-  tracedump = subprocess.check_output(["cmsRun", "cmssw_cfg.py"], stderr=subprocess.STDOUT, cwd=wd)
+  proc = subprocess.Popen(["cmsRun", "cmssw_cfg.py"], stderr=subprocess.STDOUT, stdout=subprocess.PIPE, cwd=wd, env=env)
+  tracedump, _ = proc.communicate()
+  # for HARVESTING, the code in endJob makes most jobs crash. But that is fine,
+  # we have the data we need by then.
+  if proc.returncode and seq.step != "HARVESTING":
+    raise Exception("cmsRun failed for cmsDriver command %s" % driverargs)
+
   lines = tracedump.splitlines()
   labelre = re.compile(b"[+]+ starting: constructing module with label '(\w+)'")
   blacklistre = re.compile(BLACKLIST)
@@ -86,7 +102,7 @@ def inspectsequence(seq):
   inconfig = None
   for line in lines:
     if inconfig:
-      modconfig[inconfig] += line
+      modconfig[inconfig] += b'\n' + line
       if line == b')':
         inconfig = None
       continue
@@ -103,22 +119,28 @@ def inspectsequence(seq):
   # run edmPluginHelp to get module properties
   plugininfo = tp.map(getplugininfo, modclass.values())
 
+  # clean up the temp dir in the end.
   shutil.rmtree(wd)
 
   return modconfig, modclass, dict(plugininfo)
 
+# using a cache here to avoid running the (rather slow) edmPluginHelp multiple
+# times for the same module (e.g. across different wf).
 @functools.lru_cache(maxsize=None)
 def getplugininfo(pluginname):
   plugindump = subprocess.check_output(["edmPluginHelp", "-p", pluginname])
   line = plugindump.splitlines()[0].decode()
+  # we care only about the edm base class for now.
   pluginre = re.compile(".* " + pluginname + ".*[(]((\w+)::)?(\w+)[)]")
   m = pluginre.match(line)
   if not m:
+    # this should never happen, but sometimes the Tracer does report things that are not actually plugins. 
     return (pluginname, ("", ""))
   else:
     return (pluginname, (m.group(2), m.group(3)))
 
 def formatsequenceinfo(modconfig, modclass, plugininfo, showlabel, showclass, showtype, showconfig):
+  # printing for command-line use.
   out = []
   for label in modclass.keys():
     row = []
@@ -134,6 +156,8 @@ def formatsequenceinfo(modconfig, modclass, plugininfo, showlabel, showclass, sh
   for row in sorted(set(out)):
     print("\t".join(row))
 
+# DB schema for the HTML based browser. The Sequence members are kept variable
+# to make adding new fields easy.
 SEQFIELDS = ",".join(Sequence._fields)
 SEQPLACEHOLDER = ",".join(["?" for f in Sequence._fields]) 
 DBSCHEMA = f"""
@@ -159,8 +183,10 @@ def storesequenceinfo(seq, modconfig, modclass, plugininfo):
       return
 
     cur.execute("BEGIN;")
+    # dump everything into a temp table first... 
     cur.execute("CREATE TEMP TABLE newmodules(instancename, classname, config);")
     cur.executemany("INSERT INTO newmodules VALUES (?, ?, ?)", ((label, modclass[label], modconfig[label]) for label in modconfig))
+    # ... then deduplicate and version the configs in plain SQL. 
     cur.execute("""
       INSERT OR IGNORE INTO module(classname, instancename, variation, config) 
       SELECT classname, instancename, 
@@ -168,7 +194,9 @@ def storesequenceinfo(seq, modconfig, modclass, plugininfo):
         config FROM newmodules;
     """)
 
+    # the plugin base is rather easy.
     cur.executemany("INSERT OR IGNORE INTO plugin VALUES (?, ?, ?);", ((plugin, edm[0], edm[1]) for plugin, edm in plugininfo.items()))
+    # for the sequence we first insert, then query for the ID, then insert the modules into the relation table.
     cur.execute(f"INSERT OR FAIL INTO sequence({SEQFIELDS}) VALUES({SEQPLACEHOLDER});", (seq))
     seqid = list(cur.execute(f"SELECT id FROM sequence WHERE ({SEQFIELDS}) = ({SEQPLACEHOLDER});", (seq)))
     seqid = seqid[0][0]
@@ -185,21 +213,31 @@ def storeworkflows(seqs):
     cur.execute("COMMIT;")
 
 def inspectworkflows(wfnumber):
-  # dump steps
+  # here, we run runTheMatrix and then parse the cmsDriver command lines.
+  # Not very complicated, but a bit of work.
+
+  # Collect the workflow number where we detected each sequence here, so we can
+  # put this data into the DB later.
   sequences = defaultdict(list)
+
   if wfnumber:
     stepdump = subprocess.check_output(["runTheMatrix.py", "-l", str(wfnumber), "-ne"])
   else:
     stepdump = subprocess.check_output(["runTheMatrix.py", "-ne"])
+
   lines = stepdump.splitlines()
   workflow = ""
   workflowre = re.compile(b"^([0-9]+.[0-9]+) ")
   for line in lines:
+    # if it is a workflow header: save the number.
     m = workflowre.match(line)
     if m:
       workflow = m.group(1).decode()
       continue
+
+    # else, we only care about cmsDriver commands.
     if not b'cmsDriver.py' in line: continue
+
     args = list(reversed(line.decode().split(" ")))
     step = ""
     scenario = ""
@@ -225,6 +263,7 @@ def inspectworkflows(wfnumber):
     for step in steps:
       s = step.split(":")[0]
       if s in RELEVANTSTEPS:
+        # Special case for the default sequence, which is noted as "STEP", not "STEP:".
         if ":" in step:
           seqs = step.split(":")[1]
           for seq in seqs.split("+"):
@@ -237,6 +276,8 @@ def processseqs(seqs):
   # launch one map_async per element to get finer grain tasks
   tasks = [stp.map_async(lambda seq: (seq, inspectsequence(seq)), [seq]) for seq in seqs]
 
+  # then watch te progress and write to DB as results become available.
+  # That way all the DB access is single-threaded but in parallel with the analysis.
   while tasks:
     time.sleep(1)
     running = []
@@ -255,6 +296,7 @@ def processseqs(seqs):
     tasks = running
 
 
+# A small HTML UI built around http.server. No dependencies!
 def serve():
   import traceback
   import http.server
@@ -262,7 +304,9 @@ def serve():
   db = sqlite3.connect(DBFILE)
 
   def formatseq(seq):
-    return seq.step + ":" + seq.seqname + " " + seq.era + " " + seq.scenario + (" --mc" if seq.mc else "") + (" --data" if seq.data else "") + (" --fast" if seq.fast else "")
+    return (seq.step + ":" + seq.seqname + " " + seq.era + " " + seq.scenario 
+      + (" --mc" if seq.mc else "") + (" --data" if seq.data else "") 
+      + (" --fast" if seq.fast else ""))
 
   def index():
     out = []
@@ -290,19 +334,26 @@ def serve():
     return out
 
   def showseq(step, seqname):
+    # display set of sequences sharing a name, also used on the index page.
     out = []
     cur = db.cursor()
     out.append(f'   <a href="/seq/{step}:{seqname}/">{step}:{seqname}</a>')
+    # this is much more complicated than it should be since we don't keep
+    # track which sequences have equal contents in the DB. So the deduplication
+    # has to happen in Python code.
     rows = cur.execute(f"SELECT {SEQFIELDS}, moduleid, id  FROM sequence INNER JOIN sequencemodule ON sequenceid = id WHERE seqname = ? and step = ?;", (seqname, step))
+
     seqs = defaultdict(list)
     ids = dict()
     for row in rows:
       seq = Sequence(*row[:-2])
       seqs[seq].append(row[-2])
       ids[seq] = row[-1]
+
     variations = defaultdict(list)
     for seq, mods in seqs.items():
       variations[tuple(sorted(mods))].append(seq)
+
     out.append("    <ul>")
     for mods, seqs in variations.items():
       count = len(mods)
@@ -310,6 +361,7 @@ def serve():
       for seq in seqs:
         seqid = ids[seq]
         out.append(f'<br><a href="/seqid/{seqid}">' + formatseq(seq) + '</a>')
+        # This query in a loop is rather slow, but this got complictated enough, so YOLO.
         rows = cur.execute("SELECT wfid FROM workflow WHERE sequenceid = ?;", (seqid,))
         out.append(f'<em>Used on workflows: ' + ", ".join(wfid for wfid, in rows) + "</em>")
       out.append('      </li>')
@@ -317,6 +369,7 @@ def serve():
     return out
 
   def showseqid(seqid):
+    # display a single, unique sequence.
     seqid = int(seqid)
     out = []
     cur = db.cursor()
@@ -337,9 +390,13 @@ def serve():
     return out
 
   def showclass(classname):
+    # display all known instances of a class and where they are used.
+    # this suffers a bit from the fact that fully identifying a sequence is 
+    # rather hard, we just show step/name here.
     out = []
     out.append(f"<h2>Plugin {classname}</h2>")
     cur = db.cursor()
+    # First, info about the class iself.
     rows = cur.execute("SELECT edmfamily, edmbase FROM plugin WHERE classname = ?;", (classname,))
     edmfamily, edmbase = list(rows)[0]
     islegcay = not edmfamily
@@ -348,9 +405,10 @@ def serve():
     out.append("""<p>A module with a given label can have different configuration depending on options such as Era,
       Scenario, Data vs. MC etc. If multiple configurations for the same name were found, they are listed separately
       here and denoted using subscripts.</p>""")
-    if (edmbase != "EDProducer" and not (islegcay and edmfamily == "EDAnalyzer")) or (islegcay and edmbase == "EDProducer"):
+    if (edmbase != "EDProducer" and not (islegcay and edmbase == "EDAnalyzer")) or (islegcay and edmbase == "EDProducer"):
       out.append(f"<p>This is not a DQM module.</p>")
 
+    # then, its instances.
     rows = cur.execute("""
       SELECT module.id, instancename, variation, sequenceid, step, seqname 
       FROM module INNER JOIN sequencemodule ON moduleid = module.id INNER JOIN sequence ON sequence.id == sequenceid
@@ -368,16 +426,16 @@ def serve():
     return out
 
   def showconfig(modid):
+    # finally, just dump the config of a specific module. Useful to do "diff" on it.
     modid = int(modid)
     out = []
     cur = db.cursor()
     rows = cur.execute(f"SELECT config FROM module WHERE id = ?;", (modid,))
     config = list(rows)[0][0]
     out.append("<pre>")
-    out.append(config.decode().replace(",", ",\n"))
+    out.append(config.decode())
     out.append("</pre>")
     return out
-
 
   ROUTES = [
     (re.compile('/$'), index),
@@ -387,6 +445,7 @@ def serve():
     (re.compile('/plugin/(.*)/$'), showclass),
   ]
 
+  # the server boilerplate.
   class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
       try:
@@ -424,6 +483,7 @@ def serve():
   httpd = http.server.HTTPServer(server_address, Handler)
   httpd.serve_forever()
 
+
 if __name__ == "__main__":
 
   import argparse
@@ -431,12 +491,13 @@ if __name__ == "__main__":
   parser.add_argument("--sequence", default="", help="Name of the sequence")
   parser.add_argument("--step", default="DQM", help="cmsDriver step that the sequence applies to")
   parser.add_argument("--era", default="Run2_2018", help="CMSSW Era to use")
-  parser.add_argument("--scenario", default="pp", help="cmsCriver scenario")
+  parser.add_argument("--scenario", default="pp", help="cmsDriver scenario")
   parser.add_argument("--data", default=False, action="store_true", help="Pass --data to cmsDriver.")
   parser.add_argument("--mc", default=False, action="store_true", help="Pass --mc to cmsDriver.")
   parser.add_argument("--fast", default=False, action="store_true", help="Pass --fast to cmsDriver.")
   parser.add_argument("--workflow", default=None, help="Ignore other options and inspect this workflow instead (implies --sqlite).")
   parser.add_argument("--runTheMatrix", default=False, action="store_true", help="Ignore other options and inspect the full matrix instea (implies --sqlite).")
+  parser.add_argument("--steps", default="ALCA,DQM,HARVESTING,VALIDATION", help="Which workflow steps to inspect from runTheMatrix.")
   parser.add_argument("--sqlite", default=False, action="store_true", help="Write information to SQLite DB instead of stdout.")
   parser.add_argument("--showpluginlabel", default=False, action="store_true", help="Print the module label for each plugin (default).")
   parser.add_argument("--showplugintype", default=False, action="store_true", help="Print the base class for each plugin.")
@@ -446,33 +507,25 @@ if __name__ == "__main__":
 
   args = parser.parse_args()
 
+  RELEVANTSTEPS += args.steps.split(",")
 
   if args.serve:
     serve()
-  elif args.workflow:
+  elif args.workflow or args.runTheMatrix:
+    # the default workflow None is a magic value for inspectworkflows.
     seqs = inspectworkflows(args.workflow)
     seqset = set(sum(seqs.values(), []))
     print("Analyzing %d seqs..." % len(seqset))
     processseqs(seqset)
     storeworkflows(seqs)
-
-  elif args.runTheMatrix:
-    seqs = inspectworkflows(None)
-    seqset = set(sum(seqs.values(), []))
-    print("Analyzing %d seqs..." % len(seqset))
-    processseqs(seqset)
-    storeworkflows(seqs)
-
   else:
+    # single sequence with arguments from commandline...
     seq = Sequence(args.sequence, args.step, args.era, args.scenario, args.mc, args.data, args.fast)
     modconfig, modclass, plugininfo = inspectsequence(seq)
-
-    #modconfig = {"AAna": b"blib", "BAna": b"blaub"}
-    #modclass = {"AAna": "DQMA", "BAna": "DQMB"}
-    #plugininfo = {"DQMA": ("legacy", "EDAnalyzer"), "DQMB": ("one", "EDProducer")}
     if args.sqlite:
       storesequenceinfo(seq, modconfig, modclass, plugininfo)
     else:
+      # ... and output to stdout.
       if not (args.showpluginlabel or args.showpluginclass or args.showplugintype or args.showpluginconfig):
         args.showpluginlabel = True
       formatsequenceinfo(modconfig, modclass, plugininfo, args.showpluginlabel, args.showpluginclass, args.showplugintype,  args.showpluginconfig)
