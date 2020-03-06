@@ -8,7 +8,7 @@ The `SonicEDProducer` class template extends the basic Stream producer module in
 
 To implement a concrete derived producer class, the following skeleton can be used:
 ```cpp
-#include "SonicCMS/Core/interface/SonicEDProducer.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicEDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 class MyProducer : public SonicEDProducer<Client>
@@ -58,11 +58,11 @@ To add a new communication protocol for SONIC, follow these steps:
 
 To implement a concrete client, the following skeleton can be used for the `.h` file, with the function implementations in an associated `.cc` file:
 ```cpp
-#ifndef SonicCMS_MyPackage_MyClient
-#define SonicCMS_MyPackage_MyClient
+#ifndef HeterogeneousCore_MyPackage_MyClient
+#define HeterogeneousCore_MyPackage_MyClient
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SonicCMS/Core/interface/SonicClient*.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClient*.h"
 
 class MyClient : public SonicClient*<Input,Output> {
 	public:

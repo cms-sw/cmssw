@@ -1,5 +1,5 @@
-#ifndef SonicCMS_Core_SonicEDProducer
-#define SonicCMS_Core_SonicEDProducer
+#ifndef HeterogeneousCore_SonicCore_SonicEDProducer
+#define HeterogeneousCore_SonicCore_SonicEDProducer
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"

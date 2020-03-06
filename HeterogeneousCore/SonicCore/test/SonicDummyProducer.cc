@@ -1,5 +1,5 @@
 #include "DummyClient.h"
-#include "SonicCMS/Core/interface/SonicEDProducer.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicEDProducer.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

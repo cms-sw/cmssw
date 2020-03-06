@@ -1,10 +1,10 @@
-#ifndef SonicCMS_Core_SonicClientAsync
-#define SonicCMS_Core_SonicClientAsync
+#ifndef HeterogeneousCore_SonicCore_SonicClientAsync
+#define HeterogeneousCore_SonicCore_SonicClientAsync
 
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 
-#include "SonicCMS/Core/interface/SonicClientBase.h"
-#include "SonicCMS/Core/interface/SonicClientTypes.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientBase.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientTypes.h"
 
 template <typename InputT, typename OutputT=InputT>
 class SonicClientAsync : public SonicClientBase, public SonicClientTypes<InputT,OutputT> {
