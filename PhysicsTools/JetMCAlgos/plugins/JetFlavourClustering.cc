@@ -333,11 +333,11 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
         float w = 0.0;
         if (pPC)
           w = pPC->puppiWeight();
+        else if (!weightsToken_.isUninitialized())
+          w = (*weights)[constit];
         else
-          if (!weightsToken_.isUninitialized())
-            w = (*weights)[constit];
-          else
-            throw cms::Exception("MissingConstituentWeight") << "JetFlavourClustering: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+          throw cms::Exception("MissingConstituentWeight")
+              << "JetFlavourClustering: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
         fjInputs.push_back(
             fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
       } else {
