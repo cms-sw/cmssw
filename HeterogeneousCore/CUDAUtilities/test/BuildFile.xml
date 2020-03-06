@@ -8,7 +8,7 @@
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
-<bin file="test_GPUSimpleVector.cu" name="test_GPUSimpleVector">
+<bin file="test_SimpleVector.cu" name="test_SimpleVector">
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
