@@ -1,9 +1,9 @@
-#ifndef SonicCMS_Core_SonicClientPseudoAsync
-#define SonicCMS_Core_SonicClientPseudoAsync
+#ifndef HeterogeneousCore_SonicCore_SonicClientPseudoAsync
+#define HeterogeneousCore_SonicCore_SonicClientPseudoAsync
 
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
-#include "SonicCMS/Core/interface/SonicClientBase.h"
-#include "SonicCMS/Core/interface/SonicClientTypes.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientBase.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientTypes.h"
 
 #include <memory>
 #include <condition_variable>

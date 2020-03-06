@@ -1,11 +1,11 @@
-#ifndef SonicCMS_Core_test_DummyClient
-#define SonicCMS_Core_test_DummyClient
+#ifndef HeterogeneousCore_SonicCore_test_DummyClient
+#define HeterogeneousCore_SonicCore_test_DummyClient
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "SonicCMS/Core/interface/SonicClientSync.h"
-#include "SonicCMS/Core/interface/SonicClientPseudoAsync.h"
-#include "SonicCMS/Core/interface/SonicClientAsync.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientSync.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientPseudoAsync.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientAsync.h"
 
 #include <vector>
 #include <thread>

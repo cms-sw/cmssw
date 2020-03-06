@@ -1,5 +1,5 @@
-#ifndef SonicCMS_Core_SonicClientBase
-#define SonicCMS_Core_SonicClientBase
+#ifndef HeterogeneousCore_SonicCore_SonicClientBase
+#define HeterogeneousCore_SonicCore_SonicClientBase
 
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

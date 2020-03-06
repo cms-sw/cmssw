@@ -1,5 +1,5 @@
-#ifndef SonicCMS_Core_SonicClientTypes
-#define SonicCMS_Core_SonicClientTypes
+#ifndef HeterogeneousCore_SonicCore_SonicClientTypes
+#define HeterogeneousCore_SonicCore_SonicClientTypes
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

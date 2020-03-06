@@ -1,10 +1,10 @@
-#ifndef SonicCMS_Core_SonicClientSync
-#define SonicCMS_Core_SonicClientSync
+#ifndef HeterogeneousCore_SonicCore_SonicClientSync
+#define HeterogeneousCore_SonicCore_SonicClientSync
 
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 
-#include "SonicCMS/Core/interface/SonicClientBase.h"
-#include "SonicCMS/Core/interface/SonicClientTypes.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientBase.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClientTypes.h"
 
 #include <exception>
 
