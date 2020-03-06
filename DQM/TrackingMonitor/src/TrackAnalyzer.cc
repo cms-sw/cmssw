@@ -36,6 +36,7 @@ namespace {
   }
 }  // namespace
 
+using namespace tadqm;
 TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     : conf_(nullptr),
       stateName_(iConfig.getParameter<std::string>("MeasurementState")),
@@ -2435,14 +2436,4 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
     it->second.NumberOfLayersPerTrackVsEta->Fill(eta, nValidLayers);
     it->second.NumberOfLayersPerTrackVsPt->Fill(pt, nValidLayers);
   }
-}
-//
-// -- Apply Reset
-//
-void TrackAnalyzer::doReset() {
-  TkParameterMEs tkmes;
-  if (Chi2oNDF_lumiFlag)
-    Chi2oNDF_lumiFlag->Reset();
-  if (NumberOfRecHitsPerTrack_lumiFlag)
-    NumberOfRecHitsPerTrack_lumiFlag->Reset();
 }
