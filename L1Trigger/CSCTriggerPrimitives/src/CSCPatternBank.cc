@@ -54,7 +54,7 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
     // pid=2: right-bending (large)
     {
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-        {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
         {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
         {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
