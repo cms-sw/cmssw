@@ -215,7 +215,6 @@ private:
 //
 JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
     :
-
       jetsToken_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       bHadronsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("bHadrons"))),
       cHadronsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("cHadrons"))),
@@ -237,7 +236,6 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
 {
   // register your products
   produces<reco::JetFlavourInfoMatchingCollection>();
-  std::string label = iConfig.getParameter<edm::InputTag>("jets").label();
   if (iConfig.existsAs<edm::InputTag>("weights"))
     weightsToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"));
 
