@@ -16,14 +16,17 @@ namespace ticl {
     PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache);
     ~PatternRecognitionbyCA() override;
 
-    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input, std::vector<Trackster>& result) override;
+    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input, std::vector<Trackster>& result,  std::map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
     void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
-
+    void emptyTrackstersFromSeedsTRK(std::vector<Trackster> & tracksters,
+      std::map<int, std::vector<int>>& seedToTracksterAssociation,
+      const edm::ProductID& collectionID) const;
   private:
     void mergeTrackstersTRK(const std::vector<Trackster>&,
                             const std::vector<reco::CaloCluster>&,
-                            std::vector<Trackster>&) const;
+                            std::vector<Trackster>&, 
+                            std::map<int, std::vector<int>>& seedToTracksterAssociation) const;
     const std::unique_ptr<HGCGraph> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool out_in_dfs_;
