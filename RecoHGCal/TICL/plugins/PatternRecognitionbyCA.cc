@@ -45,7 +45,8 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, co
 PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
 
 void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input,
-                                            std::vector<Trackster> &result) {
+                                            std::vector<Trackster> &result, 
+                                            std::map<int, std::vector<int>>& seedToTracksterAssociation) {
   rhtools_.getEventSetup(input.es);
 
   theGraph_->setVerbosity(algo_verbosity_);
@@ -53,6 +54,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   if (algo_verbosity_ > None) {
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
+
+  bool isRegionalIter = (input.regions[0].collectionID != edm::ProductID{0,0});
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   std::vector<int> seedIndices;
   std::vector<uint8_t> layer_cluster_usage(input.layerClusters.size(), 0);
@@ -129,6 +132,10 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     //if a seeding region does not lead to any trackster
     tmp.seedID = input.regions[0].collectionID;
     tmp.seedIndex = seedIndices[tracksterId];
+    if(isRegionalIter) 
+    {
+      seedToTracksterAssociation[tmp.seedIndex].push_back(tracksterId);
+    }
 
     std::pair<float, float> timeTrackster(-99., -1.);
     hgcalsimclustertime::ComputeClusterTime timeEstimator;
@@ -153,7 +160,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   // Now decide if the tracksters from the track-based iterations have to be merged
   if (oneTracksterPerTrackSeed_) {
     std::vector<Trackster> tmp;
-    mergeTrackstersTRK(result, input.layerClusters, tmp);
+    mergeTrackstersTRK(result, input.layerClusters, tmp, seedToTracksterAssociation);
     tmp.swap(result);
   }
 
@@ -161,6 +168,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
+  emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
+
   if (algo_verbosity_ > Advanced) {
     for (auto &trackster : result) {
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
@@ -175,43 +184,65 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
 
 void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> &input,
                                                 const std::vector<reco::CaloCluster> &layerClusters,
-                                                std::vector<Trackster> &output) const {
-  std::map<int, int> seedIndices;
+                                                std::vector<Trackster> &output, 
+                                                std::map<int, std::vector<int>>& seedToTracksterAssociation) const {
 
   output.reserve(input.size());
-
-  for (auto const &t : input) {
-    if (seedIndices.find(t.seedIndex) != seedIndices.end()) {
-      if (algo_verbosity_ > Basic) {
-        LogDebug("HGCPatternRecoByCA") << "Seed index: " << t.seedIndex
-                                       << " already used by trackster: " << seedIndices[t.seedIndex] << std::endl;
+  for (auto& thisSeed : seedToTracksterAssociation)
+  {
+    auto& tracksters = thisSeed.second;
+    if(!tracksters.empty())
+    {
+      auto numberOfTrackstersInSeed = tracksters.size();
+      output.emplace_back(input[tracksters[0]]);
+      auto& outTrackster = output.back();
+      tracksters[0] = output.size()-1;
+      auto updated_size = outTrackster.vertices.size();
+      for(unsigned int j = 1; j<numberOfTrackstersInSeed; ++j)
+      {
+        auto& thisTrackster = input[tracksters[j]];
+        updated_size += thisTrackster.vertices.size();
+        if (algo_verbosity_ > Basic) {
+          LogDebug("HGCPatternRecoByCA") << "Updated size: " << updated_size << std::endl;
+        }  
+        outTrackster.vertices.reserve(updated_size);
+        outTrackster.vertex_multiplicity.reserve(updated_size);
+        std::copy(std::begin(thisTrackster.vertices),
+          std::end(thisTrackster.vertices),
+          std::back_inserter(outTrackster.vertices)
+          );
+        std::copy(std::begin(thisTrackster.vertex_multiplicity),
+          std::end(thisTrackster.vertex_multiplicity),
+          std::back_inserter(outTrackster.vertex_multiplicity)
+          );
       }
-      auto &old = output[seedIndices[t.seedIndex]];
-      auto updated_size = old.vertices.size();
-      if (algo_verbosity_ > Basic) {
-        LogDebug("HGCPatternRecoByCA") << "Old size: " << updated_size << std::endl;
-      }
-      updated_size += t.vertices.size();
-      if (algo_verbosity_ > Basic) {
-        LogDebug("HGCPatternRecoByCA") << "Updatd size: " << updated_size << std::endl;
-      }
-      old.vertices.reserve(updated_size);
-      old.vertex_multiplicity.reserve(updated_size);
-      std::copy(std::begin(t.vertices), std::end(t.vertices), std::back_inserter(old.vertices));
-      std::copy(std::begin(t.vertex_multiplicity),
-                std::end(t.vertex_multiplicity),
-                std::back_inserter(old.vertex_multiplicity));
-    } else {
-      if (algo_verbosity_ > Basic) {
-        LogDebug("HGCPatternRecoByCA") << "Passing down trackster " << output.size()
-                                       << " with seedIndex: " << t.seedIndex << std::endl;
-      }
-      seedIndices[t.seedIndex] = output.size();
-      output.push_back(t);
+      tracksters.resize(1);
     }
   }
-
   output.shrink_to_fit();
+}
+
+
+void PatternRecognitionbyCA::emptyTrackstersFromSeedsTRK(std::vector<Trackster> & tracksters,
+    std::map<int, std::vector<int>>& seedToTracksterAssociation,
+    const edm::ProductID& collectionID) const
+{
+  for (auto& thisSeed : seedToTracksterAssociation)
+  {
+    if(thisSeed.second.empty())
+    {
+      Trackster t;
+      t.regressed_energy = 0.f;
+      for (float &p : t.id_probabilities) {
+          p = 0.f;
+      }
+      t.id_probabilities[4] = 1.f;
+      t.seedID = collectionID;
+      t.seedIndex = thisSeed.first;
+      tracksters.emplace_back(t);
+      thisSeed.second.emplace_back(tracksters.size()-1);
+    }
+  }
 }
 
 void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
