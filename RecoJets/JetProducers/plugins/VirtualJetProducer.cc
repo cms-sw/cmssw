@@ -700,7 +700,6 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
     // fill jets
     for (unsigned int ijet = 0; ijet < fjJets_.size(); ++ijet) {
       auto& jet = (*jets)[ijet];
-      jet.setIsWeighted(applyWeight_);
 
       // get the fastjet jet
       const fastjet::PseudoJet& fjJet = fjJets_[ijet];
@@ -724,6 +723,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
             jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup);
       phiJ[ijet] = jet.phi();
       etaJ[ijet] = jet.eta();
+      jet.setIsWeighted(applyWeight_);
     }
 
     // calcuate the jet area
