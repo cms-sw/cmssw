@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <boost/function.hpp>
+#include <functional>
 
 template <typename DigiCollection>
 class TestEcalDigi : public CppUnit::TestFixture {
@@ -162,7 +162,7 @@ namespace {
 
   // an alternative way
   void iterate(EcalDigiCollection const& frames) {
-    boost::function<void(edm::DataFrame::id_type)> verifyId;
+    std::function<void(edm::DataFrame::id_type)> verifyId;
     if (frames.subdetId() == EcalBarrel)
       verifyId = verifyBarrelId;
     else if (frames.subdetId() == EcalEndcap)
