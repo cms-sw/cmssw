@@ -7,8 +7,7 @@
 
 #include <vector>
 #include <algorithm>
-
-#include <functional> //Replacing boost
+#include <functional>
 
 template <typename DigiCollection>
 class TestEcalDigi : public CppUnit::TestFixture {
