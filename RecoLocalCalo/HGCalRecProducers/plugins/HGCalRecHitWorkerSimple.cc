@@ -61,6 +61,10 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
     rcorrNose_.push_back(1.0 / corr);
   }
 
+  regionalemfactors = ps.getParameter<bool>("regionalemfactors");
+  deltasi_index_regemfac = ps.getParameter<int>("deltasi_index_regemfac");
+  scint_index_regemfac = ps.getParameter<int>("scint_index_regemfac");
+
   hgcEE_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCEE_noise_fC").getParameter<std::vector<double> >("values");
   hgcEE_cce_ = ps.getParameter<edm::ParameterSet>("HGCEE_cce").getParameter<std::vector<double> >("values");
   hgcHEF_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCHEF_noise_fC").getParameter<std::vector<double> >("values");
@@ -146,7 +150,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
         case HGCHEF:
           idtype = hgcfh;
           thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
-          break;
+	  break;
         case HcalEndcap:
           [[fallthrough]];
         case HGCHEB:
@@ -170,8 +174,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
     case hgcfh:
       rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
       cce_correction = hgcHEF_cce_[thickness - 1];
-      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness] * hgcHEF_noise_fC_[thickness - 1] /
-                      hgcHEF_fCPerMIP_[thickness - 1];
+      sigmaNoiseGeV = ( regionalemfactors ? 1e-3 * weights_[layer] * rcorr_[thickness+deltasi_index_regemfac] * hgcHEF_noise_fC_[thickness - 1] : 1e-3 * weights_[layer] * rcorr_[thickness] * hgcHEF_noise_fC_[thickness - 1] ) / hgcHEF_fCPerMIP_[thickness - 1];
       break;
     case hgcbh:
       rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
@@ -193,7 +196,14 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   double new_E = myrechit.energy();
   if (detid.det() == DetId::Forward && detid.subdetId() == ForwardSubdetector::HFNose) {
     new_E *= (thickness == -1 ? 1.0 : rcorrNose_[thickness]) / cce_correction;
-  } else {
+  } //regional factors for silicon in CE_H 
+  else if (regionalemfactors && idtype == hgcfh){
+    new_E *= rcorr_[thickness+deltasi_index_regemfac] / cce_correction;
+  } //regional factors for scintillator
+  else if (regionalemfactors && idtype == hgcbh){
+    new_E *= rcorr_[scint_index_regemfac];
+  } //older scheme with only 3 thickness correction factors.  
+  else {
     new_E *= (thickness == -1 ? 1.0 : rcorr_[thickness]) / cce_correction;
   }
 
