@@ -159,7 +159,7 @@ namespace tensorflow {
     return createSession(metaGraphDef, exportDir, sessionOptions);
   }
 
-  Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions) {
+  Session* createSession(const GraphDef* graphDef, SessionOptions& sessionOptions) {
     // check for valid pointer
     if (graphDef == nullptr) {
       throw cms::Exception("InvalidGraphDef") << "error while creating session: graphDef is nullptr";
@@ -185,7 +185,7 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(GraphDef* graphDef, int nThreads) {
+  Session* createSession(const GraphDef* graphDef, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);

@@ -2,6 +2,7 @@
 <use name="FWCore/MessageLogger"/>
 <library file="*.cc" name="RecoBTagONNXRuntimePlugins">
   <use name="DataFormats/BTauReco"/>
+  <use name="RecoBTag/FeatureTools"/>
   <use name="PhysicsTools/ONNXRuntime"/>
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -16,7 +16,18 @@
 #include <string>
 #include <memory>
 
+// currently ONNXRUNTIME only supports x86 and ARM
+#if defined(__arm__) || defined(__aarch64__) || defined(__x86_64__) || defined(__i386__)
+#define CMS_USE_ONNXRUNTIME
+#endif
+
+#ifdef CMS_USE_ONNXRUNTIME
 #include "onnxruntime/core/session/onnxruntime_cxx_api.h"
+#else
+namespace Ort {
+  struct SessionOptions {};
+}  // namespace Ort
+#endif
 
 namespace cms::Ort {
 
@@ -48,6 +59,7 @@ namespace cms::Ort {
     // The 0th dim depends on the batch size, therefore is set to -1
     const std::vector<int64_t>& getOutputShape(const std::string& output_name) const;
 
+#ifdef CMS_USE_ONNXRUNTIME
   private:
     static const ::Ort::Env env_;
     std::unique_ptr<::Ort::Session> session_;
@@ -59,6 +71,7 @@ namespace cms::Ort {
     std::vector<std::string> output_node_strings_;
     std::vector<const char*> output_node_names_;
     std::map<std::string, std::vector<int64_t>> output_node_dims_;
+#endif
   };
 
 }  // namespace cms::Ort

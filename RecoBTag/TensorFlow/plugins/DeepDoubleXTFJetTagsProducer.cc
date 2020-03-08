@@ -14,21 +14,19 @@
 #include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
 #include "RecoBTag/FeatureTools/interface/tensor_fillers.h"
 
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 #include <algorithm>
 
-using namespace cms::Ort;
-
-class DeepDoubleXONNXJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class DeepDoubleXTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<tensorflow::GraphDef>> {
 public:
-  explicit DeepDoubleXONNXJetTagsProducer(const edm::ParameterSet&, const ONNXRuntime*);
-  ~DeepDoubleXONNXJetTagsProducer() override;
+  explicit DeepDoubleXTFJetTagsProducer(const edm::ParameterSet&, const tensorflow::GraphDef*);
+  ~DeepDoubleXTFJetTagsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const ONNXRuntime*);
+  static std::unique_ptr<tensorflow::GraphDef> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const tensorflow::GraphDef*);
 
 private:
   typedef std::vector<reco::DeepDoubleXTagInfo> TagInfoCollection;
@@ -49,37 +47,61 @@ private:
   constexpr static unsigned n_features_cpf_ = 8;
   constexpr static unsigned n_sv_ = 5;
   constexpr static unsigned n_features_sv_ = 2;
-  const static std::vector<unsigned> input_sizes_;
+  const static std::vector<tensorflow::TensorShape> input_shapes_;
 
   // hold the input data
-  FloatArrays data_;
+  tensorflow::NamedTensorList data_;
+  // session for TF evaluation
+  tensorflow::Session* session_ = nullptr;
 };
 
-const std::vector<unsigned> DeepDoubleXONNXJetTagsProducer::input_sizes_{
-    n_features_global_, n_cpf_* n_features_cpf_, n_sv_* n_features_sv_};
+const std::vector<tensorflow::TensorShape> DeepDoubleXTFJetTagsProducer::input_shapes_{
+    {1, n_features_global_},
+    {1, n_cpf_, n_features_cpf_},
+    {1, n_sv_, n_features_sv_},
+};
 
-DeepDoubleXONNXJetTagsProducer::DeepDoubleXONNXJetTagsProducer(const edm::ParameterSet& iConfig,
-                                                               const ONNXRuntime* cache)
+DeepDoubleXTFJetTagsProducer::DeepDoubleXTFJetTagsProducer(const edm::ParameterSet& iConfig,
+                                                           const tensorflow::GraphDef* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
       output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
+  assert(input_names_.size() == input_shapes_.size());
+  for (const auto& name : input_names_) {
+    data_.emplace_back(name, tensorflow::Tensor());
+  }
+
+  // get threading config and build session options
+  size_t nThreads = iConfig.getParameter<unsigned int>("nThreads");
+  std::string singleThreadPool = iConfig.getParameter<std::string>("singleThreadPool");
+  tensorflow::SessionOptions sessionOptions;
+  tensorflow::setThreading(sessionOptions, nThreads, singleThreadPool);
+
+  // create the session using the meta graph from the cache
+  session_ = tensorflow::createSession(cache, sessionOptions);
+
   // get output names from flav_names
   for (const auto& flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
   }
-
-  assert(input_names_.size() == input_sizes_.size());
 }
 
-DeepDoubleXONNXJetTagsProducer::~DeepDoubleXONNXJetTagsProducer() {}
+DeepDoubleXTFJetTagsProducer::~DeepDoubleXTFJetTagsProducer() {
+  // close and delete the session
+  if (session_ != nullptr) {
+    tensorflow::closeSession(session_);
+  }
+}
 
-void DeepDoubleXONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfDeepDoubleBvLJetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
   desc.add<std::vector<std::string>>("input_names", {"input_1", "input_2", "input_3"});
-  desc.add<std::vector<std::string>>("output_names", {});
+  desc.add<std::vector<std::string>>("output_names", {"ID_pred/Softmax"});
+  desc.add<unsigned int>("nThreads", 1);
+  desc.add<std::string>("singleThreadPool", "no_threads");
 
   using FIP = edm::FileInPath;
   using PDFIP = edm::ParameterDescription<edm::FileInPath>;
@@ -87,32 +109,36 @@ void DeepDoubleXONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
   using PDCases = edm::ParameterDescriptionCases<std::string>;
   auto flavorCases = [&]() {
     return "BvL" >> (PDPSD("flav_names", std::vector<std::string>{"probQCD", "probHbb"}, true) and
-                     PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB.onnx"), true)) or
+                     PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB.pb"), true)) or
            "CvL" >> (PDPSD("flav_names", std::vector<std::string>{"probQCD", "probHcc"}, true) and
-                     PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.onnx"), true)) or
+                     PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"), true)) or
            "CvB" >> (PDPSD("flav_names", std::vector<std::string>{"probHbb", "probHcc"}, true) and
-                     PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.onnx"), true));
+                     PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"), true));
   };
   auto descBvL(desc);
   descBvL.ifValue(edm::ParameterDescription<std::string>("flavor", "BvL", true), flavorCases());
-  descriptions.add("pfDeepDoubleBvLONNXJetTags", descBvL);
+  descriptions.add("pfDeepDoubleBvLTFJetTags", descBvL);
 
   auto descCvL(desc);
   descCvL.ifValue(edm::ParameterDescription<std::string>("flavor", "CvL", true), flavorCases());
-  descriptions.add("pfDeepDoubleCvLONNXJetTags", descCvL);
+  descriptions.add("pfDeepDoubleCvLTFJetTags", descCvL);
 
   auto descCvB(desc);
   descCvB.ifValue(edm::ParameterDescription<std::string>("flavor", "CvB", true), flavorCases());
-  descriptions.add("pfDeepDoubleCvBONNXJetTags", descCvB);
+  descriptions.add("pfDeepDoubleCvBTFJetTags", descCvB);
 }
 
-std::unique_ptr<ONNXRuntime> DeepDoubleXONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
-  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
+std::unique_ptr<tensorflow::GraphDef> DeepDoubleXTFJetTagsProducer::initializeGlobalCache(
+    const edm::ParameterSet& iConfig) {
+  // set the tensorflow log level to error
+  tensorflow::setLogging("3");
+  return std::unique_ptr<tensorflow::GraphDef>(
+      tensorflow::loadGraphDef(iConfig.getParameter<edm::FileInPath>("model_path").fullPath()));
 }
 
-void DeepDoubleXONNXJetTagsProducer::globalEndJob(const ONNXRuntime* cache) {}
+void DeepDoubleXTFJetTagsProducer::globalEndJob(const tensorflow::GraphDef* cache) {}
 
-void DeepDoubleXONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void DeepDoubleXTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
@@ -129,12 +155,14 @@ void DeepDoubleXONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
     auto batch_size = std::count_if(
         tag_infos->begin(), tag_infos->end(), [](const auto& taginfo) { return !taginfo.features().empty(); });
 
-    std::vector<float> outputs;
+    std::vector<tensorflow::Tensor> outputs;
     if (batch_size > 0) {
       // init data storage
-      data_.clear();
-      for (const auto& len : input_sizes_) {
-        data_.emplace_back(batch_size * len, 0);
+      for (unsigned i = 0; i < input_names_.size(); ++i) {
+        auto shape = input_shapes_[i];
+        shape.set_dim(0, batch_size);
+        data_[i].second = tensorflow::Tensor(tensorflow::DT_FLOAT, shape);
+        data_[i].second.flat<float>().setZero();
       }
 
       // convert inputs
@@ -147,20 +175,21 @@ void DeepDoubleXONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
       }
 
       // run prediction
-      outputs = globalCache()->run(input_names_, data_, output_names_, batch_size)[0];
-      assert(outputs.size() == flav_names_.size() * batch_size);
+      tensorflow::run(session_, data_, output_names_, &outputs);
     }
 
     // get the outputs
-    unsigned i_output = 0;
+    unsigned idx = 0;
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto& taginfo = tag_infos->at(jet_n);
       const auto& jet_ref = taginfo.jet();
-      for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
-        if (!taginfo.features().empty()) {
-          (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
-          ++i_output;
-        } else {
+      if (!taginfo.features().empty()) {
+        for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
+          (*(output_tags[flav_n]))[jet_ref] = outputs.at(0).matrix<float>()(idx, flav_n);
+        }
+        ++idx;
+      } else {
+        for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
           (*(output_tags[flav_n]))[jet_ref] = -1.;
         }
       }
@@ -178,25 +207,24 @@ void DeepDoubleXONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
   }
 }
 
-void DeepDoubleXONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::DeepDoubleXTagInfo& taginfo) {
+void DeepDoubleXTFJetTagsProducer::make_inputs(unsigned i_jet, const reco::DeepDoubleXTagInfo& taginfo) {
   const auto& features = taginfo.features();
-  unsigned offset = 0;
 
   // DoubleB features
-  offset = i_jet * input_sizes_[kGlobal];
-  btagbtvdeep::db_tensor_filler(&data_[kGlobal][offset], features, n_features_global_);
+  btagbtvdeep::db_tensor_filler(&data_[kGlobal].second.matrix<float>()(i_jet, 0), features, n_features_global_);
 
   // c_pf candidates
-  offset = i_jet * input_sizes_[kChargedCandidates];
   auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t)n_cpf_);
-  btagbtvdeep::c_pf_reduced_tensor_filler(
-      &data_[kChargedCandidates][offset], max_c_pf_n, features.c_pf_features, n_features_cpf_);
+  btagbtvdeep::c_pf_reduced_tensor_filler(&data_[kChargedCandidates].second.tensor<float, 3>()(i_jet, 0, 0),
+                                          max_c_pf_n,
+                                          features.c_pf_features,
+                                          n_features_cpf_);
 
   // sv candidates
-  offset = i_jet * input_sizes_[kVertices];
   auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)n_sv_);
-  btagbtvdeep::sv_reduced_tensor_filler(&data_[kVertices][offset], max_sv_n, features.sv_features, n_features_sv_);
+  btagbtvdeep::sv_reduced_tensor_filler(
+      &data_[kVertices].second.tensor<float, 3>()(i_jet, 0, 0), max_sv_n, features.sv_features, n_features_sv_);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DeepDoubleXONNXJetTagsProducer);
+DEFINE_FWK_MODULE(DeepDoubleXTFJetTagsProducer);

@@ -1,6 +1,4 @@
-from RecoBTag.ONNXRuntime.pfDeepDoubleBvLJetTags_cfi import pfDeepDoubleBvLJetTags
-from RecoBTag.ONNXRuntime.pfDeepDoubleCvBJetTags_cfi import pfDeepDoubleCvBJetTags
-from RecoBTag.ONNXRuntime.pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTags
-
-from RecoBTag.ONNXRuntime.pfMassIndependentDeepDoubleXJetTags_cff import *
+from RecoBTag.FeatureTools.pfDeepDoubleXTagInfos_cfi import pfDeepDoubleXTagInfos
+from RecoBTag.ONNXRuntime.pfDeepDoubleXJetTags_cfi import pfDeepDoubleBvLJetTags, pfDeepDoubleCvBJetTags, pfDeepDoubleCvLJetTags, \
+    pfMassIndependentDeepDoubleBvLJetTags, pfMassIndependentDeepDoubleCvLJetTags, pfMassIndependentDeepDoubleCvBJetTags
 

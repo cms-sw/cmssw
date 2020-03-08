@@ -162,7 +162,7 @@ void DeepBoostedJetONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescr
                                      });
   desc.addOptionalUntracked<bool>("debugMode", false);
 
-  descriptions.add("pfDeepBoostedJetTags", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 std::unique_ptr<ONNXRuntime> DeepBoostedJetONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {

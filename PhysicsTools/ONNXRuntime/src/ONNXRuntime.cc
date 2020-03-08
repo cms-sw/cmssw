@@ -19,9 +19,12 @@ namespace cms::Ort {
 
   using namespace ::Ort;
 
+#ifdef CMS_USE_ONNXRUNTIME
   const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_WARNING, "");
+#endif
 
   ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
+#ifdef CMS_USE_ONNXRUNTIME
     // create session
     if (session_options) {
       session_.reset(new Session(env_, model_path.c_str(), *session_options));
@@ -76,6 +79,7 @@ namespace cms::Ort {
       // the 0th dim depends on the batch size
       output_node_dims_[output_name].at(0) = -1;
     }
+#endif
   }
 
   ONNXRuntime::~ONNXRuntime() {}
@@ -84,6 +88,7 @@ namespace cms::Ort {
                                FloatArrays& input_values,
                                const std::vector<std::string>& output_names,
                                int64_t batch_size) const {
+#ifdef CMS_USE_ONNXRUNTIME
     assert(input_names.size() == input_values.size());
     assert(batch_size > 0);
 
@@ -142,23 +147,34 @@ namespace cms::Ort {
     assert(outputs.size() == run_output_node_names.size());
 
     return outputs;
+#else
+    throw cms::Exception("RuntimeError") << "ONNXRuntime does not support the current architecture";
+#endif
   }
 
   const std::vector<std::string>& ONNXRuntime::getOutputNames() const {
+#ifdef CMS_USE_ONNXRUNTIME
     if (session_) {
       return output_node_strings_;
     } else {
-      throw cms::Exception("RuntimeError") << "Needs to call createSession() first before getting the output names!";
+      throw cms::Exception("RuntimeError") << "ONNXRuntime session is not initialized!";
     }
+#else
+    throw cms::Exception("RuntimeError") << "ONNXRuntime does not support the current architecture";
+#endif
   }
 
   const std::vector<int64_t>& ONNXRuntime::getOutputShape(const std::string& output_name) const {
+#ifdef CMS_USE_ONNXRUNTIME
     auto iter = output_node_dims_.find(output_name);
     if (iter == output_node_dims_.end()) {
       throw cms::Exception("RuntimeError") << "Output name " << output_name << " is invalid!";
     } else {
       return iter->second;
     }
+#else
+    throw cms::Exception("RuntimeError") << "ONNXRuntime does not support the current architecture";
+#endif
   }
 
 } /* namespace cms::Ort */

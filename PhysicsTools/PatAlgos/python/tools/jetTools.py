@@ -281,6 +281,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             process.load("RecoBTag.CTagging.cTagging_EventSetup_cff")
     import RecoBTag.Configuration.RecoBTag_cff as btag
     import RecoJets.JetProducers.caTopTaggers_cff as toptag
+    from RecoBTag.ONNXRuntime.SwitchProducerONNX import SwitchProducerONNX
 
     if tightBTagNTkHits:
         if not runIVF:
@@ -716,6 +717,15 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     newDiscr,
                     getattr(btag, btagDiscr).clone(
                         src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                    ),
+                    process,
+                    task
+                )
+            elif isinstance(getattr(btag, btagDiscr), SwitchProducerONNX):
+                addToProcessAndTask(
+                    newDiscr,
+                    getattr(btag, btagDiscr).cloneAll(
+                        src = btagPrefix + supportedBtagDiscr[discriminator_name][0][0] + labelName + postfix
                     ),
                     process,
                     task

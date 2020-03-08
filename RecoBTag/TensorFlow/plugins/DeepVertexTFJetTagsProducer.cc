@@ -16,7 +16,7 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-#include "RecoBTag/TensorFlow/interface/tensor_fillers.h"
+#include "RecoBTag/FeatureTools/interface/tensor_fillers.h"
 
 // Declaration of the data structure that is hold by the edm::GlobalCache.
 // In TensorFlow, the computational graph is stored in a stateless graph object which can be shared
@@ -265,7 +265,7 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
         continue;
       }
 
-      jet4vec_tensor_filler(input_tensors.at(kGlobal).second, jet_bn, features);
+      jet4vec_tensor_filler(&input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 0), features, 4);
 
       // seed features
       auto max_seed_n =
@@ -274,9 +274,10 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
       for (std::size_t seed_n = 0; seed_n < max_seed_n; seed_n++) {
         const auto& seed_features = features.seed_features.at(seed_n);
 
-        seed_tensor_filler(input_tensors.at(kSeedingTracks).second, jet_bn, seed_n, seed_features);
+        seed_tensor_filler(
+            &input_tensors.at(kSeedingTracks).second.tensor<float, 3>()(jet_bn, seed_n, 0), seed_features, 21);
         neighbourTracks_tensor_filler(
-            input_tensors.at(kNeighbourTracks + seed_n).second, jet_bn, seed_n, seed_features);
+            &input_tensors.at(kNeighbourTracks + seed_n).second.tensor<float, 3>()(jet_n, 0, 0), seed_features, 36);
       }
 
     }  //different block

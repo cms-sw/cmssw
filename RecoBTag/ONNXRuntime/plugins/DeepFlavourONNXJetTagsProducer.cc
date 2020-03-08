@@ -12,6 +12,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
+#include "RecoBTag/FeatureTools/interface/tensor_fillers.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
@@ -64,12 +65,11 @@ DeepFlavourONNXJetTagsProducer::DeepFlavourONNXJetTagsProducer(const edm::Parame
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
       output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
+  assert(input_names_.size() == input_sizes_.size());
   // get output names from flav_names
   for (const auto& flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
   }
-
-  assert(input_names_.size() == input_sizes_.size());
 }
 
 DeepFlavourONNXJetTagsProducer::~DeepFlavourONNXJetTagsProducer() {}
@@ -85,7 +85,7 @@ void DeepFlavourONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<std::vector<std::string>>(
       "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
 
-  descriptions.add("pfDeepFlavourJetTags", desc);
+  descriptions.add("pfDeepFlavourONNXJetTags", desc);
 }
 
 std::unique_ptr<ONNXRuntime> DeepFlavourONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
@@ -147,99 +147,28 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
 
 void DeepFlavourONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo& taginfo) {
   const auto& features = taginfo.features();
-  float* ptr = nullptr;
-  const float* start = nullptr;
   unsigned offset = 0;
 
   // jet and other global features
   offset = i_jet * input_sizes_[kGlobal];
-  ptr = &data_[kGlobal][offset];
-  // jet variables
-  const auto& jet_features = features.jet_features;
-  start = ptr;
-  *ptr = jet_features.pt;
-  *(++ptr) = jet_features.eta;
-  // number of elements in different collections
-  *(++ptr) = features.c_pf_features.size();
-  *(++ptr) = features.n_pf_features.size();
-  *(++ptr) = features.sv_features.size();
-  *(++ptr) = features.npv;
-  // variables from ShallowTagInfo
-  const auto& tag_info_features = features.tag_info_features;
-  *(++ptr) = tag_info_features.trackSumJetEtRatio;
-  *(++ptr) = tag_info_features.trackSumJetDeltaR;
-  *(++ptr) = tag_info_features.vertexCategory;
-  *(++ptr) = tag_info_features.trackSip2dValAboveCharm;
-  *(++ptr) = tag_info_features.trackSip2dSigAboveCharm;
-  *(++ptr) = tag_info_features.trackSip3dValAboveCharm;
-  *(++ptr) = tag_info_features.trackSip3dSigAboveCharm;
-  *(++ptr) = tag_info_features.jetNSelectedTracks;
-  *(++ptr) = tag_info_features.jetNTracksEtaRel;
-  assert(start + n_features_global_ - 1 == ptr);
+  btagbtvdeep::jet_tensor_filler(&data_[kGlobal][offset], features, n_features_global_);
 
   // c_pf candidates
-  auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t)25);
   offset = i_jet * input_sizes_[kChargedCandidates];
-  for (std::size_t c_pf_n = 0; c_pf_n < max_c_pf_n; c_pf_n++) {
-    const auto& c_pf_features = features.c_pf_features.at(c_pf_n);
-    ptr = &data_[kChargedCandidates][offset + c_pf_n * n_features_cpf_];
-    start = ptr;
-    *ptr = c_pf_features.btagPf_trackEtaRel;
-    *(++ptr) = c_pf_features.btagPf_trackPtRel;
-    *(++ptr) = c_pf_features.btagPf_trackPPar;
-    *(++ptr) = c_pf_features.btagPf_trackDeltaR;
-    *(++ptr) = c_pf_features.btagPf_trackPParRatio;
-    *(++ptr) = c_pf_features.btagPf_trackSip2dVal;
-    *(++ptr) = c_pf_features.btagPf_trackSip2dSig;
-    *(++ptr) = c_pf_features.btagPf_trackSip3dVal;
-    *(++ptr) = c_pf_features.btagPf_trackSip3dSig;
-    *(++ptr) = c_pf_features.btagPf_trackJetDistVal;
-    *(++ptr) = c_pf_features.ptrel;
-    *(++ptr) = c_pf_features.drminsv;
-    *(++ptr) = c_pf_features.vtx_ass;
-    *(++ptr) = c_pf_features.puppiw;
-    *(++ptr) = c_pf_features.chi2;
-    *(++ptr) = c_pf_features.quality;
-    assert(start + n_features_cpf_ - 1 == ptr);
-  }
+  auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t)n_cpf_);
+  btagbtvdeep::c_pf_tensor_filler(
+      &data_[kChargedCandidates][offset], max_c_pf_n, features.c_pf_features, n_features_cpf_);
 
   // n_pf candidates
-  auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)25);
   offset = i_jet * input_sizes_[kNeutralCandidates];
-  for (std::size_t n_pf_n = 0; n_pf_n < max_n_pf_n; n_pf_n++) {
-    const auto& n_pf_features = features.n_pf_features.at(n_pf_n);
-    ptr = &data_[kNeutralCandidates][offset + n_pf_n * n_features_npf_];
-    start = ptr;
-    *ptr = n_pf_features.ptrel;
-    *(++ptr) = n_pf_features.deltaR;
-    *(++ptr) = n_pf_features.isGamma;
-    *(++ptr) = n_pf_features.hadFrac;
-    *(++ptr) = n_pf_features.drminsv;
-    *(++ptr) = n_pf_features.puppiw;
-    assert(start + n_features_npf_ - 1 == ptr);
-  }
+  auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)n_npf_);
+  btagbtvdeep::n_pf_tensor_filler(
+      &data_[kNeutralCandidates][offset], max_n_pf_n, features.n_pf_features, n_features_npf_);
 
   // sv candidates
-  auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)4);
   offset = i_jet * input_sizes_[kVertices];
-  for (std::size_t sv_n = 0; sv_n < max_sv_n; sv_n++) {
-    const auto& sv_features = features.sv_features.at(sv_n);
-    ptr = &data_[kVertices][offset + sv_n * n_features_sv_];
-    start = ptr;
-    *ptr = sv_features.pt;
-    *(++ptr) = sv_features.deltaR;
-    *(++ptr) = sv_features.mass;
-    *(++ptr) = sv_features.ntracks;
-    *(++ptr) = sv_features.chi2;
-    *(++ptr) = sv_features.normchi2;
-    *(++ptr) = sv_features.dxy;
-    *(++ptr) = sv_features.dxysig;
-    *(++ptr) = sv_features.d3d;
-    *(++ptr) = sv_features.d3dsig;
-    *(++ptr) = sv_features.costhetasvpv;
-    *(++ptr) = sv_features.enratio;
-    assert(start + n_features_sv_ - 1 == ptr);
-  }
+  auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)n_sv_);
+  btagbtvdeep::sv_tensor_filler(&data_[kVertices][offset], max_sv_n, features.sv_features, n_features_sv_);
 
   // last input: jet pt
   offset = i_jet * input_sizes_[kJetPt];

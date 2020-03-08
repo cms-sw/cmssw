@@ -2,6 +2,7 @@
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <chrono>
 #include <iostream>
@@ -27,11 +28,15 @@ void testONNXRuntime::checkAll() {
         std::vector<float>(batch_size * 2, 1),
     };
     FloatArrays outputs;
+#ifdef CMS_USE_ONNXRUNTIME
     CPPUNIT_ASSERT_NO_THROW(outputs = rt.run({"X"}, input_values, {"Y"}, batch_size));
     CPPUNIT_ASSERT(outputs.size() == 1);
     CPPUNIT_ASSERT(outputs[0].size() == batch_size);
     for (const auto &v : outputs[0]) {
       CPPUNIT_ASSERT(v == 3);
     }
+#else
+    CPPUNIT_ASSERT_THROW(rt.run({"X"}, input_values, {"Y"}, batch_size), cms::Exception);
+#endif
   }
 }
