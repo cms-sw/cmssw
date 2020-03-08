@@ -11,22 +11,18 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
-
 #endif
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-
-using namespace cms::cuda;
+using cms::cuda::AtomicPairCounter;
 
 constexpr uint32_t MaxElem = 64000;
 constexpr uint32_t MaxTk = 8000;
 constexpr uint32_t MaxAssocs = 4 * MaxTk;
-using Assoc = OneToManyAssoc<uint16_t, MaxElem, MaxAssocs>;
 
-using SmallAssoc = OneToManyAssoc<uint16_t, 128, MaxAssocs>;
-
-using Multiplicity = OneToManyAssoc<uint16_t, 8, MaxTk>;
-
+using Assoc = cms::cuda::OneToManyAssoc<uint16_t, MaxElem, MaxAssocs>;
+using SmallAssoc = cms::cuda::OneToManyAssoc<uint16_t, 128, MaxAssocs>;
+using Multiplicity = cms::cuda::OneToManyAssoc<uint16_t, 8, MaxTk>;
 using TK = std::array<uint16_t, 4>;
 
 __global__ void countMultiLocal(TK const* __restrict__ tk, Multiplicity* __restrict__ assoc, int32_t n) {
@@ -102,7 +98,7 @@ __global__ void verifyBulk(Assoc const* __restrict__ assoc, AtomicPairCounter co
 int main() {
 #ifdef __CUDACC__
   cms::cudatest::requireDevices();
-  auto current_device = currentDevice();
+  auto current_device = cms::cuda::currentDevice();
 #else
   // make sure cuda emulation is working
   std::cout << "cuda x's " << threadIdx.x << ' ' << blockIdx.x << ' ' << blockDim.x << ' ' << gridDim.x << std::endl;
@@ -169,11 +165,11 @@ int main() {
   std::cout << "filled with " << n << " elements " << double(ave) / n << ' ' << imax << ' ' << nz << std::endl;
 
 #ifdef __CUDACC__
-  auto v_d = make_device_unique<std::array<uint16_t, 4>[]>(N, nullptr);
+  auto v_d = cms::cuda::make_device_unique<std::array<uint16_t, 4>[]>(N, nullptr);
   assert(v_d.get());
-  auto a_d = make_device_unique<Assoc[]>(1, nullptr);
-  auto sa_d = make_device_unique<SmallAssoc[]>(1, nullptr);
-  auto ws_d = make_device_unique<uint8_t[]>(Assoc::wsSize(), nullptr);
+  auto a_d = cms::cuda::make_device_unique<Assoc[]>(1, nullptr);
+  auto sa_d = cms::cuda::make_device_unique<SmallAssoc[]>(1, nullptr);
+  auto ws_d = cms::cuda::make_device_unique<uint8_t[]>(Assoc::wsSize(), nullptr);
 
   cudaCheck(cudaMemcpy(v_d.get(), tr.data(), N * sizeof(std::array<uint16_t, 4>), cudaMemcpyHostToDevice));
 #else
@@ -276,8 +272,8 @@ int main() {
 
   // here verify use of block local counters
 #ifdef __CUDACC__
-  auto m1_d = make_device_unique<Multiplicity[]>(1, nullptr);
-  auto m2_d = make_device_unique<Multiplicity[]>(1, nullptr);
+  auto m1_d = cms::cuda::make_device_unique<Multiplicity[]>(1, nullptr);
+  auto m2_d = cms::cuda::make_device_unique<Multiplicity[]>(1, nullptr);
 #else
   auto m1_d = std::make_unique<Multiplicity>();
   auto m2_d = std::make_unique<Multiplicity>();
