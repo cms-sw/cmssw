@@ -56,6 +56,8 @@ protected:
   uint32_t rangeMask_;
 
   std::vector<double> rcorr_, rcorrNose_;
+  bool regionalemfactors;
+  int deltasi_index_regemfac, scint_index_regemfac;
   std::vector<float> weights_, weightsNose_;
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
   std::unique_ptr<hgcal::RecHitTools> tools_;
