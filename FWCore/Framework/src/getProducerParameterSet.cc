@@ -28,7 +28,7 @@ namespace edm {
     ParameterSet   const* iConfig      = nullptr;
     pset::Registry const* psetRegistry = pset::Registry::instance();
     for ( ProcessConfiguration const& pc : processHistory ) {
-      if ( processName != "" && processName != pc.processName() )
+      if ( !processName.empty() && processName != pc.processName() )
         continue;
       ParameterSet const* processPset = psetRegistry->getMapped( pc.parameterSetID() );
       if ( processPset && processPset->exists( moduleLabel ) )
