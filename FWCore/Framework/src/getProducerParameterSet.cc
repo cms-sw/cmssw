@@ -17,25 +17,28 @@ namespace edm {
     if (branchDescription) {
       std::string const& process = branchDescription->processName();
       std::string const& label = branchDescription->moduleLabel();
-      return getProducerParameterSet( processHistory, process, label );
+      return getProducerParameterSet(processHistory, process, label);
     }
     // This should never happen
     throw cms::Exception("LogicError") << "getProducerParameterSet failed";
     return nullptr;
   }
 
-  ParameterSet const* getProducerParameterSet(ProcessHistory const& processHistory, std::string const& processName, std::string const& moduleLabel) {
-    ParameterSet   const* iConfig      = nullptr;
+  ParameterSet const* getProducerParameterSet(ProcessHistory const& processHistory,
+                                              std::string const& processName,
+                                              std::string const& moduleLabel) {
+    ParameterSet const* iConfig = nullptr;
     pset::Registry const* psetRegistry = pset::Registry::instance();
-    for ( ProcessConfiguration const& pc : processHistory ) {
-      if ( !processName.empty() && processName != pc.processName() )
+    for (ProcessConfiguration const& pc : processHistory) {
+      if (!processName.empty() && processName != pc.processName())
         continue;
-      ParameterSet const* processPset = psetRegistry->getMapped( pc.parameterSetID() );
-      if ( processPset && processPset->exists( moduleLabel ) )
-        iConfig = &processPset->getParameterSet( moduleLabel );
+      ParameterSet const* processPset = psetRegistry->getMapped(pc.parameterSetID());
+      if (processPset && processPset->exists(moduleLabel))
+        iConfig = &processPset->getParameterSet(moduleLabel);
     }
-    if ( !iConfig )
-      throw cms::Exception("Configuration") << "Failed to find module " << moduleLabel << " in process " << processName << ".";
+    if (!iConfig)
+      throw cms::Exception("Configuration")
+          << "Failed to find module " << moduleLabel << " in process " << processName << ".";
     return iConfig;
   }
 

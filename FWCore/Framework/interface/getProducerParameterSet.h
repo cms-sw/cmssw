@@ -31,7 +31,9 @@ namespace edm {
 
   ParameterSet const* getProducerParameterSet(Provenance const& provenance, ProcessHistory const&);
 
-  ParameterSet const* getProducerParameterSet(ProcessHistory const&, std::string const& processName, std::string const& moduleLabel);
+  ParameterSet const* getProducerParameterSet(ProcessHistory const&,
+                                              std::string const& processName,
+                                              std::string const& moduleLabel);
 
 }  // namespace edm
 #endif
