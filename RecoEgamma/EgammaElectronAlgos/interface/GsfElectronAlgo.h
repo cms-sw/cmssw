@@ -46,9 +46,6 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include <list>
-#include <string>
-
 class GsfElectronAlgo {
 public:
   class HeavyObjectCache {
@@ -59,7 +56,6 @@ public:
   };
 
   struct Tokens {
-    edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons;
     edm::EDGetTokenT<reco::GsfElectronCollection> pflowGsfElectronsTag;
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores;
     edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag;
@@ -92,7 +88,6 @@ public:
     bool addPflowElectrons;
     // for backward compatibility
     bool ctfTracksCheck;
-    bool gedElectronMode;
     float PreSelectMVA;
     float MaxElePtForOnlyMVA;
     // GED-Regression (ECAL and combination)
@@ -184,9 +179,7 @@ public:
   GsfElectronAlgo(const Tokens&,
                   const StrategyConfiguration&,
                   const CutsConfiguration& cutsCfg,
-                  const CutsConfiguration& cutsCfgPflow,
                   const ElectronHcalHelper::Configuration& hcalCfg,
-                  const ElectronHcalHelper::Configuration& hcalCfgPflow,
                   const IsolationConfiguration&,
                   const EcalRecHitsConfiguration&,
                   std::unique_ptr<EcalClusterFunctionBaseClass>&& superClusterErrorFunction,
@@ -199,10 +192,9 @@ public:
                   edm::ConsumesCollector&& cc);
 
   // main methods
-  void completeElectrons(reco::GsfElectronCollection& electrons,  // do not redo cloned electrons done previously
-                         edm::Event const& event,
-                         edm::EventSetup const& eventSetup,
-                         const HeavyObjectCache* hoc);
+  reco::GsfElectronCollection completeElectrons(edm::Event const& event,
+                                                edm::EventSetup const& eventSetup,
+                                                const HeavyObjectCache* hoc);
 
 private:
   // internal structures
@@ -212,7 +204,6 @@ private:
     const Tokens tokens;
     const StrategyConfiguration strategy;
     const CutsConfiguration cuts;
-    const CutsConfiguration cutsPflow;
     const IsolationConfiguration iso;
     const EcalRecHitsConfiguration recHits;
   };
@@ -264,7 +255,6 @@ private:
 
   // additional configuration and helpers
   ElectronHcalHelper hcalHelper_;
-  ElectronHcalHelper hcalHelperPflow_;
   std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction_;
   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
   RegressionHelper regHelper_;
