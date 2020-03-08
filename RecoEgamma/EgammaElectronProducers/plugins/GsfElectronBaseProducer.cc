@@ -47,7 +47,6 @@ void GsfElectronBaseProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("gsfElectronCoresTag", edm::InputTag("gedGsfElectronCores"));
   desc.add<edm::InputTag>("pflowGsfElectronsTag", edm::InputTag(""));
   desc.add<edm::InputTag>("pfMvaTag", edm::InputTag(""));
-  desc.add<edm::InputTag>("previousGsfElectronsTag", edm::InputTag(""));
   desc.add<edm::InputTag>("hcalTowers", edm::InputTag("towerMaker"));
   desc.add<edm::InputTag>("vtxTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("conversionsTag", edm::InputTag("allConversions"));
@@ -143,10 +142,8 @@ void GsfElectronBaseProducer::fillDescriptions(edm::ConfigurationDescriptions& d
     psd0.add<double>("maxTIP", 999999999.0);
     psd0.add<double>("minMVA", -0.4);
     psd0.add<double>("minMvaByPassForIsolated", -0.4);
-    // preselection parameters (ecal driven electrons)
+    // preselection parameters
     desc.add<edm::ParameterSetDescription>("preselection", psd0);
-    // preselection parameters (tracker driven only electrons)
-    desc.add<edm::ParameterSetDescription>("preselectionPflow", psd0);
   }
 
   // Corrections
@@ -237,11 +234,9 @@ namespace {
 
 GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache*)
     : cutsCfg_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection"))),
-      cutsCfgPflow_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselectionPflow"))),
       ecalSeedingParametersChecked_(false),
-      electronPutToken_(produces<GsfElectronCollection>()) {
-  inputCfg_.previousGsfElectrons =
-      consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGsfElectronsTag"));
+      electronPutToken_(produces<GsfElectronCollection>()),
+      gedElectronMode_(cfg.getParameter<bool>("gedElectronMode")) {
   inputCfg_.pflowGsfElectronsTag =
       consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("pflowGsfElectronsTag"));
   inputCfg_.gsfElectronCores =
@@ -287,7 +282,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy");
   strategyCfg_.addPflowElectrons = cfg.getParameter<bool>("addPflowElectrons");
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
-  strategyCfg_.gedElectronMode = cfg.getParameter<bool>("gedElectronMode");
   strategyCfg_.PreSelectMVA = cfg.getParameter<double>("PreSelectMVA");
   strategyCfg_.MaxElePtForOnlyMVA = cfg.getParameter<double>("MaxElePtForOnlyMVA");
   strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
@@ -302,14 +296,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
     hcalCfg_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus");
     hcalCfg_.hcalTowers = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers"));
     hcalCfg_.hOverEPtMin = psetPreselection.getParameter<double>("hOverEPtMin");
-  }
-  auto const& psetPreselectionPflow = cfg.getParameter<edm::ParameterSet>("preselectionPflow");
-  hcalCfgPflow_.hOverEConeSize = psetPreselectionPflow.getParameter<double>("hOverEConeSize");
-  if (hcalCfgPflow_.hOverEConeSize > 0) {
-    hcalCfgPflow_.useTowers = true;
-    hcalCfgPflow_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus");
-    hcalCfgPflow_.hcalTowers = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers"));
-    hcalCfgPflow_.hOverEPtMin = psetPreselectionPflow.getParameter<double>("hOverEPtMin");
   }
 
   // Ecal rec hits configuration
@@ -355,9 +341,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
       inputCfg_,
       strategyCfg_,
       cutsCfg_,
-      cutsCfgPflow_,
       hcalCfg_,
-      hcalCfgPflow_,
       isoCfg,
       recHitsCfg,
       EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("superClusterErrorFunction"), cfg),
@@ -388,7 +372,8 @@ void GsfElectronBaseProducer::beginEvent(edm::Event& event, const edm::EventSetu
   }
 }
 
-void GsfElectronBaseProducer::fillEvent(reco::GsfElectronCollection& electrons, edm::Event& event) {
+const edm::OrphanHandle<reco::GsfElectronCollection> GsfElectronBaseProducer::fillEvent(
+    reco::GsfElectronCollection& electrons, edm::Event& event) {
   // all electrons
   logElectrons(electrons, event, "GsfElectronAlgo Info (before preselection)");
   // preselection
@@ -406,7 +391,7 @@ void GsfElectronBaseProducer::fillEvent(reco::GsfElectronCollection& electrons, 
     logElectrons(electrons, event, "GsfElectronAlgo Info (after amb. solving)");
   }
   // final filling
-  orphanHandle_ = event.emplace(electronPutToken_, std::move(electrons));
+  return event.emplace(electronPutToken_, std::move(electrons));
 }
 
 void GsfElectronBaseProducer::checkEcalSeedingParameters(edm::ParameterSet const& pset) {
@@ -549,7 +534,7 @@ bool GsfElectronBaseProducer::isPreselected(GsfElectron const& ele) const {
   bool passPF = ele.passingPflowPreselection();
   // it is worth nothing for gedGsfElectrons, this does nothing as its not set
   // till GedGsfElectron finaliser, this is always false
-  if (strategyCfg_.gedElectronMode) {
+  if (gedElectronMode_) {
     bool passmva = ele.passingMvaPreselection();
     if (!ele.ecalDrivenSeed()) {
       if (ele.pt() > strategyCfg_.MaxElePtForOnlyMVA)
