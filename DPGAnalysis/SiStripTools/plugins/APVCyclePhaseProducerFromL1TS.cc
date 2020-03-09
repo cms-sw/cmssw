@@ -194,41 +194,40 @@ void APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::Event
   iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
   bool useTCDS(tcds_pIn.isValid() && !_forceSCAL);
   
-  const auto& tcdsRecord = useTCDS ? *tcds_pIn.product() : NULL;
-
+  const auto* tcdsRecord = useTCDS ? tcds_pIn.product() : nullptr;
   // offset computation
 
   long long orbitoffset = 0;
 
   if (useTCDS) {
     // l1ts->empty() always retuns false (last commit as of today: https://github.com/cms-sw/cmssw/commit/f4694d795d4b268d541c633dfb68283d889264b0 ), so the check is likely not necessary---and TCDSRecord hasn't anything similar
-    if (tcdsRecord.getLastResync() != 0) {
+    if (tcdsRecord->getLastResync() != 0) {
       orbitoffset =
-          _useEC0 ? tcdsRecord.getLastEventCounter0() + _magicOffset : tcdsRecord.getLastResync() + _magicOffset;
+          _useEC0 ? tcdsRecord->getLastEventCounter0() + _magicOffset : tcdsRecord->getLastResync() + _magicOffset;
     }
 
-    if (_lastResync != tcdsRecord.getLastResync()) {
-      _lastResync = tcdsRecord.getLastResync();
+    if (_lastResync != tcdsRecord->getLastResync()) {
+      _lastResync = tcdsRecord->getLastResync();
       LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync;
     }
-    if (_lastHardReset != tcdsRecord.getLastHardReset()) {
-      _lastHardReset = tcdsRecord.getLastHardReset();
+    if (_lastHardReset != tcdsRecord->getLastHardReset()) {
+      _lastHardReset = tcdsRecord->getLastHardReset();
       LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset;
     }
-    if (_lastTestEnable != tcdsRecord.getLastTestEnable()) {
-      _lastTestEnable = tcdsRecord.getLastTestEnable();
+    if (_lastTestEnable != tcdsRecord->getLastTestEnable()) {
+      _lastTestEnable = tcdsRecord->getLastTestEnable();
       //      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
     }
-    if (_lastOrbitCounter0 != tcdsRecord.getLastOrbitCounter0()) {
-      _lastOrbitCounter0 = tcdsRecord.getLastOrbitCounter0();
+    if (_lastOrbitCounter0 != tcdsRecord->getLastOrbitCounter0()) {
+      _lastOrbitCounter0 = tcdsRecord->getLastOrbitCounter0();
       LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0;
     }
-    if (_lastEventCounter0 != tcdsRecord.getLastEventCounter0()) {
-      _lastEventCounter0 = tcdsRecord.getLastEventCounter0();
+    if (_lastEventCounter0 != tcdsRecord->getLastEventCounter0()) {
+      _lastEventCounter0 = tcdsRecord->getLastEventCounter0();
       LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0;
     }
-    if (_lastStart != tcdsRecord.getLastStart()) {
-      _lastStart = tcdsRecord.getLastStart();
+    if (_lastStart != tcdsRecord->getLastStart()) {
+      _lastStart = tcdsRecord->getLastStart();
       LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart;
     }
 

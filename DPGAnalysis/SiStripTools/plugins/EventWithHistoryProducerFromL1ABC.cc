@@ -112,8 +112,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
     Handle<TCDSRecord> tcds_pIn;
     iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
     bool useTCDS(tcds_pIn.isValid() && !_forceSCAL);
-    const auto& tcdsRecord = useTCDS ? *tcds_pIn.product() : NULL;
-    
+    const auto* tcdsRecord = useTCDS ? tcds_pIn.product() : nullptr;
     // offset computation
 
     long long orbitoffset = 0;
@@ -121,9 +120,9 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
 
     if (useTCDS) {
       if (!_forceNoOffset) {
-        if (tcdsRecord.getL1aHistoryEntry(0).getIndex() == 0) {
-          orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
-          bxoffset = tcdsRecord.getBXID() - iEvent.bunchCrossing();
+        if (tcdsRecord->getL1aHistoryEntry(0).getIndex() == 0) {
+          orbitoffset = (long long)tcdsRecord->getOrbitNr() - (long long)iEvent.orbitNumber();
+          bxoffset = tcdsRecord->getBXID() - iEvent.bunchCrossing();
         }
       }
     } else {
@@ -137,7 +136,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
       }
     }
 
-    std::unique_ptr<EventWithHistory> pOut(useTCDS ? new EventWithHistory(iEvent, tcdsRecord, orbitoffset, bxoffset)
+    std::unique_ptr<EventWithHistory> pOut(useTCDS ? new EventWithHistory(iEvent, *tcdsRecord, orbitoffset, bxoffset)
                                                    : new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
     iEvent.put(std::move(pOut));
 
@@ -156,7 +155,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
               << "Absolute BX offset changed from " << _curroffset << " to " << absbxoffset << " at orbit "
               << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
           if (useTCDS) {
-            edm::LogVerbatim("AbsoluteBXOffsetChanged") << tcdsRecord;  // Not sure about this
+            edm::LogVerbatim("AbsoluteBXOffsetChanged") << *tcdsRecord;  // Not sure about this
           } else {
             for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
               edm::LogVerbatim("AbsoluteBXOffsetChanged") << *l1abc;
