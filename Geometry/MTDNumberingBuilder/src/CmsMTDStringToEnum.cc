@@ -28,8 +28,6 @@ CmsMTDStringToEnum::Impl::Impl() {
   _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("EModule", GeometricTimingDet::ETLModule));
   _map.insert(
-      std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("LGAD_Ti", GeometricTimingDet::ETLModule));
-  _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Sensor", GeometricTimingDet::ETLSensor));
 }
 

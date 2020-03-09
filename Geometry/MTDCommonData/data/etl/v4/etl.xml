@@ -12,7 +12,7 @@
 	<!-- LGAD and ETROC values taken from Ulascan code (line 103 on in ETLDetectorDimensions.cc), same values in the TDR -->
 	<Constant name="LGADdx" value="2.12"/>
 	<Constant name="LGADdy" value="4.2"/>
-	<Constant name="LGAD_TimingActive" value="0.005"/>
+	<Constant name="EModule_Timingactive" value="0.005"/>
 	<Constant name="LGAD_Substrate" value="0.025"/>
 	<Constant name="LGADdz" value="0.03"/>
 	<Constant name="lgadSep_X" value="0.025"/>  <!-- x-offset between lgad in a 2SensorModule, line 232 ETLDetectorDimensions.cc -->
@@ -61,7 +61,7 @@
 	<Box name="LairdFilm" dx="0.5*([ETROCdx]+0.5*[etrocSep_X])*cm" dy="0.5*([ETROCdy]*2+[etrocSep_Y])*cm" dz="0.5*(0.008)*cm"/>
 	<Box name="ETROC" dx="0.5*[ETROCdx]*cm" dy="0.5*[ETROCdy]*cm" dz="0.5*(0.028)*cm"/>  <!-- solder bumps not considered, their thickness is included in that of the ETROC -->
 	<Box name="LGAD" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*[LGADdz]*cm"/>
-	<Box name="LGAD_TimingActive" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*[LGAD_TimingActive]*cm"/>
+	<Box name="EModule_Timingactive" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*[EModule_Timingactive]*cm"/>
 	<Box name="LGAD_Substrate" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*[LGAD_Substrate]*cm"/>
 	<Box name="AlN_Cover" dx="0.5*[LGADdx]*cm" dy="0.5*[LGADdy]*cm" dz="0.5*(0.059)*cm"/>  <!-- epoxy included in the thickness of the AlN cover -->
   </SolidSection>
@@ -167,8 +167,8 @@
       <rSolid name="etl:LGAD"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
-    <LogicalPart name="LGAD_TimingActive" category="unspecified">
-      <rSolid name="etl:LGAD_TimingActive"/>
+    <LogicalPart name="EModule_Timingactive" category="unspecified">
+      <rSolid name="etl:EModule_Timingactive"/>
       <rMaterial name="materials:Silicon"/>
     </LogicalPart>
     <LogicalPart name="LGAD_Substrate" category="unspecified">
@@ -356,7 +356,7 @@
 	<!-- definition of LGAD active/substrate volumes -->
 	<PosPart copyNumber="1">
 	  <rParent name="etl:LGAD"/>
-	  <rChild name="etl:LGAD_TimingActive"/>
+	  <rChild name="etl:EModule_Timingactive"/>
 	  <Translation x="0.*cm" y="0.*cm" z="-0.0125*cm" />
 	</PosPart>
 	<PosPart copyNumber="1">
