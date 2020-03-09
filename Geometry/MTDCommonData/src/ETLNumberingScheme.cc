@@ -105,8 +105,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "ETL Numbering scheme: "
                           << " ring = " << ringCopy << " zside = " << zside << " module = " << modCopy
-                          << " modtyp = " << modtyp << " Raw Id = " << intindex << "\n"
-                          << thisETLdetid;
+                          << " modtyp = " << modtyp << " Raw Id = " << intindex << thisETLdetid;
   if (!preTDR) {
     ETLDetId altETLdetid(zside, discN, sectorS, sectorN, modCopy, modtyp);
     const uint32_t altintindex = altETLdetid.rawId();
