@@ -22,5 +22,3 @@ inOutSeedsFromTrackerMuons = cms.EDProducer("MuonReSeeder",
     Propagator = cms.string('SmartPropagatorAnyRKOpposite'),
 )
 
-from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
-run4_PixelCPEGeneric.toModify(inOutSeedsFromTrackerMuons, TrackerRecHitBuilder = 'WithTrackAngle')
