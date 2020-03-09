@@ -1,5 +1,4 @@
 <use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/Common"/>
 
 <use   name="fftjet"/>
 <use   name="fftw3"/>
