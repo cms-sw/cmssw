@@ -129,8 +129,8 @@ namespace cond {
 
     cond::Tag_t PlotBase::getTagInfo(const std::string& tag) {
       cond::Tag_t info;
-      m_dbSession.getTagInfo(tag, info);
-      return info;
+      auto p = m_dbSession.readIov(tag);
+      return p.tagInfo();
     }
 
     const std::map<std::string, std::string>& PlotBase::inputParamValues() const { return m_inputParamValues; }

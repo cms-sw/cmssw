@@ -59,10 +59,10 @@ namespace popcon{
 	if (this->tagInfo().size){
 	  //check whats already inside of database
 	  ss << "got offlineInfo"<<
-	    this->tagInfo().name << ", size " << this->tagInfo().size << " " << this->tagInfo().token 
+	    this->tagInfo().name << ", size " << this->tagInfo().size 
 	     << " , last object valid since " 
-	     << this->tagInfo().lastInterval.first << " token "   
-	     << this->tagInfo().lastPayloadToken << "\n\n UserText " << this->userTextLog() 
+	     << this->tagInfo().lastInterval.since << " token "   
+	     << this->tagInfo().lastInterval.payloadId << "\n\n UserText " << this->userTextLog() 
 	     << "\n LogDBEntry \n" 
 	     << this->logDBEntry().logId<< "\n"
 	     << this->logDBEntry().destinationDB<< "\n"   
@@ -128,7 +128,7 @@ namespace popcon{
 	//string are equal, no need to do transfer
 	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") 
 	  << "[isTransferNeeded] the selected conditions are already uploaded in the last iov ("  
-	  << this->tagInfo().lastInterval.first << ") open for the object " 
+	  << this->tagInfo().lastInterval.since << ") open for the object " 
 	  << this->logDBEntry().payloadName << " in the db " 
 	  << this->logDBEntry().destinationDB << " parameters: "  << ss.str() << "\n NO TRANSFER NEEDED";
 	return false;
@@ -155,7 +155,7 @@ namespace popcon{
 	m_since=1;
       else
 	if (m_debugMode)
-	  m_since=this->tagInfo().lastInterval.first+1; 
+	  m_since=this->tagInfo().lastInterval.since+1; 
 
       if (obj!=0){
 

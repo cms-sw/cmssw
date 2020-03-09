@@ -18,6 +18,12 @@
 <bin   file="testConditionDatabase_2.cpp" name="testConditionDatabase_2">
 </bin>
 
+<bin   file="testConditionDatabase_3.cpp" name="testConditionDatabase_3">
+</bin>
+
+<bin   file="testConditionDatabase_4.cpp" name="testConditionDatabase_4">
+</bin>
+
 <bin   file="testRootStreaming.cpp" name="testRootStreaming">
 </bin>
 

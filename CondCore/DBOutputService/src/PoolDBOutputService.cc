@@ -306,10 +306,5 @@ void cond::service::PoolDBOutputService::tagInfo(const std::string& recordName, 
   result.name = record.m_tag;
   //use iovproxy to find out.
   cond::persistency::IOVProxy iov = m_session.readIov(record.m_tag);
-  result.size = iov.sequenceSize();
-  if (result.size > 0) {
-    cond::Iov_t last = iov.getLast();
-    result.lastInterval = cond::ValidityInterval(last.since, last.till);
-    result.lastPayloadToken = last.payloadId;
-  }
+  result = iov.iovSequenceInfo();
 }
