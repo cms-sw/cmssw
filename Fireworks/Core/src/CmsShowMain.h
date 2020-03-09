@@ -76,6 +76,7 @@ public:
   const fwlite::Event* getCurrentEvent() const;
   const fireworks::Context* context() const { return m_context.get(); };
   bool getVersionCheck() const { return !m_noVersionCheck; }
+  bool getGlobalTagCheck() const { return m_globalTagCheck; }
 
   void fileChangedSlot(const TFile* file);
 
@@ -127,6 +128,7 @@ private:
   UInt_t m_lastXEventSerial;
 
   bool m_noVersionCheck;
+  bool m_globalTagCheck;
 
   std::unique_ptr<TMonitor> m_monitor;
 };
