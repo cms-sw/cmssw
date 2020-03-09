@@ -71,7 +71,7 @@ class MyClient : public SonicClient*<Input,Output> {
 		static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
 	protected:
-		void predictImpl() override;
+		void dispatch() override;
 };
 
 #endif
@@ -87,7 +87,7 @@ The generic `SonicClient*` should be replaced with one of the available modes:
 In addition, as indicated, the input and output data types must be specified.
 (If both types are the same, only the input type needs to be specified.)
 
-The client can also provide a static method `fillPSetDescription` to populate its parameters in the `fillDescriptions` for the producers that use the client:
+The client must also provide a static method `fillPSetDescription` to populate its parameters in the `fillDescriptions` for the producers that use the client:
 ```cpp
 void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
 	edm::ParameterSetDescription descClient;

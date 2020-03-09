@@ -15,8 +15,6 @@ public:
 
   //accessors
   Input& input() { return input_; }
-  const Input& input() const { return input_; }
-  void setInput(const Input& inp) { input_ = inp; }
   const Output& output() const { return output_; }
 
 protected:
