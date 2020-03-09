@@ -1,5 +1,6 @@
 #include "IOMC/ParticleGuns/interface/BeamMomentumGunProducer.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -13,7 +14,6 @@
 
 #include "TFile.h"
 #include <cmath>
-#include <ostream>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -125,11 +125,7 @@ namespace edm {
       double newtheta = ptheta + theta;
       if (newtheta > M_PI && newtheta <= 2 * M_PI)
         newtheta = 2 * M_PI - newtheta;
-      double newphi = pphi + phi;
-      if (newphi > M_PI && newphi <= 2 * M_PI)
-        newphi = -(2 * M_PI - newphi);
-      else if (newphi < -M_PI && newphi >= -2 * M_PI)
-        newphi = 2 * M_PI + newphi;
+      double newphi = reco::reduceRange(pphi + phi);
       double px = mom * sin(newtheta) * cos(newphi);
       double py = mom * sin(newtheta) * sin(newphi);
       double pz = mom * cos(newtheta);
