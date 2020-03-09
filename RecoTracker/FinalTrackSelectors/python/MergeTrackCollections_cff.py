@@ -31,8 +31,6 @@ duplicateTrackClassifier.mva.minLayers = [0,0,0]
 duplicateTrackClassifier.mva.min3DLayers = [0,0,0]
 duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
 
-from Configuration.ProcessModifiers.run4_PixelCPEGeneric_cff import run4_PixelCPEGeneric
-run4_PixelCPEGeneric.toModify(duplicateTrackCandidates, ttrhBuilderName = "WithTrackAngle")
 
 generalTracks = DuplicateListMerger.clone()
 generalTracks.originalSource = cms.InputTag("preDuplicateMergingGeneralTracks")
