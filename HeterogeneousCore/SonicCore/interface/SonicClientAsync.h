@@ -12,10 +12,10 @@ public:
   virtual ~SonicClientAsync() {}
 
   //main operation
-  void evaluate(edm::WaitingTaskWithArenaHolder holder) override final {
+  void dispatch(edm::WaitingTaskWithArenaHolder holder) override final {
     holder_ = std::move(holder);
     setStartTime();
-    dispatch();
+    evaluate();
     //impl calls finish() which calls holder_
   }
 };
