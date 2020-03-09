@@ -1,6 +1,8 @@
 #ifndef HeterogeneousCoreCUDAUtilities_radixSort_H
 #define HeterogeneousCoreCUDAUtilities_radixSort_H
 
+#ifdef __CUDACC__
+
 #include <cstdint>
 #include <type_traits>
 
@@ -263,13 +265,13 @@ namespace cms {
     }
 
     template <typename T, int NS = sizeof(T)>
-    __global__ void
-    // __launch_bounds__(256, 4)
-    radixSortMultiWrapper2(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
+    __global__ void radixSortMultiWrapper2(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
       radixSortMulti<T, NS>(v, index, offsets, workspace);
     }
 
   }  // namespace cuda
 }  // namespace cms
+
+#endif  // __CUDACC__
 
 #endif  // HeterogeneousCoreCUDAUtilities_radixSort_H
