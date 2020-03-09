@@ -1,7 +1,7 @@
 #ifndef RKSolver_H
 #define RKSolver_H
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RKSmallVector.h"
 #include "RKDerivative.h"
