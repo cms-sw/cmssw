@@ -55,13 +55,6 @@ protected:
   const GsfElectronAlgo::CutsConfiguration cutsCfg_;
   ElectronHcalHelper::Configuration hcalCfg_;
 
-  // used to make some provenance checks
-  edm::EDGetTokenT<edm::ValueMap<float>> pfMVA_;
-
-  //IsoVals (PF and EcalDriven)
-  edm::ParameterSet pfIsoVals_;
-  edm::ParameterSet edIsoVals_;
-
 private:
   bool isPreselected(reco::GsfElectron const& ele) const;
   void setAmbiguityData(reco::GsfElectronCollection& electrons,
@@ -74,7 +67,10 @@ private:
 
   const edm::EDPutTokenT<reco::GsfElectronCollection> electronPutToken_;
 
+  const edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag_;
+
   const bool gedElectronMode_;
+  const bool useGsfPfRecTracks_;
 };
 
 #endif

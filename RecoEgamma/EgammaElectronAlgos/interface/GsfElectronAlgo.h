@@ -56,7 +56,6 @@ public:
   };
 
   struct Tokens {
-    edm::EDGetTokenT<reco::GsfElectronCollection> pflowGsfElectronsTag;
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores;
     edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag;
     edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters;
@@ -66,13 +65,11 @@ public:
     edm::EDGetTokenT<reco::ElectronSeedCollection> seedsTag;
     edm::EDGetTokenT<reco::TrackCollection> ctfTracks;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag;
-    edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag;
     edm::EDGetTokenT<reco::VertexCollection> vtxCollectionTag;
     edm::EDGetTokenT<reco::ConversionCollection> conversions;
   };
 
   struct StrategyConfiguration {
-    bool useGsfPfRecTracks;
     // if true, electron preselection is applied
     bool applyPreselection;
     // if true, electron level escale corrections are
@@ -84,8 +81,6 @@ public:
     bool applyAmbResolution;              // if not true, ambiguity solving is not applied
     unsigned ambSortingStrategy;          // 0:isBetter, 1:isInnermost
     unsigned ambClustersOverlapStrategy;  // 0:sc adresses, 1:bc shared energy
-    // if true, trackerDriven electrons are added
-    bool addPflowElectrons;
     // for backward compatibility
     bool ctfTracksCheck;
     float PreSelectMVA;

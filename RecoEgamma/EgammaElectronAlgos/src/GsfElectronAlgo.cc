@@ -58,13 +58,11 @@ struct GsfElectronAlgo::EventData {
   const reco::BeamSpot* beamspot;
 
   // input collections
-  edm::Handle<reco::GsfElectronCollection> pflowElectrons;
   edm::Handle<reco::GsfElectronCoreCollection> coreElectrons;
   edm::Handle<EcalRecHitCollection> barrelRecHits;
   edm::Handle<EcalRecHitCollection> endcapRecHits;
   edm::Handle<reco::TrackCollection> currentCtfTracks;
   edm::Handle<reco::ElectronSeedCollection> seeds;
-  edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks;
   edm::Handle<reco::VertexCollection> vertices;
   edm::Handle<reco::ConversionCollection> conversions;
 
@@ -431,14 +429,11 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
   EventData eventData{
       .event = &event,
       .beamspot = &event.get(cfg_.tokens.beamSpotTag),
-      .pflowElectrons = event.getHandle(cfg_.tokens.pflowGsfElectronsTag),
       .coreElectrons = event.getHandle(cfg_.tokens.gsfElectronCores),
       .barrelRecHits = barrelRecHits,
       .endcapRecHits = endcapRecHits,
       .currentCtfTracks = event.getHandle(cfg_.tokens.ctfTracks),
       .seeds = event.getHandle(cfg_.tokens.seedsTag),
-      .gsfPfRecTracks = cfg_.strategy.useGsfPfRecTracks ? event.getHandle(cfg_.tokens.gsfPfRecTracksTag)
-                                                        : edm::Handle<reco::GsfPFRecTrackCollection>{},
       .vertices = event.getHandle(cfg_.tokens.vtxCollectionTag),
       .conversions = cfg_.strategy.fillConvVtxFitProb ? event.getHandle(cfg_.tokens.conversions)
                                                       : edm::Handle<reco::ConversionCollection>(),
