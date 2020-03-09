@@ -22,7 +22,7 @@ public:
   //constructor
   SonicEDProducer(edm::ParameterSet const& cfg) : client_(cfg.getParameter<edm::ParameterSet>("Client")) {}
   //destructor
-  virtual ~SonicEDProducer() {}
+  virtual ~SonicEDProducer() = default;
 
   //derived classes use a dedicated acquire() interface that incorporates client_.input()
   //(no need to interact with callback holder)
