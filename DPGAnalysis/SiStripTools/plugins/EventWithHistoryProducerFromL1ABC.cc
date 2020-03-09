@@ -110,16 +110,20 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
     Handle<TCDSRecord> tcds_pIn;
     iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
     const auto& tcdsRecord = *tcds_pIn.product();
-    bool useTCDS = (tcds_pIn.product());
+    bool useTCDS(tcds_pIn.isValid());
 
     // offset computation
 
     long long orbitoffset = 0;
     int bxoffset = 0;
-
+    
     if (useTCDS) {
-      orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
-      bxoffset = tcdsRecord.getBXID() - iEvent.bunchCrossing();
+      if (!_forceNoOffset){
+        if( tcdsRecord.getL1aHistoryEntry(0).getIndex() == 0){
+          orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
+          bxoffset = tcdsRecord.getBXID() - iEvent.bunchCrossing();
+        }
+      }
     } else {
       if (!_forceNoOffset) {
         for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
@@ -131,7 +135,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
       }
     }
 
-    std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
+    std::unique_ptr<EventWithHistory> pOut(useTCDS ? new EventWithHistory(iEvent, tcdsRecord, orbitoffset, bxoffset) : new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
     iEvent.put(std::move(pOut));
 
     // monitor offset

@@ -192,28 +192,30 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
     Handle<TCDSRecord> tcds_pIn;
     iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
     const auto& tcdsRecord = *tcds_pIn.product();
-    bool useTCDS(tcds_pIn.product());
+    bool useTCDS(tcds_pIn.isValid());
     // offset computation
 
     long long orbitoffset = _orbitoffsetSOR;
     int bxoffset = 0;
 
     if (useTCDS) {
-      orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
-      bxoffset =
-          iEvent.bunchCrossing() -
-          tcdsRecord
-              .getBXID();  // In EventWithHistoryProducerFromL1ABC, it's -1\times this, following the corresponding L1ABC line below. I keep this difference here, because I am not sure if it should be kept or not
-      // If I understand correctly, tcdsRecord has no l1AcceptOffset thing, so the control done for l1abc can be safely skipped
-      if (tcdsRecord.getEventType() != 0) {
-        if (_wantHistos) {
-          if (_hbx && *_hbx)
-            (*_hbx)->Fill(tcdsRecord.getBXID());
-          if (_hdbx && *_hdbx)
-            (*_hdbx)->Fill(bxoffset);
-          if (_hdorbit && *_hdorbit)
-            (*_hdorbit)->Fill(orbitoffset);
+      if( tcdsRecord.getL1aHistoryEntry(0).getIndex() == 0){
+        if (tcdsRecord.getEventType() != 0) {
+          orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
+          bxoffset = iEvent.bunchCrossing() - tcdsRecord.getBXID();  // In EventWithHistoryProducerFromL1ABC, it's -1\times this, following the corresponding L1ABC line below. I keep this difference here, because I am not sure if it should be kept or not
+          // If I understand correctly, tcdsRecord has no l1AcceptOffset thing, so the control done for l1abc can be safely skipped
+          if (_wantHistos) {
+            if (_hbx && *_hbx)
+              (*_hbx)->Fill(tcdsRecord.getBXID());
+            if (_hdbx && *_hdbx)
+              (*_hdbx)->Fill(bxoffset);
+            if (_hdorbit && *_hdorbit)
+              (*_hdorbit)->Fill(orbitoffset);
+          }
         }
+      } else{
+        edm::LogWarning("L1AcceptBunchCrossingNoType") << "L1AcceptBunchCrossing with no type found: ";
+        edm::LogPrint("L1AcceptBunchCrossingNoType") << tcdsRecord;
       }
     } else {
       for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {

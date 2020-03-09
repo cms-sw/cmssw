@@ -191,7 +191,7 @@ void APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::Event
   Handle<TCDSRecord> tcds_pIn;
   iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
   const auto& tcdsRecord = *tcds_pIn.product();
-  bool useTCDS(tcds_pIn.product());
+  bool useTCDS(tcds_pIn.isValid());
 
   // offset computation
 
