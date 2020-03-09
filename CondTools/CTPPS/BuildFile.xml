@@ -1,5 +1,5 @@
 <use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/CTPPSReadoutObjects"/>
+<use   name="CondFormats/PPSObjects"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ServiceRegistry"/>
