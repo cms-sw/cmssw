@@ -13,8 +13,6 @@
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="RecoMET/METAlgorithms"/>
-<use   name="RecoJets/JetProducers"/>
-<use   name="JetMETCorrections/Algorithms"/>
 <use   name="root"/>
 <export>
   <lib   name="1"/>
