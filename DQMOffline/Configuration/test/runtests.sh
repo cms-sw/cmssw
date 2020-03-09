@@ -18,7 +18,9 @@ WHERE edmfamily is null;
 SQL
 
 # There are lots of legacy producers and filters, so we check only for analyzers for now.
-! grep EDAnalyzer legacymodules.txt
-
-
-
+if grep EDAnalyzer legacymodules.txt ; then
+  echo "There are legacy modules! See list above."
+  exit 1
+else
+  exit 0
+fi
