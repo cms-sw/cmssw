@@ -9,6 +9,7 @@
 
 #include "TrackingTools/DetLayers/interface/TkLayerLess.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <algorithm>
 #include <map>

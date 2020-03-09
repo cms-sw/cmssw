@@ -10,8 +10,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 #include <vector>
 #include <memory>
 
