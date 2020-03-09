@@ -1,5 +1,5 @@
 /**_________________________________________________________________
-class:   AlcaPCCProducerEvent.cc
+class:   AlcaPCCEventProducer.cc
 
 
 
@@ -14,7 +14,6 @@ ________________________________________________________________**/
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 #include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -27,13 +26,15 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TMath.h"
 //The class
-class AlcaPCCProducerEvent : public edm::stream::EDProducer<> {
+class AlcaPCCEventProducer : public edm::stream::EDProducer<> {
 public:
-  explicit AlcaPCCProducerEvent(const edm::ParameterSet&);
-  ~AlcaPCCProducerEvent() override;
+  explicit AlcaPCCEventProducer(const edm::ParameterSet&);
+  ~AlcaPCCEventProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -49,21 +50,18 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------
-AlcaPCCProducerEvent::AlcaPCCProducerEvent(const edm::ParameterSet& iConfig) {
-  fPixelClusterLabel = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerEventParameters")
-                           .getParameter<edm::InputTag>("pixelClusterLabel");
-  trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerEventParameters")
-                    .getUntrackedParameter<std::string>("trigstring", "alcaPCCEvent");
-
+AlcaPCCEventProducer::AlcaPCCEventProducer(const edm::ParameterSet& iConfig) {
+  fPixelClusterLabel = iConfig.getParameter<edm::InputTag>("pixelClusterLabel");
+  trigstring_ = iConfig.getUntrackedParameter<std::string>("trigstring", "alcaPCCEvent");
   produces<reco::PixelClusterCountsInEvent, edm::Transition::Event>(trigstring_);
   pixelToken = consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
 }
 
 //--------------------------------------------------------------------------------------------------
-AlcaPCCProducerEvent::~AlcaPCCProducerEvent() {}
+AlcaPCCEventProducer::~AlcaPCCEventProducer() {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaPCCProducerEvent::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   countEvt_++;
   thePCCob = std::make_unique<reco::PixelClusterCountsInEvent>();
 
@@ -98,4 +96,12 @@ void AlcaPCCProducerEvent::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(std::move(thePCCob), std::string(trigstring_));
 }
 
-DEFINE_FWK_MODULE(AlcaPCCProducerEvent);
+//--------------------------------------------------------------------------------------------------
+void AlcaPCCEventProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription evtParamDesc;
+  evtParamDesc.add<edm::InputTag>("pixelClusterLabel", edm::InputTag("siPixelClustersForLumi"));
+  evtParamDesc.addUntracked<std::string>("trigstring", "alcaPCCEvent");
+  descriptions.add("alcaPCCEventProducer", evtParamDesc);
+}
+
+DEFINE_FWK_MODULE(AlcaPCCEventProducer);
