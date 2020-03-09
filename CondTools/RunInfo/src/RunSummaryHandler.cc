@@ -24,7 +24,7 @@ void RunSummaryHandler::getNewObjects() {
                                     <<
       //check whats already inside of database
       "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << ", last object valid since "
-                                    << tagInfo().lastInterval.first << " token " << tagInfo().lastPayloadToken
+                                    << tagInfo().lastInterval.since << " token " << tagInfo().lastInterval.payloadId
                                     << std::endl;
 
   /*
@@ -46,12 +46,12 @@ void RunSummaryHandler::getNewObjects() {
   //fill with null runsummary if empty run are found beetween the two last validones
 
   size_t n_empty_run = 0;
-  if (tagInfo().size > 0 && (tagInfo().lastInterval.first + 1) < snc) {
-    n_empty_run = snc - tagInfo().lastInterval.first - 1;
+  if (tagInfo().size > 0 && (tagInfo().lastInterval.since + 1) < snc) {
+    n_empty_run = snc - tagInfo().lastInterval.since - 1;
     edm::LogInfo("RunSummaryHandler") << "------- "
-                                      << "entering fake run from " << tagInfo().lastInterval.first + 1 << "to "
+                                      << "entering fake run from " << tagInfo().lastInterval.since + 1 << "to "
                                       << snc - 1 << "- > getNewObjects" << std::endl;
-    n_empty_run = snc - tagInfo().lastInterval.first - 1;
+    n_empty_run = snc - tagInfo().lastInterval.since - 1;
     // for (size_t i=1; i<= n_empty_run ; i++){
 
     // r->summary.push_back(empty->fake_Run());
@@ -65,7 +65,7 @@ void RunSummaryHandler::getNewObjects() {
 
   // transfer also empty run if tag already existing
   if (n_empty_run != 0) {
-    m_to_transfer.push_back(std::make_pair((RunSummary*)(r->Fake_RunSummary()), tagInfo().lastInterval.first + 1));
+    m_to_transfer.push_back(std::make_pair((RunSummary*)(r->Fake_RunSummary()), tagInfo().lastInterval.since + 1));
   }
 
   // reading from omds

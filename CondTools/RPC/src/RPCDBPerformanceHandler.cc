@@ -61,7 +61,7 @@ void RPCDBPerformanceHandler::getNewObjects() {
             <<
       //check whats already inside of database
       "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << ", last object valid since "
-            << tagInfo().lastInterval.first << std::endl;
+            << tagInfo().lastInterval.since << std::endl;
 
   RPCStripNoises* obj = new RPCStripNoises();
 

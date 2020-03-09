@@ -87,16 +87,16 @@ namespace l1t {
       sinceRun = poolDb->beginOfTime();
       poolDb->createNewIOV(payloadToken, sinceRun, poolDb->endOfTime(), esRecordName, logTransactions);
     } else {
-      cond::TagInfo tagInfo;
+      cond::TagInfo_t tagInfo;
       poolDb->tagInfo(esRecordName, tagInfo);
 
       if (sinceRun == 0)  // find last since and add 1
       {
-        sinceRun = tagInfo.lastInterval.first;
+        sinceRun = tagInfo.lastInterval.since;
         ++sinceRun;
       }
 
-      if (tagInfo.lastPayloadToken != payloadToken) {
+      if (tagInfo.lastInterval.payloadId != payloadToken) {
         poolDb->appendSinceTime(payloadToken, sinceRun, esRecordName, logTransactions);
       } else {
         iovUpdated = false;
@@ -125,11 +125,8 @@ namespace l1t {
     cond::persistency::IOVProxy iov = session.readIov(iovTag);
     session.transaction().start();
 
-    std::string payloadToken("");
-    auto iP = iov.find(runNumber);
-    if (iP != iov.end()) {
-      payloadToken = (*iP).payloadId;
-    }
+    auto iP = iov.getInterval(runNumber);
+    std::string   payloadToken = iP.payloadId;
     session.transaction().commit();
     return payloadToken;
   }
@@ -140,9 +137,9 @@ namespace l1t {
       throw cond::Exception("DataWriter: PoolDBOutputService not available.");
     }
 
-    cond::TagInfo tagInfo;
+    cond::TagInfo_t tagInfo;
     poolDb->tagInfo(recordName, tagInfo);
-    return tagInfo.lastPayloadToken;
+    return tagInfo.lastInterval.payloadId;
   }
 
   bool DataWriterExt::fillLastTriggerKeyList(L1TriggerKeyListExt& output) {

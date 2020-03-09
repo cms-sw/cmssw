@@ -96,6 +96,9 @@ namespace cond {
       virtual void insertMany(
           const std::string& tag,
           const std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> >& iovs) = 0;
+      virtual void eraseOne(const std::string& tag, cond::Time_t since, cond::Hash payloadId) = 0;
+      virtual void eraseMany(const std::string& tag,
+                             const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) = 0;
       virtual void erase(const std::string& tag) = 0;
     };
 
