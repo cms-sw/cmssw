@@ -96,8 +96,7 @@ dqmElectronTagProbeAnalysis.ElectronCollection = cms.InputTag("gedGsfElectronsTm
 stdPhotonAnalysis.isHeavyIon = True
 stdPhotonAnalysis.barrelRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEB")
 stdPhotonAnalysis.endcapRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
-hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
-hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
+
 #disabled, until an appropriate configuration is set
 hltTauOfflineMonitor_PFTaus.Matching.doMatching = False
 
