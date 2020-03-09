@@ -103,23 +103,21 @@ EventWithHistory::EventWithHistory(const edm::Event& event,
   }
 }
 
-
-
 EventWithHistory::EventWithHistory(const edm::Event& event,
-                 const TCDSRecord& tcdsRecord,
-                 const long long orbitoffset,
-                 const int bxoffset)
-  : TinyEvent(), _prevse() {
+                                   const TCDSRecord& tcdsRecord,
+                                   const long long orbitoffset,
+                                   const int bxoffset)
+    : TinyEvent(), _prevse() {
   std::map<int, TinyEvent> tmpmap;
 
   int l1AcceptOffset(tcdsRecord.getL1aHistoryEntry(0).getIndex());
-  
+
   if (event.id().event() > (edm::EventNumber_t)(-1 * l1AcceptOffset)) {
     edm::EventNumber_t evnumb = event.id().event() + l1AcceptOffset;
     if (orbitoffset < (long long)tcdsRecord.getOrbitNr()) {
       unsigned int neworbit = tcdsRecord.getOrbitNr() - orbitoffset;
       int newbx = tcdsRecord.getBXID() - bxoffset;
-      
+
       /* 
          the lines below assumes that the BX number is between 0 and 3563. If this is not the case it will jump to 0 and to the next orbit in case of 
          evets with BX=3564
@@ -132,7 +130,7 @@ EventWithHistory::EventWithHistory(const edm::Event& event,
         --neworbit;
         newbx += 3564;
       }
-      
+
       if (tcdsRecord.getEventType() != 0) {
         TinyEvent tmpse(evnumb, neworbit, newbx);
         tmpmap[l1AcceptOffset] = tmpse;
@@ -142,17 +140,17 @@ EventWithHistory::EventWithHistory(const edm::Event& event,
       }
     } else {
       edm::LogError("L1AcceptBunchCrossingOffsetTooLarge")
-        << " Too large orbit offset " << orbitoffset << " " << tcdsRecord.getOrbitNr();
+          << " Too large orbit offset " << orbitoffset << " " << tcdsRecord.getOrbitNr();
     }
   } else {
     edm::LogInfo("L1AcceptBunchCrossingNegativeEvent") << "L1AcceptBunchCrossing with negative event: ";
-      edm::LogVerbatim("L1AcceptBunchCrossingNegativeEvent") << &tcdsRecord;
+    edm::LogVerbatim("L1AcceptBunchCrossingNegativeEvent") << &tcdsRecord;
   }
-  
+
   // look for the event itself
   if (tmpmap.find(0) != tmpmap.end()) {
     TinyEvent::operator=(tmpmap[0]);
-    
+
     // loop on the rest of the map and stop when it is missing
     // check that the events are in the right order and break if not
 
@@ -175,11 +173,6 @@ EventWithHistory::EventWithHistory(const edm::Event& event,
                                                          << " likely TCDSRecord is empty ";
   }
 }
-
-
-
-
-
 
 EventWithHistory::EventWithHistory(const EventWithHistory& he) : TinyEvent(he), _prevse(he._prevse) {}
 

@@ -116,10 +116,10 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
 
     long long orbitoffset = 0;
     int bxoffset = 0;
-    
+
     if (useTCDS) {
-      if (!_forceNoOffset){
-        if( tcdsRecord.getL1aHistoryEntry(0).getIndex() == 0){
+      if (!_forceNoOffset) {
+        if (tcdsRecord.getL1aHistoryEntry(0).getIndex() == 0) {
           orbitoffset = (long long)tcdsRecord.getOrbitNr() - (long long)iEvent.orbitNumber();
           bxoffset = tcdsRecord.getBXID() - iEvent.bunchCrossing();
         }
@@ -135,7 +135,8 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
       }
     }
 
-    std::unique_ptr<EventWithHistory> pOut(useTCDS ? new EventWithHistory(iEvent, tcdsRecord, orbitoffset, bxoffset) : new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
+    std::unique_ptr<EventWithHistory> pOut(useTCDS ? new EventWithHistory(iEvent, tcdsRecord, orbitoffset, bxoffset)
+                                                   : new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
     iEvent.put(std::move(pOut));
 
     // monitor offset
