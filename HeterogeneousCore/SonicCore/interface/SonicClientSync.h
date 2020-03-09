@@ -14,13 +14,13 @@ public:
   virtual ~SonicClientSync() {}
 
   //main operation
-  void evaluate(edm::WaitingTaskWithArenaHolder holder) override final {
+  void dispatch(edm::WaitingTaskWithArenaHolder holder) override final {
     holder_ = std::move(holder);
     setStartTime();
 
     std::exception_ptr eptr;
     try {
-      dispatch();
+      evaluate();
     } catch (...) {
       eptr = std::current_exception();
     }

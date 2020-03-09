@@ -71,7 +71,7 @@ class MyClient : public SonicClient*<Input,Output> {
 		static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
 	protected:
-		void dispatch() override;
+		void evaluate() override;
 };
 
 #endif
