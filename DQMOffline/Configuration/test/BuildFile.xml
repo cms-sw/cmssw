@@ -1,0 +1,5 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<bin file="TestRunner.cpp" name="TestDQMOfflineConfiguration">
+  <flags TEST_RUNNER_ARGS=" /bin/bash DQMOffline/Configuration/test runtests.sh"/>
+</bin>
