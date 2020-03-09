@@ -203,8 +203,7 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
       if (tcdsRecord->getL1aHistoryEntry(0).getIndex() == 0) {
         if (tcdsRecord->getEventType() != 0) {
           orbitoffset = (long long)tcdsRecord->getOrbitNr() - (long long)iEvent.orbitNumber();
-          bxoffset =
-              iEvent.bunchCrossing() - tcdsRecord->getBXID();  // In EventWithHistoryProducerFromL1ABC, it's -1\times this, following the corresponding L1ABC line below. I keep this difference here, because I am not sure if it should be kept or not
+          bxoffset = iEvent.bunchCrossing()-tcdsRecord->getBXID();  // In EventWithHistoryProducerFromL1ABC, it's -1\times this, following the corresponding L1ABC line below. I keep this difference here, because I am not sure if it should be kept or not
           // If I understand correctly, tcdsRecord has no l1AcceptOffset thing, so the control done for l1abc can be safely skipped
           if (_wantHistos) {
             if (_hbx && *_hbx)
