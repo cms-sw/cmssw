@@ -27,7 +27,7 @@ public:
   }
 
 protected:
-  void predictImpl() override {
+  void dispatch() override {
     //simulate a blocking call
     std::this_thread::sleep_for(std::chrono::seconds(wait_));
 
@@ -45,7 +45,7 @@ typedef DummyClient<SonicClientAsync<int>> DummyClientAsync;
 
 //specialization for true async
 template <>
-void DummyClientAsync::predictImpl() {
+void DummyClientAsync::dispatch() {
   this->output_ = this->input_ * factor_;
   this->finish();
 }

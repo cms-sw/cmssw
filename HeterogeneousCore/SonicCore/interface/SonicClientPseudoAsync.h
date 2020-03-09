@@ -33,7 +33,7 @@ public:
     }
   }
   //accessor
-  void predict(edm::WaitingTaskWithArenaHolder holder) override final {
+  void evaluate(edm::WaitingTaskWithArenaHolder holder) override final {
     //do all read/writes inside lock to ensure cache synchronization
     {
       std::lock_guard<std::mutex> guard(mutex_);
@@ -59,7 +59,7 @@ protected:
         //do everything inside lock
         std::exception_ptr eptr;
         try {
-          predictImpl();
+          dispatch();
         } catch (...) {
           eptr = std::current_exception();
         }

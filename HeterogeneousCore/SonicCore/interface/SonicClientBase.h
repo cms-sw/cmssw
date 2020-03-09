@@ -16,10 +16,10 @@ public:
   void setDebugName(const std::string& debugName) { debugName_ = debugName; }
 
   //main operation
-  virtual void predict(edm::WaitingTaskWithArenaHolder holder) = 0;
+  virtual void evaluate(edm::WaitingTaskWithArenaHolder holder) = 0;
 
 protected:
-  virtual void predictImpl() = 0;
+  virtual void dispatch() = 0;
 
   void setStartTime() {
     if (debugName_.empty())

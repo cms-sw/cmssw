@@ -35,7 +35,7 @@ public:
     if (!debugName_.empty())
       edm::LogInfo(debugName_) << "Load time: "
                                << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
-    client_.predict(holder);
+    client_.evaluate(holder);
   }
   virtual void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) = 0;
   //derived classes use a dedicated produce() interface that incorporates client_.output()
