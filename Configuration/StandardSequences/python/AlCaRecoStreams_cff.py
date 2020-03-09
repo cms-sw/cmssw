@@ -177,7 +177,6 @@ pathALCARECOSiStripCalCosmics = cms.Path(seqALCARECOSiStripCalCosmics)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
 pathALCARECOSiStripCalSmallBiasScan = cms.Path(seqALCARECOSiStripCalSmallBiasScan)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
-#pathALCARECOSiStripCalZeroBias.replace(consecutiveHEs, unpackTcds*consecutiveHEs)
 pathALCARECOSiPixelCalZeroBias = cms.Path(seqALCARECOSiPixelCalZeroBias)
 
 pathALCARECOLumiPixelsMinBias       = cms.Path(seqALCARECOLumiPixelsMinBias)
