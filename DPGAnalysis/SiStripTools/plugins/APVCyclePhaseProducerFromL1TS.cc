@@ -79,6 +79,7 @@ private:
   bool _useEC0;
   int _magicOffset;
   bool m_badRun;
+  const bool _forceSCAL;
 
   std::vector<std::pair<unsigned int, unsigned int> > m_badruns;
 
@@ -113,6 +114,7 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
       _useEC0(iConfig.getUntrackedParameter<bool>("useEC0", false)),
       _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset", 8)),
       m_badRun(false),
+      _forceSCAL(iConfig.getParameter<bool>("forceSCAL")),
       m_badruns(),
       _lastResync(-1),
       _lastHardReset(-1),
@@ -190,8 +192,9 @@ void APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::Event
   iEvent.getByToken(_l1tscollectionToken, l1ts);
   Handle<TCDSRecord> tcds_pIn;
   iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
-  const auto& tcdsRecord = *tcds_pIn.product();
-  bool useTCDS(tcds_pIn.isValid());
+  bool useTCDS(tcds_pIn.isValid() && !_forceSCAL);
+  
+  const auto& tcdsRecord = useTCDS ? *tcds_pIn.product() : NULL;
 
   // offset computation
 
