@@ -71,7 +71,7 @@ private:
   const std::vector<int> _defphases;
   const int _orbitoffsetSOR;
   const bool _wantHistos;
-
+  const bool _forceSCAL;
   RunHistogramManager m_rhm;
 
   TH1F** _hbx;
@@ -102,6 +102,7 @@ APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::Parame
       _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
       _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
       _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos", false)),
+      _forceSCAL(iConfig.getParameter<bool>("forceSCAL")),
       m_rhm(consumesCollector()),
       _hbx(nullptr),
       _hdbx(nullptr),
@@ -191,8 +192,8 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
     iEvent.getByToken(_l1abccollectionToken, pIn);
     Handle<TCDSRecord> tcds_pIn;
     iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
-    const auto& tcdsRecord = *tcds_pIn.product();
-    bool useTCDS(tcds_pIn.isValid());
+    bool useTCDS(tcds_pIn.isValid() && !_forceSCAL);
+    const auto& tcdsRecord = useTCDS ? *tcds_pIn.product() : NULL;
     // offset computation
 
     long long orbitoffset = _orbitoffsetSOR;

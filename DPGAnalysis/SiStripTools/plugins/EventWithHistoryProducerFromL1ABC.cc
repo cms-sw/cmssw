@@ -55,6 +55,7 @@ private:
   edm::EDGetTokenT<L1AcceptBunchCrossingCollection> _l1abccollectionToken;
   edm::EDGetTokenT<TCDSRecord> _tcdsRecordToken;
   const bool _forceNoOffset;
+  const bool _forceSCAL;
   std::map<edm::EventNumber_t, long long> _offsets;
   long long _curroffset;
   edm::EventNumber_t _curroffevent;
@@ -76,6 +77,7 @@ EventWithHistoryProducerFromL1ABC::EventWithHistoryProducerFromL1ABC(const edm::
           mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
       _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
       _forceNoOffset(iConfig.getUntrackedParameter<bool>("forceNoOffset", false)),
+      _forceSCAL(iConfig.getParameter<bool>("forceSCAL")),
       _offsets(),
       _curroffset(0),
       _curroffevent(0) {
@@ -109,9 +111,9 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
     iEvent.getByToken(_l1abccollectionToken, pIn);
     Handle<TCDSRecord> tcds_pIn;
     iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
-    const auto& tcdsRecord = *tcds_pIn.product();
-    bool useTCDS(tcds_pIn.isValid());
-
+    bool useTCDS(tcds_pIn.isValid() && !_forceSCAL);
+    const auto& tcdsRecord = useTCDS ? *tcds_pIn.product() : NULL;
+    
     // offset computation
 
     long long orbitoffset = 0;
