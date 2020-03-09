@@ -15,3 +15,7 @@ trackingPhase2PU140.toModify(TTRHBuilderAngleAndTemplate, Phase2StripCPE = cms.s
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = cms.string('PixelCPEClusterRepair'))
 
+# uncomment these two lines to turn on Cluster Repair CPE
+from Configuration.ProcessModifiers.phase2_PixelCPEGeneric_cff import phase2_PixelCPEGeneric
+phase2_PixelCPEGeneric.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = cms.string('PixelCPEGeneric'))
+
