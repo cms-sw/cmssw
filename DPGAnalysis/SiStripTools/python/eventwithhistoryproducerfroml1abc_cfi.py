@@ -6,5 +6,5 @@ from Configuration.StandardSequences.SimL1EmulatorRepack_Full_cff import unpackT
 consecutiveHEs = cms.EDProducer("EventWithHistoryProducerFromL1ABC",
                                 l1ABCCollection=cms.InputTag("scalersRawToDigi"),
                                 tcdsRecordLabel= cms.InputTag("unpackTcds","tcdsRecord"),
-                                forceSCAL = cms.bool(False)
+                                forceSCAL = cms.bool(True)
                                 )
