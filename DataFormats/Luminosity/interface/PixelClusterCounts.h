@@ -4,7 +4,7 @@
  *  
  * Reconstructed PixelClusterCounts object that will contain the moduleID, BX, and counts.
  *
- * \authors: Sam Higginbotham shiggib@cern.ch and Chris Palmer capalmer@cern.ch
+ * \authors: Sam Higginbotham shigginb@cern.ch and Chris Palmer capalmer@cern.ch
  * 
  *
  */
