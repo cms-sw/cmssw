@@ -31,7 +31,7 @@ public:
                    const long long orbitoffset = 0,
                    const int bxoffset = 0);
   EventWithHistory(const EventWithHistory& he);
-  
+
   EventWithHistory& operator=(const EventWithHistory& he);
 
   //  int operator<(const EventWithHistory& other) const;
