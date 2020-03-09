@@ -11,7 +11,7 @@ public:
   typedef InputT Input;
   typedef OutputT Output;
   //destructor
-  virtual ~SonicClientTypes() {}
+  virtual ~SonicClientTypes() = default;
 
   //accessors
   Input& input() { return input_; }

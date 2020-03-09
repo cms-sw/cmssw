@@ -11,7 +11,7 @@
 class SonicClientBase {
 public:
   //destructor
-  virtual ~SonicClientBase() {}
+  virtual ~SonicClientBase() = default;
 
   void setDebugName(const std::string& debugName) { debugName_ = debugName; }
 
