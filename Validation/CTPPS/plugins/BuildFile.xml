@@ -1,6 +1,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="CondFormats/CTPPSReadoutObjects"/>
+<use name="CondFormats/PPSObjects"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CommonTools/Utils"/>
