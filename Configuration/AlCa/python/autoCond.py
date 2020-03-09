@@ -71,7 +71,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2021
     'phase1_2021_realistic'    : '111X_mcRun3_2021_realistic_v1', # GT containing realistic conditions for Phase1 2021
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2021,  Strip tracker in DECO mode
-    'phase1_2021_cosmics'      : '110X_mcRun3_2021cosmics_realistic_deco_v5',
+    'phase1_2021_cosmics'      : '111X_mcRun3_2021cosmics_realistic_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2021 detector for Heavy Ion
     'phase1_2021_realistic_hi' :  '111X_mcRun3_2021_realistic_HI_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
