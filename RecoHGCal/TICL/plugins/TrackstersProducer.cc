@@ -152,7 +152,8 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
 
   std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
-  if(itername_=="TRK")
+  // if it's regional iteration and there are seeding regions
+  if(!seeding_regions.empty() and seeding_regions[0].index != -1)
   {
     auto numberOfSeedingRegions = seeding_regions.size();
     for(unsigned int i = 0; i< numberOfSeedingRegions; ++i)
