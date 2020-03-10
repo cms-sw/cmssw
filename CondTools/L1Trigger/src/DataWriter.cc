@@ -123,10 +123,12 @@ namespace l1t {
     cond::persistency::Session session = poolDb->session();
     cond::persistency::IOVProxy iov = session.readIov(iovTag);
     session.transaction().start();
-
-    auto iP = iov.getInterval(runNumber);
-    std::string payloadToken = iP.payloadId;
-
+    auto iovs = iov.selectAll();
+    std::string payloadToken("");
+    auto iP = iovs.find(runNumber);
+    if (iP != iovs.end()) {
+      payloadToken = (*iP).payloadId;
+    }
     session.transaction().commit();
     return payloadToken;
   }
