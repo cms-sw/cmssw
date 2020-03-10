@@ -32,6 +32,7 @@ protected:
     std::this_thread::sleep_for(std::chrono::seconds(wait_));
 
     this->output_ = this->input_ * factor_;
+    this->finish();
   }
 
   //members
@@ -42,12 +43,5 @@ protected:
 typedef DummyClient<SonicClientSync<int>> DummyClientSync;
 typedef DummyClient<SonicClientPseudoAsync<int>> DummyClientPseudoAsync;
 typedef DummyClient<SonicClientAsync<int>> DummyClientAsync;
-
-//specialization for true async
-template <>
-void DummyClientAsync::evaluate() {
-  this->output_ = this->input_ * factor_;
-  this->finish();
-}
 
 #endif

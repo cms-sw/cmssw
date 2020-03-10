@@ -57,16 +57,10 @@ protected:
           break;
 
         //do everything inside lock
-        std::exception_ptr eptr;
-        try {
-          evaluate();
-        } catch (...) {
-          eptr = std::current_exception();
-        }
+        evaluate();
 
-        //pseudo-async calls holder at the end (inside std::thread)
+        //reset condition
         hasCall_ = false;
-        finish(eptr);
       }
     }
   }

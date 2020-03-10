@@ -18,15 +18,7 @@ public:
     holder_ = std::move(holder);
     setStartTime();
 
-    std::exception_ptr eptr;
-    try {
-      evaluate();
-    } catch (...) {
-      eptr = std::current_exception();
-    }
-
-    //sync Client calls holder at the end
-    finish(eptr);
+    evaluate();
   }
 };
 
