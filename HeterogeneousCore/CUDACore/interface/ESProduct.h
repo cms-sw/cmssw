@@ -1,5 +1,5 @@
-#ifndef HeterogeneousCore_CUDACore_CUDAESProduct_h
-#define HeterogeneousCore_CUDACore_CUDAESProduct_h
+#ifndef HeterogeneousCore_CUDACore_ESProduct_h
+#define HeterogeneousCore_CUDACore_ESProduct_h
 
 #include <atomic>
 #include <cassert>
@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "HeterogeneousCore/CUDAServices/interface/numberOfDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/EventCache.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/deviceCount.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/eventWorkHasCompleted.h"
 
@@ -18,7 +18,7 @@ namespace cms {
     template <typename T>
     class ESProduct {
     public:
-      ESProduct() : gpuDataPerDevice_(deviceCount()) {
+      ESProduct() : gpuDataPerDevice_(numberOfDevices()) {
         for (size_t i = 0; i < gpuDataPerDevice_.size(); ++i) {
           gpuDataPerDevice_[i].m_event = getEventCache().get();
         }

@@ -332,19 +332,6 @@ TrackerHitAnalyzer::~TrackerHitAnalyzer() {
   // don't try to delete any pointers - they're handled by DQM machinery
 }
 
-void TrackerHitAnalyzer::endJob() {
-  // According to the previous code some profile plots were created here
-  // However, these profile plots are not in the final root file
-  // For now we comment out these plots (since they are not created in any case)
-  // Then, if needed we will consider moving the booking of the profileplots to
-  // the bookHistograms function and here we will do the profile
-
-  // Save root file only in standalone mode
-  if (runStandalone && !fOutputFile.empty() && fDBE) {
-    fDBE->save(fOutputFile);
-  }
-}
-
 void TrackerHitAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c) {
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 

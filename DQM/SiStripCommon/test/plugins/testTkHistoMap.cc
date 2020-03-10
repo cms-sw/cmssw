@@ -5,7 +5,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,7 +35,7 @@
 // class declaration
 //
 
-class testTkHistoMap : public DQMEDAnalyzer {
+class testTkHistoMap : public DQMOneEDAnalyzer<> {
 public:
   explicit testTkHistoMap(const edm::ParameterSet&);
   ~testTkHistoMap();

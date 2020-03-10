@@ -11,16 +11,9 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/CommonDetUnit"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="TrackingTools/IPTools"/>
-<use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="TrackingTools/Records"/>
 <use   name="RecoVertex/AdaptiveVertexFit"/>
-<use   name="RecoParticleFlow/PFClusterTools"/>
-<use   name="TrackingTools/TrackAssociator"/>
 <use   name="PhysicsTools/JetMCUtils"/>
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/BaseParticlePropagator"/>

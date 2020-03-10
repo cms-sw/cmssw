@@ -149,18 +149,17 @@ namespace {
 
       if (me) {
         auto histo = HistoTraits<T>::get(me);
-        if (histo && me->getTH1()->CanExtendAllAxes()) {
-          TList list;
-          list.Add(metoedmobject);
-          if (histo->Merge(&list) == -1)
-            std::cout << "ERROR EDMtoMEConverter::getData(): merge failed for '" << metoedmobject->GetName() << "'"
-                      << std::endl;
-          return me;
-        }
+        assert(histo);
+        TList list;
+        list.Add(metoedmobject);
+        if (histo->Merge(&list) == -1)
+          edm::LogError("EDMtoMEConverter") << "ERROR EDMtoMEConverter::getData(): merge failed for '"
+                                            << metoedmobject->GetName() << "'" << std::endl;
+        return me;
+      } else {
+        iBooker.setCurrentFolder(dir);
+        return HistoTraits<T>::book(iBooker, metoedmobject->GetName(), metoedmobject);
       }
-
-      iBooker.setCurrentFolder(dir);
-      return HistoTraits<T>::book(iBooker, metoedmobject->GetName(), metoedmobject);
     }
   };
 

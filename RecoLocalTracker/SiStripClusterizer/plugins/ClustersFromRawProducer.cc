@@ -21,14 +21,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <memory>
 #include <atomic>
 #include <mutex>
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 // #define VIDEBUG
 #ifdef VIDEBUG

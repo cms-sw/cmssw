@@ -56,7 +56,8 @@ namespace APVGain {
   struct APVGainHistograms {
   public:
     APVGainHistograms()
-        : Charge_Vs_Index(7),
+        : EventStats(),
+          Charge_Vs_Index(7),
           Charge_1(),
           Charge_2(),
           Charge_3(),
@@ -74,6 +75,7 @@ namespace APVGain {
           APVsCollOrdered(),
           APVsColl() {}
 
+    dqm::reco::MonitorElement* EventStats;
     std::vector<dqm::reco::MonitorElement*> Charge_Vs_Index;         /*!< Charge per cm for each detector id */
     std::array<std::vector<dqm::reco::MonitorElement*>, 7> Charge_1; /*!< Charge per cm per layer / wheel */
     std::array<std::vector<dqm::reco::MonitorElement*>, 7> Charge_2; /*!< Charge per cm per layer / wheel without G2 */

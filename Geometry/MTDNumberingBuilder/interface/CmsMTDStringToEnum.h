@@ -9,6 +9,8 @@
  */
 class CmsMTDStringToEnum {
 public:
+  static constexpr size_t kModStrLen = 7;
+
   typedef std::map<std::string, GeometricTimingDet::GeometricTimingEnumType> MapEnumType;
   typedef std::map<GeometricTimingDet::GeometricTimingEnumType, std::string> ReverseMapEnumType;
 

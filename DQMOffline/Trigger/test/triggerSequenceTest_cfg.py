@@ -84,7 +84,7 @@ process.source = cms.Source("PoolSource",
 #process.hltSeedL1Logic.dqmFolder =    cms.untracked.string("HLT/HLTSeedL1LogicScalers_SM")
 
 
-process.p = cms.EndPath(process.hltResults)
+process.p = cms.EndPath(process.hltFiltersDQMonitor)
   
 process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
 process.DQMStore.verbose = 0
@@ -92,7 +92,6 @@ process.DQM.collectorHost = 'srv-c2d05-12'
 process.DQM.collectorPort = 9190
 process.dqmSaver.dirName = '.'
 process.dqmSaver.producer = 'Playback'
-#process.hltResults.plotAll = True
 process.dqmSaver.convention = 'Online'
 process.dqmEnv.subSystemFolder = 'HLT'
 process.dqmSaver.saveByRun = 1
@@ -100,7 +99,7 @@ process.dqmSaver.saveAtJobEnd = True
 
 # # Message Logger
 # process.load("FWCore.MessageService.MessageLogger_cfi")
-# #process.MessageLogger.categories = ['hltResults']
+# #process.MessageLogger.categories = ['hltFiltersDQMonitor']
 # process.MessageLogger.destinations = ['cout', 'detailedInfo', 'critical']
 # process.MessageLogger.cout = cms.untracked.PSet(
 #     #threshold = cms.untracked.string('ERROR'),
@@ -116,7 +115,7 @@ process.dqmSaver.saveAtJobEnd = True
 # process.MessageLogger.categories = ['Status', 'Parameter']
 # # copy stdout to a file
 # process.MessageLogger.detailedInfo = process.MessageLogger.cout
-# process.MessageLogger.debugModules = ['hltResults']
+# process.MessageLogger.debugModules = ['hltFiltersDQMonitor']
 # process.MessageLogger.critical = cms.untracked.PSet(
 #     threshold = cms.untracked.string('ERROR'),
 #     #threshold = cms.untracked.string('INFO'),

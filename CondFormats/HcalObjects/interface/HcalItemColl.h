@@ -1,12 +1,13 @@
 #ifndef CondFormats_HcalObjects_HcalItemColl_h
 #define CondFormats_HcalObjects_HcalItemColl_h
 
-#include <memory>
-
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"
 #include "boost/serialization/shared_ptr.hpp"
 #include "boost/serialization/vector.hpp"
+
+#include <memory>
+#include <vector>
 
 //
 // This collection manages only pointers and references.

@@ -1,11 +1,8 @@
-<use   name="FWCore/PluginManager"/>
-<use   name="DataFormats/Math"/>
 <use   name="DataFormats/FP420Digi"/>
 <use   name="DataFormats/FP420Cluster"/>
 <use   name="DataFormats/Common"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
-<use   name="Mixing/Base"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="hector"/>
 <use   name="boost"/>

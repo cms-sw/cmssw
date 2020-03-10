@@ -31,7 +31,7 @@
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
 #include "TGeoMatrix.h"
-
+#include "TVirtualX.h"
 #include "TGFrame.h"
 #include "TEveUtil.h"
 #include "boost/lexical_cast.hpp"

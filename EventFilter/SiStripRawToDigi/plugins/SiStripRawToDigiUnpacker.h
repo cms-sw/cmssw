@@ -7,6 +7,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "WarningSummary.h"
 
 /// sistrip classes

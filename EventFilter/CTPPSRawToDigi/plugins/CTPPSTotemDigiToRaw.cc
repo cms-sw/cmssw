@@ -36,8 +36,8 @@ Implementation:
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"

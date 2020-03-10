@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:PromptCalibProdSiStripGains.root'),
+    fileNames = cms.untracked.vstring('file:PromptCalibProdSiStripGains_A.root'),
     processingMode = cms.untracked.string('RunsAndLumis'),
     secondaryFileNames = cms.untracked.vstring()
 )

@@ -16,6 +16,7 @@
 #include "KeySymbols.h"
 #include "TTimer.h"
 #include "TGWindow.h"
+#include "TVirtualX.h"
 
 // user include files
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"

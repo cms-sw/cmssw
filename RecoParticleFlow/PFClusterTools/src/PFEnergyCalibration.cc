@@ -7,23 +7,13 @@
 #include <TMath.h>
 #include <cmath>
 #include <vector>
-#include <TF1.h>
 #include <map>
 #include <algorithm>
 #include <numeric>
 
 using namespace std;
 
-PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(nullptr), esEEInterCalib_(nullptr) {
-  initializeCalibrationFunctions();
-}
-
-PFEnergyCalibration::~PFEnergyCalibration() {}
-
-void PFEnergyCalibration::initializeCalibrationFunctions() {
-  threshE = 3.5;
-  threshH = 2.5;
-
+PFEnergyCalibration::PFEnergyCalibration() {
   //calibChrisClean.C calibration parameters bhumika Nov, 2018
   faBarrel = std::make_unique<TF1>(
       "faBarrel", "[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))", 0., 1000.);
@@ -161,13 +151,52 @@ void PFEnergyCalibration::initializeCalibrationFunctions() {
   fdEtaEndcapEH->SetParameter(3, 1.0);
 }
 
+PFEnergyCalibration::CalibratedEndcapPFClusterEnergies PFEnergyCalibration::calibrateEndcapClusterEnergies(
+    reco::PFCluster const& eeCluster,
+    std::vector<reco::PFCluster const*> const& psClusterPointers,
+    ESChannelStatus const& channelStatus,
+    bool applyCrackCorrections) const {
+  double ps1_energy_sum = 0.;
+  double ps2_energy_sum = 0.;
+  bool condP1 = true;
+  bool condP2 = true;
+
+  for (auto const& psclus : psClusterPointers) {
+    bool cond = true;
+    for (auto const& recH : psclus->recHitFractions()) {
+      auto strip = recH.recHitRef()->detId();
+      if (strip != ESDetId(0)) {
+        //getStatusCode() == 0 => active channel
+        // apply correction if all recHits are dead
+        if (channelStatus.getMap().find(strip)->getStatusCode() == 0) {
+          cond = false;
+          break;
+        }
+      }
+    }
+
+    if (psclus->layer() == PFLayer::PS1) {
+      ps1_energy_sum += psclus->energy();
+      condP1 &= cond;
+    } else if (psclus->layer() == PFLayer::PS2) {
+      ps2_energy_sum += psclus->energy();
+      condP2 &= cond;
+    }
+  }
+
+  double ePS1 = condP1 ? -1. : 0.;
+  double ePS2 = condP2 ? -1. : 0.;
+
+  double cluscalibe = energyEm(eeCluster, ps1_energy_sum, ps2_energy_sum, ePS1, ePS2, applyCrackCorrections);
+
+  return {cluscalibe, ePS1, ePS2};
+}
+
 void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta, double phi) const {
   // Use calorimetric energy as true energy for neutral particles
-  double tt = t;
-  double ee = e;
-  double hh = h;
-  double a = 1.;
-  double b = 1.;
+  const double tt = t;
+  const double ee = e;
+  const double hh = h;
   double etaCorrE = 1.;
   double etaCorrH = 1.;
   auto absEta = std::abs(eta);
@@ -178,8 +207,8 @@ void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta
   // Barrel calibration
   if (absEta < 1.48) {
     // The energy correction
-    a = e > 0. ? aBarrel(t) : 1.;
-    b = e > 0. ? bBarrel(t) : cBarrel(t);
+    double a = e > 0. ? aBarrel(t) : 1.;
+    double b = e > 0. ? bBarrel(t) : cBarrel(t);
     double thresh = e > 0. ? threshE : threshH;
 
     // Protection against negative calibration
@@ -209,8 +238,8 @@ void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta
     // Endcap calibration
   } else {
     // The energy correction
-    a = e > 0. ? aEndcap(t) : 1.;
-    b = e > 0. ? bEndcap(t) : cEndcap(t);
+    double a = e > 0. ? aEndcap(t) : 1.;
+    double b = e > 0. ? bEndcap(t) : cEndcap(t);
     double thresh = e > 0. ? threshE : threshH;
 
     // Protection against negative calibration
@@ -224,8 +253,8 @@ void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta
     t = min(999.9, max(tt, thresh + a * e + b * h));
 
     // The angular correction
-    double dEta = std::abs(absEta - 1.5);
-    double etaPow = dEta * dEta * dEta * dEta;
+    const double dEta = std::abs(absEta - 1.5);
+    const double etaPow = dEta * dEta * dEta * dEta;
 
     if (e > 0. && thresh > 0.) {
       if (absEta < 2.5) {
@@ -485,58 +514,21 @@ double PFEnergyCalibration::dEtaEndcapEH(double x) const {
     return fdEtaEndcapEH->Eval(x);
   }
 }
-//
-double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
-                                     std::vector<double>& EclustersPS1,
-                                     std::vector<double>& EclustersPS2,
-                                     bool crackCorrection) const {
-  double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
-  double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
-  return energyEm(clusterEcal, ePS1, ePS2, crackCorrection);
-}
 
 double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
                                      double ePS1,
                                      double ePS2,
                                      bool crackCorrection) const {
-  double eEcal = clusterEcal.energy();
-  //temporaty ugly fix
-  reco::PFCluster myPFCluster = clusterEcal;
-  myPFCluster.calculatePositionREP();
-  double eta = myPFCluster.positionREP().eta();
-  double phi = myPFCluster.positionREP().phi();
-
-  double calibrated = Ecorr(eEcal, ePS1, ePS2, eta, phi, crackCorrection);
-  // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl;
-  return calibrated;
+  return Ecorr(clusterEcal.energy(), ePS1, ePS2, clusterEcal.eta(), clusterEcal.phi(), crackCorrection);
 }
 
-double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
-                                     std::vector<double>& EclustersPS1,
-                                     std::vector<double>& EclustersPS2,
-                                     double& ps1,
-                                     double& ps2,
-                                     bool crackCorrection) const {
-  double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
-  double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
-  return energyEm(clusterEcal, ePS1, ePS2, ps1, ps2, crackCorrection);
-}
 double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
                                      double ePS1,
                                      double ePS2,
                                      double& ps1,
                                      double& ps2,
                                      bool crackCorrection) const {
-  double eEcal = clusterEcal.energy();
-  //temporaty ugly fix
-  reco::PFCluster myPFCluster = clusterEcal;
-  myPFCluster.calculatePositionREP();
-  double eta = myPFCluster.positionREP().eta();
-  double phi = myPFCluster.positionREP().phi();
-
-  double calibrated = Ecorr(eEcal, ePS1, ePS2, eta, phi, ps1, ps2, crackCorrection);
-  // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl;
-  return calibrated;
+  return Ecorr(clusterEcal.energy(), ePS1, ePS2, clusterEcal.eta(), clusterEcal.phi(), ps1, ps2, crackCorrection);
 }
 
 std::ostream& operator<<(std::ostream& out, const PFEnergyCalibration& calib) {
@@ -622,7 +614,7 @@ std::ostream& operator<<(std::ostream& out, const PFEnergyCalibration& calib) {
 
 //useful to compute the signed distance to the closest crack in the barrel
 double PFEnergyCalibration::minimum(double a, double b) const {
-  if (TMath::Abs(b) < TMath::Abs(a))
+  if (std::abs(b) < std::abs(a))
     a = b;
   return a;
 }
@@ -719,7 +711,7 @@ double PFEnergyCalibration::CorrEta(double eta) const {
 
   for (unsigned i = 0; i <= 4; i++)
     result += a[i] * TMath::Gaus(eta, m[i], s[i]) *
-              (1 + sa[i] * TMath::Sign(1., eta - m[i]) * TMath::Exp(-TMath::Abs(eta - m[i]) / ss[i]));
+              (1 + sa[i] * TMath::Sign(1., eta - m[i]) * TMath::Exp(-std::abs(eta - m[i]) / ss[i]));
 
   return result;
 }
@@ -937,7 +929,7 @@ double PFEnergyCalibration::EcorrPS_ePSNil(double eEcal, double eta) const {
   //so that <feta()> = 1
   constexpr double norm = (p4 + p5 * (2.6 + 1.656) / 2);
 
-  double result = eEcal * (p0 + p1 * TMath::Exp(-TMath::Abs(eEcal - p3) / p2)) * (p4 + p5 * eta) / norm;
+  double result = eEcal * (p0 + p1 * TMath::Exp(-std::abs(eEcal - p3) / p2)) * (p4 + p5 * eta) / norm;
 
   return result;
 }
@@ -981,7 +973,7 @@ double PFEnergyCalibration::Ecorr(
 
   double result = 0;
 
-  eta = TMath::Abs(eta);
+  eta = std::abs(eta);
 
   if (eEcal > 0) {
     if (eta <= endBarrel)
@@ -1021,7 +1013,7 @@ double PFEnergyCalibration::Ecorr(double eEcal,
 
   double result = 0;
 
-  eta = TMath::Abs(eta);
+  eta = std::abs(eta);
 
   if (eEcal > 0) {
     if (eta <= endBarrel)

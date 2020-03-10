@@ -1,12 +1,72 @@
+// -*- C++ -*-
+//
+// Package:    PythiaMomDauFilter
+// Class:      PythiaMomDauFilter
+//
+/**\class PythiaMomDauFilter PythiaMomDauFilter.cc
 
-#include "GeneratorInterface/GenFilters/plugins/PythiaMomDauFilter.h"
+ Description: Filter events using MotherId and ChildrenIds infos
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Daniele Pedrini
+//         Created:  Oct 27 2015
+// Fixed : Ta-Wei Wang, Dec 11 2015
+// $Id: PythiaMomDauFilter.h,v 1.1 2015/10/27  pedrini Exp $
+//
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "GeneratorInterface/GenFilters/plugins/MCFilterZboostHelper.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/PythiaWrapper6_4.h"
-#include <iostream>
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-using namespace edm;
+#include <string>
+#include <vector>
+
+#define PYCOMP pycomp_
+extern "C" {
+int PYCOMP(int& ip);
+}
+
+// Must be a "one" because it uses a Pythia 6 FORTRAN function
+class PythiaMomDauFilter : public edm::one::EDFilter<edm::one::SharedResources> {
+public:
+  explicit PythiaMomDauFilter(const edm::ParameterSet&);
+
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // ----------member data ---------------------------
+
+  edm::EDGetTokenT<edm::HepMCProduct> label_;
+  std::vector<int> dauIDs;
+  std::vector<int> desIDs;
+  int particleID;
+  int daughterID;
+  bool chargeconju;
+  int ndaughters;
+  int ndescendants;
+  double minptcut;
+  double maxptcut;
+  double minetacut;
+  double maxetacut;
+  double mom_minptcut;
+  double mom_maxptcut;
+  double mom_minetacut;
+  double mom_maxetacut;
+  double betaBoost;
+};
+
 using namespace std;
 
 PythiaMomDauFilter::PythiaMomDauFilter(const edm::ParameterSet& iConfig)
@@ -26,6 +86,8 @@ PythiaMomDauFilter::PythiaMomDauFilter(const edm::ParameterSet& iConfig)
       mom_minetacut(iConfig.getUntrackedParameter<double>("MomMinEta", -10.)),
       mom_maxetacut(iConfig.getUntrackedParameter<double>("MomMaxEta", 10.)),
       betaBoost(iConfig.getUntrackedParameter("BetaBoost", 0.)) {
+  usesResource(edm::SharedResourceNames::kPythia6);
+
   //now do what ever initialization is needed
   vector<int> defdauID;
   defdauID.push_back(0);
@@ -35,21 +97,10 @@ PythiaMomDauFilter::PythiaMomDauFilter(const edm::ParameterSet& iConfig)
   desIDs = iConfig.getUntrackedParameter<vector<int> >("DescendantsIDs", defdesID);
 }
 
-PythiaMomDauFilter::~PythiaMomDauFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
   bool accepted = false;
   bool mom_accepted = false;
-  Handle<HepMCProduct> evt;
+  edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(label_, evt);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
@@ -174,10 +225,7 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
-
-  if (accepted) {
-    return true;
-  } else {
-    return false;
-  }
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(PythiaMomDauFilter);

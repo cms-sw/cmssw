@@ -11,7 +11,7 @@
 
 // FIXME::TkStackMeasurementDet in this moment is just a prototype: to be fixed soon!
 
-class TkStackMeasurementDet GCC11_FINAL : public MeasurementDet {
+class TkStackMeasurementDet final : public MeasurementDet {
 public:
   TkStackMeasurementDet(const StackGeomDet* gdet, const PixelClusterParameterEstimator* cpe);
   void init(const MeasurementDet* lowerDet, const MeasurementDet* upperDet);
