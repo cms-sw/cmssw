@@ -314,6 +314,7 @@ namespace cond {
       checkTransaction("IOVProxy::getInterval");
       if (!m_data->cacheInitialized)
         loadGroups();
+      cond::Iov_t retVal;
       // organize iovs in pages...
       // first check the available iov cache:
       if (m_data->groupLowerIov == cond::time::MAX_VAL ||  // case 0 : empty cache ( the first request )
@@ -324,9 +325,7 @@ namespace cond {
         auto iGLow = search(time, m_data->sinceGroups);
         if (iGLow == m_data->sinceGroups.end()) {
           // no suitable group=no iov at all! exiting...
-          throwException("0 In tag " + m_data->tagInfo.name + " can't find a valid interval for the specified time " +
-                             std::to_string(time),
-                         "IOVProxy::getInterval");
+          return retVal;
         }
         auto iGHigh = iGLow;
         cond::Time_t lowG = *iGLow;
@@ -342,12 +341,9 @@ namespace cond {
       // the current iov set is a good one...
       auto iIov = search(time, m_data->iovSequence);
       if (iIov == m_data->iovSequence.end()) {
-        throwException("1 In tag " + m_data->tagInfo.name + " can't find a valid interval for the specified time " +
-                           std::to_string(time),
-                       "IOVProxy::getInterval");
+        return retVal;
       }
 
-      cond::Iov_t retVal;
       retVal.since = std::get<0>(*iIov);
       auto next = iIov;
       next++;
