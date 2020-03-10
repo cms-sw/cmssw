@@ -175,12 +175,6 @@ void PFJetAnalyzerDQM::prepareGenJetPlots(const std::vector<edm::ParameterSet>& 
     const auto etabin_low = pset.getParameter<double>("etaBinLow");
     const auto etabin_high = pset.getParameter<double>("etaBinHigh");
 
-    /*  for (auto v : ptbins) {
-            std::cout << " " << v;
-        }
-        std::cout << std::endl;
-	*/
-
     genJetPlots.push_back(Plot1DInBinVariable(
         name,
         title,
@@ -258,8 +252,6 @@ void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, e
 }
 
 void PFJetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const&, edm::EventSetup const&) {
-  //std::cout << "PFJetAnalyzerDQM booking response histograms" << std::endl;
-
   booker.setCurrentFolder("ParticleFlow/JetResponse/" + jetCollectionName + "/JEC/");
   for (auto& plot : jetResponsePlots) {
     plot.book(booker);
