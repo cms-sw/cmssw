@@ -151,7 +151,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
         case HGCHEF:
           idtype = hgcfh;
           thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
-	  break;
+          break;
         case HcalEndcap:
           [[fallthrough]];
         case HGCHEB:
@@ -175,8 +175,8 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
     case hgcfh:
       rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
       cce_correction = hgcHEF_cce_[thickness - 1];
-      sigmaNoiseGeV =  
-	  1e-3 * weights_[layer] * rcorr_[thickness+deltasi_index_regemfac] * hgcHEF_noise_fC_[thickness - 1]  / hgcHEF_fCPerMIP_[thickness - 1];
+      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness + deltasi_index_regemfac] *
+                      hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
       break;
     case hgcbh:
       rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
@@ -198,10 +198,10 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   double new_E = myrechit.energy();
   if (detid.det() == DetId::Forward && detid.subdetId() == ForwardSubdetector::HFNose) {
     new_E *= (thickness == -1 ? 1.0 : rcorrNose_[thickness]) / cce_correction;
-  } //regional factors for silicon in CE_H 
-  else if (idtype == hgcfh){
-    new_E *= rcorr_[thickness+deltasi_index_regemfac] / cce_correction;
-  } //regional factors for scintillator and silicon in CE_E
+  }  //regional factors for silicon in CE_H
+  else if (idtype == hgcfh) {
+    new_E *= rcorr_[thickness + deltasi_index_regemfac] / cce_correction;
+  }  //regional factors for scintillator and silicon in CE_E
   else {
     new_E *= (thickness == -1 ? rcorrscint_ : rcorr_[thickness]) / cce_correction;
   }
