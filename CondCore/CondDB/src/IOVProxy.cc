@@ -234,29 +234,29 @@ namespace cond {
 
     cond::Tag_t IOVProxy::tagInfo() const { return m_data.get() ? m_data->tagInfo : cond::Tag_t(); }
 
-    void setTillToLastIov( cond::Iov_t& target, cond::Time_t endOfValidity ) {
+    void setTillToLastIov(cond::Iov_t& target, cond::Time_t endOfValidity) {
       if (endOfValidity < cond::time::MAX_VAL) {
-	if (target.since >= endOfValidity) {
-	  target.clear();
-	} else {
-	  target.till = endOfValidity;
-	}
+        if (target.since >= endOfValidity) {
+          target.clear();
+        } else {
+          target.till = endOfValidity;
+        }
       } else {
-	target.till = cond::time::MAX_VAL;
+        target.till = cond::time::MAX_VAL;
       }
     }
 
-    cond::TagInfo_t IOVProxy::iovSequenceInfo() const {  
+    cond::TagInfo_t IOVProxy::iovSequenceInfo() const {
       if (!m_data.get())
         throwException("No tag has been loaded.", "IOVProxy::iovSequenceInfo");
-      checkTransaction("IOVProxy::iovSequenceInfo");   
+      checkTransaction("IOVProxy::iovSequenceInfo");
       cond::TagInfo_t ret;
       m_session->iovSchema().iovTable().getSize(m_data->tagInfo.name, m_data->snapshotTime, ret.size);
       cond::Iov_t last;
       bool ok = m_session->iovSchema().iovTable().getLastIov(
           m_data->tagInfo.name, m_data->snapshotTime, ret.lastInterval.since, ret.lastInterval.payloadId);
       if (ok) {
-	setTillToLastIov( ret.lastInterval, m_data->tagInfo.endOfValidity );
+        setTillToLastIov(ret.lastInterval, m_data->tagInfo.endOfValidity);
       }
       return ret;
     }
@@ -385,7 +385,7 @@ namespace cond {
       bool ok = m_session->iovSchema().iovTable().getLastIov(
           m_data->tagInfo.name, m_data->snapshotTime, ret.since, ret.payloadId);
       if (ok) {
-        setTillToLastIov( ret, m_data->tagInfo.endOfValidity );
+        setTillToLastIov(ret, m_data->tagInfo.endOfValidity);
       }
       return ret;
     }

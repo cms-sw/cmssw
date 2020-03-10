@@ -126,7 +126,7 @@ namespace l1t {
     session.transaction().start();
 
     auto iP = iov.getInterval(runNumber);
-    std::string   payloadToken = iP.payloadId;
+    std::string payloadToken = iP.payloadId;
     session.transaction().commit();
     return payloadToken;
   }

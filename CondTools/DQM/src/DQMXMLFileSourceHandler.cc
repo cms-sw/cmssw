@@ -25,8 +25,8 @@ namespace popcon {
       if (this->tagInfo().size > 0) {
         //check what is already inside of the database
         ss << "\ngot offlineInfo " << this->tagInfo().name << ",\n size " << this->tagInfo().size << ",\n"
-           << "last object valid since " << this->tagInfo().lastInterval.since
-           << ",\n token " << this->tagInfo().lastInterval.payloadId << ",\n UserText " << this->userTextLog()
+           << "last object valid since " << this->tagInfo().lastInterval.since << ",\n token "
+           << this->tagInfo().lastInterval.payloadId << ",\n UserText " << this->userTextLog()
            << ";\n last entry info regarding the payload (if existing):"
            << ",\n logId" << this->logDBEntry().logId
            << ",\n last record with the correct tag (if existing) has been written in the db "

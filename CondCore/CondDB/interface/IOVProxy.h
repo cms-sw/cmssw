@@ -137,7 +137,7 @@ namespace cond {
       // it does NOT use the cache, every time it performs a new query.
       cond::Iov_t getLast();
 
-      // the size of the LOADED iov sequence subset. 
+      // the size of the LOADED iov sequence subset.
       int loadedSize() const;
 
       // the size of the entire iov sequence. Peforms a query at every call.

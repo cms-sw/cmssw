@@ -87,7 +87,7 @@ void testCreateSession(cond::persistency::ConnectionPool& connPool,
   cond::persistency::PayloadProxy<RunInfo> pp(&iov, &session, &requests);
   session.transaction().start(true);
   cond::persistency::IOVProxy iovProxy = session.readIov("RunInfo_v1_mc");
-  iov = iovProxy.getInterval( 1 );
+  iov = iovProxy.getInterval(1);
   session.transaction().commit();
   pp.initializeForNewIOV();
   pp.make();

@@ -52,7 +52,7 @@ cond::ValidityInterval cond::DataProxyWrapperBase::setIntervalFor(Time_t time) {
   if (!m_currentIov.isValidFor(time)) {
     m_currentIov.clear();
     m_session.transaction().start(true);
-    m_currentIov = m_iovProxy.getInterval( time );
+    m_currentIov = m_iovProxy.getInterval(time);
     m_session.transaction().commit();
   }
   return cond::ValidityInterval(m_currentIov.since, m_currentIov.till);

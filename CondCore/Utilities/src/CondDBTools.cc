@@ -91,7 +91,8 @@ namespace cond {
           throwException("PayloadType of the destination tag does not match with the source tag payloadType.",
                          "importIovs");
       } else {
-        editor = destSession.createIov(p.tagInfo().payloadType, destTag, p.tagInfo().timeType, p.tagInfo().synchronizationType);
+        editor = destSession.createIov(
+            p.tagInfo().payloadType, destTag, p.tagInfo().timeType, p.tagInfo().synchronizationType);
         if (description.empty())
           editor.setDescription("Created copying tag " + sourceTag + " from " + sourceSession.connectionString());
         else
@@ -139,8 +140,8 @@ namespace cond {
       }
       if (exists && override) {
         std::cout << "    Adding overlying iovs..." << std::endl;
-        persistency::IOVProxy dp = destSession.readIov( destTag );
-        auto diovs = dp.selectRange( begin, end);
+        persistency::IOVProxy dp = destSession.readIov(destTag);
+        auto diovs = dp.selectRange(begin, end);
         std::set<cond::Time_t> extraSinces;
         for (auto iov : diovs) {
           auto siov = p.getInterval(iov.since);
@@ -200,7 +201,8 @@ namespace cond {
           throwException("PayloadType of the destination tag does not match with the source tag payloadType.",
                          "importIovs");
       } else {
-        editor = session.createIov(p.tagInfo().payloadType, destTag, p.tagInfo().timeType, p.tagInfo().synchronizationType);
+        editor =
+            session.createIov(p.tagInfo().payloadType, destTag, p.tagInfo().timeType, p.tagInfo().synchronizationType);
         if (description.empty())
           editor.setDescription("Created copying iovs from tag " + sourceTag);
         else
