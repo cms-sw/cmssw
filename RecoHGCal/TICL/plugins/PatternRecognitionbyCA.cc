@@ -47,6 +47,9 @@ PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
 void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input,
                                             std::vector<Trackster> &result, 
                                             std::map<int, std::vector<int>>& seedToTracksterAssociation) {
+  // Protect from events with no seeding regions
+  if(input.regions.empty()) return;
+  
   rhtools_.getEventSetup(input.es);
 
   theGraph_->setVerbosity(algo_verbosity_);
@@ -55,7 +58,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
 
-  bool isRegionalIter = (input.regions[0].collectionID != edm::ProductID{0,0});
+  bool isRegionalIter = (input.regions[0].index != -1);
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   std::vector<int> seedIndices;
   std::vector<uint8_t> layer_cluster_usage(input.layerClusters.size(), 0);
