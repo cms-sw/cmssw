@@ -9,6 +9,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="RecoParticleFlow/PFProducer"/>
   <use   name="EgammaAnalysis/ElectronTools"/>
+  <use   name="TrackingTools/Records"/>
   <use   name="clhep"/>
   <use   name="root"/>
   <use   name="roottmva"/>

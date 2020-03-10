@@ -4,7 +4,6 @@
 <use   name="MagneticField/VolumeGeometry"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
-<use   name="FWCore/Framework"/>
 <use   name="MagneticField/Engine"/>
 <export>
   <lib   name="1"/>
