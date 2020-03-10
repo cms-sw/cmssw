@@ -1,4 +1,5 @@
 <use   name="MagneticField/Engine"/>
+<use   name="TrackingTools/Records"/>
 <use   name="TrackPropagation/Geant4e"/>
 <use   name="CLHEP"/>
 <use   name="DataFormats/CLHEP"/>
