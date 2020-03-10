@@ -933,6 +933,7 @@ class ConfigBuilder(object):
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
         if self._options.isRepacked: self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_DataMapper_cff"
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
+        self.KBMTFDefaultCFF="Configuration/StandardSequences/KBMTF_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
         self.RECOSIMDefaultCFF="Configuration/StandardSequences/RecoSim_cff"
@@ -972,6 +973,7 @@ class ConfigBuilder(object):
         self.CFWRITERDefaultSeq=None
         self.RAW2DIGIDefaultSeq='RawToDigi'
         self.L1RecoDefaultSeq='L1Reco'
+        self.KBMTFDefaultSeq='kbmtf'
         self.L1TrackTriggerDefaultSeq='L1TrackTrigger'
         if self._options.fast or ('RAW2DIGI' in self.stepMap and 'RECO' in self.stepMap):
             self.RECODefaultSeq='reconstruction'
@@ -1579,6 +1581,12 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with L1 reconstruction '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.L1RecoDefaultCFF)
         self.scheduleSequence(sequence.split('.')[-1],'L1Reco_step')
+        return
+
+    def prepare_KBMTF(self, sequence = "KBMTF"):
+        ''' Enrich the schedule with KBMTF '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.KBMTFDefaultCFF)
+        self.scheduleSequence(sequence.split('.')[-1],'KBMTF_step')
         return
 
     def prepare_L1TrackTrigger(self, sequence = "L1TrackTrigger"):
