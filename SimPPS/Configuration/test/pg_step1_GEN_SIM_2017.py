@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import math
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process('SIM',eras.Run2_2017,eras.ctpps_2017)
+process = cms.Process('SIM',eras.Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -21,25 +21,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS
 process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
 
-process.load("SimG4Core.Application.g4SimHits_cfi")
-process.g4SimHits.Generator.ApplyPCuts          = False
-process.g4SimHits.Generator.ApplyPhiCuts        = False
-process.g4SimHits.Generator.ApplyEtaCuts        = False
-process.g4SimHits.Generator.HepMCProductLabel   = 'LHCTransport'
-process.g4SimHits.Generator.MinEtaCut        = -13.0
-process.g4SimHits.Generator.MaxEtaCut        = 13.0
-process.g4SimHits.Generator.Verbosity        = 0
-
-process.g4SimHits.G4TrackingManagerVerbosity = cms.untracked.int32(3)
-process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(2000.0)
-process.g4SimHits.StackingAction.MaxTrackTime = cms.double(2000.0)
-
-process.load("IOMC.RandomEngine.IOMC_cff")
-process.RandomNumberGeneratorService.generator.initialSeed = 456789
-process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
-process.RandomNumberGeneratorService.LHCTransport.engineName   = cms.untracked.string('TRandom3')
-
 nEvent_ = 1000
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(nEvent_)
@@ -47,7 +28,6 @@ process.maxEvents = cms.untracked.PSet(
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
-process.load('PhysicsTools.HepMCCandAlgos.genParticles_cfi')
 
 phi_min = -math.pi
 phi_max = math.pi
@@ -86,12 +66,6 @@ process.o1 = cms.OutputModule("PoolOutputModule",
         fileName = cms.untracked.string('step1_SIM2017.root')
         )
 
-process.common_maximum_timex = cms.PSet( # need to be localy redefined
-        MaxTrackTime  = cms.double(2000.0),  # need to be localy redefined
-        MaxTimeNames  = cms.vstring('ZDCRegion'), # need to be localy redefined
-        MaxTrackTimes = cms.vdouble(10000.0),  # need to be localy redefined
-        DeadRegions = cms.vstring()
-        )
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.g4Simhits_step = cms.Path(process.g4SimHits)
@@ -109,4 +83,3 @@ for path in process.paths:
 
 from SimPPS.PPSSimTrackProducer.SimTrackProducerForFullSim_cff import customise
 process = customise(process)
-
