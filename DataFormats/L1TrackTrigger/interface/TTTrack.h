@@ -134,7 +134,7 @@ public:
   void setTrackSeedType(int aSeed) { theTrackSeedType_ = aSeed; }
 
   /// Hit Pattern
-  unsigned int hitPattern() const { return theHitPattern; }
+  unsigned int hitPattern() const { return theHitPattern_; }
 
   /// Chi2
   double chi2() const;
@@ -150,9 +150,6 @@ public:
 
   void setFitParNo(unsigned int aFitParNo);
   int nFitPars() const { return theNumFitPars_; }
-
-  /// Hit Pattern
-  unsigned int hitPattern() const;
 
   /// set new Bfield
   void setBField(double aBField);
@@ -382,12 +379,6 @@ void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
 template <typename T>
 double TTTrack<T>::stubPtConsistency() const {
   return theStubPtConsistency_;
-}
-
-/// Hit Pattern
-template <typename T>
-unsigned int TTTrack<T>::hitPattern() const {
-  return theHitPattern_;
 }
 
 /// set B field if need be

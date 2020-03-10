@@ -955,8 +955,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
 
       float tmp_trk_chi2 = iterL1Track->chi2();
-      float tmp_trk_chi2rphi = iterL1Track->chi2xy();
-      float tmp_trk_chi2rz = iterL1Track->chi2z();
+      float tmp_trk_chi2rphi = iterL1Track->chi2XY();
+      float tmp_trk_chi2rz = iterL1Track->chi2Z();
       float tmp_trk_bendchi2 = iterL1Track->stubPtConsistency();
 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubRefs = iterL1Track->getStubRefs();
@@ -1018,9 +1018,6 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  
 	}//end loop over stubs
       }
-     //CASEY: delete all of this shit above here and replace with simple access to hitpattern? 
-	//CASEY
-	//cout << "hitpattern: " << iterL1Track->hitPattern() << ", lhits: " << tmp_trk_lhits << ", dhits: " << tmp_trk_dhits << endl;
 
       // ----------------------------------------------------------------------------------------------
       
@@ -1456,8 +1453,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
 
       tmp_matchtrk_chi2 = matchedTracks.at(i_track)->chi2();
-      tmp_matchtrk_chi2rphi = matchedTracks.at(i_track)->chi2xy();
-      tmp_matchtrk_chi2rz = matchedTracks.at(i_track)->chi2z();
+      tmp_matchtrk_chi2rphi = matchedTracks.at(i_track)->chi2XY();
+      tmp_matchtrk_chi2rz = matchedTracks.at(i_track)->chi2Z();
       tmp_matchtrk_bendchi2 = matchedTracks.at(i_track)->stubPtConsistency();
       tmp_matchtrk_nstub  = (int) matchedTracks.at(i_track)->getStubRefs().size();
       tmp_matchtrk_seed = (int) matchedTracks.at(i_track)->trackSeedType();
