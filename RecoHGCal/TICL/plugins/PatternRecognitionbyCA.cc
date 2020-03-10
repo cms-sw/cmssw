@@ -46,7 +46,7 @@ PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
 
 void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input,
                                             std::vector<Trackster> &result, 
-                                            std::map<int, std::vector<int>>& seedToTracksterAssociation) {
+                                            std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) {
   // Protect from events with no seeding regions
   if(input.regions.empty()) return;
   
@@ -171,6 +171,9 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
+
+  // now adding dummy tracksters from seeds not connected to any shower in the result collection
+  // these are marked as charged hadrons with probability 1.
   emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
 
   if (algo_verbosity_ > Advanced) {
@@ -188,7 +191,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
 void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> &input,
                                                 const std::vector<reco::CaloCluster> &layerClusters,
                                                 std::vector<Trackster> &output, 
-                                                std::map<int, std::vector<int>>& seedToTracksterAssociation) const {
+                                                std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const {
 
   output.reserve(input.size());
   for (auto& thisSeed : seedToTracksterAssociation)
@@ -227,7 +230,7 @@ void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> &in
 
 
 void PatternRecognitionbyCA::emptyTrackstersFromSeedsTRK(std::vector<Trackster> & tracksters,
-    std::map<int, std::vector<int>>& seedToTracksterAssociation,
+    std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation,
     const edm::ProductID& collectionID) const
 {
   for (auto& thisSeed : seedToTracksterAssociation)

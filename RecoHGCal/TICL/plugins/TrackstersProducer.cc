@@ -151,7 +151,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
 
 
-  std::map<int, std::vector<int>> seedToTrackstersAssociation;
+  std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
   if(itername_=="TRK")
   {
     auto numberOfSeedingRegions = seeding_regions.size();
