@@ -5,7 +5,7 @@
    <flags EDM_PLUGIN="1"/>
 </library>
 <library file="ProcMLP.cc MLP*.cc mlp*.cc" name="PhysicsToolsMVATrainerProcMLP">
-   <lib name="lapack"/>
+   <use name="openblas"/>
    <flags EDM_PLUGIN="1"/>
 </library>
 <library file="ProcTMVA.cc" name="PhysicsToolsMVATrainerProcTMVA">
