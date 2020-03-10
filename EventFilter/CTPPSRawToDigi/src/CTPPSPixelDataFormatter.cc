@@ -4,7 +4,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelROC.h"  //KS
+#include "CondFormats/PPSObjects/interface/CTPPSPixelROC.h"  //KS
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

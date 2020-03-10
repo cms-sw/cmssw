@@ -35,7 +35,7 @@
   <Constant name="thAbsEE"       value="1.2*mm"/>
   <Constant name="thAbsEE48To63" value="0.55*mm"/>
   <Constant name="thAbsEE52To70" value="0.61*mm"/>
-  <Constant name="thAbsEE59To62" value="0.61*mm"/>
+  <Constant name="thAbsEE59To62" value="0.60*mm"/>
   <Constant name="thAbsEE68To74" value="0.71*mm"/>
   <Constant name="thAbsCuEE"     value="1.2*mm"/>
   <Constant name="thAbsHE"       value="1.2*mm"/>

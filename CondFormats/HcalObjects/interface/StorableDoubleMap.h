@@ -1,11 +1,13 @@
 #ifndef CondFormats_HcalObjects_StorableDoubleMap_h
 #define CondFormats_HcalObjects_StorableDoubleMap_h
 
-#include <string>
-#include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/serialization/map.hpp"
+
+#include <string>
+#include <memory>
+#include <map>
 
 template <typename T>
 class StorableDoubleMap {

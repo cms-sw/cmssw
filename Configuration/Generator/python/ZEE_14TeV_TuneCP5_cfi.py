@@ -10,7 +10,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          comEnergy = cms.double(14000.0),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
-        pythia8CP5SettingsBlock,
+        pythia8CP5SettingsBlock,                     
         processParameters = cms.vstring(
             'WeakSingleBoson:ffbar2gmZ = on',
             '23:onMode = off',

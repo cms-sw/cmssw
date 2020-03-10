@@ -3,16 +3,15 @@
 <use   name="clhep"/>
 <use   name="DataFormats/HcalDigi"/>
 <use   name="DataFormats/HcalRecHit"/>
+<use   name="DataFormats/TrackReco"/>
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CalibFormats/CaloObjects"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="RecoMET/METAlgorithms"/>
-<use   name="DataFormats/CaloTowers"/>
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="vdt_headers"/>
 <use   name="rootminuit2"/> 
 <export>

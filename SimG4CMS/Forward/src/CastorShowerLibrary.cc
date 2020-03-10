@@ -87,10 +87,10 @@ void CastorShowerLibrary::initFile(edm::ParameterSet const& p) {
     edm::LogError("CastorShower") << "CastorShowerLibrary: opening " << nTree << " failed";
     throw cms::Exception("Unknown", "CastorShowerLibrary") << "Opening of " << pTreeName << " fails\n";
   } else {
-    edm::LogInfo("CastorShower") << "CastorShowerLibrary: opening " << nTree << " successfully";
+    edm::LogVerbatim("CastorShower") << "CastorShowerLibrary: opening " << nTree << " successfully";
   }
 
-  // Check for the TBranch holding EventInfo in "Events" TTree
+  // Check for the TBranch holding EventVerbatim in "Events" TTree
   TTree* event = (TTree*)hf->Get("CastorCherenkovPhotons");
   if (event) {
     evtInfo = (TBranchObject*)event->GetBranch(branchEvInfo.c_str());
@@ -113,9 +113,9 @@ void CastorShowerLibrary::initFile(edm::ParameterSet const& p) {
   hadBranch = (TBranchObject*)event->GetBranch(branchHAD.c_str());
   if (verbose)
     hadBranch->Print();
-  edm::LogInfo("CastorShower") << "CastorShowerLibrary: Branch " << branchEM << " has " << emBranch->GetEntries()
-                               << " entries and Branch " << branchHAD << " has " << hadBranch->GetEntries()
-                               << " entries";
+  edm::LogVerbatim("CastorShower") << "CastorShowerLibrary: Branch " << branchEM << " has " << emBranch->GetEntries()
+                                   << " entries and Branch " << branchHAD << " has " << hadBranch->GetEntries()
+                                   << " entries";
 }
 
 //=============================================================================================
@@ -151,22 +151,38 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
     SLenergies[i] *= CLHEP::GeV;
   }
 
-  edm::LogInfo("CastorShower") << " CastorShowerLibrary::loadEventInfo : "
-                               << "\n \n Total number of events     :  " << totEvents
-                               << "\n   Number of bins  (E)       :  " << nBinsE
-                               << "\n   Number of events/bin (E)  :  " << nEvtPerBinE
-                               << "\n   Number of bins  (Eta)       :  " << nBinsEta
-                               << "\n   Number of events/bin (Eta)  :  " << nEvtPerBinEta
-                               << "\n   Number of bins  (Phi)       :  " << nBinsPhi
-                               << "\n   Number of events/bin (Phi)  :  " << nEvtPerBinPhi << "\n";
+  edm::LogVerbatim("CastorShower") << " CastorShowerLibrary::loadEventInfo : "
+                                   << "\n \n Total number of events     :  " << totEvents
+                                   << "\n   Number of bins  (E)       :  " << nBinsE
+                                   << "\n   Number of events/bin (E)  :  " << nEvtPerBinE
+                                   << "\n   Number of bins  (Eta)       :  " << nBinsEta
+                                   << "\n   Number of events/bin (Eta)  :  " << nEvtPerBinEta
+                                   << "\n   Number of bins  (Phi)       :  " << nBinsPhi
+                                   << "\n   Number of events/bin (Phi)  :  " << nEvtPerBinPhi << "\n";
 
-  for (unsigned int i = 0; i < nBinsE; i++)
-    edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLenergies[" << i << "] = " << SLenergies[i] / CLHEP::GeV
-                                 << " GeV";
-  for (unsigned int i = 0; i < nBinsEta; i++)
-    edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLetas[" << i << "] = " << SLetas[i];
-  for (unsigned int i = 0; i < nBinsPhi; i++)
-    edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLphis[" << i << "] = " << SLphis[i] << " rad";
+  std::stringstream ss1;
+  ss1 << "CastorShowerLibrary: energies in GeV:\n";
+  for (unsigned int i = 0; i < nBinsE; ++i) {
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
+    ss1 << " " << SLenergies[i] / CLHEP::GeV;
+  }
+  ss1 << "\nCastorShowerLibrary: etas:\n";
+  for (unsigned int i = 0; i < nBinsEta; ++i) {
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
+    ss1 << " " << SLetas[i];
+  }
+  ss1 << "\nCastorShowerLibrary: phis:\n";
+  for (unsigned int i = 0; i < nBinsPhi; ++i) {
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
+    ss1 << " " << SLphis[i];
+  }
+  edm::LogVerbatim("CastorShower") << ss1.str();
 }
 
 //=============================================================================================
@@ -270,9 +286,9 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
   int ieta = FindEtaBin(etain);
 #ifdef DebugLog
   if (verbose)
-    edm::LogInfo("CastorShower") << " ienergy = " << ienergy;
+    edm::LogVerbatim("CastorShower") << " ienergy = " << ienergy;
   if (verbose)
-    edm::LogInfo("CastorShower") << " ieta = " << ieta;
+    edm::LogVerbatim("CastorShower") << " ieta = " << ieta;
 #endif
 
   int iphi;
@@ -289,7 +305,7 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
   }
 #ifdef DebugLog
   if (verbose)
-    edm::LogInfo("CastorShower") << " iphi = " << iphi;
+    edm::LogVerbatim("CastorShower") << " iphi = " << iphi;
 #endif
   if (ienergy == -1)
     ienergy = 0;  // if pin < first bin, choose an event in the first one
@@ -301,7 +317,7 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
     irec = int(nEvtPerBinE * (ienergy + r));
 
 #ifdef DebugLog
-  edm::LogInfo("CastorShower") << "CastorShowerLibrary:: Select record " << irec << " of type " << type;
+  edm::LogVerbatim("CastorShower") << "CastorShowerLibrary:: Select record " << irec << " of type " << type;
 #endif
 
   //  Retrieve record number "irec" from the library

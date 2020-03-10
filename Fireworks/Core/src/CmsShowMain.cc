@@ -28,6 +28,7 @@
 #include "TEveManager.h"
 #include "TFile.h"
 #include "TGClient.h"
+#include "TVirtualX.h"
 #include <KeySymbols.h>
 
 #include "Fireworks/Core/src/CmsShowMain.h"

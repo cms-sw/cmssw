@@ -409,15 +409,23 @@ namespace edm {
 
     unsigned int placeInPath = 0;
     for (auto const& name : modnames) {
+      //Modules except EDFilters are set to run concurrently by default
+      bool doNotRunConcurrently = false;
       WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
-      if (name[0] == '!')
+      if (name[0] == '!') {
         filterAction = WorkerInPath::Veto;
-      else if (name[0] == '-')
+      } else if (name[0] == '-' or name[0] == '+') {
         filterAction = WorkerInPath::Ignore;
+      }
+      if (name[0] == '|' or name[0] == '+') {
+        //cms.wait was specified so do not run concurrently
+        doNotRunConcurrently = true;
+      }
 
       std::string moduleLabel = name;
-      if (filterAction != WorkerInPath::Normal)
+      if (filterAction != WorkerInPath::Normal or name[0] == '|') {
         moduleLabel.erase(0, 1);
+      }
 
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
@@ -448,7 +456,11 @@ namespace edm {
                                         << "or explicitly ignore it in the configuration by using cms.ignore().\n";
         }
       }
-      tmpworkers.emplace_back(worker, filterAction, placeInPath);
+      bool runConcurrently = not doNotRunConcurrently;
+      if (runConcurrently && worker->moduleType() == Worker::kFilter and filterAction != WorkerInPath::Ignore) {
+        runConcurrently = false;
+      }
+      tmpworkers.emplace_back(worker, filterAction, placeInPath, runConcurrently);
       ++placeInPath;
     }
 

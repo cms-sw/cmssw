@@ -6,6 +6,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include <vector>
 #include <algorithm>
@@ -13,7 +14,6 @@
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /** A class for detailed particle trajectory representation.
  *  It is used during trajectory building to "grow" a trajectory.

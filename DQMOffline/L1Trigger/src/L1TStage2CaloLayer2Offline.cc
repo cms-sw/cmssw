@@ -988,11 +988,6 @@ bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet& je
   return matchedObjects.empty();
 }
 
-void L1TStage2CaloLayer2Offline::endJob() {
-  // TODO: In offline, this runs after histograms are saved!
-  //normalise2DHistogramsToBinArea();
-}
-
 void L1TStage2CaloLayer2Offline::normalise2DHistogramsToBinArea() {
   std::vector<MonitorElement*> monElementstoNormalize = {
       h_L1METvsCaloMET_,         h_L1ETMHFvsCaloETMHF_,       h_L1METvsPFMetNoMu_,      h_L1MHTvsRecoMHT_,

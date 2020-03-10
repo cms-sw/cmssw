@@ -52,7 +52,7 @@ namespace edm {
     BasicHandle(WrapperBase const* iProd, Provenance const* iProv) noexcept(true) : product_(iProd), prov_(iProv) {}
 
     ///Used when the attempt to get the data failed
-    BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) noexcept(true)
+    BasicHandle(std::shared_ptr<HandleExceptionFactory const> const& iWhyFailed) noexcept(true)
         : product_(), prov_(nullptr), whyFailedFactory_(iWhyFailed) {}
 
     ~BasicHandle() = default;
@@ -79,9 +79,11 @@ namespace edm {
 
     std::shared_ptr<cms::Exception> whyFailed() const { return whyFailedFactory_->make(); }
 
-    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const noexcept(true) { return whyFailedFactory_; }
+    std::shared_ptr<HandleExceptionFactory const> const& whyFailedFactory() const noexcept(true) {
+      return whyFailedFactory_;
+    }
 
-    std::shared_ptr<HandleExceptionFactory>& whyFailedFactory() noexcept(true) { return whyFailedFactory_; }
+    std::shared_ptr<HandleExceptionFactory const>& whyFailedFactory() noexcept(true) { return whyFailedFactory_; }
 
     void clear() noexcept(true) {
       product_ = nullptr;
@@ -96,7 +98,7 @@ namespace edm {
     explicit BasicHandle(bool) : product_(nullptr) {}
     WrapperBase const* product_;
     Provenance const* prov_;
-    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
+    std::shared_ptr<HandleExceptionFactory const> whyFailedFactory_;
   };
 
   // Free swap function

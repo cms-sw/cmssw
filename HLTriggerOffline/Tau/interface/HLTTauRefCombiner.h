@@ -9,7 +9,7 @@ for matching in the Tau HLT
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,23 +18,22 @@ for matching in the Tau HLT
 #include <string>
 #include <vector>
 
-class HLTTauRefCombiner : public edm::EDProducer {
+class HLTTauRefCombiner : public edm::global::EDProducer<> {
 public:
   explicit HLTTauRefCombiner(const edm::ParameterSet &);
-  ~HLTTauRefCombiner() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
   typedef math::XYZTLorentzVectorD LorentzVector;
   typedef std::vector<LorentzVector> LorentzVectorCollection;
 
   std::vector<edm::EDGetTokenT<LorentzVectorCollection>> inputColl_;  // Input LV Collections
-  double matchDeltaR_;                                                // Delta R for matching
-  std::string outName_;                                               // outputObjectName
+  const double matchDeltaR_;                                          // Delta R for matching
+  const std::string outName_;                                         // outputObjectName
 
   bool match(const LorentzVector &,
-             const LorentzVectorCollection &);  // See if this Jet Is Matched
+             const LorentzVectorCollection &) const;  // See if this Jet Is Matched
 };
 
 #endif

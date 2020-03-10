@@ -2,17 +2,28 @@
 #define Geometry_MTDNumberingBuilder_CmsMTDConstruction_H
 #include <string>
 #include <vector>
-#include "Geometry/MTDNumberingBuilder/plugins/CmsMTDLevelBuilder.h"
+#include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
+#include "Geometry/MTDNumberingBuilder/interface/CmsMTDStringToEnum.h"
+
 /**
  * Adds GeometricTimingDets representing final modules to the previous level
  */
-class CmsMTDConstruction : public CmsMTDLevelBuilder {
+class CmsMTDConstruction {
 public:
-  void buildComponent(DDFilteredView&, GeometricTimingDet*, std::string) override;
+  ~CmsMTDConstruction() = default;
 
-private:
+  static bool mtdOrderZ(const GeometricTimingDet* a, const GeometricTimingDet* b);
+  static bool mtdOrderRR(const GeometricTimingDet* a, const GeometricTimingDet* b);
+  static bool mtdOrderPhi(const GeometricTimingDet* a, const GeometricTimingDet* b);
+
   void buildBTLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
   void buildETLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
+
+  GeometricTimingDet* buildSubdet(DDFilteredView&, GeometricTimingDet*, const std::string&);
+  GeometricTimingDet* buildLayer(DDFilteredView&, GeometricTimingDet*, const std::string&);
+
+protected:
+  CmsMTDStringToEnum theCmsMTDStringToEnum;
 };
 
 #endif  // Geometry_MTDNumberingBuilder_CmsMTDConstruction_H

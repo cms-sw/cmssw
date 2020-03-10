@@ -88,9 +88,6 @@ MuonTrackAnalyzer::~MuonTrackAnalyzer() {
     delete theService;
 }
 
-void MuonTrackAnalyzer::beginJob() {
-  //theFile->cd();
-}
 void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                        edm::Run const &iRun,
                                        edm::EventSetup const & /* iSetup */) {

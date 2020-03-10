@@ -6,8 +6,6 @@
 #include <memory>
 #include <vector>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class CaloSubdetectorGeometry;
 class CaloCellGeometry;
 

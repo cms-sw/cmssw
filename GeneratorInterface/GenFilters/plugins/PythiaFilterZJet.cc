@@ -1,29 +1,50 @@
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterZJet.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+/** \class PythiaFilterZJet
+ *
+ *  PythiaFilterZJet filter implements generator-level preselections
+ *  for photon+jet like events to be used in jet energy calibration.
+ *  Ported from fortran code written by V.Konoplianikov.
+ *
+ * \author A.Ulyanov, ITEP
+ *
+ ************************************************************/
+
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include <iostream>
-#include <list>
-#include <vector>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include <cmath>
+#include <cstdlib>
+#include <string>
+#include <vector>
+
+class PythiaFilterZJet : public edm::global::EDFilter<> {
+public:
+  explicit PythiaFilterZJet(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const double etaMuMax;
+  const double ptZMin;
+  const double ptZMax;
+};
 
 PythiaFilterZJet::PythiaFilterZJet(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
           edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
       etaMuMax(iConfig.getUntrackedParameter<double>("MaxMuonEta", 2.5)),
       ptZMin(iConfig.getUntrackedParameter<double>("MinZPt")),
-      ptZMax(iConfig.getUntrackedParameter<double>("MaxZPt")),
-      maxnumberofeventsinrun(iConfig.getUntrackedParameter<int>("MaxEvents", 10000)) {
-  theNumberOfSelected = 0;
-}
+      ptZMax(iConfig.getUntrackedParameter<double>("MaxZPt")) {}
 
-PythiaFilterZJet::~PythiaFilterZJet() {}
-
-// ------------ method called to produce the data  ------------
-bool PythiaFilterZJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
-  //    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
-  //  }
-
+bool PythiaFilterZJet::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
@@ -41,8 +62,6 @@ bool PythiaFilterZJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         break;
     }
 
-    //***
-
     if (mu.size() > 1) {
       math::XYZTLorentzVector tot_mom(mu[0]->momentum());
       math::XYZTLorentzVector mom2(mu[1]->momentum());
@@ -59,10 +78,7 @@ bool PythiaFilterZJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return true;
     // accept all non-gammajet events
   }
-
-  if (accepted) {
-    theNumberOfSelected++;
-    return true;
-  } else
-    return false;
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(PythiaFilterZJet);
