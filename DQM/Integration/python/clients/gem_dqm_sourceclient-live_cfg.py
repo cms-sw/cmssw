@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GEMDQM')
 
-#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 process.load("DQM.Integration.config.environment_cfi")
