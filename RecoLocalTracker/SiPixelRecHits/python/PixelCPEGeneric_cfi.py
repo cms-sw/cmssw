@@ -17,5 +17,5 @@ phase2_PixelCPEGeneric.toModify(PixelCPEGenericESProducer,
   TruncatePixelCharge = False,
   IrradiationBiasCorrection = False, # set IBC off (needs GenErrors)
   DoCosmics = False,
-  Upgrade = cms.bool(True)           # use hard-coded CPE errors (for Upgrade)
+  Upgrade = True                     # use hard-coded CPE errors (for Upgrade)
 )
