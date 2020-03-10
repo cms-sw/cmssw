@@ -87,6 +87,10 @@ The generic `SonicClient*` should be replaced with one of the available modes:
 In addition, as indicated, the input and output data types must be specified.
 (If both types are the same, only the input type needs to be specified.)
 
+In all cases, the implementation of `evaluate()` must call `finish()`.
+For the `Sync` and `PseudoAsync` modes, `finish()` should be called at the end of `evaluate()`.
+For the `Async` mode, `finish()` should be called inside the communication protocol callback function (implementations may vary).
+
 The client must also provide a static method `fillPSetDescription` to populate its parameters in the `fillDescriptions` for the producers that use the client:
 ```cpp
 void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {

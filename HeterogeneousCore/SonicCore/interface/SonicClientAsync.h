@@ -16,7 +16,6 @@ public:
     holder_ = std::move(holder);
     setStartTime();
     evaluate();
-    //impl calls finish() which calls holder_
   }
 };
 
