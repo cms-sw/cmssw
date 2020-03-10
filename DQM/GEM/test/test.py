@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 import os
 
-from Configuration.Eras.Era_Phase2_cff import Phase2
-
-process = cms.Process('DQMTEST')
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('DQM', eras.Run3)
 
 
 process.MessageLogger = cms.Service("MessageLogger",
