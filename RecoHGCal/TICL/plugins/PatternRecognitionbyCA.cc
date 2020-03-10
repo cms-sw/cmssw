@@ -45,11 +45,12 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, co
 PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
 
 void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input,
-                                            std::vector<Trackster> &result, 
-                                            std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) {
+                                            std::vector<Trackster> &result,
+                                            std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
   // Protect from events with no seeding regions
-  if(input.regions.empty()) return;
-  
+  if (input.regions.empty())
+    return;
+
   rhtools_.getEventSetup(input.es);
 
   theGraph_->setVerbosity(algo_verbosity_);
@@ -135,8 +136,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     //if a seeding region does not lead to any trackster
     tmp.seedID = input.regions[0].collectionID;
     tmp.seedIndex = seedIndices[tracksterId];
-    if(isRegionalIter) 
-    {
+    if (isRegionalIter) {
       seedToTracksterAssociation[tmp.seedIndex].push_back(tracksterId);
     }
 
@@ -188,39 +188,34 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   }
 }
 
-void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> &input,
-                                                const std::vector<reco::CaloCluster> &layerClusters,
-                                                std::vector<Trackster> &output, 
-                                                std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const {
-
+void PatternRecognitionbyCA::mergeTrackstersTRK(
+    const std::vector<Trackster> &input,
+    const std::vector<reco::CaloCluster> &layerClusters,
+    std::vector<Trackster> &output,
+    std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) const {
   output.reserve(input.size());
-  for (auto& thisSeed : seedToTracksterAssociation)
-  {
-    auto& tracksters = thisSeed.second;
-    if(!tracksters.empty())
-    {
+  for (auto &thisSeed : seedToTracksterAssociation) {
+    auto &tracksters = thisSeed.second;
+    if (!tracksters.empty()) {
       auto numberOfTrackstersInSeed = tracksters.size();
       output.emplace_back(input[tracksters[0]]);
-      auto& outTrackster = output.back();
-      tracksters[0] = output.size()-1;
+      auto &outTrackster = output.back();
+      tracksters[0] = output.size() - 1;
       auto updated_size = outTrackster.vertices.size();
-      for(unsigned int j = 1; j<numberOfTrackstersInSeed; ++j)
-      {
-        auto& thisTrackster = input[tracksters[j]];
+      for (unsigned int j = 1; j < numberOfTrackstersInSeed; ++j) {
+        auto &thisTrackster = input[tracksters[j]];
         updated_size += thisTrackster.vertices.size();
         if (algo_verbosity_ > Basic) {
           LogDebug("HGCPatternRecoByCA") << "Updated size: " << updated_size << std::endl;
-        }  
+        }
         outTrackster.vertices.reserve(updated_size);
         outTrackster.vertex_multiplicity.reserve(updated_size);
         std::copy(std::begin(thisTrackster.vertices),
-          std::end(thisTrackster.vertices),
-          std::back_inserter(outTrackster.vertices)
-          );
+                  std::end(thisTrackster.vertices),
+                  std::back_inserter(outTrackster.vertices));
         std::copy(std::begin(thisTrackster.vertex_multiplicity),
-          std::end(thisTrackster.vertex_multiplicity),
-          std::back_inserter(outTrackster.vertex_multiplicity)
-          );
+                  std::end(thisTrackster.vertex_multiplicity),
+                  std::back_inserter(outTrackster.vertex_multiplicity));
       }
       tracksters.resize(1);
     }
@@ -228,25 +223,22 @@ void PatternRecognitionbyCA::mergeTrackstersTRK(const std::vector<Trackster> &in
   output.shrink_to_fit();
 }
 
-
-void PatternRecognitionbyCA::emptyTrackstersFromSeedsTRK(std::vector<Trackster> & tracksters,
-    std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation,
-    const edm::ProductID& collectionID) const
-{
-  for (auto& thisSeed : seedToTracksterAssociation)
-  {
-    if(thisSeed.second.empty())
-    {
+void PatternRecognitionbyCA::emptyTrackstersFromSeedsTRK(
+    std::vector<Trackster> &tracksters,
+    std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation,
+    const edm::ProductID &collectionID) const {
+  for (auto &thisSeed : seedToTracksterAssociation) {
+    if (thisSeed.second.empty()) {
       Trackster t;
       t.regressed_energy = 0.f;
       for (float &p : t.id_probabilities) {
-          p = 0.f;
+        p = 0.f;
       }
       t.id_probabilities[4] = 1.f;
       t.seedID = collectionID;
       t.seedIndex = thisSeed.first;
       tracksters.emplace_back(t);
-      thisSeed.second.emplace_back(tracksters.size()-1);
+      thisSeed.second.emplace_back(tracksters.size() - 1);
     }
   }
 }

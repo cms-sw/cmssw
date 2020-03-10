@@ -150,15 +150,12 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   const ticl::PatternRecognitionAlgoBase::Inputs input(
       evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
 
-
   std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
   // if it's regional iteration and there are seeding regions
-  if(!seeding_regions.empty() and seeding_regions[0].index != -1)
-  {
+  if (!seeding_regions.empty() and seeding_regions[0].index != -1) {
     auto numberOfSeedingRegions = seeding_regions.size();
-    for(unsigned int i = 0; i< numberOfSeedingRegions; ++i)
-    {
-      seedToTrackstersAssociation.emplace(seeding_regions[i].index,0);
+    for (unsigned int i = 0; i < numberOfSeedingRegions; ++i) {
+      seedToTrackstersAssociation.emplace(seeding_regions[i].index, 0);
     }
   }
   myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
