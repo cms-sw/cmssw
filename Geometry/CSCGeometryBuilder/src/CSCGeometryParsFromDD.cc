@@ -11,27 +11,27 @@
 */
 #include "CSCGeometryParsFromDD.h"
 
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSolid.h>
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
-#include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
-#include <Geometry/MuonNumbering/interface/CSCNumberingScheme.h>
-#include <Geometry/MuonNumbering/interface/MuonBaseNumber.h>
-#include <Geometry/MuonNumbering/interface/MuonDDDNumbering.h>
-#include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+#include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
+#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
-#include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
-#include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
-#include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
+#include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
+#include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
+#include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
-#include <DetectorDescription/DDCMS/interface/DDCompactView.h>
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include <Geometry/MuonNumbering/interface/DD4hep_CSCNumberingScheme.h>
+#include "Geometry/MuonNumbering/interface/DD4hep_CSCNumberingScheme.h"
 
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
@@ -507,21 +507,17 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       fpar.emplace_back((dpar[3]));
     }
 
-    gtran[0] = (float)1.0 * (fv.translation().X());
-    gtran[1] = (float)1.0 * (fv.translation().Y());
-    gtran[2] = (float)1.0 * (fv.translation().Z());
+    gtran[0] = static_cast<float>(fv.translation().X());
+    gtran[1] = static_cast<float>(fv.translation().Y());
+    gtran[2] = static_cast<float>(fv.translation().Z());
 
-    if ((-1.0e-10 < gtran[0]) && (gtran[0] < 1.0e-10))
-      gtran[0] = 0.0;
-    if ((-1.0e-10 < gtran[1]) && (gtran[1] < 1.0e-10))
-      gtran[1] = 0.0;
-    if ((-1.0e-10 < gtran[2]) && (gtran[2] < 1.0e-10))
-      gtran[2] = 0.0;
+    std::transform(
+        gtran.begin(), gtran.end(), gtran.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
     fv.rotation().GetComponents(trm.begin(), trm.end());
     size_t rotindex = 0;
     for (size_t i = 0; i < 9; ++i) {
-      grmat[i] = (float)1.0 * trm[rotindex];
+      grmat[i] = static_cast<float>(trm[rotindex]);
       rotindex = rotindex + 3;
       if ((i + 1) % 3 == 0) {
         rotindex = (i + 1) / 3;
