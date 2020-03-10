@@ -31,7 +31,6 @@ duplicateTrackClassifier.mva.minLayers = [0,0,0]
 duplicateTrackClassifier.mva.min3DLayers = [0,0,0]
 duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
 
-
 generalTracks = DuplicateListMerger.clone()
 generalTracks.originalSource = cms.InputTag("preDuplicateMergingGeneralTracks")
 generalTracks.originalMVAVals = cms.InputTag("preDuplicateMergingGeneralTracks","MVAValues")
