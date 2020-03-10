@@ -10,18 +10,16 @@
 
 #include <cmath>
 
-
 using namespace std;
 using namespace edm;
 
 namespace L1TTrackerDTC {
 
-  Module::Module(Settings* settings, const DetId& detId, const int& modId) :
-    // outer tracker dtc routing block id [0-1]
-    blockId_((modId % settings->numModulesPerDTC()) / settings->numModulesPerRoutingBlock()),
-    // routing block channel id [0-35]
-    channelId_((modId % settings->numModulesPerDTC()) % settings->numModulesPerRoutingBlock())
-  {
+  Module::Module(Settings* settings, const DetId& detId, const int& modId)
+      :  // outer tracker dtc routing block id [0-1]
+        blockId_((modId % settings->numModulesPerDTC()) / settings->numModulesPerRoutingBlock()),
+        // routing block channel id [0-35]
+        channelId_((modId % settings->numModulesPerDTC()) % settings->numModulesPerRoutingBlock()) {
     const int region = modId / (settings->numModulesPerDTC() * settings->numDTCsPerRegion());  // detector region [0-8]
 
     const TrackerGeometry* trackerGeometry = settings->trackerGeometry();
@@ -37,26 +35,26 @@ namespace L1TTrackerDTC {
 
     R_ = pos0.perp();  // module radius in cm
     // module phi w.r.t. detector region centre in rad
-    Phi_ = deltaPhi(pos0.phi() - (region + .5) * settings->baseRegion());  
-    Z_ = pos0.z();                                       // module z in cm
-    sep_ = (pos1 - pos0).mag();                          // sensor separation in cm
-    pitchRow_ = topol->pitch().first;                    // sensor pitch in cm [strip=.009,pixel=.01]
-    pitchCol_ = topol->pitch().second;                   // sensor length in cm [strip=5,pixel=.15625]
-    numColumns_ = topol->ncolumns();                     // number of columns [2S=2,PS=8]
-    numRows_ = topol->nrows();                           // number of rows [2S=8*127,PS=8*120]
-    side_ = pos0.z() > 0.;                               // +z or -z
-    flipped_ = pos0.mag() > pos1.mag();                  // main sensor inside or outside
-    barrel_ = detId.subdetId() == StripSubdetector::TOB; // barrel or endcap
+    Phi_ = deltaPhi(pos0.phi() - (region + .5) * settings->baseRegion());
+    Z_ = pos0.z();                                        // module z in cm
+    sep_ = (pos1 - pos0).mag();                           // sensor separation in cm
+    pitchRow_ = topol->pitch().first;                     // sensor pitch in cm [strip=.009,pixel=.01]
+    pitchCol_ = topol->pitch().second;                    // sensor length in cm [strip=5,pixel=.15625]
+    numColumns_ = topol->ncolumns();                      // number of columns [2S=2,PS=8]
+    numRows_ = topol->nrows();                            // number of rows [2S=8*127,PS=8*120]
+    side_ = pos0.z() > 0.;                                // +z or -z
+    flipped_ = pos0.mag() > pos1.mag();                   // main sensor inside or outside
+    barrel_ = detId.subdetId() == StripSubdetector::TOB;  // barrel or endcap
     // module tilt measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
     tilt_ = flipped_ ? atan2(pos1.z() - pos0.z(), pos0.perp() - pos1.perp())
-                     : atan2( pos0.z() - pos1.z(), pos1.perp() - pos0.perp());
+                     : atan2(pos0.z() - pos1.z(), pos1.perp() - pos0.perp());
     sin_ = sin(tilt_);
     cos_ = cos(tilt_);
     layerId_ = barrel_ ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId) + 10;  // layer id [1-6,11-15]
 
-    signRow_ = signbit(deltaPhi(plane.rotation().x().phi() - pos0.phi())); // TTStub row needs flip of sign
-    signCol_ = !barrel_ && !side_;                                         // TTStub col needs flip of sign
-    signBend_ = barrel_ || (!barrel_ && side_);                            // TTStub bend needs flip of sign
+    signRow_ = signbit(deltaPhi(plane.rotation().x().phi() - pos0.phi()));  // TTStub row needs flip of sign
+    signCol_ = !barrel_ && !side_;                                          // TTStub col needs flip of sign
+    signBend_ = barrel_ || (!barrel_ && side_);                             // TTStub bend needs flip of sign
 
     if (settings->dataFormat() != "Hybrid")
       return;

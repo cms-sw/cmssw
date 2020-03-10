@@ -7,7 +7,6 @@
 
 #include <vector>
 
-
 namespace L1TTrackerDTC {
 
   // representation of an outer tracker sensormodule

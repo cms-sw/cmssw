@@ -6,7 +6,6 @@
 #include <iterator>
 #include <algorithm>
 
-
 using namespace std;
 
 namespace L1TTrackerDTC {
@@ -27,7 +26,7 @@ namespace L1TTrackerDTC {
     const double& Phi = module->Phi_;             // module phi w.r.t. detector region centre in rad
     const double& Z = module->Z_;                 // module z in cm
     // sinus of module tilt measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
-    const double& sin = module ->sin_;
+    const double& sin = module->sin_;
     // cosinus of module tilt measured w.r.t. beam axis (+-1=endcap), tk layout measures w.r.t. radial axis
     const double& cos = module->cos_;
 

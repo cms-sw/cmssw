@@ -354,7 +354,7 @@ namespace L1TTrackerDTC {
       }
 
       // index = decoded layerId, value = encoded layerId
-      layerIdEncodings_.emplace_back(layerIds.begin(), layerIds.end());  
+      layerIdEncodings_.emplace_back(layerIds.begin(), layerIds.end());
     }
 
     // create bend encodings
@@ -367,7 +367,7 @@ namespace L1TTrackerDTC {
           bendEncoding.insert(ttStubAlgorithm.degradeBend(ps, window, bend));
 
         // index = encoded bend, value = decoded bend
-        bendEncodings.emplace_back(bendEncoding.begin(), bendEncoding.end());  
+        bendEncodings.emplace_back(bendEncoding.begin(), bendEncoding.end());
       }
     }
   }

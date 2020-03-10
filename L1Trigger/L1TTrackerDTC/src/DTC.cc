@@ -32,8 +32,8 @@ namespace L1TTrackerDTC {
   void DTC::produce(TTDTC& product) {
     // empty input container
     Stubsss moduleStubs(settings_->numRoutingBlocks(), Stubss(settings_->numModulesPerRoutingBlock()));
-    Stubss blockStubs(settings_->numRoutingBlocks());       // empty intermediate container
-    Stubss regionStubs(settings_->numOverlappingRegions()); // empty output container
+    Stubss blockStubs(settings_->numRoutingBlocks());        // empty intermediate container
+    Stubss regionStubs(settings_->numOverlappingRegions());  // empty output container
 
     // fill input
     for (Stub* stub : stubs_)
@@ -81,7 +81,6 @@ namespace L1TTrackerDTC {
     // clock accurate firmware emulation, each while trip describes one clock tick
     while (!all_of(inputs.begin(), inputs.end(), [](const Stubs& channel) { return channel.empty(); }) or
            !all_of(stacks.begin(), stacks.end(), [](const Stubs& channel) { return channel.empty(); })) {
-
       // fill fifos
       for (int iInput = 0; iInput < (int)inputs.size(); iInput++) {
         Stubs& input = inputs[iInput];

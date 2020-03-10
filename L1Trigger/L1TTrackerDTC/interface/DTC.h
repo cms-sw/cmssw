@@ -6,7 +6,6 @@
 #include <vector>
 #include <deque>
 
-
 namespace L1TTrackerDTC {
 
   class Settings;

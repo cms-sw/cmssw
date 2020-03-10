@@ -10,7 +10,6 @@
 #include <string>
 #include <memory>
 
-
 // converts TTDTC::Frame into GlobalPoint
 class TTDTCConverter {
 public:

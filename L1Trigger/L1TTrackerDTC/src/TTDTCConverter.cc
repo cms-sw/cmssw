@@ -9,7 +9,6 @@
 
 #include <vector>
 
-
 using namespace std;
 using namespace edm;
 using namespace L1TTrackerDTC;
