@@ -10,9 +10,6 @@ RecoLocalMuonAOD = cms.PSet(
         'keep *_cscSegments_*_*', 
         'keep *_rpcRecHits_*_*')
 )
-#def _updateOutput( era, outputPSets, commands):
-#   for o in outputPSets:
-#      era.toModify( o, outputCommands = o.outputCommands + commands )
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
