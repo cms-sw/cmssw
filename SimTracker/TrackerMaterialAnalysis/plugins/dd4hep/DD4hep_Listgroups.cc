@@ -20,6 +20,7 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "DetectorDescription/DDCMS/interface/Filter.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -246,11 +247,37 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
   const std::string_view tmg{"TrackingMaterialGroup"};
   const cms::DDSpecParRegistry& mypar = (*cpv).specpars();
   mypar.filter(refs, tmg);
-
   fv.mergedSpecifics(refs);
+  bool isOk = fv.firstChild();
+  //UInt_t i = 0;
 
   for (const auto& t : refs) {
     m_group_names.insert(t->strValue(tmg.data()));
+    std::cout << t->strValue(tmg.data()) << std::endl;
+  }
+
+  for (const auto& i: m_group_names){
+    cms::DDFilteredView fv1((*cpv).detector(),(*cpv).detector()->worldVolume());
+    cms::DDSpecParRefs refs1;
+    const cms::DDSpecParRegistry& mypar1 = ((*cpv).specpars());
+    mypar1.filter(refs1,"TrackingMaterialGroup",i);
+    fv1.mergedSpecifics(refs1);
+    //bool dodet = fv1.firstChild();
+    std::cout << "***" << i <<std::endl;
+
+    for(const auto j: refs){
+      for(const auto k: j->paths){
+        std::cout<< k << std::endl;
+      }
+    }
+
+    while(fv1.firstChild()){ // next()??
+      std::cout << "name: " << fv1.name() << std::endl;
+      std::cout << "path: " << fv1.path() << std::endl;
+      std::cout << "Perlita: " << fv1.position() << std::endl;
+    }
+    std::cout << "*************" <<std::endl;
+
   }
 
 }
