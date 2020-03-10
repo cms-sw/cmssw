@@ -294,7 +294,6 @@ pp_on_AA_2018.toModify(lowPtTripletStep,
         mva = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1'),
         qualityCuts = [-0.8, -0.4, 0.5],
 )
-
 fastSim.toModify(lowPtTripletStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # For LowPU and Phase2PU140
