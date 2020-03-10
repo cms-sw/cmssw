@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 
-
 /*! 
  * \class  TTDTC
  * \brief  Class to store hardware like structured TTStub Collection used by Track Trigger emulators

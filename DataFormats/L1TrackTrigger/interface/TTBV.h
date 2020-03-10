@@ -5,7 +5,6 @@
 #include <string>
 #include <algorithm>
 
-
 /*! 
  * \class  TTBV
  * \brief  Bit vector used by Track Trigger emulators. Mainly used to convert

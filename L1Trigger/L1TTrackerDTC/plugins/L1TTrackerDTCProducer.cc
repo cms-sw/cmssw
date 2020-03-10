@@ -9,7 +9,6 @@
 #include <memory>
 #include <numeric>
 
-
 using namespace std;
 using namespace edm;
 

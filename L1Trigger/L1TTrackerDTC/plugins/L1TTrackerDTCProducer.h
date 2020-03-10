@@ -12,7 +12,6 @@
 
 #include <vector>
 
-
 namespace L1TTrackerDTC {
 
   class Settings;
