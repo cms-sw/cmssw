@@ -68,7 +68,7 @@ void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
   std::for_each(std::begin(tracksters), std::end(tracksters), [&](auto const& trackster) {
     // Do not create a multicluster if the trackster has no layer clusters.
     // This could happen when a seed leads to no trackster and a dummy one is produced.
-    if(!trackster.vertices.empty()) {
+    if (!trackster.vertices.empty()) {
       std::array<double, 3> baricenter{{0., 0., 0.}};
       double total_weight = 0.;
       reco::HGCalMultiCluster temp;
