@@ -13,6 +13,7 @@ class TrackSplittingValidation(GenericValidationData_CTSR, ParallelValidation, V
     crabCfgBaseName = "TkAlTrackSplitting"
     resultBaseName = "TrackSplitting"
     outputBaseName = "TrackSplitting"
+    defaults = {"multiIOV":"False"}
     mandatories = {"trackcollection"}
     valType = "split"
 
