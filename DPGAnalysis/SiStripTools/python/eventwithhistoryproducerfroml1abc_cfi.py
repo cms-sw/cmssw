@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import EventFilter.Utilities.tcdsRawToDigi_cfi
-
 consecutiveHEs = cms.EDProducer("EventWithHistoryProducerFromL1ABC",
                                 l1ABCCollection=cms.InputTag("scalersRawToDigi"),
                                 tcdsRecordLabel= cms.InputTag("tcdsDigis","tcdsRecord"),
