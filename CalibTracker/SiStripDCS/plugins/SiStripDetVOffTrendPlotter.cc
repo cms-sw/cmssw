@@ -129,7 +129,7 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event &evt, const edm::Event
     // query the database
     edm::LogInfo("SiStripDetVOffTrendPlotter") << "[SiStripDetVOffTrendPlotter::" << __func__ << "] "
                                                << "Reading IOVs from tag " << tag;
-    cond::persistency::IOVProxy iovProxy = condDbSession.readIov(tag); 
+    cond::persistency::IOVProxy iovProxy = condDbSession.readIov(tag);
     auto iovs = iovProxy.selectAll();
     auto iiov = iovs.find(startIov);
     auto eiov = iovs.find(endIov);

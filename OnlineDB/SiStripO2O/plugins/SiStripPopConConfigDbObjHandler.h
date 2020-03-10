@@ -47,9 +47,8 @@ namespace popcon {
         if (this->tagInfo().size) {
           //check whats already inside of database
           ss << "got offlineInfo" << this->tagInfo().name << ", size " << this->tagInfo().size
-             << " , last object valid since " << this->tagInfo().lastInterval.since
-             << " token " << this->tagInfo().lastInterval.payloadId << "\n\n UserText " << this->userTextLog()
-             << "\n LogDBEntry \n"
+             << " , last object valid since " << this->tagInfo().lastInterval.since << " token "
+             << this->tagInfo().lastInterval.payloadId << "\n\n UserText " << this->userTextLog() << "\n LogDBEntry \n"
              << this->logDBEntry().logId << "\n"
              << this->logDBEntry().destinationDB << "\n"
              << this->logDBEntry().provenance << "\n"

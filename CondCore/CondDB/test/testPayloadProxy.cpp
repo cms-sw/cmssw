@@ -13,10 +13,10 @@
 
 using namespace cond::persistency;
 
-cond::Iov_t getIovFromTag(Session& session, const std::string& tagName, cond::Time_t targetTime){
+cond::Iov_t getIovFromTag(Session& session, const std::string& tagName, cond::Time_t targetTime) {
   cond::Iov_t ret;
   session.transaction().start(true);
-  auto iovP = session.readIov( tagName );
+  auto iovP = session.readIov(tagName);
   ret = iovP.getInterval(targetTime);
   session.transaction().commit();
   return ret;
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     auto requests1 = std::make_shared<std::vector<cond::Iov_t>>();
     PayloadProxy<std::string> pp1(&iov1, &session, &requests1);
 
-    iov0 = getIovFromTag( session, "MyNewIOV2", 25 );
+    iov0 = getIovFromTag(session, "MyNewIOV2", 25);
     pp0.initializeForNewIOV();
     pp0.make();
 
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
       std::cout << "MyTestData instance valid from " << iov0.since << " to " << iov0.till << std::endl;
     }
 
-    iov0 = getIovFromTag( session, "MyNewIOV2", 35 );
+    iov0 = getIovFromTag(session, "MyNewIOV2", 35);
     pp0.initializeForNewIOV();
     pp0.make();
 
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
       std::cout << "MyTestData instance valid from " << iov0.since << " to " << iov0.till << std::endl;
     }
 
-    iov0 = getIovFromTag( session, "MyNewIOV2", 100000 );
+    iov0 = getIovFromTag(session, "MyNewIOV2", 100000);
     pp0.initializeForNewIOV();
     pp0.make();
 
@@ -113,12 +113,12 @@ int main(int argc, char** argv) {
     }
 
     try {
-      iov1 = getIovFromTag( session, "StringData2", 345 );
+      iov1 = getIovFromTag(session, "StringData2", 345);
     } catch (cond::persistency::Exception& e) {
       std::cout << "Expected error: " << e.what() << std::endl;
     }
 
-    iov1 = getIovFromTag( session, "StringData2", 1000000 );
+    iov1 = getIovFromTag(session, "StringData2", 1000000);
     pp1.initializeForNewIOV();
     pp1.make();
     const std::string& rd3 = pp1();
@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
       std::cout << "std::string instance valid from " << iov1.since << " to " << iov1.till << std::endl;
     }
 
-    iov1 = getIovFromTag( session, "StringData2", 3000000);
+    iov1 = getIovFromTag(session, "StringData2", 3000000);
     pp1.initializeForNewIOV();
     pp1.make();
     const std::string& rd4 = pp1();
@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
     PayloadProxy<std::string> pp2(&iov2, &session, &requests2);
 
     try {
-      iov2 = getIovFromTag( session, "StringData3", 3000000);
+      iov2 = getIovFromTag(session, "StringData3", 3000000);
     } catch (cond::persistency::Exception& e) {
       std::cout << "Expected error: " << e.what() << std::endl;
     }

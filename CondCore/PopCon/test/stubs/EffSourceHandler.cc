@@ -65,7 +65,7 @@ void popcon::ExEffSource::getNewObjects() {
     return;
   }
 
-  if ((unsigned long long)m_since > tagInfo().lastInterval.since ) {
+  if ((unsigned long long)m_since > tagInfo().lastInterval.since) {
     m_to_transfer.push_back(std::make_pair(p0, (unsigned long long)m_since));
 
     std::ostringstream ss;

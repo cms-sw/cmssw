@@ -168,14 +168,15 @@ bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
   if (targetTime < m_data->current.since || targetTime >= m_data->current.till) {
     // a new payload is required!
     if (debug)
-      std::cout << " Searching tag " << m_iov.tagInfo().name << " for a valid payload for time=" << targetTime << std::endl;
+      std::cout << " Searching tag " << m_iov.tagInfo().name << " for a valid payload for time=" << targetTime
+                << std::endl;
     m_session.transaction().start();
     auto iovs = m_iov.selectAll();
     auto iIov = iovs.find(targetTime);
     if (iIov == iovs.end())
-      cond::throwException(
-          std::string("Tag ") + m_iov.tagInfo().name + ": No iov available for the target time:" + std::to_string(targetTime),
-          "UntypedPayloadProxy::get");
+      cond::throwException(std::string("Tag ") + m_iov.tagInfo().name +
+                               ": No iov available for the target time:" + std::to_string(targetTime),
+                           "UntypedPayloadProxy::get");
     m_data->current = *iIov;
 
     std::string payloadType("");

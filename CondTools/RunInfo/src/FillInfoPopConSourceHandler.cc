@@ -37,9 +37,8 @@ void FillInfoPopConSourceHandler::getNewObjects() {
     edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
   } else {
     //check what is already inside the database
-    edm::LogInfo(m_name) << "got info for tag " << tagInfo().name
-                         << ": size " << tagInfo().size << ", last object valid since " << tagInfo().lastInterval.since
-                         << " ( "
+    edm::LogInfo(m_name) << "got info for tag " << tagInfo().name << ": size " << tagInfo().size
+                         << ", last object valid since " << tagInfo().lastInterval.since << " ( "
                          << boost::posix_time::to_iso_extended_string(
                                 cond::time::to_boost(tagInfo().lastInterval.since))
                          << " ); from " << m_name << "::getNewObjects";
