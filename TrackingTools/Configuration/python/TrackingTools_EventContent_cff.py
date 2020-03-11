@@ -21,6 +21,7 @@ TrackingToolsRECO = cms.PSet(
         'keep TrackingRecHitsOwned_electronGsfTracks_*_*'
     )
 )
+TrackingToolsRECO.outputCommands.extend(TrackingToolsAOD.outputCommands)
 _phase2_hgcal_TrackingRECO_tokeep = [
         'keep recoGsfTracks_electronGsfTracksFromMultiCl_*_*',
         'keep recoGsfTrackExtras_electronGsfTracksFromMultiCl_*_*',
@@ -30,7 +31,6 @@ _phase2_hgcal_TrackingRECO_tokeep = [
 ]
 phase2_hgcal.toModify( TrackingToolsRECO,
                        outputCommands = TrackingToolsRECO.outputCommands + _phase2_hgcal_TrackingRECO_tokeep)
-TrackingToolsRECO.outputCommands.extend(TrackingToolsAOD.outputCommands)
 
 #FEVT content
 TrackingToolsFEVT = cms.PSet(
