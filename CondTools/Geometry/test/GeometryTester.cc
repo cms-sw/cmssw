@@ -69,6 +69,11 @@ namespace {
       std::cout << " " << strVal;
       return (output);
     }
+
+    friend FmtOstream &operator<<(FmtOstream &output, const char *cstr) {
+      std::cout << " " << cstr;
+      return (output);
+    }
   };
 
   class GeometryTester : public edm::one::EDAnalyzer<> {
@@ -130,6 +135,7 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     }
     uint32_t tkeInd;
     for (auto it : tkGeo->pgeomdets_) {
+      std::cout << "trk ";
       outStream << it._params0 << it._params1 << it._params2 << it._params3 << it._params4 << it._params5 << it._params6
                 << it._params7 << it._params8 << it._params9 << it._params10 << it._x << it._y << it._z << it._phi
                 << it._rho << it._a11 << it._a12 << it._a13 << it._a21 << it._a22 << it._a23 << it._a31 << it._a32
@@ -154,12 +160,15 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     std::cout << "Translations " << tseb.size() << "\n";
     std::cout << "Dimensions " << dimeb.size() << "\n";
     std::cout << "Indices " << indeb.size() << "\n";
+    std::cout << "ecalb ";
     for (auto it : tseb)
       outStream << it;
     std::cout << "\n";
+    std::cout << "ecalb ";
     for (auto it : dimeb)
       outStream << it;
     std::cout << "\n";
+    std::cout << "ecalb ";
     for (auto it : indeb)
       outStream << it;
     std::cout << "\n";
@@ -173,12 +182,15 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     std::cout << "Translations " << tsee.size() << "\n";
     std::cout << "Dimensions " << dimee.size() << "\n";
     std::cout << "Indices " << indee.size() << "\n";
+    std::cout << "ecale ";
     for (auto it : tsee)
       outStream << it;
     std::cout << "\n";
+    std::cout << "ecale ";
     for (auto it : dimee)
       outStream << it;
     std::cout << "\n";
+    std::cout << "ecale ";
     for (auto it : indee)
       outStream << it;
     std::cout << "\n";
@@ -192,12 +204,15 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     std::cout << "Translations " << tsep.size() << "\n";
     std::cout << "Dimensions " << dimep.size() << "\n";
     std::cout << "Indices " << indep.size() << "\n";
+    std::cout << "ecalpre ";
     for (auto it : tsep)
       outStream << it;
     std::cout << "\n";
+    std::cout << "ecalpre ";
     for (auto it : dimep)
       outStream << it;
     std::cout << "\n";
+    std::cout << "ecalpre ";
     for (auto it : indep)
       outStream << it;
     std::cout << "\n";
@@ -215,14 +230,18 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     std::cout << "Dimensions " << dimh.size() << "\n";
     std::cout << "Indices " << indh.size() << "\n";
     std::cout << "Dense Indices " << dindh.size() << "\n";
+    std::cout << "hcal";
     for (auto it : tsh)
       outStream << it;
     std::cout << "\n";
+    std::cout << "hcal";
     for (auto it : dimh)
       outStream << it;
     std::cout << "\n";
+    std::cout << "hcal";
     for (auto it : indh)
       outStream << it;
+    std::cout << "hcal";
     for (auto it : dindh)
       outStream << it;
     std::cout << "\n";
@@ -240,14 +259,19 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     std::cout << "Dimensions " << dimh.size() << "\n";
     std::cout << "Indices " << indh.size() << "\n";
     std::cout << "Dense Indices " << dindh.size() << "\n";
+    std::cout << "hgcal ";
     for (auto it : tsh)
       outStream << it;
     std::cout << "\n";
+    std::cout << "hgcal ";
     for (auto it : dimh)
       outStream << it;
     std::cout << "\n";
+    std::cout << "hgcal ";
     for (auto it : indh)
       outStream << it;
+    std::cout << "\n";
+    std::cout << "hgcal ";
     for (auto it : dindh)
       outStream << it;
     std::cout << "\n";
@@ -263,12 +287,15 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     std::cout << "Translations " << tsct.size() << "\n";
     std::cout << "Dimensions " << dimct.size() << "\n";
     std::cout << "Indices " << indct.size() << "\n";
+    std::cout << "calotow ";
     for (auto it : tsct)
       outStream << it;
     std::cout << "\n";
+    std::cout << "calotow ";
     for (auto it : dimct)
       outStream << it;
     std::cout << "\n";
+    std::cout << "calotow ";
     for (auto it : indct)
       outStream << it;
     std::cout << "\n";
@@ -278,12 +305,15 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     edm::ESHandle<PCaloGeometry> castgeo;
     iSetup.get<PCastorRcd>().get(castgeo);
     std::cout << "CASTOR\n";
+    std::cout << "castor ";
     for (auto it : castgeo->getTranslation())
       outStream << it;
     std::cout << "\n";
+    std::cout << "castor ";
     for (auto it : castgeo->getDimension())
       outStream << it;
     std::cout << "\n";
+    std::cout << "castor ";
     for (auto it : castgeo->getIndexes())
       outStream << it;
     std::cout << "\n";
@@ -293,12 +323,15 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     edm::ESHandle<PCaloGeometry> zdcgeo;
     iSetup.get<PZdcRcd>().get(zdcgeo);
     std::cout << "ZDC\n";
+    std::cout << "zdc ";
     for (auto it : zdcgeo->getTranslation())
       outStream << it;
     std::cout << "\n";
+    std::cout << "zdc ";
     for (auto it : zdcgeo->getDimension())
       outStream << it;
     std::cout << "\n";
+    std::cout << "zdc ";
     for (auto it : zdcgeo->getIndexes())
       outStream << it;
     std::cout << "\n";
@@ -313,26 +346,31 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     std::cout << "CSC\n";
 
     std::vector<int> obj1(cscdigigeo->pUserParOffset);
+    std::cout << "csc ";
     for (auto it : obj1)
       outStream << it;
     std::cout << "\n";
 
     std::vector<int> obj2(cscdigigeo->pUserParSize);
+    std::cout << "csc ";
     for (auto it : obj2)
       outStream << it;
     std::cout << "\n";
 
     std::vector<int> obj3(cscdigigeo->pChamberType);
+    std::cout << "csc ";
     for (auto it : obj3)
       outStream << it;
     std::cout << "\n";
 
     std::vector<float> obj4(cscdigigeo->pfupars);
+    std::cout << "csc ";
     for (auto it : obj4)
       outStream << it;
     std::cout << "\n";
 
     std::vector<DetId> myIdcsc(cscgeo->detIds());
+    std::cout << "csc ";
     for (auto it : myIdcsc)
       outStream << it;
     std::cout << "\n";
@@ -340,16 +378,19 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     uint32_t cscsize = myIdcsc.size();
     for (uint32_t i = 0; i < cscsize; i++) {
       std::vector<double> trcsc(cscgeo->tranStart(i), cscgeo->tranEnd(i));
+      std::cout << "csc ";
       for (auto it : trcsc)
         outStream << it;
       std::cout << "\n";
 
       std::vector<double> rotcsc(cscgeo->rotStart(i), cscgeo->rotEnd(i));
+      std::cout << "csc ";
       for (auto it : rotcsc)
         outStream << it;
       std::cout << "\n";
 
       std::vector<double> shapecsc(cscgeo->shapeStart(i), cscgeo->shapeEnd(i));
+      std::cout << "csc ";
       for (auto it : shapecsc)
         outStream << it;
       std::cout << "\n";
@@ -361,11 +402,13 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     iSetup.get<DTRecoGeometryRcd>().get(dtgeo);
     std::cout << "DT\n";
     std::vector<DetId> myIddt(dtgeo->detIds());
+    std::cout << "dt ";
     for (auto it : myIddt)
       std::cout << " " << it;  // DetId
     std::cout << "\n";
 
     uint32_t dtsize = myIddt.size();
+    std::cout << "dt ";
     for (uint32_t i = 0; i < dtsize; i++) {
       std::vector<double> trdt(dtgeo->tranStart(i), dtgeo->tranEnd(i));
       for (auto it : trdt)
@@ -373,11 +416,13 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
       std::cout << "\n";
 
       std::vector<double> rotdt(dtgeo->rotStart(i), dtgeo->rotEnd(i));
+      std::cout << "dt ";
       for (auto it : rotdt)
         outStream << it;
       std::cout << "\n";
 
       std::vector<double> shapedt(dtgeo->shapeStart(i), dtgeo->shapeEnd(i));
+      std::cout << "dt ";
       for (auto it : shapedt)
         outStream << it;
       std::cout << "\n";
@@ -390,27 +435,32 @@ void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     std::cout << "RPC\n";
 
     std::vector<DetId> myIdrpc(rpcgeo->detIds());
+    std::cout << "rpc ";
     for (auto it : myIdrpc)
       std::cout << " " << it;  // DetId
     std::cout << "\n";
     uint32_t rpcsize = myIdrpc.size();
     for (uint32_t i = 0; i < rpcsize; i++) {
       std::vector<double> trrpc(rpcgeo->tranStart(i), rpcgeo->tranEnd(i));
+      std::cout << "rpc ";
       for (auto it : trrpc)
         outStream << it;
       std::cout << "\n";
 
       std::vector<double> rotrpc(rpcgeo->rotStart(i), rpcgeo->rotEnd(i));
+      std::cout << "rpc ";
       for (auto it : rotrpc)
         outStream << it;
       std::cout << "\n";
 
       std::vector<double> shaperpc(rpcgeo->shapeStart(i), rpcgeo->shapeEnd(i));
+      std::cout << "rpc ";
       for (auto it : shaperpc)
         outStream << it;
       std::cout << "\n";
 
       std::vector<std::string> strrpc(rpcgeo->strStart(i), rpcgeo->strEnd(i));
+      std::cout << "rpc ";
       for (auto it : strrpc)
         outStream << it;
       std::cout << "\n";
