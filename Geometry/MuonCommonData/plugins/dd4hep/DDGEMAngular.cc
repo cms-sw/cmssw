@@ -37,8 +37,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume parent = ns.volume(parentName);
   dd4hep::Volume child = ns.volume(childName);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Parent " << parentName << "\tChild " << child.name()
-                               << "\tNameSpace " << ns.name();
+  edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Parent " << parentName << "\tChild " << child.name() << "\tNameSpace "
+                               << ns.name();
 #endif
 
   // Now position child in mother *n* times
