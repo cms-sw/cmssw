@@ -8,7 +8,6 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -86,8 +85,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(
       pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
-  edm::ProcessHistoryRegistry phr;
-  ep.fillEventPrincipal(eventAux, phr);
+  ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
   try {
     edm::ParameterSet pset;
@@ -181,8 +179,7 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(
       pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
-  edm::ProcessHistoryRegistry phr;
-  ep.fillEventPrincipal(eventAux, phr);
+  ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
 
   edm::RefProd<edmtest::IntProduct> refToProd;

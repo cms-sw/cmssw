@@ -343,5 +343,3 @@ void L1TStage2CaloLayer2::analyze(const edm::Event& e, const edm::EventSetup& c)
     }
   }
 }
-
-void L1TStage2CaloLayer2::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {}

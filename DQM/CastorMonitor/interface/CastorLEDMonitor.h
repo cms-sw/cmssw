@@ -31,7 +31,7 @@ public:
   CastorLEDMonitor(const edm::ParameterSet &ps);
   ~CastorLEDMonitor();
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &);
   void processEvent(const CastorDigiCollection &cast, const CastorDbService &cond);
 
 private:

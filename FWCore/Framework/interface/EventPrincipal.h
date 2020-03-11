@@ -26,6 +26,7 @@ is the DataBlock.
 #include <memory>
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace edm {
   class BranchID;
@@ -40,7 +41,6 @@ namespace edm {
   class StreamContext;
   class ThinnedAssociation;
   class ThinnedAssociationsHelper;
-  class ProcessHistoryRegistry;
   class RunPrincipal;
 
   class EventPrincipal : public Principal {
@@ -61,17 +61,17 @@ namespace edm {
     ~EventPrincipal() override {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            ProcessHistory const* processHistory,
                             DelayedReader* reader = nullptr);
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes);
+                            ProcessHistory const* processHistory,
+                            EventSelectionIDVector eventSelectionIDs,
+                            BranchListIndexes branchListIndexes);
     //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes,
+                            ProcessHistory const* processHistory,
+                            EventSelectionIDVector eventSelectionIDs,
+                            BranchListIndexes branchListIndexes,
                             ProductProvenanceRetriever const& provRetriever,
                             DelayedReader* reader = nullptr,
                             bool deepCopyRetriever = true);
@@ -129,7 +129,7 @@ namespace edm {
 
     void putOnRead(BranchDescription const& bd,
                    std::unique_ptr<WrapperBase> edp,
-                   ProductProvenance const* productProvenance) const;
+                   std::optional<ProductProvenance> productProvenance) const;
 
     WrapperBase const* getIt(ProductID const& pid) const override;
     WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
@@ -151,11 +151,18 @@ namespace edm {
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
     unsigned int transitionIndex_() const override;
+    void changedIndexes_() final;
 
     std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {
       return get_underlying_safe(provRetrieverPtr_);
     }
     std::shared_ptr<ProductProvenanceRetriever>& provRetrieverPtr() { return get_underlying_safe(provRetrieverPtr_); }
+
+    bool wasBranchListIndexesChangedFromInput(BranchListIndexes const&) const;
+    void updateBranchListIndexes(BranchListIndexes&&);
+    void commonFillEventPrincipal(EventAuxiliary const& aux,
+                                  ProcessHistory const* processHistory,
+                                  DelayedReader* reader);
 
   private:
     EventAuxiliary aux_;
@@ -172,7 +179,7 @@ namespace edm {
 
     BranchListIndexes branchListIndexes_;
 
-    std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
+    std::vector<ProcessIndex> branchListIndexToProcessIndex_;
 
     StreamID streamID_;
   };

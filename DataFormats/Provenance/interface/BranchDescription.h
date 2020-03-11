@@ -108,6 +108,9 @@ namespace edm {
 
     bool isAnyAlias() const { return isAlias() or isSwitchAlias(); }
 
+    bool isProvenanceSetOnRead() const noexcept { return transient_.isProvenanceSetOnRead_; }
+    void setIsProvenanceSetOnRead(bool value = true) noexcept { transient_.isProvenanceSetOnRead_ = value; }
+
     ParameterSetID const& parameterSetID() const { return transient_.parameterSetID_; }
     std::string const& moduleName() const { return transient_.moduleName_; }
 
@@ -189,6 +192,9 @@ namespace edm {
       // True if the product definition has a mergeProduct function
       // and the branchType is Run or Lumi
       bool isMergeable_;
+
+      // True if provenance is set on call from input on read
+      bool isProvenanceSetOnRead_ = false;
     };
 
   private:

@@ -7,56 +7,25 @@
 //         Created:  Thu Nov 24 11:38:00 CEST 2011
 //
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include <iostream>
-#include <vector>
-#include <memory>
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 //this class produces either Hcal isolation or H for H/E  depending if doEtSum=true or false
 //H for H/E = towers behind SC, hcal isolation has these towers excluded
 //a rho correction can be applied
 
-class EgammaHLTBcHcalIsolationProducersRegional : public edm::stream::EDProducer<> {
+class EgammaHLTBcHcalIsolationProducersRegional : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTBcHcalIsolationProducersRegional(const edm::ParameterSet &);
-  ~EgammaHLTBcHcalIsolationProducersRegional() override;
-
-  // non-copiable
-  EgammaHLTBcHcalIsolationProducersRegional(EgammaHLTBcHcalIsolationProducersRegional const &) = delete;
-  EgammaHLTBcHcalIsolationProducersRegional &operator=(EgammaHLTBcHcalIsolationProducersRegional const &) = delete;
 
 public:
-  void produce(edm::Event &, const edm::EventSetup &) final;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
@@ -77,7 +46,7 @@ private:
   const edm::EDGetTokenT<CaloTowerCollection> caloTowerProducer_;
   const edm::EDGetTokenT<double> rhoProducer_;
 
-  ElectronHcalHelper *hcalHelper_;
+  const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> putToken_;
 };
 
 EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegional(const edm::ParameterSet &config)
@@ -96,31 +65,24 @@ EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegi
           consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
       caloTowerProducer_(consumes<CaloTowerCollection>(config.getParameter<edm::InputTag>("caloTowerProducer"))),
       rhoProducer_(doRhoCorrection_ ? consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"))
-                                    : edm::EDGetTokenT<double>()) {
+                                    : edm::EDGetTokenT<double>()),
+      putToken_{produces<reco::RecoEcalCandidateIsolationMap>()} {
   if (doRhoCorrection_) {
-    if (absEtaLowEdges_.size() != effectiveAreas_.size())
+    if (absEtaLowEdges_.size() != effectiveAreas_.size()) {
       throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
+    }
 
-    if (absEtaLowEdges_.at(0) != 0.0)
+    if (absEtaLowEdges_.at(0) != 0.0) {
       throw cms::Exception("IncompleteCoverage") << "absEtaLowEdges should start from 0. \n";
+    }
 
     for (unsigned int aIt = 0; aIt < absEtaLowEdges_.size() - 1; aIt++) {
-      if (!(absEtaLowEdges_.at(aIt) < absEtaLowEdges_.at(aIt + 1)))
+      if (!(absEtaLowEdges_.at(aIt) < absEtaLowEdges_.at(aIt + 1))) {
         throw cms::Exception("ImproperBinning") << "absEtaLowEdges entries should be in increasing order. \n";
+      }
     }
   }
-
-  ElectronHcalHelper::Configuration hcalCfg;
-  hcalCfg.hOverEConeSize = outerCone_;
-  hcalCfg.useTowers = true;
-  hcalCfg.hcalTowers = caloTowerProducer_;
-  hcalCfg.hOverEPtMin = etMin_;
-  hcalHelper_ = new ElectronHcalHelper(hcalCfg);
-
-  produces<reco::RecoEcalCandidateIsolationMap>();
 }
-
-EgammaHLTBcHcalIsolationProducersRegional::~EgammaHLTBcHcalIsolationProducersRegional() { delete hcalHelper_; }
 
 void EgammaHLTBcHcalIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
@@ -142,29 +104,27 @@ void EgammaHLTBcHcalIsolationProducersRegional::fillDescriptions(edm::Configurat
   descriptions.add(("hltEgammaHLTBcHcalIsolationProducersRegional"), desc);
 }
 
-void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
+                                                        edm::Event &iEvent,
+                                                        const edm::EventSetup &iSetup) const {
   // Get the HLT filtered objects
-  edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
-  iEvent.getByToken(recoEcalCandidateProducer_, recoEcalCandHandle);
+  auto recoEcalCandHandle = iEvent.getHandle(recoEcalCandidateProducer_);
 
-  edm::Handle<CaloTowerCollection> caloTowersHandle;
-  iEvent.getByToken(caloTowerProducer_, caloTowersHandle);
-
-  edm::Handle<double> rhoHandle;
   double rho = 0.0;
 
   if (doRhoCorrection_) {
-    iEvent.getByToken(rhoProducer_, rhoHandle);
-    rho = *(rhoHandle.product());
+    rho = iEvent.get(rhoProducer_);
+    if (rho > rhoMax_) {
+      rho = rhoMax_;
+    }
+    rho = rho * rhoScale_;
   }
 
-  if (rho > rhoMax_)
-    rho = rhoMax_;
+  auto const &caloTowers = iEvent.get(caloTowerProducer_);
+  EgammaHadTower hadTower(iSetup);
 
-  rho = rho * rhoScale_;
-
-  hcalHelper_->checkSetup(iSetup);
-  hcalHelper_->readEvent(iEvent);
+  const EgammaTowerIsolation towerIso1(outerCone_, 0., etMin_, 1, &caloTowers);
+  const EgammaTowerIsolation towerIso2(outerCone_, 0., etMin_, 2, &caloTowers);
 
   reco::RecoEcalCandidateIsolationMap isoMap(recoEcalCandHandle);
 
@@ -173,25 +133,26 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event &iEvent, cons
 
     float isol = 0;
 
-    std::vector<CaloTowerDetId> towersBehindCluster;
-
-    if (useSingleTower_)
-      towersBehindCluster = hcalHelper_->hcalTowersBehindClusters(*(recoEcalCandRef->superCluster()));
+    auto towersBehindCluster =
+        useSingleTower_ ? hadTower.towersOf(*(recoEcalCandRef->superCluster())) : std::vector<CaloTowerDetId>{};
 
     if (doEtSum_) {  //calculate hcal isolation excluding the towers behind the cluster which will be used for H for H/E
-      EgammaTowerIsolation isolAlgo(outerCone_, innerCone_, etMin_, depth_, caloTowersHandle.product());
-      if (useSingleTower_)
-        isol = isolAlgo.getTowerEtSum(
-            &(*recoEcalCandRef), &(towersBehindCluster));  // towersBehindCluster are excluded from the isolation sum
-      else
-        isol = isolAlgo.getTowerEtSum(&(*recoEcalCandRef));
+      const EgammaTowerIsolation isolAlgo(outerCone_, innerCone_, etMin_, depth_, &caloTowers);
+      if (useSingleTower_) {
+        // towersBehindCluster are excluded from the isolation sum
+        isol = isolAlgo.getTowerEtSum(recoEcalCandRef.get(), &towersBehindCluster);
+      } else {
+        isol = isolAlgo.getTowerEtSum(recoEcalCandRef.get());
+      }
 
     } else {  //calcuate H for H/E
       if (useSingleTower_)
-        isol = hcalHelper_->hcalESumDepth1BehindClusters(towersBehindCluster) +
-               hcalHelper_->hcalESumDepth2BehindClusters(towersBehindCluster);
-      else
-        isol = hcalHelper_->hcalESum(*(recoEcalCandRef->superCluster()));
+        isol = hadTower.getDepth1HcalESum(towersBehindCluster, caloTowers) +
+               hadTower.getDepth2HcalESum(towersBehindCluster, caloTowers);
+      else {
+        auto const &sc = recoEcalCandRef->superCluster().get();
+        isol = towerIso1.getTowerESum(sc) + towerIso2.getTowerESum(sc);
+      }
     }
 
     if (doRhoCorrection_) {
@@ -209,7 +170,7 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event &iEvent, cons
     isoMap.insert(recoEcalCandRef, isol);
   }
 
-  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(isoMap));
+  iEvent.emplace(putToken_, isoMap);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

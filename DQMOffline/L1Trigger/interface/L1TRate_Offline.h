@@ -55,7 +55,6 @@ protected:
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
   // Private methods
   //private:

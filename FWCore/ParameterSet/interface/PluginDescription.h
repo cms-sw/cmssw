@@ -87,6 +87,7 @@ Each user plugin must define a static member function:
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // user include files
 #include <string>
@@ -245,7 +246,8 @@ namespace edm {
     }
 
     // ---------- member data --------------------------------
-    mutable std::shared_ptr<ParameterSetDescription> cache_;
+    //Validation of plugins is only done on one thread at a time
+    CMS_SA_ALLOW mutable std::shared_ptr<ParameterSetDescription> cache_;
     std::string typeLabel_;
     std::string defaultType_;
     bool typeLabelIsTracked_;

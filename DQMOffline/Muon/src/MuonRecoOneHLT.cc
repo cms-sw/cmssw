@@ -10,17 +10,14 @@ using namespace edm;
 // Uncomment to DEBUG
 //#define DEBUG
 
-MuonRecoOneHLT::MuonRecoOneHLT(
-    const edm::ParameterSet& pSet) {  //, MuonServiceProxy *theService) :MuonAnalyzerBase(theService) {
+MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) {
   parameters = pSet;
-
-  // the services
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
   ParameterSet muonparms = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
   ParameterSet dimuonparms = parameters.getParameter<edm::ParameterSet>("DoubleMuonTrigger");
-  _SingleMuonEventFlag = new GenericTriggerEventFlag(muonparms, consumesCollector(), *this);
-  _DoubleMuonEventFlag = new GenericTriggerEventFlag(dimuonparms, consumesCollector(), *this);
+  _SingleMuonEventFlag = new GenericTriggerEventFlag(muonparms, consumesCollector(), *this, l1t::UseEventSetupIn::Run);
+  _DoubleMuonEventFlag =
+      new GenericTriggerEventFlag(dimuonparms, consumesCollector(), *this, l1t::UseEventSetupIn::Run);
 
   // Trigger Expresions in case de connection to the DB fails
   singlemuonExpr_ = muonparms.getParameter<std::vector<std::string> >("hltPaths");
@@ -46,7 +43,6 @@ MuonRecoOneHLT::MuonRecoOneHLT(
   phiMax = parameters.getParameter<double>("phiMax");
 }
 MuonRecoOneHLT::~MuonRecoOneHLT() {
-  delete theService;
   delete _SingleMuonEventFlag;
   delete _DoubleMuonEventFlag;
 }
@@ -127,8 +123,6 @@ void MuonRecoOneHLT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& 
     singlemuonExpr_ = _DoubleMuonEventFlag->expressionsFromDB(_DoubleMuonEventFlag->hltDBKey(), iSetup);
 }
 void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  theService->update(iSetup);
-
   // =================================================================================
   // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
   reco::Vertex::Point posVtx;

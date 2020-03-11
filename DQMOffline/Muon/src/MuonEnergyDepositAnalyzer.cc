@@ -24,9 +24,6 @@ using namespace edm;
 MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
-  // the services
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
 
   AlgoName = parameters.getParameter<std::string>("AlgoName");
@@ -54,7 +51,7 @@ MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pS
   hoS9NoMin = parameters.getParameter<double>("hoS9SizeMin");
   hoS9NoMax = parameters.getParameter<double>("hoS9SizeMax");
 }
-MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() { delete theService; }
+MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() {}
 void MuonEnergyDepositAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                                edm::Run const& /*iRun*/,
                                                edm::EventSetup const& /* iSetup */) {
@@ -160,7 +157,6 @@ void MuonEnergyDepositAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 }
 void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace(metname) << "[MuonEnergyDepositAnalyzer] Filling the histos";
-  theService->update(iSetup);
 
   // Take the muon container
   edm::Handle<reco::MuonCollection> muons;

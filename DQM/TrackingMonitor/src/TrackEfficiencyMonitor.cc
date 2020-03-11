@@ -273,11 +273,6 @@ void TrackEfficiencyMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::beginJob(void)
-//-----------------------------------------------------------------------------------
-{}
-
-//-----------------------------------------------------------------------------------
 void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //-----------------------------------------------------------------------------------
 {
@@ -364,20 +359,6 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   }
 
   delete theNavigation;
-}
-
-//-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::endJob(void)
-//-----------------------------------------------------------------------------------
-{
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if (outputMEsInRootFile) {
-    //dqmStore_->showDirStructure();
-    dqmStore_->save(outputFileName);
-  }
-
-  //if ( theNavigation ) delete theNavigation;
 }
 
 //-----------------------------------------------------------------------------------

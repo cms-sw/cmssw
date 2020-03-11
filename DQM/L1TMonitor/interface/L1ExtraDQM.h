@@ -66,12 +66,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "boost/lexical_cast.hpp"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 // forward declarations
 
 // class declaration
-class L1ExtraDQM : public DQMEDAnalyzer {
+class L1ExtraDQM : public DQMOneEDAnalyzer<> {
 public:
   // constructor(s)
   explicit L1ExtraDQM(const edm::ParameterSet&);

@@ -13,12 +13,12 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-class DQMHcalPhiSymAlCaReco : public DQMEDAnalyzer {
+class DQMHcalPhiSymAlCaReco : public DQMOneEDAnalyzer<> {
 public:
   DQMHcalPhiSymAlCaReco(const edm::ParameterSet &);
   ~DQMHcalPhiSymAlCaReco() override;

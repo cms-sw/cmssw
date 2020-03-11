@@ -25,7 +25,7 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
 
   std::vector<const GeometricDet*> allSensitiveDets;
   geomDet_->deepComponents(allSensitiveDets);
-  edm::LogInfo("TrackerSimInfoNumbering")
+  edm::LogVerbatim("TrackerSimInfoNumbering")
       << " TouchableTo History: got " << allSensitiveDets.size() << " sensitive detectors from GeometricDet.";
 
   for (auto& theSD : allSensitiveDets) {
@@ -43,7 +43,7 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
                                          << " Now size is " << directMap_.size();
     delete hist;
   }
-  edm::LogInfo("TrackerSimInfoNumbering")
+  edm::LogVerbatim("TrackerSimInfoNumbering")
       << " TrackerG4SimHitNumberingScheme: mapped " << directMap_.size() << " detectors to Geant4.";
 
   if (directMap_.size() != allSensitiveDets.size()) {

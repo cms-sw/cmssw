@@ -1,5 +1,5 @@
 from __future__ import print_function
-import ConfigParser
+import configparser as ConfigParser
 import argparse
 import shelve
 import sys
@@ -17,6 +17,7 @@ shelve_name = "dump.shelve" # contains all the measurement objects and plot obje
 history_file = "history.log"
 clock_interval = 20 # in seconds
 delete_logs_after_finish = False  # if it is not desired to keep the log and submit script files
+use_caf = False
 
 def save(name, object):
     # in case of multiple threads running this stops potentially problematic file access
@@ -59,8 +60,12 @@ class Dataset:
             else:
                 self.sampleType ="data1"
         
-        self.conditions, dummy = loadConditions(dsDict)      
-    
+        self.conditions, dummy, self.validConditions = loadConditions(dsDict)      
+        
+        # check if any of the sources used for conditions is invalid
+        if not self.validConditions:
+            print("Invalid conditions defined for dataset {}".format(self.name))
+        
 
 class Alignment:        
     name = ""
@@ -84,7 +89,12 @@ class Alignment:
             self.isDesign= (alDict["isDesign"] == "True")
         
         # If self.hasAlignmentCondition is true, no other Alignment-Object is loaded in apeEstimator_cfg.py using the alignmentName
-        self.conditions, self.hasAlignmentCondition = loadConditions(alDict) 
+        self.conditions, self.hasAlignmentCondition, self.validConditions = loadConditions(alDict) 
+        
+        # check if any of the sources used for conditions is invalid
+        if not self.validConditions:
+            print("Invalid conditions defined for alignment {}".format(self.name))
+        
         
         # check if at least one of the two ways to define the alignment was used
         if self.alignmentName == None and not self.hasAlignmentCondition:
@@ -130,6 +140,14 @@ class ApeMeasurement:
         self.maxEvents = int(self.maxEvents)
         if self.alignment.isDesign:
             self.maxIterations = 0
+        
+        
+        if not self.alignment.validConditions or not self.dataset.validConditions:
+            self.status = STATE_INVALID_CONDITIONS
+            self.print_status()
+            self.finishTime = subprocess.check_output(["date"]).strip()
+            return
+        
             
         if self.alignment.isDesign and self.dataset.sampleType != "MC":
             # For now, this won't immediately shut down the program
@@ -137,6 +155,7 @@ class ApeMeasurement:
         ensurePathExists('{}/hists/{}'.format(base, self.name))
         if not self.alignment.isDesign:
             ensurePathExists('{}/hists/{}/apeObjects'.format(base, self.name))
+        
         
         if self.resultPlotDo == "True":
             self.resultPlotTitle = self.resultPlotTitle.replace("~", " ")
@@ -215,7 +234,11 @@ class ApeMeasurement:
         
         # create submit file
         from autoSubmitterTemplates import condorSubTemplate
-        submitFileContent = condorSubTemplate.format(jobFile=jobFileName, outputFile=outputFile, errorFile=errorFile, logFile=logFile, arguments=arguments, jobName=jobName)
+        from autoSubmitterTemplates import condorSubTemplateCAF
+        if use_caf:
+            submitFileContent = condorSubTemplateCAF.format(jobFile=jobFileName, outputFile=outputFile, errorFile=errorFile, logFile=logFile, arguments=arguments, jobName=jobName)
+        else:
+            submitFileContent = condorSubTemplate.format(jobFile=jobFileName, outputFile=outputFile, errorFile=errorFile, logFile=logFile, arguments=arguments, jobName=jobName)
         submitFileName = "{}/test/autoSubmitter/workingArea/submit_{}_jobs_iter{}.sub".format(base, self.name, self.curIteration)
         with open(submitFileName, "w") as submitFile:
             submitFile.write(submitFileContent)
@@ -441,6 +464,7 @@ class ApeMeasurement:
                 self.status == STATE_MERGE_FAILED or \
                 self.status == STATE_SUMMARY_FAILED or \
                 self.status == STATE_LOCAL_FAILED or \
+                self.status == STATE_INVALID_CONDITIONS or \
                 self.status == STATE_FINISHED:
                     with open(history_file, "a") as fi:
                         fi.write("APE measurement {name} which was started at {start} finished at {end} with state {state} in iteration {iteration}\n".format(name=self.name, start=self.startTime, end=self.finishTime, state=self.get_status(), iteration=self.curIteration))
@@ -542,7 +566,8 @@ def main():
                           help='Specify in which .shelve file to store the measurements and plots')
     parser.add_argument("-n", "--ncores", action="store", dest="ncores", default=1, type=int,
                           help='Number of threads running in parallel')
-
+    parser.add_argument("-C", "--caf",action="store_true", dest="caf", default=False,
+                                              help="Use CAF queue for condor jobs")
     args = parser.parse_args()
     
     global base
@@ -550,6 +575,11 @@ def main():
     global shelve_name
     global threadcounter
     global lock
+    global use_caf
+    
+    use_caf = args.caf
+    enableCAF(use_caf)
+    
     
     threadcounter = threading.BoundedSemaphore(args.ncores)
     lock = threading.Lock()

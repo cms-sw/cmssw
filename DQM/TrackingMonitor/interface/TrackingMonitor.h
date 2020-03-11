@@ -14,9 +14,9 @@ Monitoring source for general quantities related to tracks.
 #include <memory>
 #include <fstream>
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +26,6 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -47,6 +46,11 @@ Monitoring source for general quantities related to tracks.
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 class TrackAnalyzer;
 class TrackBuildingAnalyzer;
@@ -110,6 +114,9 @@ private:
 
   std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
   edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> transientTrackingRecHitBuilderToken_;
 
   std::string Quality_;
   std::string AlgoName_;
@@ -191,7 +198,6 @@ private:
   MonitorElement* NumberOfTracks_lumiFlag;
 
   std::string builderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
 
   bool doTrackerSpecific_;
   bool doLumiAnalysis;

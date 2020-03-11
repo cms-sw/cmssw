@@ -72,7 +72,7 @@ private:
 
 L1MenuTreeProducer::L1MenuTreeProducer(const edm::ParameterSet& iConfig)
     :  //  l1MenuInputTag_(iConfig.getParameter<edm::InputTag>("L1MenuInputTag")),
-      l1GtUtils_(iConfig, consumesCollector(), true) {
+      l1GtUtils_(iConfig, consumesCollector(), true, L1GtUtils::UseEventSetupIn::Event) {
   l1Menu = new L1Analysis::L1AnalysisL1Menu();
   l1MenuData = l1Menu->getData();
 

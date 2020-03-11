@@ -1,0 +1,57 @@
+# Auto generated configuration file
+# using: 
+# Revision: 1.19 
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# with command line options: Reconstruction.py -s RAW2DIGI,RECO --filein file:gensimraw.root --eventcontent RECO --datatier RECO --conditions FrontierConditions_GlobalTag,auto:upgradePLS1 -n 10 --data --no_exec
+
+import sys
+import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('TEST',eras.Run2_2017 )
+
+#import FWCore.ParameterSet.Config as cms
+#process = cms.Process('OKRECO')
+
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+##process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+##process.load('RecoLocalCalo.Configuration.hcalLocalReco_cff')
+#----------------------------------------------------------------------------
+# temporarily:   use either only first below line (old QIE8) or only second+3 next lines together(new QIE10):
+#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+#process.load("Configuration.Geometry.GeometryExtended2016dev_cff")
+#process.load("Configuration.Geometry.GeometryExtended2016devReco_cff")
+#process.load("CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff")
+#process.es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
+#----------------------------------------------------------------------------
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
+# Input source
+process.source = cms.Source("PoolSource",
+	       	skipBadFiles=cms.untracked.bool(True),	
+    fileNames = cms.untracked.vstring(
+# 4 Gb:
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/313/00000/E66AA001-04A1-E811-9FCB-FA163E6C4A2C.root',
+# 12 Gb:done
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/625/00000/2C6FEB4C-E7A5-E811-90A7-FA163E017E84.root',
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/625/00000/583A804D-E7A5-E811-B275-FA163EE79EC6.root',
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/625/00000/8825D848-E7A5-E811-B1D1-FA163EFD62C6.root',
+# 6 Gb:
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/624/00000/7A2AED73-E7A5-E811-815A-FA163E884269.root',
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/624/00000/38276E65-E7A5-E811-93F8-FA163EDADC7B.root',
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/624/00000/80D27993-E7A5-E811-BA90-FA163E323FF6.root',
+# empty:
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/177/00000/045481B7-B39E-E811-BB1F-FA163E11507C.root',
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/177/00000/DAA368BA-BC9E-E811-B781-FA163E06E023.root',
+#'/store/data/Run2018D/TestEnablesEcalHcal/RAW/Express-v1/000/321/177/00000/ECFABBB7-BC9E-E811-A856-FA163E84650C.root',

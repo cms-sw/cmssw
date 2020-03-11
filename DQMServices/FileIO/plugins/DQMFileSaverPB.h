@@ -30,6 +30,7 @@ namespace dqm {
     void initRun() const override;
     void saveLumi(const FileParameters& fp) const override;
     void saveRun(const FileParameters& fp) const override;
+    void savePB(DQMStore* store, std::string const& filename, int run, int lumi) const;
 
     bool fakeFilterUnitMode_;
     std::string streamLabel_;

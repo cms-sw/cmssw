@@ -56,8 +56,7 @@ private:
   edm::EDGetTokenT<TTStubAssociationMap<T> > TTStubTruthToken;
   edm::EDGetTokenT<TTClusterAssociationMap<T> > TTClusterTruthToken;
 
-  //    edm::InputTag TTClusterTruthInputTag;
-  //    edm::InputTag TTStubTruthInputTag;
+  bool TTTrackAllowOneFalse2SStub;
 
   /// Mandatory methods
   void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
@@ -79,6 +78,12 @@ TTTrackAssociator<T>::TTTrackAssociator(const edm::ParameterSet& iConfig) {
   TTTracksInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTTracks");
   TTClusterTruthToken = consumes<TTClusterAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTClusterTruth"));
   TTStubTruthToken = consumes<TTStubAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTStubTruth"));
+  TTTrackAllowOneFalse2SStub = iConfig.getParameter<bool>("TTTrackAllowOneFalse2SStub");
+  if (TTTrackAllowOneFalse2SStub) {
+    edm::LogInfo("TTTrackAssociator< ") << "Allow track if no more than one 2S stub doesn't match truth.";
+  } else {
+    edm::LogInfo("TTTrackAssociator< ") << "All 2S stubs must match truth.";
+  }
 
   for (auto iTag = TTTracksInputTags.begin(); iTag != TTTracksInputTags.end(); iTag++) {
     TTTracksTokens.push_back(consumes<std::vector<TTTrack<T> > >(*iTag));

@@ -56,8 +56,6 @@ namespace edm {
   StreamerInputSource::~StreamerInputSource() {}
 
   // ---------------------------------------
-  std::unique_ptr<FileBlock> StreamerInputSource::readFile_() { return std::make_unique<FileBlock>(); }
-
   void StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header,
                                               ProductRegistry& reg,
                                               BranchIDListHelper& branchIDListHelper,
@@ -262,7 +260,8 @@ namespace edm {
     processHistoryRegistryForUpdate().registerProcessHistory(sendEvent_->processHistory());
 
     FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
-    if (runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run()) {
+    if (runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run() ||
+        runAuxiliary()->processHistoryID() != sendEvent_->processHistory().id()) {
       RunAuxiliary* runAuxiliary =
           new RunAuxiliary(sendEvent_->aux().run(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
       runAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
@@ -288,7 +287,8 @@ namespace edm {
     EventSelectionIDVector ids(sendEvent_->eventSelectionIDs());
     BranchListIndexes indexes(sendEvent_->branchListIndexes());
     branchIDListHelper()->fixBranchListIndexes(indexes);
-    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistry(), std::move(ids), std::move(indexes));
+    auto history = processHistoryRegistry().getMapped(sendEvent_->aux().processHistoryID());
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), history, std::move(ids), std::move(indexes));
 
     //We now know which eventPrincipal to use and we can reuse the slot in
     // streamToEventPrincipalHolders to own the memory
@@ -312,19 +312,20 @@ namespace edm {
       BranchDescription const branchDesc(*spitem.desc());
       // This ProductProvenance constructor inserts into the entry description registry
       if (spitem.parents()) {
-        ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
+        std::optional<ProductProvenance> productProvenance{std::in_place, spitem.branchID(), *spitem.parents()};
         if (spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(
-              branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), &productProvenance);
+          eventPrincipal.putOnRead(branchDesc,
+                                   std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())),
+                                   std::move(productProvenance));
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), &productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), std::move(productProvenance));
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
       } else {
-        ProductProvenance const* productProvenance = nullptr;
+        std::optional<ProductProvenance> productProvenance;
         if (spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
           eventPrincipal.putOnRead(

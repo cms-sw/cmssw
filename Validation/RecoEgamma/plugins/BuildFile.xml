@@ -21,7 +21,6 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="RecoEgamma/EgammaMCTools"/>
 <use   name="RecoEgamma/EgammaTools"/>
-<use   name="RecoEgamma/EgammaPhotonAlgos" />
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/Records"/>
 <use   name="SimTracker/TrackerHitAssociation"/>

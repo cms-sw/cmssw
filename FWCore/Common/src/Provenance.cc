@@ -8,9 +8,9 @@ namespace edm {
   static std::string const source("source");
   static std::string const triggerResultsInserter("TriggerResultsInserter");
 
-  ParameterSet const& parameterSet(Provenance const& provenance) {
+  ParameterSet const& parameterSet(Provenance const& provenance, ProcessHistory const& history) {
     ProcessConfiguration pc;
-    provenance.getProcessConfiguration(pc);
+    history.getConfigurationForProcess(provenance.processName(), pc);
     ParameterSet const& processParameterSet = *pset::Registry::instance()->getMapped(pc.parameterSetID());
     std::string const& label = provenance.moduleLabel();
     if (!processParameterSet.existsAs<ParameterSet>(label)) {
@@ -24,11 +24,11 @@ namespace edm {
     return processParameterSet.getParameterSet(label);
   }
 
-  std::string moduleName(Provenance const& provenance) {
+  std::string moduleName(Provenance const& provenance, ProcessHistory const& history) {
     // Trigger results ia a special case
     if (provenance.moduleLabel() == triggerResults) {
       return triggerResultsInserter;
     }
-    return parameterSet(provenance).getParameter<std::string>("@module_type");
+    return parameterSet(provenance, history).getParameter<std::string>("@module_type");
   }
 }  // namespace edm

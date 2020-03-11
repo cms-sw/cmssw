@@ -12,7 +12,9 @@ HGCalHistoSeedingImpl::HGCalHistoSeedingImpl(const edm::ParameterSet& conf)
       histoThreshold_(conf.getParameter<double>("threshold_histo_multicluster")),
       neighbour_weights_(conf.getParameter<std::vector<double>>("neighbour_weights")),
       smoothing_ecal_(conf.getParameter<std::vector<double>>("seed_smoothing_ecal")),
-      smoothing_hcal_(conf.getParameter<std::vector<double>>("seed_smoothing_hcal")) {
+      smoothing_hcal_(conf.getParameter<std::vector<double>>("seed_smoothing_hcal")),
+      kROverZMin_(conf.getParameter<double>("kROverZMin")),
+      kROverZMax_(conf.getParameter<double>("kROverZMax")) {
   if (seedingAlgoType_ == "HistoMaxC3d") {
     seedingType_ = HistoMaxC3d;
   } else if (seedingAlgoType_ == "HistoSecondaryMaxC3d") {

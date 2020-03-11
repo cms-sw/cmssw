@@ -43,10 +43,6 @@ _fastSim_lowPtGsfElectronSeeds.PreIdLabel = cms.vstring("","HCAL")
 _fastSim_lowPtGsfElectronSeeds.PreGsfLabel = cms.string("")
 fastSim.toReplaceWith(lowPtGsfElectronSeeds,_fastSim_lowPtGsfElectronSeeds)
 
-# Modifiers for Phase2
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(lowPtGsfElectronSeeds, TTRHBuilder  = 'WithTrackAngle')
-
 # Modifiers for BParking
 from Configuration.Eras.Modifier_bParking_cff import bParking
 bParking.toModify(lowPtGsfElectronSeeds, ModelThresholds = thresholds("VL") )

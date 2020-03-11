@@ -14,6 +14,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "Histogram.h"
 
 #include <string>
 #include <vector>
@@ -39,7 +40,8 @@ public:
          const DTSuperLayer& isl,
          GlobalVector dir,
          GlobalPoint pos,
-         const DTTTrigBaseSync& sync);
+         const DTTTrigBaseSync& sync,
+         dtcalibration::Histograms& hist);
 
   /// Destructor
   virtual ~DTTMax();

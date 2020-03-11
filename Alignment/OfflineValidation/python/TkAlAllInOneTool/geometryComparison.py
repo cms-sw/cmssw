@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import os
-import ConfigParser # needed for exceptions in this module
+import configparser as ConfigParser # needed for exceptions in this module
 from . import configTemplates
 from .genericValidation import GenericValidation
 from .helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring, clean_name
@@ -88,7 +88,7 @@ class GeometryComparison(GenericValidation):
             referenceTitle = self.referenceAlignment.title
 
         assert len(self.__compares) == 1 #? not sure how it can be anything else, but just in case
-        common = self.__compares.keys()[0]
+        common = list(self.__compares.keys())[0]
 
         repMap.update({
             "common": clean_name(common),
@@ -125,7 +125,7 @@ class GeometryComparison(GenericValidation):
             cfgs[cfgFileName] = configTemplates.intoNTuplesTemplate
             repMaps[cfgFileName] = referenceRepMap
 
-        cfgSchedule = cfgs.keys()
+        cfgSchedule = list(cfgs.keys())
         for common in self.__compares:
             repMap.update({
                            "levels": self.__compares[common][0],

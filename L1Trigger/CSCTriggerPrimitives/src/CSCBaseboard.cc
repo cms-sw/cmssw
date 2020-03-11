@@ -30,17 +30,13 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
 
   alctClctOffset_ = commonParams_.getParameter<unsigned int>("alctClctOffset");
 
-  runME11Up_ = commonParams_.existsAs<bool>("runME11Up") ? commonParams_.getParameter<bool>("runME11Up") : false;
+  runME11Up_ = commonParams_.getParameter<bool>("runME11Up");
+  runME21Up_ = commonParams_.getParameter<bool>("runME21Up");
+  runME31Up_ = commonParams_.getParameter<bool>("runME31Up");
+  runME41Up_ = commonParams_.getParameter<bool>("runME41Up");
 
-  runME21Up_ = commonParams_.existsAs<bool>("runME21Up") ? commonParams_.getParameter<bool>("runME21Up") : false;
-
-  runME31Up_ = commonParams_.existsAs<bool>("runME31Up") ? commonParams_.getParameter<bool>("runME31Up") : false;
-
-  runME41Up_ = commonParams_.existsAs<bool>("runME41Up") ? commonParams_.getParameter<bool>("runME41Up") : false;
-
-  runME11ILT_ = commonParams_.existsAs<bool>("runME11ILT") ? commonParams_.getParameter<bool>("runME11ILT") : false;
-
-  runME21ILT_ = commonParams_.existsAs<bool>("runME21ILT") ? commonParams_.getParameter<bool>("runME21ILT") : false;
+  runME11ILT_ = commonParams_.getParameter<bool>("runME11ILT");
+  runME21ILT_ = commonParams_.getParameter<bool>("runME21ILT");
 
   if (isSLHC_ and theRing == 1) {
     if (theStation == 1 and runME11Up_) {
@@ -87,4 +83,19 @@ CSCBaseboard::CSCBaseboard() : theEndcap(1), theStation(1), theSector(1), theSub
 void CSCBaseboard::setCSCGeometry(const CSCGeometry* g) {
   cscGeometry_ = g;
   cscChamber_ = cscGeometry_->chamber(cscId_);
+}
+
+void CSCBaseboard::checkConfigParameters(unsigned int& var,
+                                         const unsigned int var_max,
+                                         const unsigned int var_def,
+                                         const std::string& var_str) {
+  // Make sure that the parameter values are within the allowed range.
+  if (var >= var_max) {
+    if (infoV >= 0)
+      edm::LogError("CSCConfigError") << "+++ Value of " + var_str + ", " << var << ", exceeds max allowed, " << var - 1
+                                      << " +++\n"
+                                      << "+++ Try to proceed with the default value, " + var_str + "=" << var_def
+                                      << " +++\n";
+    var = var_def;
+  }
 }

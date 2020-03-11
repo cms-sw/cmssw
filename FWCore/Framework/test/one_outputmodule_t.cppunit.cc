@@ -14,7 +14,6 @@
 #include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -154,7 +153,7 @@ private:
     using edm::one::OutputModuleBase::doPreallocate;
     RunCacheOutputModule(edm::ParameterSet const& iPSet)
         : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::RunCache<DummyCache>>(iPSet) {}
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void write(edm::EventForOutput const&) override { ++m_count; }
     void writeRun(edm::RunForOutput const&) override { ++m_count; }
     void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override { ++m_count; }
@@ -172,7 +171,7 @@ private:
     using edm::one::OutputModuleBase::doPreallocate;
     LumiCacheOutputModule(edm::ParameterSet const& iPSet)
         : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::LuminosityBlockCache<DummyCache>>(iPSet) {}
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void write(edm::EventForOutput const&) override { ++m_count; }
     void writeRun(edm::RunForOutput const&) override { ++m_count; }
     void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override { ++m_count; }
@@ -261,8 +260,7 @@ testOneOutputModule::testOneOutputModule()
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
   m_ep.reset(new edm::EventPrincipal(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr));
-  edm::ProcessHistoryRegistry phr;
-  m_ep->fillEventPrincipal(eventAux, phr);
+  m_ep->fillEventPrincipal(eventAux, nullptr);
   m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
 

@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
@@ -16,6 +17,7 @@ public:
   RecHitTopologicalCleanerBase& operator=(const RecHitTopologicalCleanerBase&) = delete;
 
   virtual void clean(const edm::Handle<reco::PFRecHitCollection>&, std::vector<bool>&) = 0;
+  virtual void update(const edm::EventSetup&) {}
 
   const std::string& name() const { return _algoName; }
 

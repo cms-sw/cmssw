@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 ecalRecoSummaryTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         rechitThresholdEB = cms.untracked.double(0.8),
-        rechitThresholdEE = cms.untracked.double(1.2)
+        rechitThresholdEE = cms.untracked.double(1.2),
+        fillRecoFlagReduced = cms.untracked.bool(True)
     ),
     MEs = cms.untracked.PSet(
         EnergyMax = cms.untracked.PSet(

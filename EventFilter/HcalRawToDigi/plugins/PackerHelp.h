@@ -616,7 +616,7 @@ public:
 
 // converts HE QIE digies to HB data format
 
-QIE11DataFrame convertHB(QIE11DataFrame qiehe) {
+QIE11DataFrame convertHB(QIE11DataFrame qiehe, int tdc1, int tdc2, int tdcmax) {
   QIE11DataFrame qiehb = qiehe;
   int adc, tdc;
   bool soi;
@@ -633,13 +633,13 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe) {
     tdc = qiehe[is].tdc();
     soi = qiehe[is].soi();
 
-    if (tdc >= 0 && tdc <= 24)
+    if (tdc >= 0 && tdc <= tdc1)
       tdc = 0;
-    else if (tdc >= 25 && tdc <= 49)
+    else if (tdc > tdc1 && tdc <= tdc2)
       tdc = 1;
-    else if (tdc == 63)
+    else if (tdc > tdc2 && tdc <= tdcmax)
       tdc = 2;
-    else if (tdc == 62)
+    else
       tdc = 3;
 
     qiehb.setSample(is, adc, tdc, soi);

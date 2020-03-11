@@ -81,7 +81,7 @@ namespace edm {
     //
     // constructors and destructor
     //
-    TestProcessor::TestProcessor(Config const& iConfig)
+    TestProcessor::TestProcessor(Config const& iConfig, ServiceToken iToken)
         : espController_(std::make_unique<eventsetup::EventSetupsController>()),
           historyAppender_(std::make_unique<HistoryAppender>()),
           moduleRegistry_(std::make_shared<ModuleRegistry>()) {
@@ -102,8 +102,7 @@ namespace edm {
 
       //initialize the services
       auto& serviceSets = procDesc->getServicesPSets();
-      ServiceToken token =
-          items.initServices(serviceSets, *psetPtr, ServiceToken(), serviceregistry::kOverlapIsError, true);
+      ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
       serviceToken_ = items.addCPRandTNS(*psetPtr, token);
 
       //make the services available
@@ -115,17 +114,18 @@ namespace edm {
       // intialize the event setup provider
       esp_ = espController_->makeProvider(*psetPtr, items.actReg_.get());
 
-      if (not iConfig.esProduceEntries().empty()) {
-        esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
-        esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
-        esp_->add(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
-      }
-
       auto nThreads = 1U;
       auto nStreams = 1U;
       auto nConcurrentLumis = 1U;
       auto nConcurrentRuns = 1U;
       preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
+
+      espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
+      if (not iConfig.esProduceEntries().empty()) {
+        esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
+        esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
+        esp_->add(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
+      }
 
       preg_ = items.preg();
       processConfiguration_ = items.processConfiguration();
@@ -221,6 +221,85 @@ namespace edm {
           principalCache_.eventPrincipal(0), labelOfTestModule_, processConfiguration_->processName(), result);
     }
 
+    edm::test::LuminosityBlock TestProcessor::testBeginLuminosityBlockImpl(edm::LuminosityBlockNumber_t iNum) {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+      if (not beginRunCalled_) {
+        beginRun();
+      }
+      if (beginLumiCalled_) {
+        endLuminosityBlock();
+        assert(lumiNumber_ != iNum);
+      }
+      lumiNumber_ = iNum;
+      beginLuminosityBlock();
+
+      if (esHelper_) {
+        //We want each test to have its own ES data products
+        esHelper_->resetAllProxies();
+      }
+
+      return edm::test::LuminosityBlock(lumiPrincipal_, labelOfTestModule_, processConfiguration_->processName());
+    }
+
+    edm::test::LuminosityBlock TestProcessor::testEndLuminosityBlockImpl() {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+      if (not beginRunCalled_) {
+        beginRun();
+      }
+      if (not beginLumiCalled_) {
+        beginLuminosityBlock();
+      }
+      auto lumi = endLuminosityBlock();
+
+      if (esHelper_) {
+        //We want each test to have its own ES data products
+        esHelper_->resetAllProxies();
+      }
+
+      return edm::test::LuminosityBlock(std::move(lumi), labelOfTestModule_, processConfiguration_->processName());
+    }
+
+    edm::test::Run TestProcessor::testBeginRunImpl(edm::RunNumber_t iNum) {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+
+      if (beginRunCalled_) {
+        assert(runNumber_ != iNum);
+        endRun();
+      }
+      runNumber_ = iNum;
+      beginRun();
+
+      if (esHelper_) {
+        //We want each test to have its own ES data products
+        esHelper_->resetAllProxies();
+      }
+
+      return edm::test::Run(
+          principalCache_.runPrincipalPtr(), labelOfTestModule_, processConfiguration_->processName());
+    }
+    edm::test::Run TestProcessor::testEndRunImpl() {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+      if (not beginRunCalled_) {
+        beginRun();
+      }
+      auto rp = endRun();
+
+      if (esHelper_) {
+        //We want each test to have its own ES data products
+        esHelper_->resetAllProxies();
+      }
+
+      return edm::test::Run(rp, labelOfTestModule_, processConfiguration_->processName());
+    }
+
     void TestProcessor::setupProcessing() {
       if (not beginJobCalled_) {
         beginJob();
@@ -265,6 +344,8 @@ namespace edm {
       //NOTE: this may throw
       //checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, false);
       actReg_->preBeginJobSignal_(pathsAndConsumesOfModules, processContext_);
+
+      espController_->finishConfiguration();
 
       schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
       actReg_->postBeginJobSignal_();
@@ -334,6 +415,7 @@ namespace edm {
     void TestProcessor::beginLuminosityBlock() {
       LuminosityBlockAuxiliary aux(runNumber_, lumiNumber_, Timestamp(), Timestamp());
       lumiPrincipal_ = principalCache_.getAvailableLumiPrincipalPtr();
+      lumiPrincipal_->clearPrincipal();
       assert(lumiPrincipal_);
       lumiPrincipal_->setAux(aux);
 
@@ -394,7 +476,7 @@ namespace edm {
       pep->clearEventPrincipal();
       pep->fillEventPrincipal(
           edm::EventAuxiliary(EventID(runNumber_, lumiNumber_, eventNumber_), "", Timestamp(), false),
-          processHistoryRegistry_,
+          nullptr,
           nullptr);
       assert(lumiPrincipal_.get() != nullptr);
       pep->setLuminosityBlockPrincipal(lumiPrincipal_.get());
@@ -425,10 +507,10 @@ namespace edm {
       ++eventNumber_;
     }
 
-    void TestProcessor::endLuminosityBlock() {
+    std::shared_ptr<LuminosityBlockPrincipal> TestProcessor::endLuminosityBlock() {
+      auto lumiPrincipal = lumiPrincipal_;
       if (beginLumiCalled_) {
         beginLumiCalled_ = false;
-        auto lumiPrincipal = lumiPrincipal_;
         lumiPrincipal_.reset();
 
         IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal->endTime());
@@ -481,14 +563,16 @@ namespace edm {
           }
         }
       }
+      return lumiPrincipal;
     }
 
-    void TestProcessor::endRun() {
+    std::shared_ptr<edm::RunPrincipal> TestProcessor::endRun() {
+      std::shared_ptr<RunPrincipal> rp;
       if (beginRunCalled_) {
         beginRunCalled_ = false;
         ProcessHistoryID phid;
-
-        RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, runNumber_);
+        rp = principalCache_.runPrincipalPtr(phid, runNumber_);
+        RunPrincipal& runPrincipal = *rp;
 
         IOVSyncValue ts(
             EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
@@ -544,6 +628,7 @@ namespace edm {
 
         principalCache_.deleteRun(phid, runNumber_);
       }
+      return rp;
     }
 
     void TestProcessor::endJob() {

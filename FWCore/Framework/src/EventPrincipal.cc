@@ -37,7 +37,7 @@ namespace edm {
       : Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender, isForPrimaryProcess),
         aux_(),
         luminosityBlockPrincipal_(nullptr),
-        provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
+        provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex, *reg)),
         eventSelectionIDs_(),
         branchIDListHelper_(branchIDListHelper),
         thinnedAssociationsHelper_(thinnedAssociationsHelper),
@@ -45,6 +45,12 @@ namespace edm {
         branchListIndexToProcessIndex_(),
         streamID_(streamIndex) {
     assert(thinnedAssociationsHelper_);
+
+    for (auto& prod : *this) {
+      if (prod->singleProduct()) {
+        prod->setProductProvenanceRetriever(productProvenanceRetrieverPtr());
+      }
+    }
   }
 
   void EventPrincipal::clearEventPrincipal() {
@@ -53,66 +59,95 @@ namespace edm {
     //do not clear luminosityBlockPrincipal_ since
     // it is only connected at beginLumi transition
     provRetrieverPtr_->reset();
-    branchListIndexToProcessIndex_.clear();
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
-                                          ProcessHistoryRegistry const& processHistoryRegistry,
-                                          EventSelectionIDVector&& eventSelectionIDs,
-                                          BranchListIndexes&& branchListIndexes,
+                                          ProcessHistory const* processHistory,
+                                          EventSelectionIDVector eventSelectionIDs,
+                                          BranchListIndexes branchListIndexes,
                                           ProductProvenanceRetriever const& provRetriever,
                                           DelayedReader* reader,
                                           bool deepCopyRetriever) {
-    eventSelectionIDs_ = eventSelectionIDs;
+    eventSelectionIDs_ = std::move(eventSelectionIDs);
     if (deepCopyRetriever) {
       provRetrieverPtr_->deepCopy(provRetriever);
     } else {
       provRetrieverPtr_->mergeParentProcessRetriever(provRetriever);
     }
-    branchListIndexes_ = branchListIndexes;
-    if (branchIDListHelper_->hasProducedProducts()) {
-      // Add index into BranchIDListRegistry for products produced this process
-      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+    if (wasBranchListIndexesChangedFromInput(branchListIndexes)) {
+      if (branchIDListHelper_->hasProducedProducts()) {
+        // Add index into BranchIDListRegistry for products produced this process
+        branchListIndexes.push_back(branchIDListHelper_->producedBranchListIndex());
+      }
+      updateBranchListIndexes(std::move(branchListIndexes));
     }
-    fillEventPrincipal(aux, processHistoryRegistry, reader);
+    commonFillEventPrincipal(aux, processHistory, reader);
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
-                                          ProcessHistoryRegistry const& processHistoryRegistry,
-                                          EventSelectionIDVector&& eventSelectionIDs,
-                                          BranchListIndexes&& branchListIndexes) {
-    eventSelectionIDs_ = eventSelectionIDs;
-    branchListIndexes_ = branchListIndexes;
-    if (branchIDListHelper_->hasProducedProducts()) {
-      // Add index into BranchIDListRegistry for products produced this process
-      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+                                          ProcessHistory const* processHistory,
+                                          EventSelectionIDVector eventSelectionIDs,
+                                          BranchListIndexes branchListIndexes) {
+    eventSelectionIDs_ = std::move(eventSelectionIDs);
+
+    if (wasBranchListIndexesChangedFromInput(branchListIndexes)) {
+      if (branchIDListHelper_->hasProducedProducts()) {
+        // Add index into BranchIDListRegistry for products produced this process
+        branchListIndexes.push_back(branchIDListHelper_->producedBranchListIndex());
+      }
+      updateBranchListIndexes(std::move(branchListIndexes));
     }
-    fillEventPrincipal(aux, processHistoryRegistry, nullptr);
+    commonFillEventPrincipal(aux, processHistory, nullptr);
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
-                                          ProcessHistoryRegistry const& processHistoryRegistry,
+                                          ProcessHistory const* processHistory,
                                           DelayedReader* reader) {
+    if (branchListIndexes_.empty() and branchIDListHelper_->hasProducedProducts()) {
+      // Add index into BranchIDListRegistry for products produced this process
+      //  if it hasn't already been filled in by the other fillEventPrincipal or by an earlier call to this function
+      BranchListIndexes indexes;
+      indexes.push_back(branchIDListHelper_->producedBranchListIndex());
+      updateBranchListIndexes(std::move(indexes));
+    }
+    commonFillEventPrincipal(aux, processHistory, reader);
+  }
+
+  void EventPrincipal::commonFillEventPrincipal(EventAuxiliary const& aux,
+                                                ProcessHistory const* processHistory,
+                                                DelayedReader* reader) {
     if (aux.event() == invalidEventNumber) {
       throw Exception(errors::LogicError) << "EventPrincipal::fillEventPrincipal, Invalid event number provided in "
                                              "EventAuxiliary, It is illegal for the event number to be 0\n";
     }
 
-    fillPrincipal(aux.processHistoryID(), processHistoryRegistry, reader);
+    fillPrincipal(aux.processHistoryID(), processHistory, reader);
     aux_ = aux;
     aux_.setProcessHistoryID(processHistoryID());
+  }
 
-    if (branchListIndexes_.empty() and branchIDListHelper_->hasProducedProducts()) {
-      // Add index into BranchIDListRegistry for products produced this process
-      //  if it hasn't already been filled in by the other fillEventPrincipal or by an earlier call to this function
-      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+  bool EventPrincipal::wasBranchListIndexesChangedFromInput(BranchListIndexes const& fromInput) const {
+    //fromInput does not contain entries for what is being produced in this job.
+    auto end = branchListIndexes_.end();
+    if (end != branchListIndexes_.begin() and branchIDListHelper_->hasProducedProducts()) {
+      --end;
     }
 
+    return not std::equal(fromInput.begin(), fromInput.end(), branchListIndexes_.begin(), end);
+  }
+
+  void EventPrincipal::updateBranchListIndexes(BranchListIndexes&& branchListIndexes) {
+    branchListIndexes_ = std::move(branchListIndexes);
+    branchListIndexToProcessIndex_.clear();
     // Fill in helper map for Branch to ProductID mapping
-    ProcessIndex pix = 0;
-    for (auto const& blindex : branchListIndexes_) {
-      branchListIndexToProcessIndex_.insert(std::make_pair(blindex, pix));
-      ++pix;
+    if (not branchListIndexes_.empty()) {
+      ProcessIndex pix = 0;
+      branchListIndexToProcessIndex_.resize(1 + *std::max_element(branchListIndexes_.begin(), branchListIndexes_.end()),
+                                            std::numeric_limits<BranchListIndex>::max());
+      for (auto const& blindex : branchListIndexes_) {
+        branchListIndexToProcessIndex_[blindex] = pix;
+        ++pix;
+      }
     }
 
     // Fill in the product ID's in the product holders.
@@ -122,10 +157,9 @@ namespace edm {
         //  Under that condition, we want the ProductID to be the same as the original.
         //  If not, then we've internally changed the original BranchID to the alias BranchID
         //  in the ProductID lookup so we need the alias BranchID.
+
         auto const& bd = prod->branchDescription();
-        prod->setProvenance(productProvenanceRetrieverPtr(),
-                            processHistory(),
-                            branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
+        prod->setProductID(branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
       }
     }
   }
@@ -174,10 +208,10 @@ namespace edm {
 
   void EventPrincipal::putOnRead(BranchDescription const& bd,
                                  std::unique_ptr<WrapperBase> edp,
-                                 ProductProvenance const* productProvenance) const {
+                                 std::optional<ProductProvenance> productProvenance) const {
     assert(!bd.produced());
     if (productProvenance) {
-      productProvenanceRetrieverPtr()->insertIntoSet(*productProvenance);
+      productProvenanceRetrieverPtr()->insertIntoSet(std::move(*productProvenance));
     }
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
@@ -203,11 +237,13 @@ namespace edm {
     IndexRange range = branchIDListHelper_->branchIDToIndexMap().equal_range(bid);
     for (Iter it = range.first; it != range.second; ++it) {
       BranchListIndex blix = it->second.first;
-      std::map<BranchListIndex, ProcessIndex>::const_iterator i = branchListIndexToProcessIndex_.find(blix);
-      if (i != branchListIndexToProcessIndex_.end()) {
-        ProductIndex productIndex = it->second.second;
-        ProcessIndex processIndex = i->second;
-        return ProductID(processIndex + 1, productIndex + 1);
+      if (blix < branchListIndexToProcessIndex_.size()) {
+        auto v = branchListIndexToProcessIndex_[blix];
+        if (v != std::numeric_limits<BranchListIndex>::max()) {
+          ProductIndex productIndex = it->second.second;
+          ProcessIndex processIndex = v;
+          return ProductID(processIndex + 1, productIndex + 1);
+        }
       }
     }
     // cannot throw, because some products may legitimately not have product ID's (e.g. pile-up).
@@ -215,6 +251,8 @@ namespace edm {
   }
 
   unsigned int EventPrincipal::transitionIndex_() const { return streamID_.value(); }
+
+  void EventPrincipal::changedIndexes_() { provRetrieverPtr_->update(productRegistry()); }
 
   static void throwProductDeletedException(ProductID const& pid,
                                            edm::EventPrincipal::ConstProductResolverPtr const phb) {

@@ -63,7 +63,7 @@ public:
   static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
-  ClusterParam *createClusterParam(const SiPixelCluster &cl) const override;
+  std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster &cl) const override;
 
   // We only need to implement measurementPosition, since localPosition() from
   // PixelCPEBase will call it and do the transformation

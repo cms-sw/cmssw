@@ -1,16 +1,52 @@
+// -*- C++ -*-
+//
+// Package:    MCProcessFilter
+// Class:      MCProcessFilter
+//
+/*
 
-#include "GeneratorInterface/GenFilters/plugins/MCProcessFilter.h"
+ Description: filter events based on the Pythia ProcessID and the Pt_hat
 
+ Implementation: inherits from generic EDFilter
+
+*/
+//
+// Original Author:  Filip Moortgat
+//         Created:  Mon Sept 11 10:57:54 CET 2006
+//
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include <iostream>
 
-using namespace edm;
+#include <iostream>
+#include <string>
+#include <vector>
+
+class MCProcessFilter : public edm::global::EDFilter<> {
+public:
+  explicit MCProcessFilter(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  std::vector<int> processID;
+  std::vector<double> pthatMin;
+  std::vector<double> pthatMax;
+};
+
 using namespace std;
 
 MCProcessFilter::MCProcessFilter(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
           edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))) {
-  //here do whatever other initialization is needed
   vector<int> defproc;
   defproc.push_back(0);
   processID = iConfig.getUntrackedParameter<vector<int> >("ProcessID", defproc);
@@ -45,16 +81,9 @@ MCProcessFilter::MCProcessFilter(const edm::ParameterSet& iConfig)
   }
 }
 
-MCProcessFilter::~MCProcessFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-// ------------ method called to skim the data  ------------
-bool MCProcessFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
+bool MCProcessFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
-  Handle<HepMCProduct> evt;
+  edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
@@ -67,10 +96,7 @@ bool MCProcessFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       }
     }
   }
-
-  if (accepted) {
-    return true;
-  } else {
-    return false;
-  }
+  return accepted;
 }
+
+DEFINE_FWK_MODULE(MCProcessFilter);

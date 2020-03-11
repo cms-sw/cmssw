@@ -116,8 +116,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   LogTrace(category) << " Turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
-    MuonCandidate* muonCand = new MuonCandidate(nullptr, staCand.second, (*tkt).second, nullptr);
-    tkTrajs.push_back(muonCand);
+    tkTrajs.push_back(std::make_unique<MuonCandidate>(nullptr, staCand.second, (*tkt).second, nullptr));
   }
 
   if (tkTrajs.empty()) {
@@ -134,16 +133,6 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   // free memory
   if (staCandIn.first == nullptr)
     delete staCand.first;
-
-  for (CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
-    if ((*it)->trajectory())
-      delete (*it)->trajectory();
-    if ((*it)->trackerTrajectory())
-      delete (*it)->trackerTrajectory();
-    if (*it)
-      delete (*it);
-  }
-  tkTrajs.clear();
 
   return result;
 }

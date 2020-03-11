@@ -134,62 +134,34 @@ DDTruncTubs::DDTruncTubs(const DDFilteredView &fv) : valid{fv.isATruncTube()} {
   if (valid) {
     auto tube = fv.solid();
     std::vector<double> params = tube.dimensions();
-    if (params.size() < 16) {
-      edm::LogError("DDShapes DDTruncTubs") << "Truncated tube parameters list too small";
+    if (params.size() < 8) {
+      edm::LogError("DDShapes DDTruncTubs") << "Truncated tube parameters list too small: " << params.size();
       return;
     }
-    for (unsigned int index = 0; index < params.size(); ++index) {
-      edm::LogVerbatim("DDShapes DDTruncTubs") << "DDTruncTubs param " << index << " = " << params[index];
-    }
+    LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs zHalf = " << params[0];
+    LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs rIn = " << params[1];
+    LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs rOut = " << params[2];
+    LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs startPhi = " << params[3];
+    LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs deltaPhi = " << params[4];
+    LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs cutAtStart = " << params[5];
+    LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs cutAtDelta = " << params[6];
+    LogTrace("DDShapes DDTruncTubs") << "DDTruncTubs cutInside = " << params[7];
+
+    zHalf_ = params[0];  // This order determined by reading DD4hep source code
     rIn_ = params[1];
     rOut_ = params[2];
-    zHalf_ = params[3];
-    startPhi_ = convertDegToRad(params[4]);
-    deltaPhi_ = convertDegToRad(params[5]) - startPhi_;
-    // Limit to range -pi to pi
-    Geom::NormalizeWrapper<double, Geom::MinusPiToPi>::normalize(startPhi_);
+    startPhi_ = params[3];
+    deltaPhi_ = params[4];
+    cutAtStart_ = params[5];
+    cutAtDelta_ = params[6];
+    cutInside_ = (params[7] != 0);
 
-    dd4hep::Rotation3D cutRotation(
-        params[6], params[7], params[8], params[9], params[10], params[11], params[12], params[13], params[14]);
-    double translation = params[15];
-    DD3Vector xUnitVec(1., 0., 0.);
-    DD3Vector rotatedVec = cutRotation(xUnitVec);
-    double cosAlpha = xUnitVec.Dot(rotatedVec);
-    double sinAlpha = sqrt(1. - cosAlpha * cosAlpha);
-    if (sinAlpha == 0.)
-      sinAlpha = 1.;  // Prevent divide by 0
-    cutInside_ = true;
-    cutAtStart_ = translation + (rOut_ / sinAlpha);
-    if (cutAtStart_ > rOut_ || cutAtStart_ < 0.) {
-      cutAtStart_ = translation - (rOut_ / sinAlpha);
-      cutInside_ = false;
-    }
-    double alpha = std::acos(cosAlpha);
-    if (std::abs(deltaPhi_) != 1._pi)
-      cutAtDelta_ = cutAtStart_ * (sinAlpha / std::sin(deltaPhi_ + alpha));
-
-    /*
-     * If we need to check the parameters in the TGeoCompositeShape
-    const TGeoCompositeShape *compShape = fv.getShapePtr<TGeoCompositeShape>();
-    const TGeoBoolNode *boolNode = compShape->GetBoolNode();
-    const TGeoMatrix *lmatrix = boolNode->GetLeftMatrix();
-    auto showMats = [] (const TGeoMatrix *matrix) -> void {
-      const Double_t *rotMatrix = matrix->GetRotationMatrix();
-      const Double_t *translat = matrix->GetTranslation();
-      edm::LogVerbatim("DDShapes DDTruncTubs") << "translation (" << translat[0] << ", "
-        << translat[1] << ", " << translat[2] << ")\n";
-      edm::LogVerbatim("DDShapes DDTruncTubs") << "rotation 1 (" << rotMatrix[0] << ", "
-        << rotMatrix[1] << ", " << rotMatrix[2] << ")\n";
-      edm::LogVerbatim("DDShapes DDTruncTubs") << "rotation 2 (" << rotMatrix[3] << ", "
-        << rotMatrix[4] << ", " << rotMatrix[2] << ")\n";
-      edm::LogVerbatim("DDShapes DDTruncTubs") << "rotation 3 (" << rotMatrix[6] << ", "
-        << rotMatrix[7] << ", " << rotMatrix[8] << ")\n";
-    };
-    edm::LogVerbatim("DDShapes DDTruncTubs") << "Left matrix";
-    showMats(lmatrix);
-    const TGeoMatrix *rmatrix = boolNode->GetRightMatrix();
-    edm::LogVerbatim("DDShapes DDTruncTubs") << "Right matrix";
-    showMats(rmatrix);
+    /* Previous versions of DD4hep output parameters that required more complex conversion
+     * to produce the values CMS needs. Now the desired values are returned directly by the
+     * "dimensions" function.  If the more complex conversion is ever needed again, the git history
+     * of this file from before 2019-11-25 has code for converting from the internal DD4hep parameters
+     * for a TruncatedTube to the eight parameters used by CMS.
+     * There is also example code for checking the parameters of the TGeoCompositeShape.
     */
   }
 }

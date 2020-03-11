@@ -26,7 +26,6 @@ namespace edm {
 
   class HistoryAppender;
   class ModuleCallingContext;
-  class ProcessHistoryRegistry;
   class RunPrincipal;
 
   class LuminosityBlockPrincipal : public Principal {
@@ -41,8 +40,7 @@ namespace edm {
 
     ~LuminosityBlockPrincipal() override {}
 
-    void fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry,
-                                      DelayedReader* reader = nullptr);
+    void fillLuminosityBlockPrincipal(ProcessHistory const* processHistory, DelayedReader* reader = nullptr);
 
     RunPrincipal const& runPrincipal() const { return *runPrincipal_; }
 

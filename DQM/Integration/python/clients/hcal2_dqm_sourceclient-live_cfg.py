@@ -19,8 +19,8 @@ import FWCore.ParameterSet.Config as cms
 # Configuration/StandardSequences/python/Eras.py
 # PRocess accepts a (*list) of modifiers
 #
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process      = cms.Process('HCALDQM', Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process      = cms.Process('HCALDQM', Run3)
 subsystem    = 'Hcal2'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
 debugstr     = "### HcalDQM::cfg::DEBUG: "
@@ -37,8 +37,9 @@ useMapText   = False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+	process.GlobalTag.globaltag = '106X_dataRun3_HLT_Candidate_2019_11_26_14_48_16'
 	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
-	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
+	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
@@ -56,7 +57,8 @@ referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
-process.source.minEventsPerLumi=5
+if not useFileInput:
+	process.source.minEventsPerLumi = 5
 
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
@@ -113,7 +115,8 @@ process.load('DQM.HcalTasks.DigiComparisonTask')
 if useMap:
 	process.GlobalTag.toGet.append(cms.PSet(
 		record = cms.string("HcalElectronicsMapRcd"),
-		tag = cms.string("HcalElectronicsMap_v7.05_hlt")
+		#tag = cms.string("HcalElectronicsMap_v7.05_hlt")
+		tag = cms.string("HcalElectronicsMap_v9.0_hlt")
 		)
 	)
 

@@ -65,6 +65,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RootHandlers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "MessageForSource.h"
 #include "MessageForParent.h"
@@ -1086,8 +1087,8 @@ namespace edm {
       sourceResourcesAcquirer_.serialQueueChain().push([this, iHolder, status = std::move(status)]() mutable {
         //make the services available
         ServiceRegistry::Operate operate(serviceToken_);
-
-        try {
+        // Caught exception is propagated via WaitingTaskHolder
+        CMS_SA_ALLOW try {
           readLuminosityBlock(*status);
 
           LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
@@ -1117,7 +1118,8 @@ namespace edm {
                   EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
 
                   if (looper_) {
-                    try {
+                    // Caught exception is propagated via WaitingTaskHolder
+                    CMS_SA_ALLOW try {
                       //make the services available
                       ServiceRegistry::Operate operateLooper(serviceToken_);
                       looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
@@ -1202,7 +1204,8 @@ namespace edm {
       WaitingTaskHolder queueLumiWorkTaskHolder{queueLumiWorkTask};
 
       queueWhichWaitsForIOVsToFinish_.push([this, queueLumiWorkTaskHolder, iSync, status]() mutable {
-        try {
+        // Caught exception is propagated via WaitingTaskHolder
+        CMS_SA_ALLOW try {
           SendSourceTerminationSignalIfException sentry(actReg_.get());
           // Pass in iSync to let the EventSetup system know which run and lumi
           // need to be processed and prepare IOVs for it.
@@ -1222,8 +1225,8 @@ namespace edm {
 
       // This holder will be used to wait until the EventSetup IOVs are ready
       WaitingTaskHolder queueLumiWorkTaskHolder{queueLumiWorkTask};
-
-      try {
+      // Caught exception is propagated via WaitingTaskHolder
+      CMS_SA_ALLOW try {
         SendSourceTerminationSignalIfException sentry(actReg_.get());
 
         // Pass in iSync to let the EventSetup system know which run and lumi
@@ -1285,7 +1288,8 @@ namespace edm {
           if (iPtr) {
             handleEndLumiExceptions(iPtr, iTask);
           } else {
-            try {
+            // Caught exception is passed to handleEndLumiExceptions()
+            CMS_SA_ALLOW try {
               ServiceRegistry::Operate operate(serviceToken_);
               if (looper_) {
                 auto& lumiPrincipal = *(status->lumiPrincipal());
@@ -1301,16 +1305,14 @@ namespace edm {
           // Try hard to clean up resources so the
           // process can terminate in a controlled
           // fashion even after exceptions have occurred.
-
-          try {
-            deleteLumiFromCache(*status);
-          } catch (...) {
+          // Caught exception is passed to handleEndLumiExceptions()
+          CMS_SA_ALLOW try { deleteLumiFromCache(*status); } catch (...) {
             if (not ptr) {
               ptr = std::current_exception();
             }
           }
-
-          try {
+          // Caught exception is passed to handleEndLumiExceptions()
+          CMS_SA_ALLOW try {
             status->resumeGlobalLumiQueue();
             queueWhichWaitsForIOVsToFinish_.resume();
           } catch (...) {
@@ -1318,8 +1320,8 @@ namespace edm {
               ptr = std::current_exception();
             }
           }
-
-          try {
+          // Caught exception is passed to handleEndLumiExceptions()
+          CMS_SA_ALLOW try {
             // This call to status.resetResources() must occur before iTask is destroyed.
             // Otherwise there will be a data race which could result in endRun
             // being delayed until it is too late to successfully call it.
@@ -1576,7 +1578,8 @@ namespace edm {
     }
 
     ServiceRegistry::Operate operate(serviceToken_);
-    try {
+    // Caught exception is propagated to EventProcessor::runToCompletion() via deferredExceptionPtr_
+    CMS_SA_ALLOW try {
       //need to use lock in addition to the serial task queue because
       // of delayed provenance reading and reading data in response to
       // edm::Refs etc
@@ -1623,7 +1626,8 @@ namespace edm {
     sourceResourcesAcquirer_.serialQueueChain().push([this, iTask, iStreamIndex]() mutable {
       ServiceRegistry::Operate operate(serviceToken_);
       auto& status = streamLumiStatus_[iStreamIndex];
-      try {
+      // Caught exception is propagated to EventProcessor::runToCompletion() via deferredExceptionPtr_
+      CMS_SA_ALLOW try {
         if (readNextEventForStream(iStreamIndex, *status)) {
           auto recursionTask = make_waiting_task(
               tbb::task::allocate_root(), [this, iTask, iStreamIndex](std::exception_ptr const* iPtr) mutable {

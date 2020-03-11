@@ -856,7 +856,11 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc) {
     // book the DQM plots
     if (enable_dqm_) {
       // define a callback to book the MonitorElements
-      auto bookTransactionCallback = [&, this](dqm::reco::DQMStore::IBooker& booker) {
+      auto bookTransactionCallback = [&, this](dqm::reco::DQMStore::IBooker& booker, dqm::reco::DQMStore::IGetter&) {
+        auto scope = dqm::reco::DQMStore::IBooker::UseRunScope(booker);
+        // we should really do this, but only DQMStore is allowed to touch it
+        // We could move to postGlobalBeginRun, then the DQMStore has sure set it up.
+        //booker.setRunLumi(gc.luminosityBlockID());
         booker.setCurrentFolder(dqm_path_);
         plots_->book(booker,
                      callgraph_,
@@ -872,8 +876,7 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc) {
       };
 
       // book MonitorElements for this stream
-      edm::Service<dqm::legacy::DQMStore>()->bookConcurrentTransaction(bookTransactionCallback,
-                                                                       gc.luminosityBlockID().run());
+      edm::Service<dqm::legacy::DQMStore>()->meBookerGetter(bookTransactionCallback);
     }
   }
 }

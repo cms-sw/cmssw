@@ -1,4 +1,4 @@
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequenceTypes.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequenceRcdTypes.h"

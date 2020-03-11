@@ -18,6 +18,7 @@ from DQM.Physics.CentralityDQM_cfi import *
 from DQM.Physics.CentralitypADQM_cfi import *
 from DQM.Physics.topJetCorrectionHelper_cfi import *
 from DQM.Physics.FSQDQM_cfi import *
+from DQM.Physics.SMPDQM_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
 #                          Empty Histograms from EWK and Error log messages
@@ -36,6 +37,7 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *ExoticaDQM
                            *B2GDQM
                            *FSQDQM
+                           *SMPDQM
                            )
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel

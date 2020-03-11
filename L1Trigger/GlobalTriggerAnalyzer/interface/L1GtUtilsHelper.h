@@ -124,7 +124,7 @@ L1GtUtilsHelper::L1GtUtilsHelper(edm::ParameterSet const& pset,
                                  edm::InputTag const& l1GtRecordInputTag,
                                  edm::InputTag const& l1GtReadoutRecordInputTag,
                                  edm::InputTag const& l1GtTriggerMenuLiteInputTag)
-    : m_consumesCollector(std::move(iC)),
+    : m_consumesCollector(iC),
 
       // Set InputTags from arguments
       m_l1GtRecordInputTag(l1GtRecordInputTag),

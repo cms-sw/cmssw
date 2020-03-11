@@ -1,15 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
-import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam
-
 from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_cone, \
                                                     egamma_identification_drnn_dbscan, \
                                                     egamma_identification_histomax
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 
 
 binSums = cms.vuint32(13,               # 0
@@ -19,6 +16,15 @@ binSums = cms.vuint32(13,               # 0
                       5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 13 - 27
                       3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3  # 28 - 41
                       )
+
+binSumsNose = cms.vuint32(13,               # 0
+                          13,               # 1
+                          11, 11, 11,       # 2 - 4
+                          9, 9, 9,          # 5 - 7
+                          7, 7, 7, 7, 7, 7,  # 8 - 13
+                          5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 14 - 28
+                          3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3  # 29 - 42
+)
 
 EE_DR_GROUP = 7
 FH_DR_GROUP = 6
@@ -82,13 +88,23 @@ histoMax_C3d_seeding_params = cms.PSet(type_histoalgo=cms.string('HistoMaxC3d'),
                                nBins_X1_histo_multicluster=cms.uint32(42), # bin size of about 0.012
                                nBins_X2_histo_multicluster=cms.uint32(216), # bin size of about 0.029
                                binSumsHisto=binSums,
+                               kROverZMin=cms.double(0.076),
+                               kROverZMax=cms.double(0.58),
                                threshold_histo_multicluster=cms.double(10.),
                                neighbour_weights=neighbour_weights_1stOrder,
                                seed_position=cms.string("TCWeighted"),#BinCentre, TCWeighted
                                seeding_space=cms.string("RPhi"),# RPhi, XY
                                seed_smoothing_ecal=seed_smoothing_ecal,
                                seed_smoothing_hcal=seed_smoothing_hcal,
-                               )
+                              )
+
+## Note: this customization change both HGC and HFnose, to be revised
+phase2_hfnose.toModify(histoMax_C3d_seeding_params,
+                       nBins_X1_histo_multicluster=cms.uint32(43),
+                       binSumsHisto=binSumsNose,
+                       kROverZMin=cms.double(0.025),
+                       kROverZMax=cms.double(0.58),
+                       )
 
 histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
                                dR_multicluster_byLayer_coefficientA=cms.vdouble(),

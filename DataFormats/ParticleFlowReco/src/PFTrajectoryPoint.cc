@@ -1,7 +1,21 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include <ostream>
+#include <algorithm>
 
 using namespace reco;
+
+// To be kept in synch with the enumerator definitions in PFTrajectoryPoint.h file
+// Don't consider "Unknown" and "NLayers"
+std::array<std::string, PFTrajectoryPoint::NLayers> const PFTrajectoryPoint::layerTypeNames{{"ClosestApproach",
+                                                                                             "BeamPipeOrEndVertex",
+                                                                                             "PS1",
+                                                                                             "PS2",
+                                                                                             "ECALEntrance",
+                                                                                             "ECALShowerMax",
+                                                                                             "HCALEntrance",
+                                                                                             "HCALExit",
+                                                                                             "HOLayer",
+                                                                                             "VFcalEntrance"}};
 
 PFTrajectoryPoint::PFTrajectoryPoint() : isTrackerLayer_(false), detId_(-1), layer_(-1) {}
 
@@ -24,6 +38,15 @@ PFTrajectoryPoint::PFTrajectoryPoint(const PFTrajectoryPoint& other)
       momentum_(other.momentum_) {}
 
 PFTrajectoryPoint::~PFTrajectoryPoint() {}
+
+PFTrajectoryPoint::LayerType PFTrajectoryPoint::layerTypeByName(const std::string& name) {
+  auto it = std::find(layerTypeNames.begin(), layerTypeNames.end(), name);
+  if (it == layerTypeNames.end()) {
+    return Unknown;  // better this or throw()?
+  }
+  int index = std::distance(layerTypeNames.begin(), it);
+  return LayerType(index);
+}
 
 bool PFTrajectoryPoint::operator==(const reco::PFTrajectoryPoint& other) const {
   if (posxyz_ == other.posxyz_ && momentum_ == other.momentum_)

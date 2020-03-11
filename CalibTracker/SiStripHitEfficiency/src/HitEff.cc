@@ -49,7 +49,6 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -73,6 +72,7 @@ using namespace std;
 HitEff::HitEff(const edm::ParameterSet& conf)
     : scalerToken_(consumes<LumiScalersCollection>(conf.getParameter<edm::InputTag>("lumiScalers"))),
       commonModeToken_(mayConsume<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode"))),
+      siStripClusterInfo_(consumesCollector()),
       combinatorialTracks_token_(
           consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("combinatorialTracks"))),
       trajectories_token_(consumes<std::vector<Trajectory> >(conf.getParameter<edm::InputTag>("trajectories"))),
@@ -162,6 +162,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  siStripClusterInfo_.initEvent(es);
 
   //  bool DEBUG = false;
 
@@ -672,7 +674,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                                    yErr * yErr * xloc * xloc * uylfac * uylfac / uxlden / uxlden / uxlden / uxlden);
                     }
 
-                    SiStripClusterInfo clusterInfo = SiStripClusterInfo(*iter, es, ClusterId);
+                    siStripClusterInfo_.setCluster(*iter, ClusterId);
                     // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
                     // redesign in 300 -ku
                     //float cluster_info[7] = {res, sigma, parameters.first.x(), sqrt(parameters.second.xx()), parameters.first.y(), sqrt(parameters.second.yy()), signal_to_noise};
@@ -683,8 +685,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                     cluster_info.push_back(sqrt(parameters.second.xx()));
                     cluster_info.push_back(parameters.first.y());
                     cluster_info.push_back(sqrt(parameters.second.yy()));
-                    cluster_info.push_back(clusterInfo.signalOverNoise());
-                    //cluster_info.push_back( clusterInfo.getSignalOverNoise() );
+                    cluster_info.push_back(siStripClusterInfo_.signalOverNoise());
                     VCluster_info.push_back(cluster_info);
                     nClusters++;
                     LogDebug("SiStripHitEfficiency:HitEff") << "Have ID match. residual = " << VCluster_info.back()[0]

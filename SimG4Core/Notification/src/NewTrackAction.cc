@@ -69,6 +69,7 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
                                 motherInfo.getIDLastVolume(),
                                 aTrack->GetDefinition()->GetPDGEncoding(),
                                 aTrack->GetMomentum().mag());
+    trkInfo->setIDfineCalo(motherInfo.getIDfineCalo());
   } else {
     // transfer calo ID from mother (to be checked in TrackingAction)
     trkInfo->setIDonCaloSurface(motherInfo.getIDonCaloSurface(),
@@ -76,6 +77,7 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
                                 motherInfo.getIDLastVolume(),
                                 motherInfo.caloSurfaceParticlePID(),
                                 motherInfo.caloSurfaceParticleP());
+    trkInfo->setIDfineCalo(motherInfo.getIDfineCalo());
   }
 
   if (motherInfo.hasCastorHit()) {

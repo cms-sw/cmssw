@@ -23,8 +23,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   double zoffset = args.value<double>("zoffset");        //z offset
   dd4hep::Volume mother = ns.volume(args.parentName());
   std::string childName = args.value<std::string>("ChildName");
-  if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+  childName = ns.prepend(childName);
   dd4hep::Volume child = ns.volume(childName);
 
   // Increment

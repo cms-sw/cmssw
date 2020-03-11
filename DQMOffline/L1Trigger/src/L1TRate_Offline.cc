@@ -210,9 +210,6 @@ void L1TRate_Offline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
 }
 
 //_____________________________________________________________________
-
-void L1TRate_Offline::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
-//_____________________________________________________________________
 void L1TRate_Offline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
   if (m_verbose) {
     cout << "[L1TRate_Offline:] Called beginLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;

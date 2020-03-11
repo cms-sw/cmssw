@@ -13,40 +13,8 @@
 
 //#include "DQMServices/Core/interface/DQMStore.h"
 
-class ContentsXRange;
-using ContentsXRangeROOT = ContentsXRange;
-class ContentsYRange;
-using ContentsYRangeROOT = ContentsYRange;
-class NoisyChannel;
-using NoisyChannelROOT = NoisyChannel;
-class ContentSigma;
-using ContentSigmaROOT = ContentSigma;
-class DeadChannel;
-using DeadChannelROOT = DeadChannel;
-class ContentsWithinExpected;
-using ContentsWithinExpectedROOT = ContentsWithinExpected;
-class MeanWithinExpected;
-using MeanWithinExpectedROOT = MeanWithinExpected;
-//class AllContentWithinFixedRange;	typedef AllContentWithinFixedRange RuleAllContentWithinFixedRange; typedef AllContentWithinFixedRange AllContentWithinFixedRangeROOT;
-//class AllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange RuleAllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange AllContentWithinFloatingRangeROOT;
-class FlatOccupancy1d;
-using RuleFlatOccupancy1d = FlatOccupancy1d;
-using FlatOccupancy1dROOT = FlatOccupancy1d;
-class FixedFlatOccupancy1d;
-using RuleFixedFlatOccupancy1d = FixedFlatOccupancy1d;
-using FixedFlatOccupancy1dROOT = FixedFlatOccupancy1d;
-class CSC01;
-using RuleCSC01 = CSC01;
-using CSC01ROOT = CSC01;
-class AllContentAlongDiagonal;
-using RuleAllContentAlongDiagonal = AllContentAlongDiagonal;
-using AllContentAlongDiagonalROOT = AllContentAlongDiagonal;
-class CompareToMedian;
-using CompareToMedianROOT = CompareToMedian;
-class CompareLastFilledBin;
-using CompareLastFilledBinROOT = CompareLastFilledBin;
-class CheckVariance;
-using CheckVarianceROOT = CheckVariance;
+using DQMChannel = MonitorElementData::QReport::DQMChannel;
+using QReport = MonitorElementData::QReport;
 
 /** Base class for quality tests run on Monitoring Elements;
 
@@ -65,7 +33,7 @@ class QCriterion {
 
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
-  /// get test status (see Core/interface/DQMDefinitions.h)
+  /// get test status
   int getStatus() const { return status_; }
   /// get message attached to test
   std::string getMessage() const { return message_; }
@@ -80,7 +48,6 @@ public:
   /// (not relevant for all quality tests!)
   virtual std::vector<DQMChannel> getBadChannels() const { return std::vector<DQMChannel>(); }
 
-protected:
   QCriterion(std::string qtname) {
     qtname_ = std::move(qtname);
     init();
@@ -90,12 +57,11 @@ protected:
 
   virtual ~QCriterion() = default;
 
-  virtual float runTest(const MonitorElement *me);
-  /// set algorithm name
-  void setAlgoName(std::string name) { algoName_ = std::move(name); }
+  /// default "probability" values for setting warnings & errors when running tests
+  static const float WARNING_PROB_THRESHOLD;
+  static const float ERROR_PROB_THRESHOLD;
 
   float runTest(const MonitorElement *me, QReport &qr, DQMNet::QValue &qv) {
-    assert(qr.qcriterion_ == this);
     assert(qv.qtname == qtname_);
 
     prob_ = runTest(me);  // this runTest goes to SimpleTest derivates
@@ -120,10 +86,16 @@ protected:
     qv.qtname = qtname_;
     qv.algorithm = algoName_;
     qv.qtresult = prob_;
-    qr.badChannels_ = getBadChannels();
+    qr.setBadChannels(getBadChannels());
 
     return prob_;
   }
+
+protected:
+  /// set algorithm name
+  void setAlgoName(std::string name) { algoName_ = std::move(name); }
+
+  virtual float runTest(const MonitorElement *me);
 
   /// set message after test has run
   virtual void setMessage() = 0;
@@ -138,12 +110,6 @@ protected:
   int verbose_;
 
 private:
-  /// default "probability" values for setting warnings & errors when running tests
-  static const float WARNING_PROB_THRESHOLD;
-  static const float ERROR_PROB_THRESHOLD;
-
-  /// for creating and deleting class instances
-  friend class dqm::dqmstoreimpl::DQMStore;
   /// for running the test
   friend class dqm::legacy::MonitorElement;
   friend class dqm::impl::MonitorElement;

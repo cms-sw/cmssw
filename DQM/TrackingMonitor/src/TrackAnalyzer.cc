@@ -6,15 +6,14 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
 #include <string>
@@ -85,6 +84,17 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig, edm::ConsumesColl
   pvToken_ = iC.consumes<reco::VertexCollection>(primaryVertexInputTag);
   pixelClustersToken_ = iC.mayConsume<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag);
   lumiscalersToken_ = iC.mayConsume<LumiScalersCollection>(scalInputTag);
+
+  if (doAllPlots_ || doEffFromHitPatternVsPU_ || doEffFromHitPatternVsBX_ || doEffFromHitPatternVsLUMI_) {
+    trackerGeometryToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
+  }
+  trackerTopologyToken_ = iC.esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  if (doSIPPlots_ ||
+      ((doMeasurementStatePlots_ || doAllPlots_) && (stateName_ == "All" || stateName_ == "OuterSurface" ||
+                                                     stateName_ == "InnerSurface" || stateName_ == "ImpactPoint"))) {
+    transientTrackBuilderToken_ =
+        iC.esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
+  }
 
   if (useBPixLayer1_)
     lumi_factor_per_bx_ = GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::XSEC_PIXEL_CLUSTER;
@@ -259,8 +269,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& iboo
     }
   }
 
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  TrackerGeometry const& trackerGeometry = iSetup.getData(trackerGeometryToken_);
 
   // Values are not ordered randomly, but the order is taken from
   // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
@@ -275,7 +284,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& iboo
   // We set sub_det to be a 1-based index since to it is the sub-sub-structure in the HitPattern
   char title[50];
   for (unsigned int det = 1; det < sizeof(dets) / sizeof(char*); ++det) {
-    for (unsigned int sub_det = 1; sub_det <= trackerGeometry->numberOfLayers(det); ++sub_det) {
+    for (unsigned int sub_det = 1; sub_det <= trackerGeometry.numberOfLayers(det); ++sub_det) {
       for (unsigned int cat = 0; cat < sizeof(hit_category) / sizeof(char*); ++cat) {
         memset(title, 0, sizeof(title));
         snprintf(title, sizeof(title), "Hits%s_%s_%s_Subdet%d", name.c_str(), hit_category[cat], dets[det], sub_det);
@@ -854,7 +863,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
     if (Folder == "Tr") {
       histname = "DistanceOfClosestApproachToBSdz_";
       DistanceOfClosestApproachToBSdz =
-          ibooker.book1D(histname + CategoryName, histname + CategoryName, 100, -1.1, 1.1);
+          ibooker.book1D(histname + CategoryName, histname + CategoryName, 100, -20.1, 20.1);
       DistanceOfClosestApproachToBSdz->setAxisTitle("Track d_{z} wrt beam spot (cm)", 1);
       DistanceOfClosestApproachToBSdz->setAxisTitle("Number of Tracks", 2);
 
@@ -1103,7 +1112,6 @@ void TrackAnalyzer::setNumberOfGoodVertices(const edm::Event& iEvent) {
 
 void TrackAnalyzer::setBX(const edm::Event& iEvent) { bx_ = iEvent.bunchCrossing(); }
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // as done by pixelLumi http://cmslxr.fnal.gov/source/DQM/PixelLumi/plugins/PixelLumiDQM.cc
 
@@ -1118,9 +1126,7 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   iEvent.getByToken(pixelClustersToken_, pixelClusters);
   if (pixelClusters.isValid()) {
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    TrackerTopology const& tTopo = iSetup.getData(trackerTopologyToken_);
 
     // Count the number of clusters with at least a minimum
     // number of pixels per cluster and at least a minimum charge.
@@ -1131,9 +1137,9 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
     for (; pixCluDet != pixelClusters->end(); ++pixCluDet) {
       DetId detid = pixCluDet->detId();
       size_t subdetid = detid.subdetId();
-      //      std::cout << tTopo->print(detid) << std::endl;
+      //      std::cout << tTopo.print(detid) << std::endl;
       if (subdetid == (int)PixelSubdetector::PixelBarrel)
-        if (tTopo->layer(detid) == 1)
+        if (tTopo.layer(detid) == 1)
           continue;
 
       edmNew::DetSet<SiPixelCluster>::const_iterator pixClu = pixCluDet->begin();
@@ -1345,9 +1351,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       yPointOfClosestApproachVsZ0wrtPV->Fill(track.dz(pv.position()), (track.vy() - pv.position().y()));
 
       if (doSIPPlots_) {
-        edm::ESHandle<TransientTrackBuilder> theB;
-        iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
-        reco::TransientTrack transTrack = theB->build(track);
+        TransientTrackBuilder const& theB = iSetup.getData(transientTrackBuilderToken_);
+        reco::TransientTrack transTrack = theB.build(track);
 
         GlobalVector dir(track.px(), track.py(), track.pz());
         std::pair<bool, Measurement1D> ip3d = IPTools::signedImpactParameter3D(transTrack, dir, pv);
@@ -1375,7 +1380,6 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doTrackerSpecific_ || doAllPlots_) {
     fillHistosForTrackerSpecific(track);
   }
-
   if (doMeasurementStatePlots_ || doAllPlots_) {
     if (stateName_ == "All") {
       fillHistosForState(iSetup, track, std::string("OuterSurface"));
@@ -1954,9 +1958,8 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     etaerror = track.etaError();
 
   } else {
-    edm::ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
-    reco::TransientTrack TransTrack = theB->build(track);
+    TransientTrackBuilder const& theB = iSetup.getData(transientTrackBuilderToken_);
+    reco::TransientTrack TransTrack = theB.build(track);
 
     TrajectoryStateOnSurface TSOS;
 
@@ -2432,16 +2435,6 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
     it->second.NumberOfLayersPerTrackVsEta->Fill(eta, nValidLayers);
     it->second.NumberOfLayersPerTrackVsPt->Fill(pt, nValidLayers);
   }
-}
-//
-// -- Set Lumi Flag
-//
-void TrackAnalyzer::setLumiFlag() {
-  TkParameterMEs tkmes;
-  if (Chi2oNDF_lumiFlag)
-    Chi2oNDF_lumiFlag->setLumiFlag();
-  if (NumberOfRecHitsPerTrack_lumiFlag)
-    NumberOfRecHitsPerTrack_lumiFlag->setLumiFlag();
 }
 //
 // -- Apply Reset

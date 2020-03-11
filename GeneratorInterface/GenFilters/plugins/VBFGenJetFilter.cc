@@ -1,17 +1,52 @@
-#include "GeneratorInterface/GenFilters/plugins/VBFGenJetFilter.h"
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include <HepMC/GenVertex.h>
+#include <cmath>
+#include <cstdlib>
+#include <vector>
 
-// ROOT includes
-#include "TMath.h"
+class VBFGenJetFilter : public edm::global::EDFilter<> {
+public:
+  explicit VBFGenJetFilter(const edm::ParameterSet&);
 
-// C++ includes
-#include <iostream>
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-using namespace edm;
+private:
+  std::vector<const reco::GenJet*> filterGenJets(const std::vector<reco::GenJet>* jets) const;
+  std::vector<const reco::GenParticle*> filterGenLeptons(const std::vector<reco::GenParticle>* particles) const;
+
+  // Dijet cut
+  const bool oppositeHemisphere;
+  const bool leadJetsNoLepMass;
+  const double ptMin;
+  const double etaMin;
+  const double etaMax;
+  const double minInvMass;
+  const double maxInvMass;
+  const double minDeltaPhi;
+  const double maxDeltaPhi;
+  const double minDeltaEta;
+  const double maxDeltaEta;
+  const double minLeadingJetsInvMass;
+  const double maxLeadingJetsInvMass;
+  const double deltaRJetLep;
+
+  // Input tags
+  edm::EDGetTokenT<reco::GenJetCollection> m_inputTag_GenJetCollection;
+  edm::EDGetTokenT<reco::GenParticleCollection> m_inputTag_GenParticleCollection;
+};
+
 using namespace std;
 
 VBFGenJetFilter::VBFGenJetFilter(const edm::ParameterSet& iConfig)
@@ -36,9 +71,7 @@ VBFGenJetFilter::VBFGenJetFilter(const edm::ParameterSet& iConfig)
         iConfig.getUntrackedParameter<edm::InputTag>("genParticles", edm::InputTag("genParticles")));
 }
 
-VBFGenJetFilter::~VBFGenJetFilter() {}
-
-vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<reco::GenParticle>* particles) {
+vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<reco::GenParticle>* particles) const {
   vector<const reco::GenParticle*> out;
 
   for (const auto& p : *particles) {
@@ -51,7 +84,7 @@ vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<
   return out;
 }
 
-vector<const reco::GenJet*> VBFGenJetFilter::filterGenJets(const vector<reco::GenJet>* jets) {
+vector<const reco::GenJet*> VBFGenJetFilter::filterGenJets(const vector<reco::GenJet>* jets) const {
   vector<const reco::GenJet*> out;
 
   for (unsigned i = 0; i < jets->size(); i++) {
@@ -66,10 +99,8 @@ vector<const reco::GenJet*> VBFGenJetFilter::filterGenJets(const vector<reco::Ge
 }
 
 // ------------ method called to skim the data  ------------
-bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
-  Handle<vector<reco::GenJet> > handleGenJets;
+bool VBFGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
+  edm::Handle<vector<reco::GenJet> > handleGenJets;
   iEvent.getByToken(m_inputTag_GenJetCollection, handleGenJets);
   const vector<reco::GenJet>* genJets = handleGenJets.product();
 
@@ -83,7 +114,7 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // Testing dijet mass
   if (leadJetsNoLepMass) {
-    Handle<reco::GenParticleCollection> genParticelesCollection;
+    edm::Handle<reco::GenParticleCollection> genParticelesCollection;
     iEvent.getByToken(m_inputTag_GenParticleCollection, genParticelesCollection);
     const vector<reco::GenParticle>* genParticles = genParticelesCollection.product();
 

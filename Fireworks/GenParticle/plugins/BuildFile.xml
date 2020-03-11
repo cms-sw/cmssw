@@ -3,7 +3,7 @@
  <use name="Fireworks/Candidates"/>
  <use name="Fireworks/Core"/>
  <use name="rootcore"/>
- <lib name="EG"/>
- <lib name="Eve"/>
+ <use name="rooteg"/>
+ <use name="rooteve"/>
  <flags EDM_PLUGIN="1"/>
 </library>

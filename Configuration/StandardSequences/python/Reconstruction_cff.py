@@ -59,42 +59,44 @@ from RecoEgamma.EgammaPhotonProducers.conversionOpenTrackSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.gsfTracksOpenConversionSequence_cff import *
 
 
-localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
-localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+localrecoTask = cms.Task(bunchSpacingProducer,trackerlocalrecoTask,muonlocalrecoTask,calolocalrecoTask,castorreco)
+localreco = cms.Sequence(localrecoTask)
+localreco_HcalNZSTask = cms.Task(bunchSpacingProducer,trackerlocalrecoTask,muonlocalrecoTask,calolocalrecoTaskNZS,castorreco)
+localreco_HcalNZS = cms.Sequence(localreco_HcalNZSTask)
 
-_run3_localreco = localreco.copyAndExclude([castorreco])
-_run3_localreco_HcalNZS = localreco_HcalNZS.copyAndExclude([castorreco])
+_run3_localrecoTask = localrecoTask.copyAndExclude([castorreco])
+_run3_localreco_HcalNZSTask = localreco_HcalNZSTask.copyAndExclude([castorreco])
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toReplaceWith(localreco, _run3_localreco)
-run3_common.toReplaceWith(localreco_HcalNZS, _run3_localreco_HcalNZS)
+run3_common.toReplaceWith(localrecoTask, _run3_localrecoTask)
+run3_common.toReplaceWith(localreco_HcalNZSTask, _run3_localreco_HcalNZSTask)
 
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-_phase2_timing_layer_localreco = _run3_localreco.copy()
-_phase2_timing_layer_localreco += fastTimingLocalReco
-_phase2_timing_layer_localreco_HcalNZS = _run3_localreco_HcalNZS.copy()
-_phase2_timing_layer_localreco_HcalNZS += fastTimingLocalReco
-phase2_timing_layer.toReplaceWith(localreco,_phase2_timing_layer_localreco)
-phase2_timing_layer.toReplaceWith(localreco_HcalNZS,_phase2_timing_layer_localreco_HcalNZS)
+_phase2_timing_layer_localrecoTask = _run3_localrecoTask.copy()
+_phase2_timing_layer_localrecoTask.add(fastTimingLocalRecoTask)
+_phase2_timing_layer_localreco_HcalNZSTask = _run3_localreco_HcalNZSTask.copy()
+_phase2_timing_layer_localreco_HcalNZSTask.add(fastTimingLocalRecoTask)
+phase2_timing_layer.toReplaceWith(localrecoTask,_phase2_timing_layer_localrecoTask)
+phase2_timing_layer.toReplaceWith(localreco_HcalNZSTask,_phase2_timing_layer_localreco_HcalNZSTask)
 
-_ctpps_2016_localreco = localreco.copy()
-_ctpps_2016_localreco += recoCTPPS
+_ctpps_2016_localrecoTask = localrecoTask.copy()
+_ctpps_2016_localrecoTask.add(recoCTPPSTask)
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
+ctpps_2016.toReplaceWith(localrecoTask, _ctpps_2016_localrecoTask)
 
-_ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
-_ctpps_2016_localreco_HcalNZS += recoCTPPS
-ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
+_ctpps_2016_localreco_HcalNZSTask = localreco_HcalNZSTask.copy()
+_ctpps_2016_localreco_HcalNZSTask.add(recoCTPPSTask)
+ctpps_2016.toReplaceWith(localreco_HcalNZSTask, _ctpps_2016_localreco_HcalNZSTask)
 
 ###########################################
 # no castor, zdc, Totem/CTPPS RP in FastSim
 ###########################################
-_fastSim_localreco = localreco.copyAndExclude([
+_fastSim_localrecoTask = localrecoTask.copyAndExclude([
     castorreco,
-    totemRPLocalReconstruction,totemTimingLocalReconstruction,ctppsDiamondLocalReconstruction,
-      ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstruction,ctppsProtons,
-    trackerlocalreco
+    totemRPLocalReconstructionTask,totemTimingLocalReconstructionTask,ctppsDiamondLocalReconstructionTask,
+    ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstructionTask,ctppsProtons,
+    trackerlocalrecoTask
 ])
-fastSim.toReplaceWith(localreco, _fastSim_localreco)
+fastSim.toReplaceWith(localrecoTask, _fastSim_localrecoTask)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
@@ -103,68 +105,71 @@ fastSim.toReplaceWith(localreco, _fastSim_localreco)
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
-globalreco_tracking = cms.Sequence(offlineBeamSpot*
-                          MeasurementTrackerEventPreSplitting* # unclear where to put this
-                          siPixelClusterShapeCachePreSplitting* # unclear where to put this
-                          standalonemuontracking*
-                          trackingGlobalReco*
-                          hcalGlobalRecoSequence*
-                          vertexreco)
-_globalreco_tracking_LowPU = globalreco_tracking.copy()
-_globalreco_tracking_LowPU.replace(trackingGlobalReco, recopixelvertexing+trackingGlobalReco)
+globalreco_trackingTask = cms.Task(offlineBeamSpot,
+                          MeasurementTrackerEventPreSplitting, # unclear where to put this
+                          siPixelClusterShapeCachePreSplitting, # unclear where to put this
+                          standalonemuontrackingTask,
+                          trackingGlobalRecoTask,
+                          hcalGlobalRecoTask,
+                          vertexrecoTask)
+_globalreco_tracking_LowPUTask = globalreco_trackingTask.copy()
+_globalreco_tracking_LowPUTask.replace(trackingGlobalRecoTask, cms.Task(recopixelvertexingTask,trackingGlobalRecoTask))
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
-trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU)
+trackingLowPU.toReplaceWith(globalreco_trackingTask, _globalreco_tracking_LowPUTask)
 ##########################################
 # offlineBeamSpot is reconstructed before mixing in fastSim
 ##########################################
-_fastSim_globalreco_tracking = globalreco_tracking.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
-fastSim.toReplaceWith(globalreco_tracking,_fastSim_globalreco_tracking)
+_fastSim_globalreco_trackingTask = globalreco_trackingTask.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
+fastSim.toReplaceWith(globalreco_trackingTask,_fastSim_globalreco_trackingTask)
 
-_phase2_timing_layer_globalreco_tracking = globalreco_tracking.copy()
-_phase2_timing_layer_globalreco_tracking += fastTimingGlobalReco
-phase2_timing_layer.toReplaceWith(globalreco_tracking,_phase2_timing_layer_globalreco_tracking)
+_phase2_timing_layer_globalreco_trackingTask = globalreco_trackingTask.copy()
+_phase2_timing_layer_globalreco_trackingTask.add(fastTimingGlobalRecoTask)
+phase2_timing_layer.toReplaceWith(globalreco_trackingTask,_phase2_timing_layer_globalreco_trackingTask)
 
-globalreco = cms.Sequence(globalreco_tracking*
-                          particleFlowCluster*
-                          ecalClusters*
-                          caloTowersRec*
-                          egammaGlobalReco*
-                          jetGlobalReco*
-                          muonGlobalReco*
-                          pfTrackingGlobalReco*
-                          muoncosmicreco*
-                          CastorFullReco)
+globalrecoTask = cms.Task(globalreco_trackingTask,
+                          particleFlowClusterTask,
+                          ecalClustersTask,
+                          caloTowersRecTask,
+                          egammaGlobalRecoTask,
+                          jetGlobalRecoTask,
+                          muonGlobalRecoTask,
+                          pfTrackingGlobalRecoTask,
+                          muoncosmicrecoTask,
+                          CastorFullRecoTask)
+globalreco = cms.Sequence(globalrecoTask)
 
-_run3_globalreco = globalreco.copyAndExclude([CastorFullReco])
-run3_common.toReplaceWith(globalreco, _run3_globalreco)
+_run3_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask])
+run3_common.toReplaceWith(globalrecoTask, _run3_globalrecoTask)
 
-_fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco,muoncosmicreco])
+_fastSim_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask,muoncosmicrecoTask])
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
-_fastSim_globalreco.insert(0,newCombinedSeeds+trackExtrapolator+caloTowerForTrk+firstStepPrimaryVerticesUnsorted+ak4CaloJetsForTrk+initialStepTrackRefsForJets+firstStepPrimaryVertices)
-fastSim.toReplaceWith(globalreco,_fastSim_globalreco)
+_fastSim_globalrecoTask.add(newCombinedSeeds,trackExtrapolator,caloTowerForTrk,firstStepPrimaryVerticesUnsorted,ak4CaloJetsForTrk,initialStepTrackRefsForJets,firstStepPrimaryVertices)
+fastSim.toReplaceWith(globalrecoTask,_fastSim_globalrecoTask)
 
+globalreco_plusPLTask= cms.Task(globalrecoTask,ctfTracksPixelLessTask)
+globalreco_plusPL= cms.Sequence(globalreco_plusPLTask)
 
-globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
+reducedRecHitsTask = cms.Task( reducedEcalRecHitsTask , reducedHcalRecHitsTask )
+reducedRecHits = cms.Sequence (reducedRecHitsTask)
 
-reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
-
-highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
-                             particleFlowReco*
-                             egammaHighLevelRecoPostPF*
-                             muoncosmichighlevelreco*
-                             muonshighlevelreco *
-                             particleFlowLinks*
-                             jetHighLevelReco*
-                             metrecoPlusHCALNoise*
-                             btagging*
-                             recoPFMET*
-                             PFTau*
-                             reducedRecHits*
-                             cosmicDCTracksSeq*
-                             lowPtGsfElectronSequence*
-                             conversionOpenTrackSequence*
-                             gsfTracksOpenConversionSequence 
+highlevelrecoTask = cms.Task(egammaHighLevelRecoPrePFTask,
+                             particleFlowRecoTask,
+                             egammaHighLevelRecoPostPFTask,
+                             muoncosmichighlevelrecoTask,
+                             muonshighlevelrecoTask,
+                             particleFlowLinksTask,
+                             jetHighLevelRecoTask,
+                             metrecoPlusHCALNoiseTask,
+                             btaggingTask,
+                             recoPFMETTask,
+                             PFTauTask,
+                             reducedRecHitsTask,
+                             cosmicDCTracksSeqTask,
+                             lowPtGsfElectronTask,
+                             conversionOpenTrackTask,
+                             gsfTracksOpenConversions 
                              )
+highlevelreco = cms.Sequence(highlevelrecoTask)
 
 # AA data with pp reco
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
@@ -172,35 +177,38 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
 from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
-_highlevelreco_HI = highlevelreco.copy()
-_highlevelreco_HI += hiConformalPixelTracksSequencePhase1
-_highlevelreco_HI += hiCentrality
-_highlevelreco_HI += hiClusterCompatibility
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(highlevelreco, _highlevelreco_HI)
-pp_on_AA_2018.toReplaceWith(highlevelreco,highlevelreco.copyAndExclude([PFTau]))
+_highlevelreco_HITask = highlevelrecoTask.copy()
+_highlevelreco_HITask.add(hiConformalPixelTracksTaskPhase1)
+_highlevelreco_HITask.add(hiCentrality)
+_highlevelreco_HITask.add(hiClusterCompatibility)
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(highlevelrecoTask, _highlevelreco_HITask)
+pp_on_AA_2018.toReplaceWith(highlevelrecoTask,highlevelrecoTask.copyAndExclude([PFTauTask]))
 
 # not commisoned and not relevant in FastSim (?):
-_fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq,muoncosmichighlevelreco])
-fastSim.toReplaceWith(highlevelreco,_fastSim_highlevelreco)
+_fastSim_highlevelrecoTask = highlevelrecoTask.copyAndExclude([cosmicDCTracksSeqTask,muoncosmichighlevelrecoTask])
+fastSim.toReplaceWith(highlevelrecoTask,_fastSim_highlevelrecoTask)
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
-reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
+reconstructionTask     = cms.Task(localrecoTask,globalrecoTask,highlevelrecoTask,logErrorHarvester)
+reconstruction         = cms.Sequence(reconstructionTask)
 
 #logErrorHarvester should only wait for items produced in the reconstruction sequence
 _modulesInReconstruction = list()
-reconstruction.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
+reconstructionTask.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
 logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
 
-reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
-reconstruction_pixelTrackingOnly = cms.Sequence(
-    pixeltrackerlocalreco*
-    offlineBeamSpot*
-    siPixelClusterShapeCachePreSplitting*
-    recopixelvertexing
+reconstruction_trackingOnlyTask = cms.Task(localrecoTask,globalreco_trackingTask)
+reconstruction_trackingOnly = cms.Sequence(reconstruction_trackingOnlyTask)
+reconstruction_pixelTrackingOnlyTask = cms.Task(
+    pixeltrackerlocalrecoTask,
+    offlineBeamSpot,
+    siPixelClusterShapeCachePreSplitting,
+    recopixelvertexingTask
 )
+reconstruction_pixelTrackingOnly = cms.Sequence(reconstruction_pixelTrackingOnlyTask)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
@@ -251,44 +259,15 @@ modulesToRemove.append(zdcreco)
 modulesToRemove.append(castorreco)
 ##it's OK according to Ronny modulesToRemove.append(CSCHaloData)#needs digis
 reconstruction_fromRECO = reconstruction.copyAndExclude(modulesToRemove+noTrackingAndDependent)
-noTrackingAndDependent.append(siPixelRecHitsPreSplitting)
-noTrackingAndDependent.append(siStripMatchedRecHits)
-noTrackingAndDependent.append(pixelTracks)
-noTrackingAndDependent.append(ckftracks)
-reconstruction_fromRECO_noTrackingTest = reconstruction.copyAndExclude(modulesToRemove+noTrackingAndDependent)
-##requires generalTracks trajectories
-noTrackingAndDependent.append(trackerDrivenElectronSeeds)
-noTrackingAndDependent.append(ecalDrivenElectronSeeds)
-noTrackingAndDependent.append(uncleanedOnlyElectronSeeds)
-noTrackingAndDependent.append(uncleanedOnlyElectronCkfTrackCandidates)
-noTrackingAndDependent.append(uncleanedOnlyElectronGsfTracks)
-noTrackingAndDependent.append(uncleanedOnlyGeneralConversionTrackProducer)
-noTrackingAndDependent.append(uncleanedOnlyGsfConversionTrackProducer)
-noTrackingAndDependent.append(uncleanedOnlyPfTrackElec)
-noTrackingAndDependent.append(uncleanedOnlyGsfElectronCores)
-noTrackingAndDependent.append(uncleanedOnlyPfTrack)
-noTrackingAndDependent.append(uncleanedOnlyGeneralInOutOutInConversionTrackMerger)#can live with
-noTrackingAndDependent.append(uncleanedOnlyGsfGeneralInOutOutInConversionTrackMerger)#can live with
-noTrackingAndDependent.append(uncleanedOnlyAllConversions)
-noTrackingAndDependent.append(uncleanedOnlyGsfElectrons)#can live with
-noTrackingAndDependent.append(electronMergedSeeds)
-noTrackingAndDependent.append(electronCkfTrackCandidates)
-noTrackingAndDependent.append(electronGsfTracks)
-noTrackingAndDependent.append(generalConversionTrackProducer)
-noTrackingAndDependent.append(generalInOutOutInConversionTrackMerger)
-noTrackingAndDependent.append(gsfGeneralInOutOutInConversionTrackMerger)
-noTrackingAndDependent.append(ecalDrivenGsfElectrons)
-noTrackingAndDependent.append(gsfConversionTrackProducer)
-noTrackingAndDependent.append(allConversions)
-noTrackingAndDependent.append(gsfElectrons)
-reconstruction_fromRECO_noTracking = reconstruction.copyAndExclude(modulesToRemove+noTrackingAndDependent)
-reconstruction_noTracking = reconstruction.copyAndExclude(noTrackingAndDependent)
 
 
 #sequences with additional stuff
-reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*logErrorHarvester)
-reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*logErrorHarvester)
+reconstruction_withPixellessTkTask  = cms.Task(localrecoTask,globalreco_plusPLTask,highlevelrecoTask,logErrorHarvester)
+reconstruction_withPixellessTk  = cms.Sequence(reconstruction_withPixellessTkTask)
+reconstruction_HcalNZSTask = cms.Task(localreco_HcalNZSTask,globalrecoTask,highlevelrecoTask,logErrorHarvester)
+reconstruction_HcalNZS = cms.Sequence(reconstruction_HcalNZSTask)
 
 #sequences without some stuffs
 #
-reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
+reconstruction_woCosmicMuonsTask = cms.Task(localrecoTask,globalrecoTask,highlevelrecoTask,logErrorHarvester)
+reconstruction_woCosmicMuons = cms.Sequence(reconstruction_woCosmicMuonsTask)

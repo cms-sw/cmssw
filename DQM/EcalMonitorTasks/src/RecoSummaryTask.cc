@@ -12,11 +12,20 @@
 
 namespace ecaldqm {
   RecoSummaryTask::RecoSummaryTask()
-      : DQWorkerTask(), rechitThresholdEB_(0.), rechitThresholdEE_(0.), ebHits_(nullptr), eeHits_(nullptr) {}
+      : DQWorkerTask(),
+        rechitThresholdEB_(0.),
+        rechitThresholdEE_(0.),
+        ebHits_(nullptr),
+        eeHits_(nullptr),
+        fillRecoFlagReduced_(true) {}
 
   void RecoSummaryTask::setParams(edm::ParameterSet const& _params) {
     rechitThresholdEB_ = _params.getUntrackedParameter<double>("rechitThresholdEB");
     rechitThresholdEE_ = _params.getUntrackedParameter<double>("rechitThresholdEE");
+    fillRecoFlagReduced_ = _params.getUntrackedParameter<bool>("fillRecoFlagReduced");
+    if (!fillRecoFlagReduced_) {
+      MEs_.erase(std::string("RecoFlagReduced"));
+    }
   }
 
   void RecoSummaryTask::addDependencies(DependencySet& _dependencies) {

@@ -121,18 +121,6 @@ bool SiPixelQuality::IsRocBad(const uint32_t& detid, const short& rocNb) const {
   return false;
 }
 
-bool SiPixelQuality::IsAreaBad(uint32_t detid,
-                               sipixelobjects::GlobalPixel global,
-                               const edm::EventSetup& es,
-                               const SiPixelFedCabling* map) const {
-  SiPixelFrameReverter reverter(es, map);
-  int rocfromarea = -1;
-  rocfromarea = reverter.findRocInDet(detid, global);
-
-  return SiPixelQuality::IsRocBad(detid, rocfromarea);
-  return false;
-}
-
 //ask for bad ROCS
 
 short SiPixelQuality::getBadRocs(const uint32_t& detid) const {

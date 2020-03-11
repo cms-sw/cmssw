@@ -112,7 +112,7 @@ namespace l1t {
                                            T& module,
                                            edm::InputTag const& l1tAlgBlkInputTag,
                                            edm::InputTag const& l1tExtBlkInputTag)
-      : m_consumesCollector(std::move(iC)),
+      : m_consumesCollector(iC),
 
         // Set InputTags from arguments
         m_l1tAlgBlkInputTag(l1tAlgBlkInputTag),

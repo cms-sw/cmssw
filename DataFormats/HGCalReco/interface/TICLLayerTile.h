@@ -7,35 +7,36 @@
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
-class TICLLayerTile {
+template <typename T>
+class TICLLayerTileT {
 public:
   void fill(double eta, double phi, unsigned int layerClusterId) {
     tile_[globalBin(eta, phi)].push_back(layerClusterId);
   }
 
   int etaBin(float eta) const {
-    constexpr float etaRange = ticl::constants::maxEta - ticl::constants::minEta;
+    constexpr float etaRange = T::maxEta - T::minEta;
     static_assert(etaRange >= 0.f);
-    float r = ticl::constants::nEtaBins / etaRange;
-    int etaBin = (std::abs(eta) - ticl::constants::minEta) * r;
-    etaBin = std::clamp(etaBin, 0, ticl::constants::nEtaBins - 1);
+    float r = T::nEtaBins / etaRange;
+    int etaBin = (std::abs(eta) - T::minEta) * r;
+    etaBin = std::clamp(etaBin, 0, T::nEtaBins - 1);
     return etaBin;
   }
 
   int phiBin(float phi) const {
     auto normPhi = normalizedPhi(phi);
-    float r = ticl::constants::nPhiBins * M_1_PI * 0.5f;
+    float r = T::nPhiBins * M_1_PI * 0.5f;
     int phiBin = (normPhi + M_PI) * r;
 
     return phiBin;
   }
 
-  int globalBin(int etaBin, int phiBin) const { return phiBin + etaBin * ticl::constants::nPhiBins; }
+  int globalBin(int etaBin, int phiBin) const { return phiBin + etaBin * T::nPhiBins; }
 
-  int globalBin(double eta, double phi) const { return phiBin(phi) + etaBin(eta) * ticl::constants::nPhiBins; }
+  int globalBin(double eta, double phi) const { return phiBin(phi) + etaBin(eta) * T::nPhiBins; }
 
   void clear() {
-    auto nBins = ticl::constants::nEtaBins * ticl::constants::nPhiBins;
+    auto nBins = T::nEtaBins * T::nPhiBins;
     for (int j = 0; j < nBins; ++j)
       tile_[j].clear();
   }
@@ -43,22 +44,29 @@ public:
   const std::vector<unsigned int>& operator[](int globalBinId) const { return tile_[globalBinId]; }
 
 private:
-  ticl::Tile tile_;
+  std::array<std::vector<unsigned int>, T::nBins> tile_;
 };
 
-class TICLLayerTiles {
+namespace ticl {
+  using TICLLayerTile = TICLLayerTileT<TileConstants>;
+  using Tiles = std::array<TICLLayerTile, TileConstants::nLayers>;
+  using TracksterTiles = std::array<TICLLayerTile, TileConstants::iterations>;
+}  // namespace ticl
+
+template <typename T>
+class TICLGenericTile {
 public:
-  // This class represents a collection of Tiles, one for each layer in
-  // HGCAL. The layer numbering should account for both sides of HGCAL and is
-  // not handled internally. It is the user's responsibility to properly
-  // number the layers and consistently access them here.
-  const TICLLayerTile& operator[](int layer) const { return tiles_[layer]; }
-  void fill(int layer, double eta, double phi, unsigned int layerClusterId) {
-    tiles_[layer].fill(eta, phi, layerClusterId);
-  }
+  // This class represents a generic collection of Tiles. The additional index
+  // numbering is not handled internally. It is the user's responsibility to
+  // properly use and consistently access it here.
+  const auto& operator[](int index) const { return tiles_[index]; }
+  void fill(int index, double eta, double phi, unsigned int objectId) { tiles_[index].fill(eta, phi, objectId); }
 
 private:
-  ticl::Tiles tiles_;
+  T tiles_;
 };
+
+using TICLLayerTiles = TICLGenericTile<ticl::Tiles>;
+using TICLTracksterTiles = TICLGenericTile<ticl::TracksterTiles>;
 
 #endif

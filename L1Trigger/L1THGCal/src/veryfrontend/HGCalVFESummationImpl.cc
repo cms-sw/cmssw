@@ -51,7 +51,7 @@ void HGCalVFESummationImpl::triggerCellSums(const HGCalTriggerGeometryBase& geom
     payload.emplace(tcid, 0);  // do nothing if key exists already
 
     // equalize value among cell thicknesses for Silicon parts
-    if (triggerTools_.isSilicon(cellid)) {
+    if (triggerTools_.isSilicon(cellid) && !triggerTools_.isNose(cellid)) {
       int thickness = triggerTools_.thicknessIndex(cellid);
       double thickness_correction = thickness_corrections_.at(thickness);
       value = (double)value * thickness_correction;

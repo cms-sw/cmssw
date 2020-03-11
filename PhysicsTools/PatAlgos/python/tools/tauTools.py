@@ -1,7 +1,7 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 from PhysicsTools.PatAlgos.cleaningLayer1.tauCleaner_cfi import preselection

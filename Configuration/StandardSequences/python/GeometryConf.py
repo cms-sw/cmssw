@@ -24,6 +24,7 @@ GeometryConf={
     'Extended2017Plan1' : 'Extended2017Plan1,Extended2017Plan1Reco',
     'Extended2017Plan1ZeroMaterial' : 'Extended2017Plan1ZeroMaterial,Extended2017Plan1ZeroMaterialReco',
     'Extended2021'   : 'Extended2021,Extended2021Reco',
+    'DD4hepExtended2021'   : 'DD4hepExtended2021,DD4hepExtended2021Reco',
     'All'         : 'Configuration.Geometry.GeometrySimAll_cff,Reco',
     'ECALHCAL'    : 'Configuration.Geometry.GeometrySimECALHCAL_cff,Configuration.Geometry.GeometryRecoECALHCAL_cff',
     'TrackerOnly' : 'Configuration.Geometry.GeometrySimTracker_cff,Configuration.Geometry.GeometryRecoTracker_cff',
@@ -38,4 +39,7 @@ GeometryConf={
     'Extended2026D48' : 'Extended2026D48,Extended2026D48Reco',
     'Extended2026D49' : 'Extended2026D49,Extended2026D49Reco',
     'Extended2026D50' : 'Extended2026D50,Extended2026D50Reco',
+    'Extended2026D51' : 'Extended2026D51,Extended2026D51Reco',
+    'Extended2026D52' : 'Extended2026D52,Extended2026D52Reco',
+    'Extended2026D53' : 'Extended2026D53,Extended2026D53Reco',
     }

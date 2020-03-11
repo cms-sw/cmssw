@@ -8,8 +8,9 @@
   <class name="CaloParticleRefVector"/>
   <class name="CaloParticleRefProd"/>
   <class name="CaloParticleContainer"/>
-  <class name="SimCluster"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1773780587"/>
+  <class name="SimCluster"  ClassVersion="4">
+    <version ClassVersion="4" checksum="3868743425"/>
+    <version ClassVersion="3" checksum="1773780587"/>
   </class>
   <class name="SimClusterCollection"/>
   <class name="edm::Wrapper<SimClusterCollection>"/>

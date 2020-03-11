@@ -10,6 +10,7 @@ FileIndex.h
 
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <cassert>
 #include <iosfwd>
@@ -117,7 +118,8 @@ namespace edm {
     SortState& sortState() const { return transient_.sortState_; }
 
     std::vector<Element> entries_;
-    mutable Transients transient_;
+    //Only used within source's serial code
+    CMS_SA_ALLOW mutable Transients transient_;
   };
 
   bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh);

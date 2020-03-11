@@ -11,6 +11,7 @@ Monitoring source for general quantities related to tracks.
 #include <fstream>
 #include <unordered_map>
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -26,6 +27,12 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 class BeamSpot;
 class TrackAnalyzer {
@@ -40,7 +47,6 @@ public:
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
 
   void doReset();
-  void setLumiFlag();
   // Compute and locally store the number of Good vertices found
   // in the event. This information is used as X-axis value in
   // the hit-efficiency plots derived from the hit patter. This
@@ -78,6 +84,10 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
+
   float lumi_factor_per_bx_;
 
   edm::ParameterSet const* conf_;

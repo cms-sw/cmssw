@@ -566,55 +566,15 @@ void CSCMotherboard::checkConfigParameters() {
   static const unsigned int max_tmb_l1a_window_size = 1 << 4;
 
   // Checks.
-  if (mpc_block_me1a >= max_mpc_block_me1a) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of mpc_block_me1a, " << mpc_block_me1a << ", exceeds max allowed, " << max_mpc_block_me1a - 1
-          << " +++\n"
-          << "+++ Try to proceed with the default value, mpc_block_me1a=" << def_mpc_block_me1a << " +++\n";
-    mpc_block_me1a = def_mpc_block_me1a;
-  }
-  if (alct_trig_enable >= max_alct_trig_enable) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of alct_trig_enable, " << alct_trig_enable << ", exceeds max allowed, "
-          << max_alct_trig_enable - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, alct_trig_enable=" << def_alct_trig_enable << " +++\n";
-    alct_trig_enable = def_alct_trig_enable;
-  }
-  if (clct_trig_enable >= max_clct_trig_enable) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of clct_trig_enable, " << clct_trig_enable << ", exceeds max allowed, "
-          << max_clct_trig_enable - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, clct_trig_enable=" << def_clct_trig_enable << " +++\n";
-    clct_trig_enable = def_clct_trig_enable;
-  }
-  if (match_trig_enable >= max_match_trig_enable) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of match_trig_enable, " << match_trig_enable << ", exceeds max allowed, "
-          << max_match_trig_enable - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, match_trig_enable=" << def_match_trig_enable << " +++\n";
-    match_trig_enable = def_match_trig_enable;
-  }
-  if (match_trig_window_size >= max_match_trig_window_size) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of match_trig_window_size, " << match_trig_window_size << ", exceeds max allowed, "
-          << max_match_trig_window_size - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, match_trig_window_size=" << def_match_trig_window_size
-          << " +++\n";
-    match_trig_window_size = def_match_trig_window_size;
-  }
-  if (tmb_l1a_window_size >= max_tmb_l1a_window_size) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of tmb_l1a_window_size, " << tmb_l1a_window_size << ", exceeds max allowed, "
-          << max_tmb_l1a_window_size - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, tmb_l1a_window_size=" << def_tmb_l1a_window_size << " +++\n";
-    tmb_l1a_window_size = def_tmb_l1a_window_size;
-  }
+  CSCBaseboard::checkConfigParameters(mpc_block_me1a, max_mpc_block_me1a, def_mpc_block_me1a, "mpc_block_me1a");
+  CSCBaseboard::checkConfigParameters(alct_trig_enable, max_alct_trig_enable, def_alct_trig_enable, "alct_trig_enable");
+  CSCBaseboard::checkConfigParameters(clct_trig_enable, max_clct_trig_enable, def_clct_trig_enable, "clct_trig_enable");
+  CSCBaseboard::checkConfigParameters(
+      match_trig_enable, max_match_trig_enable, def_match_trig_enable, "match_trig_enable");
+  CSCBaseboard::checkConfigParameters(
+      match_trig_window_size, max_match_trig_window_size, def_match_trig_window_size, "match_trig_window_size");
+  CSCBaseboard::checkConfigParameters(
+      tmb_l1a_window_size, max_tmb_l1a_window_size, def_tmb_l1a_window_size, "tmb_l1a_window_size");
 }
 
 void CSCMotherboard::dumpConfigParams() const {

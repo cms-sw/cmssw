@@ -1,10 +1,10 @@
-#include <unordered_set>
-#include <unordered_map>
 #include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringDummyImpl.h"
-#include "DataFormats/Common/interface/PtrVector.h"
+#include <unordered_map>
+#include <unordered_set>
 #include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 
-//class constructor
+// class constructor
 HGCalClusteringDummyImpl::HGCalClusteringDummyImpl(const edm::ParameterSet& conf)
     : calibSF_(conf.getParameter<double>("calibSF_cluster")),
       layerWeights_(conf.getParameter<std::vector<double>>("layerWeights")),
@@ -12,7 +12,7 @@ HGCalClusteringDummyImpl::HGCalClusteringDummyImpl(const edm::ParameterSet& conf
   edm::LogInfo("HGCalClusterParameters") << "C2d global calibration factor: " << calibSF_;
 }
 
-//Create one cluster per TC for direct TC->3D clustering
+// Create one cluster per TC for direct TC->3D clustering
 void HGCalClusteringDummyImpl::clusterizeDummy(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& triggerCellsPtrs,
                                                l1t::HGCalClusterBxCollection& clusters) {
   std::vector<l1t::HGCalCluster> clustersTmp;
@@ -33,7 +33,7 @@ void HGCalClusteringDummyImpl::clusterizeDummy(const std::vector<edm::Ptr<l1t::H
 void HGCalClusteringDummyImpl::calibratePt(l1t::HGCalCluster& cluster) {
   double calibPt = 0.;
 
-  if (applyLayerWeights_) {
+  if (applyLayerWeights_ && !triggerTools_.isNose(cluster.detId())) {
     unsigned layerN = triggerTools_.layerWithOffset(cluster.detId());
 
     if (layerWeights_.at(layerN) == 0.) {

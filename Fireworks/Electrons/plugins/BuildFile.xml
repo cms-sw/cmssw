@@ -10,7 +10,7 @@
  <use name="Fireworks/Tracks"/>
  <use name="rootinteractive"/>
  <use name="rootphysics"/>
- <lib name="Eve"/>
- <lib name="RGL"/>
+ <use name="rooteve"/>
+ <use name="rootrgl"/>
  <flags EDM_PLUGIN="1"/>
 </library>

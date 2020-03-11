@@ -22,8 +22,6 @@ L1TStage2BMTF::L1TStage2BMTF(const edm::ParameterSet& ps)
 
 L1TStage2BMTF::~L1TStage2BMTF() {}
 
-void L1TStage2BMTF::dqmBeginRun(const edm::Run& iRrun, const edm::EventSetup& eveSetup) {}
-
 void L1TStage2BMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& iRun, const edm::EventSetup& eveSetup) {
   std::string histoPrefix = "bmtf";
   if (kalman) {

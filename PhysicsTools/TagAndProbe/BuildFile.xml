@@ -1,17 +1,12 @@
 <use   name="roofit"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/Math"/>
-<use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/UtilAlgos"/>
-<use   name="PhysicsTools/UtilAlgos"/>
 <export>
   <lib   name="1"/>
 </export>

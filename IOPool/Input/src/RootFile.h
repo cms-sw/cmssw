@@ -91,7 +91,8 @@ namespace edm {
              bool bypassVersionCheck,
              bool labelRawDataLikeMC,
              bool usingGoToEvent,
-             bool enablePrefetching);
+             bool enablePrefetching,
+             bool enforceGUIDInFileName);
 
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
@@ -113,7 +114,8 @@ namespace edm {
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
              bool bypassVersionCheck,
              bool labelRawDataLikeMC,
-             bool enablePrefetching)
+             bool enablePrefetching,
+             bool enforceGUIDInFileName)
         : RootFile(fileName,
                    processConfiguration,
                    logicalFileName,
@@ -142,7 +144,8 @@ namespace edm {
                    bypassVersionCheck,
                    labelRawDataLikeMC,
                    false,
-                   enablePrefetching) {}
+                   enablePrefetching,
+                   enforceGUIDInFileName) {}
 
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
@@ -159,7 +162,8 @@ namespace edm {
              std::vector<std::shared_ptr<IndexIntoFile>>::size_type currentIndexIntoFile,
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
              bool bypassVersionCheck,
-             bool enablePrefetching)
+             bool enablePrefetching,
+             bool enforceGUIDInFileName)
         : RootFile(fileName,
                    processConfiguration,
                    logicalFileName,
@@ -188,7 +192,8 @@ namespace edm {
                    bypassVersionCheck,
                    false,
                    false,
-                   enablePrefetching) {}
+                   enablePrefetching,
+                   enforceGUIDInFileName) {}
 
     ~RootFile();
 
@@ -325,6 +330,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<RunAuxiliary>> savedRunAuxiliary_;
     bool skipAnyEvents_;
     bool noEventSort_;
+    bool enforceGUIDInFileName_;
     int whyNotFastClonable_;
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     bool branchListIndexesUnchanged_;

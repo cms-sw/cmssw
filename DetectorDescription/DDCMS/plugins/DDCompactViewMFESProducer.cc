@@ -49,12 +49,12 @@ protected:
                       edm::ValidityInterval &) override;
 
 private:
-  const string m_label;
+  const edm::ESGetToken<DDDetector, IdealMagneticFieldRecord> m_detToken;
 };
 
 DDCompactViewMFESProducer::DDCompactViewMFESProducer(const edm::ParameterSet &iConfig)
-    : m_label(iConfig.getParameter<std::string>("appendToDataLabel")) {
-  setWhatProduced(this);
+    : m_detToken(setWhatProduced(this).consumes<DDDetector>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("appendToDataLabel")))) {
   findingRecord<IdealMagneticFieldRecord>();
 }
 
@@ -66,10 +66,7 @@ void DDCompactViewMFESProducer::fillDescriptions(edm::ConfigurationDescriptions 
 }
 
 DDCompactViewMFESProducer::ReturnType DDCompactViewMFESProducer::produce(const IdealMagneticFieldRecord &iRecord) {
-  edm::ESHandle<DDDetector> det;
-  iRecord.get(m_label, det);
-
-  auto product = std::make_unique<DDCompactView>(*det);
+  auto product = std::make_unique<DDCompactView>(iRecord.get(m_detToken));
   return product;
 }
 

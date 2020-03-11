@@ -33,7 +33,7 @@
 
 #include "TFile.h"
 
-/**\class PFProducer 
+/**\class PFProducer
 \brief Producer for particle flow reconstructed particles (PFCandidates)
 
 This producer makes use of PFAlgo, the particle flow algorithm.
@@ -120,6 +120,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
                              iConfig.getParameter<std::vector<double>>("calibHF_b_EMHAD")),
       pfAlgo_(iConfig.getParameter<double>("pf_nsigma_ECAL"),
               iConfig.getParameter<double>("pf_nsigma_HCAL"),
+              iConfig.getParameter<double>("pf_nsigma_HFEM"),
+              iConfig.getParameter<double>("pf_nsigma_HFHAD"),
+              iConfig.getParameter<std::vector<double>>("resolHF_square"),
               pfEnergyCalibration_,
               pfEnergyCalibrationHF_,
               iConfig) {
@@ -407,6 +410,8 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   // number of sigmas for neutral energy detection
   desc.add<double>("pf_nsigma_ECAL", 0.0);
   desc.add<double>("pf_nsigma_HCAL", 1.0);
+  desc.add<double>("pf_nsigma_HFEM", 1.0);
+  desc.add<double>("pf_nsigma_HFHAD", 1.0);
 
   // ECAL/HCAL PF cluster calibration : take it from global tag ?
   desc.add<bool>("useCalibrationsFromDB", true);
@@ -447,6 +452,10 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<std::vector<double>>("calibHF_a_EMHAD", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
   desc.add<std::vector<double>>("calibHF_b_HADonly", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
   desc.add<std::vector<double>>("calibHF_b_EMHAD", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
+
+  // resolution parameters for HF: EPJC 53(2008)139, doi:10.1140/epjc/s10052-007-0459-4
+  desc.add<std::vector<double>>("resolHF_square", {2.799 * 2.799, 0.114 * 0.114, 0.0 * 0.0})
+      ->setComment("HF resolution - stochastic, constant, noise term squares");
 
   descriptions.add("particleFlow", desc);
 }

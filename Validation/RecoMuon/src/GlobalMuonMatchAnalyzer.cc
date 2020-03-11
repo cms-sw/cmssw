@@ -225,6 +225,9 @@ void GlobalMuonMatchAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   // Tk Associator
 
   ibooker.cd();
+  // Run histos only for dqmEndRun handling
+  ibooker.setScope(MonitorElementData::Scope::RUN);
+
   std::string dirName = "Matcher/";
   //  ibooker.setCurrentFolder("RecoMuonV/Matcher");
   ibooker.setCurrentFolder(dirName);

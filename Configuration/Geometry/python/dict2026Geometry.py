@@ -116,7 +116,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT5_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -151,7 +151,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -186,7 +186,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -221,7 +221,7 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -256,7 +256,77 @@ trackerDict = {
             'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
+            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
+            'trackerGeometry.applyAlignment = cms.bool(False)',
+        ],
+        "era" : "phase2_tracker, trackingPhase2PU140",
+    },
+   "T17" : {
+        1 : [
+            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
+            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613_MB_2019_04/pixfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613_MB_2019_04/pixbar.xml',
+            'Geometry/TrackerCommonData/data/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/otst.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613_MB_2019_04/tracker.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker615/pixel.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerStructureTopology.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613/pixelStructureTopology.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackersens.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelsens.xml',
+            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker613_MB_2019_04/trackerRecoMaterial.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackerProdCuts.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelProdCuts.xml',
+            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
+        ],
+        "sim" : [
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
+            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
+            'trackerGeometry.applyAlignment = cms.bool(False)',
+        ],
+        "era" : "phase2_tracker, trackingPhase2PU140",
+    },
+   "T18" : {
+        1 : [
+            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
+            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613_MB_2019_04/pixfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613_MB_2019_04/pixbar.xml',
+            'Geometry/TrackerCommonData/data/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/otst.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613_MB_2019_04/tracker.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker616/pixel.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerStructureTopology.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613/pixelStructureTopology.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackersens.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelsens.xml',
+            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker613_MB_2019_04/trackerRecoMaterial.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackerProdCuts.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelProdCuts.xml',
+            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
+        ],
+        "sim" : [
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
@@ -1002,6 +1072,34 @@ timingDict = {
         ],
         "era" : "phase2_timing, phase2_timing_layer",
     },
+    "I12" : {
+        1 : [
+            'Geometry/MTDCommonData/data/mtdMaterial/v2/mtdMaterial.xml',
+            'Geometry/MTDCommonData/data/btl/v1/btl.xml',
+            'Geometry/MTDCommonData/data/btl/v1/btlStructureTopology.xml',
+            'Geometry/MTDCommonData/data/etl/v4/etl.xml',
+            'Geometry/MTDCommonData/data/mtdParameters/v1/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/v2/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/v2/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
@@ -1017,6 +1115,9 @@ detectorVersionDict = {
     ("O3","T16","C9","M3","F2","I10") : "D48",
     ("O4","T15","C9","M4","F2","I10") : "D49",
     ("O4","T15","C9","M4","F2","I11") : "D50",
+    ("O4","T17","C9","M4","F2","I10") : "D51",
+    ("O4","T18","C9","M4","F2","I10") : "D52",
+    ("O4","T15","C9","M4","F2","I12") : "D53",
  }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42" ])

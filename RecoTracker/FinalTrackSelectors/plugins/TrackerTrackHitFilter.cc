@@ -154,6 +154,8 @@ namespace reco {
       edm::EDGetTokenT<reco::TrackCollection> tokenTracks;
       edm::EDGetTokenT<TrajTrackAssociationCollection> tokenTrajTrack;
 
+      SiStripClusterInfo siStripClusterInfo_;
+
       bool tagOverlaps_;
       int nOverlaps;
       int layerFromId(const DetId &id, const TrackerTopology *tTopo) const;
@@ -305,6 +307,7 @@ namespace reco {
           pxlTPLProbXYQ_(iConfig.getParameter<double>("PxlTemplateProbXYChargeCut")),
           pxlTPLqBin_(iConfig.getParameter<std::vector<int32_t> >("PxlTemplateqBinCut")),
           PXLcorrClusChargeCut_(iConfig.getParameter<double>("PxlCorrClusterChargeCut")),
+          siStripClusterInfo_(consumesCollector()),
           tagOverlaps_(iConfig.getParameter<bool>("tagOverlaps")) {
       if (useTrajectories_)
         tokenTrajTrack = consumes<TrajTrackAssociationCollection>(src_);
@@ -393,6 +396,7 @@ namespace reco {
       iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
       //iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theBuilder);
       // RHBuilder=   theBuilder.product();
+      siStripClusterInfo_.initEvent(iSetup);
 
       // prepare output collection
       size_t candcollsize;
@@ -813,14 +817,14 @@ namespace reco {
           }
 
           if (keepthishit) {
-            SiStripClusterInfo clusterInfo = SiStripClusterInfo(*cluster, iSetup, id.rawId());
+            siStripClusterInfo_.setCluster(*cluster, id.rawId());
             if ((subdetStoNlowcut_[subdet_cnt - 1] > 0) &&
-                (clusterInfo.signalOverNoise() < subdetStoNlowcut_[subdet_cnt - 1]))
+                (siStripClusterInfo_.signalOverNoise() < subdetStoNlowcut_[subdet_cnt - 1]))
               keepthishit = false;
             if ((subdetStoNhighcut_[subdet_cnt - 1] > 0) &&
-                (clusterInfo.signalOverNoise() > subdetStoNhighcut_[subdet_cnt - 1]))
+                (siStripClusterInfo_.signalOverNoise() > subdetStoNhighcut_[subdet_cnt - 1]))
               keepthishit = false;
-            //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<clusterInfo.signalOverNoise()<<std::endl;
+            //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<siStripClusterInfo_.signalOverNoise()<<std::endl;
           }
 
         }  //end if  subdetStoN_[subdet_cnt]&&...

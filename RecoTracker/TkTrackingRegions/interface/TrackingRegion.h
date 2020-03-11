@@ -22,11 +22,9 @@
 #include <utility>
 
 #include <sstream>
-
+#include <memory>
 #include <vector>
 #include <string>
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
 class HitRZCompatibility;
@@ -86,30 +84,30 @@ public:
 
   /// utility to check eta/theta hit compatibility with region constraints
   /// and outer hit constraint
-  virtual HitRZCompatibility* checkRZ(const DetLayer* layer,
-                                      const Hit& outerHit,
-                                      const edm::EventSetup& iSetup,
-                                      const DetLayer* outerlayer = nullptr,
-                                      float lr = 0,
-                                      float gz = 0,
-                                      float dr = 0,
-                                      float dz = 0) const = 0;
+  virtual std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
+                                                      const Hit& outerHit,
+                                                      const edm::EventSetup& iSetup,
+                                                      const DetLayer* outerlayer = nullptr,
+                                                      float lr = 0,
+                                                      float gz = 0,
+                                                      float dr = 0,
+                                                      float dz = 0) const = 0;
 
   /// get hits from layer compatible with region constraints
   virtual Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const = 0;
 
   /// clone region with new vertex position
-  TrackingRegion* restrictedRegion(const GlobalPoint& originPos,
-                                   const float& originRBound,
-                                   const float& originZBound) const {
-    TrackingRegion* restr = clone();
+  std::unique_ptr<TrackingRegion> restrictedRegion(const GlobalPoint& originPos,
+                                                   const float& originRBound,
+                                                   const float& originZBound) const {
+    auto restr = clone();
     restr->theVertexPos = originPos;
     restr->theVertexRBound = originRBound;
     restr->theVertexZBound = originZBound;
     return restr;
   }
 
-  virtual TrackingRegion* clone() const = 0;
+  virtual std::unique_ptr<TrackingRegion> clone() const = 0;
 
   virtual std::string name() const { return "TrackingRegion"; }
   virtual std::string print() const {

@@ -264,21 +264,9 @@ void LogMessageMonitor::endJob() {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {
-    dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
   }
 }
-
-/*
-// ------------ method called when starting to processes a run  ------------
-void 
-LogMessageMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-
-}
-*/
-// ------------ method called when ending the processing of a run  ------------
-void LogMessageMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void LogMessageMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

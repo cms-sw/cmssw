@@ -176,7 +176,7 @@ TLorentzVector HLTPMMassFilter::approxMomAtVtx(const MagneticField* magField,
                                                int charge) const {
   GlobalPoint xsc(sc->position().x(), sc->position().y(), sc->position().z());
   float energy = sc->energy();
-  FreeTrajectoryState theFTS = FTSFromVertexToPointFactory::get(*magField, xsc, xvert, energy, charge);
+  auto theFTS = trackingTools::ftsFromVertexToPoint(*magField, xsc, xvert, energy, charge);
   float theApproxMomMod = theFTS.momentum().x() * theFTS.momentum().x() +
                           theFTS.momentum().y() * theFTS.momentum().y() + theFTS.momentum().z() * theFTS.momentum().z();
   TLorentzVector theApproxMom(

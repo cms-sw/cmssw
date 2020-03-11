@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+    <!-- debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/-->
+
+<!-- 
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref='Geometry/CMSCommonData/data/normal/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cms.xml'/>
+    <Include ref='DetectorDescription/DDCMS/data/cmsMagneticField.xml'/>
+    <Include ref='MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml'/>
+    <!--Materials are irrelevant for the MF geometry, but the DD4Hep parser complains if thet are not defined -->
+    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
+  </IncludeSection>
+</DDDefinition>

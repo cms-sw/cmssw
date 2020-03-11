@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -118,7 +119,7 @@ CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig) {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   nEvent = 0;
   successR = 0;

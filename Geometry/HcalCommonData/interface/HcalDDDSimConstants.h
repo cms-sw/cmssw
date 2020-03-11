@@ -65,6 +65,7 @@ public:
   const HcalLayerDepthMap* ldMap() const { return &ldmap_; }
   int maxHFDepth(const int& ieta, const int& iphi) const;
   unsigned int numberOfCells(const HcalSubdetector&) const;
+  const HcalParameters* parameter() const { return hpar; }
   int phiNumber(const int& phi, const int& unit) const;
   void printTiles() const;
   int unitPhi(const int& det, const int& etaR) const;

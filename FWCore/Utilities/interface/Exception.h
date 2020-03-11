@@ -39,6 +39,7 @@
 #include <type_traits>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace cms {
 
@@ -85,6 +86,7 @@ namespace cms {
     Exception& operator=(Exception const& other);
 
     // The signature for what() must be identical to that of std::exception::what().
+    // This function is NOT const thread safe
     char const* what() const noexcept override;
 
     virtual std::string explainSelf() const;
@@ -180,7 +182,8 @@ namespace cms {
     // data members
     std::ostringstream ost_;
     std::string category_;
-    mutable std::string what_;
+    //The exception class should not be accessed across threads
+    CMS_SA_ALLOW mutable std::string what_;
     std::list<std::string> context_;
     std::list<std::string> additionalInfo_;
     bool alreadyPrinted_;

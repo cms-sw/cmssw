@@ -1,4 +1,5 @@
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cassert>
@@ -17,6 +18,17 @@ namespace edm {
         parentProcessRetriever_(nullptr),
         provenanceReader_(),
         transitionIndex_(iTransitionIndex) {}
+
+  ProductProvenanceRetriever::ProductProvenanceRetriever(unsigned int iTransitionIndex,
+                                                         edm::ProductRegistry const& iReg)
+      : entryInfoSet_(),
+        readEntryInfoSet_(),
+        nextRetriever_(),
+        parentProcessRetriever_(nullptr),
+        provenanceReader_(),
+        transitionIndex_(iTransitionIndex) {
+    setupEntryInfoSet(iReg);
+  }
 
   ProductProvenanceRetriever::ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader)
       : entryInfoSet_(),
@@ -41,6 +53,26 @@ namespace edm {
     }
   }
 
+  void ProductProvenanceRetriever::setupEntryInfoSet(edm::ProductRegistry const& iReg) {
+    std::set<BranchID> ids;
+    for (auto const& p : iReg.productList()) {
+      if (p.second.branchType() == edm::InEvent) {
+        if (p.second.produced() or p.second.isProvenanceSetOnRead()) {
+          ids.insert(p.second.branchID());
+        }
+      }
+    }
+    entryInfoSet_.reserve(ids.size());
+    for (auto const& b : ids) {
+      entryInfoSet_.emplace_back(b);
+    }
+  }
+
+  void ProductProvenanceRetriever::update(edm::ProductRegistry const& iReg) {
+    entryInfoSet_.clear();
+    setupEntryInfoSet(iReg);
+  }
+
   void ProductProvenanceRetriever::readProvenanceAsync(WaitingTask* task,
                                                        ModuleCallingContext const* moduleCallingContext) const {
     if (provenanceReader_ and nullptr == readEntryInfoSet_.load()) {
@@ -63,7 +95,7 @@ namespace edm {
         readEntryInfoSet_ = nullptr;
       }
     }
-    entryInfoSet_ = iFrom.entryInfoSet_;
+    assert(iFrom.entryInfoSet_.empty());
     provenanceReader_ = iFrom.provenanceReader_;
 
     if (iFrom.nextRetriever_) {
@@ -77,7 +109,9 @@ namespace edm {
   void ProductProvenanceRetriever::reset() {
     delete readEntryInfoSet_.load();
     readEntryInfoSet_ = nullptr;
-    entryInfoSet_.clear();
+    for (auto& e : entryInfoSet_) {
+      e.resetParentage();
+    }
     if (nextRetriever_) {
       nextRetriever_->reset();
     }
@@ -89,7 +123,18 @@ namespace edm {
     // provenance when someone tries to access it not when doing the insert
     // doing the delay saves 20% of time when doing an analysis job
     //readProvenance();
-    entryInfoSet_.insert(std::move(entryInfo));
+    auto itFound =
+        std::lower_bound(entryInfoSet_.begin(),
+                         entryInfoSet_.end(),
+                         entryInfo.branchID(),
+                         [](auto const& iEntry, edm::BranchID const& iValue) { return iEntry.branchID() < iValue; });
+    if
+      UNLIKELY(itFound == entryInfoSet_.end() or itFound->branchID() != entryInfo.branchID()) {
+        throw edm::Exception(edm::errors::LogicError)
+            << "ProductProvenanceRetriever::insertIntoSet passed a BranchID " << entryInfo.branchID().id()
+            << " that has not been pre-registered";
+      }
+    itFound->threadsafe_set(entryInfo.moveParentageID());
   }
 
   void ProductProvenanceRetriever::mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other) {
@@ -101,42 +146,51 @@ namespace edm {
   }
 
   ProductProvenance const* ProductProvenanceRetriever::branchIDToProvenance(BranchID const& bid) const {
-    ProductProvenance ei(bid);
-    auto it = entryInfoSet_.find(ei);
-    if (it == entryInfoSet_.end()) {
-      if (parentProcessRetriever_) {
-        return parentProcessRetriever_->branchIDToProvenance(bid);
+    auto itFound = std::lower_bound(
+        entryInfoSet_.begin(), entryInfoSet_.end(), bid, [](auto const& iEntry, edm::BranchID const& iValue) {
+          return iEntry.branchID() < iValue;
+        });
+    if (itFound != entryInfoSet_.end() and itFound->branchID() == bid) {
+      if (auto p = itFound->productProvenance()) {
+        return p;
       }
-      //check in source
-      readProvenance();
-      auto ptr = readEntryInfoSet_.load();
-      if (ptr) {
-        auto itRead = ptr->find(ei);
-        if (itRead != ptr->end()) {
-          return &*itRead;
-        }
-      }
-      if (nextRetriever_) {
-        return nextRetriever_->branchIDToProvenance(bid);
-      }
-      return nullptr;
     }
-    return &*it;
+    if (parentProcessRetriever_) {
+      return parentProcessRetriever_->branchIDToProvenance(bid);
+    }
+    //check in source
+    readProvenance();
+    auto ptr = readEntryInfoSet_.load();
+    if (ptr) {
+      ProductProvenance ei(bid);
+      auto itRead = ptr->find(ei);
+      if (itRead != ptr->end()) {
+        return &*itRead;
+      }
+    }
+    if (nextRetriever_) {
+      return nextRetriever_->branchIDToProvenance(bid);
+    }
+    return nullptr;
   }
 
   ProductProvenance const* ProductProvenanceRetriever::branchIDToProvenanceForProducedOnly(BranchID const& bid) const {
-    ProductProvenance ei(bid);
-    auto it = entryInfoSet_.find(ei);
-    if (it == entryInfoSet_.end()) {
-      if (parentProcessRetriever_) {
-        return parentProcessRetriever_->branchIDToProvenanceForProducedOnly(bid);
+    auto itFound = std::lower_bound(
+        entryInfoSet_.begin(), entryInfoSet_.end(), bid, [](auto const& iEntry, edm::BranchID const& iValue) {
+          return iEntry.branchID() < iValue;
+        });
+    if (itFound != entryInfoSet_.end() and itFound->branchID() == bid) {
+      if (auto p = itFound->productProvenance()) {
+        return p;
       }
-      if (nextRetriever_) {
-        return nextRetriever_->branchIDToProvenanceForProducedOnly(bid);
-      }
-      return nullptr;
     }
-    return &*it;
+    if (parentProcessRetriever_) {
+      return parentProcessRetriever_->branchIDToProvenanceForProducedOnly(bid);
+    }
+    if (nextRetriever_) {
+      return nextRetriever_->branchIDToProvenanceForProducedOnly(bid);
+    }
+    return nullptr;
   }
 
   ProvenanceReaderBase::~ProvenanceReaderBase() {}

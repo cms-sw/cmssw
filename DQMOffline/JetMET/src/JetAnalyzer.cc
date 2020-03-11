@@ -205,8 +205,10 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   edm::ParameterSet highptjetparms = pSet.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms = pSet.getParameter<edm::ParameterSet>("lowPtJetTrigger");
 
-  highPtJetEventFlag_ = new GenericTriggerEventFlag(highptjetparms, consumesCollector(), *this);
-  lowPtJetEventFlag_ = new GenericTriggerEventFlag(lowptjetparms, consumesCollector(), *this);
+  highPtJetEventFlag_ =
+      new GenericTriggerEventFlag(highptjetparms, consumesCollector(), *this, l1t::UseEventSetupIn::Run);
+  lowPtJetEventFlag_ =
+      new GenericTriggerEventFlag(lowptjetparms, consumesCollector(), *this, l1t::UseEventSetupIn::Run);
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_ = lowptjetparms.getParameter<std::vector<std::string> >("hltPaths");
@@ -2238,9 +2240,6 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
     }
   }
 }
-
-// ***********************************************************
-void JetAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

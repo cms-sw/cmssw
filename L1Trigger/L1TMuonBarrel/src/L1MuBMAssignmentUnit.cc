@@ -369,7 +369,9 @@ unsigned int L1MuBMAssignmentUnit::Quality() {
       quality = 1;
       break;
     }
-    default: { quality = 0; }
+    default: {
+      quality = 0;
+    }
   }
 
   return quality;
@@ -478,7 +480,9 @@ int L1MuBMAssignmentUnit::getCharge(L1MuBMLUTHandler::PtAssMethod method) {
       //                         << endl;
       break;
     }
-    default: { chargesign = 0; }
+    default: {
+      chargesign = 0;
+    }
   }
 
   return chargesign;
@@ -612,7 +616,9 @@ int L1MuBMAssignmentUnit::getPtAddress(L1MuBMLUTHandler::PtAssMethod method, int
       //                    cerr << "AssignmentUnit::getPtAddress : undefined PtAssMethod" << endl;
       break;
     }
-    default: { bendangle = 0; }
+    default: {
+      bendangle = 0;
+    }
   }
 
   int signo = 1;
@@ -708,7 +714,9 @@ L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPt1Method(L1MuBMLUTHandle
       pam = L1MuBMLUTHandler::NODEF;
       break;
     }
-    default: { pam = L1MuBMLUTHandler::NODEF; }
+    default: {
+      pam = L1MuBMLUTHandler::NODEF;
+    }
   }
 
   return pam;
@@ -739,7 +747,9 @@ L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPt2Method(L1MuBMLUTHandle
       pam = L1MuBMLUTHandler::NODEF;
       break;
     }
-    default: { pam = L1MuBMLUTHandler::NODEF; }
+    default: {
+      pam = L1MuBMLUTHandler::NODEF;
+    }
   }
 
   return pam;
@@ -784,7 +794,9 @@ int L1MuBMAssignmentUnit::getPt1Address(L1MuBMLUTHandler::PtAssMethod method) co
       bendangle = -999;
       break;
     }
-    default: { bendangle = -999; }
+    default: {
+      bendangle = -999;
+    }
   }
 
   return bendangle;
@@ -819,7 +831,9 @@ int L1MuBMAssignmentUnit::getPt2Address(L1MuBMLUTHandler::PtAssMethod method) co
       bendangle = -999;
       break;
     }
-    default: { bendangle = -999; }
+    default: {
+      bendangle = -999;
+    }
   }
 
   return bendangle;

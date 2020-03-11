@@ -3,22 +3,22 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include <cstdint>
 
-class SiPixelFedCablingMap;
+#include <cstdint>
+#include <map>
+#include <vector>
+
+class TrackerGeometry;
 
 class SiPixelFrameReverter {
 public:
-  SiPixelFrameReverter(const edm::EventSetup&, const SiPixelFedCabling* map);
+  SiPixelFrameReverter(const SiPixelFedCabling* map);
 
-  void buildStructure(edm::EventSetup const&);
+  void buildStructure(const TrackerGeometry*);
 
   // Function to test if detId exists
   bool hasDetUnit(uint32_t detId) const { return (DetToFedMap.find(detId) != DetToFedMap.end()); }

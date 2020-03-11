@@ -9,6 +9,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <cassert>
 #include <sstream>
@@ -21,6 +22,8 @@ bool HLTPrescaleProvider::init(const edm::Run& iRun,
                                const edm::EventSetup& iSetup,
                                const std::string& processName,
                                bool& changed) {
+  inited_ = true;
+
   count_[0] = 0;
   count_[1] = 0;
   count_[2] = 0;
@@ -31,10 +34,12 @@ bool HLTPrescaleProvider::init(const edm::Run& iRun,
 
   const unsigned int l1tType(hltConfigProvider_.l1tType());
   if (l1tType == 1) {
+    checkL1GtUtils();
     /// L1 GTA V3: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TriggerL1GtUtils#Version_3
-    l1GtUtils_.getL1GtRunCache(iRun, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
+    l1GtUtils_->getL1GtRunCache(iRun, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
   } else if (l1tType == 2) {
-    l1tGlobalUtil_.retrieveL1Setup(iSetup);
+    checkL1TGlobalUtil();
+    l1tGlobalUtil_->retrieveL1Setup(iSetup);
   } else {
     edm::LogError("HLTPrescaleProvider") << " Unknown L1T Type " << l1tType << " - prescales will not be avaiable!";
   }
@@ -42,15 +47,31 @@ bool HLTPrescaleProvider::init(const edm::Run& iRun,
   return result;
 }
 
+L1GtUtils const& HLTPrescaleProvider::l1GtUtils() const {
+  checkL1GtUtils();
+  return *l1GtUtils_;
+}
+
+l1t::L1TGlobalUtil const& HLTPrescaleProvider::l1tGlobalUtil() const {
+  checkL1TGlobalUtil();
+  return *l1tGlobalUtil_;
+}
+
 int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if (!inited_) {
+    throw cms::Exception("LogicError") << "HLTPrescaleProvider::prescaleSet,\n"
+                                          "HLTPrescaleProvider::init was not called at beginRun\n";
+  }
   const unsigned int l1tType(hltConfigProvider_.l1tType());
   if (l1tType == 1) {
+    checkL1GtUtils();
+
     // return hltPrescaleTable_.set();
-    l1GtUtils_.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
+    l1GtUtils_->getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
     int errorTech(0);
-    const int psfsiTech(l1GtUtils_.prescaleFactorSetIndex(iEvent, L1GtUtils::TechnicalTrigger, errorTech));
+    const int psfsiTech(l1GtUtils_->prescaleFactorSetIndex(iEvent, L1GtUtils::TechnicalTrigger, errorTech));
     int errorPhys(0);
-    const int psfsiPhys(l1GtUtils_.prescaleFactorSetIndex(iEvent, L1GtUtils::AlgorithmTrigger, errorPhys));
+    const int psfsiPhys(l1GtUtils_->prescaleFactorSetIndex(iEvent, L1GtUtils::AlgorithmTrigger, errorPhys));
     assert(psfsiTech == psfsiPhys);
     if ((errorTech == 0) && (errorPhys == 0) && (psfsiTech >= 0) && (psfsiPhys >= 0) && (psfsiTech == psfsiPhys)) {
       return psfsiPhys;
@@ -67,8 +88,9 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
       return -1;
     }
   } else if (l1tType == 2) {
-    l1tGlobalUtil_.retrieveL1Event(iEvent, iSetup);
-    return static_cast<int>(l1tGlobalUtil_.prescaleColumn());
+    checkL1TGlobalUtil();
+    l1tGlobalUtil_->retrieveL1Event(iEvent, iSetup);
+    return static_cast<int>(l1tGlobalUtil_->prescaleColumn());
   } else {
     if (count_[0] < countMax) {
       count_[0] += 1;
@@ -110,15 +132,16 @@ std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent
 
   const unsigned int l1tType(hltConfigProvider_.l1tType());
   if (l1tType == 1) {
+    checkL1GtUtils();
     const unsigned int nL1GTSeedModules(hltConfigProvider_.hltL1GTSeeds(trigger).size());
     if (nL1GTSeedModules == 0) {
       // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
       result.first = 1;
     } else if (nL1GTSeedModules == 1) {
-      l1GtUtils_.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
+      l1GtUtils_->getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
       const std::string l1tname(hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second);
       int l1error(0);
-      result.first = l1GtUtils_.prescaleFactor(iEvent, l1tname, l1error);
+      result.first = l1GtUtils_->prescaleFactor(iEvent, l1tname, l1error);
       if (l1error != 0) {
         if (count_[1] < countMax) {
           count_[1] += 1;
@@ -149,14 +172,15 @@ std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent
       result.first = -1;
     }
   } else if (l1tType == 2) {
+    checkL1TGlobalUtil();
     const unsigned int nL1TSeedModules(hltConfigProvider_.hltL1TSeeds(trigger).size());
     if (nL1TSeedModules == 0) {
       // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
       result.first = 1;
     } else if (nL1TSeedModules == 1) {
-      //    l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
+      //    l1tGlobalUtil_->retrieveL1Event(iEvent,iSetup);
       const std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
-      bool l1error(!l1tGlobalUtil_.getPrescaleByName(l1tname, result.first));
+      bool l1error(!l1tGlobalUtil_->getPrescaleByName(l1tname, result.first));
       if (l1error) {
         if (count_[1] < countMax) {
           count_[1] += 1;
@@ -215,14 +239,16 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
 
   const unsigned int l1tType(hltConfigProvider_.l1tType());
   if (l1tType == 1) {
+    checkL1GtUtils();
+
     const unsigned int nL1GTSeedModules(hltConfigProvider_.hltL1GTSeeds(trigger).size());
     if (nL1GTSeedModules == 0) {
       // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
       result.first.clear();
     } else if (nL1GTSeedModules == 1) {
-      l1GtUtils_.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
+      l1GtUtils_->getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
       const std::string l1tname(hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second);
-      L1GtUtils::LogicalExpressionL1Results l1Logical(l1tname, l1GtUtils_);
+      L1GtUtils::LogicalExpressionL1Results l1Logical(l1tname, *l1GtUtils_);
       l1Logical.logicalExpressionRunUpdate(iEvent.getRun(), iSetup, l1tname);
       const std::vector<std::pair<std::string, int> >& errorCodes(l1Logical.errorCodes(iEvent));
       result.first = l1Logical.prescaleFactors();
@@ -262,12 +288,13 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
       result.first.clear();
     }
   } else if (l1tType == 2) {
+    checkL1TGlobalUtil();
     const unsigned int nL1TSeedModules(hltConfigProvider_.hltL1TSeeds(trigger).size());
     if (nL1TSeedModules == 0) {
       // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
       result.first.clear();
     } else if (nL1TSeedModules == 1) {
-      //    l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
+      //    l1tGlobalUtil_->retrieveL1Event(iEvent,iSetup);
       std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
       GlobalLogicParser l1tGlobalLogicParser = GlobalLogicParser(l1tname);
       const std::vector<GlobalLogicParser::OperandToken> l1tSeeds = l1tGlobalLogicParser.expressionSeedsOperandList();
@@ -275,7 +302,7 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
       int l1tPrescale(-1);
       for (auto const& i : l1tSeeds) {
         const string& l1tSeed = i.tokenName;
-        if (!l1tGlobalUtil_.getPrescaleByName(l1tSeed, l1tPrescale)) {
+        if (!l1tGlobalUtil_->getPrescaleByName(l1tSeed, l1tPrescale)) {
           l1error += 1;
         }
         result.first.push_back(std::pair<std::string, int>(l1tSeed, l1tPrescale));
@@ -291,7 +318,7 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
                   << l1tSeeds.size() << std::endl;
           for (unsigned int i = 0; i < l1tSeeds.size(); ++i) {
             const string& l1tSeed = l1tSeeds[i].tokenName;
-            message << " " << i << ":" << l1tSeed << "/" << l1tGlobalUtil_.getPrescaleByName(l1tSeed, l1tPrescale)
+            message << " " << i << ":" << l1tSeed << "/" << l1tGlobalUtil_->getPrescaleByName(l1tSeed, l1tPrescale)
                     << "/" << result.first[i].second;
           }
           message << ".";
@@ -327,4 +354,24 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
 
 bool HLTPrescaleProvider::rejectedByHLTPrescaler(const edm::TriggerResults& triggerResults, unsigned int i) const {
   return hltConfigProvider_.moduleType(hltConfigProvider_.moduleLabel(i, triggerResults.index(i))) == "HLTPrescaler";
+}
+
+void HLTPrescaleProvider::checkL1GtUtils() const {
+  if (!l1GtUtils_) {
+    throw cms::Exception("Configuration") << "HLTPrescaleProvider::checkL1GtUtils(),\n"
+                                             "Attempt to use L1GtUtils object when none was constructed.\n"
+                                             "Possibly the proper era is not configured or\n"
+                                             "the module configuration does not use the era properly\n"
+                                             "or input is from mixed eras";
+  }
+}
+
+void HLTPrescaleProvider::checkL1TGlobalUtil() const {
+  if (!l1tGlobalUtil_) {
+    throw cms::Exception("Configuration") << "HLTPrescaleProvider:::checkL1TGlobalUtil(),\n"
+                                             "Attempt to use L1TGlobalUtil object when none was constructed.\n"
+                                             "Possibly the proper era is not configured or\n"
+                                             "the module configuration does not use the era properly\n"
+                                             "or input is from mixed eras";
+  }
 }

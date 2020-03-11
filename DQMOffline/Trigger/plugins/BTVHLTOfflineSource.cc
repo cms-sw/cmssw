@@ -1,77 +1,202 @@
-#include "DQMOffline/Trigger/plugins/BTVHLTOfflineSource.h"
+/*
+  BTVHLTOffline DQM code
+*/
+//
+// Originally created by:  Anne-Catherine Le Bihan
+//                         June 2015
+// Following the structure used in JetMetHLTOfflineSource
 
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system include files
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+#include <unistd.h>
+#include <cmath>
+#include <iostream>
 
-#include "DataFormats/Common/interface/Handle.h"
+// user include files
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "CommonTools/UtilAlgos/interface/DeltaR.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "CommonTools/UtilAlgos/interface/DeltaR.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "TMath.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
 #include "TPRegexp.h"
 
-#include <cmath>
-#include <iostream>
+class BTVHLTOfflineSource : public DQMEDAnalyzer {
+public:
+  explicit BTVHLTOfflineSource(const edm::ParameterSet&);
+  ~BTVHLTOfflineSource() override;
+
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const& run, edm::EventSetup const& c) override;
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
+
+  std::string dirname_;
+  std::string processname_;
+  bool verbose_;
+
+  std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
+
+  edm::InputTag triggerSummaryLabel_;
+  edm::InputTag triggerResultsLabel_;
+
+  float turnon_threshold_loose_;
+  float turnon_threshold_medium_;
+  float turnon_threshold_tight_;
+
+  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenb_;
+  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenbb_;
+
+  edm::EDGetTokenT<std::vector<reco::Vertex> > hltFastPVToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > hltPFPVToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > hltCaloPVToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > offlinePVToken_;
+
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsFUToken;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryFUToken;
+
+  edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenCalo_;
+  edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenPf_;
+
+  edm::EDGetTokenT<reco::JetTagCollection> caloTagsToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> pfTagsToken_;
+  edm::Handle<reco::JetTagCollection> caloTags;
+  edm::Handle<reco::JetTagCollection> pfTags;
+
+  HLTConfigProvider hltConfig_;
+
+  class PathInfo : public TriggerDQMBase {
+  public:
+    PathInfo()
+        : prescaleUsed_(-1),
+          pathName_("unset"),
+          filterName_("unset"),
+          processName_("unset"),
+          objectType_(-1),
+          triggerType_("unset") {}
+
+    ~PathInfo() override = default;
+
+    PathInfo(const int prescaleUsed,
+             const std::string& pathName,
+             const std::string& filterName,
+             const std::string& processName,
+             const int type,
+             const std::string& triggerType)
+        : prescaleUsed_(prescaleUsed),
+          pathName_(pathName),
+          filterName_(filterName),
+          processName_(processName),
+          objectType_(type),
+          triggerType_(triggerType) {}
+
+    const std::string getLabel() const { return filterName_; }
+    void setLabel(std::string labelName) { filterName_ = std::move(labelName); }
+    const std::string getPath() const { return pathName_; }
+    const int getprescaleUsed() const { return prescaleUsed_; }
+    const std::string getProcess() const { return processName_; }
+    const int getObjectType() const { return objectType_; }
+    const std::string getTriggerType() const { return triggerType_; }
+    const edm::InputTag getTag() const { return edm::InputTag(filterName_, "", processName_); }
+    const bool operator==(const std::string& v) const { return v == pathName_; }
+
+    MonitorElement* Discr = nullptr;
+    MonitorElement* Pt = nullptr;
+    MonitorElement* Eta = nullptr;
+    MonitorElement* Discr_HLTvsRECO = nullptr;
+    MonitorElement* Discr_HLTMinusRECO = nullptr;
+    ObjME Discr_turnon_loose;
+    ObjME Discr_turnon_medium;
+    ObjME Discr_turnon_tight;
+    MonitorElement* PVz = nullptr;
+    MonitorElement* fastPVz = nullptr;
+    MonitorElement* PVz_HLTMinusRECO = nullptr;
+    MonitorElement* fastPVz_HLTMinusRECO = nullptr;
+    MonitorElement* n_vtx = nullptr;
+    MonitorElement* vtx_mass = nullptr;
+    MonitorElement* n_vtx_trks = nullptr;
+    MonitorElement* n_sel_tracks = nullptr;
+    MonitorElement* h_3d_ip_distance = nullptr;
+    MonitorElement* h_3d_ip_error = nullptr;
+    MonitorElement* h_3d_ip_sig = nullptr;
+    // MonitorElement*  n_pixel_hits_;
+    // MonitorElement*  n_total_hits_;
+
+  private:
+    int prescaleUsed_;
+    std::string pathName_;
+    std::string filterName_;
+    std::string processName_;
+    int objectType_;
+    std::string triggerType_;
+  };
+
+  class PathInfoCollection : public std::vector<PathInfo> {
+  public:
+    PathInfoCollection() : std::vector<PathInfo>(){};
+    std::vector<PathInfo>::iterator find(const std::string& pathName) { return std::find(begin(), end(), pathName); }
+  };
+
+  PathInfoCollection hltPathsAll_;
+};
 
 using namespace edm;
 using namespace reco;
 using namespace std;
 using namespace trigger;
 
-BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig) {
-  LogDebug("BTVHLTOfflineSource") << "constructor....";
-
-  dirname_ = iConfig.getUntrackedParameter("dirname", std::string("HLT/BTV/"));
-  processname_ = iConfig.getParameter<std::string>("processname");
-  verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
-  triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
-  triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
-  turnon_threshold_loose_ = iConfig.getParameter<double>("turnon_threshold_loose");
-  turnon_threshold_medium_ = iConfig.getParameter<double>("turnon_threshold_medium");
-  turnon_threshold_tight_ = iConfig.getParameter<double>("turnon_threshold_tight");
-  triggerSummaryToken = consumes<trigger::TriggerEvent>(triggerSummaryLabel_);
-  triggerResultsToken = consumes<edm::TriggerResults>(triggerResultsLabel_);
-  triggerSummaryFUToken = consumes<trigger::TriggerEvent>(
-      edm::InputTag(triggerSummaryLabel_.label(), triggerSummaryLabel_.instance(), std::string("FU")));
-  triggerResultsFUToken = consumes<edm::TriggerResults>(
-      edm::InputTag(triggerResultsLabel_.label(), triggerResultsLabel_.instance(), std::string("FU")));
-  shallowTagInfosTokenCalo_ =
-      consumes<vector<reco::ShallowTagInfo> >(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"));
-  shallowTagInfosTokenPf_ =
-      consumes<vector<reco::ShallowTagInfo> >(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"));
-  // caloTagInfosToken_       = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
-  //                               edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo"));
-  // pfTagInfosToken_         = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
-  //                               edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF"));
-  pfTagsToken_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelPF"));
-  caloTagsToken_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelCalo"));
-  offlineDiscrTokenb_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelb"));
-  offlineDiscrTokenbb_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelbb"));
-  hltFastPVToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltFastPVLabel"));
-  hltPFPVToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltPFPVLabel"));
-  hltCaloPVToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltCaloPVLabel"));
-  offlinePVToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("offlinePVLabel"));
-
+BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
+    : dirname_(iConfig.getUntrackedParameter("dirname", std::string("HLT/BTV/"))),
+      processname_(iConfig.getParameter<std::string>("processname")),
+      verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
+      triggerSummaryLabel_(iConfig.getParameter<edm::InputTag>("triggerSummaryLabel")),
+      triggerResultsLabel_(iConfig.getParameter<edm::InputTag>("triggerResultsLabel")),
+      turnon_threshold_loose_(iConfig.getParameter<double>("turnon_threshold_loose")),
+      turnon_threshold_medium_(iConfig.getParameter<double>("turnon_threshold_medium")),
+      turnon_threshold_tight_(iConfig.getParameter<double>("turnon_threshold_tight")),
+      offlineDiscrTokenb_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelb"))),
+      offlineDiscrTokenbb_(
+          consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelbb"))),
+      hltFastPVToken_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltFastPVLabel"))),
+      hltPFPVToken_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltPFPVLabel"))),
+      hltCaloPVToken_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltCaloPVLabel"))),
+      offlinePVToken_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("offlinePVLabel"))),
+      triggerResultsToken(consumes<edm::TriggerResults>(triggerResultsLabel_)),
+      triggerResultsFUToken(consumes<edm::TriggerResults>(
+          edm::InputTag(triggerResultsLabel_.label(), triggerResultsLabel_.instance(), std::string("FU")))),
+      triggerSummaryToken(consumes<trigger::TriggerEvent>(triggerSummaryLabel_)),
+      triggerSummaryFUToken(consumes<trigger::TriggerEvent>(
+          edm::InputTag(triggerSummaryLabel_.label(), triggerSummaryLabel_.instance(), std::string("FU")))),
+      shallowTagInfosTokenCalo_(
+          consumes<vector<reco::ShallowTagInfo> >(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"))),
+      shallowTagInfosTokenPf_(
+          consumes<vector<reco::ShallowTagInfo> >(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"))),
+      caloTagsToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelCalo"))),
+      pfTagsToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelPF"))) {
   std::vector<edm::ParameterSet> paths = iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
-  for (auto& path : paths) {
+  for (const auto& path : paths) {
     custompathnamepairs_.push_back(
         make_pair(path.getParameter<std::string>("pathname"), path.getParameter<std::string>("pathtype")));
   }
@@ -85,10 +210,10 @@ void BTVHLTOfflineSource::dqmBeginRun(const edm::Run& run, const edm::EventSetup
     LogDebug("BTVHLTOfflineSource") << "HLTConfigProvider failed to initialize.";
   }
 
-  for (unsigned int i = 0; i != hltConfig_.size(); ++i) {
-    const auto& pathname = hltConfig_.triggerName(i);
+  for (unsigned int idx = 0; idx != hltConfig_.size(); ++idx) {
+    const auto& pathname = hltConfig_.triggerName(idx);
 
-    for (auto& custompathnamepair : custompathnamepairs_) {
+    for (const auto& custompathnamepair : custompathnamepairs_) {
       if (pathname.find(custompathnamepair.first) != std::string::npos) {
         hltPathsAll_.push_back(PathInfo(1, pathname, "dummy", processname_, 0, custompathnamepair.second));
       }
@@ -97,29 +222,32 @@ void BTVHLTOfflineSource::dqmBeginRun(const edm::Run& run, const edm::EventSetup
 }
 
 void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iEvent.getByToken(triggerResultsToken, triggerResults_);
-  if (!triggerResults_.isValid()) {
-    iEvent.getByToken(triggerResultsFUToken, triggerResults_);
-    if (!triggerResults_.isValid()) {
-      edm::LogInfo("BTVHLTOfflineSource") << "TriggerResults not found, "
-                                             "skipping event";
+  edm::Handle<edm::TriggerResults> triggerResults;
+  iEvent.getByToken(triggerResultsToken, triggerResults);
+  if (!triggerResults.isValid()) {
+    iEvent.getByToken(triggerResultsFUToken, triggerResults);
+    if (!triggerResults.isValid()) {
+      edm::LogInfo("BTVHLTOfflineSource") << "TriggerResults not found, skipping event";
       return;
     }
   }
 
-  triggerNames_ = iEvent.triggerNames(*triggerResults_);
+  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
 
-  iEvent.getByToken(triggerSummaryToken, triggerObj_);
-  if (!triggerObj_.isValid()) {
-    iEvent.getByToken(triggerSummaryFUToken, triggerObj_);
-    if (!triggerObj_.isValid()) {
-      edm::LogInfo("BTVHLTOfflineSource") << "TriggerEvent not found, "
-                                             "skipping event";
+  edm::Handle<trigger::TriggerEvent> triggerObj;
+  iEvent.getByToken(triggerSummaryToken, triggerObj);
+  if (!triggerObj.isValid()) {
+    iEvent.getByToken(triggerSummaryFUToken, triggerObj);
+    if (!triggerObj.isValid()) {
+      edm::LogInfo("BTVHLTOfflineSource") << "TriggerEvent not found, skipping event";
       return;
     }
   }
 
+  edm::Handle<reco::JetTagCollection> caloTags;
   iEvent.getByToken(caloTagsToken_, caloTags);
+
+  edm::Handle<reco::JetTagCollection> pfTags;
   iEvent.getByToken(pfTagsToken_, pfTags);
 
   Handle<reco::VertexCollection> VertexHandler;
@@ -137,12 +265,12 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout << "Run = " << iEvent.id().run() << ", LS = " << iEvent.luminosityBlock()
          << ", Event = " << iEvent.id().event() << endl;
 
-  if (!triggerResults_.isValid())
+  if (!triggerResults.isValid())
     return;
 
   for (auto& v : hltPathsAll_) {
-    unsigned index = triggerNames_.triggerIndex(v.getPath());
-    if (!(index < triggerNames_.size())) {
+    unsigned index = triggerNames.triggerIndex(v.getPath());
+    if (!(index < triggerNames.size())) {
       continue;
     }
 
@@ -225,10 +353,17 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     // additional plots from tag info collections
     /////////////////////////////////////////////
 
-    iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
+    edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosCalo;
     iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
-    // iEvent.getByToken(pfTagInfosToken_, pfTagInfos);
-    // iEvent.getByToken(caloTagInfosToken_, caloTagInfos);
+
+    edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosPf;
+    iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
+
+    //    edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>, reco::Track, edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >, reco::JTATagInfo>, reco::Vertex> > > caloTagInfos;
+    //    iEvent.getByToken(caloTagInfosToken_, caloTagInfos);
+
+    //    edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>, reco::Track, edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >, reco::JTATagInfo>, reco::Vertex> > > pfTagInfos;
+    //    iEvent.getByToken(pfTagInfosToken_, pfTagInfos);
 
     // first try to get info from shallowTagInfos ...
     if ((v.getTriggerType() == "PF" && shallowTagInfosPf.isValid()) ||
@@ -409,5 +544,4 @@ void BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
 }
 
 // Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(BTVHLTOfflineSource);

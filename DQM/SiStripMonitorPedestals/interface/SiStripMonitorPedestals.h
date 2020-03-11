@@ -41,7 +41,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <iomanip>
@@ -51,7 +51,7 @@
 class ApvAnalysisFactory;
 class SiStripDetCabling;
 
-class SiStripMonitorPedestals : public DQMEDAnalyzer {
+class SiStripMonitorPedestals : public DQMOneEDAnalyzer<> {
 public:
   explicit SiStripMonitorPedestals(const edm::ParameterSet &);
   ~SiStripMonitorPedestals() override;

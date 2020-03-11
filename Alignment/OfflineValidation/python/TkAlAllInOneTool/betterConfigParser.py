@@ -1,12 +1,16 @@
 from __future__ import print_function
 from __future__ import absolute_import
-import ConfigParser
+
+import configparser as ConfigParser
 import os
 import re
 import copy
 import collections
 from .TkAlExceptions import AllInOneError
+from future.utils import PY3
 
+if PY3:
+    unicode = str
 
 class AdaptedDict(collections.OrderedDict):
     """
@@ -159,10 +163,8 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
             }
-        mandatories = [
-            "eosdir",
-        ]
-        self.checkInput("general", knownSimpleOptions = defaults.keys() + mandatories)
+        mandatories = ["eosdir",]
+        self.checkInput("general", knownSimpleOptions = list(defaults.keys()) + mandatories )
         general = self.getResultingSection( "general", defaultDict = defaults, demandPars = mandatories )
         internal_section = "internals"
         if not self.has_section(internal_section):
@@ -170,7 +172,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         if not self.has_option(internal_section, "workdir"):
             self.set(internal_section, "workdir", "/tmp/$USER")
         if not self.has_option(internal_section, "scriptsdir"):
-            self.set(internal_section, "scriptsdir", None)
+            self.set(internal_section, "scriptsdir", "")
             #replaceByMap will fail if this is not replaced (which it is in validateAlignments.py)
 
         general["workdir"] = self.get(internal_section, "workdir")

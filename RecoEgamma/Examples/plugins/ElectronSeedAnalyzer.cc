@@ -25,7 +25,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoEgamma/Examples/plugins/ElectronSeedAnalyzer.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
@@ -270,7 +270,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
     GlobalPoint vprim(theBeamSpot->position().x(), theBeamSpot->position().y(), theBeamSpot->position().z());
     float energy = theClus->energy();
 
-    FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, xmeas, vprim, energy, charge);
+    auto fts = trackingTools::ftsFromVertexToPoint(*theMagField, xmeas, vprim, energy, charge);
     //std::cout << "[PixelHitMatcher::compatibleSeeds] fts position, momentum " <<
     // fts.parameters().position() << " " << fts.parameters().momentum() << std::endl;
 
@@ -328,7 +328,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
 
       GlobalPoint vertexPred(vprim.x(), vprim.y(), zVertexPred);
 
-      FreeTrajectoryState fts2 = FTSFromVertexToPointFactory::get(*theMagField, hitPos, vertexPred, energy, charge);
+      auto fts2 = trackingTools::ftsFromVertexToPoint(*theMagField, hitPos, vertexPred, energy, charge);
       tsos2 = prop2ndLayer->propagate(fts2, geomdet2->surface());
 
       if (tsos2.isValid()) {

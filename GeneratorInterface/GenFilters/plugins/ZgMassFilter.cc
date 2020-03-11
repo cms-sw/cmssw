@@ -1,7 +1,48 @@
-#include "GeneratorInterface/GenFilters/plugins/ZgMassFilter.h"
+// -*- C++ -*-
+//
+// Package:    ZgMassFilter
+// Class:      ZgMassFilter
+//
+/*
+
+ Description: filter events based on the Pythia particle information
+
+ Implementation: inherits from generic EDFilter
+
+*/
+//
+// Original Author:  Alexey Ferapontov
+//         Created:  Thu July 26 11:57:54 CDT 2012
+//
+//
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include <iostream>
+
 #include "TLorentzVector.h"
+
+#include <cmath>
+#include <cstdlib>
+#include <vector>
+
+class ZgMassFilter : public edm::global::EDFilter<> {
+public:
+  explicit ZgMassFilter(const edm::ParameterSet&);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const double minDileptonMass;
+  const double minZgMass;
+};
 
 using namespace edm;
 using namespace std;
@@ -12,11 +53,7 @@ ZgMassFilter::ZgMassFilter(const edm::ParameterSet& iConfig)
       minDileptonMass(iConfig.getUntrackedParameter("MinDileptonMass", 0.)),
       minZgMass(iConfig.getUntrackedParameter("MinZgMass", 0.)) {}
 
-ZgMassFilter::~ZgMassFilter() {}
-
-// ------------ method called to skim the data  ------------
-bool ZgMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
+bool ZgMassFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   bool accepted = false;
   Handle<HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
@@ -47,3 +84,5 @@ bool ZgMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   return accepted;
 }
+
+DEFINE_FWK_MODULE(ZgMassFilter);

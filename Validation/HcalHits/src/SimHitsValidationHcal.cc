@@ -87,63 +87,63 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
   // Histograms for Hits
 
-  char name[100], title[200];
+  std::string name, title;
   for (unsigned int i = 0; i < types.size(); ++i) {
     etaRange limit = getLimits(types[i]);
-    sprintf(name, "HcalHitEta%s", divisions[i].first.c_str());
-    sprintf(title, "Hit energy as a function of eta tower index in %s", divisions[i].second.c_str());
+    name = "HcalHitEta" + divisions[i].first;
+    title = "Hit energy as a function of eta tower index in " + divisions[i].second;
     meHcalHitEta_.push_back(ib.book1D(name, title, limit.bins, limit.low, limit.high));
 
-    sprintf(name, "HcalHitTimeAEta%s", divisions[i].first.c_str());
-    sprintf(title, "Hit time as a function of eta tower index in %s", divisions[i].second.c_str());
+    name = "HcalHitTimeAEta" + divisions[i].first;
+    title = "Hit time as a function of eta tower index in" + divisions[i].second;
     meHcalHitTimeEta_.push_back(ib.book1D(name, title, limit.bins, limit.low, limit.high));
 
-    sprintf(name, "HcalHitE25%s", divisions[i].first.c_str());
-    sprintf(title, "Energy in time window 0 to 25 for a tower in %s", divisions[i].second.c_str());
+    name = "HcalHitE25" + divisions[i].first;
+    title = "Energy in time window 0 to 25 for a tower in " + divisions[i].second;
     meHcalEnergyl25_.push_back(
         ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
 
-    sprintf(name, "HcalHitE50%s", divisions[i].first.c_str());
-    sprintf(title, "Energy in time window 0 to 50 for a tower in %s", divisions[i].second.c_str());
+    name = "HcalHitE50" + divisions[i].first;
+    title = "Energy in time window 0 to 50 for a tower in " + divisions[i].second;
     meHcalEnergyl50_.push_back(
         ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
 
-    sprintf(name, "HcalHitE100%s", divisions[i].first.c_str());
-    sprintf(title, "Energy in time window 0 to 100 for a tower in %s", divisions[i].second.c_str());
+    name = "HcalHitE100" + divisions[i].first;
+    title = "Energy in time window 0 to 100 for a tower in " + divisions[i].second;
     meHcalEnergyl100_.push_back(
         ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
 
-    sprintf(name, "HcalHitE250%s", divisions[i].first.c_str());
-    sprintf(title, "Energy in time window 0 to 250 for a tower in %s", divisions[i].second.c_str());
+    name = "HcalHitE250" + divisions[i].first;
+    title = "Energy in time window 0 to 250 for a tower in " + divisions[i].second;
     meHcalEnergyl250_.push_back(
         ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
   }
 
-  sprintf(name, "Energy_HB");
+  name = "Energy_HB";
   meEnergy_HB = ib.book1D(name, name, 100, 0, 1);
-  sprintf(name, "Energy_HE");
+  name = "Energy_HE";
   meEnergy_HE = ib.book1D(name, name, 100, 0, 1);
-  sprintf(name, "Energy_HO");
+  name = "Energy_HO";
   meEnergy_HO = ib.book1D(name, name, 100, 0, 1);
-  sprintf(name, "Energy_HF");
+  name = "Energy_HF";
   meEnergy_HF = ib.book1D(name, name, 100, 0, 50);
 
-  sprintf(name, "Time_HB");
+  name = "Time_HB";
   metime_HB = ib.book1D(name, name, 300, -150, 150);
-  sprintf(name, "Time_HE");
+  name = "Time_HE";
   metime_HE = ib.book1D(name, name, 300, -150, 150);
-  sprintf(name, "Time_HO");
+  name = "Time_HO";
   metime_HO = ib.book1D(name, name, 300, -150, 150);
-  sprintf(name, "Time_HF");
+  name = "Time_HF";
   metime_HF = ib.book1D(name, name, 300, -150, 150);
 
-  sprintf(name, "Time_Enweighted_HB");
+  name = "Time_Enweighted_HB";
   metime_enweighted_HB = ib.book1D(name, name, 300, -150, 150);
-  sprintf(name, "Time_Enweighted_HE");
+  name = "Time_Enweighted_HE";
   metime_enweighted_HE = ib.book1D(name, name, 300, -150, 150);
-  sprintf(name, "Time_Enweighted_HO");
+  name = "Time_Enweighted_HO";
   metime_enweighted_HO = ib.book1D(name, name, 300, -150, 150);
-  sprintf(name, "Time_Enweighted_HF");
+  name = "Time_Enweighted_HF";
   metime_enweighted_HF = ib.book1D(name, name, 300, -150, 150);
 }
 
@@ -390,6 +390,8 @@ std::vector<std::pair<std::string, std::string>> SimHitsValidationHcal::getHisto
   maxDepth = std::max(maxDepth, maxDepthHO_);
 
   std::vector<std::pair<std::string, std::string>> divisions;
+  // divisions and types need to be in sync
+  types.clear();
   std::pair<std::string, std::string> names;
   char name1[40], name2[40];
   SimHitsValidationHcal::idType type;

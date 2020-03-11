@@ -2,7 +2,7 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
 #include "Geometry/CommonTopologies/interface/ProxyPixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ProxyPixelTopology::ProxyPixelTopology(PixelGeomDetType const *type, BoundPlane *bp)

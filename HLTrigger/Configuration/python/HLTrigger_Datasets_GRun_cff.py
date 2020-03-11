@@ -1,4 +1,4 @@
-# /dev/CMSSW_11_0_0/GRun
+# /dev/CMSSW_11_1_0/GRun
 
 import FWCore.ParameterSet.Config as cms
 
@@ -651,17 +651,12 @@ streamPhysicsHadronsTaus_datasetMET_selector.hltResults = cms.InputTag('TriggerR
 streamPhysicsHadronsTaus_datasetMET_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetMET_selector.throw      = cms.bool(False)
 streamPhysicsHadronsTaus_datasetMET_selector.triggerConditions = cms.vstring(
-    'HLT_CaloMET100_HBHECleaned_v4', 
     'HLT_CaloMET100_NotCleaned_v4', 
     'HLT_CaloMET110_NotCleaned_v4', 
-    'HLT_CaloMET250_HBHECleaned_v4', 
     'HLT_CaloMET250_NotCleaned_v4', 
-    'HLT_CaloMET300_HBHECleaned_v4', 
-    'HLT_CaloMET350_HBHECleaned_v4', 
-    'HLT_CaloMET70_HBHECleaned_v4', 
-    'HLT_CaloMET80_HBHECleaned_v4', 
+    'HLT_CaloMET300_NotCleaned_v4', 
+    'HLT_CaloMET350_NotCleaned_v4', 
     'HLT_CaloMET80_NotCleaned_v4', 
-    'HLT_CaloMET90_HBHECleaned_v4', 
     'HLT_CaloMET90_NotCleaned_v4', 
     'HLT_CaloMHT90_v4', 
     'HLT_DiJet110_35_Mjj650_PFMET110_v9', 
@@ -685,11 +680,10 @@ streamPhysicsHadronsTaus_datasetMET_selector.triggerConditions = cms.vstring(
     'HLT_PFMET130_PFMHT130_IDTight_v20', 
     'HLT_PFMET140_PFMHT140_IDTight_CaloBTagDeepCSV_3p1_v8', 
     'HLT_PFMET140_PFMHT140_IDTight_v20', 
-    'HLT_PFMET200_HBHECleaned_v9', 
-    'HLT_PFMET200_HBHE_BeamHaloCleaned_v9', 
+    'HLT_PFMET200_BeamHaloCleaned_v9', 
     'HLT_PFMET200_NotCleaned_v9', 
-    'HLT_PFMET250_HBHECleaned_v9', 
-    'HLT_PFMET300_HBHECleaned_v9', 
+    'HLT_PFMET250_NotCleaned_v9', 
+    'HLT_PFMET300_NotCleaned_v9', 
     'HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v9', 
     'HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v20', 
     'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v9', 
@@ -702,7 +696,7 @@ streamPhysicsHadronsTaus_datasetMET_selector.triggerConditions = cms.vstring(
     'HLT_PFMETTypeOne120_PFMHT120_IDTight_v12', 
     'HLT_PFMETTypeOne130_PFMHT130_IDTight_v12', 
     'HLT_PFMETTypeOne140_PFMHT140_IDTight_v11', 
-    'HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned_v9', 
+    'HLT_PFMETTypeOne200_BeamHaloCleaned_v9', 
     'HLT_TripleJet110_35_35_Mjj650_PFMET110_v9', 
     'HLT_TripleJet110_35_35_Mjj650_PFMET120_v9', 
     'HLT_TripleJet110_35_35_Mjj650_PFMET130_v9'

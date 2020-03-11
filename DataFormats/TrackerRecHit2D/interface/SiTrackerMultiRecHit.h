@@ -24,7 +24,7 @@ public:
 
   SiTrackerMultiRecHit* clone() const override { return new SiTrackerMultiRecHit(*this); }
 #ifdef NO_DICT
-  virtual RecHitPointer cloneSH() const { return std::make_shared<SiTrackerMultiRecHit>(*this); }
+  RecHitPointer cloneSH() const override { return std::make_shared<SiTrackerMultiRecHit>(*this); }
 #endif
 
   //  virtual int dimension() const {return 2;}
@@ -34,7 +34,7 @@ public:
   // at the momement nobody care of MultiHit!!!
   // used by trackMerger (to be improved)
   OmniClusterRef const& firstClusterRef() const override {
-    return static_cast<BaseTrackerRecHit const*>(&theHits.front())->firstClusterRef();
+    return static_cast<BaseTrackerRecHit const&>(theHits.front()).firstClusterRef();
   }
 
   /// Access to component RecHits (if any)

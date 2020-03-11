@@ -52,7 +52,9 @@ static long algorithm(dd4hep::Detector& /* description */,
                                      << ") with no rotation";
 #endif
       } else {
+#ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: no child placed for [" << copy << "]";
+#endif
       }
     }
   }

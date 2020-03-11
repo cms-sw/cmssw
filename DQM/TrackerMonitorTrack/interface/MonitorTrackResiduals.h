@@ -15,15 +15,22 @@ track residuals on each detector module
 // Author:  Marcel Schneider
 //         Extended to Pixel Residuals.
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
+#include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <fstream>
 #include <memory>
 
@@ -70,6 +77,11 @@ private:
   edm::ParameterSet conf_;
   edm::ParameterSet Parameters;
   edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyRunToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyEventToken_;
 
   unsigned long long m_cacheID_;
   bool ModOn;

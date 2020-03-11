@@ -155,8 +155,8 @@ private:
 
   std::time_t freftime[2];
 
-  TH2F* hPVx;
-  TH2F* hPVy;
+  std::unique_ptr<TH2F> hPVx;
+  std::unique_ptr<TH2F> hPVy;
 
   TTree* ftree_;
 

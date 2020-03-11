@@ -178,7 +178,6 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
   // Adjust/Optimize binning (JR Dittmann, 16-JUL-2015)
 
   HistLim Ndigis(2600, 0., 2600.);
-  HistLim ndigis(520, -20., 1020.);
   HistLim sime(200, 0., 1.0);
 
   HistLim digiAmp(360, -100., 7100.);
@@ -264,7 +263,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
       book1D(ib, histo, digiAmp);
 
     sprintf(histo, "HcalDigiTask_number_of_amplitudes_above_10fC_%s", sub);
-    book1D(ib, histo, ndigis);
+    book1D(ib, histo, Ndigis);
 
     for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
       sprintf(histo, "HcalDigiTask_ADC0_adc_depth%d_%s", depth, sub);

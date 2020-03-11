@@ -25,10 +25,10 @@ namespace edm {
 
   void RunPrincipal::fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader) {
     m_reducedHistoryID = processHistoryRegistry.reducedProcessHistoryID(aux_->processHistoryID());
-    fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
+    auto history = processHistoryRegistry.getMapped(aux_->processHistoryID());
+    fillPrincipal(aux_->processHistoryID(), history, reader);
 
     for (auto& prod : *this) {
-      prod->setProcessHistory(processHistory());
       prod->setMergeableRunProductMetadata(mergeableRunProductMetadataPtr_.get());
     }
   }

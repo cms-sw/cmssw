@@ -1,12 +1,10 @@
-#ifndef DQMOffline_Trigger_HTDQM_H
-#define DQMOffline_Trigger_HTDQM_H
+#ifndef DQMOffline_Trigger_HTDQM_h
+#define DQMOffline_Trigger_HTDQM_h
 
 #include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/METReco/interface/PFMET.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 class HTDQM : public TriggerDQMBase {
 public:
@@ -27,7 +25,6 @@ private:
   ObjME htME_variableBinning_;
   ObjME htVsMET_;
   ObjME htVsLS_;
+};
 
-};  //class
-
-#endif  //DQMOffline_Trigger_HTDQM_H
+#endif

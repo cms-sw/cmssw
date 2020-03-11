@@ -41,17 +41,57 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
 
   CaloSamples result(detId, digi.size());
 
+  // correction factor for premixed sample: ratio of laser corrections
+  double correction_factor_for_premixed_sample_transparency = 1.0;
+  double value_LC = 1.;
+  if (m_timeDependent) {
+    if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
+      auto cache = m_valueLCCache_LC.find(detId);
+      if (cache != m_valueLCCache_LC.end()) {
+        value_LC = cache->second;
+      } else {
+        value_LC = findLaserConstant_LC(detId);
+        m_valueLCCache_LC.emplace(detId, value_LC);
+      }
+    }
+  }
+
+  double value_LC_prime = 1.;
+
+  if (m_timeDependent) {
+    if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
+      auto cache = m_valueLCCache_LC_prime.find(detId);
+      if (cache != m_valueLCCache_LC_prime.end()) {
+        value_LC_prime = cache->second;
+      } else {
+        value_LC_prime = findLaserConstant_LC_prime(detId);
+        m_valueLCCache_LC_prime.emplace(detId, value_LC_prime);
+      }
+    }
+  }
+
+  correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
+  //
+  // LC' /  LC  (see formula)
+  //
+
   for (int isample = 0; isample < digi.size(); ++isample) {
     int gainId = digi[isample].gainId();
     //int gainId = 1;
 
     if (gainId == 1) {
-      result[isample] = float(digi[isample].adc()) / 1000. / peToA;  // special coding
+      result[isample] = float(digi[isample].adc()) / 1000. / peToA *
+                        correction_factor_for_premixed_sample_transparency;  // special coding, save low level info
     } else if (gainId > 1) {
-      result[isample] = float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA;
-    }  // gain = 0
+      result[isample] =
+          float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA *
+          correction_factor_for_premixed_sample_transparency;  // bet that no pileup hit has an energy over Emax/2
+    }                                                          // gain = 0
     else {
-      result[isample] = float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA;
+      result[isample] =
+          float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA *
+          correction_factor_for_premixed_sample_transparency;  //not sure we ever get here at gain=0, but hit wil be saturated anyway
+      // in EcalCoder.cc it is actually "LSB[3]" -> grrr
     }
 
     // old version:
@@ -108,17 +148,54 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
 
   CaloSamples result(detId, digi.size());
 
+  // correction facotr for premixed sample: ratio of laser corrections
+  double correction_factor_for_premixed_sample_transparency = 1.0;
+  double value_LC = 1.;
+
+  if (m_timeDependent) {
+    if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
+      auto cache = m_valueLCCache_LC.find(detId);
+      if (cache != m_valueLCCache_LC.end()) {
+        value_LC = cache->second;
+      } else {
+        value_LC = findLaserConstant_LC(detId);
+        m_valueLCCache_LC.emplace(detId, value_LC);
+      }
+    }
+  }
+
+  double value_LC_prime = 1.;
+  if (m_timeDependent) {
+    if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
+      auto cache = m_valueLCCache_LC_prime.find(detId);
+      if (cache != m_valueLCCache_LC_prime.end()) {
+        value_LC_prime = cache->second;
+      } else {
+        value_LC_prime = findLaserConstant_LC_prime(detId);
+        m_valueLCCache_LC_prime.emplace(detId, value_LC_prime);
+      }
+    }
+  }
+
+  correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
+  //
+  // LC' /  LC  (see formula)
+  //
+
   for (int isample = 0; isample < digi.size(); ++isample) {
     int gainId = digi[isample].gainId();
     //int gainId = 1;
 
     if (gainId == 1) {
-      result[isample] = float(digi[isample].adc()) / 1000. / peToA;  // special coding
+      result[isample] = float(digi[isample].adc()) / 1000. / peToA *
+                        correction_factor_for_premixed_sample_transparency;  // special coding
     } else if (gainId > 1) {
-      result[isample] = float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA;
+      result[isample] = float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA *
+                        correction_factor_for_premixed_sample_transparency;
     }  // gain = 0
     else {
-      result[isample] = float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA;
+      result[isample] = float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA *
+                        correction_factor_for_premixed_sample_transparency;
     }
 
     // old version

@@ -36,7 +36,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 class GlobalMuonRefitter;
-class MuonServiceProxy;
 
 class MuonCosmicCompatibilityFiller {
 public:
@@ -85,8 +84,6 @@ private:
   std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens_;
   edm::EDGetTokenT<reco::MuonCollection> cosmicToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-
-  MuonServiceProxy* service_;
 
   double maxdxyLoose_;
   double maxdzLoose_;

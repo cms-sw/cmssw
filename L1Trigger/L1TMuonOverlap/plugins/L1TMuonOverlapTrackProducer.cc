@@ -2,10 +2,8 @@
 #include <strstream>
 #include <vector>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
@@ -19,13 +17,13 @@
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
 L1TMuonOverlapTrackProducer::L1TMuonOverlapTrackProducer(const edm::ParameterSet& cfg)
-    : theConfig(cfg), m_Reconstruction(cfg) {
+    : m_Reconstruction(cfg, consumesCollector()) {
   produces<l1t::RegionalMuonCandBxCollection>("OMTF");
 
-  inputTokenDTPh = consumes<L1MuDTChambPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTPh"));
-  inputTokenDTTh = consumes<L1MuDTChambThContainer>(theConfig.getParameter<edm::InputTag>("srcDTTh"));
-  inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
-  inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));
+  inputTokenDTPh = consumes<L1MuDTChambPhContainer>(cfg.getParameter<edm::InputTag>("srcDTPh"));
+  inputTokenDTTh = consumes<L1MuDTChambThContainer>(cfg.getParameter<edm::InputTag>("srcDTTh"));
+  inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(cfg.getParameter<edm::InputTag>("srcCSC"));
+  inputTokenRPC = consumes<RPCDigiCollection>(cfg.getParameter<edm::InputTag>("srcRPC"));
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////

@@ -71,11 +71,16 @@ public:
   bool isCombinatoric(edm::Ptr<TTTrack<T> > aTrack) const;
   bool isUnknown(edm::Ptr<TTTrack<T> > aTrack) const;
 
+  void setAllowOneFalse2SStub(bool allowFalse2SStub);
+  bool getAllowOneFalse2SStub();
+
 private:
   /// Data members
   std::map<edm::Ptr<TTTrack<T> >, edm::Ptr<TrackingParticle> > trackToTrackingParticleMap;
   std::map<edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<T> > > > trackingParticleToTrackVectorMap;
   edm::RefProd<TTStubAssociationMap<T> > theStubAssociationMap;
+
+  bool AllowOneFalse2SStub;
 
 };  /// Close class
 

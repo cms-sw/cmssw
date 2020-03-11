@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from Validation.HGCalValidation.CaloParticleSelectionForEfficiency_cfi import *
 from Validation.HGCalValidation.HGVHistoProducerAlgoBlock_cfi import *
 
-hgcalValidator = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
     ### general settings ###
@@ -13,9 +14,13 @@ hgcalValidator = cms.EDAnalyzer(
     ### reco input configuration ###
     #2dlayerclusters, pfclusters, multiclusters
     label_lcl = cms.InputTag("hgcalLayerClusters"),
-    label_mcl = cms.VInputTag(),
+    label_mcl = cms.VInputTag(
+      cms.InputTag("multiClustersFromTrackstersTrk", "TrkMultiClustersFromTracksterByCA"),
+      cms.InputTag("multiClustersFromTrackstersEM", "MultiClustersFromTracksterByCA"),
+      cms.InputTag("multiClustersFromTrackstersHAD", "MultiClustersFromTracksterByCA"),
+      cms.InputTag("multiClustersFromTrackstersMerge", "MultiClustersFromTracksterByCA")),
 
-    #General info on layers etc. 
+    #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),
     #CaloParticle related plots
     doCaloParticlePlots = cms.untracked.bool(True),
@@ -24,9 +29,9 @@ hgcalValidator = cms.EDAnalyzer(
     #Multi Cluster related plots
     domulticlustersPlots = cms.untracked.bool(False),
 
-    #The cumulative material budget in front of each layer. To be more specific, it 
-    #is the material budget just in front of the active material (not including it). 
-    #This file is created using the official material budget code. 
+    #The cumulative material budget in front of each layer. To be more specific, it
+    #is the material budget just in front of the active material (not including it).
+    #This file is created using the official material budget code.
     cummatbudinxo = cms.FileInPath('Validation/HGCalValidation/data/D41.cumulative.xo'),
 
     ### sim input configuration ###
@@ -34,7 +39,7 @@ hgcalValidator = cms.EDAnalyzer(
     label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
 
     simVertices = cms.InputTag("g4SimHits"),
-    
+
     #Total number of layers of HGCal that we want to monitor
     #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
     totallayers_to_monitor = cms.int32(52),

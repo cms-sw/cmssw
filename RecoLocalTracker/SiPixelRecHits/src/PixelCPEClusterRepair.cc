@@ -162,8 +162,8 @@ PixelCPEClusterRepair::~PixelCPEClusterRepair() {
     x.destroy();
 }
 
-PixelCPEBase::ClusterParam* PixelCPEClusterRepair::createClusterParam(const SiPixelCluster& cl) const {
-  return new ClusterParamTemplate(cl);
+std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEClusterRepair::createClusterParam(const SiPixelCluster& cl) const {
+  return std::make_unique<ClusterParamTemplate>(cl);
 }
 
 //------------------------------------------------------------------

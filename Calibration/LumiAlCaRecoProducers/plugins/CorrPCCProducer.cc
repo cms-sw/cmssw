@@ -121,6 +121,10 @@ private:
   double type2_a_;  //amplitude for the type 2 correction
   double type2_b_;  //decay width for the type 2 correction
 
+  float pedestal;
+  float pedestal_unc;
+  TGraphErrors* pedestalGraph;
+
   LumiCorrections* pccCorrections;
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -170,6 +174,12 @@ CorrPCCProducer::CorrPCCProducer(const edm::ParameterSet& iConfig) {
   type1FracGraph->SetMarkerStyle(8);
   type1resGraph->SetMarkerStyle(8);
   type2resGraph->SetMarkerStyle(8);
+
+  pedestalGraph = new TGraphErrors();
+  pedestalGraph->SetName("Pedestal");
+  pedestalGraph->GetYaxis()->SetTitle("pedestal value (counts) per lumi section");
+  pedestalGraph->GetXaxis()->SetTitle("Unique LS ID");
+  pedestalGraph->SetMarkerStyle(8);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -322,14 +332,33 @@ void CorrPCCProducer::calculateCorrections(std::vector<float> uncorrected,
     }
   }
 
+  float lumiMax = getMaximum(corrected_tmp_);
+  float threshold = lumiMax * 0.2;
+
+  //here subtract the pedestal
+  pedestal = 0.;
+  pedestal_unc = 0.;
+  int nped = 0;
+  for (size_t i = 0; i < LumiConstants::numBX; i++) {
+    if (corrected_tmp_.at(i) < threshold) {
+      pedestal += corrected_tmp_.at(i);
+      nped++;
+    }
+  }
+  if (nped > 0) {
+    pedestal_unc = sqrt(pedestal) / nped;
+    pedestal = pedestal / nped;
+  }
+  for (size_t i = 0; i < LumiConstants::numBX; i++) {
+    corrected_tmp_.at(i) = corrected_tmp_.at(i) - pedestal;
+  }
+
   evaluateCorrectionResiduals(corrected_tmp_);
 
   float integral_uncorr_clusters = 0;
   float integral_corr_clusters = 0;
 
   //Calculate Per-BX correction factor and overall correction factor
-  float lumiMax = getMaximum(corrected_tmp_);
-  float threshold = lumiMax * 0.2;
   for (size_t ibx = 0; ibx < corrected_tmp_.size(); ibx++) {
     if (corrected_tmp_.at(ibx) > threshold) {
       integral_uncorr_clusters += uncorrected.at(ibx);
@@ -585,6 +614,8 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
     type1FracGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, mean_type1_residual_unc);
     type1resGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, mean_type1_residual_unc);
     type2resGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, mean_type2_residual_unc);
+    pedestalGraph->SetPoint(iBlock, thisIOV + approxLumiBlockSize_ / 2.0, pedestal);
+    pedestalGraph->SetPointError(iBlock, approxLumiBlockSize_ / 2.0, pedestal_unc);
 
     edm::LogInfo("INFO")
         << "iBlock type1Frac mean_type1_residual mean_type2_residual mean_type1_residual_unc mean_type2_residual_unc "
@@ -596,6 +627,8 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
     mean_type2_residual = 0.0;
     mean_type1_residual_unc = 0;
     mean_type2_residual_unc = 0;
+    pedestal = 0.;
+    pedestal_unc = 0.;
 
     iBlock++;
 
@@ -639,6 +672,7 @@ void CorrPCCProducer::resetBlock() {
 //--------------------------------------------------------------------------------------------------
 void CorrPCCProducer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& context) {
   ibooker.setCurrentFolder("AlCaReco/LumiPCC/");
+  auto scope = DQMStore::IBooker::UseRunScope(ibooker);
   Type1FracMon = ibooker.book1D("type1Fraction", "Type1Fraction;Lumisection;Type 1 Fraction", maxLS, 0, maxLS);
   Type1ResMon = ibooker.book1D("type1Residual", "Type1Residual;Lumisection;Type 1 Residual", maxLS, 0, maxLS);
   Type2ResMon = ibooker.book1D("type2Residual", "Type2Residual;Lumisection;Type 2 Residual", maxLS, 0, maxLS);
@@ -649,11 +683,13 @@ void CorrPCCProducer::endJob() {
   type1FracGraph->Write();
   type1resGraph->Write();
   type2resGraph->Write();
+  pedestalGraph->Write();
   histoFile->Write();
   histoFile->Close();
   delete type1FracGraph;
   delete type1resGraph;
   delete type2resGraph;
+  delete pedestalGraph;
 }
 
 DEFINE_FWK_MODULE(CorrPCCProducer);

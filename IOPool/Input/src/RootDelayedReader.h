@@ -11,6 +11,7 @@ RootDelayedReader.h // used by ROOT input sources
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Utilities/interface/InputType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "RootTree.h"
 
 #include <map>
@@ -84,7 +85,8 @@ namespace edm {
     //If a fatal exception happens we need to make a copy so we can
     // rethrow that exception on other threads. This avoids TTree
     // non-exception safety problems on later calls to TTree.
-    mutable std::exception_ptr lastException_;
+    //All uses of the ROOT file are serialized
+    CMS_SA_ALLOW mutable std::exception_ptr lastException_;
   };  // class RootDelayedReader
   //------------------------------------------------------------
 }  // namespace edm
