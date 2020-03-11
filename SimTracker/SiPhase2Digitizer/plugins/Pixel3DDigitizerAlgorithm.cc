@@ -211,7 +211,9 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   const float _sigma0 = 3.4_um;
   // FIXME -- Tolerance, DM?
   const float _TOL = 1e-6;
-
+  // How many sigmas (probably a configurable, to be decided not now)
+  const float _N_SIGMA = 3.0;
+  
   // Start the drift and check every step
   // initial position
   int i = 0;
@@ -247,7 +249,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
       // except the direction of migration
       std::vector<float> newpos(pos_moving);
       // Lest create the new charges around 3 sigmas away
-      newpos[displ_ind] += std::copysign(3.0 * sigma, newpos[displ_ind]);
+      newpos[displ_ind] += std::copysign(_N_SIGMA * sigma, newpos[displ_ind]);
       migrated_charge.push_back(DigitizerUtility::EnergyDepositUnit(migrated_e, newpos[0], newpos[1], newpos[2]));
     }
     // Next step
@@ -307,16 +309,20 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
   //collection_points.resize(ionization_points.size());
   collection_points.reserve(ionization_points.size());
 
+  // Radiation damage limit of application 
+  // (XXX: No sense for 3D, let this be until decided what algorithm to use)
+  const float _RAD_DAMAGE =  0.001;
+
   for (const auto& super_charge : ionization_points) {
     // Extract the pixel cell
     const auto current_pixel = pixdet->specificTopology().pixel(LocalPoint(super_charge.x(), super_charge.y()));
-    const std::pair<int, int> current_pixel_int =
-        std::make_pair<int, int>(std::floor(current_pixel.first), std::floor(current_pixel.second));
+    const auto current_pixel_int =
+        std::make_pair(std::floor(current_pixel.first), std::floor(current_pixel.second));
 
     // Convert to the 1x1 proxy pixel cell (pc), where all calculations are going to be
     // performed. The pixel is scaled to the actual pitch
     const auto relative_position_at_pc =
-        std::make_pair<float, float>((current_pixel.first - current_pixel_int.first) * pitch.first,
+        std::make_pair((current_pixel.first - current_pixel_int.first) * pitch.first,
                                      (current_pixel.second - current_pixel_int.second) * pitch.second);
 
     // Changing the reference frame to the proxy pixel cell
@@ -377,7 +383,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     float energyOnCollector = nelectrons;
     // FIXME: is this correct?  Not for 3D...
 
-    if (pseudoRadDamage_ >= 0.001) {
+    if (pseudoRadDamage_ >= _RAD_DAMAGE) {
       const float module_radius = pixdet->surface().position().perp();
       if (module_radius <= pseudoRadDamageRadius_) {
         const float kValue = pseudoRadDamage_ / (module_radius * module_radius);
