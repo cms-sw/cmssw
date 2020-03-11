@@ -213,7 +213,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   const float _TOL = 1e-6;
   // How many sigmas (probably a configurable, to be decided not now)
   const float _N_SIGMA = 3.0;
-  
+
   // Start the drift and check every step
   // initial position
   int i = 0;
@@ -309,21 +309,20 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
   //collection_points.resize(ionization_points.size());
   collection_points.reserve(ionization_points.size());
 
-  // Radiation damage limit of application 
+  // Radiation damage limit of application
   // (XXX: No sense for 3D, let this be until decided what algorithm to use)
-  const float _RAD_DAMAGE =  0.001;
+  const float _RAD_DAMAGE = 0.001;
 
   for (const auto& super_charge : ionization_points) {
     // Extract the pixel cell
     const auto current_pixel = pixdet->specificTopology().pixel(LocalPoint(super_charge.x(), super_charge.y()));
-    const auto current_pixel_int =
-        std::make_pair(std::floor(current_pixel.first), std::floor(current_pixel.second));
+    const auto current_pixel_int = std::make_pair(std::floor(current_pixel.first), std::floor(current_pixel.second));
 
     // Convert to the 1x1 proxy pixel cell (pc), where all calculations are going to be
     // performed. The pixel is scaled to the actual pitch
     const auto relative_position_at_pc =
         std::make_pair((current_pixel.first - current_pixel_int.first) * pitch.first,
-                                     (current_pixel.second - current_pixel_int.second) * pitch.second);
+                       (current_pixel.second - current_pixel_int.second) * pitch.second);
 
     // Changing the reference frame to the proxy pixel cell
     LocalPoint position_at_pc(relative_position_at_pc.first - center_proxy_cell.x(),
