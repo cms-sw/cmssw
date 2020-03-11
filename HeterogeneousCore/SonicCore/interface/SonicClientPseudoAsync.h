@@ -21,15 +21,15 @@ public:
     thread_ = std::make_unique<std::thread>([this]() { waitForNext(); });
   }
   //destructor
-  virtual ~SonicClientPseudoAsync() {
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      stop_ = true;
-    }
+  ~SonicClientPseudoAsync() override {
+    stop_ = true;
     cond_.notify_one();
     if (thread_) {
-      thread_->join();
-      thread_.reset();
+      try {
+        thread_->join();
+        thread_.reset();
+      } catch (...) {
+      }
     }
   }
   //accessor
@@ -46,7 +46,7 @@ public:
     cond_.notify_one();
   }
 
-protected:
+private:
   void waitForNext() {
     while (true) {
       //wait for condition
