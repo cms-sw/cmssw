@@ -1,10 +1,7 @@
 DQM Services: Components
 ========================
 
-These packages contain functionality for DQM that is not specific to any data, subsystem or detector. This is the "DQM Framework", provided by the DQM group to allow detector specific code (mostly in `DQM`, `DQMOffline/` and `Validation/` to interact with the DQM infrastructure (DQM GUI, Tier0 processing, Online DQM, etc.).
-
-This document contains forward references. Terms may be used before they are defined.
-
+These packages contain functionality for DQM that is not specific to any data, subsystem or detector. This is the "DQM Framework", provided by the DQM group to allow detector specific code (mostly in `DQM/`, `DQMOffline/` and `Validation/`) to interact with the DQM infrastructure (DQM GUI, Tier0 processing, Online DQM, etc.).
 
 Package Contents
 ----------------
