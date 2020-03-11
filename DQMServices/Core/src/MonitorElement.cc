@@ -737,10 +737,12 @@ namespace dqm::impl {
     TH1 const *denomH = static_cast<TH1 const *>(denom->getRootObject());
     TH1 *thisH = getTH1();
 
-    //Need to take locks in a consistent order to avoid deadlocks. Use pointer value order.
+    //Need to take locks in a consistent order to avoid deadlocks. Use pointer value order of underlying ROOT object..
     //This is known as the monitor pattern.
     std::array<const MonitorElement *, 3> order{{this, num, denom}};
-    std::sort(order.begin(), order.end());
+    std::sort(order.begin(), order.end(), [](auto const *lhs, auto const *rhs) {
+      return lhs->mutable_->data_.value_.object_.get() < rhs->mutable_->data_.value_.object_.get();
+    });
 
     auto a0 = order[0]->access();
     auto a1 = order[1]->access();
