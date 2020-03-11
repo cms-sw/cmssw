@@ -72,8 +72,9 @@ void PtAssignment::process(
       address = pt_assign_engine_->calculate_address(track);
       xmlpt   = pt_assign_engine_->calculate_pt(address);
 
-      // Check address packing / unpacking
-      if (not( fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.001 ) )
+      // Check address packing / unpacking using PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track)
+      if (pt_assign_engine_->get_pt_lut_version() > 5 &&
+          not( fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.001 ) )
         { edm::LogWarning("L1T") << "EMTF pT assignment mismatch: xmlpt = " << xmlpt
                                  << ", pt_assign_engine_->calculate_pt(track)) = "
                                  << pt_assign_engine_->calculate_pt(track); }
