@@ -1,8 +1,5 @@
 <environment>
-  <bin file="TestIntegration.cpp" name="TestIntegrationSonic">
-    <flags TEST_RUNNER_ARGS=" /bin/bash HeterogeneousCore/SonicCore/test run_sonic_test.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="TestHeterogeneousCoreSonicCore" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicCore/test/sonicTest_cfg.py"/>
   <library file="SonicDummyProducer.cc">
     <flags EDM_PLUGIN="1"/>
     <use name="HeterogeneousCore/SonicCore"/>

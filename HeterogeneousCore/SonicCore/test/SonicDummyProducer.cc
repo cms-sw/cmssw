@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace edmtest {
+namespace sonictest {
   template <typename Client>
   class SonicDummyProducer : public SonicEDProducer<Client> {
   public:
@@ -15,50 +15,39 @@ namespace edmtest {
     using typename SonicEDProducer<Client>::Output;
     explicit SonicDummyProducer(edm::ParameterSet const& cfg)
         : SonicEDProducer<Client>(cfg), input_(cfg.getParameter<int>("input")) {
-      this->template produces<IntProduct>();
+      //for debugging
+      this->setDebugName("SonicDummyProducer");
+      putToken_ = this->template produces<edmtest::IntProduct>();
     }
 
     void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override { iInput = input_; }
 
     void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
-      iEvent.put(std::make_unique<IntProduct>(iOutput));
+      iEvent.emplace(putToken_, iOutput);
     }
 
-    //to ensure distinct cfi names - specialized below
-    static std::string getCfiName();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       Client::fillPSetDescription(desc);
       desc.add<int>("input");
-      descriptions.add(getCfiName(), desc);
+      //to ensure distinct cfi names
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:
     //members
     int input_;
+    edm::EDPutTokenT<edmtest::IntProduct> putToken_;
   };
 
   typedef SonicDummyProducer<DummyClientSync> SonicDummyProducerSync;
   typedef SonicDummyProducer<DummyClientPseudoAsync> SonicDummyProducerPseudoAsync;
   typedef SonicDummyProducer<DummyClientAsync> SonicDummyProducerAsync;
+}  // namespace sonictest
 
-  template <>
-  std::string SonicDummyProducerSync::getCfiName() {
-    return "SonicDummyProducerSync";
-  }
-  template <>
-  std::string SonicDummyProducerPseudoAsync::getCfiName() {
-    return "SonicDummyProducerPseudoAsync";
-  }
-  template <>
-  std::string SonicDummyProducerAsync::getCfiName() {
-    return "SonicDummyProducerAsync";
-  }
-}  // namespace edmtest
-
-using edmtest::SonicDummyProducerSync;
+using sonictest::SonicDummyProducerSync;
 DEFINE_FWK_MODULE(SonicDummyProducerSync);
-using edmtest::SonicDummyProducerPseudoAsync;
+using sonictest::SonicDummyProducerPseudoAsync;
 DEFINE_FWK_MODULE(SonicDummyProducerPseudoAsync);
-using edmtest::SonicDummyProducerAsync;
+using sonictest::SonicDummyProducerAsync;
 DEFINE_FWK_MODULE(SonicDummyProducerAsync);

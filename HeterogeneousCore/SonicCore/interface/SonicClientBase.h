@@ -14,6 +14,7 @@ public:
   virtual ~SonicClientBase() = default;
 
   void setDebugName(const std::string& debugName) { debugName_ = debugName; }
+  const std::string& debugName() const { return debugName_; }
 
   //main operation
   virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) = 0;
@@ -25,11 +26,10 @@ protected:
     if (debugName_.empty())
       return;
     t0_ = std::chrono::high_resolution_clock::now();
-    setTime_ = true;
   }
 
   void finish(std::exception_ptr eptr = std::exception_ptr{}) {
-    if (setTime_) {
+    if (!debugName_.empty()) {
       auto t1 = std::chrono::high_resolution_clock::now();
       edm::LogInfo(debugName_) << "Client time: "
                                << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
@@ -43,7 +43,6 @@ protected:
   //for logging/debugging
   std::string debugName_;
   std::chrono::time_point<std::chrono::high_resolution_clock> t0_;
-  bool setTime_ = false;
 };
 
 #endif

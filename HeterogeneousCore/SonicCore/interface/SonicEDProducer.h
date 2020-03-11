@@ -32,9 +32,9 @@ public:
     auto t0 = std::chrono::high_resolution_clock::now();
     acquire(iEvent, iSetup, client_.input());
     auto t1 = std::chrono::high_resolution_clock::now();
-    if (!debugName_.empty())
-      edm::LogInfo(debugName_) << "Load time: "
-                               << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
+    if (!client_.debugName().empty())
+      edm::LogInfo(client_.debugName()) << "Load time: "
+                                        << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
     client_.dispatch(holder);
   }
   virtual void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) = 0;
@@ -47,13 +47,9 @@ public:
 
 protected:
   //for debugging
-  void setDebugName(const std::string& debugName) {
-    debugName_ = debugName;
-    client_.setDebugName(debugName);
-  }
+  void setDebugName(const std::string& debugName) { client_.setDebugName(debugName); }
   //members
   Client client_;
-  std::string debugName_;
 };
 
 #endif

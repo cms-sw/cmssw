@@ -1,8 +1,6 @@
 #ifndef HeterogeneousCore_SonicCore_SonicClientTypes
 #define HeterogeneousCore_SonicCore_SonicClientTypes
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 //this base class exists to limit the impact of dependent scope in derived classes
 template <typename InputT, typename OutputT = InputT>
 class SonicClientTypes {

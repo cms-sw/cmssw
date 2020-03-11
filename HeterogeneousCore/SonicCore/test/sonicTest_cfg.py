@@ -4,12 +4,10 @@ process = cms.Process("Test")
 
 process.source = cms.Source("EmptySource")
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
+process.maxEvents.input = 1
 
-process.options = cms.untracked.PSet(
-    numberOfThreads = cms.untracked.uint32(2),
-    numberOfStreams = cms.untracked.uint32(0)
-)
+process.options.numberOfThreads = 2
+process.options.numberOfStreams = 0
 
 process.dummySync = cms.EDProducer("SonicDummyProducerSync",
     input = cms.int32(1),

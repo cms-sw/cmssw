@@ -9,8 +9,6 @@
 template <typename InputT, typename OutputT = InputT>
 class SonicClientAsync : public SonicClientBase, public SonicClientTypes<InputT, OutputT> {
 public:
-  virtual ~SonicClientAsync() {}
-
   //main operation
   void dispatch(edm::WaitingTaskWithArenaHolder holder) override final {
     holder_ = std::move(holder);
