@@ -202,7 +202,7 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredV
   baseNumber.setSize(psize);
 
   size_t n = path.find("/") + 1;
-  edm::LogVerbatim("HCalGeom") << path << " n " << n;
+  edm::LogVerbatim("CaloGeometryBuilder") << path << " n " << n;
   size_t start = n;
   std::string det(""), num("");
   for (size_t i = n; i <= path.size(); ++i) {
