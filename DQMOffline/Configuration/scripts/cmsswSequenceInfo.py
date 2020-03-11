@@ -18,7 +18,8 @@ tp = ThreadPool()
 stp = ThreadPool()
 
 # SQLiteDB to write results to.
-DBFILE = "sequences.db"
+# Set later from commandline args.
+DBFILE = None 
 
 # This file will actually be opened, though the content does not matter. Only to make CMSSW start up at all.
 INFILE = "/store/data/Run2018A/EGamma/RAW/v1/000/315/489/00000/004D960A-EA4C-E811-A908-FA163ED1F481.root"
@@ -500,6 +501,8 @@ if __name__ == "__main__":
     parser.add_argument("--runTheMatrix", default=False, action="store_true", help="Ignore other options and inspect the full matrix instea (implies --sqlite).")
     parser.add_argument("--steps", default="ALCA,DQM,HARVESTING,VALIDATION", help="Which workflow steps to inspect from runTheMatrix.")
     parser.add_argument("--sqlite", default=False, action="store_true", help="Write information to SQLite DB instead of stdout.")
+    parser.add_argument("--dbfile", default="sequences.db", help="Name of the DB file to use.")
+    parser.add_argument("--threads", default=None, type=int, help="Use a fixed number of threads (default is #cores).")
     parser.add_argument("--showpluginlabel", default=False, action="store_true", help="Print the module label for each plugin (default).")
     parser.add_argument("--showplugintype", default=False, action="store_true", help="Print the base class for each plugin.")
     parser.add_argument("--showpluginclass", default=False, action="store_true", help="Print the class name for each plugin.")
@@ -509,6 +512,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     RELEVANTSTEPS += args.steps.split(",")
+    DBFILE = args.dbfile
+
+    if args.threads:
+      tp = ThreadPool(args.threads)
+      stp = ThreadPool(args.threads)
 
     if args.serve:
         serve()
