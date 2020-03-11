@@ -39,7 +39,6 @@ void TestPRegisterModule2::produce(Event& e, EventSetup const&) {
   edm::TypeID stringID(stringprod);
   CPPUNIT_ASSERT(stringID.friendlyClassName() == (*pd)->friendlyClassName());
   CPPUNIT_ASSERT((*pd)->moduleLabel() == "m1");
-  CPPUNIT_ASSERT((*pd)->releaseVersion() == getReleaseVersion());
 
   ++pd;
   CPPUNIT_ASSERT(pd != plist.end());

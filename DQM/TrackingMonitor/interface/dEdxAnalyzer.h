@@ -39,7 +39,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void endJob() override;
   double mass(double P, double I);
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;

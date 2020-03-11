@@ -8,6 +8,8 @@ Tracker:
 * T14: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Based from T12. OT: reduced envelope. IT: new chip size, different radii, 2x2 modules everywhere in TEPX, new ring paradigm in TEPX)
 * T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
 * T16: Active geometry: skewed Inner Tracker geometry. Material Budget: same as T15.
+* T17: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.5) TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + Put TBPX portcards between Disks 6 and 7.
+* T18: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.6) TFPX: Shift all double-disks by + 25mm in Z. All services volumes (& TBPX portcards) are also shifted.
 
 Calorimeters:
 * C4: HGCal (v9) + Phase2 HCAL and EB
@@ -27,6 +29,7 @@ Fast Timing system:
 * I9: Same as I7 but with ETL in the position defined in O3
 * I10: Same as I9 w/ material adjustments
 * I11: Same as I10, xml reorganized, comparison base for new ETL and DD4hep migration
+* I12: Starting from I11, new ETL layout from MTD TDR
 
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description
@@ -46,5 +49,8 @@ Several detector combinations have been generated:
 * D48 = T16+C9+M3+I10+O3+F2
 * D49 = T15+C9+M4+I10+O4+F2
 * D50 = T15+C9+M4+I11+O4+F2
+* D51 = T17+C9+M4+I10+O4+F2
+* D52 = T18+C9+M4+I10+O4+F2
+* D53 = T15+C9+M4+I12+O4+F2
 
 D35 is the MTD TDR baseline, D41 is the L1T TDR baseline, and D49 is the HLT TDR baseline.

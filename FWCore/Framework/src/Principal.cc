@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/Principal.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
@@ -393,7 +392,7 @@ namespace edm {
 
   // Set the principal for the Event, Lumi, or Run.
   void Principal::fillPrincipal(ProcessHistoryID const& hist,
-                                ProcessHistoryRegistry const& processHistoryRegistry,
+                                ProcessHistory const* processHistory,
                                 DelayedReader* reader) {
     //increment identifier here since clearPrincipal isn't called for Run/Lumi
     cacheIdentifier_ = nextIdentifier();
@@ -403,8 +402,7 @@ namespace edm {
 
     if (historyAppender_ && productRegistry().anyProductProduced()) {
       if ((not processHistoryPtr_) || (processHistoryIDBeforeConfig_ != hist)) {
-        processHistoryPtr_ = historyAppender_->appendToProcessHistory(
-            hist, processHistoryRegistry.getMapped(hist), *processConfiguration_);
+        processHistoryPtr_ = historyAppender_->appendToProcessHistory(hist, processHistory, *processConfiguration_);
         processHistoryID_ = processHistoryPtr_->id();
         processHistoryIDBeforeConfig_ = hist;
       }
@@ -414,7 +412,7 @@ namespace edm {
         if (hist.isValid()) {
           //does not own the pointer
           auto noDel = [](void const*) {};
-          inputProcessHistory = std::shared_ptr<ProcessHistory const>(processHistoryRegistry.getMapped(hist), noDel);
+          inputProcessHistory = std::shared_ptr<ProcessHistory const>(processHistory, noDel);
           if (inputProcessHistory.get() == nullptr) {
             throw Exception(errors::LogicError) << "Principal::fillPrincipal\n"
                                                 << "Input ProcessHistory not found in registry\n"
@@ -885,6 +883,7 @@ namespace edm {
 
   void Principal::adjustIndexesAfterProductRegistryAddition() {
     if (preg_->getNextIndexValue(branchType_) != productResolvers_.size()) {
+      bool changed = false;
       productResolvers_.resize(preg_->getNextIndexValue(branchType_));
       for (auto const& prod : preg_->productList()) {
         BranchDescription const& bd = prod.second;
@@ -896,8 +895,12 @@ namespace edm {
             assert(!bd.produced());
             auto cbd = std::make_shared<BranchDescription const>(bd);
             addInputProduct(cbd);
+            changed = true;
           }
         }
+      }
+      if (changed) {
+        changedIndexes_();
       }
     }
     assert(preg_->getNextIndexValue(branchType_) == productResolvers_.size());

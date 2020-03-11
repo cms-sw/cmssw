@@ -24,7 +24,7 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 //
 #include <map>
@@ -46,7 +46,7 @@ class SimTrack;
  **
  ***/
 
-class TkConvValidator : public DQMEDAnalyzer {
+class TkConvValidator : public DQMOneEDAnalyzer<> {
 public:
   //
   explicit TkConvValidator(const edm::ParameterSet&);

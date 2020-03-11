@@ -497,15 +497,15 @@ void TrackBuildingAnalyzer::analyze(const edm::Event& iEvent,
                                     const TrajectorySeed& candidate,
                                     const SeedStopInfo& stopInfo,
                                     const reco::BeamSpot& bs,
-                                    const edm::ESHandle<MagneticField>& theMF,
-                                    const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder) {
+                                    const MagneticField& theMF,
+                                    const TransientTrackingRecHitBuilder& theTTRHBuilder) {
   TSCBLBuilderNoMaterial tscblBuilder;
 
   //get parameters and errors from the candidate state
-  auto const& theG = ((TkTransientTrackingRecHitBuilder const*)(theTTRHBuilder.product()))->geometry();
+  auto const& theG = ((TkTransientTrackingRecHitBuilder const*)(&theTTRHBuilder))->geometry();
   auto const& candSS = candidate.startingState();
   TrajectoryStateOnSurface state =
-      trajectoryStateTransform::transientState(candSS, &(theG->idToDet(candSS.detId())->surface()), theMF.product());
+      trajectoryStateTransform::transientState(candSS, &(theG->idToDet(candSS.detId())->surface()), &theMF);
   TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed =
       tscblBuilder(*state.freeState(), bs);  //as in TrackProducerAlgorithm
   if (!(tsAtClosestApproachSeed.isValid())) {
@@ -573,15 +573,15 @@ void TrackBuildingAnalyzer::analyze(const edm::Event& iEvent,
                                     const edm::EventSetup& iSetup,
                                     const TrackCandidate& candidate,
                                     const reco::BeamSpot& bs,
-                                    const edm::ESHandle<MagneticField>& theMF,
-                                    const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder) {
+                                    const MagneticField& theMF,
+                                    const TransientTrackingRecHitBuilder& theTTRHBuilder) {
   TSCBLBuilderNoMaterial tscblBuilder;
 
   //get parameters and errors from the candidate state
-  auto const& theG = ((TkTransientTrackingRecHitBuilder const*)(theTTRHBuilder.product()))->geometry();
+  auto const& theG = ((TkTransientTrackingRecHitBuilder const*)(&theTTRHBuilder))->geometry();
   auto const& candSS = candidate.trajectoryStateOnDet();
   TrajectoryStateOnSurface state =
-      trajectoryStateTransform::transientState(candSS, &(theG->idToDet(candSS.detId())->surface()), theMF.product());
+      trajectoryStateTransform::transientState(candSS, &(theG->idToDet(candSS.detId())->surface()), &theMF);
   TrajectoryStateClosestToBeamLine tsAtClosestApproachTrackCand =
       tscblBuilder(*state.freeState(), bs);  //as in TrackProducerAlgorithm
   if (!(tsAtClosestApproachTrackCand.isValid())) {

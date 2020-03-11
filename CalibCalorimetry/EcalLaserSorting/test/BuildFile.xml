@@ -1,0 +1,4 @@
+<use   name="FWCore/Framework"/>
+<bin   file="RunThis_t.cpp" name="CalibCalorimetryEcalLaserSortingRunStreamer">
+  <flags   TEST_RUNNER_ARGS="/bin/bash CalibCalorimetry/EcalLaserSorting/test RunStreamer.sh"/>
+</bin>

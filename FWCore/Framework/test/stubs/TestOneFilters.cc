@@ -142,7 +142,7 @@ namespace edmtest {
     public:
       explicit RunCacheFilter(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       bool filter(edm::Event& iEvent, edm::EventSetup const&) override {
         ++m_count;
@@ -188,7 +188,7 @@ namespace edmtest {
     public:
       explicit LumiBlockCacheFilter(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       bool filter(edm::Event& iEvent, edm::EventSetup const&) override {
         ++m_count;

@@ -55,7 +55,7 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
     double range = bins * m_time_resolution;
 
     // define a callback that can book the histograms
-    auto bookTransactionCallback = [&, this](DQMStore::IBooker& booker) {
+    auto bookTransactionCallback = [&, this](DQMStore::IBooker& booker, DQMStore::IGetter&) {
       booker.setCurrentFolder(m_dqm_path);
       m_sourced_events = booker.book1D("throughput_sourced", "Throughput (sourced events)", bins, 0., range);
       m_sourced_events->setXTitle("time [s]");
@@ -66,7 +66,7 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
     };
 
     // book MonitorElement's for this run
-    edm::Service<DQMStore>()->bookConcurrentTransaction(bookTransactionCallback, gc.luminosityBlockID().run());
+    edm::Service<DQMStore>()->meBookerGetter(bookTransactionCallback);
   } else {
     std::cerr << "No DQMStore service, aborting." << std::endl;
     abort();

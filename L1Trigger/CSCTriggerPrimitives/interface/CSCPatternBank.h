@@ -2,6 +2,7 @@
 #define L1Trigger_CSCTriggerPrimitives_CSCPatternBank_h
 
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include <vector>
 
 //
 // Class with only static members that contains the ALCT and CLCT trigger patterns
@@ -9,6 +10,10 @@
 
 class CSCPatternBank {
 public:
+  typedef std::vector<std::vector<std::vector<int> > > CLCTPatterns;
+
+  typedef int ALCTPatterns[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+
   /** Pre-defined ALCT patterns. */
 
   // This is the pattern envelope, which is used to define the collision
@@ -34,6 +39,9 @@ public:
   // Bend of 0 is right/straight and bend of 1 is left.
   // Pattern[i][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN+1] contains pattern maximum width
   static const int clct_pattern[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN + 2];
+
+  // New patterns for Run-3
+  static const CLCTPatterns clct_pattern_run3_;
 
   // half strip offsets per layer for each half strip in the pattern envelope
   static const int clct_pattern_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];

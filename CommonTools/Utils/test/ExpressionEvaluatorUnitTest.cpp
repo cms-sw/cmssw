@@ -20,6 +20,7 @@ int main() {
   using MyExpr = reco::MaskCollection<eetest::CandForTest>;
 
   std::vector<Cand> oriC;
+  oriC.reserve(10);  // pre-allocate so it doesn't reallocate
   MyExpr::Collection c;
   for (int i = 5; i < 15; ++i) {
     oriC.emplace_back(Cand(i, 1, 1));

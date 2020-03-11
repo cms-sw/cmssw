@@ -25,7 +25,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 

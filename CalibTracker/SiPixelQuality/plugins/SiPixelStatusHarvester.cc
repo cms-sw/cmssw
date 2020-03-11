@@ -12,22 +12,16 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Transition.h"
 // Pixel geometry and cabling map
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 // Condition Format
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 // LHCinfo
 //#include "CondFormats/RunInfo/interface/LHCInfo.h"
@@ -57,7 +51,7 @@ using namespace edm;
 
 //--------------------------------------------------------------------------------------------------
 SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
-    : HistogramManagerHolder(iConfig),
+    : HistogramManagerHolder(iConfig, consumesCollector()),
       thresholdL1_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters")
                        .getUntrackedParameter<double>("thresholdL1")),
       thresholdL2_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters")
@@ -79,7 +73,11 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
       moduleName_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters")
                       .getUntrackedParameter<std::string>("moduleName")),
       label_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters")
-                 .getUntrackedParameter<std::string>("label")) {
+                 .getUntrackedParameter<std::string>("label")),
+      trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::EndRun>()),
+      trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::EndRun>()),
+      siPixelFedCablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::EndRun>()),
+      siPixelQualityToken_(esConsumes<SiPixelQuality, SiPixelQualityFromDbRcd, edm::Transition::EndRun>()) {
   SiPixelStatusManager* siPixelStatusManager = new SiPixelStatusManager(iConfig, consumesCollector());
   siPixelStatusManager_ = *siPixelStatusManager;
   debug_ = iConfig.getUntrackedParameter<bool>("debug");
@@ -112,21 +110,18 @@ void SiPixelStatusHarvester::bookHistograms(DQMStore::IBooker& iBooker,
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
+void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup&) {}
 
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // tracker geometry and cabling map to convert offline row/column (module) to online row/column
-  edm::ESHandle<TrackerGeometry> tmpTkGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
-  trackerGeometry_ = tmpTkGeometry.product();
-
-  edm::ESHandle<SiPixelFedCablingMap> pixelCabling;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCabling);
-  cablingMap_ = pixelCabling.product();
+  trackerGeometry_ = &iSetup.getData(trackerGeometryToken_);
+  const TrackerTopology* trackerTopology = &iSetup.getData(trackerTopologyToken_);
+  const SiPixelFedCablingMap* siPixelFedCablingMap = &iSetup.getData(siPixelFedCablingMapToken_);
+  cablingMap_ = siPixelFedCablingMap;
 
   // Pixel Phase-1 helper class
-  coord_.init(iSetup);
+  coord_.init(trackerTopology, trackerGeometry_, siPixelFedCablingMap);
 
   for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->dets().begin();
        it != trackerGeometry_->dets().end();
@@ -167,9 +162,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
   }
 
   // Permananent bad components
-  edm::ESHandle<SiPixelQuality> qualityInfo;
-  iSetup.get<SiPixelQualityFromDbRcd>().get(qualityInfo);
-  badPixelInfo_ = qualityInfo.product();
+  badPixelInfo_ = &iSetup.getData(siPixelQualityToken_);
 
   // read in SiPixel occupancy data in ALCARECO/ALCAPROMPT
   siPixelStatusManager_.createPayloads();
@@ -582,13 +575,12 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
-                                                  const edm::EventSetup& iEventSetup) {
+void SiPixelStatusHarvester::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup&) {
   countLumi_++;
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup) {
+void SiPixelStatusHarvester::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup&) {
   siPixelStatusManager_.readLumi(iLumi);
   // update endLumiBlock_ by current lumi block
   if (endLumiBlock_ < iLumi.luminosityBlock())

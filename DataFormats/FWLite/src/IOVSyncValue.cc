@@ -70,17 +70,17 @@ namespace fwlite {
   // static member functions
   //
   const IOVSyncValue& IOVSyncValue::invalidIOVSyncValue() {
-    static IOVSyncValue s_invalid;
+    static const IOVSyncValue s_invalid;
     return s_invalid;
   }
   const IOVSyncValue& IOVSyncValue::endOfTime() {
-    static IOVSyncValue s_endOfTime(
+    static const IOVSyncValue s_endOfTime(
         edm::EventID(0xFFFFFFFFUL, edm::LuminosityBlockID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()),
         edm::Timestamp::endOfTime());
     return s_endOfTime;
   }
   const IOVSyncValue& IOVSyncValue::beginOfTime() {
-    static IOVSyncValue s_beginOfTime(edm::EventID(1, 0, 0), edm::Timestamp::beginOfTime());
+    static const IOVSyncValue s_beginOfTime(edm::EventID(1, 0, 0), edm::Timestamp::beginOfTime());
     return s_beginOfTime;
   }
 }  // namespace fwlite

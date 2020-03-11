@@ -1,17 +1,117 @@
-#include "DQMOffline/Trigger/plugins/PhotonMonitor.h"
+#include <string>
+#include <vector>
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+class PhotonMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
+  PhotonMonitor(const edm::ParameterSet&);
+  ~PhotonMonitor() throw() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
+
+  std::vector<double> photon_variable_binning_;
+  std::vector<double> diphoton_mass_binning_;
+
+  MEbinning photon_binning_;
+  MEbinning ls_binning_;
+
+  ObjME subphotonEtaME_;
+  ObjME subphotonME_;
+  ObjME subphotonPhiME_;
+  ObjME subphotonME_variableBinning_;
+  ObjME subphotonEtaPhiME_;
+  ObjME subphotonr9ME_;
+  ObjME subphotonHoverEME_;
+  ObjME diphotonMassME_;
+
+  ObjME photonEtaME_;
+  ObjME photonME_;
+  ObjME photonPhiME_;
+  ObjME photonME_variableBinning_;
+  ObjME photonVsLS_;
+  ObjME photonEtaPhiME_;
+  ObjME photonr9ME_;
+  ObjME photonHoverEME_;
+
+  double MAX_PHI1 = 3.2;
+  unsigned int N_PHI1 = 64;
+  const MEbinning phi_binning_1{N_PHI1, -MAX_PHI1, MAX_PHI1};
+
+  double MAX_ETA = 1.4442;
+  unsigned int N_ETA = 34;
+  const MEbinning eta_binning_{N_ETA, -MAX_ETA, MAX_ETA};
+
+  double MAX_r9 = 1;
+  double MIN_r9 = 0;
+  unsigned int N_r9 = 50;
+  const MEbinning r9_binning_{N_r9, MIN_r9, MAX_r9};
+
+  double MAX_hoe = 0.02;
+  double MIN_hoe = 0;
+  const MEbinning hoe_binning_{N_r9, MIN_hoe, MAX_hoe};
+
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  StringCutObjectSelector<reco::MET, true> metSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
+  StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
+  StringCutObjectSelector<reco::Photon, true> photonSelection_;
+  unsigned int njets_;
+  unsigned int nphotons_;
+  unsigned int nelectrons_;
+};
 
 PhotonMonitor::PhotonMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
       eleToken_(mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
@@ -34,132 +134,37 @@ PhotonMonitor::PhotonMonitor(const edm::ParameterSet& iConfig)
       photonSelection_(iConfig.getParameter<std::string>("photonSelection")),
       njets_(iConfig.getParameter<unsigned int>("njets")),
       nphotons_(iConfig.getParameter<unsigned int>("nphotons")),
-      nelectrons_(iConfig.getParameter<unsigned int>("nelectrons")) {
-  photonME_.numerator = nullptr;
-  photonME_.denominator = nullptr;
-  photonME_variableBinning_.numerator = nullptr;
-  photonME_variableBinning_.denominator = nullptr;
-  photonVsLS_.numerator = nullptr;
-  photonVsLS_.denominator = nullptr;
-  photonEtaME_.numerator = nullptr;
-  photonEtaME_.denominator = nullptr;
-  photonPhiME_.numerator = nullptr;
-  photonPhiME_.denominator = nullptr;
-  photonEtaPhiME_.numerator = nullptr;
-  photonEtaPhiME_.denominator = nullptr;
-  photonr9ME_.numerator = nullptr;
-  photonr9ME_.denominator = nullptr;
-  photonHoverEME_.numerator = nullptr;
-  photonHoverEME_.denominator = nullptr;
+      nelectrons_(iConfig.getParameter<unsigned int>("nelectrons")) {}
 
-  diphotonMassME_.numerator = nullptr;
-  diphotonMassME_.denominator = nullptr;
-
-  subphotonME_.numerator = nullptr;
-  subphotonME_.denominator = nullptr;
-  subphotonME_variableBinning_.numerator = nullptr;
-  subphotonME_variableBinning_.denominator = nullptr;
-  subphotonEtaME_.numerator = nullptr;
-  subphotonEtaME_.denominator = nullptr;
-  subphotonPhiME_.numerator = nullptr;
-  subphotonPhiME_.denominator = nullptr;
-  subphotonEtaPhiME_.numerator = nullptr;
-  subphotonEtaPhiME_.denominator = nullptr;
-  subphotonr9ME_.numerator = nullptr;
-  subphotonr9ME_.denominator = nullptr;
-  subphotonHoverEME_.numerator = nullptr;
-  subphotonHoverEME_.denominator = nullptr;
-}
-PhotonMonitor::~PhotonMonitor() = default;
-
-MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet const& pset) {
-  return MEbinning{
-      pset.getParameter<unsigned int>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-  };
-}
-
-MEbinning PhotonMonitor::getHistoLSPSet(edm::ParameterSet const& pset) {
-  return MEbinning{pset.getParameter<unsigned int>("nbins"), 0., double(pset.getParameter<unsigned int>("nbins"))};
-}
-
-void PhotonMonitor::setTitle(PhotonME& me, const std::string& titleX, const std::string& titleY) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  me.denominator->setAxisTitle(titleX, 1);
-  me.denominator->setAxisTitle(titleY, 2);
-}
-
-void PhotonMonitor::bookME(DQMStore::IBooker& ibooker,
-                           PhotonME& me,
-                           const std::string& histname,
-                           const std::string& histtitle,
-                           unsigned int nbins,
-                           double min,
-                           double max) {
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-void PhotonMonitor::bookME(DQMStore::IBooker& ibooker,
-                           PhotonME& me,
-                           const std::string& histname,
-                           const std::string& histtitle,
-                           const std::vector<double>& binning) {
-  unsigned int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  //  float* arr = &fbinning[0];
-  float* arr = fbinning.data();
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-void PhotonMonitor::bookME(DQMStore::IBooker& ibooker,
-                           PhotonME& me,
-                           const std::string& histname,
-                           const std::string& histtitle,
-                           unsigned int nbinsX,
-                           double xmin,
-                           double xmax,
-                           double ymin,
-                           double ymax) {
-  me.numerator =
-      ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator =
-      ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void PhotonMonitor::bookME(DQMStore::IBooker& ibooker,
-                           PhotonME& me,
-                           const std::string& histname,
-                           const std::string& histtitle,
-                           unsigned int nbinsX,
-                           double xmin,
-                           double xmax,
-                           unsigned int nbinsY,
-                           double ymin,
-                           double ymax) {
-  me.numerator =
-      ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void PhotonMonitor::bookME(DQMStore::IBooker& ibooker,
-                           PhotonME& me,
-                           const std::string& histname,
-                           const std::string& histtitle,
-                           const std::vector<double>& binningX,
-                           const std::vector<double>& binningY) {
-  unsigned int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float* arrX = &fbinningX[0];
-  unsigned int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
+PhotonMonitor::~PhotonMonitor() throw() {
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_;
@@ -168,12 +173,12 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
   histname = "photon_pt";
   histtitle = "photon PT";
   bookME(ibooker, photonME_, histname, histtitle, photon_binning_.nbins, photon_binning_.xmin, photon_binning_.xmax);
-  setTitle(photonME_, "Photon pT [GeV]", "events / [GeV]");
+  setMETitle(photonME_, "Photon pT [GeV]", "events / [GeV]");
 
   histname = "photon_pt_variable";
   histtitle = "photon PT";
   bookME(ibooker, photonME_variableBinning_, histname, histtitle, photon_variable_binning_);
-  setTitle(photonME_variableBinning_, "Photon pT [GeV]", "events / [GeV]");
+  setMETitle(photonME_variableBinning_, "Photon pT [GeV]", "events / [GeV]");
 
   histname = "photonVsLS";
   histtitle = "photon pt vs LS";
@@ -186,27 +191,27 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          ls_binning_.xmax,
          photon_binning_.xmin,
          photon_binning_.xmax);
-  setTitle(photonVsLS_, "LS", "Photon pT [GeV]");
+  setMETitle(photonVsLS_, "LS", "Photon pT [GeV]");
 
   histname = "photon_phi";
   histtitle = "Photon phi";
   bookME(ibooker, photonPhiME_, histname, histtitle, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
-  setTitle(photonPhiME_, "Photon #phi", "events / 0.1 rad");
+  setMETitle(photonPhiME_, "Photon #phi", "events / 0.1 rad");
 
   histname = "photon_eta";
   histtitle = "Photon eta";
   bookME(ibooker, photonEtaME_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
-  setTitle(photonEtaME_, "Photon #eta", "events");
+  setMETitle(photonEtaME_, "Photon #eta", "events");
 
   histname = "photon_r9";
   histtitle = "Photon r9";
   bookME(ibooker, photonr9ME_, histname, histtitle, r9_binning_.nbins, r9_binning_.xmin, r9_binning_.xmax);
-  setTitle(photonr9ME_, "Photon r9", "events");
+  setMETitle(photonr9ME_, "Photon r9", "events");
 
   histname = "photon_hoE";
   histtitle = "Photon hoverE";
   bookME(ibooker, photonHoverEME_, histname, histtitle, hoe_binning_.nbins, hoe_binning_.xmin, hoe_binning_.xmax);
-  setTitle(photonHoverEME_, "Photon hoE", "events");
+  setMETitle(photonHoverEME_, "Photon hoE", "events");
 
   histname = "photon_etaphi";
   histtitle = "Photon eta-phi";
@@ -220,40 +225,40 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
          phi_binning_1.nbins,
          phi_binning_1.xmin,
          phi_binning_1.xmax);
-  setTitle(photonEtaPhiME_, "#eta", "#phi");
+  setMETitle(photonEtaPhiME_, "#eta", "#phi");
 
-  //for diphotons
+  // for diphotons
   if (nphotons_ > 1) {
     histname = "diphoton_mass";
     histtitle = "Diphoton mass";
     bookME(ibooker, diphotonMassME_, histname, histtitle, diphoton_mass_binning_);
-    setTitle(diphotonMassME_, "Diphoton mass", "events / 0.1");
+    setMETitle(diphotonMassME_, "Diphoton mass", "events / 0.1");
 
     histname = "subphoton_pt";
     histtitle = "subphoton PT";
     bookME(
         ibooker, subphotonME_, histname, histtitle, photon_binning_.nbins, photon_binning_.xmin, photon_binning_.xmax);
-    setTitle(subphotonME_, "subPhoton pT [GeV]", "events / [GeV]");
+    setMETitle(subphotonME_, "subPhoton pT [GeV]", "events / [GeV]");
 
     histname = "subphoton_eta";
     histtitle = "subPhoton eta";
     bookME(ibooker, subphotonEtaME_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
-    setTitle(subphotonEtaME_, "subPhoton #eta", "events / 0.1");
+    setMETitle(subphotonEtaME_, "subPhoton #eta", "events / 0.1");
 
     histname = "subphoton_phi";
     histtitle = "subPhoton phi";
     bookME(ibooker, subphotonPhiME_, histname, histtitle, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
-    setTitle(subphotonPhiME_, "subPhoton #phi", "events / 0.1 rad");
+    setMETitle(subphotonPhiME_, "subPhoton #phi", "events / 0.1 rad");
 
     histname = "subphoton_r9";
     histtitle = "subPhoton r9";
     bookME(ibooker, subphotonr9ME_, histname, histtitle, r9_binning_.nbins, r9_binning_.xmin, r9_binning_.xmax);
-    setTitle(subphotonr9ME_, "subPhoton r9", "events");
+    setMETitle(subphotonr9ME_, "subPhoton r9", "events");
 
     histname = "subphoton_hoE";
     histtitle = "subPhoton hoverE";
     bookME(ibooker, subphotonHoverEME_, histname, histtitle, hoe_binning_.nbins, hoe_binning_.xmin, hoe_binning_.xmax);
-    setTitle(subphotonHoverEME_, "subPhoton hoE", "events");
+    setMETitle(subphotonHoverEME_, "subPhoton hoE", "events");
 
     histname = "subphoton_etaphi";
     histtitle = "subPhoton eta-phi";
@@ -267,23 +272,21 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
            phi_binning_1.nbins,
            phi_binning_1.xmin,
            phi_binning_1.xmax);
-    setTitle(subphotonEtaPhiME_, "#eta", "#phi");
+    setMETitle(subphotonEtaPhiME_, "#eta", "#phi");
   }
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
     return;
+  }
+
+  // Filter out events if Trigger Filtering is requested
+  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)) {
+    return;
+  }
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken(metToken_, metHandle);
@@ -392,21 +395,11 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   }
 }
 
-void PhotonMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins");
-  pset.add<double>("xmin");
-  pset.add<double>("xmax");
-}
-
-void PhotonMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins", 2500);
-  pset.add<double>("xmin", 0.);
-  pset.add<double>("xmax", 2500.);
-}
-
 void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/Photon");
+  desc.add<bool>("requireValidHLTPaths", true);
+
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
@@ -458,6 +451,4 @@ void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions& description
   descriptions.add("photonMonitoring", desc);
 }
 
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PhotonMonitor);

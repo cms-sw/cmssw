@@ -10,15 +10,13 @@ public:
   HGCalGeomTools();
   ~HGCalGeomTools() {}
 
-  enum WaferType {
-    WaferFull = 0,
-    WaferFive = 1,
-    WaferChoptwo = 2,
-    WaferChopTwom = 3,
-    WaferHalf = 4,
-    WaferSemi = 5,
-    WaferSemi2 = 6,
-    WaferThree = 7
+  enum WaferCorner {
+    WaferCorner0 = 0,
+    WaferCorner1 = 1,
+    WaferCorner2 = 2,
+    WaferCorner3 = 3,
+    WaferCorner4 = 4,
+    WaferCorner5 = 5
   };
 
   enum WaferPosition {
@@ -29,6 +27,23 @@ public:
     CornerCenterXp = 3,
     CornerCenterXm = 4
   };
+
+  enum WaferType {
+    WaferFull = 0,
+    WaferFive = 1,
+    WaferChopTwo = 2,
+    WaferChopTwoM = 3,
+    WaferHalf = 4,
+    WaferSemi = 5,
+    WaferSemi2 = 6,
+    WaferThree = 7,
+    WaferOut = 99
+  };
+
+  static const int k_allCorners = 6;
+  static const int k_fiveCorners = 5;
+  static const int k_fourCorners = 4;
+  static const int k_threeCorners = 3;
 
   static void radius(double zf,
                      double zb,

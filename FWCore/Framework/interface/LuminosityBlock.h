@@ -29,6 +29,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <memory>
 #include <string>
@@ -180,7 +181,8 @@ namespace edm {
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     LuminosityBlockAuxiliary const& aux_;
-    mutable std::optional<Run> run_;
+    //This class is intended to be used by only one thread
+    CMS_SA_ALLOW mutable std::optional<Run> run_;
     ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;

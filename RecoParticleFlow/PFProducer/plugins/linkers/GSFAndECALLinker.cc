@@ -8,13 +8,13 @@ class GSFAndECALLinker : public BlockElementLinkerBase {
 public:
   GSFAndECALLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _debug;
+  bool useKDTree_, debug_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, GSFAndECALLinker, "GSFAndECALLinker");
@@ -35,14 +35,14 @@ double GSFAndECALLinker::testLink(const reco::PFBlockElement* elem1, const reco:
   const reco::PFClusterRef& clusterref = ecalelem->clusterRef();
   const reco::PFTrajectoryPoint& tkAtECAL = track.extrapolatedPoint(ECALShowerMax);
   if (tkAtECAL.isValid()) {
-    dist = LinkByRecHit::testTrackAndClusterByRecHit(track, *clusterref, false, _debug);
+    dist = LinkByRecHit::testTrackAndClusterByRecHit(track, *clusterref, false, debug_);
   }
-  if (_debug) {
+  if (debug_) {
     if (dist > 0.) {
       std::cout << " Here a link has been established"
                 << " between a GSF track an Ecal with dist  " << dist << std::endl;
     } else {
-      if (_debug)
+      if (debug_)
         std::cout << " No link found " << std::endl;
     }
   }

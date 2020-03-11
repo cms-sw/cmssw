@@ -28,9 +28,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << positionX[k] << " y " << positionY[k] << " angle "
                                   << angles[k] << " detector " << detectorType[k];
 
-  std::string idName = args.parentName();                         // Name of the "parent" volume.
-  std::string idNameSpace = static_cast<std::string>(ns.name());  // Namespace of this and ALL sub-parts
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " << idName << " NameSpace " << idNameSpace;
+  std::string idName = args.parentName();  // Name of the "parent" volume.
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " << idName << " NameSpace " << ns.name();
 #endif
 
   dd4hep::Volume mother = ns.volume(args.parentName());
@@ -39,8 +38,7 @@ static long algorithm(dd4hep::Detector& /* description */,
 
   for (unsigned int k = 0; k < positionX.size(); ++k) {
     std::string name(childNames[detectorType[k]]);
-    if (strchr(name.c_str(), NAMESPACE_SEP) == nullptr)
-      name = ns.name() + name;
+    name = ns.prepend(name);
     dd4hep::Rotation3D rotation;
     if (angles[k] != 0) {
       double phi = convertDegToRad(angles[k]);

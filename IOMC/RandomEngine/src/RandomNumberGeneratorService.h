@@ -63,6 +63,8 @@ namespace edm {
       /// Use this engine in the global begin luminosity block method
       CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const& luminosityBlockIndex) override;
 
+      std::unique_ptr<CLHEP::HepRandomEngine> cloneEngine(LuminosityBlockIndex const&) override;
+
       // This returns the seed from the configuration. In the unusual case where an
       // an engine type takes multiple seeds to initialize a sequence, this function
       // only returns the first. As a general rule, this function should not be used,
@@ -83,6 +85,8 @@ namespace edm {
 
       void preBeginLumi(LuminosityBlock const& lumi) override;
       void postEventRead(Event const& event) override;
+      void setLumiCache(LuminosityBlockIndex, std::vector<RandomEngineState> const& iStates) override;
+      void setEventCache(StreamID, std::vector<RandomEngineState> const& iStates) override;
 
       /// These next 12 functions are only used to check that random numbers are not
       /// being generated in these methods when enable checking is configured on.

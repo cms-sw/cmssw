@@ -47,10 +47,11 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   edm::ParameterSet trackLoaderParameters = iConfig.getParameter<edm::ParameterSet>("TrackLoaderParameters");
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
   edm::ConsumesCollector iC = consumesCollector();
-  theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar, theService, iC),
-                                       new MuonTrackLoader(trackLoaderParameters, iC, theService));
+  theTrackFinder = std::make_unique<MuonTrackFinder>(
+      std::make_unique<GlobalCosmicMuonTrajectoryBuilder>(tbpar, theService.get(), iC),
+      std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get()));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -61,12 +62,7 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   produces<reco::MuonTrackLinksCollection>();
 }
 
-GlobalCosmicMuonProducer::~GlobalCosmicMuonProducer() {
-  if (theService)
-    delete theService;
-  if (theTrackFinder)
-    delete theTrackFinder;
-}
+GlobalCosmicMuonProducer::~GlobalCosmicMuonProducer() {}
 
 // ------------ method called to produce the data  ------------
 void GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

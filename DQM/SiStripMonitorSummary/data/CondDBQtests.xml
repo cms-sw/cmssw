@@ -69,4 +69,4 @@
 <LINK name="*/ApvGainFromCondDB__det*"> 
   <TestName activate="true">CondDB ApvGain Module Level Test</TestName> 
 </LINK>
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

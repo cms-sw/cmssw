@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <exception>
 
@@ -86,7 +87,8 @@ namespace edm {
       auto taskHolder = std::make_shared<WaitingTaskHolder>(taskToStartAfterIOVInit);
       auto startIOVForRecord =
           [this, taskHolder, &endIOVWaitingTasks](edm::LimitedTaskQueue::Resumer iResumer) mutable {
-            try {
+            // Caught exception is propagated via WaitingTaskHolder
+            CMS_SA_ALLOW try {
               unsigned int iovIndex = 0;
               auto nConcurrentIOVs = isAvailable_.size();
               for (; iovIndex < nConcurrentIOVs; ++iovIndex) {

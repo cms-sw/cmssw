@@ -741,9 +741,5 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   }
 }
 
-void SUSY_HLT_SingleLepton::dqmEndRun(const edm::Run &run, const edm::EventSetup &eSetup) {
-  edm::LogInfo("SUSY_HLT_SingleLepton") << "SUSY_HLT_SingleLepton::endRun\n";
-}
-
 // define this as a plug-in
 DEFINE_FWK_MODULE(SUSY_HLT_SingleLepton);

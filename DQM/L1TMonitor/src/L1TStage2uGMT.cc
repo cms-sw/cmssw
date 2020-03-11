@@ -32,8 +32,6 @@ void L1TStage2uGMT::fillDescriptions(edm::ConfigurationDescriptions& description
   descriptions.add("l1tStage2uGMT", desc);
 }
 
-void L1TStage2uGMT::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   if (!emul) {
     // BMTF Input

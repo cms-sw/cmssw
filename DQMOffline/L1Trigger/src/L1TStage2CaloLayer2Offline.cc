@@ -534,10 +534,6 @@ void L1TStage2CaloLayer2Offline::fillJetEfficiencies(const double& recoEt, const
 //
 // -------------------------------------- endRun --------------------------------------------
 //
-void L1TStage2CaloLayer2Offline::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::endRun" << std::endl;
-}
-
 //
 // -------------------------------------- book histograms --------------------------------------------
 //
@@ -991,8 +987,6 @@ bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet& je
 
   return matchedObjects.empty();
 }
-
-void L1TStage2CaloLayer2Offline::endJob() { normalise2DHistogramsToBinArea(); }
 
 void L1TStage2CaloLayer2Offline::normalise2DHistogramsToBinArea() {
   std::vector<MonitorElement*> monElementstoNormalize = {

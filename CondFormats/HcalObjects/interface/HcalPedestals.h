@@ -12,6 +12,9 @@ POOL container to store Pedestal values 4xCapId, using template
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
+#include <vector>
+#include <string>
+
 //typedef HcalCondObjectContainer<HcalPedestal> HcalPedestals;
 
 class HcalPedestals : public HcalCondObjectContainer<HcalPedestal> {
@@ -28,7 +31,7 @@ public:
   // set unit boolean
   void setUnitADC(bool isADC) { unitIsADC = isADC; }
 
-  std::string myname() const override { return (std::string) "HcalPedestals"; }
+  std::string myname() const { return (std::string) "HcalPedestals"; }
 
 private:
   bool unitIsADC;

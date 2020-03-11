@@ -126,7 +126,7 @@ namespace edmtest {
       }
 
       if (runProducerParameterCheck_) {
-        edm::ParameterSet const* producerPset = edm::getProducerParameterSet(*hToken.provenance());
+        edm::ParameterSet const* producerPset = edm::getProducerParameterSet(*hToken.provenance(), e.processHistory());
         int par = producerPset->getParameter<int>("ivalue");
         // These expected values are just from knowing the values in the
         // configuration files for this test.

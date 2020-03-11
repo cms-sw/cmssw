@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <sstream>
 #include <exception>
@@ -92,9 +93,7 @@ namespace edm {
       });
     } catch (cms::Exception& iException) {
       if (!postCalled) {
-        try {
-          post(md);
-        } catch (...) {
+        CMS_SA_ALLOW try { post(md); } catch (...) {
           // If post throws an exception ignore it because we are already handling another exception
         }
       }

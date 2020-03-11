@@ -29,97 +29,60 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
       consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(g4InfoLabel), std::string(ESHitsCollection)));
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // get hold of back-end interface
-  dbe_ = nullptr;
-  dbe_ = edm::Service<DQMStore>().operator->();
-
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
-  menESHits1zp_ = nullptr;
-  menESHits2zp_ = nullptr;
-  menESHits1zm_ = nullptr;
-  menESHits2zm_ = nullptr;
-
-  meESEnergyHits1zp_ = nullptr;
-  meESEnergyHits2zp_ = nullptr;
-  meESEnergyHits1zm_ = nullptr;
-  meESEnergyHits2zm_ = nullptr;
-
-  meEShitLog10Energy_ = nullptr;
-  meEShitLog10EnergyNorm_ = nullptr;
-
-  meE1alphaE2zp_ = nullptr;
-  meE1alphaE2zm_ = nullptr;
-  meEEoverESzp_ = nullptr;
-  meEEoverESzm_ = nullptr;
-
-  me2eszpOver1eszp_ = nullptr;
-  me2eszmOver1eszm_ = nullptr;
-
-  Char_t histo[200];
-
-  if (dbe_) {
-    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
-
-    sprintf(histo, "ES hits layer 1 multiplicity z+");
-    menESHits1zp_ = dbe_->book1D(histo, histo, 50, 0., 50.);
-
-    sprintf(histo, "ES hits layer 2 multiplicity z+");
-    menESHits2zp_ = dbe_->book1D(histo, histo, 50, 0., 50.);
-
-    sprintf(histo, "ES hits layer 1 multiplicity z-");
-    menESHits1zm_ = dbe_->book1D(histo, histo, 50, 0., 50.);
-
-    sprintf(histo, "ES hits layer 2 multiplicity z-");
-    menESHits2zm_ = dbe_->book1D(histo, histo, 50, 0., 50.);
-
-    sprintf(histo, "ES hits energy layer 1 z+");
-    meESEnergyHits1zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
-
-    sprintf(histo, "ES hits energy layer 2 z+");
-    meESEnergyHits2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
-
-    sprintf(histo, "ES hits energy layer 1 z-");
-    meESEnergyHits1zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
-
-    sprintf(histo, "ES hits energy layer 2 z-");
-    meESEnergyHits2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
-
-    sprintf(histo, "ES hits log10energy spectrum");
-    meEShitLog10Energy_ = dbe_->book1D(histo, histo, 140, -10., 4.);
-
-    sprintf(histo, "ES hits log10energy spectrum vs normalized energy");
-    meEShitLog10EnergyNorm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
-
-    sprintf(histo, "ES E1+07E2 z+");
-    meE1alphaE2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
-
-    sprintf(histo, "ES E1+07E2 z-");
-    meE1alphaE2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
-
-    sprintf(histo, "EE vs ES z+");
-    meEEoverESzp_ = dbe_->bookProfile(histo, histo, 250, 0., 500., 200, 0., 200.);
-
-    sprintf(histo, "EE vs ES z-");
-    meEEoverESzm_ = dbe_->bookProfile(histo, histo, 250, 0., 500., 200, 0., 200.);
-
-    sprintf(histo, "ES ene2oEne1 z+");
-    me2eszpOver1eszp_ = dbe_->book1D(histo, histo, 50, 0., 10.);
-
-    sprintf(histo, "ES ene2oEne1 z-");
-    me2eszmOver1eszm_ = dbe_->book1D(histo, histo, 50, 0., 10.);
-  }
 }
 
-EcalPreshowerSimHitsValidation::~EcalPreshowerSimHitsValidation() {}
+void EcalPreshowerSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &, edm::EventSetup const &c) {
+  ib.setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+  ib.setScope(MonitorElementData::Scope::RUN);
 
-void EcalPreshowerSimHitsValidation::beginJob() {}
+  std::string histo = "ES hits layer 1 multiplicity z+";
+  menESHits1zp_ = ib.book1D(histo, histo, 50, 0., 50.);
 
-void EcalPreshowerSimHitsValidation::endJob() {}
+  histo = "ES hits layer 2 multiplicity z+";
+  menESHits2zp_ = ib.book1D(histo, histo, 50, 0., 50.);
+
+  histo = "ES hits layer 1 multiplicity z-";
+  menESHits1zm_ = ib.book1D(histo, histo, 50, 0., 50.);
+
+  histo = "ES hits layer 2 multiplicity z-";
+  menESHits2zm_ = ib.book1D(histo, histo, 50, 0., 50.);
+
+  histo = "ES hits energy layer 1 z+";
+  meESEnergyHits1zp_ = ib.book1D(histo, histo, 100, 0., 0.05);
+
+  histo = "ES hits energy layer 2 z+";
+  meESEnergyHits2zp_ = ib.book1D(histo, histo, 100, 0., 0.05);
+
+  histo = "ES hits energy layer 1 z-";
+  meESEnergyHits1zm_ = ib.book1D(histo, histo, 100, 0., 0.05);
+
+  histo = "ES hits energy layer 2 z-";
+  meESEnergyHits2zm_ = ib.book1D(histo, histo, 100, 0., 0.05);
+
+  histo = "ES hits log10energy spectrum";
+  meEShitLog10Energy_ = ib.book1D(histo, histo, 140, -10., 4.);
+
+  histo = "ES hits log10energy spectrum vs normalized energy";
+  meEShitLog10EnergyNorm_ = ib.bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+
+  histo = "ES E1+07E2 z+";
+  meE1alphaE2zp_ = ib.book1D(histo, histo, 100, 0., 0.05);
+
+  histo = "ES E1+07E2 z-";
+  meE1alphaE2zm_ = ib.book1D(histo, histo, 100, 0., 0.05);
+
+  histo = "EE vs ES z+";
+  meEEoverESzp_ = ib.bookProfile(histo, histo, 250, 0., 500., 200, 0., 200.);
+
+  histo = "EE vs ES z-";
+  meEEoverESzm_ = ib.bookProfile(histo, histo, 250, 0., 500., 200, 0., 200.);
+
+  histo = "ES ene2oEne1 z+";
+  me2eszpOver1eszp_ = ib.book1D(histo, histo, 50, 0., 10.);
+
+  histo = "ES ene2oEne1 z-";
+  me2eszmOver1eszm_ = ib.book1D(histo, histo, 50, 0., 10.);
+}
 
 void EcalPreshowerSimHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &c) {
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
@@ -192,40 +155,32 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event &e, const edm::Eve
       if (esid.zside() > 0) {
         nESHits1zp++;
         ESet1zp_ += isim->energy();
-        if (meESEnergyHits1zp_)
-          meESEnergyHits1zp_->Fill(isim->energy());
+        meESEnergyHits1zp_->Fill(isim->energy());
       } else if (esid.zside() < 0) {
         nESHits1zm++;
         ESet1zm_ += isim->energy();
-        if (meESEnergyHits1zm_)
-          meESEnergyHits1zm_->Fill(isim->energy());
+        meESEnergyHits1zm_->Fill(isim->energy());
       }
     } else if (esid.plane() == 2) {
       if (esid.zside() > 0) {
         nESHits2zp++;
         ESet2zp_ += isim->energy();
-        if (meESEnergyHits2zp_)
-          meESEnergyHits2zp_->Fill(isim->energy());
+        meESEnergyHits2zp_->Fill(isim->energy());
       } else if (esid.zside() < 0) {
         nESHits2zm++;
         ESet2zm_ += isim->energy();
-        if (meESEnergyHits2zm_)
-          meESEnergyHits2zm_->Fill(isim->energy());
+        meESEnergyHits2zm_->Fill(isim->energy());
       }
     }
   }
 
-  if (menESHits1zp_)
-    menESHits1zp_->Fill(nESHits1zp);
-  if (menESHits1zm_)
-    menESHits1zm_->Fill(nESHits1zm);
+  menESHits1zp_->Fill(nESHits1zp);
+  menESHits1zm_->Fill(nESHits1zm);
 
-  if (menESHits2zp_)
-    menESHits2zp_->Fill(nESHits2zp);
-  if (menESHits2zm_)
-    menESHits2zm_->Fill(nESHits2zm);
+  menESHits2zp_->Fill(nESHits2zp);
+  menESHits2zm_->Fill(nESHits2zm);
 
-  if (meEShitLog10EnergyNorm_ && ESEnergy_ != 0) {
+  if (ESEnergy_ != 0) {
     for (int i = 0; i < 140; i++) {
       meEShitLog10EnergyNorm_->Fill(-10. + (float(i) + 0.5) / 10., econtr[i] / ESEnergy_);
     }
@@ -241,19 +196,15 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event &e, const edm::Eve
     }
 
     if (heta > 1.653 && heta < 2.6) {
-      if (meE1alphaE2zp_)
-        meE1alphaE2zp_->Fill(ESet1zp_ + 0.7 * ESet2zp_);
-      if (meEEoverESzp_)
-        meEEoverESzp_->Fill((ESet1zp_ + 0.7 * ESet2zp_) / 0.00009, EEetzp_);
-      if ((me2eszpOver1eszp_) && (ESet1zp_ != 0.))
+      meE1alphaE2zp_->Fill(ESet1zp_ + 0.7 * ESet2zp_);
+      meEEoverESzp_->Fill((ESet1zp_ + 0.7 * ESet2zp_) / 0.00009, EEetzp_);
+      if (ESet1zp_ != 0.)
         me2eszpOver1eszp_->Fill(ESet2zp_ / ESet1zp_);
     }
     if (heta < -1.653 && heta > -2.6) {
-      if (meE1alphaE2zm_)
-        meE1alphaE2zm_->Fill(ESet1zm_ + 0.7 * ESet2zm_);
-      if (meEEoverESzm_)
-        meEEoverESzm_->Fill((ESet1zm_ + 0.7 * ESet2zm_) / 0.00009, EEetzm_);
-      if ((me2eszmOver1eszm_) && (ESet1zm_ != 0.))
+      meE1alphaE2zm_->Fill(ESet1zm_ + 0.7 * ESet2zm_);
+      meEEoverESzm_->Fill((ESet1zm_ + 0.7 * ESet2zm_) / 0.00009, EEetzm_);
+      if (ESet1zm_ != 0.)
         me2eszmOver1eszm_->Fill(ESet2zm_ / ESet1zm_);
     }
   }

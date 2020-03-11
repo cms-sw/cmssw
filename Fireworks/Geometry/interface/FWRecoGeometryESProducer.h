@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 namespace edm {
@@ -12,10 +12,12 @@ namespace edm {
 }
 
 class CaloGeometry;
-class HGCalGeometry;
+class CaloGeometryRecord;
 class GlobalTrackingGeometry;
+class GlobalTrackingGeometryRecord;
 class TrackerGeometry;
 class FastTimeGeometry;
+class IdealGeometryRecord;
 class FWRecoGeometry;
 class FWRecoGeometryRecord;
 class GeomDet;
@@ -56,11 +58,15 @@ private:
   void fillShapeAndPlacement(unsigned int id, const GeomDet* det, FWRecoGeometry&);
   void writeTrackerParametersXML(FWRecoGeometry&);
 
-  edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
-  const CaloGeometry* m_caloGeom;
-  edm::ESHandle<FastTimeGeometry> m_ftlBarrelGeom, m_ftlEndcapGeom;
-  std::vector<edm::ESHandle<HGCalGeometry> > m_hgcalGeoms;
-  const TrackerGeometry* m_trackerGeom;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_trackingGeomToken;
+  edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord> m_ftlBarrelGeomToken;
+  edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord> m_ftlEndcapGeomToken;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_caloGeomToken;
+  const GlobalTrackingGeometry* m_trackingGeom = nullptr;
+  const CaloGeometry* m_caloGeom = nullptr;
+  const FastTimeGeometry* m_ftlBarrelGeom = nullptr;
+  const FastTimeGeometry* m_ftlEndcapGeom = nullptr;
+  const TrackerGeometry* m_trackerGeom = nullptr;
 
   unsigned int m_current;
   bool m_tracker;

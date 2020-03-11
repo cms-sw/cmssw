@@ -4,7 +4,6 @@
 <use name="Geometry/TrackerNumberingBuilder"/>
 <use name="CondFormats/CTPPSReadoutObjects"/>
 
-<use name="clhep"/>
 <use name="hepmc"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>

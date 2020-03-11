@@ -1,82 +1,51 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
-#include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 //
 // -- Constructor
 //
-SiStripConfigParser::SiStripConfigParser() : DQMParserBase() {
+SiStripConfigParser::SiStripConfigParser() {
   edm::LogInfo("SiStripConfigParser") << " Creating SiStripConfigParser "
                                       << "\n";
 }
-//
-// --  Destructor
-//
-SiStripConfigParser::~SiStripConfigParser() {
-  edm::LogInfo("SiStripConfigParser") << " Deleting SiStripConfigParser "
-                                      << "\n";
+
+void SiStripConfigParser::getDocument(std::string filename) {
+  boost::property_tree::ptree xml;
+  boost::property_tree::read_xml(filename, xml);
+
+  auto it = xml.find("MonElementConfiguration");
+  if (it == xml.not_found()) {
+    throw cms::Exception("SiPixelConfigParser")
+        << "SiPixelConfigParser XML needs to have a MonElementConfiguration node.";
+  }
+  this->config_ = it->second;
 }
-//
+
 // -- Get List of MEs for the summary plot and the
 //
 bool SiStripConfigParser::getMENamesForSummary(std::map<std::string, std::string>& me_names) {
-  if (!doc()) {
-    std::cout << " SiStripConfigParser::Configuration File is not set!!! " << std::endl;
-    return false;
+  for (auto& kv : config_) {
+    if (kv.first == "SummaryPlot") {
+      for (auto& mekv : kv.second) {
+        if (mekv.first == "MonElement") {
+          auto name = mekv.second.get<std::string>("<xmlattr>.name");
+          auto type = mekv.second.get<std::string>("<xmlattr>.type");
+          me_names[name] = type;
+        }
+      }
+      return true;
+    }
   }
-
-  me_names.clear();
-  unsigned int summaryNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SummaryPlot"))->getLength();
-  if (summaryNodes == 0)
-    return false;
-  /// Get Node
-  xercesc::DOMNode* summaryNode = doc()->getElementsByTagName(qtxml::_toDOMS("SummaryPlot"))->item(0);
-  //Get Summary ME name and type
-  if (!summaryNode)
-    return false;
-  xercesc::DOMElement* summaryElement = static_cast<xercesc::DOMElement*>(summaryNode);
-  if (!summaryElement)
-    return false;
-
-  xercesc::DOMNodeList* meList = summaryElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
-  for (unsigned int k = 0; k < meList->getLength(); k++) {
-    xercesc::DOMNode* meNode = meList->item(k);
-    if (!meNode)
-      return false;
-    xercesc::DOMElement* meElement = static_cast<xercesc::DOMElement*>(meNode);
-    if (!meElement)
-      return false;
-    std::string me_name = qtxml::_toString(meElement->getAttribute(qtxml::_toDOMS("name")));
-    std::string me_type = qtxml::_toString(meElement->getAttribute(qtxml::_toDOMS("type")));
-    me_names.insert(std::pair<std::string, std::string>(me_name, me_type));
-  }
-  if (me_names.empty())
-    return false;
-  else
-    return true;
+  return false;
 }
+
 //
 // -- Get List of MEs for the summary plot and the
 //
 bool SiStripConfigParser::getFrequencyForSummary(int& u_freq) {
-  if (!doc()) {
-    std::cout << " SiStripConfigParser::Configuration File is not set!!! " << std::endl;
-    return false;
-  }
-
-  unsigned int summaryNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SummaryPlot"))->getLength();
-  if (summaryNodes != 1)
-    return false;
-  /// Get Node
-  xercesc::DOMNode* summaryNode = doc()->getElementsByTagName(qtxml::_toDOMS("SummaryPlot"))->item(0);
-  //Get Node name
-  if (!summaryNode)
-    return false;
-  xercesc::DOMElement* summaryElement = static_cast<xercesc::DOMElement*>(summaryNode);
-  if (!summaryElement)
-    return false;
-
-  u_freq = atoi(qtxml::_toString(summaryElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
-  return true;
+  u_freq = config_.get<int>("SummaryPlot.<xmlattr>.update_frequency", -1);
+  if (u_freq >= 0)
+    return true;
+  return false;
 }

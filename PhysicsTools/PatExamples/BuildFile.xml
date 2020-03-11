@@ -1,16 +1,12 @@
-<use   name="DataFormats/Math"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="FWCore/Utilities"/>
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/UtilAlgos"/>
-<use   name="PhysicsTools/Utilities"/>
-<use   name="CommonTools/CandUtils"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

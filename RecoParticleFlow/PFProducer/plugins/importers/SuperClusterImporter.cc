@@ -57,8 +57,7 @@ void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
 void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {
   auto eb_scs = e.getHandle(_srcEB);
   auto ee_scs = e.getHandle(_srcEE);
-  auto towers = e.getHandle(_srcTowers);
-  _hadTower->setTowerCollection(towers.product());
+  auto const& towers = e.get(_srcTowers);
   elems.reserve(elems.size() + eb_scs->size() + ee_scs->size());
   // setup our elements so that all the SCs are grouped together
   auto SCs_end =
@@ -73,7 +72,9 @@ void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImport
     PFBlockElementSCEqual myEqual(scref);
     auto sc_elem = std::find_if(elems.begin(), SCs_end, myEqual);
     const double scpT = ptFast(sc->energy(), sc->position(), _zero);
-    const double H_tower = (_hadTower->getDepth1HcalESum(*sc) + _hadTower->getDepth2HcalESum(*sc));
+    const auto towersBehindCluster = _hadTower->towersOf(*sc);
+    const double H_tower = (_hadTower->getDepth1HcalESum(towersBehindCluster, towers) +
+                            _hadTower->getDepth2HcalESum(towersBehindCluster, towers));
     const double HoverE = H_tower / sc->energy();
     if (sc_elem == SCs_end && scpT > _minSCPt && (scpT > _pTbyPass || HoverE < _maxHoverE)) {
       scbe = new reco::PFBlockElementSuperCluster(scref);
@@ -90,7 +91,9 @@ void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImport
     PFBlockElementSCEqual myEqual(scref);
     auto sc_elem = std::find_if(elems.begin(), SCs_end, myEqual);
     const double scpT = ptFast(sc->energy(), sc->position(), _zero);
-    const double H_tower = (_hadTower->getDepth1HcalESum(*sc) + _hadTower->getDepth2HcalESum(*sc));
+    const auto towersBehindCluster = _hadTower->towersOf(*sc);
+    const double H_tower = (_hadTower->getDepth1HcalESum(towersBehindCluster, towers) +
+                            _hadTower->getDepth2HcalESum(towersBehindCluster, towers));
     const double HoverE = H_tower / sc->energy();
     if (sc_elem == SCs_end && scpT > _minSCPt && (scpT > _pTbyPass || HoverE < _maxHoverE)) {
       scbe = new reco::PFBlockElementSuperCluster(scref);

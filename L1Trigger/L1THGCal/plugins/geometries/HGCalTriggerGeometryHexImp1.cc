@@ -1,11 +1,11 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 
-#include <vector>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <vector>
 
 const int HGCalDetId::kHGCalCellMask;
 
@@ -15,6 +15,7 @@ public:
 
   void initialize(const CaloGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
 
 private:
   edm::FileInPath l1tCellsMapping_;
@@ -52,6 +53,17 @@ void HGCalTriggerGeometryHexImp1::initialize(const HGCalGeometry* hgc_ee_geometr
 {
   throw cms::Exception("BadGeometry")
       << "HGCalTriggerGeometryHexImp1 geometry cannot be initialized with the V9 HGCAL geometry";
+}
+
+/*****************************************************************/
+void HGCalTriggerGeometryHexImp1::initialize(const HGCalGeometry* hgc_ee_geometry,
+                                             const HGCalGeometry* hgc_hsi_geometry,
+                                             const HGCalGeometry* hgc_hsc_geometry,
+                                             const HGCalGeometry* hgc_nose_geometry)
+/*****************************************************************/
+{
+  throw cms::Exception("BadGeometry")
+      << "HGCalTriggerGeometryHexImp1 geometry cannot be initialized with the V9 HGCAL+NOSE geometry";
 }
 
 /*****************************************************************/
@@ -223,7 +235,6 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules()
     unsigned triggerCell = cell_triggerCell.second;
     auto itr_exist = trigger_cells_to_cells.emplace(triggerCell, list_cells());
     itr_exist.first->second.emplace(cell);
-    //trigger_cells_to_cells.at(triggerCell).emplace(cell);
   }
   for (const auto& triggerCell_cells : trigger_cells_to_cells) {
     unsigned triggerCellId = triggerCell_cells.first;
@@ -241,7 +252,6 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules()
     unsigned moduleId = (triggerCellToModuleItr != trigger_cells_to_modules_.end()
                              ? triggerCellToModuleItr->second
                              : 0);  // 0 if the trigger cell doesn't belong to a module
-    //unsigned moduleId = trigger_cells_to_modules_.at(triggercellId);
     // FIXME: empty neighbours
     trigger_cells_.emplace(triggerCellId,
                            std::make_unique<const HGCalTriggerGeometry::TriggerCell>(
@@ -258,7 +268,6 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules()
     unsigned module = triggerCell_module.second;
     auto itr_exist = modules_to_trigger_cells.emplace(module, list_triggerCells());
     itr_exist.first->second.emplace(triggerCell);
-    //modules_to_trigger_cells.at(module).emplace(triggerCell);
   }
   for (const auto& module_triggerCell : modules_to_trigger_cells) {
     unsigned moduleId = module_triggerCell.first;

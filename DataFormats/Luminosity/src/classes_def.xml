@@ -49,5 +49,9 @@
   <class name="reco::PixelClusterCounts" ClassVersion="3">
    <version ClassVersion="3" checksum="1474294271"/>
   </class>
- <class name="edm::Wrapper<reco::PixelClusterCounts>"/>
+  <class name="edm::Wrapper<reco::PixelClusterCounts>"/>
+  <class name="reco::PixelClusterCountsInEvent" ClassVersion="3">
+   <version ClassVersion="3" checksum="3776858548"/>
+  </class>
+  <class name="edm::Wrapper<reco::PixelClusterCountsInEvent>"/>
 </lcgdict>

@@ -18,7 +18,9 @@ public:
       modules_[i] = std::make_unique<HGCalTriggerGeometry::Module>(i, GlobalPoint(), mod_empty, mod_comps, map_empty);
     }
   }
+
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final {}
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final {}
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeometryFactory, TrivialGeometry, "TrivialGeometry");

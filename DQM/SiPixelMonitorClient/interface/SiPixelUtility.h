@@ -32,7 +32,6 @@ public:
   static int getStatus(MonitorElement *me);
 
   static int computeHistoBin(std::string &module_path);
-  static int computeErrorCode(DQMStore *bei, std::string &module_path);
   static int computeErrorCode(int status);
   static void fillPaveText(TPaveText *pave, const std::map<std::string, std::pair<int, double>> &messages);
   static void createStatusLegendMessages(std::map<std::string, std::pair<int, double>> &messages);

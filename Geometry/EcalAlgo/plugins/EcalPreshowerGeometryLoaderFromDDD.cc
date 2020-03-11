@@ -2,20 +2,22 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-typedef CaloGeometryLoader<EcalPreshowerGeometry, DDCompactView> EcalPGL;
+typedef CaloGeometryLoader<EcalPreshowerGeometry> EcalPGL;
 
 template <>
 void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
                        const EcalPGL::ParmVec& pv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id);
+                       const DetId& id,
+                       const double& scale);
 template <>
+void EcalPGL::fillNamedParams(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/);
 template <>
-void EcalPGL::fillNamedParams<>(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/);
+void EcalPGL::fillNamedParams(const cms::DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/);
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
-template class CaloGeometryLoader<EcalPreshowerGeometry, DDCompactView>;
+template class CaloGeometryLoader<EcalPreshowerGeometry>;
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 typedef CaloCellGeometry::Pt3D Pt3D;
 
@@ -23,11 +25,12 @@ template <>
 void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
                        const EcalPGL::ParmVec& pv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id) {
+                       const DetId& id,
+                       const double& scale) {
   std::vector<CCGFloat> vv;
   vv.reserve(pv.size() + 1);
   for (unsigned int i(0); i != pv.size(); ++i) {
-    vv.emplace_back(k_ScaleFromDDDtoGeant * pv[i]);
+    vv.emplace_back(scale * pv[i]);
   }
 
   const Pt3D cor1(vv[0], vv[1], vv[2]);
@@ -58,7 +61,11 @@ void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
 }
 
 template <>
+void EcalPGL::fillNamedParams(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/) {
+  // nothing yet for preshower
+}
+
 template <>
-void EcalPGL::fillNamedParams<>(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/) {
+void EcalPGL::fillNamedParams(const cms::DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/) {
   // nothing yet for preshower
 }

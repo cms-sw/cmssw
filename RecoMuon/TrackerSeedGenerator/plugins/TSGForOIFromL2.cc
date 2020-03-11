@@ -416,9 +416,9 @@ void TSGForOIFromL2::makeSeedsFromHits(const GeometricSearchDet& layer,
     seedHits.push_back(*it->recHit()->hit());
     PTrajectoryStateOnDet const& pstate =
         trajectoryStateTransform::persistentState(updatedTSOS, it->recHit()->geographicalId().rawId());
-    TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
     LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Number of seedHits: " << seedHits.size()
                                << std::endl;
+    TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
     out.push_back(seed);
     found++;
     numSeedsMade++;

@@ -1,0 +1,34 @@
+universe = vanilla
+
+Proxy_path = /afs/cern.ch/user/z/zhokin/private/x509up
+
+Executable = run_condor.csh 
+arguments  = runlist_run $(ClusterID) $(ProcId) $(Proxy_path)
+
+Should_Transfer_Files = YES
+WhenToTransferOutput = ON_EXIT
+
+Transfer_Input_Files = run_condor.csh,mkcfg_new120.csh,file_lists.csh,a.py.beg,a.py.end,runlist_run,/afs/cern.ch/work/z/zhokin/hcal/soc7/CMSSW_10_4_0/src/RecoHcal/HcalPromptAnalysis/src/VeRawAnalyzer.cc,/afs/cern.ch/work/z/zhokin/hcal/soc7/CMSSW_10_4_0/src/RecoHcal/HcalPromptAnalysis/BuildFile,/afs/cern.ch/work/z/zhokin/hcal/soc7/CMSSW_10_4_0/src/RecoHcal/HcalPromptAnalysis/BuildFile.xml 
+
+output                = output/zhokin.$(ClusterId).$(ProcId).out
+error                 = error/zhokin.$(ClusterId).$(ProcId).err
+log                   = log/zhokin.$(ClusterId).log
+
+getenv      =  True
+transfer_output_files   = ""
+
+# to use grid proxy:
+# X509_USER_PROXY
+# X509_USER_KEY
+# X509_USER_CERT
+
+#x509userproxy = $ENV(X509_USER_PROXY)
+#use_x509userproxy = true
+
+# 2h for longlunch; 8h for workday
++JobFlavour = "workday"
+#+MaxRuntime = NNNs
+
+# "queue 150" directive instructs condor to run 150 jobs
+queue
+

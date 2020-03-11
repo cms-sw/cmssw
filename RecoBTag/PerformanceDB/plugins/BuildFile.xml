@@ -10,7 +10,6 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/MessageLogger"/>
-  <use   name="CondCore/PluginSystem"/>
   <use   name="CondCore/DBOutputService"/>
   <use   name="PhysicsTools/CondLiteIO"/>
   <use   name="PhysicsTools/UtilAlgos"/>

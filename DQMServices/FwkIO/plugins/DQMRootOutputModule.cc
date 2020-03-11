@@ -36,7 +36,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/Digest.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -222,7 +221,6 @@ private:
   ULong64_t m_firstIndex;
   ULong64_t m_lastIndex;
   unsigned int m_filterOnRun;
-  bool m_enableMultiThread;
 
   std::string m_fullNameBuffer;
   std::string* m_fullNameBufferPtr;
@@ -285,7 +283,6 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
       m_treeHelpers(kNIndicies, std::shared_ptr<TreeHelperBase>()),
       m_presentHistoryIndex(0),
       m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
-      m_enableMultiThread(false),
       m_fullNameBufferPtr(&m_fullNameBuffer),
       m_indicesTree(nullptr) {}
 
@@ -294,11 +291,7 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
 //    // do actual copying here;
 // }
 
-void DQMRootOutputModule::beginJob() {
-  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
-  edm::Service<DQMStore> dstore;
-  m_enableMultiThread = dstore->enableMultiThread_;
-}
+void DQMRootOutputModule::beginJob() {}
 
 DQMRootOutputModule::~DQMRootOutputModule() {}
 
@@ -329,12 +322,14 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
 
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
+  std::string guid{m_file->GetUUID().AsString()};
+  std::transform(guid.begin(), guid.end(), guid.begin(), (int (*)(int))std::toupper);
   m_jrToken = jr->outputFileOpened(m_fileName,
                                    m_logicalFileName,
                                    std::string(),
                                    "DQMRootOutputModule",
                                    description().moduleLabel(),
-                                   edm::createGlobalIdentifier(),
+                                   std::move(guid),
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
@@ -387,14 +382,12 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
 
   if (!shouldWrite)
     return;
-  std::vector<MonitorElement*> items(
-      dstore->getAllContents("", m_enableMultiThread ? m_run : 0, m_enableMultiThread ? m_lumi : 0));
+  std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, m_lumi));
   for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
-    if ((*it)->getLumiFlag()) {
-      std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
-      assert(itFound != m_dqmKindToTypeIndex.end());
-      m_treeHelpers[itFound->second]->fill(*it);
-    }
+    assert((*it)->getScope() == MonitorElementData::Scope::LUMI);
+    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
+    assert(itFound != m_dqmKindToTypeIndex.end());
+    m_treeHelpers[itFound->second]->fill(*it);
   }
 
   const edm::ProcessHistoryID& id = iLumi.processHistoryID();
@@ -445,13 +438,12 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun) {
   if (!shouldWrite)
     return;
 
-  std::vector<MonitorElement*> items(dstore->getAllContents("", m_enableMultiThread ? m_run : 0));
+  std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, 0));
   for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
-    if (not(*it)->getLumiFlag()) {
-      std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
-      assert(itFound != m_dqmKindToTypeIndex.end());
-      m_treeHelpers[itFound->second]->fill(*it);
-    }
+    assert((*it)->getScope() == MonitorElementData::Scope::RUN);
+    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
+    assert(itFound != m_dqmKindToTypeIndex.end());
+    m_treeHelpers[itFound->second]->fill(*it);
   }
 
   const edm::ProcessHistoryID& id = iRun.processHistoryID();

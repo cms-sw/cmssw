@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v10.20)
+//  SiPixelTemplate.h (v10.24)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -79,6 +79,7 @@
 //  V10.20 - Add directory path selection to the ascii pushfile method
 //  V10.21 - Address runtime issues in pushfile() for gcc 7.X due to using tempfile as char string + misc. cleanup [Petar]
 //  V10.22 - Move templateStore to the heap, fix variable name in pushfile() [Petar]
+//  V10.24 - Add sideload() + associated gymnastics [Petar and Oz]
 
 // Created by Morris Swartz on 10/27/06.
 //
@@ -206,20 +207,20 @@ struct SiPixelTemplateHeader {  //!< template header structure
 struct SiPixelTemplateStore {  //!< template storage structure
   SiPixelTemplateHeader head;
 #ifndef SI_PIXEL_TEMPLATE_USE_BOOST
-  float cotbetaY[60];
-  float cotbetaX[5];
-  float cotalphaX[29];
-  //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
-  SiPixelTemplateEntry enty[60];
-  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
-  SiPixelTemplateEntry entx[5][29];
+  float cotbetaY[TEMP_ENTRY_SIZEY];
+  float cotbetaX[TEMP_ENTRY_SIZEX_B];
+  float cotalphaX[TEMP_ENTRY_SIZEX_A];
+  //!< 60 y templates spanning cluster lengths from 0px to +18px
+  SiPixelTemplateEntry enty[TEMP_ENTRY_SIZEY];
+  //!< 60 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 60 slices
+  SiPixelTemplateEntry entx[TEMP_ENTRY_SIZEX_B][TEMP_ENTRY_SIZEX_A];
   void destroy(){};
 #else
   float* cotbetaY = nullptr;
   float* cotbetaX = nullptr;
   float* cotalphaX = nullptr;
-  boost::multi_array<SiPixelTemplateEntry, 1> enty;  //!< use 1d entry to store [60] barrel entries or [28] fpix entries
-  //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
+  boost::multi_array<SiPixelTemplateEntry, 1> enty;  //!< use 1d entry to store [60] entries
+  //!< use 2d entry to store [60][60] entries
   boost::multi_array<SiPixelTemplateEntry, 2> entx;
   void destroy() {  // deletes arrays created by pushfile method of SiPixelTemplate
     if (cotbetaY != nullptr)
@@ -258,17 +259,34 @@ public:
     index_id_ = -1;
     cota_current_ = 0.;
     cotb_current_ = 0.;
+    entry_sideloaded_ = nullptr;
   }  //!< Constructor for cases in which template store already exists
 
 // Load the private store with info from the file with the index (int) filenum from directory dir:
 //   ${dir}template_summary_zp${filenum}.out
 #ifdef SI_PIXEL_TEMPLATE_STANDALONE
   static bool pushfile(int filenum, std::vector<SiPixelTemplateStore>& pixelTemp, std::string dir = "");
+
+  // For calibrations only: load precalculated values -- no interpolation.
+  void sideload(SiPixelTemplateEntry* entry,
+                int iDtype,
+                float locBx,
+                float locBz,
+                float lorwdy,
+                float lorwdx,
+                float q50,
+                float fbin[3],
+                float xsize,
+                float ysize,
+                float zsize);
+
 #else
   static bool pushfile(int filenum,
                        std::vector<SiPixelTemplateStore>& pixelTemp,
                        // *&^%$#@!  Different default dir -- remove once FastSim is updated.
                        std::string dir = "CalibTracker/SiPixelESProducers/data/");
+
+  //load from DB (default in CMSSW)
   static bool pushfile(const SiPixelTemplateDBObject& dbobject,
                        std::vector<SiPixelTemplateStore>& pixelTemp);  // load the private store with info from db
 #endif
@@ -296,7 +314,7 @@ public:
   //Method to estimate the central pixel of the interpolated x-template
   int cxtemp();
 
-  // new methods to build templates from two interpolated clusters (for splitting)
+  //Methods to build templates from two interpolated clusters (for splitting)
   void ytemp3d_int(int nypix, int& nybins);
 
   void ytemp3d(int j, int k, std::vector<float>& ytemplate);
@@ -682,30 +700,42 @@ private:
   float cota_current_;  //!< current cot alpha
   float cotb_current_;  //!< current cot beta
   float abs_cotb_;      //!< absolute value of cot beta
+  int dtype_;           //!< flags BPix (=0) or FPix (=1)
+  bool flip_y_;         //!< flip y sign-sensitive quantities
+  bool flip_x_;         //!< flip x sign-sensitive quantities
   bool success_;        //!< true if cotalpha, cotbeta are inside of the acceptance (dynamically loaded)
 
   // Keep results of last interpolation to return through member functions
 
-  float qavg_;              //!< average cluster charge for this set of track angles
-  float pixmax_;            //!< maximum pixel charge
-  float qscale_;            //!< charge scaling factor
-  float s50_;               //!< 1/2 of the pixel single col threshold signal in electrons
-  float ss50_;              //!< 1/2 of the pixel double col threshold signal in electrons
-  float symax_;             //!< average pixel signal for y-projection of cluster
-  float syparmax_;          //!< maximum pixel signal for parameterization of y uncertainties
-  float dyone_;             //!< mean offset/correction for one pixel y-clusters
-  float syone_;             //!< rms for one pixel y-clusters
-  float dytwo_;             //!< mean offset/correction for one double-pixel y-clusters
-  float sytwo_;             //!< rms for one double-pixel y-clusters
-  float sxmax_;             //!< average pixel signal for x-projection of cluster
-  float sxparmax_;          //!< maximum pixel signal for parameterization of x uncertainties
-  float dxone_;             //!< mean offset/correction for one pixel x-clusters
-  float sxone_;             //!< rms for one pixel x-clusters
-  float dxtwo_;             //!< mean offset/correction for one double-pixel x-clusters
-  float sxtwo_;             //!< rms for one double-pixel x-clusters
-  float qmin_;              //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits)
-  float clsleny_;           //!< y-cluster length of smaller interpolated template in pixels
-  float clslenx_;           //!< x-cluster length of smaller interpolated template in pixels
+  float qavg_;        //!< average cluster charge for this set of track angles
+  float pixmax_;      //!< maximum pixel charge
+  float qscale_;      //!< charge scaling factor
+  float s50_;         //!< 1/2 of the pixel single col threshold signal in electrons
+  float ss50_;        //!< 1/2 of the pixel double col threshold signal in electrons
+  float symax_;       //!< average pixel signal for y-projection of cluster
+  float syparmax_;    //!< maximum pixel signal for parameterization of y uncertainties
+  float dyone_;       //!< mean offset/correction for one pixel y-clusters
+  float syone_;       //!< rms for one pixel y-clusters
+  float dytwo_;       //!< mean offset/correction for one double-pixel y-clusters
+  float sytwo_;       //!< rms for one double-pixel y-clusters
+  float sxmax_;       //!< average pixel signal for x-projection of cluster
+  float sxparmax_;    //!< maximum pixel signal for parameterization of x uncertainties
+  float dxone_;       //!< mean offset/correction for one pixel x-clusters
+  float sxone_;       //!< rms for one pixel x-clusters
+  float dxtwo_;       //!< mean offset/correction for one double-pixel x-clusters
+  float sxtwo_;       //!< rms for one double-pixel x-clusters
+  float qmin_;        //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits)
+  float clsleny_;     //!< y-cluster length of smaller interpolated template in pixels
+  float clslenx_;     //!< x-cluster length of smaller interpolated template in pixels
+  float scalexavg_;   //!< average x-error scale factor
+  float scaleyavg_;   //!< average y-error scale factor
+  float delyavg_;     //!< average difference between clsleny_ and cluster length [with threshold effects]
+  float delysig_;     //!< rms of difference between clsleny_ and cluster length [with threshold effects]
+  float scalex_[4];   //!< x-error scale factor in charge bins
+  float scaley_[4];   //!< y-error scale factor in charge bins
+  float offsetx_[4];  //!< x-offset in charge bins
+  float offsety_[4];  //!< y-offset in charge bins
+
   float yratio_;            //!< fractional distance in y between cotbeta templates
   float yparl_[2][5];       //!< projected y-pixel uncertainty parameterization for smaller cotbeta
   float yparh_[2][5];       //!< projected y-pixel uncertainty parameterization for larger cotbeta
@@ -774,8 +804,20 @@ private:
   boost::multi_array<float, 2> temp2dy_;  //!< 2d-primitive for spltting 3-d template
   boost::multi_array<float, 2> temp2dx_;  //!< 2d-primitive for spltting 3-d template
 
-  // The actual template store is a std::vector container
+  // Pointers to presently interpolated point:
+  const SiPixelTemplateEntry* enty0_;  // enty[ilow]
+  const SiPixelTemplateEntry* enty1_;  // enty[iylow][ilow]
 
+  const SiPixelTemplateEntry* entx00_;  // entx[iylow][ilow]
+  const SiPixelTemplateEntry* entx02_;
+  const SiPixelTemplateEntry* entx20_;
+  const SiPixelTemplateEntry* entx22_;
+  const SiPixelTemplateEntry* entx21_;
+
+  // Pointer to the sideloaded Entry: use this one if set.
+  const SiPixelTemplateEntry* entry_sideloaded_;
+
+  // The actual template store is a std::vector container
   const std::vector<SiPixelTemplateStore>& thePixelTemp_;
 };
 

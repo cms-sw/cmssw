@@ -1,21 +1,21 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include "CalibTracker/Records/interface/SiStripGainRcd.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include <cmath>
 
-SiStripClusterInfo::SiStripClusterInfo(const SiStripCluster& cluster,
-                                       const edm::EventSetup& setup,
-                                       const int detId,
-                                       const std::string& quality)
-    : cluster_ptr(&cluster), es(setup), qualityLabel(quality), detId_(detId) {
-  es.get<SiStripNoisesRcd>().get(noiseHandle);
-  es.get<SiStripGainRcd>().get(gainHandle);
-  es.get<SiStripQualityRcd>().get(qualityLabel, qualityHandle);
+SiStripClusterInfo::SiStripClusterInfo(edm::ConsumesCollector&& iC, const std::string& qualityLabel)
+    : siStripNoisesToken_{iC.esConsumes<SiStripNoises, SiStripNoisesRcd>()},
+      siStripGainToken_{iC.esConsumes<SiStripGain, SiStripGainRcd>()},
+      siStripQualityToken_{iC.esConsumes<SiStripQuality, SiStripQualityRcd>(edm::ESInputTag("", qualityLabel))} {}
+
+void SiStripClusterInfo::initEvent(const edm::EventSetup& iSetup) {
+  siStripNoises_ = &iSetup.getData(siStripNoisesToken_);
+  siStripGain_ = &iSetup.getData(siStripGainToken_);
+  siStripQuality_ = &iSetup.getData(siStripQualityToken_);
+}
+
+void SiStripClusterInfo::setCluster(const SiStripCluster& cluster, int detId) {
+  cluster_ptr = &cluster;
+  detId_ = detId;
 }
 
 std::pair<uint16_t, uint16_t> SiStripClusterInfo::chargeLR() const {
@@ -36,36 +36,36 @@ float SiStripClusterInfo::variance() const {
 }
 
 std::vector<float> SiStripClusterInfo::stripNoisesRescaledByGain() const {
-  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId_);
-  SiStripApvGain::Range detGainRange = gainHandle->getRange(detId_);
+  SiStripNoises::Range detNoiseRange = siStripNoises_->getRange(detId_);
+  SiStripApvGain::Range detGainRange = siStripGain_->getRange(detId_);
 
   std::vector<float> results;
   results.reserve(width());
   for (size_t i = 0, e = width(); i < e; i++) {
-    results.push_back(noiseHandle->getNoise(firstStrip() + i, detNoiseRange) /
-                      gainHandle->getStripGain(firstStrip() + i, detGainRange));
+    results.push_back(siStripNoises_->getNoise(firstStrip() + i, detNoiseRange) /
+                      siStripGain_->getStripGain(firstStrip() + i, detGainRange));
   }
   return results;
 }
 
 std::vector<float> SiStripClusterInfo::stripNoises() const {
-  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId_);
+  SiStripNoises::Range detNoiseRange = siStripNoises_->getRange(detId_);
 
   std::vector<float> noises;
   noises.reserve(width());
   for (size_t i = 0; i < width(); i++) {
-    noises.push_back(noiseHandle->getNoise(firstStrip() + i, detNoiseRange));
+    noises.push_back(siStripNoises_->getNoise(firstStrip() + i, detNoiseRange));
   }
   return noises;
 }
 
 std::vector<float> SiStripClusterInfo::stripGains() const {
-  SiStripApvGain::Range detGainRange = gainHandle->getRange(detId_);
+  SiStripApvGain::Range detGainRange = siStripGain_->getRange(detId_);
 
   std::vector<float> gains;
   gains.reserve(width());
   for (size_t i = 0; i < width(); i++) {
-    gains.push_back(gainHandle->getStripGain(firstStrip() + i, detGainRange));
+    gains.push_back(siStripGain_->getStripGain(firstStrip() + i, detGainRange));
   }
   return gains;
 }
@@ -74,7 +74,7 @@ std::vector<bool> SiStripClusterInfo::stripQualitiesBad() const {
   std::vector<bool> isBad;
   isBad.reserve(width());
   for (int i = 0; i < width(); i++) {
-    isBad.push_back(qualityHandle->IsStripBad(detId_, firstStrip() + i));
+    isBad.push_back(siStripQuality_->IsStripBad(detId_, firstStrip() + i));
   }
   return isBad;
 }
@@ -98,36 +98,15 @@ bool SiStripClusterInfo::IsAnythingBad() const {
 }
 
 bool SiStripClusterInfo::IsApvBad() const {
-  return qualityHandle->IsApvBad(detId_, firstStrip() / 128) ||
-         qualityHandle->IsApvBad(detId_, (firstStrip() + width()) / 128);
+  return siStripQuality_->IsApvBad(detId_, firstStrip() / 128) ||
+         siStripQuality_->IsApvBad(detId_, (firstStrip() + width()) / 128);
 }
 
 bool SiStripClusterInfo::IsFiberBad() const {
-  return qualityHandle->IsFiberBad(detId_, firstStrip() / 256) ||
-         qualityHandle->IsFiberBad(detId_, (firstStrip() + width()) / 256);
+  return siStripQuality_->IsFiberBad(detId_, firstStrip() / 256) ||
+         siStripQuality_->IsFiberBad(detId_, (firstStrip() + width()) / 256);
 }
 
-bool SiStripClusterInfo::IsModuleBad() const { return qualityHandle->IsModuleBad(detId_); }
+bool SiStripClusterInfo::IsModuleBad() const { return siStripQuality_->IsModuleBad(detId_); }
 
-bool SiStripClusterInfo::IsModuleUsable() const { return qualityHandle->IsModuleUsable(detId_); }
-
-std::vector<SiStripCluster> SiStripClusterInfo::reclusterize(const edm::ParameterSet& conf) const {
-  std::vector<SiStripCluster> clusters;
-
-  std::vector<uint8_t> charges(stripCharges().begin(), stripCharges().end());
-  std::vector<float> gains = stripGains();
-  for (unsigned i = 0; i < charges.size(); i++)
-    charges[i] = (charges[i] < 254) ? static_cast<uint8_t>(charges[i] * gains[i]) : charges[i];
-
-  std::unique_ptr<StripClusterizerAlgorithm> algorithm = StripClusterizerAlgorithmFactory::create(conf);
-  algorithm->initialize(es);
-  auto const& det = algorithm->stripByStripBegin(detId_);
-  if (det.valid()) {
-    StripClusterizerAlgorithm::State state(det);
-    for (unsigned i = 0; i < width(); i++)
-      algorithm->stripByStripAdd(state, firstStrip() + i, charges[i], clusters);
-    algorithm->stripByStripEnd(state, clusters);
-  }
-
-  return clusters;
-}
+bool SiStripClusterInfo::IsModuleUsable() const { return siStripQuality_->IsModuleUsable(detId_); }

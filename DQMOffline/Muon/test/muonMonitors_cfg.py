@@ -22,7 +22,7 @@ process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)

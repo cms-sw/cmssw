@@ -286,8 +286,31 @@ namespace edm {
       return *iter->labelAndEngine()->engine();
     }
 
+    std::unique_ptr<CLHEP::HepRandomEngine> RandomNumberGeneratorService::cloneEngine(
+        LuminosityBlockIndex const& lumiIndex) {
+      CLHEP::HepRandomEngine& existingEngine = getEngine(lumiIndex);
+
+      std::vector<unsigned long> stateL = existingEngine.put();
+      long seedL = existingEngine.getSeed();
+      std::unique_ptr<CLHEP::HepRandomEngine> newEngine;
+      if (stateL[0] == CLHEP::engineIDulong<CLHEP::HepJamesRandom>()) {
+        newEngine = std::make_unique<CLHEP::HepJamesRandom>(seedL);
+      } else if (stateL[0] == CLHEP::engineIDulong<CLHEP::RanecuEngine>()) {
+        newEngine = std::make_unique<CLHEP::RanecuEngine>();
+      } else if (stateL[0] == CLHEP::engineIDulong<CLHEP::MixMaxRng>()) {
+        newEngine = std::make_unique<CLHEP::MixMaxRng>(seedL);
+      } else if (stateL[0] == CLHEP::engineIDulong<TRandomAdaptor>()) {
+        newEngine = std::make_unique<TRandomAdaptor>(seedL);
+      } else {
+        // Sanity check, it should not be possible for this to happen.
+        throw Exception(errors::Unknown) << "The RandomNumberGeneratorService is trying to clone unknown engine type\n";
+      }
+      newEngine->get(stateL);
+      return newEngine;
+    }
+
     // PROBABLY TO BE DELETED, This returns the configured seed without
-    // any of the modifications for streams, forking, or the offset configuration
+    // any of the modifications for streams or the offset configuration
     // parameter. Maybe useful to use for debugging/checks, but dangerous if one tries
     // to create your own engines using it. It is difficult to get the offsets
     // for streams/forking/offset parameters correct and almost certainly would break
@@ -444,6 +467,18 @@ namespace edm {
           reportSvc->reportRandomStateFile(fullName);
         }
       }
+    }
+
+    void RandomNumberGeneratorService::setLumiCache(LuminosityBlockIndex iLumi,
+                                                    std::vector<RandomEngineState> const& iStates) {
+      lumiCache_[iLumi] = iStates;
+      // Copy from cache to engine the state for a particular luminosityBlockIndex
+      restoreFromCache(lumiCache_[iLumi], lumiEngines_[iLumi]);
+    }
+    void RandomNumberGeneratorService::setEventCache(StreamID iStream, std::vector<RandomEngineState> const& iStates) {
+      eventCache_[iStream] = iStates;
+      // copy from event cache to engines
+      restoreFromCache(eventCache_[iStream], streamEngines_[iStream]);
     }
 
     void RandomNumberGeneratorService::preModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {

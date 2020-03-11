@@ -28,8 +28,8 @@ namespace StubPtConsistency {
     int nStubs = stubRefs.size();
 
     for (const auto& stubRef : stubRefs) {
-      DetId detIdStub = theTrackerGeom->idToDet((stubRef->getClusterRef(0))->getDetId())->geographicalId();
-      MeasurementPoint coords = stubRef->getClusterRef(0)->findAverageLocalCoordinatesCentered();
+      DetId detIdStub = theTrackerGeom->idToDet((stubRef->clusterRef(0))->getDetId())->geographicalId();
+      MeasurementPoint coords = stubRef->clusterRef(0)->findAverageLocalCoordinatesCentered();
       const GeomDet* theGeomDet = theTrackerGeom->idToDet(detIdStub);
       Global3DPoint posStub = theGeomDet->surface().toGlobal(theGeomDet->topology().localPosition(coords));
 
@@ -64,7 +64,7 @@ namespace StubPtConsistency {
       else
         correction = fabs(stub_z) / stub_r;
 
-      float stubBend = stubRef->getTriggerBend();
+      float stubBend = stubRef->bendFE();
       if (!isBarrel && stub_z < 0.0)
         stubBend = -stubBend;  // flip sign of bend if in negative end cap
 

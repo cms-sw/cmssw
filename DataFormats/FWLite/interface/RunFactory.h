@@ -21,6 +21,7 @@
 #include <memory>
 
 #include "DataFormats/FWLite/interface/Run.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace fwlite {
   class RunFactory {
@@ -35,7 +36,8 @@ namespace fwlite {
     RunFactory(const RunFactory&) = delete;  // stop default
 
     const RunFactory& operator=(const RunFactory&) = delete;  // stop default
-    mutable std::shared_ptr<fwlite::Run> run_;
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable std::shared_ptr<fwlite::Run> run_;
 
     // ---------- member data --------------------------------
   };

@@ -77,8 +77,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + hcalSimHitsValidationSequence
                                  + hcaldigisValidationSequence
                                  + hcalSimHitStudy
-                                 + hcalRecHitsValidationSequence
-                                 + calotowersValidationSequence
                                  + validSimHit+muondtdigianalyzer
                                  + cscDigiValidation
                                  + validationMuonRPCDigis

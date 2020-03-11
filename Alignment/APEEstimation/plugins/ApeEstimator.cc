@@ -183,6 +183,7 @@ private:
   const edm::ParameterSet parameterSet_;
   std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
   TrackerDetectorStruct tkDetector_;
+  SiStripClusterInfo siStripClusterInfo_;
 
   edm::EDGetTokenT<TrajTrackAssociationCollection> tjTagToken_;
   edm::EDGetTokenT<reco::BeamSpot> offlinebeamSpot_;
@@ -218,6 +219,7 @@ private:
 //
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig)
     : parameterSet_(iConfig),
+      siStripClusterInfo_(consumesCollector(), std::string("")),
       tjTagToken_(
           consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
       offlinebeamSpot_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
@@ -1619,29 +1621,31 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
     }
     const SiStripCluster& stripCluster(*clusterPtr);
 
-    const SiStripClusterInfo clusterInfo = SiStripClusterInfo(stripCluster, iSetup, rawId, std::string(""));
+    siStripClusterInfo_.setCluster(stripCluster, rawId);
 
-    const std::vector<uint8_t>::const_iterator stripChargeL(clusterInfo.stripCharges().begin());
-    const std::vector<uint8_t>::const_iterator stripChargeR(--(clusterInfo.stripCharges().end()));
+    const std::vector<uint8_t>::const_iterator stripChargeL(siStripClusterInfo_.stripCharges().begin());
+    const std::vector<uint8_t>::const_iterator stripChargeR(--(siStripClusterInfo_.stripCharges().end()));
     const std::pair<uint16_t, uint16_t> stripChargeLR = std::make_pair(*stripChargeL, *stripChargeR);
 
-    hitParams.chargeStrip = clusterInfo.charge();
-    hitParams.widthX = clusterInfo.width();
-    hitParams.baryStripX = clusterInfo.baryStrip() + 1.;
-    hitParams.isModuleUsable = clusterInfo.IsModuleUsable();
-    hitParams.maxStrip = clusterInfo.maxStrip() + 1;
+    hitParams.chargeStrip = siStripClusterInfo_.charge();
+    hitParams.widthX = siStripClusterInfo_.width();
+    hitParams.baryStripX = siStripClusterInfo_.baryStrip() + 1.;
+    hitParams.isModuleUsable = siStripClusterInfo_.IsModuleUsable();
+    hitParams.maxStrip = siStripClusterInfo_.maxStrip() + 1;
     hitParams.maxStripInv = m_tkTreeVar_[rawId].nStrips - hitParams.maxStrip + 1;
-    hitParams.maxCharge = clusterInfo.maxCharge();
-    hitParams.maxIndex = clusterInfo.maxIndex();
+    hitParams.maxCharge = siStripClusterInfo_.maxCharge();
+    hitParams.maxIndex = siStripClusterInfo_.maxIndex();
     hitParams.chargeOnEdges =
         static_cast<float>(stripChargeLR.first + stripChargeLR.second) / static_cast<float>(hitParams.chargeStrip);
     hitParams.chargeAsymmetry = static_cast<float>(stripChargeLR.first - stripChargeLR.second) /
                                 static_cast<float>(stripChargeLR.first + stripChargeLR.second);
-    hitParams.chargeLRplus = static_cast<float>(clusterInfo.chargeLR().first + clusterInfo.chargeLR().second) /
-                             static_cast<float>(hitParams.chargeStrip);
-    hitParams.chargeLRminus = static_cast<float>(clusterInfo.chargeLR().first - clusterInfo.chargeLR().second) /
-                              static_cast<float>(hitParams.chargeStrip);
-    hitParams.sOverN = clusterInfo.signalOverNoise();
+    hitParams.chargeLRplus =
+        static_cast<float>(siStripClusterInfo_.chargeLR().first + siStripClusterInfo_.chargeLR().second) /
+        static_cast<float>(hitParams.chargeStrip);
+    hitParams.chargeLRminus =
+        static_cast<float>(siStripClusterInfo_.chargeLR().first - siStripClusterInfo_.chargeLR().second) /
+        static_cast<float>(hitParams.chargeStrip);
+    hitParams.sOverN = siStripClusterInfo_.signalOverNoise();
 
     // Calculate projection length corrected by drift
     if (!hit.detUnit()) {
@@ -2601,6 +2605,8 @@ void ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
   iEvent.getByToken(tjTagToken_, m_TrajTracksMap);
+
+  siStripClusterInfo_.initEvent(iSetup);
 
   if (analyzerMode_)
     tkDetector_.TrkSize->Fill(m_TrajTracksMap->size());

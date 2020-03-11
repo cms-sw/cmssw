@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 namespace edm {
@@ -12,9 +12,12 @@ namespace edm {
 }
 
 class CaloGeometry;
+class CaloGeometryRecord;
 class GlobalTrackingGeometry;
+class GlobalTrackingGeometryRecord;
 class TrackerGeometry;
 class TrackerTopology;
+class TrackerTopologyRcd;
 class FWTGeoRecoGeometry;
 class FWTGeoRecoGeometryRecord;
 
@@ -85,12 +88,16 @@ private:
   std::map<TGeoShape*, TGeoVolume*> m_shapeToVolume;
   std::map<ERecoDet, TGeoMedium*> m_recoMedium;
 
-  edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
-  const CaloGeometry* m_caloGeom;
-  const TrackerGeometry* m_trackerGeom;
-  const TrackerTopology* m_trackerTopology;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_trackingGeomToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_trackerTopologyToken;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_caloGeomToken;
 
-  TGeoMedium* m_dummyMedium;
+  const GlobalTrackingGeometry* m_trackingGeom = nullptr;
+  const CaloGeometry* m_caloGeom = nullptr;
+  const TrackerGeometry* m_trackerGeom = nullptr;
+  const TrackerTopology* m_trackerTopology = nullptr;
+
+  TGeoMedium* m_dummyMedium = nullptr;
 
   bool m_tracker;
   bool m_muon;

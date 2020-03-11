@@ -23,7 +23,7 @@
 #include <string>
 
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -40,7 +40,11 @@
 
 class SiStripDetCabling;
 
-class SiStripOfflineDQM : public edm::EDAnalyzer {
+class SiStripOfflineDQM : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks,
+                                                      edm::one::WatchRuns,
+                                                      edm::EndRunProducer,
+                                                      edm::EndLuminosityBlockProducer,
+                                                      edm::one::SharedResources> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -50,9 +54,12 @@ public:
 private:
   void beginJob() override;
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override{};
+  void produce(edm::Event& e, edm::EventSetup const& eSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
+  void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) override{};
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endRunProduce(edm::Run&, edm::EventSetup const&) override{};
   void endJob() override;
 
   void checkTrackerFEDs(edm::Event const& e);

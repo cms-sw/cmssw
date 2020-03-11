@@ -84,8 +84,12 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   // preset quality cut to "infinite"
   dynamicQualityCut_ = 1.e30;
 
-  hPVx = new TH2F("hPVx", "PVx vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
-  hPVy = new TH2F("hPVy", "PVy vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
+  hPVx = std::unique_ptr<TH2F>(
+      new TH2F("hPVx", "PVx vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
+  hPVy = std::unique_ptr<TH2F>(
+      new TH2F("hPVy", "PVy vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
+  hPVx->SetDirectory(nullptr);
+  hPVy->SetDirectory(nullptr);
 }
 
 PVFitter::~PVFitter() {}
@@ -207,7 +211,7 @@ bool PVFitter::runBXFitter() {
     //
     // LL function and fitter
     //
-    FcnBeamSpotFitPV* fcn = new FcnBeamSpotFitPV(pvStore->second);
+    FcnBeamSpotFitPV fcn(pvStore->second);
     //
     // fit parameters: positions, widths, x-y correlations, tilts in xz and yz
     //
@@ -222,7 +226,7 @@ bool PVFitter::runBXFitter() {
     upar.Add("dydz", 0., 0.0002, -0.1, 0.1);                                                // 7
     upar.Add("ez", 1., 0.1, 0., 30.);                                                       // 8
     upar.Add("scale", errorScale_, errorScale_ / 10., errorScale_ / 2., errorScale_ * 2.);  // 9
-    MnMigrad migrad(*fcn, upar);
+    MnMigrad migrad(fcn, upar);
 
     //
     // first iteration without correlations
@@ -240,12 +244,12 @@ bool PVFitter::runBXFitter() {
     //
     // refit with harder selection on vertices
     //
-    fcn->setLimits(upar.Value(0) - sigmaCut_ * upar.Value(3),
-                   upar.Value(0) + sigmaCut_ * upar.Value(3),
-                   upar.Value(1) - sigmaCut_ * upar.Value(5),
-                   upar.Value(1) + sigmaCut_ * upar.Value(5),
-                   upar.Value(2) - sigmaCut_ * upar.Value(8),
-                   upar.Value(2) + sigmaCut_ * upar.Value(8));
+    fcn.setLimits(upar.Value(0) - sigmaCut_ * upar.Value(3),
+                  upar.Value(0) + sigmaCut_ * upar.Value(3),
+                  upar.Value(1) - sigmaCut_ * upar.Value(5),
+                  upar.Value(1) + sigmaCut_ * upar.Value(5),
+                  upar.Value(2) - sigmaCut_ * upar.Value(8),
+                  upar.Value(2) + sigmaCut_ * upar.Value(8));
     ierr = migrad(0, 1.);
     if (!ierr.IsValid()) {
       edm::LogInfo("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;
@@ -294,7 +298,6 @@ bool PVFitter::runBXFitter() {
 
     fbspotMap[pvStore->first] = fbeamspot;
     edm::LogInfo("PVFitter") << "3D PV fit done for this bunch crossing." << std::endl;
-    //delete fcn;
     fit_ok = fit_ok & true;
   }
 
@@ -362,7 +365,7 @@ bool PVFitter::runFitter() {
     //
     // LL function and fitter
     //
-    FcnBeamSpotFitPV* fcn = new FcnBeamSpotFitPV(pvStore_);
+    FcnBeamSpotFitPV fcn(pvStore_);
     //
     // fit parameters: positions, widths, x-y correlations, tilts in xz and yz
     //
@@ -377,7 +380,7 @@ bool PVFitter::runFitter() {
     upar.Add("dydz", 0., 0.0002, -0.1, 0.1);                                                // 7
     upar.Add("ez", 1., 0.1, 0., 30.);                                                       // 8
     upar.Add("scale", errorScale_, errorScale_ / 10., errorScale_ / 2., errorScale_ * 2.);  // 9
-    MnMigrad migrad(*fcn, upar);
+    MnMigrad migrad(fcn, upar);
     //
     // first iteration without correlations
     //
@@ -399,12 +402,12 @@ bool PVFitter::runFitter() {
     results = ierr.UserParameters().Params();
     errors = ierr.UserParameters().Errors();
 
-    fcn->setLimits(results[0] - sigmaCut_ * results[3],
-                   results[0] + sigmaCut_ * results[3],
-                   results[1] - sigmaCut_ * results[5],
-                   results[1] + sigmaCut_ * results[5],
-                   results[2] - sigmaCut_ * results[8],
-                   results[2] + sigmaCut_ * results[8]);
+    fcn.setLimits(results[0] - sigmaCut_ * results[3],
+                  results[0] + sigmaCut_ * results[3],
+                  results[1] - sigmaCut_ * results[5],
+                  results[1] + sigmaCut_ * results[5],
+                  results[2] - sigmaCut_ * results[8],
+                  results[2] + sigmaCut_ * results[8]);
     ierr = migrad(0, 1.);
     if (!ierr.IsValid()) {
       edm::LogWarning("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;

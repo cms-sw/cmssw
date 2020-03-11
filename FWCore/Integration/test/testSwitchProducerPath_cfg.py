@@ -27,15 +27,19 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSwitchProducerPathFilter%d.root' % (1 if enableTest2 else 2,)),
+    fileName = cms.untracked.string('testSwitchProducerPath%d.root' % (1 if enableTest2 else 2,)),
     outputCommands = cms.untracked.vstring(
-        'keep *_intProducer_*_*'
+        'keep *_intProducer_*_*',
+        'keep *_intProducerAlias_*_*',
+        'keep *_intProducerDep1_*_*',
+        'keep *_intProducerDep2_*_*',
+        'keep *_intProducerDep3_*_*',
     )
 )
 
 process.intProducer1 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(1))
 process.intProducer2 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2))
-process.intProducer3 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(3), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(31))))
+process.intProducer3 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(2))))
 if enableTest2:
     process.intProducer1.throw = cms.untracked.bool(True)
 else:
@@ -53,7 +57,14 @@ process.intProducerAlias = SwitchProducerTest(
                                                  cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
-process.t = cms.Task(process.intProducer1, process.intProducer2, process.intProducer3)
+# Test multiple consumers of a SwitchProducer
+process.intProducerDep1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+process.intProducerDep2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+process.intProducerDep3 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+
+
+process.t = cms.Task(process.intProducer1, process.intProducer2, process.intProducer3,
+                     process.intProducerDep1, process.intProducerDep2, process.intProducerDep3)
 process.p = cms.Path(process.intProducer + process.intProducerAlias, process.t)
 
 process.e = cms.EndPath(process.out)

@@ -8,6 +8,7 @@
 #include "TSpline.h"
 
 class CTPPSInterpolatedOpticalFunctionsESSource;
+class CTPPSModifiedOpticalFunctionsESSource;
 
 /// Set of optical functions corresponding to one scoring plane along LHC, including splines for interpolation performance.
 class LHCInterpolatedOpticalFunctionsSet : public LHCOpticalFunctionsSet {
@@ -37,6 +38,7 @@ public:
 
 protected:
   friend CTPPSInterpolatedOpticalFunctionsESSource;
+  friend CTPPSModifiedOpticalFunctionsESSource;
 
   std::vector<std::shared_ptr<const TSpline3>> m_splines;
 };

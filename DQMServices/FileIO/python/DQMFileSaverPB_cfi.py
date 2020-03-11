@@ -16,7 +16,7 @@ dqmSaver = cms.EDAnalyzer("DQMFileSaverPB",
     referenceRequireStatus = cms.untracked.int32(100),
 
     # If set, EvFDaqDirector is emulated and not used
-    fakeFilterUnitMode = cms.untracked.bool(false),
+    fakeFilterUnitMode = cms.untracked.bool(False),
     # Label of the stream
     streamLabel = cms.untracked.string("streamDQMHistograms"),
 )

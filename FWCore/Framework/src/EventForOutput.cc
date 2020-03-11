@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/EventForOutput.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"

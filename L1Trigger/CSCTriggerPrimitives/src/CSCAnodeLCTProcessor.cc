@@ -171,84 +171,24 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
   static const unsigned int max_l1a_window_width = CSCConstants::MAX_ALCT_TBINS;  // 4 bits
 
   // Checks.
-  if (fifo_tbins >= max_fifo_tbins) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of fifo_tbins, " << fifo_tbins << ", exceeds max allowed, " << max_fifo_tbins - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, fifo_tbins=" << def_fifo_tbins << " +++\n";
-    fifo_tbins = def_fifo_tbins;
-  }
-  if (fifo_pretrig >= max_fifo_pretrig) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of fifo_pretrig, " << fifo_pretrig << ", exceeds max allowed, " << max_fifo_pretrig - 1
-          << " +++\n"
-          << "+++ Try to proceed with the default value, fifo_pretrig=" << def_fifo_pretrig << " +++\n";
-    fifo_pretrig = def_fifo_pretrig;
-  }
-  if (drift_delay >= max_drift_delay) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of drift_delay, " << drift_delay << ", exceeds max allowed, " << max_drift_delay - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, drift_delay=" << def_drift_delay << " +++\n";
-    drift_delay = def_drift_delay;
-  }
-  if (nplanes_hit_pretrig >= max_nplanes_hit_pretrig) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of nplanes_hit_pretrig, " << nplanes_hit_pretrig << ", exceeds max allowed, "
-          << max_nplanes_hit_pretrig - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, nplanes_hit_pretrig=" << nplanes_hit_pretrig << " +++\n";
-    nplanes_hit_pretrig = def_nplanes_hit_pretrig;
-  }
-  if (nplanes_hit_pattern >= max_nplanes_hit_pattern) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of nplanes_hit_pattern, " << nplanes_hit_pattern << ", exceeds max allowed, "
-          << max_nplanes_hit_pattern - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, nplanes_hit_pattern=" << nplanes_hit_pattern << " +++\n";
-    nplanes_hit_pattern = def_nplanes_hit_pattern;
-  }
-  if (nplanes_hit_accel_pretrig >= max_nplanes_hit_accel_pretrig) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of nplanes_hit_accel_pretrig, " << nplanes_hit_accel_pretrig << ", exceeds max allowed, "
-          << max_nplanes_hit_accel_pretrig - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, "
-          << "nplanes_hit_accel_pretrig=" << nplanes_hit_accel_pretrig << " +++\n";
-    nplanes_hit_accel_pretrig = def_nplanes_hit_accel_pretrig;
-  }
-  if (nplanes_hit_accel_pattern >= max_nplanes_hit_accel_pattern) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of nplanes_hit_accel_pattern, " << nplanes_hit_accel_pattern << ", exceeds max allowed, "
-          << max_nplanes_hit_accel_pattern - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, "
-          << "nplanes_hit_accel_pattern=" << nplanes_hit_accel_pattern << " +++\n";
-    nplanes_hit_accel_pattern = def_nplanes_hit_accel_pattern;
-  }
-  if (trig_mode >= max_trig_mode) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of trig_mode, " << trig_mode << ", exceeds max allowed, " << max_trig_mode - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, trig_mode=" << trig_mode << " +++\n";
-    trig_mode = def_trig_mode;
-  }
-  if (accel_mode >= max_accel_mode) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of accel_mode, " << accel_mode << ", exceeds max allowed, " << max_accel_mode - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, accel_mode=" << accel_mode << " +++\n";
-    accel_mode = def_accel_mode;
-  }
-  if (l1a_window_width >= max_l1a_window_width) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of l1a_window_width, " << l1a_window_width << ", exceeds max allowed, "
-          << max_l1a_window_width - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, l1a_window_width=" << l1a_window_width << " +++\n";
-    l1a_window_width = def_l1a_window_width;
-  }
+  CSCBaseboard::checkConfigParameters(fifo_tbins, max_fifo_tbins, def_fifo_tbins, "fifo_tbins");
+  CSCBaseboard::checkConfigParameters(fifo_pretrig, max_fifo_pretrig, def_fifo_pretrig, "fifo_pretrig");
+  CSCBaseboard::checkConfigParameters(drift_delay, max_drift_delay, def_drift_delay, "drift_delay");
+  CSCBaseboard::checkConfigParameters(
+      nplanes_hit_pretrig, max_nplanes_hit_pretrig, def_nplanes_hit_pretrig, "nplanes_hit_pretrig");
+  CSCBaseboard::checkConfigParameters(
+      nplanes_hit_pattern, max_nplanes_hit_pattern, def_nplanes_hit_pattern, "nplanes_hit_pattern");
+  CSCBaseboard::checkConfigParameters(nplanes_hit_accel_pretrig,
+                                      max_nplanes_hit_accel_pretrig,
+                                      def_nplanes_hit_accel_pretrig,
+                                      "nplanes_hit_accel_pretrig");
+  CSCBaseboard::checkConfigParameters(nplanes_hit_accel_pattern,
+                                      max_nplanes_hit_accel_pattern,
+                                      def_nplanes_hit_accel_pattern,
+                                      "nplanes_hit_accel_pattern");
+  CSCBaseboard::checkConfigParameters(trig_mode, max_trig_mode, def_trig_mode, "trig_mode");
+  CSCBaseboard::checkConfigParameters(accel_mode, max_accel_mode, def_accel_mode, "accel_mode");
+  CSCBaseboard::checkConfigParameters(l1a_window_width, max_l1a_window_width, def_l1a_window_width, "l1a_window_width");
 }
 
 void CSCAnodeLCTProcessor::clear() {

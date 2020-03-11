@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 
 import PhysicsTools.PatAlgos.tools.helpers as configtools
 from PhysicsTools.PatAlgos.tools.trigTools import _addEventContent

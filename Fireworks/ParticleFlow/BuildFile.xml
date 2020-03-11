@@ -3,7 +3,7 @@
 <use name="Fireworks/Candidates"/>
 <use name="Fireworks/Tracks"/>
 <use name="Fireworks/Calo"/>
-<lib name="Eve"/>
+<use name="rooteve"/>
 <export>
   <lib name="1"/>
 </export>

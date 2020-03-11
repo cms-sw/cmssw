@@ -320,10 +320,6 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup) 
 //
 // -------------------------------------- endRun --------------------------------------------
 //
-void L1TTauOffline::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo("L1TTauOffline") << "L1TTauOffline::endRun" << std::endl;
-}
-
 //
 // -------------------------------------- book histograms --------------------------------------------
 //
@@ -674,7 +670,6 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
     }
   }
 }
-void L1TTauOffline::endJob() { normalise2DHistogramsToBinArea(); }
 
 void L1TTauOffline::normalise2DHistogramsToBinArea() {
   std::vector<MonitorElement*> monElementstoNormalize = {h_L1TauETvsTauET_EB_,

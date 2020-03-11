@@ -29,6 +29,7 @@ namespace edm {
   class MergeableRunProductProcesses;
   class MergeableRunProductMetadata;
   class ModuleCallingContext;
+  class ProcessHistoryRegistry;
 
   class RunPrincipal : public Principal {
   public:

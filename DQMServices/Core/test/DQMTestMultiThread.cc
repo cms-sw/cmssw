@@ -48,8 +48,7 @@ void DQMTestMultiThread::bookHistograms(DQMStore::IBooker &b,
 void DQMTestMultiThread::analyze(const edm::Event &iEvent, const edm::EventSetup &) { myHisto->Fill(fill_value_); }
 
 void DQMTestMultiThread::dumpMe(MonitorElement const &me, bool printStat /* = false */) {
-  std::cout << "Run: " << me.run() << " Lumi: " << me.lumi() << " LumiFlag: " << me.getLumiFlag()
-            << " moduleId: " << me.moduleId() << " fullpathname: " << me.getPathname();
+  std::cout << " LumiFlag: " << me.getLumiFlag() << " fullpathname: " << me.getPathname();
   if (printStat)
     std::cout << " Mean: " << me.getMean() << " RMS: " << me.getRMS() << " Entries: " << std::setprecision(9)
               << me.getEntries();

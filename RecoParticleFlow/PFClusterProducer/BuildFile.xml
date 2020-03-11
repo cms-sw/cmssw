@@ -15,6 +15,7 @@
 <use   name="CalibCalorimetry/EcalTPGTools"/>
 <use   name="DataFormats/HGCRecHit"/>
 <use   name="RecoLocalCalo/HGCalRecAlgos"/>
+<use   name="RecoLocalCalo/HGCalRecProducers"/>
 <use   name="vdt_headers"/>
 <use   name="rootmath"/>
 <use   name="root"/>

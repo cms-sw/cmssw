@@ -15,7 +15,7 @@
 
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
 constexpr float TrajSeedMatcher::kElectronMass_;
@@ -179,8 +179,8 @@ std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const Traj
         //now we can figure out the z vertex
         double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim, firstHit.hitPos(), candPos);
         vertex = GlobalPoint(vprim.x(), vprim.y(), zVertex);
-        firstHitFreeTraj =
-            FTSFromVertexToPointFactory::get(getMagField(firstHit.hitPos()), firstHit.hitPos(), vertex, energy, charge);
+        firstHitFreeTraj = trackingTools::ftsFromVertexToPoint(
+            getMagField(firstHit.hitPos()), firstHit.hitPos(), vertex, energy, charge);
         prevHitPos = firstHit.hitPos();
       }
     } else {  // All subsequent hits are handled the same
@@ -259,7 +259,7 @@ TrajectoryStateOnSurface TrajSeedMatcher::makeTrajStateOnSurface(const GlobalPoi
                                                                  const GlobalPoint& vtx,
                                                                  const float energy,
                                                                  const int charge) const {
-  FreeTrajectoryState freeTS = FTSFromVertexToPointFactory::get(getMagField(pos), pos, vtx, energy, charge);
+  auto freeTS = trackingTools::ftsFromVertexToPoint(getMagField(pos), pos, vtx, energy, charge);
   PerpendicularBoundPlaneBuilder bpb;
   return TrajectoryStateOnSurface(freeTS, *bpb(freeTS.position(), freeTS.momentum()));
 }
@@ -323,10 +323,9 @@ int TrajSeedMatcher::getNrValidLayersAlongTraj(const SCHitMatch& hit1,
   double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim, hit1.hitPos(), candPos);
   GlobalPoint vertex(vprim.x(), vprim.y(), zVertex);
 
-  FreeTrajectoryState firstHitFreeTraj =
-      FTSFromVertexToPointFactory::get(getMagField(hit1.hitPos()), hit1.hitPos(), vertex, energy, charge);
-  const TrajectoryStateOnSurface& secondHitTraj =
-      getTrajStateFromPoint(*hit2.hit(), firstHitFreeTraj, hit1.hitPos(), *forwardPropagator_);
+  auto firstHitFreeTraj =
+      trackingTools::ftsFromVertexToPoint(getMagField(hit1.hitPos()), hit1.hitPos(), vertex, energy, charge);
+  auto const& secondHitTraj = getTrajStateFromPoint(*hit2.hit(), firstHitFreeTraj, hit1.hitPos(), *forwardPropagator_);
   return getNrValidLayersAlongTraj(hit2.hit()->geographicalId(), secondHitTraj);
 }
 
@@ -336,8 +335,7 @@ int TrajSeedMatcher::getNrValidLayersAlongTraj(const DetId& hitId, const Traject
     return 0;
 
   const FreeTrajectoryState& hitFreeState = *hitTrajState.freeState();
-  const std::vector<const DetLayer*> inLayers =
-      navSchool_->compatibleLayers(*detLayer, hitFreeState, oppositeToMomentum);
+  auto const inLayers = navSchool_->compatibleLayers(*detLayer, hitFreeState, oppositeToMomentum);
   const std::vector<const DetLayer*> outLayers = navSchool_->compatibleLayers(*detLayer, hitFreeState, alongMomentum);
 
   int nrValidLayers = 1;  //because our current hit is also valid and wont be included in the count otherwise

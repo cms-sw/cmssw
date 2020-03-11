@@ -21,7 +21,11 @@ namespace edm {
   RootSecondaryFileSequence::RootSecondaryFileSequence(ParameterSet const& pset,
                                                        PoolSource& input,
                                                        InputFileCatalog const& catalog)
-      : RootInputFileSequence(pset, catalog), input_(input), orderedProcessHistoryIDs_(), enablePrefetching_(false) {
+      : RootInputFileSequence(pset, catalog),
+        input_(input),
+        orderedProcessHistoryIDs_(),
+        enablePrefetching_(false),
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
@@ -85,7 +89,8 @@ namespace edm {
                                       orderedProcessHistoryIDs_,
                                       input_.bypassVersionCheck(),
                                       input_.labelRawDataLikeMC(),
-                                      enablePrefetching_);
+                                      enablePrefetching_,
+                                      enforceGUIDInFileName_);
   }
 
   void RootSecondaryFileSequence::initAssociationsFromSecondary(std::set<BranchID> const& associationsFromSecondary) {

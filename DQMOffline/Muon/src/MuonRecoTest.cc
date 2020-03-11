@@ -44,20 +44,15 @@ MuonRecoTest::MuonRecoTest(const edm::ParameterSet& ps) {
 
   EfficiencyCriterionName = parameters.getUntrackedParameter<string>("efficiencyTestName", "EfficiencyInRange");
 }
-void MuonRecoTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-  /// BOOKING NEW HISTOGRAMS
-  ibooker.setCurrentFolder("Muons/Tests/muonRecoTest");
+
+void MuonRecoTest::dqmEndRun(DQMStore::IBooker& ibooker,
+                             DQMStore::IGetter& igetter,
+                             edm::Run const&,
+                             edm::EventSetup const&) {
   // efficiency plot
+  ibooker.setCurrentFolder("Muons/Tests/muonRecoTest");
   etaEfficiency = ibooker.book1D("etaEfficiency_staMuon", "#eta_{STA} efficiency", etaBin, etaMin, etaMax);
   phiEfficiency = ibooker.book1D("phiEfficiency_staMuon", "#phi_{STA} efficiency", phiBin, phiMin, phiMax);
-
-  // alignment plots
-  globalRotation.push_back(ibooker.book1D(
-      "muVStkSytemRotation_posMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}", 50, 0, 200));
-  globalRotation.push_back(ibooker.book1D(
-      "muVStkSytemRotation_negMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{-}", 50, 0, 200));
-  globalRotation.push_back(ibooker.book1D(
-      "muVStkSytemRotation_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}-#mu^{-}", 50, 0, 200));
 
   /// GETTING PREVIOUS HISTOS AND DO SOME OPERATIONS
   string path = "Muons/MuonRecoAnalyzer/StaEta_ifCombinedAlso";
@@ -105,6 +100,18 @@ void MuonRecoTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
       }
     }
   }
+}
+
+void MuonRecoTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
+  /// BOOKING NEW HISTOGRAMS
+  ibooker.setCurrentFolder("Muons/Tests/muonRecoTest");
+  // alignment plots
+  globalRotation.push_back(ibooker.book1D(
+      "muVStkSytemRotation_posMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}", 50, 0, 200));
+  globalRotation.push_back(ibooker.book1D(
+      "muVStkSytemRotation_negMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{-}", 50, 0, 200));
+  globalRotation.push_back(ibooker.book1D(
+      "muVStkSytemRotation_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}-#mu^{-}", 50, 0, 200));
 
   // efficiency test
 

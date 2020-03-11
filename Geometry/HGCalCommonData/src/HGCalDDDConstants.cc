@@ -10,6 +10,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 #include <algorithm>
@@ -558,6 +559,9 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
   if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
     x = hgpar_->waferPosX_[type];
     y = hgpar_->waferPosY_[type];
+#ifdef EDM_ML_DEBUG
+    float x0(x), y0(y);
+#endif
     if (hgpar_->waferTypeT_[type] - 1 == HGCSiliconDetId::HGCalFine) {
       x += hgpar_->cellFineX_[cell];
       y += hgpar_->cellFineY_[cell];
@@ -565,6 +569,9 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
       x += hgpar_->cellCoarseX_[cell];
       y += hgpar_->cellCoarseY_[cell];
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "LocateCell (Wafer) " << x0 << ":" << y0 << " Final " << x << ":" << y;
+#endif
     if (!reco) {
       x *= HGCalParameters::k_ScaleToDDD;
       y *= HGCalParameters::k_ScaleToDDD;
@@ -669,11 +676,6 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(int lay, int irad, int
   return std::make_pair(x, y);
 }
 
-/*
-Masks each cell (or not) according to its wafer and cell position (detId) and to the user needs (corners).
-Each wafer has k_CornerSize corners which are defined in anti-clockwise order starting from the corner at the top, which is always #0. 'ncor' denotes the number of corners inside the physical region. 'fcor' is the defined to be the first corner that appears inside the detector's physical volume in anti-clockwise order. 
-The argument 'corners' controls the types of wafers the user wants: for instance, corners=3 masks all wafers that have at least 3 corners inside the physical region. 
- */
 bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
   bool mask(false);
   if (corners > 2 && corners <= (int)(HGCalParameters::k_CornerSize)) {
@@ -703,95 +705,11 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
                                     << wl << ":" << (itr != hgpar_->waferTypes_.end());
 #endif
       if (itr != hgpar_->waferTypes_.end()) {
-        int ncor = (itr->second).first;
-        int fcor = (itr->second).second;
-        if (ncor < corners) {
-          mask = true;
-        } else {
-          if (ncor == 4) {
-            switch (fcor) {
-              case (0): {
-                mask = (v >= N);
-                break;
-              }
-              case (1): {
-                mask = (u >= N);
-                break;
-              }
-              case (2): {
-                mask = (u > v);
-                break;
-              }
-              case (3): {
-                mask = (v < N);
-                break;
-              }
-              case (4): {
-                mask = (u < N);
-                break;
-              }
-              default: {
-                mask = (u <= v);
-                break;
-              }
-            }
-          } else {
-            switch (fcor) {
-              case (0): {
-                if (ncor == 3) {
-                  mask = !((u > 2 * v) && (v < N));
-                } else {
-                  mask = ((u >= N) && (v >= N) && ((u + v) > (3 * N - 2)));
-                }
-                break;
-              }
-              case (1): {
-                if (ncor == 3) {
-                  mask = !((u + v) < N);
-                } else {
-                  mask = ((u >= N) && (u > v) && ((2 * u - v) > 2 * N));
-                }
-                break;
-              }
-              case (2): {
-                if (ncor == 3) {
-                  mask = !((u < N) && (v > u) && (v > (2 * u - 1)));
-                } else {
-                  mask = ((u > 2 * v) && (v < N));
-                }
-                break;
-              }
-              case (3): {
-                if (ncor == 3) {
-                  mask = !((v >= u) && ((2 * v - u) > (2 * N - 2)));
-                } else {
-                  mask = ((u + v) < N);
-                }
-                break;
-              }
-              case (4): {
-                if (ncor == 3) {
-                  mask = !((u >= N) && (v >= N) && ((u + v) > (3 * N - 2)));
-                } else {
-                  mask = ((u < N) && (v > u) && (v > (2 * u - 1)));
-                }
-                break;
-              }
-              default: {
-                if (ncor == 3) {
-                  mask = !((u >= N) && (u > v) && ((2 * u - v) > 2 * N));
-                } else {
-                  mask = ((v >= u) && ((2 * v - u) > (2 * N - 2)));
-                }
-                break;
-              }
-            }
-          }
-#ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "Corners: " << ncor << ":" << fcor << " N " << N << " u " << u << " v " << v
-                                        << " Mask " << mask;
-#endif
-        }
+        if ((itr->second).second <= HGCalWaferMask::k_OffsetRotation)
+          mask = HGCalWaferMask::maskCell(u, v, N, (itr->second).first, (itr->second).second, corners);
+        else
+          mask = !(HGCalWaferMask::goodCell(
+              u, v, N, (itr->second).first, ((itr->second).second - HGCalWaferMask::k_OffsetRotation)));
       }
     }
   }
@@ -1062,6 +980,9 @@ int HGCalDDDConstants::waferFromCopy(int copy) const {
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << hgpar_->waferCopy_[k];
 #endif
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "WaferFromCopy " << copy << ":" << wafer << ":" << result;
+#endif
   return wafer;
 }
 

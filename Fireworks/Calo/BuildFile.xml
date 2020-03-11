@@ -12,8 +12,8 @@
 <use name="boost_system"/>
 <use name="rootgpad"/>
 <use name="rootphysics"/>
-<lib name="Eve"/>
-<lib name="Geom"/>
+<use name="rooteve"/>
+<use name="rootgeom"/>
 <export>
   <lib name="1"/>
 </export>

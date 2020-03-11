@@ -1,11 +1,12 @@
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 // #include "Fireworks/Calo/interface/FWHeatmapProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 template <typename T>
 class FWL1THGCalProxyTemplate : public FWSimpleProxyBuilderTemplate<T> {

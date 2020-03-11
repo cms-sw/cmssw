@@ -6,8 +6,6 @@
  *
  */
 
-// #include "CondCore/PluginSystem/interface/registration_macros.h"
-
 #include "CondCore/ESSources/interface/registration_macros.h"
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -58,6 +56,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosMCRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
@@ -65,7 +64,6 @@
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
-// #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
@@ -153,8 +151,13 @@
 #include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPulseSymmCovariances.h"
 #include "CondFormats/DataRecord/interface/EcalPulseSymmCovariancesRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalPFSeedingThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFSeedingThresholdsRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 
@@ -172,10 +175,11 @@ REGISTER_PLUGIN(EcalIntercalibErrorsRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalADCToGeVConstantRcd, EcalADCToGeVConstant);
 REGISTER_PLUGIN(EcalLaserAlphasRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRcd, EcalLaserAPDPNRatios);
+REGISTER_PLUGIN(EcalLaserAPDPNRatiosMCRcd, EcalLaserAPDPNRatios);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRefRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalChannelStatusRcd, EcalCondObjectContainer<EcalChannelStatusCode>);
 REGISTER_PLUGIN(EcalPFRecHitThresholdsRcd, EcalCondObjectContainer<float>);
-
+REGISTER_PLUGIN(EcalPFSeedingThresholdsRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalClusterCrackCorrParametersRcd, EcalFunParams);
 REGISTER_PLUGIN(EcalClusterLocalContCorrParametersRcd, EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyUncertaintyParametersRcd, EcalFunParams);

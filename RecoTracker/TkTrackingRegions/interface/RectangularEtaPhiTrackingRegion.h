@@ -175,27 +175,29 @@ public:
 
   TrackingRegion::Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
-  HitRZCompatibility* checkRZ(const DetLayer* layer,
-                              const Hit& outerHit,
-                              const edm::EventSetup& iSetup,
-                              const DetLayer* outerlayer = nullptr,
-                              float lr = 0,
-                              float gz = 0,
-                              float dr = 0,
-                              float dz = 0) const override {
+  std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
+                                              const Hit& outerHit,
+                                              const edm::EventSetup& iSetup,
+                                              const DetLayer* outerlayer = nullptr,
+                                              float lr = 0,
+                                              float gz = 0,
+                                              float dr = 0,
+                                              float dz = 0) const override {
     return checkRZOld(layer, outerHit, iSetup, outerlayer);
   }
 
-  RectangularEtaPhiTrackingRegion* clone() const override { return new RectangularEtaPhiTrackingRegion(*this); }
+  std::unique_ptr<TrackingRegion> clone() const override {
+    return std::make_unique<RectangularEtaPhiTrackingRegion>(*this);
+  }
 
   std::string name() const override { return "RectangularEtaPhiTrackingRegion"; }
   std::string print() const override;
 
 private:
-  HitRZCompatibility* checkRZOld(const DetLayer* layer,
-                                 const Hit& outerHit,
-                                 const edm::EventSetup& iSetup,
-                                 const DetLayer* outerlayer) const;
+  std::unique_ptr<HitRZCompatibility> checkRZOld(const DetLayer* layer,
+                                                 const Hit& outerHit,
+                                                 const edm::EventSetup& iSetup,
+                                                 const DetLayer* outerlayer) const;
 
   std::unique_ptr<MeasurementEstimator> estimator(const BarrelDetLayer* layer,
                                                   const edm::EventSetup& iSetup) const dso_internal;

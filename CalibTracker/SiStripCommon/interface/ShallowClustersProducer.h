@@ -9,8 +9,8 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 
-class SiStripClusterInfo;
 class SiStripProcessedRawDigi;
 class TrackerTopology;
 
@@ -41,6 +41,7 @@ private:
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > theClustersToken_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi> > theDigisToken_;
+  SiStripClusterInfo siStripClusterInfo_;
 };
 
 #endif

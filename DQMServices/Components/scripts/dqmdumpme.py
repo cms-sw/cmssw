@@ -66,6 +66,7 @@ if 'Indices;1' in things:
 elif 'DQMData;1' in things:
   basedir = f['DQMData']
   for run in basedir.keys():
+    if not run.startswith("Run "): continue
     rundir = basedir[run]
     print("MEs for %s" % run)
     for me in args.mepaths:

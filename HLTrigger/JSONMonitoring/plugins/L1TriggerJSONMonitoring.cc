@@ -230,7 +230,7 @@ void L1TriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event
 
   // get hold of TriggerResults
   edm::Handle<GlobalAlgBlkBxCollection> handle;
-  if (not event.getByToken(level1ResultsToken_, handle) or not handle.isValid()) {
+  if (not event.getByToken(level1ResultsToken_, handle) or not handle.isValid() or handle->isEmpty(0)) {
     edm::LogError("L1TriggerJSONMonitoring")
         << "L1 trigger results with label [" + level1Results_.encode() + "] not present or invalid";
     return;

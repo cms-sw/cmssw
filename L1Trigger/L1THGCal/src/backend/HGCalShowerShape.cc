@@ -87,6 +87,11 @@ int HGCalShowerShape::coreShowerLength(const l1t::HGCalMulticluster& c3d,
     if (!pass(*id_cluster.second, c3d))
       continue;
     unsigned layer = triggerGeometry.triggerLayer(id_cluster.second->detId());
+    if (triggerTools_.isNose(id_cluster.second->detId()))
+      nlayers = triggerTools_.layers(ForwardSubdetector::HFNose);
+    else {
+      nlayers = triggerTools_.layers(ForwardSubdetector::ForwardEmpty);
+    }
     if (layer == 0 || layer > nlayers)
       continue;
     layers[layer - 1] = true;  //layer 0 doesn't exist, so shift by -1
@@ -117,6 +122,11 @@ float HGCalShowerShape::percentileLayer(const l1t::HGCalMulticluster& c3d,
       if (!pass(*id_tc.second, c3d))
         continue;
       unsigned layer = triggerGeometry.triggerLayer(id_tc.second->detId());
+      if (triggerTools_.isNose(id_tc.second->detId()))
+        nlayers = triggerTools_.layers(ForwardSubdetector::HFNose);
+      else {
+        nlayers = triggerTools_.layers(ForwardSubdetector::ForwardEmpty);
+      }
       if (layer == 0 || layer > nlayers)
         continue;
       layers[layer - 1] += id_tc.second->pt();  //layer 0 doesn't exist, so shift by -1
@@ -124,7 +134,7 @@ float HGCalShowerShape::percentileLayer(const l1t::HGCalMulticluster& c3d,
   }
   std::partial_sum(layers.begin(), layers.end(), layers.begin());
   double pt_threshold = layers.back() * quantile;
-  int percentile = 0;
+  unsigned percentile = 0;
   for (double pt : layers) {
     if (pt > pt_threshold) {
       break;
@@ -133,7 +143,7 @@ float HGCalShowerShape::percentileLayer(const l1t::HGCalMulticluster& c3d,
   }
   // Linear interpolation of percentile value
   double pt0 = (percentile > 0 ? layers[percentile - 1] : 0.);
-  double pt1 = layers[percentile];
+  double pt1 = (percentile < layers.size() ? layers[percentile] : layers.back());
   return percentile + (pt1 - pt0 > 0. ? (pt_threshold - pt0) / (pt1 - pt0) : 0.);
 }
 

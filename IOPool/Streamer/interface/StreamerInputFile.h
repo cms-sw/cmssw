@@ -31,7 +31,8 @@ namespace edm {
 
     ~StreamerInputFile();
 
-    bool next(); /** Moves the handler to next Event Record */
+    enum class Next { kEvent, kFile, kStop };
+    Next next(); /** Moves the handler to next Event Record */
 
     InitMsgView const* startMessage() const { return startMsg_.get(); }
     /** Points to File Start Header/Message */
@@ -45,8 +46,8 @@ namespace edm {
       return tmp;
     } /** Test bit if a new header is encountered */
 
-    /// Needs to be public because of forking.
     void closeStreamerFile();
+    bool openNextFile();
 
   private:
     void openStreamerFile(std::string const& name, std::string const& LFN);
@@ -56,7 +57,6 @@ namespace edm {
     void readStartMessage();
     int readEventMessage();
 
-    bool openNextFile();
     /** Compares current File header with the newly opened file header
                Returns false in case of mismatch */
     bool compareHeader();

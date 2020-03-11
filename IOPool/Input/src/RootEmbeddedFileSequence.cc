@@ -42,7 +42,8 @@ namespace edm {
         // and should be deleted from the code.
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
         treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize)),
-        enablePrefetching_(false) {
+        enablePrefetching_(false),
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName", false)) {
     if (noFiles()) {
       throw Exception(errors::NoSecondaryFiles)
           << "RootEmbeddedFileSequence no input files specified for secondary input source.\n";
@@ -138,7 +139,8 @@ namespace edm {
                                       currentIndexIntoFile,
                                       orderedProcessHistoryIDs_,
                                       input_.bypassVersionCheck(),
-                                      enablePrefetching_);
+                                      enablePrefetching_,
+                                      enforceGUIDInFileName_);
   }
 
   void RootEmbeddedFileSequence::skipEntries(unsigned int offset) {
@@ -336,5 +338,9 @@ namespace edm {
             "Skip the first 'skipEvents' events. Used only if 'sequential' is True and 'sameLumiBlock' is False");
     desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
+    desc.addUntracked<bool>("enforceGUIDInFileName", false)
+        ->setComment(
+            "True:  file name part is required to be equal to the GUID of the file\n"
+            "False: file name can be anything");
   }
 }  // namespace edm

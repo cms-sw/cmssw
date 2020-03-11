@@ -12,6 +12,7 @@ Forward declarations of types in the EDM.
 
 namespace edm {
   class PrincipalGetAdapter;
+  class ConsumesCollector;
   class DelayedReader;
   class EDAnalyzer;
   class EDFilter;
@@ -40,6 +41,7 @@ namespace edm {
   class RunForOutput;
   class RunPrincipal;
   class Schedule;
+  class StreamID;
   class TypeID;
   class ViewBase;
 

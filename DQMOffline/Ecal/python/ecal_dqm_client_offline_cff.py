@@ -22,3 +22,5 @@ ecal_dqm_client_offline = cms.Sequence(
     ecalzmassclient +
     ecalMEFormatter
 )
+
+ecalMonitorClient.workerParameters.TrigPrimClient.params.sourceFromEmul = False

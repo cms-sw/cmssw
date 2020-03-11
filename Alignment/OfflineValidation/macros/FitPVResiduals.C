@@ -6,7 +6,6 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
-#include <Riostream.h>
 #include "TFile.h"
 #include "TPaveStats.h"
 #include "TROOT.h"
@@ -44,7 +43,7 @@
 #include <TTimeStamp.h>
 #include <TStopwatch.h>
 //#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
-#include "Alignment/OfflineValidation/macros/CMS_lumi.C"
+#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #define PLOTTING_MACRO  // to remove message logger
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 
@@ -343,7 +342,7 @@ void setStyle();
 
 // global variables
 
-ofstream outfile("FittedDeltaZ.txt");
+std::ofstream outfile("FittedDeltaZ.txt");
 
 Int_t nBins_ = 48;
 Int_t nLadders_ = 20;
@@ -455,6 +454,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
       } else {
         std::cout << "Please give file name and legend entry in the following form:\n"
                   << " filename1=legendentry1,filename2=legendentry2\n";
+        exit(EXIT_FAILURE);
       }
     }
     theFileCount = FileList->GetSize();
@@ -464,6 +464,11 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
       FileList->Add(TFile::Open((*it)->getFileName(), "READ"));
     }
     theFileCount = sourceList.size();
+  }
+
+  if (theFileCount == 0) {
+    std::cout << "FitPVResiduals::FitPVResiduals(): empty input file list has been passed." << std::endl;
+    exit(EXIT_FAILURE);
   }
 
   //  const Int_t nFiles_ = FileList->GetSize();
@@ -490,7 +495,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
       colors[j] = sourceList[j]->getLineColor();
     }
     LegLabels[j].ReplaceAll("_", " ");
-    cout << "FitPVResiduals::FitPVResiduals(): label[" << j << "] " << LegLabels[j] << endl;
+    std::cout << "FitPVResiduals::FitPVResiduals(): label[" << j << "] " << LegLabels[j] << std::endl;
   }
 
   //
@@ -723,7 +728,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
 
     // residuals vs pT
 
-    for (Int_t l = 0; l < thePTBINS[i]; l++) {
+    for (Int_t l = 0; l < thePTBINS[i] - 1; l++) {
       dxyPtResiduals[i][l] = (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Transv_pT_Residuals/histo_dxy_pT_plot%i", l));
       dzPtResiduals[i][l] = (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Long_pT_Residuals/histo_dz_pT_plot%i", l));
 
@@ -779,7 +784,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
     std::cout << "======================================================" << std::endl;
     std::cout << "FitPVResiduals::FitPVResiduals(): the eta range is different" << std::endl;
     std::cout << "exiting..." << std::endl;
-    return;
+    exit(EXIT_FAILURE);
   } else {
     etaRange = theEtaMax_[0];
     std::cout << "======================================================" << std::endl;
@@ -794,9 +799,15 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
     std::cout << "======================================================" << std::endl;
     std::cout << "FitPVResiduals::FitPVResiduals(): the number of bins is different" << std::endl;
     std::cout << "exiting..." << std::endl;
-    return;
+    exit(EXIT_FAILURE);
   } else {
     nBins_ = theNBINS[0];
+
+    // adjust also the limit for the fit
+    _boundSx = (nBins_ / 4.) - 0.5;
+    _boundDx = 3 * (nBins_ / 4.) - 0.5;
+    _boundMax = nBins_ - 0.5;
+
     std::cout << "======================================================" << std::endl;
     std::cout << "FitPVResiduals::FitPVResiduals(): the number of bins is: " << nBins_ << std::endl;
     std::cout << "======================================================" << std::endl;
@@ -856,7 +867,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
     std::cout << "======================================================" << std::endl;
     std::cout << "FitPVResiduals::FitPVResiduals(): not all the files have events" << std::endl;
     std::cout << "exiting (...to prevent a segmentation fault)" << std::endl;
-    return;
+    exit(EXIT_FAILURE);
   }
 
   Double_t highedge = nBins_ - 0.5;
@@ -1601,7 +1612,6 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
 
     dxyLadderTrend->SaveAs("dxyLadderTrend_" + theStrDate + theStrAlignment + ".pdf");
     dxyLadderTrend->SaveAs("dxyLadderTrend_" + theStrDate + theStrAlignment + ".png");
-    dxyLadderTrend->SaveAs("dxyLadderTrend_" + theStrDate + theStrAlignment + ".root");
 
     delete dxyLadderTrend;
   }
@@ -2023,7 +2033,8 @@ void arrangeBiasCanvas(TCanvas *canv,
             if (theTitle.Contains("Norm"))
               safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? 1. : safeDelta;
             else
-              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? 50. : safeDelta;
+              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? safeDelta * 10.
+                                                                                                     : safeDelta;
 
             dBiasTrend[k][i]->GetYaxis()->SetRangeUser(0., theExtreme + (safeDelta / 2.));
           } else {
@@ -2034,6 +2045,9 @@ void arrangeBiasCanvas(TCanvas *canv,
               TGaxis::SetMaxDigits(4);
               dBiasTrend[k][i]->GetYaxis()->SetRangeUser(0., theExtreme + (safeDelta * 2.));
             } else {
+              safeDelta = (theTitle.Contains("ladder") == true || theTitle.Contains("modZ") == true) ? safeDelta * 10.
+                                                                                                     : safeDelta;
+
               dBiasTrend[k][i]->GetYaxis()->SetRangeUser(-theExtreme - (safeDelta / 2.), theExtreme + (safeDelta / 2.));
             }
           }
@@ -2522,7 +2536,7 @@ void arrangeFitCanvas(TCanvas *canv, TH1F *meanplots[100], Int_t nFiles, TString
     lego->AddEntry(meanplots[j], LegLabels[j] + MYOUT);
 
     if (j == nFiles - 1) {
-      outfile << deltaZ << "|" << sigmadeltaZ << endl;
+      outfile << deltaZ << "|" << sigmadeltaZ << std::endl;
     }
 
     delete theNewCanvas2;
@@ -3269,7 +3283,7 @@ void FillMap(TH2F *trendMap, std::vector<std::vector<TH1F *> > residualsMapPlot,
     trendMap->GetYaxis()->SetBinLabel(i + 1, phipositionString);
 
     for (int j = 0; j < nBins_; ++j) {
-      //cout<<"(i,j)="<<i<<","<<j<<endl;
+      //std::cout<<"(i,j)="<<i<<","<<j<<std::endl;
 
       char etapositionString[129];
       float etaposition = (-etaRange + j * etaInterval) + (etaInterval / 2);
@@ -3454,10 +3468,11 @@ std::pair<TH2F *, TH2F *> trimTheMap(TH2 *hist) {
   params::measurement theMAD = getMAD(histContentByCell);
 
   if (isDebugMode) {
-    std::cout << std::setw(24) << left << hist->GetName() << "| mean: " << std::setw(10) << setprecision(4)
-              << theMeanOfCells << "| min: " << std::setw(10) << setprecision(4) << min << "| max: " << std::setw(10)
-              << setprecision(4) << max << "| rms: " << std::setw(10) << setprecision(4) << theRMSOfCells
-              << "| mad: " << std::setw(10) << setprecision(4) << theMAD.first << std::endl;
+    std::cout << std::setw(24) << std::left << hist->GetName() << "| mean: " << std::setw(10) << std::setprecision(4)
+              << theMeanOfCells << "| min: " << std::setw(10) << std::setprecision(4) << min
+              << "| max: " << std::setw(10) << std::setprecision(4) << max << "| rms: " << std::setw(10)
+              << std::setprecision(4) << theRMSOfCells << "| mad: " << std::setw(10) << std::setprecision(4)
+              << theMAD.first << std::endl;
   }
 
   TCanvas *cCheck = new TCanvas(Form("cCheck_%s", hist->GetName()), Form("cCheck_%s", hist->GetName()), 1200, 1000);
@@ -3565,10 +3580,10 @@ std::pair<TH2F *, TH2F *> trimTheMap(TH2 *hist) {
     cCheck->SaveAs(Form("cCheck_%s.png", hist->GetName()));
     cCheck->SaveAs(Form("cCheck_%s.pdf", hist->GetName()));
 
-    std::cout << "histo:" << setw(25) << hist->GetName() << " old min: " << setw(10) << hist->GetMinimum()
-              << " old max: " << setw(10) << hist->GetMaximum();
-    std::cout << " | new min: " << setw(15) << hist->GetMinimum() << " new max: " << setw(10) << hist->GetMaximum()
-              << std::endl;
+    std::cout << "histo:" << std::setw(25) << hist->GetName() << " old min: " << std::setw(10) << hist->GetMinimum()
+              << " old max: " << std::setw(10) << hist->GetMaximum();
+    std::cout << " | new min: " << std::setw(15) << hist->GetMinimum() << " new max: " << std::setw(10)
+              << hist->GetMaximum() << std::endl;
   }
 
   delete histContentByCell;
@@ -3858,7 +3873,7 @@ void FitULine(TH1 *hist)
     if (hist->GetFunction(func1.GetName())) {  // Take care that it is later on drawn:
       hist->GetFunction(func1.GetName())->ResetBit(TF1::kNotDraw);
     }
-    //cout<<"FitPVResiduals() fit Up done!"<<endl;
+    //std::cout<<"FitPVResiduals() fit Up done!"<<std::endl;
   }
 }
 
@@ -3876,7 +3891,7 @@ void FitDLine(TH1 *hist)
     if (hist->GetFunction(func2.GetName())) {  // Take care that it is later on drawn:
       hist->GetFunction(func2.GetName())->ResetBit(TF1::kNotDraw);
     }
-    // cout<<"FitPVResiduals() fit Down done!"<<endl;
+    // std::cout<<"FitPVResiduals() fit Down done!"<<std::endl;
   }
 }
 

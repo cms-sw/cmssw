@@ -458,7 +458,7 @@ void testEvent::setUp() {
   const_cast<ProcessHistoryID&>(eventAux.processHistoryID()) = processHistoryID;
   principal_.reset(new edm::EventPrincipal(
       preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_, edm::StreamID::invalidStreamID()));
-  principal_->fillEventPrincipal(eventAux, processHistoryRegistry_);
+  principal_->fillEventPrincipal(eventAux, processHistoryRegistry_.getMapped(eventAux.processHistoryID()));
   principal_->setLuminosityBlockPrincipal(lbp_.get());
   ModuleCallingContext mcc(currentModuleDescription_.get());
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_, &mcc));

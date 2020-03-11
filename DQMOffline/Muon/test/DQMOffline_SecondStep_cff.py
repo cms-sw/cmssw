@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 
 from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
 from DQMServices.Components.DQMMessageLoggerClient_cff import *
-from DQMServices.Components.DQMDcsInfoClient_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_client_fileT0_cff import *
@@ -19,7 +18,7 @@ from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
 
-DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
+DQMOffline_SecondStep_PreDPG = cms.Sequence( 
                                              #ecal_dqm_client_offline *
                                              #hcalOfflineDQMClient *
                                              SiStripOfflineDQMClient *
@@ -71,7 +70,7 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMMessageLoggerClientSeq )
 
 
-#DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
+#DQMHarvestCommon = cms.Sequence(
 #                                 SiStripOfflineDQMClient *
 #                                 PixelOfflineDQMClientNoDataCertification *
 #                                 l1TriggerDqmOfflineClient *
@@ -82,7 +81,7 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
 #                                 SusyPostProcessorSequence
 #                                )
 
-DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
+DQMHarvestCommon = cms.Sequence(
                                  SiStripOfflineDQMClient *
                                  PixelOfflineDQMClientNoDataCertification *
                                 # l1TriggerDqmOfflineClient *

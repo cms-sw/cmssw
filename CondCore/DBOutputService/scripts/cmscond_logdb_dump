@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from ConfigParser import ConfigParser
+from ConfigParser import configparser as ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral

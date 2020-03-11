@@ -5,19 +5,20 @@
 #include <array>
 #include <cstdint>
 
-namespace ticl::constants {
-  constexpr float minEta = 1.5f;
-  constexpr float maxEta = 3.2f;
-  constexpr int nEtaBins = 34;
-  constexpr int nPhiBins = 126;
-  constexpr int nLayers = 104;
-}  // namespace ticl::constants
+namespace ticl {
+  struct TileConstants {
+    static constexpr float minEta = 1.5f;
+    static constexpr float maxEta = 3.2f;
+    static constexpr int nEtaBins = 34;
+    static constexpr int nPhiBins = 126;
+    static constexpr int nLayers = 104;
+    static constexpr int iterations = 4;
+    static constexpr int nBins = nEtaBins * nPhiBins;
+  };
+}  // namespace ticl
 
-class TICLLayerTile;
 namespace ticl {
   typedef std::vector<std::pair<unsigned int, float> > HgcalClusterFilterMask;
-  typedef std::array<std::vector<unsigned int>, constants::nEtaBins * constants::nPhiBins> Tile;
-  typedef std::array<TICLLayerTile, ticl::constants::nLayers> Tiles;
 }  // namespace ticl
 
 #endif  // DataFormats_HGCalReco_Common_h

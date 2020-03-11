@@ -50,8 +50,12 @@ namespace reco {
     /// default constructor. Sets energy and position to zero
     PFRecHit() {}
 
-    PFRecHit(std::shared_ptr<const CaloCellGeometry> caloCell, unsigned int detId, PFLayer::Layer layer, float energy)
-        : caloCell_(std::move(caloCell)), detId_(detId), layer_(layer), energy_(energy) {}
+    PFRecHit(std::shared_ptr<const CaloCellGeometry> caloCell,
+             unsigned int detId,
+             PFLayer::Layer layer,
+             float energy,
+             uint32_t flags = 0)
+        : caloCell_(std::move(caloCell)), detId_(detId), layer_(layer), energy_(energy), flags_(flags) {}
 
     /// copy
     PFRecHit(const PFRecHit& other) = default;
@@ -103,6 +107,12 @@ namespace reco {
     /// rechit momentum transverse to the beam, squared.
     double pt2() const { return energy_ * energy_ * (position().perp2() / position().mag2()); }
 
+    // Detector-dependent status flag
+    uint32_t flags() const { return flags_; }
+
+    //
+    void setFlags(uint32_t flags) { flags_ = flags; }
+
     /// rechit cell centre x, y, z
     PositionType const& position() const { return caloCell().getPosition().basicVector(); }
 
@@ -153,6 +163,9 @@ namespace reco {
     //Caching the neighbours4/8 per request of Lindsey
     unsigned int neighbours4_ = 0;
     unsigned int neighbours8_ = 0;
+
+    // Detector-dependent hit status flag
+    uint32_t flags_ = 0;
   };
 
 }  // namespace reco

@@ -1,5 +1,4 @@
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/PatCandidates"/>

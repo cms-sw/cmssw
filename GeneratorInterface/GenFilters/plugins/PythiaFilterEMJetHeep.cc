@@ -1,57 +1,96 @@
-#include "GeneratorInterface/GenFilters/plugins/PythiaFilterEMJetHeep.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-//#include "CLHEP/HepMC/GenParticle.h"
+/** \class PythiaFilterEMJetHeep
+ *
+ *  PythiaFilterEMJetHeep filter implements generator-level preselections
+ *  of events with for studying background to high-energetic electrons
+ *
+ * \author Dmitry Bandurin (KSU), Jeremy Werner (Princeton)
+ *
+ ************************************************************/
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <list>
-#include <vector>
-#include <cmath>
-#include "TFile.h"
+#include <string>
 
-// using namespace edm;
-// using namespace std;
-// using namespace HepMC;
+class PythiaFilterEMJetHeep : public edm::global::EDFilter<> {
+public:
+  double deltaR(double eta0, double phi0, double eta, double phi) const;
 
-//namespace{
+  explicit PythiaFilterEMJetHeep(const edm::ParameterSet&);
 
-double PythiaFilterEMJetHeep::deltaR(double eta0, double phi0, double eta, double phi) {
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void beginJob() override;
+
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+
+  double minEventPt;
+  const double etaMax;
+  const double cone_clust;
+  const double cone_iso;
+  const unsigned int nPartMin;
+  const double drMin;
+
+  double ptSeedMin_EB;
+  double fracConePtMin_EB;
+  double ptHdMax_EB;
+  double fracEmPtMin_EB;
+  double fracTrkPtMax_EB;
+  unsigned int ntrkMax_EB;
+  double isoConeMax_EB;
+
+  double ptSeedMin_EE;
+  double fracConePtMin_EE;
+  double ptHdMax_EE;
+  double fracEmPtMin_EE;
+  double fracTrkPtMax_EE;
+  unsigned int ntrkMax_EE;
+  double isoConeMax_EE;
+
+  const bool minbias;
+
+  const bool debug;
+};
+
+double PythiaFilterEMJetHeep::deltaR(double eta0, double phi0, double eta, double phi) const {
   double dphi = phi - phi0;
   if (dphi > M_PI)
     dphi -= 2 * M_PI;
   else if (dphi <= -M_PI)
     dphi += 2 * M_PI;
-  return sqrt(dphi * dphi + (eta - eta0) * (eta - eta0));
+  return std::sqrt(dphi * dphi + (eta - eta0) * (eta - eta0));
 }
 
-struct ParticlePtGreater {
-  bool operator()(const HepMC::GenParticle* a, const HepMC::GenParticle* b) const {
-    return a->momentum().perp() > b->momentum().perp();
-  }
-};
-
-//}
+namespace {
+  struct ParticlePtGreater {
+    bool operator()(const HepMC::GenParticle* a, const HepMC::GenParticle* b) const {
+      return a->momentum().perp() > b->momentum().perp();
+    }
+  };
+}  // namespace
 
 PythiaFilterEMJetHeep::PythiaFilterEMJetHeep(const edm::ParameterSet& iConfig)
     : token_(consumes<edm::HepMCProduct>(
           edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
-      //
       minEventPt(iConfig.getUntrackedParameter<double>("MinEventPt", 40.)),
       etaMax(iConfig.getUntrackedParameter<double>("MaxEta", 2.8)),
       cone_clust(iConfig.getUntrackedParameter<double>("ConeClust", 0.10)),
       cone_iso(iConfig.getUntrackedParameter<double>("ConeIso", 0.50)),
       nPartMin(iConfig.getUntrackedParameter<unsigned int>("NumPartMin", 2)),
       drMin(iConfig.getUntrackedParameter<double>("dRMin", 0.4)),
-      //
-      eventsProcessed(0),
-      maxnumberofeventsinrun(iConfig.getUntrackedParameter<int>("MaxEvents", 1000)),
-      outputFile_(iConfig.getUntrackedParameter("outputFile", std::string("rootOutputFile"))),
       minbias(iConfig.getUntrackedParameter<bool>("Minbias", false)),
-      debug(iConfig.getUntrackedParameter<bool>("Debug", true)) {
-  theNumberOfSelected = 0;
-  //
-}
-
-PythiaFilterEMJetHeep::~PythiaFilterEMJetHeep() {}
+      debug(iConfig.getUntrackedParameter<bool>("Debug", true)) {}
 
 void PythiaFilterEMJetHeep::beginJob() {
   // parametarizations of presel. criteria:
@@ -76,8 +115,6 @@ void PythiaFilterEMJetHeep::beginJob() {
   ntrkMax_EE = 4;
 
   if (minbias) {
-    std::cout << " ... Minbias preselection ... " << std::endl;
-
     minEventPt = 1.0;
     ptSeedMin_EB = 1.5;
     ptSeedMin_EE = 1.5;
@@ -94,42 +131,14 @@ void PythiaFilterEMJetHeep::beginJob() {
     ntrkMax_EB = 2;
     ntrkMax_EE = 2;
   }
-
-  std::cout << " minEventPt = " << minEventPt << std::endl;
-  std::cout << " etaMax = " << etaMax << std::endl;
-  std::cout << " nPartMin = " << nPartMin << std::endl;
-  std::cout << " cone_clust = " << cone_clust << std::endl;
-  std::cout << " cone_iso = " << cone_iso << std::endl;
-  std::cout << " drMin = " << drMin << std::endl << std::endl;
-  std::cout << " ptSeedMin_EB = " << ptSeedMin_EB << std::endl;
-  std::cout << " ptSeedMin_EE = " << ptSeedMin_EE << std::endl;
-  std::cout << " fracConePtMin_EB = " << fracConePtMin_EB << std::endl;
-  std::cout << " fracConePtMin_EE = " << fracConePtMin_EE << std::endl;
-  std::cout << " fracEmPtMin_EB = " << fracEmPtMin_EB << std::endl;
-  std::cout << " fracEmPtMin_EE = " << fracEmPtMin_EE << std::endl;
-  std::cout << " fracTrkPtMax_EB = " << fracTrkPtMax_EB << std::endl;
-  std::cout << " fracTrkPtMax_EE = " << fracTrkPtMax_EE << std::endl;
-  std::cout << " ntrkMax_EB = " << ntrkMax_EB << std::endl;
-  std::cout << " ntrkMax_EE = " << ntrkMax_EE << std::endl;
-  std::cout << " ptHdMax_EB = " << ptHdMax_EB << std::endl;
-  std::cout << " ptHdMax_EE = " << ptHdMax_EE << std::endl;
-  std::cout << " isoConeMax_EB = " << isoConeMax_EB << std::endl;
-  std::cout << " isoConeMax_EE = " << isoConeMax_EE << std::endl;
 }
 
-// ------------ method called to produce the data  ------------
-bool PythiaFilterEMJetHeep::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  if (theNumberOfSelected >= maxnumberofeventsinrun) {
-    throw cms::Exception("endJob") << "we have reached the maximum number of events ";
-  }
-
-  accepted = false;
+bool PythiaFilterEMJetHeep::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
+  bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
-
-  eventsProcessed++;
 
   std::list<const HepMC::GenParticle*> seeds;
   std::list<const HepMC::GenParticle*> candidates;
@@ -141,18 +150,18 @@ bool PythiaFilterEMJetHeep::filter(edm::Event& iEvent, const edm::EventSetup& iS
     double eta = (*p)->momentum().eta();
 
     int pdgid = (*p)->pdg_id();
-    if (!(pdgid == 22 || abs(pdgid) == 11 || abs(pdgid) == 211 || abs(pdgid) == 321))
+    if (!(pdgid == 22 || std::abs(pdgid) == 11 || std::abs(pdgid) == 211 || std::abs(pdgid) == 321))
       continue;
-    //if ( !(pdgid==22 || abs(pdgid)==11) ) continue;
+    //if ( !(pdgid==22 || std::abs(pdgid)==11) ) continue;
 
     //  Selection #1: seed particle ETA
     if (std::abs(eta) > etaMax)
       continue;
     bool EB = false;
     bool EE = false;
-    if (fabs(eta) < 1.5)
+    if (std::fabs(eta) < 1.5)
       EB = true;
-    else if (fabs(eta) >= 1.5 && fabs(eta) < etaMax)
+    else if (std::fabs(eta) >= 1.5 && std::fabs(eta) < etaMax)
       EE = true;
     if (debug)
       std::cout << " Selection 1 passed " << std::endl;
@@ -183,9 +192,9 @@ bool PythiaFilterEMJetHeep::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
     bool EB = false;
     bool EE = false;
-    if (fabs(eta) < 1.5)
+    if (std::fabs(eta) < 1.5)
       EB = true;
-    else if (fabs(eta) >= 1.5 && fabs(eta) < etaMax)
+    else if (std::fabs(eta) >= 1.5 && std::fabs(eta) < etaMax)
       EE = true;
 
     float setCone_iso = 0;
@@ -307,19 +316,12 @@ bool PythiaFilterEMJetHeep::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   if (candidates.size() >= nPartMin) {
     accepted = true;
-    theNumberOfSelected++;
   }
 
   if (debug)
-    std::cout << " Event preselected " << theNumberOfSelected << " Proccess ID " << myGenEvent->signal_process_id()
-              << std::endl;
+    std::cout << " Proccess ID " << myGenEvent->signal_process_id() << std::endl;
 
   return accepted;
 }
 
-void PythiaFilterEMJetHeep::endJob() {
-  std::cout << "\n *************************\n " << std::endl;
-  std::cout << " Events processed " << eventsProcessed << std::endl;
-  std::cout << " Events preselected " << theNumberOfSelected << std::endl;
-  std::cout << "\n ************************* \n" << std::endl;
-}
+DEFINE_FWK_MODULE(PythiaFilterEMJetHeep);

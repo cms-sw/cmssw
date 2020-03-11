@@ -23,7 +23,8 @@ HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig)
                   *this,
                   fL1GtRecordInputTag,
                   fL1GtDaqReadoutRecordInputTag,
-                  edm::InputTag()) {
+                  edm::InputTag(),
+                  L1GtUtils::UseEventSetupIn::Event) {
   // now do what ever initialization is needed
   LogDebug("HLTSeedL1LogicScalers") << "constructor";
 

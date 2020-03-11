@@ -7,6 +7,8 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/METReco"/>
+<use   name="DataFormats/HcalIsolatedTrack"/>
+<use   name="DataFormats/TauReco"/>
 
 <export>
   <lib   name="1"/>

@@ -18,7 +18,7 @@
 //         Created:  Wed Feb 10 11:15:16 CST 2010
 //
 
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 
 namespace fwlite {
   class HistoryGetterBase {

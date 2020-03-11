@@ -20,7 +20,6 @@ sqlalchemy_tpl = 'oracle://%s:%s@%s'
 coral_tpl = 'oracle://%s/%s'
 private_db = 'sqlite:///o2o_jobs.db'
 startStatus = -1
-authPathEnvVar = 'COND_AUTH_PATH'
 messageLevelEnvVar = 'O2O_LOG_LEVEL'
 logFolderEnvVar = 'O2O_LOG_FOLDER'
 
@@ -62,8 +61,8 @@ class O2ORun(_Base):
 
     job                = sqlalchemy.orm.relationship('O2OJob', primaryjoin="O2OJob.name==O2ORun.job_name")
 
-def get_db_credentials( db_service, authFile ):
-    (username, account, pwd) = auth.get_credentials( authPathEnvVar, db_service[1], authFile )
+def get_db_credentials( db_service, authPath):
+    (username, account, pwd) = auth.get_credentials( db_service[1], authPath )
     return username,pwd
 
 def print_table( headers, table ):

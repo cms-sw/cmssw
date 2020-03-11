@@ -33,8 +33,6 @@ L1TGMT::L1TGMT(const ParameterSet& ps)
 
 L1TGMT::~L1TGMT() {}
 
-void L1TGMT::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TGMT::analyze(const Event& e, const EventSetup& c) {
   if (verbose_)
     cout << "L1TGMT: analyze...." << endl;

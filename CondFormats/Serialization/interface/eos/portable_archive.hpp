@@ -15,7 +15,7 @@
  */
 /****************************************************************************/
 
-#pragma warning( disable:4217 4127 4310 4244 4800 4267 )
+#pragma warning(disable : 4217 4127 4310 4244 4800 4267)
 
 // text_archive test header
 // include output archive header

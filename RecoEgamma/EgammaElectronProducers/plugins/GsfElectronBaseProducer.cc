@@ -383,7 +383,7 @@ void GsfElectronBaseProducer::beginEvent(edm::Event& event, const edm::EventSetu
           << "Cannot check consistency of parameters with ecal seeding ones,"
           << " because the original collection of seeds is not any more available.";
     } else {
-      checkEcalSeedingParameters(edm::parameterSet(*seeds.provenance()));
+      checkEcalSeedingParameters(edm::parameterSet(*seeds.provenance(), event.processHistory()));
     }
   }
 }

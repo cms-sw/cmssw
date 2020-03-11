@@ -22,7 +22,6 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   IsminiAOD = parameters.getParameter<bool>("IsminiAOD");
   doMVA = parameters.getParameter<bool>("doMVA");
   // the services:
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >(parameters.getParameter<edm::InputTag>("MuonCollection"));
   theVertexLabel_ = consumes<reco::VertexCollection>(pSet.getParameter<InputTag>("inputTagVertex"));
   theBeamSpotLabel_ = consumes<reco::BeamSpot>(pSet.getParameter<InputTag>("inputTagBeamSpot"));
@@ -60,7 +59,7 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   theFolder = parameters.getParameter<string>("folder");
 }
 
-MuonRecoAnalyzer::~MuonRecoAnalyzer() { delete theService; }
+MuonRecoAnalyzer::~MuonRecoAnalyzer() {}
 void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                       edm::Run const& /*iRun*/,
                                       edm::EventSetup const& /* iSetup */) {
@@ -575,7 +574,6 @@ void MuonRecoAnalyzer::GetRes(reco::TrackRef t1, reco::TrackRef t2, string par, 
 
 void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace(metname) << "[MuonRecoAnalyzer] Analyze the mu";
-  theService->update(iSetup);
 
   // Take the muon container
   edm::Handle<edm::View<reco::Muon> > muons;

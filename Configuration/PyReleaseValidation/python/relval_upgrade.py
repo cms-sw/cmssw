@@ -56,12 +56,14 @@ for year in upgradeKeys:
                         s = s + 'PU' # later processing requires to have PU here
                         # Hardcode nu gun fragment below in order to use it for combined stage1+stage2
                         # Anyway all other fragments are irrelevant for premixing stage1
-                        stepList[specialType].append(stepMaker(key,"SingleNuE10_cf",s,specialWF.suffix))
+                        stepList[specialType].append(stepMaker(key,'PREMIX',s,specialWF.suffix))
                     elif (specialType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
                         if specialType == 'ProdLike' and 'RecoFullGlobal' in step:
                             stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoFullGlobal','MiniAODFullGlobal'),specialWF.suffix))
+                        elif specialType == 'ProdLike' and 'RecoFull' in step:
+                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoFull','MiniAODFullGlobal'),specialWF.suffix))
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
 
@@ -78,7 +80,9 @@ for year in upgradeKeys:
             if inclPremix:
                 # premixing stage1, only for NuGun
                 if info.dataset=="NuGun":
-                    workflows[numWF+upgradeWFs['Premix'].offset] = [info.dataset, stepList['Premix']]
+                    # The first element of the list sets the dataset name(?)
+                    datasetName = 'PREMIXUP' + key[2:].replace("PU", "").replace("Design", "") + '_PU25'
+                    workflows[numWF+upgradeWFs['Premix'].offset] = [datasetName, stepList['Premix']]
 
                 # premixing stage2
                 slist = []
