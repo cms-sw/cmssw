@@ -56,9 +56,10 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
     tdcLSB_fC_ = tdcSaturation_fC_ / pow(2., tdcNbits);
     // lower tdcSaturation_fC_ by one part in a million
     // to ensure largest charge converted in bits is 0xfff and not 0x000
-    tdcSaturation_fC_ *= (1.-1e-6); 
+    tdcSaturation_fC_ *= (1. - 1e-6);
     edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" << tdcLSB_fC_
-                              << " saturation to occur @ " << tdcSaturation_fC_ << " (NB lowered by 1 part in a million)" << std::endl;
+                              << " saturation to occur @ " << tdcSaturation_fC_
+                              << " (NB lowered by 1 part in a million)" << std::endl;
   }
   if (ps.exists("targetMIPvalue_ADC"))
     targetMIPvalue_ADC_ = ps.getParameter<uint32_t>("targetMIPvalue_ADC");
