@@ -78,9 +78,9 @@ namespace {
 
   class GeometryTester : public edm::one::EDAnalyzer<> {
   public:
-    GeometryTester(edm::ParameterSet const&);
+    GeometryTester(edm::ParameterSet const &);
     void beginJob() override {}
-    void analyze(edm::Event const&, edm::EventSetup const&) override;
+    void analyze(edm::Event const &, edm::EventSetup const &) override;
     void endJob() override {}
 
   private:
@@ -92,7 +92,7 @@ namespace {
   };
 }  // namespace
 
-GeometryTester::GeometryTester(const edm::ParameterSet& iConfig) {
+GeometryTester::GeometryTester(const edm::ParameterSet &iConfig) {
   m_xmltest = iConfig.getUntrackedParameter<bool>("XMLTest", true);
   m_tktest = iConfig.getUntrackedParameter<bool>("TrackerTest", true);
   m_ecaltest = iConfig.getUntrackedParameter<bool>("EcalTest", true);
@@ -107,7 +107,7 @@ GeometryTester::GeometryTester(const edm::ParameterSet& iConfig) {
   m_geomLabel = iConfig.getUntrackedParameter<std::string>("geomLabel", "Extended");
 }
 
-void GeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
+void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) {
   if (m_xmltest) {
     edm::ESHandle<FileBlob> xmlgeo;
     iSetup.get<GeometryFileRcd>().get(m_geomLabel, xmlgeo);
