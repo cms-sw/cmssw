@@ -1,8 +1,5 @@
 <use   name="RecoTracker/CkfPattern"/>
-<use   name="SimTracker/Records"/>
-<use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="TrackingTools/TrajectoryState"/>

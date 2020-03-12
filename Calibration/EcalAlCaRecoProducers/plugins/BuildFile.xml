@@ -4,6 +4,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="clhep"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/EcalAlgo"/>
 <use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/TrackReco"/>
@@ -16,6 +17,5 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="Geometry/EcalMapping"/>
 <use   name="Geometry/CaloGeometry"/>
-<use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="CalibTracker/Records"/>
 <flags   EDM_PLUGIN="1"/>
