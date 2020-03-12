@@ -426,16 +426,27 @@ void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, cons
   }
 
   if (doMuon_) {
-    edm::ESTransientHandle<DDCompactView> cpv;
+    edm::ESTransientHandle<cms::DDDetector> cpv;
     iSetup.get<IdealGeometryRecord>().get(cpv);
+<<<<<<< HEAD
     edm::ESHandle<MuonGeometryConstants> mdc;
     iSetup.get<IdealGeometryRecord>().get(mdc);
     DTGeometryBuilderFromDDD DTGeometryBuilder;
+=======
+    edm::ESTransientHandle<DDCompactView> cpv_csc;
+    iSetup.get<IdealGeometryRecord>().get(cpv_csc);
+    edm::ESHandle<MuonDDDConstants> mdc_csc;
+    iSetup.get<MuonNumberingRecord>().get(mdc_csc);
+    edm::ESTransientHandle<cms::MuonNumbering> mdc;
+    iSetup.get<MuonNumberingRecord>().get(mdc);
+    cms::DDSpecParRefs myReg;
+    cms::DTGeometryBuilder DTGeometryBuilder;
+>>>>>>> d147e8cd414... Saving CommonAlignment work (does not compile currently)
     CSCGeometryBuilderFromDDD CSCGeometryBuilder;
     muonDTGeometry_ = std::make_shared<DTGeometry>();
-    DTGeometryBuilder.build(*muonDTGeometry_, &(*cpv), *mdc);
+    DTGeometryBuilder.build(*muonDTGeometry_, cpv.product(), *mdc, myReg);
     muonCSCGeometry_ = std::make_shared<CSCGeometry>();
-    CSCGeometryBuilder.build(*muonCSCGeometry_, &(*cpv), *mdc);
+    CSCGeometryBuilder.build(*muonCSCGeometry_, &(*cpv_csc), *mdc_csc);
   }
 }
 
