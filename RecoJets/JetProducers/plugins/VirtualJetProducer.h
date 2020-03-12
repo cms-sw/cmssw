@@ -207,7 +207,6 @@ protected:
   int verbosity_;                       // flag to enable/disable debug output
   bool fromHTTTopJetProducer_ = false;  // for running the v2.0 HEPTopTagger
   bool applyWeight_;              // Apply weights stored in a value map or inside PackedCandidate (e.g. from PUPPI)
-  edm::InputTag srcWeights_;      // weights source
   edm::ValueMap<float> weights_;  // weights per particle (e.g. from PUPPI)
 
 private:

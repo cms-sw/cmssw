@@ -18,7 +18,6 @@ public:
   explicit ECFAdder(const edm::ParameterSet& iConfig);
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void addFJParticle(std::vector<fastjet::PseudoJet>& FJparticles, const reco::CandidatePtr& dp) const;
   float getECF(unsigned index, const edm::Ptr<reco::Jet>& object) const;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -35,10 +34,8 @@ private:
 
   std::vector<std::shared_ptr<fastjet::FunctionOfPseudoJet<double>>> routine_;
   std::vector<StringCutObjectSelector<reco::Jet>> selectors_;
-  bool applyWeight_;
-  edm::InputTag srcWeights_;
   edm::EDGetTokenT<edm::ValueMap<float>> input_weights_token_;
-  edm::Handle<edm::ValueMap<float>> weightsHandle_;
+  edm::ValueMap<float> const* weightsHandle_;
 };
 
 #endif

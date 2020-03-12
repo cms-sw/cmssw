@@ -150,9 +150,12 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   verbosity_ = iConfig.getParameter<int>("verbosity");
   applyWeight_ = iConfig.getParameter<bool>("applyWeight");
   if (applyWeight_) {
-    srcWeights_ = iConfig.getParameter<edm::InputTag>("srcWeights");
-    if (srcWeights_.label() != "")
-      input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights_);
+    edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
+    if (srcWeights.label() == src_.label())
+      LogWarning("VirtualJetProducer")
+          << "Particle and weights collection have the same label. You may be applying the same weights twice.\n";
+    if (srcWeights.label() != "")
+      input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
   }
 
   anomalousTowerDef_ = unique_ptr<AnomalousTower>(new AnomalousTower(iConfig));
@@ -286,11 +289,8 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // Get Weights Collection
-  if ((applyWeight_) && (!input_weights_token_.isUninitialized())) {
-    edm::Handle<edm::ValueMap<float>> weightsHandle;
-    iEvent.getByToken(input_weights_token_, weightsHandle);
-    weights_ = *weightsHandle.product();
-  }
+  if ((applyWeight_) && (!input_weights_token_.isUninitialized()))
+    weights_ = iEvent.get(input_weights_token_);
 
   // For Pileup subtraction using offset correction:
   // set up geometry map
@@ -868,7 +868,11 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
 
       // Add the concrete subjet type to the subjet list to write to event record
       T jet;
-      reco::writeSpecific(jet, p4Subjet, point, constituents, iSetup);
+      if (applyWeight_)
+        reco::writeSpecific(dynamic_cast<reco::PFJet&>(jet), p4Subjet, point, constituents, iSetup, &weights_);
+      else
+        reco::writeSpecific(jet, p4Subjet, point, constituents, iSetup);
+      jet.setIsWeighted(applyWeight_);
       double subjetArea = 0.0;
       if (doAreaFastjet_ && itSubJet->has_area()) {
         subjetArea = itSubJet->area();
@@ -1061,5 +1065,5 @@ void VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(edm::ParameterSe
   vector<double> puCentersDefault;
   desc.add<vector<double>>("puCenters", puCentersDefault);
   desc.add<bool>("applyWeight", false);
-  desc.add<edm::InputTag>("srcWeights", edm::InputTag("puppi"));
+  desc.add<edm::InputTag>("srcWeights", edm::InputTag(""));
 }

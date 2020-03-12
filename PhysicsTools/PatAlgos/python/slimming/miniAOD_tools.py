@@ -371,13 +371,6 @@ def miniAOD_customizeCommon(process):
         process.makePatTausTask, _makePatTausTaskWithTauReReco
         )
     
-    # puppi jets : Updated 2019 by S. Rappoccio. PUPPI now being placed into RECO.
-    # If this is a RE-MINIAOD or otherwise, this will pick up the later PUPPI, including tunes. 
-    if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
-        process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
-        task.add(process.ak4PFJets)
-        task.add(process.ak4PFJetsPuppi)
-    process.ak4PFJetsPuppi.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
         j2tParametersVX,
@@ -407,9 +400,9 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
     applyDeepBtagging( process )
 
-    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(), process, task)
-    process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")
-    process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
+    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(
+                          src = "selectedPatJetsPuppi", packedPFCandidates = "packedPFCandidates"),
+                        process, task)
 
     task.add(process.slimmedJetsPuppi)
 
