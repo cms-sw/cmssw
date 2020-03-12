@@ -395,8 +395,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
           if (it->isWeighted()) {
             if (token_weights.isUninitialized())
               throw cms::Exception("MissingConstituentWeight")
-                    << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
-                    << std::endl;
+                  << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
+                  << std::endl;
             float w = (*weightsHandle)[constit];
             fjInputs.push_back(
                 fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
@@ -419,8 +419,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
           if (it->jet()->isWeighted()) {
             if (token_weights.isUninitialized())
               throw cms::Exception("MissingConstituentWeight")
-                    << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
-                    << std::endl;
+                  << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
+                  << std::endl;
             float w = (*weightsHandle)[constit];
             fjInputs.push_back(
                 fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
