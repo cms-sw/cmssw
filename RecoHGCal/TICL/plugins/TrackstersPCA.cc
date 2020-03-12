@@ -104,8 +104,8 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       sigmas[i] = std::sqrt(sigmas[i]);
       sigmasEigen[i] = std::sqrt(sigmasEigen[i]);
       trackster.sigmas[i] = sigmas[i];
-      trackster.sigmasPCA[i] = sigmasEigen[i];
       // Reverse the order, since Eigen gives back the eigevalues in increasing order.
+      trackster.sigmasPCA[i] = sigmasEigen[2 - i];
       trackster.eigenvalues[i] = (float)eigenvalues_fromEigen[2 - i];
       trackster.eigenvectors[i] = ticl::Trackster::Vector(
           eigenvectors_fromEigen(0, 2 - i), eigenvectors_fromEigen(1, 2 - i), eigenvectors_fromEigen(2, 2 - i));
