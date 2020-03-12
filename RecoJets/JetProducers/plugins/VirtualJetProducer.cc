@@ -702,7 +702,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
       // write the specifics to the jet (simultaneously sets 4-vector, vertex).
       // These are overridden functions that will call the appropriate
       // specific allocator.
-      if (applyWeight_)
+      if ((applyWeight_) && (makePFJet(jetTypeE)))
         writeSpecific(dynamic_cast<reco::PFJet&>(jet),
                       Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
                       vertex_,
@@ -858,8 +858,8 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
       indices[jetIndex].push_back(subjetCollection->size());
 
       // Add the concrete subjet type to the subjet list to write to event record
-      T jet;
-      if (applyWeight_)
+      auto& jet = *std::unique_ptr<T>(new T);
+      if ((applyWeight_) && (makePFJet(jetTypeE)))
         reco::writeSpecific(dynamic_cast<reco::PFJet&>(jet), p4Subjet, point, constituents, iSetup, &weights_);
       else
         reco::writeSpecific(jet, p4Subjet, point, constituents, iSetup);
