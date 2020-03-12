@@ -1,13 +1,13 @@
-#ifndef CSCDigiValidation_H
-#define CSCDigiValidation_H
+#ifndef Validation_MuonCSCDigis_CSCDigiValidation_H
+#define Validation_MuonCSCDigis_CSCDigiValidation_H
 
 // user include files
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include <DQMServices/Core/interface/DQMStore.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
@@ -30,11 +30,11 @@ private:
   PSimHitMap theSimHitMap;
   CSCGeometry *theCSCGeometry;
 
-  CSCStripDigiValidation *theStripDigiValidation;
-  CSCWireDigiValidation *theWireDigiValidation;
-  CSCComparatorDigiValidation *theComparatorDigiValidation;
-  CSCALCTDigiValidation *theALCTDigiValidation;
-  CSCCLCTDigiValidation *theCLCTDigiValidation;
+  std::unique_ptr<CSCStripDigiValidation> theStripDigiValidation;
+  std::unique_ptr<CSCWireDigiValidation> theWireDigiValidation;
+  std::unique_ptr<CSCComparatorDigiValidation> theComparatorDigiValidation;
+  std::unique_ptr<CSCALCTDigiValidation> theALCTDigiValidation;
+  std::unique_ptr<CSCCLCTDigiValidation> theCLCTDigiValidation;
 };
 
 #endif
