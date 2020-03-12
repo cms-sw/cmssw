@@ -1,6 +1,5 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="RecoMuon/MuonIsolation"/>
 <use   name="CLHEP"/>
 <use   name="root"/>

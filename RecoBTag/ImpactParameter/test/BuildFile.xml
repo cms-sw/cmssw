@@ -1,6 +1,5 @@
 
 <use   name="clhep"/>
-<use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
@@ -8,7 +7,6 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
-<use   name="DataFormats/GeometryVector"/>
 <library   file="IPAnalyzer.cc" name="IPAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>

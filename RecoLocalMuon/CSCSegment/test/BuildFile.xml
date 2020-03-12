@@ -2,7 +2,6 @@
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="root"/>
 <library   file="CSCSegmentReader.cc" name="testCSCSegReader">

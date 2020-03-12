@@ -1,4 +1,3 @@
-<use   name="Geometry/CaloGeometry"/>
 <use   name="RecoLocalFastTime/Records"/>
 <use   name="RecoLocalFastTime/FTLClusterizer"/>
 <use   name="RecoLocalFastTime/FTLCommonAlgos"/>
@@ -7,10 +6,7 @@
 <use   name="DataFormats/FTLDigi"/>
 <use   name="DataFormats/FTLRecHit"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="CondFormats/DataRecord"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/MessageService"/>
-<use   name="Geometry/HGCalGeometry"/>
 <library   file="*.cc" name="RecoLocalFastTimeFTLRecProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
