@@ -113,15 +113,30 @@ GeometricTimingDet* CmsMTDConstruction::buildLayer(DDFilteredView& fv,
                                                    GeometricTimingDet* mother,
                                                    const std::string& attribute) {
   auto thisDet = theCmsMTDStringToEnum.type(fv.name());
-  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, thisDet);
+  GeometricTimingDet* layer = new GeometricTimingDet(&fv, thisDet);
 
   if (thisDet != GeometricTimingDet::BTLLayer && thisDet != GeometricTimingDet::ETLDisc) {
     throw cms::Exception("CmsMTDConstruction") << " ERROR - I was expecting a SubDet, I got a " << fv.name();
   }
 
-  mother->addComponent(subdet);
+  uint32_t nLayer;
+  if (thisDet == GeometricTimingDet::BTLLayer) {
+    //
+    // only one layer in BTL
+    //
+    nLayer = 1;
+    layer->setGeographicalID(nLayer);
+  } else if (thisDet == GeometricTimingDet::ETLDisc) {
+    //
+    // no change for pre TDR scenarios, otherwise identifiy layer with disc
+    //
+    nLayer = (fv.name().find("Disc1") != std::string::npos) ? 1 : 2;
+    layer->setGeographicalID(nLayer);
+  }
 
-  return subdet;
+  mother->addComponent(layer);
+
+  return layer;
 }
 
 void CmsMTDConstruction::baseNumberFromHistory(const DDGeoHistory& gh) {
