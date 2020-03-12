@@ -11,7 +11,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "fastjet/contrib/EnergyCorrelator.hh"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 class ECFAdder : public edm::stream::EDProducer<> {
 public:
