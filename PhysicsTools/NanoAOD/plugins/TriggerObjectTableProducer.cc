@@ -119,7 +119,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   std::vector<std::pair<const pat::TriggerObjectStandAlone *, const SelectedObject *>> selected;
   for (const auto &obj : *src) {
     for (const auto &sel : sels_) {
-      if (sel.match(obj) && (sel.skipObjectsNotPassingQualityBits ? (int(sel.qualityBits(obj)) > 0) : true) ) {
+      if (sel.match(obj) && (sel.skipObjectsNotPassingQualityBits ? (int(sel.qualityBits(obj)) > 0) : true)) {
         selected.emplace_back(&obj, &sel);
         break;
       }
