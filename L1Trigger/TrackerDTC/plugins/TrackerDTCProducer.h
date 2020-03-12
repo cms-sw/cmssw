@@ -1,5 +1,5 @@
-#ifndef __L1TTrackerDTC_L1TTRACKERDTCPRODUCER_H__
-#define __L1TTrackerDTC_L1TTRACKERDTCPRODUCER_H__
+#ifndef __TrackerDTC_TRACKERDTCPRODUCER_H__
+#define __TrackerDTC_TRACKERDTCPRODUCER_H__
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,24 +9,25 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "L1Trigger/TrackerDTC/interface/Settings.h"
 
 #include <vector>
+#include <memory>
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
-  class Settings;
   class Module;
 
-  /*! \class  L1TTrackerDTCProducer
+  /*! \class  TrackerDTCProducer
  *  \brief  Class to produce hardware like structured TTStub Collection used by Track Trigger emulators
  *  \author Thomas Schuh
  *  \date   2020, Jan
  */
-  class L1TTrackerDTCProducer : public edm::EDProducer {
+  class TrackerDTCProducer : public edm::EDProducer {
   public:
-    explicit L1TTrackerDTCProducer(const edm::ParameterSet&);
+    explicit TrackerDTCProducer(const edm::ParameterSet&);
 
-    ~L1TTrackerDTCProducer() override;
+    ~TrackerDTCProducer() override {}
 
   private:
     void beginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -36,14 +37,14 @@ namespace L1TTrackerDTC {
     void endJob() override {}
 
   private:
-    Settings* settings_;  // helper class to store configurations
+    Settings settings_;  // helper class to store configurations
+    // collection of outer tracker sensor modules organised in DTCS [0-215][0-71]
+    std::vector<std::vector<Module*> > dtcModules_;
+    std::vector<Module > modules_;// collection of outer tracker sensor modules
 
     edm::EDGetTokenT<TTStubDetSetVec> tokenTTStubDetSetVec_;
-
-    // collection of outer tracker sensor modules organised in DTCS [0-215][0-71]
-    std::vector<std::vector<Module*> > modules_;
   };
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC
 
 #endif

@@ -1,12 +1,13 @@
-#ifndef __L1TTrackerDTC_STUB_H__
-#define __L1TTrackerDTC_STUB_H__
+#ifndef __TrackerDTC_STUB_H__
+#define __TrackerDTC_STUB_H__
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 
 #include <utility>
 #include <vector>
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
   class Settings;
   class Module;
@@ -69,6 +70,6 @@ namespace L1TTrackerDTC {
     std::vector<int> regions_;  // shared regions this stub belongs to [0-1]
   };
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC
 
 #endif

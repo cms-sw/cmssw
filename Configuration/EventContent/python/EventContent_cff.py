@@ -879,7 +879,7 @@ for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
         'keep *_TTStubsFromPhase2TrackerDigis_*_*',
-        'keep *_L1TTrackerDTC_*_*'
+        'keep *_TrackerDTC_*_*'
     ])
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017

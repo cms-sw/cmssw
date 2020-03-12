@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TTrackerDTC/interface/Module.h"
+#include "L1Trigger/TrackerDTC/interface/Module.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -13,7 +13,7 @@
 using namespace std;
 using namespace edm;
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
   Module::Module(Settings* settings, const DetId& detId, const int& modId)
       :  // outer tracker dtc routing block id [0-1]
@@ -84,16 +84,17 @@ namespace L1TTrackerDTC {
       type_ = SettingsHybrid::disk2S;
 
     // getting windows size for bend encoding
-    const int type = trackerTopology->tobSide(detId);  // 1 for tilted-, 2 for tilted+, 3 for flat
+    enum TypeBarrel { nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3 };
+    const TypeBarrel type = static_cast< TypeBarrel >( trackerTopology->tobSide(detId) );
 
     int ladder = barrel_ ? trackerTopology->tobRod(detId) : trackerTopology->tidRing(detId);
-    if (barrel_ && type == 1)
+    if (barrel_ && type == tiltedMinus)
       // Corrected ring number, bet 0 and barrelNTilt.at(layer), in ascending |z|
       ladder = 1 + numTiltedLayerRings.at(layerId_) - ladder;
 
     double windowSize =
-        barrel_ ? windowSizeBarrelLayers.at(layerId_) : windowSizeEndcapDisksRings.at(layerId_ - 10).at(ladder);
-    if (barrel_ && type != 3)
+        barrel_ ? windowSizeBarrelLayers.at(layerId_) : windowSizeEndcapDisksRings.at(layerId_ - settings->offsetLayerDisks()).at(ladder);
+    if (barrel_ && type != flat)
       windowSize = windowSizeTiltedLayerRings.at(layerId_).at(ladder);
     const int ws = windowSize / format->baseWindowSize();
 
@@ -102,11 +103,11 @@ namespace L1TTrackerDTC {
     bendEncoding_ = psModule ? bendEncodingsPS.at(ws) : bendEncodings2S.at(ws);
 
     // encoding for 2S endcap radii
-    decodedR_ = type_ == SettingsHybrid::disk2S ? numColumns_ * (ladder - numRingsPS.at(layerId_ - 11)) : 0;
+    decodedR_ = type_ == SettingsHybrid::disk2S ? numColumns_ * (ladder - numRingsPS.at(layerId_ - settings->offsetLayerId() - settings->offsetLayerDisks())) : 0;
 
     // r and z offsets
-    offsetR_ = barrel_ ? layerRs.at(layerId_ - 1) : 0.;
-    offsetZ_ = barrel_ ? 0. : diskZs.at(layerId_ - 11);
+    offsetR_ = barrel_ ? layerRs.at(layerId_ - settings->offsetLayerId()) : 0.;
+    offsetZ_ = barrel_ ? 0. : diskZs.at(layerId_ - settings->offsetLayerId() - settings->offsetLayerDisks());
 
     // layer id encoding
     const int dtcId = modId / settings->numModulesPerDTC();
@@ -115,4 +116,4 @@ namespace L1TTrackerDTC {
     layerId_ = distance(layerIdEncoding.begin(), find(layerIdEncoding.begin(), layerIdEncoding.end(), layerId_));
   }
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC

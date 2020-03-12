@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TTrackerDTCFormat_params = cms.PSet (
+TrackerDTCFormat_params = cms.PSet (
 
   #=== specific format parameter
 

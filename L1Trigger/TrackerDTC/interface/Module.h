@@ -1,13 +1,13 @@
-#ifndef __L1TTrackerDTC_MODULE__
-#define __L1TTrackerDTC_MODULE__
+#ifndef __TrackerDTC_MODULE__
+#define __TrackerDTC_MODULE__
 
-#include "L1Trigger/L1TTrackerDTC/interface/Settings.h"
+#include "L1Trigger/TrackerDTC/interface/Settings.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <vector>
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
   // representation of an outer tracker sensormodule
   class Module {
@@ -16,7 +16,7 @@ namespace L1TTrackerDTC {
   public:
     Module(Settings* settings, const ::DetId& detId, const int& modId);
 
-    ~Module() {}
+    ~Module(){}
 
     double r() const { return R_; }
     double phi() const { return Phi_; }
@@ -58,6 +58,6 @@ namespace L1TTrackerDTC {
     std::vector<double> bendEncoding_;  // index = encoded bend, value = decoded bend
   };
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC
 
 #endif
