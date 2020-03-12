@@ -609,9 +609,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if self._parameters["Puppi"].value:
                 getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = cms.InputTag('puppiForMET')
                 getattr(process, "pat"+metType+"Met"+postfix).srcJets = cms.InputTag('cleanedPatJets'+postfix)
-                getattr(process, "pat"+metType+"Met"+postfix).srcJetSF = cms.string('AK4PFPuppi')
-                getattr(process, "pat"+metType+"Met"+postfix).srcJetResPt = cms.string('AK4PFPuppi_pt')
-                getattr(process, "pat"+metType+"Met"+postfix).srcJetResPhi = cms.string('AK4PFPuppi_phi')
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetSF = 'AK4PFPuppi'
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetResPt = 'AK4PFPuppi_pt'
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetResPhi = 'AK4PFPuppi_phi'
 
         #MET significance bypass for the patMETs from AOD
         if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
@@ -1336,8 +1336,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             genJetsCollection=cms.InputTag("slimmedGenJets")
 
         if self._parameters["Puppi"].value:
-            getattr(process, "patSmearedJets"+postfix).algo = cms.string('AK4PFPuppi')
-            getattr(process, "patSmearedJets"+postfix).algopt = cms.string('AK4PFPuppi_pt')
+	    getattr(process, "patSmearedJets"+postfix).algo = 'AK4PFPuppi'
+	    getattr(process, "patSmearedJets"+postfix).algopt = 'AK4PFPuppi_pt'
 
         if "PF" == self._parameters["metType"].value:
             smearedJetModule = getattr(process, "patSmearedJets"+postfix).clone(
@@ -1565,7 +1565,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #puppi
             if self._parameters["Puppi"].value:
                 getattr(process, jetColName).srcWeights = cms.InputTag("puppi")
-                getattr(process, jetColName).applyPuppiWeights = True
+                getattr(process, jetColName).applyWeights = True
 
             patMetModuleSequence += getattr(process, jetColName)
 

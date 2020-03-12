@@ -130,8 +130,9 @@ BoostedDoubleSVProducer::BoostedDoubleSVProducer(const edm::ParameterSet& iConfi
       maxDecayLen_(iConfig.getParameter<edm::ParameterSet>("trackSelection").getParameter<double>("maxDecayLen")),
       trackPairV0Filter(iConfig.getParameter<edm::ParameterSet>("trackPairV0Filter")),
       trackSelector(iConfig.getParameter<edm::ParameterSet>("trackSelection")) {
-  if (iConfig.existsAs<edm::InputTag>("weights"))
-    weightsToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"));
+  edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("weights");
+  if (srcWeights.label() != "")
+    weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
   produces<std::vector<reco::BoostedDoubleSVTagInfo>>();
 }
 
@@ -667,16 +668,18 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
               continue;
             }
             if (subjet->isWeighted()) {
-              pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
               float w = 0.0;
-              if (pPC)
-                w = 1.0;  // For backward compatibility PUPPI weight is not applied to PackedCandidates.
-              else if (!weightsToken_.isUninitialized())
+              if (!weightsToken_.isUninitialized())
                 w = (*weightsHandle_)[constit];
-              else
-                throw cms::Exception("MissingConstituentWeight")
-                    << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection"
-                    << std::endl;
+              else {
+                pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
+                if (pPC)
+                  w = 1.0;  // For backward compatibility PUPPI weight is not applied to PackedCandidates.
+                else
+                  throw cms::Exception("MissingConstituentWeight")
+                      << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection"
+                      << std::endl;
+              }
               fjParticles.push_back(
                   fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
             } else
@@ -694,15 +697,17 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
           continue;
         }
         if (jet->isWeighted()) {
-          pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(daughter.get());
           float w = 0.0;
-          if (pPC)
-            w = 1.0;  // For backward compatibility PUPPI weight is not applied to PackedCandidates.
-          else if (!weightsToken_.isUninitialized())
+          if (!weightsToken_.isUninitialized())
             w = (*weightsHandle_)[daughter];
-          else
-            throw cms::Exception("MissingConstituentWeight")
-                << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+          else {
+            pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(daughter.get());
+            if (pPC)
+              w = 1.0;  // For backward compatibility PUPPI weight is not applied to PackedCandidates.
+            else
+              throw cms::Exception("MissingConstituentWeight")
+                  << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+          }
           fjParticles.push_back(
               fastjet::PseudoJet(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w));
         } else
@@ -780,10 +785,47 @@ void BoostedDoubleSVProducer::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void BoostedDoubleSVProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  {
+    edm::ParameterSetDescription trackSelection;
+    trackSelection.add<double>("b_pT", 0.3684);
+    trackSelection.add<double>("max_pT", 500);
+    trackSelection.add<bool>("useVariableJTA", false);
+    trackSelection.add<double>("maxDecayLen", 99999.9);
+    trackSelection.add<double>("sip3dValMin", -99999.9);
+    trackSelection.add<double>("max_pT_dRcut", 0.1);
+    trackSelection.add<double>("a_pT", 0.005263);
+    trackSelection.add<unsigned int>("totalHitsMin", 8);
+    trackSelection.add<double>("jetDeltaRMax", 0.3);
+    trackSelection.add<double>("a_dR", -0.001053);
+    trackSelection.add<double>("maxDistToAxis", 0.2);
+    trackSelection.add<double>("ptMin", 1.0);
+    trackSelection.add<std::string>("qualityClass", "any");
+    trackSelection.add<unsigned int>("pixelHitsMin", 2);
+    trackSelection.add<double>("sip2dValMax", 99999.9);
+    trackSelection.add<double>("max_pT_trackPTcut", 3);
+    trackSelection.add<double>("sip2dValMin", -99999.9);
+    trackSelection.add<double>("normChi2Max", 99999.9);
+    trackSelection.add<double>("sip3dValMax", 99999.9);
+    trackSelection.add<double>("sip3dSigMin", -99999.9);
+    trackSelection.add<double>("min_pT", 120);
+    trackSelection.add<double>("min_pT_dRcut", 0.5);
+    trackSelection.add<double>("sip2dSigMax", 99999.9);
+    trackSelection.add<double>("sip3dSigMax", 99999.9);
+    trackSelection.add<double>("sip2dSigMin", -99999.9);
+    trackSelection.add<double>("b_dR", 0.6263);
+    desc.add<edm::ParameterSetDescription>("trackSelection", trackSelection);
+  }
+  desc.add<double>("beta", 1.0);
+  desc.add<double>("R0", 0.8);
+  desc.add<double>("maxSVDeltaRToJet", 0.7);
+  {
+    edm::ParameterSetDescription trackPairV0Filter;
+    trackPairV0Filter.add<double>("k0sMassWindow", 0.03);
+    desc.add<edm::ParameterSetDescription>("trackPairV0Filter", trackPairV0Filter);
+  }
+  desc.add<edm::InputTag>("svTagInfos", edm::InputTag("pfInclusiveSecondaryVertexFinderAK8TagInfos"));
+  desc.add<edm::InputTag>("weights", edm::InputTag(""));
   descriptions.addDefault(desc);
 }
 

@@ -80,7 +80,7 @@ void reco::writeSpecific(reco::PFJet& jet,
                          reco::Particle::Point const& point,
                          std::vector<reco::CandidatePtr> const& constituents,
                          edm::EventSetup const& c,
-                         edm::ValueMap<float>* weights) {
+                         edm::ValueMap<float> const* weights) {
   // Make the specific
   reco::PFJet::Specific specific;
   makeSpecific(constituents, &specific, weights);
@@ -89,7 +89,7 @@ void reco::writeSpecific(reco::PFJet& jet,
   for (std::vector<reco::CandidatePtr>::const_iterator ic = constituents.begin(), icend = constituents.end();
        ic != icend;
        ++ic) {
-    float weight = (weights != NULL) ? (*weights)[*ic] : 1.0;
+    float weight = (weights != nullptr) ? (*weights)[*ic] : 1.0;
     charge += (*ic)->charge() * weight;
   }
   jet = reco::PFJet(p4, point, specific, constituents);
@@ -220,7 +220,7 @@ bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& towers,
 //______________________________________________________________________________
 bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& particles,
                         PFJet::Specific* pfJetSpecific,
-                        edm::ValueMap<float>* weights) {
+                        edm::ValueMap<float> const* weights) {
   if (nullptr == pfJetSpecific)
     return false;
 
@@ -260,7 +260,7 @@ bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& particles,
     const Candidate* pfCand = itParticle->get();
     if (pfCand) {
       const PFCandidate* pfCandCast = dynamic_cast<const PFCandidate*>(pfCand);
-      float weight = (weights != NULL) ? (*weights)[*itParticle] : 1.0;
+      float weight = (weights != nullptr) ? (*weights)[*itParticle] : 1.0;
       if (pfCandCast)
         HOEnergy += pfCandCast->hoEnergy() * weight;
 

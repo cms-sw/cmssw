@@ -7,65 +7,49 @@ ecf = ECFAdder.clone(
              ecftype = cms.string("ECF")
              )
 
-ecfCbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
+ecfCbeta1 = ecf.clone(
              ecftype = cms.string("C")
              )
 
-ecfCbeta2 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
-             ecftype = cms.string("C"),
+ecfCbeta2 = ecfCbeta1.clone(
              alpha = cms.double(2.0),
              beta = cms.double(2.0)
              )
 
-ecfDbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
+ecfDbeta1 = ecf.clone(
              ecftype = cms.string("D"),
              Njets = cms.vuint32(2)
              )
 
-ecfDbeta2 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
-             ecftype = cms.string("D"),
-             Njets = cms.vuint32(2),
+ecfDbeta2 = ecfDbeta1.clone(
              alpha = cms.double(2.0),
              beta = cms.double(2.0)
              )
 
 
-ecfMbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
+ecfMbeta1 = ecf.clone(
              ecftype = cms.string("M")
              )
 
-ecfMbeta2 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
-             ecftype = cms.string("M"),
+ecfMbeta2 = ecfMbeta1.clone(
              alpha = cms.double(2.0),
              beta = cms.double(2.0)
              )
 
-ecfNbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
+ecfNbeta1 = ecf.clone(
              ecftype = cms.string("N")
              )
 
-ecfNbeta2 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
-             ecftype = cms.string("N"),
+ecfNbeta2 = ecfNbeta1.clone(
              alpha = cms.double(2.0),
              beta = cms.double(2.0)
              )
 
-ecfUbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
+ecfUbeta1 = ecf.clone(
              ecftype = cms.string("U")
              )
 
-ecfUbeta2 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppi"),
-             ecftype = cms.string("U"),
+ecfUbeta2 = ecfUbeta1.clone(
              alpha = cms.double(2.0),
              beta = cms.double(2.0)
              )

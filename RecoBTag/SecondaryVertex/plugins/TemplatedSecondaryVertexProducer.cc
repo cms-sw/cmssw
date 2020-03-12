@@ -295,8 +295,9 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
   if (useFatJets) {
     token_fatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("fatJets"));
   }
-  if (params.existsAs<edm::InputTag>("weights"))
-    token_weights = consumes<edm::ValueMap<float> >(params.getParameter<edm::InputTag>("weights"));
+  edm::InputTag srcWeights = params.getParameter<edm::InputTag>("weights");
+  if (srcWeights.label() != "")
+    token_weights = consumes<edm::ValueMap<float> >(srcWeights);
   if (useGroomedFatJets) {
     token_groomedFatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("groomedFatJets"));
   }
@@ -393,16 +394,18 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
             continue;
           }
           if (it->isWeighted()) {
-            pat::PackedCandidate const *pPC = dynamic_cast<pat::PackedCandidate const *>(constit.get());
             float w = 0.0;
-            if (pPC)
-              w = pPC->puppiWeight();
-            else if (!token_weights.isUninitialized())
+            if (!token_weights.isUninitialized())
               w = (*weightsHandle)[constit];
-            else
-              throw cms::Exception("MissingConstituentWeight")
-                  << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
-                  << std::endl;
+            else {
+              pat::PackedCandidate const *pPC = dynamic_cast<pat::PackedCandidate const *>(constit.get());
+              if (pPC)
+                w = pPC->puppiWeight();
+              else
+                throw cms::Exception("MissingConstituentWeight")
+                    << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
+                    << std::endl;
+            }
             fjInputs.push_back(
                 fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
           } else {
@@ -422,16 +425,18 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
             continue;
           }
           if (it->jet()->isWeighted()) {
-            pat::PackedCandidate const *pPC = dynamic_cast<pat::PackedCandidate const *>(constit.get());
             float w = 0.0;
-            if (pPC)
-              w = pPC->puppiWeight();
-            else if (!token_weights.isUninitialized())
+            if (!token_weights.isUninitialized())
               w = (*weightsHandle)[constit];
-            else
-              throw cms::Exception("MissingConstituentWeight")
-                  << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
-                  << std::endl;
+            else {
+              pat::PackedCandidate const *pPC = dynamic_cast<pat::PackedCandidate const *>(constit.get());
+              if (pPC)
+                w = pPC->puppiWeight();
+              else
+                throw cms::Exception("MissingConstituentWeight")
+                    << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
+                    << std::endl;
+            }
             fjInputs.push_back(
                 fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
           } else {
@@ -1314,7 +1319,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::fillDescriptions(edm::Configur
   desc.addOptional<double>("relPtTolerance", 1e-03);
   desc.addOptional<edm::InputTag>("fatJets");
   desc.addOptional<edm::InputTag>("groomedFatJets");
-  desc.addOptional<edm::InputTag>("weights");
+  desc.add<edm::InputTag>("weights", edm::InputTag(""));
   descriptions.addDefault(desc);
 }
 
