@@ -58,7 +58,9 @@ bool PFTrackTransformer::addPoints(reco::PFRecTrack& pftrack,
       B_.z());
 
   float pfoutenergy = sqrt((pfmass * pfmass) + track.outerMomentum().Mag2());
-  BaseParticlePropagator theOutParticle = BaseParticlePropagator(
+  BaseParticlePropagator theOutParticle;
+  if (track.outerOk())
+    theOutParticle = BaseParticlePropagator(
       RawParticle(
           XYZTLorentzVector(
               track.outerMomentum().x(), track.outerMomentum().y(), track.outerMomentum().z(), pfoutenergy),
@@ -67,7 +69,8 @@ bool PFTrackTransformer::addPoints(reco::PFRecTrack& pftrack,
       0.,
       0.,
       B_.z());
-
+  else theOutParticle = theParticle;
+    
   math::XYZTLorentzVector momClosest = math::XYZTLorentzVector(track.px(), track.py(), track.pz(), track.p());
   const math::XYZPoint& posClosest = track.vertex();
 
