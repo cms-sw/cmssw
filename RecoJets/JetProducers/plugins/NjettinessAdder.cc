@@ -151,7 +151,7 @@ float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) c
         if (object->isWeighted()) {
           if (input_weights_token_.isUninitialized())
             throw cms::Exception("MissingConstituentWeight")
-                  << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+                << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
           float w = (*weightsHandle_)[dp];
           fjParticles.push_back(fastjet::PseudoJet(dp->px() * w, dp->py() * w, dp->pz() * w, dp->energy() * w));
         } else
@@ -164,7 +164,7 @@ float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) c
             if (subjet->isWeighted()) {
               if (input_weights_token_.isUninitialized())
                 throw cms::Exception("MissingConstituentWeight")
-                      << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+                    << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
               float w = (*weightsHandle_)[ddp];
               fjParticles.push_back(fastjet::PseudoJet(ddp->px() * w, ddp->py() * w, ddp->pz() * w, ddp->energy() * w));
             } else

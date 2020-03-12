@@ -476,7 +476,7 @@ void VirtualJetProducer::inputTowers() {
       } else {
         if (input_weights_token_.isUninitialized())
           throw cms::Exception("InvalidInput")
-                << "applyWeight set to True, but no weights given in VirtualJetProducer\n";
+              << "applyWeight set to True, but no weights given in VirtualJetProducer\n";
         float w = weights_[*i];
         if (w > 0) {
           fjInputs_.emplace_back(input.px() * w, input.py() * w, input.pz() * w, input.energy() * w);
