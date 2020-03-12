@@ -42,14 +42,14 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   int ringCopy(::atoi(baseName.c_str() + 4));
 
   if (!preTDR) {
-    uint32_t discN = (baseNumber.getLevelName(4).find("Disk1") != std::string::npos) ? 0 : 1;
+    uint32_t discN = (baseNumber.getLevelName(4).find("Disc1") != std::string::npos) ? 0 : 1;
     uint32_t quarterS = (baseNumber.getLevelName(3).find("Front") != std::string::npos) ? 0 : 1;
     uint32_t quarterN = baseNumber.getCopyNumber(3);
     const uint32_t quarterOffset = 4;
 
     ringCopy = quarterN + quarterS * quarterOffset + 2 * quarterOffset * discN;
 
-    modtyp = (baseNumber.getLevelName(2).find("_2") != std::string::npos) ? 2 : 1;
+    modtyp = (baseNumber.getLevelName(2).find("_Left") != std::string::npos) ? 2 : 1;
   }
 
   // Side choice: up to scenario D38 is given by level 7 (HGCal v9)
