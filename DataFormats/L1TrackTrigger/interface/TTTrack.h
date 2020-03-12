@@ -49,7 +49,7 @@ private:
   double theBField_;  // needed for unpacking
   static constexpr unsigned int Npars4 = 4;
   static constexpr unsigned int Npars5 = 5;
-  static constexpr float MagConstant = CLHEP::c_light / 1.0E9;  //0.299792458;
+  static constexpr float MagConstant = CLHEP::c_light / 1.0E3;  //constant is 0.299792458; who knew c_light was in mm/ns?
 
 public:
   /// Constructors
