@@ -14,17 +14,16 @@
 class DetLayer;
 
 class MuonDTDetLayerGeometryBuilder {
-    public:
-        /// Constructor
-        MuonDTDetLayerGeometryBuilder();
+public:
+  /// Constructor
+  MuonDTDetLayerGeometryBuilder();
 
-        /// Destructor
-        virtual ~MuonDTDetLayerGeometryBuilder();
-  
-        /// Operations
-        static std::vector<DetLayer*> buildLayers(const DTGeometry& geo);
-    private:
-    
+  /// Destructor
+  virtual ~MuonDTDetLayerGeometryBuilder();
+
+  /// Operations
+  static std::vector<DetLayer*> buildLayers(const DTGeometry& geo);
+
+private:
 };
 #endif
-

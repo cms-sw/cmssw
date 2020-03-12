@@ -36,36 +36,33 @@ namespace edm {
     virtual ~RunBase();
 
     // AUX functions.
-    RunID const& id() const {return runAuxiliary().id();}
-    RunNumber_t run() const {return runAuxiliary().run();}
-    Timestamp const& beginTime() const {return runAuxiliary().beginTime();}
-    Timestamp const& endTime() const {return runAuxiliary().endTime();}
-
+    RunID const& id() const { return runAuxiliary().id(); }
+    RunNumber_t run() const { return runAuxiliary().run(); }
+    Timestamp const& beginTime() const { return runAuxiliary().beginTime(); }
+    Timestamp const& endTime() const { return runAuxiliary().endTime(); }
 
     virtual edm::RunAuxiliary const& runAuxiliary() const = 0;
 
     /// same as above, but using the InputTag class
     template <typename PROD>
-    bool
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+    bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
   private:
-
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const = 0;
-
+    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
+                                       std::type_info const& iProductType,
+                                       InputTag const& iTag) const = 0;
   };
 
-   template<typename T>
-   bool
-   RunBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
-      result.clear();
-      BasicHandle bh = this->getByLabelImpl(typeid(Wrapper<T>), typeid(T), tag);
-      result = convert_handle<T>(std::move(bh));
-      if (result.failedToGet()) {
-         return false;
-      }
-      return true;
-   }
+  template <typename T>
+  bool RunBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
+    result.clear();
+    BasicHandle bh = this->getByLabelImpl(typeid(Wrapper<T>), typeid(T), tag);
+    result = convert_handle<T>(std::move(bh));
+    if (result.failedToGet()) {
+      return false;
+    }
+    return true;
+  }
 
-}
+}  // namespace edm
 #endif

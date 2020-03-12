@@ -36,17 +36,14 @@ namespace edm {
   */
 
   class WorkerRegistry {
-
   public:
-
     explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg);
-    WorkerRegistry(std::shared_ptr<ActivityRegistry> areg,
-                   std::shared_ptr<ModuleRegistry> iModReg);
+    WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> iModReg);
     ~WorkerRegistry();
 
     WorkerRegistry(WorkerRegistry&&) = default;
-    WorkerRegistry(WorkerRegistry const&) = delete; // Disallow copying and moving
-    WorkerRegistry& operator=(WorkerRegistry const&) = delete; // Disallow copying and moving
+    WorkerRegistry(WorkerRegistry const&) = delete;             // Disallow copying and moving
+    WorkerRegistry& operator=(WorkerRegistry const&) = delete;  // Disallow copying and moving
 
     /// Retrieve the particular instance of the worker
     /** If the worker with that set of parameters does not exist,
@@ -54,21 +51,19 @@ namespace edm {
         @note Workers are owned by this class, do not delete them*/
     Worker* getWorker(WorkerParams const& p, std::string const& moduleLabel);
     void clear();
-    
+
   private:
     /// the container of workers
     typedef std::map<std::string, edm::propagate_const<std::shared_ptr<Worker>>> WorkerMap;
 
     edm::propagate_const<std::shared_ptr<ModuleRegistry>> modRegistry_;
-    
+
     /// internal map of registered workers (owned).
     WorkerMap m_workerMap;
-    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
-     
-  }; // WorkerRegistry
+    std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
 
+  };  // WorkerRegistry
 
-} // edm
-
+}  // namespace edm
 
 #endif

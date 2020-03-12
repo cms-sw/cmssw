@@ -10,15 +10,12 @@
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModel.h"
 
 class ME0Geometry;
-namespace CLHEP
-{
+namespace CLHEP {
   class HepRandomEngine;
 }
 
-class ME0PreRecoGaussianModel: public ME0DigiPreRecoModel
-{
+class ME0PreRecoGaussianModel : public ME0DigiPreRecoModel {
 public:
-
   ME0PreRecoGaussianModel(const edm::ParameterSet&);
 
   ~ME0PreRecoGaussianModel() override;
@@ -54,6 +51,5 @@ private:
 
   // params for the simple pol6 model of neutral bkg for ME0:
   std::vector<double> neuBkg, eleBkg;
-
 };
 #endif

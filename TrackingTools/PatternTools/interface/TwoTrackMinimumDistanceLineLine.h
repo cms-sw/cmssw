@@ -15,7 +15,6 @@
 class GlobalTrajectoryParameters;
 
 class TwoTrackMinimumDistanceLineLine {
-
 public:
   /**
    * Calculates the point of closest approach on the two tracks.
@@ -26,14 +25,15 @@ public:
    *   - Trajectories are parallel
    */
 
-  bool calculate( const GlobalTrajectoryParameters &,
-      const GlobalTrajectoryParameters &); // retval=true? error occured.
+  bool calculate(const GlobalTrajectoryParameters &,
+                 const GlobalTrajectoryParameters &);  // retval=true? error occured.
 
-  std::pair <GlobalPoint, GlobalPoint> points() const;
-  std::pair <double, double> pathLength() const;
+  std::pair<GlobalPoint, GlobalPoint> points() const;
+  std::pair<double, double> pathLength() const;
 
-  double firstAngle() const {return phiG;}
-  double secondAngle() const {return phiH;}
+  double firstAngle() const { return phiG; }
+  double secondAngle() const { return phiH; }
+
 private:
   double phiH, phiG;
   double pathG, pathH;

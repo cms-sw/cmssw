@@ -8,24 +8,20 @@
 #include <vector>
 
 class CaloMeanResponse {
-
-public:    
-  
-  CaloMeanResponse(edm::ParameterSet const & p);
+public:
+  CaloMeanResponse(edm::ParameterSet const& p);
   virtual ~CaloMeanResponse();
-  double   getWeight(int genPID, double genP);
+  double getWeight(int genPID, double genP);
 
 private:
+  void readResponse(std::string fName);
 
-  void     readResponse (std::string fName);
-
-  bool                            useTable;
-  double                          scale;
-  int                             piLast, pLast;
-  std::vector<int>                pionTypes, protonTypes;
-  std::vector<double>             pionMomentum, pionTable;
-  std::vector<double>             protonMomentum, protonTable;
-
+  bool useTable;
+  double scale;
+  int piLast, pLast;
+  std::vector<int> pionTypes, protonTypes;
+  std::vector<double> pionMomentum, pionTable;
+  std::vector<double> protonMomentum, protonTable;
 };
 
-#endif // SimG4CMS_CaloMeanResponse_h
+#endif  // SimG4CMS_CaloMeanResponse_h

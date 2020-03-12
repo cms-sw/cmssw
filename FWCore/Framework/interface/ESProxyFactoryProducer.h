@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     ESProxyFactoryProducer
-// 
+//
 /**\class ESProxyFactoryProducer ESProxyFactoryProducer.h FWCore/Framework/interface/ESProxyFactoryProducer.h
 
  Description: An EventSetup algorithmic Provider that manages Factories of Proxies
@@ -62,72 +62,52 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
-   namespace eventsetup {
-      class ProxyFactoryBase;
-      
-      struct FactoryInfo {
-         FactoryInfo() : key_(), factory_() {}
-         FactoryInfo(const DataKey& iKey, 
-                      std::shared_ptr<ProxyFactoryBase> iFactory)
-         : key_(iKey), 
-         factory_(iFactory) {} 
-         DataKey key_;
-         edm::propagate_const<std::shared_ptr<ProxyFactoryBase>> factory_;
-      };
-   }      
-   
-class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
-{
+  namespace eventsetup {
+    class ProxyFactoryBase;
 
-   public:
-      ESProxyFactoryProducer();
-      ~ESProxyFactoryProducer() noexcept(false) override;
+    struct FactoryInfo {
+      FactoryInfo() : key_(), factory_() {}
+      FactoryInfo(const DataKey& iKey, std::shared_ptr<ProxyFactoryBase> iFactory) : key_(iKey), factory_(iFactory) {}
+      DataKey key_;
+      edm::propagate_const<std::shared_ptr<ProxyFactoryBase>> factory_;
+    };
+  }  // namespace eventsetup
 
-      // ---------- const member functions ---------------------
+  class ESProxyFactoryProducer : public eventsetup::DataProxyProvider {
+  public:
+    ESProxyFactoryProducer();
 
-      // ---------- static member functions --------------------
+    ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete;
+    const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&) = delete;
 
-      // ---------- member functions ---------------------------
-      ///overrides DataProxyProvider method
-      void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
-                                const ValidityInterval& iInterval) override ;
+    ~ESProxyFactoryProducer() noexcept(false) override;
 
-   protected:
-      ///override DataProxyProvider method
-      void registerProxies(const eventsetup::EventSetupRecordKey& iRecord ,
-                                    KeyedProxies& aProxyList) override ;
+  protected:
+    using EventSetupRecordKey = eventsetup::EventSetupRecordKey;
 
-      /** \param iFactory unique_ptr holding a new instance of a Factory
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) override;
+
+    /** \param iFactory unique_ptr holding a new instance of a Factory
          \param iLabel extra string label used to get data (optional)
          Producer takes ownership of the Factory and uses it create the appropriate
          Proxy which is then registered with the EventSetup.  If used, this method should
          be called in inheriting class' constructor.
       */
-      template< class TFactory>
-         void registerFactory(std::unique_ptr<TFactory> iFactory,
-                              const std::string& iLabel = std::string()) {
-            std::unique_ptr<eventsetup::ProxyFactoryBase> temp(iFactory.release());
-            registerFactoryWithKey(
-                                   eventsetup::EventSetupRecordKey::makeKey<typename TFactory::record_type>(),
-                                   std::move(temp),
-                                   iLabel);
-         }
-      
-      virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
-                                          std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
-                                          const std::string& iLabel= std::string() );
+    template <class TFactory>
+    void registerFactory(std::unique_ptr<TFactory> iFactory, const std::string& iLabel = std::string()) {
+      std::unique_ptr<eventsetup::ProxyFactoryBase> temp(iFactory.release());
+      registerFactoryWithKey(EventSetupRecordKey::makeKey<typename TFactory::RecordType>(), std::move(temp), iLabel);
+    }
 
-   private:
-      ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete; // stop default
+    virtual void registerFactoryWithKey(const EventSetupRecordKey& iRecord,
+                                        std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
+                                        const std::string& iLabel = std::string());
 
-      const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&) = delete; // stop default
+  private:
+    // ---------- member data --------------------------------
+    std::multimap<EventSetupRecordKey, eventsetup::FactoryInfo> record2Factories_;
+  };
 
-      
-      // ---------- member data --------------------------------
-      std::multimap< eventsetup::EventSetupRecordKey, eventsetup::FactoryInfo > record2Factories_;
-
-};
-
-}
+}  // namespace edm
 
 #endif

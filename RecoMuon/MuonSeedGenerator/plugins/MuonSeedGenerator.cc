@@ -8,15 +8,13 @@
  *  \author ported by: R. Bellan - INFN Torino
  */
 
-
 #include "RecoMuon/MuonSeedGenerator/plugins/MuonSeedGenerator.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedOrcaPatternRecognition.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedSimpleCleaner.h"
 
-
-// Data Formats 
+// Data Formats
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -34,7 +32,6 @@
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -42,7 +39,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 
 // C++
 #include <vector>
@@ -55,32 +51,29 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 // Constructor
 MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset)
-: theSeedFinder(new MuonSeedFinder(pset)),
-  theSeedCleaner(new MuonSeedSimpleCleaner()),
-  theBeamSpotTag(pset.getParameter<edm::InputTag>("beamSpotTag"))
-{
-  produces<TrajectorySeedCollection>(); 
+    : theSeedFinder(new MuonSeedFinder(pset)),
+      theSeedCleaner(new MuonSeedSimpleCleaner()),
+      theBeamSpotTag(pset.getParameter<edm::InputTag>("beamSpotTag")) {
+  produces<TrajectorySeedCollection>();
 
   edm::ConsumesCollector iC = consumesCollector();
-  thePatternRecognition = new MuonSeedOrcaPatternRecognition(pset,iC);
+  thePatternRecognition = new MuonSeedOrcaPatternRecognition(pset, iC);
 
   beamspotToken = consumes<reco::BeamSpot>(theBeamSpotTag);
 }
 
 // Destructor
-MuonSeedGenerator::~MuonSeedGenerator(){
+MuonSeedGenerator::~MuonSeedGenerator() {
   delete thePatternRecognition;
   delete theSeedFinder;
   delete theSeedCleaner;
 }
 
-
 // reconstruct muon's seeds
-void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup)
-{
+void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup) {
   // create the pointer to the Seed container
   auto output = std::make_unique<TrajectorySeedCollection>();
-  
+
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
   theSeedFinder->setBField(&*field);
@@ -88,14 +81,11 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   event.getByToken(beamspotToken, beamSpotHandle);
-  if ( beamSpotHandle.isValid() )
-  {
+  if (beamSpotHandle.isValid()) {
     beamSpot = *beamSpotHandle;
 
-  } else
-  {
-    edm::LogInfo("MuonSeedGenerator")
-      << "No beam spot available from EventSetup \n";
+  } else {
+    edm::LogInfo("MuonSeedGenerator") << "No beam spot available from EventSetup \n";
   }
 
   // make it a vector so we can subtract it from position vectors
@@ -105,9 +95,8 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   std::vector<MuonRecHitContainer> patterns;
   thePatternRecognition->produce(event, eSetup, patterns);
 
-  for(std::vector<MuonRecHitContainer>::const_iterator seedSegments = patterns.begin();
-      seedSegments != patterns.end(); ++seedSegments)
-  {
+  for (std::vector<MuonRecHitContainer>::const_iterator seedSegments = patterns.begin(); seedSegments != patterns.end();
+       ++seedSegments) {
     theSeedFinder->seeds(*seedSegments, *output);
   }
 
@@ -116,12 +105,11 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   event.put(std::move(output));
 }
 
-  
-void MuonSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-   edm::ParameterSetDescription desc;
-   desc.setAllowAnything();
-   desc.add<bool>("EnableDTMeasurement",true);
-   desc.add<bool>("EnableCSCMeasurement",true);
-   desc.add<bool>("EnableME0Measurement",false);
-   descriptions.add("produceMuons", desc);
+void MuonSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setAllowAnything();
+  desc.add<bool>("EnableDTMeasurement", true);
+  desc.add<bool>("EnableCSCMeasurement", true);
+  desc.add<bool>("EnableME0Measurement", false);
+  descriptions.add("produceMuons", desc);
 }

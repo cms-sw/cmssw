@@ -4,7 +4,7 @@
 //
 // Package:     Notification
 // Class  :     SimActivityRegistry
-// 
+//
 /**\class SimActivityRegistry SimActivityRegistry.h SimG4Core/Notification/interface/SimActivityRegistry.h
 
  Description: Holds the various signals emitted in the simulation framework
@@ -25,7 +25,6 @@
 // user include files
 #include "SimG4Core/Notification/interface/Signaler.h"
 
-
 // forward declarations
 class BeginOfJob;
 class BeginOfRun;
@@ -38,89 +37,68 @@ class EndOfTrack;
 class DDDWorld;
 class G4Step;
 
-#define SAR_CONNECT_METHOD(signal) void connect(Observer<const signal*>* iObject) { watch ## signal (iObject); }
+#define SAR_CONNECT_METHOD(signal) \
+  void connect(Observer<const signal*>* iObject) { watch##signal(iObject); }
 
-class SimActivityRegistry
-{
+class SimActivityRegistry {
+public:
+  SimActivityRegistry() {}
+  //virtual ~SimActivityRegistry();
 
-   public:
-      SimActivityRegistry() {}
-      //virtual ~SimActivityRegistry();
+  typedef sim_act::Signaler<BeginOfJob> BeginOfJobSignal;
+  BeginOfJobSignal beginOfJobSignal_;
+  void watchBeginOfJob(const BeginOfJobSignal::slot_type& iSlot) { beginOfJobSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(BeginOfJob)
 
-      typedef sim_act::Signaler<BeginOfJob> BeginOfJobSignal;
-      BeginOfJobSignal beginOfJobSignal_;
-      void watchBeginOfJob(const BeginOfJobSignal::slot_type& iSlot){
-         beginOfJobSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(BeginOfJob)
+  typedef sim_act::Signaler<DDDWorld> DDDWorldSignal;
+  DDDWorldSignal dddWorldSignal_;
+  void watchDDDWorld(const DDDWorldSignal::slot_type& iSlot) { dddWorldSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(DDDWorld)
 
-      typedef sim_act::Signaler<DDDWorld> DDDWorldSignal;
-      DDDWorldSignal dddWorldSignal_;
-      void watchDDDWorld(const DDDWorldSignal::slot_type& iSlot){
-         dddWorldSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(DDDWorld)
+  typedef sim_act::Signaler<BeginOfRun> BeginOfRunSignal;
+  BeginOfRunSignal beginOfRunSignal_;
+  void watchBeginOfRun(const BeginOfRunSignal::slot_type& iSlot) { beginOfRunSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(BeginOfRun)
 
-      typedef sim_act::Signaler<BeginOfRun> BeginOfRunSignal;
-      BeginOfRunSignal beginOfRunSignal_;
-      void watchBeginOfRun(const BeginOfRunSignal::slot_type& iSlot){
-         beginOfRunSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(BeginOfRun)
+  typedef sim_act::Signaler<BeginOfEvent> BeginOfEventSignal;
+  BeginOfEventSignal beginOfEventSignal_;
+  void watchBeginOfEvent(const BeginOfEventSignal::slot_type& iSlot) { beginOfEventSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(BeginOfEvent)
 
-      typedef sim_act::Signaler<BeginOfEvent> BeginOfEventSignal;
-      BeginOfEventSignal beginOfEventSignal_;
-      void watchBeginOfEvent(const BeginOfEventSignal::slot_type& iSlot){
-         beginOfEventSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(BeginOfEvent)
+  typedef sim_act::Signaler<BeginOfTrack> BeginOfTrackSignal;
+  BeginOfTrackSignal beginOfTrackSignal_;
+  void watchBeginOfTrack(const BeginOfTrackSignal::slot_type& iSlot) { beginOfTrackSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(BeginOfTrack)
 
-      typedef sim_act::Signaler<BeginOfTrack> BeginOfTrackSignal;
-      BeginOfTrackSignal beginOfTrackSignal_;
-      void watchBeginOfTrack(const BeginOfTrackSignal::slot_type& iSlot){
-         beginOfTrackSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(BeginOfTrack)
-      
-      typedef sim_act::Signaler<G4Step> G4StepSignal;
-      G4StepSignal g4StepSignal_;
-      void watchG4Step(const G4StepSignal::slot_type& iSlot){
-         g4StepSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(G4Step)
-         
-      typedef sim_act::Signaler<EndOfRun> EndOfRunSignal;
-      EndOfRunSignal endOfRunSignal_;
-      void watchEndOfRun(const EndOfRunSignal::slot_type& iSlot){
-         endOfRunSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(EndOfRun)
-         
-      typedef sim_act::Signaler<EndOfEvent> EndOfEventSignal;
-      EndOfEventSignal endOfEventSignal_;
-      void watchEndOfEvent(const EndOfEventSignal::slot_type& iSlot){
-         endOfEventSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(EndOfEvent)
-         
-      typedef sim_act::Signaler<EndOfTrack> EndOfTrackSignal;
-      EndOfTrackSignal endOfTrackSignal_;
-      void watchEndOfTrack(const EndOfTrackSignal::slot_type& iSlot){
-         endOfTrackSignal_.connect(iSlot);
-      }
-      SAR_CONNECT_METHOD(EndOfTrack)
-         
-      ///forwards our signals to slots connected to iOther
-      void connect(SimActivityRegistry& iOther);
-      
-   private:
-      SimActivityRegistry(const SimActivityRegistry&) = delete; // stop default
+  typedef sim_act::Signaler<G4Step> G4StepSignal;
+  G4StepSignal g4StepSignal_;
+  void watchG4Step(const G4StepSignal::slot_type& iSlot) { g4StepSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(G4Step)
 
-      const SimActivityRegistry& operator=(const SimActivityRegistry&) = delete; // stop default
+  typedef sim_act::Signaler<EndOfRun> EndOfRunSignal;
+  EndOfRunSignal endOfRunSignal_;
+  void watchEndOfRun(const EndOfRunSignal::slot_type& iSlot) { endOfRunSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(EndOfRun)
 
-      // ---------- member data --------------------------------
+  typedef sim_act::Signaler<EndOfEvent> EndOfEventSignal;
+  EndOfEventSignal endOfEventSignal_;
+  void watchEndOfEvent(const EndOfEventSignal::slot_type& iSlot) { endOfEventSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(EndOfEvent)
 
+  typedef sim_act::Signaler<EndOfTrack> EndOfTrackSignal;
+  EndOfTrackSignal endOfTrackSignal_;
+  void watchEndOfTrack(const EndOfTrackSignal::slot_type& iSlot) { endOfTrackSignal_.connect(iSlot); }
+  SAR_CONNECT_METHOD(EndOfTrack)
+
+  ///forwards our signals to slots connected to iOther
+  void connect(SimActivityRegistry& iOther);
+
+private:
+  SimActivityRegistry(const SimActivityRegistry&) = delete;  // stop default
+
+  const SimActivityRegistry& operator=(const SimActivityRegistry&) = delete;  // stop default
+
+  // ---------- member data --------------------------------
 };
-
 
 #endif

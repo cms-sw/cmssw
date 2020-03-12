@@ -23,4 +23,4 @@
 /* Class DTRecSegment2DAlgoFactory Interface */
 
 typedef edmplugin::PluginFactory<DTRecSegment2DBaseAlgo *(const edm::ParameterSet &)> DTRecSegment2DAlgoFactory;
-#endif // DTSegment_DTRecSegment2DAlgoFactory_h
+#endif  // DTSegment_DTRecSegment2DAlgoFactory_h

@@ -11,111 +11,136 @@ Code from Wrapper.h supporting Views
 #include "DataFormats/Common/interface/fwd_setPtr.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "boost/mpl/if.hpp"
+#include <type_traits>
 
 namespace edm {
 
-  template<typename T>
+  template <typename T>
   struct DoFillView {
-    void operator()(T const& obj, ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector & helpers) const;
+    void operator()(T const& obj,
+                    ProductID const& id,
+                    std::vector<void const*>& pointers,
+                    FillViewHelperVector& helpers) const;
   };
 
-  template<typename T>
+  template <typename T>
   struct DoNotFillView {
     void operator()(T const&, ProductID const&, std::vector<void const*>&, FillViewHelperVector&) const {
-      Exception::throwThis(errors::ProductDoesNotSupportViews, "The product type ", typeid(T).name(), "\ndoes not support Views\n");
+      Exception::throwThis(
+          errors::ProductDoesNotSupportViews, "The product type ", typeid(T).name(), "\ndoes not support Views\n");
     }
   };
 
-  template<typename T>
-  inline
-  void Wrapper<T>::do_fillView(ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector& helpers) const {
-    typename boost::mpl::if_c<has_fillView<T>::value,
-    DoFillView<T>,
-    DoNotFillView<T> >::type maybe_filler;
+  template <typename T>
+  inline void Wrapper<T>::do_fillView(ProductID const& id,
+                                      std::vector<void const*>& pointers,
+                                      FillViewHelperVector& helpers) const {
+    typename std::conditional<has_fillView<T>::value, DoFillView<T>, DoNotFillView<T> >::type maybe_filler;
     maybe_filler(obj, id, pointers, helpers);
   }
 
-
-  template<typename T>
+  template <typename T>
   struct DoSetPtr {
     void operator()(T const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) const;
-    void operator()(T const& obj, std::type_info const& iToType, std::vector<unsigned long> const& iIndex, std::vector<void const*>& oPtr) const;
+    void operator()(T const& obj,
+                    std::type_info const& iToType,
+                    std::vector<unsigned long> const& iIndex,
+                    std::vector<void const*>& oPtr) const;
   };
 
-  template<typename T>
+  template <typename T>
   struct DoNotSetPtr {
     void operator()(T const& /*obj*/, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) const {
-      Exception::throwThis(errors::ProductDoesNotSupportPtr, "The product type ", typeid(T).name(), "\ndoes not support edm::Ptr\n");
+      Exception::throwThis(
+          errors::ProductDoesNotSupportPtr, "The product type ", typeid(T).name(), "\ndoes not support edm::Ptr\n");
     }
-    void operator()(T const& obj, std::type_info const& iToType, std::vector<unsigned long> const& iIndexes, std::vector<void const*>& oPtrs) const {
-      Exception::throwThis(errors::ProductDoesNotSupportPtr, "The product type ", typeid(T).name(), "\ndoes not support edm::PtrVector\n");
+    void operator()(T const& obj,
+                    std::type_info const& iToType,
+                    std::vector<unsigned long> const& iIndexes,
+                    std::vector<void const*>& oPtrs) const {
+      Exception::throwThis(errors::ProductDoesNotSupportPtr,
+                           "The product type ",
+                           typeid(T).name(),
+                           "\ndoes not support edm::PtrVector\n");
     }
   };
 
-  template<typename T>
-  inline
-  void Wrapper<T>::do_setPtr(std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) const {
-    typename boost::mpl::if_c<has_setPtr<T>::value,
-    DoSetPtr<T>,
-    DoNotSetPtr<T> >::type maybe_filler;
+  template <typename T>
+  inline void Wrapper<T>::do_setPtr(std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) const {
+    typename std::conditional<has_setPtr<T>::value, DoSetPtr<T>, DoNotSetPtr<T> >::type maybe_filler;
     maybe_filler(this->obj, iToType, iIndex, oPtr);
   }
 
-  template<typename T>
-  void Wrapper<T>::do_fillPtrVector(std::type_info const& iToType, std::vector<unsigned long> const& iIndices, std::vector<void const*>& oPtr) const {
-    typename boost::mpl::if_c<has_setPtr<T>::value,
-    DoSetPtr<T>,
-    DoNotSetPtr<T> >::type maybe_filler;
+  template <typename T>
+  void Wrapper<T>::do_fillPtrVector(std::type_info const& iToType,
+                                    std::vector<unsigned long> const& iIndices,
+                                    std::vector<void const*>& oPtr) const {
+    typename std::conditional<has_setPtr<T>::value, DoSetPtr<T>, DoNotSetPtr<T> >::type maybe_filler;
     maybe_filler(this->obj, iToType, iIndices, oPtr);
   }
-}
+}  // namespace edm
 
 namespace edm {
 
-  template<typename T> class PtrVector;
+  template <typename T>
+  class PtrVector;
 
   namespace helpers {
-    template<typename T>
+    template <typename T>
     struct ViewFiller {
-      static void fill(T const& obj, ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector & helpers) {
+      static void fill(T const& obj,
+                       ProductID const& id,
+                       std::vector<void const*>& pointers,
+                       FillViewHelperVector& helpers) {
         fillView(obj, id, pointers, helpers);
         assert(pointers.size() == helpers.size());
       }
     };
 
-    template<typename T>
-      struct PtrSetter {
-        static void set(T const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) {
-          // setPtr is the name of an overload set; each concrete collection T should supply a fillView function, in the same
-          // namespace at that in which T is defined, or in the 'edm' namespace.
-          setPtr(obj, iToType, iIndex, oPtr);
-        }
+    template <typename T>
+    struct PtrSetter {
+      static void set(T const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) {
+        // setPtr is the name of an overload set; each concrete collection T should supply a fillView function, in the same
+        // namespace at that in which T is defined, or in the 'edm' namespace.
+        setPtr(obj, iToType, iIndex, oPtr);
+      }
 
-        static void fill(T const& obj, std::type_info const& iToType, std::vector<unsigned long> const& iIndex, std::vector<void const*>& oPtr) {
-          // fillPtrVector is the name of an overload set; each concrete collection T should supply a fillPtrVector function,
-          // in the same namespace at that in which T is defined, or in the 'edm'  namespace.
-          fillPtrVector(obj, iToType, iIndex, oPtr);
-        }
-      };
-  }
+      static void fill(T const& obj,
+                       std::type_info const& iToType,
+                       std::vector<unsigned long> const& iIndex,
+                       std::vector<void const*>& oPtr) {
+        // fillPtrVector is the name of an overload set; each concrete collection T should supply a fillPtrVector function,
+        // in the same namespace at that in which T is defined, or in the 'edm'  namespace.
+        fillPtrVector(obj, iToType, iIndex, oPtr);
+      }
+    };
+  }  // namespace helpers
 
-  template<typename T>
-  void DoFillView<T>::operator()(T const& obj, ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector& helpers) const {
+  template <typename T>
+  void DoFillView<T>::operator()(T const& obj,
+                                 ProductID const& id,
+                                 std::vector<void const*>& pointers,
+                                 FillViewHelperVector& helpers) const {
     helpers::ViewFiller<T>::fill(obj, id, pointers, helpers);
   }
 
-  template<typename T>
-  void DoSetPtr<T>::operator()(T const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) const {
+  template <typename T>
+  void DoSetPtr<T>::operator()(T const& obj,
+                               std::type_info const& iToType,
+                               unsigned long iIndex,
+                               void const*& oPtr) const {
     helpers::PtrSetter<T>::set(obj, iToType, iIndex, oPtr);
   }
 
-  template<typename T>
-  void DoSetPtr<T>::operator()(T const& obj, std::type_info const& iToType, std::vector<unsigned long> const& iIndices, std::vector<void const*>& oPtr) const {
+  template <typename T>
+  void DoSetPtr<T>::operator()(T const& obj,
+                               std::type_info const& iToType,
+                               std::vector<unsigned long> const& iIndices,
+                               std::vector<void const*>& oPtr) const {
     helpers::PtrSetter<T>::fill(obj, iToType, iIndices, oPtr);
   }
 
-}
+}  // namespace edm
 
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/setPtr.h"

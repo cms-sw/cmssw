@@ -1,12 +1,12 @@
 #ifndef EcalSimAlgos_EcalShapeBase_h
 #define EcalSimAlgos_EcalShapeBase_h
 
-#include<vector>
+#include <vector>
 //#include<stdexcept>
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
-  
+
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 
@@ -21,55 +21,51 @@
    and sampling time from the DB or false if the Phase I hard coded arrays
    with 1 ns sampling should be used. -- K. Theofilatos
 */
-class EcalShapeBase : public CaloVShape
-{
-   public:
+class EcalShapeBase : public CaloVShape {
+public:
+  typedef std::vector<double> DVec;
 
-      typedef std::vector<double> DVec ;
-  
-      EcalShapeBase(bool) ;
+  EcalShapeBase(bool);
 
-      ~EcalShapeBase() override ;
+  ~EcalShapeBase() override;
 
-      double operator() ( double aTime ) const override ;
+  double operator()(double aTime) const override;
 
-      double         timeOfThr()  const ;
-      double         timeOfMax()  const ;
-      double timeToRise() const override ;
+  double timeOfThr() const;
+  double timeOfMax() const;
+  double timeToRise() const override;
 
-      double threshold() const;
-  
-      double derivative ( double time ) const ; // appears to not be used anywhere
+  double threshold() const;
 
-      void m_shape_print(const char *fileName);     
-      void setEventSetup(const edm::EventSetup & evtSetup); 
+  double derivative(double time) const;  // appears to not be used anywhere
 
-   protected:
+  void m_shape_print(const char* fileName);
+  void setEventSetup(const edm::EventSetup& evtSetup);
 
-      unsigned int timeIndex( double aTime ) const ;
+protected:
+  unsigned int timeIndex(double aTime) const;
 
-      void buildMe(const edm::EventSetup* = nullptr ) ;
+  void buildMe(const edm::EventSetup* = nullptr);
 
-      virtual void   fillShape(float &time_interval, double &m_thresh, EcalShapeBase::DVec& aVec, const edm::EventSetup* es) const = 0 ;
-      bool         m_useDBShape;
+  virtual void fillShape(float& time_interval,
+                         double& m_thresh,
+                         EcalShapeBase::DVec& aVec,
+                         const edm::EventSetup* es) const = 0;
+  bool m_useDBShape;
 
-   private:
+private:
+  unsigned int m_firstIndexOverThreshold;
+  double m_firstTimeOverThreshold;
+  unsigned int m_indexOfMax;
+  double m_timeOfMax;
+  double m_thresh;
+  unsigned int m_kNBinsPerNSec;
+  DVec m_shape;
+  DVec m_deriv;
 
-      unsigned int m_firstIndexOverThreshold ;
-      double       m_firstTimeOverThreshold  ;
-      unsigned int m_indexOfMax ;
-      double       m_timeOfMax  ;
-      double       m_thresh;
-      unsigned int m_kNBinsPerNSec;
-      DVec  m_shape ;
-      DVec  m_deriv ;
-  
-      unsigned int m_arraySize;
-      unsigned int m_denseArraySize;   
-      double m_qNSecPerBin;
+  unsigned int m_arraySize;
+  unsigned int m_denseArraySize;
+  double m_qNSecPerBin;
 };
-  
-
 
 #endif
-  

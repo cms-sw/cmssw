@@ -7,42 +7,36 @@
  *
  *  \author S. Bolognesi - INFN Torino
  */
-#include <vector> 
+#include <vector>
 #include "TString.h"
 
 class TH1F;
 class TFile;
 class TF1;
 
-
-
 class DTMeanTimerFitter {
 public:
   /// Constructor
-  DTMeanTimerFitter(TFile *file);
+  DTMeanTimerFitter(TFile* file);
 
   /// Destructor
   virtual ~DTMeanTimerFitter();
 
   /// Fit the TMax histos and evaluate VDrift and resolution
-  std::vector<float> evaluateVDriftAndReso (const TString& N);
+  std::vector<float> evaluateVDriftAndReso(const TString& N);
 
   /// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
-  void setVerbosity(unsigned int lvl) {
-    theVerbosityLevel = lvl;
-  }
+  void setVerbosity(unsigned int lvl) { theVerbosityLevel = lvl; }
 
   /// Really do the fit
   TF1* fitTMax(TH1F* histo);
+
 protected:
-
 private:
-
-  TFile *hDebugFile;
-  TFile *hInputFile;
+  TFile* hDebugFile;
+  TFile* hInputFile;
 
   unsigned int theVerbosityLevel;
 };
 
 #endif
-

@@ -14,37 +14,29 @@ UnitConverter::UnitConverter(const G4BestUnit & bu)
 }
 */
 
-UnitConverter::UnitConverter(ALIdouble val, const ALIstring & category)
- : bu_(new CocoaBestUnit(val,category)), angl_(false)
-{ 
-   if (category=="Angle")
-    angl_=true;
+UnitConverter::UnitConverter(ALIdouble val, const ALIstring& category)
+    : bu_(new CocoaBestUnit(val, category)), angl_(false) {
+  if (category == "Angle")
+    angl_ = true;
 }
 
-UnitConverter::~UnitConverter()
-{
-  delete bu_;
-}  
+UnitConverter::~UnitConverter() { delete bu_; }
 
-std::string UnitConverter::ucstring()
-{
+std::string UnitConverter::ucstring() {
+  std::ostrstream str;
 
-   std::ostrstream str;
-   
-   if (angl_) {
-     str.precision(11);
-     double x = ( *(bu_->GetValue()) ) / deg;
-     str << x << std::string("*deg") << '\0';
-     return std::string(str.str());
-   
-   }
-   else {
-     str << *bu_ << '\0';
-     std::string s(str.str());
-     return s.replace(s.find(" "),1,"*");
-   }  
-   //return s;
+  if (angl_) {
+    str.precision(11);
+    double x = (*(bu_->GetValue())) / deg;
+    str << x << std::string("*deg") << '\0';
+    return std::string(str.str());
 
+  } else {
+    str << *bu_ << '\0';
+    std::string s(str.str());
+    return s.replace(s.find(" "), 1, "*");
+  }
+  //return s;
 }
 
 /*

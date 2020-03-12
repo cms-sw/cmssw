@@ -16,20 +16,16 @@
 #include "OnlineDB/CSCCondDB/interface/CSCCrateMapValues.h"
 #include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
-namespace popcon
-{
-  class CSCCrateMapImpl : public popcon::PopConSourceHandler<CSCCrateMap>
-    {
-      
-    public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCCrateMapImpl(); 
-      CSCCrateMapImpl(const edm::ParameterSet& pset);
-      
-      
-    private:
-      std::string m_name;
-    };
-}
+namespace popcon {
+  class CSCCrateMapImpl : public popcon::PopConSourceHandler<CSCCrateMap> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCCrateMapImpl();
+    CSCCrateMapImpl(const edm::ParameterSet& pset);
+
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

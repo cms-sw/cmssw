@@ -14,7 +14,6 @@
  * \author Finn Rebassoo      UCSB
  */
 
-
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -36,51 +35,52 @@ class MagneticField;
 class MuonErrorMatrix;
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-#include  <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 
 //
 // class decleration
 //
 
 class MuonErrorMatrixAdjuster : public edm::EDProducer {
- public:
+public:
   /// constructor
   explicit MuonErrorMatrixAdjuster(const edm::ParameterSet&);
   /// destructor
   ~MuonErrorMatrixAdjuster() override;
-  
- private:
+
+private:
   /// framework method
-  void beginJob() override ;
+  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  
-  /// return a corrected error matrix 
-  reco::TrackBase::CovarianceMatrix fix_cov_matrix(const reco::TrackBase::CovarianceMatrix& error_matrix, const GlobalVector& momentum);
+  void endJob() override;
+
+  /// return a corrected error matrix
+  reco::TrackBase::CovarianceMatrix fix_cov_matrix(const reco::TrackBase::CovarianceMatrix& error_matrix,
+                                                   const GlobalVector& momentum);
   /// mutliply revised_matrix (first argument)  by second matrix TERM by TERM
-  void multiply(reco::TrackBase::CovarianceMatrix & revised_matrix, const reco::TrackBase::CovarianceMatrix & scale_matrix);
+  void multiply(reco::TrackBase::CovarianceMatrix& revised_matrix,
+                const reco::TrackBase::CovarianceMatrix& scale_matrix);
   /// divide the num_matrix  (first argument) by second matrix, TERM by TERM
-  bool divide(reco::TrackBase::CovarianceMatrix & num_matrix, const reco::TrackBase::CovarianceMatrix & denom_matrix);
+  bool divide(reco::TrackBase::CovarianceMatrix& num_matrix, const reco::TrackBase::CovarianceMatrix& denom_matrix);
 
   /// create a corrected reco::Track from itself and trajectory state (redundant information)
-  reco::Track makeTrack(const reco::Track & recotrack_orig,
-			const FreeTrajectoryState & PCAstate);
+  reco::Track makeTrack(const reco::Track& recotrack_orig, const FreeTrajectoryState& PCAstate);
 
   /// make a selection on the reco:Track. (dummy for the moment)
-  bool selectTrack(const reco::Track & recotrack_orig);
+  bool selectTrack(const reco::Track& recotrack_orig);
 
   /// create a track extra for the newly created recotrack, scaling the outer/inner measurment error matrix by the scale matrix recotrack/recotrack_orig
-  reco::TrackExtra * makeTrackExtra(const reco::Track & recotrack_orig,
-				    reco::Track & recotrack,
-				    reco::TrackExtraCollection& TEcol);
+  reco::TrackExtra* makeTrackExtra(const reco::Track& recotrack_orig,
+                                   reco::Track& recotrack,
+                                   reco::TrackExtraCollection& TEcol);
 
   /// attached rechits to the newly created reco::Track and reco::TrackExtra
-  bool attachRecHits(const reco::Track & recotrack_orig,
-		     reco::Track & recotrack,
-		     reco::TrackExtra & trackextra,
-		     TrackingRecHitCollection& RHcol,
+  bool attachRecHits(const reco::Track& recotrack_orig,
+                     reco::Track& recotrack,
+                     reco::TrackExtra& trackextra,
+                     TrackingRecHitCollection& RHcol,
                      const TrackerTopology& ttopo);
-      
+
   // ----------member data ---------------------------
   /// log category: MuonErrorMatrixAdjuster
   std::string theCategory;
@@ -96,12 +96,11 @@ class MuonErrorMatrixAdjuster : public edm::EDProducer {
 
   /// holds the error matrix parametrization
   edm::ParameterSet theMatrixProvider_pset;
-  MuonErrorMatrix * theMatrixProvider;
-  
+  MuonErrorMatrix* theMatrixProvider;
 
   /// hold on to the magnetic field
   edm::ESHandle<MagneticField> theField;
-      
+
   /// get reference before put track extra to the event, in order to create edm::Ref
   edm::RefProd<reco::TrackExtraCollection> theRefprodTE;
   edm::Ref<reco::TrackExtraCollection>::key_type theTEi;
@@ -109,7 +108,6 @@ class MuonErrorMatrixAdjuster : public edm::EDProducer {
   /// get reference before put rechit to the event, in order to create edm::Ref
   edm::RefProd<TrackingRecHitCollection> theRefprodRH;
   edm::Ref<TrackingRecHitCollection>::key_type theRHi;
-
 };
 
 #endif

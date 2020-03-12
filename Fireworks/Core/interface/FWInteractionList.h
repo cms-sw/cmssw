@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWInteractionList
-// 
+//
 /**\class FWInteractionList FWInteractionList.h Fireworks/Core/interface/FWInteractionList.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  Alja Mrak-Tadel 
+// Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Apr 19 12:48:12 CEST 2010
 //
 
@@ -30,37 +30,34 @@ class TEveCompound;
 class FWEventItem;
 class FWModelId;
 
-class FWInteractionList
-{
+class FWInteractionList {
 public:
-   FWInteractionList(const FWEventItem* item);
-   virtual ~FWInteractionList();
+  FWInteractionList(const FWEventItem* item);
+  virtual ~FWInteractionList();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   const FWEventItem* item() const { return m_item;}
-   bool empty() const { return m_compounds.empty(); }
+  const FWEventItem* item() const { return m_item; }
+  bool empty() const { return m_compounds.empty(); }
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void added(TEveElement*, unsigned int);
-   //   void removed(TEveElement*, int);
+  // ---------- member functions ---------------------------
+  void added(TEveElement*, unsigned int);
+  //   void removed(TEveElement*, int);
 
-   void modelChanges(const std::set<FWModelId>&);
-   void itemChanged();
+  void modelChanges(const std::set<FWModelId>&);
+  void itemChanged();
 
 private:
-   FWInteractionList(const FWInteractionList&) = delete; // stop default
+  FWInteractionList(const FWInteractionList&) = delete;  // stop default
 
-   const FWInteractionList& operator=(const FWInteractionList&) = delete; // stop default
+  const FWInteractionList& operator=(const FWInteractionList&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   std::vector<TEveCompound*> m_compounds;
-   const FWEventItem* m_item;
-
+  std::vector<TEveCompound*> m_compounds;
+  const FWEventItem* m_item;
 };
-
 
 #endif

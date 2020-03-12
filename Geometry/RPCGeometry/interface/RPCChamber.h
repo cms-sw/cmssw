@@ -27,7 +27,7 @@ public:
   RPCDetId id() const;
 
   // Which subdetector
-  SubDetector subDetector() const override {return GeomDetEnumerators::RPCBarrel;}
+  SubDetector subDetector() const override { return GeomDetEnumerators::RPCBarrel; }
 
   /// equal if the id is the same
   bool operator==(const RPCChamber& ch) const;
@@ -36,16 +36,16 @@ public:
   void add(RPCRoll* rl);
 
   /// Return the rolls in the chamber
-  std::vector< const GeomDet*> components() const override;
+  std::vector<const GeomDet*> components() const override;
 
   /// Return the sub-component (roll) with a given id in this chamber
   const GeomDet* component(DetId id) const override;
 
-  /// Return the Roll corresponding to the given id 
+  /// Return the Roll corresponding to the given id
   const RPCRoll* roll(RPCDetId id) const;
 
   const RPCRoll* roll(int isl) const;
-  
+
   /// Return the Rolls
   const std::vector<const RPCRoll*>& rolls() const;
 
@@ -53,11 +53,9 @@ public:
   int nrolls() const;
 
 private:
-
   RPCDetId theId;
 
   // The chamber owns its Rolls
   std::vector<const RPCRoll*> theRolls;
-
 };
 #endif

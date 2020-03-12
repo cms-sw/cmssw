@@ -5,20 +5,18 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include <vector>
-#include "DataFormats/Common/interface/RefToBase.h" 
+#include "DataFormats/Common/interface/RefToBase.h"
 
 namespace edm {
-      typedef std::vector<PSimHit> PSimHitContainer;
-} // edm
+  typedef std::vector<PSimHit> PSimHitContainer;
+}  // namespace edm
 
-typedef edm::Ref<edm::PSimHitContainer> TrackPSimHitRef;         
+typedef edm::Ref<edm::PSimHitContainer> TrackPSimHitRef;
 typedef edm::RefProd<edm::PSimHitContainer> TrackPSimHitRefProd;
-
 
 typedef std::vector<edm::RefToBase<PSimHit> > TrackPSimHitRefToBaseVector;
 typedef edm::RefToBase<PSimHit> TrackPSimHitRefToBase;
 typedef std::vector<edm::RefToBase<PSimHit> > TrackPSimHitRefToBaseVector;
 typedef edm::reftobase::Holder<PSimHit, TrackPSimHitRef> TrackPSimHitRefToBaseHolder;
 
-#endif 
-
+#endif

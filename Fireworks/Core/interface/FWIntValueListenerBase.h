@@ -5,20 +5,18 @@
 
 class FWIntValueListenerBase {
 public:
-   FWIntValueListenerBase() {
-   }
-   virtual ~FWIntValueListenerBase() {
-   }
+  FWIntValueListenerBase() {}
+  virtual ~FWIntValueListenerBase() {}
 
-   // ---------- member functions ---------------------------
-   void setValue(Int_t entry);
-   virtual void setValueImp(Int_t entry) = 0;
+  // ---------- member functions ---------------------------
+  void setValue(Int_t entry);
+  virtual void setValueImp(Int_t entry) = 0;
 
-   ClassDef(FWIntValueListenerBase, 0);
+  ClassDef(FWIntValueListenerBase, 0);
 
 private:
-   FWIntValueListenerBase(const FWIntValueListenerBase&); // stop default
-   const FWIntValueListenerBase& operator=(const FWIntValueListenerBase&); // stop default
+  FWIntValueListenerBase(const FWIntValueListenerBase&);                   // stop default
+  const FWIntValueListenerBase& operator=(const FWIntValueListenerBase&);  // stop default
 };
 
 #endif

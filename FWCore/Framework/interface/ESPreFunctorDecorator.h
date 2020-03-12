@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     ESPreFunctorDecorator
-// 
+//
 /**\class ESPreFunctorDecorator ESPreFunctorDecorator.h FWCore/Framework/interface/ESPreFunctorDecorator.h
 
  Description: A Decorator that works as a adapter to call a Functor before each call to the decorated method
@@ -27,15 +27,12 @@ the ESProducer's 'produce' method.
 // forward declarations
 
 namespace edm {
-   namespace eventsetup {
+  namespace eventsetup {
 
-template<class TRecord, class TFunctor >
-class ESPreFunctorDecorator
-{
-
-   public:
-      ESPreFunctorDecorator(const TFunctor& iCaller) :
-         caller_(iCaller) {}
+    template <class TRecord, class TFunctor>
+    class ESPreFunctorDecorator {
+    public:
+      ESPreFunctorDecorator(const TFunctor& iCaller) : caller_(iCaller) {}
       //virtual ~ESPreFunctorDecorator();
 
       // ---------- const member functions ---------------------
@@ -43,23 +40,20 @@ class ESPreFunctorDecorator
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void pre(const TRecord& iRecord) {
-         caller_(iRecord);
-      }
-   
-      void post(const TRecord&) {
-      }
-   
-   private:
+      void pre(const TRecord& iRecord) { caller_(iRecord); }
+
+      void post(const TRecord&) {}
+
+    private:
       //ESPreFunctorDecorator(const ESPreFunctorDecorator&); // stop default
 
-      const ESPreFunctorDecorator& operator=(const ESPreFunctorDecorator&) = delete; // stop default
+      const ESPreFunctorDecorator& operator=(const ESPreFunctorDecorator&) = delete;  // stop default
 
       // ---------- member data --------------------------------
       TFunctor caller_;
-};
+    };
 
-   }
-}
+  }  // namespace eventsetup
+}  // namespace edm
 
 #endif

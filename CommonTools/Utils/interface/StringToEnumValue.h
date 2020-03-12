@@ -1,7 +1,6 @@
 #ifndef _CommonTools_Utils_StringToEnumValue_h_
 #define _CommonTools_Utils_StringToEnumValue_h_
 
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "TEnum.h"
 #include "TEnumConstant.h"
@@ -9,7 +8,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-
 
 /**
 
@@ -24,17 +22,16 @@
 */
 
 template <typename MyEnum>
-int StringToEnumValue(std::string const& enumConstName){
-   TEnum* en = TEnum::GetEnum(typeid(MyEnum));
-   if (en != nullptr){
-      if (TEnumConstant const* enc = en->GetConstant(enumConstName.c_str())){
-         return enc->GetValue();
-      }
-   }
-   assert(0);
-   return -1;
+int StringToEnumValue(std::string const& enumConstName) {
+  TEnum* en = TEnum::GetEnum(typeid(MyEnum));
+  if (en != nullptr) {
+    if (TEnumConstant const* enc = en->GetConstant(enumConstName.c_str())) {
+      return enc->GetValue();
+    }
+  }
+  assert(0);
+  return -1;
 }
-
 
 /**
 
@@ -56,20 +53,18 @@ int StringToEnumValue(std::string const& enumConstName){
 
 */
 
-
-template <class MyType> 
-std::vector<int> StringToEnumValue(const std::vector<std::string> & enumNames){
-  
-  using std::vector;
+template <class MyType>
+std::vector<int> StringToEnumValue(const std::vector<std::string>& enumNames) {
   using std::string;
+  using std::vector;
 
   vector<int> ret;
-  vector<string>::const_iterator str=enumNames.begin();
-  for (;str!=enumNames.end();++str){
-    ret.push_back( StringToEnumValue<MyType>(*str));
+  vector<string>::const_iterator str = enumNames.begin();
+  for (; str != enumNames.end(); ++str) {
+    ret.push_back(StringToEnumValue<MyType>(*str));
   }
   return ret;
 
-} // 
+}  //
 
 #endif

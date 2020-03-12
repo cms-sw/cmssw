@@ -59,9 +59,14 @@ def ageHF(process,turnon):
         process.es_hardcode.HFRecalibration = cms.bool(turnon)
     return process
 
-def agedHGCal(process):
+def agedHGCal(process,algo=0):
     from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setEndOfLifeNoise
-    process = HGCal_setEndOfLifeNoise(process)
+    process = HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=algo)
+    return process
+
+def realisticHGCalStartup(process):
+    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setRealisticStartupNoise
+    process = HGCal_setRealisticStartupNoise(process)
     return process
 
 # needs lumi to set proper ZS thresholds (tbd)
@@ -232,23 +237,27 @@ def customise_aging_300(process):
 
 def customise_aging_1000(process):
     process=ageHcal(process,1000,5.0e34,"nominal")
+    process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,1000,5.0e34)
     return process
 
 def customise_aging_3000(process):
     process=ageHcal(process,3000,5.0e34,"nominal")
+    process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,3000,5.0e34)
     process=agedHGCal(process)
     return process
 
 def customise_aging_3000_ultimate(process):
     process=ageHcal(process,3000,7.5e34,"ultimate")
+    process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,3000,7.5e34)
     process=agedHGCal(process)
     return process
 
 def customise_aging_4500_ultimate(process):
     process=ageHcal(process,4500,7.5e34,"ultimate")
+    process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,4500,7.5e34)
     process=agedHGCal(process)
     return process

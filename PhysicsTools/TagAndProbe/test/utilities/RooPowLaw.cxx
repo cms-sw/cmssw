@@ -18,7 +18,7 @@
  #include "RooAbsReal.h" 
  #include "RooAbsCategory.h" 
 
- ClassImp(RooPowLaw) 
+ ClassImp(RooPowLaw); 
 
  RooPowLaw::RooPowLaw(const char *name, const char *title, 
 				      RooAbsReal& _m,

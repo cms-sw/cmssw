@@ -12,20 +12,19 @@
 
 class TEveElement;
 
-class TEveElementIter
-{
-   TPRegexp regexp;
-   std::vector<TEveElement*> elements;
-   std::vector<TEveElement*>::iterator iter;
+class TEveElementIter {
+  TPRegexp regexp;
+  std::vector<TEveElement*> elements;
+  std::vector<TEveElement*>::iterator iter;
+
 public:
-   TEveElementIter( TEveElement*, const char* regular_expression = nullptr );
-   TEveElement* next();
-   TEveElement* current();
-   TEveElement* reset();
-   unsigned int size() {
-      return elements.size();
-   }
+  TEveElementIter(TEveElement*, const char* regular_expression = nullptr);
+  TEveElement* next();
+  TEveElement* current();
+  TEveElement* reset();
+  unsigned int size() { return elements.size(); }
+
 private:
-   void addElement( TEveElement* );
+  void addElement(TEveElement*);
 };
 #endif

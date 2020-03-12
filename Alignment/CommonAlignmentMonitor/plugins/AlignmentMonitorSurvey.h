@@ -3,7 +3,7 @@
 
 // Package:     CommonAlignmentMonitor
 // Class  :     AlignmentMonitorSurvey
-// 
+//
 // Store survey residuals in ROOT.
 //
 // Tree format is id:level:par[6].
@@ -18,20 +18,15 @@
 #include <string>
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 
-class AlignmentMonitorSurvey:
-  public AlignmentMonitorBase
-{
-  public:
-
+class AlignmentMonitorSurvey : public AlignmentMonitorBase {
+public:
   AlignmentMonitorSurvey(const edm::ParameterSet&);
-	
+
   void book() override;
 
-  void event(const edm::Event&,
-		     const edm::EventSetup&,
-		     const ConstTrajTrackPairCollection&) override {}
+  void event(const edm::Event&, const edm::EventSetup&, const ConstTrajTrackPairCollection&) override {}
 
-  private:
+private:
   std::vector<std::string> levelNames_;
 
   std::vector<align::StructureType> theLevels;

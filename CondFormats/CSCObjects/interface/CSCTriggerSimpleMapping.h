@@ -11,23 +11,20 @@
 #include <CondFormats/CSCObjects/interface/CSCTriggerMapping.h>
 
 class CSCTriggerSimpleMapping : public CSCTriggerMapping {
- public:
-
+public:
   /// Constructor
-   CSCTriggerSimpleMapping();
+  CSCTriggerSimpleMapping();
 
   /// Destructor
-   ~CSCTriggerSimpleMapping() override;
+  ~CSCTriggerSimpleMapping() override;
 
- private: 
-
-   /**
+private:
+  /**
      * Build a unique integer out of labels present or easily derivable from the 
      * readout.
      *
      */
-    int hwId( int endcap, int station, int sector, int subsector, int cscid ) const override;
-
+  int hwId(int endcap, int station, int sector, int subsector, int cscid) const override;
 };
 
 #endif

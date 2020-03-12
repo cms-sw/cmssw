@@ -21,5 +21,7 @@ kt4JetExtender = cms.EDProducer("JetExtender",
     coneSize = cms.double(0.5)
 )
 
-kt4JTA = cms.Sequence(kt4JetTracksAssociatorAtVertex*kt4JetTracksAssociatorAtCaloFace*kt4JetExtender)
-
+kt4JTATask = cms.Task(kt4JetTracksAssociatorAtVertex,
+                      kt4JetTracksAssociatorAtCaloFace,
+                      kt4JetExtender)
+kt4JTA = cms.Sequence(kt4JTATask)

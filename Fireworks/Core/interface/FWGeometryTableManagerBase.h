@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWGeometryTableManagerBase
-// 
+//
 /**\class FWGeometryTableManagerBase FWGeometryTableManagerBase.h Fireworks/Core/interface/FWGeometryTableManagerBase.h
 
  Description: [one line class summary]
@@ -33,194 +33,180 @@ class FWTableCellRendererBase;
 class TGeoNode;
 class TEvePointSet;
 
-class FWGeometryTableManagerBase : public FWTableManagerBase
-{
-   friend class FWGeometryTableViewBase;
+class FWGeometryTableManagerBase : public FWTableManagerBase {
+  friend class FWGeometryTableViewBase;
 
 public:
-   //   enum   ESelectionState { kNone, kSelected, kHighlighted, kFiltered };
+  //   enum   ESelectionState { kNone, kSelected, kHighlighted, kFiltered };
 
-   enum Bits
-   {
-      kExpanded        =  BIT(0),
+  enum Bits {
+    kExpanded = BIT(0),
 
-      kVisNodeSelf     =  BIT(1),
-      kVisNodeChld     =  BIT(2),
+    kVisNodeSelf = BIT(1),
+    kVisNodeChld = BIT(2),
 
-      kHighlighted   =  BIT(3),
-      kSelected      =  BIT(4)
-   };
+    kHighlighted = BIT(3),
+    kSelected = BIT(4)
+  };
 
-   struct NodeInfo
-   {
-      NodeInfo():m_node(nullptr), m_parent(-1), m_color(0), m_level(-1), 
-                 m_flags(kVisNodeSelf|kVisNodeChld) {}  
+  struct NodeInfo {
+    NodeInfo() : m_node(nullptr), m_parent(-1), m_color(0), m_level(-1), m_flags(kVisNodeSelf | kVisNodeChld) {}
 
-      NodeInfo(TGeoNode* n, Int_t p, Color_t col, Char_t l, UChar_t f = kVisNodeSelf|kVisNodeChld ):m_node(n), m_parent(p), m_color(col), m_level(l), 
-                 m_flags(f) {}  
+    NodeInfo(TGeoNode* n, Int_t p, Color_t col, Char_t l, UChar_t f = kVisNodeSelf | kVisNodeChld)
+        : m_node(n), m_parent(p), m_color(col), m_level(l), m_flags(f) {}
 
-      TGeoNode*   m_node;
-      Int_t       m_parent;
-      Color_t     m_color;
-      UChar_t     m_level;
-      UChar_t     m_flags;
-      UChar_t     m_transparency;
+    TGeoNode* m_node;
+    Int_t m_parent;
+    Color_t m_color;
+    UChar_t m_level;
+    UChar_t m_flags;
+    UChar_t m_transparency;
 
+    const char* name() const;
+    //  const char* nameIndent() const;
 
-      const char* name() const;
-      //  const char* nameIndent() const;
+    void setBit(UChar_t f) { m_flags |= f; }
+    void resetBit(UChar_t f) { m_flags &= ~f; }
+    void setBitVal(UChar_t f, bool x) { x ? setBit(f) : resetBit(f); }
 
-      void setBit(UChar_t f)    { m_flags  |= f;}
-      void resetBit(UChar_t f)  { m_flags &= ~f; }
-      void setBitVal(UChar_t f, bool x) { x ? setBit(f) : resetBit(f);}
- 
-      bool testBit(UChar_t f) const  { return (m_flags & f) == f; }
-      bool testBitAny(UChar_t f) const  { return (m_flags & f) != 0; }
+    bool testBit(UChar_t f) const { return (m_flags & f) == f; }
+    bool testBitAny(UChar_t f) const { return (m_flags & f) != 0; }
 
-     void switchBit(UChar_t f) { testBit(f) ? resetBit(f) : setBit(f); }
+    void switchBit(UChar_t f) { testBit(f) ? resetBit(f) : setBit(f); }
 
-     void copyColorTransparency(const NodeInfo& x) {
-       m_color = x.m_color; m_transparency = x.m_transparency; 
-       if (m_node->GetVolume()) { 
-         m_node->GetVolume()->SetLineColor(x.m_color);
-         m_node->GetVolume()->SetTransparency(x.m_transparency);
-       }
-     }
-   };
+    void copyColorTransparency(const NodeInfo& x) {
+      m_color = x.m_color;
+      m_transparency = x.m_transparency;
+      if (m_node->GetVolume()) {
+        m_node->GetVolume()->SetLineColor(x.m_color);
+        m_node->GetVolume()->SetTransparency(x.m_transparency);
+      }
+    }
+  };
 
+  typedef std::vector<NodeInfo> Entries_v;
+  typedef Entries_v::iterator Entries_i;
 
-   typedef std::vector<NodeInfo> Entries_v;
-   typedef Entries_v::iterator Entries_i;
-   
-   int m_highlightIdx;
+  int m_highlightIdx;
 
-   //private: 
-   // AMT: this could be a common base class with FWCollectionSummaryModelCellRenderer ..
-   class ColorBoxRenderer : public FWTableCellRendererBase
-   { 
-   public:
-      ColorBoxRenderer();
-      ~ColorBoxRenderer() override;
-  
-      UInt_t width() const override { return m_width; }
-      UInt_t height() const override { return m_height; }
-      void setData(Color_t c, bool);
-      void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
+  //private:
+  // AMT: this could be a common base class with FWCollectionSummaryModelCellRenderer ..
+  class ColorBoxRenderer : public FWTableCellRendererBase {
+  public:
+    ColorBoxRenderer();
+    ~ColorBoxRenderer() override;
 
-      UInt_t  m_width;
-      UInt_t  m_height;
-      Pixel_t m_color;      
-      bool    m_isSelected;
-      TGGC*   m_colorContext;
-   };
+    UInt_t width() const override { return m_width; }
+    UInt_t height() const override { return m_height; }
+    void setData(Color_t c, bool);
+    void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
+
+    UInt_t m_width;
+    UInt_t m_height;
+    Pixel_t m_color;
+    bool m_isSelected;
+    TGGC* m_colorContext;
+  };
 
 protected:
-   virtual bool nodeIsParent(const NodeInfo&) const { return false; }
-   //   virtual ESelectionState nodeSelectionState(int idx) const;
+  virtual bool nodeIsParent(const NodeInfo&) const { return false; }
+  //   virtual ESelectionState nodeSelectionState(int idx) const;
 
 public:
-   FWGeometryTableManagerBase();
-   ~FWGeometryTableManagerBase() override;
-   //   virtual std::string& cellName(const NodeInfo& ) const { return &std::string("ddd");} 
-   virtual const char* cellName(const NodeInfo& ) const { return nullptr;} 
+  FWGeometryTableManagerBase();
+  ~FWGeometryTableManagerBase() override;
+  //   virtual std::string& cellName(const NodeInfo& ) const { return &std::string("ddd");}
+  virtual const char* cellName(const NodeInfo&) const { return nullptr; }
 
-   // virtual functions of FWTableManagerBase
-   
-   int unsortedRowNumber(int unsorted) const override;
-   int numberOfRows() const override;
-   std::vector<std::string> getTitles() const override;
+  // virtual functions of FWTableManagerBase
 
-   virtual const std::string title() const;
+  int unsortedRowNumber(int unsorted) const override;
+  int numberOfRows() const override;
+  std::vector<std::string> getTitles() const override;
 
-   //int selectedRow() const;
-   //int selectedColumn() const;
-   //virtual bool rowIsSelected(int row) const;
+  virtual const std::string title() const;
 
-   std::vector<int> rowToIndex() { return m_row_to_index; }
+  //int selectedRow() const;
+  //int selectedColumn() const;
+  //virtual bool rowIsSelected(int row) const;
 
-   //   void setSelection(int row, int column, int mask); 
-   void implSort(int, bool) override {}
+  std::vector<int> rowToIndex() { return m_row_to_index; }
 
-   bool nodeImported(int idx) const;
-   // geo stuff
+  //   void setSelection(int row, int column, int mask);
+  void implSort(int, bool) override {}
 
-   NodeInfo* getSelected();
+  bool nodeImported(int idx) const;
+  // geo stuff
 
-   Entries_v& refEntries() {return m_entries;}
-  NodeInfo& refEntry(int i) {return m_entries[i];}
+  NodeInfo* getSelected();
 
-   void loadGeometry( TGeoNode* , TObjArray*);
+  Entries_v& refEntries() { return m_entries; }
+  NodeInfo& refEntry(int i) { return m_entries[i]; }
 
-   void setBackgroundToWhite(bool);
-   void getNodePath(int, std::string&) const;
+  void loadGeometry(TGeoNode*, TObjArray*);
 
-   int getLevelOffset() const { return m_levelOffset; }
-   void setLevelOffset(int x) { m_levelOffset =x; }
+  void setBackgroundToWhite(bool);
+  void getNodePath(int, std::string&) const;
 
-   void setDaughtersSelfVisibility(bool);
+  int getLevelOffset() const { return m_levelOffset; }
+  void setLevelOffset(int x) { m_levelOffset = x; }
 
-   void getNodeMatrix(const NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
+  void setDaughtersSelfVisibility(bool);
 
-   
-   virtual void setVisibility(NodeInfo&, bool );
-   virtual void setVisibilityChld(NodeInfo&, bool);
-   virtual void setDaughtersSelfVisibility(int selectedIdx, bool v);
+  void getNodeMatrix(const NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
 
-   virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
-   virtual bool getVisibility (const NodeInfo& nodeInfo) const;
+  virtual void setVisibility(NodeInfo&, bool);
+  virtual void setVisibilityChld(NodeInfo&, bool);
+  virtual void setDaughtersSelfVisibility(int selectedIdx, bool v);
 
-   virtual void applyColorTranspToDaughters(int selectedIdx, bool recurse);
+  virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
+  virtual bool getVisibility(const NodeInfo& nodeInfo) const;
 
-   bool isNodeRendered(int idx, int top_node_idx) const;
+  virtual void applyColorTranspToDaughters(int selectedIdx, bool recurse);
 
-   static  void getNNodesTotal(TGeoNode* geoNode, int& off);
+  bool isNodeRendered(int idx, int top_node_idx) const;
 
-   void showEditor(int);
-   void cancelEditor(bool);
-   void setCellValueEditor(TGTextEntry *editor);
-   void applyTransparencyFromEditor();
-   // protected:
-   FWGeometryTableManagerBase(const FWGeometryTableManagerBase&); // stop default
-   const FWGeometryTableManagerBase& operator=(const FWGeometryTableManagerBase&); // stop default
+  static void getNNodesTotal(TGeoNode* geoNode, int& off);
 
-   
-   bool firstColumnClicked(int row, int xPos);
-   //   void changeSelection(int iRow, int iColumn);
+  void showEditor(int);
+  void cancelEditor(bool);
+  void setCellValueEditor(TGTextEntry* editor);
+  void applyTransparencyFromEditor();
+  // protected:
+  FWGeometryTableManagerBase(const FWGeometryTableManagerBase&);                   // stop default
+  const FWGeometryTableManagerBase& operator=(const FWGeometryTableManagerBase&);  // stop default
 
-   void redrawTable(bool setExpand = false);
+  bool firstColumnClicked(int row, int xPos);
+  //   void changeSelection(int iRow, int iColumn);
 
-   virtual void recalculateVisibility() = 0;
+  void redrawTable(bool setExpand = false);
 
-  
-   bool cellDataIsSortable() const override { return false ; }
-   // ---------- member data --------------------------------
-   
-   
-   // table stuff
-   mutable TGGC* m_highlightContext; 
-   mutable FWTextTreeCellRenderer m_renderer;  
-   mutable ColorBoxRenderer       m_colorBoxRenderer;  
+  virtual void recalculateVisibility() = 0;
 
-   std::vector<int>  m_row_to_index;
-   
-   Entries_v          m_entries;
+  bool cellDataIsSortable() const override { return false; }
+  // ---------- member data --------------------------------
 
-   int m_levelOffset;
-   
-   TGTextEntry* m_editor;
-   int m_editTransparencyIdx;
+  // table stuff
+  mutable TGGC* m_highlightContext;
+  mutable FWTextTreeCellRenderer m_renderer;
+  mutable ColorBoxRenderer m_colorBoxRenderer;
+
+  std::vector<int> m_row_to_index;
+
+  Entries_v m_entries;
+
+  int m_levelOffset;
+
+  TGTextEntry* m_editor;
+  int m_editTransparencyIdx;
 };
 
-
-
-inline void FWGeometryTableManagerBase::getNNodesTotal(TGeoNode* geoNode, int& off)
-{   
-   int nD =  geoNode->GetNdaughters();
-   off += nD;
-   for (int i = 0; i < nD; ++i )
-   {
-      getNNodesTotal(geoNode->GetDaughter(i), off);
-   }
+inline void FWGeometryTableManagerBase::getNNodesTotal(TGeoNode* geoNode, int& off) {
+  int nD = geoNode->GetNdaughters();
+  off += nD;
+  for (int i = 0; i < nD; ++i) {
+    getNNodesTotal(geoNode->GetDaughter(i), off);
+  }
 }
 
 #endif

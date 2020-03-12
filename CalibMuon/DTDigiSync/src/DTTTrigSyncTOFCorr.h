@@ -38,8 +38,6 @@
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
-
-
 class DTLayer;
 class DTWireId;
 
@@ -60,7 +58,6 @@ public:
   /// Pass the Event Setup to the algo at each event
   void setES(const edm::EventSetup& setup) override {}
 
-
   /// Time (ns) to be subtracted to the digi time,
   /// Parameters are the layer and the wireId to which the
   /// digi is referred and the estimation of
@@ -68,13 +65,13 @@ public:
   /// It also returns the different contributions separately:
   ///     - tTrig is the offset (t_trig)
   ///     - wirePropCorr is the delay for signal propagation along the wire
-  ///     - tofCorr is the correction due to the particle TOF 
+  ///     - tofCorr is the correction due to the particle TOF
   double offset(const DTLayer* layer,
-			const DTWireId& wireId,
-			const GlobalPoint& globPos,
-			double& tTrig,
-			double& wirePropCorr,
-			double& tofCorr) const override;
+                const DTWireId& wireId,
+                const GlobalPoint& globPos,
+                double& tTrig,
+                double& wirePropCorr,
+                double& tofCorr) const override;
 
   double offset(const DTWireId& wireId) const override;
 
@@ -83,11 +80,9 @@ public:
   /// It also returns the different contributions separately:
   ///     - tTrig is the offset (t_trig)
   ///     - t0cell is the t0 from pulses (always 0 in this case)
-  double emulatorOffset(const DTWireId& wireId,
-				double &tTrig,
-				double &t0cell) const override;
+  double emulatorOffset(const DTWireId& wireId, double& tTrig, double& t0cell) const override;
 
- private:
+private:
   // The fixed t_trig to be subtracted to digi time (ns)
   const double theTTrig;
   // Velocity of signal propagation along the wire (cm/ns)
@@ -95,7 +90,7 @@ public:
   // cfr. CMS-IN 2000-021:   (2.56+-0.17)x1e8 m/s
   //      CMS NOTE 2003-17:  (0.244)  m/ns = 24.4 cm/ns
   const double theVPropWire;
-  
+
   // Select the mode for TOF correction:
   //     0: tofCorr = TOF from IP to 3D Hit position (globPos)
   //     1: tofCorr = TOF correction for distance difference
@@ -110,4 +105,3 @@ public:
   double theBXspace;
 };
 #endif
-

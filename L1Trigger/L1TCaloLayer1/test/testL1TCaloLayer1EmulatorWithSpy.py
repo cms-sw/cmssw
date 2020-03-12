@@ -7,8 +7,8 @@ options.register('setupString', "captures:/data/dasu/Layer1ZeroBiasCaptureData/r
 options.register('maxEvents', 162, VarParsing.multiplicity.singleton, VarParsing.varType.int, 'Maximum number of evnets')
 options.parseArguments()
 
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process("Layer1EmulatorWithSpy", eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process("Layer1EmulatorWithSpy", Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

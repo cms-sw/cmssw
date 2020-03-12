@@ -1,5 +1,4 @@
-
-<use   name="boost_header"/>
+<use   name="DataFormats/GeometryVector"/>
 <use   name="rootcore"/>
 <export>
   <lib   name="1"/>

@@ -22,32 +22,27 @@
 class EcalPreshowerGeometry;
 class CaloSubdetectorTopology;
 class ReducedESRecHitCollectionProducer : public edm::stream::EDProducer<> {
-
- public :
-
+public:
   ReducedESRecHitCollectionProducer(const edm::ParameterSet& pset);
   ~ReducedESRecHitCollectionProducer() override;
-  void beginRun (edm::Run const&, const edm::EventSetup&) final;
-  void produce(edm::Event & e, const edm::EventSetup& c) override;
-  void collectIds(const ESDetId strip1, const ESDetId strip2, const int & row=0);
-  
- private :
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void collectIds(const ESDetId strip1, const ESDetId strip2, const int& row = 0);
 
-  const EcalPreshowerGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
+private:
+  const EcalPreshowerGeometry* geometry_p;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
 
   double scEtThresh_;
 
-  edm::EDGetTokenT<ESRecHitCollection>           InputRecHitES_;  
+  edm::EDGetTokenT<ESRecHitCollection> InputRecHitES_;
   edm::EDGetTokenT<reco::SuperClusterCollection> InputSuperClusterEE_;
   std::string OutputLabelES_;
   std::vector<edm::EDGetTokenT<DetIdCollection>> interestingDetIdCollections_;
-  std::vector<edm::EDGetTokenT<DetIdCollection>> interestingDetIdCollectionsNotToClean_; //theres a hard coded cut on rec-hit quality which some collections would prefer not to have...
+  std::vector<edm::EDGetTokenT<DetIdCollection>>
+      interestingDetIdCollectionsNotToClean_;  //theres a hard coded cut on rec-hit quality which some collections would prefer not to have...
 
   std::set<DetId> collectedIds_;
-  
 };
 
 #endif
-
-

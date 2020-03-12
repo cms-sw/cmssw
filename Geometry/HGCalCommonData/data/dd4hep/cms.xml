@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="cms.xml" eval="true">
+ <Constant name="Rmin"         value="0.0*fm"/>
+ <Constant name="CMSR2"        value="2.95*m"/>
+ <Constant name="CMSZ1"        value="5.55*m"/>
+ <Constant name="TrackCalorR"  value="1.233*m"/>
+ <Constant name="CalorMuonR"   value="2.950*m"/>
+ <Constant name="CalorMuonR2"  value="2.810*m"/>
+ <Constant name="TrackBeamZ2"  value="2.935*m"/>
+ <Constant name="TrackBeamR2"  value="7.40*cm"/>
+ <Constant name="CalorBeamZ1"  value="3.105*m"/>
+ <Constant name="CalorBeamZ2"  value="5.541*m"/>
+ <Constant name="CalorBeamZ3"  value="5.245*m"/>
+ <Constant name="CalorBeamR1"  value="8.00*cm"/>
+ <Constant name="CalorBeamR2"  value="8.93*cm"/>
+</ConstantsSection>
+
+<SolidSection label="cms.xml">
+ <Polycone name="OCMS" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="-[CMSZ1]"  rMin="[Rmin]"  rMax="[CMSR2]" />
+  <ZSection z="[CMSZ1]"   rMin="[Rmin]"  rMax="[CMSR2]" />
+ </Polycone> 
+ <Polycone name="CMSE" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="-[CMSZ1]"  rMin="[Rmin]"  rMax="[CMSR2]"/>
+  <ZSection z="[CMSZ1]"   rMin="[Rmin]"  rMax="[CMSR2]"/>
+ </Polycone> 
+ </SolidSection>
+
+<LogicalPartSection label="cms.xml">
+  <LogicalPart name="World" category="unspecified">
+    <rSolid name="OCMS"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="OCMS" category="unspecified">
+    <rSolid name="OCMS"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CMSE" category="unspecified">
+    <rSolid name="CMSE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="cms.xml">
+  <PosPart copyNumber="1">
+   <rParent name="cms:World"/>
+   <rChild name="cms:OCMS"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="cms:OCMS"/>
+   <rChild name="cms:CMSE"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

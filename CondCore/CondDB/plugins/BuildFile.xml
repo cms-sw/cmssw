@@ -8,7 +8,7 @@
   <use   name="xerces-c"/>
   <use   name="RelationalAccess"/>
   <use   name="CondCore/CondDB"/>
-  <use   name="FWCore/Concurrency"/>
+  <use   name="Utilities/Xerces"/>
   <flags   EDM_PLUGIN="1"/>
 </library>		
 <library   file="RelationalAuthenticationService.cc" name="CondCoreCondDBRelationalAuthenticationService">		

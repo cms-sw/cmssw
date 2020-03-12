@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:patMiniAOD_standard.root")
 )
 ## Maximal number of events
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 ## Load dump of tau variables
 process.load("RecoTauTag.Configuration.dumpTauVariables_cfi")
 process.task.add(process.dumpTauVariables)

@@ -13,12 +13,7 @@
 #include "CommonTools/UtilAlgos/interface/EtMinSelector.h"
 #include "CommonTools/UtilAlgos/interface/EtaRangeSelector.h"
 
- typedef ObjectCountFilter<
-           reco::CaloJetCollection, 
-	      AndSelector<
-               EtMinSelector,
-	       EtaRangeSelector
-           > 
-         >::type EtaEtMinCaloJetCountFilter;
+typedef ObjectCountFilter<reco::CaloJetCollection, AndSelector<EtMinSelector, EtaRangeSelector> >::type
+    EtaEtMinCaloJetCountFilter;
 
-DEFINE_FWK_MODULE( EtaEtMinCaloJetCountFilter );
+DEFINE_FWK_MODULE(EtaEtMinCaloJetCountFilter);

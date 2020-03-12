@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/ParameterSet
 // Class  :     ValidatedPluginMacros
-// 
+//
 /**\class ValidatedPluginMacros ValidatedPluginMacros.h "ValidatedPluginMacros.h"
 
  Description: Registration macros for plugins that use ParameterSet validation
@@ -25,9 +25,11 @@
 #include "FWCore/ParameterSet/interface/PluginDescriptionAdaptor.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-#define DEFINE_EDM_VALIDATED_PLUGIN(factory, type, name) \
-DEFINE_EDM_PLUGIN(factory, type, name); \
-using EDM_PLUGIN_SYM(adaptor_t,__LINE__) = edm::PluginDescriptionAdaptor<factory::CreatedType,type>; \
-DEFINE_EDM_PLUGIN2(edmplugin::PluginFactory<edm::PluginDescriptionAdaptorBase<factory::CreatedType>*()>, EDM_PLUGIN_SYM(adaptor_t,__LINE__), name)
+#define DEFINE_EDM_VALIDATED_PLUGIN(factory, type, name)                                                   \
+  DEFINE_EDM_PLUGIN(factory, type, name);                                                                  \
+  using EDM_PLUGIN_SYM(adaptor_t, __LINE__) = edm::PluginDescriptionAdaptor<factory::CreatedType, type>;   \
+  DEFINE_EDM_PLUGIN2(edmplugin::PluginFactory<edm::PluginDescriptionAdaptorBase<factory::CreatedType>*()>, \
+                     EDM_PLUGIN_SYM(adaptor_t, __LINE__),                                                  \
+                     name)
 
 #endif

@@ -8,7 +8,6 @@ EVENTSETUP_RECORD_REG(SiStripRegionCablingRcd);
 EVENTSETUP_RECORD_REG(SiStripGainRcd);
 EVENTSETUP_RECORD_REG(SiStripGainSimRcd);
 
-
 EVENTSETUP_RECORD_REG(SiStripDelayRcd);
 EVENTSETUP_RECORD_REG(SiStripLorentzAngleDepRcd);
 EVENTSETUP_RECORD_REG(SiStripBackPlaneCorrectionDepRcd);

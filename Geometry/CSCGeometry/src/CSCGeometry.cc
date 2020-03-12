@@ -7,20 +7,28 @@
 
 #include <string>
 
-CSCGeometry::CSCGeometry():  debugV_(false), gangedstripsME1a_(true), 
-   onlywiresME1a_(false), realWireGeometry_(true), useCentreTIOffsets_(false) {
-   if ( debugV_ ) queryModelling();
+CSCGeometry::CSCGeometry()
+    : debugV_(false),
+      gangedstripsME1a_(true),
+      onlywiresME1a_(false),
+      realWireGeometry_(true),
+      useCentreTIOffsets_(false) {
+  if (debugV_)
+    queryModelling();
 }
 
-CSCGeometry::CSCGeometry( bool dbgv, bool gangedstripsME1a, bool onlywiresME1a, bool realWireGeometry, bool useCentreTIOffsets ) :  
-   debugV_(dbgv), gangedstripsME1a_( gangedstripsME1a ), onlywiresME1a_( onlywiresME1a ), 
-   realWireGeometry_( realWireGeometry ), useCentreTIOffsets_( useCentreTIOffsets ) {
-   if ( debugV_ ) queryModelling();
+CSCGeometry::CSCGeometry(
+    bool dbgv, bool gangedstripsME1a, bool onlywiresME1a, bool realWireGeometry, bool useCentreTIOffsets)
+    : debugV_(dbgv),
+      gangedstripsME1a_(gangedstripsME1a),
+      onlywiresME1a_(onlywiresME1a),
+      realWireGeometry_(realWireGeometry),
+      useCentreTIOffsets_(useCentreTIOffsets) {
+  if (debugV_)
+    queryModelling();
 }
 
-CSCGeometry::~CSCGeometry(){
-  deallocate();
-}
+CSCGeometry::~CSCGeometry() { deallocate(); }
 
 void CSCGeometry::clear() {
   deallocate();
@@ -38,21 +46,19 @@ void CSCGeometry::clear() {
 
 void CSCGeometry::deallocate() {
   // delete all the chambers (which will delete the layers)
-  for (ChamberContainer::const_iterator ich=theChambers.begin();
-       ich!=theChambers.end(); ++ich) delete (*ich);
+  for (ChamberContainer::const_iterator ich = theChambers.begin(); ich != theChambers.end(); ++ich)
+    delete (*ich);
 
   // delete specs
-  for ( CSCSpecsContainer::const_iterator it =
-	   specsContainer.begin(); it!=specsContainer.end(); ++it) {
-    delete (*it).second; // they are never shared per chamber type so should be no possible double deletion.
+  for (CSCSpecsContainer::const_iterator it = specsContainer.begin(); it != specsContainer.end(); ++it) {
+    delete (*it).second;  // they are never shared per chamber type so should be no possible double deletion.
   }
 }
 
-void CSCGeometry::addChamber(CSCChamber* ch){
+void CSCGeometry::addChamber(CSCChamber* ch) {
   theChambers.emplace_back(ch);
   addDet(ch);
 }
-
 
 void CSCGeometry::addLayer(CSCLayer* l) {
   theDetUnits.emplace_back(l);
@@ -62,102 +68,61 @@ void CSCGeometry::addLayer(CSCLayer* l) {
   addDet(l);
 }
 
+void CSCGeometry::addDetType(GeomDetType* type) { theDetTypes.emplace_back(type); }
 
-void CSCGeometry::addDetType(GeomDetType* type) {
-  theDetTypes.emplace_back(type);
-}
-
-
-void CSCGeometry::addDet(GeomDet* det){
-  theDets.emplace_back(det);  
+void CSCGeometry::addDet(GeomDet* det) {
+  theDets.emplace_back(det);
   theDetIds.emplace_back(det->geographicalId());
-  theMap.insert(CSCDetMap::value_type(det->geographicalId(),det));
+  theMap.insert(CSCDetMap::value_type(det->geographicalId(), det));
 }
 
+const CSCGeometry::DetTypeContainer& CSCGeometry::detTypes() const { return theDetTypes; }
 
-const CSCGeometry::DetTypeContainer& CSCGeometry::detTypes() const 
-{
-  return theDetTypes;
-}
+const CSCGeometry::DetContainer& CSCGeometry::detUnits() const { return theDetUnits; }
 
+const CSCGeometry::DetContainer& CSCGeometry::dets() const { return theDets; }
 
-const CSCGeometry::DetContainer& CSCGeometry::detUnits() const
-{
-  return theDetUnits;
-}
+const CSCGeometry::DetIdContainer& CSCGeometry::detUnitIds() const { return theDetUnitIds; }
 
+const CSCGeometry::DetIdContainer& CSCGeometry::detIds() const { return theDetIds; }
 
-const CSCGeometry::DetContainer& CSCGeometry::dets() const
-{
-  return theDets;
-}
+const GeomDet* CSCGeometry::idToDetUnit(DetId id) const { return dynamic_cast<const GeomDet*>(idToDet(id)); }
 
-
-const CSCGeometry::DetIdContainer& CSCGeometry::detUnitIds() const 
-{
-  return theDetUnitIds;
-}
-
-
-const CSCGeometry::DetIdContainer& CSCGeometry::detIds() const 
-{
-  return theDetIds;
-}
-
-
-const GeomDet* CSCGeometry::idToDetUnit(DetId id) const
-{
-  return dynamic_cast<const GeomDet*>(idToDet(id));
-}
-
-
-const GeomDet* CSCGeometry::idToDet(DetId id) const{
+const GeomDet* CSCGeometry::idToDet(DetId id) const {
   CSCDetMap::const_iterator i = theMap.find(id);
-  return (i != theMap.end()) ?
-    i->second : nullptr ;
+  return (i != theMap.end()) ? i->second : nullptr;
 }
 
+const CSCGeometry::ChamberContainer& CSCGeometry::chambers() const { return theChambers; }
 
-const CSCGeometry::ChamberContainer& CSCGeometry::chambers() const
-{
-  return theChambers;
-}
-
-
-const CSCGeometry::LayerContainer& CSCGeometry::layers() const
-{
-  return theLayers;
-}
-
+const CSCGeometry::LayerContainer& CSCGeometry::layers() const { return theLayers; }
 
 const CSCChamber* CSCGeometry::chamber(CSCDetId id) const {
   CSCDetId id1(id.endcap(), id.station(), id.ring(), id.chamber(), 0);
   return dynamic_cast<const CSCChamber*>(idToDet(id1));
 }
 
-
-const CSCLayer* CSCGeometry::layer(CSCDetId id) const {
-  return dynamic_cast<const CSCLayer*>(idToDetUnit(id));
-}
+const CSCLayer* CSCGeometry::layer(CSCDetId id) const { return dynamic_cast<const CSCLayer*>(idToDetUnit(id)); }
 
 void CSCGeometry::queryModelling() const {
   // Dump user-selected overall modelling parameters.
   // Only requires calling once per job.
 
-  LogTrace("CSCGeometry|CSC")  << "CSCGeometry::queryModelling entered...";
+  LogTrace("CSCGeometry|CSC") << "CSCGeometry::queryModelling entered...";
 
   edm::LogInfo("CSC") << "CSCGeometry version 18-Oct-2012 queryModelling...\n";
 
   std::string gs = " ";
-  if ( gangedstripsME1a_ )
+  if (gangedstripsME1a_)
     gs = "GANGED";
   else
     gs = "UNGANGED";
 
-  edm::LogInfo("CSC") << "CSCGeometry: in ME1a use " << gs << " strips" << "\n";
+  edm::LogInfo("CSC") << "CSCGeometry: in ME1a use " << gs << " strips"
+                      << "\n";
 
   std::string wo = " ";
-  if ( onlywiresME1a_ )
+  if (onlywiresME1a_)
     wo = "WIRES ONLY";
   else
     wo = "WIRES & STRIPS";
@@ -165,37 +130,39 @@ void CSCGeometry::queryModelling() const {
   edm::LogInfo("CSC") << "CSCGeometry: in ME1a use  " << wo << "\n";
 
   std::string wg = " ";
-  if ( realWireGeometry_ )
+  if (realWireGeometry_)
     wg = "REAL";
   else
     wg = "PSEUDO";
 
-  edm::LogInfo("CSC") << "CSCGeometry: wires are modelled using " << wg << " wire geometry " << "\n";
+  edm::LogInfo("CSC") << "CSCGeometry: wires are modelled using " << wg << " wire geometry "
+                      << "\n";
 
   std::string cti = " ";
-  if ( useCentreTIOffsets_ )
+  if (useCentreTIOffsets_)
     cti = "WITH";
   else
     cti = "WITHOUT";
 
-  edm::LogInfo("CSC") << "CSCGeometry: strip plane centre-to-intersection ideal " << cti << " corrections " << "\n";
+  edm::LogInfo("CSC") << "CSCGeometry: strip plane centre-to-intersection ideal " << cti << " corrections "
+                      << "\n";
 }
 
-const CSCChamberSpecs* CSCGeometry::findSpecs( int iChamberType ) {
+const CSCChamberSpecs* CSCGeometry::findSpecs(int iChamberType) {
   const CSCChamberSpecs* aSpecs = nullptr;
-  CSCSpecsContainer::const_iterator it = specsContainer.find( iChamberType );
-  if (  it != specsContainer.end() )  aSpecs = (*it).second;
+  CSCSpecsContainer::const_iterator it = specsContainer.find(iChamberType);
+  if (it != specsContainer.end())
+    aSpecs = (*it).second;
   return aSpecs;
-} 
+}
 
-const CSCChamberSpecs* CSCGeometry::buildSpecs( int iChamberType,
-					 const std::vector<float>& fpar,
-					 const std::vector<float>& fupar,
-					 const CSCWireGroupPackage& wg ) {
-
+const CSCChamberSpecs* CSCGeometry::buildSpecs(int iChamberType,
+                                               const std::vector<float>& fpar,
+                                               const std::vector<float>& fupar,
+                                               const CSCWireGroupPackage& wg) {
   // Note arg list order is hbot, htop, apothem, hthickness
-  TrapezoidalPlaneBounds bounds( fpar[0], fpar[1], fpar[3], fpar[2] );
-  const CSCChamberSpecs* aSpecs = new CSCChamberSpecs( this, iChamberType, bounds, fupar, wg );
-  specsContainer[ iChamberType ] = aSpecs;
+  TrapezoidalPlaneBounds bounds(fpar[0], fpar[1], fpar[3], fpar[2]);
+  const CSCChamberSpecs* aSpecs = new CSCChamberSpecs(this, iChamberType, bounds, fupar, wg);
+  specsContainer[iChamberType] = aSpecs;
   return aSpecs;
 }

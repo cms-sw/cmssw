@@ -14,9 +14,6 @@
 #include "CommonTools/RecoAlgos/src/SuperClusterToCandidate.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef CandidateProducer<
-          reco::SuperClusterCollection, 
-          reco::RecoEcalCandidateCollection
-        > ConcreteEcalCandidateProducer;
+typedef CandidateProducer<reco::SuperClusterCollection, reco::RecoEcalCandidateCollection> ConcreteEcalCandidateProducer;
 
-DEFINE_FWK_MODULE( ConcreteEcalCandidateProducer );
+DEFINE_FWK_MODULE(ConcreteEcalCandidateProducer);

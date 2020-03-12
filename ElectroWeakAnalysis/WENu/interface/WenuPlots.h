@@ -36,26 +36,25 @@
 //
 
 class WenuPlots : public edm::EDAnalyzer {
-   public:
-      explicit WenuPlots(const edm::ParameterSet&);
-      ~WenuPlots() override;
+public:
+  explicit WenuPlots(const edm::ParameterSet &);
+  ~WenuPlots() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-
-      // ----------member data ---------------------------
-      Bool_t CheckCuts( const pat::Electron * ele);
-      Bool_t CheckCut( const pat::Electron *wenu, Int_t i);
-      Bool_t CheckCutsInverse(const pat::Electron *ele);
-      Bool_t CheckCutInv( const pat::Electron *wenu, Int_t i);
-      Bool_t CheckCutsNminusOne(const pat::Electron *ele, Int_t jj);
-      Double_t ReturnCandVar(const pat::Electron *ele, Int_t i);
-      Bool_t   PassPreselectionCriteria(const pat::Electron *ele);
+  // ----------member data ---------------------------
+  Bool_t CheckCuts(const pat::Electron *ele);
+  Bool_t CheckCut(const pat::Electron *wenu, Int_t i);
+  Bool_t CheckCutsInverse(const pat::Electron *ele);
+  Bool_t CheckCutInv(const pat::Electron *wenu, Int_t i);
+  Bool_t CheckCutsNminusOne(const pat::Electron *ele, Int_t jj);
+  Double_t ReturnCandVar(const pat::Electron *ele, Int_t i);
+  Bool_t PassPreselectionCriteria(const pat::Electron *ele);
   // for the extra identifications and selections
-  Bool_t   usePrecalcID_;
+  Bool_t usePrecalcID_;
   std::string usePrecalcIDSign_;
   std::string usePrecalcIDType_;
   Double_t usePrecalcIDValue_;
@@ -63,16 +62,16 @@ class WenuPlots : public edm::EDAnalyzer {
   Bool_t useValidFirstPXBHit_;
   Bool_t useConversionRejection_;
   Bool_t useExpectedMissingHits_;
-  Int_t  maxNumberOfExpectedMissingHits_;
+  Int_t maxNumberOfExpectedMissingHits_;
   Bool_t usePreselection_;
   std::string outputFile_;
   edm::EDGetTokenT<pat::CompositeCandidateCollection> wenuCollectionToken_;
   edm::InputTag caloJetCollectionTag_;
-  edm::EDGetTokenT< reco::CaloJetCollection > caloJetCollectionToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> caloJetCollectionToken_;
   edm::InputTag pfJetCollectionTag_;
-  edm::EDGetTokenT< reco::PFJetCollection > pfJetCollectionToken_;
-  edm::EDGetTokenT< std::vector<reco::Vertex> >   PrimaryVerticesCollectionToken_;
-  edm::EDGetTokenT< std::vector<reco::Vertex> >   PrimaryVerticesCollectionBSToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> pfJetCollectionToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > PrimaryVerticesCollectionToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > PrimaryVerticesCollectionBSToken_;
   TFile *histofile;
   //
   //  math::XYZPoint bspotPosition_; // comment out only if you don't use pat
@@ -93,7 +92,6 @@ class WenuPlots : public edm::EDAnalyzer {
   TH1F *h_met_inverse_EE;
   TH1F *h_mt_EE;
   TH1F *h_mt_inverse_EE;
-
 
   TH1F *h_scEt;
   TH1F *h_scEta;
@@ -199,11 +197,11 @@ class WenuPlots : public edm::EDAnalyzer {
   Float_t ele_iso_track, ele_iso_ecal, ele_iso_hcal;
   Float_t ele_id_sihih, ele_id_dphi, ele_id_deta, ele_id_hoe;
   Float_t ele_cr_dcot, ele_cr_dist;
-  Int_t   ele_cr_mhitsinner;
+  Int_t ele_cr_mhitsinner;
   Float_t ele_vx, ele_vy, ele_vz;
   Float_t ele_pin, ele_pout;
   Float_t pv_x, pv_y, pv_z;
-  Int_t   ele_gsfCharge, ele_ctfCharge, ele_scPixCharge;
+  Int_t ele_gsfCharge, ele_ctfCharge, ele_scPixCharge;
   Float_t ele_eop, ele_tip_bs, ele_tip_pv;
   Float_t event_caloMET, event_pfMET, event_tcMET;
   Float_t event_caloSumEt, event_pfSumEt, event_tcSumEt;
@@ -223,10 +221,10 @@ class WenuPlots : public edm::EDAnalyzer {
   Float_t ele2nd_cand_phi;
   Float_t ele2nd_pin;
   Float_t ele2nd_pout;
-  Int_t   ele2nd_passes_selection;
-  Int_t   ele2nd_ecalDriven;
+  Int_t ele2nd_passes_selection;
+  Int_t ele2nd_ecalDriven;
   Float_t ele_hltmatched_dr;
-  Int_t   event_triggerDecision;
+  Int_t event_triggerDecision;
   Int_t event_datasetTag;
 
   TFile *WENU_VBTFpreseleFile_;
@@ -246,7 +244,7 @@ class WenuPlots : public edm::EDAnalyzer {
   Float_t ele2nd_id_sihih, ele2nd_id_deta, ele2nd_id_dphi, ele2nd_id_hoe;
   Float_t ele2nd_cr_dcot, ele2nd_cr_dist;
   Float_t ele2nd_vx, ele2nd_vy, ele2nd_vz;
-  Int_t   ele2nd_cr_mhitsinner, ele2nd_gsfCharge, ele2nd_ctfCharge, ele2nd_scPixCharge;
+  Int_t ele2nd_cr_mhitsinner, ele2nd_gsfCharge, ele2nd_ctfCharge, ele2nd_scPixCharge;
   Float_t ele2nd_eop, ele2nd_tip_bs, ele2nd_tip_pv;
   Float_t ele2nd_hltmatched_dr;
   std::vector<Int_t> VtxTracksSize;

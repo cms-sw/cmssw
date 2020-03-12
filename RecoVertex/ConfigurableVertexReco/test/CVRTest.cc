@@ -18,106 +18,89 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-
 namespace {
-  void printTSOS ( const TrajectoryStateOnSurface & tsos )
-  {
-    cout << tsos.globalPosition() << " , " 
-         << tsos.globalMomentum() << endl;
+  void printTSOS(const TrajectoryStateOnSurface& tsos) {
+    cout << tsos.globalPosition() << " , " << tsos.globalMomentum() << endl;
   }
 
-  void printVertex ( const TransientVertex & vtx )
-  {
-    cout << " `- pos=(" << vtx.position().x() << ", "
-         << vtx.position().y() << ", " << vtx.position().z()
-         << ") chi2=" << vtx.totalChiSquared()
-         << " ndf=" << vtx.degreesOfFreedom() << " hr="
-         << vtx.hasRefittedTracks() << endl;
-    if ( vtx.originalTracks().size() && vtx.hasRefittedTracks() )
-    {
+  void printVertex(const TransientVertex& vtx) {
+    cout << " `- pos=(" << vtx.position().x() << ", " << vtx.position().y() << ", " << vtx.position().z()
+         << ") chi2=" << vtx.totalChiSquared() << " ndf=" << vtx.degreesOfFreedom() << " hr=" << vtx.hasRefittedTracks()
+         << endl;
+    if (vtx.originalTracks().size() && vtx.hasRefittedTracks()) {
       cout << "    `- 1st trk: ";
       reco::TransientTrack t = vtx.originalTracks()[0];
       TrajectoryStateOnSurface tsos = t.impactPointState();
-      printTSOS ( tsos );
-      if ( vtx.refittedTracks().size() )
-      {
+      printTSOS(tsos);
+      if (vtx.refittedTracks().size()) {
         cout << "     `- 1st refttd: ";
         reco::TransientTrack t2 = vtx.refittedTracks()[0];
-        printTSOS ( t2.impactPointState() );
+        printTSOS(t2.impactPointState());
       }
     }
   }
 
-  void printVertices ( const vector < TransientVertex > & vtces )
-  {
+  void printVertices(const vector<TransientVertex>& vtces) {
     cout << "[CVRTest] " << vtces.size() << " vertices." << endl;
-    for ( vector< TransientVertex >::const_iterator i=vtces.begin();
-          i!=vtces.end() ; ++i )
-    {
-      printVertex ( *i );
+    for (vector<TransientVertex>::const_iterator i = vtces.begin(); i != vtces.end(); ++i) {
+      printVertex(*i);
       cout << endl;
     }
   }
 
-  void discussBeamSpot ( const reco::BeamSpot & bs )
-  {
+  void discussBeamSpot(const reco::BeamSpot& bs) {
     cout << "[CVRTest] beamspot at " << bs.position() << endl;
     reco::BeamSpot::Covariance3DMatrix cov = bs.rotatedCovariance3D();
-    cout << "[CVRTest] cov=" <<  cov << endl;
+    cout << "[CVRTest] cov=" << cov << endl;
   }
-}
+}  // namespace
 
-CVRTest::CVRTest(const edm::ParameterSet& iconfig) :
-  trackcoll_( iconfig.getParameter<string>("trackcoll") ),
-  vertexcoll_( iconfig.getParameter<string>("vertexcoll") ),
-  beamspot_( iconfig.getParameter<string>("beamspot") )
-{
+CVRTest::CVRTest(const edm::ParameterSet& iconfig)
+    : trackcoll_(iconfig.getParameter<string>("trackcoll")),
+      vertexcoll_(iconfig.getParameter<string>("vertexcoll")),
+      beamspot_(iconfig.getParameter<string>("beamspot")) {
   edm::ParameterSet vtxconfig = iconfig.getParameter<edm::ParameterSet>("vertexreco");
-  vrec_ = new ConfigurableVertexReconstructor ( vtxconfig );
+  vrec_ = new ConfigurableVertexReconstructor(vtxconfig);
   cout << "[CVRTest] vtxconfig=" << vtxconfig << endl;
 }
 
 CVRTest::~CVRTest() {
-  if ( vrec_ ) delete vrec_;
+  if (vrec_)
+    delete vrec_;
 }
 
-void CVRTest::discussPrimary( const edm::Event& iEvent ) const
-{
+void CVRTest::discussPrimary(const edm::Event& iEvent) const {
   edm::Handle<reco::VertexCollection> retColl;
-  iEvent.getByLabel( vertexcoll_, retColl);
-  if ( retColl->size() )
-  {
-    const reco::Vertex & vtx = *(retColl->begin());
-    cout << "[CVRTest] persistent primary: " << vtx.x() << ", " << vtx.y()
-         << ", " << vtx.z() << endl;
+  iEvent.getByLabel(vertexcoll_, retColl);
+  if (retColl->size()) {
+    const reco::Vertex& vtx = *(retColl->begin());
+    cout << "[CVRTest] persistent primary: " << vtx.x() << ", " << vtx.y() << ", " << vtx.z() << endl;
   }
 }
 
-void CVRTest::analyze( const edm::Event & iEvent,
-                       const edm::EventSetup & iSetup )
-{
+void CVRTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::EventNumber_t const evt = iEvent.id().event();
   cout << "[CVRTest] next event: " << evt << endl;
   edm::ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
   edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder );
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
 
   edm::Handle<reco::TrackCollection> tks;
-  iEvent.getByLabel( trackcoll_, tks );
-  discussPrimary( iEvent );
+  iEvent.getByLabel(trackcoll_, tks);
+  discussPrimary(iEvent);
 
-  edm::Handle<reco::BeamSpot > bs;
-  iEvent.getByLabel ( beamspot_, bs );
-  discussBeamSpot ( *bs );
+  edm::Handle<reco::BeamSpot> bs;
+  iEvent.getByLabel(beamspot_, bs);
+  discussBeamSpot(*bs);
 
   vector<reco::TransientTrack> ttks;
   ttks = builder->build(tks);
   cout << "[CVRTest] got " << ttks.size() << " tracks." << endl;
 
   cout << "[CVRTest] fit w/o beamspot constraint" << endl;
-  vector < TransientVertex > vtces = vrec_->vertices ( ttks );
-  printVertices ( vtces );
+  vector<TransientVertex> vtces = vrec_->vertices(ttks);
+  printVertices(vtces);
 
   // cout << "[CVRTest] fit w beamspot constraint" << endl;
   // vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );

@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     AlignPCLThresholdsRcd
-// 
+//
 /**\class AlignPCLThresholdsRcd AlignPCLThresholdsRcd.h CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h
 
  Description: [one line class summary]

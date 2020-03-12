@@ -6,10 +6,10 @@
 namespace l1t {
   namespace stage1 {
     class HFRingPacker : public Packer {
-      public:
-        Blocks pack(const edm::Event&, const PackerTokens*) override;
+    public:
+      Blocks pack(const edm::Event&, const PackerTokens*) override;
     };
-  }
-}
+  }  // namespace stage1
+}  // namespace l1t
 
 #endif

@@ -2,9 +2,10 @@
 	<use name="FWCore/Framework"/>
 	<use name="Fireworks/Geometry"/>
 	<use name="Fireworks/Eve"/>
-        <lib name="Eve"/>
-        <lib name="Geom"/>
-        <lib name="Physics"/>
+        <use name="rooteve"/>
+        <use name="rootgeom"/>
+        <use name="rootphysics"/>
+        <use name="rootrgl"/>
 	<use name="MagneticField/Engine"/>
 	<use name="MagneticField/Records"/>
 	<flags EDM_PLUGIN="1"/>
@@ -14,8 +15,8 @@
 	<use name="Geometry/Records"/>
 	<use name="Fireworks/Geometry"/>
 	<use name="rootgpad"/>
-	<lib name="Eve"/>
-	<lib name="Geom"/>
+        <use name="rooteve"/>
+        <use name="rootgeom"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 
@@ -24,7 +25,7 @@
         <use name="FWCore/Framework"/>
         <use name="FWCore/PluginManager"/>
         <use name="FWCore/ParameterSet"/>
-        <lib name="Geom"/>
+        <use name="rootgeom"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 
@@ -41,8 +42,8 @@
 
 <library file="DumpFWRecoGeometry.cc" name="FireworksGeometryDumpFWRecoGeometryPlugin">
 	<use name="Fireworks/Geometry"/>
-        <lib name="Eve"/>
-	<lib name="Geom"/>
+        <use name="rooteve"/>
+        <use name="rootgeom"/>
 	<use name="rootcore"/>
         <use name="FWCore/Framework"/>
         <use name="FWCore/PluginManager"/>
@@ -58,8 +59,8 @@
 
 <library file="DumpFWTGeoRecoGeometry.cc" name="FireworksGeometryDumpFWTGeoRecoGeometryPlugin">
 	<use name="Fireworks/Geometry"/>
-        <lib name="Eve"/>
-	<lib name="Geom"/>
+        <use name="rooteve"/>
+        <use name="rootgeom"/>
 	<use name="rootcore"/>
         <use name="FWCore/Framework"/>
         <use name="FWCore/PluginManager"/>
@@ -84,11 +85,11 @@
         <use name="Fireworks/Core"/>
         <use name="Fireworks/Tracks"/> 
         <use name="rootcore"/>
-        <lib name="Geom"/>
+        <use name="rootgeom"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="TGeoMgrFromDddPlugin.cc"
+<library file="TGeoMgrFromDdd.cc"
          name="FireworksGeometryTGeoMgrFromDddPlugin">
         <use name="Fireworks/Geometry"/>
 	<flags EDM_PLUGIN="1"/>

@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     HcalGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -20,20 +20,16 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
-
-class HcalGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   HcalGeometryRecord,
-     boost::mpl::vector<
-     IdealGeometryRecord,
-     HcalParametersRcd,
-     HcalSimNumberingRecord,
-     HcalRecNumberingRecord,
-     HcalAlignmentRcd, 
-     HcalAlignmentErrorRcd,
-     HcalAlignmentErrorExtendedRcd,
-     GlobalPositionRcd,
-     PHcalRcd               > > {};
+class HcalGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<HcalGeometryRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               HcalParametersRcd,
+                                                                               HcalSimNumberingRecord,
+                                                                               HcalRecNumberingRecord,
+                                                                               HcalAlignmentRcd,
+                                                                               HcalAlignmentErrorRcd,
+                                                                               HcalAlignmentErrorExtendedRcd,
+                                                                               GlobalPositionRcd,
+                                                                               PHcalRcd> > {};
 
 #endif /* RECORDS_HCALGEOMETRYRECORD_H */
-

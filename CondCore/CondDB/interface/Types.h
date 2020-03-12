@@ -2,8 +2,8 @@
 #define CondCore_CondDB_Types_h
 //
 // Package:     CondDB
-// 
-// 
+//
+//
 /*
    Description: various foundation types for Conditions
 */
@@ -19,39 +19,37 @@
 
 namespace cond {
 
-  struct UserLogInfo{
+  struct UserLogInfo {
     std::string provenance;
     std::string usertext;
   };
 
-
-
-  typedef enum { 
+  typedef enum {
     SYNCH_ANY = 0,
     SYNCH_VALIDATION,
     SYNCH_OFFLINE,
     SYNCH_MC,
     SYNCH_RUNMC,
-    SYNCH_HLT, 
+    SYNCH_HLT,
     SYNCH_EXPRESS,
-    SYNCH_PROMPT, 
-    SYNCH_PCL 
+    SYNCH_PROMPT,
+    SYNCH_PCL
   } SynchronizationType;
 
-  std::string synchronizationTypeNames( SynchronizationType type );
+  std::string synchronizationTypeNames(SynchronizationType type);
 
-  SynchronizationType synchronizationTypeFromName( const std::string& name );
+  SynchronizationType synchronizationTypeFromName(const std::string& name);
 
   typedef std::string Hash;
   static constexpr unsigned int HASH_SIZE = 40;
 
   // Basic element of the IOV sequence.
   struct Iov_t {
-    Iov_t(): since(time::MAX_VAL),till(time::MIN_VAL),payloadId(""){}
+    Iov_t() : since(time::MAX_VAL), till(time::MIN_VAL), payloadId("") {}
     virtual ~Iov_t() = default;
     virtual void clear();
     bool isValid() const;
-    bool isValidFor( Time_t target ) const;
+    bool isValidFor(Time_t target) const;
     Time_t since;
     Time_t till;
     Hash payloadId;
@@ -63,13 +61,14 @@ namespace cond {
     std::string tag;
     std::string payloadType;
     TimeType timeType;
+    SynchronizationType synchronizationType;
     Time_t endOfValidity;
     Time_t lastValidatedTime;
   };
 
   struct TagInfo_t {
     // FIX ME: to be simplyfied, currently keeping the same interface as CondCore/DBCommon/interface/TagInfo.h
-    TagInfo_t(): name(""),token(""),lastInterval(0,0), lastPayloadToken(""),size(0){}
+    TagInfo_t() : name(""), token(""), lastInterval(0, 0), lastPayloadToken(""), size(0) {}
     std::string name;
     std::string token;
     cond::ValidityInterval lastInterval;
@@ -90,7 +89,7 @@ namespace cond {
   // temporarely replacement for cond::LogDBEntry
   struct LogDBEntry_t {
     unsigned long long logId;
-    std::string destinationDB;   
+    std::string destinationDB;
     std::string provenance;
     std::string usertext;
     std::string iovtag;
@@ -112,60 +111,43 @@ namespace cond {
   };
 
   class GTEntry_t {
-  public: 
-    GTEntry_t():
-      m_data(){
-    }
-    GTEntry_t( const std::tuple<std::string,std::string,std::string>& gtEntryData ):
-      m_data( gtEntryData ){
-    }
-    GTEntry_t( const GTEntry_t& rhs ):
-      m_data( rhs.m_data ){
-    }
+  public:
+    GTEntry_t() : m_data() {}
+    GTEntry_t(const std::tuple<std::string, std::string, std::string>& gtEntryData) : m_data(gtEntryData) {}
+    GTEntry_t(const GTEntry_t& rhs) : m_data(rhs.m_data) {}
 
-    GTEntry_t& operator=( const GTEntry_t& rhs ){
+    GTEntry_t& operator=(const GTEntry_t& rhs) {
       m_data = rhs.m_data;
       return *this;
     }
 
-    const std::string& recordName() const {
-      return std::get<0>(m_data);
-    }
-    const std::string& recordLabel() const {
-      return std::get<1>(m_data);
-    }
-    const std::string& tagName() const {
-      return std::get<2>(m_data);
-    }
-    std::size_t hashvalue()const{
-      // Derived from CondDB v1 TagMetadata implementation. 
+    const std::string& recordName() const { return std::get<0>(m_data); }
+    const std::string& recordLabel() const { return std::get<1>(m_data); }
+    const std::string& tagName() const { return std::get<2>(m_data); }
+    std::size_t hashvalue() const {
+      // Derived from CondDB v1 TagMetadata implementation.
       // Unique Keys constructed with Record and Labels - allowing for multiple references of the same Tag in a GT
       boost::hash<std::string> hasher;
       std::string key = recordName();
-      if( !recordLabel().empty() ) key = key +"_"+recordLabel();
-      std::size_t result=hasher(key);
+      if (!recordLabel().empty())
+        key = key + "_" + recordLabel();
+      std::size_t result = hasher(key);
       return result;
     }
-    bool operator<(const GTEntry_t& toCompare ) const {
-      return this->hashvalue()<toCompare.hashvalue();
-    }
+    bool operator<(const GTEntry_t& toCompare) const { return this->hashvalue() < toCompare.hashvalue(); }
 
   private:
-    std::tuple<std::string,std::string,std::string> m_data; 
+    std::tuple<std::string, std::string, std::string> m_data;
   };
 
   struct RunInfo_t {
-    RunInfo_t( const std::tuple<long long unsigned int, boost::posix_time::ptime,boost::posix_time::ptime>& data ):
-      run( std::get<0>(data) ),
-      start( std::get<1>(data) ),
-      end( std::get<2>(data) ){
-    }
+    RunInfo_t(const std::tuple<long long unsigned int, boost::posix_time::ptime, boost::posix_time::ptime>& data)
+        : run(std::get<0>(data)), start(std::get<1>(data)), end(std::get<2>(data)) {}
     Time_t run;
     boost::posix_time::ptime start;
     boost::posix_time::ptime end;
   };
 
-}
+}  // namespace cond
 
 #endif
-  

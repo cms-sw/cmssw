@@ -30,49 +30,47 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 class ReferenceTrajectory;
-namespace reco { class BeamSpot;}
+namespace reco {
+  class BeamSpot;
+}
 
-class DualReferenceTrajectory : public ReferenceTrajectoryBase
-{
-
+class DualReferenceTrajectory : public ReferenceTrajectoryBase {
 public:
-
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DualReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
-                          const ConstRecHitContainer& forwardRecHits,
-                          const ConstRecHitContainer& backwardRecHits,
-                          const MagneticField* magField,
-                          const reco::BeamSpot& beamSpot,
-                          const ReferenceTrajectoryBase::Config& config);
+  DualReferenceTrajectory(const TrajectoryStateOnSurface &tsos,
+                          const ConstRecHitContainer &forwardRecHits,
+                          const ConstRecHitContainer &backwardRecHits,
+                          const MagneticField *magField,
+                          const reco::BeamSpot &beamSpot,
+                          const ReferenceTrajectoryBase::Config &config);
 
   ~DualReferenceTrajectory() override {}
 
-  DualReferenceTrajectory* clone() const override { return new DualReferenceTrajectory(*this); }
+  DualReferenceTrajectory *clone() const override { return new DualReferenceTrajectory(*this); }
 
 protected:
-
-  DualReferenceTrajectory(unsigned int nPar, unsigned int nHits,
-                          const ReferenceTrajectoryBase::Config& config);
+  DualReferenceTrajectory(unsigned int nPar, unsigned int nHits, const ReferenceTrajectoryBase::Config &config);
 
   /** internal method to calculate members
    */
-  virtual bool construct(const TrajectoryStateOnSurface &referenceTsos, 
-			 const ConstRecHitContainer &forwardRecHits,
-			 const ConstRecHitContainer &backwardRecHits,
-			 const MagneticField *magField,
-			 const reco::BeamSpot &beamSpot);
+  virtual bool construct(const TrajectoryStateOnSurface &referenceTsos,
+                         const ConstRecHitContainer &forwardRecHits,
+                         const ConstRecHitContainer &backwardRecHits,
+                         const MagneticField *magField,
+                         const reco::BeamSpot &beamSpot);
 
-  virtual ReferenceTrajectory* construct(const TrajectoryStateOnSurface &referenceTsos, 
-					 const ConstRecHitContainer &recHits,
-					 const MagneticField *magField,
-					 const reco::BeamSpot &beamSpot,
-					 const bool revertDirection = false) const;
+  virtual ReferenceTrajectory *construct(const TrajectoryStateOnSurface &referenceTsos,
+                                         const ConstRecHitContainer &recHits,
+                                         const MagneticField *magField,
+                                         const reco::BeamSpot &beamSpot,
+                                         const bool revertDirection = false) const;
 
   virtual AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const;
 
-  inline const PropagationDirection oppositeDirection( const PropagationDirection propDir ) const
-  { return ( propDir == anyDirection ) ? anyDirection : ( ( propDir == alongMomentum ) ? oppositeToMomentum : alongMomentum ); }
+  inline const PropagationDirection oppositeDirection(const PropagationDirection propDir) const {
+    return (propDir == anyDirection) ? anyDirection : ((propDir == alongMomentum) ? oppositeToMomentum : alongMomentum);
+  }
 
 private:
   const double mass_;

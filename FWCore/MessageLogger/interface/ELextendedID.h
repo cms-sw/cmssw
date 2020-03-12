@@ -1,7 +1,6 @@
 #ifndef MessageLogger_ELextendedID_h
 #define MessageLogger_ELextendedID_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELextendedID.h	is used as a key in maps for both counting toward
@@ -13,44 +12,36 @@
 //
 // ----------------------------------------------------------------------
 
-
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
+namespace edm {
 
-namespace edm {       
+  // ----------------------------------------------------------------------
+  // ELextendedID:
+  // ----------------------------------------------------------------------
 
+  class ELextendedID {
+  public:
+    // -----  Publicly accessible data members:
+    //
+    ELstring id;
+    ELseverityLevel severity;
+    ELstring module;
+    ELstring subroutine;
 
-// ----------------------------------------------------------------------
-// ELextendedID:
-// ----------------------------------------------------------------------
+    // -----  Comparator:
+    //
+    bool operator<(const ELextendedID& xid) const;
 
-class ELextendedID  {
+    // -----  (Re)initializer:
+    //
+    void clear();
 
-public:
+  };  // ELextendedID
 
-  // -----  Publicly accessible data members:
-  //
-  ELstring        id;
-  ELseverityLevel severity;
-  ELstring        module;
-  ELstring        subroutine;
+  // ----------------------------------------------------------------------
 
-  // -----  Comparator:
-  //
-  bool operator<( const ELextendedID & xid ) const;
-
-  // -----  (Re)initializer:
-  //
-  void clear();
-
-};  // ELextendedID
-
-
-// ----------------------------------------------------------------------
-
-
-}        // end of namespace edm
-
+}  // end of namespace edm
 
 #endif  // MessageLogger_ELextendedID_h

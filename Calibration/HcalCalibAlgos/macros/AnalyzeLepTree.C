@@ -23,6 +23,7 @@
 //             7-11:   RBX # to be excluded (maximum 5 bits needed for RBX)
 //               12: 0 varying ranges of p depending on |ieta|
 //                   1 constant p ranges
+//            13-15: 0 no cut on ediff; 1-4 cuts at 5, 10, 15, 20 GeV
 //      modeLHC (integer) specifies the detector condition
 //              0      Run1   detector (till 2016)
 //              1      Plan36 detector
@@ -35,8 +36,11 @@
 //   a1.Loop();
 //   a1.writeHisto(outfile);
 //   a1.plotHisto(drawStatBox,type,save);
+//   a1.writeMeanError(outfileMean);
 //
-//      outfile     (string) Name of the file where histograms to be written
+//      outfile     (char*)  Name of the file where histograms to be written
+//      outfileMean (char*)  Name of the file where means with errors to be 
+//                           written when it is run with mode bit 0 set to 1
 //      drawStatBox (bool)   If Statbox to be drawn or not
 //      type        (int)    Each bit says what plots to be drawn
 //                           If bit 0 of "mode" is 1
@@ -44,7 +48,8 @@
 //                            1: number of vertex for each ieta;
 //                            2: 2D plot for nvx vs p for each ieta;
 //                            3: number of vertex for each ieta & depth;
-//                            4: momentum for each ieta & depth)
+//                            4: momentum for each ieta & depth
+//                            5: energy in the outer ring)
 //                           If bit 0 of "mode" is 0
 //                           plots for all or specific depth & phi if
 //                           "depth" as of (type/16)&15 is 0 or the specified
@@ -66,6 +71,7 @@
 #include <TROOT.h>
 #include <TStyle.h>
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -86,7 +92,8 @@ public :
   virtual void          Loop(Long64_t nmax=-1, bool debug=false);
   virtual Bool_t        Notify();
   virtual void          Show(Long64_t entry = -1);
-  void                  writeHisto(std::string outfile);
+  void                  writeHisto(const char* outfile);
+  void                  writeMeanError(const char* outfile);
   std::vector<TCanvas*> plotHisto(bool drawStatBox, int type, bool save=false);
 private:
   bool                  fillChain(TChain* chain, const char* fname);
@@ -126,6 +133,7 @@ private:
   Int_t                 t_iphi;
   Int_t                 t_nvtx;
   Double_t              t_p;
+  Double_t		t_ediff; 
   std::vector<double>  *t_ene;
   std::vector<double>  *t_enec;
   std::vector<double>  *t_charge;
@@ -137,6 +145,7 @@ private:
   TBranch              *b_t_iphi;      //!
   TBranch              *b_t_nvtx;      //!
   TBranch              *b_t_p;         //!
+  TBranch	       *b_t_ediff;     //!
   TBranch              *b_t_ene;       //!
   TBranch              *b_t_enec;      //!
   TBranch              *b_t_charge;    //!
@@ -148,11 +157,13 @@ private:
   int                           mode_, modeLHC_, exRBX_, kphi_, kdepth_;
   std::vector<int>              npvbin_, iprange_;
   std::vector<double>           prange_[5];
+  double                        cutEdiff_;
   std::map<unsigned int, TH1D*> h_p_, h_nv_;
   std::map<unsigned int, TH2D*> h_pnv_;
   std::map<unsigned int, TH1D*> h_p2_, h_nv2_;
   std::map<unsigned int, TH1D*> h_Energy_, h_Ecorr_, h_Charge_, h_Chcorr_;
   std::map<unsigned int, TH1D*> h_EnergyC_, h_EcorrC_;
+  std::map<unsigned int, TH1D*> h_ediff_, h_ediff_nvtx_;
 };
 
 AnalyzeLepTree::AnalyzeLepTree(TChain *tree, int mode1, 
@@ -243,6 +254,11 @@ void AnalyzeLepTree::Init(TChain *tree) {
   else if (modeLHC_ == 2) std::cout << "This is Phase1 detector (after 2020)\n";
   else if (modeLHC_ == 3) std::cout << "This is Plan1  detector (2017)\n";
   else                    std::cout << "This is Phase2 detector (after 2024)\n";
+  static const double cuts[8] = {200, 5, 10, 15, 20, 25, 30, 40};
+  int cutE = (mode_/4096)%8;
+  cutEdiff_ = cuts[cutE];
+  std::cout << "Cut off for energy in the 8 neighbouring towers " << cutEdiff_
+	    << std::endl;
 
   // Set object pointer
   t_ene    = 0;
@@ -260,6 +276,7 @@ void AnalyzeLepTree::Init(TChain *tree) {
   fChain->SetBranchAddress("t_iphi",   &t_iphi,   &b_t_iphi);
   fChain->SetBranchAddress("t_nvtx",   &t_nvtx,   &b_t_nvtx);
   fChain->SetBranchAddress("t_p",      &t_p,      &b_t_p);
+  fChain->SetBranchAddress("t_ediff",  &t_ediff,  &b_t_ediff);
   fChain->SetBranchAddress("t_ene",    &t_ene,    &b_t_ene);
   fChain->SetBranchAddress("t_enec",   &t_enec,   &b_t_enec);
   fChain->SetBranchAddress("t_charge", &t_charge, &b_t_charge);
@@ -351,6 +368,10 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
       unsigned int id2 = packID(zside,eta,1,1,vbin,1);
       std::map<unsigned int,TH1D*>::iterator it5 = h_nv2_.find(id2);
       if (it5 != h_nv2_.end()) (it5->second)->Fill(t_nvtx);
+      std::map<unsigned int,TH1D*>::iterator it6 = h_ediff_.find(id0);
+      if (it6 != h_ediff_.end()) (it6->second)->Fill(t_ediff);
+      std::map<unsigned int,TH1D*>::iterator it7 = h_ediff_nvtx_.find(id2);
+      if (it7 != h_ediff_nvtx_.end()) (it7->second)->Fill(t_ediff);
     } else {
       if (phi > 0 && pbin >= 0 && vbin >= 0) {
 	if (kdepth_ == 0) {
@@ -361,7 +382,7 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
 	    double enec     = (*t_enec)[k];
 	    double charge   = (*t_charge)[k];
 	    double actl     = (*t_actln)[k];
-	    if (ene > ethr && actl > 0 && charge > 0) {
+	    if (ene > ethr && actl > 0 && charge > 0 && t_ediff < cutEdiff_) {
 	      std::map<unsigned int,TH1D*>::iterator it1 = h_Energy_.find(id);
 	      if (it1 != h_Energy_.end())  (it1->second)->Fill(ene);
 	      std::map<unsigned int,TH1D*>::iterator it2 = h_Ecorr_.find(id);
@@ -401,7 +422,7 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
 	      actl   += (*t_actln)[k];
 	    }
 	  }
-	  if (ene > ethr && actl > 0 && charge > 0) {
+	  if (ene > ethr && actl > 0 && charge > 0 && t_ediff < cutEdiff_) {
 	    std::map<unsigned int,TH1D*>::iterator it1 = h_Energy_.find(id);
 	    if (it1 != h_Energy_.end())  (it1->second)->Fill(ene);
 	    std::map<unsigned int,TH1D*>::iterator it2 = h_Ecorr_.find(id);
@@ -431,7 +452,8 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
 	    }
 	  }
 	  for (int k=0; k<nDepthBins(eta,phi,0); ++k) {
-	    if (ene[k] > ethr && actl[k] > 0 && charge[k] > 0) {
+	    if (ene[k] > ethr && actl[k] > 0 && charge[k] > 0 && 
+		t_ediff < cutEdiff_) {
 	      unsigned int id = packID(zside,eta,phi,k+1,vbin,pbin);
 	      std::map<unsigned int,TH1D*>::iterator it1 = h_Energy_.find(id);
 	      if (it1 != h_Energy_.end())  (it1->second)->Fill(ene[k]);
@@ -526,6 +548,7 @@ void AnalyzeLepTree::bookHisto() {
   unsigned int book1(0), book2(0);
   if ((mode_/1)%2 == 1) {
     h_p_.clear(); h_nv_.clear(); h_pnv_.clear(); h_nv2_.clear(); h_p2_.clear();
+    h_ediff_.clear(); h_ediff_nvtx_.clear(); 
     for (int ieta=-etamax_; ieta<=etamax_; ++ieta) {
       if (ieta != 0) {
 	int zside = (ieta>0) ? 1 : -1;
@@ -535,6 +558,10 @@ void AnalyzeLepTree::bookHisto() {
 	sprintf(title,"Momentum for i#eta = %d (GeV)", ieta);
 	h_p_[id0] = new TH1D(name, title, 100, 0.0, 500.0);
 	++book1;
+	sprintf(name, "Ediff_eta%d", ieta);
+        sprintf(title,"Energy difference for i#eta = %d (GeV)", ieta);
+        h_ediff_[id0] = new TH1D(name, title, 1000, -500.0, 500.0);
+        ++book1;
 	sprintf(name, "nveta%d", ieta);
 	sprintf(title,"Number of Vertex for i#eta = %d", ieta);
 	h_nv_[id0] = new TH1D(name, title, 100, 0.0, 100.0);
@@ -567,14 +594,22 @@ void AnalyzeLepTree::bookHisto() {
 	}
 	for (int vbin=0; vbin<nVxBins(); ++vbin) {
 	  char vtx[12];
-	  if ((mode_/2)%2 == 1) 
+	  if ((mode_/2)%2 == 1) {
 	    sprintf(vtx, "N_{vtx}=%d:%d", npvbin_[vbin], npvbin_[vbin+1]);
+	  } else {
+	    sprintf(vtx, "all N_{vtx}");
+	  }
 	  unsigned int id = packID(zside,eta,1,1,vbin,1);
 	  sprintf (name,"nvx%d11%d1",ieta,vbin);
 	  sprintf (title,"Number of vertex for %s %s", etas, vtx);
 	  h_nv2_[id] = new TH1D(name,title,100,0.0,100.0);
 	  h_nv2_[id]->Sumw2();
 	  ++book1;
+          sprintf (name,"Ediff_nvx%d11%d1",ieta,vbin);
+          sprintf (title,"Energy difference for %s %s", etas, vtx);
+          h_ediff_nvtx_[id] = new TH1D(name,title,1000,-500.0,500.0);
+          h_ediff_nvtx_[id]->Sumw2();
+          ++book1;
 	}
       }
     }
@@ -668,9 +703,9 @@ void AnalyzeLepTree::bookHisto() {
   std::cout << "Booked " << book1 << " 1D and " << book2 << " 2D Histos\n";
 }
 
-void AnalyzeLepTree::writeHisto(std::string fname) {
+void AnalyzeLepTree::writeHisto(const char* outfile) {
 
-  TFile* output_file = TFile::Open(fname.c_str(),"RECREATE");
+  TFile* output_file = TFile::Open(outfile,"RECREATE");
   output_file->cd();
   if ((mode_/1)%2 == 1) {
     for (std::map<unsigned int,TH1D*>::const_iterator itr = h_p_.begin(); 
@@ -683,6 +718,10 @@ void AnalyzeLepTree::writeHisto(std::string fname) {
 	 itr != h_p2_.end(); ++itr) (itr->second)->Write();
     for (std::map<unsigned int,TH1D*>::const_iterator itr = h_nv2_.begin(); 
 	 itr != h_nv2_.end(); ++itr) (itr->second)->Write();
+    for (std::map<unsigned int,TH1D*>::const_iterator itr = h_ediff_.begin();
+         itr != h_ediff_.end(); ++itr) (itr->second)->Write();
+    for (std::map<unsigned int,TH1D*>::const_iterator itr = h_ediff_nvtx_.begin();
+         itr != h_ediff_nvtx_.end(); ++itr) (itr->second)->Write();
   } else {
     for (int ieta=-etamax_; ieta<=etamax_; ++ieta) {
       if (ieta != 0) {
@@ -729,6 +768,38 @@ void AnalyzeLepTree::writeHisto(std::string fname) {
   }
 }
 
+void AnalyzeLepTree::writeMeanError(const char* outfile) {
+
+  if ((mode_/1)%2 == 1) {
+    std::ofstream fOutput(outfile);
+    for (int vbin=0; vbin<nVxBins(); ++vbin) {
+      for (int ieta=-etamax_; ieta<=etamax_; ++ieta) {
+	if (ieta != 0) {
+	  int zside = (ieta>0) ? 1 : -1;
+	  int eta   = (ieta>0) ? ieta : -ieta;
+	  unsigned int id = packID(zside,eta,1,1,vbin,1);
+	  char name[100];
+	  sprintf (name,"nvx%d11%d1",ieta,vbin);
+	  std::map<unsigned int,TH1D*>::iterator itr = h_nv2_.find(id);
+	  if (itr != h_nv2_.end()) {
+	    double mean = (itr->second)->GetMean();
+	    double error= (itr->second)->GetMeanError();
+	    char vtx[12];
+	    if ((mode_/2)%2 == 1) {
+	      sprintf(vtx, "Nvtx=%3d:%3d", npvbin_[vbin], npvbin_[vbin+1]);
+	    } else {
+	      sprintf(vtx, "all Nvtx");
+	    }
+	    fOutput << "Eta " << std::setw(3) << ieta << " " << vtx << " "
+		    << mean << " +- " << error << std::endl;
+	  }
+	}
+      }
+    }
+    fOutput.close();
+  }
+}
+
 std::vector<TCanvas*> AnalyzeLepTree::plotHisto(bool drawStatBox, int type,
 						bool save) {
   
@@ -743,11 +814,13 @@ std::vector<TCanvas*> AnalyzeLepTree::plotHisto(bool drawStatBox, int type,
   }
 
   if ((mode_/1)%2 == 1) {
-    if (type%2 > 0)      plotHisto(h_p_,     cvs, save);
-    if ((type/2)%2 > 0)  plotHisto(h_nv_,    cvs, save);
-    if ((type/4)%2 > 0)  plot2DHisto(h_pnv_, cvs, save);
-    if ((type/8)%2 > 0)  plotHisto(h_nv2_,   cvs, save);
-    if ((type/16)%2 > 0) plotHisto(h_p2_,    cvs, save);
+    if (type%2 > 0)      plotHisto(h_p_,          cvs, save);
+    if ((type/2)%2 > 0)  plotHisto(h_nv_,         cvs, save);
+    if ((type/4)%2 > 0)  plot2DHisto(h_pnv_,      cvs, save);
+    if ((type/8)%2 > 0)  plotHisto(h_nv2_,        cvs, save);
+    if ((type/16)%2 > 0) plotHisto(h_p2_,         cvs, save);
+    if ((type/32)%2 > 0) plotHisto(h_ediff_,      cvs, save);
+    if ((type/32)%2 > 0) plotHisto(h_ediff_nvtx_, cvs, save);
   } else {
     int depth0 = (type/16)&15;
     int phi0   = (type/256)&127;

@@ -10,14 +10,20 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-#include "CondFormats/DataRecord/interface/RPCEMapRcd.h" 
-#include "FWCore/Framework/interface/ESWatcher.h" 
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
-#include <vector> 
+#include <vector>
 
-namespace edm {class ParameterSet;}
-namespace edm {class EventSetup; }
-namespace edm {class Event; }
+namespace edm {
+  class ParameterSet;
+}
+namespace edm {
+  class EventSetup;
+}
+namespace edm {
+  class Event;
+}
 
 class FEDRawData;
 class RPCRecordFormatter;
@@ -25,25 +31,26 @@ class RPCReadOutMapping;
 
 class RPCPackingModule : public edm::stream::EDProducer<> {
 public:
-
   /// ctor
-  explicit RPCPackingModule( const edm::ParameterSet& );
+  explicit RPCPackingModule(const edm::ParameterSet&);
 
   /// dtor
   ~RPCPackingModule() override;
 
   /// get data, convert to raw event, attach again to Event
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-  static std::vector<rpcrawtodigi::EventRecords> eventRecords(
-      int fedId, int trigger_BX, const RPCDigiCollection* , const RPCRecordFormatter& ); 
+  static std::vector<rpcrawtodigi::EventRecords> eventRecords(int fedId,
+                                                              int trigger_BX,
+                                                              const RPCDigiCollection*,
+                                                              const RPCRecordFormatter&);
 
 private:
-  FEDRawData * rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection* , const RPCRecordFormatter& ) const;
+  FEDRawData* rawData(int fedId, unsigned int lvl1_ID, const RPCDigiCollection*, const RPCRecordFormatter&) const;
 
 private:
   edm::EDGetTokenT<RPCDigiCollection> dataLabel_;
   edm::ESWatcher<RPCEMapRcd> recordWatcher_;
-  const RPCReadOutMapping * theCabling; 
+  const RPCReadOutMapping* theCabling;
 };
 #endif

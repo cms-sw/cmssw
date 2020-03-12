@@ -18,10 +18,12 @@ from DQM.Physics.CentralityDQM_cfi import *
 from DQM.Physics.CentralitypADQM_cfi import *
 from DQM.Physics.topJetCorrectionHelper_cfi import *
 from DQM.Physics.FSQDQM_cfi import *
+from DQM.Physics.SMPDQM_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
-                           *ewkMuDQM
-                           *ewkElecDQM
+#                          Empty Histograms from EWK and Error log messages
+#                           *ewkMuDQM	   # errors in logs due HLTPrescaleProvider
+#                           *ewkElecDQM    # Error in determining HLT prescale set index from L1 data using L1GtUtils 
                            *qcdPhotonsDQM
 			   *topSingleMuonMediumDQM
                            *topSingleElectronMediumDQM	
@@ -35,6 +37,7 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *ExoticaDQM
                            *B2GDQM
                            *FSQDQM
+                           *SMPDQM
                            )
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel

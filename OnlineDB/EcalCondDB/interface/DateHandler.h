@@ -4,13 +4,11 @@
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 
-
 class DateHandler {
- public:
-
+public:
   DateHandler(oracle::occi::Environment* env, oracle::occi::Connection* conn);
   ~DateHandler();
-  
+
   inline Tm getNegInfTm() const { return NEG_INF; }
   inline Tm getPlusInfTm() const { return PLUS_INF; }
   inline oracle::occi::Date getNegInfDate() const { return NEG_INF_DATE; }
@@ -19,38 +17,29 @@ class DateHandler {
   /**
    *  Get the current system date
    */
-  inline oracle::occi::Date getCurrentDate()
-    {
-      return oracle::occi::Date(oracle::occi::Date::getSystemDate(m_env));
-    }
+  inline oracle::occi::Date getCurrentDate() { return oracle::occi::Date(oracle::occi::Date::getSystemDate(m_env)); }
 
   /**
    *  The minimum oracle Date
    */
-  inline oracle::occi::Date minDate()
-    { 
-      return oracle::occi::Date(m_env, 1970, 1, 1, 0, 0, 0); 
-    }
-  
+  inline oracle::occi::Date minDate() { return oracle::occi::Date(m_env, 1970, 1, 1, 0, 0, 0); }
+
   /**
    *  The maximum oracle Date
    */
-  inline oracle::occi::Date maxDate()
-    {
-      return oracle::occi::Date(m_env, 9999, 12, 31, 23, 59, 59);
-    }
+  inline oracle::occi::Date maxDate() { return oracle::occi::Date(m_env, 9999, 12, 31, 23, 59, 59); }
 
   /**
    *  Translate a Tm object to a oracle Date object
    */
   oracle::occi::Date tmToDate(const Tm& inTm) const;
-  
+
   /**
    *  Translate an oracle Date object to a Tm object
    */
   Tm dateToTm(oracle::occi::Date& date) const;
-  
- private:
+
+private:
   DateHandler() = delete;  // hide the default constructor
   oracle::occi::Connection* m_conn;
   oracle::occi::Environment* m_env;

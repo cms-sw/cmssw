@@ -28,30 +28,26 @@
 class FWEventItem;
 
 class FWSimpleProxyHelper {
-
 public:
-   FWSimpleProxyHelper(const std::type_info& );
-   //virtual ~FWSimpleProxyHelper();
+  FWSimpleProxyHelper(const std::type_info&);
+  //virtual ~FWSimpleProxyHelper();
 
-   // ---------- const member functions ---------------------
-   const void* offsetObject(const void* iObj) const {
-      return static_cast<const char*> (iObj)+m_objectOffset;
-   }
-   
-   // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
+  const void* offsetObject(const void* iObj) const { return static_cast<const char*>(iObj) + m_objectOffset; }
 
-   // ---------- member functions ---------------------------
-   void itemChanged(const FWEventItem*);
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+  void itemChanged(const FWEventItem*);
+
 private:
-   //FWSimpleProxyHelper(const FWSimpleProxyHelper&); // stop default
+  //FWSimpleProxyHelper(const FWSimpleProxyHelper&); // stop default
 
-   //const FWSimpleProxyHelper& operator=(const FWSimpleProxyHelper&); // stop default
+  //const FWSimpleProxyHelper& operator=(const FWSimpleProxyHelper&); // stop default
 
-   // ---------- member data --------------------------------
-   const std::type_info* m_itemType;
-   unsigned int m_objectOffset;
-
+  // ---------- member data --------------------------------
+  const std::type_info* m_itemType;
+  unsigned int m_objectOffset;
 };
-
 
 #endif

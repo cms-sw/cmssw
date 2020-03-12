@@ -23,7 +23,7 @@ $totalGen = 0;
 
 # parse the arguments
 while (@ARGV) {
-  $arg = shift(ARGV);
+  $arg = shift(@ARGV);
   if ($arg =~ /\A-/) {  # check for option 
     if ($arg =~ "h") {
       $helpwanted = 1;

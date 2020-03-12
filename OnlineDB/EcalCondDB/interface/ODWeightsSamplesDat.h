@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODFEWeightsInfo.h"
 
 class ODWeightsSamplesDat : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODWeightsSamplesDat();
   ~ODWeightsSamplesDat() override;
@@ -30,24 +30,17 @@ class ODWeightsSamplesDat : public IODConfig {
   inline void setWeightNumber(int dac) { m_sn = dac; }
   inline int getWeightNumber() const { return m_sn; }
 
-
-
- private:
+private:
   void clear();
-  void prepareWrite() 
-    noexcept(false) override;
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const ODWeightsSamplesDat* item, ODFEWeightsInfo* iov )
-    noexcept(false);
+  void writeDB(const ODWeightsSamplesDat* item, ODFEWeightsInfo* iov) noexcept(false);
 
-  void writeArrayDB(const std::vector< ODWeightsSamplesDat >& data, ODFEWeightsInfo* iov)
-    noexcept(false);
+  void writeArrayDB(const std::vector<ODWeightsSamplesDat>& data, ODFEWeightsInfo* iov) noexcept(false);
 
+  void fetchData(std::vector<ODWeightsSamplesDat>* fillMap, ODFEWeightsInfo* iov) noexcept(false);
 
-  void fetchData(std::vector< ODWeightsSamplesDat >* fillMap, ODFEWeightsInfo* iov)
-     noexcept(false);
-
-  void fetchData(ODWeightsSamplesDat * p)     noexcept(false);
+  void fetchData(ODWeightsSamplesDat* p) noexcept(false);
 
   // User data
 
@@ -55,7 +48,6 @@ class ODWeightsSamplesDat : public IODConfig {
   int m_ss;
   int m_sn;
   int m_ID;
- 
 };
 
 #endif

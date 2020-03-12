@@ -91,3 +91,18 @@ do
     mv *.png $W_DIR/results_APE/TrackerAlignmentErrorExtended${i}Detail.png
 
 done
+
+#*************************************************************************#
+# test two tags comparison
+#*************************************************************************#
+
+getPayloadData.py \
+    --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+    --plot plot_TrackerAlignmentErrorExtendedXXComparatorTwoTags \
+    --tag TrackerAlignmentExtendedErrors_2016_ultralegacymc_v1 \
+    --tagtwo TrackerAlignmentExtendedErrors_2016_ultralegacymc_preVFP_v1 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;

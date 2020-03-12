@@ -64,7 +64,8 @@ process.dqmSource   = cms.EDAnalyzer("DQMSourceExample",
 ######################################################################################
 ### run the quality tests as defined in QualityTests.xml
 ### by default: the quality tests run at the end of each lumisection
-process.qTester    = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester    = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQMServices/Examples/test/QualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     testInEventloop = cms.untracked.bool(False), #run on each event

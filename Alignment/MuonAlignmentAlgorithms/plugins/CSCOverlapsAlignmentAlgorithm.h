@@ -2,7 +2,7 @@
 //
 // Package:    MuonAlignmentAlgorithms
 // Class:      CSCOverlapsAlignmentAlgorithm
-// 
+//
 /**\class CSCOverlapsAlignmentAlgorithm CSCOverlapsAlignmentAlgorithm.cc Alignment/CSCOverlapsAlignmentAlgorithm/interface/CSCOverlapsAlignmentAlgorithm.h
 
  Description: <one line class summary>
@@ -20,9 +20,9 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"  
-#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -60,14 +60,17 @@
 
 class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
-  CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet& iConfig);
+  CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet &iConfig);
   ~CSCOverlapsAlignmentAlgorithm() override;
-  
-  void initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon,
-		  AlignableExtras* alignableExtras, AlignmentParameterStore* alignmentParameterStore) override;
-  void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo) override;
 
-  void terminate(const edm::EventSetup& iSetup) override;
+  void initialize(const edm::EventSetup &iSetup,
+                  AlignableTracker *alignableTracker,
+                  AlignableMuon *alignableMuon,
+                  AlignableExtras *alignableExtras,
+                  AlignmentParameterStore *alignmentParameterStore) override;
+  void run(const edm::EventSetup &iSetup, const EventInfo &eventInfo) override;
+
+  void terminate(const edm::EventSetup &iSetup) override;
 
   // having to make read-only accessors for all of these would be ridiculous, so they're public
   TH1F *m_hitsPerChamber;
@@ -138,12 +141,12 @@ private:
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doAlignment;
 
-  AlignmentParameterStore* m_alignmentParameterStore;
+  AlignmentParameterStore *m_alignmentParameterStore;
   align::Alignables m_alignables;
   AlignableNavigator *m_alignableNavigator;
   std::vector<CSCChamberFitter> m_fitters;
-  std::vector<CSCPairResidualsConstraint*> m_residualsConstraints;
-  std::map<std::pair<CSCDetId,CSCDetId>,CSCPairResidualsConstraint*> m_quickChamberLookup;
+  std::vector<CSCPairResidualsConstraint *> m_residualsConstraints;
+  std::map<std::pair<CSCDetId, CSCDetId>, CSCPairResidualsConstraint *> m_quickChamberLookup;
 
   TrackTransformer *m_trackTransformer;
   std::string m_propagatorName;

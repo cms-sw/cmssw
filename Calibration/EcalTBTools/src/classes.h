@@ -2,6 +2,5 @@
 #include "Calibration/EcalTBTools/interface/TB06RecoH2.h"
 
 namespace Calibration_EcalTBTools {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace Calibration_EcalTBTools

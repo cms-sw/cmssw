@@ -2,7 +2,7 @@
 //
 // Package:    HLTDummyCollections
 // Class:      HLTDummyCollections
-// 
+//
 /**\class HLTDummyCollections HLTDummyCollections.cc HLTrigger/HLTDummyCollections/src/HLTDummyCollections.cc
 
 Description: <one line class summary>
@@ -15,7 +15,6 @@ Implementation:
 //         Created:  Tue May 19 09:54:19 CEST 2009
 //
 //
-
 
 // system include files
 #include <memory>
@@ -62,41 +61,38 @@ Implementation:
 // -- ObjectMap
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
-
 //
 // class decleration
 //
 
 class HLTDummyCollections : public edm::EDProducer {
-  public:
-    explicit HLTDummyCollections(const edm::ParameterSet&);
-    ~HLTDummyCollections() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
+public:
+  explicit HLTDummyCollections(const edm::ParameterSet&);
+  ~HLTDummyCollections() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  private:
-    void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-    std::string action_;
+  std::string action_;
   //bool doEcal_ ;
-    bool doHcal_; 
-    bool unpackZDC_ ;
-    bool doEcalPreshower_ ;
-    std::string ESdigiCollection_;
-    bool doMuonDTDigis_ ;
-    bool doMuonCSCDigis_ ;
-    bool doSiPixelDigis_;
-    bool doSiStrip_ ;
-    bool doGCT_ ;
-    bool doObjectMap_ ;
-
+  bool doHcal_;
+  bool unpackZDC_;
+  bool doEcalPreshower_;
+  std::string ESdigiCollection_;
+  bool doMuonDTDigis_;
+  bool doMuonCSCDigis_;
+  bool doSiPixelDigis_;
+  bool doSiStrip_;
+  bool doGCT_;
+  bool doObjectMap_;
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -105,23 +101,22 @@ class HLTDummyCollections : public edm::EDProducer {
 //
 // constructors and destructor
 //
-HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig)
-{
-  action_           = iConfig.getParameter<std::string>("action");
-  unpackZDC_        = iConfig.getParameter<bool>("UnpackZDC");
+HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig) {
+  action_ = iConfig.getParameter<std::string>("action");
+  unpackZDC_ = iConfig.getParameter<bool>("UnpackZDC");
   ESdigiCollection_ = iConfig.getParameter<std::string>("ESdigiCollection");
 
   //  doEcal_           = ( action_ == "doEcal");
-  doHcal_           = ( action_ == "doHcal");
-  doEcalPreshower_  = ( action_ == "doEcalPreshower");
-  doMuonDTDigis_    = ( action_ == "doMuonDT");
-  doMuonCSCDigis_   = ( action_ == "doMuonCSC");
-  doSiPixelDigis_   = ( action_ == "doSiPixel");
-  doSiStrip_        = ( action_ == "doSiStrip");
-  doObjectMap_      = ( action_ == "doObjectMap");
-  doGCT_	    = ( action_ == "doGCT");
+  doHcal_ = (action_ == "doHcal");
+  doEcalPreshower_ = (action_ == "doEcalPreshower");
+  doMuonDTDigis_ = (action_ == "doMuonDT");
+  doMuonCSCDigis_ = (action_ == "doMuonCSC");
+  doSiPixelDigis_ = (action_ == "doSiPixel");
+  doSiStrip_ = (action_ == "doSiStrip");
+  doObjectMap_ = (action_ == "doObjectMap");
+  doGCT_ = (action_ == "doGCT");
 
-/* This interface is out of data and I do not know what is the proper replacement
+  /* This interface is out of data and I do not know what is the proper replacement
   if (doEcal_) {
     // ECAL unpacking :
     produces< edm::LazyGetter<EcalRecHit> >();
@@ -158,13 +153,12 @@ HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig)
     produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
   }
 
-
   if (doSiPixelDigis_) {
-    produces< edm::DetSetVector<PixelDigi> >();
+    produces<edm::DetSetVector<PixelDigi> >();
   }
 
   if (doSiStrip_) {
-    produces< edmNew::DetSetVector<SiStripCluster> >();
+    produces<edmNew::DetSetVector<SiStripCluster> >();
   }
 
   if (doGCT_) {
@@ -188,20 +182,17 @@ HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig)
   }
 }
 
-HLTDummyCollections::~HLTDummyCollections()
-{
+HLTDummyCollections::~HLTDummyCollections() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
 
-
-void
-HLTDummyCollections::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTDummyCollections::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("action","");
-  desc.add<bool>("UnpackZDC",false);
-  desc.add<std::string>("ESdigiCollection","");
-  descriptions.add("HLTDummyCollections",desc);
+  desc.add<std::string>("action", "");
+  desc.add<bool>("UnpackZDC", false);
+  desc.add<std::string>("ESdigiCollection", "");
+  descriptions.add("HLTDummyCollections", desc);
 }
 
 //
@@ -209,9 +200,7 @@ HLTDummyCollections::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 //
 
 // ------------ method called to produce the data  ------------
-void
-HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   /*
@@ -221,11 +210,11 @@ HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } */
 
   if (doHcal_) {
-    std::unique_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection()); 
+    std::unique_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection());
     std::unique_ptr<HFDigiCollection> hf_prod(new HFDigiCollection());
     std::unique_ptr<HODigiCollection> ho_prod(new HODigiCollection());
-    std::unique_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());  
-    std::unique_ptr<HOTrigPrimDigiCollection> hotp_prod(new HOTrigPrimDigiCollection());  
+    std::unique_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());
+    std::unique_ptr<HOTrigPrimDigiCollection> hotp_prod(new HOTrigPrimDigiCollection());
     iEvent.put(std::move(hbhe_prod));
     iEvent.put(std::move(hf_prod));
     iEvent.put(std::move(ho_prod));
@@ -238,7 +227,7 @@ HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if (doEcalPreshower_) {
-    std::unique_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
+    std::unique_ptr<ESDigiCollection> productDigis(new ESDigiCollection);
     iEvent.put(std::move(productDigis), ESdigiCollection_);
   }
 
@@ -258,27 +247,27 @@ HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::unique_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
     std::unique_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
 
-    iEvent.put(std::move(wireProduct),"MuonCSCWireDigi");
-    iEvent.put(std::move(stripProduct),"MuonCSCStripDigi");
-    iEvent.put(std::move(alctProduct),"MuonCSCALCTDigi");
-    iEvent.put(std::move(clctProduct),"MuonCSCCLCTDigi");
-    iEvent.put(std::move(comparatorProduct),"MuonCSCComparatorDigi");
-    iEvent.put(std::move(rpcProduct),"MuonCSCRPCDigi");
-    iEvent.put(std::move(corrlctProduct),"MuonCSCCorrelatedLCTDigi");
+    iEvent.put(std::move(wireProduct), "MuonCSCWireDigi");
+    iEvent.put(std::move(stripProduct), "MuonCSCStripDigi");
+    iEvent.put(std::move(alctProduct), "MuonCSCALCTDigi");
+    iEvent.put(std::move(clctProduct), "MuonCSCCLCTDigi");
+    iEvent.put(std::move(comparatorProduct), "MuonCSCComparatorDigi");
+    iEvent.put(std::move(rpcProduct), "MuonCSCRPCDigi");
+    iEvent.put(std::move(corrlctProduct), "MuonCSCCorrelatedLCTDigi");
   }
 
   if (doSiPixelDigis_) {
-    std::unique_ptr< edm::DetSetVector<PixelDigi> > SiPicollection( new edm::DetSetVector<PixelDigi> );
+    std::unique_ptr<edm::DetSetVector<PixelDigi> > SiPicollection(new edm::DetSetVector<PixelDigi>);
     iEvent.put(std::move(SiPicollection));
   }
 
   if (doSiStrip_) {
-    std::unique_ptr< edmNew::DetSetVector<SiStripCluster> > SiStripcollection( new edmNew::DetSetVector<SiStripCluster> );
+    std::unique_ptr<edmNew::DetSetVector<SiStripCluster> > SiStripcollection(new edmNew::DetSetVector<SiStripCluster>);
     iEvent.put(std::move(SiStripcollection));
   }
 
   if (doGCT_) {
-    std::unique_ptr<L1GctEmCandCollection> m_gctIsoEm( new L1GctEmCandCollection) ;
+    std::unique_ptr<L1GctEmCandCollection> m_gctIsoEm(new L1GctEmCandCollection);
     std::unique_ptr<L1GctEmCandCollection> m_gctNonIsoEm(new L1GctEmCandCollection);
     std::unique_ptr<L1GctJetCandCollection> m_gctCenJets(new L1GctJetCandCollection);
     std::unique_ptr<L1GctJetCandCollection> m_gctForJets(new L1GctJetCandCollection);
@@ -293,9 +282,9 @@ HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     iEvent.put(std::move(m_gctIsoEm), "isoEm");
     iEvent.put(std::move(m_gctNonIsoEm), "nonIsoEm");
-    iEvent.put(std::move(m_gctCenJets),"cenJets");
-    iEvent.put(std::move(m_gctForJets),"forJets");
-    iEvent.put(std::move(m_gctTauJets),"tauJets");
+    iEvent.put(std::move(m_gctCenJets), "cenJets");
+    iEvent.put(std::move(m_gctForJets), "forJets");
+    iEvent.put(std::move(m_gctTauJets), "tauJets");
     iEvent.put(std::move(m_gctHfBitCounts));
     iEvent.put(std::move(m_gctHfRingEtSums));
     iEvent.put(std::move(m_gctEtTot));
@@ -306,11 +295,9 @@ HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if (doObjectMap_) {
-    std::unique_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
-        new L1GlobalTriggerObjectMapRecord() );
+    std::unique_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(new L1GlobalTriggerObjectMapRecord());
     iEvent.put(std::move(gtObjectMapRecord));
   }
-
 }
 
 // declare this class as a framework plugin

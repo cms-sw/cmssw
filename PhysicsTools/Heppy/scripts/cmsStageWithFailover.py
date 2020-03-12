@@ -3,6 +3,7 @@
 #this script runs cmsStage multiple times in the case where it failes for some reason
 
 from __future__ import print_function
+from builtins import range
 if __name__ == '__main__':
 
     import PhysicsTools.HeppyCore.utils.eostools as eostools
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     
     sleep_lengths = [1,10,60,600,1800]
     return_code = 0
-    for i in xrange(5):
+    for i in range(5):
 
         #sleep for a while before running
         time.sleep(sleep_lengths[i])

@@ -4,13 +4,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 
-class BaseDeDxEstimator
-{
-public: 
+class BaseDeDxEstimator {
+public:
   virtual ~BaseDeDxEstimator() {}
-  virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) = 0;
+  virtual std::pair<float, float> dedx(const reco::DeDxHitCollection& Hits) = 0;
   virtual void beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {}
 };
 
 #endif
-

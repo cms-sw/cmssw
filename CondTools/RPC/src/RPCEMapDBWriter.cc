@@ -5,4 +5,3 @@
 typedef popcon::PopConAnalyzer<popcon::RPCEMapSourceHandler> RPCEMapDBWriter;
 //define this as a plug-in
 DEFINE_FWK_MODULE(RPCEMapDBWriter);
-

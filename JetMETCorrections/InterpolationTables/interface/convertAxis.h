@@ -22,28 +22,27 @@
 #include "JetMETCorrections/InterpolationTables/interface/NUHistoAxis.h"
 
 namespace npstat {
-    /** Convert uniform grid axis to uniform histogram axis */
-    HistoAxis convertToHistoAxis(const UniformAxis& gridAxis);
+  /** Convert uniform grid axis to uniform histogram axis */
+  HistoAxis convertToHistoAxis(const UniformAxis& gridAxis);
 
-    /** Convert uniform histogram to uniform grid axis axis */
-    UniformAxis convertToGridAxis(const HistoAxis& histoAxis);
+  /** Convert uniform histogram to uniform grid axis axis */
+  UniformAxis convertToGridAxis(const HistoAxis& histoAxis);
 
-    /**
+  /**
     // Note that conversion from non-uniform histogram axis into
     // the grid axis is always possible, but it is loosing information
     // (we are writing the positions of bin centers only, not edges)
     */
-    GridAxis convertToGridAxis(const NUHistoAxis& histoAxis);
+  GridAxis convertToGridAxis(const NUHistoAxis& histoAxis);
 
-    /**
+  /**
     // The conversion from non-uniform grid axis to non-uniform
     // histogram axis is only unambiguous when some additional
     // info is available. Here, in particular, we are asking for
     // the position of the axis minimum. This function will throw
     // npstat::NpstatInvalidArgument in case the conversion is impossible.
     */
-    NUHistoAxis convertToHistoAxis(const GridAxis& gridAxis, double xMin);
-}
+  NUHistoAxis convertToHistoAxis(const GridAxis& gridAxis, double xMin);
+}  // namespace npstat
 
-#endif // NPSTAT_CONVERTAXIS_HH_
-
+#endif  // NPSTAT_CONVERTAXIS_HH_

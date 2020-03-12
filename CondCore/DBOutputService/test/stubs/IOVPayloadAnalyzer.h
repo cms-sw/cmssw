@@ -2,23 +2,24 @@
 #define CondCore_DBOutputService_test_IOVPayloadAnalyzer_h
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
-namespace edm{
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //
 // class decleration
 //
 
 class IOVPayloadAnalyzer : public edm::EDAnalyzer {
- public:
-  explicit IOVPayloadAnalyzer(const edm::ParameterSet& iConfig );
+public:
+  explicit IOVPayloadAnalyzer(const edm::ParameterSet& iConfig);
   virtual ~IOVPayloadAnalyzer();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
   virtual void endJob();
- private:
+
+private:
   std::string m_record;
   // ----------member data ---------------------------
 };

@@ -116,14 +116,38 @@ SiStripSimBlock = cms.PSet(
     #
     TOFCutForDeconvolution     = cms.double(50.0),
     TOFCutForPeak              = cms.double(100.0),
-    Inefficiency               = cms.double(0.0)
+    Inefficiency               = cms.double(0.0),
+    # APV Dynamic Gain Simulation
+    includeAPVSimulation       = cms.bool( False ),
+    apv_maxResponse            = cms.double( 729 ),
+    apv_rate                   = cms.double( 66.2 ),
+    apv_mVPerQ                 = cms.double( 5.5 ),
+    apvfCPerElectron           = cms.double( 1.602e-4 ),
+    fracOfEventsToSimAPV       = cms.double( 0.0 ), # fraction of events to simulate APV saturation
 )
+
+#################################################
+# activate APV simulation for 2016 Strip detector (UL 2016)
+# According to this document https://indico.cern.ch/event/560226/contributions/2277448/attachments/1324704/1988050/wgm_vfp_change_ebutz.pdf
+# the first LHC fill taken with vfp=0 settings is https://cmswbm.cern.ch/cmsdb/servlet/FillReport?FILL=5198 (run 278801)
+# cf Prompt-Reco DQM: https://tinyurl.com/y2gybwx7
+# pre-VFP  runs: 273150-278800 lumi: 19480.4566773 /pb
+# post-VFP runs: 278801-284044 lumi: 16755.0362868 /pb
+# ~53.8% of luminosity is affected by APV saturation
+#################################################
+
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
+tracker_apv_vfp30_2016.toModify(SiStripSimBlock,
+                                includeAPVSimulation = True,
+                                fracOfEventsToSimAPV = 1.0
+                                )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(SiStripSimBlock,
     Noise = False,
     PreMixingMode = True,
     FedAlgorithm = 5, # special ZS mode: accept adc>0
+    includeAPVSimulation = False # APV simulation is off for premix stage1
 )
 
 from Configuration.Eras.Modifier_run2_common_cff import run2_common

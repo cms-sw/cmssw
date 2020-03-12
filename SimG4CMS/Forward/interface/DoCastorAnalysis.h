@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: DoCastorAnalysis.h
 // Date: 02.07 Panos Katsas
-// Description: simulation analysis steering code 
+// Description: simulation analysis steering code
 //
 ///////////////////////////////////////////////////////////////////////////////
 #undef debug
@@ -37,7 +37,7 @@
 #include <memory>
 #include <vector>
 
-#include <CLHEP/Random/Randomize.h> 
+#include <CLHEP/Random/Randomize.h>
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -60,35 +60,33 @@ class BeginOfEvent;
 class EndOfEvent;
 
 class DoCastorAnalysis : public SimWatcher,
-			 public Observer<const BeginOfJob *>, 
-			 public Observer<const BeginOfRun *>,
-			 public Observer<const EndOfRun *>,
-			 public Observer<const BeginOfEvent *>, 
-			 public Observer<const EndOfEvent *>,  
-			 public Observer<const G4Step *> {  
-
+                         public Observer<const BeginOfJob *>,
+                         public Observer<const BeginOfRun *>,
+                         public Observer<const EndOfRun *>,
+                         public Observer<const BeginOfEvent *>,
+                         public Observer<const EndOfEvent *>,
+                         public Observer<const G4Step *> {
 public:
   DoCastorAnalysis(const edm::ParameterSet &p);
   ~DoCastorAnalysis() override;
 
 private:
   // observer classes
-  void update(const BeginOfJob * run) override;
-  void update(const BeginOfRun * run) override;
-  void update(const EndOfRun * run) override;
-  void update(const BeginOfEvent * evt) override;
-  void update(const EndOfEvent * evt) override;
-  void update(const G4Step * step) override;
-  
-private:
+  void update(const BeginOfJob *run) override;
+  void update(const BeginOfRun *run) override;
+  void update(const EndOfRun *run) override;
+  void update(const BeginOfEvent *evt) override;
+  void update(const EndOfEvent *evt) override;
+  void update(const G4Step *step) override;
 
+private:
   int verbosity;
 
   std::string TreeFileName;
 
-  TFile* CastorOutputEventFile;
-  TTree* CastorTree;
-  
+  TFile *CastorOutputEventFile;
+  TTree *CastorTree;
+
   int eventIndex;
 
   std::vector<double> simhit_x, simhit_y, simhit_z;
@@ -97,13 +95,11 @@ private:
   //std::vector<double> simhit_time;
 
   std::vector<double> *psimhit_x, *psimhit_y, *psimhit_z;
-  std::vector<double> *psimhit_eta, *psimhit_phi,  *psimhit_energy;
+  std::vector<double> *psimhit_eta, *psimhit_phi, *psimhit_energy;
   std::vector<int> *psimhit_sector, *psimhit_module;
   //std::vector<double> *psimhit_time;
 
   double simhit_etot;
-
 };
 
-#endif // DoCastorAnalysis_h
-
+#endif  // DoCastorAnalysis_h

@@ -23,23 +23,23 @@ std::string defaultModuleLabel() {
 
   // expected size of the label
   unsigned int size = 0;
-  for (char c: name)
-    if (std::isalnum(c)) ++size;
+  for (char c : name)
+    if (std::isalnum(c))
+      ++size;
   std::string label;
   label.reserve(size);
 
   // tokenize the demangled name, keeping only alphanumeric characters,
   // and convert the tokens to lowerCamelCase.
   bool new_token = false;
-  for (char c: name) {
+  for (char c : name) {
     if (std::isalnum(c)) {
       if (new_token)
-        label.push_back((char) std::toupper(c));
+        label.push_back((char)std::toupper(c));
       else
         label.push_back(c);
       new_token = false;
-    }
-    else {
+    } else {
       new_token = true;
     }
   }
@@ -48,7 +48,7 @@ std::string defaultModuleLabel() {
   // if the label starts with more than one uppercase letter, change n-1 to lowercase
   // otherwise, change the first letter to lowercase
   unsigned int ups = 0;
-  for (char c: label)
+  for (char c : label)
     if (std::isupper(c))
       ++ups;
     else
@@ -61,4 +61,4 @@ std::string defaultModuleLabel() {
   return label;
 }
 
-#endif // defaultModuleLabel_h
+#endif  // defaultModuleLabel_h

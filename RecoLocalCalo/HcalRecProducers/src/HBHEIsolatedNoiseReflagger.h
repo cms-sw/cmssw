@@ -15,14 +15,12 @@ Original Author: John Paul Chou (Brown University)
 #include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEIsolatedNoiseAlgos.h"
 
-
 class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
- public:
+public:
   explicit HBHEIsolatedNoiseReflagger(const edm::ParameterSet&);
   ~HBHEIsolatedNoiseReflagger() override;
-  
-  
- private:
+
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   void DumpHBHEHitMap(std::vector<HBHEHitMap>& i) const;
@@ -32,7 +30,7 @@ class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > tok_trackExt_;
-  const HcalFrontEndMap *hfemap;
+  const HcalFrontEndMap* hfemap;
 
   double LooseHcalIsol_;
   double LooseEcalIsol_;
@@ -40,7 +38,7 @@ class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
   double TightHcalIsol_;
   double TightEcalIsol_;
   double TightTrackIsol_;
-  
+
   double LooseRBXEne1_, LooseRBXEne2_;
   int LooseRBXHits1_, LooseRBXHits2_;
   double TightRBXEne1_, TightRBXEne2_;
@@ -55,12 +53,11 @@ class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
   double TightMonoHitEne_;
 
   double RBXEneThreshold_;
-  
+
   bool debug_;
 
   // object validator
   ObjectValidator objvalidator_;
-
 };
 
 #endif

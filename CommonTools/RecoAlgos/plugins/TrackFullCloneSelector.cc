@@ -28,10 +28,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
- typedef SingleObjectSelector<
-           reco::TrackCollection, 
-           StringCutObjectSelector<reco::Track> 
-         > TrackFullCloneSelector;
+typedef SingleObjectSelector<reco::TrackCollection, StringCutObjectSelector<reco::Track> > TrackFullCloneSelector;
 
 DEFINE_FWK_MODULE(TrackFullCloneSelector);
-

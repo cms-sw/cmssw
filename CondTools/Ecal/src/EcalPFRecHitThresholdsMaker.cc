@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -92,142 +91,120 @@
 
 #include <vector>
 
-EcalPFRecHitThresholdsMaker::EcalPFRecHitThresholdsMaker(const edm::ParameterSet& iConfig) :
-  m_timetype(iConfig.getParameter<std::string>("timetype"))
-{
-
+EcalPFRecHitThresholdsMaker::EcalPFRecHitThresholdsMaker(const edm::ParameterSet& iConfig)
+    : m_timetype(iConfig.getParameter<std::string>("timetype")) {
   std::string container;
   std::string tag;
   std::string record;
 
-  m_nsigma  = iConfig.getParameter<double>("NSigma");
-  
+  m_nsigma = iConfig.getParameter<double>("NSigma");
 }
 
+EcalPFRecHitThresholdsMaker::~EcalPFRecHitThresholdsMaker() {}
 
-EcalPFRecHitThresholdsMaker::~EcalPFRecHitThresholdsMaker()
-{
-  
-}
-
-void EcalPFRecHitThresholdsMaker::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup){
-
+void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   edm::Service<cond::service::PoolDBOutputService> dbOutput;
-  if ( !dbOutput.isAvailable() ) {
+  if (!dbOutput.isAvailable()) {
     throw cms::Exception("PoolDBOutputService is not available");
   }
 
-
-  
   edm::ESHandle<EcalPedestals> handle1;
   evtSetup.get<EcalPedestalsRcd>().get(handle1);
   const EcalPedestals* ped_db = handle1.product();
-  std::cout << "ped pointer is: "<< ped_db<< std::endl;
-  
-  
+  std::cout << "ped pointer is: " << ped_db << std::endl;
+
   edm::ESHandle<EcalADCToGeVConstant> handle2;
   evtSetup.get<EcalADCToGeVConstantRcd>().get(handle2);
   const EcalADCToGeVConstant* adc_db = handle2.product();
-  std::cout << "adc pointer is: "<< adc_db<< std::endl;
-  
+  std::cout << "adc pointer is: " << adc_db << std::endl;
+
   edm::ESHandle<EcalIntercalibConstants> handle3;
   evtSetup.get<EcalIntercalibConstantsRcd>().get(handle3);
   const EcalIntercalibConstants* ical_db = handle3.product();
-  std::cout << "inter pointer is: "<< ical_db<< std::endl;
-  
+  std::cout << "inter pointer is: " << ical_db << std::endl;
 
   edm::ESHandle<EcalLaserDbService> laser;
   evtSetup.get<EcalLaserDbRecord>().get(laser);
 
   EcalPFRecHitThresholds* pfthresh = new EcalPFRecHitThresholds();
 
-  //    const EcalIntercalibConstantMap& icalMap = ical_db->getMap();  
-    
+  //    const EcalIntercalibConstantMap& icalMap = ical_db->getMap();
 
-    float adc_EB= float(adc_db->getEEValue()) ;
-    float adc_EE=float(adc_db->getEBValue());
-    
+  float adc_EB = float(adc_db->getEEValue());
+  float adc_EE = float(adc_db->getEBValue());
 
-    //edm::Timestamp tsince;
-     
+  //edm::Timestamp tsince;
 
+  for (int iEta = -EBDetId::MAX_IETA; iEta <= EBDetId::MAX_IETA; ++iEta) {
+    if (iEta == 0)
+      continue;
+    for (int iPhi = EBDetId::MIN_IPHI; iPhi <= EBDetId::MAX_IPHI; ++iPhi) {
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
+      if (EBDetId::validDetId(iEta, iPhi)) {
+        EBDetId ebdetid(iEta, iPhi, EBDetId::ETAPHIMODE);
+        EcalPedestals::const_iterator it = ped_db->find(ebdetid.rawId());
+        EcalPedestals::Item aped = (*it);
 
-    for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
-      if(iEta==0) continue;
-      for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
-	// make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
-	if (EBDetId::validDetId(iEta,iPhi)) {
-	  EBDetId ebdetid(iEta,iPhi,EBDetId::ETAPHIMODE);
-	  EcalPedestals::const_iterator it =ped_db->find(ebdetid.rawId());
-	  EcalPedestals::Item aped = (*it);
+        EcalIntercalibConstants::const_iterator itc = ical_db->find(ebdetid.rawId());
+        float calib = (*itc);
 
-	  EcalIntercalibConstants::const_iterator itc =ical_db->find(ebdetid.rawId());
-	  float calib = (*itc);
+        // get laser coefficient
+        float lasercalib = 1.;
+        lasercalib = laser->getLaserCorrection(ebdetid, evt.time());  // TODO correct time
 
-	  // get laser coefficient
-	  float lasercalib = 1.;
-	  lasercalib = laser->getLaserCorrection( ebdetid, evt.time()); // TODO correct time 
+        EcalPFRecHitThreshold thresh = aped.rms_x12 * calib * adc_EB * lasercalib * m_nsigma;
 
-	  EcalPFRecHitThreshold thresh= aped.rms_x12 * calib * adc_EB * lasercalib * m_nsigma;
-	  
-	  if(iPhi==100) std::cout<<"Thresh(GeV)="<<thresh<<std::endl; 
-	  
-	  pfthresh->insert(std::make_pair(ebdetid.rawId(),thresh));
-	}
+        if (iPhi == 100)
+          std::cout << "Thresh(GeV)=" << thresh << std::endl;
+
+        pfthresh->insert(std::make_pair(ebdetid.rawId(), thresh));
       }
     }
+  }
 
-    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-	// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-	if (EEDetId::validDetId(iX,iY,1)) {
-	  EEDetId eedetid(iX,iY,1);
-	  
-	  EcalPedestals::const_iterator it =ped_db->find(eedetid.rawId());
-	  EcalPedestals::Item aped = (*it);
+  for (int iX = EEDetId::IX_MIN; iX <= EEDetId::IX_MAX; ++iX) {
+    for (int iY = EEDetId::IY_MIN; iY <= EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      if (EEDetId::validDetId(iX, iY, 1)) {
+        EEDetId eedetid(iX, iY, 1);
 
-	  EcalIntercalibConstants::const_iterator itc =ical_db->find(eedetid.rawId());
-	  float calib = (*itc);
+        EcalPedestals::const_iterator it = ped_db->find(eedetid.rawId());
+        EcalPedestals::Item aped = (*it);
 
-	  // get laser coefficient
-	  float lasercalib = 1.;
-	  lasercalib = laser->getLaserCorrection( eedetid, evt.time()); // TODO correct time 
+        EcalIntercalibConstants::const_iterator itc = ical_db->find(eedetid.rawId());
+        float calib = (*itc);
 
-	  EcalPFRecHitThreshold thresh= aped.rms_x12 * calib * adc_EE * lasercalib * m_nsigma;
-	  pfthresh->insert(std::make_pair(eedetid.rawId(),thresh));
-	}
-	if(EEDetId::validDetId(iX,iY,-1)) {
-	 
-	  EEDetId eedetid(iX,iY,-1);
+        // get laser coefficient
+        float lasercalib = 1.;
+        lasercalib = laser->getLaserCorrection(eedetid, evt.time());  // TODO correct time
 
-	  EcalPedestals::const_iterator it =ped_db->find(eedetid.rawId());
-	  EcalPedestals::Item aped = (*it);
+        EcalPFRecHitThreshold thresh = aped.rms_x12 * calib * adc_EE * lasercalib * m_nsigma;
+        pfthresh->insert(std::make_pair(eedetid.rawId(), thresh));
+      }
+      if (EEDetId::validDetId(iX, iY, -1)) {
+        EEDetId eedetid(iX, iY, -1);
 
-	  EcalIntercalibConstants::const_iterator itc =ical_db->find(eedetid.rawId());
-	  float calib = (*itc);
+        EcalPedestals::const_iterator it = ped_db->find(eedetid.rawId());
+        EcalPedestals::Item aped = (*it);
 
-	  // get laser coefficient
-	  float lasercalib = 1.;
-	  lasercalib = laser->getLaserCorrection( eedetid, evt.time()); // TODO correct time 
+        EcalIntercalibConstants::const_iterator itc = ical_db->find(eedetid.rawId());
+        float calib = (*itc);
 
-	  EcalPFRecHitThreshold thresh= aped.rms_x12 * calib * adc_EE * lasercalib * m_nsigma;
-	  pfthresh->insert(std::make_pair(eedetid.rawId(),thresh));
-	  
-	  if(iX==50) std::cout<<"Thresh(GeV)="<<thresh<<std::endl; 
+        // get laser coefficient
+        float lasercalib = 1.;
+        lasercalib = laser->getLaserCorrection(eedetid, evt.time());  // TODO correct time
 
+        EcalPFRecHitThreshold thresh = aped.rms_x12 * calib * adc_EE * lasercalib * m_nsigma;
+        pfthresh->insert(std::make_pair(eedetid.rawId(), thresh));
 
-	}
-
+        if (iX == 50)
+          std::cout << "Thresh(GeV)=" << thresh << std::endl;
       }
     }
-    
+  }
 
+  dbOutput->createNewIOV<const EcalPFRecHitThresholds>(
+      pfthresh, dbOutput->beginOfTime(), dbOutput->endOfTime(), "EcalPFRecHitThresholdsRcd");
 
-
-    dbOutput->createNewIOV<const EcalPFRecHitThresholds>( pfthresh , dbOutput->beginOfTime(), dbOutput->endOfTime(),"EcalPFRecHitThresholdsRcd");
-
-
-
-    std::cout<< "EcalPFRecHitThresholdsMaker wrote it "  << std::endl;
+  std::cout << "EcalPFRecHitThresholdsMaker wrote it " << std::endl;
 }
-

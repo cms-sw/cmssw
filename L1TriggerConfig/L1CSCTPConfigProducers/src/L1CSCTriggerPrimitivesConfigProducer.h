@@ -22,7 +22,7 @@ class CSCDBL1TPParameters;
 class CSCDBL1TPParametersRcd;
 
 class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
- public:
+public:
   L1CSCTriggerPrimitivesConfigProducer(const edm::ParameterSet&);
   ~L1CSCTriggerPrimitivesConfigProducer() override;
 
@@ -30,7 +30,7 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
 
   std::unique_ptr<CSCDBL1TPParameters> produce(const CSCDBL1TPParametersRcd&);
 
- private:
+private:
   /** ALCT configuration parameters. */
   unsigned int m_alct_fifo_tbins, m_alct_fifo_pretrig;
   unsigned int m_alct_drift_delay;
@@ -39,7 +39,7 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
   unsigned int m_alct_trig_mode, m_alct_accel_mode, m_alct_l1a_window_width;
 
   /** CLCT configuration parameters. */
-  unsigned int m_clct_fifo_tbins,  m_clct_fifo_pretrig;
+  unsigned int m_clct_fifo_tbins, m_clct_fifo_pretrig;
   unsigned int m_clct_hit_persist, m_clct_drift_delay;
   unsigned int m_clct_nplanes_hit_pretrig, m_clct_nplanes_hit_pattern;
   unsigned int m_clct_pid_thresh_pretrig;

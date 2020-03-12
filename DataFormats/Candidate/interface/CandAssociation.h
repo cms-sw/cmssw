@@ -11,19 +11,21 @@
 namespace edm {
   namespace helper {
     struct CandMasterKeyReference {
-      template<typename CandRef>
-      static const CandRef & get( const CandRef & t, edm::ProductID id ) { 
-	if ( id == t.id() ) return t;
-	else return t->masterClone().template castTo<CandRef>(); 
+      template <typename CandRef>
+      static const CandRef& get(const CandRef& t, edm::ProductID id) {
+        if (id == t.id())
+          return t;
+        else
+          return t->masterClone().template castTo<CandRef>();
       }
     };
 
-    template<>
+    template <>
     struct AssociationKeyReferenceTrait<reco::CandidateCollection> {
       typedef CandMasterKeyReference type;
     };
-  }
-}
+  }  // namespace helper
+}  // namespace edm
 
 namespace reco {
   typedef edm::AssociationVector<CandidateRefProd, std::vector<float> > CandFloatAssociations;
@@ -35,6 +37,6 @@ namespace reco {
   typedef edm::AssociationVector<CandidateBaseRefProd, std::vector<int> > CandViewIntAssociations;
   typedef edm::AssociationVector<CandidateBaseRefProd, std::vector<unsigned int> > CandViewUIntAssociations;
   typedef edm::ValueMap<CandidateBaseRef> CandRefValueMap;
-}
+}  // namespace reco
 
 #endif

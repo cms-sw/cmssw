@@ -17,92 +17,82 @@
 
 namespace helper {
 
-  template<typename Collection>
+  template <typename Collection>
   struct IteratorToObjectConverter {
     typedef typename Collection::value_type value_type;
-    template<typename I>
-    static value_type convert( const I & i ) {
-      return value_type( * * i );
+    template <typename I>
+    static value_type convert(const I &i) {
+      return value_type(**i);
     }
   };
-  
-  template<typename T>
+
+  template <typename T>
   struct IteratorToObjectConverter<edm::OwnVector<T> > {
     typedef std::unique_ptr<T> value_type;
-    template<typename I>
-    static value_type convert( const I & i ) {
-      return value_type( (*i)->clone() );
+    template <typename I>
+    static value_type convert(const I &i) {
+      return value_type((*i)->clone());
     }
   };
 
-  template<typename C>
+  template <typename C>
   struct IteratorToObjectConverter<edm::RefVector<C> > {
     typedef edm::Ref<C> value_type;
-    template<typename I>
-    static value_type convert( const I & i ) {
-      return value_type( * i );
+    template <typename I>
+    static value_type convert(const I &i) {
+      return value_type(*i);
     }
   };
 
-  template<typename T>
+  template <typename T>
   struct IteratorToObjectConverter<edm::RefToBaseVector<T> > {
     typedef edm::RefToBase<T> value_type;
-    template<typename I>
-    static value_type convert( const I & i ) {
-      return value_type( * i );
+    template <typename I>
+    static value_type convert(const I &i) {
+      return value_type(*i);
     }
   };
 
-
-  template<typename T>
+  template <typename T>
   struct IteratorToObjectConverter<edm::PtrVector<T> > {
     typedef edm::Ptr<T> value_type;
-    template<typename I>
-    static value_type convert( const I & i ) {
-      return value_type( * i );
+    template <typename I>
+    static value_type convert(const I &i) {
+      return value_type(*i);
     }
   };
 
-
-
-  template<typename OutputCollection, 
-	   typename ClonePolicy = IteratorToObjectConverter<OutputCollection> >
+  template <typename OutputCollection, typename ClonePolicy = IteratorToObjectConverter<OutputCollection> >
   struct CollectionStoreManager {
     typedef OutputCollection collection;
-    template<typename C>
-    CollectionStoreManager( const edm::Handle<C> & h ) :
-      selected_( new OutputCollection ) { 
-    }
-    template<typename I>
-    void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
+    template <typename C>
+    CollectionStoreManager(const edm::Handle<C> &h) : selected_(new OutputCollection) {}
+    template <typename I>
+    void cloneAndStore(const I &begin, const I &end, edm::Event &) {
       using namespace std;
-      for( I i = begin; i != end; ++ i ) {
-	typename ClonePolicy::value_type v = ClonePolicy::convert( i );
-        selected_->push_back( std::move(v) );
+      for (I i = begin; i != end; ++i) {
+        typename ClonePolicy::value_type v = ClonePolicy::convert(i);
+        selected_->push_back(std::move(v));
       }
     }
-    edm::OrphanHandle<collection> put( edm::Event & evt ) {
-      return evt.put(std::move(selected_));
-    }
+    edm::OrphanHandle<collection> put(edm::Event &evt) { return evt.put(std::move(selected_)); }
     size_t size() const { return selected_->size(); }
+
   private:
     std::unique_ptr<collection> selected_;
   };
 
-  template<typename OutputCollection, typename EdmFilter>
+  template <typename OutputCollection, typename EdmFilter>
   struct ObjectSelectorBase : public EdmFilter {
-    ObjectSelectorBase( const edm::ParameterSet &) {
-      this-> template produces<OutputCollection>();
-    }    
+    ObjectSelectorBase(const edm::ParameterSet &) { this->template produces<OutputCollection>(); }
   };
 
-  template<typename OutputCollection, typename EdmFilter=edm::EDFilter>
+  template <typename OutputCollection, typename EdmFilter = edm::EDFilter>
   struct StoreManagerTrait {
     using type = CollectionStoreManager<OutputCollection>;
     using base = ObjectSelectorBase<OutputCollection, EdmFilter>;
   };
 
-}
+}  // namespace helper
 
 #endif
-

@@ -34,39 +34,35 @@
 // forward declarations
 
 // class declaration
-class L1GtBeamModeFilter: public edm::EDFilter {
-
+class L1GtBeamModeFilter : public edm::EDFilter {
 public:
+  /// constructor
+  explicit L1GtBeamModeFilter(const edm::ParameterSet&);
 
-    /// constructor
-    explicit L1GtBeamModeFilter(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtBeamModeFilter() override;
 
-    /// destructor
-    ~L1GtBeamModeFilter() override;
-
-    /// filter the event
-    bool filter(edm::Event&, const edm::EventSetup&) override;
+  /// filter the event
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
+  /// input tag for ConditionInEdm products
+  edm::InputTag m_condInEdmInputTag;
 
-    /// input tag for ConditionInEdm products
-    edm::InputTag m_condInEdmInputTag;
+  /// InputTag for the L1 Global Trigger EVM readout record
+  edm::InputTag m_l1GtEvmReadoutRecordTag;
 
-    /// InputTag for the L1 Global Trigger EVM readout record
-    edm::InputTag m_l1GtEvmReadoutRecordTag;
+  /// vector of beam modes (coded as integer numbers)
+  std::vector<unsigned int> m_allowedBeamMode;
 
-    /// vector of beam modes (coded as integer numbers)
-    std::vector<unsigned int> m_allowedBeamMode;
+  /// return the inverted result
+  bool m_invertResult;
 
-    /// return the inverted result
-    bool m_invertResult;
+  /// cache edm::isDebugEnabled()
+  bool m_isDebugEnabled;
 
-    /// cache edm::isDebugEnabled()
-    bool m_isDebugEnabled;
-
-    /// valid ConditionsInRunBlock product
-    bool m_condInRunBlockValid;
-
+  /// valid ConditionsInRunBlock product
+  bool m_condInRunBlockValid;
 };
 
-#endif // GlobalTriggerAnalyzer_L1GtBeamModeFilter_h
+#endif  // GlobalTriggerAnalyzer_L1GtBeamModeFilter_h

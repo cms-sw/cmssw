@@ -29,39 +29,36 @@ class FWConfigurable;
 class FWConfiguration;
 class FWJobMetadataManager;
 
-class FWConfigurationManager
-{
-
+class FWConfigurationManager {
 public:
-   FWConfigurationManager();
-   virtual ~FWConfigurationManager();
+  FWConfigurationManager();
+  virtual ~FWConfigurationManager();
 
-   // ---------- const member functions ---------------------
-   void setFrom(const FWConfiguration&) const;
-   void to(FWConfiguration&) const;
+  // ---------- const member functions ---------------------
+  void setFrom(const FWConfiguration&) const;
+  void to(FWConfiguration&) const;
 
-   void writeToFile(const std::string&) const;
-   void readFromFile(const std::string&) const;
-   std::string guessAndReadFromFile(FWJobMetadataManager*) const;
-   // ---------- static member functions --------------------
+  void writeToFile(const std::string&) const;
+  void readFromFile(const std::string&) const;
+  std::string guessAndReadFromFile(FWJobMetadataManager*) const;
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   ///does not take ownership
-   void add(const std::string& iName, FWConfigurable*);
+  // ---------- member functions ---------------------------
+  ///does not take ownership
+  void add(const std::string& iName, FWConfigurable*);
 
-   void setIgnore() { m_ignore = true; }
-   bool getIgnore() const { return m_ignore; }
+  void setIgnore() { m_ignore = true; }
+  bool getIgnore() const { return m_ignore; }
 
 private:
-   FWConfigurationManager(const FWConfigurationManager&) = delete;    // stop default
+  FWConfigurationManager(const FWConfigurationManager&) = delete;  // stop default
 
-   const FWConfigurationManager& operator=(const FWConfigurationManager&) = delete;    // stop default
-   void readFromOldFile(const std::string&) const;
+  const FWConfigurationManager& operator=(const FWConfigurationManager&) = delete;  // stop default
+  void readFromOldFile(const std::string&) const;
 
-   // ---------- member data --------------------------------
-   std::map<std::string, FWConfigurable*> m_configurables;
-   bool m_ignore;
+  // ---------- member data --------------------------------
+  std::map<std::string, FWConfigurable*> m_configurables;
+  bool m_ignore;
 };
-
 
 #endif

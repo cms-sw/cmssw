@@ -18,18 +18,16 @@ public:
    *  in any frame. Of course, the helix and the plane must be defined 
    *  in the same frame, which is also the frame of the result.
    */
-  using  PositionType = Basic3DVector<float>;
+  using PositionType = Basic3DVector<float>;
   using DirectionType = Basic3DVector<float>;
 
 public:
   /** Constructor using point and momentum.
    */
   StraightLinePlaneCrossing(const PositionType& point,
-			    const DirectionType& momentum,
-			    const PropagationDirection propDir = alongMomentum) :
-  theX0(point),
-  theP0(momentum.unit()),
-  thePropDir(propDir) {}
+                            const DirectionType& momentum,
+                            const PropagationDirection propDir = alongMomentum)
+      : theX0(point), theP0(momentum.unit()), thePropDir(propDir) {}
 
   // destructor
   ~StraightLinePlaneCrossing() {}
@@ -37,15 +35,15 @@ public:
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the plane.
    */
-  std::pair<bool,double> pathLength (const Plane& plane) const;
+  std::pair<bool, double> pathLength(const Plane& plane) const;
 
   /** Position at pathlength s from the starting point.
    */
-  PositionType position (float s) const {return PositionType(theX0+s*theP0);}
+  PositionType position(float s) const { return PositionType(theX0 + s * theP0); }
 
   /** Simplified interface in case the path length is not needed
    */
-  std::pair<bool,PositionType> position(const Plane& plane) const;
+  std::pair<bool, PositionType> position(const Plane& plane) const;
 
 private:
   //

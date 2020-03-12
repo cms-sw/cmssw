@@ -12,7 +12,7 @@
 //
 //
 //   Author :
-//   N. Neumeister            CERN EP 
+//   N. Neumeister            CERN EP
 //
 //   Migrated to CMSSW:
 //   I. Mikulec
@@ -47,91 +47,86 @@ class L1MuGlobalMuonTrigger;
 //              ---------------------
 
 class L1MuGMTPSB {
+public:
+  /// constructor
+  L1MuGMTPSB(const L1MuGlobalMuonTrigger& gmt, edm::ConsumesCollector&& iC);
 
-  public:
+  /// destructor
+  virtual ~L1MuGMTPSB();
 
-    /// constructor
-    L1MuGMTPSB(const L1MuGlobalMuonTrigger& gmt,edm::ConsumesCollector && iC);
+  /// receive muon candidates
+  void receiveData(edm::Event& e, int bx);
 
-    /// destructor
-    virtual ~L1MuGMTPSB();
+  /// clear PSB
+  void reset();
 
-    /// receive muon candidates
-    void receiveData(edm::Event& e, int bx);
-    
-    /// clear PSB
-    void reset();
-    
-    /// print PSB
-    void print() const;
-            
-    /// get RPC muon
-    const L1MuRegionalCand* RPCMuon(int index) const;  
-    
-    /// get DTBX muon
-    const L1MuRegionalCand* DTBXMuon(int index) const;
+  /// print PSB
+  void print() const;
 
-    /// get CSC muon
-    const L1MuRegionalCand* CSCMuon(int index) const;
-    
-    /// return number of non-empty RPC muons
-    int numberRPC() const;
-    
-    /// return number of non-empty DTBX muons
-    int numberDTBX() const;
+  /// get RPC muon
+  const L1MuRegionalCand* RPCMuon(int index) const;
 
-    /// return number of non-empty CSC muons
-    int numberCSC() const;
-    
-    /// are there any data in the PSB
-    bool empty() const;
+  /// get DTBX muon
+  const L1MuRegionalCand* DTBXMuon(int index) const;
 
-    /// return isolation bits
-    const L1MuGMTMatrix<bool>& isolBits() const { return m_Isol; }
-    
-    /// return minimum ionizing bits
-    const L1MuGMTMatrix<bool>& mipBits() const { return m_Mip; }
+  /// get CSC muon
+  const L1MuRegionalCand* CSCMuon(int index) const;
 
-  private:
+  /// return number of non-empty RPC muons
+  int numberRPC() const;
 
-    /// get muons from RPCb Trigger
-    void getRPCb(std::vector<L1MuRegionalCand> const* data, int bx);
+  /// return number of non-empty DTBX muons
+  int numberDTBX() const;
 
-    /// get muons from RPCf Trigger
-    void getRPCf(std::vector<L1MuRegionalCand> const* data, int bx);
+  /// return number of non-empty CSC muons
+  int numberCSC() const;
 
-    /// get muons from barrel Muon Trigger Track Finder
-    void getDTBX(std::vector<L1MuRegionalCand> const* data, int bx);
-   
-    /// get muons from endcap Muon Trigger Track Finder
-    void getCSC(std::vector<L1MuRegionalCand> const* data, int bx);
+  /// are there any data in the PSB
+  bool empty() const;
 
-    /// get Calorimeter Trigger data
-    void getCalo(edm::Event& e); 
-    
-    /// print barrel RPC muons
-    void printRPCbarrel() const;
+  /// return isolation bits
+  const L1MuGMTMatrix<bool>& isolBits() const { return m_Isol; }
 
-    /// print endcap RPC muons
-    void printRPCendcap() const;
-    
-    /// print DTBX muons
-    void printDTBX() const;
+  /// return minimum ionizing bits
+  const L1MuGMTMatrix<bool>& mipBits() const { return m_Mip; }
 
-    /// print CSC muons
-    void printCSC() const;
-    
-  private:
+private:
+  /// get muons from RPCb Trigger
+  void getRPCb(std::vector<L1MuRegionalCand> const* data, int bx);
 
-    const L1MuGlobalMuonTrigger& m_gmt;
-    
-    std::vector<L1MuRegionalCand> m_RpcMuons;
-    std::vector<L1MuRegionalCand> m_DtbxMuons;
-    std::vector<L1MuRegionalCand> m_CscMuons;
-    
-    L1MuGMTMatrix<bool> m_Isol;
-    L1MuGMTMatrix<bool> m_Mip;
-   
+  /// get muons from RPCf Trigger
+  void getRPCf(std::vector<L1MuRegionalCand> const* data, int bx);
+
+  /// get muons from barrel Muon Trigger Track Finder
+  void getDTBX(std::vector<L1MuRegionalCand> const* data, int bx);
+
+  /// get muons from endcap Muon Trigger Track Finder
+  void getCSC(std::vector<L1MuRegionalCand> const* data, int bx);
+
+  /// get Calorimeter Trigger data
+  void getCalo(edm::Event& e);
+
+  /// print barrel RPC muons
+  void printRPCbarrel() const;
+
+  /// print endcap RPC muons
+  void printRPCendcap() const;
+
+  /// print DTBX muons
+  void printDTBX() const;
+
+  /// print CSC muons
+  void printCSC() const;
+
+private:
+  const L1MuGlobalMuonTrigger& m_gmt;
+
+  std::vector<L1MuRegionalCand> m_RpcMuons;
+  std::vector<L1MuRegionalCand> m_DtbxMuons;
+  std::vector<L1MuRegionalCand> m_CscMuons;
+
+  L1MuGMTMatrix<bool> m_Isol;
+  L1MuGMTMatrix<bool> m_Mip;
 };
-  
+
 #endif

@@ -10,6 +10,7 @@
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
+<use   name="CalibTracker/SiStripESProducers"/>
 <use   name="CalibTracker/SiStripQuality"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/TrackReco"/>

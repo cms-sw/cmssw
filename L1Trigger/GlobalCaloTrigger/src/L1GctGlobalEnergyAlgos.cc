@@ -8,93 +8,97 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using std::ostream;
 using std::endl;
-using std::vector;
 using std::max;
+using std::ostream;
+using std::vector;
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnergyFpga*>& wheelFpga,
-					       const std::vector<L1GctWheelJetFpga*>& wheelJetFpga) :
-  L1GctProcessor(),
-  m_plusWheelFpga(wheelFpga.at(1)),
-  m_minusWheelFpga(wheelFpga.at(0)),
-  m_plusWheelJetFpga(wheelJetFpga.at(1)),
-  m_minusWheelJetFpga(wheelJetFpga.at(0)),
-  m_metComponents(0,0, L1GctMet::cordicTranslate),
-  m_mhtComponents(0,0, L1GctMet::useHtMissLut),
-  m_exValPlusWheel(), m_eyValPlusWheel(),
-  m_etValPlusWheel(), m_htValPlusWheel(),
-  m_exVlMinusWheel(), m_eyVlMinusWheel(),
-  m_etVlMinusWheel(), m_htVlMinusWheel(),
-  m_exValPlusPipe(), m_eyValPlusPipe(),
-  m_etValPlusPipe(), m_htValPlusPipe(),
-  m_exVlMinusPipe(), m_eyVlMinusPipe(),
-  m_etVlMinusPipe(), m_htVlMinusPipe(),
-  m_outputEtMiss(), m_outputEtMissPhi(),
-  m_outputEtSum(), m_outputEtHad(),
-  m_setupOk(true)
-{
-  if(wheelFpga.size() != 2)
-    {
-      m_setupOk = false;
-      if (m_verbose) {
-	edm::LogWarning("L1GctSetupError")
-	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos has been incorrectly constructed!\n"
-	  << "This class needs two wheel card pointers. "
-	  << "Number of wheel card pointers present is " << wheelFpga.size() << ".\n";
-      }
+                                               const std::vector<L1GctWheelJetFpga*>& wheelJetFpga)
+    : L1GctProcessor(),
+      m_plusWheelFpga(wheelFpga.at(1)),
+      m_minusWheelFpga(wheelFpga.at(0)),
+      m_plusWheelJetFpga(wheelJetFpga.at(1)),
+      m_minusWheelJetFpga(wheelJetFpga.at(0)),
+      m_metComponents(0, 0, L1GctMet::cordicTranslate),
+      m_mhtComponents(0, 0, L1GctMet::useHtMissLut),
+      m_exValPlusWheel(),
+      m_eyValPlusWheel(),
+      m_etValPlusWheel(),
+      m_htValPlusWheel(),
+      m_exVlMinusWheel(),
+      m_eyVlMinusWheel(),
+      m_etVlMinusWheel(),
+      m_htVlMinusWheel(),
+      m_exValPlusPipe(),
+      m_eyValPlusPipe(),
+      m_etValPlusPipe(),
+      m_htValPlusPipe(),
+      m_exVlMinusPipe(),
+      m_eyVlMinusPipe(),
+      m_etVlMinusPipe(),
+      m_htVlMinusPipe(),
+      m_outputEtMiss(),
+      m_outputEtMissPhi(),
+      m_outputEtSum(),
+      m_outputEtHad(),
+      m_setupOk(true) {
+  if (wheelFpga.size() != 2) {
+    m_setupOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError") << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos "
+                                            "has been incorrectly constructed!\n"
+                                         << "This class needs two wheel card pointers. "
+                                         << "Number of wheel card pointers present is " << wheelFpga.size() << ".\n";
     }
-  
-  if(wheelJetFpga.size() != 2)
-    {
-      m_setupOk = false;
-      if (m_verbose) {
-	edm::LogWarning("L1GctSetupError")
-	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos has been incorrectly constructed!\n"
-	  << "This class needs two wheel jet fpga pointers. "
-	  << "Number of wheel jet fpga pointers present is " << wheelJetFpga.size() << ".\n";
-      }
+  }
+
+  if (wheelJetFpga.size() != 2) {
+    m_setupOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError") << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos "
+                                            "has been incorrectly constructed!\n"
+                                         << "This class needs two wheel jet fpga pointers. "
+                                         << "Number of wheel jet fpga pointers present is " << wheelJetFpga.size()
+                                         << ".\n";
     }
-  
-  if(m_plusWheelFpga == nullptr)
-    {
-      m_setupOk = false;
-      if (m_verbose) {
-	edm::LogWarning("L1GctSetupError")
-	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
-	  << "Plus Wheel Fpga pointer has not been set!\n";
-      }
+  }
+
+  if (m_plusWheelFpga == nullptr) {
+    m_setupOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+          << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+          << "Plus Wheel Fpga pointer has not been set!\n";
     }
-  if(m_minusWheelFpga == nullptr)
-    {
-      m_setupOk = false;
-      if (m_verbose) {
-	edm::LogWarning("L1GctSetupError")
-	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
-	  << "Minus Wheel Fpga pointer has not been set!\n";
-      }
+  }
+  if (m_minusWheelFpga == nullptr) {
+    m_setupOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+          << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+          << "Minus Wheel Fpga pointer has not been set!\n";
     }
-  if(m_plusWheelJetFpga == nullptr)
-    {
-      m_setupOk = false;
-      if (m_verbose) {
-	edm::LogWarning("L1GctSetupError")
-	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
-	  << "Plus Wheel Jet Fpga pointer has not been set!\n";
-      }
+  }
+  if (m_plusWheelJetFpga == nullptr) {
+    m_setupOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+          << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+          << "Plus Wheel Jet Fpga pointer has not been set!\n";
     }
-  if(m_minusWheelJetFpga == nullptr)
-    {
-      m_setupOk = false;
-      if (m_verbose) {
-	edm::LogWarning("L1GctSetupError")
-	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
-	  << "Minus Wheel Jet Fpga pointer has not been set!\n";
-      }
+  }
+  if (m_minusWheelJetFpga == nullptr) {
+    m_setupOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+          << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+          << "Minus Wheel Jet Fpga pointer has not been set!\n";
     }
+  }
 
   // Set the scale for missing Et and missing Ht
-  // Missing Et has one extra bit of precision added in the (Ex, Ey) 
+  // Missing Et has one extra bit of precision added in the (Ex, Ey)
   // conversion step, so we reverse this here.
   m_metComponents.setBitShift(1);
   // Missing Ht has its own bit shifting before the LUT, so we don't
@@ -111,15 +115,13 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnerg
   }
 }
 
-L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
-{
+L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos() {
   if (m_hfSumProcessor != nullptr) {
     delete m_hfSumProcessor;
   }
 }
 
-ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
-{
+ostream& operator<<(ostream& os, const L1GctGlobalEnergyAlgos& fpga) {
   os << "===L1GctGlobalEnergyAlgos===" << endl;
   os << "WheelEnergyFpga* minus = " << fpga.m_minusWheelFpga << endl;
   os << "WheelEnergyFpga* plus  = " << fpga.m_plusWheelFpga << endl;
@@ -127,12 +129,12 @@ ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
   os << "WheelJetFpga* plus  = " << fpga.m_plusWheelJetFpga << endl;
   os << "Inputs from Plus wheel:" << endl;
   os << "  Ex " << fpga.m_exValPlusWheel << "\n  Ey " << fpga.m_eyValPlusWheel << endl;
-  os << "  Et " << fpga.m_etValPlusWheel << "\n  Ht " << fpga.m_htValPlusWheel << endl; 
+  os << "  Et " << fpga.m_etValPlusWheel << "\n  Ht " << fpga.m_htValPlusWheel << endl;
   os << "Inputs from Minus wheel:" << endl;
   os << "  Ex " << fpga.m_exVlMinusWheel << "\n  Ey " << fpga.m_eyVlMinusWheel << endl;
-  os << "  Et " << fpga.m_etVlMinusWheel << "\n  Ht " << fpga.m_htVlMinusWheel << endl; 
+  os << "  Et " << fpga.m_etVlMinusWheel << "\n  Ht " << fpga.m_htVlMinusWheel << endl;
   int bxZero = -fpga.bxMin();
-  if (bxZero>=0 && bxZero<fpga.numOfBx()) {
+  if (bxZero >= 0 && bxZero < fpga.numOfBx()) {
     os << "Output Etmiss " << fpga.m_outputEtMiss.contents.at(bxZero) << endl;
     os << "Output Etmiss Phi " << fpga.m_outputEtMissPhi.contents.at(bxZero) << endl;
     os << "Output EtSum " << fpga.m_outputEtSum.contents.at(bxZero) << endl;
@@ -176,27 +178,26 @@ void L1GctGlobalEnergyAlgos::resetProcessor() {
 }
 
 void L1GctGlobalEnergyAlgos::resetPipelines() {
-  m_outputEtMiss.reset    (numOfBx());
-  m_outputEtMissPhi.reset (numOfBx());
-  m_outputEtSum.reset     (numOfBx());
-  m_outputEtHad.reset     (numOfBx());
-  m_outputHtMiss.reset    (numOfBx());
-  m_outputHtMissPhi.reset (numOfBx());
+  m_outputEtMiss.reset(numOfBx());
+  m_outputEtMissPhi.reset(numOfBx());
+  m_outputEtSum.reset(numOfBx());
+  m_outputEtHad.reset(numOfBx());
+  m_outputHtMiss.reset(numOfBx());
+  m_outputHtMissPhi.reset(numOfBx());
 
-  m_exValPlusPipe.reset (numOfBx());
-  m_eyValPlusPipe.reset (numOfBx());
-  m_etValPlusPipe.reset (numOfBx());
-  m_htValPlusPipe.reset (numOfBx());
-  m_hxValPlusPipe.reset (numOfBx());
-  m_hyValPlusPipe.reset (numOfBx());
+  m_exValPlusPipe.reset(numOfBx());
+  m_eyValPlusPipe.reset(numOfBx());
+  m_etValPlusPipe.reset(numOfBx());
+  m_htValPlusPipe.reset(numOfBx());
+  m_hxValPlusPipe.reset(numOfBx());
+  m_hyValPlusPipe.reset(numOfBx());
 
-  m_exVlMinusPipe.reset (numOfBx());
-  m_eyVlMinusPipe.reset (numOfBx());
-  m_etVlMinusPipe.reset (numOfBx());
-  m_htVlMinusPipe.reset (numOfBx());
-  m_hxVlMinusPipe.reset (numOfBx());
-  m_hyVlMinusPipe.reset (numOfBx());
-
+  m_exVlMinusPipe.reset(numOfBx());
+  m_eyVlMinusPipe.reset(numOfBx());
+  m_etVlMinusPipe.reset(numOfBx());
+  m_htVlMinusPipe.reset(numOfBx());
+  m_hxVlMinusPipe.reset(numOfBx());
+  m_hyVlMinusPipe.reset(numOfBx());
 }
 
 void L1GctGlobalEnergyAlgos::fetchInput() {
@@ -208,7 +209,7 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
     m_htValPlusWheel = m_plusWheelFpga->getOutputHt();
     m_hxValPlusWheel = m_plusWheelJetFpga->getOutputHx();
     m_hyValPlusWheel = m_plusWheelJetFpga->getOutputHy();
-  
+
     m_exVlMinusWheel = m_minusWheelFpga->getOutputEx();
     m_eyVlMinusWheel = m_minusWheelFpga->getOutputEy();
     m_etVlMinusWheel = m_minusWheelFpga->getOutputEt();
@@ -220,10 +221,8 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
   }
 }
 
-
 // process the event
-void L1GctGlobalEnergyAlgos::process()
-{
+void L1GctGlobalEnergyAlgos::process() {
   if (m_setupOk) {
     // Store the inputs in pipelines
     m_exValPlusPipe.store(m_exValPlusWheel, bxRel());
@@ -250,7 +249,7 @@ void L1GctGlobalEnergyAlgos::process()
     ExSum = m_exValPlusWheel + m_exVlMinusWheel;
     EySum = m_eyValPlusWheel + m_eyVlMinusWheel;
     // Execute the missing Et algorithm
-    // Rotate by pi to evaluate MISSING Et. 
+    // Rotate by pi to evaluate MISSING Et.
     // Implement this in the same way as the firmware
     m_metComponents.setComponents(ExSum, EySum);
     EtMissing = m_metComponents.metVector();
@@ -259,10 +258,11 @@ void L1GctGlobalEnergyAlgos::process()
     } else {
       EtMissing.phi.setValue(EtMissing.phi.value() + 36);
     }
-    if (EtMissing.mag.value() == etMissMaxValue) EtMissing.mag.setOverFlow(true);
+    if (EtMissing.mag.value() == etMissMaxValue)
+      EtMissing.mag.setOverFlow(true);
 
-    m_outputEtMiss.store    (EtMissing.mag, bxRel());
-    m_outputEtMissPhi.store (EtMissing.phi, bxRel());
+    m_outputEtMiss.store(EtMissing.mag, bxRel());
+    m_outputEtMissPhi.store(EtMissing.phi, bxRel());
 
     //
     //-----------------------------------------------------------------------------
@@ -281,23 +281,25 @@ void L1GctGlobalEnergyAlgos::process()
 
     // Store 7 bits of magnitude and 5 bits of phi angle.
     static const unsigned MAX_HT_VALUE = 0x7f;
-    static const unsigned PHI_HT_MASK  = 0x1f;
-    if ( (HtMissing.mag.value() > MAX_HT_VALUE) || (HtMissing.mag.overFlow()) ) {
+    static const unsigned PHI_HT_MASK = 0x1f;
+    if ((HtMissing.mag.value() > MAX_HT_VALUE) || (HtMissing.mag.overFlow())) {
       HtMissing.mag.setValue(MAX_HT_VALUE);
     }
     HtMissing.phi.setValue(HtMissing.phi.value() & PHI_HT_MASK);
-    m_outputHtMiss.store    (HtMissing.mag, bxRel());
-    m_outputHtMissPhi.store (HtMissing.phi, bxRel());
+    m_outputHtMiss.store(HtMissing.mag, bxRel());
+    m_outputHtMissPhi.store(HtMissing.phi, bxRel());
 
     //
     //-----------------------------------------------------------------------------
     // Form the Et and Ht sums
     etTotalType ettTemp = m_etValPlusWheel + m_etVlMinusWheel;
-    if (ettTemp.overFlow()) ettTemp.setValue(etTotalMaxValue);
-    etHadType   httTemp = m_htValPlusWheel + m_htVlMinusWheel;
-    if (httTemp.overFlow()) httTemp.setValue(etHadMaxValue);
-    m_outputEtSum.store (ettTemp, bxRel());
-    m_outputEtHad.store (httTemp, bxRel());
+    if (ettTemp.overFlow())
+      ettTemp.setValue(etTotalMaxValue);
+    etHadType httTemp = m_htValPlusWheel + m_htVlMinusWheel;
+    if (httTemp.overFlow())
+      httTemp.setValue(etHadMaxValue);
+    m_outputEtSum.store(ettTemp, bxRel());
+    m_outputEtHad.store(httTemp, bxRel());
 
     m_hfSumProcessor->process();
   }
@@ -306,37 +308,29 @@ void L1GctGlobalEnergyAlgos::process()
 //----------------------------------------------------------------------------------------------
 // load setup info (for HtMiss calculation)
 //
-void L1GctGlobalEnergyAlgos::setJetFinderParams(const L1GctJetFinderParams* const jfpars)
-{
+void L1GctGlobalEnergyAlgos::setJetFinderParams(const L1GctJetFinderParams* const jfpars) {
   // The jetFinders add an LSB when converting to x and y components,
   // so the scale lsb for htx and hty is half the lsb for htt.
-  m_mhtComponents.setEtComponentLsb(jfpars->getHtLsbGeV()/2);
+  m_mhtComponents.setEtComponentLsb(jfpars->getHtLsbGeV() / 2);
 }
 
-void L1GctGlobalEnergyAlgos::setHtMissScale(const L1CaloEtScale* const scale)
-{
-  m_mhtComponents.setEtScale(scale);
-}
+void L1GctGlobalEnergyAlgos::setHtMissScale(const L1CaloEtScale* const scale) { m_mhtComponents.setEtScale(scale); }
 
 //----------------------------------------------------------------------------------------------
 // check setup
 //
-bool L1GctGlobalEnergyAlgos::setupOk() const { 
-  return (m_setupOk && 
-	  m_hfSumProcessor != nullptr &&
-	  m_hfSumProcessor->setupOk()); 
+bool L1GctGlobalEnergyAlgos::setupOk() const {
+  return (m_setupOk && m_hfSumProcessor != nullptr && m_hfSumProcessor->setupOk());
 }
 
-  
 //----------------------------------------------------------------------------------------------
 // set input data per wheel: x component of missing Et
 //
-void L1GctGlobalEnergyAlgos::setInputWheelEx(unsigned wheel, int energy, bool overflow)
-{
-  if (wheel==0) {
+void L1GctGlobalEnergyAlgos::setInputWheelEx(unsigned wheel, int energy, bool overflow) {
+  if (wheel == 0) {
     m_exValPlusWheel.setValue(energy);
     m_exValPlusWheel.setOverFlow(overflow);
-  } else if (wheel==1) {
+  } else if (wheel == 1) {
     m_exVlMinusWheel.setValue(energy);
     m_exVlMinusWheel.setOverFlow(overflow);
   }
@@ -345,12 +339,11 @@ void L1GctGlobalEnergyAlgos::setInputWheelEx(unsigned wheel, int energy, bool ov
 //----------------------------------------------------------------------------------------------
 // set input data per wheel: y component of missing Et
 //
-void L1GctGlobalEnergyAlgos::setInputWheelEy(unsigned wheel, int energy, bool overflow)
-{
-  if (wheel==0) {
+void L1GctGlobalEnergyAlgos::setInputWheelEy(unsigned wheel, int energy, bool overflow) {
+  if (wheel == 0) {
     m_eyValPlusWheel.setValue(energy);
     m_eyValPlusWheel.setOverFlow(overflow);
-  } else if (wheel==1) {
+  } else if (wheel == 1) {
     m_eyVlMinusWheel.setValue(energy);
     m_eyVlMinusWheel.setOverFlow(overflow);
   }
@@ -359,12 +352,11 @@ void L1GctGlobalEnergyAlgos::setInputWheelEy(unsigned wheel, int energy, bool ov
 //----------------------------------------------------------------------------------------------
 // set input data per wheel: scalar sum of Et
 //
-void L1GctGlobalEnergyAlgos::setInputWheelEt(unsigned wheel, unsigned energy, bool overflow)
-{
-  if (wheel==0) {
+void L1GctGlobalEnergyAlgos::setInputWheelEt(unsigned wheel, unsigned energy, bool overflow) {
+  if (wheel == 0) {
     m_etValPlusWheel.setValue(energy);
     m_etValPlusWheel.setOverFlow(overflow);
-  } else if (wheel==1) {
+  } else if (wheel == 1) {
     m_etVlMinusWheel.setValue(energy);
     m_etVlMinusWheel.setOverFlow(overflow);
   }
@@ -373,45 +365,38 @@ void L1GctGlobalEnergyAlgos::setInputWheelEt(unsigned wheel, unsigned energy, bo
 //----------------------------------------------------------------------------------------------
 // set input data per wheel: sum of transverse energy in jets (Ht)
 //
-void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bool overflow)
-{
-  if (wheel==0) {
+void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bool overflow) {
+  if (wheel == 0) {
     m_htValPlusWheel.setValue(energy);
     m_htValPlusWheel.setOverFlow(overflow);
-  } else if (wheel==1) {
+  } else if (wheel == 1) {
     m_htVlMinusWheel.setValue(energy);
     m_htVlMinusWheel.setOverFlow(overflow);
   }
 }
 
-
 //----------------------------------------------------------------------------------------------
 // set input data per wheel: x component of Ht
 //
-void L1GctGlobalEnergyAlgos::setInputWheelHx(unsigned wheel, unsigned energy, bool overflow)
-{
-  if (wheel==0) {
+void L1GctGlobalEnergyAlgos::setInputWheelHx(unsigned wheel, unsigned energy, bool overflow) {
+  if (wheel == 0) {
     m_hxValPlusWheel.setValue(energy);
     m_hxValPlusWheel.setOverFlow(overflow);
-  } else if (wheel==1) {
+  } else if (wheel == 1) {
     m_hxVlMinusWheel.setValue(energy);
     m_hxVlMinusWheel.setOverFlow(overflow);
   }
 }
 
-
 //----------------------------------------------------------------------------------------------
 // set input data per wheel: y component of Ht
 //
-void L1GctGlobalEnergyAlgos::setInputWheelHy(unsigned wheel, unsigned energy, bool overflow)
-{
-  if (wheel==0) {
+void L1GctGlobalEnergyAlgos::setInputWheelHy(unsigned wheel, unsigned energy, bool overflow) {
+  if (wheel == 0) {
     m_hyValPlusWheel.setValue(energy);
     m_hyValPlusWheel.setOverFlow(overflow);
-  } else if (wheel==1) {
+  } else if (wheel == 1) {
     m_hyVlMinusWheel.setValue(energy);
     m_hyVlMinusWheel.setOverFlow(overflow);
   }
 }
-
-

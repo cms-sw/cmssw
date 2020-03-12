@@ -3,17 +3,16 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 class DYTThrObject {
- public:
-
+public:
   struct DytThrStruct {
-    DetId  id;
+    DetId id;
     double thr;
 
     COND_SERIALIZABLE;
   };
 
-  DYTThrObject(){}
-  ~DYTThrObject(){}
+  DYTThrObject() {}
+  ~DYTThrObject() {}
   std::vector<DytThrStruct> thrsVec;
 
   COND_SERIALIZABLE;

@@ -13,9 +13,9 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
 namespace boost {
-namespace serialization {
+  namespace serialization {
 
-/*
+    /*
  * Note regarding object tracking: all autos used here
  * must resolve to untracked types, since we use local
  * variables in the stack which could end up with the same
@@ -24,29 +24,26 @@ namespace serialization {
  * by Boost Serialization.
  */
 
-// DataFormats/Provenance/interface/Timestamp.h
-template<class Archive>
-void save(Archive & ar, const edm::Timestamp & obj, const unsigned int)
-{
-    auto time_ = obj.value();
-    ar & BOOST_SERIALIZATION_NVP(time_);
-}
+    // DataFormats/Provenance/interface/Timestamp.h
+    template <class Archive>
+    void save(Archive& ar, const edm::Timestamp& obj, const unsigned int) {
+      auto time_ = obj.value();
+      ar& BOOST_SERIALIZATION_NVP(time_);
+    }
 
-template<class Archive>
-void load(Archive & ar, edm::Timestamp & obj, const unsigned int)
-{
-    decltype(obj.value()) time_;
-    ar & BOOST_SERIALIZATION_NVP(time_);
-    obj = edm::Timestamp(time_);
-}
+    template <class Archive>
+    void load(Archive& ar, edm::Timestamp& obj, const unsigned int) {
+      decltype(obj.value()) time_;
+      ar& BOOST_SERIALIZATION_NVP(time_);
+      obj = edm::Timestamp(time_);
+    }
 
-template<class Archive>
-void serialize(Archive & ar, edm::Timestamp & obj, const unsigned int v)
-{
-    split_free(ar, obj, v);
-}
+    template <class Archive>
+    void serialize(Archive& ar, edm::Timestamp& obj, const unsigned int v) {
+      split_free(ar, obj, v);
+    }
 
-} // namespace serialization
-} // namespace boost
+  }  // namespace serialization
+}  // namespace boost
 
 #endif

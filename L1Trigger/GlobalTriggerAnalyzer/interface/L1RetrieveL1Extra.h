@@ -51,220 +51,170 @@
 
 // forward declarations
 
-
 // class declaration
 class L1RetrieveL1Extra {
+public:
+  // constructor(s)
+  explicit L1RetrieveL1Extra(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
+
+  // destructor
+  virtual ~L1RetrieveL1Extra();
 
 public:
+  /// validity for retrieval of L1Extra products (false: product not found)
 
-    // constructor(s)
-  explicit L1RetrieveL1Extra(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
+  inline const bool validL1ExtraMuon() const { return m_validL1ExtraMuon; }
 
-    // destructor
-    virtual ~L1RetrieveL1Extra();
+  //
+  inline const bool validL1ExtraIsoEG() const { return m_validL1ExtraIsoEG; }
 
-public:
+  inline const bool validL1ExtraNoIsoEG() const { return m_validL1ExtraNoIsoEG; }
 
-    /// validity for retrieval of L1Extra products (false: product not found)
+  //
+  inline const bool validL1ExtraCenJet() const { return m_validL1ExtraCenJet; }
 
-    inline const bool validL1ExtraMuon() const {
-        return m_validL1ExtraMuon;
-    }
+  inline const bool validL1ExtraForJet() const { return m_validL1ExtraForJet; }
 
-    //
-    inline const bool validL1ExtraIsoEG() const {
-        return m_validL1ExtraIsoEG;
-    }
+  inline const bool validL1ExtraTauJet() const { return m_validL1ExtraTauJet; }
 
-    inline const bool validL1ExtraNoIsoEG() const {
-        return m_validL1ExtraNoIsoEG;
-    }
+  //
+  inline const bool validL1ExtraETT() const { return m_validL1ExtraETT; }
 
-    //
-    inline const bool validL1ExtraCenJet() const {
-        return m_validL1ExtraCenJet;
-    }
+  inline const bool validL1ExtraETM() const { return m_validL1ExtraETM; }
 
-    inline const bool validL1ExtraForJet() const {
-        return m_validL1ExtraForJet;
-    }
+  inline const bool validL1ExtraHTT() const { return m_validL1ExtraHTT; }
 
-    inline const bool validL1ExtraTauJet() const {
-        return m_validL1ExtraTauJet;
-    }
+  inline const bool validL1ExtraHTM() const { return m_validL1ExtraHTM; }
 
-    //
-    inline const bool validL1ExtraETT() const {
-        return m_validL1ExtraETT;
-    }
+  //
+  inline const bool validL1ExtraHfBitCounts() const { return m_validL1ExtraHfBitCounts; }
 
-    inline const bool validL1ExtraETM() const {
-        return m_validL1ExtraETM;
-    }
+  inline const bool validL1ExtraHfRingEtSums() const { return m_validL1ExtraHfRingEtSums; }
 
-    inline const bool validL1ExtraHTT() const {
-        return m_validL1ExtraHTT;
-    }
+  const bool validL1ExtraColl(const L1GtObject&) const;
 
-    inline const bool validL1ExtraHTM() const {
-        return m_validL1ExtraHTM;
-    }
+  /// input tag for a given collection
+  const edm::InputTag inputTagL1ExtraColl(const L1GtObject&) const;
 
-    //
-    inline const bool validL1ExtraHfBitCounts() const {
-        return m_validL1ExtraHfBitCounts;
-    }
+  /// return retrieved L1Extra collections
 
-    inline const bool validL1ExtraHfRingEtSums() const {
-        return m_validL1ExtraHfRingEtSums;
-    }
+  inline const l1extra::L1MuonParticleCollection* l1ExtraMuon() const { return m_l1ExtraMuon; }
 
-    const bool validL1ExtraColl(const L1GtObject&) const;
+  inline const l1extra::L1EmParticleCollection* l1ExtraIsoEG() const { return m_l1ExtraIsoEG; }
+  inline const l1extra::L1EmParticleCollection* l1ExtraNoIsoEG() const { return m_l1ExtraNoIsoEG; }
 
-    /// input tag for a given collection
-    const edm::InputTag inputTagL1ExtraColl(const L1GtObject&) const;
+  inline const l1extra::L1JetParticleCollection* l1ExtraCenJet() const { return m_l1ExtraCenJet; }
+  inline const l1extra::L1JetParticleCollection* l1ExtraForJet() const { return m_l1ExtraForJet; }
+  inline const l1extra::L1JetParticleCollection* l1ExtraTauJet() const { return m_l1ExtraTauJet; }
 
-    /// return retrieved L1Extra collections
+  inline const l1extra::L1EtMissParticleCollection* l1ExtraETT() const { return m_l1ExtraETT; }
+  inline const l1extra::L1EtMissParticleCollection* l1ExtraETM() const { return m_l1ExtraETM; }
+  inline const l1extra::L1EtMissParticleCollection* l1ExtraHTT() const { return m_l1ExtraHTT; }
+  inline const l1extra::L1EtMissParticleCollection* l1ExtraHTM() const { return m_l1ExtraHTM; }
 
-    inline const l1extra::L1MuonParticleCollection* l1ExtraMuon() const {
-        return m_l1ExtraMuon;
-    }
+  inline const l1extra::L1HFRingsCollection* l1ExtraHfBitCounts() const { return m_l1ExtraHfBitCounts; }
+  inline const l1extra::L1HFRingsCollection* l1ExtraHfRingEtSums() const { return m_l1ExtraHfRingEtSums; }
 
-    inline const l1extra::L1EmParticleCollection* l1ExtraIsoEG() const {
-        return m_l1ExtraIsoEG;
-    }
-    inline const l1extra::L1EmParticleCollection* l1ExtraNoIsoEG() const {
-        return m_l1ExtraNoIsoEG;
-    }
+  /// retrieve L1Extra objects
+  /// if a collection is not found, the corresponding m_valid(Object) is set to "false"
+  void retrieveL1ExtraObjects(const edm::Event&, const edm::EventSetup&);
 
-    inline const l1extra::L1JetParticleCollection* l1ExtraCenJet() const {
-        return m_l1ExtraCenJet;
-    }
-    inline const l1extra::L1JetParticleCollection* l1ExtraForJet() const {
-        return m_l1ExtraForJet;
-    }
-    inline const l1extra::L1JetParticleCollection* l1ExtraTauJet() const {
-        return m_l1ExtraTauJet;
-    }
+  /// user-friendly print of L1Extra
+  /// TODO should have been defined in DataFormats for L1Extra collections...
 
-    inline const l1extra::L1EtMissParticleCollection* l1ExtraETT() const {
-        return m_l1ExtraETT;
-    }
-    inline const l1extra::L1EtMissParticleCollection* l1ExtraETM() const {
-        return m_l1ExtraETM;
-    }
-    inline const l1extra::L1EtMissParticleCollection* l1ExtraHTT() const {
-        return m_l1ExtraHTT;
-    }
-    inline const l1extra::L1EtMissParticleCollection* l1ExtraHTM() const {
-        return m_l1ExtraHTM;
-    }
+  /// print L1GtObject object from bxInEvent, if checkBxInEvent is true,
+  /// having the objIndexInColl order index in collection, if checkObjIndexInColl is true
+  /// if checkBxInEvent and /or checkObjIndexInColl are false, print the objects without
+  /// the bxInEvent and / or objIndexInColl check
+  /// the combination checkBxInEvent = false, checkObjIndexInColl = true not supported
+  void printL1Extra(std::ostream& oStr,
+                    const L1GtObject& gtObject,
+                    const bool checkBxInEvent,
+                    const int bxInEvent,
+                    const bool checkObjIndexInColl,
+                    const int objIndexInColl) const;
 
-    inline const l1extra::L1HFRingsCollection* l1ExtraHfBitCounts() const {
-        return m_l1ExtraHfBitCounts;
-    }
-    inline const l1extra::L1HFRingsCollection* l1ExtraHfRingEtSums() const {
-        return m_l1ExtraHfRingEtSums;
-    }
+  /// print all L1GtObject objects from bxInEvent
+  void printL1Extra(std::ostream&, const L1GtObject&, const int bxInEvent) const;
 
-    /// retrieve L1Extra objects
-    /// if a collection is not found, the corresponding m_valid(Object) is set to "false"
-    void retrieveL1ExtraObjects(const edm::Event&, const edm::EventSetup&);
+  /// print all L1GtObject objects from all bxInEvent
+  void printL1Extra(std::ostream&, const L1GtObject&) const;
 
-    /// user-friendly print of L1Extra
-    /// TODO should have been defined in DataFormats for L1Extra collections...
+  /// print all L1Extra collections from a given BxInEvent
+  void printL1Extra(std::ostream&, const int bxInEvent) const;
 
-    /// print L1GtObject object from bxInEvent, if checkBxInEvent is true,
-    /// having the objIndexInColl order index in collection, if checkObjIndexInColl is true
-    /// if checkBxInEvent and /or checkObjIndexInColl are false, print the objects without
-    /// the bxInEvent and / or objIndexInColl check
-    /// the combination checkBxInEvent = false, checkObjIndexInColl = true not supported
-    void printL1Extra(std::ostream& oStr, const L1GtObject& gtObject,
-            const bool checkBxInEvent, const int bxInEvent,
-            const bool checkObjIndexInColl, const int objIndexInColl) const;
-
-    /// print all L1GtObject objects from bxInEvent
-    void printL1Extra(std::ostream&, const L1GtObject&, const int bxInEvent) const;
-
-    /// print all L1GtObject objects from all bxInEvent
-    void printL1Extra(std::ostream&, const L1GtObject&) const;
-
-    /// print all L1Extra collections from a given BxInEvent
-    void printL1Extra(std::ostream&, const int bxInEvent) const;
-
-    /// print all L1Extra collections from all BxInEvent
-    void printL1Extra(std::ostream&) const;
+  /// print all L1Extra collections from all BxInEvent
+  void printL1Extra(std::ostream&) const;
 
 private:
+  /// input parameters
 
-    /// input parameters
+  /// input tags for L1Extra objects
 
-    /// input tags for L1Extra objects
+  edm::InputTag m_tagL1ExtraMuon;
 
-    edm::InputTag m_tagL1ExtraMuon;
+  edm::InputTag m_tagL1ExtraIsoEG;
+  edm::InputTag m_tagL1ExtraNoIsoEG;
 
-    edm::InputTag m_tagL1ExtraIsoEG;
-    edm::InputTag m_tagL1ExtraNoIsoEG;
+  edm::InputTag m_tagL1ExtraCenJet;
+  edm::InputTag m_tagL1ExtraForJet;
+  edm::InputTag m_tagL1ExtraTauJet;
 
-    edm::InputTag m_tagL1ExtraCenJet;
-    edm::InputTag m_tagL1ExtraForJet;
-    edm::InputTag m_tagL1ExtraTauJet;
+  edm::InputTag m_tagL1ExtraEtMissMET;
+  edm::InputTag m_tagL1ExtraEtMissHTM;
 
-    edm::InputTag m_tagL1ExtraEtMissMET;
-    edm::InputTag m_tagL1ExtraEtMissHTM;
+  edm::InputTag m_tagL1ExtraHFRings;
 
-    edm::InputTag m_tagL1ExtraHFRings;
+  int m_nrBxInEventGmt;
+  int m_nrBxInEventGct;
 
-    int m_nrBxInEventGmt;
-    int m_nrBxInEventGct;
+  /// validity for retrieval of L1Extra products (false: product not found)
 
-    /// validity for retrieval of L1Extra products (false: product not found)
+  bool m_validL1ExtraMuon;
 
-    bool m_validL1ExtraMuon;
+  bool m_validL1ExtraIsoEG;
+  bool m_validL1ExtraNoIsoEG;
 
-    bool m_validL1ExtraIsoEG;
-    bool m_validL1ExtraNoIsoEG;
+  bool m_validL1ExtraCenJet;
+  bool m_validL1ExtraForJet;
+  bool m_validL1ExtraTauJet;
 
-    bool m_validL1ExtraCenJet;
-    bool m_validL1ExtraForJet;
-    bool m_validL1ExtraTauJet;
+  bool m_validL1ExtraETT;
+  bool m_validL1ExtraETM;
+  bool m_validL1ExtraHTT;
+  bool m_validL1ExtraHTM;
 
-    bool m_validL1ExtraETT;
-    bool m_validL1ExtraETM;
-    bool m_validL1ExtraHTT;
-    bool m_validL1ExtraHTM;
+  bool m_validL1ExtraHfBitCounts;
+  bool m_validL1ExtraHfRingEtSums;
 
-    bool m_validL1ExtraHfBitCounts;
-    bool m_validL1ExtraHfRingEtSums;
+  /// retrieved L1Extra collections
 
-    /// retrieved L1Extra collections
+  const l1extra::L1MuonParticleCollection* m_l1ExtraMuon;
 
-    const l1extra::L1MuonParticleCollection* m_l1ExtraMuon;
+  const l1extra::L1EmParticleCollection* m_l1ExtraIsoEG;
+  const l1extra::L1EmParticleCollection* m_l1ExtraNoIsoEG;
 
-    const l1extra::L1EmParticleCollection* m_l1ExtraIsoEG;
-    const l1extra::L1EmParticleCollection* m_l1ExtraNoIsoEG;
+  const l1extra::L1JetParticleCollection* m_l1ExtraCenJet;
+  const l1extra::L1JetParticleCollection* m_l1ExtraForJet;
+  const l1extra::L1JetParticleCollection* m_l1ExtraTauJet;
 
-    const l1extra::L1JetParticleCollection* m_l1ExtraCenJet;
-    const l1extra::L1JetParticleCollection* m_l1ExtraForJet;
-    const l1extra::L1JetParticleCollection* m_l1ExtraTauJet;
+  const l1extra::L1EtMissParticleCollection* m_l1ExtraETT;
+  const l1extra::L1EtMissParticleCollection* m_l1ExtraETM;
+  const l1extra::L1EtMissParticleCollection* m_l1ExtraHTT;
+  const l1extra::L1EtMissParticleCollection* m_l1ExtraHTM;
 
-    const l1extra::L1EtMissParticleCollection* m_l1ExtraETT;
-    const l1extra::L1EtMissParticleCollection* m_l1ExtraETM;
-    const l1extra::L1EtMissParticleCollection* m_l1ExtraHTT;
-    const l1extra::L1EtMissParticleCollection* m_l1ExtraHTM;
+  const l1extra::L1HFRingsCollection* m_l1ExtraHfBitCounts;
+  const l1extra::L1HFRingsCollection* m_l1ExtraHfRingEtSums;
 
-    const l1extra::L1HFRingsCollection* m_l1ExtraHfBitCounts;
-    const l1extra::L1HFRingsCollection* m_l1ExtraHfRingEtSums;
-
-    edm::EDGetTokenT<l1extra::L1MuonParticleCollection> m_tagL1ExtraMuonTok;
-    edm::EDGetTokenT<l1extra::L1EmParticleCollection>m_tagL1ExtraIsoEGTok;
-    edm::EDGetTokenT<l1extra::L1EmParticleCollection> m_tagL1ExtraNoIsoEGTok;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraCenJetTok;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraForJetTok;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraTauJetTok;
-    edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_tagL1ExtraEtMissMETTok;
-    edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_tagL1ExtraEtMissHTMTok;
-    edm::EDGetTokenT<l1extra::L1HFRingsCollection> m_tagL1ExtraHFRingsTok;
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> m_tagL1ExtraMuonTok;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> m_tagL1ExtraIsoEGTok;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> m_tagL1ExtraNoIsoEGTok;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraCenJetTok;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraForJetTok;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraTauJetTok;
+  edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_tagL1ExtraEtMissMETTok;
+  edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_tagL1ExtraEtMissHTMTok;
+  edm::EDGetTokenT<l1extra::L1HFRingsCollection> m_tagL1ExtraHFRingsTok;
 };
 
 #endif

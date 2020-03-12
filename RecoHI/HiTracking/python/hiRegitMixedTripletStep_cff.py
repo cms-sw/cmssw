@@ -117,13 +117,14 @@ hiRegitMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiM
     ) #end of vpset
     ) #end of clone  
 
-hiRegitMixedTripletStep = cms.Sequence(hiRegitMixedTripletStepClusters*
-                                       hiRegitMixedTripletStepSeedLayersA*
-                                       hiRegitMixedTripletStepSeedsA*
-                                       hiRegitMixedTripletStepSeedLayersB*
-                                       hiRegitMixedTripletStepSeedsB*
-                                       hiRegitMixedTripletStepSeeds*
-                                       hiRegitMixedTripletStepTrackCandidates*
-                                       hiRegitMixedTripletStepTracks*
+hiRegitMixedTripletStepTask = cms.Task(hiRegitMixedTripletStepClusters,
+                                       hiRegitMixedTripletStepSeedLayersA,
+                                       hiRegitMixedTripletStepSeedsA,
+                                       hiRegitMixedTripletStepSeedLayersB,
+                                       hiRegitMixedTripletStepSeedsB,
+                                       hiRegitMixedTripletStepSeeds,
+                                       hiRegitMixedTripletStepTrackCandidates,
+                                       hiRegitMixedTripletStepTracks,
                                        hiRegitMixedTripletStepSelector
                                        )
+hiRegitMixedTripletStep = cms.Sequence(hiRegitMixedTripletStepTask)

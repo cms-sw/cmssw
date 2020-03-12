@@ -4,15 +4,16 @@
 #include "SimRomanPot/SimFP420/interface/CDrifterFP420.h"
 #include "SimRomanPot/SimFP420/interface/EnergySegmentFP420.h"
 
-class ChargeDrifterFP420 : public CDrifterFP420{
- public:
-  ChargeDrifterFP420(double,double,double,double,double,double,double,double,double,int);
-  CDrifterFP420::collection_type drift (const CDrifterFP420::ionization_type&, const G4ThreeVector&, const int&) override;
+class ChargeDrifterFP420 : public CDrifterFP420 {
+public:
+  ChargeDrifterFP420(double, double, double, double, double, double, double, double, double, int);
+  CDrifterFP420::collection_type drift(const CDrifterFP420::ionization_type &,
+                                       const G4ThreeVector &,
+                                       const int &) override;
 
- private:
-  
-  AmplitudeSegmentFP420 drift(const EnergySegmentFP420&, const G4ThreeVector&, const int&);
-  
+private:
+  AmplitudeSegmentFP420 drift(const EnergySegmentFP420 &, const G4ThreeVector &, const int &);
+
   double modulePath;
   double constTe;
   double constDe;
@@ -23,9 +24,6 @@ class ChargeDrifterFP420 : public CDrifterFP420{
   double ldriftcurrX;
   double ldriftcurrY;
   int verbo;
-  
 };
 
-
 #endif
-

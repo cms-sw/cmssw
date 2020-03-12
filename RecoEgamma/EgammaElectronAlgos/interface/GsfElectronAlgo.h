@@ -1,6 +1,11 @@
 #ifndef GsfElectronAlgo_H
 #define GsfElectronAlgo_H
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -8,6 +13,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -26,7 +32,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgoHeavyObjectCache.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
@@ -35,7 +40,6 @@
 #include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
@@ -45,343 +49,225 @@
 #include <list>
 #include <string>
 
-
 class GsfElectronAlgo {
-
+public:
+  class HeavyObjectCache {
   public:
+    HeavyObjectCache(const edm::ParameterSet&);
+    std::unique_ptr<const SoftElectronMVAEstimator> sElectronMVAEstimator;
+    std::unique_ptr<const ElectronMVAEstimator> iElectronMVAEstimator;
+  };
 
-    struct InputTagsConfiguration
-     {
-       edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons ;
-       edm::EDGetTokenT<reco::GsfElectronCollection> pflowGsfElectronsTag ;
-       edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores ;
-       edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag ;
-       edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters ;
-       edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusters ;
-      //edm::EDGetTokenT tracks ;
-       edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection ;
-       edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollection ;
-       edm::EDGetTokenT<reco::ElectronSeedCollection> seedsTag ;
-       edm::EDGetTokenT<reco::TrackCollection> ctfTracks ;
-       edm::EDGetTokenT<reco::BeamSpot> beamSpotTag ;
-       edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag ;
-       edm::EDGetTokenT<reco::VertexCollection> vtxCollectionTag;
+  struct Tokens {
+    edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons;
+    edm::EDGetTokenT<reco::GsfElectronCollection> pflowGsfElectronsTag;
+    edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores;
+    edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag;
+    edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters;
+    edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusters;
+    edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection;
+    edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollection;
+    edm::EDGetTokenT<reco::ElectronSeedCollection> seedsTag;
+    edm::EDGetTokenT<reco::TrackCollection> ctfTracks;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotTag;
+    edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag;
+    edm::EDGetTokenT<reco::VertexCollection> vtxCollectionTag;
+    edm::EDGetTokenT<reco::ConversionCollection> conversions;
+  };
 
-      //IsoVals (PF and EcalDriven)
-      edm::ParameterSet pfIsoVals;
-      edm::ParameterSet edIsoVals;
+  struct StrategyConfiguration {
+    bool useGsfPfRecTracks;
+    // if true, electron preselection is applied
+    bool applyPreselection;
+    // if true, electron level escale corrections are
+    // used on top of the cluster level corrections
+    bool ecalDrivenEcalEnergyFromClassBasedParameterization;
+    bool ecalDrivenEcalErrorFromClassBasedParameterization;
+    bool pureTrackerDrivenEcalErrorFromSimpleParameterization;
+    // ambiguity solving
+    bool applyAmbResolution;              // if not true, ambiguity solving is not applied
+    unsigned ambSortingStrategy;          // 0:isBetter, 1:isInnermost
+    unsigned ambClustersOverlapStrategy;  // 0:sc adresses, 1:bc shared energy
+    // if true, trackerDriven electrons are added
+    bool addPflowElectrons;
+    // for backward compatibility
+    bool ctfTracksCheck;
+    bool gedElectronMode;
+    float PreSelectMVA;
+    float MaxElePtForOnlyMVA;
+    // GED-Regression (ECAL and combination)
+    bool useEcalRegression;
+    bool useCombinationRegression;
+    //heavy ion in 2015 has no conversions and so cant fill conv vtx fit prob so this bool
+    //stops it from being filled
+    bool fillConvVtxFitProb;
+  };
 
-     } ;
+  struct CutsConfiguration {
+    // minimum SC Et
+    double minSCEtBarrel;
+    double minSCEtEndcaps;
+    // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state
+    double maxEOverPBarrel;
+    double maxEOverPEndcaps;
+    // minimum E/p where E is the supercluster corrected energy and p the track momentum at innermost state
+    double minEOverPBarrel;
+    double minEOverPEndcaps;
 
-    struct StrategyConfiguration
-     {
-      bool useGsfPfRecTracks ;
-      // if true, electron preselection is applied
-      bool applyPreselection ;
-      // if true, electron level escale corrections are
-      // used on top of the cluster level corrections
-      bool ecalDrivenEcalEnergyFromClassBasedParameterization ;
-      bool ecalDrivenEcalErrorFromClassBasedParameterization ;
-      bool pureTrackerDrivenEcalErrorFromSimpleParameterization ;
-      // ambiguity solving
-      bool applyAmbResolution  ; // if not true, ambiguity solving is not applied
-      unsigned ambSortingStrategy  ; // 0:isBetter, 1:isInnerMost
-      unsigned ambClustersOverlapStrategy  ; // 0:sc adresses, 1:bc shared energy
-      // if true, trackerDriven electrons are added
-      bool addPflowElectrons ;
-      // for backward compatibility
-      bool ctfTracksCheck ;
-      bool gedElectronMode;
-      float PreSelectMVA;	
-      float MaxElePtForOnlyMVA;
-      // GED-Regression (ECAL and combination)
-      bool useEcalRegression;
-      bool useCombinationRegression;  
-     } ;
+    // H/E
+    double maxHOverEBarrelCone;
+    double maxHOverEEndcapsCone;
+    double maxHBarrelCone;
+    double maxHEndcapsCone;
+    double maxHOverEBarrelTower;
+    double maxHOverEEndcapsTower;
+    double maxHBarrelTower;
+    double maxHEndcapsTower;
 
-    struct CutsConfiguration
-     {
-      // minimum SC Et
-      double minSCEtBarrel ;
-      double minSCEtEndcaps ;
-      // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state
-      double maxEOverPBarrel ;
-      double maxEOverPEndcaps ;
-      // minimum E/p where E is the supercluster corrected energy and p the track momentum at innermost state
-      double minEOverPBarrel ;
-      double minEOverPEndcaps ;
+    // maximum eta difference between the supercluster position and the track position at the closest impact to the supercluster
+    double maxDeltaEtaBarrel;
+    double maxDeltaEtaEndcaps;
 
-      // H/E
-      double maxHOverEBarrelCone ;
-      double maxHOverEEndcapsCone ;
-      double maxHBarrelCone ;
-      double maxHEndcapsCone ;
-      double maxHOverEBarrelTower ;
-      double maxHOverEEndcapsTower ;
-      double maxHBarrelTower ;
-      double maxHEndcapsTower ;
+    // maximum phi difference between the supercluster position and the track position at the closest impact to the supercluster
+    // position to the supercluster
+    double maxDeltaPhiBarrel;
+    double maxDeltaPhiEndcaps;
 
-      // maximum eta difference between the supercluster position and the track position at the closest impact to the supercluster
-      double maxDeltaEtaBarrel ;
-      double maxDeltaEtaEndcaps ;
+    // maximum sigma ieta ieta
+    double maxSigmaIetaIetaBarrel;
+    double maxSigmaIetaIetaEndcaps;
+    // maximum fbrem
 
-      // maximum phi difference between the supercluster position and the track position at the closest impact to the supercluster
-      // position to the supercluster
-      double maxDeltaPhiBarrel ;
-      double maxDeltaPhiEndcaps ;
+    double maxFbremBarrel;
+    double maxFbremEndcaps;
 
-      // maximum sigma ieta ieta
-      double maxSigmaIetaIetaBarrel ;
-      double maxSigmaIetaIetaEndcaps ;
-      // maximum fbrem
+    // fiducial regions
+    bool isBarrel;
+    bool isEndcaps;
+    bool isFiducial;
 
-      double maxFbremBarrel ;
-      double maxFbremEndcaps ;
+    // BDT output (if available)
+    double minMVA;
+    double minMvaByPassForIsolated;
 
-      // fiducial regions
-      bool isBarrel ;
-      bool isEndcaps ;
-      bool isFiducial ;
+    // transverse impact parameter wrt beam spot
+    double maxTIP;
 
-      // BDT output (if available)
-      double minMVA ;
-      double minMvaByPassForIsolated ;
+    // only make sense for ecal driven electrons
+    bool seedFromTEC;
+  };
 
-      // transverse impact parameter wrt beam spot
-      double maxTIP ;
+  // Ecal rec hits
+  struct EcalRecHitsConfiguration {
+    std::vector<int> recHitFlagsToBeExcludedBarrel;
+    std::vector<int> recHitFlagsToBeExcludedEndcaps;
+    std::vector<int> recHitSeverityToBeExcludedBarrel;
+    std::vector<int> recHitSeverityToBeExcludedEndcaps;
+    //int severityLevelCut ;
+  };
 
-      // only make sense for ecal driven electrons
-      bool seedFromTEC ;
-     } ;
+  // isolation variables parameters
+  struct IsolationConfiguration {
+    double intRadiusHcal;
+    double etMinHcal;
+    double intRadiusEcalBarrel;
+    double intRadiusEcalEndcaps;
+    double jurassicWidth;
+    double etMinBarrel;
+    double eMinBarrel;
+    double etMinEndcaps;
+    double eMinEndcaps;
+    bool vetoClustered;
+    bool useNumCrystals;
+  };
 
-    // Ecal rec hits
-    struct EcalRecHitsConfiguration
-     {
-      std::vector<int> recHitFlagsToBeExcludedBarrel ;
-      std::vector<int> recHitFlagsToBeExcludedEndcaps ;
-      std::vector<int> recHitSeverityToBeExcludedBarrel ;
-      std::vector<int> recHitSeverityToBeExcludedEndcaps ;
-      //int severityLevelCut ;
-     } ;
+  GsfElectronAlgo(const Tokens&,
+                  const StrategyConfiguration&,
+                  const CutsConfiguration& cutsCfg,
+                  const CutsConfiguration& cutsCfgPflow,
+                  const ElectronHcalHelper::Configuration& hcalCfg,
+                  const ElectronHcalHelper::Configuration& hcalCfgPflow,
+                  const IsolationConfiguration&,
+                  const EcalRecHitsConfiguration&,
+                  std::unique_ptr<EcalClusterFunctionBaseClass>&& superClusterErrorFunction,
+                  std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
+                  const RegressionHelper::Configuration& regCfg,
+                  const edm::ParameterSet& tkIsol03Cfg,
+                  const edm::ParameterSet& tkIsol04Cfg,
+                  const edm::ParameterSet& tkIsolHEEP03Cfg,
+                  const edm::ParameterSet& tkIsolHEEP04Cfg,
+                  edm::ConsumesCollector&& cc);
 
-    // isolation variables parameters
-    struct IsolationConfiguration
-     {
-      double intRadiusHcal ;
-      double etMinHcal ;
-      double intRadiusEcalBarrel ;
-      double intRadiusEcalEndcaps ;
-      double jurassicWidth ;
-      double etMinBarrel ;
-      double eMinBarrel ;
-      double etMinEndcaps ;
-      double eMinEndcaps ;
-      bool vetoClustered ;
-      bool useNumCrystals ;
-     } ;
+  // main methods
+  void completeElectrons(reco::GsfElectronCollection& electrons,  // do not redo cloned electrons done previously
+                         edm::Event const& event,
+                         edm::EventSetup const& eventSetup,
+                         const HeavyObjectCache* hoc);
 
-    GsfElectronAlgo
-     (
-      const InputTagsConfiguration &,
-      const StrategyConfiguration &,
-      const CutsConfiguration & cutsCfg,
-      const CutsConfiguration & cutsCfgPflow,
-      const ElectronHcalHelper::Configuration & hcalCfg,
-      const ElectronHcalHelper::Configuration & hcalCfgPflow,
-      const IsolationConfiguration &,
-      const EcalRecHitsConfiguration &,
-      EcalClusterFunctionBaseClass * superClusterErrorFunction,
-      EcalClusterFunctionBaseClass * crackCorrectionFunction,
-      const RegressionHelper::Configuration & regCfg,
-      const edm::ParameterSet& tkIsol03Cfg,
-      const edm::ParameterSet& tkIsol04Cfg
-      
-      ) ;
+private:
+  // internal structures
 
-    // main methods
-    void checkSetup( const edm::EventSetup & ) ;
-    void beginEvent( edm::Event & ) ;
-    void displayInternalElectrons( const std::string & title ) const ;
-    void clonePreviousElectrons() ;
-    void completeElectrons(const gsfAlgoHelpers::HeavyObjectCache*) ; // do not redo cloned electrons done previously
-    void addPflowInfo() ; // now deprecated
-    void setAmbiguityData( bool ignoreNotPreselected = true ) ;
-    void removeNotPreselectedElectrons() ;
-    void removeAmbiguousElectrons() ;
-    reco::GsfElectronCollection & electrons() ;
-    void setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
-    void setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache*,
-                       const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
-    void endEvent() ;
+  struct Configuration {
+    // configurables
+    const Tokens tokens;
+    const StrategyConfiguration strategy;
+    const CutsConfiguration cuts;
+    const CutsConfiguration cutsPflow;
+    const IsolationConfiguration iso;
+    const EcalRecHitsConfiguration recHits;
+  };
 
-  private :
+  struct EventData;
+  struct ElectronData;
 
-    // internal structures
+  void checkSetup(edm::EventSetup const& eventSetup);
+  EventData beginEvent(edm::Event const& event,
+                       CaloGeometry const& caloGeometry,
+                       EcalSeverityLevelAlgo const& ecalSeveretyLevelAlgo);
 
-    //===================================================================
-    // GsfElectronAlgo::GeneralData
-    //===================================================================
+  void createElectron(reco::GsfElectronCollection& electrons,
+                      ElectronData& electronData,
+                      EventData& eventData,
+                      CaloTopology const& topology,
+                      CaloGeometry const& geometry,
+                      MultiTrajectoryStateTransform const& mtsTransform,
+                      double magneticFieldInTesla,
+                      const HeavyObjectCache*);
 
-    // general data and helpers
-    struct GeneralData
-     {
-      // configurables
-      const InputTagsConfiguration inputCfg ;
-      const StrategyConfiguration strategyCfg ;
-      const CutsConfiguration cutsCfg ;
-      const CutsConfiguration cutsCfgPflow ;
-      const IsolationConfiguration isoCfg ;
-      const EcalRecHitsConfiguration recHitsCfg ;
+  void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 
-      // additional configuration and helpers
-      ElectronHcalHelper hcalHelper;
-      ElectronHcalHelper hcalHelperPflow ;
-      EcalClusterFunctionBaseClass * superClusterErrorFunction ;
-      EcalClusterFunctionBaseClass * crackCorrectionFunction ;
-      RegressionHelper regHelper;
-     } ;
+  template <bool full5x5>
+  reco::GsfElectron::ShowerShape calculateShowerShape(const reco::SuperClusterRef&,
+                                                      ElectronHcalHelper const& hcalHelper,
+                                                      EventData const& eventData,
+                                                      CaloTopology const& topology,
+                                                      CaloGeometry const& geometry) const;
+  reco::GsfElectron::SaturationInfo calculateSaturationInfo(const reco::SuperClusterRef&,
+                                                            EventData const& eventData) const;
 
-    //===================================================================
-    // GsfElectronAlgo::EventSetupData
-    //===================================================================
+  // Pixel match variables
+  void setPixelMatchInfomation(reco::GsfElectron&) const;
 
-    struct EventSetupData
-     {
-       EventSetupData() ;
+  // constant class members
+  const Configuration cfg_;
 
-       unsigned long long cacheIDGeom ;
-       unsigned long long cacheIDTopo ;
-       unsigned long long cacheIDTDGeom ;
-       unsigned long long cacheIDMagField ;
-       unsigned long long cacheSevLevel ;
+  const EleTkIsolFromCands tkIsol03Calc_;
+  const EleTkIsolFromCands tkIsol04Calc_;
+  const EleTkIsolFromCands tkIsolHEEP03Calc_;
+  const EleTkIsolFromCands tkIsolHEEP04Calc_;
 
-       edm::ESHandle<MagneticField> magField ;
-       edm::ESHandle<CaloGeometry> caloGeom ;
-       edm::ESHandle<CaloTopology> caloTopo ;
-       edm::ESHandle<TrackerGeometry> trackerHandle ;
-       edm::ESHandle<EcalSeverityLevelAlgo> sevLevel;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeveretyLevelAlgoToken_;
 
-       std::unique_ptr<const MultiTrajectoryStateTransform> mtsTransform ;
-       std::unique_ptr<GsfConstraintAtVertex> constraintAtVtx ;
-       const MultiTrajectoryStateMode mtsMode ;
-    } ;
+  // additional configuration and helpers
+  ElectronHcalHelper hcalHelper_;
+  ElectronHcalHelper hcalHelperPflow_;
+  std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction_;
+  std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
+  RegressionHelper regHelper_;
+};
 
-
-    //===================================================================
-    // GsfElectronAlgo::EventData
-    //===================================================================
-
-    struct EventData
-     {
-      // utilities
-      void retreiveOriginalTrackCollections
-       ( const reco::TrackRef &, const reco::GsfTrackRef & ) ;
-
-      // general
-      edm::Event * event ;
-      const reco::BeamSpot * beamspot ;
-
-      // input collections
-      edm::Handle<reco::GsfElectronCollection> previousElectrons ;
-      edm::Handle<reco::GsfElectronCollection> pflowElectrons ;
-      edm::Handle<reco::GsfElectronCoreCollection> coreElectrons ;
-      edm::Handle<EcalRecHitCollection> barrelRecHits ;
-      edm::Handle<EcalRecHitCollection> endcapRecHits ;
-      edm::Handle<reco::TrackCollection> currentCtfTracks ;
-      edm::Handle<reco::ElectronSeedCollection> seeds ;
-      edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks ;
-      edm::Handle<reco::VertexCollection> vertices;
-
-      // isolation helpers
-      EgammaTowerIsolation hadDepth1Isolation03, hadDepth1Isolation04 ;
-      EgammaTowerIsolation hadDepth2Isolation03, hadDepth2Isolation04 ;
-      EgammaTowerIsolation hadDepth1Isolation03Bc, hadDepth1Isolation04Bc ;
-      EgammaTowerIsolation hadDepth2Isolation03Bc, hadDepth2Isolation04Bc ;
-      EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04 ;
-      EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04 ;
-
-      //Isolation Value Maps for PF and EcalDriven electrons
-      typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
-      IsolationValueMaps pfIsolationValues;
-      IsolationValueMaps edIsolationValues;
-
-      edm::Handle<reco::TrackCollection> originalCtfTracks ;
-      edm::Handle<reco::GsfTrackCollection> originalGsfTracks ;
-
-      bool originalCtfTrackCollectionRetreived = false ;
-      bool originalGsfTrackCollectionRetreived = false ;
-
-      reco::GsfElectronCollection electrons ;
-     } ;
-
-    //===================================================================
-    // GsfElectronAlgo::ElectronData
-    //===================================================================
-
-    struct ElectronData
-     {
-      // Refs to subproducts
-      const reco::GsfElectronCoreRef coreRef ;
-      const reco::GsfTrackRef gsfTrackRef ;
-      const reco::SuperClusterRef superClusterRef ;
-      reco::TrackRef ctfTrackRef ;
-      float shFracInnerHits ;
-      const reco::BeamSpot beamSpot ;
-
-      // constructors
-      ElectronData
-       ( const reco::GsfElectronCoreRef & core,
-         const reco::BeamSpot & bs ) ;
-
-      // utilities
-      void checkCtfTrack( edm::Handle<reco::TrackCollection> currentCtfTracks ) ;
-      void computeCharge( int & charge, reco::GsfElectron::ChargeInfo & info ) ;
-      reco::CaloClusterPtr getEleBasicCluster( MultiTrajectoryStateTransform const& ) ;
-      bool calculateTSOS( MultiTrajectoryStateTransform const&, GsfConstraintAtVertex const& ) ;
-      void calculateMode( MultiTrajectoryStateMode const& mtsMode ) ;
-      reco::Candidate::LorentzVector calculateMomentum() ;
-
-      // TSOS
-      TrajectoryStateOnSurface innTSOS ;
-      TrajectoryStateOnSurface outTSOS ;
-      TrajectoryStateOnSurface vtxTSOS ;
-      TrajectoryStateOnSurface sclTSOS ;
-      TrajectoryStateOnSurface seedTSOS ;
-      TrajectoryStateOnSurface eleTSOS ;
-      TrajectoryStateOnSurface constrainedVtxTSOS ;
-
-      // mode
-      GlobalVector innMom, seedMom, eleMom, sclMom, vtxMom, outMom ;
-      GlobalPoint innPos, seedPos, elePos, sclPos, vtxPos, outPos ;
-      GlobalVector vtxMomWithConstraint ;
-     } ;
-
-    std::unique_ptr<GeneralData> generalData_ ;
-    std::unique_ptr<EventSetupData> eventSetupData_ ;
-    std::unique_ptr<EventData> eventData_ ;
-    std::unique_ptr<ElectronData> electronData_ ;
-
-    EleTkIsolFromCands tkIsol03Calc_;
-    EleTkIsolFromCands tkIsol04Calc_;
-
-    void createElectron(const gsfAlgoHelpers::HeavyObjectCache*) ;
-
-    void setMVAepiBasedPreselectionFlag(reco::GsfElectron & ele);
-    void setCutBasedPreselectionFlag( reco::GsfElectron & ele, const reco::BeamSpot & ) ;
-    void setPflowPreselectionFlag( reco::GsfElectron & ele ) ;
-    bool isPreselected( reco::GsfElectron const& ele ) ;
-
-    template<bool full5x5>
-    void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, 
-                               reco::GsfElectron::ShowerShape & ) ;
-    void calculateSaturationInfo(const reco::SuperClusterRef&, reco::GsfElectron::SaturationInfo&);
-
-    // associations
-    const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;
-    
-    // Pixel match variables
-    void setPixelMatchInfomation(reco::GsfElectron &) ;
-    
- } ;
-
-#endif // GsfElectronAlgo_H
+#endif  // GsfElectronAlgo_H

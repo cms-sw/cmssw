@@ -1,0 +1,14 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Catalog"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/GEMGeometry"/>
+<use   name="DataFormats/GEMDigi"/>
+<use   name="DataFormats/Common"/>
+<export>
+  <lib name="1"/>
+</export>

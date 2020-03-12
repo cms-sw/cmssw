@@ -1,4 +1,4 @@
-///                                                                                                   
+///
 /// \class L1TCaloParamsRcd
 ///
 /// Description: see header file

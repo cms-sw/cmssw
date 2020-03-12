@@ -6,12 +6,12 @@
 namespace edmtest {
 
   struct ThingWithIsEqual {
-    ~ThingWithIsEqual() { }
-    ThingWithIsEqual():a() { }
+    ~ThingWithIsEqual() {}
+    ThingWithIsEqual() : a() {}
     bool isProductEqual(ThingWithIsEqual const& thingWithIsEqual) const;
     cms_int32_t a;
   };
 
-}
+}  // namespace edmtest
 
 #endif

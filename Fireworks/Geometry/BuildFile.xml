@@ -20,9 +20,9 @@
 <use name="DataFormats/SiPixelDetId"/>
 <use name="Fireworks/Core"/>
 <use name="rootcore"/>
-<lib name="Geom"/>
-<lib name="Eve"/>
-<lib name="Physics"/>
+<use name="rootgeom"/>
+<use name="rooteve"/>
+<use name="rootphysics"/>
 <export>
 <lib name="1"/>
 </export>

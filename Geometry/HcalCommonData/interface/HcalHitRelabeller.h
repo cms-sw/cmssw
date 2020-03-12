@@ -9,16 +9,16 @@
 
 class HcalHitRelabeller {
 public:
-  HcalHitRelabeller(bool nd=false);
-  void process(std::vector<PCaloHit> & hcalHits);
-  void setGeometry(const HcalDDDRecConstants *&);
+  HcalHitRelabeller(bool nd = false);
+  void process(std::vector<PCaloHit>& hcalHits);
+  void setGeometry(const HcalDDDRecConstants*&);
   DetId relabel(const uint32_t testId) const;
-  static DetId relabel(const uint32_t testId, const HcalDDDRecConstants * theRecNumber);
+  static DetId relabel(const uint32_t testId, const HcalDDDRecConstants* theRecNumber);
 
 private:
   double energyWt(const uint32_t testId) const;
 
   const HcalDDDRecConstants* theRecNumber;
-  bool                       neutralDensity_;
+  bool neutralDensity_;
 };
 #endif

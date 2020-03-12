@@ -7,11 +7,12 @@
    $Author: ratnikov
 */
 
-HcalCalibrationWidths::HcalCalibrationWidths (const float fGain [4], const float fPedestal [4], const float fEffectivePedestal[4]) {
-  for (size_t iCap = 0; iCap < 4; ++iCap)
-  {
-    mGain [iCap] = fGain [iCap];
-    mPedestal [iCap] = fPedestal [iCap];
-    mEffectivePedestal [iCap] = fEffectivePedestal [iCap];
+HcalCalibrationWidths::HcalCalibrationWidths(const float fGain[4],
+                                             const float fPedestal[4],
+                                             const float fEffectivePedestal[4]) {
+  for (size_t iCap = 0; iCap < 4; ++iCap) {
+    mGain[iCap] = fGain[iCap];
+    mPedestal[iCap] = fPedestal[iCap];
+    mEffectivePedestal[iCap] = fEffectivePedestal[iCap];
   }
 }

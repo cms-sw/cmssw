@@ -9,40 +9,33 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 class AnyMVAEstimatorRun2Base {
-
- public:
+public:
   // Constructor, destructor
   AnyMVAEstimatorRun2Base(const edm::ParameterSet& conf)
-    : tag_         (conf.getParameter<std::string>("mvaTag"))
-    , nCategories_ (conf.getParameter<int>("nCategories"))
-    , debug_       (conf.getUntrackedParameter<bool>("debug", false))
-  {}
- 
- AnyMVAEstimatorRun2Base(const::std::string& mvaName,
-                         const::std::string& mvaTag, 
-                         int nCategories, 
-                         bool debug)
-    : name_        (mvaName)
-    , tag_         (mvaTag)
-    , nCategories_ (nCategories)
-    , debug_       (debug)
-  {}
+      : tag_(conf.getParameter<std::string>("mvaTag")),
+        nCategories_(conf.getParameter<int>("nCategories")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
+
+  AnyMVAEstimatorRun2Base(const ::std::string& mvaName, const ::std::string& mvaTag, int nCategories, bool debug)
+      : name_(mvaName), tag_(mvaTag), nCategories_(nCategories), debug_(debug) {}
   virtual ~AnyMVAEstimatorRun2Base(){};
 
   // Functions that must be provided in derived classes
   // These function should work on electrons or photons
   // of the reco or pat type
 
-  virtual float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const = 0;
-  float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables) const {
-      int iCategory;
-      return mvaValue(candidate, auxVariables, iCategory);
+  virtual float mvaValue(const reco::Candidate* candidate,
+                         std::vector<float> const& auxVariables,
+                         int& iCategory) const = 0;
+  float mvaValue(const reco::Candidate* candidate, std::vector<float> const& auxVariables) const {
+    int iCategory;
+    return mvaValue(candidate, auxVariables, iCategory);
   };
 
   // A specific implementation of MVA is expected to have one or more categories
   // defined with respect to eta, pt, etc.
   // This function determines the category for a given candidate.
-  virtual int findCategory( const reco::Candidate* candidate) const = 0;
+  virtual int findCategory(const reco::Candidate* candidate) const = 0;
   int getNCategories() const { return nCategories_; }
   const std::string& getName() const { return name_; }
   // An extra variable string set during construction that can be used
@@ -58,8 +51,7 @@ class AnyMVAEstimatorRun2Base {
   // Implement these methods only if needed in the derived classes (use "override"
   // for certainty).
 
- private:
-
+private:
   //
   // Data members
   //
@@ -78,7 +70,6 @@ class AnyMVAEstimatorRun2Base {
 
 // define the factory for this base class
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< AnyMVAEstimatorRun2Base* (const edm::ParameterSet&) >
-        AnyMVAEstimatorRun2Factory;
+typedef edmplugin::PluginFactory<AnyMVAEstimatorRun2Base*(const edm::ParameterSet&)> AnyMVAEstimatorRun2Factory;
 
 #endif

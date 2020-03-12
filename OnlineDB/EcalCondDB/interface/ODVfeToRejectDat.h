@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODVfeToRejectInfo.h"
 
 class ODVfeToRejectDat : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODVfeToRejectDat();
   ~ODVfeToRejectDat() override;
@@ -35,20 +35,14 @@ class ODVfeToRejectDat : public IODConfig {
   inline void setStatus(int dac) { m_sta = dac; }
   inline int getStatus() const { return m_sta; }
 
+private:
+  void prepareWrite() noexcept(false) override;
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+  void writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* iov) noexcept(false);
 
-  void writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* iov )
-    noexcept(false);
+  void writeArrayDB(const std::vector<ODVfeToRejectDat>& data, ODVfeToRejectInfo* iov) noexcept(false);
 
-  void writeArrayDB(const std::vector< ODVfeToRejectDat >& data, ODVfeToRejectInfo* iov)
-    noexcept(false);
-
-
-  void fetchData(std::vector< ODVfeToRejectDat >* fillMap, ODVfeToRejectInfo* iov)
-     noexcept(false);
+  void fetchData(std::vector<ODVfeToRejectDat>* fillMap, ODVfeToRejectInfo* iov) noexcept(false);
 
   // User data
 
@@ -58,7 +52,6 @@ class ODVfeToRejectDat : public IODConfig {
   int m_gain;
   int m_sta;
   int m_ID;
- 
 };
 
 #endif

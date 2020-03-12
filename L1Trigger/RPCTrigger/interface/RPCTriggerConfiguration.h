@@ -38,13 +38,9 @@ public:
 
   virtual int towNum2TowNum2Comp(int towNum) = 0;
 
-  int getDebugLevel() const {
-    return m_DebugLevel;
-  }
+  int getDebugLevel() const { return m_DebugLevel; }
 
-  void setDebugLevel(int debgLevel) {
-    m_DebugLevel = debgLevel;
-  }
+  void setDebugLevel(int debgLevel) { m_DebugLevel = debgLevel; }
 
 private:
   int m_DebugLevel;

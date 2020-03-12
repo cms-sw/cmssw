@@ -22,6 +22,7 @@
 #   3275-3322, 3330-3377, 3385-3432
 # (see https://lpc.web.cern.ch/fillingSchemes/2018/25ns_2556b_2544_2215_2332_144bpi_20injV2.csv)
 
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.pfnInPath import *
 
@@ -51,7 +52,7 @@ process.selectNone = _bunchCrossingFilter.clone(
 
 # full range of possible bunch crossings [1,3564]
 process.selectAll = _bunchCrossingFilter.clone(
-   bunches = cms.vuint32(range(1,3565))
+   bunches = cms.vuint32(list(range(1,3565)))
 )
 
 # select bx 536
@@ -61,7 +62,7 @@ process.selectSingle = _bunchCrossingFilter.clone(
 
 # select the whole train 514-561
 process.selectTrain = _bunchCrossingFilter.clone(
-   bunches = cms.vuint32(range(514,562))
+   bunches = cms.vuint32(list(range(514,562)))
 )
 
 # inverted to veto (non-colliding) bx 1

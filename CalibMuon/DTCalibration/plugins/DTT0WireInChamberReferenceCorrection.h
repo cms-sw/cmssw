@@ -24,26 +24,26 @@ class DTGeometry;
 
 namespace dtCalibration {
 
-class DTT0WireInChamberReferenceCorrection: public DTT0BaseCorrection {
-public:
-  // Constructor
-  DTT0WireInChamberReferenceCorrection(const edm::ParameterSet&);
+  class DTT0WireInChamberReferenceCorrection : public DTT0BaseCorrection {
+  public:
+    // Constructor
+    DTT0WireInChamberReferenceCorrection(const edm::ParameterSet&);
 
-  // Destructor
-  ~DTT0WireInChamberReferenceCorrection() override;
+    // Destructor
+    ~DTT0WireInChamberReferenceCorrection() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTT0Data correction(const DTWireId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTT0Data correction(const DTWireId&) override;
 
-private:
-  DTT0Data defaultT0(const DTWireId&);
+  private:
+    DTT0Data defaultT0(const DTWireId&);
 
-  std::string calibChamber_;
+    std::string calibChamber_;
 
-  DTChamberId chosenChamberId_;
-  const DTT0 *t0Map_;
-  edm::ESHandle<DTGeometry> dtGeom_;
-};
+    DTChamberId chosenChamberId_;
+    const DTT0* t0Map_;
+    edm::ESHandle<DTGeometry> dtGeom_;
+  };
 
-} // namespace
+}  // namespace dtCalibration
 #endif

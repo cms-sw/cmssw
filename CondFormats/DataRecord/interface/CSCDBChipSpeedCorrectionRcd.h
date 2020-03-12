@@ -2,5 +2,6 @@
 #define CSCDBCHIPSPEEDCORRECTIONRCD_H
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-class CSCDBChipSpeedCorrectionRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCDBChipSpeedCorrectionRcd> {};
+class CSCDBChipSpeedCorrectionRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<CSCDBChipSpeedCorrectionRcd> {};
 #endif

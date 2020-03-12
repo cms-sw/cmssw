@@ -4,7 +4,7 @@
 //
 // Package:     CaloTPG
 // Class  :     CaloTPGRecord
-// 
+//
 /**\class CaloTPGRecord CaloTPGRecord.h CalibFormats/CaloTPG/interface/CaloTPGRecord.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Wed Sep 13 19:20:14 CDT 2006
 // $Id$
 //
@@ -23,6 +23,9 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
 
-class CaloTPGRecord : public edm::eventsetup::DependentRecordImplementation<CaloTPGRecord, boost::mpl::vector<HcalLutMetadataRcd,CaloGeometryRecord> > {};
+class CaloTPGRecord
+    : public edm::eventsetup::DependentRecordImplementation<CaloTPGRecord,
+                                                            boost::mpl::vector<HcalLutMetadataRcd, CaloGeometryRecord> > {
+};
 
 #endif

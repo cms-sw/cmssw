@@ -37,7 +37,8 @@ GroupedCkfTrajectoryBuilder = cms.PSet(
 #    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
     # Out-in tracking will not be attempted unless this many hits
     # are on track after in-out tracking phase.
-    minNrOfHitsForRebuild = cms.int32(5)
+    minNrOfHitsForRebuild = cms.int32(5),
+    seedAs5DHit  = cms.bool(False)
 )
 
 

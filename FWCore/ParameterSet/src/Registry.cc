@@ -9,45 +9,37 @@
 namespace edm {
   namespace pset {
 
-    Registry*
-    Registry::instance() {
+    Registry* Registry::instance() {
       CMS_THREAD_SAFE static Registry s_reg;
       return &s_reg;
     }
-    
-    bool
-    Registry::getMapped(key_type const& k, value_type& result) const {
+
+    bool Registry::getMapped(key_type const& k, value_type& result) const {
       auto it = m_map.find(k);
       bool found = it != m_map.end();
-      if(found) {
+      if (found) {
         result = it->second;
       }
       return found;
     }
-    
-    Registry::value_type const*
-    Registry::getMapped(key_type const& k) const {
+
+    Registry::value_type const* Registry::getMapped(key_type const& k) const {
       auto it = m_map.find(k);
       bool found = it != m_map.end();
-      return found? &(it->second) : static_cast<value_type const*>(nullptr);
+      return found ? &(it->second) : static_cast<value_type const*>(nullptr);
     }
-  
-    bool
-    Registry::insertMapped(value_type const& v, bool forceUpdate) {
-      auto wasAdded = m_map.insert(std::make_pair(v.id(),v));
-      if(forceUpdate and not wasAdded.second) {
+
+    bool Registry::insertMapped(value_type const& v, bool forceUpdate) {
+      auto wasAdded = m_map.insert(std::make_pair(v.id(), v));
+      if (forceUpdate and not wasAdded.second) {
         wasAdded.first->second = v;
       }
       return wasAdded.second;
     }
-    
-    void
-    Registry::clear() {
-      m_map.clear();
-    }
 
-    void
-    Registry::fillMap(regmap_type& fillme) const {
+    void Registry::clear() { m_map.clear(); }
+
+    void Registry::fillMap(regmap_type& fillme) const {
       fillme.clear();
       // Note: The tracked part is in the registry.
       for (auto const& item : m_map) {
@@ -55,12 +47,11 @@ namespace edm {
       }
     }
 
-    void
-    Registry::print(std::ostream& os) const {
+    void Registry::print(std::ostream& os) const {
       os << "Registry with " << size() << " entries\n";
-      for(auto const& item : *this) {
+      for (auto const& item : *this) {
         os << item.first << " " << item.second << '\n';
       }
     }
-  } // namespace pset
-} // namespace edm
+  }  // namespace pset
+}  // namespace edm

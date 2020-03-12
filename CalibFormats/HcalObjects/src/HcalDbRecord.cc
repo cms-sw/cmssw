@@ -2,11 +2,11 @@
 //
 // Package:     HcalDbProducer
 // Class  :     HcalDbRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Aug  9 19:10:36 CDT 2005
 // $Id$
 

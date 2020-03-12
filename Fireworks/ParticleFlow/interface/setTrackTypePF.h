@@ -12,15 +12,13 @@
 
 // forward declarations
 namespace reco {
-   class PFCandidate;
+  class PFCandidate;
 }
 class TEveTrack;
 
-
 namespace fireworks {
-   void setTrackTypePF(const reco::PFCandidate& pfCand,
-             TAttLine* track );
- 
+  void setTrackTypePF(const reco::PFCandidate& pfCand, TAttLine* track);
+
 }
 
 #endif

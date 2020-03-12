@@ -33,58 +33,59 @@ class PedeLabelerBase;
 
 //FIXME: move GeometryConstraintConfigData to PedeSteererWeakModeConstraints?
 class GeometryConstraintConfigData {
- public:
-  GeometryConstraintConfigData(const std::vector<double>& co,
-                               const std::string& c,
-                               const std::vector<std::pair<Alignable*,std::string> >& alisFile,
+public:
+  GeometryConstraintConfigData(const std::vector<double> &co,
+                               const std::string &c,
+                               const std::vector<std::pair<Alignable *, std::string> > &alisFile,
                                const int sd,
-                               const align::Alignables& ex,
+                               const align::Alignables &ex,
                                const int instance,
-			       const bool downToLowestLevel
-                               );
+                               const bool downToLowestLevel);
   const std::vector<double> coefficients_;
   const std::string constraintName_;
-  const std::vector<std::pair<Alignable*, std::string> > levelsFilenames_;
+  const std::vector<std::pair<Alignable *, std::string> > levelsFilenames_;
   const align::Alignables excludedAlignables_;
-  std::map<std::string, std::ofstream*> mapFileName_;
-  std::list<std::pair<Alignable*, std::list<Alignable*> > > HLSsubdets_; //first pointer to HLS object, second list is the list of pointers to the lowest components
+  std::map<std::string, std::ofstream *> mapFileName_;
+  std::list<std::pair<Alignable *, std::list<Alignable *> > >
+      HLSsubdets_;  //first pointer to HLS object, second list is the list of pointers to the lowest components
   const int sysdeformation_;
   const int instance_;
   const bool downToLowestLevel_;
 };
 
 class PedeSteererWeakModeConstraints {
- public:
+public:
   ~PedeSteererWeakModeConstraints();
   PedeSteererWeakModeConstraints(AlignableTracker *aliTracker,
                                  const PedeLabelerBase *labels,
                                  const std::vector<edm::ParameterSet> &config,
-                                 std::string sf
-                                 );
+                                 std::string sf);
 
   //FIXME: split the code of the method into smaller pieces/submethods
   // Main method that configures everything and calculates also the constraints
-  unsigned int constructConstraints(const align::Alignables&);
+  unsigned int constructConstraints(const align::Alignables &);
 
   // Returns a references to the container in which the configuration is stored
-  std::list<GeometryConstraintConfigData>& getConfigData() { return ConstraintsConfigContainer_; }
+  std::list<GeometryConstraintConfigData> &getConfigData() { return ConstraintsConfigContainer_; }
 
- private:
+private:
   // Method creates the data structures with the full configuration
   unsigned int createAlignablesDataStructure();
 
   // Write the calculated constraints to the output files
-  void writeOutput(const std::list<std::pair<unsigned int,double> > &output,
-                   const GeometryConstraintConfigData &it, const Alignable* iHLS, double sum_xi_x0);
+  void writeOutput(const std::list<std::pair<unsigned int, double> > &output,
+                   const GeometryConstraintConfigData &it,
+                   const Alignable *iHLS,
+                   double sum_xi_x0);
 
   // find the out file stream for a given constraint and high-level structure
-  std::ofstream* getFile(const GeometryConstraintConfigData &it, const Alignable* iHLS) const;
+  std::ofstream *getFile(const GeometryConstraintConfigData &it, const Alignable *iHLS) const;
 
   // Close the output files
   void closeOutputfiles();
 
   // Checks whether lowleveldet is a daugther of HLS
-  bool checkMother(const Alignable * const lowleveldet, const Alignable * const HLS) const;
+  bool checkMother(const Alignable *const lowleveldet, const Alignable *const HLS) const;
 
   std::pair<align::GlobalPoint, align::GlobalPoint> getDoubleSensorPosition(const Alignable *ali) const;
 
@@ -94,7 +95,7 @@ class PedeSteererWeakModeConstraints {
   // The methods returns x depending on the type of deformation
   double getX(const int sysdeformation, const align::GlobalPoint &pos, const double phase) const;
 
-  double getX0(const std::pair<Alignable*, std::list<Alignable*> > &iHLS,
+  double getX0(const std::pair<Alignable *, std::list<Alignable *> > &iHLS,
                const GeometryConstraintConfigData &it) const;
 
   // Calculates and returns the coefficient for alignment parameter iParameter
@@ -104,7 +105,8 @@ class PedeSteererWeakModeConstraints {
                         const GlobalPoint gUDirection,
                         const GlobalPoint gVDirection,
                         const GlobalPoint gWDirection,
-                        const int iParameter, const double &x0,
+                        const int iParameter,
+                        const double &x0,
                         const std::vector<double> &constraintparameters) const;
 
   //returns true if iParameter of Alignable is selected in configuration file
@@ -114,11 +116,10 @@ class PedeSteererWeakModeConstraints {
   void verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const;
 
   // Method which creates the associative map between levels and coefficient file names
-  const std::vector<std::pair<Alignable*, std::string> > makeLevelsFilenames(
-                                                                             std::set<std::string> &steerFilePrefixContainer,
-                                                                             const align::Alignables& alis,
-                                                                             const std::string &steerFilePrefix
-                                                                             ) const;
+  const std::vector<std::pair<Alignable *, std::string> > makeLevelsFilenames(
+      std::set<std::string> &steerFilePrefixContainer,
+      const align::Alignables &alis,
+      const std::string &steerFilePrefix) const;
 
   // Verify that the name of the configured deformation is known and that the number of coefficients has been correctly configured
   int verifyDeformationName(const std::string &name, const std::vector<double> &coefficients) const;
@@ -129,14 +130,13 @@ class PedeSteererWeakModeConstraints {
   //the data structure that holds all needed informations for the constraint configuration
   std::list<GeometryConstraintConfigData> ConstraintsConfigContainer_;
 
-  const PedeLabelerBase *myLabels_; //PedeLabeler needed to get for the alignables the corresponding Pede label
+  const PedeLabelerBase *myLabels_;  //PedeLabeler needed to get for the alignables the corresponding Pede label
 
-  const std::vector<edm::ParameterSet> myConfig_; //the VPSet with the configurations for all constraints
+  const std::vector<edm::ParameterSet> myConfig_;  //the VPSet with the configurations for all constraints
 
-  const std::string steerFile_; // the name of the PedeSteerer steering file
+  const std::string steerFile_;  // the name of the PedeSteerer steering file
 
   const AlignableObjectId alignableObjectId_;
-
 
   enum SystematicDeformations {
     kUnknown = 0,

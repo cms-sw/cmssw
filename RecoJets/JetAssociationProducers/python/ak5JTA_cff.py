@@ -32,8 +32,11 @@ ak5JetExtender = cms.EDProducer("JetExtender",
     coneSize = cms.double(0.5)
 )
 
-ak5JTA = cms.Sequence(ak5JetTracksAssociatorAtVertexPF*
-                      ak5JetTracksAssociatorAtVertex*
-                      ak5JetTracksAssociatorAtCaloFace*ak5JetExtender)
+ak5JTATask = cms.Task(ak5JetTracksAssociatorAtVertexPF,
+                      ak5JetTracksAssociatorAtVertex,
+                      ak5JetTracksAssociatorAtCaloFace,
+                      ak5JetExtender)
+ak5JTA = cms.Sequence(ak5JTATask)
 
-ak5JTAExplicit = cms.Sequence(ak5JetTracksAssociatorExplicit)
+ak5JTAExplicitTask = cms.Task(ak5JetTracksAssociatorExplicit)
+ak5JTAExplicit = cms.Sequence(ak5JTAExplicitTask)

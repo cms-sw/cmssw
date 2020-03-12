@@ -9,21 +9,20 @@ class CVRTest : public edm::EDAnalyzer {
   /**
    *  Class that glues the combined btagging algorithm to the framework
    */
-   public:
-      explicit CVRTest( const edm::ParameterSet & );
-      ~CVRTest();
+public:
+  explicit CVRTest(const edm::ParameterSet &);
+  ~CVRTest();
 
-      virtual void analyze( const edm::Event &, const edm::EventSetup &);
+  virtual void analyze(const edm::Event &, const edm::EventSetup &);
 
-   private:
-      void discussPrimary( const edm::Event & ) const;
+private:
+  void discussPrimary(const edm::Event &) const;
 
-   private:
-      ConfigurableVertexReconstructor * vrec_;
-      std::string trackcoll_;
-      std::string vertexcoll_;
-      std::string beamspot_;
-
+private:
+  ConfigurableVertexReconstructor *vrec_;
+  std::string trackcoll_;
+  std::string vertexcoll_;
+  std::string beamspot_;
 };
 
 #endif

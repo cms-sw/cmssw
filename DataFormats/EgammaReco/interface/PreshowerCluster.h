@@ -15,44 +15,43 @@ namespace reco {
 
   class PreshowerCluster : public CaloCluster {
   public:
-
     typedef math::XYZPoint Point;
 
     /// default constructor
-    PreshowerCluster() : CaloCluster(0., Point(0.,0.,0.)) { };
+    PreshowerCluster() : CaloCluster(0., Point(0., 0., 0.)){};
 
     ~PreshowerCluster() override;
 
     /// Constructor from EcalRecHits
-    PreshowerCluster(const double E, const Point& pos, 
-                     const std::vector< std::pair<DetId, float> >& usedHits, 
+    PreshowerCluster(const double E,
+                     const Point& pos,
+                     const std::vector<std::pair<DetId, float> >& usedHits,
                      const int plane);
 
     /// Constructor from cluster
     PreshowerCluster(const PreshowerCluster&);
 
     /// Number of RecHits the cluster
-    int nhits() const {return hitsAndFractions_.size();}
+    int nhits() const { return hitsAndFractions_.size(); }
 
     /// Preshower plane
     int plane() const { return plane_; }
 
-    double et() const { return energy()/cosh(eta()); }
+    double et() const { return energy() / cosh(eta()); }
 
     /// Comparisons
     bool operator==(const PreshowerCluster&) const;
     bool operator<(const PreshowerCluster&) const;
 
     /// Associated basic cluster;
-    CaloClusterPtr basicCluster() const {return bc_ref_;}
+    CaloClusterPtr basicCluster() const { return bc_ref_; }
 
     /// DetIds of component RecHits -- now inherited from CaloCluster
     //std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
-    void setBCRef( const CaloClusterPtr & r ) { bc_ref_ = r; }
+    void setBCRef(const CaloClusterPtr& r) { bc_ref_ = r; }
 
   private:
-
     int plane_;
 
     /// Associated basic cluster;
@@ -61,5 +60,5 @@ namespace reco {
     /// used hits by detId -- now inherited from CaloCluster
     //std::vector<DetId> usedHits_;
   };
-}
+}  // namespace reco
 #endif

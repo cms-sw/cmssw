@@ -56,7 +56,6 @@ namespace edm {
 
   class StoredMergeableRunProductMetadata {
   public:
-
     // This constructor exists for ROOT I/O
     StoredMergeableRunProductMetadata();
 
@@ -70,7 +69,6 @@ namespace edm {
 
     class SingleRunEntry {
     public:
-
       SingleRunEntry();
       SingleRunEntry(unsigned long long iBeginProcess, unsigned long long iEndProcess);
 
@@ -78,7 +76,6 @@ namespace edm {
       unsigned long long endProcess() const { return endProcess_; }
 
     private:
-
       // indexes into singleRunEntryAndProcesses_ for a single run entry
       unsigned long long beginProcess_;
       unsigned long long endProcess_;
@@ -86,14 +83,12 @@ namespace edm {
 
     class SingleRunEntryAndProcess {
     public:
-
       SingleRunEntryAndProcess();
       SingleRunEntryAndProcess(unsigned long long iBeginLumi,
                                unsigned long long iEndLumi,
                                unsigned int iProcess,
                                bool iValid,
                                bool iUseIndexIntoFile);
-
 
       unsigned long long beginLumi() const { return beginLumi_; }
       unsigned long long endLumi() const { return endLumi_; }
@@ -104,7 +99,6 @@ namespace edm {
       bool useIndexIntoFile() const { return useIndexIntoFile_; }
 
     private:
-
       // indexes into lumis_ for products created in one process and
       // written into a single run entry.
       unsigned long long beginLumi_;
@@ -137,16 +131,15 @@ namespace edm {
     bool getLumiContent(unsigned long long runEntry,
                         std::string const& process,
                         bool& valid,
-                        std::vector<LuminosityBlockNumber_t>::const_iterator & lumisBegin,
-                        std::vector<LuminosityBlockNumber_t>::const_iterator & lumisEnd) const;
+                        std::vector<LuminosityBlockNumber_t>::const_iterator& lumisBegin,
+                        std::vector<LuminosityBlockNumber_t>::const_iterator& lumisEnd) const;
 
   private:
-
     std::vector<std::string> processesWithMergeableRunProducts_;
     std::vector<SingleRunEntry> singleRunEntries_;  // index is the run entry
     std::vector<SingleRunEntryAndProcess> singleRunEntryAndProcesses_;
     std::vector<LuminosityBlockNumber_t> lumis_;
     bool allValidAndUseIndexIntoFile_;
   };
-}
+}  // namespace edm
 #endif

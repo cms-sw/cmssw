@@ -11,11 +11,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "CommonTools/Utils/interface/EtComparator.h"
 
-typedef ObjectSelectorStream<
-          SortCollectionSelector<
-            reco::CaloJetCollection, 
-              GreaterByEt<reco::CaloJet> 
-          > 
-        > LargestEtCaloJetSelector;
+typedef ObjectSelectorStream<SortCollectionSelector<reco::CaloJetCollection, GreaterByEt<reco::CaloJet> > >
+    LargestEtCaloJetSelector;
 
-DEFINE_FWK_MODULE( LargestEtCaloJetSelector );
+DEFINE_FWK_MODULE(LargestEtCaloJetSelector);

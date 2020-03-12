@@ -11,9 +11,10 @@ pfSelectedPhotons = cms.EDFilter(
 #    cut = cms.string("pdgId()==22")
 )
 
-pfBasedPhotonIsoSequence = cms.Sequence(
-    pfParticleSelectionSequence +
-    pfSelectedPhotons +
-    photonPFIsolationDepositsSequence +
-    photonPFIsolationValuesSequence
-    ) 
+pfBasedPhotonIsoTask = cms.Task(
+    pfParticleSelectionTask,
+    pfSelectedPhotons,
+    photonPFIsolationDepositsTask,
+    photonPFIsolationValuesTask 
+) 
+pfBasedPhotonIsoSequence = cms.Sequence(pfBasedPhotonIsoTask)

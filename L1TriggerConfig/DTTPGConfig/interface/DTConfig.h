@@ -29,23 +29,21 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTConfig{
-
-  public:
+class DTConfig {
+public:
   //! Constants: first and last step to start trigger finding
-  static const int NSTEPL=24, NSTEPF=9;
-  
-  static const int NBTITC=4;
-  
+  static const int NSTEPL = 24, NSTEPF = 9;
+
+  static const int NBTITC = 4;
+
   //! Constant: number of TRACOs in input to a TSS
   static const int NTCTSS = 4;
-  
+
   //! Constructor
   DTConfig(){};
-  
-  //! Destructor 
-  virtual ~DTConfig(){};
 
+  //! Destructor
+  virtual ~DTConfig(){};
 };
 
 #endif

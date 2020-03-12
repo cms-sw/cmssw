@@ -5,5 +5,4 @@
 
 class CaloTowerAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<CaloTowerAlignmentRcd> {};
 
-#endif 
-
+#endif

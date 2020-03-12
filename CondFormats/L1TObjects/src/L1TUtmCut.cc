@@ -1,2 +1,2 @@
-// auto-generated file by import_utm.pl 
+// auto-generated file by import_utm.pl
 #include "CondFormats/L1TObjects/interface/L1TUtmCut.h"

@@ -32,13 +32,11 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTKeyedConfigDBInit: public edm::EDAnalyzer {
-
- public:
-
+class DTKeyedConfigDBInit : public edm::EDAnalyzer {
+public:
   /** Constructor
    */
-  explicit DTKeyedConfigDBInit( const edm::ParameterSet& ps );
+  explicit DTKeyedConfigDBInit(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -46,18 +44,14 @@ class DTKeyedConfigDBInit: public edm::EDAnalyzer {
 
   /** Operations
    */
-  /// 
+  ///
   void beginJob() override;
-  void analyze( const edm::Event& e, const edm::EventSetup& c ) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void endJob() override;
 
- private:
-
+private:
   std::string container;
   std::string iov;
-
 };
 
-
-#endif // DTKeyedConfigDBInit_H
-
+#endif  // DTKeyedConfigDBInit_H

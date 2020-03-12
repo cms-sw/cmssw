@@ -3,14 +3,14 @@
 #include <cmath>
 
 class PixelTrackErrorParam {
-public: 
- PixelTrackErrorParam(double eta, double pt);
- double errPt()  const;
-// { return ptPar0_[theIEta]*thePt + ptPar1_[theIEta]*thePt2; }
- inline double errCot() const { return cotPar0_[theIEta] + cotPar1_[theIEta]/thePt + cotPar2_[theIEta]/thePt2; }
- inline double errTip() const { return sqrt(tipPar0_[theIEta] + tipPar1_[theIEta]/thePt2); }
- inline double errZip() const { return sqrt(zipPar0_[theIEta] + zipPar1_[theIEta]/thePt2); } 
- inline double errPhi() const { return sqrt(phiPar0_[theIEta] + phiPar1_[theIEta]/thePt2); } 
+public:
+  PixelTrackErrorParam(double eta, double pt);
+  double errPt() const;
+  // { return ptPar0_[theIEta]*thePt + ptPar1_[theIEta]*thePt2; }
+  inline double errCot() const { return cotPar0_[theIEta] + cotPar1_[theIEta] / thePt + cotPar2_[theIEta] / thePt2; }
+  inline double errTip() const { return sqrt(tipPar0_[theIEta] + tipPar1_[theIEta] / thePt2); }
+  inline double errZip() const { return sqrt(zipPar0_[theIEta] + zipPar1_[theIEta] / thePt2); }
+  inline double errPhi() const { return sqrt(phiPar0_[theIEta] + phiPar1_[theIEta] / thePt2); }
 
 private:
   unsigned int theIEta;

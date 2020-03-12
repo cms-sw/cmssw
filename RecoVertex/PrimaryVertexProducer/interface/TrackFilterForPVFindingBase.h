@@ -12,12 +12,10 @@
 #include <vector>
 
 class TrackFilterForPVFindingBase {
-
 public:
-
   TrackFilterForPVFindingBase(){};
   TrackFilterForPVFindingBase(const edm::ParameterSet& conf){};
-  virtual std::vector<reco::TransientTrack> select (const std::vector<reco::TransientTrack>& tracks)const=0;
+  virtual std::vector<reco::TransientTrack> select(const std::vector<reco::TransientTrack>& tracks) const = 0;
   virtual ~TrackFilterForPVFindingBase(){};
 };
 

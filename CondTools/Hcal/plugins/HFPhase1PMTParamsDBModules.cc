@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 typedef BoostIODBWriter<HFPhase1PMTParams> HFPhase1PMTParamsDBWriter;
-typedef BoostIODBReader<HFPhase1PMTParams,HFPhase1PMTParamsRcd> HFPhase1PMTParamsDBReader;
+typedef BoostIODBReader<HFPhase1PMTParams, HFPhase1PMTParamsRcd> HFPhase1PMTParamsDBReader;
 
 DEFINE_FWK_MODULE(HFPhase1PMTParamsDBWriter);
 DEFINE_FWK_MODULE(HFPhase1PMTParamsDBReader);

@@ -5,7 +5,6 @@
 # with command line options: stepHarvest --data --conditions auto:run2_data --scenario pp -s ALCAHARVEST:SiStripGains --filein file:PromptCalibProdSiStripGains.root -n -1 --fileout file:calib.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('ALCAHARVEST')
 
@@ -24,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:PromptCalibProdSiStripGains.root'),
+    fileNames = cms.untracked.vstring('file:PromptCalibProdSiStripGains_A.root'),
     processingMode = cms.untracked.string('RunsAndLumis'),
     secondaryFileNames = cms.untracked.vstring()
 )

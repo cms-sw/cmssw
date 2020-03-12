@@ -4,7 +4,7 @@
 //
 // Package:    HLTTriggerTypeFilter
 // Class:      HLTTriggerTypeFilter
-// 
+//
 /**\class HLTTriggerTypeFilter HLTTriggerTypeFilter.cc 
 
 Description: <one line class summary>
@@ -17,7 +17,6 @@ Implementation:
 //         Created:  Tue Jan 22 13:55:00 CET 2008
 //
 //
-
 
 // include files
 #include "FWCore/Framework/interface/Event.h"
@@ -33,17 +32,16 @@ Implementation:
 
 class HLTTriggerTypeFilter : public edm::global::EDFilter<> {
 public:
-  explicit HLTTriggerTypeFilter(const edm::ParameterSet&);
+  explicit HLTTriggerTypeFilter(const edm::ParameterSet &);
   ~HLTTriggerTypeFilter() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
-  
-  // ----------member data ---------------------------  
-  unsigned short  selectedTriggerType_;
-  
+
+  // ----------member data ---------------------------
+  unsigned short selectedTriggerType_;
 };
 
 #endif

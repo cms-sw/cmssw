@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     CastorChannelQualityRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Mon Feb 11 12:15:32 CET 2008
 // $Id: CastorChannelQualityRcd.cc,v 1.1 2008/02/15 15:53:55 mccauley Exp $
 

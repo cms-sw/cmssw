@@ -14,32 +14,27 @@ static const std::string kProducerType("EDProducer");
 namespace edm {
   // -----------------------------
 
-  WorkerManager::WorkerManager(std::shared_ptr<ActivityRegistry> areg, ExceptionToActionTable const& actions) :
-    workerReg_(areg),
-    actionTable_(&actions),
-    allWorkers_(),
-    unscheduled_(*areg),
-    lastSetupEventPrincipal_(nullptr)
-  {
-
-  } // WorkerManager::WorkerManager
+  WorkerManager::WorkerManager(std::shared_ptr<ActivityRegistry> areg, ExceptionToActionTable const& actions)
+      : workerReg_(areg),
+        actionTable_(&actions),
+        allWorkers_(),
+        unscheduled_(*areg),
+        lastSetupEventPrincipal_(nullptr) {}  // WorkerManager::WorkerManager
 
   WorkerManager::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
                                std::shared_ptr<ActivityRegistry> areg,
-                               ExceptionToActionTable const& actions) :
-  workerReg_(areg,modReg),
-  actionTable_(&actions),
-  allWorkers_(),
-  unscheduled_(*areg),
-  lastSetupEventPrincipal_(nullptr)
-  {
-  } // WorkerManager::WorkerManager
+                               ExceptionToActionTable const& actions)
+      : workerReg_(areg, modReg),
+        actionTable_(&actions),
+        allWorkers_(),
+        unscheduled_(*areg),
+        lastSetupEventPrincipal_(nullptr) {}  // WorkerManager::WorkerManager
 
   Worker* WorkerManager::getWorker(ParameterSet& pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   std::string const & label) {
+                                   std::string const& label) {
     WorkerParams params(&pset, preg, prealloc, processConfiguration, *actionTable_);
     return workerReg_.getWorker(params, label);
   }
@@ -55,7 +50,7 @@ namespace edm {
     // 1) create worker
     // 2) if it is a WorkerT<EDProducer>, add it to our list
     auto modType = pset.getParameter<std::string>("@module_edm_type");
-    if(modType == kProducerType || modType == kFilterType) {
+    if (modType == kProducerType || modType == kFilterType) {
       Worker* newWorker = getWorker(pset, preg, prealloc, processConfiguration, label);
       assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
       unscheduledLabels.insert(label);
@@ -68,82 +63,73 @@ namespace edm {
   }
 
   void WorkerManager::endJob() {
-    for(auto& worker : allWorkers_) {
+    for (auto& worker : allWorkers_) {
       worker->endJob();
     }
   }
 
   void WorkerManager::endJob(ExceptionCollector& collector) {
-    for(auto& worker : allWorkers_) {
+    for (auto& worker : allWorkers_) {
       try {
-        convertException::wrap([&]() {
-          worker->endJob();
-        });
-      }
-      catch (cms::Exception const& ex) {
+        convertException::wrap([&]() { worker->endJob(); });
+      } catch (cms::Exception const& ex) {
         collector.addException(ex);
       }
     }
   }
 
-
-  void WorkerManager::beginJob(ProductRegistry const& iRegistry) {
+  void WorkerManager::beginJob(ProductRegistry const& iRegistry,
+                               eventsetup::ESRecordsToProxyIndices const& iESIndices) {
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
     auto const eventLookup = iRegistry.productLookup(InEvent);
-    if(!allWorkers_.empty()) {
+    if (!allWorkers_.empty()) {
       auto const& processName = allWorkers_[0]->description().processName();
       auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
       auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
-      for(auto& worker : allWorkers_) {
-        worker->updateLookup(InRun,*runLookup);
-        worker->updateLookup(InLumi,*lumiLookup);
-        worker->updateLookup(InEvent,*eventLookup);
-        worker->resolvePutIndicies(InRun,runModuleToIndicies);
-        worker->resolvePutIndicies(InLumi,lumiModuleToIndicies);
-        worker->resolvePutIndicies(InEvent,eventModuleToIndicies);
+      for (auto& worker : allWorkers_) {
+        worker->updateLookup(InRun, *runLookup);
+        worker->updateLookup(InLumi, *lumiLookup);
+        worker->updateLookup(InEvent, *eventLookup);
+        worker->updateLookup(iESIndices);
+        worker->resolvePutIndicies(InRun, runModuleToIndicies);
+        worker->resolvePutIndicies(InLumi, lumiModuleToIndicies);
+        worker->resolvePutIndicies(InEvent, eventModuleToIndicies);
       }
-      
+
       for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));
     }
   }
 
-  void
-  WorkerManager::beginStream(StreamID iID, StreamContext& streamContext) {
-    for(auto& worker: allWorkers_) {
+  void WorkerManager::beginStream(StreamID iID, StreamContext& streamContext) {
+    for (auto& worker : allWorkers_) {
       worker->beginStream(iID, streamContext);
     }
   }
 
-  void
-  WorkerManager::endStream(StreamID iID, StreamContext& streamContext) {
-    for(auto& worker: allWorkers_) {
+  void WorkerManager::endStream(StreamID iID, StreamContext& streamContext) {
+    for (auto& worker : allWorkers_) {
       worker->endStream(iID, streamContext);
     }
   }
 
-  void
-  WorkerManager::resetAll() {
-    for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1));
-  }
+  void WorkerManager::resetAll() { for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1)); }
 
-  void
-  WorkerManager::addToAllWorkers(Worker* w) {
-    if(!search_all(allWorkers_, w)) {
+  void WorkerManager::addToAllWorkers(Worker* w) {
+    if (!search_all(allWorkers_, w)) {
       allWorkers_.push_back(w);
     }
   }
 
-  void
-  WorkerManager::setupOnDemandSystem(Principal& ep, EventSetupImpl const& es) {
+  void WorkerManager::setupOnDemandSystem(Principal& ep, EventSetupImpl const& es) {
     this->resetAll();
     unscheduled_.setEventSetup(es);
-    if(&ep != lastSetupEventPrincipal_) {
-      UnscheduledConfigurator config( allWorkers_.begin(), allWorkers_.end(), &(unscheduled_.auxiliary()));
+    if (&ep != lastSetupEventPrincipal_) {
+      UnscheduledConfigurator config(allWorkers_.begin(), allWorkers_.end(), &(unscheduled_.auxiliary()));
       ep.setupUnscheduled(config);
       lastSetupEventPrincipal_ = &ep;
     }
   }
-  
-}
+
+}  // namespace edm

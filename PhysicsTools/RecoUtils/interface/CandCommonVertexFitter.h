@@ -12,24 +12,25 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include <vector>
 class MagneticField;
-namespace reco { class VertexCompositeCandidate; }
+namespace reco {
+  class VertexCompositeCandidate;
+}
 
 class CandCommonVertexFitterBase {
 public:
   typedef reco::Vertex::CovarianceMatrix CovarianceMatrix;
-  CandCommonVertexFitterBase(const edm::ParameterSet &) : bField_(nullptr) { }
-  virtual ~CandCommonVertexFitterBase() { }
-  void set(const MagneticField * bField) { bField_ = bField; }
+  CandCommonVertexFitterBase(const edm::ParameterSet &) : bField_(nullptr) {}
+  virtual ~CandCommonVertexFitterBase() {}
+  void set(const MagneticField *bField) { bField_ = bField; }
   void set(reco::VertexCompositeCandidate &) const;
-  
+
 protected:
-  const MagneticField * bField_;
-  void fill(std::vector<reco::TransientTrack> &, 
-	    std::vector<reco::Candidate *> &,
-	    std::vector<reco::RecoCandidate::TrackType> &,
-	    reco::Candidate &) const;
-  virtual bool fit(TransientVertex &, 
-		   const std::vector<reco::TransientTrack> &) const = 0;
+  const MagneticField *bField_;
+  void fill(std::vector<reco::TransientTrack> &,
+            std::vector<reco::Candidate *> &,
+            std::vector<reco::RecoCandidate::TrackType> &,
+            reco::Candidate &) const;
+  virtual bool fit(TransientVertex &, const std::vector<reco::TransientTrack> &) const = 0;
   /// chi-sqared
   mutable double chi2_;
   /// number of degrees of freedom
@@ -40,25 +41,23 @@ protected:
 
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
-template<typename Fitter>
+template <typename Fitter>
 class CandCommonVertexFitter : public CandCommonVertexFitterBase {
 public:
-  CandCommonVertexFitter(const edm::ParameterSet & cfg) : 
-    CandCommonVertexFitterBase(cfg),
-    fitter_(reco::modules::make<Fitter>(cfg)) { 
-  }
-  bool fit(TransientVertex & vertex, 
-	   const std::vector<reco::TransientTrack> & tracks) const override {
+  CandCommonVertexFitter(const edm::ParameterSet &cfg)
+      : CandCommonVertexFitterBase(cfg), fitter_(reco::modules::make<Fitter>(cfg)) {}
+  bool fit(TransientVertex &vertex, const std::vector<reco::TransientTrack> &tracks) const override {
     try {
       vertex = fitter_.vertex(tracks);
-    } catch (std::exception & err) {
+    } catch (std::exception &err) {
       std::cerr << ">>> exception thrown by KalmanVertexFitter:\n"
-		<< err.what() << "\n"
-		<< ">>> candidate not fitted to common vertex" << std::endl;
+                << err.what() << "\n"
+                << ">>> candidate not fitted to common vertex" << std::endl;
       return false;
     }
     return vertex.isValid();
   }
+
 private:
   Fitter fitter_;
 };

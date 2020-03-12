@@ -6,18 +6,18 @@
 #include "UCTCTP7RawData.h"
 
 namespace l1t {
-   namespace stage2 {
-      class CaloLayer1Packer : public Packer {
-         public:
-            Blocks pack(const edm::Event&, const PackerTokens*) override;
+  namespace stage2 {
+    class CaloLayer1Packer : public Packer {
+    public:
+      Blocks pack(const edm::Event&, const PackerTokens*) override;
 
-         private:
-            void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const EcalTrigPrimDigiCollection* ecalTPGs);
-            void makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const HcalTrigPrimDigiCollection* hcalTPGs);
-            void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const HcalTrigPrimDigiCollection* hcalTPGs);
-            void makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const L1CaloRegionCollection* regions);
-      };
-   }
-}
+    private:
+      void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const EcalTrigPrimDigiCollection* ecalTPGs);
+      void makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const HcalTrigPrimDigiCollection* hcalTPGs);
+      void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const HcalTrigPrimDigiCollection* hcalTPGs);
+      void makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const L1CaloRegionCollection* regions);
+    };
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif

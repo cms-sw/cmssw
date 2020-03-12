@@ -10,15 +10,12 @@
 #include <vector>
 #include <utility>
 
-class MvaMEtUtilities 
-{
- public:
+class MvaMEtUtilities {
+public:
+  enum { kPFCands = 0, kLeptons, kJets };
+  enum { kPF = 0, kChHS, kHS, kPU, kHSMinusNeutralPU };
 
-  enum {kPFCands=0,kLeptons,kJets};
-  enum {kPF=0, kChHS, kHS, kPU, kHSMinusNeutralPU};
-
- private:
-
+private:
   CommonMETData leptonsSum_;
   CommonMETData leptonsChSum_;
   CommonMETData pfCandSum_;
@@ -32,8 +29,7 @@ class MvaMEtUtilities
   double dzCut_;
   double ptThreshold_;
 
- public:
-  
+public:
   MvaMEtUtilities(const edm::ParameterSet& cfg);
   virtual ~MvaMEtUtilities();
 
@@ -48,42 +44,44 @@ class MvaMEtUtilities
   double getLeptonsSumMEY() const;
 
   double getLeptonsChSumMEX() const;
-  double getLeptonsChSumMEY() const; 
+  double getLeptonsChSumMEY() const;
 
   //recoil and sum computing functions ========
-  void computeAllSums(const std::vector<reco::PUSubMETCandInfo>& jets, 
-		      const std::vector<reco::PUSubMETCandInfo>& leptons,
-		      const std::vector<reco::PUSubMETCandInfo>& pfCandidates);
-  
+  void computeAllSums(const std::vector<reco::PUSubMETCandInfo>& jets,
+                      const std::vector<reco::PUSubMETCandInfo>& leptons,
+                      const std::vector<reco::PUSubMETCandInfo>& pfCandidates);
+
   CommonMETData computeRecoil(int metType);
 
-
- protected:
-
+protected:
   reco::Candidate::LorentzVector jetP4(const std::vector<reco::PUSubMETCandInfo>&, unsigned);
 
   // cuts on jet Id. MVA output in bins of jet Pt and eta
-  double mvaCut_[3][4][4]; 
+  double mvaCut_[3][4][4];
 
- private:
-
+private:
   //utilities functions for jets ===============
   bool passesMVA(const reco::Candidate::LorentzVector&, double);
 
-  std::vector<reco::PUSubMETCandInfo> cleanJets(const std::vector<reco::PUSubMETCandInfo>&, 
-						const std::vector<reco::PUSubMETCandInfo>&, double, double);
-  
-  //utilities functions for pf candidate ====== 
-  std::vector<reco::PUSubMETCandInfo> cleanPFCands(const std::vector<reco::PUSubMETCandInfo>&, 
-						   const std::vector<reco::PUSubMETCandInfo>&, double, bool);
+  std::vector<reco::PUSubMETCandInfo> cleanJets(const std::vector<reco::PUSubMETCandInfo>&,
+                                                const std::vector<reco::PUSubMETCandInfo>&,
+                                                double,
+                                                double);
 
-  CommonMETData computeCandSum( int compKey, double dZmax, int dZflag,
-				bool iCharged,  bool mvaPassFlag,
-				const std::vector<reco::PUSubMETCandInfo>& objects );
+  //utilities functions for pf candidate ======
+  std::vector<reco::PUSubMETCandInfo> cleanPFCands(const std::vector<reco::PUSubMETCandInfo>&,
+                                                   const std::vector<reco::PUSubMETCandInfo>&,
+                                                   double,
+                                                   bool);
 
+  CommonMETData computeCandSum(int compKey,
+                               double dZmax,
+                               int dZflag,
+                               bool iCharged,
+                               bool mvaPassFlag,
+                               const std::vector<reco::PUSubMETCandInfo>& objects);
 
   void finalize(CommonMETData& metData);
-
 };
 
 #endif

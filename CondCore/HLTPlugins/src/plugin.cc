@@ -6,5 +6,5 @@
 #include "CondFormats/HLTObjects/interface/HLTPrescaleTableCond.h"
 #include "CondFormats/DataRecord/interface/HLTPrescaleTableRcd.h"
 
-REGISTER_PLUGIN(AlCaRecoTriggerBitsRcd,AlCaRecoTriggerBits);
-REGISTER_PLUGIN(HLTPrescaleTableRcd,trigger::HLTPrescaleTableCond);
+REGISTER_PLUGIN(AlCaRecoTriggerBitsRcd, AlCaRecoTriggerBits);
+REGISTER_PLUGIN(HLTPrescaleTableRcd, trigger::HLTPrescaleTableCond);

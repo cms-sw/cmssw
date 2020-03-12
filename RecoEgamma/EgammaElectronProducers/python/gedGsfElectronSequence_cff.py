@@ -7,5 +7,5 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.EgammaElectronProducers.gedGsfElectronCores_cfi import *
 from RecoEgamma.EgammaElectronProducers.gedGsfElectrons_cfi import *
 
-gedGsfElectronSequenceTmp = cms.Sequence(gedGsfElectronCores*gedGsfElectronsTmp)
-
+gedGsfElectronTaskTmp = cms.Task(gedGsfElectronCores, gedGsfElectronsTmp)
+gedGsfElectronSequenceTmp = cms.Sequence(gedGsfElectronTaskTmp)

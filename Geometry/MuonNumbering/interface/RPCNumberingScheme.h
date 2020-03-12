@@ -17,17 +17,16 @@ class DDCompactView;
 class MuonDDDConstants;
 
 class RPCNumberingScheme : public MuonNumberingScheme {
- public:
-
-  RPCNumberingScheme( const DDCompactView& cpv );
-  RPCNumberingScheme( const MuonDDDConstants& muonConstants );
+public:
+  RPCNumberingScheme(const DDCompactView& cpv);
+  RPCNumberingScheme(const MuonDDDConstants& muonConstants);
 
   ~RPCNumberingScheme() override{};
-  
+
   int baseNumberToUnitNumber(const MuonBaseNumber&) override;
-  
- private:
-  void initMe ( const MuonDDDConstants& muonConstants );
+
+private:
+  void initMe(const MuonDDDConstants& muonConstants);
 
   int theRegionLevel;
   int theBWheelLevel;
@@ -37,7 +36,6 @@ class RPCNumberingScheme : public MuonNumberingScheme {
   int theEPlaneLevel;
   int theESectorLevel;
   int theERollLevel;
-
 };
 
 #endif

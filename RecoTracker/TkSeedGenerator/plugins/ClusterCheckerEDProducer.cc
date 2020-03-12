@@ -6,9 +6,8 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/ClusterChecker.h"
 
-class ClusterCheckerEDProducer: public edm::stream::EDProducer<> {
+class ClusterCheckerEDProducer : public edm::stream::EDProducer<> {
 public:
-
   ClusterCheckerEDProducer(const edm::ParameterSet& iConfig);
   ~ClusterCheckerEDProducer() override = default;
 
@@ -21,10 +20,9 @@ private:
   bool theSilentOnClusterCheck;
 };
 
-ClusterCheckerEDProducer::ClusterCheckerEDProducer(const edm::ParameterSet& iConfig):
-  theClusterCheck(iConfig, consumesCollector()),
-  theSilentOnClusterCheck(iConfig.getUntrackedParameter<bool>("silentClusterCheck"))
-{
+ClusterCheckerEDProducer::ClusterCheckerEDProducer(const edm::ParameterSet& iConfig)
+    : theClusterCheck(iConfig, consumesCollector()),
+      theSilentOnClusterCheck(iConfig.getUntrackedParameter<bool>("silentClusterCheck")) {
   produces<bool>();
 }
 
@@ -41,15 +39,14 @@ void ClusterCheckerEDProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   //protection for big ass events...
   size_t clustsOrZero = theClusterCheck.tooManyClusters(iEvent);
-  if (clustsOrZero){
+  if (clustsOrZero) {
     if (!theSilentOnClusterCheck)
-	edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.";
+      edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.";
     *ret = false;
   }
 
   iEvent.put(std::move(ret));
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ClusterCheckerEDProducer);

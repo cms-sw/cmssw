@@ -7,16 +7,15 @@
 #include <string>
 #include <vector>
 
-namespace HepMC
-{
-class GenEvent;
+namespace HepMC {
+  class GenEvent;
 }
 
 namespace CLHEP {
-   class HepRandomEngine;
+  class HepRandomEngine;
 }
 
-namespace lhef { 
+namespace lhef {
   class LHEEvent;
 }
 
@@ -26,38 +25,36 @@ namespace gen {
   class TauolaInterfaceBase;
   class PhotosInterfaceBase;
 
+  class ExternalDecayDriver {
+  public:
+    // ctor & dtor
+    ExternalDecayDriver(const edm::ParameterSet&);
+    ~ExternalDecayDriver();
 
-   class ExternalDecayDriver{
-      public:
-         
-	 // ctor & dtor
-	 ExternalDecayDriver( const edm::ParameterSet& );
-	 ~ExternalDecayDriver();
-	 
-	 void init( const edm::EventSetup& );
+    void init(const edm::EventSetup&);
 
-	 const std::vector<int>&         operatesOnParticles() { return fPDGs; }
-	 const std::vector<std::string>& specialSettings()     { return fSpecialSettings; }
-	 
-	 HepMC::GenEvent* decay( HepMC::GenEvent* evt);
-	 HepMC::GenEvent* decay( HepMC::GenEvent* evt, lhef::LHEEvent *lheEvent);
- 
-	 void statistics() const;
+    const std::vector<int>& operatesOnParticles() { return fPDGs; }
+    const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
 
-         void setRandomEngine(CLHEP::HepRandomEngine*);
-         std::vector<std::string> const& sharedResources() const { return exSharedResources; }
+    HepMC::GenEvent* decay(HepMC::GenEvent* evt);
+    HepMC::GenEvent* decay(HepMC::GenEvent* evt, lhef::LHEEvent* lheEvent);
 
-      private:
-	 bool                     fIsInitialized;
-	 std::unique_ptr<TauolaInterfaceBase>     fTauolaInterface;
-	 std::unique_ptr<EvtGenInterfaceBase>     fEvtGenInterface;
-	 std::unique_ptr<PhotosInterfaceBase>     fPhotosInterface;
-	 std::vector<int>         fPDGs;
-	 std::vector<std::string> fSpecialSettings;
+    void statistics() const;
 
-         std::vector<std::string> exSharedResources;
-   };
+    void setRandomEngine(CLHEP::HepRandomEngine*);
+    std::vector<std::string> const& sharedResources() const { return exSharedResources; }
 
-}
+  private:
+    bool fIsInitialized;
+    std::unique_ptr<TauolaInterfaceBase> fTauolaInterface;
+    std::unique_ptr<EvtGenInterfaceBase> fEvtGenInterface;
+    std::unique_ptr<PhotosInterfaceBase> fPhotosInterface;
+    std::vector<int> fPDGs;
+    std::vector<std::string> fSpecialSettings;
+
+    std::vector<std::string> exSharedResources;
+  };
+
+}  // namespace gen
 
 #endif

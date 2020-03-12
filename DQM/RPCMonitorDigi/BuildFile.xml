@@ -10,6 +10,7 @@
 <use   name="EventFilter/RPCRawToDigi"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="DataFormats/Scalers"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="Geometry/RPCGeometry"/>

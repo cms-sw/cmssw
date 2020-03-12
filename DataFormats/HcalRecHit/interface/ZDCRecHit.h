@@ -4,7 +4,6 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
-
 /** \class ZDCRecHit
  *  
  *\author J. Mans - Minnesota
@@ -18,7 +17,8 @@ public:
   /// get the id
   HcalZDCDetId id() const { return HcalZDCDetId(detid()); }
   // follow EcalRecHit method of adding variable flagBits_ to CaloRecHit
-  float lowGainEnergy() const { return lowGainEnergy_;};
+  float lowGainEnergy() const { return lowGainEnergy_; };
+
 private:
   float lowGainEnergy_;
 };

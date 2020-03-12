@@ -19,109 +19,77 @@ namespace edm {
   class ParameterSetDescription;
   class DocFormatHelper;
 
-  template<class T>
+  template <class T>
   class AllowedLabelsDescription : public AllowedLabelsDescriptionBase {
-
   public:
-    AllowedLabelsDescription(std::string const& label,
-                             bool isTracked) :
-      AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked)
-    {              
-    }
+    AllowedLabelsDescription(std::string const& label, bool isTracked)
+        : AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked) {}
 
-    AllowedLabelsDescription(char const* label,
-                             bool isTracked) :
-      AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked)
-    {
-    }
+    AllowedLabelsDescription(char const* label, bool isTracked)
+        : AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked) {}
 
-    ~AllowedLabelsDescription() override
-    {
-    }
+    ~AllowedLabelsDescription() override {}
 
-    ParameterDescriptionNode* clone() const override {
-      return new AllowedLabelsDescription(*this);
-    }
+    ParameterDescriptionNode* clone() const override { return new AllowedLabelsDescription(*this); }
 
   private:
-
     void validateAllowedLabel_(std::string const& allowedLabel,
-                               ParameterSet & pset,
-                               std::set<std::string> & validatedLabels) const override {
+                               ParameterSet& pset,
+                               std::set<std::string>& validatedLabels) const override {
       if (pset.existsAs<T>(allowedLabel, isTracked())) {
         validatedLabels.insert(allowedLabel);
       }
     }
   };
 
-  template<>
+  template <>
   class AllowedLabelsDescription<ParameterSetDescription> : public AllowedLabelsDescriptionBase {
-
   public:
-    AllowedLabelsDescription(std::string const& label,
-                             bool isTracked);
+    AllowedLabelsDescription(std::string const& label, bool isTracked);
 
-    AllowedLabelsDescription(char const* label,
-                             bool isTracked);
+    AllowedLabelsDescription(char const* label, bool isTracked);
 
-    AllowedLabelsDescription(std::string const& label,
-                             ParameterSetDescription const& value,
-                             bool isTracked);
+    AllowedLabelsDescription(std::string const& label, ParameterSetDescription const& value, bool isTracked);
 
-    AllowedLabelsDescription(char const* label,
-                             ParameterSetDescription const& value,
-                             bool isTracked);
+    AllowedLabelsDescription(char const* label, ParameterSetDescription const& value, bool isTracked);
 
     ~AllowedLabelsDescription() override;
 
     ParameterDescriptionNode* clone() const override;
 
   private:
-
-    void printNestedContent_(std::ostream & os,
-                             bool optional,
-                             DocFormatHelper & helper) const override;
+    void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& helper) const override;
 
     void validateAllowedLabel_(std::string const& allowedLabel,
-                               ParameterSet & pset,
-                               std::set<std::string> & validatedLabels) const override;
+                               ParameterSet& pset,
+                               std::set<std::string>& validatedLabels) const override;
 
     value_ptr<ParameterSetDescription> psetDesc_;
   };
 
-  template<>
+  template <>
   class AllowedLabelsDescription<std::vector<ParameterSet> > : public AllowedLabelsDescriptionBase {
-
   public:
-    AllowedLabelsDescription(std::string const& label,
-                             bool isTracked);
+    AllowedLabelsDescription(std::string const& label, bool isTracked);
 
-    AllowedLabelsDescription(char const* label,
-                             bool isTracked);
+    AllowedLabelsDescription(char const* label, bool isTracked);
 
-    AllowedLabelsDescription(std::string const& label,
-                             ParameterSetDescription const& value,
-                             bool isTracked);
+    AllowedLabelsDescription(std::string const& label, ParameterSetDescription const& value, bool isTracked);
 
-    AllowedLabelsDescription(char const* label,
-                             ParameterSetDescription const& value,
-                             bool isTracked);
+    AllowedLabelsDescription(char const* label, ParameterSetDescription const& value, bool isTracked);
 
     ~AllowedLabelsDescription() override;
 
     ParameterDescriptionNode* clone() const override;
 
   private:
-
-    void printNestedContent_(std::ostream & os,
-                             bool optional,
-                             DocFormatHelper & helper) const override;
+    void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& helper) const override;
 
     void validateAllowedLabel_(std::string const& allowedLabel,
-                               ParameterSet & pset,
-                               std::set<std::string> & validatedLabels) const override;
+                               ParameterSet& pset,
+                               std::set<std::string>& validatedLabels) const override;
 
     value_ptr<ParameterSetDescription> psetDesc_;
   };
-}
+}  // namespace edm
 #endif

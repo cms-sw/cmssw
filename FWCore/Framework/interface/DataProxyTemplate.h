@@ -4,14 +4,24 @@
 //
 // Package:     Framework
 // Class  :     DataProxyTemplate
-// 
+//
 /**\class DataProxyTemplate DataProxyTemplate.h FWCore/Framework/interface/DataProxyTemplate.h
 
  Description: A DataProxy base class which allows one to write type-safe proxies
 
+              Note that DataProxy types that inherit from this are not allowed
+              to get data from the EventSetup (they cannot consume anything).
+              This is intended mainly for use with ESSources that are also
+              not allowed to get data from the EventSetup. Currently (as of
+              April 2019), this class is used only in PoolDBESSource and
+              Framework unit tests.
+
+              This is also not used with ESProducers that inherit from
+              the ESProducer base class and use the setWhatProduced interface.
+              This class is used instead of CallProxy.
+
  Usage:
     <usage>
-
 */
 //
 // Author:      Chris Jones
@@ -24,46 +34,37 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include <cassert>
+#include <limits>
 
 // forward declarations
 
 namespace edm {
-   namespace eventsetup {
-template<class RecordT, class DataT>
-class DataProxyTemplate : public DataProxy
-{
 
-   public:
+  class EventSetupImpl;
+
+  namespace eventsetup {
+
+    template <class RecordT, class DataT>
+    class DataProxyTemplate : public DataProxy {
+    public:
       typedef DataT value_type;
       typedef RecordT record_type;
-   
-      DataProxyTemplate(){}
-      //virtual ~DataProxyTemplate();
 
-      // ---------- const member functions ---------------------
+      DataProxyTemplate() {}
 
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
       const void* getImpl(const EventSetupRecordImpl& iRecord,
-                                  const DataKey& iKey) override {
-         assert(iRecord.key() == RecordT::keyForClass());
-         RecordT rec;
-         rec.setImpl(&iRecord);
-         return this->make(rec, iKey);
+                          const DataKey& iKey,
+                          EventSetupImpl const* iEventSetupImpl) override {
+        assert(iRecord.key() == RecordT::keyForClass());
+        RecordT rec;
+        rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
+        return this->make(rec, iKey);
       }
-      
-   protected:
+
+    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
-      
-   private:
-      DataProxyTemplate(const DataProxyTemplate&) = delete; // stop default
+    };
 
-      const DataProxyTemplate& operator=(const DataProxyTemplate&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-};
-
-   }
-}
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

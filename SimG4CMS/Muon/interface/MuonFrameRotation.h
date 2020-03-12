@@ -15,11 +15,10 @@
 class G4Step;
 
 class MuonFrameRotation {
- public:
-  MuonFrameRotation() {};
-  virtual ~MuonFrameRotation() {};
-  virtual Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const;
-
+public:
+  MuonFrameRotation(){};
+  virtual ~MuonFrameRotation(){};
+  virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
 };
 
 #endif

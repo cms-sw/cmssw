@@ -15,51 +15,51 @@
 
 namespace muonisolation {
 
-class PixelTrackExtractor : public reco::isodeposit::IsoDepositExtractor {
+  class PixelTrackExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    PixelTrackExtractor(){};
+    PixelTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
-public:
+    ~PixelTrackExtractor() override {}
 
-  PixelTrackExtractor(){};
-  PixelTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& track) override {}
 
-  ~PixelTrackExtractor() override{}
+    virtual reco::IsoDeposit::Vetos vetos(const edm::Event& ev,
+                                          const edm::EventSetup& evSetup,
+                                          const reco::Track& track) const;
 
-  void fillVetos (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::TrackCollection & track) override {}
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& muon) const override;
 
-  virtual reco::IsoDeposit::Vetos vetos(const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Track & track)const;
+  private:
+    reco::IsoDeposit::Veto veto(const reco::IsoDeposit::Direction& dir) const;
 
-  reco::IsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Track & muon) const override;
+    reco::isodeposit::Direction directionAtPresetRadius(const reco::Track& tk, double bz) const;
 
-private:
-  reco::IsoDeposit::Veto veto( const reco::IsoDeposit::Direction & dir) const;
+  private:
+    // Parameter set
+    edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;  //! Track Collection Token
+    std::string theDepositLabel;                                      //! name for deposit
+    double theDiff_r;                                                 //! transverse distance to vertex
+    double theDiff_z;                                                 //! z distance to vertex
+    double theDR_Max;                                                 //! Maximum cone angle for deposits
+    double theDR_Veto;                                                //! Veto cone angle
+    std::string theBeamlineOption;                                    //! "NONE", "BeamSpotFromEvent"
+    edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;                //! BeamSpot name
+    unsigned int theNHits_Min;                                        //! trk.numberOfValidHits >= theNHits_Min
+    double theChi2Ndof_Max;                                           //! trk.normalizedChi2 < theChi2Ndof_Max
+    double theChi2Prob_Min;  //! ChiSquaredProbability(trk.chi2,trk.ndof) > theChi2Prob_Min
+    double thePt_Min;        //! min track pt to include into iso deposit
 
-  reco::isodeposit::Direction directionAtPresetRadius(const reco::Track& tk, double bz) const;
-private:
-  // Parameter set
-  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken; //! Track Collection Token
-  std::string theDepositLabel;         //! name for deposit
-  double theDiff_r;                    //! transverse distance to vertex
-  double theDiff_z;                    //! z distance to vertex
-  double theDR_Max;                    //! Maximum cone angle for deposits
-  double theDR_Veto;                   //! Veto cone angle
-  std::string theBeamlineOption;       //! "NONE", "BeamSpotFromEvent"
-  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;      //! BeamSpot name
-  unsigned int theNHits_Min;                   //! trk.numberOfValidHits >= theNHits_Min
-  double theChi2Ndof_Max;              //! trk.normalizedChi2 < theChi2Ndof_Max
-  double theChi2Prob_Min;              //! ChiSquaredProbability(trk.chi2,trk.ndof) > theChi2Prob_Min
-  double thePt_Min;                    //! min track pt to include into iso deposit
+    bool thePropagateTracksToRadius;  //! If set to true will compare track eta-phi at ...
+    double theReferenceRadius;        //! ... this radius
 
-  bool thePropagateTracksToRadius;     //! If set to true will compare track eta-phi at ...
-  double theReferenceRadius;           //! ... this radius
+    bool theVetoLeadingTrack;  //! will veto leading track if
+    double thePtVeto_Min;      //! .. it is above this threshold
+    double theDR_VetoPt;       //!.. and is inside this cone
+  };
 
-  bool theVetoLeadingTrack;             //! will veto leading track if
-  double thePtVeto_Min;		        //! .. it is above this threshold
-  double theDR_VetoPt;		        //!.. and is inside this cone
-};
-
-}
+}  // namespace muonisolation
 
 #endif

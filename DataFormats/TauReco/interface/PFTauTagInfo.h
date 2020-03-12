@@ -11,36 +11,35 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauTagInfoFwd.h"
 #include "DataFormats/TauReco/interface/BaseTauTagInfo.h"
 
-
-namespace reco{ 
+namespace reco {
   class PFTauTagInfo : public BaseTauTagInfo {
   public:
-    PFTauTagInfo(){}
+    PFTauTagInfo() {}
     ~PFTauTagInfo() override{};
-    virtual PFTauTagInfo* clone()const;
-    
-    //get the PFCandidates which compose the PF jet and were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredPFChargedHadrCands(.,...), filteredPFNeutrHadrCands(.), filteredPFGammaCands(.) functions through RecoTauTag/RecoTauTag/ PFRecoTauTagInfoProducer EDProducer
-    std::vector<reco::PFCandidatePtr> PFCands()const;
-    const std::vector<reco::PFCandidatePtr>& PFChargedHadrCands()const;
-    void  setPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>&);
-    const std::vector<reco::PFCandidatePtr>& PFNeutrHadrCands()const;
-    void  setPFNeutrHadrCands(const std::vector<reco::PFCandidatePtr>&);
-    const std::vector<reco::PFCandidatePtr>& PFGammaCands()const;
-    void  setPFGammaCands(const std::vector<reco::PFCandidatePtr>&);
-    
-    //the reference to the PFJet
-    const PFJetRef& pfjetRef()const;
-    void setpfjetRef(const PFJetRef);
-  private:
-    PFJetRef PFJetRef_;
-    std::vector<reco::PFCandidatePtr> PFChargedHadrCands_;
-    std::vector<reco::PFCandidatePtr> PFNeutrHadrCands_;
-    std::vector<reco::PFCandidatePtr> PFGammaCands_;
-  };
-}
-#endif
+    virtual PFTauTagInfo* clone() const;
 
+    //get the PFCandidates which compose the PF jet and were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredPFChargedHadrCands(.,...), filteredPFNeutrHadrCands(.), filteredPFGammaCands(.) functions through RecoTauTag/RecoTauTag/ PFRecoTauTagInfoProducer EDProducer
+    std::vector<reco::CandidatePtr> PFCands() const;
+    const std::vector<reco::CandidatePtr>& PFChargedHadrCands() const;
+    void setPFChargedHadrCands(const std::vector<reco::CandidatePtr>&);
+    const std::vector<reco::CandidatePtr>& PFNeutrHadrCands() const;
+    void setPFNeutrHadrCands(const std::vector<reco::CandidatePtr>&);
+    const std::vector<reco::CandidatePtr>& PFGammaCands() const;
+    void setPFGammaCands(const std::vector<reco::CandidatePtr>&);
+
+    //the reference to the PFJet
+    const JetBaseRef& pfjetRef() const;
+    void setpfjetRef(const JetBaseRef);
+
+  private:
+    JetBaseRef PFJetRef_;
+    std::vector<reco::CandidatePtr> PFChargedHadrCands_;
+    std::vector<reco::CandidatePtr> PFNeutrHadrCands_;
+    std::vector<reco::CandidatePtr> PFGammaCands_;
+  };
+}  // namespace reco
+#endif

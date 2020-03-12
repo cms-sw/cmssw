@@ -2,7 +2,7 @@
 #define MEGeom_hh
 
 //
-// Authors  : Gautier Hamel de Monchenault and Julie Malcles, Saclay 
+// Authors  : Gautier Hamel de Monchenault and Julie Malcles, Saclay
 //
 #include <vector>
 
@@ -15,30 +15,26 @@
 
 class MEChannel;
 
-class MEGeom
-{
+class MEGeom {
   // static functions
 public:
-
   // histograms and boundaries
-  static TH2*        getHist( int ilmr, int unit );
+  static TH2* getHist(int ilmr, int unit);
 
-  static TGraph* getBoundary( int ilmr, int unit );
-  static void drawHist( int ilmr, int unit, TCanvas* canv=nullptr );
+  static TGraph* getBoundary(int ilmr, int unit);
+  static void drawHist(int ilmr, int unit, TCanvas* canv = nullptr);
 
   // global 2D histogram
-  static TH2* getGlobalHist( const char* name=nullptr );
-  static void setBinGlobalHist( TH2* h, 
-				int ix, int iy, int iz, float val );  
-  static void drawGlobalBoundaries( int lineColor );
+  static TH2* getGlobalHist(const char* name = nullptr);
+  static void setBinGlobalHist(TH2* h, int ix, int iy, int iz, float val);
+  static void drawGlobalBoundaries(int lineColor);
 
   virtual ~MEGeom() {}
-  
-private:
 
-  static int _nbuf; // 
-  static int _nbinx; 
-  static int _nbiny; 
+private:
+  static int _nbuf;  //
+  static int _nbinx;
+  static int _nbiny;
   static float _xmin;
   static float _xmax;
   static float _ymin;
@@ -49,4 +45,3 @@ private:
 };
 
 #endif
-

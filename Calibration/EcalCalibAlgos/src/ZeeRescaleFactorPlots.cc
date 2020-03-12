@@ -22,7 +22,6 @@
 #include "TF1.h"
 #include "TRandom.h"
 
-
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -30,49 +29,32 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-ZeeRescaleFactorPlots::ZeeRescaleFactorPlots( char* fileName )
-{
-
+ZeeRescaleFactorPlots::ZeeRescaleFactorPlots(char* fileName) {
   fileName_ = fileName;
   file_ = new TFile(fileName_, "RECREATE");
 }
 
-
-ZeeRescaleFactorPlots::~ZeeRescaleFactorPlots()
-{
-
+ZeeRescaleFactorPlots::~ZeeRescaleFactorPlots() {
   file_->Close();
 
   delete file_;
-
 }
 
 //========================================================================
 
-void ZeeRescaleFactorPlots::writeHistograms(ZIterativeAlgorithmWithFit* theAlgorithm_){
+void ZeeRescaleFactorPlots::writeHistograms(ZIterativeAlgorithmWithFit* theAlgorithm_) {
+  file_->cd();
 
-  file_ -> cd();
-
-  
   const ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFitPlots* algoHistos = theAlgorithm_->getHistos();
 
-  for (int iIteration=0;iIteration<theAlgorithm_->getNumberOfIterations();iIteration++)
-    for (int iChannel=0;iChannel<theAlgorithm_->getNumberOfChannels();iChannel++)
-      {
+  for (int iIteration = 0; iIteration < theAlgorithm_->getNumberOfIterations(); iIteration++)
+    for (int iChannel = 0; iChannel < theAlgorithm_->getNumberOfChannels(); iChannel++) {
+      if (iChannel % 20 == 0) {
+        file_->cd();
 
-	if(iChannel%20==0){
-	  
-	  file_ -> cd();
-	  
-	  algoHistos->weightedRescaleFactor[iIteration][iChannel]->Write();
-	  algoHistos->unweightedRescaleFactor[iIteration][iChannel]->Write();
-	  algoHistos->weight[iIteration][iChannel]->Write();
-	}
-
-
+        algoHistos->weightedRescaleFactor[iIteration][iChannel]->Write();
+        algoHistos->unweightedRescaleFactor[iIteration][iChannel]->Write();
+        algoHistos->weight[iIteration][iChannel]->Write();
       }
-
-
+    }
 }
-
-

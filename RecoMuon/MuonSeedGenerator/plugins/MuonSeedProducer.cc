@@ -4,12 +4,10 @@
  *  \author Dominique Fortin - UCR
  */
 
-
 #include "RecoMuon/MuonSeedGenerator/plugins/MuonSeedProducer.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedBuilder.h"
 
-
-// Data Formats 
+// Data Formats
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 // Magnetic Field
@@ -32,64 +30,51 @@
 // C++
 #include <vector>
 
-
-
 /* 
  * Constructor
  */
-MuonSeedProducer::MuonSeedProducer(const edm::ParameterSet& pset){
-
+MuonSeedProducer::MuonSeedProducer(const edm::ParameterSet& pset) {
   // Register what this produces
-  produces<TrajectorySeedCollection>(); 
+  produces<TrajectorySeedCollection>();
 
   // Local Debug flag
-  debug              = pset.getParameter<bool>("DebugMuonSeed");
-
+  debug = pset.getParameter<bool>("DebugMuonSeed");
 
   edm::ConsumesCollector iC = consumesCollector();
 
-  // Builder which returns seed collection 
-  muonSeedBuilder_   = new MuonSeedBuilder( pset,iC ); 
-
+  // Builder which returns seed collection
+  muonSeedBuilder_ = new MuonSeedBuilder(pset, iC);
 }
-
 
 /*
  * Destructor
  */
-MuonSeedProducer::~MuonSeedProducer(){
-
-  delete muonSeedBuilder_;
-
-}
-
+MuonSeedProducer::~MuonSeedProducer() { delete muonSeedBuilder_; }
 
 /*
  * Producer (the main)
- */ 
-void MuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eSetup){
-
+ */
+void MuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eSetup) {
   // Muon Geometry
   edm::ESHandle<MuonDetLayerGeometry> muonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
   const MuonDetLayerGeometry* lgeom = &*muonLayers;
-  muonSeedBuilder_->setGeometry( lgeom );
+  muonSeedBuilder_->setGeometry(lgeom);
 
   // Magnetic field
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
   const MagneticField* theField = &*field;
-  muonSeedBuilder_->setBField( theField );
+  muonSeedBuilder_->setBField(theField);
 
-   // Create pointer to the seed container
+  // Create pointer to the seed container
 
   auto output = std::make_unique<TrajectorySeedCollection>();
 
   //UNUED:  int nSeeds = 0;
-  //UNUSED: nSeeds = 
-  muonSeedBuilder_->build( event, eSetup, *output);
+  //UNUSED: nSeeds =
+  muonSeedBuilder_->build(event, eSetup, *output);
 
   // Append muon seed collection to event
   event.put(std::move(output));
-
 }

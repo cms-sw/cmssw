@@ -7,34 +7,36 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/Association.h"
 
-namespace reco
-{
+namespace reco {
 
-class Track;
+  class Track;
 
-/// collection of Tracks
-typedef std::vector<Track> TrackCollection;
+  /// collection of Tracks
+  typedef std::vector<Track> TrackCollection;
 
-/// persistent reference to a Track
-typedef edm::Ref<TrackCollection> TrackRef;
+  /// persistent reference to a Track
+  typedef edm::Ref<TrackCollection> TrackRef;
 
-/// persistent reference to a Track collection
-typedef edm::RefProd<TrackCollection> TrackRefProd;
+  /// association to a track collection
+  typedef edm::Association<TrackCollection> TrackAssociation;
 
-/// vector of reference to Track in the same collection
-typedef edm::RefVector<TrackCollection> TrackRefVector;
+  /// persistent reference to a Track collection
+  typedef edm::RefProd<TrackCollection> TrackRefProd;
 
-/// iterator over a vector of reference to Track in the same collection
-typedef TrackRefVector::iterator track_iterator;
+  /// vector of reference to Track in the same collection
+  typedef edm::RefVector<TrackCollection> TrackRefVector;
 
-/// persistent reference to a Track, using views
-typedef edm::RefToBase<reco::Track> TrackBaseRef;
+  /// iterator over a vector of reference to Track in the same collection
+  typedef TrackRefVector::iterator track_iterator;
 
-/// vector of persistent references to a Track, using views
-typedef edm::RefToBaseVector<reco::Track> TrackBaseRefVector;
+  /// persistent reference to a Track, using views
+  typedef edm::RefToBase<reco::Track> TrackBaseRef;
 
-} // namespace reco
+  /// vector of persistent references to a Track, using views
+  typedef edm::RefToBaseVector<reco::Track> TrackBaseRefVector;
+
+}  // namespace reco
 
 #endif
-

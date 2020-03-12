@@ -13,21 +13,17 @@
 #include <vector>
 
 class EcalTBHodoscopeRecInfoProducer : public edm::EDProducer {
-
- public:
-
+public:
   explicit EcalTBHodoscopeRecInfoProducer(const edm::ParameterSet& ps);
-  ~EcalTBHodoscopeRecInfoProducer() override ;
+  ~EcalTBHodoscopeRecInfoProducer() override;
   void produce(edm::Event& e, const edm::EventSetup& es) override;
 
- private:
-
-  std::string rawInfoProducer_; // name of module/plugin/producer making digis
-  std::string rawInfoCollection_; // secondary name given to collection of digis
-  std::string recInfoCollection_; // secondary name to be given to collection of hits
+private:
+  std::string rawInfoProducer_;    // name of module/plugin/producer making digis
+  std::string rawInfoCollection_;  // secondary name given to collection of digis
+  std::string recInfoCollection_;  // secondary name to be given to collection of hits
 
   int fitMethod_;
-  EcalTBHodoscopeRecInfoAlgo *algo_;
-
+  EcalTBHodoscopeRecInfoAlgo* algo_;
 };
 #endif

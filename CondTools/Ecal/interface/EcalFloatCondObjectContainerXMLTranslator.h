@@ -16,32 +16,23 @@
 #include <vector>
 
 class EcalFloatCondObjectContainerXMLTranslator {
-
 public:
-  
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalFloatCondObjectContainer& record);
 
-  static int readXML  (const std::string& filename,
-		       EcalCondHeader& header,
-		       EcalFloatCondObjectContainer& record);
+  static std::vector<float> barrelfromXML(const std::string& filename);
 
-  static std::vector<float>  barrelfromXML(const std::string& filename);
-		      
-  static std::vector<float>  endcapfromXML(const std::string& filename);
+  static std::vector<float> endcapfromXML(const std::string& filename);
 
-  static int writeXML (const std::string& filename, 
-		       const EcalCondHeader& header,
-		       const EcalFloatCondObjectContainer& record);
+  static int writeXML(const std::string& filename,
+                      const EcalCondHeader& header,
+                      const EcalFloatCondObjectContainer& record);
 
-  // dump the two flat arrays (hashed-indexed as in EBDetId, EEDetId) to XML 
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const std::vector<float>& eb,
-			     const std::vector<float>& ee);
+  // dump the two flat arrays (hashed-indexed as in EBDetId, EEDetId) to XML
+  static std::string dumpXML(const EcalCondHeader& header, const std::vector<float>& eb, const std::vector<float>& ee);
+
 private:
-  
   // dump the CMSSW object container to XML
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalFloatCondObjectContainer& record);
-
+  static std::string dumpXML(const EcalCondHeader& header, const EcalFloatCondObjectContainer& record);
 };
 
-#endif // __EcalFloatCondObjectContainerXMLTranslator_h_
+#endif  // __EcalFloatCondObjectContainerXMLTranslator_h_

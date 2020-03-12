@@ -8,12 +8,13 @@
 
 class ShallowTracksProducer : public edm::EDProducer {
 public:
-  explicit ShallowTracksProducer(const edm::ParameterSet&);
+  explicit ShallowTracksProducer(const edm::ParameterSet &);
+
 private:
-	const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
+  const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
   edm::InputTag theTracksLabel;
   std::string Prefix;
   std::string Suffix;
-  void produce( edm::Event &, const edm::EventSetup & ) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 };
 #endif

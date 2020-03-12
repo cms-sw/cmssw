@@ -2,21 +2,19 @@
 #define CSCBadCFEBTimeSlice_h
 
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBWord.h"
-#include<iosfwd>
+#include <iosfwd>
 
 /**
  * When a time slice is bad, it only has four words, and they all start with "B"
  */
 
-
 class CSCBadCFEBTimeSlice {
 public:
-  unsigned sizeInWords() const {return 4;}
+  unsigned sizeInWords() const { return 4; }
   /// count from zero
-  const CSCBadCFEBWord & word(int i) const;
+  const CSCBadCFEBWord& word(int i) const;
 
   bool check() const;
-
 
 private:
   CSCBadCFEBWord theWords[4];

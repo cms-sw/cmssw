@@ -21,11 +21,9 @@
  */
 class IntermediateHitTriplets {
 public:
-  using LayerPair = std::tuple<SeedingLayerSetsHits::LayerIndex,
-                               SeedingLayerSetsHits::LayerIndex>;
-  using LayerTriplet = std::tuple<SeedingLayerSetsHits::LayerIndex,
-                                  SeedingLayerSetsHits::LayerIndex,
-                                  SeedingLayerSetsHits::LayerIndex>;
+  using LayerPair = std::tuple<SeedingLayerSetsHits::LayerIndex, SeedingLayerSetsHits::LayerIndex>;
+  using LayerTriplet =
+      std::tuple<SeedingLayerSetsHits::LayerIndex, SeedingLayerSetsHits::LayerIndex, SeedingLayerSetsHits::LayerIndex>;
   using RegionIndex = ihd::RegionIndex;
 
   ////////////////////
@@ -40,14 +38,12 @@ public:
    */
   class PLayerHitTriplets {
   public:
-    PLayerHitTriplets(const LayerTriplet& layerTriplet, unsigned int tripletsBegin):
-      layerTriplet_(layerTriplet),
-      tripletsBegin_(tripletsBegin), tripletsEnd_(tripletsBegin)
-    {}
+    PLayerHitTriplets(const LayerTriplet &layerTriplet, unsigned int tripletsBegin)
+        : layerTriplet_(layerTriplet), tripletsBegin_(tripletsBegin), tripletsEnd_(tripletsBegin) {}
 
     void setTripletsEnd(unsigned int end) { tripletsEnd_ = end; }
 
-    const LayerTriplet& layerTriplet() const { return layerTriplet_; }
+    const LayerTriplet &layerTriplet() const { return layerTriplet_; }
 
     unsigned int tripletsBegin() const { return tripletsBegin_; }
     unsigned int tripletsEnd() const { return tripletsEnd_; }
@@ -68,14 +64,11 @@ public:
   public:
     using const_iterator = std::vector<OrderedHitTriplet>::const_iterator;
 
-    LayerHitTriplets(const IntermediateHitTriplets *hitSets,
-                     const PLayerHitTriplets *layerTriplet):
-      hitSets_(hitSets),
-      layerTriplet_(layerTriplet)
-    {}
+    LayerHitTriplets(const IntermediateHitTriplets *hitSets, const PLayerHitTriplets *layerTriplet)
+        : hitSets_(hitSets), layerTriplet_(layerTriplet) {}
 
-    using TripletRange = std::pair<std::vector<OrderedHitTriplet>::const_iterator,
-                                   std::vector<OrderedHitTriplet>::const_iterator>;
+    using TripletRange =
+        std::pair<std::vector<OrderedHitTriplet>::const_iterator, std::vector<OrderedHitTriplet>::const_iterator>;
 
     SeedingLayerSetsHits::LayerIndex innerLayerIndex() const { return std::get<0>(layerTriplet_->layerTriplet()); }
     SeedingLayerSetsHits::LayerIndex middleLayerIndex() const { return std::get<1>(layerTriplet_->layerTriplet()); }
@@ -119,11 +112,8 @@ public:
       /**
        * Constructor for an iterator pointing to a valid element
        */
-      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerSets *regionLayerSets):
-        hitSets_(hitSets),
-        regionLayerSets_(regionLayerSets),
-        iter_(regionLayerSets->layerSetsBegin())
-      {
+      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerSets *regionLayerSets)
+          : hitSets_(hitSets), regionLayerSets_(regionLayerSets), iter_(regionLayerSets->layerSetsBegin()) {
         assert(regionLayerSets->layerSetsBegin() != regionLayerSets->layerSetsEnd());
       }
 
@@ -132,15 +122,12 @@ public:
        *
        * The end_tag parameter is used to differentiate this constructor from the other one.
        */
-      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerSets *regionLayerSets, end_tag):
-        iter_(regionLayerSets->layerSetsEnd())
-      {}
+      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerSets *regionLayerSets, end_tag)
+          : iter_(regionLayerSets->layerSetsEnd()) {}
 
-      value_type operator*() const {
-        return value_type(hitSets_, &(*iter_));
-      }
+      value_type operator*() const { return value_type(hitSets_, &(*iter_)); }
 
-      const_iterator& operator++() {
+      const_iterator &operator++() {
         ++iter_;
         return *this;
       }
@@ -151,8 +138,8 @@ public:
         return clone;
       }
 
-      bool operator==(const const_iterator& other) const { return iter_ == other.iter_; }
-      bool operator!=(const const_iterator& other) const { return !operator==(other); }
+      bool operator==(const const_iterator &other) const { return iter_ == other.iter_; }
+      bool operator!=(const const_iterator &other) const { return !operator==(other); }
 
     private:
       const IntermediateHitTriplets *hitSets_;
@@ -160,23 +147,19 @@ public:
       internal_iterator_type iter_;
     };
 
-    RegionLayerSets(const TrackingRegion* region,
+    RegionLayerSets(const TrackingRegion *region,
                     const LayerHitMapCache *cache,
                     const IntermediateHitTriplets *hitSets,
                     PLayerHitTripletsConstIterator tripletBegin,
-                    PLayerHitTripletsConstIterator tripletEnd):
-      region_(region),
-      cache_(cache),
-      hitSets_(hitSets),
-      layerSetsBegin_(tripletBegin), layerSetsEnd_(tripletEnd)
-    {}
+                    PLayerHitTripletsConstIterator tripletEnd)
+        : region_(region), cache_(cache), hitSets_(hitSets), layerSetsBegin_(tripletBegin), layerSetsEnd_(tripletEnd) {}
 
-    const TrackingRegion& region() const { return *region_; }
-    const LayerHitMapCache& layerHitMapCache() const { return *cache_; }
+    const TrackingRegion &region() const { return *region_; }
+    const LayerHitMapCache &layerHitMapCache() const { return *cache_; }
     size_t layerTripletsSize() const { return std::distance(layerSetsBegin_, layerSetsEnd_); }
 
     const_iterator begin() const {
-      if(layerSetsBegin_ != layerSetsEnd_)
+      if (layerSetsBegin_ != layerSetsEnd_)
         return const_iterator(hitSets_, this);
       else
         return end();
@@ -207,38 +190,40 @@ public:
   /// Helper class enforcing correct way of filling the doublets of a region
   class RegionFiller {
   public:
-    RegionFiller(): obj_(nullptr) {}
-    explicit RegionFiller(IntermediateHitTriplets *obj): obj_(obj) {}
+    RegionFiller() : obj_(nullptr) {}
+    explicit RegionFiller(IntermediateHitTriplets *obj) : obj_(obj) {}
 
     ~RegionFiller() = default;
 
     bool valid() const { return obj_ != nullptr; }
 
-    LayerHitMapCache& layerHitMapCache() { return obj_->regions_.back().layerHitMapCache(); }
+    LayerHitMapCache &layerHitMapCache() { return obj_->regions_.back().layerHitMapCache(); }
 
-    void addTriplets(const LayerPair& layerPair,
-                     const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
-                     const OrderedHitTriplets& triplets,
-                     const std::vector<int>& thirdLayerIndex,
-                     const std::vector<size_t>& permutations) {
+    void addTriplets(const LayerPair &layerPair,
+                     const std::vector<SeedingLayerSetsHits::SeedingLayer> &thirdLayers,
+                     const OrderedHitTriplets &triplets,
+                     const std::vector<int> &thirdLayerIndex,
+                     const std::vector<size_t> &permutations) {
       assert(triplets.size() == thirdLayerIndex.size());
       assert(triplets.size() == permutations.size());
 
-      if(triplets.empty()) {
+      if (triplets.empty()) {
         return;
       }
 
       int prevLayer = -1;
-      for(size_t i=0, size=permutations.size(); i<size; ++i) {
+      for (size_t i = 0, size = permutations.size(); i < size; ++i) {
         // We go through the 'triplets' in the order defined by
         // 'permutations', which is sorted such that we first go through
         // triplets from (3rd) layer 0, then layer 1 and so on.
         const size_t realIndex = permutations[i];
 
         const int layer = thirdLayerIndex[realIndex];
-        if(layer != prevLayer) {
+        if (layer != prevLayer) {
           prevLayer = layer;
-          obj_->layerTriplets_.emplace_back(LayerTriplet(std::get<0>(layerPair), std::get<1>(layerPair), thirdLayers[layer].index()), obj_->hitTriplets_.size());
+          obj_->layerTriplets_.emplace_back(
+              LayerTriplet(std::get<0>(layerPair), std::get<1>(layerPair), thirdLayers[layer].index()),
+              obj_->hitTriplets_.size());
         }
 
         obj_->hitTriplets_.emplace_back(triplets[realIndex]);
@@ -247,6 +232,7 @@ public:
 
       obj_->regions_.back().setLayerSetsEnd(obj_->layerTriplets_.size());
     }
+
   private:
     IntermediateHitTriplets *obj_;
   };
@@ -256,16 +242,16 @@ public:
 
   ////////////////////
 
-  IntermediateHitTriplets(): seedingLayers_(nullptr) {}
-  explicit IntermediateHitTriplets(const SeedingLayerSetsHits *seedingLayers): seedingLayers_(seedingLayers) {}
-  IntermediateHitTriplets(const IntermediateHitTriplets& rh); // only to make ROOT dictionary generation happy
-  IntermediateHitTriplets(IntermediateHitTriplets&&) = default;
-  IntermediateHitTriplets& operator=(IntermediateHitTriplets&&) = default;
+  IntermediateHitTriplets() : seedingLayers_(nullptr) {}
+  explicit IntermediateHitTriplets(const SeedingLayerSetsHits *seedingLayers) : seedingLayers_(seedingLayers) {}
+  IntermediateHitTriplets(const IntermediateHitTriplets &rh);  // only to make ROOT dictionary generation happy
+  IntermediateHitTriplets(IntermediateHitTriplets &&) = default;
+  IntermediateHitTriplets &operator=(IntermediateHitTriplets &&) = default;
   ~IntermediateHitTriplets() = default;
 
   void reserve(size_t nregions, size_t nlayersets, size_t ntriplets) {
     regions_.reserve(nregions);
-    layerTriplets_.reserve(nregions*nlayersets);
+    layerTriplets_.reserve(nregions * nlayersets);
     hitTriplets_.reserve(ntriplets);
   }
 
@@ -280,7 +266,7 @@ public:
     return RegionFiller(this);
   }
 
-  const SeedingLayerSetsHits& seedingLayerHits() const { return *seedingLayers_; }
+  const SeedingLayerSetsHits &seedingLayerHits() const { return *seedingLayers_; }
   bool empty() const { return regions_.empty(); }
   size_t regionSize() const { return regions_.size(); }
   size_t tripletsSize() const { return hitTriplets_.size(); }
@@ -299,11 +285,12 @@ public:
   std::vector<OrderedHitTriplet>::const_iterator tripletsEnd() const { return hitTriplets_.end(); }
 
 private:
-  const SeedingLayerSetsHits *seedingLayers_;    /// Pointer to SeedingLayerSetsHits (owned elsewhere)
+  const SeedingLayerSetsHits *seedingLayers_;  /// Pointer to SeedingLayerSetsHits (owned elsewhere)
 
-  std::vector<RegionIndex> regions_;             /// Container of regions, each element has indices pointing to layerTriplets_
-  std::vector<PLayerHitTriplets> layerTriplets_; /// Container of layer triplets, each element has indices pointing to hitTriplets_
-  std::vector<OrderedHitTriplet> hitTriplets_;   /// Container of hit triplets for all layer triplets and regions
+  std::vector<RegionIndex> regions_;  /// Container of regions, each element has indices pointing to layerTriplets_
+  std::vector<PLayerHitTriplets>
+      layerTriplets_;  /// Container of layer triplets, each element has indices pointing to hitTriplets_
+  std::vector<OrderedHitTriplet> hitTriplets_;  /// Container of hit triplets for all layer triplets and regions
 };
 
 #endif

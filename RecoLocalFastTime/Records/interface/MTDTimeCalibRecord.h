@@ -8,7 +8,9 @@
 
 #include "boost/mpl/vector.hpp"
 
-class  MTDTimeCalibRecord: public edm::eventsetup::DependentRecordImplementation<MTDTimeCalibRecord,
-  boost::mpl::vector<MTDDigiGeometryRecord,MTDTopologyRcd> > {};
+class MTDTimeCalibRecord
+    : public edm::eventsetup::DependentRecordImplementation<MTDTimeCalibRecord,
+                                                            boost::mpl::vector<MTDDigiGeometryRecord, MTDTopologyRcd> > {
+};
 
-#endif 
+#endif

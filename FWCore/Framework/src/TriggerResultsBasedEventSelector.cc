@@ -28,18 +28,16 @@ namespace {
   // optional), return a parsed_path_spec_t containing "a" and "b".
 
   typedef std::pair<std::string, std::string> parsed_path_spec_t;
-  void parse_path_spec(std::string const& path_spec,
-                       parsed_path_spec_t& output) {
+  void parse_path_spec(std::string const& path_spec, parsed_path_spec_t& output) {
     std::string trimmed_path_spec(path_spec);
     remove_whitespace(trimmed_path_spec);
 
     std::string::size_type colon = trimmed_path_spec.find(":");
-    if(colon == std::string::npos) {
+    if (colon == std::string::npos) {
       output.first = trimmed_path_spec;
     } else {
-      output.first  = trimmed_path_spec.substr(0, colon);
-      output.second = trimmed_path_spec.substr(colon + 1,
-                                               trimmed_path_spec.size());
+      output.first = trimmed_path_spec.substr(0, colon);
+      output.second = trimmed_path_spec.substr(colon + 1, trimmed_path_spec.size());
     }
   }
 
@@ -52,34 +50,32 @@ namespace {
     paths.push_back("eee:  p4  ");
 
     std::vector<parsed_path_spec_t> parsed(paths.size());
-    for(size_t i = 0; i < paths.size(); ++i) {
+    for (size_t i = 0; i < paths.size(); ++i) {
       parse_path_spec(paths[i], parsed[i]);
     }
 
-    assert(parsed[0].first  == "a");
+    assert(parsed[0].first == "a");
     assert(parsed[0].second == "p1");
-    assert(parsed[1].first  == "b");
+    assert(parsed[1].first == "b");
     assert(parsed[1].second == "p2");
-    assert(parsed[2].first  == "c");
-    assert(parsed[2].second == "");
-    assert(parsed[3].first  == "ddd");
+    assert(parsed[2].first == "c");
+    assert(parsed[2].second.empty());
+    assert(parsed[3].first == "ddd");
     assert(parsed[3].second == "p3");
-    assert(parsed[4].first  == "eee");
+    assert(parsed[4].first == "eee");
     assert(parsed[4].second == "p4");
   }
-}
+}  // namespace
 
-namespace edm
-{
+namespace edm {
   namespace test {
     void run_all_output_module_tests() {
       test_remove_whitespace();
       test_parse_path_spec();
     }
-  }
+  }  // namespace test
 
-  namespace detail
-  {
+  namespace detail {
 
     bool configureEventSelector(edm::ParameterSet const& iPSet,
                                 std::string const& iProcessName,
@@ -90,15 +86,14 @@ namespace edm
       // all events, or one which contains a vstrig 'SelectEvents' that
       // is empty, we are to write all events. We have no need for any
       // EventSelectors.
-      if(iPSet.empty()) {
+      if (iPSet.empty()) {
         oSelector.setupDefault();
         return true;
       }
 
-      std::vector<std::string> path_specs =
-      iPSet.getParameter<std::vector<std::string> >("SelectEvents");
+      std::vector<std::string> path_specs = iPSet.getParameter<std::vector<std::string> >("SelectEvents");
 
-      if(path_specs.empty()) {
+      if (path_specs.empty()) {
         oSelector.setupDefault();
         return true;
       }
@@ -106,7 +101,7 @@ namespace edm
       // If we get here, we have the possibility of having to deal with
       // path_specs that look at more than one process.
       std::vector<parsed_path_spec_t> parsed_paths(path_specs.size());
-      for(size_t i = 0; i < path_specs.size(); ++i) {
+      for (size_t i = 0; i < path_specs.size(); ++i) {
         parse_path_spec(path_specs[i], parsed_paths[i]);
       }
       oSelector.setup(parsed_paths, iAllTriggerNames, iProcessName, std::move(iC));
@@ -116,30 +111,22 @@ namespace edm
 
     // typedef detail::NamedEventSelector NES;
 
-    TriggerResultsBasedEventSelector::TriggerResultsBasedEventSelector() :
-      selectors_(),
-      wantAllEvents_(false)
-    { }
+    TriggerResultsBasedEventSelector::TriggerResultsBasedEventSelector() : selectors_(), wantAllEvents_(false) {}
 
-    void
-    TriggerResultsBasedEventSelector::setupDefault() {
-      wantAllEvents_ = true;
-    }
+    void TriggerResultsBasedEventSelector::setupDefault() { wantAllEvents_ = true; }
 
-    void
-    TriggerResultsBasedEventSelector::setup(std::vector<parsed_path_spec_t> const& path_specs,
-                          std::vector<std::string> const& triggernames,
-                          std::string const& process_name,
-                          ConsumesCollector&& iC) {
+    void TriggerResultsBasedEventSelector::setup(std::vector<parsed_path_spec_t> const& path_specs,
+                                                 std::vector<std::string> const& triggernames,
+                                                 std::string const& process_name,
+                                                 ConsumesCollector&& iC) {
       // paths_for_process maps each PROCESS names to a sequence of
       // PATH names
       std::map<std::string, std::vector<std::string> > paths_for_process;
       for (auto const& path_spec : path_specs) {
         // Default to current process if none specified
-        if (path_spec.second == "") {
+        if (path_spec.second.empty()) {
           paths_for_process[process_name].push_back(path_spec.first);
-        }
-        else {
+        } else {
           paths_for_process[path_spec.second].push_back(path_spec.first);
         }
       }
@@ -158,27 +145,26 @@ namespace edm
       }
     }
 
-    bool
-    TriggerResultsBasedEventSelector::wantEvent(EventForOutput const& ev) {
-      if(wantAllEvents_) {
+    bool TriggerResultsBasedEventSelector::wantEvent(EventForOutput const& ev) {
+      if (wantAllEvents_) {
         return true;
       }
-      for(auto& selector : selectors_) {
+      for (auto& selector : selectors_) {
         Handle<TriggerResults> handle;
         ev.getByToken<TriggerResults>(selector.token(), handle);
         bool match = selector.match(*handle);
-        if(match) {
+        if (match) {
           return true;
         }
       }
       return false;
     }
 
-    ParameterSetID
-    registerProperSelectionInfo(edm::ParameterSet const& iInitial,
-                                std::string const& iLabel,
-                                std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                                bool anyProductProduced) {
+    ParameterSetID registerProperSelectionInfo(
+        edm::ParameterSet const& iInitial,
+        std::string const& iLabel,
+        std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
+        bool anyProductProduced) {
       ParameterSet selectEventsInfo;
       selectEventsInfo.copyForModify(iInitial);
       selectEventsInfo.addParameter<bool>("InProcessHistory", anyProductProduced);
@@ -188,9 +174,10 @@ namespace edm
       // The label will be empty if and only if this is a SubProcess
       // SubProcess's do not appear on any end path
       if (!iLabel.empty()) {
-        std::map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator iter = outputModulePathPositions.find(iLabel);
+        std::map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator iter =
+            outputModulePathPositions.find(iLabel);
         assert(iter != outputModulePathPositions.end());
-        for(auto const& item : iter->second) {
+        for (auto const& item : iter->second) {
           endPaths.push_back(item.first);
           endPathPositions.push_back(item.second);
         }
@@ -205,5 +192,5 @@ namespace edm
       return selectEventsInfo.id();
     }
 
-  } // namespace detail
-} // namespace edm
+  }  // namespace detail
+}  // namespace edm

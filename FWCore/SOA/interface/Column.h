@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/SOA
 // Class  :     Column
-// 
+//
 /**\class Column Column.h "Column.h"
 
  Description: Column describes a column in a Table
@@ -50,38 +50,39 @@ SOA_DECLARE_COLUMN(Eta,double, "eta");
 
 // forward declarations
 namespace edm {
-namespace soa {
+  namespace soa {
 
-/**Helper class used to fill a column of a table
+    /**Helper class used to fill a column of a table
   in a 'non standard' way
 */
-template<typename COL, typename F>
-struct ColumnFillerHolder {
-  using Column_type = COL;
-  F m_f;
-};  
+    template <typename COL, typename F>
+    struct ColumnFillerHolder {
+      using Column_type = COL;
+      F m_f;
+    };
 
-template <typename T, typename INHERIT>
-struct Column
-{
-  using type = T;
-  
-  static constexpr const char* const& label() {
-    return INHERIT::kLabel;
+    template <typename T, typename INHERIT>
+    struct Column {
+      using type = T;
+
+      static constexpr const char* const& label() { return INHERIT::kLabel; }
+
+      template <typename F>
+      static ColumnFillerHolder<INHERIT, F> filler(F&& iF) {
+        return {iF};
+      }
+
+    private:
+      Column() = default;
+      Column(const Column&) = delete;  // stop default
+
+      const Column& operator=(const Column&) = delete;  // stop default
+    };
+
+  }  // namespace soa
+}  // namespace edm
+#define SOA_DECLARE_COLUMN(_ClassName_, _Type_, _String_)             \
+  struct _ClassName_ : public edm::soa::Column<_Type_, _ClassName_> { \
+    static constexpr const char* const kLabel = _String_;             \
   }
-  
-  template <typename F>
-  static ColumnFillerHolder<INHERIT,F> filler(F&& iF) { return {iF}; }
-  
- private:
-  Column() = default;
-  Column(const Column&) = delete; // stop default
-  
-  const Column& operator=(const Column&) = delete; // stop default
-};
-
-}
-}
-#define SOA_DECLARE_COLUMN(_ClassName_,_Type_,_String_) \
-  struct _ClassName_ : public edm::soa::Column<_Type_,_ClassName_> {static constexpr const char * const kLabel=_String_; }
 #endif

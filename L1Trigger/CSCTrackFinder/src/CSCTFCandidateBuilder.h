@@ -15,15 +15,13 @@
 
 #include "L1Trigger/CSCTrackFinder/interface/CSCTFMuonSorter.h"
 
-class CSCTFCandidateBuilder
-{
- public:
+class CSCTFCandidateBuilder {
+public:
   explicit CSCTFCandidateBuilder(const edm::ParameterSet&);
 
   void buildCandidates(const L1CSCTrackCollection*, std::vector<L1MuRegionalCand>*) const;
 
- private:
-  
+private:
   CSCTFMuonSorter m_muonsorter;
 };
 

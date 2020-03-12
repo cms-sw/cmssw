@@ -14,7 +14,7 @@
 
  */
 //
-// Original Author:  
+// Original Author:
 //         Created: Aug 2009
 
 #include <vector>
@@ -25,38 +25,36 @@ class TGPopupMenu;
 struct Event_t;
 
 class CSGActionSupervisor {
-
 public:
-   CSGActionSupervisor();
-   virtual ~CSGActionSupervisor();
+  CSGActionSupervisor();
+  virtual ~CSGActionSupervisor();
 
-   const std::vector<CSGAction*>& getListOfActions() const;
-   void addToActionMap(CSGAction *action);
+  const std::vector<CSGAction*>& getListOfActions() const;
+  void addToActionMap(CSGAction* action);
 
-   virtual void defaultAction();
+  virtual void defaultAction();
 
-   CSGAction* getAction(const std::string& name);
+  CSGAction* getAction(const std::string& name);
 
-   virtual void enableActions(bool enable = true);
+  virtual void enableActions(bool enable = true);
 
-   Bool_t activateMenuEntry(int entry);
-   Bool_t activateToolBarEntry(int entry);
-   void resizeMenu(TGPopupMenu *menu);
-   virtual void HandleMenu(Int_t id);
+  Bool_t activateMenuEntry(int entry);
+  Bool_t activateToolBarEntry(int entry);
+  void resizeMenu(TGPopupMenu* menu);
+  virtual void HandleMenu(Int_t id);
 
-   Long_t getToolTipDelay() const;
+  Long_t getToolTipDelay() const;
 
 protected:
-   std::vector<CSGAction*> m_actionList;
+  std::vector<CSGAction*> m_actionList;
 
 private:
-   CSGActionSupervisor(const CSGActionSupervisor&) = delete; // stop default
-   const CSGActionSupervisor& operator=(const CSGActionSupervisor&) = delete; // stop default
+  CSGActionSupervisor(const CSGActionSupervisor&) = delete;                   // stop default
+  const CSGActionSupervisor& operator=(const CSGActionSupervisor&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   Long_t m_tooltipDelay;
-
+  Long_t m_tooltipDelay;
 };
 
 #endif

@@ -28,27 +28,23 @@
 
 // PhotonCoreProducer inherits from EDProducer, so it can be a module:
 class PhotonCoreProducer : public edm::stream::EDProducer<> {
-
- public:
-
-  PhotonCoreProducer (const edm::ParameterSet& ps);
+public:
+  PhotonCoreProducer(const edm::ParameterSet& ps);
   ~PhotonCoreProducer() override;
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
- private:
-
+private:
   void fillPhotonCollection(edm::Event& evt,
-			    edm::EventSetup const & es,
-                            const edm::Handle<reco::SuperClusterCollection> & scHandle,
-			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
-			    const edm::Handle<reco::ElectronSeedCollection> & pixelSeeds,
-			    reco::PhotonCoreCollection & outputCollection,
-			    int& iSC);
+                            edm::EventSetup const& es,
+                            const edm::Handle<reco::SuperClusterCollection>& scHandle,
+                            const edm::Handle<reco::ConversionCollection>& conversionHandle,
+                            const edm::Handle<reco::ElectronSeedCollection>& pixelSeeds,
+                            reco::PhotonCoreCollection& outputCollection,
+                            int& iSC);
 
-  reco::ConversionRef solveAmbiguity( const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& sc);
-
-
+  reco::ConversionRef solveAmbiguity(const edm::Handle<reco::ConversionCollection>& conversionHandle,
+                                     reco::SuperClusterRef& sc);
 
   std::string PhotonCoreCollection_;
   edm::EDGetTokenT<reco::SuperClusterCollection> scHybridBarrelProducer_;
@@ -61,6 +57,5 @@ class PhotonCoreProducer : public edm::stream::EDProducer<> {
   edm::ParameterSet conf_;
   bool validPixelSeeds_;
   bool risolveAmbiguity_;
-
 };
 #endif

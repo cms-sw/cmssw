@@ -5,9 +5,9 @@
 # with command line options: GeneratorInterface/Herwig7Interface/python/Herwig7_Dummy_ConfigFile_cff.py --fileout file:Herwigpp_ConfigFile_GEN_SIM.root --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions auto:run2_mc --beamspot Realistic25ns13TeVEarly2017Collision --step GEN,SIM --nThreads 8 --geometry DB:Extended --era Run2_2017 --python_filename Herwig7Test_ConfigFile_GEN_SIM.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n 100
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('SIM',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('SIM',Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

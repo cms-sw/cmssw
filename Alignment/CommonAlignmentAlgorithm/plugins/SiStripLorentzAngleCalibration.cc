@@ -50,8 +50,7 @@
 #include <memory>
 #include <functional>
 
-class SiStripLorentzAngleCalibration : public IntegratedCalibrationBase
-{
+class SiStripLorentzAngleCalibration : public IntegratedCalibrationBase {
 public:
   /// Constructor
   explicit SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg);
@@ -87,12 +86,10 @@ public:
   double getParameterError(unsigned int index) const override;
 
   // /// Call at beginning of job:
-  void beginOfJob(AlignableTracker *tracker,
-                  AlignableMuon *muon,
-                  AlignableExtras *extras) override;
+  void beginOfJob(AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras) override;
 
   /// Call at beginning of run:
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
   /// Called at end of a the job of the AlignmentProducer.
   /// Write out determined parameters.
@@ -102,7 +99,7 @@ private:
   /// Input LorentzAngle values:
   /// - either from EventSetup of first call to derivatives(..)
   /// - or created from files of passed by configuration (i.e. from parallel processing)
-  const SiStripLorentzAngle* getLorentzAnglesInput(const align::RunNumber& = 0);
+  const SiStripLorentzAngle *getLorentzAnglesInput(const align::RunNumber & = 0);
   /// in non-peak mode the effective thickness is reduced...
   double effectiveThickness(const GeomDet *det, int16_t mode, const edm::EventSetup &setup) const;
 
@@ -111,7 +108,8 @@ private:
   double getParameterForDetId(unsigned int detId, edm::RunNumber_t run) const;
 
   void writeTree(const SiStripLorentzAngle *lorentzAngle,
-                 const std::map<unsigned int,TreeStruct> &treeInfo, const char *treeName) const;
+                 const std::map<unsigned int, TreeStruct> &treeInfo,
+                 const char *treeName) const;
   SiStripLorentzAngle createFromTree(const char *fileName, const char *treeName) const;
 
   const std::string readoutModeName_;
@@ -124,7 +122,7 @@ private:
   edm::ESWatcher<SiStripLorentzAngleRcd> watchLorentzAngleRcd_;
 
   std::map<align::RunNumber, SiStripLorentzAngle> cachedLorentzAngleInputs_;
-  SiStripLorentzAngle* siStripLorentzAngleInput_{nullptr};
+  SiStripLorentzAngle *siStripLorentzAngleInput_{nullptr};
   align::RunNumber currentIOV_{0};
 
   std::vector<double> parameters_;
@@ -139,15 +137,13 @@ private:
 //======================================================================
 
 SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg)
-  : IntegratedCalibrationBase(cfg),
-    readoutModeName_(cfg.getParameter<std::string>("readoutMode")),
-    saveToDB_(cfg.getParameter<bool>("saveToDB")),
-    recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
-    outFileName_(cfg.getParameter<std::string>("treeFile")),
-    mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
-    moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups"))
-{
-
+    : IntegratedCalibrationBase(cfg),
+      readoutModeName_(cfg.getParameter<std::string>("readoutMode")),
+      saveToDB_(cfg.getParameter<bool>("saveToDB")),
+      recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
+      outFileName_(cfg.getParameter<std::string>("treeFile")),
+      mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
+      moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups")) {
   // SiStripLatency::singleReadOutMode() returns
   // 1: all in peak, 0: all in deco, -1: mixed state
   // (in principle one could treat even mixed state APV by APV...)
@@ -156,33 +152,27 @@ SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::Parame
   } else if (readoutModeName_ == "deconvolution") {
     readoutMode_ = kDeconvolutionMode;
   } else {
-    throw cms::Exception("BadConfig")
-      << "SiStripLorentzAngleCalibration:\n" << "Unknown mode '"
-      << readoutModeName_ << "', should be 'peak' or 'deconvolution' .\n";
+    throw cms::Exception("BadConfig") << "SiStripLorentzAngleCalibration:\n"
+                                      << "Unknown mode '" << readoutModeName_
+                                      << "', should be 'peak' or 'deconvolution' .\n";
   }
-
 }
 
 //======================================================================
-unsigned int SiStripLorentzAngleCalibration::numParameters() const
-{
-  return parameters_.size();
-}
+unsigned int SiStripLorentzAngleCalibration::numParameters() const { return parameters_.size(); }
 
 //======================================================================
-void
-SiStripLorentzAngleCalibration::beginRun(const edm::Run& run,
-                                         const edm::EventSetup& setup) {
-
+void SiStripLorentzAngleCalibration::beginRun(const edm::Run &run, const edm::EventSetup &setup) {
   // no action needed if the LA record didn't change
-  if (!(watchLorentzAngleRcd_.check(setup))) return;
+  if (!(watchLorentzAngleRcd_.check(setup)))
+    return;
 
   const auto runNumber = run.run();
   auto firstRun = cond::timeTypeSpecs[cond::runnumber].beginValue;
 
   // avoid infinite loop due to wrap-around of unsigned variable 'i' including
   // arrow from i to zero and a nice smiley ;)
-  for (unsigned int i = moduleGroupSelector_->numIovs(); i-->0 ;) {
+  for (unsigned int i = moduleGroupSelector_->numIovs(); i-- > 0;) {
     const auto firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(i);
     if (runNumber >= firstRunOfIOV) {
       firstRun = firstRunOfIOV;
@@ -191,24 +181,22 @@ SiStripLorentzAngleCalibration::beginRun(const edm::Run& run,
   }
 
   edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
-  const auto& lorentzAngleRcd = setup.get<SiStripLorentzAngleRcd>();
+  const auto &lorentzAngleRcd = setup.get<SiStripLorentzAngleRcd>();
   lorentzAngleRcd.get(readoutModeName_, lorentzAngleHandle);
   if (cachedLorentzAngleInputs_.find(firstRun) == cachedLorentzAngleInputs_.end()) {
     cachedLorentzAngleInputs_.emplace(firstRun, SiStripLorentzAngle(*lorentzAngleHandle));
   } else {
     if (lorentzAngleRcd.validityInterval().first().eventID().run() > firstRun &&
-        lorentzAngleHandle->getLorentzAngles()  // only bad if non-identical values
-        != cachedLorentzAngleInputs_[firstRun].getLorentzAngles()) { // (comparing maps)
+        lorentzAngleHandle->getLorentzAngles()                            // only bad if non-identical values
+            != cachedLorentzAngleInputs_[firstRun].getLorentzAngles()) {  // (comparing maps)
       // Maps are containers sorted by key, but comparison problems may arise from
       // 'floating point comparison' problems (FIXME?)
-      throw cms::Exception("BadInput")
-        << "Trying to cache SiStripLorentzAngle payload for a run (" << runNumber
-        << ") in an IOV (" << firstRun << ") that was already cached.\n"
-        << "The following record in your input database tag has an IOV "
-        << "boundary that does not match your IOV definition:\n"
-        << " - SiStripLorentzAngleRcd '" << lorentzAngleRcd.key().name()
-        << "' (since "
-        << lorentzAngleRcd.validityInterval().first().eventID().run() << ")\n";
+      throw cms::Exception("BadInput") << "Trying to cache SiStripLorentzAngle payload for a run (" << runNumber
+                                       << ") in an IOV (" << firstRun << ") that was already cached.\n"
+                                       << "The following record in your input database tag has an IOV "
+                                       << "boundary that does not match your IOV definition:\n"
+                                       << " - SiStripLorentzAngleRcd '" << lorentzAngleRcd.key().name() << "' (since "
+                                       << lorentzAngleRcd.validityInterval().first().eventID().run() << ")\n";
     }
   }
 
@@ -217,24 +205,22 @@ SiStripLorentzAngleCalibration::beginRun(const edm::Run& run,
 }
 
 //======================================================================
-unsigned int
-SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDerivInds,
-                                            const TransientTrackingRecHit &hit,
-                                            const TrajectoryStateOnSurface &tsos,
-                                            const edm::EventSetup &setup,
-                                            const EventInfo &eventInfo) const
-{
+unsigned int SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDerivInds,
+                                                         const TransientTrackingRecHit &hit,
+                                                         const TrajectoryStateOnSurface &tsos,
+                                                         const edm::EventSetup &setup,
+                                                         const EventInfo &eventInfo) const {
   outDerivInds.clear();
 
   edm::ESHandle<SiStripLatency> latency;
   setup.get<SiStripLatencyRcd>().get(latency);
   const int16_t mode = latency->singleReadOutMode();
   if (mode == readoutMode_) {
-    if (hit.det()) { // otherwise 'constraint hit' or whatever
+    if (hit.det()) {  // otherwise 'constraint hit' or whatever
 
-      const int index = moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(),
-                                                                         eventInfo.eventId().run());
-      if (index >= 0) { // otherwise not treated
+      const int index =
+          moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(), eventInfo.eventId().run());
+      if (index >= 0) {  // otherwise not treated
         edm::ESHandle<MagneticField> magneticField;
         setup.get<IdealMagneticFieldRecord>().get(magneticField);
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
@@ -249,10 +235,10 @@ SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
         //      drift.x = -mobility * by * thickness (full drift from backside)
         //      So '-' already comes from that, not from mobility being part of
         //      track model...
-	// GM: sign convention is the same as for pixel LA, i.e. adopt it here, too
-        const double xDerivative = bFieldLocal.y() * dZ * -0.5; // parameter is mobility!
-        const double yDerivative = bFieldLocal.x() * dZ * 0.5; // parameter is mobility!
-        if (xDerivative || yDerivative) { // If field is zero, this is zero: do not return it
+        // GM: sign convention is the same as for pixel LA, i.e. adopt it here, too
+        const double xDerivative = bFieldLocal.y() * dZ * -0.5;  // parameter is mobility!
+        const double yDerivative = bFieldLocal.x() * dZ * 0.5;   // parameter is mobility!
+        if (xDerivative || yDerivative) {                        // If field is zero, this is zero: do not return it
           const Values derivs{xDerivative, yDerivative};
           outDerivInds.push_back(ValuesIndexPair(derivs, index));
         }
@@ -264,16 +250,15 @@ SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
   } else if (mode != kDeconvolutionMode && mode != kPeakMode) {
     // warn only if unknown/mixed mode
     edm::LogWarning("Alignment") << "@SUB=SiStripLorentzAngleCalibration::derivatives2"
-                                 << "Readout mode is " << mode << ", but looking for "
-                                 << readoutMode_ << " (" << readoutModeName_ << ").";
+                                 << "Readout mode is " << mode << ", but looking for " << readoutMode_ << " ("
+                                 << readoutModeName_ << ").";
   }
 
   return outDerivInds.size();
 }
 
 //======================================================================
-bool SiStripLorentzAngleCalibration::setParameter(unsigned int index, double value)
-{
+bool SiStripLorentzAngleCalibration::setParameter(unsigned int index, double value) {
   if (index >= parameters_.size()) {
     return false;
   } else {
@@ -283,8 +268,7 @@ bool SiStripLorentzAngleCalibration::setParameter(unsigned int index, double val
 }
 
 //======================================================================
-bool SiStripLorentzAngleCalibration::setParameterError(unsigned int index, double error)
-{
+bool SiStripLorentzAngleCalibration::setParameterError(unsigned int index, double error) {
   if (index >= paramUncertainties_.size()) {
     return false;
   } else {
@@ -294,36 +278,31 @@ bool SiStripLorentzAngleCalibration::setParameterError(unsigned int index, doubl
 }
 
 //======================================================================
-double SiStripLorentzAngleCalibration::getParameter(unsigned int index) const
-{
+double SiStripLorentzAngleCalibration::getParameter(unsigned int index) const {
   return (index >= parameters_.size() ? 0. : parameters_[index]);
 }
 
 //======================================================================
-double SiStripLorentzAngleCalibration::getParameterError(unsigned int index) const
-{
+double SiStripLorentzAngleCalibration::getParameterError(unsigned int index) const {
   return (index >= paramUncertainties_.size() ? 0. : paramUncertainties_[index]);
 }
 
 //======================================================================
 void SiStripLorentzAngleCalibration::beginOfJob(AlignableTracker *aliTracker,
                                                 AlignableMuon * /*aliMuon*/,
-                                                AlignableExtras * /*aliExtras*/)
-{
+                                                AlignableExtras * /*aliExtras*/) {
   //specify the sub-detectors for which the LA is determined
-  const std::vector<int> sdets = {SiStripDetId::TIB, SiStripDetId::TOB,
-                                  SiStripDetId::TID, SiStripDetId::TEC};
-  moduleGroupSelector_ =
-    std::make_unique<TkModuleGroupSelector>(aliTracker, moduleGroupSelCfg_, sdets);
+  const std::vector<int> sdets = {SiStripDetId::TIB, SiStripDetId::TOB, SiStripDetId::TID, SiStripDetId::TEC};
+  moduleGroupSelector_ = std::make_unique<TkModuleGroupSelector>(aliTracker, moduleGroupSelCfg_, sdets);
 
   parameters_.resize(moduleGroupSelector_->getNumberOfParameters(), 0.);
   paramUncertainties_.resize(moduleGroupSelector_->getNumberOfParameters(), 0.);
 
-  edm::LogInfo("Alignment") << "@SUB=SiStripLorentzAngleCalibration" << "Created with name "
-                            << this->name() << " for readout mode '" << readoutModeName_
-                            << "',\n" << this->numParameters() << " parameters to be determined."
-                            << "\nsaveToDB = " << saveToDB_
-                            << "\n outFileName = " << outFileName_
+  edm::LogInfo("Alignment") << "@SUB=SiStripLorentzAngleCalibration"
+                            << "Created with name " << this->name() << " for readout mode '" << readoutModeName_
+                            << "',\n"
+                            << this->numParameters() << " parameters to be determined."
+                            << "\nsaveToDB = " << saveToDB_ << "\n outFileName = " << outFileName_
                             << "\n N(merge files) = " << mergeFileNames_.size()
                             << "\n number of IOVs = " << moduleGroupSelector_->numIovs();
 
@@ -333,10 +312,8 @@ void SiStripLorentzAngleCalibration::beginOfJob(AlignableTracker *aliTracker,
   }
 }
 
-
 //======================================================================
-void SiStripLorentzAngleCalibration::endOfJob()
-{
+void SiStripLorentzAngleCalibration::endOfJob() {
   // loginfo output
   std::ostringstream out;
   out << "Parameter results for readout mode '" << readoutModeName_ << "'\n";
@@ -345,38 +322,38 @@ void SiStripLorentzAngleCalibration::endOfJob()
   }
   edm::LogInfo("Alignment") << "@SUB=SiStripLorentzAngleCalibration::endOfJob" << out.str();
 
-  std::map<unsigned int, TreeStruct> treeInfo; // map of TreeStruct for each detId
+  std::map<unsigned int, TreeStruct> treeInfo;  // map of TreeStruct for each detId
 
   // now write 'input' tree
   const std::string treeName{this->name() + '_' + readoutModeName_ + '_'};
-  std::vector<const SiStripLorentzAngle*> inputs{};
+  std::vector<const SiStripLorentzAngle *> inputs{};
   inputs.reserve(moduleGroupSelector_->numIovs());
   for (unsigned int iIOV = 0; iIOV < moduleGroupSelector_->numIovs(); ++iIOV) {
     const auto firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(iIOV);
-    inputs.push_back(this->getLorentzAnglesInput(firstRunOfIOV)); // never NULL
-    this->writeTree(inputs.back(), treeInfo,
-                    (treeName + "input_" + std::to_string(firstRunOfIOV)).c_str()); // empty treeInfo for input...
+    inputs.push_back(this->getLorentzAnglesInput(firstRunOfIOV));  // never NULL
+    this->writeTree(inputs.back(),
+                    treeInfo,
+                    (treeName + "input_" + std::to_string(firstRunOfIOV)).c_str());  // empty treeInfo for input...
 
     if (inputs.back()->getLorentzAngles().empty()) {
       edm::LogError("Alignment") << "@SUB=SiStripLorentzAngleCalibration::endOfJob"
-                                 << "Input Lorentz angle map is empty ('"
-                                 << readoutModeName_ << "' mode), skip writing output!";
+                                 << "Input Lorentz angle map is empty ('" << readoutModeName_
+                                 << "' mode), skip writing output!";
       return;
     }
   }
 
-  const unsigned int nonZeroParamsOrErrors =   // Any determined value?
-    count_if (parameters_.begin(), parameters_.end(), [](auto c){return c!=0.;})
-    + count_if(paramUncertainties_.begin(), paramUncertainties_.end(),
-               [](auto c){return c!=0.;});
+  const unsigned int nonZeroParamsOrErrors =  // Any determined value?
+      count_if(parameters_.begin(), parameters_.end(), [](auto c) { return c != 0.; }) +
+      count_if(paramUncertainties_.begin(), paramUncertainties_.end(), [](auto c) { return c != 0.; });
 
   for (unsigned int iIOV = 0; iIOV < moduleGroupSelector_->numIovs(); ++iIOV) {
     auto firstRunOfIOV = static_cast<cond::Time_t>(moduleGroupSelector_->firstRunOfIOV(iIOV));
     SiStripLorentzAngle output{};
     // Loop on map of values from input and add (possible) parameter results
-    for (const auto& iterIdValue: inputs[iIOV]->getLorentzAngles()) {
+    for (const auto &iterIdValue : inputs[iIOV]->getLorentzAngles()) {
       // type of 'iterIdValue' is pair<unsigned int, float>
-      const auto detId = iterIdValue.first; // key of map is DetId
+      const auto detId = iterIdValue.first;  // key of map is DetId
       // Some code one could use to miscalibrate wrt input:
       // double param = 0.;
       // const DetId id(detId);
@@ -389,15 +366,15 @@ void SiStripLorentzAngleCalibration::endOfJob()
       // put result in output, i.e. sum of input and determined parameter:
       auto value = iterIdValue.second + static_cast<float>(param);
       output.putLorentzAngle(detId, value);
-      const int paramIndex = moduleGroupSelector_->getParameterIndexFromDetId(detId,firstRunOfIOV);
+      const int paramIndex = moduleGroupSelector_->getParameterIndexFromDetId(detId, firstRunOfIOV);
       treeInfo[detId] = TreeStruct(param, this->getParameterError(paramIndex), paramIndex);
     }
 
-    if (saveToDB_ || nonZeroParamsOrErrors != 0) { // Skip writing mille jobs...
+    if (saveToDB_ || nonZeroParamsOrErrors != 0) {  // Skip writing mille jobs...
       this->writeTree(&output, treeInfo, (treeName + Form("result_%lld", firstRunOfIOV)).c_str());
     }
 
-    if (saveToDB_) { // If requested, write out to DB
+    if (saveToDB_) {  // If requested, write out to DB
       edm::Service<cond::service::PoolDBOutputService> dbService;
       if (dbService.isAvailable()) {
         dbService->writeOne(&output, firstRunOfIOV, recordNameDBwrite_);
@@ -406,22 +383,22 @@ void SiStripLorentzAngleCalibration::endOfJob()
                                    << "No PoolDBOutputService available, but saveToDB true!";
       }
     }
-  } // end loop on IOVs
+  }  // end loop on IOVs
 }
 
 //======================================================================
 double SiStripLorentzAngleCalibration::effectiveThickness(const GeomDet *det,
                                                           int16_t mode,
-                                                          const edm::EventSetup &setup) const
-{
-  if (!det) return 0.;
-  double dZ = det->surface().bounds().thickness(); // it is a float only...
+                                                          const edm::EventSetup &setup) const {
+  if (!det)
+    return 0.;
+  double dZ = det->surface().bounds().thickness();  // it is a float only...
   const SiStripDetId id(det->geographicalId());
   edm::ESHandle<SiStripBackPlaneCorrection> backPlaneHandle;
   // FIXME: which one? DepRcd->get(handle) or Rcd->get(readoutModeName_, handle)??
   // setup.get<SiStripBackPlaneCorrectionDepRcd>().get(backPlaneHandle); // get correct mode
   setup.get<SiStripBackPlaneCorrectionRcd>().get(readoutModeName_, backPlaneHandle);
-  const double bpCor = backPlaneHandle->getBackPlaneCorrection(id); // it's a float...
+  const double bpCor = backPlaneHandle->getBackPlaneCorrection(id);  // it's a float...
   //  std::cout << "bpCor " << bpCor << " in subdet " << id.subdetId() << std::endl;
   dZ *= (1. - bpCor);
 
@@ -429,17 +406,14 @@ double SiStripLorentzAngleCalibration::effectiveThickness(const GeomDet *det,
 }
 
 //======================================================================
-const SiStripLorentzAngle*
-SiStripLorentzAngleCalibration::getLorentzAnglesInput(const align::RunNumber& run)
-{
-  const auto& resolvedRun = run > 0 ? run : currentIOV_;
+const SiStripLorentzAngle *SiStripLorentzAngleCalibration::getLorentzAnglesInput(const align::RunNumber &run) {
+  const auto &resolvedRun = run > 0 ? run : currentIOV_;
   // For parallel processing in Millepede II, create SiStripLorentzAngle
   // from info stored in files of parallel jobs and check that they are identical.
   // If this job has run on events, still check that LA is identical to the ones
   // from mergeFileNames_.
-  const std::string treeName{this->name()+"_"+readoutModeName_+"_input_"+
-                             std::to_string(resolvedRun)};
-  for (const auto& iFile: mergeFileNames_) {
+  const std::string treeName{this->name() + "_" + readoutModeName_ + "_input_" + std::to_string(resolvedRun)};
+  for (const auto &iFile : mergeFileNames_) {
     auto la = this->createFromTree(iFile.c_str(), treeName.c_str());
     // siStripLorentzAngleInput_ could be non-null from previous file of this loop
     // or from checkLorentzAngleInput(..) when running on data in this job as well
@@ -449,18 +423,16 @@ SiStripLorentzAngleCalibration::getLorentzAnglesInput(const align::RunNumber& ru
       currentIOV_ = resolvedRun;
     } else {
       // FIXME: about comparison of maps see comments in checkLorentzAngleInput
-      if (!la.getLorentzAngles().empty() && // single job might not have got events
+      if (!la.getLorentzAngles().empty() &&  // single job might not have got events
           la.getLorentzAngles() != siStripLorentzAngleInput_->getLorentzAngles()) {
         // Throw exception instead of error?
         edm::LogError("NoInput") << "@SUB=SiStripLorentzAngleCalibration::getLorentzAnglesInput"
-                                 << "Different input values from tree " << treeName
-                                 << " in file " << iFile << ".";
-
+                                 << "Different input values from tree " << treeName << " in file " << iFile << ".";
       }
     }
   }
 
-  if (!siStripLorentzAngleInput_) { // no files nor ran on events
+  if (!siStripLorentzAngleInput_) {  // no files nor ran on events
     // [] operator default-constructs an empty SiStripLorentzAngle object in place:
     siStripLorentzAngleInput_ = &(cachedLorentzAngleInputs_[resolvedRun]);
     currentIOV_ = resolvedRun;
@@ -475,9 +447,7 @@ SiStripLorentzAngleCalibration::getLorentzAnglesInput(const align::RunNumber& ru
 }
 
 //======================================================================
-double SiStripLorentzAngleCalibration::getParameterForDetId(unsigned int detId,
-                                                            edm::RunNumber_t run) const
-{
+double SiStripLorentzAngleCalibration::getParameterForDetId(unsigned int detId, edm::RunNumber_t run) const {
   const int index = moduleGroupSelector_->getParameterIndexFromDetId(detId, run);
 
   return (index < 0 ? 0. : parameters_[index]);
@@ -486,11 +456,11 @@ double SiStripLorentzAngleCalibration::getParameterForDetId(unsigned int detId,
 //======================================================================
 void SiStripLorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorentzAngle,
                                                const std::map<unsigned int, TreeStruct> &treeInfo,
-                                               const char *treeName) const
-{
-  if (!lorentzAngle) return;
+                                               const char *treeName) const {
+  if (!lorentzAngle)
+    return;
 
-  TFile* file = TFile::Open(outFileName_.c_str(), "UPDATE");
+  TFile *file = TFile::Open(outFileName_.c_str(), "UPDATE");
   if (!file) {
     edm::LogError("BadConfig") << "@SUB=SiStripLorentzAngleCalibration::writeTree"
                                << "Could not open file '" << outFileName_ << "'.";
@@ -506,15 +476,16 @@ void SiStripLorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorent
   tree->Branch("treeStruct", &treeStruct, TreeStruct::LeafList());
 
   for (auto iterIdValue = lorentzAngle->getLorentzAngles().begin();
-       iterIdValue != lorentzAngle->getLorentzAngles().end(); ++iterIdValue) {
+       iterIdValue != lorentzAngle->getLorentzAngles().end();
+       ++iterIdValue) {
     // type of (*iterIdValue) is pair<unsigned int, float>
-    id = iterIdValue->first; // key of map is DetId
+    id = iterIdValue->first;  // key of map is DetId
     value = iterIdValue->second;
     // type of (*treeStructIter) is pair<unsigned int, TreeStruct>
-    auto treeStructIter = treeInfo.find(id); // find info for this id
+    auto treeStructIter = treeInfo.find(id);  // find info for this id
     if (treeStructIter != treeInfo.end()) {
-      treeStruct = treeStructIter->second; // info from input map
-    } else { // if none found, fill at least parameter index (using 1st IOV...)
+      treeStruct = treeStructIter->second;  // info from input map
+    } else {                                // if none found, fill at least parameter index (using 1st IOV...)
       const cond::Time_t run1of1stIov = moduleGroupSelector_->firstRunOfIOV(0);
       const int ind = moduleGroupSelector_->getParameterIndexFromDetId(id, run1of1stIov);
       treeStruct = TreeStruct(ind);
@@ -522,24 +493,23 @@ void SiStripLorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorent
     tree->Fill();
   }
   tree->Write();
-  delete file; // tree vanishes with the file...
+  delete file;  // tree vanishes with the file...
 }
 
 //======================================================================
-SiStripLorentzAngle
-SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char *treeName) const
-{
+SiStripLorentzAngle SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char *treeName) const {
   // Check for file existence on your own to work around
   // https://hypernews.cern.ch/HyperNews/CMS/get/swDevelopment/2715.html:
-  TFile* file = nullptr;
-  FILE* testFile = fopen(fileName,"r");
+  TFile *file = nullptr;
+  FILE *testFile = fopen(fileName, "r");
   if (testFile) {
     fclose(testFile);
     file = TFile::Open(fileName, "READ");
-  } // else not existing, see error below
+  }  // else not existing, see error below
 
   TTree *tree = nullptr;
-  if (file) file->GetObject(treeName, tree);
+  if (file)
+    file->GetObject(treeName, tree);
 
   SiStripLorentzAngle result{};
   if (tree) {
@@ -553,16 +523,15 @@ SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char 
       tree->GetEntry(iEntry);
       result.putLorentzAngle(id, value);
     }
-  } else { // Warning only since could be parallel job on no events.
+  } else {  // Warning only since could be parallel job on no events.
     edm::LogWarning("Alignment") << "@SUB=SiStripLorentzAngleCalibration::createFromTree"
-                                 << "Could not get TTree '" << treeName << "' from file '"
-                                 << fileName << (file ? "'." : "' (file does not exist).");
+                                 << "Could not get TTree '" << treeName << "' from file '" << fileName
+                                 << (file ? "'." : "' (file does not exist).");
   }
 
-  delete file; // tree will vanish with file
+  delete file;  // tree will vanish with file
   return result;
 }
-
 
 //======================================================================
 //======================================================================
@@ -570,5 +539,4 @@ SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char 
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationPluginFactory.h"
 
-DEFINE_EDM_PLUGIN(IntegratedCalibrationPluginFactory,
-                  SiStripLorentzAngleCalibration, "SiStripLorentzAngleCalibration");
+DEFINE_EDM_PLUGIN(IntegratedCalibrationPluginFactory, SiStripLorentzAngleCalibration, "SiStripLorentzAngleCalibration");

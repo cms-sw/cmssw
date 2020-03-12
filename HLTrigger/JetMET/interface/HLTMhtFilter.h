@@ -17,30 +17,30 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 
-
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 // Class declaration
 class HLTMhtFilter : public HLTFilter {
-  public:
-    explicit HLTMhtFilter(const edm::ParameterSet & iConfig);
-    ~HLTMhtFilter() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    bool hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+public:
+  explicit HLTMhtFilter(const edm::ParameterSet& iConfig);
+  ~HLTMhtFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event& iEvent,
+                 const edm::EventSetup& iSetup,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-  private:
-    /// Minimum MHT requirements
-    std::vector<double> minMht_;
+private:
+  /// Minimum MHT requirements
+  std::vector<double> minMht_;
 
-    /// Input reco::MET collections to retrieve MHT
-    std::vector<edm::InputTag> mhtLabels_;
+  /// Input reco::MET collections to retrieve MHT
+  std::vector<edm::InputTag> mhtLabels_;
 
-    unsigned int nOrs_;  /// number of pairs of MHT
+  unsigned int nOrs_;  /// number of pairs of MHT
 
-    std::vector<edm::EDGetTokenT<reco::METCollection> > m_theMhtToken;
+  std::vector<edm::EDGetTokenT<reco::METCollection> > m_theMhtToken;
 };
 
 #endif  // HLTMhtFilter_h_
-

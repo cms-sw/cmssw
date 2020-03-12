@@ -1,6 +1,6 @@
 
-#include "SimG4Core/MagneticField/interface/LocalFieldManager.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimG4Core/MagneticField/interface/LocalFieldManager.h"
 
 #include "G4ChordFinder.hh"
 #include "G4Track.hh"
@@ -11,67 +11,54 @@
 
 using namespace sim;
 
-LocalFieldManager::LocalFieldManager(G4Field* commonField,
-                                     G4FieldManager* priFM,
-			             G4FieldManager* altFM)
-   : G4FieldManager(commonField,nullptr,false),
-     fPrimaryFM(priFM), fAlternativeFM(altFM),
-     fCurrentFM(nullptr),
-     fVerbosity(false)
-{
-   this->CopyValuesAndChordFinder(priFM);
-   fCurrentFM = priFM ;
+LocalFieldManager::LocalFieldManager(G4Field *commonField, G4FieldManager *priFM, G4FieldManager *altFM)
+    : G4FieldManager(commonField, nullptr, false),
+      fPrimaryFM(priFM),
+      fAlternativeFM(altFM),
+      fCurrentFM(nullptr),
+      fVerbosity(false) {
+  this->CopyValuesAndChordFinder(priFM);
+  fCurrentFM = priFM;
 }
 
-void LocalFieldManager::ConfigureForTrack(const G4Track* trk)
-{
+void LocalFieldManager::ConfigureForTrack(const G4Track *trk) {
+  int PID = trk->GetDynamicParticle()->GetDefinition()->GetPDGEncoding();
 
-   int PID = trk->GetDynamicParticle()->GetDefinition()->GetPDGEncoding();
-   
-   if ( std::abs(PID)!=13 ) // maybe also high energy pions ?... what else ?
-   {
-      if ( fCurrentFM != fAlternativeFM )
-      {
-         this->CopyValuesAndChordFinder(fAlternativeFM);
-	 fCurrentFM = fAlternativeFM;
-         if ( fVerbosity) print(trk);
-      }
-   }
-   else
-   {
-      if ( fCurrentFM != fPrimaryFM )
-      {
-         this->CopyValuesAndChordFinder(fPrimaryFM);
-	 fCurrentFM = fPrimaryFM;
-         if ( fVerbosity) print(trk);
-      }
-   }
+  if (std::abs(PID) != 13)  // maybe also high energy pions ?... what else ?
+  {
+    if (fCurrentFM != fAlternativeFM) {
+      this->CopyValuesAndChordFinder(fAlternativeFM);
+      fCurrentFM = fAlternativeFM;
+      if (fVerbosity)
+        print(trk);
+    }
+  } else {
+    if (fCurrentFM != fPrimaryFM) {
+      this->CopyValuesAndChordFinder(fPrimaryFM);
+      fCurrentFM = fPrimaryFM;
+      if (fVerbosity)
+        print(trk);
+    }
+  }
 }
 
-const G4FieldManager* LocalFieldManager::CopyValuesAndChordFinder(G4FieldManager * fm)
-{
+const G4FieldManager *LocalFieldManager::CopyValuesAndChordFinder(G4FieldManager *fm) {
+  SetDeltaIntersection(fm->GetDeltaIntersection());
+  SetDeltaOneStep(fm->GetDeltaOneStep());
+  G4ChordFinder *cf = fm->GetChordFinder();
+  cf->SetDeltaChord(cf->GetDeltaChord());
+  SetChordFinder(cf);
 
-    SetDeltaIntersection(fm->GetDeltaIntersection());
-    SetDeltaOneStep(fm->GetDeltaOneStep());
-    G4ChordFinder* cf = fm->GetChordFinder();
-    cf->SetDeltaChord(cf->GetDeltaChord());
-    SetChordFinder(cf);
-    
-    return fm;
-
+  return fm;
 }
 
-void LocalFieldManager::print(const G4Track* trk)
-{
-  std::string ss = (fCurrentFM==fAlternativeFM) 
-    ? "Alternative field manager with"
-    : "Global field manager with";
+void LocalFieldManager::print(const G4Track *trk) {
+  std::string ss = (fCurrentFM == fAlternativeFM) ? "Alternative field manager with" : "Global field manager with";
 
-  edm::LogVerbatim("SimG4CoreMagneticField") 
-    << ss << " DeltaIntersection= " << G4FieldManager::GetDeltaIntersection()
-    << ", DeltaOneStep= " << G4FieldManager::GetDeltaOneStep()
-    << ", DeltaChord= " << G4FieldManager::GetChordFinder()->GetDeltaChord()
-    << " for " << trk->GetDynamicParticle()->GetDefinition()->GetPDGEncoding()
-    << " with " << trk->GetKineticEnergy()/CLHEP::GeV << " GeV in "
-    << trk->GetVolume()->GetName();
+  edm::LogVerbatim("SimG4CoreMagneticField")
+      << ss << " DeltaIntersection= " << G4FieldManager::GetDeltaIntersection()
+      << ", DeltaOneStep= " << G4FieldManager::GetDeltaOneStep()
+      << ", DeltaChord= " << G4FieldManager::GetChordFinder()->GetDeltaChord() << " for "
+      << trk->GetDynamicParticle()->GetDefinition()->GetPDGEncoding() << " with "
+      << trk->GetKineticEnergy() / CLHEP::GeV << " GeV in " << trk->GetVolume()->GetName();
 }

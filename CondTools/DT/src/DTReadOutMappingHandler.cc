@@ -27,38 +27,34 @@
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTReadOutMappingHandler::DTReadOutMappingHandler( const edm::ParameterSet& ps ):
- dataTag(   ps.getParameter<std::string>  (  "tag" ) ),
- fileName(  ps.getParameter<std::string>  ( "file" ) ),
- runNumber( ps.getParameter<unsigned int> (  "run" ) ) {
-}
+DTReadOutMappingHandler::DTReadOutMappingHandler(const edm::ParameterSet& ps)
+    : dataTag(ps.getParameter<std::string>("tag")),
+      fileName(ps.getParameter<std::string>("file")),
+      runNumber(ps.getParameter<unsigned int>("run")) {}
 
 //--------------
 // Destructor --
 //--------------
-DTReadOutMappingHandler::~DTReadOutMappingHandler() {
-}
+DTReadOutMappingHandler::~DTReadOutMappingHandler() {}
 
 //--------------
 // Operations --
 //--------------
 void DTReadOutMappingHandler::getNewObjects() {
-
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const & ti = tagInfo();
+  cond::TagInfo const& ti = tagInfo();
   unsigned int last = ti.lastInterval.first;
 
   //to access the information on last successful log entry for this tag:
-//  cond::LogDBEntry const & lde = logDBEntry();     
+  //  cond::LogDBEntry const & lde = logDBEntry();
 
   //to access the lastest payload (Ref is a smart pointer)
-//  Ref payload = lastPayload();
+  //  Ref payload = lastPayload();
 
-/*
+  /*
   int irun = event.id().run();
   int ievt = event.id().event();
   std::cout << "================ "
@@ -81,14 +77,14 @@ void DTReadOutMappingHandler::getNewObjects() {
     mp.find( dataTag );
 */
 
-  std::string robMap( dataTag );
-  std::string rosMap( dataTag );
+  std::string robMap(dataTag);
+  std::string rosMap(dataTag);
   robMap += "_ROB";
   rosMap += "_ROS";
-  DTReadOutMapping* ro_map = new DTReadOutMapping( robMap, rosMap );
+  DTReadOutMapping* ro_map = new DTReadOutMapping(robMap, rosMap);
 
   int status = 0;
-  std::ifstream ifile( fileName.c_str() );
+  std::ifstream ifile(fileName.c_str());
   int ddu;
   int ros;
   int rob;
@@ -100,35 +96,14 @@ void DTReadOutMappingHandler::getNewObjects() {
   int qua;
   int lay;
   int cel;
-  while ( ifile >> ddu
-                >> ros
-                >> rob
-                >> tdc
-                >> cha
-                >> whe
-                >> sta
-                >> sec
-                >> qua
-                >> lay
-                >> cel ) {
-    status = ro_map->insertReadOutGeometryLink( ddu, ros, rob, tdc, cha,
-                                                whe, sta, sec,
-                                                qua, lay, cel );
-    std::cout << ddu << " "
-              << ros << " "
-              << rob << " "
-              << tdc << " "
-              << cha << " "
-              << whe << " "
-              << sta << " "
-              << sec << " "
-              << qua << " "
-              << lay << " "
-              << cel << "  -> ";                
+  while (ifile >> ddu >> ros >> rob >> tdc >> cha >> whe >> sta >> sec >> qua >> lay >> cel) {
+    status = ro_map->insertReadOutGeometryLink(ddu, ros, rob, tdc, cha, whe, sta, sec, qua, lay, cel);
+    std::cout << ddu << " " << ros << " " << rob << " " << tdc << " " << cha << " " << whe << " " << sta << " " << sec
+              << " " << qua << " " << lay << " " << cel << "  -> ";
     std::cout << "insert status: " << status << std::endl;
   }
 
-/*
+  /*
   unsigned int runf = irun;
   unsigned int runl = 0xffffffff;
   popcon::IOVPair iop = { runf, runl };
@@ -139,20 +114,14 @@ void DTReadOutMappingHandler::getNewObjects() {
 
   //for each payload provide IOV information (say in this case we use since)
   cond::Time_t snc = runNumber;
-  if ( runNumber > last )
-       m_to_transfer.push_back( std::make_pair( ro_map, snc ) );
+  if (runNumber > last)
+    m_to_transfer.push_back(std::make_pair(ro_map, snc));
   else {
-       std::cout << "More recent data already present - skipped" << std::endl;
-       delete ro_map;
+    std::cout << "More recent data already present - skipped" << std::endl;
+    delete ro_map;
   }
 
   return;
-
 }
 
-
-std::string DTReadOutMappingHandler::id() const {
-  return dataTag;
-}
-
-
+std::string DTReadOutMappingHandler::id() const { return dataTag; }

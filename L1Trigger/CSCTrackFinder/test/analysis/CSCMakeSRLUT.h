@@ -23,17 +23,17 @@
 class CSCSectorReceiverLUT;
 
 class CSCMakeSRLUT : public edm::EDAnalyzer {
- public:
+public:
   explicit CSCMakeSRLUT(edm::ParameterSet const& conf);
   virtual ~CSCMakeSRLUT();
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   //virtual void endJob();
- private:
+private:
   // variables persistent across events should be declared here.
   //
 
   std::string fileSuffix() const;
-  CSCSectorReceiverLUT* mySR[2][6][2][4]; // [Endcap][Sector][Subsector][Station]
+  CSCSectorReceiverLUT* mySR[2][6][2][4];  // [Endcap][Sector][Subsector][Station]
   bool writeLocalPhi, writeGlobalPhi, writeGlobalEta, binary;
   int endcap, sector, station, isTMB07;
   edm::ParameterSet LUTparam;

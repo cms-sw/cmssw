@@ -11,9 +11,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"  
-#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
@@ -23,18 +23,20 @@
 
 class CSCChamberFitter {
 public:
-  CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector<CSCPairResidualsConstraint*> &residualsConstraints);
-  virtual ~CSCChamberFitter() {};
+  CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector<CSCPairResidualsConstraint *> &residualsConstraints);
+  virtual ~CSCChamberFitter(){};
 
-  bool fit(std::vector<CSCAlignmentCorrections*> &corrections) const;
-  void radiusCorrection(AlignableNavigator *alignableNavigator, AlignmentParameterStore *alignmentParameterStore, bool combineME11) const;
+  bool fit(std::vector<CSCAlignmentCorrections *> &corrections) const;
+  void radiusCorrection(AlignableNavigator *alignableNavigator,
+                        AlignmentParameterStore *alignmentParameterStore,
+                        bool combineME11) const;
 
 protected:
   int index(std::string alignable) const;
-  void walk(std::map<int,bool> &touched, int alignable) const;
+  void walk(std::map<int, bool> &touched, int alignable) const;
   long alignableId(std::string alignable) const;
   bool isFrame(int i) const;
-  double chi2(const AlgebraicVector& A, double lambda) const;
+  double chi2(const AlgebraicVector &A, double lambda) const;
   double lhsVector(int k) const;
   double hessian(int k, int l, double lambda) const;
 
@@ -42,8 +44,7 @@ protected:
   std::vector<std::string> m_alignables;
   std::vector<int> m_frames;
   int m_fixed;
-  std::vector<CSCPairConstraint*> m_constraints;
+  std::vector<CSCPairConstraint *> m_constraints;
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_CSCChamberFitter_H
-
+#endif  // Alignment_MuonAlignmentAlgorithms_CSCChamberFitter_H

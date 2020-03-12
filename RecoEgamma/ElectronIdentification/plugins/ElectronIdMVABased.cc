@@ -5,7 +5,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -49,45 +48,42 @@ private:
 
 // constructor
 ElectronIdMVABased::ElectronIdMVABased(const edm::ParameterSet& iConfig)
-  : vertexToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag")))
-  , electronToken(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag")))
-  , thresholdBarrel   (iConfig.getParameter<double>("thresholdBarrel"))
-  , thresholdEndcap   (iConfig.getParameter<double>("thresholdEndcap"))
-  , thresholdIsoBarrel(iConfig.getParameter<double>("thresholdIsoDR03Barrel"))
-  , thresholdIsoEndcap(iConfig.getParameter<double>("thresholdIsoDR03Endcap"))
-  , mvaID_(new ElectronMVAEstimator(ElectronMVAEstimator::Configuration{
-              .vweightsfiles = iConfig.getParameter<std::vector<std::string> >("HZZmvaWeightFile")}))
-{
+    : vertexToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"))),
+      electronToken(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"))),
+      thresholdBarrel(iConfig.getParameter<double>("thresholdBarrel")),
+      thresholdEndcap(iConfig.getParameter<double>("thresholdEndcap")),
+      thresholdIsoBarrel(iConfig.getParameter<double>("thresholdIsoDR03Barrel")),
+      thresholdIsoEndcap(iConfig.getParameter<double>("thresholdIsoDR03Endcap")),
+      mvaID_(new ElectronMVAEstimator(ElectronMVAEstimator::Configuration{
+          .vweightsfiles = iConfig.getParameter<std::vector<std::string> >("HZZmvaWeightFile")})) {
   produces<reco::GsfElectronCollection>();
 }
 
 // ------------ method called on each new Event  ------------
-void ElectronIdMVABased::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
-{
-
+void ElectronIdMVABased::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   constexpr double etaEBEE = 1.485;
 
   auto mvaElectrons = std::make_unique<reco::GsfElectronCollection>();
 
-  edm::Handle<reco::VertexCollection>  vertexCollection;
+  edm::Handle<reco::VertexCollection> vertexCollection;
   iEvent.getByToken(vertexToken, vertexCollection);
   int nVtx = vertexCollection->size();
 
   edm::Handle<reco::GsfElectronCollection> egCollection;
-  iEvent.getByToken(electronToken,egCollection);
+  iEvent.getByToken(electronToken, egCollection);
   const reco::GsfElectronCollection egCandidates = (*egCollection.product());
-  for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
-    double mvaVal = mvaID_->mva( *egIter, nVtx );
+  for (reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end();
+       ++egIter) {
+    double mvaVal = mvaID_->mva(*egIter, nVtx);
     double isoDr03 = egIter->dr03TkSumPt() + egIter->dr03EcalRecHitSumEt() + egIter->dr03HcalTowerSumEt();
     double eleEta = fabs(egIter->eta());
     if (eleEta <= etaEBEE && mvaVal > thresholdBarrel && isoDr03 < thresholdIsoBarrel) {
-      mvaElectrons->push_back( *egIter );
+      mvaElectrons->push_back(*egIter);
       reco::GsfElectron::MvaOutput myMvaOutput;
       myMvaOutput.mva_Isolated = mvaVal;
       mvaElectrons->back().setMvaOutput(myMvaOutput);
-    }
-    else if (eleEta > etaEBEE && mvaVal > thresholdEndcap  && isoDr03 < thresholdIsoEndcap) {
-      mvaElectrons->push_back( *egIter );
+    } else if (eleEta > etaEBEE && mvaVal > thresholdEndcap && isoDr03 < thresholdIsoEndcap) {
+      mvaElectrons->push_back(*egIter);
       reco::GsfElectron::MvaOutput myMvaOutput;
       myMvaOutput.mva_Isolated = mvaVal;
       mvaElectrons->back().setMvaOutput(myMvaOutput);
@@ -95,7 +91,6 @@ void ElectronIdMVABased::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   }
 
   iEvent.put(std::move(mvaElectrons));
-
 }
 
 //define this as a plug-in

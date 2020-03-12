@@ -2,20 +2,15 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
 
-  CertificationClient::CertificationClient() :
-    DQWorkerClient()
-  {
+  CertificationClient::CertificationClient() : DQWorkerClient() {
     qualitySummaries_.insert("CertificationMap");
     qualitySummaries_.insert("CertificationContents");
     qualitySummaries_.insert("Certification");
   }
 
-  void
-  CertificationClient::producePlots(ProcessType)
-  {
+  void CertificationClient::producePlots(ProcessType) {
     MESet& meCertificationContents(MEs_.at("CertificationContents"));
     MESet& meCertificationMap(MEs_.at("CertificationMap"));
     MESet& meCertification(MEs_.at("Certification"));
@@ -25,10 +20,8 @@ namespace ecaldqm
     MESet const& sDQM(sources_.at("DQM"));
 
     double meanValue(0.);
-    for(int iDCC(0); iDCC < nDCC; ++iDCC){
-      double certValue(sDAQ.getBinContent(iDCC + 1) *
-                       sDCS.getBinContent(iDCC + 1) *
-                       sDQM.getBinContent(iDCC + 1));
+    for (int iDCC(0); iDCC < nDCC; ++iDCC) {
+      double certValue(sDAQ.getBinContent(iDCC + 1) * sDCS.getBinContent(iDCC + 1) * sDQM.getBinContent(iDCC + 1));
 
       meCertificationContents.fill(iDCC + 1, certValue);
       meCertificationMap.setBinContent(iDCC + 1, certValue);
@@ -40,6 +33,4 @@ namespace ecaldqm
   }
 
   DEFINE_ECALDQM_WORKER(CertificationClient);
-}
-
-
+}  // namespace ecaldqm

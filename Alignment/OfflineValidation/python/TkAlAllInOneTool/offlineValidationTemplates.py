@@ -32,6 +32,7 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTr
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..stripYResiduals = .oO[stripYResiduals]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..maxTracks = .oO[maxtracks]Oo./ .oO[parallelJobs]Oo.
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..chargeCut = .oO[chargeCut]Oo.
 """
 
 OfflineValidationSequence = "process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo."
@@ -63,7 +64,6 @@ process.TFileService.fileName = '.oO[outputFile]Oo.'
 ######################################################################
 ######################################################################
 offlineDqmFileOutputTemplate = """
-process.TrackerOfflineValidationSummary.oO[offlineValidationMode]Oo..removeModuleLevelHists = .oO[offlineModuleLevelHistsTransient]Oo.
 process.DqmSaverTkAl.workflow = '.oO[workflow]Oo.'
 process.DqmSaverTkAl.dirName = '.oO[workdir]Oo./.'
 process.DqmSaverTkAl.forceRunNumber = .oO[firstRunNumber]Oo.
@@ -76,7 +76,7 @@ extendedValidationExecution="""
 #run extended offline validation scripts
 echo -e "\n\nRunning extended offline validation"
 
-rfcp .oO[extendedValScriptPath]Oo. .
+cp .oO[extendedValScriptPath]Oo. .
 root -x -b -q -l TkAlExtendedOfflineValidation.C
 
 """

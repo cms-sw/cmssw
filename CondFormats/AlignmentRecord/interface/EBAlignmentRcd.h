@@ -5,5 +5,4 @@
 
 class EBAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<EBAlignmentRcd> {};
 
-#endif 
-
+#endif

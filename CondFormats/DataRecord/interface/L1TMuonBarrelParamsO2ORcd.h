@@ -12,6 +12,9 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
-class L1TMuonBarrelParamsO2ORcd : public edm::eventsetup::DependentRecordImplementation<L1TMuonBarrelParamsO2ORcd, boost::mpl::vector<L1TriggerKeyListExtRcd,L1TriggerKeyExtRcd,L1TMuonBarrelParamsRcd> > {};
+class L1TMuonBarrelParamsO2ORcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          L1TMuonBarrelParamsO2ORcd,
+          boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonBarrelParamsRcd> > {};
 
 #endif

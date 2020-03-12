@@ -21,4 +21,5 @@ process.readerFail = cms.EDAnalyzer("DeleteEarlyReader",
                                     tag = cms.untracked.InputTag("maker"))
 
 
-process.p = cms.Path(process.maker+process.reader+process.readerFail)
+process.p = cms.Path(process.maker+cms.wait(process.reader)+process.readerFail)
+process.add_(cms.Service("Tracer"))

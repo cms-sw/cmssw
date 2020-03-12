@@ -2,7 +2,7 @@
 //
 // Package:     MuonAlignment
 // Class  :     MuonAlignmentInputMethod
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -59,39 +59,39 @@ MuonAlignmentInputMethod::~MuonAlignmentInputMethod() {}
 // member functions
 //
 
-AlignableMuon *MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-   std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
+AlignableMuon* MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup& iSetup) const {
+  std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
+  std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
-   return new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+  return new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
 }
 
 std::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const edm::EventSetup& iSetup) const {
-   edm::ESTransientHandle<DDCompactView> cpv;
-   iSetup.get<IdealGeometryRecord>().get(cpv);
+  edm::ESTransientHandle<DDCompactView> cpv;
+  iSetup.get<IdealGeometryRecord>().get(cpv);
 
-   edm::ESHandle<MuonDDDConstants> mdc;
-   iSetup.get<MuonNumberingRecord>().get(mdc);
-   DTGeometryBuilderFromDDD DTGeometryBuilder;
+  edm::ESHandle<MuonDDDConstants> mdc;
+  iSetup.get<MuonNumberingRecord>().get(mdc);
+  DTGeometryBuilderFromDDD DTGeometryBuilder;
 
-   auto boost_dtGeometry = std::make_shared<DTGeometry>();
-   DTGeometryBuilder.build(*boost_dtGeometry, &(*cpv), *mdc);
+  auto boost_dtGeometry = std::make_shared<DTGeometry>();
+  DTGeometryBuilder.build(*boost_dtGeometry, &(*cpv), *mdc);
 
-   return boost_dtGeometry;
+  return boost_dtGeometry;
 }
 
 std::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const edm::EventSetup& iSetup) const {
-   edm::ESTransientHandle<DDCompactView> cpv;
-   iSetup.get<IdealGeometryRecord>().get(cpv);
+  edm::ESTransientHandle<DDCompactView> cpv;
+  iSetup.get<IdealGeometryRecord>().get(cpv);
 
-   edm::ESHandle<MuonDDDConstants> mdc;
-   iSetup.get<MuonNumberingRecord>().get(mdc);
-   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
+  edm::ESHandle<MuonDDDConstants> mdc;
+  iSetup.get<MuonNumberingRecord>().get(mdc);
+  CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-   auto boost_cscGeometry = std::make_shared<CSCGeometry>();
-   CSCGeometryBuilder.build(*boost_cscGeometry, &(*cpv), *mdc);
+  auto boost_cscGeometry = std::make_shared<CSCGeometry>();
+  CSCGeometryBuilder.build(*boost_cscGeometry, &(*cpv), *mdc);
 
-   return boost_cscGeometry;
+  return boost_cscGeometry;
 }
 
 //

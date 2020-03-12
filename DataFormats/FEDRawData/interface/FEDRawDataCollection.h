@@ -15,35 +15,26 @@
 
 #include <vector>
 
-
 class FEDRawDataCollection : public edm::DoNotRecordParents {
- public:
+public:
   FEDRawDataCollection();
 
   virtual ~FEDRawDataCollection();
-    
-  /// retrieve data for fed @param fedid
-  const FEDRawData&  FEDData(int fedid) const;
 
   /// retrieve data for fed @param fedid
-  FEDRawData&        FEDData(int fedid);
+  const FEDRawData& FEDData(int fedid) const;
 
-  FEDRawDataCollection(const FEDRawDataCollection &);
+  /// retrieve data for fed @param fedid
+  FEDRawData& FEDData(int fedid);
 
-  void swap(FEDRawDataCollection & other) {
-    data_.swap(other.data_);
-  }
+  FEDRawDataCollection(const FEDRawDataCollection&);
 
- private:
+  void swap(FEDRawDataCollection& other) { data_.swap(other.data_); }
 
-  std::vector<FEDRawData> data_; ///< the raw data 
-
+private:
+  std::vector<FEDRawData> data_;  ///< the raw data
 };
 
-inline
-void swap(FEDRawDataCollection & a, FEDRawDataCollection & b) {
-  a.swap(b);
-}
+inline void swap(FEDRawDataCollection& a, FEDRawDataCollection& b) { a.swap(b); }
 
 #endif
-

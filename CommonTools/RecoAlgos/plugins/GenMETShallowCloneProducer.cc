@@ -6,4 +6,4 @@ typedef ShallowCloneProducer<reco::GenMETCollection> GenMETShallowCloneProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( GenMETShallowCloneProducer );
+DEFINE_FWK_MODULE(GenMETShallowCloneProducer);

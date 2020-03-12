@@ -27,17 +27,14 @@
 
 #include <vector>
 
-using namespace std;
-using namespace reco;
-
 class HLTMuonTrackSelector : public edm::global::EDProducer<> {
 public:
-  explicit HLTMuonTrackSelector(const edm::ParameterSet&);
+  explicit HLTMuonTrackSelector(const edm::ParameterSet &);
   ~HLTMuonTrackSelector() override;
 
   using MVACollection = std::vector<float>;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions&);
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
@@ -45,9 +42,9 @@ private:
   TrackCollectionCloner collectionCloner;
   const TrackCollectionCloner::Tokens collectionClonerTokens;
 
-  const edm::EDGetTokenT< vector<reco::Muon>    > token_muon;
-  const edm::EDGetTokenT< MVACollection         > token_originalMVAVals;
+  const edm::EDGetTokenT<std::vector<reco::Muon> > token_muon;
+  const edm::EDGetTokenT<MVACollection> token_originalMVAVals;
   const bool flag_copyMVA;
 };
 
-#endif //HLTMuonTrackSelector_h
+#endif  //HLTMuonTrackSelector_h

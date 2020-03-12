@@ -1,7 +1,6 @@
 #ifndef ChiSquared_H
 #define ChiSquared_H
 
-
 /** \class ChiSquared
  *  Constructed with total chi-squared value `value` and number of degrees 
  *  of freedom `ndf`. <BR>
@@ -18,9 +17,7 @@
  */
 
 class ChiSquared {
-
 public:
-
   ChiSquared(float value, float ndf) : theValue(value), theNDF(ndf) {}
 
   float value() const;
@@ -29,9 +26,7 @@ public:
   float lnProbability() const;
 
 private:
-
   float theValue, theNDF;
-
 };
 
 #endif

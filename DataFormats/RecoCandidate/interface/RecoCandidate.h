@@ -20,23 +20,22 @@ namespace reco {
   class RecoCandidate : public LeafCandidate {
   public:
     /// default constructor
-    RecoCandidate() : LeafCandidate() { }
+    RecoCandidate() : LeafCandidate() {}
     /// constructor from values
-    template<typename P4>
-    RecoCandidate( Charge q, const P4 & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0 ) : 
-      LeafCandidate( q, p4, vtx, pdgId, status ) { }
+    template <typename P4>
+    RecoCandidate(Charge q, const P4 &p4, const Point &vtx = Point(0, 0, 0), int pdgId = 0, int status = 0)
+        : LeafCandidate(q, p4, vtx, pdgId, status) {}
     /// destructor
     ~RecoCandidate() override;
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override = 0;
-    /// returns a clone of the Candidate object                                           
-    RecoCandidate * clone() const override ;
+    bool overlap(const Candidate &) const override = 0;
+    /// returns a clone of the Candidate object
+    RecoCandidate *clone() const override;
 
     /// reference to a Track
     virtual reco::TrackRef track() const;
     /// reference to one of multiple Tracks
-    virtual reco::TrackRef track( size_t ) const;
+    virtual reco::TrackRef track(size_t) const;
     /// number of multiple Tracks
     virtual size_t numberOfTracks() const;
     /// reference to a GsfTrack
@@ -50,54 +49,54 @@ namespace reco {
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
     /// best track pointer
-    const Track * bestTrack() const override;
+    const Track *bestTrack() const override;
     /// best track RefToBase
     virtual TrackBaseRef bestTrackRef() const;
     /// track type
     enum TrackType { noTrackType, recoTrackType, gsfTrackType };
     ///track type
     virtual TrackType bestTrackType() const;
-    /// uncertainty on dz 
-    float dzError() const override; 
+    /// uncertainty on dz
+    float dzError() const override;
     /// uncertainty on dxy
-    float dxyError() const override; 
-
+    float dxyError() const override;
 
   protected:
     /// check if two components overlap
-    template<typename R>
-    bool checkOverlap( const R & r1, const R & r2 ) const {
-      return( ! r1.isNull() && ! r2.isNull() && r1 == r2 );
+    template <typename R>
+    bool checkOverlap(const R &r1, const R &r2) const {
+      return (!r1.isNull() && !r2.isNull() && r1 == r2);
     }
 
   private:
-    template<typename, typename, typename> friend struct component; 
+    template <typename, typename, typename>
+    friend struct component;
   };
 
   /// stand alone muon component tag
-  struct StandAloneMuonTag { };
+  struct StandAloneMuonTag {};
   /// conbined muon component tag
-  struct CombinedMuonTag { };
+  struct CombinedMuonTag {};
 
   /// get default Track component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, track );
+  GET_DEFAULT_CANDIDATE_COMPONENT(RecoCandidate, TrackRef, track);
   /// get multuple tracks
-  GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS( RecoCandidate, TrackRef, track, numberOfTracks );
+  GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS(RecoCandidate, TrackRef, track, numberOfTracks);
   /// get default GsfTrack component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, GsfTrackRef, gsfTrack );
+  GET_DEFAULT_CANDIDATE_COMPONENT(RecoCandidate, GsfTrackRef, gsfTrack);
   /// get stand-alone muon Track component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, standAloneMuon, StandAloneMuonTag );
+  GET_CANDIDATE_COMPONENT(RecoCandidate, TrackRef, standAloneMuon, StandAloneMuonTag);
   /// get combined muon Track component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, combinedMuon, CombinedMuonTag );
+  GET_CANDIDATE_COMPONENT(RecoCandidate, TrackRef, combinedMuon, CombinedMuonTag);
   /// get default SuperCluster component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, superCluster );
+  GET_DEFAULT_CANDIDATE_COMPONENT(RecoCandidate, SuperClusterRef, superCluster);
   /// get default CaloTower component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, CaloTowerRef, caloTower );
+  GET_DEFAULT_CANDIDATE_COMPONENT(RecoCandidate, CaloTowerRef, caloTower);
   /// get default CaloTower component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, const Track *, bestTrack );
+  GET_DEFAULT_CANDIDATE_COMPONENT(RecoCandidate, const Track *, bestTrack);
   /// get default CaloTower component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, RecoCandidate::TrackType, bestTrackType );
-  
-}
+  GET_DEFAULT_CANDIDATE_COMPONENT(RecoCandidate, RecoCandidate::TrackType, bestTrackType);
+
+}  // namespace reco
 
 #endif

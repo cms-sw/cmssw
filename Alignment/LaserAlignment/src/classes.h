@@ -21,6 +21,6 @@ namespace Alignment_LaserAlignment {
     LASGlobalData<unsigned int> luint;
     LASGlobalData<std::string> lstring;
     LASGlobalData<TH1D*> lthid;
-//  LASGlobalData<TDirectory*> ltdir;
+    //  LASGlobalData<TDirectory*> ltdir;
   };
-}
+}  // namespace Alignment_LaserAlignment

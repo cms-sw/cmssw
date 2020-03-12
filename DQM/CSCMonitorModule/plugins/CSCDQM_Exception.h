@@ -34,23 +34,16 @@ namespace cscdqm {
    * @brief Application level Exception that is used to cut-off application
    * execution in various cases.
    */
-  class Exception: public std::exception {
-    private:
+  class Exception : public std::exception {
+  private:
+    std::string message;
 
-      std::string message;
+  public:
+    Exception(const std::string& message) throw() { this->message = message; }
 
-    public:
+    ~Exception() throw() override {}
 
-      Exception(const std::string& message) throw() {
-        this->message = message;
-      }
-
-      ~Exception() throw() override { }
-
-      const char* what() const throw() override {
-        return message.c_str();
-      }
-
+    const char* what() const throw() override { return message.c_str(); }
   };
 
   /**
@@ -59,29 +52,24 @@ namespace cscdqm {
    * file in XML format.
    */
   class XMLFileErrorHandler : public XERCES_CPP_NAMESPACE::ErrorHandler {
+  public:
+    void warning(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override {
+      char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
+      LOG_WARN << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
+      XERCES_CPP_NAMESPACE::XMLString::release(&message);
+    }
 
-    public:
+    void error(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override { this->fatalError(exc); }
 
-      void warning(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override {
-        char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
-        LOG_WARN << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
-        XERCES_CPP_NAMESPACE::XMLString::release(&message);
-      }
+    void fatalError(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override {
+      char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
+      LOG_COUT << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
+      throw Exception(message);
+    }
 
-      void error(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override {
-        this->fatalError(exc);
-      }
-
-      void fatalError(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override {
-        char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
-        LOG_COUT << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
-        throw Exception(message);
-      }
-
-      void resetErrors () override { }
-
+    void resetErrors() override {}
   };
 
-}
+}  // namespace cscdqm
 
 #endif

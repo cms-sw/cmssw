@@ -22,61 +22,58 @@
 ///-----------------------------------------------------------
 
 class TEcnaParPaths : public TObject {
-
- private:
-
+private:
   //..... Attributes
 
-  Int_t   fCnew,        fCdelete;
-  Int_t   fCnewRoot,    fCdeleteRoot;
+  Int_t fCnew, fCdelete;
+  Int_t fCnewRoot, fCdeleteRoot;
 
-  Int_t   fgMaxCar;  // Max nb of caracters for char*
+  Int_t fgMaxCar;  // Max nb of caracters for char*
 
   TString fTTBELL;
 
-  Int_t   fCnaCommand,  fCnaError;
+  Int_t fCnaCommand, fCnaError;
 
-  std::ifstream fFcin_rr;          // stream for results root files 
-  std::ifstream fFcin_ra;          // stream for results ascii files 
-  std::ifstream fFcin_lor;         // stream for list of runs files
+  std::ifstream fFcin_rr;   // stream for results root files
+  std::ifstream fFcin_ra;   // stream for results ascii files
+  std::ifstream fFcin_lor;  // stream for list of runs files
   //  std::ifstream fFcin_anapar;      // stream for EcnaAnalyzer parameters files
-  std::ifstream fFcin_cmssw;       // stream for cmssw version and subsystem 
+  std::ifstream fFcin_cmssw;  // stream for cmssw version and subsystem
 
-  TString fCfgResultsRootFilePath;     // absolute path for the results .root files (/afs/etc...)
-  TString fFileForResultsRootFilePath; // name of the file containing the results .root  file path
+  TString fCfgResultsRootFilePath;      // absolute path for the results .root files (/afs/etc...)
+  TString fFileForResultsRootFilePath;  // name of the file containing the results .root  file path
 
-  TString fCfgResultsAsciiFilePath;     // absolute path for the results .ascii files (/afs/etc...)
-  TString fFileForResultsAsciiFilePath; // name of the file containing the results .ascii file path
+  TString fCfgResultsAsciiFilePath;      // absolute path for the results .ascii files (/afs/etc...)
+  TString fFileForResultsAsciiFilePath;  // name of the file containing the results .ascii file path
 
-  TString fCfgHistoryRunListFilePath;       // absolute path for the list-of-runs .ascii files (/afs/etc...)
-  TString fFileForHistoryRunListFilePath;   // name of the file containing the list-of-run file path
+  TString fCfgHistoryRunListFilePath;      // absolute path for the list-of-runs .ascii files (/afs/etc...)
+  TString fFileForHistoryRunListFilePath;  // name of the file containing the list-of-run file path
 
-  TString fCfgCMSSWBase;           // CMSSW base user's directory
-  TString fCfgCMSSWSubsystem;      // CMSSW subsystem name
-  TString fCfgSCRAMArch;           // SCRAM ARCHITECTURE
-  TString fFileForCMSSWParameters; // name of the file containing the CMSSW version, subsystem and slc
+  TString fCfgCMSSWBase;            // CMSSW base user's directory
+  TString fCfgCMSSWSubsystem;       // CMSSW subsystem name
+  TString fCfgSCRAMArch;            // SCRAM ARCHITECTURE
+  TString fFileForCMSSWParameters;  // name of the file containing the CMSSW version, subsystem and slc
 
- public:
-
+public:
   //..... Methods
 
-           TEcnaParPaths();
-           TEcnaParPaths(TEcnaObject*);
-   ~TEcnaParPaths() override;
+  TEcnaParPaths();
+  TEcnaParPaths(TEcnaObject *);
+  ~TEcnaParPaths() override;
 
-  void    Init();
+  void Init();
 
   Bool_t GetPathForResultsRootFiles();
   Bool_t GetPathForResultsAsciiFiles();
   Bool_t GetPathForHistoryRunListFiles();
-  void   GetCMSSWParameters();
+  void GetCMSSWParameters();
 
-  Bool_t GetPathForResultsRootFiles(const TString&);
-  Bool_t GetPathForResultsAsciiFiles(const TString&);
-  Bool_t GetPathForHistoryRunListFiles(const TString&);
+  Bool_t GetPathForResultsRootFiles(const TString &);
+  Bool_t GetPathForResultsAsciiFiles(const TString &);
+  Bool_t GetPathForHistoryRunListFiles(const TString &);
   //  Bool_t GetCMSSWParameters(const TString&);
 
-  Bool_t  GetPaths();
+  Bool_t GetPaths();
 
   TString ResultsRootFilePath();
   TString ResultsAsciiFilePath();
@@ -85,12 +82,12 @@ class TEcnaParPaths : public TObject {
   TString CMSSWSubsystem();
   TString SCRAMArch();
 
-  void SetResultsRootFilePath(const TString&);
-  void SetResultsAsciiFilePath(const TString&);
-  void SetHistoryRunListFilePath(const TString&);
+  void SetResultsRootFilePath(const TString &);
+  void SetResultsAsciiFilePath(const TString &);
+  void SetHistoryRunListFilePath(const TString &);
 
-  void TruncateResultsRootFilePath(const Int_t&, const Int_t&);
-  void TruncateResultsAsciiFilePath(const Int_t&, const Int_t&);
+  void TruncateResultsRootFilePath(const Int_t &, const Int_t &);
+  void TruncateResultsAsciiFilePath(const Int_t &, const Int_t &);
 
   TString BeginningOfResultsRootFilePath();
   TString BeginningOfResultsAsciiFilePath();
@@ -101,9 +98,7 @@ class TEcnaParPaths : public TObject {
   TString PathModulesData();
   TString PathTestScramArch();
 
-
-ClassDefOverride(TEcnaParPaths,1)// Parameter management for ECNA (Ecal Correlated Noises Analysis)
-
+  ClassDefOverride(TEcnaParPaths, 1)  // Parameter management for ECNA (Ecal Correlated Noises Analysis)
 };
 
-#endif   //    ZTR_TEcnaParPaths
+#endif  //    ZTR_TEcnaParPaths

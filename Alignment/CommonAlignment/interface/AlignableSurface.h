@@ -17,21 +17,15 @@
 
 class Plane;
 
-class AlignableSurface:
-  public GloballyPositioned<align::Scalar>
-{
-  public:
-
+class AlignableSurface : public GloballyPositioned<align::Scalar> {
+public:
   /// Constructor to set surface from geometry.
-  AlignableSurface(
-		   const Plane& surface
-		   );
+  AlignableSurface(const Plane& surface);
 
   /// Constructor to set position and rotation; width and length default to 0.
-  AlignableSurface(
-		   const align::PositionType& = PositionType(), // default 0
-		   const align::RotationType& = RotationType()  // default identity
-		   );
+  AlignableSurface(const align::PositionType& = PositionType(),  // default 0
+                   const align::RotationType& = RotationType()   // default identity
+  );
 
   align::Scalar width() const { return theWidth; }
 
@@ -45,32 +39,21 @@ class AlignableSurface:
   using GloballyPositioned<align::Scalar>::toLocal;
 
   /// Return in global coord given a set of local points.
-  align::GlobalPoints toGlobal(
-			       const align::LocalPoints&
-			       ) const;
+  align::GlobalPoints toGlobal(const align::LocalPoints&) const;
 
   /// Return in global frame a rotation given in local frame.
-  align::RotationType toGlobal(
-			       const align::RotationType&
-			       ) const;
+  align::RotationType toGlobal(const align::RotationType&) const;
 
   /// Return in global coord given Euler angles in local coord.
-  align::EulerAngles toGlobal(
-			      const align::EulerAngles&
-			      ) const;
+  align::EulerAngles toGlobal(const align::EulerAngles&) const;
 
   /// Return in local frame a rotation given in global frame.
-  align::RotationType toLocal(
-			      const align::RotationType&
-			      ) const;
+  align::RotationType toLocal(const align::RotationType&) const;
 
   /// Return in local coord given Euler angles in global coord.
-  align::EulerAngles toLocal(
-			     const align::EulerAngles&
-			     ) const;
+  align::EulerAngles toLocal(const align::EulerAngles&) const;
 
-  private:
-
+private:
   align::Scalar theWidth;
   align::Scalar theLength;
 };

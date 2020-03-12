@@ -2,7 +2,7 @@
 //
 // Package:    CalibTracker/SiStripChannelGain
 // Class:      SiStripGainsPCLHarvester
-// 
+//
 /**\class SiStripGainsPCLHarvester SiStripGainsPCLHarvester.cc 
  Description: Harvests output of SiStripGainsPCLWorker and creates histograms and Gains Payload
  
@@ -42,58 +42,56 @@
 // System includes
 #include <unordered_map>
 
-class SiStripGainsPCLHarvester : public  DQMEDHarvester {
-   public:
-      explicit SiStripGainsPCLHarvester(const edm::ParameterSet& ps);
-      void beginRun(edm::Run const& run, edm::EventSetup const & isetup) override;
-      void endRun(edm::Run const& run, edm::EventSetup const & isetup) override;
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+class SiStripGainsPCLHarvester : public DQMEDHarvester {
+public:
+  explicit SiStripGainsPCLHarvester(const edm::ParameterSet& ps);
+  void beginRun(edm::Run const& run, edm::EventSetup const& isetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& isetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
+private:
+  virtual void checkBookAPVColls(const edm::EventSetup& setup);
+  virtual void checkAndRetrieveTopology(const edm::EventSetup& setup);
+  void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override;
 
-      virtual void checkBookAPVColls(const edm::EventSetup& setup);
-      virtual void checkAndRetrieveTopology(const edm::EventSetup& setup);
-      void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override;
+  void gainQualityMonitor(DQMStore::IBooker& ibooker_, const MonitorElement* Charge_Vs_Index) const;
 
-      void gainQualityMonitor(DQMStore::IBooker& ibooker_, const MonitorElement* Charge_Vs_Index) const;
+  int statCollectionFromMode(const char* tag) const;
 
-      int statCollectionFromMode(const char* tag) const;
+  void algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index);
+  void getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange = 50, double HighRange = 5400);
+  bool IsGoodLandauFit(double* FitResults);
 
-      void algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index);
-      void getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400);
-      bool IsGoodLandauFit(double* FitResults); 
+  bool produceTagFilter(const MonitorElement* Charge_Vs_Index);
+  std::unique_ptr<SiStripApvGain> getNewObject(const MonitorElement* Charge_Vs_Index);
 
-      bool produceTagFilter(const MonitorElement* Charge_Vs_Index);
-      std::unique_ptr<SiStripApvGain> getNewObject(const MonitorElement* Charge_Vs_Index);
+  bool doStoreOnDB;
+  bool doChargeMonitorPerPlane; /*!< Charge monitor per detector plane */
+  unsigned int GOOD;
+  unsigned int BAD;
+  unsigned int MASKED;
 
-      bool doStoreOnDB;
-      bool doChargeMonitorPerPlane;   /*!< Charge monitor per detector plane */
-      unsigned int GOOD;
-      unsigned int BAD;
-      unsigned int MASKED;
+  double tagCondition_NClusters;
+  double tagCondition_GoodFrac;
 
-      double tagCondition_NClusters;
-      double tagCondition_GoodFrac;
+  int NStripAPVs;
+  int NPixelDets;
+  double MinNrEntries;
 
-      int NStripAPVs;
-      int NPixelDets;
-      double MinNrEntries;
+  std::string m_Record;
 
-      std::string m_Record;
+  std::string m_DQMdir;                  /*!< DQM folder hosting the charge statistics and the monitor plots */
+  std::string m_calibrationMode;         /*!< Type of statistics for the calibration */
+  std::vector<std::string> VChargeHisto; /*!< Charge monitor plots to be output */
 
-      std::string  m_DQMdir;                  /*!< DQM folder hosting the charge statistics and the monitor plots */
-      std::string  m_calibrationMode;         /*!< Type of statistics for the calibration */
-      std::vector<std::string> VChargeHisto;  /*!< Charge monitor plots to be output */
+  std::vector<std::string> dqm_tag_;
 
-      std::vector<std::string> dqm_tag_;  
+  int CalibrationLevel;
 
-      int CalibrationLevel;
+  edm::ESHandle<TrackerGeometry> tkGeom_;
+  const TrackerGeometry* bareTkGeomPtr_;  // ugly hack to fill APV colls only once, but checks
+  const TrackerTopology* tTopo_;
 
-      edm::ESHandle<TrackerGeometry> tkGeom_;
-      const TrackerGeometry *bareTkGeomPtr_;  // ugly hack to fill APV colls only once, but checks
-      const TrackerTopology* tTopo_;
-
-      std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
-      std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl; 
-
+  std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
+  std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl;
 };

@@ -37,7 +37,7 @@ gctDigiToRaw.gctInputLabel = 'simGctDigis'
 l1GtPack.DaqGtInputTag = 'simGtDigis'
 l1GtPack.MuGmtInputTag = 'simGmtDigis'
 l1GtEvmPack.EvmGtInputTag = 'simGtDigis'
-L1TDigiToRaw = cms.Sequence(csctfpacker+dttfpacker+gctDigiToRaw+l1GtPack+l1GtEvmPack)
+L1TDigiToRawTask = cms.Task(csctfpacker, dttfpacker, gctDigiToRaw, l1GtPack, l1GtEvmPack)
 
 #
 # Stage-1 Trigger
@@ -47,7 +47,7 @@ L1TDigiToRaw = cms.Sequence(csctfpacker+dttfpacker+gctDigiToRaw+l1GtPack+l1GtEvm
 # (but still needed for RCT digis!)
 (stage1L1Trigger & ~stage2L1Trigger).toModify(gctDigiToRaw, gctInputLabel = 'simCaloStage1LegacyFormatDigis')
 from EventFilter.L1TRawToDigi.caloStage1Raw_cfi import *
-(stage1L1Trigger & ~stage2L1Trigger).toReplaceWith(L1TDigiToRaw, cms.Sequence(csctfpacker+dttfpacker+l1GtPack+caloStage1Raw))
+(stage1L1Trigger & ~stage2L1Trigger).toReplaceWith(L1TDigiToRawTask, cms.Task(csctfpacker, dttfpacker, l1GtPack, caloStage1Raw))
 
 #
 # Stage-2 Trigger
@@ -59,4 +59,6 @@ from EventFilter.L1TRawToDigi.omtfStage2Raw_cfi import *
 from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import *
 from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import *
 # Missing: muon EMTF
-(stage2L1Trigger).toReplaceWith(L1TDigiToRaw, cms.Sequence(caloLayer1Raw + caloStage2Raw + bmtfStage2Raw + omtfStage2Raw + gmtStage2Raw + gtStage2Raw))
+(stage2L1Trigger).toReplaceWith(L1TDigiToRawTask, cms.Task(caloLayer1Raw, caloStage2Raw, bmtfStage2Raw, omtfStage2Raw, gmtStage2Raw, gtStage2Raw))
+
+L1TDigiToRaw = cms.Sequence(L1TDigiToRawTask)

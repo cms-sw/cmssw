@@ -14,37 +14,41 @@ class TrackingRegion;
 class MuonServiceProxy;
 class TrackerTopology;
 
-namespace edm {class ParameterSet; class Event; class EventSetup; class ConsumesCollector;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+  class ConsumesCollector;
+}  // namespace edm
 
 class TrackerSeedGenerator {
-
 public:
-  typedef std::vector<TrajectorySeed> BTSeedCollection;  
+  typedef std::vector<TrajectorySeed> BTSeedCollection;
 
   TrackerSeedGenerator() : theEvent(nullptr), theProxyService(nullptr) {}
 
-  typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
+  typedef std::pair<const Trajectory *, reco::TrackRef> TrackCand;
 
   virtual void init(const MuonServiceProxy *service);
-  
+
   /// destructor
   virtual ~TrackerSeedGenerator() {}
 
-  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &);
-    
-  virtual void setEvent(const edm::Event&);
+  virtual void trackerSeeds(const TrackCand &, const TrackingRegion &, const TrackerTopology *, BTSeedCollection &);
 
-  const edm::Event *getEvent() const { return theEvent;}
+  virtual void setEvent(const edm::Event &);
+
+  const edm::Event *getEvent() const { return theEvent; }
 
 private:
+  virtual void run(TrajectorySeedCollection &seeds,
+                   const edm::Event &ev,
+                   const edm::EventSetup &es,
+                   const TrackingRegion &region) {}
 
-  virtual void run(TrajectorySeedCollection &seeds, 
-      const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region) {} 
- protected:
-  const edm::Event * theEvent;
-  const MuonServiceProxy * theProxyService;
-  
+protected:
+  const edm::Event *theEvent;
+  const MuonServiceProxy *theProxyService;
 };
 
 #endif
-

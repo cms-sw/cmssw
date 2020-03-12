@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     EDFilterBase
-// 
+//
 /**\class edm::stream::EDFilterBase EDFilterBase.h "FWCore/Framework/interface/stream/EDFilterBase.h"
 
  Description: [one line class summary]
@@ -37,10 +37,10 @@ namespace edm {
 
   namespace stream {
     class EDFilterAdaptorBase;
-    template<typename> class ProducingModuleAdaptorBase;
-    
-    class EDFilterBase : public edm::ProducerBase, public edm::EDConsumerBase
-    {
+    template <typename>
+    class ProducingModuleAdaptorBase;
+
+    class EDFilterBase : public edm::ProducerBase, public edm::EDConsumerBase {
       //This needs access to the parentage cache info
       friend class EDFilterAdaptorBase;
       friend class ProducingModuleAdaptorBase<EDFilterBase>;
@@ -48,41 +48,34 @@ namespace edm {
     public:
       typedef EDFilterAdaptorBase ModuleType;
 
-
       EDFilterBase();
       ~EDFilterBase() override;
-      
+
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
-      
+
       // Warning: the returned moduleDescription will be invalid during construction
-      ModuleDescription const& moduleDescription() const {
-        return *moduleDescriptionPtr_;
-      }
+      ModuleDescription const& moduleDescription() const { return *moduleDescriptionPtr_; }
+
     private:
-      EDFilterBase(const EDFilterBase&) = delete; // stop default
-      
-      const EDFilterBase& operator=(const EDFilterBase&) = delete; // stop default
-      
+      EDFilterBase(const EDFilterBase&) = delete;  // stop default
+
+      const EDFilterBase& operator=(const EDFilterBase&) = delete;  // stop default
+
       virtual void beginStream(StreamID) {}
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       virtual bool filter(Event&, EventSetup const&) = 0;
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
-      virtual void endStream(){}
+      virtual void endStream() {}
 
-      virtual void registerThinnedAssociations(ProductRegistry const&,
-                                               ThinnedAssociationsHelper&) { }
+      virtual void registerThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      virtual void doAcquire_(Event const&,
-                              EventSetup const&,
-                              WaitingTaskWithArenaHolder&) = 0;
+      virtual void doAcquire_(Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) = 0;
 
-      void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
-        moduleDescriptionPtr_ = iDesc;
-      }
+      void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------
 
       std::vector<BranchID> previousParentage_;
@@ -90,6 +83,6 @@ namespace edm {
       ParentageID previousParentageId_;
       ModuleDescription const* moduleDescriptionPtr_;
     };
-  }
-}
+  }  // namespace stream
+}  // namespace edm
 #endif

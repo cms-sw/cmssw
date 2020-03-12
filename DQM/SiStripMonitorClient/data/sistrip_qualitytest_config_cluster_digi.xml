@@ -38,4 +38,4 @@
 <LINK name="*ClusterWidth__det__*">
   <TestName activate="true">XrangeWithin:0-10.0</TestName>
 </LINK>
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

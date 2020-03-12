@@ -5,23 +5,20 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 
-class HcalCoderFactory
-{
+class HcalCoderFactory {
 public:
-  enum CoderType {DB, NOMINAL};
+  enum CoderType { DB, NOMINAL };
 
   HcalCoderFactory(CoderType coderType);
 
-  void setDbService(const HcalDbService * service) {theDbService = service;}
+  void setDbService(const HcalDbService* service) { theDbService = service; }
 
   /// user gets control of the pointer
-  std::unique_ptr<HcalCoder> coder(const DetId & detId) const;
+  std::unique_ptr<HcalCoder> coder(const DetId& detId) const;
 
 private:
-
   CoderType theCoderType;
-  const HcalDbService * theDbService;
+  const HcalDbService* theDbService;
 };
 
 #endif
-

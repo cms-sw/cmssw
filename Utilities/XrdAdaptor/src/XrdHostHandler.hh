@@ -5,11 +5,11 @@
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #if defined(__linux__)
-  #define HAVE_ATOMICS 1
-  #include "XrdSys/XrdSysLinuxSemaphore.hh"
-  typedef XrdSys::LinuxSemaphore Semaphore;
+#define HAVE_ATOMICS 1
+#include "XrdSys/XrdSysLinuxSemaphore.hh"
+typedef XrdSys::LinuxSemaphore Semaphore;
 #else
-  typedef XrdSysSemaphore Semaphore;
+typedef XrdSysSemaphore Semaphore;
 #endif
 
 /**
@@ -18,31 +18,22 @@
  * utilize.
  */
 
-class SyncHostResponseHandler: public XrdCl::ResponseHandler
-{
+class SyncHostResponseHandler : public XrdCl::ResponseHandler {
 public:
+  SyncHostResponseHandler() : sem(0) {}
 
-  SyncHostResponseHandler():
-    sem(0)
-  {
-  }
+  ~SyncHostResponseHandler() override = default;
 
-  virtual ~SyncHostResponseHandler() = default;
-
-
-  virtual void HandleResponse(XrdCl::XRootDStatus *status,
-                              XrdCl::AnyObject    *response) override
-  {
+  void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override {
     // propagate_const<T> has no reset() function
     pStatus_ = std::unique_ptr<XrdCl::XRootDStatus>(status);
     pResponse_ = std::unique_ptr<XrdCl::AnyObject>(response);
     sem.Post();
   }
 
-  virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status,
-                                       XrdCl::AnyObject    *response,
-                                       XrdCl::HostList     *hostList) override
-  {
+  void HandleResponseWithHosts(XrdCl::XRootDStatus *status,
+                               XrdCl::AnyObject *response,
+                               XrdCl::HostList *hostList) override {
     // propagate_const<T> has no reset() function
     pStatus_ = std::unique_ptr<XrdCl::XRootDStatus>(status);
     pResponse_ = std::unique_ptr<XrdCl::AnyObject>(response);
@@ -50,32 +41,19 @@ public:
     sem.Post();
   }
 
-  std::unique_ptr<XrdCl::XRootDStatus> GetStatus()
-  {
-        return std::move(get_underlying_safe(pStatus_));
-  }
+  std::unique_ptr<XrdCl::XRootDStatus> GetStatus() { return std::move(get_underlying_safe(pStatus_)); }
 
-  std::unique_ptr<XrdCl::AnyObject> GetResponse()
-  {
-    return std::move(get_underlying_safe(pResponse_));
-  }
+  std::unique_ptr<XrdCl::AnyObject> GetResponse() { return std::move(get_underlying_safe(pResponse_)); }
 
-  std::unique_ptr<XrdCl::HostList> GetHosts()
-  {
-    return std::move(get_underlying_safe(pHostList_));
-  }
+  std::unique_ptr<XrdCl::HostList> GetHosts() { return std::move(get_underlying_safe(pHostList_)); }
 
-  void WaitForResponse()
-  {
-    sem.Wait();
-  }
+  void WaitForResponse() { sem.Wait(); }
 
 private:
-
   edm::propagate_const<std::unique_ptr<XrdCl::XRootDStatus>> pStatus_;
-  edm::propagate_const<std::unique_ptr<XrdCl::AnyObject>>    pResponse_;
-  edm::propagate_const<std::unique_ptr<XrdCl::HostList>>     pHostList_;
-  Semaphore                            sem;
+  edm::propagate_const<std::unique_ptr<XrdCl::AnyObject>> pResponse_;
+  edm::propagate_const<std::unique_ptr<XrdCl::HostList>> pHostList_;
+  Semaphore sem;
 };
 
 #endif

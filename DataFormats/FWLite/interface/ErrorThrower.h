@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     ErrorThrower
-// 
+//
 /**\class ErrorThrower ErrorThrower.h DataFormats/FWLite/interface/ErrorThrower.h
 
  Description: Allows delaying a throw of a specific exception
@@ -24,32 +24,36 @@
 // user include files
 
 // forward declarations
-namespace  fwlite {
-   class ErrorThrower {
+namespace fwlite {
+  class ErrorThrower {
+  public:
+    ErrorThrower();
+    virtual ~ErrorThrower();
 
-   public:
-      ErrorThrower();
-      virtual ~ErrorThrower();
+    // ---------- const member functions ---------------------
+    virtual void throwIt() const = 0;
+    virtual ErrorThrower* clone() const = 0;
 
-      // ---------- const member functions ---------------------
-      virtual void throwIt() const =0;
-      virtual ErrorThrower* clone() const =0;
-      
-      // ---------- static member functions --------------------
-      static ErrorThrower* unsetErrorThrower();
-      static ErrorThrower* errorThrowerBranchNotFoundException(const std::type_info&, const char*, const char*, const char*);
-      static ErrorThrower* errorThrowerProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
-      
-      // ---------- member functions ---------------------------
-      
-   private:
-      //ErrorThrower(const ErrorThrower&); // stop default
+    // ---------- static member functions --------------------
+    static ErrorThrower* unsetErrorThrower();
+    static ErrorThrower* errorThrowerBranchNotFoundException(const std::type_info&,
+                                                             const char*,
+                                                             const char*,
+                                                             const char*);
+    static ErrorThrower* errorThrowerProductNotFoundException(const std::type_info&,
+                                                              const char*,
+                                                              const char*,
+                                                              const char*);
 
-      //const ErrorThrower& operator=(const ErrorThrower&); // stop default
+    // ---------- member functions ---------------------------
 
-      // ---------- member data --------------------------------
+  private:
+    //ErrorThrower(const ErrorThrower&); // stop default
 
-   };
+    //const ErrorThrower& operator=(const ErrorThrower&); // stop default
 
-}
+    // ---------- member data --------------------------------
+  };
+
+}  // namespace fwlite
 #endif

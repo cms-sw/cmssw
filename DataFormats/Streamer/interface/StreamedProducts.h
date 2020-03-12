@@ -32,28 +32,28 @@ namespace edm {
   class StreamedProduct {
   public:
     StreamedProduct() : prod_(nullptr), desc_(nullptr), present_(false), parents_(nullptr) {}
-    explicit StreamedProduct(BranchDescription const& desc) :
-      prod_(nullptr), desc_(&desc), present_(false), parents_(nullptr) {}
+    explicit StreamedProduct(BranchDescription const& desc)
+        : prod_(nullptr), desc_(&desc), present_(false), parents_(nullptr) {}
 
     StreamedProduct(WrapperBase const* prod,
                     BranchDescription const& desc,
                     bool present,
                     std::vector<BranchID> const* parents);
 
-    BranchDescription const* desc() const {return desc_;}
-    BranchID branchID() const {return desc_->branchID();}
-    bool present() const {return present_;}
-    std::vector<BranchID> const* parents() const {return parents_;}
-    WrapperBase const* prod() {return prod_;}
+    BranchDescription const* desc() const { return desc_; }
+    BranchID branchID() const { return desc_->branchID(); }
+    bool present() const { return present_; }
+    std::vector<BranchID> const* parents() const { return parents_; }
+    WrapperBase const* prod() { return prod_; }
 
-   void clear() {
-     prod_= nullptr;
-     delete desc_;
-     desc_= nullptr;
-     present_ = false;
-     delete parents_;
-     parents_ = nullptr;
-  }
+    void clear() {
+      prod_ = nullptr;
+      delete desc_;
+      desc_ = nullptr;
+      present_ = false;
+      delete parents_;
+      parents_ = nullptr;
+    }
 
   private:
     WrapperBase const* prod_;
@@ -70,22 +70,23 @@ namespace edm {
 
   class SendEvent {
   public:
-    SendEvent() { }
+    SendEvent() {}
     SendEvent(EventAuxiliary const& aux,
               ProcessHistory const& processHistory,
               EventSelectionIDVector const& eventSelectionIDs,
-              BranchListIndexes const& branchListIndexes) :
-        aux_(aux),
-        processHistory_(processHistory),
-        eventSelectionIDs_(eventSelectionIDs),
-        branchListIndexes_(branchListIndexes),
-        products_() {}
-    EventAuxiliary const& aux() const {return aux_;}
-    SendProds const& products() const {return products_;}
-    ProcessHistory const& processHistory() const {return processHistory_;}
-    EventSelectionIDVector const& eventSelectionIDs() const {return eventSelectionIDs_;}
-    BranchListIndexes const& branchListIndexes() const {return branchListIndexes_;}
-    SendProds& products() {return products_;}
+              BranchListIndexes const& branchListIndexes)
+        : aux_(aux),
+          processHistory_(processHistory),
+          eventSelectionIDs_(eventSelectionIDs),
+          branchListIndexes_(branchListIndexes),
+          products_() {}
+    EventAuxiliary const& aux() const { return aux_; }
+    SendProds const& products() const { return products_; }
+    ProcessHistory const& processHistory() const { return processHistory_; }
+    EventSelectionIDVector const& eventSelectionIDs() const { return eventSelectionIDs_; }
+    BranchListIndexes const& branchListIndexes() const { return branchListIndexes_; }
+    SendProds& products() { return products_; }
+
   private:
     EventAuxiliary aux_;
     ProcessHistory processHistory_;
@@ -102,13 +103,13 @@ namespace edm {
   public:
     typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
     SendJobHeader() {}
-    SendDescs const& descs() const {return descs_;}
-    ParameterSetMap const& processParameterSet() const {return processParameterSet_;}
-    BranchIDLists const& branchIDLists() const {return branchIDLists_;}
+    SendDescs const& descs() const { return descs_; }
+    ParameterSetMap const& processParameterSet() const { return processParameterSet_; }
+    BranchIDLists const& branchIDLists() const { return branchIDLists_; }
     ThinnedAssociationsHelper const& thinnedAssociationsHelper() const { return thinnedAssociationsHelper_; }
-    void push_back(BranchDescription const& bd) {descs_.push_back(bd);}
-    void setParameterSetMap(ParameterSetMap const& psetMap) {processParameterSet_ = psetMap;}
-    void setBranchIDLists(BranchIDLists const& bidlists) {branchIDLists_ = bidlists;}
+    void push_back(BranchDescription const& bd) { descs_.push_back(bd); }
+    void setParameterSetMap(ParameterSetMap const& psetMap) { processParameterSet_ = psetMap; }
+    void setBranchIDLists(BranchIDLists const& bidlists) { branchIDLists_ = bidlists; }
     void setThinnedAssociationsHelper(ThinnedAssociationsHelper const& v) { thinnedAssociationsHelper_ = v; }
     void initializeTransients();
 
@@ -121,7 +122,5 @@ namespace edm {
     //  provenance values
   };
 
-
-}
+}  // namespace edm
 #endif
-

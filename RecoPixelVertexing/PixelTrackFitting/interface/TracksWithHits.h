@@ -8,10 +8,10 @@
 #include <vector>
 
 namespace pixeltrackfitting {
-  typedef std::pair<reco::Track*, std::vector<const TrackingRecHit *> > TrackWithRecHits;
-  typedef std::pair<reco::Track*, SeedingHitSet> TrackWithTTRHs;
-  typedef std::vector<TrackWithRecHits> TracksWithRecHits; 
-  typedef std::vector<TrackWithTTRHs> TracksWithTTRHs; 
-}
+  typedef std::pair<reco::Track *, std::vector<const TrackingRecHit *> > TrackWithRecHits;
+  typedef std::pair<reco::Track *, SeedingHitSet> TrackWithTTRHs;
+  typedef std::vector<TrackWithRecHits> TracksWithRecHits;
+  typedef std::vector<TrackWithTTRHs> TracksWithTTRHs;
+}  // namespace pixeltrackfitting
 
 #endif

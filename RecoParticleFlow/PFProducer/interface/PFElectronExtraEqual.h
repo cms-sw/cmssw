@@ -6,26 +6,12 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
 
 class PFElectronExtraEqual {
- public:
-  PFElectronExtraEqual(const reco::GsfTrackRef & gsfTrackRef):ref_(gsfTrackRef) {;}
-    ~PFElectronExtraEqual(){;}
-    inline bool operator() (const reco::PFCandidateElectronExtra & extra) {
-      return (ref_==extra.gsfTrackRef());
-    }
- private:
-    reco::GsfTrackRef ref_;
-};
+public:
+  PFElectronExtraEqual(const reco::GsfTrackRef& gsfTrackRef) : ref_(gsfTrackRef) { ; }
+  inline bool operator()(const reco::PFCandidateElectronExtra& extra) { return (ref_ == extra.gsfTrackRef()); }
 
-class PFElectronExtraKfEqual {
- public:
-  PFElectronExtraKfEqual(const reco::TrackRef & trackRef):ref_(trackRef) {;}
-    ~PFElectronExtraKfEqual(){;}
-    inline bool operator() (const reco::PFCandidateElectronExtra & extra) {
-      return (ref_==extra.kfTrackRef());
-    }
- private:
-    reco::TrackRef ref_;
+private:
+  reco::GsfTrackRef ref_;
 };
-
 
 #endif

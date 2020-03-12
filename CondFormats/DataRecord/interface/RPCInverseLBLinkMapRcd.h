@@ -7,8 +7,7 @@
 #include "CondFormats/DataRecord/interface/RPCLBLinkMapRcd.h"
 
 class RPCInverseLBLinkMapRcd
-    : public edm::eventsetup::DependentRecordImplementation<RPCInverseLBLinkMapRcd
-                                                            , boost::mpl::vector<RPCLBLinkMapRcd> >
-{};
+    : public edm::eventsetup::DependentRecordImplementation<RPCInverseLBLinkMapRcd,
+                                                            boost::mpl::vector<RPCLBLinkMapRcd> > {};
 
-#endif // CondFormats_DataRecord_RPCInverseLBLinkMapRcd_h
+#endif  // CondFormats_DataRecord_RPCInverseLBLinkMapRcd_h

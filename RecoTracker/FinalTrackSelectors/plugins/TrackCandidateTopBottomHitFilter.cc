@@ -16,7 +16,6 @@ Implementation:
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -61,9 +60,7 @@ TrackCandidateTopBottomHitFilter::TrackCandidateTopBottomHitFilter(const edm::Pa
   produces<TrackCandidateCollection>();
 }
 
-
 TrackCandidateTopBottomHitFilter::~TrackCandidateTopBottomHitFilter() {}
-
 
 //
 // member functions
@@ -75,22 +72,25 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
   using namespace std;
 
   Handle<TrackCandidateCollection> pIn;
-  iEvent.getByToken(label,pIn);
+  iEvent.getByToken(label, pIn);
   auto pOut = std::make_unique<TrackCandidateCollection>();
-  for (TrackCandidateCollection::const_iterator it=pIn->begin(); it!=pIn->end();++it) {
+  for (TrackCandidateCollection::const_iterator it = pIn->begin(); it != pIn->end(); ++it) {
     PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
     TrackCandidate::range oldhits = it->recHits();
     TrajectorySeed seed = it->seed();
     TrackCandidate::RecHitContainer hits;
-    for (TrackCandidate::RecHitContainer::const_iterator hit=oldhits.first;hit!=oldhits.second;++hit) {
+    for (TrackCandidate::RecHitContainer::const_iterator hit = oldhits.first; hit != oldhits.second; ++hit) {
       if (hit->isValid()) {
-	double hitY = theBuilder->build(&*hit)->globalPosition().y();
-	if (seedY*hitY>0) hits.push_back(hit->clone());
-	else break;
-      } else hits.push_back(hit->clone());
+        double hitY = theBuilder->build(&*hit)->globalPosition().y();
+        if (seedY * hitY > 0)
+          hits.push_back(hit->clone());
+        else
+          break;
+      } else
+        hits.push_back(hit->clone());
     }
-    if (hits.size()>=3) {
-      TrackCandidate newTC(hits,seed,state);
+    if (hits.size() >= 3) {
+      TrackCandidate newTC(hits, seed, state);
       pOut->push_back(newTC);
     }
   }
@@ -98,9 +98,8 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
 }
 
 void TrackCandidateTopBottomHitFilter::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
+  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackCandidateTopBottomHitFilter);

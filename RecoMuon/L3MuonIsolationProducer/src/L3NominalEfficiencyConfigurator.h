@@ -8,13 +8,13 @@
 
 class L3NominalEfficiencyConfigurator {
 public:
-  L3NominalEfficiencyConfigurator(const edm::ParameterSet & pset); 
+  L3NominalEfficiencyConfigurator(const edm::ParameterSet& pset);
   muonisolation::Cuts cuts() const;
+
 private:
   edm::ParameterSet theConfig;
   std::vector<std::string> theBestCones;
   std::vector<double> theWeights;
-  std::string theFileName; 
-   
+  std::string theFileName;
 };
 #endif

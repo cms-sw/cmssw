@@ -28,63 +28,51 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
-
-
 //
 // constructors , dectructors
 //
-FWPFCandidateTowerProxyBuilder::FWPFCandidateTowerProxyBuilder():
-m_towers(nullptr)
-{
-}
+FWPFCandidateTowerProxyBuilder::FWPFCandidateTowerProxyBuilder() : m_towers(nullptr) {}
 
-FWPFCandidateTowerProxyBuilder::~FWPFCandidateTowerProxyBuilder()
-{
-}
+FWPFCandidateTowerProxyBuilder::~FWPFCandidateTowerProxyBuilder() {}
 
 //
 // member functions
 //
 
-
-
-void
-FWPFCandidateTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* el, const FWViewContext* ctx)
-{
-   m_towers=nullptr;
-   if (iItem)
-   {
-      iItem->get(m_towers);
-      FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
-   }
+void FWPFCandidateTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* el, const FWViewContext* ctx) {
+  m_towers = nullptr;
+  if (iItem) {
+    iItem->get(m_towers);
+    FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
+  }
 }
 
-
-FWHistSliceSelector*
-FWPFCandidateTowerProxyBuilder::instantiateSliceSelector()
-{
-   return new FWPFCandidateTowerSliceSelector(m_hist, item());
+FWHistSliceSelector* FWPFCandidateTowerProxyBuilder::instantiateSliceSelector() {
+  return new FWPFCandidateTowerSliceSelector(m_hist, item());
 }
 
-void
-FWPFCandidateTowerProxyBuilder::fillCaloData()
-{
-    m_hist->Reset();
+void FWPFCandidateTowerProxyBuilder::fillCaloData() {
+  m_hist->Reset();
 
-    if (m_towers)
-    {
-        if(item()->defaultDisplayProperties().isVisible()) {
-            // assert(item()->size() >= m_towers->size());
-            unsigned int index=0;
-            for( reco::PFCandidateConstIterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
-                const FWEventItem::ModelInfo& info = item()->modelInfo(index);
-                if(info.displayProperties().isVisible()) {
-                    addEntryToTEveCaloData(tower->eta(), tower->phi(), getEt(*tower), info.isSelected());
-                }
-            }
+  if (m_towers) {
+    if (item()->defaultDisplayProperties().isVisible()) {
+      // assert(item()->size() >= m_towers->size());
+      unsigned int index = 0;
+      for (reco::PFCandidateConstIterator tower = m_towers->begin(); tower != m_towers->end(); ++tower, ++index) {
+        const FWEventItem::ModelInfo& info = item()->modelInfo(index);
+        if (info.displayProperties().isVisible()) {
+          addEntryToTEveCaloData(tower->eta(), tower->phi(), getEt(*tower), info.isSelected());
         }
+      }
     }
+  }
 }
 
-REGISTER_FWPROXYBUILDER(FWECalPFCandidateProxyBuilder, reco::PFCandidateCollection,"CaloTowerPfCandEcal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
-REGISTER_FWPROXYBUILDER(FWHCalPFCandidateProxyBuilder, reco::PFCandidateCollection,"CaloTowerPfCandHcal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
+REGISTER_FWPROXYBUILDER(FWECalPFCandidateProxyBuilder,
+                        reco::PFCandidateCollection,
+                        "CaloTowerPfCandEcal",
+                        FWViewType::k3DBit | FWViewType::kAllRPZBits | FWViewType::kAllLegoBits);
+REGISTER_FWPROXYBUILDER(FWHCalPFCandidateProxyBuilder,
+                        reco::PFCandidateCollection,
+                        "CaloTowerPfCandHcal",
+                        FWViewType::k3DBit | FWViewType::kAllRPZBits | FWViewType::kAllLegoBits);

@@ -3,9 +3,8 @@
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
   <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
   <use name="FWCore/PluginManager"/>
-  <use name="FWCore/PythonParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
 </bin>
@@ -14,9 +13,8 @@
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
   <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
   <use name="FWCore/PluginManager"/>
-  <use name="FWCore/PythonParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <use name="Utilities/Xerces"/>
@@ -26,9 +24,8 @@
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
   <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
   <use name="FWCore/PluginManager"/>
-  <use name="FWCore/PythonParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
 </bin>
@@ -42,19 +39,13 @@
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
   <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
   <use name="FWCore/PluginManager"/>
-  <use name="FWCore/PythonParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
 </bin>
 <bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDDErrorReport">
   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DDErrorReport.sh" />
-  <use   name="FWCore/Utilities" />
-</bin>
-
-<bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDOMCount">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DOMCount.sh" />
   <use   name="FWCore/Utilities" />
 </bin>
 
@@ -129,8 +120,6 @@
  <use name="FWCore/Framework"/>
  <use name="FWCore/Utilities"/>
  <use name="FWCore/PluginManager"/>
- <use name="FWCore/ParameterSet"/>
- <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/MessageLogger"/>
 </bin>

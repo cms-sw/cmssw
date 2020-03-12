@@ -1,64 +1,69 @@
 // -*- C++ -*-
-// Package:    SiPixelESProducers
+//
+// Package:    SiPixel2DTemplateDBObjectESProducer
 // Class:      SiPixel2DTemplateDBObjectESProducer
+//
+/**\class SiPixel2DTemplateDBObjectESProducer SiPixel2DTemplateDBObjectESProducer.cc CalibTracker/SiPixelESProducers/plugin/SiPixel2DTemplateDBObjectESProducer.cc
+
+ Description: ESProducer for magnetic-field-dependent local reco templates
+
+ Implementation: Used inside the RecoLocalTracker/Records/TkPixelRecord to select the correct db for given magnetic field
+*/
+//
 // Original Author:  D.Fehling
 //         Created:  Tue Sep 29 14:49:31 CET 2009
 //
+//
 
-#include "CalibTracker/SiPixelESProducers/interface/SiPixel2DTemplateDBObjectESProducer.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
+#include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
 
 #include <memory>
-#include "boost/mpl/vector.hpp"
-
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 using namespace edm;
 
+class SiPixel2DTemplateDBObjectESProducer : public edm::ESProducer {
+public:
+  SiPixel2DTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
+  ~SiPixel2DTemplateDBObjectESProducer() override;
+  std::shared_ptr<const SiPixel2DTemplateDBObject> produce(const SiPixel2DTemplateDBObjectESProducerRcd&);
+
+private:
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> dbToken_;
+};
+
 SiPixel2DTemplateDBObjectESProducer::SiPixel2DTemplateDBObjectESProducer(const edm::ParameterSet& iConfig) {
-	setWhatProduced(this);
+  setWhatProduced(this)
+      .setConsumes(magfieldToken_)
+      .setConsumes(dbToken_, edm::ESInputTag{"", "numerator"});  // The correct default
 }
 
+SiPixel2DTemplateDBObjectESProducer::~SiPixel2DTemplateDBObjectESProducer() {}
 
-SiPixel2DTemplateDBObjectESProducer::~SiPixel2DTemplateDBObjectESProducer(){
-}
+std::shared_ptr<const SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProducer::produce(
+    const SiPixel2DTemplateDBObjectESProducerRcd& iRecord) {
+  const auto& magfield = iRecord.get(magfieldToken_);
 
+  GlobalPoint center(0.0, 0.0, 0.0);
+  float theMagField = magfield.inTesla(center).mag();
 
+  if (theMagField >= 4.1 || theMagField < -0.1)
+    edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixel2DTemplate") << "Magnetic field is " << theMagField;
 
+  const auto& dbobject = iRecord.get(dbToken_);
 
-std::shared_ptr<const SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProducer::produce(const SiPixel2DTemplateDBObjectESProducerRcd & iRecord) {
-	
-	ESHandle<MagneticField> magfield;
-	iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
+  if (std::fabs(theMagField - dbobject.sVector()[22]) > 0.1)
+    edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixel2DTemplate")
+        << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject.sVector()[22];
 
-	GlobalPoint center(0.0, 0.0, 0.0);
-	float theMagField = magfield.product()->inTesla(center).mag();
-
-    std::string label = "numerator";   // The correct default
-	//  std::string label = "denominator"; // Outdated. Used for MC in older GT's
-	//  std::string label = "";      // Outdated. Old default 
-
-	if(     theMagField>=-0.1 && theMagField<1.0 ) label = "0T";
-	else if(theMagField>=1.0  && theMagField<2.5 ) label = "2T";
-	else if(theMagField>=2.5  && theMagField<3.25) label = "3T";
-	else if(theMagField>=3.25 && theMagField<3.65) label = "35T";
-	else if(theMagField>=3.9  && theMagField<4.1 ) label = "4T";
-	else {
-		//label = "3.8T";
-		if(theMagField>=4.1 || theMagField<-0.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixel2DTemplate") << "Magnetic field is " << theMagField;
-	}
-	ESHandle<SiPixel2DTemplateDBObject> dbobject;
-	iRecord.getRecord<SiPixel2DTemplateDBObjectRcd>().get(label,dbobject);
-
-	if(std::fabs(theMagField-dbobject->sVector()[22])>0.1)
-		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixel2DTemplate") << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject->sVector()[22];
-	
-	return std::shared_ptr<const SiPixel2DTemplateDBObject>(&(*dbobject), edm::do_nothing_deleter());
+  return std::shared_ptr<const SiPixel2DTemplateDBObject>(&dbobject, edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixel2DTemplateDBObjectESProducer);

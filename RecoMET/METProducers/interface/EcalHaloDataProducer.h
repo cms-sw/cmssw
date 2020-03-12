@@ -6,8 +6,7 @@
   [authors]: R. Remington, The University of Florida
   [description]: EDProducer which runs EcalHaloAlgo and store the EcalHaloData object to the event.
   [date]: October 15, 2009
-*/  
-
+*/
 
 //Standard C++ classes
 #include <iostream>
@@ -55,7 +54,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitDefs.h"
-#include "DataFormats/HepMCCandidate/interface/PdfInfo.h" 
+#include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cone.h"
@@ -90,18 +89,15 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-namespace reco
-{
+namespace reco {
   class EcalHaloDataProducer : public edm::stream::EDProducer<> {
-    
   public:
     explicit EcalHaloDataProducer(const edm::ParameterSet&);
     ~EcalHaloDataProducer() override;
-    
+
   private:
-    
     void produce(edm::Event&, const edm::EventSetup&) override;
-    
+
     //RecHit Level
     edm::InputTag IT_EBRecHit;
     edm::InputTag IT_EERecHit;
@@ -118,17 +114,16 @@ namespace reco
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<reco::SuperClusterCollection> supercluster_token_;
     edm::EDGetTokenT<reco::PhotonCollection> photon_token_;
-    
-    float  EBRecHitEnergyThreshold;
-    float  EERecHitEnergyThreshold;
-    float  ESRecHitEnergyThreshold;
-    float  SumEcalEnergyThreshold;
-    int  NHitsEcalThreshold;
+
+    float EBRecHitEnergyThreshold;
+    float EERecHitEnergyThreshold;
+    float ESRecHitEnergyThreshold;
+    float SumEcalEnergyThreshold;
+    int NHitsEcalThreshold;
 
     double RoundnessCut;
-    double AngleCut;  
+    double AngleCut;
   };
-}
+}  // namespace reco
 
 #endif
-  

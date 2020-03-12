@@ -16,24 +16,18 @@
 //#include "Calibration/Tools/plugins/SelectorWithEventSetup.h"
 #include "Calibration/Tools/plugins/ElectronSqPtTkIsolationProducer.h"
 
-
-
-
 namespace reco {
   namespace modules {
-    typedef SingleObjectSelector<reco::GsfElectronCollection,
-                                 ::PhiRangeSelector> PhiRangeSelector; 
+    typedef SingleObjectSelector<reco::GsfElectronCollection, ::PhiRangeSelector> PhiRangeSelector;
     DEFINE_FWK_MODULE(PhiRangeSelector);
 
-    typedef SingleObjectSelector<reco::GsfElectronCollection,
-                                 ::IMASelector> IMASelector; 
+    typedef SingleObjectSelector<reco::GsfElectronCollection, ::IMASelector> IMASelector;
     DEFINE_FWK_MODULE(IMASelector);
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
-
-DEFINE_FWK_MODULE( ElectronSqPtTkIsolationProducer );
+DEFINE_FWK_MODULE(ElectronSqPtTkIsolationProducer);
 
 // typedef SelectorWithEventSetup<SingleEleCalibSelector> SingleElectronCalibrationSelector;
 // DEFINE_FWK_MODULE( SingleElectronCalibrationSelector );

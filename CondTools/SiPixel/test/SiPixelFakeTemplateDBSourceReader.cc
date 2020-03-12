@@ -5,33 +5,19 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 
-SiPixelFakeTemplateDBSourceReader::SiPixelFakeTemplateDBSourceReader(const edm::ParameterSet& iConfig)
-{
+SiPixelFakeTemplateDBSourceReader::SiPixelFakeTemplateDBSourceReader(const edm::ParameterSet& iConfig) {}
+
+SiPixelFakeTemplateDBSourceReader::~SiPixelFakeTemplateDBSourceReader() {}
+
+void SiPixelFakeTemplateDBSourceReader::beginJob() {}
+
+void SiPixelFakeTemplateDBSourceReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup) {
+  if (SiPixelTemplateDBObjectWatcher_.check(setup)) {
+    edm::ESHandle<SiPixelTemplateDBObject> templateH;
+    setup.get<SiPixelTemplateDBObjectRcd>().get(templateH);
+
+    std::cout << *templateH.product() << std::endl;
+  }
 }
 
-SiPixelFakeTemplateDBSourceReader::~SiPixelFakeTemplateDBSourceReader()
-{
-}
-
-void 
-SiPixelFakeTemplateDBSourceReader::beginJob()
-{
-}
-
-void
-SiPixelFakeTemplateDBSourceReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup)
-{
-	if(SiPixelTemplateDBObjectWatcher_.check(setup)) {
-		
-	edm::ESHandle<SiPixelTemplateDBObject> templateH;
-	setup.get<SiPixelTemplateDBObjectRcd>().get(templateH);
-
-	std::cout << *templateH.product() << std::endl;
-	}
-}
-
-void 
-SiPixelFakeTemplateDBSourceReader::endJob() {
-}
-
-
+void SiPixelFakeTemplateDBSourceReader::endJob() {}

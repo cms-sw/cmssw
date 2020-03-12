@@ -27,85 +27,85 @@
 #include <vector>
 
 namespace {
-  /// is sv1 < sv2 
+  /// is sv1 < sv2
   struct ddsvaluesCmp {
-    bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 ) const;
+    bool operator()(const DDsvalues_type& sv1, const DDsvalues_type& sv2) const;
   };
-}
+}  // namespace
 
-class OutputDDToDDL : public edm::one::EDAnalyzer<edm::one::WatchRuns>
-{
+class OutputDDToDDL : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  explicit OutputDDToDDL( const edm::ParameterSet& iConfig );
+  explicit OutputDDToDDL(const edm::ParameterSet& iConfig);
   ~OutputDDToDDL() override;
 
   void beginJob() override {}
-  void beginRun( edm::Run const& iEvent, edm::EventSetup const& ) override;
-  void analyze( edm::Event const& iEvent, edm::EventSetup const& ) override {}
-  void endRun( edm::Run const& iEvent, edm::EventSetup const& ) override {}
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
   void endJob() override {}
-  
+
 private:
-  void addToMatStore( const DDMaterial& mat, std::set<DDMaterial> & matStore );
-  void addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore );
-  void addToSpecStore( const DDLogicalPart& lp, std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > & specStore );
-  
+  void addToMatStore(const DDMaterial& mat, std::set<DDMaterial>& matStore);
+  void addToSolStore(const DDSolid& sol, std::set<DDSolid>& solStore, std::set<DDRotation>& rotStore);
+  void addToSpecStore(const DDLogicalPart& lp,
+                      std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp>& specStore);
+
   int m_rotNumSeed;
   std::string m_fname;
   std::ostream* m_xos;
 };
 
-bool
-ddsvaluesCmp::operator() ( const DDsvalues_type& sv1, const DDsvalues_type& sv2 ) const
-{
-  if( sv1.size() < sv2.size()) return true;
-  if( sv2.size() < sv1.size()) return false;
+bool ddsvaluesCmp::operator()(const DDsvalues_type& sv1, const DDsvalues_type& sv2) const {
+  if (sv1.size() < sv2.size())
+    return true;
+  if (sv2.size() < sv1.size())
+    return false;
 
   size_t ind = 0;
-  for( ; ind < sv1.size(); ++ind ) {
-    if ( sv1[ind].first < sv2[ind].first ) return true;
-    if ( sv2[ind].first < sv1[ind].first ) return false;
-    if ( sv1[ind].second < sv2[ind].second ) return true;
-    if ( sv2[ind].second < sv1[ind].second ) return false;
+  for (; ind < sv1.size(); ++ind) {
+    if (sv1[ind].first < sv2[ind].first)
+      return true;
+    if (sv2[ind].first < sv1[ind].first)
+      return false;
+    if (sv1[ind].second < sv2[ind].second)
+      return true;
+    if (sv2[ind].second < sv1[ind].second)
+      return false;
   }
   return false;
 }
 
-OutputDDToDDL::OutputDDToDDL( const edm::ParameterSet& iConfig )
-  : m_fname()
-{
+OutputDDToDDL::OutputDDToDDL(const edm::ParameterSet& iConfig) : m_fname() {
   m_rotNumSeed = iConfig.getParameter<int>("rotNumSeed");
   m_fname = iConfig.getUntrackedParameter<std::string>("fileName");
-  if( m_fname.empty() ) {
+  if (m_fname.empty()) {
     m_xos = &std::cout;
   } else {
-    m_xos = new std::ofstream( m_fname.c_str());
+    m_xos = new std::ofstream(m_fname.c_str());
   }
   (*m_xos) << "<?xml version=\"1.0\"?>" << std::endl;
   (*m_xos) << "<DDDefinition xmlns=\"http://www.cern.ch/cms/DDL\"" << std::endl;
   (*m_xos) << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" << std::endl;
-  (*m_xos) << "xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd\">" << std::endl;
+  (*m_xos) << "xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd\">"
+           << std::endl;
   (*m_xos) << std::fixed << std::setprecision(18);
 }
 
-OutputDDToDDL::~OutputDDToDDL()
-{
+OutputDDToDDL::~OutputDDToDDL() {
   (*m_xos) << "</DDDefinition>" << std::endl;
   (*m_xos) << std::endl;
   m_xos->flush();
 }
 
-void
-OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es ) 
-{
+void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   std::cout << "OutputDDToDDL::beginRun" << std::endl;
 
   edm::ESTransientHandle<DDCompactView> pDD;
-  es.get<IdealGeometryRecord>().get( pDD );
+  es.get<IdealGeometryRecord>().get(pDD);
 
   using Graph = DDCompactView::Graph;
   using adjl_iterator = Graph::const_adj_iterator;
- 
+
   const auto& gra = pDD->graph();
   // temporary stores:
   std::set<DDLogicalPart> lpStore;
@@ -114,23 +114,24 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
   // 2009-08-19: MEC: I've tried this with set<DDPartSelection> and
   // had to write operator< for DDPartSelection and DDPartSelectionLevel
   // the output from such an effort is different than this one.
-  std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > specStore;
+  std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp> specStore;
   std::set<DDRotation> rotStore;
 
   DDCoreToDDXMLOutput out;
-  
+
   std::string rn = m_fname;
   size_t foundLastDot = rn.find_last_of('.');
   size_t foundLastSlash = rn.find_last_of('/');
-  if( foundLastSlash > foundLastDot && foundLastSlash != std::string::npos ) {
+  if (foundLastSlash > foundLastDot && foundLastSlash != std::string::npos) {
     std::cout << "What? last . before last / in path for filename... this should die..." << std::endl;
   }
-  if( foundLastDot != std::string::npos && foundLastSlash != std::string::npos ) {
-    out.ns_ = rn.substr( foundLastSlash, foundLastDot );
-  } else if( foundLastDot != std::string::npos ) {
+  if (foundLastDot != std::string::npos && foundLastSlash != std::string::npos) {
+    out.ns_ = rn.substr(foundLastSlash, foundLastDot);
+  } else if (foundLastDot != std::string::npos) {
     out.ns_ = rn.substr(0, foundLastDot);
   } else {
-    std::cout << "What? no file name? Attempt at namespace =\"" << out.ns_ << "\" filename was " << m_fname <<  std::endl;
+    std::cout << "What? no file name? Attempt at namespace =\"" << out.ns_ << "\" filename was " << m_fname
+              << std::endl;
   }
   std::cout << "m_fname = " << m_fname << " namespace = " << out.ns_ << std::endl;
   std::string ns_ = out.ns_;
@@ -138,124 +139,125 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
   (*m_xos) << std::fixed << std::setprecision(18);
 
   adjl_iterator git = gra.begin();
-  adjl_iterator gend = gra.end();    
-    
-  Graph::index_type i=0;
+  adjl_iterator gend = gra.end();
+
+  Graph::index_type i = 0;
   (*m_xos) << "<PosPartSection label=\"" << ns_ << "\">" << std::endl;
   git = gra.begin();
-  for( ; git != gend; ++git ) {
-    const DDLogicalPart & ddLP = gra.nodeData( git );
-    if( lpStore.find( ddLP ) != lpStore.end()) {
-      addToSpecStore( ddLP, specStore );
+  for (; git != gend; ++git) {
+    const DDLogicalPart& ddLP = gra.nodeData(git);
+    if (lpStore.find(ddLP) != lpStore.end()) {
+      addToSpecStore(ddLP, specStore);
     }
-    lpStore.insert( ddLP );
-    addToMatStore( ddLP.material(), matStore );
-    addToSolStore( ddLP.solid(), solStore, rotStore );
+    lpStore.insert(ddLP);
+    addToMatStore(ddLP.material(), matStore);
+    addToSolStore(ddLP.solid(), solStore, rotStore);
     ++i;
-    if( !git->empty()) {
-      // ask for children of ddLP  
-      auto cit  = git->begin();
+    if (!git->empty()) {
+      // ask for children of ddLP
+      auto cit = git->begin();
       auto cend = git->end();
-      for( ; cit != cend; ++cit ) {
-	const DDLogicalPart & ddcurLP = gra.nodeData( cit->first );
-	if( lpStore.find( ddcurLP ) != lpStore.end()) {
-	  addToSpecStore( ddcurLP, specStore );
-	}
-	lpStore.insert( ddcurLP );
-	addToMatStore( ddcurLP.material(), matStore );
-	addToSolStore( ddcurLP.solid(), solStore, rotStore );
-	rotStore.insert( gra.edgeData( cit->second )->ddrot() );
-	out.position( ddLP, ddcurLP, gra.edgeData( cit->second ), m_rotNumSeed, *m_xos );
-      } // iterate over children
-    } // if (children)
-  } // iterate over graph nodes  
+      for (; cit != cend; ++cit) {
+        const DDLogicalPart& ddcurLP = gra.nodeData(cit->first);
+        if (lpStore.find(ddcurLP) != lpStore.end()) {
+          addToSpecStore(ddcurLP, specStore);
+        }
+        lpStore.insert(ddcurLP);
+        addToMatStore(ddcurLP.material(), matStore);
+        addToSolStore(ddcurLP.solid(), solStore, rotStore);
+        rotStore.insert(gra.edgeData(cit->second)->ddrot());
+        out.position(ddLP, ddcurLP, gra.edgeData(cit->second), m_rotNumSeed, *m_xos);
+      }  // iterate over children
+    }    // if (children)
+  }      // iterate over graph nodes
 
   (*m_xos) << "</PosPartSection>" << std::endl;
-  
+
   (*m_xos) << std::scientific << std::setprecision(18);
-  
+
   (*m_xos) << "<MaterialSection label=\"" << ns_ << "\">" << std::endl;
-  for( auto it : matStore ) {
-    if( ! it.isDefined().second ) continue;
-    out.material( it, *m_xos );
+  for (auto it : matStore) {
+    if (!it.isDefined().second)
+      continue;
+    out.material(it, *m_xos);
   }
   (*m_xos) << "</MaterialSection>" << std::endl;
   (*m_xos) << "<RotationSection label=\"" << ns_ << "\">" << std::endl;
   (*m_xos) << std::fixed << std::setprecision(18);
-  std::set<DDRotation>::iterator rit( rotStore.begin()), red( rotStore.end());
-  for( ; rit != red; ++rit ) {
-    if( !rit->isDefined().second ) continue;
-    if( rit->toString() != ":" ) {
+  std::set<DDRotation>::iterator rit(rotStore.begin()), red(rotStore.end());
+  for (; rit != red; ++rit) {
+    if (!rit->isDefined().second)
+      continue;
+    if (rit->toString() != ":") {
       DDRotation r(*rit);
       out.rotation(r, *m_xos);
     }
   }
   (*m_xos) << "</RotationSection>" << std::endl;
-  
+
   (*m_xos) << std::fixed << std::setprecision(18);
-  std::set<DDSolid>::const_iterator sit( solStore.begin()), sed( solStore.end());
+  std::set<DDSolid>::const_iterator sit(solStore.begin()), sed(solStore.end());
   (*m_xos) << "<SolidSection label=\"" << ns_ << "\">" << std::endl;
-  for( ; sit != sed; ++sit ) {
-    if( !sit->isDefined().second) continue;  
-    out.solid( *sit, *m_xos );
+  for (; sit != sed; ++sit) {
+    if (!sit->isDefined().second)
+      continue;
+    out.solid(*sit, *m_xos);
   }
   (*m_xos) << "</SolidSection>" << std::endl;
 
-  std::set<DDLogicalPart>::iterator lpit( lpStore.begin()), lped( lpStore.end());
+  std::set<DDLogicalPart>::iterator lpit(lpStore.begin()), lped(lpStore.end());
   (*m_xos) << "<LogicalPartSection label=\"" << ns_ << "\">" << std::endl;
-  for( ; lpit != lped; ++lpit ) {
-    if( !lpit->isDefined().first ) continue;  
-    const DDLogicalPart & lp = *lpit;
-    out.logicalPart( lp, *m_xos);
+  for (; lpit != lped; ++lpit) {
+    if (!lpit->isDefined().first)
+      continue;
+    const DDLogicalPart& lp = *lpit;
+    out.logicalPart(lp, *m_xos);
   }
   (*m_xos) << "</LogicalPartSection>" << std::endl;
 
   (*m_xos) << std::fixed << std::setprecision(18);
-  std::map<DDsvalues_type, std::set<const DDPartSelection*> >::const_iterator mit( specStore.begin()), mend( specStore.end());
+  std::map<DDsvalues_type, std::set<const DDPartSelection*> >::const_iterator mit(specStore.begin()),
+      mend(specStore.end());
   (*m_xos) << "<SpecParSection label=\"" << ns_ << "\">" << std::endl;
-  for( ; mit != mend; ++mit ) {
-    out.specpar ( *mit, *m_xos );
-  } 
+  for (; mit != mend; ++mit) {
+    out.specpar(*mit, *m_xos);
+  }
   (*m_xos) << "</SpecParSection>" << std::endl;
 }
 
-void
-OutputDDToDDL::addToMatStore( const DDMaterial& mat, std::set<DDMaterial> & matStore )
-{
-  matStore.insert( mat );
-  if( mat.noOfConstituents() != 0 ) {
+void OutputDDToDDL::addToMatStore(const DDMaterial& mat, std::set<DDMaterial>& matStore) {
+  matStore.insert(mat);
+  if (mat.noOfConstituents() != 0) {
     int findex(0);
-    while( findex < mat.noOfConstituents()) {
-      if( matStore.find( mat.constituent( findex ).first) == matStore.end()) {
-	addToMatStore( mat.constituent( findex ).first, matStore );
+    while (findex < mat.noOfConstituents()) {
+      if (matStore.find(mat.constituent(findex).first) == matStore.end()) {
+        addToMatStore(mat.constituent(findex).first, matStore);
       }
       ++findex;
     }
   }
 }
 
-void
-OutputDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore )
-{
+void OutputDDToDDL::addToSolStore(const DDSolid& sol, std::set<DDSolid>& solStore, std::set<DDRotation>& rotStore) {
   solStore.insert(sol);
-  if( sol.shape() == DDSolidShape::ddunion || sol.shape() == DDSolidShape::ddsubtraction || sol.shape() == DDSolidShape::ddintersection ) {
-    const DDBooleanSolid& bs (sol);
-    if( solStore.find( bs.solidA()) == solStore.end()) {
-      addToSolStore( bs.solidA(), solStore, rotStore );
+  if (sol.shape() == DDSolidShape::ddunion || sol.shape() == DDSolidShape::ddsubtraction ||
+      sol.shape() == DDSolidShape::ddintersection) {
+    const DDBooleanSolid& bs(sol);
+    if (solStore.find(bs.solidA()) == solStore.end()) {
+      addToSolStore(bs.solidA(), solStore, rotStore);
     }
-    if( solStore.find( bs.solidB()) == solStore.end()) {
-      addToSolStore( bs.solidB(), solStore, rotStore );
+    if (solStore.find(bs.solidB()) == solStore.end()) {
+      addToSolStore(bs.solidB(), solStore, rotStore);
     }
-    rotStore.insert( bs.rotation());
+    rotStore.insert(bs.rotation());
   }
 }
 
-void
-OutputDDToDDL::addToSpecStore( const DDLogicalPart& lp,
-			       std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > & specStore )
-{
-  for( auto spit : lp.attachedSpecifics()) {
-    specStore[*spit.second].insert( spit.first );
+void OutputDDToDDL::addToSpecStore(
+    const DDLogicalPart& lp,
+    std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp>& specStore) {
+  for (auto spit : lp.attachedSpecifics()) {
+    specStore[*spit.second].insert(spit.first);
   }
 }
 

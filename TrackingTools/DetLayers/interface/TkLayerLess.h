@@ -13,38 +13,37 @@
 
 class TkLayerLess {
 public:
-
-    TkLayerLess( NavigationDirection dir = insideOut, const DetLayer * fromLayer = nullptr) :
-    theDir(dir) {
-    if (fromLayer){
+  TkLayerLess(NavigationDirection dir = insideOut, const DetLayer* fromLayer = nullptr) : theDir(dir) {
+    if (fromLayer) {
       theOriginLayer = true;
-      theFromLayerSign = (fromLayer->position().z()>0 ? 1 : -1) ;
-    }else theOriginLayer = false;
+      theFromLayerSign = (fromLayer->position().z() > 0 ? 1 : -1);
+    } else
+      theOriginLayer = false;
   }
 
-  bool operator()( const DetLayer* a, const DetLayer* b) const {
-    if (!theOriginLayer){
-      if (theDir == insideOut) return insideOutLess( a, b);
-      else return insideOutLess( b, a);
-    }
-    else{
-      if (theDir == insideOut) return insideOutLessSigned( a, b);
-      else return insideOutLessSigned(b, a);
+  bool operator()(const DetLayer* a, const DetLayer* b) const {
+    if (!theOriginLayer) {
+      if (theDir == insideOut)
+        return insideOutLess(a, b);
+      else
+        return insideOutLess(b, a);
+    } else {
+      if (theDir == insideOut)
+        return insideOutLessSigned(a, b);
+      else
+        return insideOutLessSigned(b, a);
     }
   }
 
 private:
-
   NavigationDirection theDir;
-  bool theOriginLayer; //true take into account next parameter, false, do as usual
-  int theFromLayerSign; //1 z>0: -1 z<0
+  bool theOriginLayer;   //true take into account next parameter, false, do as usual
+  int theFromLayerSign;  //1 z>0: -1 z<0
 
-  bool insideOutLess( const DetLayer*,const DetLayer*) const;
-  bool insideOutLessSigned( const DetLayer*,const DetLayer*) const;
+  bool insideOutLess(const DetLayer*, const DetLayer*) const;
+  bool insideOutLessSigned(const DetLayer*, const DetLayer*) const;
 
-  bool barrelForwardLess( const BarrelDetLayer* blb,
-			  const ForwardDetLayer* fla) const;
-
+  bool barrelForwardLess(const BarrelDetLayer* blb, const ForwardDetLayer* fla) const;
 };
 
 #endif

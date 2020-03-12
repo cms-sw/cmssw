@@ -37,34 +37,24 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
 ##
 process.load("CondCore.CondDB.CondDB_cfi")
 
-# DB input service: 
-process.CondDB.connect = "frontier://FrontierProd/CMS_CONDITIONS"
-process.dbInput = cms.ESSource("PoolDBESSource",
-                               process.CondDB,
-                               toGet = cms.VPSet(cms.PSet(record = cms.string("SiPixelQualityFromDbRcd"),
-                                                          tag = cms.string("SiPixelQuality_byPCL_stuckTBM_v1")
-                                                          ),
-                                                 cms.PSet(record = cms.string("SiPixelFedCablingMapRcd"),
-                                                          tag = cms.string("SiPixelFedCablingMap_phase1_v7")
-                                                          )
-                                                 )
-                               )
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:SiPixelStatusScenarios_fromFED25.db'
+process.CondDB.connect = 'sqlite_file:SiPixelStatusScenarios_UltraLegacy2018_v0_mc.db'
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           timetype = cms.untracked.string('runnumber'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenariosRcd'),
-                                                                     tag = cms.string('SiPixelFEDChannelContainer_StuckTBM_2018_v1_mc')
+                                                                     tag = cms.string('SiPixelStatusScenarios_UltraLegacy2018_v0_mc')
                                                                      )
                                                             )
                                           )
 
 process.WriteInDB = cms.EDAnalyzer("SiPixelFEDChannelContainerWriteFromASCII",
-                                   record= cms.string('SiPixelStatusScenariosRcd'),
-                                   snapshots = cms.string('snapshots_fromFED25.txt')
+                                   record     = cms.string('SiPixelStatusScenariosRcd'),
+                                   snapshots  = cms.string('scenarios_2018_-1.txt'),
+                                   printDebug = cms.untracked.bool(False),
+                                   addDefault = cms.untracked.bool(False)
                                    )
 
 process.p = cms.Path(process.WriteInDB)

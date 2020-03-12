@@ -18,18 +18,17 @@ int main(int argc, char* argv[]) {
      TestMain tfileTest rfio:suncmsc.cern.ch:/data/valid/test/vincenzo/testPool/evData/EVD0_EventData.56709894d26a11d78dd20040f45cca94.1.h300eemm.TestSignalHits
      TestMain tfileTest zip-member:rfio:suncmsc.cern.ch:/data/valid/test/vincenzo/testZip/test1.zip#file.5 */
 
-  char const* protocols[] = {"^file:", "^http:", "^ftp:", "^web:", "^gsiftp:", "^sfn:", "^rfio:", "^dcache:", "^dcap:", "^gsidcap:"};
+  char const* protocols[] = {
+      "^file:", "^http:", "^ftp:", "^web:", "^gsiftp:", "^sfn:", "^rfio:", "^dcache:", "^dcap:", "^gsidcap:"};
 
-  char const* tStorageFactoryFileFunc = "TStorageFactoryFile(char const*, Option_t*, char const*, Int_t)"; 
+  char const* tStorageFactoryFileFunc = "TStorageFactoryFile(char const*, Option_t*, char const*, Int_t)";
 
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-  }
-  catch(cms::Exception const& e) {
+  } catch (cms::Exception const& e) {
     std::cout << e.explainSelf() << std::endl;
     return 1;
-  }
-  catch(boost::system::system_error const& e) {
+  } catch (boost::system::system_error const& e) {
     std::cout << e.what() << std::endl;
     return 1;
   }
@@ -38,17 +37,20 @@ int main(int argc, char* argv[]) {
   // set our own root plugin
   typedef char const* Cp;
   Cp* begin = protocols;
-  Cp* end = &protocols[sizeof(protocols)/sizeof(protocols[0])];
+  Cp* end = &protocols[sizeof(protocols) / sizeof(protocols[0])];
   for (Cp* i = begin; i != end; ++i) {
-    gROOT->GetPluginManager()->AddHandler("TFile", *i, "TStorageFactoryFile", "pluginIOPoolTFileAdaptor", tStorageFactoryFileFunc);   
-    gROOT->GetPluginManager()->AddHandler("TSystem", *i, "TStorageFactorySystem", "pluginIOPoolTFileAdaptor", "TStorageFactorySystem()");
+    gROOT->GetPluginManager()->AddHandler(
+        "TFile", *i, "TStorageFactoryFile", "pluginIOPoolTFileAdaptor", tStorageFactoryFileFunc);
+    gROOT->GetPluginManager()->AddHandler(
+        "TSystem", *i, "TStorageFactorySystem", "pluginIOPoolTFileAdaptor", "TStorageFactorySystem()");
   }
 
-  gROOT->GetPluginManager()->Print(); // use option="a" to see ctors 
- 
+  gROOT->GetPluginManager()->Print();  // use option="a" to see ctors
+
   std::string fname("file:bha.root");
 
-  if (argc > 1) fname = argv[1];
+  if (argc > 1)
+    fname = argv[1];
 
   {
     std::unique_ptr<TFile> g(TFile::Open(fname.c_str(), "recreate", "", 1));
@@ -66,11 +68,9 @@ int main(int argc, char* argv[]) {
       std::cout << "file size " << f->GetSize() << std::endl;
       f->ls();
     }
-  }
-  catch (cms::Exception& e) {
+  } catch (cms::Exception& e) {
     std::cout << "*ERROR*: " << e.what() << std::endl;
-  }
-  catch (...) {
+  } catch (...) {
     std::cout << "*ERROR*\n";
   }
 

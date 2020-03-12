@@ -4,31 +4,26 @@
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
+TCDSRecord::TCDSRecord()
+    : orbitNr_(0),
+      triggerCount_(0),
+      eventNumber_(0),
+      macAddress_(0),
+      swVersion_(0),
+      fwVersion_(0),
+      recordVersion_(0),
+      runNumber_(0),
+      bstReceptionStatus_(0),
+      nibble_(0),
+      lumiSection_(0),
+      nibblesPerLumiSection_(0),
+      eventType_(0),
+      triggerTypeFlags_(0),
+      inputs_(0),
+      bxid_(0) {}
 
-TCDSRecord::TCDSRecord() :
-  orbitNr_(0),
-  triggerCount_(0),
-  eventNumber_(0),
-  macAddress_(0),
-  swVersion_(0),
-  fwVersion_(0),
-  recordVersion_(0),
-  runNumber_(0),
-  bstReceptionStatus_(0),
-  nibble_(0),
-  lumiSection_(0),
-  nibblesPerLumiSection_(0),
-  eventType_(0),
-  triggerTypeFlags_(0),
-  inputs_(0),
-  bxid_(0)
-{}
-
-
-TCDSRecord::TCDSRecord(const unsigned char* rawData)
-{
-  tcds::Raw_v1 const* tcdsRaw =
-    reinterpret_cast<tcds::Raw_v1 const*>(rawData + FEDHeader::length);
+TCDSRecord::TCDSRecord(const unsigned char* rawData) {
+  tcds::Raw_v1 const* tcdsRaw = reinterpret_cast<tcds::Raw_v1 const*>(rawData + FEDHeader::length);
   const FEDHeader fedHeader(rawData);
 
   orbitNr_ = (tcdsRaw->header.orbitHigh << 16) | tcdsRaw->header.orbitLow;
@@ -48,29 +43,25 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData)
   inputs_ = tcdsRaw->header.inputs;
   bxid_ = tcdsRaw->header.bxid;
 
-  activePartitions_  = ActivePartitions(tcdsRaw->header.activePartitions0);
+  activePartitions_ = ActivePartitions(tcdsRaw->header.activePartitions0);
   activePartitions_ |= ActivePartitions(tcdsRaw->header.activePartitions1) << 32;
   activePartitions_ |= ActivePartitions(tcdsRaw->header.activePartitions2) << 64;
 
   bst_ = BSTRecord(tcdsRaw->bst);
 
-  for (auto i = 0; i < tcds::l1aHistoryDepth_v1; ++i)
-  {
+  for (auto i = 0; i < tcds::l1aHistoryDepth_v1; ++i) {
     l1aHistory_.emplace_back(L1aInfo(tcdsRaw->l1aHistory.l1aInfo[i]));
   }
 
-  for (auto i = 0; i < tcds::bgoCount_v1; ++i)
-  {
-    lastBgos_.emplace_back(((uint64_t)(tcdsRaw->bgoHistory.lastBGo[i].orbithigh)<<32) | tcdsRaw->bgoHistory.lastBGo[i].orbitlow);
+  for (auto i = 0; i < tcds::bgoCount_v1; ++i) {
+    lastBgos_.emplace_back(((uint64_t)(tcdsRaw->bgoHistory.lastBGo[i].orbithigh) << 32) |
+                           tcdsRaw->bgoHistory.lastBGo[i].orbitlow);
   }
 }
 
-
 TCDSRecord::~TCDSRecord() {}
 
-
-std::ostream& operator<<(std::ostream& s, const TCDSRecord& record)
-{
+std::ostream& operator<<(std::ostream& s, const TCDSRecord& record) {
   s << "MacAddress:            0x" << std::hex << record.getMacAddress() << std::dec << std::endl;
   s << "SwVersion:             0x" << std::hex << record.getSwVersion() << std::dec << std::endl;
   s << "FwVersion:             0x" << std::hex << record.getFwVersion() << std::dec << std::endl;

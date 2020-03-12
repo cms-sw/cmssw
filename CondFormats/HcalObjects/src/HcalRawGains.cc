@@ -16,67 +16,64 @@ $Revision: 1.3 $
 namespace {
   class compareItems {
   public:
-    bool operator () (const HcalRawGains::Item& first, const HcalRawGains::Item& second) const {
-      return first.rawId () < second.rawId ();
+    bool operator()(const HcalRawGains::Item& first, const HcalRawGains::Item& second) const {
+      return first.rawId() < second.rawId();
     }
   };
 
-  HcalRawGains::Container::const_iterator 
-  find (const HcalRawGains::Container& container, unsigned long id) {
-    HcalRawGains::Container::const_iterator result = container.begin ();
-    for (; result != container.end (); result++) {
-      if (result->rawId () == id) break; // found
+  HcalRawGains::Container::const_iterator find(const HcalRawGains::Container& container, unsigned long id) {
+    HcalRawGains::Container::const_iterator result = container.begin();
+    for (; result != container.end(); result++) {
+      if (result->rawId() == id)
+        break;  // found
     }
     return result;
   }
-}
+}  // namespace
 
-HcalRawGains::HcalRawGains() 
-  : mSorted (false) {}
+HcalRawGains::HcalRawGains() : mSorted(false) {}
 
-HcalRawGains::~HcalRawGains(){}
+HcalRawGains::~HcalRawGains() {}
 
-const HcalRawGain* HcalRawGains::getValues (DetId fId) const {
-  Item target (fId.rawId (), 0, 0, 0, HcalRawGain::BAD);
+const HcalRawGain* HcalRawGains::getValues(DetId fId) const {
+  Item target(fId.rawId(), 0, 0, 0, HcalRawGain::BAD);
   std::vector<Item>::const_iterator cell;
-  if (sorted ()) {
-    cell = std::lower_bound (mItems.begin(), mItems.end(), target, compareItems ());
-  }
-  else {
+  if (sorted()) {
+    cell = std::lower_bound(mItems.begin(), mItems.end(), target, compareItems());
+  } else {
     std::cerr << "HcalRawGains::getValues-> container is not sorted. Please sort it to search effectively" << std::endl;
-    cell = find (mItems, fId.rawId ());
+    cell = find(mItems, fId.rawId());
   }
-  if (cell == mItems.end() || cell->rawId () != target.rawId ())
-    throw cms::Exception ("Conditions not found") << "Unavailable Raw Gains for cell " << HcalGenericDetId(target.rawId());
+  if (cell == mItems.end() || cell->rawId() != target.rawId())
+    throw cms::Exception("Conditions not found")
+        << "Unavailable Raw Gains for cell " << HcalGenericDetId(target.rawId());
   return &(*cell);
 }
 
-std::vector<DetId> HcalRawGains::getAllChannels () const {
+std::vector<DetId> HcalRawGains::getAllChannels() const {
   std::vector<DetId> result;
-  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
-    result.push_back (DetId (item->rawId ()));
+  for (std::vector<Item>::const_iterator item = mItems.begin(); item != mItems.end(); item++) {
+    result.push_back(DetId(item->rawId()));
   }
   return result;
 }
 
-
-HcalRawGain* HcalRawGains::addItem (DetId fId) {
-  HcalRawGain item (fId.rawId ());
-  mItems.push_back (item);
+HcalRawGain* HcalRawGains::addItem(DetId fId) {
+  HcalRawGain item(fId.rawId());
+  mItems.push_back(item);
   mSorted = false;
-  return &(mItems.back ());
+  return &(mItems.back());
 }
 
-void HcalRawGains::addValues (DetId fId, const HcalRawGain& fValues) {
-  Item item (fId.rawId (), fValues.getValue(), fValues.getError(), fValues.getVoltage(), fValues.getStatus());
-  mItems.push_back (item);
+void HcalRawGains::addValues(DetId fId, const HcalRawGain& fValues) {
+  Item item(fId.rawId(), fValues.getValue(), fValues.getError(), fValues.getVoltage(), fValues.getStatus());
+  mItems.push_back(item);
   mSorted = false;
 }
 
-
-void HcalRawGains::sort () {
+void HcalRawGains::sort() {
   if (!mSorted) {
-    std::sort (mItems.begin(), mItems.end(), compareItems ());
+    std::sort(mItems.begin(), mItems.end(), compareItems());
     mSorted = true;
   }
 }

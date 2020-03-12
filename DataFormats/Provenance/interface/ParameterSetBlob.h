@@ -19,12 +19,12 @@ namespace edm {
     typedef std::string value_t;
     ParameterSetBlob() : pset_() {}
     explicit ParameterSetBlob(value_t const& v) : pset_(v) {}
-    value_t const& pset() const {return pset_;}
-    value_t& pset() {return pset_;}
+    value_t const& pset() const { return pset_; }
+    value_t& pset() { return pset_; }
+
   private:
     value_t pset_;
   };
-  std::ostream&
-  operator<<(std::ostream& os, ParameterSetBlob const& blob);
-}
+  std::ostream& operator<<(std::ostream& os, ParameterSetBlob const& blob);
+}  // namespace edm
 #endif

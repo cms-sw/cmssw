@@ -16,9 +16,8 @@ class L1TPFMetNoMuProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1TPFMetNoMuProducer(const edm::ParameterSet &ps);
 
-
 private:
-  void produce(edm::Event &event, const edm::EventSetup &eventSetup);
+  void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
 
   const edm::EDGetTokenT<reco::PFMETCollection> thePFMETCollection_;
   const edm::EDGetTokenT<reco::MuonCollection> theMuonCollection_;

@@ -32,7 +32,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 
 electronSeeds = cms.Sequence(ecalDrivenElectronSeeds)

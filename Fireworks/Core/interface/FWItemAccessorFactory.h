@@ -29,32 +29,28 @@ class FWItemAccessorBase;
 class TClass;
 
 class FWItemAccessorFactory {
-
 public:
-   FWItemAccessorFactory();
-   virtual ~FWItemAccessorFactory();
+  FWItemAccessorFactory();
+  virtual ~FWItemAccessorFactory();
 
-   // ---------- const member functions ---------------------
-   std::shared_ptr<FWItemAccessorBase> accessorFor(const TClass*) const;
-   static bool hasAccessor(const TClass *iClass, std::string &result);
-   static bool hasTVirtualCollectionProxy(const TClass *iClass);
-   static bool hasMemberTVirtualCollectionProxy(const TClass *iClass,
-                                                TClass *&oMember,
-                                                size_t& oOffset);
-   
-   static bool classAccessedAsCollection(const TClass*);
-   
-   // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
+  std::shared_ptr<FWItemAccessorBase> accessorFor(const TClass *) const;
+  static bool hasAccessor(const TClass *iClass, std::string &result);
+  static bool hasTVirtualCollectionProxy(const TClass *iClass);
+  static bool hasMemberTVirtualCollectionProxy(const TClass *iClass, TClass *&oMember, size_t &oOffset);
 
-   // ---------- member functions ---------------------------
+  static bool classAccessedAsCollection(const TClass *);
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
 
 private:
-   FWItemAccessorFactory(const FWItemAccessorFactory&) = delete; // stop default
+  FWItemAccessorFactory(const FWItemAccessorFactory &) = delete;  // stop default
 
-   const FWItemAccessorFactory& operator=(const FWItemAccessorFactory&) = delete; // stop default
+  const FWItemAccessorFactory &operator=(const FWItemAccessorFactory &) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
 
 #endif

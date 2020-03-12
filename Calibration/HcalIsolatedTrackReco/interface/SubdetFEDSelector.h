@@ -32,11 +32,11 @@ public:
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 
 private:
-  void beginJob() override ;
+  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
 
 #endif

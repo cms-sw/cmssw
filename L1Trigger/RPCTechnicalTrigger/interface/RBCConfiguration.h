@@ -1,4 +1,4 @@
-#ifndef INTERFACE_RBCCONFIGURATION_H 
+#ifndef INTERFACE_RBCCONFIGURATION_H
 #define INTERFACE_RBCCONFIGURATION_H 1
 
 // Include files
@@ -18,29 +18,27 @@
  */
 
 class RBCConfiguration {
-public: 
-  RBCConfiguration():m_rbcboardspecs(nullptr) {}
-  RBCConfiguration(const RBCBoardSpecs * rbcspecs);
-  RBCConfiguration(const char * _logic);
+public:
+  RBCConfiguration() : m_rbcboardspecs(nullptr) {}
+  RBCConfiguration(const RBCBoardSpecs* rbcspecs);
+  RBCConfiguration(const char* _logic);
 
   RBCConfiguration(RBCConfiguration&&) = default;
   RBCConfiguration& operator=(RBCConfiguration&&) = default;
 
   virtual ~RBCConfiguration() = default;
-  virtual bool initialise()=0;
+  virtual bool initialise() = 0;
 
-  virtual void preprocess(RBCInput &)=0;
-  
-  RBCLogicUnit* rbclogic() { return m_rbclogic.get();}
-  
+  virtual void preprocess(RBCInput&) = 0;
+
+  RBCLogicUnit* rbclogic() { return m_rbclogic.get(); }
+
 protected:
-  const RBCBoardSpecs * m_rbcboardspecs;
-  std::unique_ptr<RBCLogicUnit>  m_rbclogic;
-  
-  //RBCBoardSpecs::RBCBoardConfig * m_rbcconf;
-  
-  
-private:
+  const RBCBoardSpecs* m_rbcboardspecs;
+  std::unique_ptr<RBCLogicUnit> m_rbclogic;
 
+  //RBCBoardSpecs::RBCBoardConfig * m_rbcconf;
+
+private:
 };
-#endif // INTERFACE_RBCCONFIGURATION_H
+#endif  // INTERFACE_RBCCONFIGURATION_H

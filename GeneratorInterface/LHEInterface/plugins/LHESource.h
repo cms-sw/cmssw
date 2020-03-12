@@ -5,7 +5,6 @@
 
 #include <deque>
 
-#include <boost/shared_ptr.hpp>
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "GeneratorInterface/LHEInterface/plugins/LHEProvenanceHelper.h"
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
@@ -17,7 +16,7 @@ namespace lhef {
   class LHERunInfo;
   class LHEEvent;
   class LHEReader;
-}
+}  // namespace lhef
 
 namespace edm {
   class EventPrincipal;
@@ -27,20 +26,18 @@ namespace edm {
   class Run;
   class RunAuxiliary;
   class RunPrincipal;
-}
+}  // namespace edm
 
 class LHERunInfoProduct;
 
 class LHESource : public edm::ProducerSourceFromFiles {
 public:
-  explicit LHESource(const edm::ParameterSet &params,
-                     const edm::InputSourceDescription &desc);
+  explicit LHESource(const edm::ParameterSet& params, const edm::InputSourceDescription& desc);
   ~LHESource() override;
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-
   void endJob() override;
   bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
   void readRun_(edm::RunPrincipal& runPrincipal) override;
@@ -53,16 +50,16 @@ private:
   void nextEvent();
 
   void putRunInfoProduct(edm::RunPrincipal&);
-  void fillRunInfoProduct(lhef::LHERunInfo const&, LHERunInfoProduct& );
+  void fillRunInfoProduct(lhef::LHERunInfo const&, LHERunInfoProduct&);
 
-  std::unique_ptr<lhef::LHEReader>      reader_;
+  std::unique_ptr<lhef::LHEReader> reader_;
 
-  std::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
-  std::shared_ptr<lhef::LHEEvent>	partonLevel_;
+  std::shared_ptr<lhef::LHERunInfo> runInfoLast_;
+  std::shared_ptr<lhef::LHEEvent> partonLevel_;
 
-  std::unique_ptr<LHERunInfoProduct>	runInfoProductLast_;
-  edm::LHEProvenanceHelper		lheProvenanceHelper_;
-  edm::ProcessHistoryID			phid_;
+  std::unique_ptr<LHERunInfoProduct> runInfoProductLast_;
+  edm::LHEProvenanceHelper lheProvenanceHelper_;
+  edm::ProcessHistoryID phid_;
 };
 
-#endif // GeneratorInterface_LHEInterface_LHESource_h
+#endif  // GeneratorInterface_LHEInterface_LHESource_h

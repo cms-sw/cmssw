@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 
 import abc
 import csv
@@ -7,7 +8,7 @@ import re
 
 import Utilities.General.cmssw_das_client as das_client
 
-from utilities import cache
+from .utilities import cache
 
 class DatasetError(Exception): pass
 

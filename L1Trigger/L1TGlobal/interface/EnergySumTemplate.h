@@ -29,74 +29,63 @@
 // forward declarations
 
 // class declaration
-class EnergySumTemplate : public GlobalCondition
-{
+class EnergySumTemplate : public GlobalCondition {
+public:
+  // constructor
+  EnergySumTemplate();
+
+  // constructor
+  EnergySumTemplate(const std::string&);
+
+  // constructor
+  EnergySumTemplate(const std::string&, const l1t::GtConditionType&);
+
+  // copy constructor
+  EnergySumTemplate(const EnergySumTemplate&);
+
+  // destructor
+  ~EnergySumTemplate() override;
+
+  // assign operator
+  EnergySumTemplate& operator=(const EnergySumTemplate&);
 
 public:
+  /// typedef for a single object template
+  struct ObjectParameter {
+    unsigned int etLowThreshold;
+    unsigned int etHighThreshold;
+    bool energyOverflow;
 
-    // constructor
-    EnergySumTemplate();
+    unsigned int phiWindow1Lower;
+    unsigned int phiWindow1Upper;
+    unsigned int phiWindow2Lower;
+    unsigned int phiWindow2Upper;
 
-    // constructor
-    EnergySumTemplate(const std::string&);
-
-    // constructor
-    EnergySumTemplate(const std::string&, const l1t::GtConditionType&);
-
-    // copy constructor
-    EnergySumTemplate(const EnergySumTemplate&);
-
-    // destructor
-    ~EnergySumTemplate() override;
-
-    // assign operator
-    EnergySumTemplate& operator=(const EnergySumTemplate&);
+    // two words used only for ETM (ETM phi has 72 bins - two 64-bits words)
+    // one word used for HTM
+    unsigned long long phiRange0Word;
+    unsigned long long phiRange1Word;
+  };
 
 public:
+  inline const std::vector<ObjectParameter>* objectParameter() const { return &m_objectParameter; }
 
-    /// typedef for a single object template
-    struct ObjectParameter
-    {
-      unsigned int etLowThreshold;
-      unsigned int etHighThreshold;
-      bool energyOverflow;
+  /// set functions
+  void setConditionParameter(const std::vector<ObjectParameter>&);
 
-      unsigned int phiWindow1Lower;
-      unsigned int phiWindow1Upper;
-      unsigned int phiWindow2Lower;
-      unsigned int phiWindow2Upper;
+  /// print the condition
+  void print(std::ostream& myCout) const override;
 
-      // two words used only for ETM (ETM phi has 72 bins - two 64-bits words)
-      // one word used for HTM
-      unsigned long long phiRange0Word;
-      unsigned long long phiRange1Word;
-    };
-
-public:
-
-    inline const std::vector<ObjectParameter>* objectParameter() const {
-        return &m_objectParameter;
-    }
-
-    /// set functions
-    void setConditionParameter(const std::vector<ObjectParameter>&);
-
-    /// print the condition
-    void print(std::ostream& myCout) const override;
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const EnergySumTemplate&);
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const EnergySumTemplate&);
 
 private:
-
-    /// copy function for copy constructor and operator=
-    void copy(const EnergySumTemplate& cp);
+  /// copy function for copy constructor and operator=
+  void copy(const EnergySumTemplate& cp);
 
 private:
-
-    /// variables containing the parameters
-    std::vector<ObjectParameter> m_objectParameter;
-
+  /// variables containing the parameters
+  std::vector<ObjectParameter> m_objectParameter;
 };
 
 #endif

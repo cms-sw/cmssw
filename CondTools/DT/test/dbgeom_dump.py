@@ -12,7 +12,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 
 #process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 #process.load("Geometry.DTGeometryBuilder.dtGeometry_cfi")

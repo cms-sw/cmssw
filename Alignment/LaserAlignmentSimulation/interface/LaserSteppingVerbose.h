@@ -10,16 +10,15 @@
  */
 #include "G4SteppingVerbose.hh"
 
-class LaserSteppingVerbose : public G4SteppingVerbose
-{
+class LaserSteppingVerbose : public G4SteppingVerbose {
 public:
-	/// constructor
+  /// constructor
   LaserSteppingVerbose();
   /// destructor
   ~LaserSteppingVerbose() override;
-	/// step information 
+  /// step information
   void StepInfo() override;
-	/// tracking information
+  /// tracking information
   void TrackingStarted() override;
 };
 #endif

@@ -6,15 +6,13 @@
 
 class SiStripDigi;
 
-
 class APVShot {
-
- public:
+public:
   APVShot();
-  APVShot(const bool zs=true);
-  APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs=true);
+  APVShot(const bool zs = true);
+  APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs = true);
 
-  void computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs=true);
+  void computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs = true);
 
   const bool isGenuine() const;
   const int apvNumber() const;
@@ -23,8 +21,7 @@ class APVShot {
   const int subDet() const;
   const unsigned int detId() const;
 
- private:
-
+private:
   bool _zs;
   int _apv;
   int _nstrips;
@@ -32,7 +29,6 @@ class APVShot {
   DetId _detid;
 
   const static int _threshold;
-
 };
 
-#endif // DQM_SiStripCommon_APVShot_h
+#endif  // DQM_SiStripCommon_APVShot_h

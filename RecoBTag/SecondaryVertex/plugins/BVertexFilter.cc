@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -39,77 +38,69 @@
 // class declaration
 //
 
-template<typename VTX>
+template <typename VTX>
 class BVertexFilterT : public edm::stream::EDFilter<> {
-   public:
-      explicit BVertexFilterT(const edm::ParameterSet&);
-      ~BVertexFilterT() override;
+public:
+  explicit BVertexFilterT(const edm::ParameterSet&);
+  ~BVertexFilterT() override;
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
-      edm::EDGetTokenT<edm::View<VTX> >        token_secondaryVertex;
-      reco::VertexFilter                      svFilter;
-      bool                                    useVertexKinematicAsJetAxis;
-      int                                     minVertices;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
+  edm::EDGetTokenT<edm::View<VTX>> token_secondaryVertex;
+  reco::VertexFilter svFilter;
+  bool useVertexKinematicAsJetAxis;
+  int minVertices;
 };
 
-template<typename VTX>
-BVertexFilterT<VTX>::BVertexFilterT(const edm::ParameterSet& params):
-      svFilter(params.getParameter<edm::ParameterSet>("vertexFilter")),
+template <typename VTX>
+BVertexFilterT<VTX>::BVertexFilterT(const edm::ParameterSet& params)
+    : svFilter(params.getParameter<edm::ParameterSet>("vertexFilter")),
       useVertexKinematicAsJetAxis(params.getParameter<bool>("useVertexKinematicAsJetAxis")),
       minVertices(params.getParameter<int>("minVertices"))
 
 {
-      token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
-      token_secondaryVertex = consumes<edm::View<VTX> >(params.getParameter<edm::InputTag>("secondaryVertices"));
-      produces<std::vector<VTX> >();
-
+  token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
+  token_secondaryVertex = consumes<edm::View<VTX>>(params.getParameter<edm::InputTag>("secondaryVertices"));
+  produces<std::vector<VTX>>();
 }
 
-template<typename VTX>
-BVertexFilterT<VTX>::~BVertexFilterT()
-{
+template <typename VTX>
+BVertexFilterT<VTX>::~BVertexFilterT() {}
+
+template <typename VTX>
+bool BVertexFilterT<VTX>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  int count = 0;
+  edm::Handle<reco::VertexCollection> pvHandle;
+  iEvent.getByToken(token_primaryVertex, pvHandle);
+  edm::Handle<edm::View<VTX>> svHandle;
+  iEvent.getByToken(token_secondaryVertex, svHandle);
+
+  auto recoVertices = std::make_unique<std::vector<VTX>>();
+
+  if (!pvHandle->empty()) {
+    const reco::Vertex& primary = (*pvHandle.product())[0];
+    const edm::View<VTX>& vertices = *svHandle.product();
+
+    if (!primary.isFake()) {
+      for (typename edm::View<VTX>::const_iterator it = vertices.begin(); it != vertices.end(); ++it) {
+        GlobalVector axis(0, 0, 0);
+        if (useVertexKinematicAsJetAxis)
+          axis = GlobalVector(it->p4().X(), it->p4().Y(), it->p4().Z());
+        if (svFilter(primary, reco::TemplatedSecondaryVertex<VTX>(primary, *it, axis, true), axis)) {
+          count++;
+          recoVertices->push_back(*it);
+        }
+      }
+    }
+  }
+  iEvent.put(std::move(recoVertices));
+
+  return (count >= minVertices);
 }
-
-template<typename VTX>
-bool
-BVertexFilterT<VTX>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
- int count = 0;
- edm::Handle<reco::VertexCollection> pvHandle;
- iEvent.getByToken(token_primaryVertex, pvHandle);
- edm::Handle<edm::View<VTX> > svHandle;
- iEvent.getByToken(token_secondaryVertex, svHandle);
-
- auto recoVertices = std::make_unique<std::vector<VTX>>();
-
- if(!pvHandle->empty()) {
-   const reco::Vertex & primary = (*pvHandle.product())[0];
-   const edm::View<VTX> & vertices = *svHandle.product();
-
-
-   if(! primary.isFake())
-   {
-     for(typename edm::View<VTX>::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
-      {
-            GlobalVector axis(0,0,0);
-            if(useVertexKinematicAsJetAxis) axis = GlobalVector(it->p4().X(),it->p4().Y(),it->p4().Z());
-            if(svFilter(primary,reco::TemplatedSecondaryVertex<VTX>(primary,*it,axis,true),axis))  {
-                  count++;
-                  recoVertices->push_back(*it);
-             }
-     }
-   }
- }
- iEvent.put(std::move(recoVertices));
-
- return(count >= minVertices);
-}
-
 
 // define specific instances of the templated BVertexFilterT class
-typedef BVertexFilterT<reco::Vertex>                      BVertexFilter;
+typedef BVertexFilterT<reco::Vertex> BVertexFilter;
 typedef BVertexFilterT<reco::VertexCompositePtrCandidate> CandidateBVertexFilter;
 
 // define plugins

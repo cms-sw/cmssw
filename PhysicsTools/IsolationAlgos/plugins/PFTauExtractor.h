@@ -17,24 +17,23 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
-class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor
-{
- public:
-
-  explicit PFTauExtractor(const edm::ParameterSet&, edm::ConsumesCollector && iC);
-  ~PFTauExtractor() override{}
+class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor {
+public:
+  explicit PFTauExtractor(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
+  ~PFTauExtractor() override {}
 
   /// definition of pure virtual functions inherited from IsoDepositExtractor base-class
-  void fillVetos(const edm::Event&, const edm::EventSetup&, const reco::TrackCollection&) override { }
+  void fillVetos(const edm::Event&, const edm::EventSetup&, const reco::TrackCollection&) override {}
   reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Track& track) const override {
     return depositFromObject(evt, es, track);
   }
-  reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Candidate& candidate) const override {
+  reco::IsoDeposit deposit(const edm::Event& evt,
+                           const edm::EventSetup& es,
+                           const reco::Candidate& candidate) const override {
     return depositFromObject(evt, es, candidate);
   }
 
- private:
-
+private:
   /// configuration parameters
   edm::EDGetTokenT<reco::PFTauCollection> tauSourceToken_;
   edm::EDGetTokenT<edm::View<reco::Candidate> > candidateSourceToken_;
@@ -47,9 +46,8 @@ class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor
 
   /// private member function for computing the IsoDeposits
   /// in case of reco::Track as well as in case of reco::Canididate input
-  template<typename T>
+  template <typename T>
   reco::IsoDeposit depositFromObject(const edm::Event&, const edm::EventSetup&, const T&) const;
-
 };
 
 #endif

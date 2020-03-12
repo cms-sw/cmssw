@@ -4,7 +4,7 @@
 //
 // Package:     L1Geometry
 // Class  :     L1CaloGeometryRecord
-// 
+//
 /**\class L1CaloGeometryRecord L1CaloGeometryRecord.h L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h
 
  Description: <one line class summary>
@@ -27,6 +27,9 @@
 /* class L1CaloGeometryRecord : */
 /*    public edm::eventsetup::EventSetupRecordImplementation<L1CaloGeometryRecord> */
 /* {}; */
-class L1CaloGeometryRecord : public edm::eventsetup::DependentRecordImplementation<L1CaloGeometryRecord, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1CaloGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<L1CaloGeometryRecord,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

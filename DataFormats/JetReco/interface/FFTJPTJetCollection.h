@@ -13,17 +13,17 @@
 #include "DataFormats/JetReco/interface/FFTAnyJet.h"
 
 namespace reco {
-    typedef FFTAnyJet<JPTJet> FFTJPTJet;
-    /// collection of FFTJPTJet objects 
-    typedef std::vector<FFTJPTJet> FFTJPTJetCollection;
-    /// edm references
-    typedef edm::Ref<FFTJPTJetCollection> FFTJPTJetRef;
-    typedef edm::FwdRef<FFTJPTJetCollection> FFTJPTJetFwdRef;
-    typedef edm::FwdPtr<FFTJPTJet> FFTJPTJetFwdPtr;
-    typedef edm::RefVector<FFTJPTJetCollection> FFTJPTJetRefVector;
-    typedef edm::RefProd<FFTJPTJetCollection> FFTJPTJetRefProd;
-    typedef std::vector<edm::FwdRef<FFTJPTJetCollection> > FFTJPTJetFwdRefVector;
-    typedef std::vector<edm::FwdPtr<FFTJPTJet> > FFTJPTJetFwdPtrVector;
-}
+  typedef FFTAnyJet<JPTJet> FFTJPTJet;
+  /// collection of FFTJPTJet objects
+  typedef std::vector<FFTJPTJet> FFTJPTJetCollection;
+  /// edm references
+  typedef edm::Ref<FFTJPTJetCollection> FFTJPTJetRef;
+  typedef edm::FwdRef<FFTJPTJetCollection> FFTJPTJetFwdRef;
+  typedef edm::FwdPtr<FFTJPTJet> FFTJPTJetFwdPtr;
+  typedef edm::RefVector<FFTJPTJetCollection> FFTJPTJetRefVector;
+  typedef edm::RefProd<FFTJPTJetCollection> FFTJPTJetRefProd;
+  typedef std::vector<edm::FwdRef<FFTJPTJetCollection> > FFTJPTJetFwdRefVector;
+  typedef std::vector<edm::FwdPtr<FFTJPTJet> > FFTJPTJetFwdPtrVector;
+}  // namespace reco
 
 #endif

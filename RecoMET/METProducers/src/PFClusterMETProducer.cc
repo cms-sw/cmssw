@@ -26,22 +26,18 @@
 #include <cstring>
 
 //____________________________________________________________________________||
-namespace cms
-{
+namespace cms {
 
-//____________________________________________________________________________||
+  //____________________________________________________________________________||
   PFClusterMETProducer::PFClusterMETProducer(const edm::ParameterSet& iConfig)
-    : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src")))
-    , globalThreshold_(iConfig.getParameter<double>("globalThreshold"))
-  {
+      : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
+        globalThreshold_(iConfig.getParameter<double>("globalThreshold")) {
     std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
     produces<reco::PFClusterMETCollection>().setBranchAlias(alias);
   }
 
-
-//____________________________________________________________________________||
-  void PFClusterMETProducer::produce(edm::Event& event, const edm::EventSetup& setup)
-  {
+  //____________________________________________________________________________||
+  void PFClusterMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByToken(inputToken_, input);
 
@@ -55,8 +51,8 @@ namespace cms
     event.put(std::move(pfclustermetcoll));
   }
 
-//____________________________________________________________________________||
+  //____________________________________________________________________________||
   DEFINE_FWK_MODULE(PFClusterMETProducer);
-}
+}  // namespace cms
 
 //____________________________________________________________________________||

@@ -21,25 +21,21 @@
 
 class TransientInitialStateEstimator;
 
-namespace cms
-{
-  class dso_internal CkfTrackCandidateMaker : public edm::stream::EDProducer<>, public CkfTrackCandidateMakerBase
-  {
+namespace cms {
+  class dso_internal CkfTrackCandidateMaker : public edm::stream::EDProducer<>, public CkfTrackCandidateMakerBase {
   public:
-
-    explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf):
-      CkfTrackCandidateMakerBase(conf, consumesCollector()){
+    explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf)
+        : CkfTrackCandidateMakerBase(conf, consumesCollector()) {
       produces<TrackCandidateCollection>();
       produces<std::vector<SeedStopInfo> >();
     }
 
-    ~CkfTrackCandidateMaker() override{;}
+    ~CkfTrackCandidateMaker() override { ; }
 
-    void beginRun (edm::Run const& r, edm::EventSetup const & es) override {beginRunBase(r,es);}
+    void beginRun(edm::Run const& r, edm::EventSetup const& es) override { beginRunBase(r, es); }
 
-    void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
-    
+    void produce(edm::Event& e, const edm::EventSetup& es) override { produceBase(e, es); }
   };
-}
+}  // namespace cms
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     EventFilter/GctRawToDigi
 // Class  :     L1GctInternJetProducer
-// 
+//
 /**\class L1GctInternJetProducer \file L1GctInternJetProducer.h EventFilter/GctRawToDigi/plugins/L1GctInternJetProducer.h 
 
 \author Alex Tapper
@@ -24,27 +24,26 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
 // forward declarations
-class L1CaloGeometry ;
+class L1CaloGeometry;
 
 class L1GctInternJetProducer : public edm::EDProducer {
-   public:
-      explicit L1GctInternJetProducer(const edm::ParameterSet&);
-      ~L1GctInternJetProducer() override;
+public:
+  explicit L1GctInternJetProducer(const edm::ParameterSet&);
+  ~L1GctInternJetProducer() override;
 
-   private:
-      void beginJob() override ;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+private:
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-      math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,
-						     const L1GctCand& cand,
-						     const L1CaloGeometry* geom,
-						     bool central ) ;
+  math::PtEtaPhiMLorentzVector gctLorentzVector(const double& et,
+                                                const L1GctCand& cand,
+                                                const L1CaloGeometry* geom,
+                                                bool central);
 
-      edm::InputTag internalJetSource_;
+  edm::InputTag internalJetSource_;
 
-      bool centralBxOnly_;
-
+  bool centralBxOnly_;
 };
 
 #endif

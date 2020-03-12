@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Base class to describe Optical Objects of type sensor 2D
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _DEVIATIONSTRAVERSINGSENSOR2D_HH
@@ -17,47 +17,39 @@
 
 class ALIFileIn;
 
-typedef std::vector< std::vector< DeviationSensor2D* > > vvd;
-typedef std::vector< DeviationSensor2D* > vd;
+typedef std::vector<std::vector<DeviationSensor2D*> > vvd;
+typedef std::vector<DeviationSensor2D*> vd;
 
-
-class DeviationsFromFileSensor2D
-{
-
+class DeviationsFromFileSensor2D {
 public:
   //---------- Constructors / Destructor
-  DeviationsFromFileSensor2D(){ 
+  DeviationsFromFileSensor2D() {
     theOffsetX = 0.;
     theOffsetY = 0.;
   };
-  ~DeviationsFromFileSensor2D(){ };
- 
+  ~DeviationsFromFileSensor2D(){};
+
   // read file
-  void readFile( ALIFileIn& ifdevi );
+  void readFile(ALIFileIn& ifdevi);
 
   // get the deviation in the matrix corresponding to the intersection point (intersx, intersy)
-  std::pair< ALIdouble, ALIdouble> getDevis( ALIdouble intersX, ALIdouble intersY );
+  std::pair<ALIdouble, ALIdouble> getDevis(ALIdouble intersX, ALIdouble intersY);
 
   // set offsetX/Y
-  void setOffset( ALIdouble offX, ALIdouble offY ){
-    theOffsetX = offX; 
-    theOffsetY = offY; 
+  void setOffset(ALIdouble offX, ALIdouble offY) {
+    theOffsetX = offX;
+    theOffsetY = offY;
   }
 
   // Access data
-  static const ALIbool apply(){
-    return theApply;
-  }
+  static const ALIbool apply() { return theApply; }
 
   // Set data
-  static void setApply( ALIbool val) {
-    theApply = val;
-  }
- 
-  
- private:
+  static void setApply(ALIbool val) { theApply = val; }
+
+private:
   bool firstScanDir;
-  int  theScanSenseX, theScanSenseY;
+  int theScanSenseX, theScanSenseY;
 
   ALIuint theNPoints;
   vvd theDeviations;
@@ -66,8 +58,6 @@ public:
   ALIint verbose;
 
   ALIdouble theOffsetX, theOffsetY;
-
 };
 
 #endif
-

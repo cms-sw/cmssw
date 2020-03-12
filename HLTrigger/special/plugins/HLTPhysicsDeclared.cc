@@ -23,17 +23,16 @@
 
 class HLTPhysicsDeclared : public edm::EDFilter {
 public:
-  explicit HLTPhysicsDeclared( const edm::ParameterSet & );
+  explicit HLTPhysicsDeclared(const edm::ParameterSet&);
   ~HLTPhysicsDeclared() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
-private:
-  bool filter( edm::Event &, const edm::EventSetup & ) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  bool          m_invert;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+  bool m_invert;
   edm::InputTag m_gtDigis;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtDigisToken;
-  
 };
 
 // system include files
@@ -44,25 +43,22 @@ private:
 
 using namespace edm;
 
-HLTPhysicsDeclared::HLTPhysicsDeclared(const edm::ParameterSet & config) :
-  m_invert(  config.getParameter<bool>("invert") ),
-  m_gtDigis( config.getParameter<edm::InputTag>("L1GtReadoutRecordTag") )
-{
+HLTPhysicsDeclared::HLTPhysicsDeclared(const edm::ParameterSet& config)
+    : m_invert(config.getParameter<bool>("invert")),
+      m_gtDigis(config.getParameter<edm::InputTag>("L1GtReadoutRecordTag")) {
   m_gtDigisToken = consumes<L1GlobalTriggerReadoutRecord>(m_gtDigis);
 }
 
 HLTPhysicsDeclared::~HLTPhysicsDeclared() = default;
 
-void
-HLTPhysicsDeclared::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTPhysicsDeclared::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtDigis"));
-  desc.add<bool>("invert",false);
-  descriptions.add("hltPhysicsDeclared",desc);
+  desc.add<edm::InputTag>("L1GtReadoutRecordTag", edm::InputTag("hltGtDigis"));
+  desc.add<bool>("invert", false);
+  descriptions.add("hltPhysicsDeclared", desc);
 }
 
-bool HLTPhysicsDeclared::filter( edm::Event & event, const edm::EventSetup & setup)
-{
+bool HLTPhysicsDeclared::filter(edm::Event& event, const edm::EventSetup& setup) {
   bool accept = false;
 
   if (event.isRealData()) {
@@ -74,7 +70,7 @@ bool HLTPhysicsDeclared::filter( edm::Event & event, const edm::EventSetup & set
       return false;
     } else {
       L1GtFdlWord fdlWord = h_gtDigis->gtFdlWord();
-      if (fdlWord.physicsDeclared() == 1) 
+      if (fdlWord.physicsDeclared() == 1)
         accept = true;
     }
   } else {

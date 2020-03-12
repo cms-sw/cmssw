@@ -15,50 +15,44 @@ class EmptySimHits : public edm::EDProducer {
 public:
   explicit EmptySimHits(const edm::ParameterSet&);
   ~EmptySimHits() override{};
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
-  void beginJob() override {};
+  void beginJob() override{};
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {};
+  void endJob() override{};
 
   std::vector<std::string> pCaloHitInstanceLabels;
   std::vector<std::string> pSimHitInstanceLabels;
-  
 };
 
-EmptySimHits::EmptySimHits(const edm::ParameterSet& iConfig)
-{
+EmptySimHits::EmptySimHits(const edm::ParameterSet& iConfig) {
   pSimHitInstanceLabels = iConfig.getParameter<std::vector<std::string> >("pSimHitInstanceLabels");
   pCaloHitInstanceLabels = iConfig.getParameter<std::vector<std::string> >("pCaloHitInstanceLabels");
 
-  for(size_t i = 0;i<pSimHitInstanceLabels.size();i++){
+  for (size_t i = 0; i < pSimHitInstanceLabels.size(); i++) {
     produces<edm::PSimHitContainer>(pSimHitInstanceLabels[i]);
   }
 
-  for(size_t i = 0;i<pCaloHitInstanceLabels.size();i++){
+  for (size_t i = 0; i < pCaloHitInstanceLabels.size(); i++) {
     produces<edm::PCaloHitContainer>(pCaloHitInstanceLabels[i]);
   }
 }
 
-void
-EmptySimHits::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  for(size_t i = 0;i<pSimHitInstanceLabels.size();i++){
+void EmptySimHits::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  for (size_t i = 0; i < pSimHitInstanceLabels.size(); i++) {
     std::unique_ptr<edm::PSimHitContainer> pSimHitContainer(new edm::PSimHitContainer());
-    iEvent.put(std::move(pSimHitContainer),pSimHitInstanceLabels[i]);
+    iEvent.put(std::move(pSimHitContainer), pSimHitInstanceLabels[i]);
   }
 
-  for(size_t i = 0;i<pCaloHitInstanceLabels.size();i++){
+  for (size_t i = 0; i < pCaloHitInstanceLabels.size(); i++) {
     std::unique_ptr<edm::PCaloHitContainer> pCaloHitContainer(new edm::PCaloHitContainer());
-    iEvent.put(std::move(pCaloHitContainer),pCaloHitInstanceLabels[i]);
+    iEvent.put(std::move(pCaloHitContainer), pCaloHitInstanceLabels[i]);
   }
-  
 }
 
-void
-EmptySimHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void EmptySimHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

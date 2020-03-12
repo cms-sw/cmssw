@@ -19,38 +19,39 @@
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/bitset.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unordered_map.hpp>
+#include <boost/serialization/utility.hpp>
 
 // We cannot include Equal.h here since it is C++11
 namespace cond {
-namespace serialization {
+  namespace serialization {
     template <typename CondSerializationT, typename Enabled = void>
     struct access;
-}
-}
+  }
+}  // namespace cond
 
 // Marks a class/struct as serializable Conditions.
 // It must be used in the end of the class/struct, to avoid
 // changing the default access specifier.
 // Note: the serialization code generator script depends on
 //       the implementation of the macro.
-#define COND_SERIALIZABLE \
-    private: \
-        template <class Archive> void serialize(Archive & ar, const unsigned int version); \
-        template <typename CondSerializationT, typename Enabled> friend struct cond::serialization::access; \
-        friend class boost::serialization::access;
+#define COND_SERIALIZABLE                                  \
+private:                                                   \
+  template <class Archive>                                 \
+  void serialize(Archive& ar, const unsigned int version); \
+  template <typename CondSerializationT, typename Enabled> \
+  friend struct cond::serialization::access;               \
+  friend class boost::serialization::access;
 
 // Same, but does *not* automatically generate the serialization code.
 // This is useful when special features are required, e.g. versioning
 // or using non-deducible contexts.
 #define COND_SERIALIZABLE_MANUAL \
-    COND_SERIALIZABLE; \
-    void cond_serialization_manual();
+  COND_SERIALIZABLE;             \
+  void cond_serialization_manual();
 
 // Polymorphic classes must be tagged as such
-#define COND_SERIALIZABLE_POLYMORPHIC(T) \
-   BOOST_CLASS_EXPORT(T);
+#define COND_SERIALIZABLE_POLYMORPHIC(T) BOOST_CLASS_EXPORT(T);
 
 // Marks a member as transient, i.e. not included in the automatically
 // generated serialization code. All variables in the same 'statement'

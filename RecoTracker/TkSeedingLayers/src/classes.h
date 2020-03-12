@@ -8,4 +8,4 @@ namespace RecoTracker_TkSeedingLayers {
     std::vector<SeedingHitSet> vshs;
     edm::Wrapper<std::vector<SeedingHitSet> > wvshs;
   };
-}
+}  // namespace RecoTracker_TkSeedingLayers

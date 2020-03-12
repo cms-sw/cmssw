@@ -10,40 +10,33 @@
 
 using namespace edm;
 
-GlobalDetLayerGeometryESProducer::GlobalDetLayerGeometryESProducer(const edm::ParameterSet & p) 
-{
+GlobalDetLayerGeometryESProducer::GlobalDetLayerGeometryESProducer(const edm::ParameterSet& p) {
   std::string myName = p.getParameter<std::string>("ComponentName");
-  setWhatProduced(this,myName);
+  setWhatProduced(this, myName).setConsumes(trackerToken_).setConsumes(muonToken_).setConsumes(mtdToken_);
 }
- 
+
 GlobalDetLayerGeometryESProducer::~GlobalDetLayerGeometryESProducer() {}
 
-std::unique_ptr<DetLayerGeometry> 
-GlobalDetLayerGeometryESProducer::produce(const RecoGeometryRecord & iRecord){ 
-  
-  edm::ESHandle<GeometricSearchTracker> tracker;  
-  edm::ESHandle<MuonDetLayerGeometry> muon;
+std::unique_ptr<DetLayerGeometry> GlobalDetLayerGeometryESProducer::produce(const RecoGeometryRecord& iRecord) {
+  auto const& tracker = iRecord.get(trackerToken_);
+  auto const& muon = iRecord.get(muonToken_);
   edm::ESHandle<MTDDetLayerGeometry> mtd;
 
-  iRecord.getRecord<TrackerRecoGeometryRecord>().get(tracker);
-  iRecord.getRecord<MuonRecoGeometryRecord>().get(muon);
-  
   // get the MTD if it is available
-  if(auto mtdRecord = iRecord.tryToGetRecord<MTDRecoGeometryRecord>()) {
-    mtdRecord->get(mtd);
-    if(!mtd.isValid()) {
+  if (auto mtdRecord = iRecord.tryToGetRecord<MTDRecoGeometryRecord>()) {
+    mtd = mtdRecord->getHandle(mtdToken_);
+    if (!mtd.isValid()) {
       LogInfo("GlobalDetLayergGeometryBuilder") << "No MTD geometry is available.";
-    } 
+    }
   } else {
     LogInfo("GlobalDetLayerGeometryBuilder") << "No MTDDigiGeometryRecord is available.";
   }
 
   // if we've got MTD initialize it
-  if( mtd.isValid() ) return std::make_unique<GlobalDetLayerGeometry>(tracker.product(), muon.product(), mtd.product());
+  if (mtd.isValid())
+    return std::make_unique<GlobalDetLayerGeometry>(&tracker, &muon, mtd.product());
 
-  return std::make_unique<GlobalDetLayerGeometry>(tracker.product(), muon.product());
-
+  return std::make_unique<GlobalDetLayerGeometry>(&tracker, &muon);
 }
-
 
 DEFINE_FWK_EVENTSETUP_MODULE(GlobalDetLayerGeometryESProducer);

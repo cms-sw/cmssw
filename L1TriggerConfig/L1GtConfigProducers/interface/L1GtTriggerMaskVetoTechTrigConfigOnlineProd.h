@@ -29,25 +29,21 @@
 // forward declarations
 
 // class declaration
-class L1GtTriggerMaskVetoTechTrigConfigOnlineProd :
-        public L1ConfigOnlineProdBase<L1GtTriggerMaskVetoTechTrigRcd, L1GtTriggerMask>
-{
-
+class L1GtTriggerMaskVetoTechTrigConfigOnlineProd
+    : public L1ConfigOnlineProdBase<L1GtTriggerMaskVetoTechTrigRcd, L1GtTriggerMask> {
 public:
+  /// constructor
+  L1GtTriggerMaskVetoTechTrigConfigOnlineProd(const edm::ParameterSet&);
 
-    /// constructor
-    L1GtTriggerMaskVetoTechTrigConfigOnlineProd(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtTriggerMaskVetoTechTrigConfigOnlineProd() override;
 
-    /// destructor
-    ~L1GtTriggerMaskVetoTechTrigConfigOnlineProd() override;
-
-    /// public methods
-    std::unique_ptr<L1GtTriggerMask> newObject(const std::string& objectKey) override;
+  /// public methods
+  std::unique_ptr<L1GtTriggerMask> newObject(const std::string& objectKey) override;
 
 private:
-
-    /// partition number
-    int m_partitionNumber;
+  /// partition number
+  int m_partitionNumber;
 };
 
 #endif

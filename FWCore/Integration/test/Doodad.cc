@@ -2,7 +2,7 @@
 //
 // Package:     Integration
 // Class  :     Doodad
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

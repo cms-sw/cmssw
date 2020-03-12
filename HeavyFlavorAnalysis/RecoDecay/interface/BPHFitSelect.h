@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -23,15 +22,12 @@ class BPHKinematicFit;
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class BPHFitSelect {
-
- public:
-
+public:
   /** Constructor
    */
   BPHFitSelect();
@@ -40,19 +36,16 @@ class BPHFitSelect {
    */
   virtual ~BPHFitSelect();
 
+  using AcceptArg = BPHKinematicFit;
   /** Operations
    */
   /// accept function
-  virtual bool accept( const BPHKinematicFit& cand ) const =0;
+  virtual bool accept(const BPHKinematicFit& cand) const = 0;
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHFitSelect           ( const BPHFitSelect& x ) = delete;
-  BPHFitSelect& operator=( const BPHFitSelect& x ) = delete;
-
+  BPHFitSelect(const BPHFitSelect& x) = delete;
+  BPHFitSelect& operator=(const BPHFitSelect& x) = delete;
 };
 
-
 #endif
-

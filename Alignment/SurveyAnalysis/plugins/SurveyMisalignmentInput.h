@@ -18,29 +18,20 @@
 class AlignableSurface;
 class Alignments;
 
-class SurveyMisalignmentInput:
-  public SurveyInputBase
-{
+class SurveyMisalignmentInput : public SurveyInputBase {
 public:
-	
-  SurveyMisalignmentInput(
-			  const edm::ParameterSet&
-			  );
-	
+  SurveyMisalignmentInput(const edm::ParameterSet&);
+
   /// Read ideal tracker geometry from DB
-  void analyze(
-		       const edm::Event&,
-		       const edm::EventSetup&
-		       ) override;
-	
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
 private:
-	
   SurveyInputTextReader::MapType uIdMap;
 
   std::string textFileName;
 
   edm::ESHandle<Alignments> alignments;
-	
+
   /// Add survey info to an alignable
   void addSurveyInfo(Alignable*);
 

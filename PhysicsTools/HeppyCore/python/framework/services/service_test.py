@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import unittest
 import os 
 import shutil
 
-from tfile import TFileService
+from .tfile import TFileService
 import PhysicsTools.HeppyCore.framework.config as cfg
 
 class ServiceTestCase(unittest.TestCase):

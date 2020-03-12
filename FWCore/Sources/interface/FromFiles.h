@@ -18,20 +18,19 @@ namespace edm {
     FromFiles(ParameterSet const& pset);
     ~FromFiles();
 
-    std::vector<std::string> const& logicalFileNames() const {return catalog_.logicalFileNames();}
-    std::vector<std::string> const& fileNames() const {return catalog_.fileNames();}
-    InputFileCatalog& catalog() {return catalog_;}
-    
+    std::vector<std::string> const& logicalFileNames() const { return catalog_.logicalFileNames(); }
+    std::vector<std::string> const& fileNames() const { return catalog_.fileNames(); }
+    InputFileCatalog& catalog() { return catalog_; }
+
     static void fillDescription(ParameterSetDescription& desc);
 
-    void incrementFileIndex() {++fileIndex_;}
+    void incrementFileIndex() { ++fileIndex_; }
 
     size_t fileIndex() const;
 
   private:
-
     InputFileCatalog catalog_;
     size_t fileIndex_;
   };
-}
+}  // namespace edm
 #endif

@@ -28,100 +28,90 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 // --------------------------------------------------------
 // -------------------- Helper classes --------------------
 // --------------------------------------------------------
 
-
 namespace jpt {
-  
+
   /// Container class for response & efficiency maps
   class Map {
-
   public:
-
-    Map( std::string, bool verbose = false );
+    Map(std::string, bool verbose = false);
     Map();
     ~Map();
-    
+
     uint32_t nEtaBins() const;
     uint32_t nPtBins() const;
-    
-    double eta( uint32_t ) const;
-    double pt( uint32_t ) const;
 
-    uint32_t etaBin( double eta ) const;
-    uint32_t ptBin( double pt ) const;
-    
-    double value( uint32_t eta_bin, uint32_t pt_bin ) const;
+    double eta(uint32_t) const;
+    double pt(uint32_t) const;
 
-    double binCenterEta( uint32_t ) const;
-    double binCenterPt( uint32_t ) const;
-    
+    uint32_t etaBin(double eta) const;
+    uint32_t ptBin(double pt) const;
+
+    double value(uint32_t eta_bin, uint32_t pt_bin) const;
+
+    double binCenterEta(uint32_t) const;
+    double binCenterPt(uint32_t) const;
+
     void clear();
-    void print( std::stringstream& ss ) const;
+    void print(std::stringstream& ss) const;
 
   private:
-
     class Element {
     public:
-      Element() : ieta_(0), ipt_(0), eta_(0.), pt_(0.), val_(0.) {;} 
+      Element() : ieta_(0), ipt_(0), eta_(0.), pt_(0.), val_(0.) { ; }
       uint32_t ieta_;
       uint32_t ipt_;
       double eta_;
       double pt_;
       double val_;
     };
-    
+
     typedef std::vector<double> VDouble;
     typedef std::vector<VDouble> VVDouble;
-    
+
     std::vector<double> eta_;
     std::vector<double> pt_;
     VVDouble data_;
-    
   };
 
   inline uint32_t Map::nEtaBins() const { return eta_.size(); }
   inline uint32_t Map::nPtBins() const { return pt_.size(); }
-  
-  /// Generic container class 
+
+  /// Generic container class
   class Efficiency {
-
   public:
+    Efficiency(const jpt::Map& response, const jpt::Map& efficiency, const jpt::Map& leakage);
 
-    Efficiency( const jpt::Map& response,
-		const jpt::Map& efficiency,
-		const jpt::Map& leakage );
-      
-    typedef std::pair<uint16_t,double> Pair;
-    
-    uint16_t nTrks( uint32_t eta_bin, uint32_t pt_bin ) const;
-    
-    double inConeCorr( uint32_t eta_bin, uint32_t pt_bin ) const;
-    double outOfConeCorr( uint32_t eta_bin, uint32_t pt_bin ) const;
-    
+    typedef std::pair<uint16_t, double> Pair;
+
+    uint16_t nTrks(uint32_t eta_bin, uint32_t pt_bin) const;
+
+    double inConeCorr(uint32_t eta_bin, uint32_t pt_bin) const;
+    double outOfConeCorr(uint32_t eta_bin, uint32_t pt_bin) const;
+
     uint32_t nEtaBins() const;
     uint32_t nPtBins() const;
 
     uint32_t size() const;
     bool empty() const;
-    
-    void addE( uint32_t eta_bin, uint32_t pt_bin, double energy );
+
+    void addE(uint32_t eta_bin, uint32_t pt_bin, double energy);
     void reset();
-    
+
     void print() const;
-    
+
   private:
-    
     Efficiency() = delete;
 
-    double sumE( uint32_t eta_bin, uint32_t pt_bin ) const;
-    double meanE( uint32_t eta_bin, uint32_t pt_bin ) const;
+    double sumE(uint32_t eta_bin, uint32_t pt_bin) const;
+    double meanE(uint32_t eta_bin, uint32_t pt_bin) const;
 
-    bool check( uint32_t eta_bin, uint32_t pt_bin, std::string name = "check" ) const;
+    bool check(uint32_t eta_bin, uint32_t pt_bin, std::string name = "check") const;
 
     typedef std::vector<Pair> VPair;
     typedef std::vector<VPair> VVPair;
@@ -130,9 +120,8 @@ namespace jpt {
     const jpt::Map& response_;
     const jpt::Map& efficiency_;
     const jpt::Map& leakage_;
-    
   };
-  
+
   inline uint32_t Efficiency::nEtaBins() const { return response_.nEtaBins(); }
   inline uint32_t Efficiency::nPtBins() const { return response_.nPtBins(); }
   inline uint32_t Efficiency::size() const { return data_.size(); }
@@ -156,19 +145,18 @@ namespace jpt {
     void clear();
     reco::TrackRefVector inVertexInCalo_;
     reco::TrackRefVector outOfVertexInCalo_;
-    reco::TrackRefVector inVertexOutOfCalo_; 
+    reco::TrackRefVector inVertexOutOfCalo_;
   };
-  
-//class Sum {
-//public:
-//  Sum() { theResponseOfChargedWithEff = 0.; theResponseOfChargedFull = 0.;}
-//  void set( double a, double b) const {theResponseOfChargedWithEff=a;theResponseOfChargedFull=b;}
-//  double theResponseOfChargedWithEff;
-//  double theResponseOfChargedFull;
-//};
 
-}
+  //class Sum {
+  //public:
+  //  Sum() { theResponseOfChargedWithEff = 0.; theResponseOfChargedFull = 0.;}
+  //  void set( double a, double b) const {theResponseOfChargedWithEff=a;theResponseOfChargedFull=b;}
+  //  double theResponseOfChargedWithEff;
+  //  double theResponseOfChargedFull;
+  //};
 
+}  // namespace jpt
 
 // -------------------------------------------------------
 // -------------------- JPT algorithm --------------------
@@ -178,101 +166,107 @@ namespace jpt {
    \brief Jet energy correction algorithm using tracks
 */
 class JetPlusTrackCorrector {
-
   // ---------- Public interface ----------
-  
- public: 
 
+public:
   /// Constructor
-  JetPlusTrackCorrector( const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC );
+  JetPlusTrackCorrector(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
   /// Destructor
   virtual ~JetPlusTrackCorrector();
 
   // Typedefs for 4-momentum
-  typedef math::XYZTLorentzVector       P4;
+  typedef math::XYZTLorentzVector P4;
   typedef math::PtEtaPhiELorentzVectorD PtEtaPhiE;
   typedef math::PtEtaPhiMLorentzVectorD PtEtaPhiM;
-  
+
   /// Vectorial correction method (corrected 4-momentum passed by reference)
-  double correction( const reco::Jet&, const reco::Jet&, const edm::Event&, const edm::EventSetup&, P4&,
-		     jpt::MatchedTracks &pions,
-		     jpt::MatchedTracks &muons,
-		     jpt::MatchedTracks &elecs,
-		     bool &validMatches) ;
-  
+  double correction(const reco::Jet&,
+                    const reco::Jet&,
+                    const edm::Event&,
+                    const edm::EventSetup&,
+                    P4&,
+                    jpt::MatchedTracks& pions,
+                    jpt::MatchedTracks& muons,
+                    jpt::MatchedTracks& elecs,
+                    bool& validMatches);
+
   /// Scalar correction method
-  double correction( const reco::Jet&, const reco::Jet&, const edm::Event&, const edm::EventSetup&, 
-		     jpt::MatchedTracks &pions,
-		     jpt::MatchedTracks &muons,
-		     jpt::MatchedTracks &elecs,
-		     bool &validMatches) ;
-  
-  /// Correction method (not used)
-  double correction( const reco::Jet& ) const;
+  double correction(const reco::Jet&,
+                    const reco::Jet&,
+                    const edm::Event&,
+                    const edm::EventSetup&,
+                    jpt::MatchedTracks& pions,
+                    jpt::MatchedTracks& muons,
+                    jpt::MatchedTracks& elecs,
+                    bool& validMatches);
 
   /// Correction method (not used)
-  double correction( const P4& ) const;
+  double correction(const reco::Jet&) const;
+
+  /// Correction method (not used)
+  double correction(const P4&) const;
 
   /// For AA - correct in tracker
-  
-//  double correctAA(  const reco::Jet&, const reco::TrackRefVector&, double&, const reco::TrackRefVector&,const reco::TrackRefVector&, double&) const;
-  double correctAA(  const reco::Jet&, const reco::TrackRefVector&, double&, const reco::TrackRefVector&,const reco::TrackRefVector&,
-                                                           double,
-                                                           const reco::TrackRefVector&) const;
 
-  
+  //  double correctAA(  const reco::Jet&, const reco::TrackRefVector&, double&, const reco::TrackRefVector&,const reco::TrackRefVector&, double&) const;
+  double correctAA(const reco::Jet&,
+                   const reco::TrackRefVector&,
+                   double&,
+                   const reco::TrackRefVector&,
+                   const reco::TrackRefVector&,
+                   double,
+                   const reco::TrackRefVector&) const;
+
   /// Returns true
   bool eventRequired() const;
-  
+
   /// Returns value of configurable
   bool vectorialCorrection() const;
-  
+
   // ---------- Extended interface ----------
 
   /// Get responses/sumPT/SumEnergy with and without Efficiency correction
 
-  double getResponseOfChargedWithEff() {return theResponseOfChargedWithEff;}
-  double getResponseOfChargedWithoutEff() {return theResponseOfChargedWithoutEff;}
-  double getSumPtWithEff() {return theSumPtWithEff;}
-  double getSumPtWithoutEff() {return theSumPtWithoutEff;}
-  double getSumEnergyWithEff() {return theSumEnergyWithEff;}
-  double getSumEnergyWithoutEff() {return theSumEnergyWithoutEff;}
-  double getSumPtForBeta() {return theSumPtForBeta;}
-
+  double getResponseOfChargedWithEff() { return theResponseOfChargedWithEff; }
+  double getResponseOfChargedWithoutEff() { return theResponseOfChargedWithoutEff; }
+  double getSumPtWithEff() { return theSumPtWithEff; }
+  double getSumPtWithoutEff() { return theSumPtWithoutEff; }
+  double getSumEnergyWithEff() { return theSumEnergyWithEff; }
+  double getSumEnergyWithoutEff() { return theSumEnergyWithoutEff; }
+  double getSumPtForBeta() { return theSumPtForBeta; }
 
   /// Can jet be JPT-corrected?
-  bool canCorrect( const reco::Jet& ) const;
-  
-  /// Matches tracks to different particle types 
-  bool matchTracks( const reco::Jet&, 
-		    const edm::Event&, 
-		    const edm::EventSetup&,
-		    jpt::MatchedTracks& pions, 
-		    jpt::MatchedTracks& muons, 
-		    jpt::MatchedTracks& elecs ) ;
-  
+  bool canCorrect(const reco::Jet&) const;
+
+  /// Matches tracks to different particle types
+  bool matchTracks(const reco::Jet&,
+                   const edm::Event&,
+                   const edm::EventSetup&,
+                   jpt::MatchedTracks& pions,
+                   jpt::MatchedTracks& muons,
+                   jpt::MatchedTracks& elecs);
+
   /// Calculates corrections to be applied using pions
-  P4 pionCorrection( const P4& jet, const jpt::MatchedTracks& pions ) ;
-  
+  P4 pionCorrection(const P4& jet, const jpt::MatchedTracks& pions);
+
   /// Calculates correction to be applied using muons
-  P4 muonCorrection( const P4& jet, const jpt::MatchedTracks& muons ) ;
-  
+  P4 muonCorrection(const P4& jet, const jpt::MatchedTracks& muons);
+
   /// Calculates correction to be applied using electrons
-  P4 elecCorrection( const P4& jet, const jpt::MatchedTracks& elecs ) const;
+  P4 elecCorrection(const P4& jet, const jpt::MatchedTracks& elecs) const;
 
   /// Get reponses
-   
-//  double theResponseOfChargedWithEff;
-//  double theResponseOfChargedFull;
-//  double setResp(double a) const {return a;}
-//  double getChargedResponsesWithEff() { return theResponseOfChargedWithEff;}
-//  double getChargedResponsesFull() { return theResponseOfChargedFull;}
-  
+
+  //  double theResponseOfChargedWithEff;
+  //  double theResponseOfChargedFull;
+  //  double setResp(double a) const {return a;}
+  //  double getChargedResponsesWithEff() { return theResponseOfChargedWithEff;}
+  //  double getChargedResponsesFull() { return theResponseOfChargedFull;}
+
   // ---------- Protected interface ----------
 
- protected: 
-
+protected:
   // Some useful typedefs
   typedef reco::MuonCollection RecoMuons;
   typedef reco::GsfElectronCollection RecoElectrons;
@@ -281,125 +275,97 @@ class JetPlusTrackCorrector {
   typedef reco::TrackRefVector TrackRefs;
 
   /// Associates tracks to jets (overriden in derived class)
-  virtual bool jetTrackAssociation( const reco::Jet&, 
-				    const edm::Event&, 
-				    const edm::EventSetup&,
-				    jpt::JetTracks& ) const;
-  
+  virtual bool jetTrackAssociation(const reco::Jet&, const edm::Event&, const edm::EventSetup&, jpt::JetTracks&) const;
+
   /// JTA using collections from event
-  bool jtaUsingEventData( const reco::Jet&, 
-			  const edm::Event&, 
-			  jpt::JetTracks& ) const;
-  
+  bool jtaUsingEventData(const reco::Jet&, const edm::Event&, jpt::JetTracks&) const;
+
   /// Matches tracks to different particle types (overriden in derived class)
-  virtual void matchTracks( const jpt::JetTracks&,
-			    const edm::Event&, 
-			    jpt::MatchedTracks& pions, 
-			    jpt::MatchedTracks& muons, 
-			    jpt::MatchedTracks& elecs ) ;
+  virtual void matchTracks(const jpt::JetTracks&,
+                           const edm::Event&,
+                           jpt::MatchedTracks& pions,
+                           jpt::MatchedTracks& muons,
+                           jpt::MatchedTracks& elecs);
 
   /// Calculates individual pion corrections
-  P4 pionCorrection( const P4& jet, 
-		     const TrackRefs& pions, 
-		     jpt::Efficiency&,
-		     bool in_cone_at_vertex,
-		     bool in_cone_at_calo_face ) ; 
+  P4 pionCorrection(
+      const P4& jet, const TrackRefs& pions, jpt::Efficiency&, bool in_cone_at_vertex, bool in_cone_at_calo_face);
 
   /// Calculates individual muons corrections
-  P4 muonCorrection( const P4& jet, 
-		     const TrackRefs& muons, 
-		     bool in_cone_at_vertex,
-		     bool in_cone_at_calo_face ) ;
-  
+  P4 muonCorrection(const P4& jet, const TrackRefs& muons, bool in_cone_at_vertex, bool in_cone_at_calo_face);
+
   /// Calculates individual electron corrections
-  P4 elecCorrection( const P4& jet, 
-		     const TrackRefs& elecs, 
-		     bool in_cone_at_vertex,
-		     bool in_cone_at_calo_face ) ;
+  P4 elecCorrection(const P4& jet, const TrackRefs& elecs, bool in_cone_at_vertex, bool in_cone_at_calo_face);
 
   /// Calculates vectorial correction using total track 3-momentum
-  P4 jetDirFromTracks( const P4& jet, 
-		       const jpt::MatchedTracks& pions,
-		       const jpt::MatchedTracks& muons,
-		       const jpt::MatchedTracks& elecs ) const;
-  
+  P4 jetDirFromTracks(const P4& jet,
+                      const jpt::MatchedTracks& pions,
+                      const jpt::MatchedTracks& muons,
+                      const jpt::MatchedTracks& elecs) const;
+
   /// Generic method to calculates 4-momentum correction to be applied
-  P4 calculateCorr( const P4& jet, 
-		    const TrackRefs&, 
-		    jpt::Efficiency&,
-		    bool in_cone_at_vertex,
-		    bool in_cone_at_calo_face,
-		    double mass,
-		    bool is_pion,
-		    double mip ) ;
-  
-  /// Correction to be applied using tracking efficiency 
-  P4 pionEfficiency( const P4& jet, 
-		     const jpt::Efficiency&,
-		     bool in_cone_at_calo_face ) ;
-  
+  P4 calculateCorr(const P4& jet,
+                   const TrackRefs&,
+                   jpt::Efficiency&,
+                   bool in_cone_at_vertex,
+                   bool in_cone_at_calo_face,
+                   double mass,
+                   bool is_pion,
+                   double mip);
+
+  /// Correction to be applied using tracking efficiency
+  P4 pionEfficiency(const P4& jet, const jpt::Efficiency&, bool in_cone_at_calo_face);
+
   /// Check corrected 4-momentum does not give negative scale
-  double checkScale( const P4& jet, P4& corrected ) const;
-  
+  double checkScale(const P4& jet, P4& corrected) const;
+
   /// Get RECO muons
-  bool getMuons( const edm::Event&, edm::Handle<RecoMuons>& ) const;
+  bool getMuons(const edm::Event&, edm::Handle<RecoMuons>&) const;
 
   /// Get RECO electrons
-  bool getElectrons( const edm::Event&, 
-		     edm::Handle<RecoElectrons>&, 
-		     edm::Handle<RecoElectronIds>& ) const;
-  
+  bool getElectrons(const edm::Event&, edm::Handle<RecoElectrons>&, edm::Handle<RecoElectronIds>&) const;
+
   /// Matches tracks to RECO muons
-  bool matchMuons( TrackRefs::const_iterator&,
-		   const edm::Handle<RecoMuons>& ) const;
-  
+  bool matchMuons(TrackRefs::const_iterator&, const edm::Handle<RecoMuons>&) const;
+
   /// Matches tracks to RECO electrons
-  bool matchElectrons( TrackRefs::const_iterator&,
-		       const edm::Handle<RecoElectrons>&, 
-		       const edm::Handle<RecoElectronIds>& ) const;
-  
+  bool matchElectrons(TrackRefs::const_iterator&,
+                      const edm::Handle<RecoElectrons>&,
+                      const edm::Handle<RecoElectronIds>&) const;
+
   /// Check on track quality
-  bool failTrackQuality( TrackRefs::const_iterator& ) const;
+  bool failTrackQuality(TrackRefs::const_iterator&) const;
 
   /// Find track in JetTracks collection
-  bool findTrack( const jpt::JetTracks&, 
-		  TrackRefs::const_iterator&,
-		  TrackRefs::iterator& ) const;
+  bool findTrack(const jpt::JetTracks&, TrackRefs::const_iterator&, TrackRefs::iterator&) const;
 
   /// Find track in MatchedTracks collections
-  bool findTrack( const jpt::MatchedTracks& pions, 
-		  const jpt::MatchedTracks& muons,
-		  const jpt::MatchedTracks& electrons,
-		  TrackRefs::const_iterator& ) const;
+  bool findTrack(const jpt::MatchedTracks& pions,
+                 const jpt::MatchedTracks& muons,
+                 const jpt::MatchedTracks& electrons,
+                 TrackRefs::const_iterator&) const;
 
   /// Determines if any tracks in cone at CaloFace
-  bool tracksInCalo( const jpt::MatchedTracks& pions, 
-		     const jpt::MatchedTracks& muons,
-		     const jpt::MatchedTracks& elecs ) const;
-  
-  /// Rebuild jet-track association 
-  void rebuildJta( const reco::Jet&, 
-		   const JetTracksAssociations&, 
-		   TrackRefs& included,
-		   TrackRefs& excluded ) const;
-  
-  /// Exclude jet-track association 
-  void excludeJta( const reco::Jet&, 
-		   const JetTracksAssociations&, 
-		   TrackRefs& included,
-		   const TrackRefs& excluded ) const;
-  
+  bool tracksInCalo(const jpt::MatchedTracks& pions,
+                    const jpt::MatchedTracks& muons,
+                    const jpt::MatchedTracks& elecs) const;
+
+  /// Rebuild jet-track association
+  void rebuildJta(const reco::Jet&, const JetTracksAssociations&, TrackRefs& included, TrackRefs& excluded) const;
+
+  /// Exclude jet-track association
+  void excludeJta(const reco::Jet&, const JetTracksAssociations&, TrackRefs& included, const TrackRefs& excluded) const;
+
   const jpt::Map& responseMap() const;
   const jpt::Map& efficiencyMap() const;
   const jpt::Map& leakageMap() const;
-  
+
   /// Default constructor
-  JetPlusTrackCorrector() {;}
+  JetPlusTrackCorrector() { ; }
 
   // ---------- Protected member data ----------
 
- protected:
-  
+protected:
   // Some general configuration
   bool verbose_;
   bool vectorial_;
@@ -412,7 +378,7 @@ class JetPlusTrackCorrector {
   bool useMuons_;
   bool useElecs_;
   bool useTrackQuality_;
-  
+
   // Jet-track association
   edm::InputTag jetTracksAtVertex_;
   edm::InputTag jetTracksAtCalo_;
@@ -424,18 +390,18 @@ class JetPlusTrackCorrector {
 
   // Muons and electrons
   edm::InputTag muons_;
-  edm::InputTag electrons_; 
+  edm::InputTag electrons_;
   edm::InputTag electronIds_;
-  
+
   // Filter tracks by quality
   reco::TrackBase::TrackQuality trackQuality_;
 
-  // Response and efficiency maps  
+  // Response and efficiency maps
   const jpt::Map response_;
   const jpt::Map efficiency_;
   const jpt::Map leakage_;
 
-  // Mass    
+  // Mass
   double pionMass_;
   double muonMass_;
   double elecMass_;
@@ -449,62 +415,59 @@ class JetPlusTrackCorrector {
   float theSumEnergyWithEff;
   float theSumEnergyWithoutEff;
   float theSumPtForBeta;
-  jpt::Efficiency not_used{response_,efficiency_,leakage_};
+  jpt::Efficiency not_used{response_, efficiency_, leakage_};
 
   // ---------- Private data members ----------
 
- private:
+private:
   edm::EDGetTokenT<reco::JetTracksAssociation::Container> input_jetTracksAtVertex_token_;
   edm::EDGetTokenT<reco::JetTracksAssociation::Container> input_jetTracksAtCalo_token_;
   edm::EDGetTokenT<RecoMuons> inut_reco_muons_token_;
   edm::EDGetTokenT<reco::VertexCollection> input_pvCollection_token_;
-  edm::EDGetTokenT<RecoElectrons> input_reco_elecs_token_;     
+  edm::EDGetTokenT<RecoElectrons> input_reco_elecs_token_;
   edm::EDGetTokenT<RecoElectronIds> input_reco_elec_ids_token_;
-
 };
 
 // ---------- Inline methods ----------
 
-inline double JetPlusTrackCorrector::correction( const reco::Jet& fJet, const reco::Jet& fJetcalo,
-						 const edm::Event& event,
-						 const edm::EventSetup& setup,
-						 jpt::MatchedTracks &pions,
-						 jpt::MatchedTracks &muons,
-						 jpt::MatchedTracks &elecs,
-						 bool &validMatches) {
+inline double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
+                                                const reco::Jet& fJetcalo,
+                                                const edm::Event& event,
+                                                const edm::EventSetup& setup,
+                                                jpt::MatchedTracks& pions,
+                                                jpt::MatchedTracks& muons,
+                                                jpt::MatchedTracks& elecs,
+                                                bool& validMatches) {
   P4 not_used_for_scalar_correction;
-  return correction( fJet, fJetcalo, event, setup, not_used_for_scalar_correction,pions,muons,elecs,validMatches );
+  return correction(fJet, fJetcalo, event, setup, not_used_for_scalar_correction, pions, muons, elecs, validMatches);
 }
 
 inline bool JetPlusTrackCorrector::eventRequired() const { return true; }
 inline bool JetPlusTrackCorrector::vectorialCorrection() const { return vectorial_; }
-inline bool JetPlusTrackCorrector::canCorrect( const reco::Jet& jet ) const { return ( fabs( jet.eta() ) <= maxEta_ ); }
+inline bool JetPlusTrackCorrector::canCorrect(const reco::Jet& jet) const { return (fabs(jet.eta()) <= maxEta_); }
 
-inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection( const P4& jet, 
-									const TrackRefs& pions, 
-									jpt::Efficiency& eff,
-									bool in_cone_at_vertex,
-									bool in_cone_at_calo_face ) {
-  return calculateCorr( jet, pions, eff, in_cone_at_vertex, in_cone_at_calo_face, pionMass_, true, -1. );
+inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection(
+    const P4& jet, const TrackRefs& pions, jpt::Efficiency& eff, bool in_cone_at_vertex, bool in_cone_at_calo_face) {
+  return calculateCorr(jet, pions, eff, in_cone_at_vertex, in_cone_at_calo_face, pionMass_, true, -1.);
 }
 
-inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::muonCorrection( const P4& jet, 
-									const TrackRefs& muons, 
-									bool in_cone_at_vertex,
-									bool in_cone_at_calo_face ) {
-  return calculateCorr( jet, muons, not_used, in_cone_at_vertex, in_cone_at_calo_face, muonMass_, false, 2. );
-} 
+inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::muonCorrection(const P4& jet,
+                                                                       const TrackRefs& muons,
+                                                                       bool in_cone_at_vertex,
+                                                                       bool in_cone_at_calo_face) {
+  return calculateCorr(jet, muons, not_used, in_cone_at_vertex, in_cone_at_calo_face, muonMass_, false, 2.);
+}
 
-inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::elecCorrection( const P4& jet, 
-									const TrackRefs& elecs, 
-									bool in_cone_at_vertex,
-									bool in_cone_at_calo_face ) {
-  return calculateCorr( jet, elecs, not_used, in_cone_at_vertex, in_cone_at_calo_face, elecMass_, false, 0. ); 
-} 
+inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::elecCorrection(const P4& jet,
+                                                                       const TrackRefs& elecs,
+                                                                       bool in_cone_at_vertex,
+                                                                       bool in_cone_at_calo_face) {
+  return calculateCorr(jet, elecs, not_used, in_cone_at_vertex, in_cone_at_calo_face, elecMass_, false, 0.);
+}
 
-inline double JetPlusTrackCorrector::checkScale( const P4& jet, P4& corrected ) const {
-  if ( jet.energy() > 0. && ( corrected.energy() / jet.energy() ) < 0. ) { 
-    corrected = jet; 
+inline double JetPlusTrackCorrector::checkScale(const P4& jet, P4& corrected) const {
+  if (jet.energy() > 0. && (corrected.energy() / jet.energy()) < 0.) {
+    corrected = jet;
   }
   return corrected.energy() / jet.energy();
 }
@@ -513,4 +476,4 @@ inline const jpt::Map& JetPlusTrackCorrector::responseMap() const { return respo
 inline const jpt::Map& JetPlusTrackCorrector::efficiencyMap() const { return efficiency_; }
 inline const jpt::Map& JetPlusTrackCorrector::leakageMap() const { return leakage_; }
 
-#endif // RecoJets_JetPlusTracks_JetPlusTrackCorrector_h
+#endif  // RecoJets_JetPlusTracks_JetPlusTrackCorrector_h

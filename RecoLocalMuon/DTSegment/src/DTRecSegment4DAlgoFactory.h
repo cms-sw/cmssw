@@ -13,7 +13,6 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DBaseAlgo.h"
 
-
 // C++ Headers
 
 // ======================================================================
@@ -21,4 +20,4 @@
 // Class DTRecSegment4DAlgoFactory Interface
 
 typedef edmplugin::PluginFactory<DTRecSegment4DBaseAlgo *(const edm::ParameterSet &)> DTRecSegment4DAlgoFactory;
-#endif 
+#endif

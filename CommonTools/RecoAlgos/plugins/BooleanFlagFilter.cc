@@ -2,7 +2,7 @@
 //
 // Package:    CommonTools/RecoAlgos
 // Class:      BooleanFlagFilter
-// 
+//
 /**\class BooleanFlagFilter BooleanFlagFilter.cc CommonTools/RecoAlgos/plugins/BooleanFlagFilter.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Fri, 20 Mar 2015 08:05:20 GMT
 //
 //
-
 
 // system include files
 #include <memory>
@@ -34,23 +33,23 @@
 //
 
 class BooleanFlagFilter : public edm::global::EDFilter<> {
-   public:
-      explicit BooleanFlagFilter(const edm::ParameterSet&);
-      ~BooleanFlagFilter() override;
+public:
+  explicit BooleanFlagFilter(const edm::ParameterSet&);
+  ~BooleanFlagFilter() override;
 
-   private:
-      //virtual void beginJob() override;
-      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      //virtual void endJob() override;
-      
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+private:
+  //virtual void beginJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  //virtual void endJob() override;
 
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<bool> inputToken_;
-      bool reverse_;
+  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<bool> inputToken_;
+  bool reverse_;
 };
 
 //
@@ -64,46 +63,37 @@ class BooleanFlagFilter : public edm::global::EDFilter<> {
 //
 // constructors and destructor
 //
-BooleanFlagFilter::BooleanFlagFilter(const edm::ParameterSet& iConfig)
-{
-   //now do what ever initialization is needed
-   inputToken_ = consumes<bool>(iConfig.getParameter<edm::InputTag>("inputLabel"));
-   reverse_ = iConfig.getParameter<bool>("reverseDecision");
+BooleanFlagFilter::BooleanFlagFilter(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
+  inputToken_ = consumes<bool>(iConfig.getParameter<edm::InputTag>("inputLabel"));
+  reverse_ = iConfig.getParameter<bool>("reverseDecision");
 }
 
-
-BooleanFlagFilter::~BooleanFlagFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+BooleanFlagFilter::~BooleanFlagFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-BooleanFlagFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
-{
-   using namespace edm;
+bool BooleanFlagFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  using namespace edm;
 
-   Handle<bool> pIn;
-   iEvent.getByToken(inputToken_, pIn);
-   if (!pIn.isValid())
-   {
-      throw edm::Exception(edm::errors::ProductNotFound) << " could not find requested flag\n";
-      return true;
-   }
+  Handle<bool> pIn;
+  iEvent.getByToken(inputToken_, pIn);
+  if (!pIn.isValid()) {
+    throw edm::Exception(edm::errors::ProductNotFound) << " could not find requested flag\n";
+    return true;
+  }
 
-   bool result = *pIn;
-   if (reverse_)
-      result = !result;
+  bool result = *pIn;
+  if (reverse_)
+    result = !result;
 
-   return result;
+  return result;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -128,7 +118,7 @@ BooleanFlagFilter::beginRun(edm::Run const&, edm::EventSetup const&)
 { 
 }
 */
- 
+
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
@@ -136,7 +126,7 @@ BooleanFlagFilter::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
@@ -144,7 +134,7 @@ BooleanFlagFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventS
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
@@ -152,6 +142,6 @@ BooleanFlagFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSet
 {
 }
 */
- 
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(BooleanFlagFilter);

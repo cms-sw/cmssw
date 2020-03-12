@@ -32,34 +32,32 @@ class TEveElementList;
 class TEveWindowSlot;
 class TEveGeoShape;
 
-class FWGlimpseView : public FWEveView
-{
+class FWGlimpseView : public FWEveView {
 public:
-   FWGlimpseView(TEveWindowSlot*, FWViewType::EType);
-   ~FWGlimpseView() override;
+  FWGlimpseView(TEveWindowSlot*, FWViewType::EType);
+  ~FWGlimpseView() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   void addTo(FWConfiguration&) const override;
-   void setFrom(const FWConfiguration&) override;
+  void addTo(FWConfiguration&) const override;
+  void setFrom(const FWConfiguration&) override;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
 private:
-   FWGlimpseView(const FWGlimpseView&) = delete;    // stop default
-   const FWGlimpseView& operator=(const FWGlimpseView&) = delete;    // stop default
+  FWGlimpseView(const FWGlimpseView&) = delete;                   // stop default
+  const FWGlimpseView& operator=(const FWGlimpseView&) = delete;  // stop default
 
-   void createAxis();
-   void showAxes( );
-   void showCylinder( );
+  void createAxis();
+  void showAxes();
+  void showCylinder();
 
-   // ---------- member data --------------------------------
-   TEveGeoShape*  m_cylinder;
+  // ---------- member data --------------------------------
+  TEveGeoShape* m_cylinder;
 
-   // FWDoubleParameter m_scaleParam;
-   FWBoolParameter   m_showAxes;
-   FWBoolParameter   m_showCylinder;
+  // FWDoubleParameter m_scaleParam;
+  FWBoolParameter m_showAxes;
+  FWBoolParameter m_showCylinder;
 };
-
 
 #endif

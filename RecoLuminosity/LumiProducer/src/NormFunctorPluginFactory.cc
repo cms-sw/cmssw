@@ -1,2 +1,2 @@
 #include "RecoLuminosity/LumiProducer/interface/NormFunctorPluginFactory.h"
-EDM_REGISTER_PLUGINFACTORY(lumi::NormFunctorPluginFactory,"LumiFunctorPlugin");
+EDM_REGISTER_PLUGINFACTORY(lumi::NormFunctorPluginFactory, "LumiFunctorPlugin");

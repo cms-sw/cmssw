@@ -11,23 +11,27 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 
-
 namespace edm {
   class ConfigurationDescriptions;
 }
 
 class HLTEgammaDoubleLegCombFilter : public HLTFilter {
-
- public:
+public:
   explicit HLTEgammaDoubleLegCombFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleLegCombFilter() override;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void matchCands(const std::vector<math::XYZPoint>& firstLegP3s,const std::vector<math::XYZPoint>& secondLegP3s,std::vector<std::pair<int,int> >&matchedCands) const;
-  static void getP3OfLegCands(const edm::Event& iEvent, const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken, std::vector<math::XYZPoint>& p3s);
+  void matchCands(const std::vector<math::XYZPoint>& firstLegP3s,
+                  const std::vector<math::XYZPoint>& secondLegP3s,
+                  std::vector<std::pair<int, int> >& matchedCands) const;
+  static void getP3OfLegCands(const edm::Event& iEvent,
+                              const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken,
+                              std::vector<math::XYZPoint>& p3s);
 
- private:
+private:
   edm::InputTag firstLegLastFilterTag_;
   edm::InputTag secondLegLastFilterTag_;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> firstLegLastFilterToken_;
@@ -39,5 +43,3 @@ class HLTEgammaDoubleLegCombFilter : public HLTFilter {
 };
 
 #endif
-
-

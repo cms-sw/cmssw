@@ -15,42 +15,39 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 
-
 // forward declaration
 class EcalTBWeightUncalibRecHitProducer : public edm::EDProducer {
+public:
+  typedef std::vector<double> EcalRecoAmplitudes;
+  explicit EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps);
+  ~EcalTBWeightUncalibRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
-  public:
-    typedef std::vector<double> EcalRecoAmplitudes;
-    explicit EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps);
-    ~EcalTBWeightUncalibRecHitProducer() override;
-    void produce(edm::Event& evt, const edm::EventSetup& es) override;
+private:
+  edm::InputTag EBdigiCollection_;      // secondary name given to collection of digis
+  edm::InputTag EEdigiCollection_;      // secondary name given to collection of digis
+  edm::InputTag tdcRecInfoCollection_;  // secondary name given to collection of digis
 
-  private:
+  std::string EBhitCollection_;  // secondary name to be given to collection of hit
+  std::string EEhitCollection_;  // secondary name to be given to collection of hit
 
-    edm::InputTag EBdigiCollection_; // secondary name given to collection of digis
-    edm::InputTag EEdigiCollection_; // secondary name given to collection of digis
-    edm::InputTag tdcRecInfoCollection_; // secondary name given to collection of digis
+  EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> EBalgo_;
+  EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> EEalgo_;
 
-    std::string EBhitCollection_; // secondary name to be given to collection of hit
-    std::string EEhitCollection_; // secondary name to be given to collection of hit
+  const EEShape testbeamEEShape;
+  const EBShape testbeamEBShape;
 
-    EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> EBalgo_;
-    EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> EEalgo_;
+  /*     HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec); */
+  /*     HepMatrix makeDummySymMatrix(int size); */
 
-    const EEShape testbeamEEShape;  
-    const EBShape testbeamEBShape; 
+  int nbTimeBin_;
 
-/*     HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec); */
-/*     HepMatrix makeDummySymMatrix(int size); */
+  //use 2004 convention for the TDC
+  bool use2004OffsetConvention_;
 
-    int nbTimeBin_;
+  /*     int nMaxPrintout_; // max # of printouts */
+  /*     int counter_; // internal verbosity counter */
 
-    //use 2004 convention for the TDC
-    bool use2004OffsetConvention_; 
-
-/*     int nMaxPrintout_; // max # of printouts */
-/*     int counter_; // internal verbosity counter */
-
-    //    bool counterExceeded() const { return ( (counter_>nMaxPrintout_) || (counter_<0) ) ; }
+  //    bool counterExceeded() const { return ( (counter_>nMaxPrintout_) || (counter_<0) ) ; }
 };
 #endif

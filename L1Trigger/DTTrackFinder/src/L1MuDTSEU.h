@@ -46,66 +46,63 @@ class L1MuDTERS;
 //              ---------------------
 
 class L1MuDTSEU : public L1AbstractProcessor {
+public:
+  /// constructor
+  L1MuDTSEU(const L1MuDTSectorProcessor& sp, Extrapolation ext, unsigned int tsId);
 
-  public:
+  /// destructor
+  ~L1MuDTSEU() override;
 
-    /// constructor
-    L1MuDTSEU(const L1MuDTSectorProcessor& sp, Extrapolation ext, unsigned int tsId );
+  /// run SEU
+  void run(const edm::EventSetup& c) override;
 
-    /// destructor
-    ~L1MuDTSEU() override;
+  /// reset SEU
+  void reset() override;
 
-    /// run SEU
-    void run(const edm::EventSetup& c) override;
-   
-    /// reset SEU
-    void reset() override;
+  /// reset single extrapolation
+  void reset(unsigned int relAdr);
 
-    /// reset single extrapolation
-    void reset(unsigned int relAdr);
-    
-    /// load data into the SEU 
-    inline void load(const L1MuDTTrackSegPhi* startTS) { m_startTS = startTS; }
+  /// load data into the SEU
+  inline void load(const L1MuDTTrackSegPhi* startTS) { m_startTS = startTS; }
 
-    /// return Extrapolator table
-    const std::bitset<12>& exTable() const { return m_EXtable; }
+  /// return Extrapolator table
+  const std::bitset<12>& exTable() const { return m_EXtable; }
 
-    /// return Quality Sorter table
-    const std::bitset<12>& qsTable() const { return m_QStable; }
-    
-    /// return number of successful extrapolations
-    int numberOfExt() const;
-    
-    /// return extrapolation type
-    inline Extrapolation ext() const { return m_ext; }
+  /// return Quality Sorter table
+  const std::bitset<12>& qsTable() const { return m_QStable; }
 
-    /// return start track segment identifier (relative address)
-    inline unsigned int tsId() const { return m_startTS_Id; }
-    
-    /// is it a own wheel Single Extrapolation Unit
-    inline bool isOwnWheelSEU() const { return ( m_startTS_Id == 0 || m_startTS_Id == 1 ); }
-    
-    /// is it a next wheel Single Extrapolation Unit 
-    inline bool isNextWheelSEU() const { return ( m_startTS_Id == 2 || m_startTS_Id == 3 ); }
-    
-    /// return pointer to an Extrapolator
-    inline const std::vector<L1MuDTEUX*>& eux() const { return m_EUXs; }
-    
-    /// return pointer to Extrapolation Result Selector
-    inline const L1MuDTERS* ers() const { return m_ERS; }
+  /// return number of successful extrapolations
+  int numberOfExt() const;
 
-  private:
+  /// return extrapolation type
+  inline Extrapolation ext() const { return m_ext; }
 
-    const L1MuDTSectorProcessor& m_sp;
-    Extrapolation                m_ext;         // Extrapolation type
-    unsigned int                 m_startTS_Id;  // rel. address of start TS
-  
-    const L1MuDTTrackSegPhi*     m_startTS;     // start track segment
-    std::vector<L1MuDTEUX*>      m_EUXs;        // vector of Extrapolators
-    L1MuDTERS*                   m_ERS;         // Extrapolation Result Selector
+  /// return start track segment identifier (relative address)
+  inline unsigned int tsId() const { return m_startTS_Id; }
 
-    std::bitset<12>              m_EXtable;     // Extrapolator table
-    std::bitset<12>              m_QStable;     // Quality Selector table         
+  /// is it a own wheel Single Extrapolation Unit
+  inline bool isOwnWheelSEU() const { return (m_startTS_Id == 0 || m_startTS_Id == 1); }
+
+  /// is it a next wheel Single Extrapolation Unit
+  inline bool isNextWheelSEU() const { return (m_startTS_Id == 2 || m_startTS_Id == 3); }
+
+  /// return pointer to an Extrapolator
+  inline const std::vector<L1MuDTEUX*>& eux() const { return m_EUXs; }
+
+  /// return pointer to Extrapolation Result Selector
+  inline const L1MuDTERS* ers() const { return m_ERS; }
+
+private:
+  const L1MuDTSectorProcessor& m_sp;
+  Extrapolation m_ext;        // Extrapolation type
+  unsigned int m_startTS_Id;  // rel. address of start TS
+
+  const L1MuDTTrackSegPhi* m_startTS;  // start track segment
+  std::vector<L1MuDTEUX*> m_EUXs;      // vector of Extrapolators
+  L1MuDTERS* m_ERS;                    // Extrapolation Result Selector
+
+  std::bitset<12> m_EXtable;  // Extrapolator table
+  std::bitset<12> m_QStable;  // Quality Selector table
 };
 
 #endif

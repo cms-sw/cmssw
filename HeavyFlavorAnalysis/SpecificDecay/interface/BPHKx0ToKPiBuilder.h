@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -39,14 +38,12 @@ class BPHMassSelect;
 //              ---------------------
 
 class BPHKx0ToKPiBuilder {
-
- public:
-
+public:
   /** Constructor
    */
-  BPHKx0ToKPiBuilder( const edm::EventSetup& es,
-       const BPHRecoBuilder::BPHGenericCollection* posCollection,
-       const BPHRecoBuilder::BPHGenericCollection* negCollection );
+  BPHKx0ToKPiBuilder(const edm::EventSetup& es,
+                     const BPHRecoBuilder::BPHGenericCollection* posCollection,
+                     const BPHRecoBuilder::BPHGenericCollection* negCollection);
 
   /** Destructor
    */
@@ -58,27 +55,26 @@ class BPHKx0ToKPiBuilder {
   std::vector<BPHPlusMinusConstCandPtr> build();
 
   /// set cuts
-  void setPtMin  ( double pt  );
-  void setEtaMax ( double eta );
-  void setMassMin( double m   );
-  void setMassMax( double m   );
-  void setProbMin( double p   );
-  void setConstr ( double mass, double sigma );
+  void setPtMin(double pt);
+  void setEtaMax(double eta);
+  void setMassMin(double m);
+  void setMassMax(double m);
+  void setProbMin(double p);
+  void setConstr(double mass, double sigma);
 
   /// get current cuts
-  double getPtMin  () const;
-  double getEtaMax () const;
+  double getPtMin() const;
+  double getEtaMax() const;
   double getMassMin() const;
   double getMassMax() const;
   double getProbMin() const;
-  double getConstrMass () const;
+  double getConstrMass() const;
   double getConstrSigma() const;
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHKx0ToKPiBuilder           ( const BPHKx0ToKPiBuilder& x ) = delete;
-  BPHKx0ToKPiBuilder& operator=( const BPHKx0ToKPiBuilder& x ) = delete;
+  BPHKx0ToKPiBuilder(const BPHKx0ToKPiBuilder& x) = delete;
+  BPHKx0ToKPiBuilder& operator=(const BPHKx0ToKPiBuilder& x) = delete;
 
   std::string kaonName;
   std::string pionName;
@@ -87,7 +83,7 @@ class BPHKx0ToKPiBuilder {
   const BPHRecoBuilder::BPHGenericCollection* pCollection;
   const BPHRecoBuilder::BPHGenericCollection* nCollection;
 
-  BPHParticlePtSelect *  ptSel;
+  BPHParticlePtSelect* ptSel;
   BPHParticleEtaSelect* etaSel;
   BPHMassSelect* massSel;
   BPHChi2Select* chi2Sel;
@@ -96,9 +92,6 @@ class BPHKx0ToKPiBuilder {
   bool updated;
 
   std::vector<BPHPlusMinusConstCandPtr> kx0List;
-
 };
 
-
 #endif
-

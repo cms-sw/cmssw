@@ -14,16 +14,14 @@
 //#include "TopQuarkAnalysis/TopJetCombination/interface/TtJetCombinationProbability.h"
 
 class StEvtSolutionMaker : public edm::EDProducer {
- public:
-
+public:
   explicit StEvtSolutionMaker(const edm::ParameterSet&);
   ~StEvtSolutionMaker() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
-  StKinFitter * myKinFitter;
+private:
+  StKinFitter* myKinFitter;
   //std::vector<TtJetCombinationProbability> jetCombProbs;
   edm::EDGetTokenT<std::vector<pat::Electron> > electronSrcToken_;
   edm::EDGetTokenT<std::vector<pat::Muon> > muonSrcToken_;

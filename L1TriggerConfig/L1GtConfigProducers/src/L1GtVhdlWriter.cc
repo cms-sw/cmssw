@@ -39,107 +39,95 @@
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVmeWriterCore.h"
 
 // constructor(s)
-L1GtVhdlWriter::L1GtVhdlWriter(const edm::ParameterSet& parSet)
-{
+L1GtVhdlWriter::L1GtVhdlWriter(const edm::ParameterSet& parSet) {
+  // directory in /data for the VHDL templates
+  vhdlDir_ = parSet.getParameter<std::string>("VhdlTemplatesDir");
+  outputDir_ = parSet.getParameter<std::string>("OutputDir");
 
-    // directory in /data for the VHDL templates
-    vhdlDir_ = parSet.getParameter<std::string>("VhdlTemplatesDir");
-    outputDir_ = parSet.getParameter<std::string>("OutputDir");
+  if (vhdlDir_[vhdlDir_.length() - 1] != '/')
+    vhdlDir_ += "/";
+  if (outputDir_[outputDir_.length() - 1] != '/')
+    outputDir_ += "/";
 
-    if (vhdlDir_[vhdlDir_.length()-1]!= '/')
-        vhdlDir_+="/";
-    if (outputDir_[outputDir_.length()-1]!= '/')
-        outputDir_+="/";
+  //    // def.xml file
+  //    std::string defXmlFileName = parSet.getParameter<std::string>("DefXmlFile");
+  //
+  //    edm::FileInPath f1("L1TriggerConfig/L1GtConfigProducers/data/" +
+  //                       vhdlDir + "/" + defXmlFileName);
+  //
+  //    m_defXmlFile = f1.fullPath();
 
-    //    // def.xml file
-    //    std::string defXmlFileName = parSet.getParameter<std::string>("DefXmlFile");
-    //
-    //    edm::FileInPath f1("L1TriggerConfig/L1GtConfigProducers/data/" +
-    //                       vhdlDir + "/" + defXmlFileName);
-    //
-    //    m_defXmlFile = f1.fullPath();
-
-    edm::LogInfo("L1GtConfigProducers") << "\n\nL1 GT VHDL directory: "
-            << vhdlDir_ << "\n\n" << std::endl;
-
+  edm::LogInfo("L1GtConfigProducers") << "\n\nL1 GT VHDL directory: " << vhdlDir_ << "\n\n" << std::endl;
 }
 
 // destructor
-L1GtVhdlWriter::~L1GtVhdlWriter()
-{
-    // empty
+L1GtVhdlWriter::~L1GtVhdlWriter() {
+  // empty
 }
 
 // loop over events
-void L1GtVhdlWriter::analyze(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup)
-{
+void L1GtVhdlWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
+  evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
 
-    edm::ESHandle< L1GtTriggerMenu > l1GtMenu;
-    evSetup.get< L1GtTriggerMenuRcd >().get(l1GtMenu) ;
+  std::vector<ConditionMap> conditionMap = l1GtMenu->gtConditionMap();
+  AlgorithmMap algorithmMap = l1GtMenu->gtAlgorithmMap();
 
-    std::vector<ConditionMap> conditionMap = l1GtMenu->gtConditionMap();
-    AlgorithmMap algorithmMap = l1GtMenu->gtAlgorithmMap();
+  // print with various level of verbosities
+  int printVerbosity = 0;
+  l1GtMenu->print(std::cout, printVerbosity);
 
-    // print with various level of verbosities
-    int printVerbosity = 0;
-    l1GtMenu->print(std::cout, printVerbosity);
+  //---------------------Here the VHDL files will be created---------------------------------------
 
-    //---------------------Here the VHDL files will be created---------------------------------------
+  // information that will be delivered by the parser in future
+  std::map<std::string, std::string> headerParameters;
+  std::vector<std::string> channelVector;
 
-    // information that will be delivered by the parser in future
-    std::map<std::string,std::string> headerParameters;
-    std::vector<std::string> channelVector;
+  headerParameters["vhdl_path"] = "/vhdllibrarypath";
+  headerParameters["designer_date"] = "20.05.1986";
+  headerParameters["designer_name"] = "Philipp Wagner";
+  headerParameters["version"] = "2.0";
+  headerParameters["designer_comments"] = "produced in CMSSW";
+  headerParameters["gtl_setup_name"] = "L1Menu2007NovGR";
 
-    headerParameters["vhdl_path"]="/vhdllibrarypath";
-    headerParameters["designer_date"]="20.05.1986";
-    headerParameters["designer_name"]="Philipp Wagner";
-    headerParameters["version"]="2.0";
-    headerParameters["designer_comments"]="produced in CMSSW";
-    headerParameters["gtl_setup_name"]="L1Menu2007NovGR";
+  channelVector.push_back("-- ca1: ieg");
+  channelVector.push_back("-- ca2: eg");
+  channelVector.push_back("-- ca3: jet");
+  channelVector.push_back("-- ca4: fwdjet");
+  channelVector.push_back("-- ca5: tau");
+  channelVector.push_back("-- ca6: esums");
+  channelVector.push_back("-- ca7: jet_cnts");
+  channelVector.push_back("-- ca8: free");
+  channelVector.push_back("-- ca9: free");
+  channelVector.push_back("-- ca10: free");
 
-    channelVector.push_back("-- ca1: ieg");
-    channelVector.push_back("-- ca2: eg");
-    channelVector.push_back("-- ca3: jet");
-    channelVector.push_back("-- ca4: fwdjet");
-    channelVector.push_back("-- ca5: tau");
-    channelVector.push_back("-- ca6: esums");
-    channelVector.push_back("-- ca7: jet_cnts");
-    channelVector.push_back("-- ca8: free");
-    channelVector.push_back("-- ca9: free");
-    channelVector.push_back("-- ca10: free");
-    
-    // check, weather output directory exists and create it on the fly if not
-    if (boost::filesystem::is_directory(outputDir_))
-    {
-        std::cout<<std::endl<<"Ok - Output directory exists!"<<std::endl;
-    } else
-    {
-        if (!mkdir(outputDir_.c_str(), 0666))
-            std::cout<<std::endl<<"Directory: "<<outputDir_<<" has been created!"<<std::endl;
-        else 
-            std::cout<<std::endl<<"Error while creating directory: "<<outputDir_<<" !"<<std::endl;
-    }
-    
-    // prepare a core with common header
-    L1GtVhdlWriterCore vhdlWriter(vhdlDir_, outputDir_, true);
-    vhdlWriter.buildCommonHeader(headerParameters, channelVector);
-    // write the firmware
-    if (vhdlWriter.makeFirmware(conditionMap, algorithmMap))
-    {
-        std::cout << std::endl << std::endl
-                <<"***********************   I'm ready ;-) **************************"
-                <<std::endl <<std::endl
-                <<"You can find the firmware in dircetory: " <<outputDir_
-                <<std::endl <<std::endl
-                <<"******************************************************************"
-                <<std::endl;
-    }
+  // check, weather output directory exists and create it on the fly if not
+  if (boost::filesystem::is_directory(outputDir_)) {
+    std::cout << std::endl << "Ok - Output directory exists!" << std::endl;
+  } else {
+    if (!mkdir(outputDir_.c_str(), 0666))
+      std::cout << std::endl << "Directory: " << outputDir_ << " has been created!" << std::endl;
+    else
+      std::cout << std::endl << "Error while creating directory: " << outputDir_ << " !" << std::endl;
+  }
 
-    // Create the VME - XML
-    std::string vmeFile = "vme.xml";
+  // prepare a core with common header
+  L1GtVhdlWriterCore vhdlWriter(vhdlDir_, outputDir_, true);
+  vhdlWriter.buildCommonHeader(headerParameters, channelVector);
+  // write the firmware
+  if (vhdlWriter.makeFirmware(conditionMap, algorithmMap)) {
+    std::cout << std::endl
+              << std::endl
+              << "***********************   I'm ready ;-) **************************" << std::endl
+              << std::endl
+              << "You can find the firmware in dircetory: " << outputDir_ << std::endl
+              << std::endl
+              << "******************************************************************" << std::endl;
+  }
 
-    L1GtVmeWriterCore vmeWriter(outputDir_, vmeFile);
-    vmeWriter.writeVME(conditionMap, vhdlWriter.getCond2IntMap(),
-            vhdlWriter.retrunCommonHeader());
+  // Create the VME - XML
+  std::string vmeFile = "vme.xml";
+
+  L1GtVmeWriterCore vmeWriter(outputDir_, vmeFile);
+  vmeWriter.writeVME(conditionMap, vhdlWriter.getCond2IntMap(), vhdlWriter.retrunCommonHeader());
 }

@@ -1,4 +1,4 @@
-#ifndef TTUPOINTINGLOGIC_H 
+#ifndef TTUPOINTINGLOGIC_H
 #define TTUPOINTINGLOGIC_H 1
 
 // Include files
@@ -18,28 +18,24 @@
  */
 
 class TTUPointingLogic : public TTULogic {
-public: 
+public:
   /// Standard constructor
-  TTUPointingLogic( ); 
-  
-  ~TTUPointingLogic( ) override; ///< Destructor
+  TTUPointingLogic();
+
+  ~TTUPointingLogic() override;  ///< Destructor
 
   //... from TTULogic interface:
-  
-  bool process( const TTUInput & ) override;
-  
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) override;
-  
-  //...
-  
-protected:
-  
-private:
 
+  bool process(const TTUInput&) override;
+
+  void setBoardSpecs(const TTUBoardSpecs::TTUBoardConfig&) override;
+
+  //...
+
+protected:
+private:
   bool m_debug;
 
-  TTUWedgeORLogic * m_wedgeLogic;
-    
-    
+  TTUWedgeORLogic* m_wedgeLogic;
 };
-#endif // TTUPOINTINGLOGIC_H
+#endif  // TTUPOINTINGLOGIC_H

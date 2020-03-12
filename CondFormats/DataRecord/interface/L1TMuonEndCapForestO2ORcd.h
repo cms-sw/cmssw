@@ -6,6 +6,9 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
 
-class L1TMuonEndCapForestO2ORcd : public edm::eventsetup::DependentRecordImplementation<L1TMuonEndCapForestO2ORcd, boost::mpl::vector<L1TriggerKeyListExtRcd,L1TriggerKeyExtRcd,L1TMuonEndCapForestRcd> > {};
+class L1TMuonEndCapForestO2ORcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          L1TMuonEndCapForestO2ORcd,
+          boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonEndCapForestRcd> > {};
 
 #endif

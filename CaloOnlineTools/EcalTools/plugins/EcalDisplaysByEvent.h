@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
-// Package:   EcalDisplaysByEvent 
-// Class:     EcalDisplaysByEvent 
-// 
+// Package:   EcalDisplaysByEvent
+// Class:     EcalDisplaysByEvent
+//
 /**\class EcalDisplaysByEvent EcalDisplaysByEvent.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Th Aug 28 5:46:22 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -56,53 +55,43 @@
 #include "TTree.h"
 #include "TCanvas.h"
 
-
 //
 // class declaration
 //
 
 class EcalDisplaysByEvent : public edm::EDAnalyzer {
-   public:
-      explicit EcalDisplaysByEvent(const edm::ParameterSet&);
-      ~EcalDisplaysByEvent() override;
+public:
+  explicit EcalDisplaysByEvent(const edm::ParameterSet&);
+  ~EcalDisplaysByEvent() override;
 
+private:
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override;
+  std::string intToString(int num);
+  std::string floatToString(float num);
+  void initHists(int);
+  void initEvtByEvtHists(int naiveEvtNum_, int ievt);
+  void deleteEvtByEvtHists();
+  void initAllEventHistos();
+  enum Ecal2DHistSubDetType { EB_FINE = 0, EB_COARSE = 1, EEM_FINE = 2, EEM_COARSE = 3, EEP_FINE = 4, EEP_COARSE = 5 };
+  TH2F* init2DEcalHist(std::string histTypeName, int subDet);
+  TH3F* init3DEcalHist(std::string histTypeName, int dubDet);
+  TCanvas* init2DEcalCanvas(std::string canvasName);
+  void selectHits(edm::Handle<EcalRecHitCollection> hits, int ievt, edm::ESHandle<CaloTopology> caloTopo);
+  TGraph* selectDigi(DetId det, int ievt);
+  int getEEIndex(EcalElectronicsId elecId);
+  void makeHistos(edm::Handle<EBDigiCollection> ebDigis);
+  void makeHistos(edm::Handle<EEDigiCollection> eeDigis);
+  void makeHistos(edm::Handle<EcalRecHitCollection> hits);
+  void drawHistos();
+  void drawCanvas(TCanvas* canvas, TH1F* hist1, TH1F* hist2, TH1F* hist3);
+  void drawCanvas(TCanvas* canvas, TH2F* hist1, TH2F* hist2, TH2F* hist3);
+  void drawCanvas(TCanvas* canvas, TH3F* hist1, TH3F* hist2, TH3F* hist3);
+  void drawTimingErrors(TProfile2D* profile);
+  void drawEELines();
 
-   private:
-      void beginRun(edm::Run const &, edm::EventSetup const &) override ;
-      void analyze(edm::Event const &, edm::EventSetup const &) override;
-      void endJob() override ;
-      std::string intToString(int num);
-      std::string floatToString(float num);
-      void initHists(int);
-      void initEvtByEvtHists(int naiveEvtNum_, int ievt);
-      void deleteEvtByEvtHists();
-      void initAllEventHistos();
-      enum Ecal2DHistSubDetType {
-	 EB_FINE 	= 0,
-	 EB_COARSE 	= 1,
-	 EEM_FINE	= 2,
-	 EEM_COARSE	= 3,
-	 EEP_FINE	= 4,
-	 EEP_COARSE	= 5
-      };
-      TH2F* init2DEcalHist(std::string histTypeName, int subDet);
-      TH3F* init3DEcalHist(std::string histTypeName, int dubDet);
-      TCanvas* init2DEcalCanvas(std::string canvasName);
-      void selectHits(edm::Handle<EcalRecHitCollection> hits,
-          int ievt, edm::ESHandle<CaloTopology> caloTopo);
-      TGraph* selectDigi(DetId det, int ievt);
-      int getEEIndex(EcalElectronicsId elecId);
-      void makeHistos(edm::Handle<EBDigiCollection> ebDigis);
-      void makeHistos(edm::Handle<EEDigiCollection> eeDigis);
-      void makeHistos(edm::Handle<EcalRecHitCollection> hits);
-      void drawHistos();
-      void drawCanvas(TCanvas* canvas, TH1F* hist1, TH1F* hist2, TH1F* hist3);
-      void drawCanvas(TCanvas* canvas, TH2F* hist1, TH2F* hist2, TH2F* hist3);
-      void drawCanvas(TCanvas* canvas, TH3F* hist1, TH3F* hist2, TH3F* hist3);
-      void drawTimingErrors(TProfile2D* profile);
-      void drawEELines();
-
-    // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   edm::InputTag EBRecHitCollection_;
   edm::InputTag EERecHitCollection_;
@@ -128,7 +117,7 @@ class EcalDisplaysByEvent : public edm::EDAnalyzer {
 
   std::set<EBDetId> listEBChannels;
   std::set<EEDetId> listEEChannels;
-    
+
   int abscissa[10];
   int ordinate[10];
 
@@ -141,11 +130,11 @@ class EcalDisplaysByEvent : public edm::EDAnalyzer {
   std::vector<int> maskedFEDs_;
   std::vector<int> seedCrys_;
   std::vector<std::string> maskedEBs_;
-  std::map<int,TH1F*> FEDsAndTimingHists_;
-  std::map<int,float> crysAndAmplitudesMap_;
-  std::map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_;
-  std::map<std::string,int> seedFrequencyMap_;
-  
+  std::map<int, TH1F*> FEDsAndTimingHists_;
+  std::map<int, float> crysAndAmplitudesMap_;
+  std::map<int, EcalDCCHeaderBlock> FEDsAndDCCHeaders_;
+  std::map<std::string, int> seedFrequencyMap_;
+
   TH1F* allFedsTimingHist_;
   // For event-by-evet histos
   TH1F* timingEB_;
@@ -230,11 +219,11 @@ class EcalDisplaysByEvent : public edm::EDAnalyzer {
   TCanvas* digiOccupancyCoarseCanvasAll_;
   TCanvas* timingMapCoarseCanvasAll_;
   TCanvas* timingMapCanvasAll_;
-  
+
   TTree* canvasNames_;
   TTree* histoCanvasNames_;
   EcalFedMap* fedMap_;
   const EcalElectronicsMapping* ecalElectronicsMap_;
- 
-  int naiveEvtNum_; 
+
+  int naiveEvtNum_;
 };

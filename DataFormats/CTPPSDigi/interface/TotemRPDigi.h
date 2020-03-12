@@ -13,27 +13,19 @@
 /**
  * Digi structure for TOTEM RP silicon strip sensors.
 **/
-class TotemRPDigi
-{
-  public:
-    TotemRPDigi(unsigned short strip_no=0) : strip_no_(strip_no)
-    {
-    };
+class TotemRPDigi {
+public:
+  TotemRPDigi(unsigned short strip_no = 0) : strip_no_(strip_no){};
 
-    unsigned short getStripNumber() const
-    {
-      return strip_no_;
-    }
-  
-  private:
-    /// index of the activated strip
-    unsigned short strip_no_;
+  unsigned short stripNumber() const { return strip_no_; }
+
+private:
+  /// index of the activated strip
+  unsigned short strip_no_;
 };
 
-
-inline bool operator< (const TotemRPDigi& one, const TotemRPDigi& other)
-{
-  return one.getStripNumber() < other.getStripNumber();
+inline bool operator<(const TotemRPDigi& one, const TotemRPDigi& other) {
+  return one.stripNumber() < other.stripNumber();
 }
 
 #endif

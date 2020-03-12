@@ -1,22 +1,22 @@
+#include <cstdint>
 #ifndef DaqSource_DTFileReaderHelpers_h
 #define DaqSource_DTFileReaderHelpers_h
 
-#include <boost/cstdint.hpp>
-
-template<class T> char* dataPointer( const T* ptr ) {
+template <class T>
+char* dataPointer(const T* ptr) {
   union bPtr {
     const T* dataP;
-    char*    fileP;
+    char* fileP;
   };
   union bPtr buf;
   buf.dataP = ptr;
   return buf.fileP;
 }
 
-
-template<class T> T* typePointer( const char* ptr ) {
+template <class T>
+T* typePointer(const char* ptr) {
   union bPtr {
-    T*          dataP;
+    T* dataP;
     const char* fileP;
   };
   union bPtr buf;

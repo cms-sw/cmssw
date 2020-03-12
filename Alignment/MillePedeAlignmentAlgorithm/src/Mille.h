@@ -23,36 +23,34 @@
  *  (last update by $Author: flucke $)
  */
 
-class Mille
-{
- public:
+class Mille {
+public:
   Mille(const char *outFileName, bool asBinary = true, bool writeZero = false);
   ~Mille();
 
-  void mille(int NLC, const float *derLc, int NGL, const float *derGl,
-             const int *label, float rMeas, float sigma);
+  void mille(int NLC, const float *derLc, int NGL, const float *derGl, const int *label, float rMeas, float sigma);
   void special(int nSpecial, const float *floatings, const int *integers);
   void kill();
   void flushOutputFile();
   void resetOutputFile();
   void end();
 
- private:
+private:
   void newSet();
   bool checkBufferSize(int nLocal, int nGlobal);
 
-  const std::ios_base::openmode fileMode_; // file open mode of the binary
-  const std::string fileName_;             // file name of the binary
-  std::ofstream outFile_; // C-binary for output
-  bool asBinary_;         // if false output as text
-  bool writeZero_;        // if true also write out derivatives/lables ==0
+  const std::ios_base::openmode fileMode_;  // file open mode of the binary
+  const std::string fileName_;              // file name of the binary
+  std::ofstream outFile_;                   // C-binary for output
+  bool asBinary_;                           // if false output as text
+  bool writeZero_;                          // if true also write out derivatives/lables ==0
 
-  enum {bufferSize_ = 5000};
-  int   bufferInt_[bufferSize_];   // to collect labels etc.
-  float bufferFloat_[bufferSize_]; // to collect derivatives etc.
-  int   bufferPos_;
-  bool  hasSpecial_; // if true, special(..) already called for this record
+  enum { bufferSize_ = 5000 };
+  int bufferInt_[bufferSize_];      // to collect labels etc.
+  float bufferFloat_[bufferSize_];  // to collect derivatives etc.
+  int bufferPos_;
+  bool hasSpecial_;  // if true, special(..) already called for this record
 
-  enum {maxLabel_ = (0xFFFFFFFF - (1 << 31))}; // largest label allowed: 2^31 - 1
+  enum { maxLabel_ = (0xFFFFFFFF - (1 << 31)) };  // largest label allowed: 2^31 - 1
 };
 #endif

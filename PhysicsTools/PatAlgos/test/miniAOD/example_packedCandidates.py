@@ -1,5 +1,6 @@
 from __future__ import print_function
 # import ROOT in batch mode
+from builtins import range
 import sys
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
@@ -49,7 +50,7 @@ for iev,event in enumerate(events):
         pileup  = 0
         # now get a list of the PF candidates used to build this lepton, so to exclude them
         footprint = set()
-        for i in xrange(lep.numberOfSourceCandidatePtrs()):
+        for i in range(lep.numberOfSourceCandidatePtrs()):
             footprint.add(lep.sourceCandidatePtr(i).key()) # the key is the index in the pf collection
         # now loop on pf candidates
         for ipf,pf in enumerate(pfs.product()):
@@ -73,7 +74,7 @@ for iev,event in enumerate(events):
     for i,j in enumerate(jets.product()):
         if j.pt() < 40 or abs(j.eta()) > 2.4: continue
         sums = [0,0]
-        for id in xrange(j.numberOfDaughters()):
+        for id in range(j.numberOfDaughters()):
             dau = j.daughter(id)
             if (dau.charge() == 0): continue
             sums[ abs(dau.dz())<0.1 ] += dau.pt()

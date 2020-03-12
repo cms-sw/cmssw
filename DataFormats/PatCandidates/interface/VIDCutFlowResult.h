@@ -24,34 +24,35 @@
  *********/
 
 namespace vid {
-  class CutFlowResult {    
-    template<class T> friend class VersionedSelector;
-  public:    
+  class CutFlowResult {
+    template <class T>
+    friend class VersionedSelector;
 
+  public:
     CutFlowResult() : bitmap_(0) {}
     CutFlowResult(const std::string& name,
                   const std::string& hash,
-                  const std::map<std::string,unsigned>& n2idx,                   
+                  const std::map<std::string, unsigned>& n2idx,
                   const std::vector<double>& values,
                   unsigned bitmap,
                   unsigned mask = 0);
 
     // get the original name of this cutflow
-    const std::string& cutFlowName()   const { return name_; }
+    const std::string& cutFlowName() const { return name_; }
     // get the md5 hash for this cutflow
-    const std::string& cutFlowHash()   const { return hash_; }
+    const std::string& cutFlowHash() const { return hash_; }
     // did this cutflow (in its current state!) pass?
-    bool               cutFlowPassed() const { 
+    bool cutFlowPassed() const {
       const unsigned all_pass = (1 << indices_.size()) - 1;
-      return (all_pass&bitmap_) == all_pass; 
-    } 
+      return (all_pass & bitmap_) == all_pass;
+    }
     // how many cuts in this cutflow?
-    size_t             cutFlowSize()   const { return indices_.size(); } 
-    
+    size_t cutFlowSize() const { return indices_.size(); }
+
     // get the name of a cut in the cutflow
     // indexed by order it was executed
     const std::string& getNameAtIndex(const unsigned idx) const;
-    
+
     // get the individual cut result (pass/fail) either by name or by index
     bool getCutResultByIndex(const unsigned idx) const;
     bool getCutResultByName(const std::string& name) const;
@@ -68,7 +69,7 @@ namespace vid {
     // can be done either by name or by index
     CutFlowResult getCutFlowResultMasking(const unsigned idx) const;
     CutFlowResult getCutFlowResultMasking(const std::string& name) const;
-    
+
     CutFlowResult getCutFlowResultMasking(const std::vector<unsigned>& idxs) const;
     CutFlowResult getCutFlowResultMasking(const std::vector<std::string>& names) const;
 
@@ -85,28 +86,15 @@ namespace vid {
                   const std::vector<unsigned>& indices,
                   const std::vector<double>& values,
                   unsigned bitmap,
-                  unsigned mask) :
-      name_(name),
-      hash_(hash),
-      bitmap_(bitmap),
-      mask_(mask),
-      values_(values),
-      names_(names),
-      indices_(indices) {}
-      
+                  unsigned mask)
+        : name_(name), hash_(hash), bitmap_(bitmap), mask_(mask), values_(values), names_(names), indices_(indices) {}
 
-    bool getMaskBit(const unsigned idx) const {
-      return (bool)(0x1&(mask_>>idx));
-    }
+    bool getMaskBit(const unsigned idx) const { return (bool)(0x1 & (mask_ >> idx)); }
 
-    bool getCutBit(const unsigned idx) const { 
-      return (bool)(0x1&(bitmap_>>idx)); 
-    }
+    bool getCutBit(const unsigned idx) const { return (bool)(0x1 & (bitmap_ >> idx)); }
 
-    double getCutValue(const unsigned idx) const {
-      return values_[idx];
-    } 
+    double getCutValue(const unsigned idx) const { return values_[idx]; }
   };
-}
+}  // namespace vid
 
 #endif

@@ -1,8 +1,8 @@
 #ifndef Validation_RecoMuon_RecoMuonValidator_H
 #define Validation_RecoMuon_RecoMuonValidator_H
 
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -20,30 +20,25 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // for selection cut
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class DQMStore;
-class MonitorElement;
-class MuonServiceProxy;
 class TrackAssociatorBase;
 
-class RecoMuonValidator : public DQMEDAnalyzer
-{
- public:
+class RecoMuonValidator : public DQMOneEDAnalyzer<> {
+public:
   RecoMuonValidator(const edm::ParameterSet& pset);
   ~RecoMuonValidator() override;
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup& eventSetup) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   virtual int countMuonHits(const reco::Track& track) const;
   virtual int countTrackerHits(const reco::Track& track) const;
 
- protected:
+protected:
   unsigned int verbose_;
 
   edm::InputTag simLabel_;
@@ -54,7 +49,7 @@ class RecoMuonValidator : public DQMEDAnalyzer
 
   edm::InputTag muAssocLabel_;
   edm::EDGetTokenT<reco::MuonToTrackingParticleAssociator> muAssocToken_;
-  
+
   edm::InputTag beamspotLabel_;
   edm::InputTag primvertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
@@ -65,13 +60,11 @@ class RecoMuonValidator : public DQMEDAnalyzer
   std::string subsystemname_;
   edm::ParameterSet pset;
 
-  MuonServiceProxy * theMuonService;
-  DQMStore * dbe_;
-  
+  DQMStore* dbe_;
+
   bool doAbsEta_;
   bool doAssoc_;
   bool usePFMuon_;
-
 
   TrackingParticleSelector tpSelector_;
 
@@ -79,59 +72,59 @@ class RecoMuonValidator : public DQMEDAnalyzer
   reco::MuonTrackType trackType_;
 
   struct MuonME;
-  MuonME * muonME_;
+  MuonME* muonME_;
 
   struct CommonME;
-  CommonME * commonME_;
+  CommonME* commonME_;
 
-//
-//struct for histogram dimensions
-//
-struct HistoDimensions {
-  //p
-  unsigned int nBinP;
-  double minP, maxP;
-  //pt
-  unsigned int nBinPt;
-  double minPt, maxPt;
-  //if abs eta
-  bool doAbsEta;
-  //eta
-  unsigned int nBinEta;
-  double minEta, maxEta;
-  //phi
-  unsigned int nBinPhi;
-  double minPhi, maxPhi;
-  //dxy
-  unsigned int nBinDxy;
-  double minDxy, maxDxy;
-  //dz
-  unsigned int nBinDz; 
-  double minDz, maxDz;
-  //pulls
-  unsigned int nBinPull;
-  double wPull;
-  //resolustions
-  unsigned int nBinErr;
-  double minErrP, maxErrP;
-  double minErrPt, maxErrPt;
-  double minErrQPt, maxErrQPt;
-  double minErrEta, maxErrEta;
-  double minErrPhi, maxErrPhi;
-  double minErrDxy, maxErrDxy;
-  double minErrDz, maxErrDz;
-  //track multiplicities
-  unsigned int nTrks, nAssoc;
-  unsigned int nDof;
-  // for PF muons
-  bool usePFMuon;
-};
+  //
+  //struct for histogram dimensions
+  //
+  struct HistoDimensions {
+    //p
+    unsigned int nBinP;
+    double minP, maxP;
+    //pt
+    unsigned int nBinPt;
+    double minPt, maxPt;
+    //if abs eta
+    bool doAbsEta;
+    //eta
+    unsigned int nBinEta;
+    double minEta, maxEta;
+    //phi
+    unsigned int nBinPhi;
+    double minPhi, maxPhi;
+    //dxy
+    unsigned int nBinDxy;
+    double minDxy, maxDxy;
+    //dz
+    unsigned int nBinDz;
+    double minDz, maxDz;
+    //pulls
+    unsigned int nBinPull;
+    double wPull;
+    //resolustions
+    unsigned int nBinErr;
+    double minErrP, maxErrP;
+    double minErrPt, maxErrPt;
+    double minErrQPt, maxErrQPt;
+    double minErrEta, maxErrEta;
+    double minErrPhi, maxErrPhi;
+    double minErrDxy, maxErrDxy;
+    double minErrDz, maxErrDz;
+    //track multiplicities
+    unsigned int nTrks, nAssoc;
+    unsigned int nDof;
+    // for PF muons
+    bool usePFMuon;
+  };
 
   HistoDimensions hDim;
- private:
+
+private:
   StringCutObjectSelector<reco::Muon> selector_;
   bool wantTightMuon_;
-
 };
 
 #endif

@@ -20,8 +20,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 
-typedef SingleObjectSelector <reco::CaloJetCollection, PtMinSelector> PtMinCaloJetSelector;
-typedef SingleObjectSelector <reco::GenJetCollection, PtMinSelector> PtMinGenJetSelector;
-typedef SingleObjectSelector <reco::PFJetCollection, PtMinSelector> PtMinPFJetSelector;
-typedef SingleObjectSelector <reco::BasicJetCollection, PtMinSelector> PtMinBasicJetSelector;
-
+typedef SingleObjectSelector<reco::CaloJetCollection, PtMinSelector> PtMinCaloJetSelector;
+typedef SingleObjectSelector<reco::GenJetCollection, PtMinSelector> PtMinGenJetSelector;
+typedef SingleObjectSelector<reco::PFJetCollection, PtMinSelector> PtMinPFJetSelector;
+typedef SingleObjectSelector<reco::BasicJetCollection, PtMinSelector> PtMinBasicJetSelector;

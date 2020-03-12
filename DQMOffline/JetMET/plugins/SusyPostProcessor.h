@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <vector>
@@ -19,18 +19,15 @@
 #include "TH1.h"
 #include "TMath.h"
 
-class SusyPostProcessor : public DQMEDHarvester
-{
- public:
-  explicit SusyPostProcessor( const edm::ParameterSet& pSet ) ;
+class SusyPostProcessor : public DQMEDHarvester {
+public:
+  explicit SusyPostProcessor(const edm::ParameterSet& pSet);
   ~SusyPostProcessor() override;
-                                   
 
- private:
-
+private:
   edm::ParameterSet iConfig;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
-  void QuantilePlots(MonitorElement* &, double, DQMStore::IBooker &);
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+  void QuantilePlots(MonitorElement*&, double, DQMStore::IBooker&);
 
   static const char* messageLoggerCatregory;
 

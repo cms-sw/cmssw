@@ -8,38 +8,33 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
-class DDCompactView;    
 class G4Step;
 
 #include <string>
 #include <vector>
- 
+
 class HFShowerFibreBundle {
-
-public:    
-
-  HFShowerFibreBundle(const std::string & name, const DDCompactView & cpv, 
-		      edm::ParameterSet const & p);
+public:
+  HFShowerFibreBundle(const std::string &name,
+                      const HcalDDDSimConstants *hcons,
+                      const HcalSimulationParameters *hps,
+                      edm::ParameterSet const &p);
   virtual ~HFShowerFibreBundle();
-  double                getHits(const G4Step * aStep, bool type);
-  double                getRadius();
-  void                  initRun(const HcalDDDSimConstants*);
+  double getHits(const G4Step *aStep, bool type);
+  double getRadius();
 
-private:    
-
-  std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
-
-private:    
-
-  HFCherenkov           *cherenkov1, *cherenkov2;
-  double                facTube, facCone; //Packing factors
-  int                   indexR, indexF;
-  std::vector<double>   rTable;          // R-table
-  std::vector<int>      pmtR1, pmtFib1;  // R-index, fibre table for right box
-  std::vector<int>      pmtR2, pmtFib2;  // R-index, fibre table for left box
+private:
+  const HcalDDDSimConstants *hcalConstant_;
+  const HcalSimulationParameters *hcalsimpar_;
+  std::unique_ptr<HFCherenkov> cherenkov1_, cherenkov2_;
+  double facTube, facCone;  //Packing factors
+  int indexR, indexF;
+  std::vector<double> rTable;       // R-table
+  std::vector<int> pmtR1, pmtFib1;  // R-index, fibre table for right box
+  std::vector<int> pmtR2, pmtFib2;  // R-index, fibre table for left box
 };
 
-#endif // HFShowerFibreBundle_h
+#endif  // HFShowerFibreBundle_h

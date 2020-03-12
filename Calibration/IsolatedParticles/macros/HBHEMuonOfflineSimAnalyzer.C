@@ -113,7 +113,7 @@ public :
 
   HBHEMuonOfflineSimAnalyzer(const char *infile, const char *outfile="dyll_PU20_25_output_10.root", const int mode=0, const int maxDHB=4, const int maxDHE=7);
   // mode of LHC is kept 1 for 2017 scenario as no change in depth segmentation
-  // mode of LHC is 0 for 2019
+  // mode of LHC is 0 for 2021
   virtual ~HBHEMuonOfflineSimAnalyzer();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -862,7 +862,7 @@ void HBHEMuonOfflineSimAnalyzer::WriteHistograms() {
 
 int HBHEMuonOfflineSimAnalyzer::NDepthBins(int eta) {
   //		int  nDepth[29]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,2,2,2,2,2,2,2,2,2,3,3,2};
-		// for 2019 scenario multi depth segmentation
+		// for 2021 scenario multi depth segmentation
 		//    int  nDepth[29]={3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5};
   int  nDepth[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7};
 

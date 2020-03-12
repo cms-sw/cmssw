@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 from RecoTracker.IterativeTracking.LowPtQuadStep_cff import *
-from HIPixelTripletSeeds_cff import *
-from HIPixel3PrimTracks_cfi import *
+from .HIPixelTripletSeeds_cff import *
+from .HIPixel3PrimTracks_cfi import *
 
 hiLowPtQuadStepClusters = cms.EDProducer("HITrackClusterRemover",
      clusterLessSolution = cms.bool(True),
@@ -227,18 +228,18 @@ hiLowPtQuadStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackL
     )
 
 
-hiLowPtQuadStep = cms.Sequence(hiLowPtQuadStepClusters*
-                                     hiLowPtQuadStepSeedLayers*
-                                     hiLowPtQuadStepTrackingRegions*
-                                     hiLowPtQuadStepTracksHitDoubletsCA* 
-                                     hiLowPtQuadStepTracksHitQuadrupletsCA* 
-				     pixelFitterByHelixProjections*
-                                     hiLowPtQuadStepPixelTracksFilter*
-                                     hiLowPtQuadStepPixelTracks*
-                                     hiLowPtQuadStepSeeds*
-                                     hiLowPtQuadStepTrackCandidates*
-                                     hiLowPtQuadStepTracks*
-                                     hiLowPtQuadStepSelector*
+hiLowPtQuadStepTask = cms.Task(hiLowPtQuadStepClusters,
+                                     hiLowPtQuadStepSeedLayers,
+                                     hiLowPtQuadStepTrackingRegions,
+                                     hiLowPtQuadStepTracksHitDoubletsCA, 
+                                     hiLowPtQuadStepTracksHitQuadrupletsCA, 
+				     pixelFitterByHelixProjections,
+                                     hiLowPtQuadStepPixelTracksFilter,
+                                     hiLowPtQuadStepPixelTracks,
+                                     hiLowPtQuadStepSeeds,
+                                     hiLowPtQuadStepTrackCandidates,
+                                     hiLowPtQuadStepTracks,
+                                     hiLowPtQuadStepSelector,
                                      hiLowPtQuadStepQual)
-
+hiLowPtQuadStep = cms.Sequence(hiLowPtQuadStepTask)
 

@@ -20,21 +20,22 @@ namespace edm {
 //
 
 class HLTEgammaEtFilter : public HLTFilter {
+public:
+  explicit HLTEgammaEtFilter(const edm::ParameterSet&);
+  ~HLTEgammaEtFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTEgammaEtFilter(const edm::ParameterSet&);
-      ~HLTEgammaEtFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+private:
+  edm::InputTag inputTag_;  // input tag identifying product contains egammas
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken_;
+  double etcutEB_;  // Barrel Et threshold in GeV
+  double etcutEE_;  // Endcap Et threshold in GeV
+  int ncandcut_;    // number of egammas required
 
-   private:
-      edm::InputTag inputTag_; // input tag identifying product contains egammas
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken_;
-      double etcutEB_;           // Barrel Et threshold in GeV
-      double etcutEE_;           // Endcap Et threshold in GeV
-      int    ncandcut_;        // number of egammas required
-
-      edm::InputTag l1EGTag_;
+  edm::InputTag l1EGTag_;
 };
 
-#endif //HLTEgammaEtFilter_h
+#endif  //HLTEgammaEtFilter_h

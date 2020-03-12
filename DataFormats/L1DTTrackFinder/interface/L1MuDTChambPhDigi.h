@@ -1,6 +1,6 @@
 //-------------------------------------------------
 //
-//   Class L1MuDTChambPhDigi	
+//   Class L1MuDTChambPhDigi
 //
 //   Description: input data for PHTF trigger
 //
@@ -16,49 +16,43 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //----------------------
 // Base Class Headers --
 //----------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class L1MuDTChambPhDigi {
-
- public:
-
+public:
   //  Constructors
   L1MuDTChambPhDigi();
 
-  L1MuDTChambPhDigi( int ubx, int uwh, int usc, int ust,
-        int uphr, int uphb, int uqua, int utag, int ucnt, int urpc=-10);
+  L1MuDTChambPhDigi(
+      int ubx, int uwh, int usc, int ust, int uphr, int uphb, int uqua, int utag, int ucnt, int urpc = -10);
 
   //  Destructor
   ~L1MuDTChambPhDigi();
 
   // Operations
-  int bxNum()       const;
-  int whNum()       const;
-  int scNum()       const;
-  int stNum()       const;
-  int phi()         const;
-  int phiB()        const;
-  int code()        const;
-  int Ts2Tag()      const;
-  int BxCnt()       const;
-  int RpcBit()      const;
-  int UpDownTag()	const;
+  int bxNum() const;
+  int whNum() const;
+  int scNum() const;
+  int stNum() const;
+  int phi() const;
+  int phiB() const;
+  int code() const;
+  int Ts2Tag() const;
+  int BxCnt() const;
+  int RpcBit() const;
+  int UpDownTag() const;
 
- private:
-
+private:
   int bx;
   int wheel;
   int sector;

@@ -16,7 +16,6 @@
  
  */
 
-
 #include "RecoMTD/Navigation/interface/MTDDetLayerMap.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
@@ -30,51 +29,46 @@ class BarrelDetLayer;
 class ForwardDetLayer;
 
 class MTDNavigationSchool : public NavigationSchool {
+public:
+  ///Constructor
+  MTDNavigationSchool(const MTDDetLayerGeometry*, bool enableBTL = true, bool enableETL = true);
+  /// Destructor
+  ~MTDNavigationSchool() override;
+  /// return navigable layers, from base class
+  StateType navigableLayers() override;
 
-  public:
-    ///Constructor
-    MTDNavigationSchool(const MTDDetLayerGeometry *, bool enableBTL = true, bool enableETL = true);
-    /// Destructor
-    ~MTDNavigationSchool() override;
-    /// return navigable layers, from base class
-    StateType navigableLayers() override;
-  private:
-    /// add barrel layer
-    void addBarrelLayer(const BarrelDetLayer*);
-    /// add endcap layer (backward and forward)
-    void addEndcapLayer(const ForwardDetLayer*);
-    /// link barrel layers
-    void linkBarrelLayers();
-    /// link endcap layers
-    void linkEndcapLayers(const MapE&,std::vector<ETLNavigableLayer*>&);
-    /// establish inward links
-    void createInverseLinks();
-    float calculateEta(const float&, const float& ) const;
+private:
+  /// add barrel layer
+  void addBarrelLayer(const BarrelDetLayer*);
+  /// add endcap layer (backward and forward)
+  void addEndcapLayer(const ForwardDetLayer*);
+  /// link barrel layers
+  void linkBarrelLayers();
+  /// link endcap layers
+  void linkEndcapLayers(const MapE&, std::vector<ETLNavigableLayer*>&);
+  /// establish inward links
+  void createInverseLinks();
+  float calculateEta(const float&, const float&) const;
 
-  private: 
-  
-    struct delete_layer
-    {
-      template <typename T>
-      void operator()(T*& p)
-      {
-        if( p)
-        {
-          delete p;
-          p = nullptr;
-        }
+private:
+  struct delete_layer {
+    template <typename T>
+    void operator()(T*& p) {
+      if (p) {
+        delete p;
+        p = nullptr;
       }
-    };
+    }
+  };
 
-    MapB theBarrelLayers;    /// barrel
-    MapE theForwardLayers;   /// +z endcap
-    MapE theBackwardLayers;  /// -z endcap 
+  MapB theBarrelLayers;    /// barrel
+  MapE theForwardLayers;   /// +z endcap
+  MapE theBackwardLayers;  /// -z endcap
 
-    std::vector<BTLNavigableLayer*> theBarrelNLC;
-    std::vector<ETLNavigableLayer*> theForwardNLC;
-    std::vector<ETLNavigableLayer*> theBackwardNLC;
+  std::vector<BTLNavigableLayer*> theBarrelNLC;
+  std::vector<ETLNavigableLayer*> theForwardNLC;
+  std::vector<ETLNavigableLayer*> theBackwardNLC;
 
-    const MTDDetLayerGeometry * theMTDDetLayerGeometry; 
-  
+  const MTDDetLayerGeometry* theMTDDetLayerGeometry;
 };
 #endif

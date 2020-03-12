@@ -2,11 +2,11 @@
 //
 // Package:     HcalObjects
 // Class  :     HcalTPGRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Sep 14 11:54:26 CDT 2006
 // $Id$
 

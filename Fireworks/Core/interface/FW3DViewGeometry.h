@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FW3DViewGeometry
-// 
+//
 /**\class FW3DViewGeometry FW3DViewGeometry.h Fireworks/Core/interface/FW3DViewGeometry.h
 
  Description: [one line class summary]
@@ -22,56 +22,53 @@
 
 // forward declarations
 
-namespace fireworks
-{
-   class Context;
+namespace fireworks {
+  class Context;
 }
 
-class FW3DViewGeometry : public FWViewGeometryList
-{
-
+class FW3DViewGeometry : public FWViewGeometryList {
 public:
-   FW3DViewGeometry( const fireworks::Context& context );
-   ~FW3DViewGeometry() override;
+  FW3DViewGeometry(const fireworks::Context& context);
+  ~FW3DViewGeometry() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   void showMuonBarrel( bool );
-   void showMuonBarrelFull( bool );
-   void showMuonEndcap( bool );
-   void showPixelBarrel( bool );
-   void showPixelEndcap( bool );
-   void showTrackerBarrel( bool );
-   void showTrackerEndcap( bool );
-   void showHGCalEE( bool );
-   TEveElementList const * const getHGCalEE() { return m_HGCalEEElements; }
-   void showHGCalHSi( bool );
-   TEveElementList const * const getHGCalHSi() { return m_HGCalHSiElements; }
-   void showHGCalHSc( bool );
-   TEveElementList const * const getHGCalHSc() { return m_HGCalHScElements; }
+  void showMuonBarrel(bool);
+  void showMuonBarrelFull(bool);
+  void showMuonEndcap(bool);
+  void showPixelBarrel(bool);
+  void showPixelEndcap(bool);
+  void showTrackerBarrel(bool);
+  void showTrackerEndcap(bool);
+  void showHGCalEE(bool);
+  TEveElementList const* const getHGCalEE() { return m_HGCalEEElements; }
+  void showHGCalHSi(bool);
+  TEveElementList const* const getHGCalHSi() { return m_HGCalHSiElements; }
+  void showHGCalHSc(bool);
+  TEveElementList const* const getHGCalHSc() { return m_HGCalHScElements; }
 
- private:
-   FW3DViewGeometry(const FW3DViewGeometry&) = delete; // stop default
+private:
+  FW3DViewGeometry(const FW3DViewGeometry&) = delete;  // stop default
 
-   const FW3DViewGeometry& operator=(const FW3DViewGeometry&) = delete; // stop default
+  const FW3DViewGeometry& operator=(const FW3DViewGeometry&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   TEveElementList*   m_muonBarrelElements;
-   TEveElementList*   m_muonBarrelFullElements;
-   TEveElementList*   m_muonEndcapElements;
-   TEveElementList*   m_muonEndcapFullElements;
-   TEveElementList*   m_pixelBarrelElements;
-   TEveElementList*   m_pixelEndcapElements;
-   TEveElementList*   m_trackerBarrelElements;
-   TEveElementList*   m_trackerEndcapElements;
-   TEveElementList*   m_HGCalEEElements;
-   TEveElementList*   m_HGCalHSiElements;
-   TEveElementList*   m_HGCalHScElements;
+  TEveElementList* m_muonBarrelElements;
+  TEveElementList* m_muonBarrelFullElements;
+  TEveElementList* m_muonEndcapElements;
+  TEveElementList* m_muonEndcapFullElements;
+  TEveElementList* m_pixelBarrelElements;
+  TEveElementList* m_pixelEndcapElements;
+  TEveElementList* m_trackerBarrelElements;
+  TEveElementList* m_trackerEndcapElements;
+  TEveElementList* m_HGCalEEElements;
+  TEveElementList* m_HGCalHSiElements;
+  TEveElementList* m_HGCalHScElements;
 };
 
 #endif

@@ -9,14 +9,12 @@
 #include "RPCClusterContainer.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-class RPCMaskReClusterizer
-{
- public :
-   RPCMaskReClusterizer() {};
-   ~RPCMaskReClusterizer() {};
-   RPCClusterContainer doAction(const RPCDetId& id,RPCClusterContainer& initClusters, const RollMask& mask) const;
-   bool get(const RollMask& mask,int strip) const;
-
+class RPCMaskReClusterizer {
+public:
+  RPCMaskReClusterizer(){};
+  ~RPCMaskReClusterizer(){};
+  RPCClusterContainer doAction(const RPCDetId& id, RPCClusterContainer& initClusters, const RollMask& mask) const;
+  bool get(const RollMask& mask, int strip) const;
 };
 
 #endif

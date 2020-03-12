@@ -2,10 +2,11 @@
 
 #include "FWCore/Utilities/interface/VecArray.h"
 
-class testVecArray: public CppUnit::TestFixture {
+class testVecArray : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testVecArray);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
+
 public:
   void setUp() {}
   void tearDown() {}
@@ -15,7 +16,6 @@ public:
   void testIterators(T& array);
   template <typename T>
   void testIterator(T iter, T end);
-
 };
 
 ///registration of the test so that the runner can find it
@@ -83,10 +83,10 @@ void testVecArray::test() {
 
   ptr = array.data();
   ptr[1] = 10;
-  iter = array.begin()+1;
+  iter = array.begin() + 1;
   CPPUNIT_ASSERT(*iter == 10);
 
-  iter = array.begin()+2;
+  iter = array.begin() + 2;
   *iter = 50;
   CPPUNIT_ASSERT(array[0] == 1 && array[1] == 10 && array[2] == 50 && array[3] == 4);
 

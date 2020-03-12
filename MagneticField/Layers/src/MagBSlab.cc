@@ -15,27 +15,22 @@
 
 using namespace std;
 
-MagBSlab::MagBSlab(const vector<MagVolume*>& volumes, double zMin) :
-  theVolumes(volumes),
-  theZMin(zMin)
-{}
+MagBSlab::MagBSlab(const vector<MagVolume*>& volumes, double zMin) : theVolumes(volumes), theZMin(zMin) {}
 
-MagBSlab::~MagBSlab(){  
-  for (vector<MagVolume *>::const_iterator ivol = theVolumes.begin();
-       ivol != theVolumes.end(); ++ivol) {
+MagBSlab::~MagBSlab() {
+  for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
     delete (*ivol);
   }
 }
 
-
-const MagVolume* MagBSlab::findVolume(const GlobalPoint & gp, double tolerance) const {
-  for(vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
-	ivol != theVolumes.end(); ++ivol) {
+const MagVolume* MagBSlab::findVolume(const GlobalPoint& gp, double tolerance) const {
+  for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
     // FIXME : use a binfinder
     // TOFIX
-    if (verbose::debugOut) cout << "        Trying volume "
-			       << (static_cast<MagVolume6Faces*>(*ivol))->volumeNo << endl;
-    if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
+    if (verbose::debugOut)
+      cout << "        Trying volume " << (static_cast<MagVolume6Faces*>(*ivol))->volumeNo << endl;
+    if ((*ivol)->inside(gp, tolerance))
+      return (*ivol);
   }
 
   return nullptr;

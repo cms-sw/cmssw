@@ -96,11 +96,11 @@ hiRegitDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.
     ) #end of clone  
 
 
-hiRegitDetachedTripletStep = cms.Sequence(hiRegitDetachedTripletStepClusters*
-                                          hiRegitDetachedTripletStepSeedLayers*
-                                          hiRegitDetachedTripletStepSeeds*
-                                          hiRegitDetachedTripletStepTrackCandidates*
-                                          hiRegitDetachedTripletStepTracks*
+hiRegitDetachedTripletStepTask = cms.Task(hiRegitDetachedTripletStepClusters,
+                                          hiRegitDetachedTripletStepSeedLayers,
+                                          hiRegitDetachedTripletStepSeeds,
+                                          hiRegitDetachedTripletStepTrackCandidates,
+                                          hiRegitDetachedTripletStepTracks,
                                           hiRegitDetachedTripletStepSelector
                                           )
-
+hiRegitDetachedTripletStep = cms.Sequence(hiRegitDetachedTripletStepTask)

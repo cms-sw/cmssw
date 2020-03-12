@@ -8,17 +8,16 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class MTDTimeCalib
-{
- public:
+class MTDTimeCalib {
+public:
   //constructor & destructor
-  MTDTimeCalib(edm::ParameterSet const& conf, const MTDGeometry* geom, const MTDTopology* topo);  
-  ~MTDTimeCalib() {};
+  MTDTimeCalib(edm::ParameterSet const& conf, const MTDGeometry* geom, const MTDTopology* topo);
+  ~MTDTimeCalib(){};
 
   //accessors
   float getTimeCalib(const MTDDetId& id) const;
 
- private:
+private:
   const MTDGeometry* geom_;
   const MTDTopology* topo_;
   float btlTimeOffset_;

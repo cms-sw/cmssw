@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSPixelDAQMappingRcd
-// 
+//
 /**\class CTPPSPixelDAQMappingRcd CTPPSPixelDAQMappingRcd.h CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h
 
  Description: [one line class summary]

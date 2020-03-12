@@ -44,7 +44,8 @@ namespace l1tcalo {
   constexpr uint32_t NRegionsInCard{7};
   constexpr uint32_t NEtaInRegion{4};
   constexpr uint32_t NPhiInRegion{4};
-  constexpr uint32_t NPhiInCard{NPhiInRegion}; // For convenience of Layer-2 we always have the same number of phi divisions
+  constexpr uint32_t NPhiInCard{
+      NPhiInRegion};  // For convenience of Layer-2 we always have the same number of phi divisions
 
   constexpr uint32_t HFEtaOffset{NRegionsInCard * NEtaInRegion + 1};
   constexpr uint32_t NHFRegionsInCard{6};
@@ -76,15 +77,13 @@ namespace l1tcalo {
   const uint32_t nCalSideBins = 2;
   const uint32_t nHfEtaBins = 12;
 
-}
+}  // namespace l1tcalo
 
 typedef std::pair<int, uint32_t> UCTRegionIndex;
 typedef std::pair<int, int> UCTTowerIndex;
 
 class UCTGeometry {
-
 public:
-
   UCTGeometry();
   ~UCTGeometry() = default;
 
@@ -99,34 +98,32 @@ public:
   uint32_t getLinkNumber(bool negativeSide, uint32_t region, uint32_t iEta, uint32_t iPhi);
   uint32_t getChannelNumber(bool negativeSide, uint32_t iEta, uint32_t iPhi);
 
-  uint32_t getNCrates() {return l1tcalo::NCrates;}
-  uint32_t getNCards() {return l1tcalo::NCardsInCrate;}
-  uint32_t getNRegions() {return (l1tcalo::NRegionsInCard+l1tcalo::NHFRegionsInCard);}
+  uint32_t getNCrates() { return l1tcalo::NCrates; }
+  uint32_t getNCards() { return l1tcalo::NCardsInCrate; }
+  uint32_t getNRegions() { return (l1tcalo::NRegionsInCard + l1tcalo::NHFRegionsInCard); }
   uint32_t getNEta(uint32_t region);
   uint32_t getNPhi(uint32_t region);
 
   uint32_t getCrate(int caloEta, int caloPhi);
-  uint32_t getCard(int caloEta,int caloPhi);
-  uint32_t getRegion(int caloEta,int caloPhi);
+  uint32_t getCard(int caloEta, int caloPhi);
+  uint32_t getRegion(int caloEta, int caloPhi);
   uint32_t getiEta(int caloEta);
   uint32_t getiPhi(int caloPhi);
 
-  bool checkCrate(uint32_t crate) {return !(crate < l1tcalo::NCrates);}
-  bool checkCard(uint32_t card) {return !(card < l1tcalo::NCardsInCrate);}
-  bool checkRegion(uint32_t region) {return !(region < (l1tcalo::NRegionsInCard + l1tcalo::NHFRegionsInCard));}
+  bool checkCrate(uint32_t crate) { return !(crate < l1tcalo::NCrates); }
+  bool checkCard(uint32_t card) { return !(card < l1tcalo::NCardsInCrate); }
+  bool checkRegion(uint32_t region) { return !(region < (l1tcalo::NRegionsInCard + l1tcalo::NHFRegionsInCard)); }
   bool checkEtaIndex(uint32_t region, uint32_t iEta) {
-    if(region < l1tcalo::NRegionsInCard)
+    if (region < l1tcalo::NRegionsInCard)
       return !(iEta < l1tcalo::NEtaInRegion);
     else
       return !(iEta < l1tcalo::NHFEtaInRegion);
   }
-  bool checkPhiIndex(uint32_t region, uint32_t iPhi) {
-    return !(iPhi < l1tcalo::NPhiInRegion);
-  }
+  bool checkPhiIndex(uint32_t region, uint32_t iPhi) { return !(iPhi < l1tcalo::NPhiInRegion); }
 
   // We label regions by phi and eta indices
   //  UCTRegionPhiIndices are 0-17
-  //  UCTRegionEtaIndices are 1-7 for EB/HB+EE/HE and 8-13 for HF, 
+  //  UCTRegionEtaIndices are 1-7 for EB/HB+EE/HE and 8-13 for HF,
   //   with negative values for negative eta, and zero being illegal
   //  GCTRegionPhiIndices are the same
   //  GCTRegionEtaIndices are 4-10 for -7 thru -1 and 11-17 for 1 thru 7
@@ -134,35 +131,39 @@ public:
   // We label by the pair (UCTRegionPhiIndex, UCTRegionEtaIndex)
 
   uint32_t getUCTRegionPhiIndex(int caloPhi) {
-    if(caloPhi < 71) return ((caloPhi + 1) / 4);
-    else if(caloPhi < 73) return 0;
-    else return 0xDEADBEEF;
+    if (caloPhi < 71)
+      return ((caloPhi + 1) / 4);
+    else if (caloPhi < 73)
+      return 0;
+    else
+      return 0xDEADBEEF;
   }
-  uint32_t getGCTRegionPhiIndex(int caloPhi) {return getUCTRegionPhiIndex(caloPhi);}
-  uint32_t getGCTRegionPhiIndex(UCTRegionIndex r) {return r.second;}
+  uint32_t getGCTRegionPhiIndex(int caloPhi) { return getUCTRegionPhiIndex(caloPhi); }
+  uint32_t getGCTRegionPhiIndex(UCTRegionIndex r) { return r.second; }
 
   int getUCTRegionEtaIndex(int caloEta) {
     // Region index is same for all phi; so get for phi = 1
     uint32_t rgn = getRegion(caloEta, 1);
-    if(caloEta < 0) return -(rgn+1);
-    return (rgn+1);
+    if (caloEta < 0)
+      return -(rgn + 1);
+    return (rgn + 1);
   }
   uint32_t getGCTRegionEtaIndex(int caloEta) {
     uint32_t gctEta = 0xDEADBEEF;
     // Region index is same for all phi; so get for phi = 1
     uint32_t region = getRegion(caloEta, 1);
-    if(caloEta > 0 && region < l1tcalo::NRegionsInCard)
+    if (caloEta > 0 && region < l1tcalo::NRegionsInCard)
       gctEta = region + 11;
-    else if(caloEta < 0 && region < l1tcalo::NRegionsInCard)
+    else if (caloEta < 0 && region < l1tcalo::NRegionsInCard)
       gctEta = 10 - region;
     return gctEta;
   }
   uint32_t getGCTRegionEtaIndex(UCTRegionIndex r) {
     uint32_t gctEta = 0xDEADBEEF;
-    uint32_t region = std::abs(r.first)-1;
-    if(r.first > 0 && region < l1tcalo::NRegionsInCard)
+    uint32_t region = std::abs(r.first) - 1;
+    if (r.first > 0 && region < l1tcalo::NRegionsInCard)
       gctEta = region + 11;
-    else if(r.first < 0 && region < l1tcalo::NRegionsInCard)
+    else if (r.first < 0 && region < l1tcalo::NRegionsInCard)
       gctEta = 10 - region;
     return gctEta;
   }
@@ -170,9 +171,12 @@ public:
   uint32_t getUCTRegionPhiIndex(uint32_t crate, uint32_t card);
 
   int getUCTRegionEtaIndex(bool negativeSide, uint32_t region) {
-    if(!checkRegion(region)) return 0xDEADBEEF;
-    if(negativeSide) return -(region + 1);
-    else return (region + 1);
+    if (!checkRegion(region))
+      return 0xDEADBEEF;
+    if (negativeSide)
+      return -(region + 1);
+    else
+      return (region + 1);
   }
 
   UCTRegionIndex getUCTRegionIndex(UCTTowerIndex caloTower) {

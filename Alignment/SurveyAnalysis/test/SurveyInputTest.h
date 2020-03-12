@@ -13,28 +13,18 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class SurveyInputTest:
-  public SurveyInputBase
-{
-  public:
-
-  SurveyInputTest(
-		  const edm::ParameterSet&
-		  );
+class SurveyInputTest : public SurveyInputBase {
+public:
+  SurveyInputTest(const edm::ParameterSet&);
 
   /// Read data from cfg file
   virtual void beginJob();
-  
-  virtual void analyze(
-		       const edm::Event&,
-		       const edm::EventSetup&
-		       ) {}
 
-  private:
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
 
-  Alignable* create(
-		    const std::string& parName // name of alignable
-		    );
+private:
+  Alignable* create(const std::string& parName  // name of alignable
+  );
 
   edm::ParameterSet theConfig;
 };

@@ -2,9 +2,9 @@
 #define DD_DDSPLIT_H
 
 #include <string>
-#include<utility>
+#include <utility>
 
 //! split into (name,namespace), separator = ':'
-std::pair<std::string,std::string> DDSplit(const std::string & n);
+std::pair<std::string, std::string> DDSplit(const std::string& n);
 
 #endif

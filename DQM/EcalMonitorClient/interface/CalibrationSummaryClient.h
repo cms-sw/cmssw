@@ -8,7 +8,7 @@ namespace ecaldqm {
   class CalibrationSummaryClient : public DQWorkerClient {
   public:
     CalibrationSummaryClient();
-    ~CalibrationSummaryClient() {}
+    ~CalibrationSummaryClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -23,7 +23,6 @@ namespace ecaldqm {
     std::map<int, unsigned> pedPNGainToME_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

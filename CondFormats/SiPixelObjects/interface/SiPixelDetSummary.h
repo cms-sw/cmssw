@@ -25,20 +25,20 @@
 class SiPixelDetSummary {
 public:
   SiPixelDetSummary(int verbose = 0);
-  
+
   void add(const DetId &detid, const float &value);
   void add(const DetId &detid);
-  
+
   void print(std::stringstream &ss, const bool mean = true) const;
-  
-  std::map<int, int> getCounts() { return fCountMap;  }
-  
+
+  std::map<int, int> getCounts() { return fCountMap; }
+
 protected:
   std::map<int, double> fMeanMap;
   std::map<int, double> fRmsMap;
   std::map<int, int> fCountMap;
   bool fComputeMean;
-  int  fVerbose;
+  int fVerbose;
 };
 
 #endif

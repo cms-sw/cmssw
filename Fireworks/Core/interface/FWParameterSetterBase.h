@@ -28,38 +28,37 @@ class FWParameterBase;
 class FWParameterSetterEditorBase;
 class TGFrame;
 
-class FWParameterSetterBase
-{
+class FWParameterSetterBase {
 public:
-   FWParameterSetterBase();
-   virtual ~FWParameterSetterBase();
+  FWParameterSetterBase();
+  virtual ~FWParameterSetterBase();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   static std::shared_ptr<FWParameterSetterBase> makeSetterFor(FWParameterBase*);
+  static std::shared_ptr<FWParameterSetterBase> makeSetterFor(FWParameterBase*);
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   void             attach(FWParameterBase*, FWParameterSetterEditorBase*);
-   virtual TGFrame* build(TGFrame* iParent, bool labelBack = true) = 0;
+  void attach(FWParameterBase*, FWParameterSetterEditorBase*);
+  virtual TGFrame* build(TGFrame* iParent, bool labelBack = true) = 0;
 
-   virtual void     setEnabled(bool);
+  virtual void setEnabled(bool);
 
 protected:
-   void update() const;
-   FWParameterSetterEditorBase* frame() const { return m_frame; }
+  void update() const;
+  FWParameterSetterEditorBase* frame() const { return m_frame; }
 
 private:
-   virtual void attach(FWParameterBase*) = 0;
+  virtual void attach(FWParameterBase*) = 0;
 
-   FWParameterSetterBase(const FWParameterSetterBase&) = delete;                  // stop default
-   const FWParameterSetterBase& operator=(const FWParameterSetterBase&) = delete; // stop default
+  FWParameterSetterBase(const FWParameterSetterBase&) = delete;                   // stop default
+  const FWParameterSetterBase& operator=(const FWParameterSetterBase&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   FWParameterSetterEditorBase* m_frame;
+  FWParameterSetterEditorBase* m_frame;
 };
 
 #endif

@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class RunLaserRunDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   RunLaserRunDat();
   ~RunLaserRunDat() override;
@@ -23,15 +23,12 @@ class RunLaserRunDat : public IDataItem {
   inline void setLaserSequenceCond(std::string x) { m_laserSeqCond = x; }
   inline std::string getLaserSequenceCond() const { return m_laserSeqCond; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item, RunIOV* iov )
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item, RunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunLaserRunDat >* fillMap, RunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, RunLaserRunDat>* fillMap, RunIOV* iov) noexcept(false);
 
   // User data
   std::string m_laserSeqType;

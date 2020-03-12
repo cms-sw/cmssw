@@ -1,23 +1,16 @@
-#include "SimCalorimetry/CastorSim/src/CastorCoderFactory.h"
 #include "CalibFormats/CastorObjects/interface/CastorCoderDb.h"
 #include "CalibFormats/CastorObjects/interface/CastorNominalCoder.h"
+#include "SimCalorimetry/CastorSim/src/CastorCoderFactory.h"
 
+CastorCoderFactory::CastorCoderFactory(CoderType coderType) : theCoderType(coderType), theDbService(nullptr) {}
 
-
-CastorCoderFactory::CastorCoderFactory(CoderType coderType) 
-: theCoderType(coderType),
-  theDbService(nullptr)
-{
-}
-
-
-std::unique_ptr<CastorCoder> CastorCoderFactory::coder(const DetId & id) const {
-  CastorCoder * result = nullptr;
-  if(theCoderType == DB) {
+std::unique_ptr<CastorCoder> CastorCoderFactory::coder(const DetId &id) const {
+  CastorCoder *result = nullptr;
+  if (theCoderType == DB) {
     assert(theDbService != nullptr);
     HcalGenericDetId hcalGenDetId(id);
-    const CastorQIECoder * qieCoder = theDbService->getCastorCoder(hcalGenDetId );
-    const CastorQIEShape * qieShape = theDbService->getCastorShape();
+    const CastorQIECoder *qieCoder = theDbService->getCastorCoder(hcalGenDetId);
+    const CastorQIEShape *qieShape = theDbService->getCastorShape();
     result = new CastorCoderDb(*qieCoder, *qieShape);
   }
 
@@ -26,4 +19,3 @@ std::unique_ptr<CastorCoder> CastorCoderFactory::coder(const DetId & id) const {
   }
   return std::unique_ptr<CastorCoder>(result);
 }
-

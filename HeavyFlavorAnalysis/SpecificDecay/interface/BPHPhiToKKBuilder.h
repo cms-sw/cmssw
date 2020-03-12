@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -39,14 +38,12 @@ class BPHMassSelect;
 //              ---------------------
 
 class BPHPhiToKKBuilder {
-
- public:
-
+public:
   /** Constructor
    */
-  BPHPhiToKKBuilder( const edm::EventSetup& es,
-       const BPHRecoBuilder::BPHGenericCollection* kPosCollection,
-       const BPHRecoBuilder::BPHGenericCollection* kNegCollection );
+  BPHPhiToKKBuilder(const edm::EventSetup& es,
+                    const BPHRecoBuilder::BPHGenericCollection* kPosCollection,
+                    const BPHRecoBuilder::BPHGenericCollection* kNegCollection);
 
   /** Destructor
    */
@@ -58,27 +55,26 @@ class BPHPhiToKKBuilder {
   std::vector<BPHPlusMinusConstCandPtr> build();
 
   /// set cuts
-  void setPtMin  ( double pt  );
-  void setEtaMax ( double eta );
-  void setMassMin( double m   );
-  void setMassMax( double m   );
-  void setProbMin( double p   );
-  void setConstr ( double mass, double sigma );
+  void setPtMin(double pt);
+  void setEtaMax(double eta);
+  void setMassMin(double m);
+  void setMassMax(double m);
+  void setProbMin(double p);
+  void setConstr(double mass, double sigma);
 
   /// get current cuts
-  double getPtMin  () const;
-  double getEtaMax () const;
+  double getPtMin() const;
+  double getEtaMax() const;
   double getMassMin() const;
   double getMassMax() const;
   double getProbMin() const;
-  double getConstrMass () const;
+  double getConstrMass() const;
   double getConstrSigma() const;
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHPhiToKKBuilder           ( const BPHPhiToKKBuilder& x ) = delete;
-  BPHPhiToKKBuilder& operator=( const BPHPhiToKKBuilder& x ) = delete;
+  BPHPhiToKKBuilder(const BPHPhiToKKBuilder& x) = delete;
+  BPHPhiToKKBuilder& operator=(const BPHPhiToKKBuilder& x) = delete;
 
   std::string kPosName;
   std::string kNegName;
@@ -87,7 +83,7 @@ class BPHPhiToKKBuilder {
   const BPHRecoBuilder::BPHGenericCollection* posCollection;
   const BPHRecoBuilder::BPHGenericCollection* negCollection;
 
-  BPHParticlePtSelect *  ptSel;
+  BPHParticlePtSelect* ptSel;
   BPHParticleEtaSelect* etaSel;
   BPHMassSelect* massSel;
   BPHChi2Select* chi2Sel;
@@ -96,9 +92,6 @@ class BPHPhiToKKBuilder {
   bool updated;
 
   std::vector<BPHPlusMinusConstCandPtr> phiList;
-
 };
 
-
 #endif
-

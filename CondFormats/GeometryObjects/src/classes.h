@@ -8,5 +8,7 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
+#include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
+#include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
 #include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
-

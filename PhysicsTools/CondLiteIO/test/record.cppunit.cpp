@@ -17,143 +17,132 @@
 #include "DataFormats/FWLite/interface/ESHandle.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
-class testRecord: public CppUnit::TestFixture
-{
-   CPPUNIT_TEST_SUITE(testRecord);
-   
-   CPPUNIT_TEST(testGood);
-   CPPUNIT_TEST(testFailures);
-   
-   CPPUNIT_TEST_SUITE_END();
-   static bool s_firstSetup;
-public:
-   void setUp();
-   void tearDown(){}
-   
-   void testGood();
-   void testFailures();
-};
+class testRecord : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testRecord);
 
+  CPPUNIT_TEST(testGood);
+  CPPUNIT_TEST(testFailures);
+
+  CPPUNIT_TEST_SUITE_END();
+  static bool s_firstSetup;
+
+public:
+  void setUp();
+  void tearDown() {}
+
+  void testGood();
+  void testFailures();
+};
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testRecord);
 
-bool testRecord::s_firstSetup =true;
+bool testRecord::s_firstSetup = true;
 
-void testRecord::setUp()
-{ 
-   if( s_firstSetup) {
-      s_firstSetup = false;
-      
-      //create the test file
-      TFile f("testRecord.root","RECREATE");
-      fwlite::RecordWriter w("TestRecord", &f);
-      
-      std::vector<int> v;
-      edmtest::SimpleDerived d;
-      for(int index=0; index<6; ++index) {
-         //std::cout <<" index "<<index<<std::endl;
-         v.push_back(index);
-         w.update(&v, typeid(v),"");
+void testRecord::setUp() {
+  if (s_firstSetup) {
+    s_firstSetup = false;
 
-         d.key = index;
-         d.value = index;
-         d.dummy = index;
-         w.update(&d, typeid(edmtest::Simple),"");
+    //create the test file
+    TFile f("testRecord.root", "RECREATE");
+    fwlite::RecordWriter w("TestRecord", &f);
 
-         w.fill(edm::ESRecordAuxiliary(edm::EventID(index*2+1,0,0),edm::Timestamp()));
-      }
-      w.write();
-      f.Close();
-      
-   } 
+    std::vector<int> v;
+    edmtest::SimpleDerived d;
+    for (int index = 0; index < 6; ++index) {
+      //std::cout <<" index "<<index<<std::endl;
+      v.push_back(index);
+      w.update(&v, typeid(v), "");
+
+      d.key = index;
+      d.value = index;
+      d.dummy = index;
+      w.update(&d, typeid(edmtest::Simple), "");
+
+      w.fill(edm::ESRecordAuxiliary(edm::EventID(index * 2 + 1, 0, 0), edm::Timestamp()));
+    }
+    w.write();
+    f.Close();
+  }
 }
 
-void testRecord::testGood()
-{
-   {
-      TFile f("testRecord.root","READ");
-      
-      fwlite::EventSetup es(&f);
-      
-      std::vector<std::string> recordNames = es.namesOfAvailableRecords();
-      CPPUNIT_ASSERT(recordNames.size() == 1);
-      CPPUNIT_ASSERT(recordNames[0] == "TestRecord");
-      
-      
-      fwlite::RecordID testRecID = es.recordID("TestRecord");
+void testRecord::testGood() {
+  {
+    TFile f("testRecord.root", "READ");
 
-      std::vector<std::pair<std::string,std::string> > dataIds = 
-      es.get(testRecID).typeAndLabelOfAvailableData();
-      
-      CPPUNIT_ASSERT(dataIds.size() == 2);
-      unsigned int matches =0;
-      for(auto const& dataId : dataIds) {
-         std::cout << dataId.first << " '" << dataId.second << "'" << std::endl;
-         if((dataId.first == "std::vector<int>") &&
-            (dataId.second == "")) {
-            ++matches;
-            continue;
-         }
-         if((dataId.first == "edmtest::Simple") &&
-            (dataId.second == "")) {
-            ++matches;
-         }
+    fwlite::EventSetup es(&f);
+
+    std::vector<std::string> recordNames = es.namesOfAvailableRecords();
+    CPPUNIT_ASSERT(recordNames.size() == 1);
+    CPPUNIT_ASSERT(recordNames[0] == "TestRecord");
+
+    fwlite::RecordID testRecID = es.recordID("TestRecord");
+
+    std::vector<std::pair<std::string, std::string> > dataIds = es.get(testRecID).typeAndLabelOfAvailableData();
+
+    CPPUNIT_ASSERT(dataIds.size() == 2);
+    unsigned int matches = 0;
+    for (auto const& dataId : dataIds) {
+      std::cout << dataId.first << " '" << dataId.second << "'" << std::endl;
+      if ((dataId.first == "std::vector<int>") && (dataId.second == "")) {
+        ++matches;
+        continue;
       }
-      
-      CPPUNIT_ASSERT(2==matches);
-      
-      for(unsigned int index=1; index<10; ++index) {
-         es.syncTo(edm::EventID(index,0,0),edm::Timestamp());
-         unsigned int run = index;
-         if(0!=(run-1)%2) {
-            --run;
-         }
-         
-         fwlite::ESHandle<std::vector<int> > vIntHandle;
-         CPPUNIT_ASSERT(es.get(testRecID).get(vIntHandle));
-         CPPUNIT_ASSERT(vIntHandle.isValid());
-         //std::cout <<" index "<<index<<" size "<<vIntHandle->size()<<" "<<es.get(testRecID).startSyncValue().eventID()<<std::endl;
-         CPPUNIT_ASSERT(es.get(testRecID).startSyncValue().eventID().run() == run);
-         CPPUNIT_ASSERT(vIntHandle->size()==(index-1)/2+1);
-         
-         fwlite::ESHandle<edmtest::Simple> simpleHandle;
-         CPPUNIT_ASSERT(es.get(testRecID).get(simpleHandle));
-         CPPUNIT_ASSERT(simpleHandle->key == static_cast<int>((index-1)/2));
-      }      
-   }
+      if ((dataId.first == "edmtest::Simple") && (dataId.second == "")) {
+        ++matches;
+      }
+    }
+
+    CPPUNIT_ASSERT(2 == matches);
+
+    for (unsigned int index = 1; index < 10; ++index) {
+      es.syncTo(edm::EventID(index, 0, 0), edm::Timestamp());
+      unsigned int run = index;
+      if (0 != (run - 1) % 2) {
+        --run;
+      }
+
+      fwlite::ESHandle<std::vector<int> > vIntHandle;
+      CPPUNIT_ASSERT(es.get(testRecID).get(vIntHandle));
+      CPPUNIT_ASSERT(vIntHandle.isValid());
+      //std::cout <<" index "<<index<<" size "<<vIntHandle->size()<<" "<<es.get(testRecID).startSyncValue().eventID()<<std::endl;
+      CPPUNIT_ASSERT(es.get(testRecID).startSyncValue().eventID().run() == run);
+      CPPUNIT_ASSERT(vIntHandle->size() == (index - 1) / 2 + 1);
+
+      fwlite::ESHandle<edmtest::Simple> simpleHandle;
+      CPPUNIT_ASSERT(es.get(testRecID).get(simpleHandle));
+      CPPUNIT_ASSERT(simpleHandle->key == static_cast<int>((index - 1) / 2));
+    }
+  }
 }
 
 struct DummyWithNoDictionary {};
 
-void testRecord::testFailures()
-{
-   TFile f("testRecord.root","READ");
-   
-   fwlite::EventSetup es(&f);
-   
-   CPPUNIT_ASSERT(not es.exists("DoesNotExist"));
-   CPPUNIT_ASSERT_THROW(es.recordID("DoesNotExist"),cms::Exception);
+void testRecord::testFailures() {
+  TFile f("testRecord.root", "READ");
 
-   fwlite::RecordID testRecID = es.recordID("TestRecord");
+  fwlite::EventSetup es(&f);
 
-   const fwlite::Record& testRecord = es.get(testRecID);
+  CPPUNIT_ASSERT(not es.exists("DoesNotExist"));
+  CPPUNIT_ASSERT_THROW(es.recordID("DoesNotExist"), cms::Exception);
 
-   fwlite::ESHandle<std::vector<int> > vIntHandle;
-   CPPUNIT_ASSERT(not vIntHandle.isValid());
-   
-   CPPUNIT_ASSERT(not testRecord.get(vIntHandle));
-   CPPUNIT_ASSERT(not vIntHandle.isValid());
-   CPPUNIT_ASSERT_THROW(*vIntHandle, cms::Exception);
-   
-   es.syncTo(edm::EventID(1,0,0),edm::Timestamp());
-   
-   CPPUNIT_ASSERT(not testRecord.get(vIntHandle, "notThere"));
-   
-   fwlite::ESHandle<std::vector<DummyWithNoDictionary> > noDictHandle;
-   CPPUNIT_ASSERT(not testRecord.get(noDictHandle));
-   CPPUNIT_ASSERT_THROW(*noDictHandle,cms::Exception);
-   CPPUNIT_ASSERT_THROW(noDictHandle.operator->(),cms::Exception);
-   
+  fwlite::RecordID testRecID = es.recordID("TestRecord");
+
+  const fwlite::Record& testRecord = es.get(testRecID);
+
+  fwlite::ESHandle<std::vector<int> > vIntHandle;
+  CPPUNIT_ASSERT(not vIntHandle.isValid());
+
+  CPPUNIT_ASSERT(not testRecord.get(vIntHandle));
+  CPPUNIT_ASSERT(not vIntHandle.isValid());
+  CPPUNIT_ASSERT_THROW(*vIntHandle, cms::Exception);
+
+  es.syncTo(edm::EventID(1, 0, 0), edm::Timestamp());
+
+  CPPUNIT_ASSERT(not testRecord.get(vIntHandle, "notThere"));
+
+  fwlite::ESHandle<std::vector<DummyWithNoDictionary> > noDictHandle;
+  CPPUNIT_ASSERT(not testRecord.get(noDictHandle));
+  CPPUNIT_ASSERT_THROW(*noDictHandle, cms::Exception);
+  CPPUNIT_ASSERT_THROW(noDictHandle.operator->(), cms::Exception);
 }
-

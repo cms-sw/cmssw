@@ -4,30 +4,27 @@
 
 //typedef popcon::PopConAnalyzer<HcalGainWidthsHandler> HcalGainWidthsPopConAnalyzer;
 
-class HcalGainWidthsPopConAnalyzer: public popcon::PopConAnalyzer<HcalGainWidthsHandler>
-{
+class HcalGainWidthsPopConAnalyzer : public popcon::PopConAnalyzer<HcalGainWidthsHandler> {
 public:
   typedef HcalGainWidthsHandler SourceHandler;
 
-  HcalGainWidthsPopConAnalyzer(const edm::ParameterSet& pset): 
-    popcon::PopConAnalyzer<HcalGainWidthsHandler>(pset),
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  HcalGainWidthsPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<HcalGainWidthsHandler>(pset),
+        m_populator(pset),
+        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
 private:
-  void endJob() override 
-  {
+  void endJob() override {
     m_source.initObject(myDBObject);
     write();
   }
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
-  {
+  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
     edm::ESHandle<HcalGainWidths> objecthandle;
     esetup.get<HcalGainWidthsRcd>().get(objecthandle);
-    myDBObject = new HcalGainWidths(*objecthandle.product() );
+    myDBObject = new HcalGainWidths(*objecthandle.product());
   }
 
   void write() { m_populator.write(m_source); }

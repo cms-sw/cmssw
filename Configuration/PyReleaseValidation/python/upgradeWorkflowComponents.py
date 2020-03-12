@@ -1,4 +1,7 @@
 from copy import deepcopy
+from collections import OrderedDict
+import six
+from .MatrixUtil import merge
 
 # DON'T CHANGE THE ORDER, only append new keys. Otherwise the numbering for the runTheMatrix tests will change.
 
@@ -13,62 +16,54 @@ upgradeKeys[2017] = [
     '2018PU',
     '2018Design',
     '2018DesignPU',
-    '2019',
-#    '2019PU',
-    '2019Design',
-#    '2019DesignPU',
+    '2021',
+    '2021PU',
+    '2021Design',
+    '2021DesignPU',
+    '2023',
+    '2023PU',
+    '2024',
+    '2024PU',
 ]
 
-upgradeKeys[2023] = [
-    '2023D17',
-    '2023D17PU',
-    '2023D19',
-    '2023D19PU',
-    '2023D21',
-    '2023D21PU',
-    '2023D22',
-    '2023D22PU',
-    '2023D23',
-    '2023D23PU',
-    '2023D24',
-    '2023D24PU',
-    '2023D25',
-    '2023D25PU',
-    '2023D36',
-    '2023D36PU',
-    '2023D37',
-    '2023D37PU',
-    '2023D28',
-    '2023D28PU',
-    '2023D29',
-    '2023D29PU',
-    '2023D30',
-    '2023D30PU',
-    '2023D31',
-    '2023D31PU',
-    '2023D33',
-    '2023D33PU',
-    '2023D34',
-    '2023D34PU',
-    '2023D35',
-    '2023D35PU',
-    '2023D38',
-    '2023D38PU',
-    '2023D39',
-    '2023D39PU',
+upgradeKeys[2026] = [
+    '2026D35',
+    '2026D35PU',
+    '2026D41',
+    '2026D41PU',
+    '2026D43',
+    '2026D43PU',
+    '2026D44',
+    '2026D44PU',
+    '2026D45',
+    '2026D45PU',
+    '2026D46',
+    '2026D46PU',
+    '2026D47',
+    '2026D47PU',
+    '2026D48',
+    '2026D48PU',
+    '2026D49',
+    '2026D49PU',
+    '2026D51',
+    '2026D51PU',
+    '2026D52',
+    '2026D52PU',
+    '2026D53',
+    '2026D53PU',
 ]
 
 # pre-generation of WF numbers
 numWFStart={
     2017: 10000,
-    2023: 20000,
+    2026: 20000,
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[11800,12000],[12200,12400],[20800,21200],[25000,26000],[50000,51000]]
+numWFConflict = [[25000,26000],[50000,51000]]
 numWFAll={
     2017: [],
-    2023: []
+    2026: []
 }
 
 for year in upgradeKeys:
@@ -80,10 +75,53 @@ for year in upgradeKeys:
                 break
         numWFAll[year].append(numWFtmp)
 
-# steps for baseline and for variations
-upgradeSteps={}
-upgradeSteps['baseline'] = {
-    'steps' : [
+# workflows for baseline and for variations
+# setup() automatically loops over all steps and applies any customizations specified in setup_() -> called in relval_steps.py
+# workflow() adds a concrete workflow to the list based on condition() -> called in relval_upgrade.py
+# every special workflow gets its own derived class, which must then be added to the global dict upgradeWFs
+class UpgradeWorkflow(object):
+    def __init__(self,steps,PU,suffix,offset):
+        self.steps = steps
+        self.PU = PU
+        self.suffix = suffix
+        self.offset = offset
+        if self.offset < 0.0 or self.offset > 1.0:
+            raise ValueError("Special workflow offset must be between 0.0 and 1.0")
+    def init(self, stepDict):
+        for step in self.steps:
+            stepName = step + self.suffix
+            stepDict[stepName] = {}
+        for step in self.PU:
+            stepName = step + 'PU' + self.suffix
+            stepDict[stepName] = {}
+            stepNamePmx = step + 'PUPRMX' + self.suffix
+            stepDict[stepNamePmx] = {}
+            stepDict[stepNamePmx+'Combined'] = {}
+    def setup(self, stepDict, k, properties):
+        for step in self.steps:
+            stepName = step + self.suffix
+            self.setup_(step, stepName, stepDict, k, properties)
+    def setup_(self, step, stepName, stepDict, k, properties):
+        pass
+    def workflow(self, workflows, num, fragment, stepList, key, hasHarvest):
+        if self.condition(fragment, stepList, key, hasHarvest):
+            self.workflow_(workflows, num, fragment, stepList)
+    def workflow_(self, workflows, num, fragment, stepList):
+        workflows[num+self.offset] = [ fragment, stepList ]
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return False
+upgradeWFs = OrderedDict()
+
+class UpgradeWorkflow_baseline(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        cust=properties.get('Custom', None)
+        era=properties.get('Era', None)
+        if cust is not None: stepDict[stepName][k]['--customise']=cust
+        if era is not None: stepDict[stepName][k]['--era']=era
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return True
+upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
+    steps =  [
         'GenSimFull',
         'GenSimHLBeamSpotFull',
         'GenSimHLBeamSpotFull14',
@@ -98,8 +136,9 @@ upgradeSteps['baseline'] = {
         'HARVESTFullGlobal',
         'ALCAFull',
         'NanoFull',
+        'MiniAODFullGlobal',
     ],
-    'PU' : [
+    PU =  [
         'DigiFullTrigger',
         'RecoFullLocal',
         'RecoFullGlobal',
@@ -107,118 +146,451 @@ upgradeSteps['baseline'] = {
         'RecoFull',
         'HARVESTFull',
         'HARVESTFullGlobal',
+        'MiniAODFullGlobal',
+        'NanoFull',
     ],
-    'suffix' : '',
-    'offset' : 0.0,
-}
-upgradeSteps['trackingOnly'] = {
-    'steps' : [
+    suffix = '',
+    offset = 0.0,
+)
+
+# some commonalities among tracking WFs
+class UpgradeWorkflowTracking(UpgradeWorkflow):
+    def condition(self, fragment, stepList, key, hasHarvest):
+        result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and not 'PU' in key and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
+        if result:
+            # skip ALCA and Nano
+            skipList = [s for s in stepList if (("ALCA" in s) or ("Nano" in s))]
+            for skip in skipList:
+                stepList.remove(skip)
+        return result
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return True
+
+class UpgradeWorkflow_trackingOnly(UpgradeWorkflowTracking):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
+    steps = [
         'RecoFull',
         'HARVESTFull',
         'RecoFullGlobal',
         'HARVESTFullGlobal',
     ],
-    'PU' : [],
-    'suffix' : '_trackingOnly',
-    'offset' : 0.1,
+    PU = [],
+    suffix = '_trackingOnly',
+    offset = 0.1,
+)
+upgradeWFs['trackingOnly'].step3 = {
+    '-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
+    '--datatier':'GEN-SIM-RECO,DQMIO',
+    '--eventcontent':'RECOSIM,DQM',
 }
-upgradeSteps['trackingRun2'] = {
-    'steps' : [
+# used outside of upgrade WFs
+step3_trackingOnly = upgradeWFs['trackingOnly'].step3
+
+class UpgradeWorkflow_trackingRun2(UpgradeWorkflowTracking):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
+            stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2017' in key
+upgradeWFs['trackingRun2'] = UpgradeWorkflow_trackingRun2(
+    steps = [
         'RecoFull',
     ],
-    'PU' : [],
-    'suffix' : '_trackingRun2',
-    'offset' : 0.2,
-}
-upgradeSteps['trackingOnlyRun2'] = {
-    'steps' : [
+    PU = [],
+    suffix = '_trackingRun2',
+    offset = 0.2,
+)
+
+class UpgradeWorkflow_trackingOnlyRun2(UpgradeWorkflowTracking):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
+            stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2017' in key
+upgradeWFs['trackingOnlyRun2'] = UpgradeWorkflow_trackingOnlyRun2(
+    steps = [
         'RecoFull',
         'HARVESTFull',
     ],
-    'PU' : [],
-    'suffix' : '_trackingOnlyRun2',
-    'offset' : 0.3,
-}
-upgradeSteps['trackingLowPU'] = {
-    'steps' : [
+    PU = [],
+    suffix = '_trackingOnlyRun2',
+    offset = 0.3,
+)
+upgradeWFs['trackingOnlyRun2'].step3 = upgradeWFs['trackingOnly'].step3
+
+class UpgradeWorkflow_trackingLowPU(UpgradeWorkflowTracking):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
+            stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2017' in key
+upgradeWFs['trackingLowPU'] = UpgradeWorkflow_trackingLowPU(
+    steps = [
         'RecoFull',
     ],
-    'PU' : [],
-    'suffix' : '_trackingLowPU',
-    'offset' : 0.4,
-}
-upgradeSteps['pixelTrackingOnly'] = {
-    'steps' : [
+    PU = [],
+    suffix = '_trackingLowPU',
+    offset = 0.4,
+)
+
+class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2017' in key or '2018' in key
+upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
+    steps = [
         'RecoFull',
         'HARVESTFull',
         'RecoFullGlobal',
         'HARVESTFullGlobal',
     ],
-    'PU' : [],
-    'suffix' : '_pixelTrackingOnly',
-    'offset' : 0.5,
+    PU = [],
+    suffix = '_pixelTrackingOnly',
+    offset = 0.5,
+)
+upgradeWFs['pixelTrackingOnly'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
 }
-upgradeSteps['Timing'] = {
-    'steps' : upgradeSteps['baseline']['steps'],
-    'PU' : upgradeSteps['baseline']['PU'],
-    'suffix' : '_Timing',
-    'offset' : 0.11,
+
+class UpgradeWorkflow_trackingMkFit(UpgradeWorkflowTracking):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2017' in key or '2021' in key
+upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
+    steps = [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    PU = [],
+    suffix = '_trackingMkFit',
+    offset = 0.7,
+)
+upgradeWFs['trackingMkFit'].step3 = {
+    '--procModifiers': 'trackingMkFit'
 }
-upgradeSteps['Neutron'] = {
-    'steps' : [
+
+# Patatrack workflows
+class UpgradeWorkflowPatatrack(UpgradeWorkflow):
+    def condition(self, fragment, stepList, key, hasHarvest):
+        is_2018_ttbar = ('2018' in key and fragment=="TTbar_13")
+        is_2021_ttbar = ('2021' in key and fragment=="TTbar_14TeV")
+        is_2018_zmumu = ('2018' in key and fragment=="ZMM_13")
+        is_2021_zmumu = ('2021' in key and fragment=="ZMM_14")
+        result = any((is_2018_ttbar, is_2021_ttbar, is_2018_zmumu, is_2021_zmumu)) and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
+        if result:
+            # skip ALCA and Nano
+            skipList = [s for s in stepList if (("ALCA" in s) or ("Nano" in s))]
+            for skip in skipList:
+                stepList.remove(skip)
+        return result
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return True
+
+class UpgradeWorkflowPatatrack_PixelOnlyCPU(UpgradeWorkflowPatatrack):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key or '2021' in key
+upgradeWFs['PatatrackPixelOnlyCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
+    steps = [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_PixelOnlyCPU',
+    offset = 0.501,
+)
+upgradeWFs['PatatrackPixelOnlyCPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--procModifiers': 'pixelNtupleFit'
+}
+
+class UpgradeWorkflowPatatrack_PixelOnlyGPU(UpgradeWorkflowPatatrack):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key or '2021' in key
+upgradeWFs['PatatrackPixelOnlyGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
+    steps = [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_PixelOnlyGPU',
+    offset = 0.502,
+)
+upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--procModifiers': 'gpu'
+}
+# end of Patatrack workflows
+
+class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Digi' in step and 'Trigger' not in step:
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        elif 'Reco' in step:
+            stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
+        elif 'MiniAOD' in step:
+            # the separate miniAOD step is used here
+            stepDict[stepName][k] = deepcopy(stepDict[step][k])
+        if 'ALCA' in step or 'HARVEST' in step:
+            # remove step
+            stepDict[stepName][k] = None
+        if 'Nano' in step:
+            stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
+upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
+    steps = [
+        'DigiFull',
+        'RecoFull',
+        'RecoFullGlobal',
+        'HARVESTFull',
+        'HARVESTFullGlobal',
+        'MiniAODFullGlobal',
+        'ALCAFull',
+        'NanoFull',
+    ],
+    PU = [
+        'DigiFull',
+        'RecoFull',
+        'RecoFullGlobal',
+        'HARVESTFull',
+        'HARVESTFullGlobal',
+        'MiniAODFullGlobal',
+        'ALCAFull',
+        'NanoFull',
+    ],
+    suffix = '_ProdLike',
+    offset = 0.21,
+)
+
+class UpgradeWorkflow_Neutron(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'GenSim' in step:
+            custNew = "SimG4Core/Application/NeutronBGforMuonsXS_cff.customise"
+        else:
+            custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
+        stepDict[stepName][k] = deepcopy(stepDict[step][k])
+        if '--customise' in stepDict[stepName][k].keys():
+            stepDict[stepName][k]['--customise'] += ","+custNew
+        else:
+            stepDict[stepName][k]['--customise'] = custNew
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return any(fragment==nfrag for nfrag in self.neutronFrags) and any(nkey in key for nkey in self.neutronKeys)
+upgradeWFs['Neutron'] = UpgradeWorkflow_Neutron(
+    steps = [
         'GenSimFull',
         'GenSimHLBeamSpotFull',
         'GenSimHLBeamSpotFull14',
         'DigiFull',
         'DigiFullTrigger',
     ],
-    'PU' : [
+    PU = [
         'DigiFull',
         'DigiFullTrigger',
     ],
-    'suffix' : '_Neutron',
-    'offset' : 0.12,
-}
-upgradeSteps['heCollapse'] = {
-    'steps' : [
+    suffix = '_Neutron',
+    offset = 0.12,
+)
+# add some extra info
+upgradeWFs['Neutron'].neutronKeys = [x for x in upgradeKeys[2026] if 'PU' not in x]
+upgradeWFs['Neutron'].neutronFrags = ['ZMM_14','MinBias_14TeV']
+
+class UpgradeWorkflow_heCollapse(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'run2_HECollapse_2018'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_13" and '2018' in key
+upgradeWFs['heCollapse'] = UpgradeWorkflow_heCollapse(
+    steps = [
         'GenSimFull',
         'DigiFull',
         'RecoFull',
         'HARVESTFull',
         'ALCAFull',
     ],
-    'PU' : [
+    PU = [
         'DigiFull',
         'RecoFull',
         'HARVESTFull',
     ],
-    'suffix' : '_heCollapse',
-    'offset' : 0.6,
-}
-upgradeSteps['killStuckTBM'] = {
-    'steps' : [
-        'DigiFull',
+    suffix = '_heCollapse',
+    offset = 0.6,
+)
+
+class UpgradeWorkflow_ParkingBPH(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and 'Run2_2018' in stepDict[step][k]['--era']:
+            stepDict[stepName][k] = merge([{'--era': 'Run2_2018,bParking'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_13" and '2018' in key
+upgradeWFs['ParkingBPH'] = UpgradeWorkflow_ParkingBPH(
+    steps = [
+        'RecoFull',
     ],
-    'PU' : [
-        'DigiFull',
+    PU = [],
+    suffix = '_ParkingBPH',
+    offset = 0.8,
+)
+
+class UpgradeWorkflow_TICLOnly(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        result = (fragment=="CloseByParticleGun") and ('2026' in key)
+        if result:
+            skipList = [s for s in stepList if ("HARVEST" in s)]
+            for skip in skipList:
+                stepList.remove(skip)
+        return result
+upgradeWFs['TICLOnly'] = UpgradeWorkflow_TICLOnly(
+    steps = [
+        'RecoFull',
+        'RecoFullGlobal',
     ],
-    'suffix' : '_killStuckTBM',
-    'offset' : 0.7,
+    PU = [],
+    suffix = '_TICLOnly',
+    offset = 0.51,
+)
+upgradeWFs['TICLOnly'].step3 = {
+    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations'
 }
-upgradeSteps['Premix'] = {
-    'steps' : [],
-    'PU': [
+
+class UpgradeWorkflow_TICLFullReco(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="CloseByParticleGun") and ('2026' in key)
+upgradeWFs['TICLFullReco'] = UpgradeWorkflow_TICLFullReco(
+    steps = [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    PU = [],
+    suffix = '_TICLFullReco',
+    offset = 0.52,
+)
+upgradeWFs['TICLFullReco'].step3 = {
+    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
+}
+
+# common operations for aging workflows
+class UpgradeWorkflowAging(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Digi' in step or 'Reco' in step:
+            stepDict[stepName][k] = merge([{'--customise': 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_'+self.lumi}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+# define several of them
+upgradeWFs['Aging1000'] = UpgradeWorkflowAging(
+    steps =  [
+        'DigiFull',
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    PU =  [
+        'DigiFull',
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    suffix = 'Aging1000',
+    offset = 0.101,
+)
+upgradeWFs['Aging1000'].lumi = '1000'
+upgradeWFs['Aging3000'] = deepcopy(upgradeWFs['Aging1000'])
+upgradeWFs['Aging3000'].suffix = 'Aging3000'
+upgradeWFs['Aging3000'].offset = 0.103
+upgradeWFs['Aging3000'].lumi = '3000'
+
+# for premix, just use base class to store information
+# actual operations happen in relval_steps.py and relval_upgrade.py
+upgradeWFs['Premix'] = UpgradeWorkflow(
+    steps = [],
+    PU = [
         'PremixFull',
         'PremixHLBeamSpotFull',
         'PremixHLBeamSpotFull14',
     ],
-    'suffix': '_Premix',
-    'offset': 0.97,
-}
+    suffix = '_Premix',
+    offset = 0.97,
+)
 # Premix stage2 is derived from baseline+PU in relval_upgrade.py
-premixS2_offset = 0.98
+upgradeWFs['premixS2'] = UpgradeWorkflow(
+    steps = [],
+    PU = [],
+    suffix = '_premixS2',
+    offset = 0.98,
+)
 # Premix combined stage1+stage2 is derived for Premix+PU and baseline+PU in relval_upgrade.py
-premixS1S2_offset = 0.99
+upgradeWFs['premixS1S2'] = UpgradeWorkflow(
+    steps = [],
+    PU = [],
+    suffix = '_premixS1S2',
+    offset = 0.99,
+)
+
+class UpgradeWorkflow_TestOldDigi(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            # use existing DIGI-RAW file from old release
+            stepDict[stepName][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-110X_mcRun4_realistic_v2_2026D49noPU-v1/GEN-SIM-DIGI-RAW'}, stepDict[step][k]])
+            # handle separate PU input
+            stepNamePU = step + 'PU' + self.suffix
+            stepDict[stepNamePU][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/GEN-SIM-DIGI-RAW'},stepDict[stepName][k]])
+        elif 'GenSim' in step or 'Digi' in step:
+            # remove step
+            stepDict[stepName][k] = None
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # limited to HLT TDR production geometry
+        return fragment=="TTbar_14TeV" and '2026D49' in key
+    def workflow_(self, workflows, num, fragment, stepList):
+        UpgradeWorkflow.workflow_(self, workflows, num, fragment, stepList)
+upgradeWFs['TestOldDigi'] = UpgradeWorkflow_TestOldDigi(
+    steps = [
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFullTrigger',
+        'RecoFullGlobal',
+    ],
+    PU = [
+        'DigiFullTrigger',
+        'RecoFullGlobal',
+    ],
+    suffix = '_TestOldDigi',
+    offset = 0.1001,
+)
+
+# check for duplicate offsets
+offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
+seen = set()
+dups = set(x for x in offsets if x in seen or seen.add(x))
+if len(dups)>0:
+    raise ValueError("Duplicate special workflow offsets not allowed: "+','.join([str(x) for x in dups]))
 
 upgradeProperties = {}
 
@@ -228,7 +600,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2017_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull','NanoFull'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
@@ -254,482 +626,272 @@ upgradeProperties[2017] = {
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
-    '2019' : {
+    '2021' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2019_realistic',
-        'HLTmenu': '@relval2017',
+        'GT' : 'auto:phase1_2021_realistic',
+        'HLTmenu': '@relval2021',
         'Era' : 'Run3',
+        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
-    '2019Design' : {
+    '2021Design' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2019_design',
-        'HLTmenu': '@relval2017',
+        'GT' : 'auto:phase1_2021_design',
+        'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
+    '2023' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2023_realistic',
+        'HLTmenu': '@relval2021',
+        'Era' : 'Run3',
+        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+    },
+    '2024' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2024_realistic',
+        'HLTmenu': '@relval2021',
+        'Era' : 'Run3',
+        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+    },
 }
 
-upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
-upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
-upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
-upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
-upgradeProperties[2017]['2018PU'] = deepcopy(upgradeProperties[2017]['2018'])
-upgradeProperties[2017]['2018PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
-upgradeProperties[2017]['2018DesignPU'] = deepcopy(upgradeProperties[2017]['2018Design'])
-upgradeProperties[2017]['2018DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+# standard PU sequences
+for key in list(upgradeProperties[2017].keys()):
+    upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
+    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'] + \
+                                                     (['NanoFull'] if 'Design' not in key else [])
 
-upgradeProperties[2023] = {
-    '2023D17' : {
-        'Geom' : 'Extended2023D17',
+upgradeProperties[2026] = {
+    '2026D35' : {
+        'Geom' : 'Extended2026D35',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D19' : {
-        'Geom' : 'Extended2023D19',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2_timing_layer',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2023D21' : {
-        'Geom' : 'Extended2023D21',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D22' : {
-        'Geom' : 'Extended2023D22',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D23' : {
-        'Geom' : 'Extended2023D23',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D24' : {
-        'Geom' : 'Extended2023D24',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2_timing_layer_tile',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2023D25' : {
-        'Geom' : 'Extended2023D25',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2_timing_layer_bar',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2023D36' : {
-        'Geom' : 'Extended2023D36',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D37' : {
-        'Geom' : 'Extended2023D37',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D28' : {
-        'Geom' : 'Extended2023D28',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
+        'GT' : 'auto:phase2_realistic_T6',
         'Era' : 'Phase2C4',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D29' : {
-        'Geom' : 'Extended2023D29',
+    },
+    '2026D41' : {
+        'Geom' : 'Extended2026D41',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2',
+        'GT' : 'auto:phase2_realistic_T14',
+        'Era' : 'Phase2C8',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D30' : {
-        'Geom' : 'Extended2023D30',
+    },
+    '2026D43' : {
+        'Geom' : 'Extended2026D43',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
+        'GT' : 'auto:phase2_realistic_T14',
         'Era' : 'Phase2C4',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D31' : {
-        'Geom' : 'Extended2023D31',
+    },
+    '2026D44' : {
+        'Geom' : 'Extended2026D44',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
+        'GT' : 'auto:phase2_realistic_T14',
         'Era' : 'Phase2C6',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-     },
-    '2023D33' : {
-        'Geom' : 'Extended2023D33',
+    },
+    '2026D45' : {
+        'Geom' : 'Extended2026D45',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2_timing_layer_bar',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C8',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
-    '2023D34' : {
-        'Geom' : 'Extended2023D34',
+    '2026D46' : {
+        'Geom' : 'Extended2026D46',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2_timing_layer_bar',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
-    '2023D35' : {
-        'Geom' : 'Extended2023D35',
+    '2026D47' : {
+        'Geom' : 'Extended2026D47',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2C4_timing_layer_bar',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C10',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
-    '2023D38' : {
-        'Geom' : 'Extended2023D38',
+    '2026D48' : {
+        'Geom' : 'Extended2026D48',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2C4_timing_layer_bar',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
-    '2023D39' : {
-        'Geom' : 'Extended2023D39',
+    '2026D49' : {
+        'Geom' : 'Extended2026D49',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2C4_timing_layer_bar',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D51' : {
+        'Geom' : 'Extended2026D51',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D52' : {
+        'Geom' : 'Extended2026D52',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D53' : {
+        'Geom' : 'Extended2026D53',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
 }
 
+# standard PU sequences
+for key in list(upgradeProperties[2026].keys()):
+    upgradeProperties[2026][key+'PU'] = deepcopy(upgradeProperties[2026][key])
+    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
-
-#standard PU sequences
-upgradeProperties[2023]['2023D17PU'] = deepcopy(upgradeProperties[2023]['2023D17'])
-upgradeProperties[2023]['2023D17PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D19PU'] = deepcopy(upgradeProperties[2023]['2023D19'])
-upgradeProperties[2023]['2023D19PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D21PU'] = deepcopy(upgradeProperties[2023]['2023D21'])
-upgradeProperties[2023]['2023D21PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D22PU'] = deepcopy(upgradeProperties[2023]['2023D22'])
-upgradeProperties[2023]['2023D22PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D23PU'] = deepcopy(upgradeProperties[2023]['2023D23'])
-upgradeProperties[2023]['2023D23PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D24PU'] = deepcopy(upgradeProperties[2023]['2023D24'])
-upgradeProperties[2023]['2023D24PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D25PU'] = deepcopy(upgradeProperties[2023]['2023D25'])
-upgradeProperties[2023]['2023D25PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D36PU'] = deepcopy(upgradeProperties[2023]['2023D36'])
-upgradeProperties[2023]['2023D36PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D37PU'] = deepcopy(upgradeProperties[2023]['2023D37'])
-upgradeProperties[2023]['2023D37PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D28PU'] = deepcopy(upgradeProperties[2023]['2023D28'])
-upgradeProperties[2023]['2023D28PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D29PU'] = deepcopy(upgradeProperties[2023]['2023D29'])
-upgradeProperties[2023]['2023D29PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D30PU'] = deepcopy(upgradeProperties[2023]['2023D30'])
-upgradeProperties[2023]['2023D30PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D31PU'] = deepcopy(upgradeProperties[2023]['2023D31'])
-upgradeProperties[2023]['2023D31PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D33PU'] = deepcopy(upgradeProperties[2023]['2023D33'])
-upgradeProperties[2023]['2023D33PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D34PU'] = deepcopy(upgradeProperties[2023]['2023D34'])
-upgradeProperties[2023]['2023D34PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D35PU'] = deepcopy(upgradeProperties[2023]['2023D35'])
-upgradeProperties[2023]['2023D35PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D38PU'] = deepcopy(upgradeProperties[2023]['2023D38'])
-upgradeProperties[2023]['2023D38PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D39PU'] = deepcopy(upgradeProperties[2023]['2023D38'])
-upgradeProperties[2023]['2023D39PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-
+# for relvals
+defaultDataSets = {}
+for year in upgradeKeys:
+    for key in upgradeKeys[year]:
+        if 'PU' in key: continue
+        defaultDataSets[key] = ''
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
 
-upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
-                  'SingleElectronPt10_pythia8_cfi',
-                  'SingleElectronPt35_pythia8_cfi',
-                  'SingleElectronPt1000_pythia8_cfi',
-                  'SingleGammaPt10_pythia8_cfi',
-                  'SingleGammaPt35_pythia8_cfi',
-                  'SingleMuPt1_pythia8_cfi',
-                  'SingleMuPt10_pythia8_cfi',
-                  'SingleMuPt100_pythia8_cfi',
-                  'SingleMuPt1000_pythia8_cfi',
-                  'FourMuExtendedPt_1_200_pythia8_cfi',
-                  'TenMuExtendedE_0_200_pythia8_cfi',
-                  'DoubleElectronPt10Extended_pythia8_cfi',
-                  'DoubleElectronPt35Extended_pythia8_cfi',
-                  'DoubleElectronPt1000Extended_pythia8_cfi',
-                  'DoubleGammaPt10Extended_pythia8_cfi',
-                  'DoubleGammaPt35Extended_pythia8_cfi',
-                  'DoubleMuPt1Extended_pythia8_cfi',
-                  'DoubleMuPt10Extended_pythia8_cfi',
-                  'DoubleMuPt100Extended_pythia8_cfi',
-                  'DoubleMuPt1000Extended_pythia8_cfi',
-                  'TenMuE_0_200_pythia8_cfi',
-                  'SinglePiE50HCAL_pythia8_cfi',
-                  'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', 
-                  'TTbar_13TeV_TuneCUETP8M1_cfi',
-                  'ZEE_13TeV_TuneCUETP8M1_cfi',
-                  'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi',
-                  'Wjet_Pt_80_120_14TeV_TuneCUETP8M1_cfi',
-                  'Wjet_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi',
-                  'LM1_sfts_14TeV_cfi',
-                  'QCD_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi',
-                  'QCD_Pt_80_120_14TeV_TuneCUETP8M1_cfi',
-                  'H200ChargedTaus_Tauola_14TeV_cfi',
-                  'JpsiMM_14TeV_TuneCUETP8M1_cfi',
-                  'TTbar_14TeV_TuneCUETP8M1_cfi',
-                  'WE_14TeV_TuneCUETP8M1_cfi',
-                  'ZTT_Tauola_All_hadronic_14TeV_TuneCUETP8M1_cfi',
-                  'H130GGgluonfusion_14TeV_TuneCUETP8M1_cfi',
-                  'PhotonJet_Pt_10_14TeV_TuneCUETP8M1_cfi',
-                  'QQH1352T_Tauola_14TeV_TuneCUETP8M1_cfi',
-                  'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi',
-                  'WM_14TeV_TuneCUETP8M1_cfi',
-                  'ZMM_13TeV_TuneCUETP8M1_cfi',
-                  'QCDForPF_14TeV_TuneCUETP8M1_cfi',
-                  'DYToLL_M-50_14TeV_pythia8_cff',
-                  'DYToTauTau_M-50_14TeV_pythia8_tauola_cff',
-                  'ZEE_14TeV_TuneCUETP8M1_cfi',
-                  'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',
-                  'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi',
-                  'QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_14TeV_pythia8_cff',
-                  'ZMM_14TeV_TuneCUETP8M1_cfi',
-                  'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff',
-                  'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi',
-                  'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi',
-                  'UndergroundCosmicSPLooseMu_cfi',
-                  'BeamHalo_13TeV_cfi',
-                  'H200ChargedTaus_Tauola_13TeV_cfi',
-                  'ADDMonoJet_13TeV_d3MD3_TuneCUETP8M1_cfi',
-                  'ZpMM_13TeV_TuneCUETP8M1_cfi',
-                  'QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',
-                  'WpM_13TeV_TuneCUETP8M1_cfi',
-                  'SingleNuE10_cfi.py',
-                  'TTbarLepton_13TeV_TuneCUETP8M1_cfi',
-                  'WE_13TeV_TuneCUETP8M1_cfi',
-                  'WM_13TeV_TuneCUETP8M1_cfi',
-                  'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi',
-                  'PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi',
-                  'QQH1352T_13TeV_TuneCUETP8M1_cfi',
-                  'Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi',
-                  'Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',
-                  'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',
-                  'QCDForPF_13TeV_TuneCUETP8M1_cfi',
-                  'PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff',
-                  'RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff',
-                  'ZpMM_2250_13TeV_TuneCUETP8M1_cfi',
-                  'ZpEE_2250_13TeV_TuneCUETP8M1_cfi',
-                  'ZpTT_1500_13TeV_TuneCUETP8M1_cfi',
-                  'Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',
-                  'EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi',
-                  'JpsiMuMu_Pt-8_forSTEAM_13TeV_TuneCUETP8M1_cfi',
-                  'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi',
-                  'HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff',
-                  'RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_cfi',
-                  'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff',
-                  'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff',
-                  'TenE_E_0_200_pythia8_cfi',
-                  'FlatRandomPtAndDxyGunProducer_cfi',
-                  'TenTau_E_15_500_pythia8_cfi',
-                  'SinglePiPt25Eta1p7_2p7_cfi',
-                  'SingleMuPt15Eta1p7_2p7_cfi',
-                  'SingleGammaPt25Eta1p7_2p7_cfi',
-                  'SingleElectronPt15Eta1p7_2p7_cfi',
-]
+class UpgradeFragment(object):
+    def __init__(self, howMuch, dataset):
+        self.howMuch = howMuch
+        self.dataset = dataset
 
-howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
-           'TenMuE_0_200_pythia8_cfi':Kby(10,100),
-           'FourMuExtendedPt_1_200_pythia8_cfi':Kby(10,100),
-           'TenMuExtendedE_0_200_pythia8_cfi':Kby(10,100),
-           'SingleElectronPt10_pythia8_cfi':Kby(9,100),
-           'SingleElectronPt35_pythia8_cfi':Kby(9,100),
-           'SingleElectronPt1000_pythia8_cfi':Kby(9,50),
-           'SingleGammaPt10_pythia8_cfi':Kby(9,100),
-           'SingleGammaPt35_pythia8_cfi':Kby(9,50),
-           'SingleMuPt1_pythia8_cfi':Kby(25,100),
-           'SingleMuPt10_pythia8_cfi':Kby(25,100),
-           'SingleMuPt100_pythia8_cfi':Kby(9,100),
-           'SingleMuPt1000_pythia8_cfi':Kby(9,100),
-           'DoubleElectronPt10Extended_pythia8_cfi':Kby(9,100),
-           'DoubleElectronPt35Extended_pythia8_cfi':Kby(9,100),
-           'DoubleElectronPt1000Extended_pythia8_cfi':Kby(9,50),
-           'DoubleGammaPt10Extended_pythia8_cfi':Kby(9,100),
-           'DoubleGammaPt35Extended_pythia8_cfi':Kby(9,50),
-           'DoubleMuPt1Extended_pythia8_cfi':Kby(25,100),
-           'DoubleMuPt10Extended_pythia8_cfi':Kby(25,100),
-           'DoubleMuPt100Extended_pythia8_cfi':Kby(9,100),
-           'DoubleMuPt1000Extended_pythia8_cfi':Kby(9,100),
-           'SinglePiE50HCAL_pythia8_cfi':Kby(50,500),
-           'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'Wjet_Pt_80_120_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'Wjet_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'LM1_sfts_14TeV_cfi':Kby(9,100),
-           'QCD_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'QCD_Pt_80_120_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'H200ChargedTaus_Tauola_14TeV_cfi':Kby(9,100),
-           'JpsiMM_14TeV_TuneCUETP8M1_cfi':Kby(66,100),
-           'TTbar_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'WE_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'ZEE_13TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'ZTT_Tauola_All_hadronic_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'H130GGgluonfusion_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'PhotonJet_Pt_10_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'QQH1352T_Tauola_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100),
-           'WM_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'ZMM_13TeV_TuneCUETP8M1_cfi':Kby(18,100),
-           'QCDForPF_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'DYToLL_M-50_14TeV_pythia8_cff':Kby(9,100),
-           'DYToTauTau_M-50_14TeV_pythia8_tauola_cff':Kby(9,100),
-           'TTbar_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100),
-           'ZEE_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi':Kby(9,100),
-           'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_14TeV_pythia8_cff':Kby(9,100),
-           'ZMM_14TeV_TuneCUETP8M1_cfi':Kby(18,100),
-           'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff':Kby(9,50),
-           'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'UndergroundCosmicSPLooseMu_cfi':Kby(9,50),
-           'BeamHalo_13TeV_cfi':Kby(9,50),
-           'H200ChargedTaus_Tauola_13TeV_cfi':Kby(9,50),
-           'ADDMonoJet_13TeV_d3MD3_TuneCUETP8M1_cfi':Kby(9,50),
-           'ZpMM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'WpM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'SingleNuE10_cfi.py':Kby(9,50),
-           'TTbarLepton_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'WE_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'WM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'QQH1352T_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi':Kby(9,50),
-           'QCDForPF_13TeV_TuneCUETP8M1_cfi':Kby(50,100),
-           'PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff':Kby(9,50),
-           'RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff':Kby(9,50),
-           'ZpMM_2250_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'ZpEE_2250_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'ZpTT_1500_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-           'EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi':Kby(9,50),
-           'JpsiMuMu_Pt-8_forSTEAM_13TeV_TuneCUETP8M1_cfi':Kby(3100,100000),
-           'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi':Kby(900,10000),
-           'HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff':Kby(9,50),
-           'RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_cfi':Kby(9,50),
-           'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff':Kby(9,50),
-           'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff':Kby(9,50),
-           'TenE_E_0_200_pythia8_cfi':Kby(9,100),
-           'FlatRandomPtAndDxyGunProducer_cfi':Kby(9,100),
-           'TenTau_E_15_500_pythia8_cfi':Kby(9,100),
-           'SinglePiPt25Eta1p7_2p7_cfi':Kby(9,100),
-           'SingleMuPt15Eta1p7_2p7_cfi':Kby(9,100),
-           'SingleGammaPt25Eta1p7_2p7_cfi':Kby(9,100),
-           'SingleElectronPt15Eta1p7_2p7_cfi':Kby(9,100),
-}
+upgradeFragments = OrderedDict([
+    ('FourMuPt_1_200_pythia8_cfi', UpgradeFragment(Kby(10,100),'FourMuPt1_200')),
+    ('SingleElectronPt10_pythia8_cfi', UpgradeFragment(Kby(9,100),'SingleElectronPt10')),
+    ('SingleElectronPt35_pythia8_cfi', UpgradeFragment(Kby(9,100),'SingleElectronPt35')),
+    ('SingleElectronPt1000_pythia8_cfi', UpgradeFragment(Kby(9,50),'SingleElectronPt1000')),
+    ('SingleGammaPt10_pythia8_cfi', UpgradeFragment(Kby(9,100),'SingleGammaPt10')),
+    ('SingleGammaPt35_pythia8_cfi', UpgradeFragment(Kby(9,50),'SingleGammaPt35')),
+    ('SingleMuPt1_pythia8_cfi', UpgradeFragment(Kby(25,100),'SingleMuPt1')),
+    ('SingleMuPt10_Eta2p85_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt10')),
+    ('SingleMuPt100_Eta2p85_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt100')),
+    ('SingleMuPt1000_Eta2p85_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt1000')),
+    ('FourMuExtendedPt_1_200_pythia8_cfi', UpgradeFragment(Kby(10,100),'FourMuExtendedPt1_200')),
+    ('TenMuExtendedE_0_200_pythia8_cfi', UpgradeFragment(Kby(10,100),'TenMuExtendedE_0_200')),
+    ('DoubleElectronPt10Extended_pythia8_cfi', UpgradeFragment(Kby(9,100),'SingleElPt10Extended')),
+    ('DoubleElectronPt35Extended_pythia8_cfi', UpgradeFragment(Kby(9,100),'SingleElPt35Extended')),
+    ('DoubleElectronPt1000Extended_pythia8_cfi', UpgradeFragment(Kby(9,50),'SingleElPt1000Extended')),
+    ('DoubleGammaPt10Extended_pythia8_cfi', UpgradeFragment(Kby(9,100),'SingleGammaPt10Extended')),
+    ('DoubleGammaPt35Extended_pythia8_cfi', UpgradeFragment(Kby(9,50),'SingleGammaPt35Extended')),
+    ('DoubleMuPt1Extended_pythia8_cfi', UpgradeFragment(Kby(25,100),'SingleMuPt1Extended')),
+    ('DoubleMuPt10Extended_pythia8_cfi', UpgradeFragment(Kby(25,100),'SingleMuPt10Extended')),
+    ('DoubleMuPt100Extended_pythia8_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt100Extended')),
+    ('DoubleMuPt1000Extended_pythia8_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt1000Extended')),
+    ('TenMuE_0_200_pythia8_cfi', UpgradeFragment(Kby(10,100),'TenMuE_0_200')),
+    ('SinglePiE50HCAL_pythia8_cfi', UpgradeFragment(Kby(50,500),'SinglePiE50HCAL')),
+    ('MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', UpgradeFragment(Kby(90,100),'MinBias_13')),
+    ('TTbar_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'TTbar_13')),
+    ('ZEE_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'ZEE_13')),
+    ('QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'QCD_Pt_600_800_13')),
+    ('Wjet_Pt_80_120_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'Wjet_Pt_80_120_14TeV')),
+    ('Wjet_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'Wjet_Pt_3000_3500_14TeV')),
+    ('LM1_sfts_14TeV_cfi', UpgradeFragment(Kby(9,100),'LM1_sfts_14TeV')),
+    ('QCD_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'QCD_Pt_3000_3500_14TeV')),
+    ('QCD_Pt_80_120_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'QCD_Pt_80_120_14TeV')),
+    ('H200ChargedTaus_Tauola_14TeV_cfi', UpgradeFragment(Kby(9,100),'Higgs200ChargedTaus_14TeV')),
+    ('JpsiMM_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(66,100),'JpsiMM_14TeV')),
+    ('TTbar_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,100),'TTbar_14TeV')),
+    ('WE_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'WE_14TeV')),
+    ('ZTT_Tauola_All_hadronic_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,100),'ZTT_14TeV')),
+    ('H130GGgluonfusion_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'H130GGgluonfusion_14TeV')),
+    ('PhotonJet_Pt_10_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'PhotonJets_Pt_10_14TeV')),
+    ('QQH1352T_Tauola_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'QQH1352T_Tauola_14TeV')),
+    ('MinBias_14TeV_pythia8_TuneCP5_cfi', UpgradeFragment(Kby(90,100),'MinBias_14TeV')),
+    ('WM_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'WM_14TeV')),
+    ('ZMM_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(18,100),'ZMM_13')),
+    ('QCDForPF_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(50,100),'QCD_FlatPt_15_3000HS_14')),
+    ('DYToLL_M-50_14TeV_pythia8_cff', UpgradeFragment(Kby(9,100),'DYToLL_M_50_14TeV')),
+    ('DYToTauTau_M-50_14TeV_pythia8_tauola_cff', UpgradeFragment(Kby(9,100),'DYtoTauTau_M_50_14TeV')),
+    ('ZEE_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,100),'ZEE_14')),
+    ('QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'QCD_Pt_80_120_13')),
+    ('H125GGgluonfusion_13TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'H125GGgluonfusion_13')),
+    ('QCD_Pt20toInf_MuEnrichedPt15_14TeV_TuneCP5_cff', UpgradeFragment(Kby(19565, 217391),'QCD_Pt20toInfMuEnrichPt15_14')), # effi = 4.6e-4,  local=8.000e-04
+    ('ZMM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(18,100),'ZMM_14')),
+    ('QCD_Pt15To7000_Flat_14TeV_TuneCP5_cff', UpgradeFragment(Kby(9,50),'QCD_Pt15To7000_Flat_14')),
+    ('H125GGgluonfusion_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'H125GGgluonfusion_14')),
+    ('QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'QCD_Pt_600_800_14')),
+    ('UndergroundCosmicSPLooseMu_cfi', UpgradeFragment(Kby(9,50),'CosmicsSPLoose')),
+    ('BeamHalo_13TeV_cfi', UpgradeFragment(Kby(9,50),'BeamHalo_13')),
+    ('H200ChargedTaus_Tauola_13TeV_cfi', UpgradeFragment(Kby(9,50),'Higgs200ChargedTaus_13')),
+    ('ADDMonoJet_13TeV_d3MD3_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'ADDMonoJet_d3MD3_13')),
+    ('ZpMM_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'ZpMM_13')),
+    ('QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'QCD_Pt_3000_3500_13')),
+    ('WpM_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'WpM_13')),
+    ('SingleNuE10_cfi', UpgradeFragment(Kby(9,50),'NuGun')),
+    ('TTbarLepton_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'TTbarLepton_13')),
+    ('WE_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'WE_13')),
+    ('WM_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'WM_13')),
+    ('ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'ZTT_13')),
+    ('PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'PhotonJets_Pt_10_13')),
+    ('QQH1352T_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'QQH1352T_13')),
+    ('Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'Wjet_Pt_80_120_13')),
+    ('Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'Wjet_Pt_3000_3500_13')),
+    ('SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi', UpgradeFragment(Kby(9,50),'SMS-T1tttt_mGl-1500_mLSP-100_13')),
+    ('QCDForPF_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(50,100),'QCD_FlatPt_15_3000HS_13')),
+    ('PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff', UpgradeFragment(Kby(9,50),'PhiToMuMu_13')),
+    ('RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff', UpgradeFragment(Kby(9,50),'RSKKGluon_m3000GeV_13')),
+    ('ZpMM_2250_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'ZpMM_2250_13')),
+    ('ZpEE_2250_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'ZpEE_2250_13')),
+    ('ZpTT_1500_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'ZpTT_1500_13')),
+    ('Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,50),'Upsilon1SToMuMu_13')),
+    ('EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi', UpgradeFragment(Kby(9,50),'EtaBToJpsiJpsi_13')),
+    ('JpsiMuMu_Pt-8_forSTEAM_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(3100,100000),'JpsiMuMu_Pt-8')),
+    ('BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(900,10000),'BuMixing_13')),
+    ('HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'HSCPstop_M_200_13')),
+    ('RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_cfi', UpgradeFragment(Kby(9,50),'RSGravitonToGaGa_13')),
+    ('WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff', UpgradeFragment(Kby(9,50),'WpToENu_M-2000_13')),
+    ('DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_300_1000mm_13')),
+    ('TenE_E_0_200_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenE_0_200')),
+    ('FlatRandomPtAndDxyGunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuonsDxy_0_500')),
+    ('TenTau_E_15_500_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500')),
+    ('SinglePiPt25Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SinglePiPt25Eta1p7_2p7')),
+    ('SingleMuPt15Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta1p7_2p7')),
+    ('SingleGammaPt25Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleGammaPt25Eta1p7_2p7')),
+    ('SingleElectronPt15Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleElectronPt15Eta1p7_2p7')),
+    ('ZTT_All_hadronic_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'ZTT_14')),
+    ('CloseByParticle_Photon_ERZRanges_cfi', UpgradeFragment(Kby(9,100),'CloseByParticleGun')),
+    ('CE_E_Front_300um_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_CE_E_Front_300um')),
+    ('CE_E_Front_200um_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_CE_E_Front_200um')),
+    ('CE_E_Front_120um_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_CE_E_Front_120um')),
+    ('CE_H_Fine_300um_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_CE_H_Fine_300um')),
+    ('CE_H_Fine_200um_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_CE_H_Fine_200um')),
+    ('CE_H_Fine_120um_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_CE_H_Fine_120um')),
+    ('CE_H_Coarse_Scint_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_CE_H_Coarse_Scint')),
+    ('CE_H_Coarse_300um_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_CE_H_Coarse_300um')),
+    ('SingleElectronFlatPt2To100_cfi', UpgradeFragment(Kby(9,100),'SingleEFlatPt2To100')),
+    ('SingleMuFlatPt0p7To10_cfi', UpgradeFragment(Kby(9,100),'SingleMuFlatPt0p7To10')),
+    ('SingleMuFlatPt2To100_cfi', UpgradeFragment(Kby(9,100),'SingleMuFlatPt2To100')),
+    ('SingleGammaFlatPt8To150_cfi', UpgradeFragment(Kby(9,100),'SingleGammaFlatPt8To150')),
+    ('SinglePiFlatPt0p7To10_cfi', UpgradeFragment(Kby(9,100),'SinglePiFlatPt0p7To10')),
+    ('SingleTauFlatPt2To150_cfi', UpgradeFragment(Kby(9,100),'SingleTauFlatPt2To150')),
+    ('FlatRandomPtAndDxyGunProducer_MuPt2To10_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt2To10')),
+    ('FlatRandomPtAndDxyGunProducer_MuPt10To30_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt10To30')),
+    ('FlatRandomPtAndDxyGunProducer_MuPt30To100_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt30To100')),
+    ('B0ToKstarMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(304,3030),'B0ToKstarMuMu_14TeV')), # 3.3% 
+    ('BsToEleEle_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(223,2222),'BsToEleEle_14TeV')), # 4.5%    
+    ('BsToJpsiGamma_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(2500,25000),'BsToJpsiGamma_14TeV')), # 0.4% 
+    ('BsToJpsiPhi_mumuKK_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(910,9090),'BsToJpsiPhi_mumuKK_14TeV')), # 1.1%
+    ('BsToMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(313,3125),'BsToMuMu_14TeV')), # 3.2% 
+    ('BsToPhiPhi_KKKK_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(556,5555),'BsToPhiPhi_KKKK_14TeV')), # 1.8%   
+    ('TauToMuMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(18939,189393),'TauToMuMuMu_14TeV')), # effi = 5.280e-04
+    ('BdToKstarEleEle_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(206,2061),'BdToKstarEleEle_14TeV')), #effi = 4.850e-02 
+    ('ZpTT_1500_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'ZpTT_1500_14')),
+])
 
-upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
-                            'FourMuExtendedPt_1_200_pythia8_cfi': 'FourMuExtendedPt1_200',
-                            'TenMuE_0_200_pythia8_cfi': 'TenMuE_0_200',
-                            'TenMuExtendedE_0_200_pythia8_cfi': 'TenMuExtendedE_0_200',
-                            'SingleElectronPt10_pythia8_cfi' : 'SingleElectronPt10',
-                            'SingleElectronPt35_pythia8_cfi' : 'SingleElectronPt35',
-                            'SingleElectronPt1000_pythia8_cfi' : 'SingleElectronPt1000',
-                            'SingleGammaPt10_pythia8_cfi' : 'SingleGammaPt10',
-                            'SingleGammaPt35_pythia8_cfi' : 'SingleGammaPt35',
-                            'SingleMuPt1_pythia8_cfi' : 'SingleMuPt1',
-                            'SingleMuPt10_pythia8_cfi' : 'SingleMuPt10',
-                            'SingleMuPt100_pythia8_cfi' : 'SingleMuPt100',
-                            'SingleMuPt1000_pythia8_cfi' : 'SingleMuPt1000',
-                            'DoubleElectronPt10Extended_pythia8_cfi' : 'SingleElectronPt10Extended',
-                            'DoubleElectronPt35Extended_pythia8_cfi' : 'SingleElectronPt35Extended',
-                            'DoubleElectronPt1000Extended_pythia8_cfi' : 'SingleElectronPt1000Extended',
-                            'DoubleGammaPt10Extended_pythia8_cfi' : 'SingleGammaPt10Extended',
-                            'DoubleGammaPt35Extended_pythia8_cfi' : 'SingleGammaPt35Extended',
-                            'DoubleMuPt1Extended_pythia8_cfi' : 'SingleMuPt1Extended',
-                            'DoubleMuPt10Extended_pythia8_cfi' : 'SingleMuPt10Extended',
-                            'DoubleMuPt100Extended_pythia8_cfi' : 'SingleMuPt100Extended',
-                            'DoubleMuPt1000Extended_pythia8_cfi' : 'SingleMuPt1000Extended',
-                            'SinglePiE50HCAL_pythia8_cfi' : 'SinglePiE50HCAL',
-                            'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_600_800_13',
-                            'Wjet_Pt_80_120_14TeV_TuneCUETP8M1_cfi' : 'Wjet_Pt_80_120_14TeV',
-                            'Wjet_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi' : 'Wjet_Pt_3000_3500_14TeV',
-                            'LM1_sfts_14TeV_cfi' : 'LM1_sfts_14TeV',
-                            'QCD_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_3000_3500_14TeV',
-                            'QCD_Pt_80_120_14TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_80_120_14TeV',
-                            'H200ChargedTaus_Tauola_14TeV_cfi' : 'Higgs200ChargedTaus_14TeV',
-                            'JpsiMM_14TeV_TuneCUETP8M1_cfi' : 'JpsiMM_14TeV',
-                            'TTbar_14TeV_TuneCUETP8M1_cfi' : 'TTbar_14TeV',
-                            'WE_14TeV_TuneCUETP8M1_cfi' : 'WE_14TeV',
-                            'ZEE_13TeV_TuneCUETP8M1_cfi' : 'ZEE_13',
-                            'ZTT_Tauola_All_hadronic_14TeV_TuneCUETP8M1_cfi' : 'ZTT_14TeV',
-                            'H130GGgluonfusion_14TeV_TuneCUETP8M1_cfi' : 'H130GGgluonfusion_14TeV',
-                            'PhotonJet_Pt_10_14TeV_TuneCUETP8M1_cfi' : 'PhotonJets_Pt_10_14TeV',
-                            'QQH1352T_Tauola_14TeV_TuneCUETP8M1_cfi' : 'QQH1352T_Tauola_14TeV',
-                            'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_14TeV',
-                            'WM_14TeV_TuneCUETP8M1_cfi' : 'WM_14TeV',
-                            'ZMM_13TeV_TuneCUETP8M1_cfi' : 'ZMM_13',
-                            'QCDForPF_14TeV_TuneCUETP8M1_cfi' : 'QCDForPF_14TeV',
-                            'DYToLL_M-50_14TeV_pythia8_cff' : 'DYToLL_M_50_14TeV',
-                            'DYToTauTau_M-50_14TeV_pythia8_tauola_cff' : 'DYtoTauTau_M_50_14TeV',
-                            'TTbar_13TeV_TuneCUETP8M1_cfi' : 'TTbar_13',
-                            'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_13',
-                            'ZEE_14TeV_TuneCUETP8M1_cfi' : 'ZEE_14',
-                            'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_80_120_13',
-                            'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi' : 'H125GGgluonfusion_13',
-                            'QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_14TeV_pythia8_cff' : 'QCD_Pt-20toInf_MuEnrichedPt15_14TeV',
-                            'ZMM_14TeV_TuneCUETP8M1_cfi' : 'ZMM_14',
-                            'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff' : 'QCD_Pt-15To7000_Flat_14TeV',
-                            'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi' : 'H125GGgluonfusion_14',
-                            'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_600_800_14',
-                            'UndergroundCosmicSPLooseMu_cfi': 'CosmicsSPLoose',
-                            'BeamHalo_13TeV_cfi': 'BeamHalo_13',
-                            'H200ChargedTaus_Tauola_13TeV_cfi': 'Higgs200ChargedTaus_13',
-                            'ADDMonoJet_13TeV_d3MD3_TuneCUETP8M1_cfi': 'ADDMonoJet_d3MD3_13',
-                            'ZpMM_13TeV_TuneCUETP8M1_cfi': 'ZpMM_13',
-                            'QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi': 'QCD_Pt_3000_3500_13',
-                            'WpM_13TeV_TuneCUETP8M1_cfi': 'WpM_13',
-                            'SingleNuE10_cfi.py': 'NuGun',
-                            'TTbarLepton_13TeV_TuneCUETP8M1_cfi': 'TTbarLepton_13',
-                            'WE_13TeV_TuneCUETP8M1_cfi': 'WE_13',
-                            'WM_13TeV_TuneCUETP8M1_cfi': 'WM_13',
-                            'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi': 'ZTT_13',
-                            'PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi': 'PhotonJets_Pt_10_13',
-                            'QQH1352T_13TeV_TuneCUETP8M1_cfi': 'QQH1352T_13',
-                            'Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi': 'Wjet_Pt_80_120_13',
-                            'Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi': 'Wjet_Pt_3000_3500_13',
-                            'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi': 'SMS-T1tttt_mGl-1500_mLSP-100_13',
-                            'QCDForPF_13TeV_TuneCUETP8M1_cfi': 'QCD_FlatPt_15_3000HS_13',
-                            'PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff': 'PhiToMuMu_13',
-                            'RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff': 'RSKKGluon_m3000GeV_13',
-                            'ZpMM_2250_13TeV_TuneCUETP8M1_cfi': 'ZpMM_2250_13',
-                            'ZpEE_2250_13TeV_TuneCUETP8M1_cfi': 'ZpEE_2250_13',
-                            'ZpTT_1500_13TeV_TuneCUETP8M1_cfi': 'ZpTT_1500_13',
-                            'Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi': 'Upsilon1SToMuMu_13',
-                            'EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi': 'EtaBToJpsiJpsi_13',
-                            'JpsiMuMu_Pt-8_forSTEAM_13TeV_TuneCUETP8M1_cfi': 'JpsiMuMu_Pt-8',
-                            'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi': 'BuMixing_13',
-                            'HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff': 'HSCPstop_M_200_13',
-                            'RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_cfi': 'RSGravitonToGaGa_13',
-                            'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff': 'WpToENu_M-2000_13',
-                            'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff': 'DisplacedSUSY_stopToBottom_M_300_1000mm_13',
-                            'TenE_E_0_200_pythia8_cfi': 'TenE_0_200',
-                            'FlatRandomPtAndDxyGunProducer_cfi': 'DisplacedMuonsDxy_0_500',
-                            'TenTau_E_15_500_pythia8_cfi':'TenTau_15_500',
-                            'SinglePiPt25Eta1p7_2p7_cfi':'SinglePiPt25Eta1p7_2p7',
-                            'SingleMuPt15Eta1p7_2p7_cfi':'SingleMuPt15Eta1p7_2p7',
-                            'SingleGammaPt25Eta1p7_2p7_cfi':'SingleGammaPt25Eta1p7_2p7',
-                            'SingleElectronPt15Eta1p7_2p7_cfi':'SingleElectronPt15Eta1p7_2p7',
-}

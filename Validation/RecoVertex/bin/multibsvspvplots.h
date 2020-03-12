@@ -3,4 +3,4 @@
 
 void multibsvspvplots(const char* module, const char* label, const char* postfix, const char* /* family="" */);
 
-#endif // Validation_RecoVertex_multibsvspvplots_h
+#endif  // Validation_RecoVertex_multibsvspvplots_h

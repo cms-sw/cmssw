@@ -7,7 +7,7 @@
 #include <iosfwd>
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "Rtypes.h" 
+#include "Rtypes.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Math/GenVector/PositionVector3D.h"
 
@@ -24,7 +24,6 @@ namespace reco {
      \date   July 2006
   */
   class PFTrajectoryPoint {
-
   public:
     // Next typedef uses double in ROOT 6 rather than Double32_t due to a bug in ROOT 5,
     // which otherwise would make ROOT5 files unreadable in ROOT6.  This does not increase
@@ -35,35 +34,39 @@ namespace reco {
     enum LayerType {
       /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
       ClosestApproach = 0,
-      BeamPipeOrEndVertex = 1,       
+      BeamPipeOrEndVertex = 1,
       /// Preshower layer 1
-      PS1 = 2,             
+      PS1 = 2,
       /// Preshower layer 2
-      PS2 = 3,             
+      PS2 = 3,
       /// ECAL front face
-      ECALEntrance = 4,  
+      ECALEntrance = 4,
       /// expected maximum of the shower in ECAL, for an e/gamma particle
       /// \todo: add an ECALShowerMaxHadrons
-      ECALShowerMax = 5,   
+      ECALShowerMax = 5,
       /// HCAL front face
       HCALEntrance = 6,
       /// HCAL exit
       HCALExit = 7,
       /// HO layer
       HOLayer = 8,
-
-      NLayers = 9
+      /// VFcal(HF) front face
+      VFcalEntrance = 9,
+      // Number of valid layers
+      NLayers = 10,
+      // Unknown
+      Unknown = -1
     };
+
+    static const std::array<std::string, NLayers> layerTypeNames;
+    static LayerType layerTypeByName(const std::string& name);
 
     /// default constructor. Set variables at default dummy values
     PFTrajectoryPoint();
 
-    /// \brief constructor from values. 
+    /// \brief constructor from values.
     /// set detId to -1 if this point is not from a tracker layer
-    PFTrajectoryPoint(int detId,
-                      int layer,
-                      const math::XYZPoint& posxyz, 
-                      const math::XYZTLorentzVector& momentum); 
+    PFTrajectoryPoint(int detId, int layer, const math::XYZPoint& posxyz, const math::XYZTLorentzVector& momentum);
 
     /// copy
     PFTrajectoryPoint(const PFTrajectoryPoint& other);
@@ -71,23 +74,26 @@ namespace reco {
     /// destructor
     virtual ~PFTrajectoryPoint();
 
-
     /// measurement detId
-    int detId() const    { return detId_; }
+    int detId() const { return detId_; }
 
     /// trajectory point layer
-    int layer() const    { return layer_; }
+    int layer() const { return layer_; }
 
-    /// is this point valid ? 
-    bool     isValid() const {
-      if( layer_ == -1 && detId_ == -1 ) return false;
-      else return true;
+    /// is this point valid ?
+    bool isValid() const {
+      if (layer_ == -1 && detId_ == -1)
+        return false;
+      else
+        return true;
     }
 
     /// is this point corresponding to an intersection with a tracker layer ?
     bool isTrackerLayer() const {
-      if(detId_ >= 0 ) return true; 
-      else return false;
+      if (detId_ >= 0)
+        return true;
+      else
+        return false;
     }
 
     /// cartesian position (x, y, z)
@@ -97,41 +103,37 @@ namespace reco {
     const REPPoint& positionREP() const { return posrep_; }
 
     /// calculate posrep_ once and for all
-    void calculatePositionREP() {
-      posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() );
-    }
+    void calculatePositionREP() { posrep_.SetCoordinates(posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi()); }
 
     /// 4-momenta quadrivector
-    const math::XYZTLorentzVector& momentum() const    { return momentum_; }
+    const math::XYZTLorentzVector& momentum() const { return momentum_; }
 
-    bool   operator==(const reco::PFTrajectoryPoint& other) const;
+    bool operator==(const reco::PFTrajectoryPoint& other) const;
 
     friend std::ostream& operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint);
 
   private:
-
     /// \brief Is the measurement corresponding to a tracker layer?
     /// or was it obtained by propagating the track to a certain position?
     bool isTrackerLayer_;
 
     /// detid if measurement is corresponding to a tracker layer
-    int detId_;             
+    int detId_;
 
     /// propagated layer
     int layer_;
 
     /// cartesian position (x, y, z)
-    math::XYZPoint          posxyz_;
+    math::XYZPoint posxyz_;
 
     /// position in (rho, eta, phi) base (transient)
-    REPPoint                posrep_;
+    REPPoint posrep_;
 
     /// momentum quadrivector
     math::XYZTLorentzVector momentum_;
-
   };
 
-  std::ostream& operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint); 
-}
+  std::ostream& operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint);
+}  // namespace reco
 
 #endif

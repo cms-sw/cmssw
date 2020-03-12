@@ -9,17 +9,15 @@ namespace btagbtvdeep {
 
   class JetConverter {
   public:
-
-    static void jetToFeatures(const reco::Jet & jet,
-			      JetFeatures & jet_features) {
-      jet_features.pt = jet.pt(); // uncorrected
+    static void jetToFeatures(const reco::Jet& jet, JetFeatures& jet_features) {
+      jet_features.pt = jet.pt();  // uncorrected
       jet_features.eta = jet.eta();
+      jet_features.phi = jet.phi();
       jet_features.mass = jet.mass();
       jet_features.energy = jet.energy();
     }
   };
 
-}
+}  // namespace btagbtvdeep
 
-#endif //RecoBTag_FeatureTools_JetConverter_h
-
+#endif  //RecoBTag_FeatureTools_JetConverter_h

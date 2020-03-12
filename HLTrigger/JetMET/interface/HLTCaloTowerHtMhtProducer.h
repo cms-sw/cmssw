@@ -20,37 +20,36 @@
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h" 
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 // Class declaration
 class HLTCaloTowerHtMhtProducer : public edm::stream::EDProducer<> {
-  public:
-    explicit HLTCaloTowerHtMhtProducer(const edm::ParameterSet & iConfig);
-    ~HLTCaloTowerHtMhtProducer() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+public:
+  explicit HLTCaloTowerHtMhtProducer(const edm::ParameterSet& iConfig);
+  ~HLTCaloTowerHtMhtProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  private:
-    /// Use pt; otherwise, use et.
-    bool usePt_;
+private:
+  /// Use pt; otherwise, use et.
+  bool usePt_;
 
-    /// Minimum pt requirement for jets
-    double minPtTowerHt_;
-    double minPtTowerMht_;
+  /// Minimum pt requirement for jets
+  double minPtTowerHt_;
+  double minPtTowerMht_;
 
-    /// Maximum (abs) eta requirement for jets
-    double maxEtaTowerHt_;
-    double maxEtaTowerMht_;
+  /// Maximum (abs) eta requirement for jets
+  double maxEtaTowerHt_;
+  double maxEtaTowerMht_;
 
-    /// Input CaloTower collection
-    edm::InputTag towersLabel_;
-    edm::EDGetTokenT<CaloTowerCollection> m_theTowersToken;
+  /// Input CaloTower collection
+  edm::InputTag towersLabel_;
+  edm::EDGetTokenT<CaloTowerCollection> m_theTowersToken;
 };
 
 #endif  // HLTCaloTowerHtMhtProducer_h_
-

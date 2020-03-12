@@ -47,11 +47,13 @@ from RecoMET.Configuration.GenMETParticles_cff import *
 #   }
 # }
 
+GeneInfoTask = cms.Task(genParticles)
+genJetMETTask = cms.Task(genJetParticlesTask, recoGenJetsTask, genMETParticlesTask, recoGenMETTask)
 
 VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
 GenSmeared = cms.Sequence(generatorSmeared)
-GeneInfo = cms.Sequence(genParticles)
-genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
+GeneInfo = cms.Sequence(GeneInfoTask)
+genJetMET = cms.Sequence(genJetMETTask)
 
 pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genJetMET)
 
@@ -59,7 +61,8 @@ pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexS
 
 pgen_genonly = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer"))
 
-fixGenInfo = cms.Sequence(GeneInfo * genJetMET)
+fixGenInfoTask = cms.Task(GeneInfoTask, genJetMETTask)
+fixGenInfo = cms.Sequence(fixGenInfoTask)
 
 
 import HLTrigger.HLTfilters.triggerResultsFilter_cfi

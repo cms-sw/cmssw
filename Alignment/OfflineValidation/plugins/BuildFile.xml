@@ -5,6 +5,7 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/Alignment"/>
 <use   name="CondFormats/RunInfo"/>
+<use   name="CondFormats/SiPixelObjects"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="FWCore/PluginManager"/>
@@ -47,9 +48,7 @@
 <use   name="root"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="Geometry/CaloGeometry"/>
-<use   name="rootgraphics"/>
 <use   name="rootmath"/>
-<use   name="rootinteractive"/>
 <use   name="rootrflx"/>
 <use   name="rootcore"/>
 <use   name="boost"/>

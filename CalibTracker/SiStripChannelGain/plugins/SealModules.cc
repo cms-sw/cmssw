@@ -11,12 +11,9 @@
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainsPCLWorker.h"
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainsPCLHarvester.h"
 
-
 DEFINE_FWK_MODULE(SiStripGainRandomCalculator);
 //DEFINE_FWK_MODULE(SiStripGainTickMarkCalculator);
 DEFINE_FWK_MODULE(SiStripGainCosmicCalculator);
 DEFINE_FWK_MODULE(SiStripGainFromAsciiFile);
 DEFINE_FWK_MODULE(SiStripGainsPCLWorker);
 DEFINE_FWK_MODULE(SiStripGainsPCLHarvester);
-
-

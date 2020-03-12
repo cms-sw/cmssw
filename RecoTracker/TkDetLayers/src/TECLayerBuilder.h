@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_TECLayerBuilder_h
 #define TkDetLayers_TECLayerBuilder_h
 
-
 #include "TECLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,15 +11,11 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TECLayerBuilder {  
- public:
+class TECLayerBuilder {
+public:
   TECLayerBuilder(){};
-  TECLayer* build(const GeometricDet* aTECLayer,
-		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  TECLayer* build(const GeometricDet* aTECLayer, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

@@ -11,19 +11,17 @@
 #include <utility>
 #include <vector>
 
-
 class TrackerTopology;
 
 class PixelTrackCleanerBySharedHits final : public PixelTrackCleaner {
-
 public:
   PixelTrackCleanerBySharedHits(bool useQuadrupletAlgo);
 
- ~PixelTrackCleanerBySharedHits() override;
+  ~PixelTrackCleanerBySharedHits() override;
 
   using TrackWithTTRHs = pixeltrackfitting::TrackWithTTRHs;
   using TracksWithTTRHs = pixeltrackfitting::TracksWithTTRHs;
-  void cleanTracks(TracksWithTTRHs & tracksWithRecHits) const override;
+  void cleanTracks(TracksWithTTRHs& tracksWithRecHits) const override;
 
 private:
   const bool useQuadrupletAlgo_;

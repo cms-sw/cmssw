@@ -20,74 +20,55 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
-   m_item(nullptr),
-   m_helper(iInfo)
-{
+FWDetailViewBase::FWDetailViewBase(const std::type_info &iInfo) : m_item(nullptr), m_helper(iInfo) {}
+
+FWDetailViewBase::~FWDetailViewBase() {}
+
+void FWDetailViewBase::build(const FWModelId &iID) {
+  m_helper.itemChanged(iID.item());
+  build(iID, m_helper.offsetObject(iID.item()->modelData(iID.index())));
 }
 
-FWDetailViewBase::~FWDetailViewBase()
-{
-}
-
-
-void
-FWDetailViewBase::build (const FWModelId &iID)
-{
-   m_helper.itemChanged(iID.item());
-   build(iID, m_helper.offsetObject(iID.item()->modelData(iID.index())));
-}
-
-const fireworks::Context&
-FWDetailViewBase::context () const {
-   return m_item->context();
-}
+const fireworks::Context &FWDetailViewBase::context() const { return m_item->context(); }
 
 //______________________________________________________________________________
 // UTILITIES for Canvas info
-void
-FWDetailViewBase::drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t fillColor)
-{ 
-   // utility function to draw outline cricle
+void FWDetailViewBase::drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t fillColor) {
+  // utility function to draw outline cricle
 
-   Float_t ratio = 0.5;
-   // fill
-   TEllipse *b2 = new TEllipse(x, y, r, r*ratio);
-   b2->SetFillStyle(1001);
-   b2->SetFillColor(fillColor);
-   b2->Draw();
+  Float_t ratio = 0.5;
+  // fill
+  TEllipse *b2 = new TEllipse(x, y, r, r * ratio);
+  b2->SetFillStyle(1001);
+  b2->SetFillColor(fillColor);
+  b2->Draw();
 
-   // outline
-   TEllipse *b1 = new TEllipse(x, y, r, r*ratio);
-   b1->SetFillStyle(0);
-   b1->SetLineWidth(2);
-   b1->Draw();
+  // outline
+  TEllipse *b1 = new TEllipse(x, y, r, r * ratio);
+  b1->SetFillStyle(0);
+  b1->SetLineWidth(2);
+  b1->Draw();
 }
 
-void
-FWDetailViewBase::drawCanvasBox( Double_t *pos, Color_t fillCol, Int_t fillType, bool bg)
-{ 
-   // utility function to draw outline box
+void FWDetailViewBase::drawCanvasBox(Double_t *pos, Color_t fillCol, Int_t fillType, bool bg) {
+  // utility function to draw outline box
 
-   // background
-   if (bg)
-   {
-      TBox *b1 = new TBox(pos[0], pos[1], pos[2], pos[3]);
-      b1->SetFillColor(fillCol);
-      b1->Draw();
-   }
+  // background
+  if (bg) {
+    TBox *b1 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+    b1->SetFillColor(fillCol);
+    b1->Draw();
+  }
 
-   // fill  (top layer)
-   TBox *b2 = new TBox(pos[0], pos[1], pos[2], pos[3]);
-   b2->SetFillStyle(fillType);
-   b2->SetFillColor(kBlack);
-   b2->Draw();
+  // fill  (top layer)
+  TBox *b2 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+  b2->SetFillStyle(fillType);
+  b2->SetFillColor(kBlack);
+  b2->Draw();
 
-   //outline
-   TBox *b3 = new TBox(pos[0], pos[1], pos[2], pos[3]);
-   b3->SetFillStyle(0);
-   b3->SetLineWidth(2);
-   b3->Draw();
+  //outline
+  TBox *b3 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+  b3->SetFillStyle(0);
+  b3->SetLineWidth(2);
+  b3->Draw();
 }
-
-

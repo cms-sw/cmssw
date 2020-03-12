@@ -4,6 +4,4 @@
 
 using namespace reco;
 
-void ApplyEnergyCorrection::set( Candidate & c ) {
-  c.setP4( c.p4() * correction_ );
-}
+void ApplyEnergyCorrection::set(Candidate& c) { c.setP4(c.p4() * correction_); }

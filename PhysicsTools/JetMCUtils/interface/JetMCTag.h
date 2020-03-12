@@ -8,9 +8,9 @@ namespace JetMCTagUtils {
 
   double EnergyRatioFromBHadrons(const reco::Candidate &c);
   double EnergyRatioFromCHadrons(const reco::Candidate &c);
-  bool   decayFromBHadron(const reco::Candidate &c);
-  bool   decayFromCHadron(const reco::Candidate &c);
+  bool decayFromBHadron(const reco::Candidate &c);
+  bool decayFromCHadron(const reco::Candidate &c);
   std::string genTauDecayMode(const reco::CompositePtrCandidate &c);
 
-}
-#endif // JetMCTag_h
+}  // namespace JetMCTagUtils
+#endif  // JetMCTag_h

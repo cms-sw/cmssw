@@ -3,10 +3,9 @@
 #include <vector>
 
 int main(int argc, char** argv) {
+  while (true) {
+    std::cout << ">type in formula\n>" << std::flush;
 
-  while(true) {
-    std::cout <<">type in formula\n>"<<std::flush;
-    
     std::string form;
     std::cin >> form;
 
@@ -15,7 +14,7 @@ int main(int argc, char** argv) {
     std::vector<double> x;
     std::vector<double> v;
 
-    std::cout << eval.evaluate(x,v)<<std::endl;
+    std::cout << eval.evaluate(x, v) << std::endl;
   }
 
   return 0;

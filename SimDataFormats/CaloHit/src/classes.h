@@ -6,4 +6,3 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PassiveHit.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-

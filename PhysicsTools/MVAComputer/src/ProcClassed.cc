@@ -2,7 +2,7 @@
 //
 // Package:     MVAComputer
 // Class  :     ProcClassed
-// 
+//
 
 // Implementation:
 //     Variable processor that splits an input variable into n output
@@ -19,51 +19,41 @@
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcClassed : public VarProcessor {
-    public:
-	typedef VarProcessor::Registry::Registry<ProcClassed,
-					Calibration::ProcClassed> Registry;
+  class ProcClassed : public VarProcessor {
+  public:
+    typedef VarProcessor::Registry::Registry<ProcClassed, Calibration::ProcClassed> Registry;
 
-	ProcClassed(const char *name,
-	            const Calibration::ProcClassed *calib,
-	            const MVAComputer *computer);
-	~ProcClassed() override {}
+    ProcClassed(const char *name, const Calibration::ProcClassed *calib, const MVAComputer *computer);
+    ~ProcClassed() override {}
 
-	void configure(ConfIterator iter, unsigned int n) override;
-	void eval(ValueIterator iter, unsigned int n) const override;
+    void configure(ConfIterator iter, unsigned int n) override;
+    void eval(ValueIterator iter, unsigned int n) const override;
 
-    private:
-	unsigned int	nClasses;
-};
+  private:
+    unsigned int nClasses;
+  };
 
-ProcClassed::Registry registry("ProcClassed");
+  ProcClassed::Registry registry("ProcClassed");
 
-ProcClassed::ProcClassed(const char *name,
-                         const Calibration::ProcClassed *calib,
-                         const MVAComputer *computer) :
-	VarProcessor(name, calib, computer),
-	nClasses(calib->nClasses)
-{
-}
+  ProcClassed::ProcClassed(const char *name, const Calibration::ProcClassed *calib, const MVAComputer *computer)
+      : VarProcessor(name, calib, computer), nClasses(calib->nClasses) {}
 
-void ProcClassed::configure(ConfIterator iter, unsigned int n)
-{
-	if (n != 1)
-		return;
+  void ProcClassed::configure(ConfIterator iter, unsigned int n) {
+    if (n != 1)
+      return;
 
-	iter(Variable::FLAG_NONE);
-	for(unsigned int i = 0; i < nClasses; i++)
-		iter << Variable::FLAG_NONE;
-}
+    iter(Variable::FLAG_NONE);
+    for (unsigned int i = 0; i < nClasses; i++)
+      iter << Variable::FLAG_NONE;
+  }
 
-void ProcClassed::eval(ValueIterator iter, unsigned int n) const
-{
-	unsigned int value = (unsigned int)(*iter + 0.5);
+  void ProcClassed::eval(ValueIterator iter, unsigned int n) const {
+    unsigned int value = (unsigned int)(*iter + 0.5);
 
-	for(unsigned int i = 0; i < nClasses; i++)
-		iter(i == value ? 1.0 : 0.0);
-}
+    for (unsigned int i = 0; i < nClasses; i++)
+      iter(i == value ? 1.0 : 0.0);
+  }
 
-} // anonymous namespace
+}  // anonymous namespace

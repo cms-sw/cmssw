@@ -36,11 +36,31 @@ static const double dYHADPlate = 320.0;
 static const double dXEMPlate = 48.0;
 static const double dXHADPlate = 48.0;
 
-static const double tiltangle = 0.7854; // 45 degrees 
+static const double tiltangle = 0.7854;  // 45 degrees
 static const double theZSectionBoundaries[] = {14385., 14488.};
-static const double theXChannelBoundaries[] = {-48.0,-28.8,-9.6,9.6,28.8};
-static const double theZHadChannelBoundaries[] = {-257.4,118.2,21.0,160.2,};
-static const double theHadmodulesBoundaries[] = {14488., 14589., 14690., 14791., 14892., 14993., 15094., 15195., 15296., 15397., 15498., 15599.};
-static const double theSectorBoundaries[]={0., 0.21817, 0.4363, 0.6545, 0.87267, 1.0908, 1.309, 1.52718, 1.74535, 1.9635, 2.1817, 2.39986, 2.618, 
-2.8362, 3.05437, 3.27254};
+static const double theXChannelBoundaries[] = {-48.0, -28.8, -9.6, 9.6, 28.8};
+static const double theZHadChannelBoundaries[] = {
+    -257.4,
+    118.2,
+    21.0,
+    160.2,
+};
+static const double theHadmodulesBoundaries[] = {
+    14488., 14589., 14690., 14791., 14892., 14993., 15094., 15195., 15296., 15397., 15498., 15599.};
+static const double theSectorBoundaries[] = {0.,
+                                             0.21817,
+                                             0.4363,
+                                             0.6545,
+                                             0.87267,
+                                             1.0908,
+                                             1.309,
+                                             1.52718,
+                                             1.74535,
+                                             1.9635,
+                                             2.1817,
+                                             2.39986,
+                                             2.618,
+                                             2.8362,
+                                             3.05437,
+                                             3.27254};
 #endif

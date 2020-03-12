@@ -13,24 +13,20 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
-class AnyJetToCaloJetProducer: public edm::stream::EDProducer<> {
+class AnyJetToCaloJetProducer : public edm::stream::EDProducer<> {
+public:
+  explicit AnyJetToCaloJetProducer(const edm::ParameterSet&);
+  ~AnyJetToCaloJetProducer() override;
 
-  public:
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    explicit AnyJetToCaloJetProducer(const edm::ParameterSet&);
-    ~AnyJetToCaloJetProducer() override;
-
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
-    void produce(edm::Event&, const edm::EventSetup&) override;
-
-  private:
-
-    edm::EDGetTokenT<edm::View<reco::Jet>> m_theGenericJetToken;
-    edm::InputTag jetSrc_;
-
+private:
+  edm::EDGetTokenT<edm::View<reco::Jet>> m_theGenericJetToken;
+  edm::InputTag jetSrc_;
 };
 
 #endif

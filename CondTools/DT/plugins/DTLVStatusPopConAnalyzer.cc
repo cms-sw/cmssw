@@ -4,6 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTLVStatusHandler> DTLVStatusPopConAnalyzer;
 
-
 DEFINE_FWK_MODULE(DTLVStatusPopConAnalyzer);
-

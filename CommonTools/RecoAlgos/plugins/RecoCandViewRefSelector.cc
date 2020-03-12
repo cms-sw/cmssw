@@ -18,9 +18,7 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-typedef SingleObjectSelector<
-          edm::View<reco::RecoCandidate>,
-          StringCutObjectSelector<reco::RecoCandidate>
-       > RecoCandViewRefSelector;
+typedef SingleObjectSelector<edm::View<reco::RecoCandidate>, StringCutObjectSelector<reco::RecoCandidate> >
+    RecoCandViewRefSelector;
 
 DEFINE_FWK_MODULE(RecoCandViewRefSelector);

@@ -30,20 +30,14 @@
 //
 // constructors and destructor
 //
-FWBoolParameterSetter::FWBoolParameterSetter() :
-   m_param(nullptr),
-   m_widget(nullptr)
-{
-}
+FWBoolParameterSetter::FWBoolParameterSetter() : m_param(nullptr), m_widget(nullptr) {}
 
 // FWBoolParameterSetter::FWBoolParameterSetter(const FWBoolParameterSetter& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWBoolParameterSetter::~FWBoolParameterSetter()
-{
-}
+FWBoolParameterSetter::~FWBoolParameterSetter() {}
 
 //
 // assignment operators
@@ -61,38 +55,28 @@ FWBoolParameterSetter::~FWBoolParameterSetter()
 // member functions
 //
 
-void
-FWBoolParameterSetter::attach(FWParameterBase* iParam)
-{
-   m_param = dynamic_cast<FWBoolParameter*>(iParam);
-   assert(nullptr!=m_param);
+void FWBoolParameterSetter::attach(FWParameterBase* iParam) {
+  m_param = dynamic_cast<FWBoolParameter*>(iParam);
+  assert(nullptr != m_param);
 }
 
-TGFrame*
-FWBoolParameterSetter::build(TGFrame* iParent, bool /*labelBack*/)
-{
-   TGCompositeFrame* frame = new TGHorizontalFrame(iParent);
+TGFrame* FWBoolParameterSetter::build(TGFrame* iParent, bool /*labelBack*/) {
+  TGCompositeFrame* frame = new TGHorizontalFrame(iParent);
 
-   m_widget = new TGCheckButton(frame, m_param->name().c_str(), 0);
-   m_widget->SetState( m_param->value() ? kButtonDown : kButtonUp );
-   m_widget->Connect("Clicked()", "FWBoolParameterSetter", this, "doUpdate()");
-   frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,0,1,1));
-   return frame;
+  m_widget = new TGCheckButton(frame, m_param->name().c_str(), 0);
+  m_widget->SetState(m_param->value() ? kButtonDown : kButtonUp);
+  m_widget->Connect("Clicked()", "FWBoolParameterSetter", this, "doUpdate()");
+  frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 0, 1, 1));
+  return frame;
 }
 
-void
-FWBoolParameterSetter::setEnabled(bool x)
-{
-   m_widget->SetEnabled(x);
-}
+void FWBoolParameterSetter::setEnabled(bool x) { m_widget->SetEnabled(x); }
 
-void
-FWBoolParameterSetter::doUpdate()
-{
-   assert(nullptr!=m_param);
-   assert(nullptr!=m_widget);
-   m_param->set(m_widget->IsOn());
-   update();
+void FWBoolParameterSetter::doUpdate() {
+  assert(nullptr != m_param);
+  assert(nullptr != m_widget);
+  m_param->set(m_widget->IsOn());
+  update();
 }
 //
 // const member functions

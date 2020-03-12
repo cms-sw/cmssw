@@ -12,29 +12,23 @@
 
 #include "Pythia6Gun.h"
 
-namespace gen
-{
-  
-// class Pythia6Service;
-  
-  class Pythia6PartonGun : public Pythia6Gun 
-  {
-  
-  public:
+namespace gen {
 
-    Pythia6PartonGun( const edm::ParameterSet& );
+  // class Pythia6Service;
+
+  class Pythia6PartonGun : public Pythia6Gun {
+  public:
+    Pythia6PartonGun(const edm::ParameterSet&);
     ~Pythia6PartonGun() override;
 
   protected:
-  
-    void joinPartons( double qmax ); 
-       
+    void joinPartons(double qmax);
+
     // gun particle(s) characteristics
     //
-    int fPartonID ;
-                
+    int fPartonID;
   };
 
-}  // end namespace
+}  // namespace gen
 
 #endif
