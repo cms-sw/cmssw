@@ -149,17 +149,10 @@ float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) c
       // Here, the daughters are the "end" node, so this is a PFJet
       if (dp->numberOfDaughters() == 0) {
         if (object->isWeighted()) {
-          float w = 0.0;
-          if (!input_weights_token_.isUninitialized())
-            w = (*weightsHandle_)[dp];
-          else {
-            pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(dp.get());
-            if (pPC)
-              w = pPC->puppiWeight();
-            else
-              throw cms::Exception("MissingConstituentWeight")
+          if (input_weights_token_.isUninitialized())
+            throw cms::Exception("MissingConstituentWeight")
                   << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
-          }
+          float w = (*weightsHandle_)[dp];
           fjParticles.push_back(fastjet::PseudoJet(dp->px() * w, dp->py() * w, dp->pz() * w, dp->energy() * w));
         } else
           fjParticles.push_back(fastjet::PseudoJet(dp->px(), dp->py(), dp->pz(), dp->energy()));
@@ -169,17 +162,10 @@ float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) c
           if (subjet != nullptr) {
             const reco::CandidatePtr& ddp = subjet->daughterPtr(l);
             if (subjet->isWeighted()) {
-              float w = 0.0;
-              if (!input_weights_token_.isUninitialized())
-                w = (*weightsHandle_)[ddp];
-              else {
-                pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(ddp.get());
-                if (pPC)
-                  w = pPC->puppiWeight();
-                else
-                  throw cms::Exception("MissingConstituentWeight")
+              if (input_weights_token_.isUninitialized())
+                throw cms::Exception("MissingConstituentWeight")
                       << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
-              }
+              float w = (*weightsHandle_)[ddp];
               fjParticles.push_back(fastjet::PseudoJet(ddp->px() * w, ddp->py() * w, ddp->pz() * w, ddp->energy() * w));
             } else
               fjParticles.push_back(fastjet::PseudoJet(ddp->px(), ddp->py(), ddp->pz(), ddp->energy()));

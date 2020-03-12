@@ -672,13 +672,10 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
               if (!weightsToken_.isUninitialized())
                 w = (*weightsHandle_)[constit];
               else {
-                pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(constit.get());
-                if (pPC)
-                  w = 1.0;  // For backward compatibility PUPPI weight is not applied to PackedCandidates.
-                else
-                  throw cms::Exception("MissingConstituentWeight")
-                      << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection"
-                      << std::endl;
+                w = 1.0;  // For backward compatibility PUPPI weight is not applied to PackedCandidates.
+                //throw cms::Exception("MissingConstituentWeight")
+                //      << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection"
+                //      << std::endl;
               }
               fjParticles.push_back(
                   fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
@@ -701,12 +698,9 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
           if (!weightsToken_.isUninitialized())
             w = (*weightsHandle_)[daughter];
           else {
-            pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(daughter.get());
-            if (pPC)
-              w = 1.0;  // For backward compatibility PUPPI weight is not applied to PackedCandidates.
-            else
-              throw cms::Exception("MissingConstituentWeight")
-                  << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+            w = 1.0;  // For backward compatibility PUPPI weight is not applied to PackedCandidates.
+            //throw cms::Exception("MissingConstituentWeight")
+            //      << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
           }
           fjParticles.push_back(
               fastjet::PseudoJet(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w));

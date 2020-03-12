@@ -10,7 +10,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "fastjet/contrib/Njettiness.hh"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 class NjettinessAdder : public edm::stream::EDProducer<> {
 public:

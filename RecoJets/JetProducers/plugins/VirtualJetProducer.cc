@@ -474,19 +474,10 @@ void VirtualJetProducer::inputTowers() {
         fjInputs_.emplace_back(input.px(), input.py(), input.pz(), input.energy());
         fjInputs_.back().set_user_index(i - inBegin);
       } else {
-        float w = 0.0;
-        if (!input_weights_token_.isUninitialized())
-          w = weights_[*i];
-        else {
-          pat::PackedCandidate const* pPC = dynamic_cast<pat::PackedCandidate const*>(i->get());
-          if (pPC) {
-            w = pPC->puppiWeight();
-            weights_[*i] = w;
-          } else
-            throw cms::Exception("InvalidInput")
-                << "applyWeight set to True, but no srcWeights given or no PackedCandidates containing puppiWeights "
-                   "given in VirtualJetProducer\n";
-        }
+        if (input_weights_token_.isUninitialized())
+          throw cms::Exception("InvalidInput")
+                << "applyWeight set to True, but no weights given in VirtualJetProducer\n";
+        float w = weights_[*i];
         if (w > 0) {
           fjInputs_.emplace_back(input.px() * w, input.py() * w, input.pz() * w, input.energy() * w);
           fjInputs_.back().set_user_index(i - inBegin);
