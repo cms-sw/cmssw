@@ -68,7 +68,7 @@ recoPFJetsWithSubstructureTask=cms.Task(
                            fixedGridRhoFastjetCentralChargedPileUp,
                            fixedGridRhoFastjetCentralNeutral,
                            ak4PFJets,
-			   ak8PFJets,
+                           ak8PFJets,
                            pfNoPileUpJMETask,
                            ak4PFJetsCHS,
                            puppi,
