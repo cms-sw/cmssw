@@ -37,7 +37,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
                                           edm::EventSetup const& /* iSetup */) {
   MonitorElement *ptTemp, *etaTemp, *phiTemp, *massTemp, *decayModeFindingTemp, *decayModeTemp,
       *byDeepTau2017v2p1VSerawTemp, *byDeepTau2017v2p1VSjetrawTemp, *byDeepTau2017v2p1VSmurawTemp, *summaryTemp;
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation" + extensionName_);
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_);
 
   //summary plots
   histoInfo summaryHinfo = (histoSettings_.exists("summary"))

@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: RECO -s RAW2DIGI,L1Reco,RECO,EI,PAT,DQM:@allForPrompt --runUnscheduled --nThreads 8 --mc --era Run2_2018 --scenario pp --conditions auto:run2_mc_FULL --eventcontent AOD,MINIAOD,DQM --datatier AOD,MINIAOD,DQMIO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018 --filein data/1330D353-E2BD-9544-A693-DF8AA60F9F5C.root -n 30 --python_filename=config.py --no_exec
+# with command line options: RECO -s RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM --runUnscheduled --nThreads 8 --mc --era Run2_2018 --scenario pp --conditions auto:run2_mc_FULL --eventcontent AOD,MINIAOD,DQM --datatier AOD,MINIAOD,DQMIO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018 --filein /store/relval/CMSSW_11_0_0_pre7/RelValZEE_13/GEN-SIM-DIGI-RAW/PU25ns_110X_mc2017_realistic_v1-v1/20000/1330D353-E2BD-9544-A693-DF8AA60F9F5C.root -n 30 --python_filename=config.py --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
@@ -23,6 +23,7 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('CommonTools.ParticleFlow.EITopPAG_cff')
 process.load('PhysicsTools.PatAlgos.slimming.metFilterPaths_cff')
 process.load('Configuration.StandardSequences.PATMC_cff')
+process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -34,7 +35,6 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('data/1330D353-E2BD-9544-A693-DF8AA60F9F5C.root'),
     fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_0_0_pre7/RelValZEE_13/GEN-SIM-DIGI-RAW/PU25ns_110X_mc2017_realistic_v1-v1/20000/1330D353-E2BD-9544-A693-DF8AA60F9F5C.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -83,7 +83,7 @@ process.AODoutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(31457280),
-    fileName = cms.untracked.string('RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_DQM.root'),
+    fileName = cms.untracked.string('RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_VALIDATION_DQM.root'),
     outputCommands = process.AODEventContent.outputCommands
 )
 
@@ -97,7 +97,7 @@ process.MINIAODoutput = cms.OutputModule("PoolOutputModule",
     dropMetaData = cms.untracked.string('ALL'),
     eventAutoFlushCompressedSize = cms.untracked.int32(-900),
     fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string('RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_DQM_inMINIAOD.root'),
+    fileName = cms.untracked.string('RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_VALIDATION_DQM_inMINIAOD.root'),
     outputCommands = process.MINIAODEventContent.outputCommands,
     overrideBranchesSplitLevel = cms.untracked.VPSet(
         cms.untracked.PSet(
@@ -158,7 +158,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_DQM_inDQM.root'),
+    fileName = cms.untracked.string('RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_VALIDATION_DQM_inDQM.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -166,6 +166,10 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 # Additional output definition
 
 # Other statements
+process.mix.playback = True
+process.mix.digitizers = cms.PSet()
+for a in process.aliases: delattr(process, a)
+process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_FULL', '')
 
@@ -201,29 +205,22 @@ process.Flag_trkPOG_manystripclus53X = cms.Path(~process.manystripclus53X)
 process.Flag_BadPFMuonSummer16Filter = cms.Path(process.BadPFMuonSummer16Filter)
 process.Flag_muonBadTrackFilter = cms.Path(process.muonBadTrackFilter)
 process.Flag_CSCTightHalo2015Filter = cms.Path(process.CSCTightHalo2015Filter)
-process.dqmoffline_step = cms.EndPath(process.DQMOfflineMuon)
-process.dqmoffline_1_step = cms.EndPath(process.DQMOfflineHcal)
-process.dqmoffline_2_step = cms.EndPath(process.DQMOfflineJetMET)
-process.dqmoffline_3_step = cms.EndPath(process.DQMOfflineEcal)
-process.dqmoffline_4_step = cms.EndPath(process.DQMOfflineEGamma)
-process.dqmoffline_5_step = cms.EndPath(process.DQMOfflineDCS)
-process.dqmoffline_6_step = cms.EndPath(process.DQMMessageLoggerSeq)
-process.dqmoffline_7_step = cms.EndPath(process.DQMOfflineTrackerStripCommon)
-process.dqmoffline_8_step = cms.EndPath(process.DQMOfflineTrackerPixel)
-process.dqmoffline_9_step = cms.EndPath(process.DQMOfflineTracking)
-process.dqmoffline_10_step = cms.EndPath(process.DQMOfflineL1T)
-process.dqmoffline_11_step = cms.EndPath(process.DQMOfflineTrigger)
-process.dqmoffline_12_step = cms.EndPath(process.DQMOfflineBeam)
-process.dqmoffline_13_step = cms.EndPath(process.DQMOfflineCASTOR)
-process.dqmoffline_14_step = cms.EndPath(process.DQMOfflinePhysics)
-process.dqmoffline_15_step = cms.EndPath(process.DQMOfflineTAU)
+process.prevalidation_step = cms.Path(process.prevalidation)
+process.prevalidation_step1 = cms.Path(process.prevalidationMiniAOD)
+process.validation_step = cms.EndPath(process.validation)
+process.validation_step1 = cms.EndPath(process.validationMiniAOD)
+process.dqmoffline_step = cms.EndPath(process.DQMOffline)
+process.dqmoffline_1_step = cms.EndPath(process.DQMOfflineExtraHLT)
+process.dqmoffline_2_step = cms.EndPath(process.DQMOfflineMiniAOD)
 process.dqmofflineOnPAT_step = cms.EndPath(process.PostDQMOffline)
+process.dqmofflineOnPAT_1_step = cms.EndPath(process.PostDQMOffline)
+process.dqmofflineOnPAT_2_step = cms.EndPath(process.PostDQMOfflineMiniAOD)
 process.AODoutput_step = cms.EndPath(process.AODoutput)
 process.MINIAODoutput_step = cms.EndPath(process.MINIAODoutput)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step,process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.dqmoffline_step,process.dqmoffline_1_step,process.dqmoffline_2_step,process.dqmoffline_3_step,process.dqmoffline_4_step,process.dqmoffline_5_step,process.dqmoffline_6_step,process.dqmoffline_7_step,process.dqmoffline_8_step,process.dqmoffline_9_step,process.dqmoffline_10_step,process.dqmoffline_11_step,process.dqmoffline_12_step,process.dqmoffline_13_step,process.dqmoffline_14_step,process.dqmoffline_15_step,process.dqmofflineOnPAT_step,process.AODoutput_step,process.MINIAODoutput_step,process.DQMoutput_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step,process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.prevalidation_step,process.prevalidation_step1,process.validation_step,process.validation_step1,process.dqmoffline_step,process.dqmoffline_1_step,process.dqmoffline_2_step,process.dqmofflineOnPAT_step,process.dqmofflineOnPAT_1_step,process.dqmofflineOnPAT_2_step,process.AODoutput_step,process.MINIAODoutput_step,process.DQMoutput_step)
 process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
@@ -240,6 +237,12 @@ from Configuration.DataProcessing.RecoTLR import customisePostEra_Run2_2018
 
 #call to customisation function customisePostEra_Run2_2018 imported from Configuration.DataProcessing.RecoTLR
 process = customisePostEra_Run2_2018(process)
+
+# Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff
+from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn 
+
+#call to customisation function setCrossingFrameOn imported from SimGeneral.MixingModule.fullMixCustomize_cff
+process = setCrossingFrameOn(process)
 
 # End of customisation functions
 #do not add changes to your config after this point (unless you know what you are doing)
