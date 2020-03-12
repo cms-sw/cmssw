@@ -111,9 +111,9 @@ proc.efficienciesRealMuonsData.plots = Utils.SetPlotSequence(proc.TauValNumerato
 proc.efficienciesRealMuonsDataSummary = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/hpsPFTauProducerRealMuonsData_Summary/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/hpsPFTauProducerRealMuonsData_Summary/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/hpsPFTauProducerRealMuonsData_Summary/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_Summary/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),
