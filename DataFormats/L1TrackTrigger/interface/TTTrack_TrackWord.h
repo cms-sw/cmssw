@@ -223,6 +223,22 @@ private:
   const float maxZ0 = 30.;
   const float maxD0 = 15.4;
 
+  // List of offsets and masks.  In principle, all of these could be derived from first
+  // principles given the number of bits. At some future time, we'll do this.
+
+  const unsigned int maskRinv = 0xFFFE0000;
+  const unsigned int maskPhi = 0xFFF00000;
+  const unsigned int maskTanL = 0xFFFF0000;
+  const unsigned int maskD0 = 0x000FFF80;
+  const unsigned int maskZ0 = 0x0000FFF0;
+  const unsigned int maskChi2XY = 0x0000000F;
+  const unsigned int maskChi2Z = 0x00003C00;
+  const unsigned int maskBendChi2 = 0x0001C000;
+  const unsigned int maskHitPat = 0x0000007F;
+  const unsigned int maskSpare = 0x000003FF;
+
+  const unsigned int nWordBits = 32;
+
 };  // end of class def
 
 #endif
