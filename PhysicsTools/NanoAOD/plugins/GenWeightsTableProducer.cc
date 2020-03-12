@@ -388,7 +388,7 @@ public:
     int vectorSize = (genProd.weights().size() == 14 || genProd.weights().size() == 46) ? 4 : 1;
     std::vector<double> wPS(vectorSize, 1);
     if (vectorSize > 1) {
-      double nominal = genProd.weights()[1];   // Called 'Baseline' in GenLumiInfoHeader
+      double nominal = genProd.weights()[1];  // Called 'Baseline' in GenLumiInfoHeader
       for (unsigned int i = 6; i < 10; i++) {
         wPS[i - 6] = (genProd.weights()[i]) / nominal;
       }
@@ -494,7 +494,7 @@ public:
 
     std::vector<double> wPS(vectorSize, 1);
     if (vectorSize > 1) {
-      double nominal = genProd.weights()[1];   // Called 'Baseline' in GenLumiInfoHeader
+      double nominal = genProd.weights()[1];  // Called 'Baseline' in GenLumiInfoHeader
       for (unsigned int i = 6; i < 10; i++) {
         wPS[i - 6] = (genProd.weights()[i]) / nominal;
       }
