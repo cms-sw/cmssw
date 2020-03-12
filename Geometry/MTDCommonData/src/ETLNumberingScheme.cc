@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 ETLNumberingScheme::ETLNumberingScheme() : MTDNumberingScheme() {
 #ifdef EDM_ML_DEBUG
@@ -106,6 +106,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   edm::LogInfo("MTDGeom") << "ETL Numbering scheme: "
                           << " ring = " << ringCopy << " zside = " << zside << " module = " << modCopy
                           << " modtyp = " << modtyp << " Raw Id = " << intindex << thisETLdetid;
+#endif
   if (!preTDR) {
     ETLDetId altETLdetid(zside, discN, sectorS, sectorN, modCopy, modtyp);
     const uint32_t altintindex = altETLdetid.rawId();
@@ -115,7 +116,6 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
                                  << altETLdetid;
     }
   }
-#endif
 
   return intindex;
 }

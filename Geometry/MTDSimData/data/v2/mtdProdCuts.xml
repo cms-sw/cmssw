@@ -16,7 +16,7 @@
       <PartSelector path="//BModule1Layer1Timingactive"/>
       <PartSelector path="//BModule17Layer1Timingactive"/>
       <PartSelector path="//BModule33Layer1Timingactive"/>
-      <PartSelector path="//LGAD_TimingActive"/>
+      <PartSelector path="//EModule_Timingactive"/>
       <Parameter name="CMSCutsRegion" value="FastTimerRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
