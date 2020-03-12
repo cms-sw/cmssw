@@ -1,16 +1,17 @@
-#ifndef __L1TTrackerDTC_DTC_H__
-#define __L1TTrackerDTC_DTC_H__
+#ifndef __TrackerDTC_DTC_H__
+#define __TrackerDTC_DTC_H__
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
+#include "L1Trigger/TrackerDTC/interface/Stub.h"
 
 #include <vector>
 #include <deque>
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
   class Settings;
   class Module;
-  class Stub;
 
   // representation of an outer tracker DTC board
   class DTC {
@@ -22,7 +23,7 @@ namespace L1TTrackerDTC {
   public:
     DTC(Settings* settings, const int& dtcId, const std::vector<Module*>& modules, const int& nStubs);
 
-    ~DTC();
+    ~DTC(){}
 
     // convert and assign TTStubRef to DTC routing block channel
     void consume(const std::vector<TTStubRef>& ttStubRefStream, const int& channelId);
@@ -46,9 +47,9 @@ namespace L1TTrackerDTC {
     int board_;           // outer tracker dtc id per region [0-23]
 
     std::vector<Module*> modules_;  // container of sensor modules connected to this DTC
-    std::vector<Stub*> stubs_;      // container of dynamic allocated stubs on this DTC
+    std::vector<Stub> stubs_;       // container of stubs on this DTC
   };
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC
 
 #endif

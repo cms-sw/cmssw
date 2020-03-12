@@ -1,6 +1,6 @@
-#include "L1Trigger/L1TTrackerDTC/interface/Stub.h"
-#include "L1Trigger/L1TTrackerDTC/interface/Settings.h"
-#include "L1Trigger/L1TTrackerDTC/interface/Module.h"
+#include "L1Trigger/TrackerDTC/interface/Stub.h"
+#include "L1Trigger/TrackerDTC/interface/Settings.h"
+#include "L1Trigger/TrackerDTC/interface/Module.h"
 
 #include <cmath>
 #include <iterator>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
   Stub::Stub(Settings* settings, const TTStubRef& ttStubRef, Module* module)
       : settings_(settings), ttStubRef_(ttStubRef), module_(module), valid_(true) {
@@ -253,4 +253,4 @@ namespace L1TTrackerDTC {
                      hwLayer.str());
   }
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC

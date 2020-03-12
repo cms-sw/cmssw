@@ -1,31 +1,25 @@
-#include "L1Trigger/L1TTrackerDTC/interface/DTC.h"
-#include "L1Trigger/L1TTrackerDTC/interface/Settings.h"
-#include "L1Trigger/L1TTrackerDTC/interface/Module.h"
-#include "L1Trigger/L1TTrackerDTC/interface/Stub.h"
+#include "L1Trigger/TrackerDTC/interface/DTC.h"
+#include "L1Trigger/TrackerDTC/interface/Settings.h"
+#include "L1Trigger/TrackerDTC/interface/Module.h"
 
 using namespace std;
 using namespace edm;
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
   DTC::DTC(Settings* settings, const int& dtcId, const std::vector<Module*>& modules, const int& nStubs)
       : settings_(settings),                            // helper class to store configurations
-        region_(dtcId / settings->numDTCsPerRegion()),  // outer tracker detector region [0-8]
-        board_(dtcId % settings->numDTCsPerRegion()),   // outer tracker dtc id in region [0-23]
+        region_(dtcId / settings_->numDTCsPerRegion()), // outer tracker detector region [0-8]
+        board_(dtcId % settings_->numDTCsPerRegion()),  // outer tracker dtc id in region [0-23]
         modules_(modules)                               // container of sensor modules connected to this DTC
   {
-    stubs_.reserve(nStubs);  // container of dynamic allocated stubs on this DTC
-  }
-
-  DTC::~DTC() {
-    for (auto& stub : stubs_)
-      delete stub;
+    stubs_.reserve(nStubs);  // container of stubs on this DTC
   }
 
   // convert and assign TTStubRef to DTC routing block channel
   void DTC::consume(const vector<TTStubRef>& ttStubRefStream, const int& channelId) {
     for (const TTStubRef& ttStubRef : ttStubRefStream)
-      stubs_.push_back(move(new Stub(settings_, ttStubRef, modules_[channelId])));  // convert TTStub
+      stubs_.emplace_back(settings_, ttStubRef, modules_[channelId]);  // convert TTStub
   }
 
   // board level routing in two steps and product filling
@@ -36,9 +30,9 @@ namespace L1TTrackerDTC {
     Stubss regionStubs(settings_->numOverlappingRegions());  // empty output container
 
     // fill input
-    for (Stub* stub : stubs_)
-      if (stub->valid())  // pt and eta cut
-        moduleStubs[stub->blockId()][stub->channelId()].push_back(stub);
+    for (Stub& stub : stubs_)
+      if (stub.valid())  // pt and eta cut
+        moduleStubs[stub.blockId()][stub.channelId()].push_back(&stub);
 
     // sort stubs by bend
     for (auto& block : moduleStubs)
@@ -139,4 +133,4 @@ namespace L1TTrackerDTC {
     return stub;
   }
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC

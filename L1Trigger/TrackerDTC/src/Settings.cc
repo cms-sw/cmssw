@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TTrackerDTC/interface/Settings.h"
+#include "L1Trigger/TrackerDTC/interface/Settings.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h"
 
 #include <cmath>
@@ -19,7 +20,7 @@
 using namespace std;
 using namespace edm;
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
   Settings::Settings(const ParameterSet& iConfig)
       :  //TrackerDTCProducer parameter sets
@@ -35,6 +36,8 @@ namespace L1TTrackerDTC {
         dataFormat_(paramsED_.getParameter<string>("DataFormat")),
         offsetDetIdDSV_(paramsED_.getParameter<int>("OffsetDetIdDSV")),
         offsetDetIdTP_(paramsED_.getParameter<int>("OffsetDetIdTP")),
+        offsetLayerDisks_(paramsED_.getParameter<int>("OffsetLayerDisks")),
+        offsetLayerId_(paramsED_.getParameter<int>("OffsetLayerId")),
         // Router parameter
         enableTruncation_(paramsRouter_.getParameter<bool>("EnableTruncation")),
         freqDTC_(paramsRouter_.getParameter<double>("FreqDTC")),
@@ -90,9 +93,9 @@ namespace L1TTrackerDTC {
     baseRegion_ = 2. * M_PI / numRegions_;
 
     if (dataFormat_ == "TMTT")
-      tmtt_ = new SettingsTMTT(iConfig, this);
+      tmtt_ = make_unique<SettingsTMTT>(iConfig, this);
     else if (dataFormat_ == "Hybrid")
-      hybrid_ = new SettingsHybrid(iConfig, this);
+      hybrid_ = make_unique<SettingsHybrid>(iConfig, this);
     else
       throw cms::Exception("L1TrackerDTC::Settings::Settings unknown data format requested (" + dataFormat_ + ").");
 
@@ -115,13 +118,6 @@ namespace L1TTrackerDTC {
     cablingMap_ = vector<DetId>(numModules_);
     trackerGeometry_ = nullptr;
     trackerTopology_ = nullptr;
-  }
-
-  Settings::~Settings() {
-    if (dataFormat_ == "TMTT")
-      delete tmtt_;
-    else if (dataFormat_ == "Hybrid")
-      delete hybrid_;
   }
 
   // read in detector parameter
@@ -157,18 +153,19 @@ namespace L1TTrackerDTC {
     }
 
     // convert TrackerDetToDTCELinkCablingMap
+    enum SubDetId{A=1, B=2};
     TTDTC ttDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_);
     vector<int> modIds(numDTCs_, 0);                         // module counter for each DTC
     for (const DetId& detId : trackerGeometry_->detIds()) {  // all tracker modules
 
-      if (detId.subdetId() == 1 || detId.subdetId() == 2)  // skip pixel detector
+      if (detId.subdetId() == A || detId.subdetId() == B)  // skip pixel detector
         continue;
 
       if (!trackerTopology_->isLower(detId))  // skip multiple detIds per module
         continue;
 
-      const int tklId = cablingMap->detIdToDTCELinkId(detId.rawId() + offsetDetIdTP_)
-                            .first->second.dtc_id();  // tk layout dtc id, lowerDetId - 1 = tk lyout det id
+      // tk layout dtc id, lowerDetId - 1 = tk lyout det id
+      const int tklId = cablingMap->detIdToDTCELinkId(detId.rawId() + offsetDetIdTP_).first->second.dtc_id();
       const int dtcId = ttDTC.dtcId(tklId);           // track trigger dtc id [0-215]
 
       int& modId = modIds[dtcId];                           // DTC module id [0-71]
@@ -341,7 +338,7 @@ namespace L1TTrackerDTC {
       set<int> layerIds;
       for (auto it = begin; it < end; it++)
         layerIds.insert(it->subdetId() == StripSubdetector::TOB ? trackerTopology->layer(*it)
-                                                                : trackerTopology->tidWheel(*it) + 10);
+                                                                : trackerTopology->tidWheel(*it) + settings->offsetLayerDisks_);
 
       if ((int)layerIds.size() > settings->numLayers_) {  // check configuration
 
@@ -431,4 +428,4 @@ namespace L1TTrackerDTC {
     basePhi = basePhiT * pow(2., baseShiftPhi);
   }
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC

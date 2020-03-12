@@ -2,6 +2,7 @@
 #define __L1TrackTrigger_TTDTC__
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTBV.h"
 
 #include <bitset>
 #include <utility>

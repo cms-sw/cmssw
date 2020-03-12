@@ -5,7 +5,6 @@
 <use   name="DataFormats/Phase2TrackerDigi"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/TrackerCommon"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
 <export>
   <lib   name="1"/>
 </export>

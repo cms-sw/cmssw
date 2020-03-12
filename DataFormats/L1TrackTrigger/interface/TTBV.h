@@ -2,8 +2,10 @@
 #define __L1TrackTrigger_TTBV__
 
 #include <bitset>
+#include <array>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 /*! 
  * \class  TTBV
@@ -41,9 +43,7 @@ public:
 
   // constructor: int value
   TTBV(const int& value, const int& size, const bool& Signed = false)
-      : signed_(Signed),
-        size_(size),
-        bs_(std::bitset<S>((!Signed || value >= 0) ? value : value + std::pow(2, size_))) {}
+      : signed_(Signed), size_(size), bs_(std::bitset<S>((!Signed || value >= 0) ? value : value + iMax())) {}
 
   // constructor: double value + precision, biased (floor) representation
   TTBV(const double& value, const double& base, const int& size, const bool& Signed = false)
@@ -215,12 +215,10 @@ public:
   std::string str(const int& start, const int& end = 0) const { return this->str().substr(size_ - start, size_ - end); }
 
   // conversion: to int
-  int val() const { return (signed_ && this->msb()) ? (int)bs_.to_ullong() - std::pow(2, size_) : bs_.to_ullong(); }
+  int val() const { return (signed_ && this->msb()) ? (int)bs_.to_ullong() - iMax() : bs_.to_ullong(); }
 
   // conversion: to int, reinterpret sign
-  int val(const bool Signed) const {
-    return (Signed && this->msb()) ? (int)bs_.to_ullong() - std::pow(2, size_) : bs_.to_ullong();
-  }
+  int val(const bool Signed) const { return (Signed && this->msb()) ? (int)bs_.to_ullong() - iMax() : bs_.to_ullong(); }
 
   // conversion: range based to int, reinterpret sign
   int val(const int& start, const int& end = 0, const bool& Signed = false) const {
@@ -253,6 +251,21 @@ public:
       if (bs_[e] == b)
         return e;
     return size_;
+  }
+
+private:
+  // look up table initializer for powers of 2
+  constexpr std::array<unsigned long long int, S> powersOfTwo() const {
+    std::array<unsigned long long int, S> lut = {};
+    for (int i = 0; i < S; i++)
+      lut[i] = std::pow(2, i);
+    return lut;
+  }
+
+  // returns 2 ** size_
+  unsigned long long int iMax() const {
+    static const std::array<unsigned long long int, S> lut = powersOfTwo();
+    return lut[size_];
   }
 };
 

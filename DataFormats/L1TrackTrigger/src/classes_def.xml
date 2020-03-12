@@ -23,6 +23,5 @@
   <class name="TTDTC"/>
   <class name="edm::Wrapper<TTDTC>"/>
   <class name="TTDTC::Streams"/>
-  <class name="TTDTC::BV"/>
 </lcgdict>
 

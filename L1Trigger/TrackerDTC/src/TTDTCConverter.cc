@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TTrackerDTC/interface/TTDTCConverter.h"
+#include "L1Trigger/TrackerDTC/interface/TTDTCConverter.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -11,13 +11,13 @@
 
 using namespace std;
 using namespace edm;
-using namespace L1TTrackerDTC;
+using namespace TrackerDTC;
 
 TTDTCConverter::TTDTCConverter(const Run& iRun,
                                const EventSetup& iSetup,
                                const string& processName,
                                const string& productLabel) {
-  // get iConfig of used L1TTrackerDTC
+  // get iConfig of used TrackerDTC
   const ParameterSet* iConfig = nullptr;
   const pset::Registry* psetRegistry = pset::Registry::instance();
   for (const ProcessConfiguration& pc : iRun.processHistory()) {
@@ -30,14 +30,14 @@ TTDTCConverter::TTDTCConverter(const Run& iRun,
   }
 
   if (!iConfig) {
-    cms::Exception exception("Configuration", "L1TTrackerDTC config not found in process history.");
+    cms::Exception exception("Configuration", "TrackerDTC config not found in process history.");
     exception.addContext("L1TrackerDTC::Settings::beginRun");
-    exception.addAdditionalInfo("Used process name: (" + processName + ") used product label: (" + productLabel + ").");
+    exception.addAdditionalInfo("Used process name: " + processName + ", used product label: " + productLabel + ".");
 
     throw exception;
   }
 
-  settings_ = new Settings(*iConfig);
+  settings_ = make_unique<Settings>(*iConfig);
 
   settings_->beginRun(iRun, iSetup);
 }

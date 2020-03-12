@@ -1,6 +1,6 @@
 ################################################################################################
 # To run execute do
-# cmsRun L1Trigger/L1TTrackerDTC/test/test.py
+# cmsRun L1Trigger/TrackerDTC/test/test.py
 # where the arguments take default values if you don't specify them. You can change defaults below.
 #################################################################################################
 
@@ -61,9 +61,9 @@ process.source = cms.Source(
 process.Timing = cms.Service( "Timing", summaryOnly = cms.untracked.bool( True ) )
 
 #--- Load code that produces DTCStubs
-process.load( 'L1Trigger.L1TTrackerDTC.Producer_cff' )
+process.load( 'L1Trigger.TrackerDTC.Producer_cff' )
 
-process.p = cms.Path( process.L1TTrackerDTCProducer )
+process.p = cms.Path( process.TrackerDTCProducer )
 
 # Optionally create output GEN-SIM-DIGI-RAW dataset containing DTC TTStub Collections.
 if options.outputDataset == 1:
@@ -83,7 +83,7 @@ if options.outputDataset == 1:
     )
   )
   # Include DTC TTStub Collections
-  process.writeDataset.outputCommands.append( 'keep  *_L1TTrackerDTCProducer_StubAccepted_*' )
+  process.writeDataset.outputCommands.append( 'keep  *_TrackerDTCProducer_StubAccepted_*' )
   process.pd = cms.EndPath( process.writeDataset )
 
   process.schedule = cms.Schedule( process.p, process.pd )

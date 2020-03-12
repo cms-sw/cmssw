@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TTrackerDTCProducer_params = cms.PSet (
+TrackerDTCProducer_params = cms.PSet (
 
   #=== ED parameter
 
@@ -9,7 +9,9 @@ L1TTrackerDTCProducer_params = cms.PSet (
     ProductBranch           = cms.string  ( "StubAccepted" ),                                  #
     DataFormat              = cms.string  ( "Hybrid" ),                                        # hybrid and tmtt format supported
     OffsetDetIdDSV          = cms.int32   (  1 ),                                              # tk layout det id minus DetSetVec->detId
-    OffsetDetIdTP           = cms.int32   ( -1 )                                               # tk layout det id minus TrackerTopology lower det id
+    OffsetDetIdTP           = cms.int32   ( -1 ),                                              # tk layout det id minus TrackerTopology lower det id
+    OffsetLayerDisks        = cms.int32   ( 10 ),                                              # offset in layer ids between barrel layer and endcap disks
+    OffsetLayerId           = cms.int32   (  1 )                                               # offset between 0 and smallest layer id (barrel layer 1)
   ),
 
   #=== router parameter

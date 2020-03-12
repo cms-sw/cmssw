@@ -1,5 +1,5 @@
-#ifndef __L1TTrackerDTC_SETTINGS_H__
-#define __L1TTrackerDTC_SETTINGS_H__
+#ifndef __TrackerDTC_SETTINGS_H__
+#define __TrackerDTC_SETTINGS_H__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -10,8 +10,9 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include <vector>
+#include <memory>
 
-namespace L1TTrackerDTC {
+namespace TrackerDTC {
 
   class SettingsHybrid;
   class SettingsTMTT;
@@ -24,7 +25,7 @@ namespace L1TTrackerDTC {
   public:
     Settings(const edm::ParameterSet& iConfig);
 
-    ~Settings();
+    ~Settings(){}
 
     // read in detector parameter
     void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
@@ -34,8 +35,10 @@ namespace L1TTrackerDTC {
     std::string productBranch() const { return productBranch_; }
     std::string dataFormat() const { return dataFormat_; }
     int offsetDetIdDSV() const { return offsetDetIdDSV_; }
-    SettingsHybrid* hybrid() const { return hybrid_; }
-    SettingsTMTT* tmtt() const { return tmtt_; }
+    SettingsHybrid* hybrid() const { return hybrid_.get(); }
+    SettingsTMTT* tmtt() const { return tmtt_.get(); }
+    int offsetLayerDisks() const { return offsetLayerDisks_; }
+    int offsetLayerId() const { return offsetLayerId_; }
     // Router parameter
     bool enableTruncation() const { return enableTruncation_; }
     int tmpTFP() const { return tmpTFP_; }
@@ -97,8 +100,8 @@ namespace L1TTrackerDTC {
 
   private:
     // DataFormats
-    SettingsTMTT* tmtt_;
-    SettingsHybrid* hybrid_;
+    std::unique_ptr<SettingsTMTT> tmtt_;
+    std::unique_ptr<SettingsHybrid> hybrid_;
 
     //TrackerDTCProducer parameter sets
     const edm::ParameterSet paramsED_;
@@ -116,6 +119,8 @@ namespace L1TTrackerDTC {
     const std::string dataFormat_;  // "Hybrid" and "TMTT" format supported
     const int offsetDetIdDSV_;      // tk layout det id minus DetSetVec->detId
     const int offsetDetIdTP_;       // tk layout det id minus TrackerTopology lower det id
+    const int offsetLayerDisks_;    // offset in layer ids between barrel layer and endcap disks
+    const int offsetLayerId_;       // offset between 0 and smallest layer id (barrel layer 1)
 
     // router parameter
     const double enableTruncation_;  // enables emulation of truncation
@@ -335,6 +340,6 @@ namespace L1TTrackerDTC {
     double baseQoverPtBin_;  // precision of qOverPt bins used during track finding
   };
 
-}  // namespace L1TTrackerDTC
+}  // namespace TrackerDTC
 
 #endif
