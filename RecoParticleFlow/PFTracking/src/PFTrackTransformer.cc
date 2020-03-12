@@ -61,16 +61,17 @@ bool PFTrackTransformer::addPoints(reco::PFRecTrack& pftrack,
   BaseParticlePropagator theOutParticle;
   if (track.outerOk())
     theOutParticle = BaseParticlePropagator(
-      RawParticle(
-          XYZTLorentzVector(
-              track.outerMomentum().x(), track.outerMomentum().y(), track.outerMomentum().z(), pfoutenergy),
-          XYZTLorentzVector(track.outerPosition().x(), track.outerPosition().y(), track.outerPosition().z(), 0.),
-          track.charge()),
-      0.,
-      0.,
-      B_.z());
-  else theOutParticle = theParticle;
-    
+        RawParticle(
+            XYZTLorentzVector(
+                track.outerMomentum().x(), track.outerMomentum().y(), track.outerMomentum().z(), pfoutenergy),
+            XYZTLorentzVector(track.outerPosition().x(), track.outerPosition().y(), track.outerPosition().z(), 0.),
+            track.charge()),
+        0.,
+        0.,
+        B_.z());
+  else
+    theOutParticle = theParticle;  // if outer state is not available, use the information at the closest approach
+
   math::XYZTLorentzVector momClosest = math::XYZTLorentzVector(track.px(), track.py(), track.pz(), track.p());
   const math::XYZPoint& posClosest = track.vertex();
 
