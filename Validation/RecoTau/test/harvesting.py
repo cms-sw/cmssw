@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step4 --mc --filetype DQM --conditions auto:run2_mc_FULL -s HARVESTING:@allForPrompt --era Run2_2018 --scenario pp --filein file:RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_DQM_inDQM.root --python_filename=harvesting.py --no_exec
+# with command line options: step4 --mc --filetype DQM --conditions auto:run2_mc_FULL -s HARVESTING:@allForPrompt --era Run2_2018 --scenario pp --filein file:RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_VALIDATION_DQM_inDQM.root --python_filename=harvesting.py --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring('file:RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_DQM_inDQM.root')
+    fileNames = cms.untracked.vstring('file:RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_VALIDATION_DQM_inDQM.root')
 )
 
 process.options = cms.untracked.PSet(
