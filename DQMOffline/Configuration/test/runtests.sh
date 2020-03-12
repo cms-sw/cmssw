@@ -8,13 +8,15 @@ fi
 
 cd $LOCAL_TEST_DIR
 
-STEPS=$1
-if [[ -z $STEPS ]]; then
-  STEPS="DQM,VALIDATION"
+DBFILE="sequences.db"
+if [[ -n $1 && -n $2 ]]; then
+  SECTION="--limit $1 --offset $2"
+  DBFILE="sequences$2.db"
+  THREADS="--threads 1"
 fi
 
-cmsswSequenceInfo.py --runTheMatrix --steps "$STEPS" --dbfile "sequences${STEPS}.db" --threads 1
-sqlite3 "sequences${STEPS}.db"  > "legacymodules${STEPS}.txt" <<SQL
+cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION $SECTION --dbfile "$DBFILE" $THREADS
+sqlite3 "$DBFILE"  > "legacymodules-${DBFILE}.txt" <<SQL
 SELECT edmfamily, edmbase, classname, instancename, step, seqname, wfid 
 FROM plugin 
 NATURAL JOIN module 
@@ -25,7 +27,7 @@ WHERE edmfamily is null;
 SQL
 
 # There are lots of legacy producers and filters, so we check only for analyzers for now.
-if grep EDAnalyzer "legacymodules${STEPS}.txt" ; then
+if grep EDAnalyzer "legacymodules-${DBFILE}.txt" ; then
   echo "There are legacy modules! See list above."
   exit 1
 else

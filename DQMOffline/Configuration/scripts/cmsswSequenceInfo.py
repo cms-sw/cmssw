@@ -503,6 +503,8 @@ if __name__ == "__main__":
     parser.add_argument("--sqlite", default=False, action="store_true", help="Write information to SQLite DB instead of stdout.")
     parser.add_argument("--dbfile", default="sequences.db", help="Name of the DB file to use.")
     parser.add_argument("--threads", default=None, type=int, help="Use a fixed number of threads (default is #cores).")
+    parser.add_argument("--limit", default=None, type=int, help="Process only this many sequences.")
+    parser.add_argument("--offset", default=None, type=int, help="Process sequences starting from this index. Used with --limit to divide the work into jobs.")
     parser.add_argument("--showpluginlabel", default=False, action="store_true", help="Print the module label for each plugin (default).")
     parser.add_argument("--showplugintype", default=False, action="store_true", help="Print the base class for each plugin.")
     parser.add_argument("--showpluginclass", default=False, action="store_true", help="Print the class name for each plugin.")
@@ -524,7 +526,13 @@ if __name__ == "__main__":
         # the default workflow None is a magic value for inspectworkflows.
         seqs = inspectworkflows(args.workflow)
         seqset = set(sum(seqs.values(), []))
+        if args.offset:
+            seqset = list(sorted(seqset))[args.offset:]
+        if args.limit:
+            seqset = list(sorted(seqset))[:args.limit]
+
         print("Analyzing %d seqs..." % len(seqset))
+
         processseqs(seqset)
         storeworkflows(seqs)
     else:
