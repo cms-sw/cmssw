@@ -149,7 +149,7 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                       edm::EventSetup const& /* iSetup */) {
   MonitorElement *ptTemp, *etaTemp, *phiTemp, *pileupTemp, *tmpME, *summaryTemp;
 
-  ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_Summary");
+  ibooker.setCurrentFolder("RecoTauV/standardValidation/" + TauProducer_ + extensionName_ + "_Summary");
   auto n_disc = !discriminators_.empty() ? discriminators_.size() : 21;
   hinfo summaryHinfo = (histoSettings_.exists("summary"))
                            ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("summary"))
@@ -163,7 +163,7 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker& ibooker,
   summaryTemp = ibooker.book1D("summaryPlot", "summaryPlot", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
   summaryMap.insert(std::make_pair(refCollection_, summaryTemp));
 
-  ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_ReferenceCollection");
+  ibooker.setCurrentFolder("RecoTauV/standardValidation/" + TauProducer_ + extensionName_ + "_ReferenceCollection");
 
   //Histograms settings
   hinfo ptHinfo = (histoSettings_.exists("pt")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pt"))
@@ -198,7 +198,7 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker& ibooker,
 
   // Number of Tau Candidates matched to MC Taus
 
-  ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_Matched");
+  ibooker.setCurrentFolder("RecoTauV/standardValidation/" + TauProducer_ + extensionName_ + "_Matched");
 
   ptTemp = ibooker.book1D(TauProducer_ + "Matched_vs_ptTauVisible",
                           TauProducer_ + "Matched_vs_ptTauVisible",
@@ -239,7 +239,7 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker& ibooker,
     summaryMap.find(refCollection_ + "Num")->second->setBinLabel(j + 1, DiscriminatorLabelReduced);
     summaryMap.find(refCollection_)->second->setBinLabel(j + 1, DiscriminatorLabelReduced);
 
-    ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_" + DiscriminatorLabel);
+    ibooker.setCurrentFolder("RecoTauV/standardValidation/" + TauProducer_ + extensionName_ + "_" + DiscriminatorLabel);
 
     ptTemp = ibooker.book1D(DiscriminatorLabel + "_vs_ptTauVisible",
                             histogramName + "_vs_ptTauVisible",
