@@ -19,9 +19,9 @@ int TTDTC::numDTCBoards() const { return numDTCsPerRegion_; }
 int TTDTC::numDTCChannel() const { return numOverlappingRegions_; }
 int TTDTC::numTFPChannel() const { return numDTCsPerTFP_; }
 
-// Access to one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
+// write one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
 // dtcRegions aka detector regions are defined by tk layout
-TTDTC::Stream& TTDTC::dtcStream(const int& dtcRegion, const int& dtcBoard, const int& dtcChannel) {
+void TTDTC::setStream(const int& dtcRegion, const int& dtcBoard, const int& dtcChannel, const Stream& stream) {
   // check arguments
   const bool oorRegion = dtcRegion >= numRegions_ || dtcRegion < 0;
   const bool oorBoard = dtcBoard >= numDTCsPerRegion_ || dtcBoard < 0;
@@ -45,7 +45,7 @@ TTDTC::Stream& TTDTC::dtcStream(const int& dtcRegion, const int& dtcBoard, const
     throw exception;
   }
 
-  return streams_[index(dtcRegion, dtcBoard, dtcChannel)];
+  streams_[index(dtcRegion, dtcBoard, dtcChannel)] = move(stream);
 }
 
 // all TFP identifier (region[0-8], channel[0-47])
@@ -60,9 +60,9 @@ vector<int> TTDTC::tfpChannels() const {
   return vec;
 }
 
-// Access to one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
+// read one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
 // tfpRegions aka processing regions are rotated by -0.5 region width w.r.t detector regions
-TTDTC::Stream TTDTC::tfpStream(const int& tfpRegion, const int& tfpChannel) const {
+const TTDTC::Stream& TTDTC::getStream(const int& tfpRegion, const int& tfpChannel) const {
   // check arguments
   const bool oorRegion = tfpRegion >= numRegions_ || tfpRegion < 0;
   const bool oorChannel = tfpChannel >= numDTCsPerTFP_ || tfpChannel < 0;

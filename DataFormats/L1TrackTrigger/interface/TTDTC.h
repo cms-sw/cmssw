@@ -35,17 +35,17 @@ public:
   int numDTCChannel() const;
   int numTFPChannel() const;
 
-  // Access to one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
+  // write one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
   // dtcRegions aka detector regions are defined by tk layout
-  Stream& dtcStream(const int& dtcRegion, const int& dtcBoard, const int& dtcChannel);
+  void setStream(const int& dtcRegion, const int& dtcBoard, const int& dtcChannel, const Stream& stream);
 
   // all TFP identifier (region[0-8], channel[0-47])
   std::vector<int> tfpRegions() const;
   std::vector<int> tfpChannels() const;
 
-  // Access to one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
+  // read one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
   // tfpRegions aka processing regions are rotated by -0.5 region width w.r.t detector regions
-  Stream tfpStream(const int& tfpRegion, const int& tfpChannel) const;
+  const Stream& getStream(const int& tfpRegion, const int& tfpChannel) const;
 
   // converts dtc id into tk layout scheme
   int tkLayoutId(const int& dtcId) const;

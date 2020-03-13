@@ -25,7 +25,7 @@ namespace TrackerDTC {
   public:
     Settings(const edm::ParameterSet& iConfig);
 
-    ~Settings(){}
+    ~Settings() {}
 
     // read in detector parameter
     void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
@@ -208,7 +208,7 @@ namespace TrackerDTC {
 
     void beginRun(const edm::Run& iRun, Settings* settings);
 
-    enum SensorType { barrelPS, barrel2S, diskPS, disk2S };
+    enum SensorType { barrelPS, barrel2S, diskPS, disk2S, numSensorTypes };
 
     // TTStubalgo parameter
     double baseWindowSize() const { return baseWindowSize_; }
