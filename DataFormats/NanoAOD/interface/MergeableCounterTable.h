@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <vector>
 #include <string>
+#include <algorithm>
 
 namespace nanoaod {
 
@@ -22,9 +23,9 @@ namespace nanoaod {
       std::string name, doc;
       T value;
       void operator+=(const SingleColumn<T>& other) {
-        //// if one arrives here from tryMerge the checks are already done in the compatible() function before.
-        //// you may however want to enable these and remove the 'return false' in tryMerge in order to see what's incompatible between the tables.
-        //if (name != other.name) throw cms::Exception("LogicError", "Trying to merge "+name+" with "+other.name+"\n");
+        if (!compatible(other))
+          throw cms::Exception("LogicError",
+                               "Trying to merge " + name + " with " + other.name + " failed compatibility test.\n");
         value += other.value;
       }
       bool compatible(const SingleColumn<T>& other) {
@@ -41,6 +42,9 @@ namespace nanoaod {
           : SingleColumn<T>(aname, adoc, avalue), norm(anorm) {}
       double norm;
       void operator+=(const SingleWithNormColumn<T>& other) {
+        if (!this->compatible(other))
+          throw cms::Exception(
+              "LogicError", "Trying to merge " + this->name + " with " + other.name + " failed compatibility test.\n");
         auto newNorm = norm + other.norm;
         this->value = (newNorm != 0) ? (this->value * norm + other.value * other.norm) / newNorm : 0;
         norm = newNorm;
@@ -59,10 +63,9 @@ namespace nanoaod {
       std::string name, doc;
       std::vector<T> values;
       void operator+=(const VectorColumn<T>& other) {
-        //// if one arrives here from tryMerge the checks are already done in the compatible() function before.
-        //// you may however want to enable these and remove the 'return false' in tryMerge in order to see what's incompatible between the tables.
-        //if (name != other.name) throw cms::Exception("LogicError", "Trying to merge "+name+" with "+other.name+"\n");
-        //if (values.size() != other.values.size()) throw cms::Exception("LogicError", "Trying to merge "+name+" with different number of values!\n");
+        if (!compatible(other))
+          throw cms::Exception("LogicError",
+                               "Trying to merge " + name + " with " + other.name + " failed compatibility test.\n");
         for (unsigned int i = 0, n = values.size(); i < n; ++i) {
           values[i] += other.values[i];
         }
@@ -86,6 +89,9 @@ namespace nanoaod {
                            double anorm = 0)
           : VectorColumn<T>(aname, adoc, somevalues), norm(anorm) {}
       void operator+=(const VectorWithNormColumn<T>& other) {
+        if (!this->compatible(other))
+          throw cms::Exception(
+              "LogicError", "Trying to merge " + this->name + " with " + other.name + " failed compatibility test.\n");
         auto newNorm = norm + other.norm;
         for (unsigned int i = 0, n = this->values.size(); i < n; ++i) {
           this->values[i] =
@@ -171,12 +177,12 @@ namespace nanoaod {
 
     template <typename T>
     bool tryMerge(std::vector<T>& one, const std::vector<T>& two) {
-      if (one.size() != two.size())
-        return false;
-      for (unsigned int i = 0, n = one.size(); i < n; ++i) {
-        if (!one[i].compatible(two[i]))
-          return false;
-        one[i] += two[i];
+      for (auto y : two) {
+        auto x = std::find_if(one.begin(), one.end(), [&y](const T& x) { return x.name == y.name; });
+        if (x == one.end())
+          one.push_back(y);
+        else
+          (*x) += y;
       }
       return true;
     }
