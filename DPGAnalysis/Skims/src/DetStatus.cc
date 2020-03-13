@@ -45,7 +45,10 @@ DetStatus::DetStatus(const edm::ParameterSet& pset) {
 //
 DetStatus::~DetStatus() {}
 
-bool DetStatus::checkForDCSStatus(const DcsStatusCollection& dcsStatus) {
+//*********************************************************************//
+bool DetStatus::checkForDCSStatus(const DcsStatusCollection& dcsStatus)
+//*********************************************************************//
+{
   if (verbose_) {
     edm::LogInfo("DetStatus") << "Using FED#735 for reading DCS bits" << std::endl;
   }
@@ -75,7 +78,10 @@ bool DetStatus::checkForDCSStatus(const DcsStatusCollection& dcsStatus) {
   return accepted;
 }
 
-bool DetStatus::checkForDCSRecord(const DCSRecord& dcsRecord) {
+//*********************************************************************//
+bool DetStatus::checkForDCSRecord(const DCSRecord& dcsRecord)
+//*********************************************************************//
+{
   bool accepted = false;
 
   if (verbose_) {
@@ -106,16 +112,29 @@ bool DetStatus::checkForDCSRecord(const DCSRecord& dcsRecord) {
   return accepted;
 }
 
-bool DetStatus::filter(edm::Event& evt, edm::EventSetup const& es) {
+//*********************************************************************//
+bool DetStatus::filter(edm::Event& evt, edm::EventSetup const& es)
+//*********************************************************************//
+{
   bool accepted = false;
 
-  DcsStatusCollection const& dcsStatus = evt.get(scalersToken_);
-  DCSRecord const& dcsRecord = evt.get(dcsRecordToken_);
+  // If FED#735 is available use it to extract DcsStatusCollection.
+  // If not, use softFED#1022 to extract DCSRecord.
+  // Populate DCS Bits array with received information.
 
-  if (!dcsStatus.empty()) {
-    accepted = checkForDCSStatus(dcsStatus);
+  edm::Handle<DcsStatusCollection> dcsStatus;
+  evt.getByToken(scalersToken_, dcsStatus);
+  edm::Handle<DCSRecord> dcsRecord;
+  evt.getByToken(dcsRecordToken_, dcsRecord);
+
+  if (dcsStatus.isValid() && !dcsStatus->empty()) {
+    accepted = checkForDCSStatus(*dcsStatus);
+  } else if (dcsRecord.isValid()) {
+    accepted = checkForDCSRecord(*dcsRecord);
   } else {
-    accepted = checkForDCSRecord(dcsRecord);
+    edm::LogError("DetStatus")
+        << "Error! can't get the product, neither DCSRecord, nor scalersRawToDigi: accept in any case!";
+    accepted = true;
   }
 
   if (!applyfilter_) {
