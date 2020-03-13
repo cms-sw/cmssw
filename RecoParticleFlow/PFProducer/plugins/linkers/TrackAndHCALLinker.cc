@@ -47,14 +47,16 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndHCALLinker, "TrackAndHCALLi
 
 bool TrackAndHCALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   bool result = false;
-  // Track-HCAL kdtree-based links are stored to hcalelem
-  const reco::PFBlockElementCluster* hcalelem(nullptr);
-  if (elem1->type() < elem2->type())
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
-  else
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
-  result = (hcalelem->isMultilinksValide() && !hcalelem->getMultilinks().empty());
-  //
+  // Track-HCAL KDTree multilinks are stored to HCAL's elem
+  switch (elem1->type()) {
+    case reco::PFBlockElement::TRACK:
+      result = (elem2->isMultilinksValide() && !elem2->getMultilinks().empty());
+      break;
+    case reco::PFBlockElement::HCAL:
+      result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());
+    default:
+      break;
+  }
   return (useKDTree_ ? result : true);
 }
 
