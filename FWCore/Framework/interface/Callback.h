@@ -21,6 +21,7 @@
 // system include files
 #include <vector>
 #include <type_traits>
+#include <atomic>
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
@@ -42,7 +43,7 @@ namespace edm {
               typename TReturn,    //return type of the producer's method
               typename TRecord,    //the record passed in as an argument
               typename TDecorator  //allows customization using pre/post calls
-              = CallbackSimpleDecorator<TRecord> >
+              = CallbackSimpleDecorator<TRecord>>
     class Callback {
     public:
       using method_type = TReturn (T ::*)(const TRecord&);
@@ -61,15 +62,16 @@ namespace edm {
       const Callback& operator=(const Callback&) = delete;
 
       void operator()(EventSetupRecordImpl const* iRecord, EventSetupImpl const* iEventSetupImpl) {
-        if (!wasCalledForThisRecord_) {
-          TRecord rec;
-          rec.setImpl(iRecord, transitionID(), getTokenIndices(), iEventSetupImpl, true);
-          producer_->updateFromMayConsumes(id_, rec);
-          prefetch(iEventSetupImpl);
-          decorator_.pre(rec);
-          storeReturnedValues((producer_->*method_)(rec));
-          wasCalledForThisRecord_ = true;
-          decorator_.post(rec);
+        bool expected = false;
+        if (wasCalledForThisRecord_.compare_exchange_strong(expected, true)) {
+          //Get everything we can before knowing about the mayGets
+          prefetch(iEventSetupImpl, getTokenIndices());
+
+          if (handleMayGet(iRecord, iEventSetupImpl)) {
+            prefetch(iEventSetupImpl, &((*postMayGetProxies_).front()));
+          }
+
+          runProducer(iRecord, iEventSetupImpl);
         }
       }
 
@@ -99,9 +101,8 @@ namespace edm {
       ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
 
     private:
-      void prefetch(EventSetupImpl const* iImpl) const {
+      void prefetch(EventSetupImpl const* iImpl, ESProxyIndex const* proxies) const {
         auto recs = producer_->getTokenRecordIndices(id_);
-        auto proxies = producer_->getTokenIndices(id_);
         auto n = producer_->numberOfTokenIndices(id_);
         for (size_t i = 0; i != n; ++i) {
           auto rec = iImpl->findImpl(recs[i]);
@@ -110,12 +111,34 @@ namespace edm {
           }
         }
       }
+
+      bool handleMayGet(EventSetupRecordImpl const* iRecord, EventSetupImpl const* iEventSetupImpl) {
+        //Handle mayGets
+        TRecord rec;
+        rec.setImpl(iRecord, transitionID(), getTokenIndices(), iEventSetupImpl, true);
+        postMayGetProxies_ = producer_->updateFromMayConsumes(id_, rec);
+        return static_cast<bool>(postMayGetProxies_);
+      }
+
+      void runProducer(EventSetupRecordImpl const* iRecord, EventSetupImpl const* iEventSetupImpl) {
+        auto proxies = getTokenIndices();
+        if (postMayGetProxies_) {
+          proxies = &((*postMayGetProxies_).front());
+        }
+        TRecord rec;
+        rec.setImpl(iRecord, transitionID(), proxies, iEventSetupImpl, true);
+        decorator_.pre(rec);
+        storeReturnedValues((producer_->*method_)(rec));
+        decorator_.post(rec);
+      }
+
       std::array<void*, produce::size<TReturn>::value> proxyData_;
+      std::optional<std::vector<ESProxyIndex>> postMayGetProxies_;
       edm::propagate_const<T*> producer_;
       method_type method_;
       // This transition id identifies which setWhatProduced call this Callback is associated with
-      unsigned int id_;
-      bool wasCalledForThisRecord_;
+      const unsigned int id_;
+      std::atomic<bool> wasCalledForThisRecord_;
       TDecorator decorator_;
     };
   }  // namespace eventsetup
