@@ -50,8 +50,8 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
   edm::Handle<DCSRecord> dcsRecord;
   e.getByToken(dcsRecordToken_, dcsRecord);
 
-  bool statusTIBTID, statusTOB, statusTECF, statusTECB = true;
-  bool dcsTIBTID, dcsTOB, dcsTECF, dcsTECB = true;
+  bool statusTIBTID(true), statusTOB(true), statusTECF(true), statusTECB(true);
+  bool dcsTIBTID(true), dcsTOB(true), dcsTECF(true), dcsTECB(true);
 
   if (trackerAbsent || (!dcsStatus.isValid() && !dcsRecord.isValid())) {
     return retVal;
