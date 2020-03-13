@@ -858,7 +858,8 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
       indices[jetIndex].push_back(subjetCollection->size());
 
       // Add the concrete subjet type to the subjet list to write to event record
-      auto& jet = *std::unique_ptr<T>(new T);
+      subjetCollection->push_back(*std::make_unique<T>());
+      auto& jet = subjetCollection->back();
       if ((applyWeight_) && (makePFJet(jetTypeE)))
         reco::writeSpecific(dynamic_cast<reco::PFJet&>(jet), p4Subjet, point, constituents, iSetup, &weights_);
       else
@@ -869,7 +870,6 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
         subjetArea = itSubJet->area();
       }
       jet.setJetArea(subjetArea);
-      subjetCollection->push_back(jet);
     }
   }
 
