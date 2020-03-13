@@ -18,6 +18,7 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, co
     : PatternRecognitionAlgoBase(conf, cache),
       theGraph_(std::make_unique<HGCGraph>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
+      promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
       out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
       min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
@@ -174,8 +175,10 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
 
   // now adding dummy tracksters from seeds not connected to any shower in the result collection
   // these are marked as charged hadrons with probability 1.
-  emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
-
+  if(promoteEmptyRegionToTrackster_) {
+    emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
+  }
+  
   if (algo_verbosity_ > Advanced) {
     for (auto &trackster : result) {
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
