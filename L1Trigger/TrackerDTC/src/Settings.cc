@@ -16,6 +16,8 @@
 #include <iterator>
 #include <algorithm>
 #include <set>
+#include <vector>
+#include <memory>
 
 using namespace std;
 using namespace edm;
@@ -153,12 +155,12 @@ namespace TrackerDTC {
     }
 
     // convert TrackerDetToDTCELinkCablingMap
-    enum SubDetId{A=1, B=2};
+    enum SubDetId { pixelBarrel = 1, pixelDisks = 2 };
     TTDTC ttDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_);
     vector<int> modIds(numDTCs_, 0);                         // module counter for each DTC
     for (const DetId& detId : trackerGeometry_->detIds()) {  // all tracker modules
 
-      if (detId.subdetId() == A || detId.subdetId() == B)  // skip pixel detector
+      if (detId.subdetId() == pixelBarrel || detId.subdetId() == pixelDisks)  // skip pixel detector
         continue;
 
       if (!trackerTopology_->isLower(detId))  // skip multiple detIds per module
@@ -166,7 +168,7 @@ namespace TrackerDTC {
 
       // tk layout dtc id, lowerDetId - 1 = tk lyout det id
       const int tklId = cablingMap->detIdToDTCELinkId(detId.rawId() + offsetDetIdTP_).first->second.dtc_id();
-      const int dtcId = ttDTC.dtcId(tklId);           // track trigger dtc id [0-215]
+      const int dtcId = ttDTC.dtcId(tklId);  // track trigger dtc id [0-215]
 
       int& modId = modIds[dtcId];                           // DTC module id [0-71]
       const int ModId = dtcId * numModulesPerDTC_ + modId;  // track trigger module id [0-15551]
@@ -222,24 +224,24 @@ namespace TrackerDTC {
                                     fabs(settings->innerRadius_ - settings->chosenRofPhi_));
     const double rangePhi = settings->baseRegion_ + rangeRT * settings->rangeQoverPt_ / 2.;
 
-    basesZ_.reserve(4);
-    for (int type = 0; type < 4; type++)
+    basesZ_.reserve(numSensorTypes);
+    for (int type = 0; type < numSensorTypes; type++)
       basesZ_.push_back(rangesZ_[type] / pow(2., widthsZ_[type]));
 
-    basesR_.reserve(4);
-    for (int type = 0; type < 4; type++)
+    basesR_.reserve(numSensorTypes);
+    for (int type = 0; type < numSensorTypes; type++)
       basesR_.push_back(rangesR_[type] / pow(2., widthsR_[type]));
 
-    basesPhi_.reserve(4);
-    for (int type = 0; type < 4; type++)
+    basesPhi_.reserve(numSensorTypes);
+    for (int type = 0; type < numSensorTypes; type++)
       basesPhi_.push_back(rangePhi / pow(2., widthsPhi_[type]));
 
-    basesAlpha_.reserve(4);
-    for (int type = 0; type < 4; type++)
+    basesAlpha_.reserve(numSensorTypes);
+    for (int type = 0; type < numSensorTypes; type++)
       basesAlpha_.push_back(rangesAlpha_[type] / pow(2., widthsAlpha_[type]));
 
-    numsUnusedBits_.reserve(4);
-    for (int type = 0; type < 4; type++)
+    numsUnusedBits_.reserve(numSensorTypes);
+    for (int type = 0; type < numSensorTypes; type++)
       numsUnusedBits_.push_back(TTBV::S - widthsR_[type] - widthsZ_[type] - widthsPhi_[type] - widthsAlpha_[type] -
                                 widthsBend_[type] - settings->widthLayer_ - 1);
 
@@ -337,8 +339,9 @@ namespace TrackerDTC {
       // assess layerIds connected to this DTC
       set<int> layerIds;
       for (auto it = begin; it < end; it++)
-        layerIds.insert(it->subdetId() == StripSubdetector::TOB ? trackerTopology->layer(*it)
-                                                                : trackerTopology->tidWheel(*it) + settings->offsetLayerDisks_);
+        layerIds.insert(it->subdetId() == StripSubdetector::TOB
+                            ? trackerTopology->layer(*it)
+                            : trackerTopology->tidWheel(*it) + settings->offsetLayerDisks_);
 
       if ((int)layerIds.size() > settings->numLayers_) {  // check configuration
 

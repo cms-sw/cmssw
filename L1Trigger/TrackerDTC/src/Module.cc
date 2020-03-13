@@ -9,6 +9,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <cmath>
+#include <vector>
 
 using namespace std;
 using namespace edm;
@@ -85,15 +86,15 @@ namespace TrackerDTC {
 
     // getting windows size for bend encoding
     enum TypeBarrel { nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3 };
-    const TypeBarrel type = static_cast< TypeBarrel >( trackerTopology->tobSide(detId) );
+    const TypeBarrel type = static_cast<TypeBarrel>(trackerTopology->tobSide(detId));
 
     int ladder = barrel_ ? trackerTopology->tobRod(detId) : trackerTopology->tidRing(detId);
     if (barrel_ && type == tiltedMinus)
       // Corrected ring number, bet 0 and barrelNTilt.at(layer), in ascending |z|
       ladder = 1 + numTiltedLayerRings.at(layerId_) - ladder;
 
-    double windowSize =
-        barrel_ ? windowSizeBarrelLayers.at(layerId_) : windowSizeEndcapDisksRings.at(layerId_ - settings->offsetLayerDisks()).at(ladder);
+    double windowSize = barrel_ ? windowSizeBarrelLayers.at(layerId_)
+                                : windowSizeEndcapDisksRings.at(layerId_ - settings->offsetLayerDisks()).at(ladder);
     if (barrel_ && type != flat)
       windowSize = windowSizeTiltedLayerRings.at(layerId_).at(ladder);
     const int ws = windowSize / format->baseWindowSize();
@@ -103,7 +104,10 @@ namespace TrackerDTC {
     bendEncoding_ = psModule ? bendEncodingsPS.at(ws) : bendEncodings2S.at(ws);
 
     // encoding for 2S endcap radii
-    decodedR_ = type_ == SettingsHybrid::disk2S ? numColumns_ * (ladder - numRingsPS.at(layerId_ - settings->offsetLayerId() - settings->offsetLayerDisks())) : 0;
+    decodedR_ = type_ == SettingsHybrid::disk2S
+                    ? numColumns_ *
+                          (ladder - numRingsPS.at(layerId_ - settings->offsetLayerId() - settings->offsetLayerDisks()))
+                    : 0;
 
     // r and z offsets
     offsetR_ = barrel_ ? layerRs.at(layerId_ - settings->offsetLayerId()) : 0.;

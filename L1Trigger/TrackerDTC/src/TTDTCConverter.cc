@@ -8,6 +8,8 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <vector>
+#include <string>
+#include <memory>
 
 using namespace std;
 using namespace edm;

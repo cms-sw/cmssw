@@ -2,16 +2,19 @@
 #include "L1Trigger/TrackerDTC/interface/Settings.h"
 #include "L1Trigger/TrackerDTC/interface/Module.h"
 
+#include <vector>
+#include <deque>
+
 using namespace std;
 using namespace edm;
 
 namespace TrackerDTC {
 
   DTC::DTC(Settings* settings, const int& dtcId, const std::vector<Module*>& modules, const int& nStubs)
-      : settings_(settings),                            // helper class to store configurations
-        region_(dtcId / settings_->numDTCsPerRegion()), // outer tracker detector region [0-8]
-        board_(dtcId % settings_->numDTCsPerRegion()),  // outer tracker dtc id in region [0-23]
-        modules_(modules)                               // container of sensor modules connected to this DTC
+      : settings_(settings),                             // helper class to store configurations
+        region_(dtcId / settings_->numDTCsPerRegion()),  // outer tracker detector region [0-8]
+        board_(dtcId % settings_->numDTCsPerRegion()),   // outer tracker dtc id in region [0-23]
+        modules_(modules)                                // container of sensor modules connected to this DTC
   {
     stubs_.reserve(nStubs);  // container of stubs on this DTC
   }
@@ -49,7 +52,6 @@ namespace TrackerDTC {
     // fill product
     for (int channel = 0; channel < settings_->numOverlappingRegions(); channel++) {
       Stubs& stubs = regionStubs[channel];
-      TTDTC::Stream& stream = product.dtcStream(region_, board_, channel);
 
       if (settings_->enableTruncation())  // truncate if desired
         stubs.resize(min((int)stubs.size(), settings_->maxFramesChannelOutput()));
@@ -58,6 +60,7 @@ namespace TrackerDTC {
       for (auto it = stubs.end(); it != stubs.begin();)
         it = (*--it) ? stubs.begin() : stubs.erase(it);
 
+      TTDTC::Stream stream;
       stream.reserve(stubs.size());
       for (const Stub* stub : stubs) {
         if (stub)
@@ -65,6 +68,7 @@ namespace TrackerDTC {
         else  // use default constructed TTDTC::Pair to represent gaps
           stream.emplace_back();
       }
+      product.setStream(region_, board_, channel, stream);
     }
   }
 
