@@ -50,6 +50,7 @@ private:
   int _verbosity;
   int tdc1_;
   int tdc2_;
+  bool packHBTDC_;
   static constexpr int tdcmax_ = 49;
   std::string electronicsMapLabel_;
 
@@ -66,6 +67,7 @@ HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
     : _verbosity(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       tdc1_(iConfig.getParameter<int>("tdc1")),
       tdc2_(iConfig.getParameter<int>("tdc2")),
+      packHBTDC_(iConfig.getParameter<bool>("packHBTDC")),
       electronicsMapLabel_(iConfig.getParameter<std::string>("ElectronicsMap")),
       tok_QIE10DigiCollection_(
           consumes<HcalDataFrameContainer<QIE10DataFrame> >(iConfig.getParameter<edm::InputTag>("QIE10"))),
@@ -152,7 +154,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
       int presamples = qiedf.presamples();
 
       //   convert to hb qie data if hb
-      if (HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
+      if (packHBTDC_ && HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
         qiedf = convertHB(qiedf, tdc1_, tdc2_, tdcmax_);
 
       if (!uhtrs.exist(uhtrIndex)) {
@@ -283,6 +285,7 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<int>("Verbosity", 0);
   desc.add<int>("tdc1", 4);
   desc.add<int>("tdc2", 20);
+  desc.add<bool>("packHBTDC", true);
   desc.add<std::string>("ElectronicsMap", "");
   desc.add<edm::InputTag>("QIE10", edm::InputTag("simHcalDigis", "HFQIE10DigiCollection"));
   desc.add<edm::InputTag>("QIE11", edm::InputTag("simHcalDigis", "HBHEQIE11DigiCollection"));
