@@ -388,8 +388,9 @@ public:
     int vectorSize = (genProd.weights().size() == 14 || genProd.weights().size() == 46) ? 4 : 1;
     std::vector<double> wPS(vectorSize, 1);
     if (vectorSize > 1) {
+      double nominal = genProd.weights()[1];  // Called 'Baseline' in GenLumiInfoHeader
       for (unsigned int i = 6; i < 10; i++) {
-        wPS[i - 6] = (genProd.weights()[i]) / w0;
+        wPS[i - 6] = (genProd.weights()[i]) / nominal;
       }
     }
     outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
@@ -454,7 +455,7 @@ public:
     }
     if (!psWeightIDs.empty()) {
       for (auto id : psWeightIDs)
-        wPS.push_back((weights.at(id)) / genWeight);
+        wPS.push_back((weights.at(id)) / w0);
     } else
       wPS.push_back(1.0);
 
@@ -493,8 +494,9 @@ public:
 
     std::vector<double> wPS(vectorSize, 1);
     if (vectorSize > 1) {
+      double nominal = genProd.weights()[1];  // Called 'Baseline' in GenLumiInfoHeader
       for (unsigned int i = 6; i < 10; i++) {
-        wPS[i - 6] = (genProd.weights()[i]) / genWeight;
+        wPS[i - 6] = (genProd.weights()[i]) / nominal;
       }
     }
 
