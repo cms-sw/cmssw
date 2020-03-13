@@ -32,11 +32,13 @@ static long algorithm(dd4hep::Detector& /* description */,
 #endif
   std::string childName = args.value<std::string>("ChildName");
   childName = ns.prepend(childName);
-  dd4hep::Volume parent = ns.volume(args.parentName());
+  std::string parentName = args.parentName();
+  parentName = ns.prepend(parentName);
+  dd4hep::Volume parent = ns.volume(parentName);
   dd4hep::Volume child = ns.volume(childName);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Parent " << parent.name() << "\tChild " << child.name()
-                               << "\tNameSpace " << ns.name();
+  edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Parent " << parentName << "\tChild " << child.name() << "\tNameSpace "
+                               << ns.name();
 #endif
 
   // Now position child in mother *n* times
@@ -60,7 +62,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     parent.placeVolume(child, copyNo, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonGeom") << "DDGEMAngular: " << child.name() << " number " << copyNo << " positioned in "
-                                 << parent.name() << " at " << tran << " with " << rotation;
+                                 << parentName << " at " << tran << " with " << rotation;
 #endif
     phi += stepAngle;
     copyNo += incrCopyNo;
