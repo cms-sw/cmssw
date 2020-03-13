@@ -1,7 +1,6 @@
 <use   name="DataFormats/BeamSpot"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/Provenance"/>
-<use   name="DetectorDescription/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
