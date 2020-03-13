@@ -13,16 +13,16 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
   for (size_t i = 0; i < tab.nColumns(); i++) {
     const std::string &var = tab.columnName(i);
     switch (tab.columnType(i)) {
-      case (nanoaod::FlatTable::FloatColumn):
+      case nanoaod::FlatTable::ColumnType::Float:
         m_floatBranches.emplace_back(var, tab.columnDoc(i), "F");
         break;
-      case (nanoaod::FlatTable::IntColumn):
+      case nanoaod::FlatTable::ColumnType::Int:
         m_intBranches.emplace_back(var, tab.columnDoc(i), "I");
         break;
-      case (nanoaod::FlatTable::UInt8Column):
+      case nanoaod::FlatTable::ColumnType::UInt8:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "b");
         break;
-      case (nanoaod::FlatTable::BoolColumn):
+      case nanoaod::FlatTable::ColumnType::Bool:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "O");
         break;
     }

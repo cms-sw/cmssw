@@ -129,20 +129,15 @@ public:
         const auto &varPSet = extvarsPSet.getParameter<edm::ParameterSet>(vname);
         const std::string &type = varPSet.getParameter<std::string>("type");
         if (type == "int")
-          extvars_.push_back(
-              std::make_unique<IntExtVar>(vname, varPSet, this->consumesCollector()));
+          extvars_.push_back(std::make_unique<IntExtVar>(vname, varPSet, this->consumesCollector()));
         else if (type == "float")
-          extvars_.push_back(std::make_unique<FloatExtVar>(
-              vname, varPSet, this->consumesCollector()));
+          extvars_.push_back(std::make_unique<FloatExtVar>(vname, varPSet, this->consumesCollector()));
         else if (type == "double")
-          extvars_.push_back(std::make_unique<DoubleExtVar>(
-              vname, varPSet, this->consumesCollector()));
+          extvars_.push_back(std::make_unique<DoubleExtVar>(vname, varPSet, this->consumesCollector()));
         else if (type == "uint8")
-          extvars_.push_back(std::make_unique<UInt8ExtVar>(
-              vname, varPSet, this->consumesCollector()));
+          extvars_.push_back(std::make_unique<UInt8ExtVar>(vname, varPSet, this->consumesCollector()));
         else if (type == "bool")
-          extvars_.push_back(
-              std::make_unique<BoolExtVar>(vname, varPSet, this->consumesCollector()));
+          extvars_.push_back(std::make_unique<BoolExtVar>(vname, varPSet, this->consumesCollector()));
         else
           throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
       }

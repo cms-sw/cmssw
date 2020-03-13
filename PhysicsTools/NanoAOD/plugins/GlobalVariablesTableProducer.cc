@@ -18,22 +18,17 @@ public:
       if (type == "int")
         vars_.push_back(std::make_unique<IntVar>(vname, varPSet, consumesCollector()));
       else if (type == "float")
-        vars_.push_back(
-            std::make_unique<FloatVar>(vname, varPSet, consumesCollector()));
+        vars_.push_back(std::make_unique<FloatVar>(vname, varPSet, consumesCollector()));
       else if (type == "double")
-        vars_.push_back(
-            std::make_unique<DoubleVar>(vname, varPSet, consumesCollector()));
+        vars_.push_back(std::make_unique<DoubleVar>(vname, varPSet, consumesCollector()));
       else if (type == "bool")
         vars_.push_back(std::make_unique<BoolVar>(vname, varPSet, consumesCollector()));
       else if (type == "candidatescalarsum")
-        vars_.push_back(std::make_unique<CandidateScalarSumVar>(
-            vname, varPSet, consumesCollector()));
+        vars_.push_back(std::make_unique<CandidateScalarSumVar>(vname, varPSet, consumesCollector()));
       else if (type == "candidatesize")
-        vars_.push_back(
-            std::make_unique<CandidateSizeVar>(vname, varPSet, consumesCollector()));
+        vars_.push_back(std::make_unique<CandidateSizeVar>(vname, varPSet, consumesCollector()));
       else if (type == "candidatesummass")
-        vars_.push_back(std::make_unique<CandidateSumMassVar>(
-            vname, varPSet, consumesCollector()));
+        vars_.push_back(std::make_unique<CandidateSumMassVar>(vname, varPSet, consumesCollector()));
       else
         throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
     }

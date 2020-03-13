@@ -137,10 +137,8 @@ public:
     out.addColumnValue<uint8_t>("Nuds", lheNuds, "Number of u,d,s partons at LHE step");
     out.addColumnValue<uint8_t>("Nglu", lheNglu, "Number of gluon partons at LHE step");
     out.addColumnValue<float>("HT", lheHT, "HT, scalar sum of parton pTs at LHE step");
-    out.addColumnValue<float>("HTIncoming",
-                              lheHTIncoming,
-                              "HT, scalar sum of parton pTs at LHE step, restricted to partons",
-                              nanoaod::FlatTable::FloatColumn);
+    out.addColumnValue<float>(
+        "HTIncoming", lheHTIncoming, "HT, scalar sum of parton pTs at LHE step, restricted to partons");
     out.addColumnValue<float>("Vpt", lheVpt, "pT of the W or Z boson at LHE step");
     out.addColumnValue<uint8_t>("NpNLO", lheProd.npNLO(), "number of partons at NLO");
     out.addColumnValue<uint8_t>("NpLO", lheProd.npLO(), "number of partons at LO");
