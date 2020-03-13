@@ -13,16 +13,16 @@ void nanoaod::FlatTable::addExtension(const nanoaod::FlatTable& other) {
     throw cms::Exception("LogicError", "Mismatch in adding extension");
   for (unsigned int i = 0, n = other.nColumns(); i < n; ++i) {
     switch (other.columnType(i)) {
-      case FloatColumn:
+      case ColumnType::Float:
         addColumn<float>(other.columnName(i), other.columnData<float>(i), other.columnDoc(i));
         break;
-      case IntColumn:
+      case ColumnType::Int:
         addColumn<int>(other.columnName(i), other.columnData<int>(i), other.columnDoc(i));
         break;
-      case BoolColumn:
+      case ColumnType::Bool:
         addColumn<bool>(other.columnName(i), other.columnData<uint8_t>(i), other.columnDoc(i));
         break;
-      case UInt8Column:
+      case ColumnType::UInt8:
         addColumn<uint8_t>(other.columnName(i), other.columnData<uint8_t>(i), other.columnDoc(i));
         break;
     }
@@ -33,13 +33,13 @@ double nanoaod::FlatTable::getAnyValue(unsigned int row, unsigned int column) co
   if (column >= nColumns())
     throw cms::Exception("LogicError", "Invalid column");
   switch (columnType(column)) {
-    case FloatColumn:
+    case ColumnType::Float:
       return *(beginData<float>(column) + row);
-    case IntColumn:
+    case ColumnType::Int:
       return *(beginData<int>(column) + row);
-    case BoolColumn:
+    case ColumnType::Bool:
       return *(beginData<uint8_t>(column) + row);
-    case UInt8Column:
+    case ColumnType::UInt8:
       return *(beginData<uint8_t>(column) + row);
   }
   throw cms::Exception("LogicError", "Unsupported type");

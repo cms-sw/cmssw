@@ -37,11 +37,11 @@ namespace nanoaod {
 
   class FlatTable {
   public:
-    enum ColumnType {
-      FloatColumn,
-      IntColumn,
-      UInt8Column,
-      BoolColumn
+    enum class ColumnType {
+      Float,
+      Int,
+      UInt8,
+      Bool
     };  // We could have other Float types with reduced mantissa, and similar
 
     FlatTable() : size_(0) {}
@@ -113,10 +113,10 @@ namespace nanoaod {
       if (values.size() != size())
         throw cms::Exception("LogicError", "Mismatched size for " + name);
       if constexpr (std::is_same<T, bool>()) {
-        columns_.emplace_back(name, docString, ColumnType::BoolColumn, uint8s_.size());
+        columns_.emplace_back(name, docString, ColumnType::Bool, uint8s_.size());
         uint8s_.insert(uint8s_.end(), values.begin(), values.end());
       } else if constexpr (std::is_same<T, float>()) {
-        columns_.emplace_back(name, docString, ColumnType::FloatColumn, floats_.size());
+        columns_.emplace_back(name, docString, ColumnType::Float, floats_.size());
         floats_.insert(floats_.end(), values.begin(), values.end());
         flatTableHelper::MaybeMantissaReduce<float>(mantissaBits).bulk(columnData<float>(columns_.size() - 1));
       } else {
@@ -134,10 +134,10 @@ namespace nanoaod {
       if (columnIndex(name) != -1)
         throw cms::Exception("LogicError", "Duplicated column: " + name);
       if constexpr (std::is_same<T, bool>()) {
-        columns_.emplace_back(name, docString, ColumnType::BoolColumn, uint8s_.size());
+        columns_.emplace_back(name, docString, ColumnType::Bool, uint8s_.size());
         uint8s_.push_back(value);
       } else if constexpr (std::is_same<T, float>()) {
-        columns_.emplace_back(name, docString, ColumnType::FloatColumn, floats_.size());
+        columns_.emplace_back(name, docString, ColumnType::Float, floats_.size());
         floats_.push_back(flatTableHelper::MaybeMantissaReduce<float>(mantissaBits).one(value));
       } else {
         ColumnType type = defaultColumnType<T>();
@@ -152,9 +152,9 @@ namespace nanoaod {
     template <typename T>
     static ColumnType defaultColumnType() {
       if constexpr (std::is_same<T, int>())
-        return ColumnType::IntColumn;
+        return ColumnType::Int;
       if constexpr (std::is_same<T, uint8_t>())
-        return ColumnType::UInt8Column;
+        return ColumnType::UInt8;
       throw cms::Exception("unsupported type");
     }
 
