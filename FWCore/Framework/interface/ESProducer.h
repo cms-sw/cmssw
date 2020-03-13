@@ -71,6 +71,7 @@ Example: two algorithms each creating only one objects
 // system include files
 #include <memory>
 #include <string>
+#include <optional>
 
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
@@ -128,18 +129,20 @@ namespace edm {
     }
 
     template <typename Record>
-    void updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) {
+    std::optional<std::vector<ESProxyIndex>> updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) const {
       if (itemsToGetFromRecords_.empty() or itemsToGetFromRecords_[iIndex].empty()) {
-        return;
+        return {};
       }
+      std::vector<ESProxyIndex> ret = itemsToGetFromRecords_[iIndex];
       auto const info = consumesInfos_[iIndex].get();
       for (size_t i = 0; i < info->size(); ++i) {
         auto chooserBase = (*info)[i].chooser_.get();
         if (chooserBase) {
           auto chooser = static_cast<eventsetup::impl::MayConsumeChooserBase<Record>*>(chooserBase);
-          itemsToGetFromRecords_[iIndex][i] = chooser->makeChoice(iRecord);
+          ret[i] = chooser->makeChoice(iRecord);
         }
       }
+      return ret;
     }
 
   protected:
