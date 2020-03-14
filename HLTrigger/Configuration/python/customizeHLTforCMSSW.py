@@ -164,18 +164,10 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-def customiseFor12434(process):
+def customiseFor28936(process):
     """ Adapt a misconfiguration in hltBoostedDBSVAK8TagInfosPF. Issue #29203 """
-    del process.hltBoostedDBSVAK8TagInfosPF.trackSelection.variableJTAParsi
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.a_dR = cms.double( -0.001053 )
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.max_pT_dRcut = cms.double( 0.1 )
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.b_dR = cms.double( 0.6263 )
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.min_pT = cms.double( 120.0 )
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.b_pT = cms.double( 0.3684 )
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.a_pT = cms.double( 0.005263 )
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.max_pT_trackPTcut = cms.double( 3.0 )
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.max_pT = cms.double( 500.0 )
-    process.hltBoostedDBSVAK8TagInfosPF.trackSelection.min_pT_dRcut = cms.double( 0.5 )
+    if hasattr(process, 'hltBoostedDBSVAK8TagInfosPF'):
+      del process.hltBoostedDBSVAK8TagInfosPF.trackSelection.variableJTAParsi
     return process
 
 def customiseFor29049(process) :
@@ -213,6 +205,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor29049(process)
-    process = customiseFor12434(process)
+    process = customiseFor28936(process)
 
     return process
