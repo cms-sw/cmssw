@@ -11,10 +11,7 @@
 #include <iomanip>
 #include <iostream>
 
-enum Pattern_Info {
-  NUM_LAYERS = 6,
-  CLCT_PATTERN_WIDTH = 11
-};
+enum Pattern_Info { NUM_LAYERS = 6, CLCT_PATTERN_WIDTH = 11 };
 
 /// Constructors
 CSCCLCTDigi::CSCCLCTDigi(const int valid,
@@ -99,10 +96,7 @@ int CSCCLCTDigi::getKeyStrip(int n) const {
   }
 }
 
-int CSCCLCTDigi::getStrip() const
-{
-  return strip_ & kHalfStripMask;
-}
+int CSCCLCTDigi::getStrip() const { return strip_ & kHalfStripMask; }
 
 bool CSCCLCTDigi::getQuartStrip() const { return (strip_ >> kQuartStripShift) & kQuartStripMask; }
 
