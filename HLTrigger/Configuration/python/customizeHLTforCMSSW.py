@@ -178,11 +178,41 @@ def customiseFor12434(process):
     process.hltBoostedDBSVAK8TagInfosPF.trackSelection.min_pT_dRcut = cms.double( 0.5 )
     return process
 
+def customiseFor29049(process) :
+
+   listHltPFRecHitHBHE=['hltParticleFlowRecHitHBHE',
+                        'hltParticleFlowRecHitHBHEForEgamma',
+                        'hltParticleFlowRecHitHBHEForEgammaUnseeded',
+                        'hltParticleFlowRecHitHBHEForMuons',
+                        'hltParticleFlowRecHitHBHERegForMuons']
+   for att in listHltPFRecHitHBHE:
+      if hasattr(process,att):
+         prod = getattr(process, att)
+         pset_navi = prod.navigator
+         if hasattr(pset_navi, "sigmaCut"): delattr(pset_navi,'sigmaCut')
+         if hasattr(pset_navi, "timeResolutionCalc"): delattr(pset_navi,'timeResolutionCalc')
+         pset_navi.name = cms.string("PFRecHitHCALDenseIdNavigator")
+         pset_navi.hcalEnums = cms.vint32(1,2)
+
+   listHltPFRecHitHF=['hltParticleFlowRecHitHF',
+                      'hltParticleFlowRecHitHFForEgammaUnseeded']
+   for att in listHltPFRecHitHF:
+      if hasattr(process,att):
+         prod = getattr(process, att)
+         pset_navi = prod.navigator
+         if hasattr(pset_navi, "barrel"): delattr(pset_navi,'barrel')
+         if hasattr(pset_navi, "endcap"): delattr(pset_navi,'endcap')
+         pset_navi.name = cms.string("PFRecHitHCALDenseIdNavigator")
+         pset_navi.hcalEnums = cms.vint32(4)
+
+   return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseFor29049(process)
     process = customiseFor12434(process)
 
     return process

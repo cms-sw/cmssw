@@ -16,6 +16,7 @@
 #include <boost/bind.hpp>
 #include "TGButton.h"
 #include "TGResourcePool.h"
+#include "TVirtualX.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/FWBoxIconButton.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"

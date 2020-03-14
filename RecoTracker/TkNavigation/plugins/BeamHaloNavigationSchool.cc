@@ -1,5 +1,6 @@
 #include "SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include <vector>
 

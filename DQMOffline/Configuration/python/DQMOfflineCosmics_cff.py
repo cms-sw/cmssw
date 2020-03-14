@@ -15,6 +15,7 @@ from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cosmic_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 
 dqmProvInfo.runType = "cosmics_run"
+dqmProvInfo.dcsRecord = cms.untracked.InputTag("onlineMetaDataDigis")
 DQMOfflineCosmicsDCS = cms.Sequence( dqmProvInfo )
 
 DQMOfflineCosmicsEcal = cms.Sequence( ecal_dqm_source_offline *

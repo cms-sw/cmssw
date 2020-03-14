@@ -1,5 +1,5 @@
-#ifndef HeterogeneousCore_CUDACore_CUDAESProduct_h
-#define HeterogeneousCore_CUDACore_CUDAESProduct_h
+#ifndef HeterogeneousCore_CUDACore_ESProduct_h
+#define HeterogeneousCore_CUDACore_ESProduct_h
 
 #include <atomic>
 #include <cassert>

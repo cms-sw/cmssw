@@ -94,7 +94,7 @@ namespace gs {
     typedef typename Reader::Base::value_type InheritanceBase;
 
     static const Reader &instance() {
-      static Reader obj;
+      static const Reader obj;
       return obj;
     }
 
