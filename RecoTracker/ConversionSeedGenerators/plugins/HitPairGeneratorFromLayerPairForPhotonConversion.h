@@ -4,6 +4,7 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "ConversionRegion.h"
 

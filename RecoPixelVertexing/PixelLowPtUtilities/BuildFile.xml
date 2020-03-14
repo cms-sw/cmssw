@@ -10,9 +10,7 @@
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
 <use   name="TrackingTools/TrajectoryFiltering"/>
 <use   name="TrackingTools/Records"/>
-<use   name="RecoLocalTracker/Records"/>
 <use   name="MagneticField/Records"/>
-<use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/TrackerCommon"/>
 <export>
   <lib   name="1"/>

@@ -6,6 +6,7 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixHelix.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceLineLine.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixLine.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /**
    * General interface to calculate the PCA of two tracks. 

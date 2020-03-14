@@ -6,6 +6,7 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 namespace sistrip {
 

@@ -26,10 +26,10 @@
 #include <TGStatusBar.h>
 #include <KeySymbols.h>
 #include <TGSlider.h>
-
 #include <TSystem.h>
 #include <TImage.h>
 #include <TEnv.h>
+#include <TVirtualX.h>
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/CSGAction.h"

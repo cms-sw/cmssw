@@ -54,8 +54,12 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
     uint32_t tdcNbits = ps.getParameter<uint32_t>("tdcNbits");
     tdcSaturation_fC_ = ps.getParameter<double>("tdcSaturation_fC");
     tdcLSB_fC_ = tdcSaturation_fC_ / pow(2., tdcNbits);
+    // lower tdcSaturation_fC_ by one part in a million
+    // to ensure largest charge converted in bits is 0xfff and not 0x000
+    tdcSaturation_fC_ *= (1. - 1e-6);
     edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" << tdcLSB_fC_
-                              << " saturation to occur @ " << tdcSaturation_fC_ << std::endl;
+                              << " saturation to occur @ " << tdcSaturation_fC_
+                              << " (NB lowered by 1 part in a million)" << std::endl;
   }
   if (ps.exists("targetMIPvalue_ADC"))
     targetMIPvalue_ADC_ = ps.getParameter<uint32_t>("targetMIPvalue_ADC");
@@ -119,7 +123,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(
     lsbADC = adcLSB_fC_;
   if (maxADC < 0)
     // lower adcSaturation_fC_ by one part in a million
-    // to esure largest charge convertred in bits is 0xfff==4095, not 0x1000
+    // to ensure largest charge converted in bits is 0xfff==4095, not 0x1000
     // no effect on charges loewer than; no impact on cpu time, only done once
     maxADC = adcSaturation_fC_ * (1 - 1e-6);
   for (int it = 0; it < (int)(chargeColl.size()); it++) {

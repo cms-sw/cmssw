@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
  <ConstantsSection  label="trackerParameters.xml" eval="true">
+   <Constant name="Rmin" value="1*cm"/>
+   <Constant name="Rmin1" value="[Rmin]"/>
+   <Constant name="Rmin2" value="2*[Rmin1]"/>
+   <Constant name="Rmin3" value="[Rmin]+[Rmin2]"/>
+   <Constant name="Rmin4" value="4*[Rmin3] - [Rmin1] + 2*cm"/>
+   <Vector name="RadiiTest" type="numeric" nEntries="5">
+     [testDDVectors:Rmin], [testDDVectors:Rmin1], [testDDVectors:Rmin2], [testDDVectors:Rmin3], [testDDVectors:Rmin4]
+   </Vector>
    <Vector name="RadiusMixBoundary" type="numeric" nEntries="16">
      [hgcal:radMixL0], [hgcal:radMixL1], [hgcal:radMixL2], [hgcal:radMixL3],
      [hgcal:radMixL4], [hgcal:radMixL5], [hgcal:radMixL6], [hgcal:radMixL7],

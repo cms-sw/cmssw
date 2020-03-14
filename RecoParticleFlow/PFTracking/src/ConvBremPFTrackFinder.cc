@@ -276,16 +276,9 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
                    ? LinkByRecHit::testTrackAndClusterByRecHit(pfrectrack, clust)
                    : -1.;
 
-        if (dist > 0.) {
-          bool applyCrackCorrections = false;
-          vector<double> ps1Ene(0);
-          vector<double> ps2Ene(0);
-          double ps1, ps2;
-          ps1 = ps2 = 0.;
-          if (dist < MinDist) {
-            MinDist = dist;
-            EE_calib = cache->pfcalib_->energyEm(*clus, ps1Ene, ps2Ene, ps1, ps2, applyCrackCorrections);
-          }
+        if (dist > 0. && dist < MinDist) {
+          MinDist = dist;
+          EE_calib = cache->pfcalib_->energyEm(*clus, 0.0, 0.0, false);
         }
       }
       if (MinDist > 0. && MinDist < 100000.) {

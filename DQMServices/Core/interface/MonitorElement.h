@@ -387,6 +387,7 @@ namespace dqm::impl {
     virtual double getBinError(int binx, int biny, int binz) const;
     virtual double getEntries() const;
     virtual double getBinEntries(int bin) const;
+    virtual double integral() const;
 
     virtual int64_t getIntValue() const;
     virtual double getFloatValue() const;
@@ -401,6 +402,7 @@ namespace dqm::impl {
     virtual void setBinError(int binx, int biny, int binz, double error);
     virtual void setBinEntries(int bin, double nentries);
     virtual void setEntries(double nentries);
+    virtual void divide(const MonitorElement *, const MonitorElement *, double, double, const char *);
     virtual void setBinLabel(int bin, const std::string &label, int axis = 1);
     virtual void setAxisRange(double xmin, double xmax, int axis = 1);
     virtual void setAxisTitle(const std::string &title, int axis = 1);

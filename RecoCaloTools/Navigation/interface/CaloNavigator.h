@@ -2,7 +2,6 @@
 #define RECOCALOTOOLS_NAVIGATION_CALONAVIGATOR_H 1
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 template <class T, class TOPO = CaloSubdetectorTopology>
 class CaloNavigator final {
