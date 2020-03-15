@@ -56,11 +56,13 @@ void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, c
 
     // Loop on SLs
     bool doSL = fview.nextSibling();
+
     while (doSL) {
       DTSuperLayer* sl = buildSuperLayer(fview, chamber, num);
 
       // Loop on Layers
       fview.down();
+
       bool doLayers = fview.sibling();
       while (doLayers) {
         DTLayer* l = buildLayer(fview, sl, num);

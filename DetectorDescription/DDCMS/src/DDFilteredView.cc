@@ -147,7 +147,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
     for (const auto& j : i->paths) {
       vector<string_view> toks = split(j, "/");
       auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-        auto const& k = find(begin(f->keys), end(f->keys), toks.front());
+	  auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p) { return p.first == toks.front(); });
         if (k != end(f->keys)) {
           currentFilter_ = f.get();
           return true;
@@ -155,24 +155,41 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         return false;
       });
       if (filter == end(filters_)) {
-        filters_.emplace_back(unique_ptr<Filter>(new Filter{{toks.front()}, nullptr, nullptr, i}));
-        currentFilter_ = filters_.back().get();
+	filters_.emplace_back(unique_ptr<Filter>(
+	  new Filter{{std::pair<std::string_view, std::regex>(
+		      toks.front(), regex(std::string(toks.front().data(), toks.front().size())))},
+	      nullptr, nullptr, i}));
       }
       // all next levels
       for (size_t pos = 1; pos < toks.size(); ++pos) {
         if (currentFilter_->next != nullptr) {
           currentFilter_ = currentFilter_->next.get();
-          auto const& l = find(begin(currentFilter_->keys), end(currentFilter_->keys), toks[pos]);
+	  auto const& l = find_if(begin(currentFilter_->keys), end(currentFilter_->keys), [&](auto const& p) {
+             return p.first == toks[pos];
+           });
           if (l == end(currentFilter_->keys)) {
-            currentFilter_->keys.emplace_back(toks[pos]);
+	    currentFilter_->keys.emplace_back(toks[pos], std::string(toks[pos].data(), toks[pos].size()));
           }
         } else {
-          currentFilter_->next.reset(new Filter{{toks[pos]}, nullptr, currentFilter_, i});
+	  currentFilter_->next.reset(new Filter{{std::pair<std::string_view, std::regex>(
+                                                     toks[pos], regex(std::string(toks[pos].data(), toks[pos].size())))},
+                                                 nullptr,
+                                                 currentFilter_,
+                                                 i});
         }
       }
     }
   }
 }
+
+void DDFilteredView::printFilter(const Filter* filter) const {
+   if (filter != nullptr) {
+     for (auto it : filter->keys)
+       std::cout << "//" << std::string(it.first.data(), it.first.size()) << "\n";
+     if (filter->next != nullptr)
+       printFilter(filter->next.get());
+   }
+ }
 
 bool DDFilteredView::firstChild() {
   if (it_.empty()) {
@@ -415,33 +432,6 @@ DDFilteredView::nav_type DDFilteredView::navPos() const {
   return pos;
 }
 
-bool DDFilteredView::addPath(Node* const node) {
-  assert(registry_);
-  node_ = node;
-  nodes_.tags.clear();
-  nodes_.offsets.clear();
-  nodes_.copyNos.clear();
-  bool result(false);
-
-  int level = it_.back().GetLevel();
-  for (int nit = level; nit > 0; --nit) {
-    for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
-      auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-        return (compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
-                             *begin(split(realTopName(j), "/"))) &&
-                (i.second.hasValue("CopyNoTag") || i.second.hasValue("CopyNoOffset")));
-      });
-      if (k != end(i.second.paths)) {
-        nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
-        nodes_.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
-        nodes_.copyNos.emplace_back(it_.back().GetNode(nit)->GetNumber());
-        result = true;
-      }
-    });
-  }
-  return result;
-}
-
 const ExpandedNodes& DDFilteredView::history() {
   assert(registry_);
   nodes_.tags.clear();
@@ -453,7 +443,7 @@ const ExpandedNodes& DDFilteredView::history() {
   for (int nit = level; nit > 0; --nit) {
     for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-        return (compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
+        return (isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
                              *begin(split(realTopName(j), "/"))) &&
                 (i.second.hasValue("CopyNoTag") || i.second.hasValue("CopyNoOffset")));
       });
@@ -467,25 +457,6 @@ const ExpandedNodes& DDFilteredView::history() {
   }
 
   return nodes_;
-}
-
-bool DDFilteredView::addNode(Node* const node) {
-  assert(registry_);
-  node_ = node;
-  bool result(false);
-  for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
-    auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-      return (compareEqual(node_->GetVolume()->GetName(), *begin(split(realTopName(j), "/"))) &&
-              (i.second.hasValue("CopyNoTag") || i.second.hasValue("CopyNoOffset")));
-    });
-    if (k != end(i.second.paths)) {
-      nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
-      nodes_.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
-      nodes_.copyNos.emplace_back(node_->GetNumber());
-      result = true;
-    }
-  });
-  return result;
 }
 
 const TClass* DDFilteredView::getShape() const {

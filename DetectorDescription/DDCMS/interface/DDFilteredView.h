@@ -75,6 +75,9 @@ namespace cms {
 
     const std::vector<int> copyNumbers() { return copyNos(); }
 
+    //! Debug filter
+    void printFilter() const { printFilter(currentFilter_); };
+
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;
@@ -176,13 +179,12 @@ namespace cms {
 
   private:
     bool accept(std::string_view);
-    bool addPath(Node* const);
-    bool addNode(Node* const);
     const TClass* getShape() const;
 
     //! set the current node to the first sibling
     bool firstSibling();
-
+    void printFilter(const Filter* filter) const;
+    
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
     std::vector<std::unique_ptr<Filter>> filters_;
