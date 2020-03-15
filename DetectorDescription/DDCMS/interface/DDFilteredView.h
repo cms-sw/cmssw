@@ -184,7 +184,7 @@ namespace cms {
     //! set the current node to the first sibling
     bool firstSibling();
     void printFilter(const Filter* filter) const;
-    
+
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
     std::vector<std::unique_ptr<Filter>> filters_;
