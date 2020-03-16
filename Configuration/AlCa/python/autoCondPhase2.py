@@ -40,15 +40,15 @@ allTags["SimLA"] = {
 }
 
 allTags["GenError"] = {
-    'T6'  : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T6_v2_mc'  ,SiPixelGenErrorRecord,connectionString, "", "2019-11-05 20:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
-    'T14' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T14_v2_mc' ,SiPixelGenErrorRecord,connectionString, "", "2019-11-05 20:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
-    'T15' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T15_v2_mc' ,SiPixelGenErrorRecord,connectionString, "", "2019-11-05 20:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T6'  : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T6_v4_mc_bugfix'  ,SiPixelGenErrorRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T14' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T14_v4_mc_bugfix' ,SiPixelGenErrorRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T15' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T15_v4_mc_bugfix' ,SiPixelGenErrorRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
 }
 
 allTags["Template"] = {
-    'T6'  : ( ','.join( [ 'SiPixelTemplateDBObject_phase2_T6_v2_mc'  ,SiPixelTemplatesRecord,connectionString, "", "2019-11-05 20:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
-    'T14' : ( ','.join( [ 'SiPixelTemplateDBObject_phase2_T14_v2_mc' ,SiPixelTemplatesRecord,connectionString, "", "2019-11-05 20:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
-    'T15' : ( ','.join( [ 'SiPixelTemplateDBObject_phase2_T15_v2_mc' ,SiPixelTemplatesRecord,connectionString, "", "2019-11-05 20:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T6'  : ( ','.join( [ 'SiPixelTemplateDBObject_phase2_T6_v4_mc_bugfix' ,SiPixelTemplatesRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T14' : ( ','.join( [ 'SiPixelTemplateDBObject_phase2_T14_v4_mc_bugfix',SiPixelTemplatesRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T15' : ( ','.join( [ 'SiPixelTemplateDBObject_phase2_T15_v4_mc_bugfix',SiPixelTemplatesRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
 }
 
 ##
