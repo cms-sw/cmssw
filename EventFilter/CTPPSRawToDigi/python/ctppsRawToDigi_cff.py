@@ -148,6 +148,7 @@ ctppsRawToDigiTask = cms.Task(
   totemRPRawToDigi,
   ctppsDiamondRawToDigi,
   totemTimingRawToDigi,
+  totemT2RawToDigi,
   ctppsPixelDigis
 )
 ctppsRawToDigi = cms.Sequence(ctppsRawToDigiTask)
