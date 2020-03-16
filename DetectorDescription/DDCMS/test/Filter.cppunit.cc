@@ -24,7 +24,6 @@ public:
   void checkFilter();
 
 private:
-  void print(Filter*);
   vector<unique_ptr<Filter>> filters_;
 };
 
@@ -55,7 +54,7 @@ void testFilter::setUp() {
     });
     if (filter == end(filters_)) {
       filters_.emplace_back(unique_ptr<Filter>(
-          new Filter{{std::regex(regex(std::string(toks.front().data(), toks.front().size())))}, nullptr, nullptr}));
+          new Filter{{std::regex(std::string(toks.front().data(), toks.front().size()))}, nullptr, nullptr}));
       currentFilter = filters_.back().get();
     }
     // all next levels
@@ -84,19 +83,10 @@ void testFilter::checkFilter() {
   CPPUNIT_ASSERT(filters_.size() == 1);
 
   Filter* current = nullptr;
-  cout << "Filters...\n";
   for (auto const& i : filters_) {
     current = i.get();
     do {
-      print(current);
       current = current->next.get();
     } while (current != nullptr);
   }
-}
-
-void testFilter::print(Filter* filter) {
-  // for (auto const& it : filter->keys) {
-  //   // cout << std::string(it) << " ";
-  // }
-  cout << "\n";
 }
