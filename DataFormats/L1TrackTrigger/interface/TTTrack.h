@@ -344,7 +344,7 @@ double TTTrack<T>::chi2Red() const {
 /// Chi2XY reduced
 template <typename T>
 double TTTrack<T>::chi2XYRed() const {
-  return theChi2_XY_ / (theStubRefs.size() - theNumFitPars_ - 2);
+  return theChi2_XY_ / (theStubRefs.size() - (theNumFitPars_ - 2));
 }
 
 /// Chi2Z reduced
