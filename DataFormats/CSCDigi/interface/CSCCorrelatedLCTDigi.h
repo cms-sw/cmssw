@@ -1,9 +1,9 @@
-#ifndef CSCDigi_CSCCorrelatedLCTDigi_h
-#define CSCDigi_CSCCorrelatedLCTDigi_h
+#ifndef DataFormats_CSCDigi_CSCCorrelatedLCTDigi_h
+#define DataFormats_CSCDigi_CSCCorrelatedLCTDigi_h
 
 /**\class CSCCorrelatedLCTDigi
  *
- * Digi for Correlated LCT trigger primitives. 
+ * Digi for Correlated LCT trigger primitives.
  *
  *
  * \author L. Gray, UF
@@ -17,6 +17,9 @@
 
 class CSCCorrelatedLCTDigi {
 public:
+  enum LCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
+  enum LCTKeyStripShifts { kEightStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
+
   /// Constructors
   CSCCorrelatedLCTDigi(const int trknmb,
                        const int valid,
@@ -41,17 +44,29 @@ public:
   /// return valid pattern bit
   bool isValid() const { return valid; }
 
-  /// return the 4 bit Correlated LCT Quality
+  /// return the Quality
   int getQuality() const { return quality; }
 
   /// return the key wire group. counts from 0.
   int getKeyWG() const { return keywire; }
 
   /// return the key halfstrip from 0,159
-  int getStrip() const { return strip; }
+  int getStrip(int n = 2) const;
+
+  /// set single quart strip bit
+  void setQuartStrip(const bool quartStrip);
+
+  /// get single quart strip bit
+  bool getQuartStrip() const;
+
+  /// set single eight strip bit
+  void setEightStrip(const bool eightStrip);
+
+  /// get single eight strip bit
+  bool getEightStrip() const;
 
   /// return the fractional strip. counts from 0.25
-  float getFractionalStrip() const;
+  float getFractionalStrip(int n = 2) const;
 
   /// return pattern
   int getPattern() const { return pattern; }
