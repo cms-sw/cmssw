@@ -57,8 +57,51 @@ void CSCCorrelatedLCTDigi::clear() {
   cscID = 0;
 }
 
+int CSCCorrelatedLCTDigi::getStrip(int n) const {
+  // all 10 bits
+  if (n == 8) {
+    return 2 * getStrip(4) + getEightStrip();
+  }
+  // lowest 9 bits
+  else if (n == 4) {
+    return 2 * getStrip(2) + getQuartStrip();
+  }
+  // lowest 8 bits
+  else {
+    return strip & kHalfStripMask;
+  }
+}
+
+void CSCCorrelatedLCTDigi::setQuartStrip(const bool quartStrip) {
+  // clear the old value
+  strip &= ~(kQuartStripMask << kQuartStripShift);
+
+  // set the new value
+  strip |= quartStrip << kQuartStripShift;
+}
+
+void CSCCorrelatedLCTDigi::setEightStrip(const bool eightStrip) {
+  // clear the old value
+  strip &= ~(kEightStripMask << kEightStripShift);
+
+  // set the new value
+  strip |= eightStrip << kEightStripShift;
+}
+
+bool CSCCorrelatedLCTDigi::getQuartStrip() const { return (strip >> kQuartStripShift) & kQuartStripMask; }
+
+bool CSCCorrelatedLCTDigi::getEightStrip() const { return (strip >> kEightStripShift) & kEightStripMask; }
+
 /// return the fractional strip
-float CSCCorrelatedLCTDigi::getFractionalStrip() const { return 0.5f * (getStrip() + 1) - 0.25f; }
+float CSCCorrelatedLCTDigi::getFractionalStrip(int n) const {
+  if (n == 8) {
+    return 0.125f * (getStrip() + 1) - 0.0625f;
+  } else if (n == 4) {
+    return 0.25f * (getStrip() + 1) - 0.125f;
+  } else {
+    return 0.5f * (getStrip() + 1) - 0.25f;
+  }
+}
 
 /// Comparison
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi& rhs) const {
