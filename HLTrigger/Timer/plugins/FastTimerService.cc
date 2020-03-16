@@ -1224,6 +1224,29 @@ void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t 
 
 template <typename T>
 void FastTimerService::printSummaryLine(
+    T& out, AtomicResources const& data, uint64_t events, uint64_t active, std::string const& label) const {
+  out << boost::format(
+             "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n") %
+             (events ? ms(data.time_thread) / events : 0) % (active ? ms(data.time_thread) / active : 0) %
+             (events ? ms(data.time_real) / events : 0) % (active ? ms(data.time_real) / active : 0) %
+             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
+             (active ? +static_cast<int64_t>(kB(data.allocated) / active) : 0) %
+             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) %
+             (active ? -static_cast<int64_t>(kB(data.deallocated) / active) : 0) % label;
+}
+
+template <typename T>
+void FastTimerService::printSummaryLine(T& out, AtomicResources const& data, uint64_t events, std::string const& label) const {
+  out << boost::format(
+             "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB        "
+             "         %s\n") %
+             (events ? ms(data.time_thread) / events : 0) % (events ? ms(data.time_real) / events : 0) %
+             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
+             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) % label;
+}
+
+template <typename T>
+void FastTimerService::printSummaryLine(
     T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const {
   out << boost::format(
              "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n") %
@@ -1266,6 +1289,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     }
   }
   printSummaryLine(out, data.total, data.events, "total");
+  printSummaryLine(out, data.overhead, data.events, "other");
   out << '\n';
   printPathSummaryHeader(out, "Processes and Paths");
   printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
@@ -1285,6 +1309,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     }
   }
   printSummaryLine(out, data.total, data.events, "total");
+  printSummaryLine(out, data.overhead, data.events, "other");
   out << '\n';
   for (unsigned int group : boost::irange(0ul, highlight_modules_.size())) {
     printSummaryHeader(out, "Highlighted modules", true);

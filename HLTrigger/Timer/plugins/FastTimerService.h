@@ -534,6 +534,12 @@ private:
   void printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const;
 
   template <typename T>
+  void printSummaryLine(T& out, AtomicResources const& data, uint64_t events, std::string const& label) const;
+
+  template <typename T>
+  void printSummaryLine(T& out, AtomicResources const& data, uint64_t events, uint64_t active, std::string const& label) const;
+
+  template <typename T>
   void printPathSummaryLine(
       T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const;
 
