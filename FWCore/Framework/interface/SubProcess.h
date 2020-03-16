@@ -79,6 +79,18 @@ namespace edm {
                       EventPrincipal const& principal,
                       std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
+    template <typename Traits>
+    void doBeginProcessBlockAsync(WaitingTaskHolder iHolder,
+                                  ProcessBlockPrincipal const& principal,
+                                  IOVSyncValue const&,
+                                  std::vector<std::shared_ptr<const EventSetupImpl>> const*);
+
+    void doEndProcessBlockAsync(WaitingTaskHolder iHolder,
+                                ProcessBlockPrincipal const& principal,
+                                IOVSyncValue const&,
+                                std::vector<std::shared_ptr<const EventSetupImpl>> const*,
+                                bool cleaningUpAfterException);
+
     void doBeginRunAsync(WaitingTaskHolder iHolder,
                          RunPrincipal const& principal,
                          IOVSyncValue const& ts,
@@ -129,18 +141,20 @@ namespace edm {
                                          std::vector<std::shared_ptr<const EventSetupImpl>> const*,
                                          bool cleaningUpAfterException);
 
-    // Write the luminosity block
     void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
 
     void deleteLumiFromCache(LuminosityBlockPrincipal&);
 
-    // Write the run
+    void writeProcessBlockAsync(edm::WaitingTaskHolder task, bool isInputProcessBlock);
+
     void writeRunAsync(WaitingTaskHolder,
                        ProcessHistoryID const& parentPhID,
                        int runNumber,
                        MergeableRunProductMetadata const*);
 
     void deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber);
+
+    void clearProcessBlockPrincipal(bool isInputProcessBlock = false);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles() {

@@ -80,19 +80,23 @@ namespace edm {
 
   void WorkerManager::beginJob(ProductRegistry const& iRegistry,
                                eventsetup::ESRecordsToProxyIndices const& iESIndices) {
+    auto const processBlockLookup = iRegistry.productLookup(InProcess);
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
     auto const eventLookup = iRegistry.productLookup(InEvent);
     if (!allWorkers_.empty()) {
       auto const& processName = allWorkers_[0]->description().processName();
+      auto processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
       auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
       auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
       for (auto& worker : allWorkers_) {
+        worker->updateLookup(InProcess, *processBlockLookup);
         worker->updateLookup(InRun, *runLookup);
         worker->updateLookup(InLumi, *lumiLookup);
         worker->updateLookup(InEvent, *eventLookup);
         worker->updateLookup(iESIndices);
+        worker->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
         worker->resolvePutIndicies(InRun, runModuleToIndicies);
         worker->resolvePutIndicies(InLumi, lumiModuleToIndicies);
         worker->resolvePutIndicies(InEvent, eventModuleToIndicies);

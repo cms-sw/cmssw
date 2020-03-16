@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Schedule.h"
@@ -483,6 +484,14 @@ namespace edm {
       principalCache_.insert(std::move(lp));
     }
 
+    {
+      auto pb = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+      principalCache_.insert(std::move(pb));
+
+      auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+      principalCache_.insertForInput(std::move(pb));
+    }
+
     // fill the subprocesses, if there are any
     subProcesses_.reserve(subProcessVParameterSet.size());
     for (auto& subProcessPSet : subProcessVParameterSet) {
@@ -860,6 +869,98 @@ namespace edm {
                              << "Will attempt to terminate processing normally\n"
                              << "(IF using the looper the next loop will be attempted)\n"
                              << "This likely indicates a bug in an input module or corrupted input or both\n";
+  }
+
+  void EventProcessor::beginProcessBlock(bool& beginProcessBlockSucceeded) {
+    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
+    processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
+
+    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> Traits;
+    auto globalWaitTask = make_empty_waiting_task();
+    globalWaitTask->increment_ref_count();
+
+    beginGlobalTransitionAsync<Traits>(
+        WaitingTaskHolder(globalWaitTask.get()), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
+
+    globalWaitTask->wait_for_all();
+    if (globalWaitTask->exceptionPtr() != nullptr) {
+      std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+    }
+    beginProcessBlockSucceeded = true;
+  }
+
+  void EventProcessor::inputProcessBlocks() {
+    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
+    // For now the input source always returns false from readProcessBlock,
+    // so this does nothing at all.
+    // Eventually the ProcessBlockPrincipal needs to be properly filled
+    // and cleared. The delayed reader needs to be set. The correct process name
+    // needs to be supplied.
+    while (input_->readProcessBlock()) {
+      DelayedReader* reader = nullptr;
+      processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName(), reader);
+
+      typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther> Traits;
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+
+      beginGlobalTransitionAsync<Traits>(
+          WaitingTaskHolder(globalWaitTask.get()), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
+
+      globalWaitTask->wait_for_all();
+      if (globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+      }
+
+      auto writeWaitTask = edm::make_empty_waiting_task();
+      writeWaitTask->increment_ref_count();
+      bool isInputProcessBlock = true;
+      writeProcessBlockAsync(edm::WaitingTaskHolder{writeWaitTask.get()}, isInputProcessBlock);
+      writeWaitTask->wait_for_all();
+      if (writeWaitTask->exceptionPtr()) {
+        std::rethrow_exception(*writeWaitTask->exceptionPtr());
+      }
+
+      processBlockPrincipal.clearPrincipal();
+      for (auto& s : subProcesses_) {
+        s.clearProcessBlockPrincipal(isInputProcessBlock);
+      }
+    }
+  }
+
+  void EventProcessor::endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded) {
+    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
+
+    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> Traits;
+    auto globalWaitTask = make_empty_waiting_task();
+    globalWaitTask->increment_ref_count();
+
+    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                     *schedule_,
+                                     processBlockPrincipal,
+                                     serviceToken_,
+                                     subProcesses_,
+                                     cleaningUpAfterException);
+
+    globalWaitTask->wait_for_all();
+    if (globalWaitTask->exceptionPtr() != nullptr) {
+      std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+    }
+
+    if (beginProcessBlockSucceeded) {
+      auto writeWaitTask = edm::make_empty_waiting_task();
+      writeWaitTask->increment_ref_count();
+      writeProcessBlockAsync(edm::WaitingTaskHolder{writeWaitTask.get()});
+      writeWaitTask->wait_for_all();
+      if (writeWaitTask->exceptionPtr()) {
+        std::rethrow_exception(*writeWaitTask->exceptionPtr());
+      }
+    }
+
+    processBlockPrincipal.clearPrincipal();
+    for (auto& s : subProcesses_) {
+      s.clearProcessBlockPrincipal();
+    }
   }
 
   void EventProcessor::beginRun(ProcessHistoryID const& phid,
@@ -1508,6 +1609,25 @@ namespace edm {
       sentry.completedSuccessfully();
     }
     return input_->luminosityBlock();
+  }
+
+  void EventProcessor::writeProcessBlockAsync(WaitingTaskHolder task, bool isInputProcessBlock) {
+    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(),
+                                        [this, task, isInputProcessBlock](std::exception_ptr const* iExcept) mutable {
+                                          if (iExcept) {
+                                            task.doneWaiting(*iExcept);
+                                          } else {
+                                            ServiceRegistry::Operate op(serviceToken_);
+                                            for (auto& s : subProcesses_) {
+                                              s.writeProcessBlockAsync(task, isInputProcessBlock);
+                                            }
+                                          }
+                                        });
+    ServiceRegistry::Operate op(serviceToken_);
+    schedule_->writeProcessBlockAsync(WaitingTaskHolder(subsT),
+                                      principalCache_.processBlockPrincipal(isInputProcessBlock),
+                                      &processContext_,
+                                      actReg_.get());
   }
 
   void EventProcessor::writeRunAsync(WaitingTaskHolder task,

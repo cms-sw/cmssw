@@ -27,10 +27,6 @@ namespace edm {
 
   std::string const& BranchTypeToProductProvenanceBranchName(BranchType const& BranchType);
 
-  std::string const& BranchTypeToMajorIndexName(BranchType const& branchType);
-
-  std::string const& BranchTypeToMinorIndexName(BranchType const& branchType);
-
   std::ostream& operator<<(std::ostream& os, BranchType const& branchType);
 
   namespace poolNames {

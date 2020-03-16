@@ -180,6 +180,11 @@ namespace edm {
                        ActivityRegistry*,
                        MergeableRunProductMetadata const*);
 
+    void writeProcessBlockAsync(WaitingTaskHolder iTask,
+                                ProcessBlockPrincipal const&,
+                                ProcessContext const*,
+                                ActivityRegistry*);
+
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();
 

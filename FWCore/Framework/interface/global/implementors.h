@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ProcessBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -84,6 +85,41 @@ namespace edm {
 
         //When threaded we will have a container for N items whre N is # of streams
         std::vector<C*> caches_;
+      };
+
+      template <typename T, typename C>
+      class ProcessBlockCacheHolder : public virtual T {
+      public:
+        ProcessBlockCacheHolder() = default;
+        ProcessBlockCacheHolder(ProcessBlockCacheHolder<T, C> const&) = delete;
+        ProcessBlockCacheHolder<T, C>& operator=(ProcessBlockCacheHolder<T, C> const&) = delete;
+        ~ProcessBlockCacheHolder() override {}
+
+      protected:
+        // Not implemented yet
+        // const C* processBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
+
+      private:
+        void doBeginProcessBlock_(ProcessBlock const& pb) final { beginProcessBlock(pb); }
+
+        // Not yet fully implemented, will never get called
+        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
+          caches_.push_back(accessInputProcessBlock(pb));
+        }
+
+        void doEndProcessBlock_(ProcessBlock const& pb) final {
+          endProcessBlock(pb);
+          caches_.clear();
+        }
+
+        virtual void beginProcessBlock(ProcessBlock const&) const {}
+
+        // Not yet fully implemented, will never get called
+        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) const { return std::shared_ptr<C>(); }
+
+        virtual void endProcessBlock(ProcessBlock const&) const {}
+
+        std::vector<std::shared_ptr<C>> caches_;
       };
 
       template <typename T, typename C>
@@ -215,6 +251,34 @@ namespace edm {
         //When threaded we will have a container for N items where N is # of simultaneous Lumis
         std::unique_ptr<std::shared_ptr<C>[]> caches_;
         std::mutex mutex_;
+      };
+
+      template <typename T>
+      class BeginProcessBlockProducer : public virtual T {
+      public:
+        BeginProcessBlockProducer() = default;
+        BeginProcessBlockProducer(BeginProcessBlockProducer const&) = delete;
+        BeginProcessBlockProducer& operator=(BeginProcessBlockProducer const&) = delete;
+        ~BeginProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doBeginProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void beginProcessBlockProduce(edm::ProcessBlock&) const = 0;
+      };
+
+      template <typename T>
+      class EndProcessBlockProducer : public virtual T {
+      public:
+        EndProcessBlockProducer() = default;
+        EndProcessBlockProducer(EndProcessBlockProducer const&) = delete;
+        EndProcessBlockProducer& operator=(EndProcessBlockProducer const&) = delete;
+        ~EndProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doEndProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void endProcessBlockProduce(edm::ProcessBlock&) const = 0;
       };
 
       template <typename T>

@@ -30,6 +30,16 @@ namespace edm {
   namespace global {
     namespace impl {
       template <typename T>
+      void BeginProcessBlockProducer<T>::doBeginProcessBlockProduce_(ProcessBlock& pb) {
+        this->beginProcessBlockProduce(pb);
+      }
+
+      template <typename T>
+      void EndProcessBlockProducer<T>::doEndProcessBlockProduce_(ProcessBlock& pb) {
+        this->endProcessBlockProduce(pb);
+      }
+
+      template <typename T>
       void BeginRunProducer<T>::doBeginRunProduce_(Run& rp, EventSetup const& c) {
         this->globalBeginRunProduce(rp, c);
       }

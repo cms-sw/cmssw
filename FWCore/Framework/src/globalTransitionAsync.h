@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/SubProcess.h"
@@ -33,11 +34,12 @@
 // forward declarations
 
 namespace edm {
-  class EventSetupImpl;
   class LuminosityBlockPrincipal;
+  class ProcessBlockPrincipal;
   class RunPrincipal;
 
   //This is code in common between beginStreamRun and beginGlobalLuminosityBlock
+  template <typename T>
   inline void subProcessDoGlobalBeginTransitionAsync(
       WaitingTaskHolder iHolder,
       SubProcess& iSubProcess,
@@ -47,6 +49,7 @@ namespace edm {
     iSubProcess.doBeginLuminosityBlockAsync(std::move(iHolder), iPrincipal, iTS, iEventSetupImpls);
   }
 
+  template <typename T>
   inline void subProcessDoGlobalBeginTransitionAsync(
       WaitingTaskHolder iHolder,
       SubProcess& iSubProcess,
@@ -54,6 +57,16 @@ namespace edm {
       IOVSyncValue const& iTS,
       std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls) {
     iSubProcess.doBeginRunAsync(std::move(iHolder), iPrincipal, iTS, iEventSetupImpls);
+  }
+
+  template <typename Traits>
+  inline void subProcessDoGlobalBeginTransitionAsync(
+      WaitingTaskHolder iHolder,
+      SubProcess& iSubProcess,
+      ProcessBlockPrincipal& iPrincipal,
+      IOVSyncValue const& iTS,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls) {
+    iSubProcess.doBeginProcessBlockAsync<Traits>(std::move(iHolder), iPrincipal, iTS, iEventSetupImpls);
   }
 
   inline void subProcessDoGlobalEndTransitionAsync(
@@ -75,6 +88,16 @@ namespace edm {
       std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
       bool cleaningUpAfterException) {
     iSubProcess.doEndRunAsync(std::move(iHolder), iPrincipal, iTS, iEventSetupImpls, cleaningUpAfterException);
+  }
+
+  inline void subProcessDoGlobalEndTransitionAsync(
+      WaitingTaskHolder iHolder,
+      SubProcess& iSubProcess,
+      ProcessBlockPrincipal& iPrincipal,
+      IOVSyncValue const& iTS,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
+      bool cleaningUpAfterException) {
+    iSubProcess.doEndProcessBlockAsync(std::move(iHolder), iPrincipal, iTS, iEventSetupImpls, cleaningUpAfterException);
   }
 
   template <typename Traits, typename P, typename SC>
@@ -100,17 +123,38 @@ namespace edm {
                                   [iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
             WaitingTaskHolder h(delayError);
             for (auto& subProcess : iSubProcesses) {
-              subProcessDoGlobalBeginTransitionAsync(h, subProcess, iPrincipal, iTS, iEventSetupImpls);
+              subProcessDoGlobalBeginTransitionAsync<Traits>(h, subProcess, iPrincipal, iTS, iEventSetupImpls);
             }
           } else {
             for (auto& subProcess : iSubProcesses) {
-              subProcessDoGlobalBeginTransitionAsync(iWait, subProcess, iPrincipal, iTS, iEventSetupImpls);
+              subProcessDoGlobalBeginTransitionAsync<Traits>(iWait, subProcess, iPrincipal, iTS, iEventSetupImpls);
             }
           }
         });
 
     WaitingTaskHolder h(subs);
     iSchedule.processOneGlobalAsync<Traits>(std::move(h), iPrincipal, iES, token);
+  }
+
+  // The only purpose of this function is to create dummy values for the
+  // EventSetup arguments needed by the generic function beginGlobalTransitionsAsync
+  template <typename Traits, typename P, typename SC>
+  void beginGlobalTransitionAsync(
+      WaitingTaskHolder iWait, Schedule& iSchedule, P& iPrincipal, ServiceToken const& token, SC& iSubProcesses) {
+    // There is no EventSetup for ProcessBlock transitions
+    // so we just pass in dummy values that are not used.
+    IOVSyncValue dummyIOVSyncValue;
+    EventSetupImpl dummyEventSetupImpl;
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* dummyEventSetupImpls = nullptr;
+
+    beginGlobalTransitionAsync<Traits, P, SC>(std::move(iWait),
+                                              iSchedule,
+                                              iPrincipal,
+                                              dummyIOVSyncValue,
+                                              dummyEventSetupImpl,
+                                              dummyEventSetupImpls,
+                                              token,
+                                              iSubProcesses);
   }
 
   template <typename Traits, typename P, typename SC>
@@ -152,6 +196,31 @@ namespace edm {
     iSchedule.processOneGlobalAsync<Traits>(std::move(h), iPrincipal, iES, token, cleaningUpAfterException);
   }
 
+  // The only purpose of this function is to create dummy values for the
+  // EventSetup arguments needed by the generic function endGlobalTransitionsAsync
+  template <typename Traits, typename P, typename SC>
+  void endGlobalTransitionAsync(WaitingTaskHolder iWait,
+                                Schedule& iSchedule,
+                                P& iPrincipal,
+                                ServiceToken const& token,
+                                SC& iSubProcesses,
+                                bool cleaningUpAfterException) {
+    // There is no EventSetup for ProcessBlock transitions
+    // so we just pass in dummy values that are not used.
+    IOVSyncValue dummyIOVSyncValue;
+    EventSetupImpl dummyEventSetupImpl;
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* dummyEventSetupImpls = nullptr;
+
+    endGlobalTransitionAsync<Traits, P, SC>(std::move(iWait),
+                                            iSchedule,
+                                            iPrincipal,
+                                            dummyIOVSyncValue,
+                                            dummyEventSetupImpl,
+                                            dummyEventSetupImpls,
+                                            token,
+                                            iSubProcesses,
+                                            cleaningUpAfterException);
+  }
 };  // namespace edm
 
 #endif

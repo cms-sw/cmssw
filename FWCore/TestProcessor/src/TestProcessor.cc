@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
@@ -191,6 +192,10 @@ namespace edm {
             std::make_unique<LuminosityBlockPrincipal>(preg_, *processConfiguration_, historyAppender_.get(), index);
         principalCache_.insert(std::move(lp));
       }
+      {
+        auto pb = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_);
+        principalCache_.insert(std::move(pb));
+      }
     }
 
     TestProcessor::~TestProcessor() noexcept(false) { teardownProcessing(); }
@@ -225,6 +230,9 @@ namespace edm {
       if (not beginJobCalled_) {
         beginJob();
       }
+      if (not beginProcessBlockCalled_) {
+        beginProcessBlock();
+      }
       if (not beginRunCalled_) {
         beginRun();
       }
@@ -247,6 +255,9 @@ namespace edm {
       if (not beginJobCalled_) {
         beginJob();
       }
+      if (not beginProcessBlockCalled_) {
+        beginProcessBlock();
+      }
       if (not beginRunCalled_) {
         beginRun();
       }
@@ -267,7 +278,9 @@ namespace edm {
       if (not beginJobCalled_) {
         beginJob();
       }
-
+      if (not beginProcessBlockCalled_) {
+        beginProcessBlock();
+      }
       if (beginRunCalled_) {
         assert(runNumber_ != iNum);
         endRun();
@@ -287,6 +300,9 @@ namespace edm {
       if (not beginJobCalled_) {
         beginJob();
       }
+      if (not beginProcessBlockCalled_) {
+        beginProcessBlock();
+      }
       if (not beginRunCalled_) {
         beginRun();
       }
@@ -300,9 +316,31 @@ namespace edm {
       return edm::test::Run(rp, labelOfTestModule_, processConfiguration_->processName());
     }
 
+    edm::test::ProcessBlock TestProcessor::testBeginProcessBlockImpl() {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+      beginProcessBlock();
+      return edm::test::ProcessBlock(
+          &principalCache_.processBlockPrincipal(), labelOfTestModule_, processConfiguration_->processName());
+    }
+    edm::test::ProcessBlock TestProcessor::testEndProcessBlockImpl() {
+      if (not beginJobCalled_) {
+        beginJob();
+      }
+      if (not beginProcessBlockCalled_) {
+        beginProcessBlock();
+      }
+      auto pbp = endProcessBlock();
+      return edm::test::ProcessBlock(pbp, labelOfTestModule_, processConfiguration_->processName());
+    }
+
     void TestProcessor::setupProcessing() {
       if (not beginJobCalled_) {
         beginJob();
+      }
+      if (not beginProcessBlockCalled_) {
+        beginProcessBlock();
       }
       if (not beginRunCalled_) {
         beginRun();
@@ -320,6 +358,10 @@ namespace edm {
       if (beginRunCalled_) {
         endRun();
         beginRunCalled_ = false;
+      }
+      if (beginProcessBlockCalled_) {
+        endProcessBlock();
+        beginProcessBlockCalled_ = false;
       }
       if (beginJobCalled_) {
         endJob();
@@ -354,6 +396,27 @@ namespace edm {
         schedule_->beginStream(i);
       }
       beginJobCalled_ = true;
+    }
+
+    void TestProcessor::beginProcessBlock() {
+      ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
+      processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
+
+      std::vector<edm::SubProcess> emptyList;
+      {
+        typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> Traits;
+        auto globalWaitTask = make_empty_waiting_task();
+        globalWaitTask->increment_ref_count();
+
+        beginGlobalTransitionAsync<Traits>(
+            WaitingTaskHolder(globalWaitTask.get()), *schedule_, processBlockPrincipal, serviceToken_, emptyList);
+
+        globalWaitTask->wait_for_all();
+        if (globalWaitTask->exceptionPtr() != nullptr) {
+          std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+        }
+      }
+      beginProcessBlockCalled_ = true;
     }
 
     void TestProcessor::beginRun() {
@@ -631,7 +694,38 @@ namespace edm {
       return rp;
     }
 
+    ProcessBlockPrincipal const* TestProcessor::endProcessBlock() {
+      ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
+      if (beginProcessBlockCalled_) {
+        beginProcessBlockCalled_ = false;
+
+        std::vector<edm::SubProcess> emptyList;
+        {
+          auto globalWaitTask = make_empty_waiting_task();
+          globalWaitTask->increment_ref_count();
+
+          typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> Traits;
+          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                           *schedule_,
+                                           processBlockPrincipal,
+                                           serviceToken_,
+                                           emptyList,
+                                           false);
+          globalWaitTask->wait_for_all();
+          if (globalWaitTask->exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+          }
+        }
+      }
+      return &processBlockPrincipal;
+    }
+
     void TestProcessor::endJob() {
+      if (!beginJobCalled_) {
+        return;
+      }
+      beginJobCalled_ = false;
+
       // Collects exceptions, so we don't throw before all operations are performed.
       ExceptionCollector c(
           "Multiple exceptions were thrown while executing endJob. An exception message follows for each.\n");
@@ -665,14 +759,6 @@ namespace edm {
     }
 
     void TestProcessor::setEventNumber(edm::EventNumber_t iEv) { eventNumber_ = iEv; }
-
-    //
-    // const member functions
-    //
-
-    //
-    // static member functions
-    //
 
   }  // namespace test
 }  // namespace edm

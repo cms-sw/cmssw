@@ -29,6 +29,7 @@ namespace edm {
   class Run;
   class EventSetup;
   class LuminosityBlock;
+  class ProcessBlock;
   namespace stream {
     //********************************
     // CallGlobal
@@ -62,6 +63,36 @@ namespace edm {
 
     template <typename T>
     using CallGlobal = CallGlobalImpl<T, T::HasAbility::kGlobalCache>;
+
+    //********************************
+    // CallGlobalProcessBlock
+    //********************************
+    template <typename T, bool>
+    struct CallGlobalProcessBlockImpl {
+      static void beginProcessBlock(edm::ProcessBlock const& iProcessBlock, typename T::GlobalCache const* iGC) {
+        T::beginProcessBlock(iProcessBlock, iGC);
+      }
+
+      static void accessInputProcessBlock(edm::ProcessBlock const& iProcessBlock, typename T::GlobalCache const* iGC) {
+        // This is not fully implemented yet and will never be called
+        T::accessInputProcessBlock(iProcessBlock, iGC);
+      }
+
+      static void endProcessBlock(edm::ProcessBlock const& iProcessBlock, typename T::GlobalCache const* iGC) {
+        T::endProcessBlock(iProcessBlock, iGC);
+      }
+    };
+
+    template <typename T>
+    struct CallGlobalProcessBlockImpl<T, false> {
+      static void beginProcessBlock(edm::ProcessBlock const&, typename T::GlobalCache const*) {}
+      static void accessInputProcessBlock(edm::ProcessBlock const&, typename T::GlobalCache const*) {}
+      static void endProcessBlock(edm::ProcessBlock const&, typename T::GlobalCache const*) {}
+    };
+
+    template <typename T>
+    using CallGlobalProcessBlock = CallGlobalProcessBlockImpl<T, T::HasAbility::kProcessBlockCache>;
+
     //********************************
     // CallGlobalRun
     //********************************
@@ -221,6 +252,42 @@ namespace edm {
     template <typename T>
     using CallGlobalLuminosityBlockSummary =
         CallGlobalLuminosityBlockSummaryImpl<T, T::HasAbility::kLuminosityBlockSummaryCache>;
+
+    //********************************
+    // CallBeginProcessBlockProduce
+    //********************************
+    template <typename T, bool>
+    struct CallBeginProcessBlockProduceImpl {
+      static void produce(edm::ProcessBlock& processBlock, typename T::GlobalCache const* globalCache) {
+        T::beginProcessBlockProduce(processBlock, globalCache);
+      }
+    };
+
+    template <typename T>
+    struct CallBeginProcessBlockProduceImpl<T, false> {
+      static void produce(edm::ProcessBlock&, typename T::GlobalCache const*) {}
+    };
+
+    template <typename T>
+    using CallBeginProcessBlockProduce = CallBeginProcessBlockProduceImpl<T, T::HasAbility::kBeginProcessBlockProducer>;
+
+    //********************************
+    // CallEndProcessBlockProduce
+    //********************************
+    template <typename T, bool>
+    struct CallEndProcessBlockProduceImpl {
+      static void produce(edm::ProcessBlock& processBlock, typename T::GlobalCache const* globalCache) {
+        T::endProcessBlockProduce(processBlock, globalCache);
+      }
+    };
+
+    template <typename T>
+    struct CallEndProcessBlockProduceImpl<T, false> {
+      static void produce(edm::ProcessBlock&, typename T::GlobalCache const*) {}
+    };
+
+    template <typename T>
+    using CallEndProcessBlockProduce = CallEndProcessBlockProduceImpl<T, T::HasAbility::kEndProcessBlockProducer>;
 
     //********************************
     // CallBeginRunProduce

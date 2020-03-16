@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/global/EDAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
@@ -68,6 +69,27 @@ namespace edm {
     void EDAnalyzerBase::doBeginJob() { this->beginJob(); }
 
     void EDAnalyzerBase::doEndJob() { this->endJob(); }
+
+    void EDAnalyzerBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doBeginProcessBlock_(constProcessBlock);
+    }
+
+    void EDAnalyzerBase::doAccessInputProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doAccessInputProcessBlock_(constProcessBlock);
+    }
+
+    void EDAnalyzerBase::doEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, true);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doEndProcessBlock_(constProcessBlock);
+    }
 
     void EDAnalyzerBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, false);
@@ -189,7 +211,9 @@ namespace edm {
     void EDAnalyzerBase::doStreamEndLuminosityBlockSummary_(StreamID id,
                                                             LuminosityBlock const& lbp,
                                                             EventSetup const& c) {}
-
+    void EDAnalyzerBase::doBeginProcessBlock_(ProcessBlock const&) {}
+    void EDAnalyzerBase::doAccessInputProcessBlock_(ProcessBlock const&) {}
+    void EDAnalyzerBase::doEndProcessBlock_(ProcessBlock const&) {}
     void EDAnalyzerBase::doBeginRun_(Run const& rp, EventSetup const& c) {}
     void EDAnalyzerBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDAnalyzerBase::doBeginRunSummary_(Run const& rp, EventSetup const& c) {}

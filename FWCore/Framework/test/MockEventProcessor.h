@@ -51,6 +51,10 @@ namespace edm {
 
     void doErrorStuff();
 
+    void beginProcessBlock(bool& beginProcessBlockSucceeded);
+    void inputProcessBlocks();
+    void endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded);
+
     void beginRun(ProcessHistoryID const& phid,
                   RunNumber_t run,
                   bool& globalTransitionSucceeded,

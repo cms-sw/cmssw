@@ -20,12 +20,12 @@ namespace edm {
   ProductRegistryHelper::TypeLabelList const& ProductRegistryHelper::typeLabelList() const { return typeLabelList_; }
 
   namespace {
-    void throwProducesWithoutAbility(const char* runOrLumi, std::string const& productTypeName) {
+    void throwProducesWithoutAbility(const char* transitionName, std::string const& productTypeName) {
       throw edm::Exception(edm::errors::LogicError)
-          << "Module declares it can produce a product of type \'" << productTypeName << "\'\nin a " << runOrLumi
-          << ", but does not have the ability to produce in " << runOrLumi << "s.\n"
-          << "You must add a template parameter of type Begin" << runOrLumi << "Producer\n"
-          << "or End" << runOrLumi << "Producer to the EDProducer or EDFilter base class\n"
+          << "Module declares it can produce a product of type \'" << productTypeName << "\'\nin a " << transitionName
+          << ", but does not have the ability to produce in " << transitionName << "s.\n"
+          << "You must add a template parameter of type " << transitionName << "Producer\n"
+          << "or " << transitionName << "Producer to the EDProducer or EDFilter base class\n"
           << "of the module. Or you could remove the call to the function \'produces\'\n"
           << "(Note legacy modules are not ever allowed to produce in Runs or Lumis)\n";
     }
@@ -50,6 +50,11 @@ namespace edm {
         throwProducesWithoutAbility("BeginLuminosityBlock", p->typeID_.userClassName());
       } else if (p->transition_ == Transition::EndLuminosityBlock && not iProd->hasAbilityToProduceInEndLumis()) {
         throwProducesWithoutAbility("EndLuminosityBlock", p->typeID_.userClassName());
+      } else if (p->transition_ == Transition::BeginProcessBlock &&
+                 not iProd->hasAbilityToProduceInBeginProcessBlocks()) {
+        throwProducesWithoutAbility("BeginProcessBlock", p->typeID_.userClassName());
+      } else if (p->transition_ == Transition::EndProcessBlock && not iProd->hasAbilityToProduceInEndProcessBlocks()) {
+        throwProducesWithoutAbility("EndProcessBlock", p->typeID_.userClassName());
       }
       if (!checkDictionary(missingDictionaries, p->typeID_)) {
         checkDictionaryOfWrappedType(missingDictionaries, p->typeID_);

@@ -38,6 +38,11 @@ namespace edm {
       };
 
       template <typename C>
+      struct AbilityToImplementor<edm::ProcessBlockCache<C>> {
+        typedef edm::limited::impl::ProcessBlockCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
+      };
+
+      template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
         typedef edm::limited::impl::RunCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
       };

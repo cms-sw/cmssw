@@ -148,8 +148,13 @@ namespace edm {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi] = &lumiTree_;
     treePointers_[InRun] = &runTree_;
+    treePointers_[InProcess] = nullptr;
 
     for (int i = InEvent; i < NumBranchTypes; ++i) {
+      if (i == InProcess) {
+        // Output for ProcessBlocks is not implemented yet.
+        continue;
+      }
       BranchType branchType = static_cast<BranchType>(i);
       RootOutputTree* theTree = treePointers_[branchType];
       for (auto& item : om_->selectedOutputItemList()[branchType]) {
@@ -622,6 +627,10 @@ namespace edm {
     // events/lumis/runs trees. The loop is over all types of data
     // products.
     for (int i = InEvent; i < NumBranchTypes; ++i) {
+      if (i == InProcess) {
+        // Output for ProcessBlocks is not implemented yet.
+        continue;
+      }
       BranchType branchType = static_cast<BranchType>(i);
       setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
       treePointers_[branchType]->writeTree();
@@ -631,6 +640,10 @@ namespace edm {
     // Just to play it safe, zero all pointers to objects in the TFile to be closed.
     metaDataTree_ = parentageTree_ = nullptr;
     for (auto& treePointer : treePointers_) {
+      if (treePointer.get() == nullptr) {
+        // Output for ProcessBlock is not implemented yet
+        continue;
+      }
       treePointer->close();
       treePointer = nullptr;
     }

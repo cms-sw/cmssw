@@ -39,6 +39,7 @@ namespace edm {
       virtual ~EDAnalyzer() {}
 #endif
       // ---------- const member functions ---------------------
+      bool wantsProcessBlocks() const final { return WantsProcessBlockTransitions<T...>::value; }
       bool wantsGlobalRuns() const final { return WantsGlobalRunTransitions<T...>::value; }
       bool wantsGlobalLuminosityBlocks() const final { return WantsGlobalLuminosityBlockTransitions<T...>::value; }
 

@@ -12,6 +12,7 @@ namespace edm {
   class EventSetup;
   class LuminosityBlock;
   class ParameterSet;
+  class ProcessBlock;
   class Run;
   class StreamID;
 }  // namespace edm

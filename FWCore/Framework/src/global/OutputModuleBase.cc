@@ -34,6 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 
 namespace edm {
   namespace global {
@@ -157,6 +158,13 @@ namespace edm {
       ProductSelector::checkForDuplicateKeptBranch(desc, trueBranchIDToKeptBranchDesc);
 
       EDGetToken token;
+
+      std::vector<std::string> missingDictionaries;
+      if (!checkDictionary(missingDictionaries, desc.className(), desc.unwrappedType())) {
+        std::string context("Calling OutputModuleBase::keepThisBranch, checking dictionaries for kept types");
+        throwMissingDictionariesException(missingDictionaries, context);
+      }
+
       switch (desc.branchType()) {
         case InEvent: {
           if (desc.produced()) {
@@ -176,6 +184,11 @@ namespace edm {
         case InRun: {
           token = consumes<InRun>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
                                   InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
+          break;
+        }
+        case InProcess: {
+          token = consumes<InProcess>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
+                                      InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
           break;
         }
         default:

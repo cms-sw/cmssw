@@ -266,6 +266,8 @@ namespace edm {
     }
   }
 
+  bool InputSource::readProcessBlock() { return false; }
+
   void InputSource::readRun_(RunPrincipal& runPrincipal) {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
