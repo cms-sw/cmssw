@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CondFormats_Serialization_Serializable_h
+#define CondFormats_Serialization_Serializable_h
 
 #if defined(__GCCXML__)
 
@@ -62,3 +63,4 @@ private:                                                   \
 #define COND_TRANSIENT
 
 #endif /* !defined(__GCCXML__) */
+#endif
