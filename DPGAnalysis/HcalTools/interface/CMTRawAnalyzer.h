@@ -20,6 +20,8 @@ using namespace std;
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 using namespace edm;
+// this line is to retrieve HCAL RecHitCollections:
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -445,6 +447,11 @@ private:
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
   edm::EDGetTokenT<QIE11DigiCollection> tok_qie11_;
   edm::EDGetTokenT<QIE10DigiCollection> tok_qie10_;
+  // phi-symmetry monitoring for calibration group:
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbheSignal_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNoise_; 
+  edm::EDGetTokenT<HFRecHitCollection> tok_hfSignal_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hfNoise_; 
   ////////////////////////////////////
   double dR(double eta1, double phi1, double eta2, double phi2);
   double phi12(double phi1, double en1, double phi2, double en2);
@@ -493,7 +500,8 @@ private:
   /////////////////////////////////////////////
   int flagfitshunt1pedorledlowintensity_;
   int flagLaserRaddam_;
-  int flagIterativeMethodCalibrationGroup_;
+  int flagIterativeMethodCalibrationGroupDigi_;
+  int flagIterativeMethodCalibrationGroupReco_;
   int flagtoaskrunsorls_;
   int flagtodefinebadchannel_;
   int howmanybinsonplots_;
@@ -2053,6 +2061,145 @@ private:
   TH2F* h_maprphinorm0_HE5;
   TH2F* h_maprphinorm0_HE6;
   TH2F* h_maprphinorm0_HE7;
+  // phy-symmetry, phi-symmetry:
+  // Reco:
+  TH1F* h_energyhitSignal_HB;
+  TH1F* h_energyhitSignal_HE;
+  TH1F* h_energyhitSignal_HF;
+  TH1F* h_energyhitNoise_HB;
+  TH1F* h_energyhitNoise_HE;
+  TH1F* h_energyhitNoise_HF;
+  //HB:
+ TH2F*    h_recSignalEnergy0_HB1;
+ TH2F*    h_recSignalEnergy1_HB1;
+ TH2F*    h_recSignalEnergy2_HB1;
+ TH2F*    h_recSignalEnergy0_HB2;
+ TH2F*    h_recSignalEnergy1_HB2;
+ TH2F*    h_recSignalEnergy2_HB2;
+ TH2F*    h_recSignalEnergy0_HB3;
+ TH2F*    h_recSignalEnergy1_HB3;
+ TH2F*    h_recSignalEnergy2_HB3;
+ TH2F*    h_recSignalEnergy0_HB4;
+ TH2F*    h_recSignalEnergy1_HB4;
+ TH2F*    h_recSignalEnergy2_HB4;
+ TH2F*    h_recNoiseEnergy0_HB1;
+ TH2F*    h_recNoiseEnergy1_HB1;
+ TH2F*    h_recNoiseEnergy2_HB1;
+ TH2F*    h_recNoiseEnergy0_HB2;
+ TH2F*    h_recNoiseEnergy1_HB2;
+ TH2F*    h_recNoiseEnergy2_HB2;
+ TH2F*    h_recNoiseEnergy0_HB3;
+ TH2F*    h_recNoiseEnergy1_HB3;
+ TH2F*    h_recNoiseEnergy2_HB3;
+ TH2F*    h_recNoiseEnergy0_HB4;
+ TH2F*    h_recNoiseEnergy1_HB4;
+ TH2F*    h_recNoiseEnergy2_HB4;
+  //HE:
+ TH2F*    h_recSignalEnergy0_HE1;
+ TH2F*    h_recSignalEnergy1_HE1;
+ TH2F*    h_recSignalEnergy2_HE1;
+ TH2F*    h_recSignalEnergy0_HE2;
+ TH2F*    h_recSignalEnergy1_HE2;
+ TH2F*    h_recSignalEnergy2_HE2;
+ TH2F*    h_recSignalEnergy0_HE3;
+ TH2F*    h_recSignalEnergy1_HE3;
+ TH2F*    h_recSignalEnergy2_HE3;
+ TH2F*    h_recSignalEnergy0_HE4;
+ TH2F*    h_recSignalEnergy1_HE4;
+ TH2F*    h_recSignalEnergy2_HE4;
+ TH2F*    h_recSignalEnergy0_HE5;
+ TH2F*    h_recSignalEnergy1_HE5;
+ TH2F*    h_recSignalEnergy2_HE5;
+ TH2F*    h_recSignalEnergy0_HE6;
+ TH2F*    h_recSignalEnergy1_HE6;
+ TH2F*    h_recSignalEnergy2_HE6;
+ TH2F*    h_recSignalEnergy0_HE7;
+ TH2F*    h_recSignalEnergy1_HE7;
+ TH2F*    h_recSignalEnergy2_HE7;
+ TH2F*    h_recNoiseEnergy0_HE1;
+ TH2F*    h_recNoiseEnergy1_HE1;
+ TH2F*    h_recNoiseEnergy2_HE1;
+ TH2F*    h_recNoiseEnergy0_HE2;
+ TH2F*    h_recNoiseEnergy1_HE2;
+ TH2F*    h_recNoiseEnergy2_HE2;
+ TH2F*    h_recNoiseEnergy0_HE3;
+ TH2F*    h_recNoiseEnergy1_HE3;
+ TH2F*    h_recNoiseEnergy2_HE3;
+ TH2F*    h_recNoiseEnergy0_HE4;
+ TH2F*    h_recNoiseEnergy1_HE4;
+ TH2F*    h_recNoiseEnergy2_HE4;
+ TH2F*    h_recNoiseEnergy0_HE5;
+ TH2F*    h_recNoiseEnergy1_HE5;
+ TH2F*    h_recNoiseEnergy2_HE5;
+ TH2F*    h_recNoiseEnergy0_HE6;
+ TH2F*    h_recNoiseEnergy1_HE6;
+ TH2F*    h_recNoiseEnergy2_HE6;
+ TH2F*    h_recNoiseEnergy0_HE7;
+ TH2F*    h_recNoiseEnergy1_HE7;
+ TH2F*    h_recNoiseEnergy2_HE7;
+  //HF:
+ TH2F*    h_recSignalEnergy0_HF1;
+ TH2F*    h_recSignalEnergy1_HF1;
+ TH2F*    h_recSignalEnergy2_HF1;
+ TH2F*    h_recSignalEnergy0_HF2;
+ TH2F*    h_recSignalEnergy1_HF2;
+ TH2F*    h_recSignalEnergy2_HF2;
+ TH2F*    h_recNoiseEnergy0_HF1;
+ TH2F*    h_recNoiseEnergy1_HF1;
+ TH2F*    h_recNoiseEnergy2_HF1;
+ TH2F*    h_recNoiseEnergy0_HF2;
+ TH2F*    h_recNoiseEnergy1_HF2;
+ TH2F*    h_recNoiseEnergy2_HF2;
+  // Digi as Reco:
+  //HB:
+ TH2F*    h_amplitudechannel0_HB1;
+ TH2F*    h_amplitudechannel1_HB1;
+ TH2F*    h_amplitudechannel2_HB1;
+ TH2F*    h_amplitudechannel0_HB2;
+ TH2F*    h_amplitudechannel1_HB2;
+ TH2F*    h_amplitudechannel2_HB2;
+ TH2F*    h_amplitudechannel0_HB3;
+ TH2F*    h_amplitudechannel1_HB3;
+ TH2F*    h_amplitudechannel2_HB3;
+ TH2F*    h_amplitudechannel0_HB4;
+ TH2F*    h_amplitudechannel1_HB4;
+ TH2F*    h_amplitudechannel2_HB4;
+  //HE:
+ TH2F*    h_amplitudechannel0_HE1;
+ TH2F*    h_amplitudechannel1_HE1;
+ TH2F*    h_amplitudechannel2_HE1;
+ TH2F*    h_amplitudechannel0_HE2;
+ TH2F*    h_amplitudechannel1_HE2;
+ TH2F*    h_amplitudechannel2_HE2;
+ TH2F*    h_amplitudechannel0_HE3;
+ TH2F*    h_amplitudechannel1_HE3;
+ TH2F*    h_amplitudechannel2_HE3;
+ TH2F*    h_amplitudechannel0_HE4;
+ TH2F*    h_amplitudechannel1_HE4;
+ TH2F*    h_amplitudechannel2_HE4;
+ TH2F*    h_amplitudechannel0_HE5;
+ TH2F*    h_amplitudechannel1_HE5;
+ TH2F*    h_amplitudechannel2_HE5;
+ TH2F*    h_amplitudechannel0_HE6;
+ TH2F*    h_amplitudechannel1_HE6;
+ TH2F*    h_amplitudechannel2_HE6;
+ TH2F*    h_amplitudechannel0_HE7;
+ TH2F*    h_amplitudechannel1_HE7;
+ TH2F*    h_amplitudechannel2_HE7;
+  //HF:
+ TH2F*    h_amplitudechannel0_HF1;
+ TH2F*    h_amplitudechannel1_HF1;
+ TH2F*    h_amplitudechannel2_HF1;
+ TH2F*    h_amplitudechannel0_HF2;
+ TH2F*    h_amplitudechannel1_HF2;
+ TH2F*    h_amplitudechannel2_HF2;
+ TH2F*    h_amplitudechannel0_HF3;
+ TH2F*    h_amplitudechannel1_HF3;
+ TH2F*    h_amplitudechannel2_HF3;
+ TH2F*    h_amplitudechannel0_HF4;
+ TH2F*    h_amplitudechannel1_HF4;
+ TH2F*    h_amplitudechannel2_HF4;
+  // RADDAM:
   TH2F* h_mapDepth1RADDAM_HE;
   TH2F* h_mapDepth2RADDAM_HE;
   TH2F* h_mapDepth3RADDAM_HE;
@@ -2105,9 +2252,22 @@ private:
   double sumEstimator5[nsub][ndepth][neta][nphi];
   double sumEstimator6[nsub][ndepth][neta][nphi];
   double sum0Estimator[nsub][ndepth][neta][nphi];
+
+  // phi-symmetry monitoring for calibration group:
+  double amplitudechannel0[nsub][ndepth][neta][nphi];
   double amplitudechannel[nsub][ndepth][neta][nphi];
+  double amplitudechannel2[nsub][ndepth][neta][nphi];
   double tocamplchannel[nsub][ndepth][neta][nphi];
   double maprphinorm[nsub][ndepth][neta][nphi];
+  // rec energy:
+  double recNoiseEnergy0[nsub][ndepth][neta][nphi];
+  double recNoiseEnergy1[nsub][ndepth][neta][nphi];
+  double recNoiseEnergy2[nsub][ndepth][neta][nphi];
+
+  double recSignalEnergy0[nsub][ndepth][neta][nphi];
+  double recSignalEnergy1[nsub][ndepth][neta][nphi];
+  double recSignalEnergy2[nsub][ndepth][neta][nphi];
+
   float TS_data[100];
   float TS_cal[100];
   double mapRADDAM_HE[ndepth][neta][nphi];
@@ -3744,6 +3904,156 @@ void CMTRawAnalyzer::endJob() {
     h_maprphinorm0_HE5->Write();
     h_maprphinorm0_HE6->Write();
     h_maprphinorm0_HE7->Write();
+
+
+    //// phi-symmetry phy-symmetry:
+    h_energyhitSignal_HB->Write();
+    h_energyhitSignal_HE->Write();
+    h_energyhitSignal_HF->Write();
+    h_energyhitNoise_HB->Write();
+    h_energyhitNoise_HE->Write();
+    h_energyhitNoise_HF->Write();
+    //HB
+    h_recSignalEnergy0_HB1->Write();
+    h_recSignalEnergy1_HB1->Write();
+    h_recSignalEnergy2_HB1->Write();
+    h_recSignalEnergy0_HB2->Write();
+    h_recSignalEnergy1_HB2->Write();
+    h_recSignalEnergy2_HB2->Write();
+    h_recSignalEnergy0_HB3->Write();
+    h_recSignalEnergy1_HB3->Write();
+    h_recSignalEnergy2_HB3->Write();
+    h_recSignalEnergy0_HB4->Write();
+    h_recSignalEnergy1_HB4->Write();
+    h_recSignalEnergy2_HB4->Write();
+
+    h_recNoiseEnergy0_HB1->Write();
+    h_recNoiseEnergy1_HB1->Write();
+    h_recNoiseEnergy2_HB1->Write();
+    h_recNoiseEnergy0_HB2->Write();
+    h_recNoiseEnergy1_HB2->Write();
+    h_recNoiseEnergy2_HB2->Write();
+    h_recNoiseEnergy0_HB3->Write();
+    h_recNoiseEnergy1_HB3->Write();
+    h_recNoiseEnergy2_HB3->Write();
+    h_recNoiseEnergy0_HB4->Write();
+    h_recNoiseEnergy1_HB4->Write();
+    h_recNoiseEnergy2_HB4->Write();
+
+    //HE
+    h_recSignalEnergy0_HE1->Write();
+    h_recSignalEnergy1_HE1->Write();
+    h_recSignalEnergy2_HE1->Write();
+    h_recSignalEnergy0_HE2->Write();
+    h_recSignalEnergy1_HE2->Write();
+    h_recSignalEnergy2_HE2->Write();
+    h_recSignalEnergy0_HE3->Write();
+    h_recSignalEnergy1_HE3->Write();
+    h_recSignalEnergy2_HE3->Write();
+    h_recSignalEnergy0_HE4->Write();
+    h_recSignalEnergy1_HE4->Write();
+    h_recSignalEnergy2_HE4->Write();
+    h_recSignalEnergy0_HE5->Write();
+    h_recSignalEnergy1_HE5->Write();
+    h_recSignalEnergy2_HE5->Write();
+    h_recSignalEnergy0_HE6->Write();
+    h_recSignalEnergy1_HE6->Write();
+    h_recSignalEnergy2_HE6->Write();
+    h_recSignalEnergy0_HE7->Write();
+    h_recSignalEnergy1_HE7->Write();
+    h_recSignalEnergy2_HE7->Write();
+
+    h_recNoiseEnergy0_HE1->Write();
+    h_recNoiseEnergy1_HE1->Write();
+    h_recNoiseEnergy2_HE1->Write();
+    h_recNoiseEnergy0_HE2->Write();
+    h_recNoiseEnergy1_HE2->Write();
+    h_recNoiseEnergy2_HE2->Write();
+    h_recNoiseEnergy0_HE3->Write();
+    h_recNoiseEnergy1_HE3->Write();
+    h_recNoiseEnergy2_HE3->Write();
+    h_recNoiseEnergy0_HE4->Write();
+    h_recNoiseEnergy1_HE4->Write();
+    h_recNoiseEnergy2_HE4->Write();
+    h_recNoiseEnergy0_HE5->Write();
+    h_recNoiseEnergy1_HE5->Write();
+    h_recNoiseEnergy2_HE5->Write();
+    h_recNoiseEnergy0_HE6->Write();
+    h_recNoiseEnergy1_HE6->Write();
+    h_recNoiseEnergy2_HE6->Write();
+    h_recNoiseEnergy0_HE7->Write();
+    h_recNoiseEnergy1_HE7->Write();
+    h_recNoiseEnergy2_HE7->Write();
+
+    //HF
+    h_recSignalEnergy0_HF1->Write();
+    h_recSignalEnergy1_HF1->Write();
+    h_recSignalEnergy2_HF1->Write();
+    h_recSignalEnergy0_HF2->Write();
+    h_recSignalEnergy1_HF2->Write();
+    h_recSignalEnergy2_HF2->Write();
+
+    h_recNoiseEnergy0_HF1->Write();
+    h_recNoiseEnergy1_HF1->Write();
+    h_recNoiseEnergy2_HF1->Write();
+    h_recNoiseEnergy0_HF2->Write();
+    h_recNoiseEnergy1_HF2->Write();
+    h_recNoiseEnergy2_HF2->Write();
+
+
+
+  // Digi as Reco:
+  //HB:
+h_amplitudechannel0_HB1->Write();
+h_amplitudechannel1_HB1->Write();
+h_amplitudechannel2_HB1->Write();
+h_amplitudechannel0_HB2->Write();
+h_amplitudechannel1_HB2->Write();
+h_amplitudechannel2_HB2->Write();
+h_amplitudechannel0_HB3->Write();
+h_amplitudechannel1_HB3->Write();
+h_amplitudechannel2_HB3->Write();
+h_amplitudechannel0_HB4->Write();
+h_amplitudechannel1_HB4->Write();
+h_amplitudechannel2_HB4->Write();
+
+h_amplitudechannel0_HE1->Write();
+h_amplitudechannel1_HE1->Write();
+h_amplitudechannel2_HE1->Write();
+h_amplitudechannel0_HE2->Write();
+h_amplitudechannel1_HE2->Write();
+h_amplitudechannel2_HE2->Write();
+h_amplitudechannel0_HE3->Write();
+h_amplitudechannel1_HE3->Write();
+h_amplitudechannel2_HE3->Write();
+h_amplitudechannel0_HE4->Write();
+h_amplitudechannel1_HE4->Write();
+h_amplitudechannel2_HE4->Write();
+h_amplitudechannel0_HE5->Write();
+h_amplitudechannel1_HE5->Write();
+h_amplitudechannel2_HE5->Write();
+h_amplitudechannel0_HE6->Write();
+h_amplitudechannel1_HE6->Write();
+h_amplitudechannel2_HE6->Write();
+h_amplitudechannel0_HE7->Write();
+h_amplitudechannel1_HE7->Write();
+h_amplitudechannel2_HE7->Write();
+
+h_amplitudechannel0_HF1->Write();
+h_amplitudechannel1_HF1->Write();
+h_amplitudechannel2_HF1->Write();
+h_amplitudechannel0_HF2->Write();
+h_amplitudechannel1_HF2->Write();
+h_amplitudechannel2_HF2->Write();
+h_amplitudechannel0_HF3->Write();
+h_amplitudechannel1_HF3->Write();
+h_amplitudechannel2_HF3->Write();
+h_amplitudechannel0_HF4->Write();
+h_amplitudechannel1_HF4->Write();
+h_amplitudechannel2_HF4->Write();
+
+
+
 
     // RADDAM:
     h_mapDepth1RADDAM_HE->Write();
