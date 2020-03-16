@@ -101,31 +101,14 @@ void DDSpecParRegistry::filter(DDSpecParRefs& refs, const std::string& attribute
     found = false;
     for_each(begin(k.second.spars), end(k.second.spars), [&](const auto& l) {
       if (l.first == attribute) {
-	if (value.empty()) {
-	  found = true;
-	}
-	else {
-	  for_each(begin(l.second), end(l.second), [&](const auto& m) {
-	    if (m == value)
-	      found = true;
-	  });
-	}
-      }
-    });
-    if (found) {
-      k.second.name = k.first;
-      refs.emplace_back(&k.second);
-    }
-  });
-}
-
-void DDSpecParRegistry::filter(DDSpecParRefs& refs, const std::string& attribute) const {
-  bool found(false);
-  for_each(begin(specpars), end(specpars), [&refs, &attribute, &found](auto& k) {
-    found = false;
-    for_each(begin(k.second.spars), end(k.second.spars), [&](const auto& l) {
-      if (l.first == attribute) {
-        found = true;
+        if (value.empty()) {
+          found = true;
+        } else {
+          for_each(begin(l.second), end(l.second), [&](const auto& m) {
+            if (m == value)
+              found = true;
+          });
+        }
       }
     });
     if (found) {
