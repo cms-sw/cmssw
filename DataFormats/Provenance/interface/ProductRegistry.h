@@ -37,7 +37,7 @@ namespace edm {
 
     ProductRegistry();
 
-    // A constructor from the persistent data memebers from another product registry.
+    // A constructor from the persistent data members from another product registry.
     // saves time by not copying the transient components.
     // The constructed registry will be frozen by default.
     explicit ProductRegistry(ProductList const& productList, bool toBeFrozen = true);
@@ -148,6 +148,12 @@ namespace edm {
         return get_underlying_safe(runProductLookup_);
       }
       std::shared_ptr<ProductResolverIndexHelper>& runProductLookup() { return get_underlying_safe(runProductLookup_); }
+      std::shared_ptr<ProductResolverIndexHelper const> processProductLookup() const {
+        return get_underlying_safe(processProductLookup_);
+      }
+      std::shared_ptr<ProductResolverIndexHelper>& processProductLookup() {
+        return get_underlying_safe(processProductLookup_);
+      }
 
       bool frozen_;
       // Is at least one (run), (lumi), (event) persistent product produced this process?
@@ -157,10 +163,12 @@ namespace edm {
       edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> eventProductLookup_;
       edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> lumiProductLookup_;
       edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> runProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> processProductLookup_;
 
       ProductResolverIndex eventNextIndexValue_;
       ProductResolverIndex lumiNextIndexValue_;
       ProductResolverIndex runNextIndexValue_;
+      ProductResolverIndex processNextIndexValue_;
 
       std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
 

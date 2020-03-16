@@ -42,6 +42,11 @@ namespace edm {
 
     void openFile(edm::FileBlock const& fb) override;
 
+    void writeProcessBlockAsync(WaitingTaskHolder iTask,
+                                ProcessBlockPrincipal const&,
+                                ProcessContext const*,
+                                ActivityRegistry*) override;
+
     void writeRunAsync(WaitingTaskHolder iTask,
                        edm::RunPrincipal const& rp,
                        ProcessContext const*,

@@ -216,6 +216,10 @@ namespace edm {
 
     void doErrorStuff();
 
+    void beginProcessBlock(bool& beginProcessBlockSucceeded);
+    void inputProcessBlocks();
+    void endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded);
+
     void beginRun(ProcessHistoryID const& phid,
                   RunNumber_t run,
                   bool& globalBeginSucceeded,
@@ -242,6 +246,7 @@ namespace edm {
     std::pair<ProcessHistoryID, RunNumber_t> readAndMergeRun();
     void readLuminosityBlock(LuminosityBlockProcessingStatus&);
     int readAndMergeLumi(LuminosityBlockProcessingStatus&);
+    void writeProcessBlockAsync(WaitingTaskHolder, bool isInputProcessBlock = false);
     void writeRunAsync(WaitingTaskHolder,
                        ProcessHistoryID const& phid,
                        RunNumber_t run,

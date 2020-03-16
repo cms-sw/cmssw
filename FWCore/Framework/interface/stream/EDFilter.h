@@ -58,6 +58,13 @@ namespace edm {
 
       // ---------- member functions ---------------------------
 
+      bool hasAbilityToProduceInBeginProcessBlocks() const final {
+        return HasAbilityToProduceInBeginProcessBlocks<T...>::value;
+      }
+      bool hasAbilityToProduceInEndProcessBlocks() const final {
+        return HasAbilityToProduceInEndProcessBlocks<T...>::value;
+      }
+
       bool hasAbilityToProduceInBeginRuns() const final { return HasAbilityToProduceInBeginRuns<T...>::value; }
       bool hasAbilityToProduceInEndRuns() const final { return HasAbilityToProduceInEndRuns<T...>::value; }
 

@@ -52,7 +52,7 @@ namespace edm {
 
     BranchDescription(BranchDescription const& aliasForBranch,
                       std::string const& moduleLabelAlias,
-                      std::string const& poruductInstanceAlias);
+                      std::string const& productInstanceAlias);
 
     ~BranchDescription() {}
 
@@ -142,10 +142,10 @@ namespace edm {
       // This is set if and only if produced_ is true.
       std::string moduleName_;
 
-      // The branch name, which is currently derivable fron the other attributes.
+      // The branch name, which is currently derivable from the other attributes.
       std::string branchName_;
 
-      // The wrapped class name, which is currently derivable fron the other attributes.
+      // The wrapped class name, which is currently derivable from the other attributes.
       std::string wrappedName_;
 
       // For SwitchProducer alias, the label of the aliased-for label; otherwise empty

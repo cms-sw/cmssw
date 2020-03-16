@@ -251,6 +251,9 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
   m_esTokenInfo.emplace_back(
       ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType, iTag.data().c_str()}, startOfComponentName},
       ESProxyIndex{-1});
+  if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
+    throwESConsumesInProcessBlock();
+  }
   auto indexForToken = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].size();
   esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back(-1 * (index + 1));
   esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back();
@@ -410,6 +413,12 @@ void EDConsumerBase::throwConsumesCallAfterFrozen(TypeToGet const& typeToGet, In
                                      << "This must be done in the contructor\n"
                                      << "The product type was: " << typeToGet.type() << "\n"
                                      << "and " << inputTag << "\n";
+}
+
+void EDConsumerBase::throwESConsumesInProcessBlock() const {
+  throw cms::Exception("LogicError")
+      << "A module declared it consumes an EventSetup product during a ProcessBlock transition.\n"
+      << "EventSetup products can only be consumed in Event, Lumi, or Run transitions.\n";
 }
 
 namespace {

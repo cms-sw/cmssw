@@ -12,6 +12,8 @@ OccurrenceTraits:
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
@@ -380,5 +382,111 @@ namespace edm {
     }
     static const char* transitionName() { return "end global LuminosityBlock"; }
   };
+
+  template <>
+  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> {
+  public:
+    using MyPrincipal = ProcessBlockPrincipal;
+    using Context = GlobalContext;
+    static bool constexpr isEvent_ = false;
+
+    static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
+      return GlobalContext(GlobalContext::Transition::kBeginProcessBlock,
+                           LuminosityBlockID(),
+                           RunIndex::invalidRunIndex(),
+                           LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                           Timestamp::invalidTimestamp(),
+                           processContext);
+    }
+
+    static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->preBeginProcessBlockSignal_(*globalContext);
+    }
+    static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->postBeginProcessBlockSignal_(*globalContext);
+    }
+    static void preModuleSignal(ActivityRegistry* a,
+                                GlobalContext const* globalContext,
+                                ModuleCallingContext const* moduleCallingContext) {
+      a->preModuleBeginProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static void postModuleSignal(ActivityRegistry* a,
+                                 GlobalContext const* globalContext,
+                                 ModuleCallingContext const* moduleCallingContext) {
+      a->postModuleBeginProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static const char* transitionName() { return "begin ProcessBlock"; }
+  };
+
+  template <>
+  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther> {
+  public:
+    using MyPrincipal = ProcessBlockPrincipal;
+    using Context = GlobalContext;
+    static bool constexpr isEvent_ = false;
+
+    static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
+      return GlobalContext(GlobalContext::Transition::kAccessInputProcessBlock,
+                           LuminosityBlockID(),
+                           RunIndex::invalidRunIndex(),
+                           LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                           Timestamp::invalidTimestamp(),
+                           processContext);
+    }
+
+    static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->preAccessInputProcessBlockSignal_(*globalContext);
+    }
+    static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->postAccessInputProcessBlockSignal_(*globalContext);
+    }
+    static void preModuleSignal(ActivityRegistry* a,
+                                GlobalContext const* globalContext,
+                                ModuleCallingContext const* moduleCallingContext) {
+      a->preModuleAccessInputProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static void postModuleSignal(ActivityRegistry* a,
+                                 GlobalContext const* globalContext,
+                                 ModuleCallingContext const* moduleCallingContext) {
+      a->postModuleAccessInputProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static const char* transitionName() { return "access input ProcessBlock"; }
+  };
+
+  template <>
+  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> {
+  public:
+    using MyPrincipal = ProcessBlockPrincipal;
+    using Context = GlobalContext;
+    static bool constexpr isEvent_ = false;
+
+    static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
+      return GlobalContext(GlobalContext::Transition::kEndProcessBlock,
+                           LuminosityBlockID(),
+                           RunIndex::invalidRunIndex(),
+                           LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                           Timestamp::invalidTimestamp(),
+                           processContext);
+    }
+
+    static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->preEndProcessBlockSignal_(*globalContext);
+    }
+    static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->postEndProcessBlockSignal_(*globalContext);
+    }
+    static void preModuleSignal(ActivityRegistry* a,
+                                GlobalContext const* globalContext,
+                                ModuleCallingContext const* moduleCallingContext) {
+      a->preModuleEndProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static void postModuleSignal(ActivityRegistry* a,
+                                 GlobalContext const* globalContext,
+                                 ModuleCallingContext const* moduleCallingContext) {
+      a->postModuleEndProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static const char* transitionName() { return "end ProcessBlock"; }
+  };
+
 }  // namespace edm
 #endif

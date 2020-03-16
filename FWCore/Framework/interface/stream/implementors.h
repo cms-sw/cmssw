@@ -54,6 +54,21 @@ namespace edm {
       };
 
       template <typename C>
+      class ProcessBlockCacheHolder {
+      public:
+        ProcessBlockCacheHolder() = default;
+        ProcessBlockCacheHolder(ProcessBlockCacheHolder<C> const&) = delete;
+        ProcessBlockCacheHolder<C>& operator=(ProcessBlockCacheHolder<C> const&) = delete;
+        //void setProcessBlockCache(C const* iCache) { cache_ = iCache; }
+
+      protected:
+        //C const* processBlockCache() const { return cache_; }
+
+      private:
+        //C const* cache_;
+      };
+
+      template <typename C>
       class RunCacheHolder {
       public:
         RunCacheHolder() = default;
@@ -105,6 +120,27 @@ namespace edm {
 
       private:
         virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
+      };
+
+      class BeginProcessBlockProducer {
+      public:
+        BeginProcessBlockProducer() = default;
+        BeginProcessBlockProducer(BeginProcessBlockProducer const&) = delete;
+        BeginProcessBlockProducer& operator=(BeginProcessBlockProducer const&) = delete;
+
+        ///requires the following be defined in the inheriting class
+        ///static void beginProcessBlockProduce(edm::ProcessBlock&, GlobalCache const* );
+      };
+
+      class EndProcessBlockProducer {
+      public:
+        EndProcessBlockProducer() = default;
+        EndProcessBlockProducer(EndProcessBlockProducer const&) = delete;
+        EndProcessBlockProducer& operator=(EndProcessBlockProducer const&) = delete;
+
+      private:
+        ///requires the following be defined in the inheriting class
+        /// static void endProcessBlockProduce(edm::ProcessBlock&, GlobalCache const* )
       };
 
       class BeginRunProducer {

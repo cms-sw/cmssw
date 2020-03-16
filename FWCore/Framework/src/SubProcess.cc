@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -187,6 +188,14 @@ namespace edm {
       auto lbpp = std::make_unique<LuminosityBlockPrincipal>(
           preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_ + index]), index, false);
       principalCache_.insert(std::move(lbpp));
+    }
+
+    {
+      auto pb = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_, false);
+      principalCache_.insert(std::move(pb));
+
+      auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_, false);
+      principalCache_.insertForInput(std::move(pb));
     }
 
     inUseLumiPrincipals_.resize(preallocConfig.numberOfLuminosityBlocks());
@@ -403,6 +412,53 @@ namespace edm {
                                     serviceToken_);
   }
 
+  template <>
+  void SubProcess::doBeginProcessBlockAsync<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther>>(
+      WaitingTaskHolder iHolder,
+      ProcessBlockPrincipal const& principal,
+      IOVSyncValue const&,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const*) {
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
+    processBlockPrincipal.fillProcessBlockPrincipal(principal.processName(), principal.reader());
+    propagateProducts(InProcess, principal, processBlockPrincipal);
+
+    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther> Traits;
+    beginGlobalTransitionAsync<Traits>(
+        std::move(iHolder), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
+  }
+
+  template <>
+  void SubProcess::doBeginProcessBlockAsync<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>>(
+      WaitingTaskHolder iHolder,
+      ProcessBlockPrincipal const& principal,
+      IOVSyncValue const&,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const*) {
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
+    processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
+    propagateProducts(InProcess, principal, processBlockPrincipal);
+
+    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> Traits;
+    beginGlobalTransitionAsync<Traits>(
+        std::move(iHolder), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
+  }
+
+  void SubProcess::doEndProcessBlockAsync(WaitingTaskHolder iHolder,
+                                          ProcessBlockPrincipal const& principal,
+                                          IOVSyncValue const&,
+                                          std::vector<std::shared_ptr<const EventSetupImpl>> const*,
+                                          bool cleaningUpAfterException) {
+    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
+    propagateProducts(InProcess, principal, processBlockPrincipal);
+
+    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> Traits;
+    endGlobalTransitionAsync<Traits>(
+        std::move(iHolder), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_, cleaningUpAfterException);
+  }
+
   void SubProcess::doBeginRunAsync(WaitingTaskHolder iHolder,
                                    RunPrincipal const& principal,
                                    IOVSyncValue const& ts,
@@ -453,6 +509,26 @@ namespace edm {
                                      cleaningUpAfterException);
   }
 
+  void SubProcess::writeProcessBlockAsync(edm::WaitingTaskHolder task, bool isInputProcessBlock) {
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    auto subTasks = edm::make_waiting_task(
+        tbb::task::allocate_root(), [this, task, isInputProcessBlock](std::exception_ptr const* iExcept) mutable {
+          if (iExcept) {
+            task.doneWaiting(*iExcept);
+          } else {
+            ServiceRegistry::Operate operate(serviceToken_);
+            for (auto& s : subProcesses_) {
+              s.writeProcessBlockAsync(task, isInputProcessBlock);
+            }
+          }
+        });
+    schedule_->writeProcessBlockAsync(WaitingTaskHolder(subTasks),
+                                      principalCache_.processBlockPrincipal(isInputProcessBlock),
+                                      &processContext_,
+                                      actReg_.get());
+  }
+
   void SubProcess::writeRunAsync(edm::WaitingTaskHolder task,
                                  ProcessHistoryID const& parentPhID,
                                  int runNumber,
@@ -488,6 +564,14 @@ namespace edm {
     principalCache_.deleteRun(childPhID, runNumber);
     for_all(subProcesses_,
             [&childPhID, runNumber](auto& subProcess) { subProcess.deleteRunFromCache(childPhID, runNumber); });
+  }
+
+  void SubProcess::clearProcessBlockPrincipal(bool isInputProcessBlock) {
+    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal(isInputProcessBlock);
+    processBlockPrincipal.clearPrincipal();
+    for (auto& s : subProcesses_) {
+      s.clearProcessBlockPrincipal(isInputProcessBlock);
+    }
   }
 
   void SubProcess::doBeginLuminosityBlockAsync(
@@ -668,8 +752,7 @@ namespace edm {
       if (parentProductResolver != nullptr) {
         ProductResolverBase* productResolver = principal.getModifiableProductResolver(desc.branchID());
         if (productResolver != nullptr) {
-          //Propagate the per event(run)(lumi) data for this product to the subprocess.
-          //First, the product itself.
+          //Propagate the per event(run)(lumi)(processBlock) data for this product to the subprocess.
           productResolver->connectTo(*parentProductResolver, &parentPrincipal);
         }
       }

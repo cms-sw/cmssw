@@ -38,8 +38,11 @@ class testTestProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(eventSetupPutTest);
   CPPUNIT_TEST(lumiTest);
   CPPUNIT_TEST(taskTest);
+  CPPUNIT_TEST(emptyProcessBlockTest);
   CPPUNIT_TEST(emptyRunTest);
   CPPUNIT_TEST(emptyLumiTest);
+  CPPUNIT_TEST(processBlockProductTest);
+  CPPUNIT_TEST(processBlockEndProductTest);
   CPPUNIT_TEST(runProductTest);
   CPPUNIT_TEST(lumiProductTest);
 
@@ -57,8 +60,11 @@ public:
   void eventSetupPutTest();
   void lumiTest();
   void taskTest();
+  void emptyProcessBlockTest();
   void emptyRunTest();
   void emptyLumiTest();
+  void processBlockProductTest();
+  void processBlockEndProductTest();
   void runProductTest();
   void lumiProductTest();
 
@@ -240,6 +246,19 @@ void testTestProcessor::taskTest() {
   }
 }
 
+void testTestProcessor::emptyProcessBlockTest() {
+  auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDAnalyzer('RunLumiEventChecker',
+        eventSequence = cms.untracked.VEventID()
+                                )
+process.moduleToTest(process.toTest)
+)_";
+  edm::test::TestProcessor::Config config(kTest);
+  edm::test::TestProcessor tester(config);
+
+  tester.testWithNoRuns();
+}
 void testTestProcessor::emptyRunTest() {
   auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
@@ -270,6 +289,44 @@ process.moduleToTest(process.toTest)
   tester.testLuminosityBlockWithNoEvents();
 }
 
+void testTestProcessor::processBlockProductTest() {
+  auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.intProducerBeginProcessBlock = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(10000))
+process.moduleToTest(process.intProducerBeginProcessBlock)
+)_";
+  edm::test::TestProcessor::Config config(kTest);
+
+  edm::test::TestProcessor tester(config);
+  {
+    auto processBlock = tester.testBeginProcessBlock();
+    CPPUNIT_ASSERT(processBlock.get<edmtest::IntProduct>()->value == 10000);
+  }
+  {
+    auto processBlock = tester.testEndProcessBlock();
+    CPPUNIT_ASSERT(processBlock.get<edmtest::IntProduct>()->value == 10000);
+  }
+}
+
+void testTestProcessor::processBlockEndProductTest() {
+  auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.intProducerEndProcessBlock = cms.EDProducer("IntProducerEndProcessBlock", ivalue = cms.int32(10001))
+process.moduleToTest(process.intProducerEndProcessBlock)
+)_";
+  edm::test::TestProcessor::Config config(kTest);
+
+  edm::test::TestProcessor tester(config);
+  {
+    auto processBlock = tester.testBeginProcessBlock();
+    CPPUNIT_ASSERT_THROW(*processBlock.get<edmtest::IntProduct>(), cms::Exception);
+  }
+  {
+    auto processBlock = tester.testEndProcessBlock();
+    CPPUNIT_ASSERT(processBlock.get<edmtest::IntProduct>()->value == 10001);
+  }
+}
+
 void testTestProcessor::runProductTest() {
   auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
@@ -295,6 +352,7 @@ process.moduleToTest(process.toTest)
     CPPUNIT_ASSERT(run.get<edmtest::ThingCollection>("beginRun")->size() == 20);
   }
 }
+
 void testTestProcessor::lumiProductTest() {
   auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()

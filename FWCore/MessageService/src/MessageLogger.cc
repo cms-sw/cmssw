@@ -107,8 +107,18 @@ using namespace edm;
 using namespace edm::service;
 
 namespace {
-  constexpr std::array<char const*, 8> s_globalTransitionNames = {
-      {"@beginJob", "@beginRun", "@beginLumi", "@endLumi", "@endRun", "@endJob", "@writeRun", "@writeLumi"}};
+  constexpr std::array<char const*, 12> s_globalTransitionNames = {{"@beginJob",
+                                                                    "@beginProcessBlock",
+                                                                    "@accessInputProcessBlock",
+                                                                    "@beginRun",
+                                                                    "@beginLumi",
+                                                                    "@endLumi",
+                                                                    "@endRun",
+                                                                    "@kEndProcessBlock",
+                                                                    "@endJob",
+                                                                    "@writeProcessBlock",
+                                                                    "@writeRun",
+                                                                    "@writeLumi"}};
 
   constexpr std::array<char const*, 7> s_streamTransitionNames = {{"@beginStream",
                                                                    "@streamBeginRun",
@@ -312,6 +322,13 @@ namespace edm {
       iRegistry.watchPreModuleStreamEndLumi(this, &MessageLogger::preModuleStreamEndLumi);
       iRegistry.watchPostModuleStreamEndLumi(this, &MessageLogger::postModuleStreamEndLumi);
 
+      iRegistry.watchPreModuleBeginProcessBlock(this, &MessageLogger::preModuleBeginProcessBlock);
+      iRegistry.watchPostModuleBeginProcessBlock(this, &MessageLogger::postModuleBeginProcessBlock);
+      iRegistry.watchPreModuleAccessInputProcessBlock(this, &MessageLogger::preModuleAccessInputProcessBlock);
+      iRegistry.watchPostModuleAccessInputProcessBlock(this, &MessageLogger::postModuleAccessInputProcessBlock);
+      iRegistry.watchPreModuleEndProcessBlock(this, &MessageLogger::preModuleEndProcessBlock);
+      iRegistry.watchPostModuleEndProcessBlock(this, &MessageLogger::postModuleEndProcessBlock);
+
       iRegistry.watchPreModuleGlobalBeginRun(this, &MessageLogger::preModuleGlobalBeginRun);
       iRegistry.watchPostModuleGlobalBeginRun(this, &MessageLogger::postModuleGlobalBeginRun);
       iRegistry.watchPreModuleGlobalEndRun(this, &MessageLogger::preModuleGlobalEndRun);
@@ -332,6 +349,13 @@ namespace edm {
       iRegistry.watchPostStreamBeginLumi(this, &MessageLogger::postStreamBeginLumi);
       iRegistry.watchPreStreamEndLumi(this, &MessageLogger::preStreamEndLumi);
       iRegistry.watchPostStreamEndLumi(this, &MessageLogger::postStreamEndLumi);
+
+      iRegistry.watchPreBeginProcessBlock(this, &MessageLogger::preBeginProcessBlock);
+      iRegistry.watchPostBeginProcessBlock(this, &MessageLogger::postBeginProcessBlock);
+      iRegistry.watchPreAccessInputProcessBlock(this, &MessageLogger::preAccessInputProcessBlock);
+      iRegistry.watchPostAccessInputProcessBlock(this, &MessageLogger::postAccessInputProcessBlock);
+      iRegistry.watchPreEndProcessBlock(this, &MessageLogger::preEndProcessBlock);
+      iRegistry.watchPostEndProcessBlock(this, &MessageLogger::postEndProcessBlock);
 
       iRegistry.watchPreGlobalBeginRun(this, &MessageLogger::preGlobalBeginRun);
       iRegistry.watchPostGlobalBeginRun(this, &MessageLogger::postGlobalBeginRun);
@@ -609,6 +633,37 @@ namespace edm {
     }
 
     //Global
+
+    void MessageLogger::preModuleBeginProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      establishModule(desc, "@beginProcessBlock");
+    }
+
+    void MessageLogger::postModuleBeginProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule(desc, "After module BeginProcessBlock");
+    }
+
+    void MessageLogger::preModuleAccessInputProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      establishModule(desc, "@accessInputProcessBlock");
+    }
+
+    void MessageLogger::postModuleAccessInputProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule(desc, "After module AccessInputProcessBlock");
+    }
+
+    void MessageLogger::preModuleEndProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      establishModule(desc, "@endProcessBlock");
+    }
+
+    void MessageLogger::postModuleEndProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule(desc, "After module EndProcessBlock");
+    }
+
     void MessageLogger::preModuleGlobalBeginRun(GlobalContext const& context, ModuleCallingContext const& mod) {
       establishModule(runInfoBegin_ + context.runIndex().value(),
                       mod,
@@ -755,6 +810,33 @@ namespace edm {
     void MessageLogger::postStreamEndLumi(StreamContext const&) {
       edm::MessageDrop::instance()->runEvent = "PostStreamEndLumi";
       edm::MessageDrop::instance()->setSinglet("PostStreamEndLumi");  // changelog 17
+    }
+
+    void MessageLogger::preBeginProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->runEvent = "pre-events";
+      edm::MessageDrop::instance()->setSinglet("BeginProcessBlock");
+    }
+
+    void MessageLogger::postBeginProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->setSinglet("After BeginProcessBlock");
+    }
+
+    void MessageLogger::preAccessInputProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->runEvent = "pre-events";
+      edm::MessageDrop::instance()->setSinglet("AccessInputProcessBlock");
+    }
+
+    void MessageLogger::postAccessInputProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->setSinglet("After AccessInputProcessBlock");
+    }
+
+    void MessageLogger::preEndProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->runEvent = "post-events";
+      edm::MessageDrop::instance()->setSinglet("EndProcessBlock");
+    }
+
+    void MessageLogger::postEndProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->setSinglet("After EndProcessBlock");
     }
 
     void MessageLogger::preGlobalBeginRun(GlobalContext const& iContext)  // change log 14

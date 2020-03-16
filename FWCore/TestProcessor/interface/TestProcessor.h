@@ -43,6 +43,7 @@
 
 #include "FWCore/TestProcessor/interface/Event.h"
 #include "FWCore/TestProcessor/interface/LuminosityBlock.h"
+#include "FWCore/TestProcessor/interface/ProcessBlock.h"
 #include "FWCore/TestProcessor/interface/Run.h"
 #include "FWCore/TestProcessor/interface/TestDataProxy.h"
 #include "FWCore/TestProcessor/interface/ESPutTokenT.h"
@@ -156,6 +157,8 @@ namespace edm {
       using Config = TestProcessorConfig;
 
       TestProcessor(Config const& iConfig, ServiceToken iToken = ServiceToken());
+      TestProcessor(const TestProcessor&) = delete;
+      const TestProcessor& operator=(const TestProcessor&) = delete;
       ~TestProcessor() noexcept(false);
 
       /** Run the test. The function arguments are the data products to be added to the
@@ -184,6 +187,14 @@ namespace edm {
         return testEndRunImpl(std::forward<T>(iArgs)...);
       }
 
+      // It makes no sense to pass EventSetup products and at least
+      // for now Runs, Lumis, and ProcessBlocks don't allow passing
+      // in other products. So for now these don't need to be templates
+      // for ProcessBlock.
+      edm::test::ProcessBlock testBeginProcessBlock() { return testBeginProcessBlockImpl(); }
+
+      edm::test::ProcessBlock testEndProcessBlock() { return testEndProcessBlockImpl(); }
+
       /** Run only beginJob and endJob. Once this is used, you should not attempt to run any further tests.
 This simulates a problem happening early in the job which causes processing not to proceed.
    */
@@ -192,19 +203,30 @@ This simulates a problem happening early in the job which causes processing not 
         endJob();
       }
 
+      void testWithNoRuns() {
+        beginJob();
+        beginProcessBlock();
+        endProcessBlock();
+        endJob();
+      }
+
       void testRunWithNoLuminosityBlocks() {
         beginJob();
+        beginProcessBlock();
         beginRun();
         endRun();
+        endProcessBlock();
         endJob();
       }
 
       void testLuminosityBlockWithNoEvents() {
         beginJob();
+        beginProcessBlock();
         beginRun();
         beginLuminosityBlock();
         endLuminosityBlock();
         endRun();
+        endProcessBlock();
         endJob();
       }
       void setRunNumber(edm::RunNumber_t);
@@ -214,10 +236,6 @@ This simulates a problem happening early in the job which causes processing not 
       std::string const& labelOfTestModule() const { return labelOfTestModule_; }
 
     private:
-      TestProcessor(const TestProcessor&) = delete;  // stop default
-
-      const TestProcessor& operator=(const TestProcessor&) = delete;  // stop default
-
       template <typename T, typename... U>
       edm::test::Event testImpl(std::pair<edm::EDPutTokenT<T>, std::unique_ptr<T>>&& iPut, U&&... iArgs) {
         put(std::move(iPut));
@@ -278,15 +296,20 @@ This simulates a problem happening early in the job which causes processing not 
       }
       edm::test::Run testEndRunImpl();
 
+      edm::test::ProcessBlock testBeginProcessBlockImpl();
+      edm::test::ProcessBlock testEndProcessBlockImpl();
+
       void setupProcessing();
       void teardownProcessing();
 
       void beginJob();
+      void beginProcessBlock();
       void beginRun();
       void beginLuminosityBlock();
       void event();
       std::shared_ptr<LuminosityBlockPrincipal> endLuminosityBlock();
       std::shared_ptr<RunPrincipal> endRun();
+      ProcessBlockPrincipal const* endProcessBlock();
       void endJob();
 
       // ---------- member data --------------------------------
@@ -320,6 +343,7 @@ This simulates a problem happening early in the job which causes processing not 
       LuminosityBlockNumber_t lumiNumber_ = 1;
       EventNumber_t eventNumber_ = 1;
       bool beginJobCalled_ = false;
+      bool beginProcessBlockCalled_ = false;
       bool beginRunCalled_ = false;
       bool beginLumiCalled_ = false;
     };

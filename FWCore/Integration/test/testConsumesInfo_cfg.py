@@ -125,10 +125,32 @@ process.intProducerG = cms.EDProducer("IntProducer", ivalue = cms.int32(1005))
 process.intProducerH = cms.EDProducer("IntProducer", ivalue = cms.int32(1006))
 process.intProducerI = cms.EDProducer("IntProducer", ivalue = cms.int32(1007))
 
+process.intProducerBeginProcessBlock = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(10000))
+
+process.intProducerEndProcessBlock = cms.EDProducer("IntProducerEndProcessBlock", ivalue = cms.int32(100000))
+
+process.processBlockTest1 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  expectedSum = cms.untracked.int32(220000),
+  inputTagsBeginProcessBlock = cms.untracked.VInputTag(
+    cms.InputTag("intProducerBeginProcessBlock"),
+    cms.InputTag("intProducerBeginProcessBlock", "", "PROD1")
+  ),
+  inputTagsEndProcessBlock = cms.untracked.VInputTag(
+    cms.InputTag("intProducerEndProcessBlock"),
+    cms.InputTag("intProducerEndProcessBlock", "", "PROD1"),
+  )
+)
+
 process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 *
                      process.a4 *
                      process.test * process.testView1 *
-                     process.testStreamingProducer * process.testStreamingAnalyzer)
+                     process.testStreamingProducer * process.testStreamingAnalyzer *
+                     process.intProducerBeginProcessBlock *
+                     process.intProducerEndProcessBlock *
+                     process.processBlockTest1
+)
+
 process.p2 = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
 
 process.p3 = cms.Path(
@@ -417,4 +439,33 @@ copyProcess.path2 = cms.Path(
   copyProcess.a23 *
   copyProcess.a24 *
   copyProcess.a25
+)
+
+copyProcess.intProducerBeginProcessBlock = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(10001))
+
+copyProcess.intProducerEndProcessBlock = cms.EDProducer("IntProducerEndProcessBlock", ivalue = cms.int32(100010))
+
+copyProcess.processBlockTest1 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  expectedSum = cms.untracked.int32(460034),
+  inputTagsBeginProcessBlock = cms.untracked.VInputTag(
+    cms.InputTag("intProducerBeginProcessBlock"),
+    cms.InputTag("intProducerBeginProcessBlock", "", "PROD1"),
+    cms.InputTag("intProducerBeginProcessBlock", "", "COPY")
+  ),
+  inputTagsEndProcessBlock = cms.untracked.VInputTag(
+    cms.InputTag("intProducerBeginProcessBlock"),
+    cms.InputTag("intProducerBeginProcessBlock", "", "PROD1"),
+    cms.InputTag("intProducerBeginProcessBlock", "", "COPY"),
+    cms.InputTag("intProducerEndProcessBlock"),
+    cms.InputTag("intProducerEndProcessBlock", "", "PROD1"),
+    cms.InputTag("intProducerEndProcessBlock", "", "COPY"),
+    cms.InputTag("intProducerEndProcessBlock", "", cms.InputTag.currentProcess())
+  )
+)
+
+copyProcess.path3 = cms.Path(
+    copyProcess.intProducerBeginProcessBlock *
+    copyProcess.intProducerEndProcessBlock *
+    copyProcess.processBlockTest1
 )

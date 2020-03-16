@@ -30,10 +30,13 @@ namespace edm {
     enum class Abilities {
       kGlobalCache,
       kStreamCache,
+      kProcessBlockCache,
       kRunCache,
       kLuminosityBlockCache,
       kRunSummaryCache,
       kLuminosityBlockSummaryCache,
+      kBeginProcessBlockProducer,
+      kEndProcessBlockProducer,
       kBeginRunProducer,
       kEndRunProducer,
       kBeginLuminosityBlockProducer,

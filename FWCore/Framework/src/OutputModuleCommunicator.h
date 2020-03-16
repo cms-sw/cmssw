@@ -51,14 +51,19 @@ namespace edm {
 
     virtual void openFile(FileBlock const& fb) = 0;
 
+    virtual void writeProcessBlockAsync(WaitingTaskHolder iTask,
+                                        ProcessBlockPrincipal const&,
+                                        ProcessContext const*,
+                                        ActivityRegistry*) = 0;
+
     virtual void writeRunAsync(WaitingTaskHolder iTask,
-                               RunPrincipal const& rp,
+                               RunPrincipal const&,
                                ProcessContext const*,
                                ActivityRegistry*,
                                MergeableRunProductMetadata const*) = 0;
 
     virtual void writeLumiAsync(WaitingTaskHolder iTask,
-                                LuminosityBlockPrincipal const& lbp,
+                                LuminosityBlockPrincipal const&,
                                 ProcessContext const*,
                                 ActivityRegistry*) = 0;
 
