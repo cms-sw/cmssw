@@ -1004,7 +1004,7 @@ void FastTimerService::postBeginJob() {
   if (enable_dqm_ and not edm::Service<dqm::legacy::DQMStore>().isAvailable()) {
     // the DQMStore is not available, disable all DQM plots
     enable_dqm_ = false;
-    // FIXME issue a LogWarning ?
+    edm::LogWarning("FastTimerService") << "The DQMStore is not avalable, the DQM plots will not be generated";
   }
 
   // allocate the structures to hold pointers to the DQM plots
@@ -1236,7 +1236,10 @@ void FastTimerService::printSummaryLine(
 }
 
 template <typename T>
-void FastTimerService::printSummaryLine(T& out, AtomicResources const& data, uint64_t events, std::string const& label) const {
+void FastTimerService::printSummaryLine(T& out,
+                                        AtomicResources const& data,
+                                        uint64_t events,
+                                        std::string const& label) const {
   out << boost::format(
              "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB        "
              "         %s\n") %
