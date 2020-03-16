@@ -58,10 +58,14 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
   }
 
   if ((*dcsStatus).empty()) {
-    dcsTIBTID = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TIBTID);
-    dcsTOB = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TOB);
-    dcsTECF = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TECp);
-    dcsTECB = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TECm);
+    if (e.eventAuxiliary().isRealData()) {
+      dcsTIBTID = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TIBTID);
+      dcsTOB = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TOB);
+      dcsTECF = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TECp);
+      dcsTECB = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TECm);
+    } else {
+      return retVal;
+    }
   } else {
     dcsTIBTID = ((*dcsStatus)[0].ready(DcsStatus::TIBTID));
     dcsTOB = ((*dcsStatus)[0].ready(DcsStatus::TOB));

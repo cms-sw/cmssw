@@ -130,7 +130,13 @@ bool DetStatus::filter(edm::Event& evt, edm::EventSetup const& es)
   if (dcsStatus.isValid() && !dcsStatus->empty()) {
     accepted = checkForDCSStatus(*dcsStatus);
   } else if (dcsRecord.isValid()) {
-    accepted = checkForDCSRecord(*dcsRecord);
+    if (evt.eventAuxiliary().isRealData()) {
+      // in case of real data check for DCS
+      accepted = checkForDCSRecord(*dcsRecord);
+    } else {
+      // in case of MC accept in any case
+      accepted = true;
+    }
   } else {
     edm::LogError("DetStatus")
         << "Error! can't get the product, neither DCSRecord, nor scalersRawToDigi: accept in any case!";
