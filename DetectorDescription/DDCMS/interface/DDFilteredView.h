@@ -50,14 +50,28 @@ namespace cms {
   using Node = TGeoNode;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
   using RotationMatrix = ROOT::Math::Rotation3D;
-  using DDFilter = std::string_view;
-
+  
+  struct DDFilter {
+    DDFilter(const std::string& attribute = "", const std::string& value = "")
+    : m_attribute(attribute),
+      m_value(value) {}
+    const std::string& attribute() const {
+      return m_attribute;
+    }
+    const std::string& value() const {
+      return m_value;
+    }
+  private:
+    const std::string m_attribute;
+    const std::string m_value;
+  };
+  
   class DDFilteredView {
   public:
     using nav_type = std::vector<int>;
 
     DDFilteredView(const DDDetector*, const Volume);
-    DDFilteredView(const DDCompactView&, const DDFilter& = "");
+    DDFilteredView(const DDCompactView&, const cms::DDFilter&);
     DDFilteredView() = delete;
 
     //! The numbering history of the current node
@@ -75,9 +89,6 @@ namespace cms {
 
     const std::vector<int> copyNumbers() { return copyNos(); }
 
-    //! Debug filter
-    void printFilter() const { printFilter(currentFilter_); };
-
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;
@@ -90,6 +101,9 @@ namespace cms {
 
     //! User specific data
     void mergedSpecifics(DDSpecParRefs const&);
+    const cms::DDSpecParRefs specpars() const {
+      return refs_;
+    }
 
     //! set the current node to the first child
     bool firstChild();

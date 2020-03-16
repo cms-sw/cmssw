@@ -26,14 +26,14 @@ namespace cms {
   struct DDSpecPar;
 
   struct Filter {
-    std::vector<std::pair<std::string_view, std::regex>> keys;
+    std::vector<std::regex> keys;
     std::unique_ptr<Filter> next;
     struct Filter* up;
     const DDSpecPar* spec = nullptr;
   };
 
   namespace dd {
-    bool accepted(std::vector<std::pair<std::string_view, std::regex>> const&, std::string_view);
+    bool accepted(std::vector<std::regex> const&, std::string_view);
     int contains(std::string_view, std::string_view);
     bool isRegex(std::string_view);
     bool isMatch(std::string_view, std::string_view);

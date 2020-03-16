@@ -41,12 +41,12 @@ DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : reg
   it_.emplace_back(Iterator(volume));
 }
 
-DDFilteredView::DDFilteredView(const DDCompactView& cpv, const DDFilter& attribute) : registry_(&cpv.specpars()) {
+DDFilteredView::DDFilteredView(const DDCompactView& cpv, const cms::DDFilter& filter) : registry_(&cpv.specpars()) {
   it_.emplace_back(Iterator(cpv.detector()->worldVolume()));
-  registry_->filter(refs_, attribute);
+  registry_->filter(refs_, filter.attribute(), filter.value());
   mergedSpecifics(refs_);
   LogVerbatim("Geometry").log([&](auto& log) {
-    log << "Filtered DD SpecPar Registry size: " << refs_.size() << "\n";
+      log << "Filtered by an attribute " << filter.attribute() << "==" << filter.value() << " DD SpecPar Registry size: " << refs_.size() << "\n";
     for (const auto& t : refs_) {
       log << "\nRegExps { ";
       for (const auto& ki : t->paths)
@@ -143,11 +143,15 @@ void DDFilteredView::rot(dd4hep::Rotation3D& matrixOut) const {
 }
 
 void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
+  if (!filters_.empty()) {
+    filters_.clear();
+    filters_.shrink_to_fit();
+  }
   for (const auto& i : specs) {
     for (const auto& j : i->paths) {
       vector<string_view> toks = split(j, "/");
       auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-        auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p) { return p.first == toks.front(); });
+	  auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p) { return std::regex_match(std::string({toks.front().data(), toks.front().size()}), p); });
         if (k != end(f->keys)) {
           currentFilter_ = f.get();
           return true;
@@ -156,8 +160,8 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
       });
       if (filter == end(filters_)) {
         filters_.emplace_back(unique_ptr<Filter>(
-            new Filter{{std::pair<std::string_view, std::regex>(
-                           toks.front(), regex(std::string(toks.front().data(), toks.front().size())))},
+            new Filter{{std::regex(
+                       std::string(toks.front().data(), toks.front().size()))},
                        nullptr,
                        nullptr,
                        i}));
@@ -167,29 +171,20 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         if (currentFilter_->next != nullptr) {
           currentFilter_ = currentFilter_->next.get();
           auto const& l = find_if(begin(currentFilter_->keys), end(currentFilter_->keys), [&](auto const& p) {
-            return p.first == toks[pos];
+	      return std::regex_match(std::string({toks.front().data(), toks.front().size()}), p);
           });
           if (l == end(currentFilter_->keys)) {
-            currentFilter_->keys.emplace_back(toks[pos], std::string(toks[pos].data(), toks[pos].size()));
+            currentFilter_->keys.emplace_back(std::string(toks[pos].data(), toks[pos].size()));
           }
         } else {
-          currentFilter_->next.reset(new Filter{{std::pair<std::string_view, std::regex>(
-                                                    toks[pos], regex(std::string(toks[pos].data(), toks[pos].size())))},
+          currentFilter_->next.reset(new Filter{{std::regex(
+						std::string(toks[pos].data(), toks[pos].size()))},
                                                 nullptr,
                                                 currentFilter_,
                                                 i});
         }
       }
     }
-  }
-}
-
-void DDFilteredView::printFilter(const Filter* filter) const {
-  if (filter != nullptr) {
-    for (auto it : filter->keys)
-      std::cout << "//" << std::string(it.first.data(), it.first.size()) << "\n";
-    if (filter->next != nullptr)
-      printFilter(filter->next.get());
   }
 }
 
@@ -400,6 +395,14 @@ std::vector<double> DDFilteredView::get<std::vector<double>>(const string& name,
     return registry_->specPar(name)->value<std::vector<double>>(key);
   else
     return std::vector<double>();
+}
+
+template <>
+std::vector<int> DDFilteredView::get<std::vector<int>>(const string& name, const string& key) const {
+  if (registry_->hasSpecPar(name))
+    return registry_->specPar(name)->value<std::vector<int>>(key);
+  else
+    return std::vector<int>();
 }
 
 template <>
