@@ -64,6 +64,9 @@ namespace DigitizerUtility {
     float z() const { return _position.z(); }
     float energy() const { return _energy; }
 
+    // Allow migration between pixel cells
+    void migrate_position(const Local3DPoint& pos) { _position = pos; }
+
   private:
     float _energy;
     Local3DPoint _position;

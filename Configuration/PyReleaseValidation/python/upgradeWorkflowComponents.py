@@ -51,6 +51,8 @@ upgradeKeys[2026] = [
     '2026D52PU',
     '2026D53',
     '2026D53PU',
+    '2026D54',
+    '2026D54PU',
 ]
 
 # pre-generation of WF numbers
@@ -116,8 +118,10 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         cust=properties.get('Custom', None)
         era=properties.get('Era', None)
+        modifier=properties.get('ProcessModifier',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
         if era is not None: stepDict[stepName][k]['--era']=era
+        if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
@@ -748,6 +752,14 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D53',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D54' : {
+        'Geom' : 'Extended2026D54',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T19',
+        'ProcessModifier': 'phase2_PixelCPEGeneric',
         'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
