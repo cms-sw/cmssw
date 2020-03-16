@@ -10,19 +10,23 @@ echo "myStart: set dir pwd"
 set m=`pwd`
 
 cd ${m}
-setenv SCRAM_ARCH slc6_amd64_gcc700
-scram p -s CMSSW CMSSW_10_4_0
-cd CMSSW_10_4_0/src 
+setenv SCRAM_ARCH slc7_amd64_gcc820 
+scram p -s CMSSW CMSSW_11_1_0_pre3
+cd CMSSW_11_1_0_pre3/src 
 
-mkdir RecoHcal
-cd RecoHcal
+mkdir DPGAnalysis
+cd DPGAnalysis
 
-mkdir HcalPromptAnalysis
-cd HcalPromptAnalysis
-mv ../../../../BuildFile* .
+mkdir HcalTools
+cd HcalTools
+
+mv ../../../../BuildFile.xml .
 ls
+
+mkdir interface
+mv ../../../../CMTRawAnalyzer.h interface/.
 mkdir src
-mv ../../../../VeRawAnalyzer.cc src/.
+mv ../../../../CMTRawAnalyzer.cc src/.
 
 cd src
 ls
@@ -44,7 +48,7 @@ voms-proxy-info -all -file ${4}
 ./mkcfg_new120.csh ${1}
 ls PYTHON_${1}/*py
 
-################################################################ loop:
+################################################################ loop:  
 echo "myStart: loop in run_condor.csh"
 if( ${status} == "0" ) then
 foreach i (`ls PYTHON_${1}`)
@@ -59,7 +63,7 @@ cmsRun PYTHON_${1}/Reco_${j}_${k}_cfg.py
 
 ### Copy output files to EOS
 ### xrdcp -f Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/test/Global_${j}_${k}.root
-eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/Global_${j}_${k}.root
+eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2019/Global_${j}_${k}.root
 #eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/test/Global_${j}_${k}.root
 
 ################################################################
