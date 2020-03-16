@@ -119,7 +119,9 @@ private:
   bool isMC;
 
   float jetDeltaR;
-
+  
+  bool genJetsOn; 
+  
   std::string jetCollectionName;
 
   edm::InputTag recoJetsLabel;
@@ -196,6 +198,10 @@ PFJetAnalyzerDQM::PFJetAnalyzerDQM(const edm::ParameterSet& iConfig) {
   //DeltaR for reco to gen jet matching
   jetDeltaR = iConfig.getParameter<double>("jetDeltaR");
 
+
+  //for turn genJet on/off
+  genJetsOn = iConfig.getParameter<bool>("genJetsOn");
+
   //Create all jet response plots in bins of genjet pt and eta
   const auto& response_plots = iConfig.getParameter<std::vector<edm::ParameterSet>>("responsePlots");
   prepareJetResponsePlots(response_plots);
@@ -218,10 +224,13 @@ void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, e
     const auto eta_gen = abs(genJet.eta());
     const int iMatch = matchIndices[i];
 
-    //Fill genjet pt
-    for (auto& plot : genJetPlots) {
-      if (plot.isInEtaBin(eta_gen)) {
-        plot.fill(pt_gen);
+    //Fill genjet pt if genJetOn
+    if (genJetsOn) {
+      for (auto& plot : genJetPlots) {
+	if (plot.isInEtaBin(eta_gen)) {
+	  plot.fill(pt_gen);
+	  std::cout << "filling" << std::endl;
+	}
       }
     }
 
@@ -263,9 +272,12 @@ void PFJetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const&
   }
 
   //Book plots for gen-jet pt spectra
-  booker.setCurrentFolder("ParticleFlow/GenJets/");
-  for (auto& plot : genJetPlots) {
-    plot.book(booker);
+  if (genJetsOn) {
+    booker.setCurrentFolder("ParticleFlow/GenJets/");
+    for (auto& plot : genJetPlots) {
+      plot.book(booker);
+      std::cout << "booking" << std::endl;
+    }
   }
 }
 
