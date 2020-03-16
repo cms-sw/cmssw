@@ -436,13 +436,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     BHMSD = cms.PSet(
          Verbosity = cms.untracked.int32(0)
     ),
-    FastTimerSD = cms.PSet(
-        Verbosity = cms.untracked.int32(0),
-        TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
-        IgnoreTrackID    = cms.bool(False),
-        EminHit          = cms.double(0.0),
-        CheckID          = cms.untracked.bool(True),
-    ),
     MtdSD = cms.PSet(
         Verbosity = cms.untracked.int32(0),
         TimeSliceUnit    = cms.double(0.01), #stepping = 10 ps (for timing)
