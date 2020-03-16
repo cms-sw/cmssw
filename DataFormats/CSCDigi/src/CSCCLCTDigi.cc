@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <iostream>
 
+enum Pattern_Info { NUM_LAYERS = 6, CLCT_PATTERN_WIDTH = 11 };
+
 /// Constructors
 CSCCLCTDigi::CSCCLCTDigi(const int valid,
                          const int quality,
@@ -21,7 +23,8 @@ CSCCLCTDigi::CSCCLCTDigi(const int valid,
                          const int cfeb,
                          const int bx,
                          const int trknmb,
-                         const int fullbx)
+                         const int fullbx,
+                         const int compCode)
     : valid_(valid),
       quality_(quality),
       pattern_(pattern),
@@ -31,23 +34,31 @@ CSCCLCTDigi::CSCCLCTDigi(const int valid,
       cfeb_(cfeb),
       bx_(bx),
       trknmb_(trknmb),
-      //fullbx_(0)
-      fullbx_(fullbx) {
-  //valid_     = valid;
-  //quality_   = quality;
-  //pattern_   = pattern;
-  //striptype_ = striptype;
-  //bend_      = bend;
-  //strip_     = strip;
-  //cfeb_      = cfeb;
-  //bx_        = bx;
-  //trknmb_    = trknmb;
+      fullbx_(fullbx),
+      compCode_(compCode) {
+  hits_.resize(NUM_LAYERS);
+  for (auto& p : hits_) {
+    p.resize(CLCT_PATTERN_WIDTH);
+  }
 }
 
 /// Default
 CSCCLCTDigi::CSCCLCTDigi()
-    : valid_(0), quality_(0), pattern_(0), striptype_(0), bend_(0), strip_(0), cfeb_(0), bx_(0), trknmb_(0), fullbx_(0) {
-  //  clear(); // set contents to zero
+    : valid_(0),
+      quality_(0),
+      pattern_(0),
+      striptype_(0),
+      bend_(0),
+      strip_(0),
+      cfeb_(0),
+      bx_(0),
+      trknmb_(0),
+      fullbx_(0),
+      compCode_(-1) {
+  hits_.resize(NUM_LAYERS);
+  for (auto& p : hits_) {
+    p.resize(CLCT_PATTERN_WIDTH);
+  }
 }
 
 /// Clears this CLCT.
@@ -62,6 +73,49 @@ void CSCCLCTDigi::clear() {
   bx_ = 0;
   trknmb_ = 0;
   fullbx_ = 0;
+  compCode_ = -1;
+  hits_.clear();
+  hits_.resize(NUM_LAYERS);
+  for (auto& p : hits_) {
+    p.resize(CLCT_PATTERN_WIDTH);
+  }
+}
+
+int CSCCLCTDigi::getKeyStrip(int n) const {
+  // 10-bit case for strip data word
+  if (compCode_ != -1 and n == 8) {
+    return getKeyStrip(4) * 2 + getEightStrip();
+  }
+  // 9-bit case for strip data word
+  else if (compCode_ != -1 and n == 4) {
+    return getKeyStrip(2) * 2 + getQuartStrip();
+  }
+  // 8-bit case for strip data word (all other cases)
+  else {
+    return cfeb_ * 32 + getStrip();
+  }
+}
+
+int CSCCLCTDigi::getStrip() const { return strip_ & kHalfStripMask; }
+
+bool CSCCLCTDigi::getQuartStrip() const { return (strip_ >> kQuartStripShift) & kQuartStripMask; }
+
+bool CSCCLCTDigi::getEightStrip() const { return (strip_ >> kEightStripShift) & kEightStripMask; }
+
+void CSCCLCTDigi::setQuartStrip(const bool quartStrip) {
+  // clear the old value
+  strip_ &= ~(kQuartStripMask << kQuartStripShift);
+
+  // set the new value
+  strip_ |= quartStrip << kQuartStripShift;
+}
+
+void CSCCLCTDigi::setEightStrip(const bool eightStrip) {
+  // clear the old value
+  strip_ &= ~(kEightStripMask << kEightStripShift);
+
+  // set the new value
+  strip_ |= eightStrip << kEightStripShift;
 }
 
 bool CSCCLCTDigi::operator>(const CSCCLCTDigi& rhs) const {
@@ -96,7 +150,7 @@ bool CSCCLCTDigi::operator==(const CSCCLCTDigi& rhs) const {
   bool returnValue = false;
   if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getPattern() == rhs.getPattern() &&
       getKeyStrip() == rhs.getKeyStrip() && getStripType() == rhs.getStripType() && getBend() == getBend() &&
-      getBX() == rhs.getBX()) {
+      getBX() == rhs.getBX() && getCompCode() == rhs.getCompCode()) {
     returnValue = true;
   }
   return returnValue;
@@ -122,7 +176,8 @@ void CSCCLCTDigi::print() const {
                                 << getQuality() << " Pattern = " << std::setw(1) << getPattern()
                                 << " Bend = " << std::setw(1) << bend << " Strip type = " << std::setw(1) << stripType
                                 << " CFEB ID = " << std::setw(1) << getCFEB() << " BX = " << std::setw(1) << getBX()
-                                << " Full BX= " << std::setw(1) << getFullBX();
+                                << " Full BX= " << std::setw(1) << getFullBX() << " Comp Code= " << std::setw(1)
+                                << getCompCode();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid Cathode LCT.";
   }
@@ -132,5 +187,5 @@ std::ostream& operator<<(std::ostream& o, const CSCCLCTDigi& digi) {
   return o << "CSC CLCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
            << " Pattern = " << digi.getPattern() << " StripType = " << digi.getStripType()
            << " Bend = " << digi.getBend() << " Strip = " << digi.getStrip() << " KeyStrip = " << digi.getKeyStrip()
-           << " CFEB = " << digi.getCFEB() << " BX = " << digi.getBX();
+           << " CFEB = " << digi.getCFEB() << " BX = " << digi.getBX() << " Comp Code " << digi.getCompCode();
 }
