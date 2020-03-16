@@ -46,7 +46,8 @@ DDFilteredView::DDFilteredView(const DDCompactView& cpv, const cms::DDFilter& fi
   registry_->filter(refs_, filter.attribute(), filter.value());
   mergedSpecifics(refs_);
   LogVerbatim("Geometry").log([&](auto& log) {
-      log << "Filtered by an attribute " << filter.attribute() << "==" << filter.value() << " DD SpecPar Registry size: " << refs_.size() << "\n";
+    log << "Filtered by an attribute " << filter.attribute() << "==" << filter.value()
+        << " DD SpecPar Registry size: " << refs_.size() << "\n";
     for (const auto& t : refs_) {
       log << "\nRegExps { ";
       for (const auto& ki : t->paths)
@@ -151,7 +152,9 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
     for (const auto& j : i->paths) {
       vector<string_view> toks = split(j, "/");
       auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-	  auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p) { return std::regex_match(std::string({toks.front().data(), toks.front().size()}), p); });
+        auto const& k = find_if(begin(f->keys), end(f->keys), [&](auto const& p) {
+          return std::regex_match(std::string({toks.front().data(), toks.front().size()}), p);
+        });
         if (k != end(f->keys)) {
           currentFilter_ = f.get();
           return true;
@@ -160,28 +163,21 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
       });
       if (filter == end(filters_)) {
         filters_.emplace_back(unique_ptr<Filter>(
-            new Filter{{std::regex(
-                       std::string(toks.front().data(), toks.front().size()))},
-                       nullptr,
-                       nullptr,
-                       i}));
+            new Filter{{std::regex(std::string(toks.front().data(), toks.front().size()))}, nullptr, nullptr, i}));
       }
       // all next levels
       for (size_t pos = 1; pos < toks.size(); ++pos) {
         if (currentFilter_->next != nullptr) {
           currentFilter_ = currentFilter_->next.get();
           auto const& l = find_if(begin(currentFilter_->keys), end(currentFilter_->keys), [&](auto const& p) {
-	      return std::regex_match(std::string({toks.front().data(), toks.front().size()}), p);
+            return std::regex_match(std::string({toks.front().data(), toks.front().size()}), p);
           });
           if (l == end(currentFilter_->keys)) {
             currentFilter_->keys.emplace_back(std::string(toks[pos].data(), toks[pos].size()));
           }
         } else {
-          currentFilter_->next.reset(new Filter{{std::regex(
-						std::string(toks[pos].data(), toks[pos].size()))},
-                                                nullptr,
-                                                currentFilter_,
-                                                i});
+          currentFilter_->next.reset(
+              new Filter{{std::regex(std::string(toks[pos].data(), toks[pos].size()))}, nullptr, currentFilter_, i});
         }
       }
     }
@@ -355,7 +351,7 @@ template <>
 std::string_view DDFilteredView::get<string_view>(const string& key) const {
   std::string_view result;
   DDSpecParRefs refs;
-  registry_->filter(refs, key);
+  registry_->filter(refs, key, "");
   int level = it_.back().GetLevel();
   for_each(begin(refs), end(refs), [&](auto const& i) {
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
