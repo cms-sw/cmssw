@@ -9,7 +9,7 @@
 #include <iosfwd>
 #include <bitset>
 #include <memory>
-using namespace std;
+//using namespace std;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -19,7 +19,7 @@ using namespace std;
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-using namespace edm;
+//using namespace edm;
 // this line is to retrieve HCAL RecHitCollections:
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
