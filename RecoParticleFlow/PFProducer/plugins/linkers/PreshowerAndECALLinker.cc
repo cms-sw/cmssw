@@ -22,6 +22,7 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, PreshowerAndECALLinker, "PreshowerA
 
 bool PreshowerAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   bool result = false;
+  // PS-ECAL KDTree multilinks are stored to PS's elem
   switch (elem1->type()) {
     case reco::PFBlockElement::PS1:
     case reco::PFBlockElement::PS2:

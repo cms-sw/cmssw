@@ -159,7 +159,7 @@ void KDTreeLinkerTrackHcal::buildTree() {
 }
 
 void KDTreeLinkerTrackHcal::searchLinks() {
-  // Must of the code has been taken from LinkByRecHit.cc
+  // Most of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the tracks.
   for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {
@@ -239,7 +239,7 @@ void KDTreeLinkerTrackHcal::searchLinks() {
 void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
   //TODO YG : Check if cluster positionREP() is valid ?
 
-  // Here we save in each HCAL cluster the list of phi/eta values of linked clusters.
+  // Here we save in each HCAL cluster the list of phi/eta values of linked clusters (actually tracks).
   for (BlockElt2BlockEltMap::iterator it = cluster2TargetLinks_.begin(); it != cluster2TargetLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 

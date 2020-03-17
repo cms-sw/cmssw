@@ -29,6 +29,8 @@ public:
     checkExit_ = trajectoryLayerExit_ != reco::PFTrajectoryPoint::Unknown;
   }
 
+  bool linkPrefilter(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
@@ -42,6 +44,21 @@ private:
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndHCALLinker, "TrackAndHCALLinker");
+
+bool TrackAndHCALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+  bool result = false;
+  // Track-HCAL KDTree multilinks are stored to HCAL's elem
+  switch (elem1->type()) {
+    case reco::PFBlockElement::TRACK:
+      result = (elem2->isMultilinksValide() && !elem2->getMultilinks().empty());
+      break;
+    case reco::PFBlockElement::HCAL:
+      result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());
+    default:
+      break;
+  }
+  return (useKDTree_ ? result : true);
+}
 
 double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   const reco::PFBlockElementCluster* hcalelem(nullptr);
