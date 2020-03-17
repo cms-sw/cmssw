@@ -15,7 +15,6 @@ own copy of the common DetId.
 #include <cstdint>
 #include <cstddef>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   typedef uint32_t det_id_type;
