@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WebDir='/eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring'
-WebSite='https://cms-conddb-dev.cern.ch/eosweb/hcal/HcalRemoteMonitoring'
+WebSite='https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring'
 HistoDir='/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos'
 eos='/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select'
 
@@ -155,7 +155,7 @@ for i in ${runList} ; do
 
     #GlobalRMT processing
     echo -e "\nRemoteMonitoringMAP_Global\n" >> ${logFile}
-    ./RemoteMonitoringMAP_Global.cc.exe Global_$runnumber.root Global_$runnumber.root 2>&1 | tee -a ${logFile}
+    ./../../macros/cmt/RemoteMonitoringMAP_Global.cc.exe Global_$runnumber.root Global_$runnumber.root 2>&1 | tee -a ${logFile}
     if [ ! $? -eq 0 ] ; then
 	echo "MAP_Global processing failed"
 	exit 2
@@ -177,27 +177,45 @@ for i in ${runList} ; do
     cp *.png ${local_WebDir}
 #    cp HELP.html ${local_WebDir}
 
-    files=`cd ${local_WebDir}; ls`
-    #echo "GlobalRMT files=${files}"
 
-    if [ ${debug} -eq 0 ] ; then
-	eos mkdir $WebDir/GlobalRMT/GLOBAL_$runnumber
-	if [ ! $? -eq 0 ] ; then
-	    echo "GlobalRMT eos mkdir failed"
-	    exit 2
-	fi
-	for f in ${files} ; do
-	    echo "eoscp ${local_WebDir}/${f} $WebDir/GlobalRMT/GLOBAL_$runnumber/${f}"
-	    eoscp ${local_WebDir}/${f} $WebDir/GlobalRMT/GLOBAL_$runnumber/${f}
-	    if [ ! $? -eq 0 ] ; then
-		echo "GlobalRMT eoscp failed for ${f}"
-		exit 2
-	    fi
-	done
-    else
-        # debuging
-	echo "debugging: files are not copied to EOS"
-    fi
+
+#---------------111
+# first variant:
+    mkdir $WebDir/GlobalRMT/GLOBAL_$runnumber
+    cp *.png $WebDir/GlobalRMT/GLOBAL_$runnumber/.
+    cp *.html $WebDir/GlobalRMT/GLOBAL_$runnumber/.
+ echo "cp  png and html file done"
+
+
+#---------------222 wrong
+# more simple second variant:
+#scp -r ${local_WebDir} $WebDir/GlobalRMT/GLOBAL_$runnumber
+#echo "cp -r for dir with png and html file done"
+
+
+
+
+    #files=`cd ${local_WebDir}; ls`
+    ##echo "GlobalRMT files=${files}"
+
+#    if [ ${debug} -eq 0 ] ; then
+#	eos mkdir $WebDir/GlobalRMT/GLOBAL_$runnumber
+#	if [ ! $? -eq 0 ] ; then
+#	    echo "GlobalRMT eos mkdir failed"
+#	    exit 2
+#	fi
+#	for f in ${files} ; do
+#	    echo "eoscp ${local_WebDir}/${f} $WebDir/GlobalRMT/GLOBAL_$runnumber/${f}"
+#	    eoscp ${local_WebDir}/${f} $WebDir/GlobalRMT/GLOBAL_$runnumber/${f}
+#	    if [ ! $? -eq 0 ] ; then
+#		echo "GlobalRMT eoscp failed for ${f}"
+#		exit 2
+#	    fi
+#	done
+#    else
+#        # debuging
+#	echo "debugging: files are not copied to EOS"
+#    fi
 
     rm *.html
     rm *.png
