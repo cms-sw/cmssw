@@ -780,36 +780,6 @@ void BoostedDoubleSVProducer::endStream() {}
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void BoostedDoubleSVProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  {
-    edm::ParameterSetDescription trackSelection;
-    trackSelection.add<double>("b_pT", 0.3684);
-    trackSelection.add<double>("max_pT", 500);
-    trackSelection.add<bool>("useVariableJTA", false);
-    trackSelection.add<double>("maxDecayLen", 99999.9);
-    trackSelection.add<double>("sip3dValMin", -99999.9);
-    trackSelection.add<double>("max_pT_dRcut", 0.1);
-    trackSelection.add<double>("a_pT", 0.005263);
-    trackSelection.add<unsigned int>("totalHitsMin", 8);
-    trackSelection.add<double>("jetDeltaRMax", 0.3);
-    trackSelection.add<double>("a_dR", -0.001053);
-    trackSelection.add<double>("maxDistToAxis", 0.2);
-    trackSelection.add<double>("ptMin", 1.0);
-    trackSelection.add<std::string>("qualityClass", "any");
-    trackSelection.add<unsigned int>("pixelHitsMin", 2);
-    trackSelection.add<double>("sip2dValMax", 99999.9);
-    trackSelection.add<double>("max_pT_trackPTcut", 3);
-    trackSelection.add<double>("sip2dValMin", -99999.9);
-    trackSelection.add<double>("normChi2Max", 99999.9);
-    trackSelection.add<double>("sip3dValMax", 99999.9);
-    trackSelection.add<double>("sip3dSigMin", -99999.9);
-    trackSelection.add<double>("min_pT", 120);
-    trackSelection.add<double>("min_pT_dRcut", 0.5);
-    trackSelection.add<double>("sip2dSigMax", 99999.9);
-    trackSelection.add<double>("sip3dSigMax", 99999.9);
-    trackSelection.add<double>("sip2dSigMin", -99999.9);
-    trackSelection.add<double>("b_dR", 0.6263);
-    desc.add<edm::ParameterSetDescription>("trackSelection", trackSelection);
-  }
   desc.add<double>("beta", 1.0);
   desc.add<double>("R0", 0.8);
   desc.add<double>("maxSVDeltaRToJet", 0.7);
