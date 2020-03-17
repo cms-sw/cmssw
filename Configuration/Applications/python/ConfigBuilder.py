@@ -2233,7 +2233,7 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32("+self._options.nStreams+")\n"
             self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32("+self._options.nConcurrentLumis+")\n"
             if self._options.nConcurrentLumis > 1:
-              self.pythonCfgCode +="if process.DQMStore: process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
+              self.pythonCfgCode +="if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
             self.process.options.numberOfThreads=cms.untracked.uint32(int(self._options.nThreads))
             self.process.options.numberOfStreams=cms.untracked.uint32(int(self._options.nStreams))
             self.process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(int(self._options.nConcurrentLumis))
