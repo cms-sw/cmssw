@@ -11,7 +11,7 @@ public:
   HcalParametersFromDD() = default;
 
   bool build(const DDCompactView*, HcalParameters&);
-  bool build(const cms::DDCompactView*, HcalParameters&);
+  bool build(const cms::DDCompactView&, HcalParameters&);
 
 private:
   bool build(HcalParameters&);
