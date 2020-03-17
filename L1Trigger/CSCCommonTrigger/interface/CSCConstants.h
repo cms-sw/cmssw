@@ -43,19 +43,15 @@ public:
   };
 
   // CSCs have 6 layers. The key (refernce) layer is the third layer
-  enum Layer_Info { NUM_LAYERS = 6, KEY_CLCT_LAYER = 3, KEY_CLCT_LAYER_PRE_TMB07 = 4, KEY_ALCT_LAYER = 3 };
+  enum Layer_Info { NUM_LAYERS = 6, KEY_CLCT_LAYER = 3, KEY_ALCT_LAYER = 3 };
 
   // Both ALCT and CLCTs have patterns. CLCTs have a better granularity than ALCTs, thus more patterns
   enum Pattern_Info {
     NUM_ALCT_PATTERNS = 3,
     NUM_CLCT_PATTERNS = 11,
-    NUM_CLCT_PATTERNS_PRE_TMB07 = 8,
+    CLCT_PATTERN_WIDTH = 11,
     // Max number of wires participating in a pattern
     MAX_WIRES_IN_PATTERN = 14,
-    // Max number of strips participating in a pattern
-    MAX_STRIPS_IN_PATTERN = 26,
-    // Max number of halfstrips participating in a pattern
-    MAX_HALFSTRIPS_IN_PATTERN = 42
   };
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };
