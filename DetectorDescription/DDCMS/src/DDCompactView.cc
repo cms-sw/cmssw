@@ -10,7 +10,7 @@ std::vector<int> cms::DDCompactView::getVector<int>(const std::string& key) cons
   for (auto const& it : vmap) {
     if (cms::dd::noNamespace(it.first) == key) {
       for (const auto& i : it.second) {
-	result.emplace_back(std::round(i));
+        result.emplace_back(std::round(i));
       }
       break;
     }
