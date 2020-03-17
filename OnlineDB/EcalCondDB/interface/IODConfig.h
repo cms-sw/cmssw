@@ -117,7 +117,6 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize) noexcept
 
       char *buffer = new char[bufsize + 1];
 
-
       std::cout << "we are here1" << std::endl; 
       unsigned int size;
       Stream *strm=clob.getStream();
@@ -142,8 +141,7 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize) noexcept
       std::cout << "we are here4" << std::endl; 
       delete[] buffer;
 
-
-  }catch (SQLException &e) {
+  } catch (SQLException &e) {
     throw(std::runtime_error(std::string("populateClob():  ")+e.getMessage()));
   }
 
