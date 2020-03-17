@@ -784,6 +784,11 @@ void BoostedDoubleSVProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("R0", 0.8);
   desc.add<double>("maxSVDeltaRToJet", 0.7);
   {
+    edm::ParameterSetDescription trackSelection;
+    trackSelection.setAllowAnything();
+    desc.add<edm::ParameterSetDescription>("trackSelection", trackSelection);
+  }
+  {
     edm::ParameterSetDescription trackPairV0Filter;
     trackPairV0Filter.add<double>("k0sMassWindow", 0.03);
     desc.add<edm::ParameterSetDescription>("trackPairV0Filter", trackPairV0Filter);
