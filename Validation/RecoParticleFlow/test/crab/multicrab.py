@@ -11,11 +11,10 @@ def submit(config):
         fi.write(config.pythonise_())
 
 samples = [
-    ("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "QCD_noPU"),
-    ("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "QCD_PU"),
-    #("/RelValZMM_13/CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "ZMM"),
-    #("/RelValMinBias_13/CMSSW_10_6_0-106X_upgrade2018_design_v3-v1/GEN-SIM-DIGI-RAW", "MinBias"),
-    ("/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "NuGun_PU"),
+    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "QCD_noPU"),
+    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "QCD_PU"),
+    #("/RelValZMM_14/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "ZMM_PU"),
+    ("/RelValNuGun/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "NuGun_PU"),
 ]
 
 if __name__ == "__main__":
