@@ -161,7 +161,7 @@ void popcon::EcalLaserHandler::getNewObjects() {
 
   // here popcon tells us which is the last since of the last object in the
   // offline DB
-  max_since = tagInfo().lastInterval.first;
+  max_since = tagInfo().lastInterval.since;
   //  Tm max_since_tm((max_since >> 32)*1000000);
   Tm max_since_tm(max_since);
   // get the last object in the orcoff

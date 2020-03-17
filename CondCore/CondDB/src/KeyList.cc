@@ -23,10 +23,11 @@ namespace cond {
       std::sort(m_keys.begin(), m_keys.end(), std::less<unsigned long long>());
       m_data.clear();
       m_data.resize(keys.size(), std::make_pair("", std::make_pair(cond::Binary(), cond::Binary())));
+      IOVArray keyIovs = m_proxy.selectAll();
       for (size_t i = 0; i < m_keys.size(); ++i) {
         if (m_keys[i] != 0) {
-          auto p = m_proxy.find(m_keys[i]);
-          if (p != m_proxy.end()) {
+          auto p = keyIovs.find(m_keys[i]);
+          if (p != keyIovs.end()) {
             auto& item = m_data[i];
             if (!s.fetchPayloadData((*p).payloadId, item.first, item.second.first, item.second.second))
               cond::throwException("The Iov contains a broken payload reference.", "KeyList::setKeys");
@@ -46,8 +47,9 @@ namespace cond {
         cond::throwException("The KeyList has not been initialized.", "KeyList::loadFromDB");
       Session s(simpl);
       s.transaction().start(true);
-      auto p = m_proxy.find(key);
-      if (p != m_proxy.end()) {
+      IOVArray keyIovs = m_proxy.selectAll();
+      auto p = keyIovs.find(key);
+      if (p != keyIovs.end()) {
         if (!s.fetchPayloadData((*p).payloadId, item.first, item.second.first, item.second.second))
           cond::throwException("The Iov contains a broken payload reference.", "KeyList::loadFromDB");
       } else {

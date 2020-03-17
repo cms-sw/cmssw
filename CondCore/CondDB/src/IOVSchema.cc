@@ -210,6 +210,7 @@ namespace cond {
       }
       q.addOrderClause<SINCE>(false);
       q.addOrderClause<INSERTION_TIME>(false);
+      q.limitReturnedRows(1);
       for (auto row : q) {
         since = std::get<0>(row);
         hash = std::get<1>(row);
@@ -282,8 +283,22 @@ namespace cond {
       BulkInserter<TAG_NAME, SINCE, PAYLOAD_HASH, INSERTION_TIME> inserter(m_schema, tname);
       for (auto row : iovs)
         inserter.insert(std::tuple_cat(std::tie(tag), row));
-
       inserter.flush();
+    }
+
+    void IOV::Table::eraseOne(const std::string& tag, cond::Time_t since, cond::Hash payloadId) {
+      DeleteBuffer buffer;
+      buffer.addWhereCondition<TAG_NAME>(tag);
+      buffer.addWhereCondition<SINCE>(since);
+      buffer.addWhereCondition<PAYLOAD_HASH>(payloadId);
+      deleteFromTable(m_schema, tname, buffer);
+    }
+
+    void IOV::Table::eraseMany(const std::string& tag, const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) {
+      BulkDeleter<TAG_NAME, SINCE, PAYLOAD_HASH> deleter(m_schema, tname);
+      for (auto iov : iovs)
+        deleter.erase(std::tuple_cat(std::tie(tag), iov));
+      deleter.flush();
     }
 
     void IOV::Table::erase(const std::string& tag) {
