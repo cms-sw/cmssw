@@ -2,7 +2,12 @@
 //
 //
 // Package:    CMTRawAnalyzer
+//
+using namespace std;
+//
 #include "DPGAnalysis/HcalTools/interface/CMTRawAnalyzer.h"
+//
+using namespace edm;
 //
 CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig) {
   verbosity = iConfig.getUntrackedParameter<int>("Verbosity");
