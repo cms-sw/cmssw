@@ -106,7 +106,7 @@ namespace cond {
     void reload();
 
     ValidityInterval setIntervalFor(Time_t target);
-    TimeType timeType() const { return m_iovProxy.timeType(); }
+    TimeType timeType() const { return m_iovProxy.tagInfo().timeType; }
 
   private:
     std::string m_label;

@@ -13,13 +13,13 @@ void RPCDBHandler::getNewObjects() {
   //  std::cout << "sinceTime= " << myTime << std::endl;
 
   size_t n_empty_run = 0;
-  if (tagInfo().size > 0 && (tagInfo().lastInterval.first + 1) < myTime) {
-    n_empty_run = myTime - tagInfo().lastInterval.first - 1;
+  if (tagInfo().size > 0 && (tagInfo().lastInterval.since + 1) < myTime) {
+    n_empty_run = myTime - tagInfo().lastInterval.since - 1;
   }
 
   if (n_empty_run != 0) {
     RPCDQMObject* r = new RPCDQMObject();
-    m_to_transfer.push_back(std::make_pair((RPCDQMObject*)(r->Fake_RPCDQMObject()), tagInfo().lastInterval.first + 1));
+    m_to_transfer.push_back(std::make_pair((RPCDQMObject*)(r->Fake_RPCDQMObject()), tagInfo().lastInterval.since + 1));
   }
 
   m_to_transfer.push_back(std::make_pair(rpcDQMObject, myTime));

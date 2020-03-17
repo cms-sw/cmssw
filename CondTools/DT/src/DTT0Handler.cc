@@ -45,8 +45,8 @@ DTT0Handler::~DTT0Handler() {}
 //--------------
 void DTT0Handler::getNewObjects() {
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const& ti = tagInfo();
-  unsigned int last = ti.lastInterval.first;
+  cond::TagInfo_t const& ti = tagInfo();
+  cond::Time_t last = ti.lastInterval.since;
   std::cout << "last: " << last << std::endl;
 
   //to access the information on last successful log entry for this tag:
