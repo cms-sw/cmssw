@@ -3,14 +3,12 @@
 
 #include "CondCore/CondDB/interface/Utils.h"
 #include "CondCore/CondDB/interface/Session.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include <iostream>
 
 #include <string>
 #include <tuple>
 #include <vector>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <boost/python/list.hpp>
 #include <boost/python/dict.hpp>
 
@@ -614,7 +612,7 @@ namespace cond {
         m_plotAnnotations.m[PlotAnnotations::TITLE_K] = title;
         std::string payloadTypeName = cond::demangledName(typeid(PayloadType));
         m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = payloadTypeName;
-        m_imageFileName = boost::lexical_cast<std::string>((boost::uuids::random_generator())()) + ".png";
+        m_imageFileName = edm::createGlobalIdentifier() + ".png";
       }
 
       std::string serializeData() { return serialize(m_plotAnnotations, m_imageFileName); }
