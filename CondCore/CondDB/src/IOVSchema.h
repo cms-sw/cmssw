@@ -170,6 +170,8 @@ namespace cond {
         void insertMany(
             const std::string& tag,
             const std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> >& iovs) override;
+        void eraseOne(const std::string& tag, cond::Time_t since, cond::Hash payloadId) override;
+        void eraseMany(const std::string& tag, const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override;
         void erase(const std::string& tag) override;
 
       private:

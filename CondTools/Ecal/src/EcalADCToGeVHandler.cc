@@ -31,7 +31,7 @@ void popcon::EcalADCToGeVHandler::getNewObjects() {
   ss << "ECAL ";
 
   unsigned int max_since = 0;
-  max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+  max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
   std::cout << "max_since : " << max_since << std::endl;
   bool magnet_high = false;
   bool something_to_transfer = false;
