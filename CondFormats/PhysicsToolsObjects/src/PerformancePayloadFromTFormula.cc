@@ -8,7 +8,6 @@ const int PerformancePayloadFromTFormula::InvalidPos = -1;
 using namespace std;
 
 void PerformancePayloadFromTFormula::initialize() {
-
   for (std::vector<std::string>::const_iterator formula = pl.formulas().begin(); formula != pl.formulas().end();
        ++formula) {
     const auto formulaUniqueName = edm::createGlobalIdentifier();
