@@ -58,7 +58,7 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
   // here for scintillator
   rcorrscint_ = ps.getParameter<double>("sciThicknessCorrection");
   //This is for the index position in CE_H silicon thickness cases
-  deltasi_index_regemfac = ps.getParameter<int>("deltasi_index_regemfac");
+  deltasi_index_regemfac_ = ps.getParameter<int>("deltasi_index_regemfac");
   const auto& rcorrnose = ps.getParameter<std::vector<double> >("thicknessNoseCorrection");
   rcorrNose_.clear();
   rcorrNose_.push_back(1.f);
@@ -175,7 +175,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
     case hgcfh:
       rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
       cce_correction = hgcHEF_cce_[thickness - 1];
-      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness + deltasi_index_regemfac] *
+      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness + deltasi_index_regemfac_] *
                       hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
       break;
     case hgcbh:
@@ -200,7 +200,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
     new_E *= (thickness == -1 ? 1.0 : rcorrNose_[thickness]) / cce_correction;
   }  //regional factors for silicon in CE_H
   else if (idtype == hgcfh) {
-    new_E *= rcorr_[thickness + deltasi_index_regemfac] / cce_correction;
+    new_E *= rcorr_[thickness + deltasi_index_regemfac_] / cce_correction;
   }  //regional factors for scintillator and silicon in CE_E
   else {
     new_E *= (thickness == -1 ? rcorrscint_ : rcorr_[thickness]) / cce_correction;
